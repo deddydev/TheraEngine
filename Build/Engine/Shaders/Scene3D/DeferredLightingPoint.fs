@@ -29,15 +29,10 @@ uniform mat4 InvProjMatrix;
 uniform float MinFade = 500.0f;
 uniform float MaxFade = 1000.0f;
 
-struct BaseLight
+struct PointLight
 {
     vec3 Color;
     float DiffuseIntensity;
-};
-struct PointLight
-{
-    BaseLight Base;
-
     vec3 Position;
     float Radius;
     float Brightness;
@@ -160,8 +155,7 @@ in vec3 F0)
 	vec3 kD = 1.0f - kS;
 	kD *= 1.0f - metallic;
 
-  BaseLight light = PointLightData.Base;
-	vec3 radiance = lightAttenuation * light.Color * light.DiffuseIntensity;
+	vec3 radiance = lightAttenuation * PointLightData.Color * PointLightData.DiffuseIntensity;
 	return (kD * albedo / PI + spec) * radiance * NoL;
 }
 vec3 CalcPointLight(
@@ -172,12 +166,9 @@ in vec3 albedo,
 in vec3 rms,
 in vec3 F0)
 {
-	PointLight light = PointLightData;
-
-	vec3 L = light.Position - fragPosWS;
-  float realLightDist = length(L);
-	float lightDist = realLightDist / light.Brightness;
-	float radius = light.Radius / light.Brightness;
+	vec3 L = PointLightData.Position - fragPosWS;
+	float lightDist = length(L) / PointLightData.Brightness;
+	float radius = PointLightData.Radius / PointLightData.Brightness;
 	float attn = Attenuate(lightDist, radius);
 	L = normalize(L);
 	vec3 H = normalize(V + L);

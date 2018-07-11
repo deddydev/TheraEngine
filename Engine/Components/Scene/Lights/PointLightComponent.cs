@@ -48,12 +48,12 @@ namespace TheraEngine.Components.Scene.Lights
             ShadowCameras = new PerspectiveCamera[6];
             Rotator[] rotations = new Rotator[]
             {
-                new Rotator(0.0f, -90.0f, 180.0f), //+X
-                new Rotator(0.0f,  90.0f, 180.0f), //-X
-                new Rotator(90.0f,  0.0f, 0.0f), //+Y
-                new Rotator(-90.0f, 0.0f, 0.0f), //-Y
-                new Rotator(0.0f, 180.0f, 180.0f), //+Z
-                new Rotator(0.0f,   0.0f, 180.0f), //-Z
+                new Rotator(  0.0f, -90.0f, 180.0f), //+X
+                new Rotator(  0.0f,  90.0f, 180.0f), //-X
+                new Rotator( 90.0f,   0.0f,   0.0f), //+Y
+                new Rotator(-90.0f,   0.0f,   0.0f), //-Y
+                new Rotator(  0.0f, 180.0f, 180.0f), //+Z
+                new Rotator(  0.0f,   0.0f, 180.0f), //-Z
             };
             ShadowCameras.FillWith(i => new PerspectiveCamera(Vec3.Zero, rotations[i], 0.01f, radius, 90.0f, 1.0f));
         }
@@ -86,7 +86,7 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 OwningScene.Lights.Add(this);
 
-                if (ShadowMap == null)
+                if (ShadowMapRendering == null)
                     SetShadowMapResolution(512);
             }
 #if EDITOR
@@ -117,7 +117,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "Radius", Radius);
             program.Uniform(indexer + "Brightness", Brightness);
 
-            var tex = ShadowMap.Material.Textures[0].RenderTextureGeneric;
+            var tex = ShadowMapRendering.Material.Textures[0].RenderTextureGeneric;
             program.SetTextureUniform(tex, 4, "Texture4");
         }
         /// <summary>
@@ -133,19 +133,29 @@ namespace TheraEngine.Components.Scene.Lights
         public void SetShadowMapResolution(int resolution)
         {
             _region.Width = _region.Height = resolution;
-            if (ShadowMap == null)
+            if (ShadowMapRendering == null)
             {
-                ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(resolution));
-                ShadowMap.Material.SettingUniforms += SetShadowDepthUniforms;
+                ShadowMapRendering = new MaterialFrameBuffer(GetShadowMapMaterial(resolution));
+                ShadowMapRendering.Material.SettingUniforms += SetShadowDepthUniforms;
             }
             else
-                ShadowMap.ResizeTextures(resolution, resolution);
+                ShadowMapRendering.ResizeTextures(resolution, resolution);
         }
-        private static TMaterial GetShadowMapMaterial(int cubeExtent, EDepthPrecision precision = EDepthPrecision.Int16)
+        public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
         {
+            int cubeExtent = Math.Max(width, height);
             TexRefCube[] refs = new TexRefCube[]
             {
                 new TexRefCube("PointDepth", cubeExtent, GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.ClampToEdge,
+                    VWrap = ETexWrapMode.ClampToEdge,
+                    WWrap = ETexWrapMode.ClampToEdge,
+                    FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
+                },
+                new TexRefCube("PointColor", cubeExtent, GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,

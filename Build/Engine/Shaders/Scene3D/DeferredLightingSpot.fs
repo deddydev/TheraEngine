@@ -29,14 +29,10 @@ uniform mat4 InvProjMatrix;
 uniform float MinFade = 500.0f;
 uniform float MaxFade = 1000.0f;
 
-struct BaseLight
+struct SpotLight
 {
     vec3 Color;
     float DiffuseIntensity;
-};
-struct SpotLight
-{
-    BaseLight Base;
     mat4 WorldToLightSpaceProjMatrix;
 
     vec3 Position;
@@ -157,8 +153,7 @@ in vec3 F0)
 	vec3 kD = 1.0f - F;
 	kD *= 1.0f - metallic;
 
-  BaseLight light = SpotLightData.Base;
-	vec3 radiance = lightAttenuation * light.Color * light.DiffuseIntensity;
+	vec3 radiance = lightAttenuation * SpotLightData.Color * SpotLightData.DiffuseIntensity;
 	return (kD * albedo / PI + spec) * radiance * NoL;
 }
 vec3 CalcSpotLight(
@@ -169,9 +164,7 @@ in vec3 albedo,
 in vec3 rms,
 in vec3 F0)
 {
-	SpotLight light = SpotLightData;
-
-	vec3 L = light.Position - fragPosWS;
+	vec3 L = SpotLightData.Position - fragPosWS;
 	float lightDist = length(L);
 	L = normalize(L);
 
@@ -179,20 +172,20 @@ in vec3 F0)
 	//cos(90) == 0
 	//cos(0) == 1
 
-	float cosine = dot(L, -normalize(light.Direction));
+	float cosine = dot(L, -normalize(SpotLightData.Direction));
 
-	if (cosine <= light.OuterCutoff)
+	if (cosine <= SpotLightData.OuterCutoff)
 		return vec3(0.0f);
 
-	float clampedCosine = clamp(cosine, light.OuterCutoff, light.InnerCutoff);
+	float clampedCosine = clamp(cosine, SpotLightData.OuterCutoff, SpotLightData.InnerCutoff);
 
 	//Subtract smaller value and divide by range to normalize value
-	float time = (clampedCosine - light.OuterCutoff) / (light.InnerCutoff - light.OuterCutoff);
+	float time = (clampedCosine - SpotLightData.OuterCutoff) / (SpotLightData.InnerCutoff - SpotLightData.OuterCutoff);
 
 	//Make transition smooth rather than linear
 	float spotAmt = smoothstep(0.0f, 1.0f, time);
-	float distAttn = Attenuate(lightDist / light.Brightness, light.Radius / light.Brightness);
-	float attn = spotAmt * distAttn * pow(clampedCosine, light.Exponent);
+	float distAttn = Attenuate(lightDist / SpotLightData.Brightness, SpotLightData.Radius / SpotLightData.Brightness);
+	float attn = spotAmt * distAttn * pow(clampedCosine, SpotLightData.Exponent);
 
 	vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
@@ -206,7 +199,7 @@ in vec3 F0)
 
 	float shadow = ReadShadowMap2D(
 		fragPosWS, N, NoL,
-		light.WorldToLightSpaceProjMatrix);
+		SpotLightData.WorldToLightSpaceProjMatrix);
 
 	return color * shadow;
 }

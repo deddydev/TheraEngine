@@ -34,7 +34,6 @@ struct DirLight
     vec3 Color;
     float DiffuseIntensity;
     mat4 WorldToLightSpaceProjMatrix;
-
     vec3 Direction;
 };
 uniform DirLight DirLightData;

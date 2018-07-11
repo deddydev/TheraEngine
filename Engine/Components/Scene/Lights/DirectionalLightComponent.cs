@@ -87,7 +87,7 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 OwningScene.Lights.Add(this);
 
-                if (ShadowMap == null)
+                if (ShadowMapRendering == null)
                     SetShadowMapResolution(1024, 1024);
 
                 ShadowCamera.LocalPoint.Raw = WorldPoint;
@@ -107,7 +107,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "DiffuseIntensity", _diffuseIntensity);
             program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
-            var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
+            var tex = ShadowMapRendering.Material.Textures[1].RenderTextureGeneric;
             program.SetTextureUniform(tex, 4, "Texture4");
         }
         public void SetShadowMapResolution(int width, int height)
@@ -115,13 +115,13 @@ namespace TheraEngine.Components.Scene.Lights
             _region.Width = width;
             _region.Height = height;
 
-            if (ShadowMap == null)
+            if (ShadowMapUpdating == null)
             {
                 TMaterial mat = GetShadowMapMaterial(width, height);
-                ShadowMap = new MaterialFrameBuffer(mat);
+                ShadowMapUpdating = new MaterialFrameBuffer(mat);
             }
             else
-                ShadowMap.ResizeTextures(width, height);
+                ShadowMapUpdating.ResizeTextures(width, height);
 
             if (ShadowCamera == null)
             {
@@ -131,25 +131,31 @@ namespace TheraEngine.Components.Scene.Lights
 
             ShadowCamera.Resize(Extents.X, Extents.Y);
         }
-        private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
+        public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
-            TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("DirShadowDepth", width, height,
-                GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
-                EFramebufferAttachment.DepthAttachment);
-            depthTex.MinFilter = ETexMinFilter.Nearest;
-            depthTex.MagFilter = ETexMagFilter.Nearest;
-            
-            TexRef2D colorTex = TexRef2D.CreateFrameBufferTexture("DirShadowColor", width, height,
-                EPixelInternalFormat.R8, EPixelFormat.Red, EPixelType.UnsignedByte,
-                EFramebufferAttachment.ColorAttachment0);
-            colorTex.MinFilter = ETexMinFilter.Nearest;
-            colorTex.MagFilter = ETexMagFilter.Nearest;
-
-            TexRef2D[] refs = new TexRef2D[] { depthTex, colorTex };
+            TexRef2D[] refs = new TexRef2D[]
+            {
+                new TexRef2D("DirShadowDepth", width, height, GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.ClampToEdge,
+                    VWrap = ETexWrapMode.ClampToEdge,
+                    FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
+                },
+                new TexRef2D("DirShadowColor", width, height, EPixelInternalFormat.R32f, EPixelFormat.Red, EPixelType.Float)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.ClampToEdge,
+                    VWrap = ETexWrapMode.ClampToEdge,
+                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                },
+            };
 
             //This material is used for rendering to the framebuffer.
-            GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput);
-            TMaterial mat = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, shader);
+            TMaterial mat = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, 
+                new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput));
 
             //No culling so if a light exists inside of a mesh it will shadow everything.
             mat.RenderParams.CullMode = ECulling.None;

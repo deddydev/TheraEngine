@@ -249,7 +249,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
-            var tex = ShadowMap.Material.Textures[0].RenderTextureGeneric;
+            var tex = ShadowMapRendering.Material.Textures[0].RenderTextureGeneric;
             program.SetTextureUniform(tex, 4, "Texture4");
         }
 
@@ -259,17 +259,17 @@ namespace TheraEngine.Components.Scene.Lights
         {
             _region.Width = dims.X;
             _region.Height = dims.Y;
-            if (ShadowMap == null)
-                ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(dims.X, dims.Y));
+            if (ShadowMapRendering == null)
+                ShadowMapRendering = new MaterialFrameBuffer(GetShadowMapMaterial(dims.X, dims.Y));
             else
-                ShadowMap.ResizeTextures(dims.X, dims.Y);
+                ShadowMapRendering.ResizeTextures(dims.X, dims.Y);
 
             if (ShadowCamera == null)
                 ShadowCamera = new PerspectiveCamera(
                     1.0f, _distance, Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f, 1.0f);
         }
         
-        private static TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
+        public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
         {
             TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("SpotDepth", width, height,
                 GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,

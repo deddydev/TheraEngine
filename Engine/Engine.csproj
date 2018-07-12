@@ -364,6 +364,7 @@
     <Compile Include="Core\Controls\BasicRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Core\Data Structures\ConcurrentHashSet.cs" />
     <Compile Include="Core\Data Structures\Lists\EventArray.cs" />
     <Compile Include="Core\Editor\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />

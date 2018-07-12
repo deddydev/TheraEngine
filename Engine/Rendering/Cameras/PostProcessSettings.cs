@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.Cameras
             LensFlare = new LensFlareSettings();
             AntiAliasing = new AntiAliasSettings();
             AmbientOcclusion = new AmbientOcclusionSettings();
-            Shadows = new ShadowSettings();
+            //Shadows = new ShadowSettings();
         }
         
         [TSerialize("AntiAliasing")]
@@ -53,9 +53,9 @@ namespace TheraEngine.Rendering.Cameras
         [Category("Post-Process Settings")]
         [TSerialize]
         public GlobalFileRef<TMaterial> PostProcessMaterial { get; set; }
-        [Category("Post-Process Settings")]
-        [TSerialize("Shadows")]
-        public ShadowSettings Shadows { get; set; }
+        //[Category("Post-Process Settings")]
+        //[TSerialize("Shadows")]
+        //public ShadowSettings Shadows { get; set; }
 
         internal void SetUniforms(RenderProgram program)
         {

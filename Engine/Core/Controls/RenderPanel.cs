@@ -32,8 +32,10 @@ namespace TheraEngine
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The frustum to cull the scene with.</returns>
         protected virtual Frustum GetFrustum(Viewport v) => GetCamera(v)?.Frustum;
-        protected virtual void PreRender() => PreRendered?.Invoke();
-        protected virtual void PostRender() => PostRendered?.Invoke();
+        protected virtual void PreRender() { OnPreRender(); }
+        protected void OnPreRender() => PreRendered?.Invoke();
+        protected virtual void PostRender() { OnPostRender(); }
+        protected void OnPostRender() => PostRendered?.Invoke();
         protected override void OnUpdate()
         {
             foreach (Viewport v in _viewports)

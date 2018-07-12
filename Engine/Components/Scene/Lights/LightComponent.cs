@@ -29,10 +29,11 @@ namespace TheraEngine.Components.Scene.Lights
 
         [Browsable(false)]
         public Matrix4 LightMatrix { get; protected set; }
-        [Browsable(false)]
+        //[Browsable(false)]
         public MaterialFrameBuffer ShadowMap;
         [Browsable(false)]
         public Camera ShadowCamera { get; protected set; }
+        public ShadowSettings ShadowSettings { get; } = new ShadowSettings();
 
         protected BoundingRectangle _region = new BoundingRectangle();
         
@@ -94,7 +95,7 @@ namespace TheraEngine.Components.Scene.Lights
                 Engine.Renderer.ClearDepth(1.0f);
                 Engine.Renderer.EnableDepthTest(true);
                 Engine.Renderer.AllowDepthWrite(true);
-                Engine.Renderer.Clear(EBufferClear.Depth);
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 scene.Render(_passes, ShadowCamera, null, null, null);
             }
             Engine.Renderer.PopRenderArea();

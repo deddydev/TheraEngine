@@ -288,8 +288,8 @@ namespace TheraEngine.Rendering
         }
         public void Update(BaseScene scene, Camera camera, Frustum frustum)
         {
-            scene?.Update(_renderPasses, frustum, camera, false);
-            HUD?.UIScene?.Update(HUD.RenderPasses, null, HUD.Camera, false);
+            scene?.Update(_renderPasses, frustum, camera);
+            HUD?.UIScene?.Update(HUD.RenderPasses, null, HUD.Camera);
         }
 
         #region Coordinate conversion
@@ -1023,7 +1023,8 @@ namespace TheraEngine.Rendering
         {
             if (RenderingCamera == null)
                 return;
-            RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(materialProgram);
+            //RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(materialProgram);
+            _lightComp.ShadowSettings.SetUniforms(materialProgram);
             _lightComp.SetUniforms(materialProgram, null);
         }
         private void LightCombineFBO_SettingUniforms(RenderProgram program)

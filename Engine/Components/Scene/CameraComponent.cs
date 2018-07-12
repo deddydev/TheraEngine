@@ -26,12 +26,14 @@ namespace TheraEngine.Components.Scene
         
         private GlobalFileRef<Camera> _cameraRef;
 
+        [Browsable(false)]
         public Camera Camera
         {
             get => CameraRef.File;
             set => CameraRef.File = value;
         }
 
+        [DisplayName(nameof(Camera))]
         [TSerialize]
         public GlobalFileRef<Camera> CameraRef
         {
@@ -135,6 +137,7 @@ namespace TheraEngine.Components.Scene
             OnWorldTransformChanged();
         }
 
+        [Browsable(false)]
         public override bool IsTranslatable => true;
         public override void HandleWorldTranslation(Vec3 delta)
         {

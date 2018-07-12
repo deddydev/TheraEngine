@@ -185,6 +185,7 @@ namespace TheraEngine.Files
                 ReferencePathAbsolute = _file.FilePath;
         }
 
+        [Browsable(false)]
         public bool LoadAttempted { get; protected set; } = false;
         protected override void OnPathChanged()
         {

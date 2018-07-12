@@ -56,7 +56,7 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public override void Render()
         {
-
+            _sphere.Render();
         }
     }
 }

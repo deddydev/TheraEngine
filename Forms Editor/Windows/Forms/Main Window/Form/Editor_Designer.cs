@@ -642,15 +642,16 @@ namespace TheraEditor.Windows.Forms
 
             BaseRenderPanel.WorldPanel.CaptureContext();
 
+            for (int i = 0; i < 4; ++i)
+                if (RenderFormActive(i))
+                    GetRenderForm(i).RenderPanel.Invalidate();
+
             if (Engine.Scene != null)
             {
                 //Engine.Scene.Voxelize();
                 Engine.Scene.RenderShadowMaps();
             }
 
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.Invalidate();
 
             //Application.DoEvents();
         }

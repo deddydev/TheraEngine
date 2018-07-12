@@ -60,7 +60,7 @@ namespace System.Collections.Generic
 
         public bool IsFixedSize => true;
 
-        object IList.this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        object IList.this[int index] { get => _array[index]; set => _array[index] = (T)value; }
 
         public void StartMultiChange()
         {

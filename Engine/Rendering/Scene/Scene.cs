@@ -115,9 +115,9 @@ namespace TheraEngine.Rendering
         //    _activeMaterials.RemoveAt(material.UniqueID);
         //}
         public abstract void CollectVisible(RenderPasses passes, IVolume collectionVolume, Camera camera, bool shadowPass);
-        public void Update(RenderPasses passes, IVolume collectionVolume, Camera camera, bool shadowPass)
+        public void Update(RenderPasses passes, IVolume collectionVolume, Camera camera)
         {
-            CollectVisible(passes, collectionVolume, camera, shadowPass);
+            CollectVisible(passes, collectionVolume, camera, false);
             PreRenderUpdate(camera);
         }
         public void PreRenderUpdate(Camera camera)

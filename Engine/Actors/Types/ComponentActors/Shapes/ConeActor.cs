@@ -42,10 +42,10 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
                 rotation,
                 new List<LOD>()
                 {
-                    new LOD(material, BaseCone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides, closeBottom), radius * 8),
+                    new LOD(material, BaseCone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides,         closeBottom), radius *  8),
                     new LOD(material, BaseCone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides / 4 * 3, closeBottom), radius * 16),
-                    new LOD(material, BaseCone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides / 2, closeBottom), radius * 32),
-                    new LOD(material, BaseCone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides / 4, closeBottom), radius * 64),
+                    new LOD(material, BaseCone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides / 2,     closeBottom), radius * 32),
+                    new LOD(material, BaseCone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides / 4,     closeBottom), radius * 64),
                 },
                 TCollisionConeY.New(radius, height),
                 info) { }

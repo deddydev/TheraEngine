@@ -687,6 +687,7 @@ namespace TheraEngine.Rendering
             BrdfTex.VWrap = ETexWrapMode.ClampToEdge;
             BrdfTex.MinFilter = ETexMinFilter.Linear;
             BrdfTex.MagFilter = ETexMagFilter.Linear;
+            BrdfTex.SamplerName = "BRDF";
             TexRef2D[] texRefs = new TexRef2D[] { BrdfTex };
 
             GLSLShaderFile shader = Engine.LoadEngineShader(Path.Combine("Scene3D", "BRDF.fs"), EShaderMode.Fragment);
@@ -1023,7 +1024,7 @@ namespace TheraEngine.Rendering
             if (RenderingCamera == null)
                 return;
             RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(materialProgram);
-            _lightComp.SetUniforms(materialProgram);
+            _lightComp.SetUniforms(materialProgram, null);
         }
         private void LightCombineFBO_SettingUniforms(RenderProgram program)
         {
@@ -1040,12 +1041,18 @@ namespace TheraEngine.Rendering
             int baseCount = LightCombineFBO.Material.Textures.Length;
 
             if (probe.IrradianceTex != null)
-                program.SetTextureUniform(probe.IrradianceTex.GetTexture(true),
-                    baseCount, "Texture" + baseCount.ToString());
+                program.Sampler(
+                    "Irradiance",
+                    probe.IrradianceTex.GetTexture(true),
+                    baseCount);
+
             ++baseCount;
+
             if (probe.PrefilterTex != null)
-                program.SetTextureUniform(probe.PrefilterTex.GetTexture(true),
-                    baseCount, "Texture" + baseCount.ToString());
+                program.Sampler(
+                    "Prefilter", 
+                    probe.PrefilterTex.GetTexture(true),
+                    baseCount);
         }
 
         private void BrightPassFBO_SettingUniforms(RenderProgram program)

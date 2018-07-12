@@ -38,8 +38,8 @@ struct PointLight
     float Brightness;
 };
 
-uniform float ShadowBase = 3.0f;
-uniform float ShadowMult = 6.0f;
+uniform float ShadowBase = 2.0f;
+uniform float ShadowMult = 3.0f;
 uniform float ShadowBiasMin = 0.00001f;
 uniform float ShadowBiasMax = 0.004f;
 

@@ -28,17 +28,18 @@ namespace TheraEngine.Components.Scene.Lights
         public int ShadowMapResolution
         {
             get => _region.Width;
-            set => SetShadowMapResolution(value);
+            set => SetShadowMapResolution(value, value);
         }
         [Category("Point Light Component")]
         public float Brightness { get; set; } = 1.0f;
+
         [Browsable(false)]
-        [Category("Point Light Component")]
         public PerspectiveCamera[] ShadowCameras { get; }
 
         private Sphere _influenceVolume;
 
-        public PointLightComponent() : this(100.0f, 1.0f, new ColorF3(1.0f, 1.0f, 1.0f), 1.0f) { }
+        public PointLightComponent() 
+            : this(100.0f, 1.0f, new ColorF3(1.0f, 1.0f, 1.0f), 1.0f) { }
         public PointLightComponent(float radius, float brightness, ColorF3 color, float diffuseIntensity) 
             : base(color, diffuseIntensity)
         {
@@ -57,7 +58,6 @@ namespace TheraEngine.Components.Scene.Lights
             };
             ShadowCameras.FillWith(i => new PerspectiveCamera(Vec3.Zero, rotations[i], 0.01f, radius, 90.0f, 1.0f));
         }
-
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Matrix4
@@ -86,8 +86,8 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 OwningScene.Lights.Add(this);
 
-                if (ShadowMapRendering == null)
-                    SetShadowMapResolution(512);
+                if (ShadowMap == null)
+                    SetShadowMapResolution(512, 512);
             }
 #if EDITOR
             if (Engine.EditorState.InEditMode)
@@ -105,23 +105,36 @@ namespace TheraEngine.Components.Scene.Lights
         }
 
         protected override IVolume GetShadowVolume() => _influenceVolume;
-        /// <summary>
-        /// This is to set uniforms in the GBuffer lighting shader or in a forward shader that requests lighting uniforms.
-        /// </summary>
-        public override void SetUniforms(RenderProgram program)
-        {
-            string indexer = Uniform.PointLightsName + ".";
-            program.Uniform(indexer + "Base.Color", _color.Raw);
-            program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            program.Uniform(indexer + "Position", _influenceVolume.Center);
-            program.Uniform(indexer + "Radius", Radius);
-            program.Uniform(indexer + "Brightness", Brightness);
 
-            var tex = ShadowMapRendering.Material.Textures[0].RenderTextureGeneric;
-            program.SetTextureUniform(tex, 4, "Texture4");
+        /// <summary>
+        /// This is to set uniforms in the GBuffer lighting shader 
+        /// or in a forward shader that requests lighting uniforms.
+        /// </summary>
+        public override void SetUniforms(RenderProgram program, string targetStructName)
+        {
+            targetStructName = targetStructName ?? Uniform.PointLightsName;
+            targetStructName += ".";
+
+            program.Uniform(targetStructName + "Color", _color.Raw);
+            program.Uniform(targetStructName + "DiffuseIntensity", _diffuseIntensity);
+            program.Uniform(targetStructName + "Position", _influenceVolume.Center);
+            program.Uniform(targetStructName + "Radius", Radius);
+            program.Uniform(targetStructName + "Brightness", Brightness);
+
+            var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
+            program.Sampler("Texture4", tex, 4);
+        }
+        public override void SetShadowMapResolution(int width, int height)
+        {
+            bool wasNull = ShadowMap == null;
+            int res = Math.Max(width, height);
+            base.SetShadowMapResolution(res, res);
+            if (wasNull)
+                ShadowMap.Material.SettingUniforms += SetShadowDepthUniforms;
         }
         /// <summary>
-        /// This is to set special uniforms each time something is rendered with the shadow depth shader.
+        /// This is to set special uniforms each time any mesh is rendered 
+        /// with the shadow depth shader during the shadow pass.
         /// </summary>
         private void SetShadowDepthUniforms(RenderProgram program)
         {
@@ -129,17 +142,6 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform("LightPos", _influenceVolume.Center);
             for (int i = 0; i < ShadowCameras.Length; ++i)
                 program.Uniform(string.Format("ShadowMatrices[{0}]", i), ShadowCameras[i].WorldToCameraProjSpaceMatrix);
-        }
-        public void SetShadowMapResolution(int resolution)
-        {
-            _region.Width = _region.Height = resolution;
-            if (ShadowMapRendering == null)
-            {
-                ShadowMapRendering = new MaterialFrameBuffer(GetShadowMapMaterial(resolution));
-                ShadowMapRendering.Material.SettingUniforms += SetShadowDepthUniforms;
-            }
-            else
-                ShadowMapRendering.ResizeTextures(resolution, resolution);
         }
         public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
         {
@@ -155,21 +157,21 @@ namespace TheraEngine.Components.Scene.Lights
                     WWrap = ETexWrapMode.ClampToEdge,
                     FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                 },
-                new TexRefCube("PointColor", cubeExtent, GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                new TexRefCube("PointColor", cubeExtent, EPixelInternalFormat.R32f, EPixelFormat.Red, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
                     UWrap = ETexWrapMode.ClampToEdge,
                     VWrap = ETexWrapMode.ClampToEdge,
                     WWrap = ETexWrapMode.ClampToEdge,
-                    FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
+                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
                 },
             };
 
             //This material is used for rendering to the framebuffer.
             GLSLShaderFile fragShader = Engine.LoadEngineShader("PointLightShadowDepth.fs", EShaderMode.Fragment);
-            //GLSLShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", EShaderMode.Geometry);
-            TMaterial mat = new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader/*, geomShader*/);
+            GLSLShaderFile geomShader = Engine.LoadEngineShader("PointLightShadowDepth.gs", EShaderMode.Geometry);
+            TMaterial mat = new TMaterial("PointLightShadowMat", new ShaderVar[0], refs, fragShader, geomShader);
 
             //No culling so if a light exists inside of a mesh it will shadow everything.
             mat.RenderParams.CullMode = ECulling.None;

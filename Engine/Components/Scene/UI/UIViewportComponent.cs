@@ -62,7 +62,7 @@ namespace TheraEngine.Rendering.UI
                 h = (int)Height.ClampMin(1.0f);
 
             _viewport.Resize(w, h, true, 1.0f, 1.0f);
-            _fbo.ResizeTextures(w, h);
+            _fbo.Resize(w, h);
 
             return r;
         }

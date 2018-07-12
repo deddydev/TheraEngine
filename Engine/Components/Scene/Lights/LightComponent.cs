@@ -30,9 +30,7 @@ namespace TheraEngine.Components.Scene.Lights
         [Browsable(false)]
         public Matrix4 LightMatrix { get; protected set; }
         [Browsable(false)]
-        public MaterialFrameBuffer ShadowMapUpdating;
-        [Browsable(false)]
-        public MaterialFrameBuffer ShadowMapRendering;
+        public MaterialFrameBuffer ShadowMap;
         [Browsable(false)]
         public Camera ShadowCamera { get; protected set; }
 
@@ -64,24 +62,20 @@ namespace TheraEngine.Components.Scene.Lights
             _color = color;
             _diffuseIntensity = diffuseIntensity;
         }
-
         internal void SwapBuffers()
         {
             _passes.SwapBuffers();
-            if (ShadowMapUpdating != null)
-            {
-                if (ShadowMapRendering == null)
-                {
-                    TMaterial mat = GetShadowMapMaterial(width, height);
-                    ShadowMapRendering = new MaterialFrameBuffer(mat);
-                }
-                else
-                    ShadowMapRendering.ResizeTextures(width, height);
-            }
-            THelpers.Swap(ref ShadowMapUpdating, ref ShadowMapRendering);
         }
-
-        public abstract void SetUniforms(RenderProgram program);
+        public virtual void SetShadowMapResolution(int width, int height)
+        {
+            _region.Width = width;
+            _region.Height = height;
+            if (ShadowMap == null)
+                ShadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
+            else
+                ShadowMap.Resize(width, height);
+        }
+        public abstract void SetUniforms(RenderProgram program, string targetStructName);
         protected virtual IVolume GetShadowVolume() => ShadowCamera?.Frustum;
         public abstract TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32);
         public void UpdateShadowMap(BaseScene scene)
@@ -90,11 +84,11 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public void RenderShadowMap(BaseScene scene)
         {
-            if (ShadowMapRendering == null)
+            if (ShadowMap == null)
                 return;
 
-            Engine.Renderer.MaterialOverride = ShadowMapRendering.Material;
-            ShadowMapRendering.Bind(EFramebufferTarget.DrawFramebuffer);
+            Engine.Renderer.MaterialOverride = ShadowMap.Material;
+            ShadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(_region);
             {
                 Engine.Renderer.ClearDepth(1.0f);
@@ -104,7 +98,7 @@ namespace TheraEngine.Components.Scene.Lights
                 scene.Render(_passes, ShadowCamera, null, null, null);
             }
             Engine.Renderer.PopRenderArea();
-            ShadowMapRendering.Unbind(EFramebufferTarget.DrawFramebuffer);
+            ShadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.MaterialOverride = null;
         }
         public static EPixelInternalFormat GetShadowDepthMapFormat(EDepthPrecision precision)

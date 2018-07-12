@@ -11,23 +11,23 @@ namespace TheraEngine.Components.Scene.Lights
     [FileDef("Directional Light Component")]
     public class DirectionalLightComponent : LightComponent
     {
-        private Vec3 _extents;
+        private Vec3 _scale;
         private Vec3 _direction;
 
         [TSerialize]
-        [Category("Directional Light Component")]
-        public Vec3 Extents
+        [Category("Transform")]
+        public Vec3 Scale
         {
-            get => _extents;
+            get => _scale;
             set
             {
-                _extents = value;
+                _scale = value;
                 if (ShadowCamera != null)
                 {
-                    ShadowCamera.Resize(Extents.X, Extents.Y);
-                    ShadowCamera.FarZ = Extents.Z - 0.1f;
+                    ShadowCamera.Resize(Scale.X, Scale.Y);
+                    ShadowCamera.FarZ = Scale.Z;
                     ShadowCamera.LocalPoint.Raw = WorldPoint;
-                    ShadowCamera.TranslateRelative(0.0f, 0.0f, Extents.Z * 0.5f);
+                    ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
             }
         }
@@ -74,10 +74,10 @@ namespace TheraEngine.Components.Scene.Lights
             if (ShadowCamera != null)
             {
                 ShadowCamera.LocalPoint.Raw = WorldPoint;
-                ShadowCamera.TranslateRelative(0.0f, 0.0f, Extents.Z * 0.5f);
+                ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
             }
             
-            LightMatrix = WorldMatrix * Extents.AsScaleMatrix();
+            LightMatrix = WorldMatrix * Scale.AsScaleMatrix();
 
             base.OnWorldTransformChanged();
         }
@@ -87,11 +87,11 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 OwningScene.Lights.Add(this);
 
-                if (ShadowMapRendering == null)
+                if (ShadowMap == null)
                     SetShadowMapResolution(1024, 1024);
 
                 ShadowCamera.LocalPoint.Raw = WorldPoint;
-                ShadowCamera.TranslateRelative(0.0f, 0.0f, Extents.Z * 0.5f);
+                ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
             }
         }
         public override void OnDespawned()
@@ -99,37 +99,28 @@ namespace TheraEngine.Components.Scene.Lights
             if (Type == ELightType.Dynamic)
                 OwningScene.Lights.Remove(this);
         }
-        public override void SetUniforms(RenderProgram program)
+        public override void SetUniforms(RenderProgram program, string targetStructName)
         {
-            string indexer = Uniform.DirectionalLightsName + ".";
-            program.Uniform(indexer + "Direction", _direction);
-            program.Uniform(indexer + "Color", _color.Raw);
-            program.Uniform(indexer + "DiffuseIntensity", _diffuseIntensity);
-            program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
+            targetStructName = targetStructName ?? Uniform.DirectionalLightsName;
+            targetStructName += ".";
 
-            var tex = ShadowMapRendering.Material.Textures[1].RenderTextureGeneric;
-            program.SetTextureUniform(tex, 4, "Texture4");
+            program.Uniform(targetStructName + "Direction", _direction);
+            program.Uniform(targetStructName + "Color", _color.Raw);
+            program.Uniform(targetStructName + "DiffuseIntensity", _diffuseIntensity);
+            program.Uniform(targetStructName + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
+
+            var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
+            program.Sampler("Texture4", tex, 4);
         }
-        public void SetShadowMapResolution(int width, int height)
+        public override void SetShadowMapResolution(int width, int height)
         {
-            _region.Width = width;
-            _region.Height = height;
-
-            if (ShadowMapUpdating == null)
-            {
-                TMaterial mat = GetShadowMapMaterial(width, height);
-                ShadowMapUpdating = new MaterialFrameBuffer(mat);
-            }
-            else
-                ShadowMapUpdating.ResizeTextures(width, height);
-
+            base.SetShadowMapResolution(width, height);
             if (ShadowCamera == null)
             {
-                ShadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 0.1f, Extents.Z - 0.1f);
+                ShadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 0.0f, Scale.Z);
                 ShadowCamera.LocalRotation.SyncFrom(_rotation);
+                ShadowCamera.Resize(Scale.X, Scale.Y);
             }
-
-            ShadowCamera.Resize(Extents.X, Extents.Y);
         }
         public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {

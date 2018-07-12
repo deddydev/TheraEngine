@@ -11,7 +11,10 @@ namespace TheraEngine.Rendering
     public class FrameBuffer : BaseRenderObject
     {
         public FrameBuffer() : base(EObjectType.Framebuffer) { }
-        
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+
         public (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)[] Targets { get; private set; }
         public EDrawBuffersAttachment[] DrawBuffers { get; private set; }
         
@@ -167,8 +170,10 @@ namespace TheraEngine.Rendering
             => Engine.Renderer.BindFrameBuffer(type, 0);
         public void CheckErrors()
             => Engine.Renderer.CheckFrameBufferErrors();
-        public void ResizeTextures(int width, int height)
+        public void Resize(int width, int height)
         {
+            Width = width;
+            Height = height;
             foreach (var (Texture, Attachment, MipLevel, LayerIndex) in Targets)
                 if (Texture is TexRef2D t2d)
                     t2d.Resize(width, height);

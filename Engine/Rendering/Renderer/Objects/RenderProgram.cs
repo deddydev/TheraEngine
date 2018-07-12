@@ -182,121 +182,312 @@ namespace TheraEngine.Rendering
             Engine.Renderer.UseProgram(BindingId);
         }
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params IUniformable4Int[] p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params IUniformable4Float[] p)
             => Uniform(GetUniformLocation(name), p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params IUniformable3Int[] p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params IUniformable3Float[] p)
             => Uniform(GetUniformLocation(name), p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params IUniformable2Int[] p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params IUniformable2Float[] p)
             => Uniform(GetUniformLocation(name), p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params IUniformable1Int[] p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params IUniformable1Float[] p)
             => Uniform(GetUniformLocation(name), p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params int[] p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params float[] p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params uint[] p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, params double[] p)
             => Uniform(GetUniformLocation(name), p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, Matrix4 p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, Matrix4[] p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, Matrix3 p)
             => Uniform(GetUniformLocation(name), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(string name, Matrix3[] p)
             => Uniform(GetUniformLocation(name), p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable4Int[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable4Float[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable4Double[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable4UInt[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable4Bool[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
-        
+
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable3Int[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable3Float[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable3Double[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable3UInt[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable3Bool[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable2Int[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable2Float[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable2Double[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable2UInt[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable2Bool[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable1Int[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable1Float[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable1Double[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable1UInt[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params IUniformable1Bool[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params int[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params float[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params double[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params uint[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params bool[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
 
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, Matrix4 p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params Matrix4[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, Matrix3 p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by name.
+        /// The name is cached so that retrieving the uniform location is only required once.
+        /// </summary>
         public void Uniform(int location, params Matrix3[] p)
             => Engine.Renderer.Uniform(BindingId, location, p);
+
+        /// <summary>
+        /// Passes a texture sampler into the fragment shader of this program by name.
+        /// The name is cached so that retrieving the sampler's location is only required once.
+        /// </summary>
+        public void Sampler(string name, BaseRenderTexture tref, int textureUnit)
+        {
+            Engine.Renderer.SetActiveTexture(textureUnit);
+            Uniform(name, textureUnit);
+            tref?.Bind();
+        }
+        /// <summary>
+        /// Passes a texture sampler value into the fragment shader of this program by name.
+        /// The name is cached so that retrieving the sampler's location is only required once.
+        /// </summary>
+        public void Sampler(int location, BaseRenderTexture tref, int textureUnit)
+        {
+            Engine.Renderer.SetActiveTexture(textureUnit);
+            Uniform(location, textureUnit);
+            tref?.Bind();
+        }
 
         public IEnumerator<RenderShader> GetEnumerator()
             => ((IEnumerable<RenderShader>)_shaders).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator()
             => ((IEnumerable<RenderShader>)_shaders).GetEnumerator();
-
-        public void SetTextureUniform(BaseRenderTexture tref, int textureUnit, string varName)
-        {
-            if (tref == null)
-                return;
-
-            Engine.Renderer.SetActiveTexture(textureUnit);
-            Uniform(varName, textureUnit);
-            tref.Bind();
-        }
     }
 }

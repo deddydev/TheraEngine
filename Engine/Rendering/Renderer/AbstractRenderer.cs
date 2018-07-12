@@ -428,8 +428,10 @@ namespace TheraEngine.Rendering
         public abstract void ActiveShaderProgram(int pipelineBindingId, int programBindingId);
         public abstract void SetProgramParameter(int programBindingId, EProgParam parameter, int value);
         public abstract void UseProgram(int programBindingId);
+
         public abstract void BindPipeline(int pipelineBindingId);
         public abstract void SetPipelineStage(int pipelineBindingId, EProgramStageMask mask, int programBindingId);
+
         public abstract void DispatchCompute(int numGroupsX, int numGroupsY, int numGroupsZ);
         public abstract void DispatchComputeIndirect(int offset);
 

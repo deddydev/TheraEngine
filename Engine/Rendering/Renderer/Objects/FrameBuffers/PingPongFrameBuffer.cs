@@ -99,8 +99,8 @@ namespace TheraEngine.Rendering
 
         public void ResizeTextures(int w, int h)
         {
-            _fbos[0].ResizeTextures(w, h);
-            _fbos[1].ResizeTextures(w, h);
+            _fbos[0].Resize(w, h);
+            _fbos[1].Resize(w, h);
         }
 
         public void Destroy()

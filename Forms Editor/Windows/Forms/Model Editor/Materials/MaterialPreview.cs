@@ -57,7 +57,7 @@ namespace TheraEditor.Windows.Forms
                 _light.SetShadowMapResolution(128, 128);
                 _light.DiffuseIntensity = 2000.0f;
                 _light.LightColor = (ColorF3)Color.White;
-                _light.Extents = 100.0f;
+                _light.Scale = 100.0f;
                 _light.Rotation.Yaw = 0.0f;
                 _light.Rotation.Pitch = 0.0f;
                 basicRenderPanel1.Scene.Lights.Add(_light);

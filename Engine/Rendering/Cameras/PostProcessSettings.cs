@@ -88,7 +88,7 @@ namespace TheraEngine.Rendering.Cameras
         public float ShadowBase { get; set; } = 2.0f;
         [TSerialize]
         [Category("Shadow Map Settings")]
-        public float ShadowMult { get; set; } = 6.0f;
+        public float ShadowMult { get; set; } = 3.0f;
         [TSerialize]
         [Category("Shadow Map Settings")]
         public float ShadowBiasMin { get; set; } = 0.00001f;

@@ -235,52 +235,62 @@ namespace TheraEngine.Components.Scene.Lights
                 OwningScene.Remove(this);
 #endif
         }
-        public override void SetUniforms(RenderProgram program)
+        public override void SetUniforms(RenderProgram program, string targetStructName)
         {
-            string indexer = Uniform.SpotLightsName + ".";
-            program.Uniform(indexer + "Direction", _direction);
-            program.Uniform(indexer + "OuterCutoff", _outerCutoff);
-            program.Uniform(indexer + "InnerCutoff", _innerCutoff);
-            program.Uniform(indexer + "Position", WorldMatrix.Translation);
-            program.Uniform(indexer + "Radius", _distance);
-            program.Uniform(indexer + "Brightness", Brightness);
-            program.Uniform(indexer + "Exponent", Exponent);
-            program.Uniform(indexer + "Base.Color", _color.Raw);
-            program.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            program.Uniform(indexer + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
+            targetStructName = targetStructName ?? Uniform.SpotLightsName;
+            targetStructName += ".";
 
-            var tex = ShadowMapRendering.Material.Textures[0].RenderTextureGeneric;
-            program.SetTextureUniform(tex, 4, "Texture4");
+            program.Uniform(targetStructName + "Direction", _direction);
+            program.Uniform(targetStructName + "OuterCutoff", _outerCutoff);
+            program.Uniform(targetStructName + "InnerCutoff", _innerCutoff);
+            program.Uniform(targetStructName + "Position", WorldMatrix.Translation);
+            program.Uniform(targetStructName + "Radius", _distance);
+            program.Uniform(targetStructName + "Brightness", Brightness);
+            program.Uniform(targetStructName + "Exponent", Exponent);
+            program.Uniform(targetStructName + "Color", _color.Raw);
+            program.Uniform(targetStructName + "DiffuseIntensity", _diffuseIntensity);
+            program.Uniform(targetStructName + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
+
+            var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
+            program.Sampler("Texture4", tex, 4);
         }
-
-        public void SetShadowMapResolution(int width, int height)
-            => SetShadowMapResolution(new IVec2(width, height));
-        public void SetShadowMapResolution(IVec2 dims)
+        public override void SetShadowMapResolution(int width, int height)
         {
-            _region.Width = dims.X;
-            _region.Height = dims.Y;
-            if (ShadowMapRendering == null)
-                ShadowMapRendering = new MaterialFrameBuffer(GetShadowMapMaterial(dims.X, dims.Y));
-            else
-                ShadowMapRendering.ResizeTextures(dims.X, dims.Y);
-
+            base.SetShadowMapResolution(width, height);
             if (ShadowCamera == null)
-                ShadowCamera = new PerspectiveCamera(
-                    1.0f, _distance, Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees) * 2.0f, 1.0f);
+            {
+                float cutoff = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees);
+                ShadowCamera = new PerspectiveCamera(1.0f, _distance, cutoff * 2.0f, 1.0f);
+                //ShadowCamera.LocalRotation.SyncFrom(_rotation);
+                //ShadowCamera.LocalPoint.SyncFrom(_translation);
+            }
         }
         
         public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
         {
-            TexRef2D depthTex = TexRef2D.CreateFrameBufferTexture("SpotDepth", width, height,
-                GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float,
-                EFramebufferAttachment.DepthAttachment);
-            depthTex.MinFilter = ETexMinFilter.Nearest;
-            depthTex.MagFilter = ETexMagFilter.Nearest;
-            TexRef2D[] refs = new TexRef2D[] { depthTex };
+            TexRef2D[] refs = new TexRef2D[]
+            {
+                new TexRef2D("SpotShadowDepth", width, height, GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.ClampToEdge,
+                    VWrap = ETexWrapMode.ClampToEdge,
+                    FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
+                },
+                new TexRef2D("SpotShadowColor", width, height, EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.ClampToEdge,
+                    VWrap = ETexWrapMode.ClampToEdge,
+                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                },
+            };
 
             //This material is used for rendering to the framebuffer.
-            GLSLShaderFile shader = new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
-            TMaterial mat = new TMaterial("SpotLightShadowMat", new ShaderVar[0], refs, shader);
+            TMaterial mat = new TMaterial("SpotLightShadowMat", new ShaderVar[0], refs, 
+                new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput));
 
             //No culling so if a light exists inside of a mesh it will shadow everything.
             mat.RenderParams.CullMode = ECulling.None;

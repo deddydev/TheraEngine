@@ -179,9 +179,9 @@
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Thumbnails.cs" />
-    <Compile Include="EditorGameMode.cs" />
-    <Compile Include="EditorPlayerController.cs" />
-    <Compile Include="EditorCameraPawn.cs" />
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorGameMode.cs" />
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorPlayerController.cs" />
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorCameraPawn.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

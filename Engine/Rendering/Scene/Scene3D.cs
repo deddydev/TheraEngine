@@ -14,16 +14,12 @@ namespace TheraEngine.Rendering
     /// </summary>
     public class Scene3D : BaseScene
     {
-        private LightManager _lightManager;
-        private ParticleManager _particles;
-        
         //TODO: implement octree on GPU with compute shader instead of here on CPU
         //Also implement occlusion culling along with frustum culling
         public Octree RenderTree { get; private set; }
         public override int Count => RenderTree.Count;
-        public LightManager Lights => _lightManager;
-        public ParticleManager Particles => _particles;
-
+        public LightManager Lights { get; private set; }
+        public ParticleManager Particles { get; }
         public IBLProbeGridActor IBLProbeActor { get; set; }
 
         //private GlobalFileRef<TMaterial> _voxelizationMaterial;
@@ -87,7 +83,7 @@ namespace TheraEngine.Rendering
         {
             RenderTree.CollectVisible(collectionVolume, populatingPasses, camera, shadowPass);
         }
-        public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target)
+        public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
             AbstractRenderer.PushCamera(camera);
             AbstractRenderer.PushCurrent3DScene(this);
@@ -142,11 +138,7 @@ namespace TheraEngine.Rendering
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
                         Engine.Renderer.PushRenderArea(viewport.Region);
-                        {
-                            Engine.Renderer.AllowDepthWrite(false);
-                            viewport.PostProcessFBO.RenderFullscreen();
-                            hud?.UIScene?.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
-                        }
+                        viewport.PostProcessFBO.RenderFullscreen();
                         Engine.Renderer.PopRenderArea();
                     }
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -173,7 +165,7 @@ namespace TheraEngine.Rendering
             AbstractRenderer.PopCurrent3DScene();
             AbstractRenderer.PopCamera();
         }
-        public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target)
+        public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
             AbstractRenderer.PushCamera(camera);
             AbstractRenderer.PushCurrent3DScene(this);
@@ -222,22 +214,10 @@ namespace TheraEngine.Rendering
                     //Full viewport resolution now
                     Engine.Renderer.PushRenderArea(viewport.Region);
                     {
-                        Scene2D hudScene = hud?.UIScene;
-                        if (hudScene != null)
-                        {
-                            viewport.HudFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                            {
-                                hudScene.Render(hud.RenderPasses, hud.Camera, viewport, null, null);
-                            }
-                            viewport.HudFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-                        }
-
                         //Render the last pass to the actual screen resolution, 
                         //or the provided target FBO
                         target?.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            viewport.PostProcessFBO.RenderFullscreen();
-                        }
+                        viewport.PostProcessFBO.RenderFullscreen();
                         target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                     }
                     Engine.Renderer.PopRenderArea();
@@ -306,7 +286,7 @@ namespace TheraEngine.Rendering
         public void Clear(BoundingBox sceneBounds)
         {
             RenderTree = new Octree(sceneBounds);
-            _lightManager = new LightManager();
+            Lights = new LightManager();
         }
 
         private void RenderForwardPass(Viewport viewport, RenderPasses renderingPasses)
@@ -343,15 +323,15 @@ namespace TheraEngine.Rendering
                 //Start with blank slate so additive blending doesn't ghost old frames
                 Engine.Renderer.Clear(EBufferClear.Color);
 
-                foreach (PointLightComponent c in _lightManager.PointLights)
+                foreach (PointLightComponent c in Lights.PointLights)
                 {
                     viewport.RenderPointLight(c);
                 }
-                foreach (SpotLightComponent c in _lightManager.SpotLights)
+                foreach (SpotLightComponent c in Lights.SpotLights)
                 {
                     viewport.RenderSpotLight(c);
                 }
-                foreach (DirectionalLightComponent c in _lightManager.DirectionalLights)
+                foreach (DirectionalLightComponent c in Lights.DirectionalLights)
                 {
                     viewport.RenderDirLight(c);
                 }

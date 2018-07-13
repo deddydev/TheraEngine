@@ -907,6 +907,7 @@ namespace TheraEngine.Actors.Types
             }
         }
 
+        [Browsable(false)]
         public Matrix4 PrevRootWorldMatrix { get; private set; } = Matrix4.Identity;
         private void OnPressed()
         {

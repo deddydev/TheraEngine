@@ -42,6 +42,7 @@ namespace TheraEngine.Rendering.Cameras
             set => Resize(Width, value);
         }
 
+        [Browsable(false)]
         public override Vec2 Origin => _origin;
 
         [Category("Orthographic Camera")]

@@ -238,7 +238,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                                     return;
                                 var item = VisibleItems[i];
                                 if (!item.Disposing && !item.IsDisposed)
-                                    item.Invoke((Action)item.UpdateDisplay);
+                                    BaseRenderPanel.ThreadSafeBlockingInvoke((Action)item.UpdateDisplay, BaseRenderPanel.PanelType.Rendering);
                             }
                             catch { }
                         });

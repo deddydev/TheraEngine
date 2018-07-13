@@ -59,7 +59,9 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
 
+        [Browsable(false)]
         public override Vec2 Origin => new Vec2(Width / 2.0f, Height / 2.0f);
+
         public override float Width
         {
             get => _width;

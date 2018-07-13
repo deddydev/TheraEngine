@@ -38,15 +38,15 @@ struct DirLight
 };
 uniform DirLight DirLightData;
 
-uniform float ShadowBase = 2.0f;
-uniform float ShadowMult = 3.0f;
+uniform float ShadowBase = 1.0f;
+uniform float ShadowMult = 1.0f;
 uniform float ShadowBiasMin = 0.00001f;
 uniform float ShadowBiasMax = 0.004f;
 
-float GetShadowBias(in float NoL, in float base, in float power, in float minBias, in float maxBias)
+float GetShadowBias(in float NoL)
 {
-    float mapped = pow(base, -NoL * power);
-    return mix(minBias, maxBias, mapped);
+    float mapped = pow(ShadowBase * (1.0f - NoL), ShadowMult);
+    return mix(ShadowBiasMin, ShadowBiasMax, mapped);
 }
 //0 is fully in shadow, 1 is fully lit
 float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in mat4 lightMatrix)
@@ -57,24 +57,24 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in mat4 lightM
 	fragCoord = fragCoord * 0.5f + 0.5f;
 
 	//Create bias depending on angle of normal to the light
-	float bias = GetShadowBias(NoL, ShadowBase, ShadowMult, ShadowBiasMin, ShadowBiasMax);
+	float bias = GetShadowBias(NoL);
 
 	//Hard shadow
-	float depth = texture(Texture4, fragCoord.xy).r;
-	float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
+	//float depth = texture(Texture4, fragCoord.xy).r;
+	//float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
 
 	//PCF shadow
-	//float shadow = 0.0;
-	//vec2 texelSize = 1.0f / textureSize(shadowMap, 0);
-	//for (int x = -1; x <= 1; ++x)
-	//{
-	//    for (int y = -1; y <= 1; ++y)
-	//    {
-	//        float pcfDepth = texture(shadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
-	//        shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;
-	//    }
-	//}
-	//shadow *= 0.111111111f; //divided by 9
+	float shadow = 0.0f;
+	vec2 texelSize = 1.0f / textureSize(Texture4, 0);
+	for (int x = -1; x <= 1; ++x)
+	{
+	    for (int y = -1; y <= 1; ++y)
+	    {
+	        float pcfDepth = texture(Texture4, fragCoord.xy + vec2(x, y) * texelSize).r;
+	        shadow += (fragCoord.z - bias > pcfDepth) ? 0.0f : 1.0f;
+	    }
+	}
+	shadow *= 0.111111111f; //divided by 9
 
 	return shadow;
 }

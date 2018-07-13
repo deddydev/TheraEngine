@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -16,7 +17,7 @@ namespace TheraEngine.Rendering.UI
             : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }
         public UIMaterialRectangleComponent(TMaterial material, bool flipVerticalUVCoord = false)
         {
-            VertexQuad quad = VertexQuad.PosZQuad(Width, Height, 0.0f, true, flipVerticalUVCoord);
+            VertexQuad quad = VertexQuad.PosZQuad(1.0f, 1.0f, 0.0f, true, flipVerticalUVCoord);
             PrimitiveData quadData = PrimitiveData.FromQuads(VertexShaderDesc.PosTex(), quad);
             _quad = new PrimitiveManager(quadData, material);
         }
@@ -65,13 +66,17 @@ namespace TheraEngine.Rendering.UI
         public unsafe override Vec2 Resize(Vec2 parentBounds)
         {
             //013312
+
             Vec2 r = base.Resize(parentBounds);
+
             DataBuffer buffer = _quad.Data[0];
             Vec3* data = (Vec3*)buffer.Address;
             data[0] = new Vec3(0.0f);
             data[1] = data[4] = new Vec3(Width, 0.0f, 0.0f);
             data[2] = data[3] = new Vec3(0.0f, Height, 0.0f);
             data[5] = new Vec3(Width, Height, 0.0f);
+            buffer.PushSubData();
+
             return r;
         }
         

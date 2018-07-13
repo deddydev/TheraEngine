@@ -12,6 +12,7 @@ namespace TheraEngine.Rendering
     {
         public FrameBuffer() : base(EObjectType.Framebuffer) { }
 
+        public static FrameBuffer CurrentlyBound { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
 
@@ -165,9 +166,15 @@ namespace TheraEngine.Rendering
         }
 
         public virtual void Bind(EFramebufferTarget type)
-            => Engine.Renderer.BindFrameBuffer(type, BindingId);
+        {
+            Engine.Renderer.BindFrameBuffer(type, BindingId);
+            CurrentlyBound = this;
+        }
         public virtual void Unbind(EFramebufferTarget type)
-            => Engine.Renderer.BindFrameBuffer(type, 0);
+        {
+            Engine.Renderer.BindFrameBuffer(type, NullBindingId);
+            CurrentlyBound = null;
+        }
         public void CheckErrors()
             => Engine.Renderer.CheckFrameBufferErrors();
         public void Resize(int width, int height)

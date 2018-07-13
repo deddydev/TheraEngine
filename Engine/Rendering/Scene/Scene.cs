@@ -1,15 +1,14 @@
-﻿using TheraEngine.Rendering.Cameras;
+﻿using System;
 using System.Collections.Generic;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Core.Shapes;
-using System.Threading.Tasks;
-using TheraEngine.Actors.Types.Pawns;
-using System;
+using System.Linq;
 using TheraEngine.Core;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target);
+    public delegate void DelRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target);
     public enum ERenderPass
     {
         /// <summary>
@@ -58,6 +57,8 @@ namespace TheraEngine.Rendering
         }
 
         public bool ShadowPass { get; internal set; }
+        public bool HasItemsToRender => _renderingPasses.Any(x => x.Count > 0);
+
         private readonly RenderSortNearToFar _nearToFarSorter;
         private readonly RenderSortFarToNear _farToNearSorter;
         private SortedSet<RenderCommand>[] _updatingPasses;
@@ -78,12 +79,31 @@ namespace TheraEngine.Rendering
             list.ForEach(x => x.Render());
             list.Clear();
         }
+        public void ClearRendering(ERenderPass pass)
+        {
+            var list = _renderingPasses[(int)pass];
+            list.Clear();
+        }
+        public void ClearUpdating(ERenderPass pass)
+        {
+            var list = _updatingPasses[(int)pass];
+            list.Clear();
+        }
 
         public void Add(RenderCommand item, ERenderPass pass)
             => _updatingPasses[(int)pass].Add(item);
 
         public void SwapBuffers()
             => THelpers.Swap(ref _updatingPasses, ref _renderingPasses);
+
+        public void ClearRenderList()
+        {
+            _renderingPasses.ForEach(x => x.Clear());
+        }
+        public void ClearUpdateList()
+        {
+            _updatingPasses.ForEach(x => x.Clear());
+        }
     }
     /// <summary>
     /// Use for calculating something right before *anything* in the scene is rendered.

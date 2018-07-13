@@ -458,8 +458,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
-                MinFilter = ETexMinFilter.Linear,
-                MagFilter = ETexMagFilter.Linear,
+                MinFilter = ETexMinFilter.Nearest,
+                MagFilter = ETexMagFilter.Nearest,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 FrameBufferAttachment = bufAttach,
@@ -470,8 +470,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new TexRef2D(name, width, height, internalFmt, fmt, pixelType)
             {
-                MinFilter = ETexMinFilter.Linear,
-                MagFilter = ETexMagFilter.Linear,
+                MinFilter = ETexMinFilter.Nearest,
+                MagFilter = ETexMagFilter.Nearest,
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
             };

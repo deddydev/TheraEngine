@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable//, IPreRendered
+    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable, IPreRendered
     {
         public event DelSetUniforms SettingUniforms;
 
@@ -74,12 +74,21 @@ namespace TheraEngine.Rendering.UI
             _renderCommand.WorldMatrix = WorldMatrix;
             passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
+        public void PreRenderUpdate(Camera camera)
+        {
+
+        }
+        public void PreRenderSwap()
+        {
+
+        }
         public void Update(object sender, FrameEventArgs args)
         {
-            if (!IsVisible)
+            if (!IsVisible || ViewportCamera == null)
                 return;
 
-            BaseScene scene = ViewportCamera?.OwningComponent?.OwningScene;
+            BaseScene scene = ViewportCamera.OwningComponent?.OwningScene;
+            scene.PreRenderUpdate(ViewportCamera);
             _viewport.Update(scene, ViewportCamera, ViewportCamera.Frustum);
         }
         public override void OnSpawned()
@@ -91,7 +100,8 @@ namespace TheraEngine.Rendering.UI
         private void SwapBuffers()
         {
             BaseScene scene = ViewportCamera?.OwningComponent?.OwningScene;
-            _viewport.SwapBuffers(scene);
+            scene?.PreRenderSwap();
+            _viewport.SwapBuffers();
         }
 
         public override void OnDespawned()

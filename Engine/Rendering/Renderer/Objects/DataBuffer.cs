@@ -330,8 +330,11 @@ namespace TheraEngine.Rendering.Models
 
         protected override void PostGenerated() => Engine.Renderer.InitializeBuffer(this);
         public void PushData() => Engine.Renderer.PushBufferData(this);
-        public void PushSubData(int offset, int length) => Engine.Renderer.PushBufferSubData(this, offset, length);
-        
+        public void PushSubData(int offset, int length)
+            => Engine.Renderer.PushBufferSubData(this, offset, length);
+        public void PushSubData()
+            => Engine.Renderer.PushBufferSubData(this, 0, DataLength);
+
         /// <summary>
         /// Reads the struct value at the given offset into the buffer.
         /// Offset is in bytes; NOT relative to the size of the struct.

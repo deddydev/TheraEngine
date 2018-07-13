@@ -44,7 +44,10 @@ namespace TheraEngine
         public override void SwapBuffers()
         {
             foreach (Viewport v in _viewports)
-                v.SwapBuffers(GetScene(v));
+            {
+                GetScene(v)?.PreRenderSwap();
+                v.SwapBuffers();
+            }
         }
         protected override void OnRender()
         {

@@ -143,7 +143,8 @@ namespace TheraEngine.Actors.Types
             {
                 Camera camera = _cameras[i];
                 _viewport.Update(scene, camera, camera.Frustum);
-                _viewport.SwapBuffers(scene);
+                scene.PreRenderSwap();
+                _viewport.SwapBuffers();
                 if (CaptureDepthCubeMap)
                 {
                     _renderFBO.SetRenderTargets(

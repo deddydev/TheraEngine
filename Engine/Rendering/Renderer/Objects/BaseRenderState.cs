@@ -121,7 +121,17 @@ namespace TheraEngine.Rendering
             }
             return true;
         }
+        /// <summary>
+        /// Generates the render object but does not return the binding id.
+        /// This is to prevent deadlock waiting for the result if the method must be invoked on the render thread.
+        /// </summary>
+        public void GenerateSafe()
+        {
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)GenerateSafe, BaseRenderPanel.PanelType.Rendering))
+                return;
 
+            Generate();
+        }
         /// <summary>
         /// Performs all checks needed and creates this render object on the current render context if need be.
         /// Call after capturing a context.
@@ -129,11 +139,10 @@ namespace TheraEngine.Rendering
         public int Generate()
         {
             //if (!Engine.IsInRenderThread())
-            //    throw new InvalidOperationException("Render objects must be created on the rendering thread.");
+            //    throw new InvalidOperationException("Render objects must be created on the rendering thread. Try calling GenerateSafe().");
 
-            int id;
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Func<int>)Generate, BaseRenderPanel.PanelType.Rendering, out id))
-                return id;
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)GenerateSafe, BaseRenderPanel.PanelType.Rendering))
+                return IsActive ? BindingId : NullBindingId;
 
             //Make sure current bind is up to date
             bool hasBind = GetCurrentBind();
@@ -147,7 +156,8 @@ namespace TheraEngine.Rendering
                 return BindingId;
             
             PreGenerated();
-            id = CreateObject();
+
+            int id = CreateObject();
             if (id != 0)
             {
                 CurrentBind.BindingId = id;
@@ -156,8 +166,9 @@ namespace TheraEngine.Rendering
                 PostGenerated();
                 Generated?.Invoke();
             }
-            //else
-            //    Engine.LogWarning("Unable to create render object.");
+            else
+                Engine.LogWarning("Unable to create render object.");
+
             return id;
         }
 

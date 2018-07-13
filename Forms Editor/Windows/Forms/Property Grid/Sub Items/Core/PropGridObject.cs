@@ -29,7 +29,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         protected override void UpdateDisplayInternal()
         {
-            _object = GetValue();
+            object value = GetValue();
+
+            //Value is boxed as object, so this doesn't work
+            //if (pnlProps.Visible && !ReferenceEquals(value, _object))
+            //    LoadProperties(value);
+
+            _object = value;
 
             string typeName = (_object?.GetType() ?? DataType).GetFriendlyName();
             lblObjectTypeName.Text = ParentInfo is PropGridItemParentIListInfo ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;

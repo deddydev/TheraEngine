@@ -3,11 +3,11 @@
 layout(location = 0) out vec4 OutColor;
 layout(location = 0) in vec3 FragPos;
 
-uniform sampler2D Texture0; //HDR scene color
+uniform sampler2D HDRSceneTex; //HDR scene color
 uniform sampler2D Texture1; //Bloom
 uniform sampler2D Texture2; //Depth
 uniform usampler2D Texture3; //Stencil
-uniform sampler2D Texture4; //HUD
+uniform sampler2D HUDTex; //HUD
 
 uniform vec3 HighlightColor = vec3(0.92f, 1.0f, 0.086f);
 
@@ -56,7 +56,7 @@ float rand(vec2 coord)
 float GetStencilHighlightIntensity(vec2 uv)
 {
     int outlineSize = 1;
-    ivec2 texSize = textureSize(Texture0, 0);
+    ivec2 texSize = textureSize(HDRSceneTex, 0);
     vec2 texelSize = 1.0f / texSize;
     vec2 texelX = vec2(texelSize.x, 0.0f);
     vec2 texelY = vec2(0.0f, texelSize.y);
@@ -85,7 +85,7 @@ void main()
 	if (uv.x > 1.0f || uv.y > 1.0f)
 		discard;
 
-	vec3 hdrSceneColor = texture(Texture0, uv).rgb;
+	vec3 hdrSceneColor = texture(HDRSceneTex, uv).rgb;
 
   //Add each blurred bloom mipmap
   //Starts at 1/2 size lod because original image is not blurred (and doesn't need to be)
@@ -112,7 +112,7 @@ void main()
  	float vig = clamp(pow(vigUV.x * vigUV.y * Vignette.Intensity, Vignette.Power), 0.0f, 1.0f);
 	ldrSceneColor = mix(Vignette.Color, ldrSceneColor, vig);
 
-  vec4 hudColor = texture(Texture4, uv);
+  vec4 hudColor = texture(HUDTex, uv);
   ldrSceneColor = mix(ldrSceneColor, hudColor.rgb, hudColor.a);
 
 	//Gamma-correct

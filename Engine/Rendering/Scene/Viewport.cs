@@ -278,18 +278,18 @@ namespace TheraEngine.Rendering
         private RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(BaseScene scene, Camera camera, FrameBuffer target)
         {
-            scene.Render(_renderPasses, camera, this, HUD, target);
+            HUD?.UIScene?.Render(HUD.RenderPasses, HUD.Camera, this, HudFBO);
+            scene.Render(_renderPasses, camera, this, target);
         }
-        internal protected virtual void SwapBuffers(BaseScene scene)
+        internal protected virtual void SwapBuffers()
         {
             _renderPasses.SwapBuffers();
-            scene?.PreRenderSwap();
             HUD?.RenderPasses.SwapBuffers();
         }
         public void Update(BaseScene scene, Camera camera, Frustum frustum)
         {
-            scene?.Update(_renderPasses, frustum, camera);
             HUD?.UIScene?.Update(HUD.RenderPasses, null, HUD.Camera);
+            scene?.Update(_renderPasses, frustum, camera);
         }
 
         #region Coordinate conversion
@@ -946,6 +946,7 @@ namespace TheraEngine.Rendering
             _hdrSceneTexture.MagFilter = ETexMagFilter.Nearest;
             _hdrSceneTexture.UWrap = ETexWrapMode.ClampToEdge;
             _hdrSceneTexture.VWrap = ETexWrapMode.ClampToEdge;
+            _hdrSceneTexture.SamplerName = "HDRSceneTex";
 
             GLSLShaderFile brightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BrightPass.fs"), EShaderMode.Fragment);
             GLSLShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
@@ -953,12 +954,12 @@ namespace TheraEngine.Rendering
             GLSLShaderFile hudShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "HudFBO.fs"), EShaderMode.Fragment);
 
             TexRef2D hudTexture = TexRef2D.CreateFrameBufferTexture("Hud", width, height,
-                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat, 
-                EFramebufferAttachment.ColorAttachment0);
+                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat);
             hudTexture.MinFilter = ETexMinFilter.Nearest;
             hudTexture.MagFilter = ETexMagFilter.Nearest;
             hudTexture.UWrap = ETexWrapMode.ClampToEdge;
             hudTexture.VWrap = ETexWrapMode.ClampToEdge;
+            hudTexture.SamplerName = "HUDTex";
 
             TexRef2D[] brightRefs = new TexRef2D[]
             {
@@ -968,16 +969,16 @@ namespace TheraEngine.Rendering
             {
                 _bloomBlurTexture,
             };
+            TexRef2D[] hudRefs = new TexRef2D[]
+            {
+                hudTexture,
+            };
             TexRef2D[] postProcessRefs = new TexRef2D[]
             {
                 _hdrSceneTexture,
                 _bloomBlurTexture,
                 depthViewTexture,
                 stencilViewTexture,
-                hudTexture,
-            };
-            TexRef2D[] hudRefs = new TexRef2D[]
-            {
                 hudTexture,
             };
             ShaderVar[] blurVars = new ShaderVar[]
@@ -1011,7 +1012,8 @@ namespace TheraEngine.Rendering
             PostProcessFBO.SettingUniforms += _postProcess_SettingUniforms;
 
             HudFBO = new QuadFrameBuffer(hudMat);
-            
+            HudFBO.SetRenderTargets((hudTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
+
             #endregion
 
             RegeneratingFBOs = false;

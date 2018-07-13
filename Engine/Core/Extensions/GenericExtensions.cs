@@ -25,5 +25,12 @@ namespace TheraEngine.Core.Extensions
             Marshal.Copy(data, 0, (IntPtr)addr, Math.Min(data.Length, sizeof(T)));
             return value;
         }
+        public static bool IsBoxed<T>(this T value)
+        {
+            return
+                (typeof(T).IsInterface || typeof(T) == typeof(object)) &&
+                value != null &&
+                value.GetType().IsValueType;
+        }
     }
 }

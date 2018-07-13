@@ -10,9 +10,7 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
@@ -109,7 +107,6 @@ namespace TheraEditor.Windows.Forms
         }
         private void HighlightedComponentChanged(bool highlighted)
         {
-            return;
             if (HighlightedComponent is StaticMeshComponent staticMesh)
             {
                 foreach (StaticRenderableMesh m in staticMesh.Meshes)
@@ -381,7 +378,6 @@ namespace TheraEditor.Windows.Forms
             PerspectiveCameraActor c = new PerspectiveCameraActor();
             c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
             OwningWorld.SpawnActor(c);
-            //SubViewport.ViewportCamera = c.Camera;
 
             SubViewport.IsVisible = false;
         }

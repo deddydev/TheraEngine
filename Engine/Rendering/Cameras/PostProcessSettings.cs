@@ -84,17 +84,21 @@ namespace TheraEngine.Rendering.Cameras
     public class ShadowSettings : PostSettings
     {
         [TSerialize]
+        [DisplayName("Multiplier")]
         [Category("Shadow Map Settings")]
-        public float ShadowBase { get; set; } = 2.0f;
+        public float ShadowBase { get; set; } = 1.0f;
         [TSerialize]
+        [DisplayName("Exponent")]
         [Category("Shadow Map Settings")]
-        public float ShadowMult { get; set; } = 3.0f;
+        public float ShadowMult { get; set; } = 40.0f;
         [TSerialize]
+        [DisplayName("Minimum")]
         [Category("Shadow Map Settings")]
-        public float ShadowBiasMin { get; set; } = 0.00001f;
+        public float ShadowBiasMin { get; set; } = 0.0001f;
         [TSerialize]
+        [DisplayName("Maximum")]
         [Category("Shadow Map Settings")]
-        public float ShadowBiasMax { get; set; } = 0.004f;
+        public float ShadowBiasMax { get; set; } = 0.1f;
 
         internal void SetUniforms(RenderProgram program)
         {

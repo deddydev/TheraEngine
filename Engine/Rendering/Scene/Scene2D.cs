@@ -49,10 +49,8 @@ namespace TheraEngine.Rendering
             foreach (I2DRenderable r in _renderables)
                 r.AddRenderables(populatingPasses);
         }
-        public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, IUIManager hud, FrameBuffer target)
+        public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
-            target?.Bind(EFramebufferTarget.DrawFramebuffer);
-
             AbstractRenderer.PushCamera(camera);
             AbstractRenderer.PushCurrent2DScene(this);
             {
@@ -63,15 +61,13 @@ namespace TheraEngine.Rendering
                     //Render the to the actual screen resolution
                     Engine.Renderer.PushRenderArea(viewport.Region);
                     {
-                        //Engine.Renderer.StencilMask(~0);
-                        //Engine.Renderer.ClearStencil(0);
-                        //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
-                        //Engine.Renderer.EnableDepthTest(true);
-                        //Engine.Renderer.ClearDepth(1.0f);
-                        //renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
-                        //Engine.Renderer.EnableDepthTest(false);
+                        target?.Bind(EFramebufferTarget.DrawFramebuffer);
 
-                        //Engine.Renderer.EnableDepthTest(true);
+                        Engine.Renderer.EnableDepthTest(true);
+                        Engine.Renderer.ClearDepth(1.0f);
+                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        renderingPasses.ClearRendering(ERenderPass.OpaqueDeferredLit);
+
                         Engine.Renderer.AllowDepthWrite(false);
                         renderingPasses.Render(ERenderPass.Background);
 
@@ -85,6 +81,8 @@ namespace TheraEngine.Rendering
 
                         //Engine.Renderer.EnableDepthTest(false);
                         //RenderTree.DebugRender(v.Region, false, 0.1f);
+
+                        target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                     }
                     Engine.Renderer.PopRenderArea();
 
@@ -92,7 +90,11 @@ namespace TheraEngine.Rendering
                 }
                 else
                 {
-                    //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                    target?.Bind(EFramebufferTarget.DrawFramebuffer);
+
+                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+
+                    renderingPasses.ClearRendering(ERenderPass.OpaqueDeferredLit);
 
                     Engine.Renderer.AllowDepthWrite(false);
                     renderingPasses.Render(ERenderPass.Background);
@@ -104,12 +106,12 @@ namespace TheraEngine.Rendering
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
                     renderingPasses.Render(ERenderPass.OnTopForward);
+
+                    target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
             }
             AbstractRenderer.PopCurrent2DScene();
             AbstractRenderer.PopCamera();
-
-            target?.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         
         public void Resize(Vec2 bounds)

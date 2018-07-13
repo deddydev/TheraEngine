@@ -40,8 +40,8 @@ namespace TheraEngine.Tests
         {
             bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 1;
-            int dirLights = 0;
+            int pointLights = 0;
+            int dirLights = 1;
             int spotLights = 0;
 
             float margin = 2.0f;
@@ -281,22 +281,22 @@ namespace TheraEngine.Tests
             }
 
             //Create shape tracer
-            actor = new SphereTraceActor();
-            actors.Add(actor);
+            //actor = new SphereTraceActor();
+            //actors.Add(actor);
 
-            float rotationsPerSecond = 0.2f, testRadius = 15.0f, testHeight = 20.0f;
-            PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
-                1.0f / rotationsPerSecond, true, second =>
-            {
-                float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
-                //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
-                Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
-                return new Vec3(coord.X, testHeight, -coord.Y);
-            });
-            AnimationContainer anim = new AnimationContainer(
-                "RotationTrace", "Translation.Raw", false, animMethod);
-            actor.RootComponent.AddAnimation(anim, true, false,
-                ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
+            //float rotationsPerSecond = 0.2f, testRadius = 15.0f, testHeight = 20.0f;
+            //PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
+            //    1.0f / rotationsPerSecond, true, second =>
+            //{
+            //    float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
+            //    //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
+            //    Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
+            //    return new Vec3(coord.X, testHeight, -coord.Y);
+            //});
+            //AnimationContainer anim = new AnimationContainer(
+            //    "RotationTrace", "Translation.Raw", false, animMethod);
+            //actor.RootComponent.AddAnimation(anim, true, false,
+            //    ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create camera shake test
             //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));

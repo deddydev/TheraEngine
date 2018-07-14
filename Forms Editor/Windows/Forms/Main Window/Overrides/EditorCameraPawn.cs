@@ -107,7 +107,12 @@ namespace TheraEditor.Actors.Types.Pawns
                 else
                     RootComponent.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
             }
-            else
+        }
+        protected override void Tick(float delta)
+        {
+            bool moving = Translating || Rotating;
+            CursorManager.WrapCursorWithinClip = moving;
+            if (!moving)
             {
                 Viewport v = LocalPlayerController.Viewport;
                 Vec2 viewportPoint = HUD.CursorPosition(v);
@@ -121,9 +126,7 @@ namespace TheraEditor.Actors.Types.Pawns
                     HitObject = c.CollisionObject;
                 }
             }
-        }
-        protected override void Tick(float delta)
-        {
+
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
             if (translate)

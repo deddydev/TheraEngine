@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -58,28 +57,35 @@ namespace TheraEngine.Rendering.UI
         /// </summary>
         public T2 Parameter<T2>(string name) where T2 : ShaderVar
             => _quad.Parameter<T2>(name);
-        
+
         // 3--2
         // |\ |
         // | \|
         // 0--1
-        public unsafe override Vec2 Resize(Vec2 parentBounds)
+        //public unsafe override Vec2 Resize(Vec2 parentBounds)
+        //{
+        //    //013312
+
+        //    Vec2 r = base.Resize(parentBounds);
+
+        //    DataBuffer buffer = _quad.Data[0];
+        //    Vec3* data = (Vec3*)buffer.Address;
+        //    data[0] = new Vec3(0.0f);
+        //    data[1] = data[4] = new Vec3(Width, 0.0f, 0.0f);
+        //    data[2] = data[3] = new Vec3(0.0f, Height, 0.0f);
+        //    data[5] = new Vec3(Width, Height, 0.0f);
+        //    buffer.PushSubData();
+
+        //    return r;
+        //}
+
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            //013312
-
-            Vec2 r = base.Resize(parentBounds);
-
-            DataBuffer buffer = _quad.Data[0];
-            Vec3* data = (Vec3*)buffer.Address;
-            data[0] = new Vec3(0.0f);
-            data[1] = data[4] = new Vec3(Width, 0.0f, 0.0f);
-            data[2] = data[3] = new Vec3(0.0f, Height, 0.0f);
-            data[5] = new Vec3(Width, Height, 0.0f);
-            buffer.PushSubData();
-
-            return r;
+            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
+            localTransform = localTransform * Matrix4.CreateScale(_size.X, _size.Y, 1.0f);
+            inverseLocalTransform = Matrix4.CreateScale(1.0f / _size.X, 1.0f / _size.Y, 1.0f) * inverseLocalTransform;
         }
-        
+
         private RenderCommandMesh2D _renderCommand = new RenderCommandMesh2D();
         public virtual void AddRenderables(RenderPasses passes)
         {

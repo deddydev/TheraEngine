@@ -162,28 +162,28 @@ namespace TheraEngine.Components.Scene
         private RenderCommandMesh3D _rcTangents = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            _rcSpline.Primitives = _splinePrimitive;
+            _rcSpline.Mesh = _splinePrimitive;
             _rcSpline.WorldMatrix = WorldMatrix;
             _rcSpline.NormalMatrix = Matrix3.Identity;
             passes.Add(_rcSpline, RenderInfo.RenderPass);
 
             if (_renderTangents)
             {
-                _rcTangents.Primitives = _velocityPrimitive;
+                _rcTangents.Mesh = _velocityPrimitive;
                 _rcTangents.WorldMatrix = WorldMatrix;
                 _rcTangents.NormalMatrix = Matrix3.Identity;
                 passes.Add(_rcTangents, RenderInfo.RenderPass);
             }
             if (_renderKeyframePoints)
             {
-                _rcTangents.Primitives = _pointPrimitive;
+                _rcTangents.Mesh = _pointPrimitive;
                 _rcTangents.WorldMatrix = WorldMatrix;
                 _rcTangents.NormalMatrix = Matrix3.Identity;
                 passes.Add(_rcTangents, RenderInfo.RenderPass);
             }
             if (_renderKeyframeTangentPoints)
             {
-                _rcTangents.Primitives = _tangentPrimitive;
+                _rcTangents.Mesh = _tangentPrimitive;
                 _rcTangents.WorldMatrix = WorldMatrix;
                 _rcTangents.NormalMatrix = Matrix3.Identity;
                 passes.Add(_rcTangents, RenderInfo.RenderPass);

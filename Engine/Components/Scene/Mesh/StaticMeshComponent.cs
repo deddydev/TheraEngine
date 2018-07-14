@@ -160,21 +160,14 @@ namespace TheraEngine.Components.Scene.Mesh
             }
             ModelLoaded?.Invoke();
         }
-        public override async void OnSpawned()
+        public override void OnSpawned()
         {
             if (_meshes == null)
             {
                 if (_modelRef.IsLoaded)
-                {
                     OnModelLoaded(_modelRef.File);
-                }
                 else
-                {
-                    //TODO: make lod loading async
-                    StaticModel m = await _modelRef.GetInstanceAsync();
-                    if (m != null)
-                        OnModelLoaded(m);
-                }
+                    _modelRef.GetInstanceAsync().ContinueWith(t => OnModelLoaded(t.Result));
             }
             
             if (_meshes != null)
@@ -185,8 +178,9 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         public override void OnDespawned()
         {
-            foreach (StaticRenderableMesh m in _meshes)
-                m.Visible = false;
+            if (_meshes != null)
+                foreach (StaticRenderableMesh m in _meshes)
+                    m.Visible = false;
             base.OnDespawned();
         }
         protected internal override void OnHighlightChanged(bool highlighted)

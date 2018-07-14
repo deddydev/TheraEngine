@@ -62,7 +62,7 @@ namespace TheraEngine.Rendering
     }
     public class RenderCommandMesh3D : RenderCommand3D
     {
-        public PrimitiveManager Primitives { get; set; }
+        public PrimitiveManager Mesh { get; set; }
         public Matrix4 WorldMatrix { get; set; }
         public Matrix3 NormalMatrix { get; set; }
         public TMaterial Material { get; set; }
@@ -75,7 +75,7 @@ namespace TheraEngine.Rendering
             float renderDistance,
             TMaterial materialOverride = null) : base(renderDistance)
         {
-            Primitives = manager;
+            Mesh = manager;
             WorldMatrix = worldMatrix;
             NormalMatrix = normalMatrix;
             Material = materialOverride;
@@ -83,7 +83,7 @@ namespace TheraEngine.Rendering
 
         public override void Render()
         {
-            Primitives?.Render(WorldMatrix, NormalMatrix, Material);
+            Mesh?.Render(WorldMatrix, NormalMatrix, Material);
         }
     }
     public class RenderCommandMesh2D : RenderCommand2D

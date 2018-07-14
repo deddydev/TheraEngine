@@ -278,7 +278,13 @@ namespace TheraEngine.Rendering
         private RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(BaseScene scene, Camera camera, FrameBuffer target)
         {
-            HUD?.UIScene?.Render(HUD.RenderPasses, HUD.Camera, this, HudFBO);
+            var uiScene = HUD?.UIScene; 
+            if (uiScene != null)
+            {
+                Camera c = HUD.Camera;
+                uiScene.Render(HUD.RenderPasses, c, this, HudFBO);
+            }
+
             scene.Render(_renderPasses, camera, this, target);
         }
         internal protected virtual void SwapBuffers()

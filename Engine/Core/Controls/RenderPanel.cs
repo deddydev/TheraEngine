@@ -51,9 +51,18 @@ namespace TheraEngine
         }
         protected override void OnRender()
         {
+            Camera c;
+            BaseScene s;
+
             PreRender();
             foreach (Viewport v in _viewports)
-                v.Render(GetScene(v), GetCamera(v), null);
+            {
+                c = GetCamera(v);
+                s = GetScene(v);
+                v.HUD?.UIScene?.PreRender(v, v.HUD.Camera);
+                s?.PreRender(v, c);
+                v.Render(s, c, null);
+            }
             PostRender();
         }
     }

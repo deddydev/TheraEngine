@@ -83,88 +83,88 @@ namespace TheraEngine.Rendering
         {
             RenderTree.CollectVisible(collectionVolume, populatingPasses, camera, shadowPass);
         }
-        public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
-        {
-            AbstractRenderer.PushCamera(camera);
-            AbstractRenderer.PushCurrent3DScene(this);
-            {
-                if (viewport != null)
-                {
-                    //Enable internal resolution
-                    Engine.Renderer.PushRenderArea(viewport.InternalResolution);
-                    {
-                        viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            Engine.Renderer.Clear(EBufferClear.All);
+        //public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
+        //{
+        //    AbstractRenderer.PushCamera(camera);
+        //    AbstractRenderer.PushCurrent3DScene(this);
+        //    {
+        //        if (viewport != null)
+        //        {
+        //            //Enable internal resolution
+        //            Engine.Renderer.PushRenderArea(viewport.InternalResolution);
+        //            {
+        //                viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+        //                {
+        //                    Engine.Renderer.Clear(EBufferClear.All);
 
-                            Engine.Renderer.AllowDepthWrite(false);
-                            renderingPasses.Render(ERenderPass.Background);
-                            Engine.Renderer.AllowDepthWrite(true);
+        //                    Engine.Renderer.AllowDepthWrite(false);
+        //                    renderingPasses.Render(ERenderPass.Background);
+        //                    Engine.Renderer.AllowDepthWrite(true);
 
-                            renderingPasses.Render(ERenderPass.OpaqueForward);
-                            //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
-                            //RenderTree.DebugRender(camera?.Frustum, true);
+        //                    renderingPasses.Render(ERenderPass.OpaqueForward);
+        //                    //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
+        //                    //RenderTree.DebugRender(camera?.Frustum, true);
 
-                            renderingPasses.Render(ERenderPass.TransparentForward);
-                            Engine.Renderer.AllowDepthWrite(false);
-                            renderingPasses.Render(ERenderPass.OnTopForward);
-                        }
-                        viewport.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+        //                    renderingPasses.Render(ERenderPass.TransparentForward);
+        //                    Engine.Renderer.AllowDepthWrite(false);
+        //                    renderingPasses.Render(ERenderPass.OnTopForward);
+        //                }
+        //                viewport.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                        //viewport.PingPongBloomBlurFBO.Reset();
-                        //viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-                        //Engine.Renderer.AllowDepthWrite(false);
-                        //viewport.BrightPassFBO.RenderFullscreen();
-                        //Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
+        //                //viewport.PingPongBloomBlurFBO.Reset();
+        //                //viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
+        //                //Engine.Renderer.AllowDepthWrite(false);
+        //                //viewport.BrightPassFBO.RenderFullscreen();
+        //                //Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
 
-                        //var t = viewport._bloomBlurTexture.GetTexture(true);
-                        //t.Bind();
-                        //t.GenerateMipmaps();
+        //                //var t = viewport._bloomBlurTexture.GetTexture(true);
+        //                //t.Bind();
+        //                //t.GenerateMipmaps();
 
-                        //for (int i = 0; i < 10; ++i)
-                        //{
-                        //    viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-                        //    Engine.Renderer.AllowDepthWrite(false);
-                        //    viewport.PingPongBloomBlurFBO.RenderFullscreen();
-                        //    Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
+        //                //for (int i = 0; i < 10; ++i)
+        //                //{
+        //                //    viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
+        //                //    Engine.Renderer.AllowDepthWrite(false);
+        //                //    viewport.PingPongBloomBlurFBO.RenderFullscreen();
+        //                //    Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
 
-                        //    viewport.PingPongBloomBlurFBO.Switch();
-                        //}
-                    }
-                    Engine.Renderer.PopRenderArea();
+        //                //    viewport.PingPongBloomBlurFBO.Switch();
+        //                //}
+        //            }
+        //            Engine.Renderer.PopRenderArea();
 
-                    //Render the last pass to the actual screen resolution, 
-                    //or the provided target FBO
-                    target?.Bind(EFramebufferTarget.DrawFramebuffer);
-                    {
-                        Engine.Renderer.PushRenderArea(viewport.Region);
-                        viewport.PostProcessFBO.RenderFullscreen();
-                        Engine.Renderer.PopRenderArea();
-                    }
-                    target?.Unbind(EFramebufferTarget.DrawFramebuffer);
-                }
-                else
-                {
-                    target?.Bind(EFramebufferTarget.DrawFramebuffer);
-                    Engine.Renderer.Clear(EBufferClear.All);
+        //            //Render the last pass to the actual screen resolution, 
+        //            //or the provided target FBO
+        //            target?.Bind(EFramebufferTarget.DrawFramebuffer);
+        //            {
+        //                Engine.Renderer.PushRenderArea(viewport.Region);
+        //                viewport.PostProcessFBO.RenderFullscreen();
+        //                Engine.Renderer.PopRenderArea();
+        //            }
+        //            target?.Unbind(EFramebufferTarget.DrawFramebuffer);
+        //        }
+        //        else
+        //        {
+        //            target?.Bind(EFramebufferTarget.DrawFramebuffer);
+        //            Engine.Renderer.Clear(EBufferClear.All);
 
-                    Engine.Renderer.AllowDepthWrite(false);
-                    renderingPasses.Render(ERenderPass.Background);
+        //            Engine.Renderer.AllowDepthWrite(false);
+        //            renderingPasses.Render(ERenderPass.Background);
 
-                    Engine.Renderer.AllowDepthWrite(true);
-                    renderingPasses.Render(ERenderPass.OpaqueForward);
-                    renderingPasses.Render(ERenderPass.TransparentForward);
+        //            Engine.Renderer.AllowDepthWrite(true);
+        //            renderingPasses.Render(ERenderPass.OpaqueForward);
+        //            renderingPasses.Render(ERenderPass.TransparentForward);
 
-                    //Render forward on-top objects last
-                    //Disable depth fail for objects on top
-                    Engine.Renderer.DepthFunc(EComparison.Always);
-                    renderingPasses.Render(ERenderPass.OnTopForward);
-                    target?.Unbind(EFramebufferTarget.DrawFramebuffer);
-                }
-            }
-            AbstractRenderer.PopCurrent3DScene();
-            AbstractRenderer.PopCamera();
-        }
+        //            //Render forward on-top objects last
+        //            //Disable depth fail for objects on top
+        //            Engine.Renderer.DepthFunc(EComparison.Always);
+        //            renderingPasses.Render(ERenderPass.OnTopForward);
+        //            target?.Unbind(EFramebufferTarget.DrawFramebuffer);
+        //        }
+        //    }
+        //    AbstractRenderer.PopCurrent3DScene();
+        //    AbstractRenderer.PopCamera();
+        //}
         public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
             AbstractRenderer.PushCamera(camera);

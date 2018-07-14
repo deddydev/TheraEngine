@@ -152,7 +152,7 @@ namespace TheraEngine.Components.Scene.Mesh
             float distance = camera?.DistanceFromWorldPointFast(_component?.WorldPoint ?? Vec3.Zero) ?? 0.0f;
             if (!passes.ShadowPass)
                 UpdateLOD(distance);
-            _renderCommand.Primitives = _currentLOD.Value.Manager;
+            _renderCommand.Mesh = _currentLOD.Value.Manager;
             _renderCommand.WorldMatrix = _component.WorldMatrix;
             _renderCommand.NormalMatrix = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
             _renderCommand.RenderDistance = distance;

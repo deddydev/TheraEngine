@@ -27,8 +27,8 @@ namespace TheraEngine.Rendering
         }
         public PrimitiveManager Primitives
         {
-            get => _rc.Primitives;
-            set => _rc.Primitives = value;
+            get => _rc.Mesh;
+            set => _rc.Mesh = value;
         }
         public TMaterial Material
         {

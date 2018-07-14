@@ -122,8 +122,16 @@ namespace TheraEditor.Windows.Forms
         {
             DockContent form = FindForm() as DockContent;
             DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
-            ModelEditorForm editor = p.FindForm() as ModelEditorForm;
-            editor.MatPreviewForm.SetMaterial(_material);
+            Form f = p.FindForm();
+
+            if (f is ModelEditorForm modelForm)
+            {
+                modelForm.MatPreviewForm.SetMaterial(_material);
+            }
+            else if (f is MaterialEditorForm matForm)
+            {
+                //matForm.MatPreviewForm.SetMaterial(_material);
+            }
         }
 
         private void lblMatName_MouseEnter(object sender, EventArgs e)

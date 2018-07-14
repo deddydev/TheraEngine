@@ -219,9 +219,7 @@ namespace TheraEngine.Components.Scene.Mesh
             base.RecalcWorldTransform();
             _targetSkeleton?.WorldMatrixChanged();
         }
-
-        //private void Tick(float delta) => PreRender();
-
+        
         public void PreRenderUpdate(Camera camera)
         {
             _targetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
@@ -230,18 +228,23 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             _targetSkeleton?.SwapBuffers();
         }
+        public void PreRender(Viewport viewport, Camera camera)
+        {
+
+        }
 
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             base.OnHighlightChanged(highlighted);
 
-            foreach (SkeletalRenderableMesh m in Meshes)
-            {
-                foreach (var lod in m.LODs)
+            if (Meshes != null)
+                foreach (SkeletalRenderableMesh m in Meshes)
                 {
-                    Editor.EditorState.RegisterHighlightedMaterial(lod.Manager.Material, highlighted, OwningScene);
+                    foreach (var lod in m.LODs)
+                    {
+                        Editor.EditorState.RegisterHighlightedMaterial(lod.Manager.Material, highlighted, OwningScene);
+                    }
                 }
-            }
         }
         protected internal override void OnSelectedChanged(bool selected)
         {

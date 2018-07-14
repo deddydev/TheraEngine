@@ -4,6 +4,7 @@ using System.IO;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models.Materials.Textures;
 
@@ -21,9 +22,23 @@ namespace TheraEngine.Actors.Types
         public TexRefCube IrradianceTex { get; private set; }
         public TexRefCube PrefilterTex { get; private set; }
 
+        public bool Visible { get; set; }
+        public bool VisibleInEditorOnly { get; set; }
+        public bool HiddenFromOwner { get; set; }
+        public bool VisibleToOwnerOnly { get; set; }
+
+        private PrimitiveManager _irradianceSphere;
         public IBLProbeComponent() : base()
         {
-            _rc = new RenderCommandDebug3D(Render);
+            var shader = Engine.LoadEngineShader("CubeMapSphereMesh.fs", EShaderMode.Fragment);
+            TMaterial mat = new TMaterial("IrradianceMat", new BaseTexRef[] { IrradianceTex }, shader);
+            _irradianceSphere = new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u), mat);
+
+            _rc = new RenderCommandMesh3D
+            {
+                NormalMatrix = Matrix3.Identity,
+                Mesh = _irradianceSphere,
+            };
         }
 
         public override void OnSpawned()
@@ -138,13 +153,10 @@ namespace TheraEngine.Actors.Types
                 }
             }
         }
-        private void Render()
-        {
-            Engine.Renderer.RenderPoint(WorldPoint, Color.Red);
-        }
-        private RenderCommandDebug3D _rc;
+        private RenderCommandMesh3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
+            _rc.WorldMatrix = WorldMatrix;
             passes.Add(_rc, RenderInfo.RenderPass);
         }
     }

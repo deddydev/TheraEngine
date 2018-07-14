@@ -96,6 +96,7 @@ namespace TheraEngine.Components.Scene.Lights
                 Engine.Renderer.EnableDepthTest(true);
                 Engine.Renderer.AllowDepthWrite(true);
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                //scene.PreRender(null, ShadowCamera);
                 scene.Render(_passes, ShadowCamera, null, null);
             }
             Engine.Renderer.PopRenderArea();
@@ -118,7 +119,7 @@ namespace TheraEngine.Components.Scene.Lights
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             float distance = camera?.DistanceFromScreenPlane(WorldPoint) ?? 0.0f;
-            _rc.Primitives = _previewMesh;
+            _rc.Mesh = _previewMesh;
             _rc.WorldMatrix = WorldMatrix;
             _rc.NormalMatrix = Matrix3.Identity;
             _rc.RenderDistance = distance;

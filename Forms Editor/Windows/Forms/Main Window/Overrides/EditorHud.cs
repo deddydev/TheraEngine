@@ -109,27 +109,31 @@ namespace TheraEditor.Windows.Forms
         {
             if (HighlightedComponent is StaticMeshComponent staticMesh)
             {
-                foreach (StaticRenderableMesh m in staticMesh.Meshes)
-                {
-                    foreach (var lod in m.LODs)
+                var meshes = staticMesh.Meshes;
+                if (meshes != null)
+                    foreach (StaticRenderableMesh m in staticMesh.Meshes)
                     {
-                        var tris = lod.Manager.Data.Triangles;
-                        if (tris != null && tris.Count > 0)
-                            UpdateMatHighlight(lod.Manager.Material, highlighted);
+                        foreach (var lod in m.LODs)
+                        {
+                            var tris = lod.Manager.Data.Triangles;
+                            if (tris != null && tris.Count > 0)
+                                UpdateMatHighlight(lod.Manager.Material, highlighted);
+                        }
                     }
-                }
             }
             else if (HighlightedComponent is SkeletalMeshComponent skeletalMesh)
             {
-                foreach (SkeletalRenderableMesh m in skeletalMesh.Meshes)
-                {
-                    foreach (var lod in m.LODs)
+                var meshes = skeletalMesh.Meshes;
+                if (meshes != null)
+                    foreach (SkeletalRenderableMesh m in skeletalMesh.Meshes)
                     {
-                        var tris = lod.Manager.Data.Triangles;
-                        if (tris != null && tris.Count > 0)
-                            UpdateMatHighlight(lod.Manager.Material, highlighted);
+                        foreach (var lod in m.LODs)
+                        {
+                            var tris = lod.Manager.Data.Triangles;
+                            if (tris != null && tris.Count > 0)
+                                UpdateMatHighlight(lod.Manager.Material, highlighted);
+                        }
                     }
-                }
             }
             else if (HighlightedComponent is LandscapeComponent landscape)
             {
@@ -657,8 +661,8 @@ namespace TheraEditor.Windows.Forms
                 _material.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
                 _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), _material);
                 _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), _material);
-                _circleRC.Primitives = _circlePrimitive;
-                _normalRC.Primitives = _normalPrimitive;
+                _circleRC.Mesh = _circlePrimitive;
+                _normalRC.Mesh = _normalPrimitive;
                 _circleRC.NormalMatrix = Matrix3.Identity;
                 _normalRC.NormalMatrix = Matrix3.Identity;
             }

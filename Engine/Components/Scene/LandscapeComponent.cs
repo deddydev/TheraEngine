@@ -248,7 +248,7 @@ namespace TheraEngine.Actors.Types
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
         public override void AddRenderables(RenderPasses passes, Camera camera)
         {
-            _rc.Primitives = _mesh;
+            _rc.Mesh = _mesh;
             _rc.WorldMatrix = WorldMatrix;
             _rc.NormalMatrix = WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
             passes.Add(_rc, RenderInfo.RenderPass);

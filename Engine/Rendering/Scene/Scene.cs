@@ -113,6 +113,7 @@ namespace TheraEngine.Rendering
     {
         void PreRenderUpdate(Camera camera);
         void PreRenderSwap();
+        void PreRender(Viewport viewport, Camera camera);
     }
     public abstract class BaseScene
     {
@@ -151,6 +152,11 @@ namespace TheraEngine.Rendering
         {
             foreach (IPreRendered p in _preRenderList)
                 p.PreRenderSwap();
+        }
+        public void PreRender(Viewport viewport, Camera camera)
+        {
+            foreach (IPreRendered p in _preRenderList)
+                p.PreRender(viewport, camera);
         }
         public void AddPreRenderedObject(IPreRendered obj)
         {

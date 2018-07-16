@@ -25,6 +25,12 @@ namespace TheraEngine.Rendering.Cameras
             get => _transformedFrustum.OctreeNode;
             set => _transformedFrustum.OctreeNode = value;
         }
+        public bool Visible { get; set; } = true;
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
+#if EDITOR
+        public bool VisibleInEditorOnly { get; set; }
+#endif
 
         public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);
@@ -180,13 +186,9 @@ namespace TheraEngine.Rendering.Cameras
         public Vec2 Dimensions => new Vec2(Width, Height);
 
         [Browsable(false)]
-        public List<Viewport> Viewports
-        {
-            get => _viewports;
-            internal set => _viewports = value;
-        }
+        public List<Viewport> Viewports { get; internal set; } = new List<Viewport>();
         [Browsable(false)]
-        public bool IsActiveRenderCamera { get => _isActive; internal set => _isActive = value; }
+        public bool IsActiveRenderCamera { get; internal set; } = false;
 
         [Browsable(false)]
         public CameraComponent OwningComponent
@@ -222,8 +224,6 @@ namespace TheraEngine.Rendering.Cameras
         }
         
         private CameraComponent _owningComponent;
-        private List<Viewport> _viewports = new List<Viewport>();
-        private bool _isActive = false;
         internal Vec3 _projectionRange;
         internal Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;

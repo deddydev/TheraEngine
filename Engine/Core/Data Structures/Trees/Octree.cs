@@ -269,7 +269,11 @@ namespace System
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
-                            bool allowRender = !shadowPass || r.RenderInfo.CastsShadows;
+#if EDITOR
+                            if (!Engine.EditorState.InEditMode && r.VisibleInEditorOnly)
+                                continue;
+#endif
+                            bool allowRender = r.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                             if (allowRender && (r.CullingVolume == null || (c = cullingVolume.Contains(r.CullingVolume)) != EContainment.Disjoint))
                                 r.AddRenderables(passes, camera);
                         }

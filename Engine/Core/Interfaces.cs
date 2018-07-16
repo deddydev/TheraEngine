@@ -41,14 +41,16 @@ namespace TheraEngine
     /// </summary>
     public interface I3DRenderable : I3DBoundable, IRenderable
     {
-        //bool Visible { get; set; }
-        //bool VisibleInEditorOnly { get; set; }
-        //bool HiddenFromOwner { get; set; }
-        //bool VisibleToOwnerOnly { get; set; }
+        bool Visible { get; set; }
+        bool HiddenFromOwner { get; set; }
+        bool VisibleToOwnerOnly { get; set; }
         /// <summary>
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo3D RenderInfo { get; }
+#if EDITOR
+        bool VisibleInEditorOnly { get; set; }
+#endif
         void AddRenderables(RenderPasses passes, Camera camera);
     }
     /// <summary>

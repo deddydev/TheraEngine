@@ -19,6 +19,12 @@ namespace TheraEngine.Components.Scene
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
+        public bool Visible { get; set; } = true;
+#if EDITOR
+        public bool VisibleInEditorOnly { get; set; } = true;
+#endif
 
         private PropAnimVec3 _spline;
 

@@ -13,6 +13,11 @@ namespace TheraEngine.Rendering
     }
     public abstract class RenderCommand3D : RenderCommand
     {
+        /// <summary>
+        /// Used to determine what order to render in.
+        /// Opaque objects closer to the camera are drawn first,
+        /// whereas translucent objects farther from the camera are drawn first.
+        /// </summary>
         public float RenderDistance { get; set; }
 
         public override int CompareTo(RenderCommand other)

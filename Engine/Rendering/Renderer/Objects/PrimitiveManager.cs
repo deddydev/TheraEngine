@@ -486,6 +486,7 @@ namespace TheraEngine.Rendering.Models
                 _pipeline.Bind();
 
                 matProg = mat.Program;
+                _pipeline.Clear(EProgramStageMask.AllShaderBits);
                 _pipeline.Set(mat.Program.ShaderTypeMask, matProg.BindingId);
                 if (!mat.Program.ShaderTypeMask.HasFlag(EProgramStageMask.VertexShaderBit))
                 {

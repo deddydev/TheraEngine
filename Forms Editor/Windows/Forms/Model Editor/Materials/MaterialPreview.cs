@@ -134,7 +134,7 @@ namespace TheraEditor.Windows.Forms
         }
         
         private DirectionalLightComponent _light;
-        private PrimitiveRenderWrapper _spherePrim;
+        private MeshRenderable _spherePrim;
         private TMaterial _material;
 
         public TMaterial Material
@@ -153,7 +153,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         basicRenderPanel1.Scene.Clear(BoundingBox.FromHalfExtentsTranslation(5.0f, 0.0f));
                         basicRenderPanel1.Scene.Lights.Add(_light);
-                        _spherePrim = new PrimitiveRenderWrapper( //0.8f instead of 1.0f for border padding
+                        _spherePrim = new MeshRenderable( //0.8f instead of 1.0f for border padding
                             new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
                         basicRenderPanel1.Scene.Add(_spherePrim);
                         IBLProbeGridActor probes = new IBLProbeGridActor();

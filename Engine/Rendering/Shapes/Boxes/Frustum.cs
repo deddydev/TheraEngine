@@ -38,6 +38,12 @@ namespace TheraEngine.Core.Shapes
     {
         public RenderInfo3D RenderInfo { get; } 
             = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+        public bool Visible { get; set; } = true;
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
+#if EDITOR
+        public bool VisibleInEditorOnly { get; set; }
+#endif
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];

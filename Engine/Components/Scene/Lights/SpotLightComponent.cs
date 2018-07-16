@@ -11,7 +11,7 @@ using TheraEngine.Rendering.Models.Materials;
 namespace TheraEngine.Components.Scene.Lights
 {
     [FileDef("Spot Light Component")]
-    public class SpotLightComponent : LightComponent, I3DRenderable
+    public class SpotLightComponent : LightComponent
     {
         private float _outerCutoff, _innerCutoff, _distance;
         private Vec3 _direction;

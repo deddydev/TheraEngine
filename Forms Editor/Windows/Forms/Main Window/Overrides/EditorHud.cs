@@ -650,6 +650,9 @@ namespace TheraEditor.Windows.Forms
             public SceneComponent HighlightedComponent { get; set; }
             public Matrix4 Transform { get; set; } = Matrix4.Identity;
             public bool Visible { get; set; }
+            public bool VisibleInEditorOnly { get; set; } = true;
+            public bool HiddenFromOwner { get; set; } = false;
+            public bool VisibleToOwnerOnly { get; set; } = false;
 
             private TMaterial _material;
             private PrimitiveManager _circlePrimitive;

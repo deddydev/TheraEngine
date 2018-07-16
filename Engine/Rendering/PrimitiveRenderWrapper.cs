@@ -6,16 +6,26 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
-    public class PrimitiveRenderWrapper : I3DRenderable
+    /// <summary>
+    /// Wrapper class to render a <see cref="PrimitiveManager"/> in a <see cref="BaseScene"/>.
+    /// Not attached to the component system.
+    /// </summary>
+    public class MeshRenderable : I3DRenderable
     {
-        public PrimitiveRenderWrapper() { }
-        public PrimitiveRenderWrapper(PrimitiveManager m)
+        public MeshRenderable() { }
+        public MeshRenderable(PrimitiveManager m)
         {
             Primitives = m;
             Transform = Matrix4.Identity;
         }
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit);
+        public bool Visible { get; set; } = true;
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
+#if EDITOR
+        public bool VisibleInEditorOnly { get; set; } = false;
+#endif
         public Matrix4 Transform
         {
             get => _rc.WorldMatrix;

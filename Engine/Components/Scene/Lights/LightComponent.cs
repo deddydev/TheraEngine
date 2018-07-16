@@ -57,11 +57,18 @@ namespace TheraEngine.Components.Scene.Lights
         public virtual Shape CullingVolume { get; } = null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
+        public bool Visible { get; set; } = true;
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
+#if EDITOR
+        public bool VisibleInEditorOnly { get; set; } = false;
+#endif
 
         public LightComponent(ColorF3 color, float diffuseIntensity) : base()
         {
             _color = color;
             _diffuseIntensity = diffuseIntensity;
+            _previewMesh = new PrimitiveManager();
         }
         internal void SwapBuffers()
         {

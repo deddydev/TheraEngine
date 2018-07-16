@@ -40,8 +40,8 @@ namespace TheraEngine.Tests
         {
             bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 0;
-            int dirLights = 1;
+            int pointLights = 2;
+            int dirLights = 0;
             int spotLights = 0;
 
             float margin = 2.0f;
@@ -400,6 +400,10 @@ namespace TheraEngine.Tests
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
+        public bool Visible { get; set; } = true;
+        public bool VisibleInEditorOnly { get; set; } = false;
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
 
         public override void OnSpawnedPostComponentSetup()
         {

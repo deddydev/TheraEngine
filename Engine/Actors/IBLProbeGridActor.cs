@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TheraEngine.Actors.Types;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
@@ -148,7 +149,13 @@ namespace TheraEngine.Actors
                 comp.Capture();
                 comp.GenerateIrradianceMap();
                 comp.GeneratePrefilterMap();
+                comp.FinalizeCapture();
             }
+        }
+
+        public async Task InitAndCaptureAllAsync(int colorResolution, bool captureDepth = false, int depthResolution = 1)
+        {
+            await Task.Run(() => InitAndCaptureAll(colorResolution, captureDepth, depthResolution));
         }
     }
 }

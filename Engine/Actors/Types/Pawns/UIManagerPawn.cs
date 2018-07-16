@@ -43,6 +43,8 @@ namespace TheraEngine.Actors.Types.Pawns
         public Vec2 CursorPosition(Viewport v)
         {
             Point absolute = Cursor.Position;
+            if (v == null)
+                return new Vec2(absolute.X, absolute.Y);
             BaseRenderPanel panel = v.OwningPanel;
             absolute = panel.PointToClient(absolute);
             Vec2 result = new Vec2(absolute.X, absolute.Y);

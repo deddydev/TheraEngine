@@ -78,6 +78,7 @@ namespace TheraEditor.Windows.Forms
             }
             return value;
         }
+
         public T GetForm<T>(ref T value, DockState state) where T : DockContent, new()
         {
             if (value == null || value.IsDisposed)
@@ -133,82 +134,88 @@ namespace TheraEditor.Windows.Forms
         
         private LocalFileRef<World> ModelEditorWorld
             = new LocalFileRef<World>(/*Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
-        
+
+        public async Task InitWorldAsync()
+        {
+            //bool loaded = ModelEditorWorld.IsLoaded;
+            //bool fileDoesNotExist = !ModelEditorWorld.FileExists;
+            World world = await ModelEditorWorld.GetInstanceAsync();
+            if (world == null)
+            {
+                List<IActor> actors = new List<IActor>();
+
+                DirectionalLightActor light = new DirectionalLightActor();
+                DirectionalLightComponent comp = light.RootComponent;
+                comp.DiffuseIntensity = 1.0f;
+                comp.LightColor = new EventColorF3(1.0f);
+                comp.Rotation.Yaw = 45.0f;
+                comp.Rotation.Pitch = -45.0f;
+                comp.Scale = new Vec3(5.0f);
+                actors.Add(light);
+
+                Vec3 max = 1000.0f;
+                Vec3 min = -max;
+                TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg2.png");
+                StaticModel skybox = new StaticModel("Skybox");
+                TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
+                {
+                    MagFilter = ETexMagFilter.Nearest,
+                    MinFilter = ETexMinFilter.Nearest
+                };
+                StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", true,
+                    BoundingBox.FromMinMax(min, max),
+                    BoundingBox.SolidMesh(min, max, true,
+                    skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?
+                        BoundingBox.ECubemapTextureUVs.WidthLarger :
+                        BoundingBox.ECubemapTextureUVs.HeightLarger, 0.0f),
+                    TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
+                    {
+                        DepthTest = new DepthTest()
+                        {
+                            Enabled = ERenderParamUsage.Enabled,
+                            UpdateDepth = false,
+                            Function = EComparison.Less
+                        }
+                    }));
+                mesh.RenderInfo.RenderPass = ERenderPass.Background;
+                skybox.RigidChildren.Add(mesh);
+                Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
+                skyboxActor.RootComponent.ModelRef = skybox;
+                actors.Add(skyboxActor);
+
+                IBLProbeGridActor iblProbes = new IBLProbeGridActor();
+                iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
+                actors.Add(iblProbes);
+
+                ModelEditorWorld.File = world = new World()
+                {
+                    Settings = new WorldSettings("ModelEditorWorld", new Map(new MapSettings(actors))),
+                };
+
+                world.BeginPlay();
+                await iblProbes.InitAndCaptureAllAsync(512);
+            }
+            else
+            {
+                world.BeginPlay();
+                var ibl = world.State.GetSpawnedActorsOfType<IBLProbeGridActor>().ToArray();
+                if (ibl.Length > 0 && ibl[0] != null)
+                {
+                    await ibl[0].InitAndCaptureAllAsync(512);
+                }
+            }
+            
+            //DirectionalLightActor light = w.State.GetSpawnedActorsOfType<DirectionalLightActor>().ToArray()[0];
+            //w.Scene.Add(light.RootComponent.ShadowCamera);
+            //if (fileDoesNotExist)
+            //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
+        }
+
         public World World
         {
             get
             {
-                bool loaded = ModelEditorWorld.IsLoaded;
-                bool fileDoesNotExist = !ModelEditorWorld.FileExists;
-
-                IBLProbeGridActor iblProbes = null;
-                if (fileDoesNotExist)
-                {
-                    List<IActor> actors = new List<IActor>();
-
-                    DirectionalLightActor light = new DirectionalLightActor();
-                    DirectionalLightComponent comp = light.RootComponent;
-                    comp.DiffuseIntensity = 1.0f;
-                    comp.LightColor = new EventColorF3(1.0f);
-                    comp.Rotation.Yaw = 45.0f;
-                    comp.Rotation.Pitch = -45.0f;
-                    comp.Scale = new Vec3(5.0f);
-                    actors.Add(light);
-
-                    Vec3 max = 1000.0f;
-                    Vec3 min = -max;
-                    Task<TextureFile2D> t = Engine.LoadEngineTexture2DAsync("cubemap guide.png");
-                    TextureFile2D skyTex = t.Result;
-                    StaticModel skybox = new StaticModel("Skybox");
-                    TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
-                    {
-                        MagFilter = ETexMagFilter.Nearest,
-                        MinFilter = ETexMinFilter.Nearest
-                    };
-                    StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", true,
-                        BoundingBox.FromMinMax(min, max),
-                        BoundingBox.SolidMesh(min, max, true,
-                        skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?
-                            BoundingBox.ECubemapTextureUVs.WidthLarger :
-                            BoundingBox.ECubemapTextureUVs.HeightLarger, 0.0f),
-                        TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
-                        {
-                            DepthTest = new DepthTest()
-                            {
-                                Enabled = ERenderParamUsage.Enabled,
-                                UpdateDepth = false,
-                                Function = EComparison.Less
-                            }
-                        }));
-                    mesh.RenderInfo.RenderPass = ERenderPass.Background;
-                    skybox.RigidChildren.Add(mesh);
-                    Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
-                    skyboxActor.RootComponent.ModelRef = skybox;
-                    actors.Add(skyboxActor);
-
-                    iblProbes = new IBLProbeGridActor();
-                    iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
-                    actors.Add(iblProbes);
-
-                    ModelEditorWorld.File = new World()
-                    {
-                        Settings = new WorldSettings("ModelEditorWorld", new Map(new MapSettings(actors))),
-                    };
-                }
-                
-                World w = ModelEditorWorld.File;
-                if (!loaded)
-                {
-                    w.BeginPlay();
-                    //DirectionalLightActor light = w.State.GetSpawnedActorsOfType<DirectionalLightActor>().ToArray()[0];
-                    //w.Scene.Add(light.RootComponent.ShadowCamera);
-                    //if (fileDoesNotExist)
-                    //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
-                }
-
-                iblProbes?.InitAndCaptureAll(512);
-
-                return w;
+                return ModelEditorWorld.File;
             }
         }
         
@@ -257,11 +264,12 @@ namespace TheraEditor.Windows.Forms
             //BoundingBox aabb = skm.CalculateBindPoseCullingAABB();
             //RenderForm1.AlignView(aabb);
         }
-        protected override void OnShown(EventArgs e)
+        protected override async void OnShown(EventArgs e)
         {
             base.OnShown(e);
             //Editor.Instance.SetRenderTicking(false);
             RenderForm1.RenderPanel.CaptureContext();
+            await InitWorldAsync();
             SetRenderTicking(true);
             AnimList.Show();
         }

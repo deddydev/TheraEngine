@@ -27,7 +27,11 @@ namespace TheraEngine.Rendering.Cameras
 
         private void _originPercentages_Changed()
         {
-            SetOriginPercentages(_originPercentages);
+            _orthoLeftPercentage = 0.0f - _originPercentages.X;
+            _orthoRightPercentage = 1.0f - _originPercentages.X;
+            _orthoBottomPercentage = 0.0f - _originPercentages.Y;
+            _orthoTopPercentage = 1.0f - _originPercentages.Y;
+            Resize(Width, Height);
         }
 
         public override float Width
@@ -94,6 +98,7 @@ namespace TheraEngine.Rendering.Cameras
             _orthoRightPercentage = 1.0f - xPercentage;
             _orthoBottomPercentage = 0.0f - yPercentage;
             _orthoTopPercentage = 1.0f - yPercentage;
+            Resize(Width, Height);
         }
         //public void Pivot(float y, float x, float radius)
         //{
@@ -165,7 +170,7 @@ namespace TheraEngine.Rendering.Cameras
             _orthoRight = _orthoRightPercentage * width;
             _orthoBottom = _orthoBottomPercentage * height;
             _orthoTop = _orthoTopPercentage * height;
-            _origin = _originPercentages.Raw * width;
+            _origin = new Vec2(_orthoLeft, _orthoBottom) + _originPercentages.Raw * width;
             base.Resize(width, height);
         }
         protected Vec3 AlignScreenPoint(Vec3 screenPoint)

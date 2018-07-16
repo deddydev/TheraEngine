@@ -252,7 +252,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(targetStructName + "WorldToLightSpaceProjMatrix", ShadowCamera.WorldToCameraProjSpaceMatrix);
 
             var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
-            program.Sampler("Texture4", tex, 4);
+            program.Sampler("ShadowMap", tex, 4);
         }
         public override void SetShadowMapResolution(int width, int height)
         {
@@ -270,7 +270,8 @@ namespace TheraEngine.Components.Scene.Lights
         {
             TexRef2D[] refs = new TexRef2D[]
             {
-                new TexRef2D("SpotShadowDepth", width, height, GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                new TexRef2D("SpotShadowDepth", width, height, 
+                GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -278,13 +279,15 @@ namespace TheraEngine.Components.Scene.Lights
                     VWrap = ETexWrapMode.ClampToEdge,
                     FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                 },
-                new TexRef2D("SpotShadowColor", width, height, EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat)
+                new TexRef2D("SpotShadowColor", width, height, 
+                EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
                     UWrap = ETexWrapMode.ClampToEdge,
                     VWrap = ETexWrapMode.ClampToEdge,
                     FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                    SamplerName = "ShadowMap"
                 },
             };
 

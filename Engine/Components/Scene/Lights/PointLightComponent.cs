@@ -122,7 +122,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(targetStructName + "Brightness", Brightness);
 
             var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
-            program.Sampler("Texture4", tex, 4);
+            program.Sampler("ShadowMap", tex, 4);
         }
         public override void SetShadowMapResolution(int width, int height)
         {
@@ -165,6 +165,7 @@ namespace TheraEngine.Components.Scene.Lights
                     VWrap = ETexWrapMode.ClampToEdge,
                     WWrap = ETexWrapMode.ClampToEdge,
                     FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                    SamplerName = "ShadowMap"
                 },
             };
 

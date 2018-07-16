@@ -343,6 +343,7 @@ namespace TheraEngine.Tests
             actors.Add(skyboxActor);
 
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
+            iblProbes.RootComponent.Translation.Y += 3.0f;
             iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
             actors.Add(iblProbes);
 

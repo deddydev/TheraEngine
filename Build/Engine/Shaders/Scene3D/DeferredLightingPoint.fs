@@ -10,7 +10,7 @@ uniform sampler2D Texture0; //AlbedoOpacity
 uniform sampler2D Texture1; //Normal
 uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
 uniform sampler2D Texture3; //Depth
-uniform samplerCube Texture4; //Point Shadow Map
+uniform samplerCube ShadowMap; //Point Shadow Map
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
@@ -56,7 +56,7 @@ float ReadPointShadowMap(in float farPlaneDist, in vec3 fragToLightWS, in float 
     float bias = GetShadowBias(NoL, 10.0f, 2.5f, 0.15f, 5.0f);
 
     //Hard shadow
-    float closestDepth = texture(Texture4, fragToLightWS).r * farPlaneDist;
+    float closestDepth = texture(ShadowMap, fragToLightWS).r * farPlaneDist;
     float shadow = lightDist - bias > closestDepth ? 0.0f : 1.0f;
 
     //PCF shadow

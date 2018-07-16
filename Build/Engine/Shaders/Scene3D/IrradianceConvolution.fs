@@ -1,9 +1,9 @@
 #version 450
 
-layout (location = 0) out vec3 FragColor;
+layout (location = 0) out vec3 OutColor;
 layout (location = 0) in vec3 FragPos;
 
-layout (binding = 0) uniform samplerCube Texture0; //Environment map
+uniform samplerCube SceneTex; //Environment map
 
 const float PI = 3.14159265359f;
 
@@ -19,7 +19,7 @@ void main()
     up         = cross(N, right);
 
     float sampleDelta = 0.025f;
-    float numSamples = 0.0f;
+    int numSamples = 0;
     for (float phi = 0.0f; phi < 2.0f * PI; phi += sampleDelta)
     {
         for (float theta = 0.0f; theta < 0.5f * PI; theta += sampleDelta)
@@ -32,10 +32,10 @@ void main()
             // tangent space to world
             vec3 sampleVec = tanX * right + tanY * up + tanZ * N;
 
-            irradiance += texture(Texture0, sampleVec).rgb * cos(theta) * sin(theta);
-            numSamples += 1.0f;
+            irradiance += texture(SceneTex, sampleVec).rgb * cos(theta) * sin(theta);
+            ++numSamples;
         }
     }
 
-    FragColor = PI * irradiance * (1.0f / numSamples);
+    OutColor = irradiance * vec3(PI / float(numSamples));
 }

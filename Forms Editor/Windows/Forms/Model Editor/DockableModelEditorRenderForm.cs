@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Windows.Forms;
 using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Timers;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -85,13 +83,7 @@ namespace TheraEditor.Windows.Forms
             Form.World.SpawnActor(EditorPawn);
             base.OnShown(e);
         }
-
-        private void RenderTick(object sender, FrameEventArgs e)
-        {
-            RenderPanel.Invalidate();
-            Application.DoEvents();
-        }
-
+        
         protected override void OnClosed(EventArgs e)
         {
             Form.World.DespawnActor(EditorPawn);

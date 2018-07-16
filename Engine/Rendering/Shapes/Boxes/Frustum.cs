@@ -41,7 +41,6 @@ namespace TheraEngine.Core.Shapes
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];
-        private Plane[] _planes = new Plane[6];
 
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
         [TSerialize("UseBoundingSphere", XmlNodeType = EXmlNodeType.Attribute)]
@@ -306,19 +305,19 @@ namespace TheraEngine.Core.Shapes
         public Vec3 NearTopRight => _points[7];
 
         [Browsable(false)]
-        public Plane Near => _planes[0];
+        public Plane Near => Planes[0];
         [Browsable(false)]
-        public Plane Far => _planes[1];
+        public Plane Far => Planes[1];
 
         [Browsable(false)]
-        public Plane Left => _planes[2];
+        public Plane Left => Planes[2];
         [Browsable(false)]
-        public Plane Right => _planes[3];
+        public Plane Right => Planes[3];
 
         [Browsable(false)]
-        public Plane Top => _planes[4];
+        public Plane Top => Planes[4];
         [Browsable(false)]
-        public Plane Bottom => _planes[5];
+        public Plane Bottom => Planes[5];
 
         [Browsable(false)]
         public IEnumerable<Vec3> Points => _points;
@@ -334,7 +333,7 @@ namespace TheraEngine.Core.Shapes
             private set => _boundingSphere = value;
         }
         [Browsable(false)]
-        public Plane[] Planes => _planes;
+        public Plane[] Planes { get; } = new Plane[6];
 
         //[Browsable(false)]
         //public ERenderPass3D RenderPass => ERenderPass3D.OpaqueForward;
@@ -391,16 +390,16 @@ namespace TheraEngine.Core.Shapes
             _points[7] = nearTopRight;
 
             //near, far
-            _planes[0] = new Plane(nearBottomRight, nearBottomLeft, nearTopRight);
-            _planes[1] = new Plane(farBottomLeft, farBottomRight, farTopLeft);
+            Planes[0] = new Plane(nearBottomRight, nearBottomLeft, nearTopRight);
+            Planes[1] = new Plane(farBottomLeft, farBottomRight, farTopLeft);
 
             //left, right
-            _planes[2] = new Plane(nearBottomLeft, farBottomLeft, nearTopLeft);
-            _planes[3] = new Plane(farBottomRight, nearBottomRight, farTopRight);
+            Planes[2] = new Plane(nearBottomLeft, farBottomLeft, nearTopLeft);
+            Planes[3] = new Plane(farBottomRight, nearBottomRight, farTopRight);
 
             //top, bottom
-            _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
-            _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
+            Planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
+            Planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
 
             //CalculateBoundingSphere();
         }
@@ -419,16 +418,16 @@ namespace TheraEngine.Core.Shapes
             _points[7] = nearTopRight;
 
             //near, far
-            _planes[0] = new Plane(nearBottomRight, nearBottomLeft, nearTopRight);
-            _planes[1] = new Plane(farBottomLeft, farBottomRight, farTopLeft);
+            Planes[0] = new Plane(nearBottomRight, nearBottomLeft, nearTopRight);
+            Planes[1] = new Plane(farBottomLeft, farBottomRight, farTopLeft);
 
             //left, right
-            _planes[2] = new Plane(nearBottomLeft, farBottomLeft, nearTopLeft);
-            _planes[3] = new Plane(farBottomRight, nearBottomRight, farTopRight);
+            Planes[2] = new Plane(nearBottomLeft, farBottomLeft, nearTopLeft);
+            Planes[3] = new Plane(farBottomRight, nearBottomRight, farTopRight);
 
             //top, bottom
-            _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
-            _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
+            Planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
+            Planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
 
             UpdateBoundingSphere(sphereCenter, sphereRadius);
         }
@@ -453,7 +452,7 @@ namespace TheraEngine.Core.Shapes
             for (int i = 0; i < 8; ++i)
                 _points[i] = other._points[i] * transform;
             for (int i = 0; i < 6; ++i)
-                _planes[i] = other._planes[i].TransformedBy(transform);
+                Planes[i] = other.Planes[i].TransformedBy(transform);
         }
 
         public void TransformBy(Matrix4 transform)
@@ -463,7 +462,7 @@ namespace TheraEngine.Core.Shapes
             for (int i = 0; i < 8; ++i)
                 _points[i] = _points[i] * transform;
             for (int i = 0; i < 6; ++i)
-                _planes[i].TransformBy(transform);
+                Planes[i].TransformBy(transform);
         }
 
         public Frustum TransformedBy(Matrix4 transform)
@@ -474,7 +473,7 @@ namespace TheraEngine.Core.Shapes
             for (int i = 0; i < 8; ++i)
                 f._points[i] = _points[i] * transform;
             for (int i = 0; i < 6; ++i)
-                f._planes[i] = _planes[i].TransformedBy(transform);
+                f.Planes[i] = Planes[i].TransformedBy(transform);
             return f;
         }
         public bool Contains(Vec3 point)
@@ -566,8 +565,8 @@ namespace TheraEngine.Core.Shapes
             }
             return EContainment.Disjoint;
         }
-        public IEnumerator<Plane> GetEnumerator() => ((IEnumerable<Plane>)_planes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Plane>)_planes).GetEnumerator();
+        public IEnumerator<Plane> GetEnumerator() => ((IEnumerable<Plane>)Planes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Plane>)Planes).GetEnumerator();
 
         public void Render() => Render(Color.Orange, Color.DarkRed, Color.LightGreen, 1.0f, false);
         public void Render(Color NearColor, Color FarColor, Color SideColor, float LineSize, bool RenderSphere)
@@ -575,17 +574,18 @@ namespace TheraEngine.Core.Shapes
             if (RenderSphere)
                 _boundingSphere.Render();
             
-            Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, SideColor, LineSize);
-            Engine.Renderer.RenderLine(NearTopRight, FarTopRight, SideColor, LineSize);
+            //TODO: use PrimitiveManager; render translucent planes
+            Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, Vec3.Zero, LineSize);
+            Engine.Renderer.RenderLine(NearTopRight, FarTopRight, Vec3.Zero, LineSize);
             Engine.Renderer.RenderLine(NearBottomLeft, FarBottomLeft, SideColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomRight, FarBottomRight, SideColor, LineSize);
 
-            Engine.Renderer.RenderLine(NearTopLeft, NearTopRight, NearColor, LineSize);
+            Engine.Renderer.RenderLine(NearTopLeft, NearTopRight, Vec3.Zero, LineSize);
             Engine.Renderer.RenderLine(NearBottomLeft, NearBottomRight, NearColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomLeft, NearTopLeft, NearColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomRight, NearTopRight, NearColor, LineSize);
 
-            Engine.Renderer.RenderLine(FarTopLeft, FarTopRight, FarColor, LineSize);
+            Engine.Renderer.RenderLine(FarTopLeft, FarTopRight, Vec3.Zero, LineSize);
             Engine.Renderer.RenderLine(FarBottomLeft, FarBottomRight, FarColor, LineSize);
             Engine.Renderer.RenderLine(FarBottomLeft, FarTopLeft, FarColor, LineSize);
             Engine.Renderer.RenderLine(FarBottomRight, FarTopRight, FarColor, LineSize);

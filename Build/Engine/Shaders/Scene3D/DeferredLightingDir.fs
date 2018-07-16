@@ -10,7 +10,7 @@ uniform sampler2D Texture0; //AlbedoOpacity
 uniform sampler2D Texture1; //Normal
 uniform sampler2D Texture2; //PBR: Roughness, Metallic, Specular, Index of refraction
 uniform sampler2D Texture3; //Depth
-uniform sampler2D Texture4; //Directional Shadow Map
+uniform sampler2D ShadowMap; //Directional Shadow Map
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
@@ -60,17 +60,17 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in mat4 lightM
 	float bias = GetShadowBias(NoL);
 
 	//Hard shadow
-	//float depth = texture(Texture4, fragCoord.xy).r;
+	//float depth = texture(ShadowMap, fragCoord.xy).r;
 	//float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
 
 	//PCF shadow
 	float shadow = 0.0f;
-	vec2 texelSize = 1.0f / textureSize(Texture4, 0);
+	vec2 texelSize = 1.0f / textureSize(ShadowMap, 0);
 	for (int x = -1; x <= 1; ++x)
 	{
 	    for (int y = -1; y <= 1; ++y)
 	    {
-	        float pcfDepth = texture(Texture4, fragCoord.xy + vec2(x, y) * texelSize).r;
+	        float pcfDepth = texture(ShadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
 	        shadow += (fragCoord.z - bias > pcfDepth) ? 0.0f : 1.0f;
 	    }
 	}

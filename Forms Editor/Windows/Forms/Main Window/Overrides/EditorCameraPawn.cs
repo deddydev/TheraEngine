@@ -114,16 +114,19 @@ namespace TheraEditor.Actors.Types.Pawns
             CursorManager.WrapCursorWithinClip = moving;
             if (!moving)
             {
-                Viewport v = LocalPlayerController.Viewport;
-                Vec2 viewportPoint = HUD.CursorPosition(v);
-                Segment s = v.GetWorldSegment(viewportPoint);
-                RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
-                if (HasHit = c.Trace())
+                Viewport v = LocalPlayerController?.Viewport;
+                if (v != null)
                 {
-                    HitPoint = c.HitPointWorld;
-                    HitNormal = c.HitNormalWorld;
-                    HitDistance = HitPoint.DistanceToFast(s.StartPoint);
-                    HitObject = c.CollisionObject;
+                    Vec2 viewportPoint = HUD.CursorPosition(v);
+                    Segment s = v.GetWorldSegment(viewportPoint);
+                    RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
+                    if (HasHit = c.Trace())
+                    {
+                        HitPoint = c.HitPointWorld;
+                        HitNormal = c.HitNormalWorld;
+                        HitDistance = HitPoint.DistanceToFast(s.StartPoint);
+                        HitObject = c.CollisionObject;
+                    }
                 }
             }
 

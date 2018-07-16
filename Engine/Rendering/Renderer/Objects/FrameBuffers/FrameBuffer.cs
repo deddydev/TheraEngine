@@ -35,12 +35,24 @@ namespace TheraEngine.Rendering
             }
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         }
-        public void SetRenderTargets(params (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)[] textures)
+        /// <summary>
+        /// Informs the framebuffer where it is writing shader output data to;
+        /// any combination of textures and renderbuffers.
+        /// </summary>
+        /// <param name="targets">The array of targets to render to.
+        /// <list type="bullet">
+        /// <item><description><see cref="IFrameBufferAttachement"/> Target: the <see cref="BaseTexRef"/> or <see cref="RenderBuffer"/> to render to.</description></item>
+        /// <item><description><see cref="EFramebufferAttachment"/> Attachment: which shader output to capture.</description></item>
+        /// <item><description><see cref="int"/> MipLevel: the level of detail to write to.</description></item>
+        /// <item><description><see cref="int"/> LayerIndex: the layer to write to. For example, a cubemap has 6 layers, one for each face.</description></item>
+        /// </list>
+        /// </param>
+        public void SetRenderTargets(params (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)[] targets)
         {
             if (IsActive)
                 DetachAll();
 
-            Targets = textures;
+            Targets = targets;
 
             List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
             foreach (var (Target, Attachment, MipLevel, LayerIndex) in Targets)
@@ -62,6 +74,13 @@ namespace TheraEngine.Rendering
             if (IsActive)
                 AttachAll();
         }
+        /// <summary>
+        /// Informs the framebuffer where it is writing shader output data to;
+        /// either a texture or a renderbuffer.
+        /// </summary>
+        /// <param name="targets">The targets to render to.</param>
+        /// </summary>
+        /// <param name="material"></param>
         public void SetRenderTargets(TMaterial material)
         {
             SetRenderTargets(material.Textures.

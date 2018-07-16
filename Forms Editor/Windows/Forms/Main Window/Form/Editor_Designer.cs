@@ -65,7 +65,7 @@ namespace TheraEditor.Windows.Forms
             if (ActiveRenderForm == control)
                 return;
 
-            bool sameGameMode = ReferenceEquals(ActiveRenderForm?.GameMode, control?.GameMode);
+            //bool sameGameMode = ReferenceEquals(ActiveRenderForm?.GameMode, control?.GameMode);
 
             if (ActiveRenderForm != null)
             {
@@ -77,13 +77,13 @@ namespace TheraEditor.Windows.Forms
                     c.ControlledPawn = null;
                 }
 
-                if (!sameGameMode)
-                    ActiveRenderForm.GameMode?.EndGameplay();
+                //if (!sameGameMode)
+                ActiveRenderForm.GameMode?.EndGameplay();
             }
             ActiveRenderForm = control;
             if (ActiveRenderForm != null)
             {
-                if (!sameGameMode)
+                //if (!sameGameMode)
                     ActiveRenderForm.GameMode?.BeginGameplay();
 
                 int index = (int)control.PlayerIndex;

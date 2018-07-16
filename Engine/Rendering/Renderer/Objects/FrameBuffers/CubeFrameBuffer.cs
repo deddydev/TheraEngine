@@ -52,7 +52,7 @@ namespace TheraEngine.Rendering
         }
 
         /// <summary>
-        /// Renders the FBO to the entire region set by Engine.Renderer.PushRenderArea().
+        /// Renders the one side of the FBO to the entire region set by Engine.Renderer.PushRenderArea().
         /// </summary>
         public void RenderFullscreen(ECubemapFace face)
         {

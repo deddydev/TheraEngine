@@ -306,7 +306,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (!_isLoading)
             {
                 CreateRenderTexture();
-                await Task.Run((Action)LoadMipmaps);
+                await Task.Run(LoadMipmaps);
             }
 
             return _texture;

@@ -63,8 +63,33 @@ namespace TheraEngine.Rendering.Models
                 new Vertex(topLeft,     normal, new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
         }
 
+        /// <summary>
+        /// Generates a quad using cubemap-cross texture coordinates.
+        /// </summary>
+        /// <param name="bottomLeft">The bottom left position of the quad.</param>
+        /// <param name="bottomRight">The bottom right position of the quad.</param>
+        /// <param name="topRight">The top right position of the quad.</param>
+        /// <param name="topLeft">The top left position of the quad.</param>
+        /// <param name="normal">The normal value for the quad.</param>
+        /// <param name="cubeMapFace">The face to retrieve UV coordiantes for.</param>
+        /// <param name="widthLarger">If the cubemap cross texture has a width larger than height for a sideways-oriented cross.
+        /// Assumes +Y and -Y are on the left half of the image (top of the cross is on the left side).</param>
+        /// <param name="bias">How much to shrink the UV coordinates inward into the cross sections
+        /// to avoid sampling from the empty parts of the image.
+        /// A value of 0 means exact coordinates.</param>
+        /// <param name="flipVerticalUVCoord">If true, flips the vertical coordinate upside-down. 
+        /// This is true by default because OpenGL uses a top-left UV origin.</param>
+        /// <returns>A <see cref="VertexQuad"/> object defining a quad.</returns>
         public static VertexQuad MakeQuad(
-            Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, ECubemapFace cubeMapFace, bool widthLarger, float bias = 0.002f, bool flipVerticalUVCoord = true)
+            Vec3 bottomLeft,
+            Vec3 bottomRight,
+            Vec3 topRight,
+            Vec3 topLeft, 
+            Vec3 normal,
+            ECubemapFace cubeMapFace,
+            bool widthLarger,
+            float bias = 0.0f,
+            bool flipVerticalUVCoord = true)
         {
             Vec2 
                 bottomLeftUV = Vec2.Zero, 
@@ -156,10 +181,10 @@ namespace TheraEngine.Rendering.Models
                     }
                     else
                     {
-                        bottomLeftUV = new Vec2(third, zero);
-                        bottomRightUV = new Vec2(twoThirds, zero);
-                        topRightUV = new Vec2(twoThirds, fourth);
-                        topLeftUV = new Vec2(third, fourth);
+                        bottomLeftUV = new Vec2(third, half);
+                        bottomRightUV = new Vec2(twoThirds, half);
+                        topRightUV = new Vec2(twoThirds, threeFourths);
+                        topLeftUV = new Vec2(third, threeFourths);
                     }
                     break;
                 case ECubemapFace.PosZ:
@@ -172,19 +197,20 @@ namespace TheraEngine.Rendering.Models
                     }
                     else
                     {
-                        bottomLeftUV = new Vec2(third, half);
-                        bottomRightUV = new Vec2(twoThirds, half);
-                        topRightUV = new Vec2(twoThirds, threeFourths);
-                        topLeftUV = new Vec2(third, threeFourths);
+                        //Upside-down UVs
+                        bottomLeftUV = new Vec2(third, fourth);
+                        bottomRightUV = new Vec2(twoThirds, fourth);
+                        topRightUV = new Vec2(twoThirds, zero);
+                        topLeftUV = new Vec2(third, zero);
                     }
                     break;
             }
             if (flipVerticalUVCoord)
             {
-                bottomLeftUV.Y = -bottomLeftUV.Y;
-                bottomRightUV.Y = -bottomRightUV.Y;
-                topRightUV.Y = -topRightUV.Y;
-                topLeftUV.Y = -topLeftUV.Y;
+                bottomLeftUV.Y = 1.0f - bottomLeftUV.Y;
+                bottomRightUV.Y = 1.0f - bottomRightUV.Y;
+                topRightUV.Y = 1.0f - topRightUV.Y;
+                topLeftUV.Y = 1.0f - topLeftUV.Y;
             }
             return new VertexQuad(
                 new Vertex(bottomLeft, normal, bottomLeftUV),

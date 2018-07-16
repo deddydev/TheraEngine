@@ -8,6 +8,6 @@ namespace TheraEngine.Windows.Forms
     {
         public DockableModelEditorRenderForm Owner { get; set; }
 
-        protected override Scene3D GetScene(Viewport v) => Owner.Form.World.Scene;
+        protected override Scene3D GetScene(Viewport v) => Owner.Form.World?.Scene;
     }
 }

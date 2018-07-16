@@ -346,6 +346,8 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0; i < Textures.Length; ++i)
             {
                 BaseTexRef tref = Textures[i];
+                if (tref == null)
+                    continue;
                 program.Sampler(tref.SamplerName ?? ("Texture" + i), tref.RenderTextureGeneric, i);
             }
         }

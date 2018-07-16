@@ -145,18 +145,18 @@ namespace TheraEngine.Rendering
         {
             //TODO: prerender on own consistent animation thread
             //ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRender(camera); }));
-            foreach (IPreRendered p in _preRenderList)
-                p.PreRenderUpdate(camera);
+            //foreach (IPreRendered p in _preRenderList)
+            //    p.PreRenderUpdate(camera);
         }
         public void PreRenderSwap()
         {
-            foreach (IPreRendered p in _preRenderList)
-                p.PreRenderSwap();
+            //foreach (IPreRendered p in _preRenderList)
+            //    p.PreRenderSwap();
         }
         public void PreRender(Viewport viewport, Camera camera)
         {
-            foreach (IPreRendered p in _preRenderList)
-                p.PreRender(viewport, camera);
+            //foreach (IPreRendered p in _preRenderList)
+            //    p.PreRender(viewport, camera);
         }
         public void AddPreRenderedObject(IPreRendered obj)
         {

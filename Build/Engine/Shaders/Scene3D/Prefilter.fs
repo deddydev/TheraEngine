@@ -1,9 +1,9 @@
 #version 450
 
-layout (location = 0) out vec3 FragColor;
+layout (location = 0) out vec3 OutColor;
 layout (location = 0) in vec3 FragPos;
 
-layout (binding = 0) uniform samplerCube Texture0;
+uniform samplerCube SceneTex;
 uniform float Roughness = 0.0f;
 uniform int CubemapDim = 512;
 
@@ -97,10 +97,10 @@ void main()
 
             float mipLevel = Roughness == 0.0f ? 0.0f : 0.5f * log2(saSample / saTexel);
 
-            prefilteredColor += textureLod(Texture0, L, mipLevel).rgb * NdotL;
+            prefilteredColor += textureLod(SceneTex, L, mipLevel).rgb * NdotL;
             totalWeight      += NdotL;
         }
     }
 
-    FragColor = prefilteredColor / totalWeight;
+    OutColor = prefilteredColor / totalWeight;
 }

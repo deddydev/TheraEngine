@@ -1,8 +1,78 @@
-﻿using TheraEngine.Rendering.Models;
+﻿using System;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
+    /// <summary>
+    /// Determines how vertices should rotate and scale in relation to the camera.
+    /// </summary>
+    [Flags]
+    public enum EBillboardMode
+    {
+        /// <summary>
+        /// No billboarding, all vertices are static.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// If set, the X axis will rotate to face the camera position.
+        /// If not set, the X axis will rotate to face the camera screen plane.
+        /// </summary>
+        PointRotationX = 0x001,
+        /// <summary>
+        /// If set, the Y axis will rotate to face the camera position.
+        /// If not set, the Y axis will rotate to face the camera screen plane.
+        /// </summary>
+        PointRotationY = 0x002,
+        /// <summary>
+        /// If set, the Z axis will rotate to face the camera position.
+        /// If not set, the Z axis will rotate to face the camera screen plane.
+        /// </summary>
+        PointRotationZ = 0x004,
+
+        /// <summary>
+        /// If set, the X axis will scale according to the distance to the camera position.
+        /// If not set, the X axis will scale according to the distance to the camera screen plane.
+        /// </summary>
+        PointScaleX = 0x008,
+        /// <summary>
+        /// If set, the Y axis will scale according to the distance to the camera position.
+        /// If not set, the Y axis will scale according to the distance to the camera screen plane.
+        /// </summary>
+        PointScaleY = 0x010,
+        /// <summary>
+        /// If set, the Z axis will scale according to the distance to the camera position.
+        /// If not set, the Z axis will scale according to the distance to the camera screen plane.
+        /// </summary>
+        PointScaleZ = 0x020,
+
+        /// <summary>
+        /// If set, the X axis will rotate to face the camera.
+        /// </summary>
+        RotateX = 0x040,
+        /// <summary>
+        /// If set, the Y axis will rotate to face the camera.
+        /// </summary>
+        RotateY = 0x080,
+        /// <summary>
+        /// If set, the Z axis will rotate to face the camera.
+        /// </summary>
+        RotateZ = 0x100,
+
+        /// <summary>
+        /// If set, the X axis will scale according to camera.
+        /// </summary>
+        ScaleX = 0x200,
+        /// <summary>
+        /// If set, the Y axis will rotate to face the camera.
+        /// </summary>
+        ScaleY = 0x400,
+        /// <summary>
+        /// If set, the Z axis will rotate to face the camera.
+        /// </summary>
+        ScaleZ = 0x800,
+    }
     public class VertexShaderGenerator : MaterialGenerator
     {
         public const string FragPosName = "FragPos";
@@ -193,10 +263,8 @@ namespace TheraEngine.Rendering
         }
 
         /// <summary>
-        /// 
+        /// Calculates positions, and optionally normals, tangents, and binormals for a rigged mesh.
         /// </summary>
-        /// <param name="allowMorphs"></param>
-        /// <param name="singleRig"></param>
         private void WriteRiggedPNBT()
         {
             bool hasNBT = _info.HasNormals || _info.HasTangents || _info.HasBinormals;
@@ -291,7 +359,7 @@ namespace TheraEngine.Rendering
                 }
                 CloseBracket();
 
-                Line("finalPosition = ModelMatrix * (finalPosition / vec4(total, total, total, 1.0f));");
+                Line("finalPosition = ModelMatrix * (finalPosition / vec4(vec3(total), 1.0f));");
                 if (_info.HasNormals)
                     Line($"{FragNormName} = normalize(NormalMatrix * (finalNormal / total));");
                 if (_info.HasBinormals)
@@ -304,9 +372,8 @@ namespace TheraEngine.Rendering
         }
 
         /// <summary>
-        /// Writes positions, and optionally normals, tangents, and binormals for a static mesh.
+        /// Calculates positions, and optionally normals, tangents, and binormals for a static mesh.
         /// </summary>
-        /// <param name="allowMorphs">If the mesh should be morphable or not, regardless of whether or not the mesh actually has morphs.</param>
         private void WriteStaticPNBT()
         {
             Line("vec4 position = vec4(Position0, 1.0f);");

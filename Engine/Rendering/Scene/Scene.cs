@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
@@ -141,22 +142,22 @@ namespace TheraEngine.Rendering
             CollectVisible(passes, collectionVolume, camera, false);
             PreRenderUpdate(camera);
         }
-        public void PreRenderUpdate(Camera camera)
+        public async void PreRenderUpdate(Camera camera)
         {
             //TODO: prerender on own consistent animation thread
-            //ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRender(camera); }));
+            ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRenderUpdate(camera); }));
             //foreach (IPreRendered p in _preRenderList)
             //    p.PreRenderUpdate(camera);
         }
         public void PreRenderSwap()
         {
-            //foreach (IPreRendered p in _preRenderList)
-            //    p.PreRenderSwap();
+            foreach (IPreRendered p in _preRenderList)
+                p.PreRenderSwap();
         }
         public void PreRender(Viewport viewport, Camera camera)
         {
-            //foreach (IPreRendered p in _preRenderList)
-            //    p.PreRender(viewport, camera);
+            foreach (IPreRendered p in _preRenderList)
+                p.PreRender(viewport, camera);
         }
         public void AddPreRenderedObject(IPreRendered obj)
         {

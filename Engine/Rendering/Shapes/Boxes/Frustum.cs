@@ -581,17 +581,17 @@ namespace TheraEngine.Core.Shapes
                 _boundingSphere.Render();
             
             //TODO: use PrimitiveManager; render translucent planes
-            Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, Vec3.Zero, LineSize);
-            Engine.Renderer.RenderLine(NearTopRight, FarTopRight, Vec3.Zero, LineSize);
+            Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, SideColor, LineSize);
+            Engine.Renderer.RenderLine(NearTopRight, FarTopRight, SideColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomLeft, FarBottomLeft, SideColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomRight, FarBottomRight, SideColor, LineSize);
 
-            Engine.Renderer.RenderLine(NearTopLeft, NearTopRight, Vec3.Zero, LineSize);
+            Engine.Renderer.RenderLine(NearTopLeft, NearTopRight, NearColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomLeft, NearBottomRight, NearColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomLeft, NearTopLeft, NearColor, LineSize);
             Engine.Renderer.RenderLine(NearBottomRight, NearTopRight, NearColor, LineSize);
 
-            Engine.Renderer.RenderLine(FarTopLeft, FarTopRight, Vec3.Zero, LineSize);
+            Engine.Renderer.RenderLine(FarTopLeft, FarTopRight, FarColor, LineSize);
             Engine.Renderer.RenderLine(FarBottomLeft, FarBottomRight, FarColor, LineSize);
             Engine.Renderer.RenderLine(FarBottomLeft, FarTopLeft, FarColor, LineSize);
             Engine.Renderer.RenderLine(FarBottomRight, FarTopRight, FarColor, LineSize);

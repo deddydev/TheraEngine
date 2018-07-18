@@ -209,6 +209,7 @@ namespace TheraEditor.Windows.Forms
             SubViewport.SizeableHeight.SetSizingProportioned(SubViewport.SizeableWidth, 9.0f / 16.0f, true, ParentBoundsInheritedValue.Height);
             SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Width);
             SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
+            SubViewport.IsVisible = true;
             dock.ChildComponents.Add(SubViewport);
 
             Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
@@ -383,7 +384,8 @@ namespace TheraEditor.Windows.Forms
             c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
             OwningWorld.SpawnActor(c);
 
-            SubViewport.IsVisible = false;
+            SubViewport.IsVisible = true;
+            SubViewport.ViewportCamera = c.Camera;
         }
         public override void OnDespawned()
         {
@@ -557,16 +559,16 @@ namespace TheraEditor.Windows.Forms
         {
             DragComponent = null;
 
-            if (SelectedComponent is CameraComponent cam)
-            {
-                SubViewport.ViewportCamera = cam.Camera;
-                SubViewport.IsVisible = true;
-            }
-            else
-            {
-                SubViewport.ViewportCamera = null;
-                SubViewport.IsVisible = false;
-            }
+            //if (SelectedComponent is CameraComponent cam)
+            //{
+            //    SubViewport.ViewportCamera = cam.Camera;
+            //    SubViewport.IsVisible = true;
+            //}
+            //else
+            //{
+            //    SubViewport.ViewportCamera = null;
+            //    SubViewport.IsVisible = false;
+            //}
 
             if (SelectedComponent != null)
             {

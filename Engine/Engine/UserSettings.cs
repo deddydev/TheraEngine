@@ -13,7 +13,7 @@ namespace TheraEngine
     public enum RenderLibrary
     {
         OpenGL,
-        Direct3D12,
+        Direct3D11,
     }
     public enum AudioLibrary
     {

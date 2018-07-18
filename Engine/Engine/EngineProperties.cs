@@ -123,7 +123,7 @@ namespace TheraEngine
         private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
         public static List<DelTick>[] _tickLists;
         private static World _currentWorld = null;
-        private static RenderLibrary _renderLibrary;
+        private static RenderLibrary _renderLibrary = RenderLibrary.Direct3D11;
         private static AudioLibrary _audioLibrary;
         private static InputLibrary _inputLibrary;
         private static PhysicsLibrary _physicsLibrary;

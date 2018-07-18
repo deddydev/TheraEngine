@@ -401,7 +401,7 @@ namespace TheraEditor.Windows.Forms
 
                     Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
                     Engine.SetActiveGameMode(_editorGameMode);
-                    Engine.Initialize(false).Wait();
+                    Engine.Initialize(false);
                     SetRenderTicking(true);
                     Engine.SetPaused(true, LocalPlayerIndex.One, true);
                     Engine.Run();

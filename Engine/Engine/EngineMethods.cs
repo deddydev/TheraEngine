@@ -138,14 +138,14 @@ namespace TheraEngine
         /// Initializes the engine to its beginning state.
         /// Call AFTER SetGame is called and all initial render panels are created and ready.
         /// </summary>
-        public static async Task Initialize(bool loadOpeningWorldGameMode = true)
+        public static void Initialize(bool loadOpeningWorldGameMode = true)
         {
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
             if (Game != null)
             {
-                RenderLibrary = Game.UserSettingsRef.File?.RenderLibrary ?? RenderLibrary.OpenGL;
+                RenderLibrary = /*Game.UserSettingsRef.File?.RenderLibrary ?? */RenderLibrary.Direct3D11;
                 AudioLibrary = Game.UserSettingsRef.File?.AudioLibrary ?? AudioLibrary.OpenAL;
                 InputLibrary = Game.UserSettingsRef.File?.InputLibrary ?? InputLibrary.OpenTK;
                 PhysicsLibrary = Game.UserSettingsRef.File?.PhysicsLibrary ?? PhysicsLibrary.Bullet;
@@ -154,7 +154,7 @@ namespace TheraEngine
                 SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
 
                 //Preload transition world now
-                await Game.TransitionWorldRef.LoadNewInstanceAsync();
+                //await Game.TransitionWorldRef.LoadNewInstanceAsync();
             }
 
             //SteamAPI.Init();

@@ -2,9 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System;
-using System.Text;
 using System.Threading;
-using TheraEngine.Core.Extensions;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -20,16 +18,9 @@ namespace TheraEngine.Rendering.OpenGL
 
         private static Lazy<GLRenderer> _renderer = new Lazy<GLRenderer>(() => new GLRenderer());
 
-        protected override ThreadSubContext CreateSubContext(Thread thread)
-        {
-            IntPtr handle;
-            if (_control.InvokeRequired)
-                handle = (IntPtr)_control.Invoke(new Func<IntPtr>(() => _control.Handle));
-            else
-                handle = _control.Handle;
-            return new GLThreadSubContext(handle, thread);
-        }
-
+        protected override ThreadSubContext CreateSubContext(IntPtr handle, Thread thread)
+            => new GLThreadSubContext(handle, thread);
+        
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -152,6 +143,16 @@ namespace TheraEngine.Rendering.OpenGL
             GL.Flush();
         }
 
+        internal override void PreRender()
+        {
+
+        }
+
+        internal override void PostRender()
+        {
+
+        }
+
         protected class GLThreadSubContext : ThreadSubContext
         {
             private int _versionMin, _versionMax;
@@ -244,15 +245,7 @@ namespace TheraEngine.Rendering.OpenGL
 
             public override void OnSwapBuffers()
             {
-                try
-                {
-                    if (!IsContextDisposed())
-                        _context.SwapBuffers();
-                }
-                catch (Exception ex)
-                {
-                    Engine.LogException(ex);
-                }
+                _context.SwapBuffers();
             }
 
             public override void OnResized(Vec2 size)

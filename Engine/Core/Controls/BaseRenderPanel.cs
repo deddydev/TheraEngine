@@ -198,7 +198,9 @@ namespace TheraEngine
                 //try
                 //{
                     _context.Capture(true);
+                    _context.PreRender();
                     OnRender();
+                    _context.PostRender();
                     _context.Swap();
                     _context.ErrorCheck();
                 //}
@@ -379,7 +381,7 @@ namespace TheraEngine
                     _context = new GLWindowContext(this);
 
                     break;
-                case RenderLibrary.Direct3D12:
+                case RenderLibrary.Direct3D11:
                     if (_context is DXWindowContext)
                         return;
 

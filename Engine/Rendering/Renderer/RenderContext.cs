@@ -107,7 +107,7 @@ namespace TheraEngine.Rendering
             _currentSubContext = _subContexts[thread.ManagedThreadId];
             _currentSubContext.SetCurrent(true);
         }
-        protected abstract ThreadSubContext CreateSubContext(Thread thread);
+        protected abstract ThreadSubContext CreateSubContext(IntPtr handle, Thread thread);
         internal void CreateContextForThread(Thread thread)
         {
             if (thread == null)
@@ -115,7 +115,12 @@ namespace TheraEngine.Rendering
             
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
             {
-                ThreadSubContext c = CreateSubContext(thread);
+                IntPtr handle;
+                if (_control.InvokeRequired)
+                    handle = (IntPtr)_control.Invoke(new Func<IntPtr>(() => _control.Handle));
+                else
+                    handle = _control.Handle;
+                ThreadSubContext c = CreateSubContext(handle, thread);
                 c.Generate();
                 _subContexts.TryAdd(thread.ManagedThreadId, c);
             }
@@ -147,7 +152,15 @@ namespace TheraEngine.Rendering
         protected void OnSwapBuffers()
         {
             GetCurrentSubContext();
-            _currentSubContext.OnSwapBuffers();
+            try
+            {
+                if (!IsContextDisposed())
+                    _currentSubContext.OnSwapBuffers();
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
         }
         protected void OnResized()
         {
@@ -191,6 +204,10 @@ namespace TheraEngine.Rendering
             Capture();
             OnSwapBuffers();
         }
+
+        internal abstract void PreRender();
+        internal abstract void PostRender();
+
         //public void Reset()
         //{
         //    if (_resetting) //Prevent a possible infinite loop

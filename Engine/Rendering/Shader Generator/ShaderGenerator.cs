@@ -69,7 +69,7 @@ namespace TheraEngine.Rendering
             Line("uniform {0}", structName);
             OpenBracket();
         }
-        public void EndUniformBlock(string variableName)
+        public void EndUniformBlock(string variableName = null)
         {
             CloseBracket(variableName, true);
             _inBlock = false;

@@ -344,7 +344,7 @@ namespace TheraEngine.Tests
 
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
             iblProbes.RootComponent.Translation.Y += 3.0f;
-            iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
+            iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.025f));
             actors.Add(iblProbes);
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
@@ -405,7 +405,7 @@ namespace TheraEngine.Tests
         public bool HiddenFromOwner { get; set; } = false;
         public bool VisibleToOwnerOnly { get; set; } = false;
 
-        public override void OnSpawnedPostComponentSetup()
+        public override void OnSpawnedPostComponentSpawn()
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;

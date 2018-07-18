@@ -227,13 +227,13 @@ For example, a logic component could give any actor health and/or allow it to ta
             _spawnIndex = -1;
             OwningWorld = world;
 
-            OnSpawnedPreComponentSetup();
+            OnSpawnedPreComponentSpawn();
 
             _rootComponent.OnSpawned();
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnSpawned();
 
-            OnSpawnedPostComponentSetup();
+            OnSpawnedPostComponentSpawn();
 
             //OnSpawned is called just after the actor is added to the actor list
             _spawnIndex = world.SpawnedActorCount - 1;
@@ -255,11 +255,11 @@ For example, a logic component could give any actor health and/or allow it to ta
         /// <summary>
         /// Called before OnSpawned() is called for all logic and scene components.
         /// </summary>
-        public virtual void OnSpawnedPreComponentSetup() { }
+        public virtual void OnSpawnedPreComponentSpawn() { }
         /// <summary>
         /// Called after OnSpawned() is called for all logic and scene components.
         /// </summary>
-        public virtual void OnSpawnedPostComponentSetup() { }
+        public virtual void OnSpawnedPostComponentSpawn() { }
         /// <summary>
         /// Called when this actor is removed from the world.
         /// </summary>

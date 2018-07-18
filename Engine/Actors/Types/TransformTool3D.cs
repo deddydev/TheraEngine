@@ -935,7 +935,7 @@ namespace TheraEngine.Actors.Types
         }
         public event Action MouseDown, MouseUp;
         UIString2D _xText, _yText, _zText;
-        public override void OnSpawnedPostComponentSetup()
+        public override void OnSpawnedPostComponentSpawn()
         {
             
         }

@@ -103,12 +103,12 @@ namespace TheraEngine.Actors
             }
         }
 
-        public override void OnSpawnedPreComponentSetup()
+        public override void OnSpawnedPreComponentSpawn()
         {
             HUD?.Spawned(OwningWorld);
         }
 
-        public override void OnSpawnedPostComponentSetup()
+        public override void OnSpawnedPostComponentSpawn()
         {
             if (OwningWorld.Settings.EnableOriginRebasing)
                 RootComponent.WorldTransformChanged += TryWorldRebase;

@@ -105,9 +105,9 @@ namespace TheraEditor.Windows.Forms
             root.ChildComponents.Add(_rootTransform);
             return root;
         }
-        public override void OnSpawnedPostComponentSetup()
+        public override void OnSpawnedPostComponentSpawn()
         {
-            base.OnSpawnedPostComponentSetup();
+            base.OnSpawnedPostComponentSpawn();
             UIScene.Add(this);
         }
         public override void OnDespawned()

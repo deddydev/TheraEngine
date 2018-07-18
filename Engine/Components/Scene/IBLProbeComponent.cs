@@ -169,17 +169,17 @@ namespace TheraEngine.Actors.Types
             _irradianceSphere.Parameter<ShaderVec3>(0).Value = WorldMatrix.Translation;
             _rc.WorldMatrix = WorldMatrix;
 
-            foreach (Camera c in Cameras)
-            {
-                OwningScene.Add(c);
-            }
+            //foreach (Camera c in Cameras)
+            //{
+            //    OwningScene.Add(c);
+            //}
         }
 
         private RenderCommandMesh3D _rc = null;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            if (_rc != null)
-                passes.Add(_rc, RenderInfo.RenderPass);
+            //if (_rc != null)
+            //    passes.Add(_rc, RenderInfo.RenderPass);
         }
     }
 }

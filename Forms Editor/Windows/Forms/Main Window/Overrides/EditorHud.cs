@@ -374,9 +374,9 @@ namespace TheraEditor.Windows.Forms
             else
                 DoMouseDown();
         }
-        public override void OnSpawnedPostComponentSetup()
+        public override void OnSpawnedPostComponentSpawn()
         {
-            base.OnSpawnedPostComponentSetup();
+            base.OnSpawnedPostComponentSpawn();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             OwningWorld.Scene.Add(_highlightPoint);
 

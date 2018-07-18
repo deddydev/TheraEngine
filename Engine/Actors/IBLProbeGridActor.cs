@@ -1,16 +1,19 @@
 ﻿using MIConvexHull;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Actors.Types;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Actors
 {
-    public class IBLProbeGridActor : Actor<TranslationComponent>
+    public class IBLProbeGridActor : Actor<TranslationComponent>, I3DRenderable
     {
         //public Vec3 ProbesPerMeter { get; internal set; }
         //public BoundingBox ProbeBounds { get; internal set; }
@@ -20,7 +23,19 @@ namespace TheraEngine.Actors
             //ProbeBounds = new BoundingBox(100.0f);
             //ProbesPerMeter = new Vec3(0.01f);
             Initialize();
+            RootComponent.ChildComponents.PostAddedRange += ChildComponents_PostAddedRange;
+            RootComponent.ChildComponents.PostAdded += ChildComponents_PostAdded;
+            _rc = new RenderCommandDebug3D(Render);
         }
+        private void ChildComponents_PostAdded(SceneComponent item)
+        {
+            Link();
+        }
+        private void ChildComponents_PostAddedRange(IEnumerable<SceneComponent> items)
+        {
+            Link();
+        }
+
         //public IBLProbeGridActor(BoundingBox bounds, Vec3 probesPerMeter) : base(true)
         //{
         //    ProbeBounds = bounds;
@@ -28,12 +43,14 @@ namespace TheraEngine.Actors
         //    Initialize();
         //}
 
-        public override void OnSpawnedPostComponentSetup()
+        public override void OnSpawnedPostComponentSpawn()
         {
-            base.OnSpawnedPostComponentSetup();
+            base.OnSpawnedPostComponentSpawn();
 
             if (OwningWorld.Scene.IBLProbeActor == null)
                 OwningWorld.Scene.IBLProbeActor = this;
+
+            OwningWorld.Scene.Add(this);
         }
         public override void OnDespawned()
         {
@@ -41,6 +58,8 @@ namespace TheraEngine.Actors
 
             if (OwningWorld.Scene.IBLProbeActor == this)
                 OwningWorld.Scene.IBLProbeActor = null;
+
+            OwningWorld.Scene.Remove(this);
         }
 
         public void SetFrequencies(BoundingBox bounds, Vec3 probesPerMeter)
@@ -59,23 +78,21 @@ namespace TheraEngine.Actors
                 extents.Z / probeCount.Z);
             Vec3 baseInc = probeInc * 0.5f;
 
-            IBLProbeComponent[] comps = new IBLProbeComponent[1/*probeCount.X * probeCount.Y * probeCount.Z*/];
+            IBLProbeComponent[] comps = new IBLProbeComponent[probeCount.X * probeCount.Y * probeCount.Z];
 
             int r = 0;
-            //for (int x = 0; x < probeCount.X; ++x)
-            //    for (int y = 0; y < probeCount.Y; ++y)
-            //        for (int z = 0; z < probeCount.Z; ++z)
+            for (int x = 0; x < probeCount.X; ++x)
+                for (int y = 0; y < probeCount.Y; ++y)
+                    for (int z = 0; z < probeCount.Z; ++z)
                     {
                         IBLProbeComponent comp = new IBLProbeComponent()
                         {
-                            //Translation = localMin + baseInc + new Vec3(x, y, z) * probeInc
+                            Translation = localMin + baseInc + new Vec3(x, y, z) * probeInc
                         };
                         comps[r++] = comp;
                     }
 
             RootComponent.ChildComponents.AddRange(comps);
-
-            //Link();
         }
 
         private class DelaunayTriVertex : IVertex
@@ -106,20 +123,30 @@ namespace TheraEngine.Actors
                 return _probe.WorldPoint.ToString();
             }
         }
+        ITriangulation<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>> _cells;
+
+        public bool Visible { get; set; } = true;
+        public bool HiddenFromOwner { get; set; }
+        public bool VisibleToOwnerOnly { get; set; }
+
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+
+        public bool VisibleInEditorOnly { get; set; }
+
+        public Shape CullingVolume => null;
+
+        public IOctreeNode OctreeNode { get; set; }
+
         private void Link()
         {
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
-            var tri = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
-            foreach (var cell in tri.Cells)
-            {
-                
-            }
+            _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
         }
 
-        public override void OnSpawnedPreComponentSetup()
+        public override void OnSpawnedPreComponentSpawn()
         {
             //SetFrequencies(ProbeBounds, ProbesPerMeter);
-            base.OnSpawnedPreComponentSetup();
+            base.OnSpawnedPreComponentSpawn();
         }
 
         public void CaptureAll()
@@ -146,9 +173,9 @@ namespace TheraEngine.Actors
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
                 comp.SetCaptureResolution(colorResolution, captureDepth, depthResolution);
-                comp.Capture();
-                comp.GenerateIrradianceMap();
-                comp.GeneratePrefilterMap();
+                //comp.Capture();
+                //comp.GenerateIrradianceMap();
+                //comp.GeneratePrefilterMap();
                 comp.FinalizeCapture();
             }
         }
@@ -156,6 +183,29 @@ namespace TheraEngine.Actors
         public async Task InitAndCaptureAllAsync(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
             await Task.Run(() => InitAndCaptureAll(colorResolution, captureDepth, depthResolution));
+        }
+
+        RenderCommandDebug3D _rc;
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            passes.Add(_rc, RenderInfo.RenderPass);
+        }
+        private void Render()
+        {
+            if (_cells != null)
+            {
+                foreach (var cell in _cells.Cells)
+                {
+                    for (int i = 0, x = 3; i < 4; x = ++i - 1)
+                    {
+                        var p = cell.Vertices[i].Position;
+                        Vec3 pos1 = new Vec3((float)p[0], (float)p[1], (float)p[2]);
+                        var p2 = cell.Vertices[x].Position;
+                        Vec3 pos2 = new Vec3((float)p2[0], (float)p2[1], (float)p2[2]);
+                        Engine.Renderer.RenderLine(pos1, pos2, Color.Black, 1.0f);
+                    }
+                }
+            }
         }
     }
 }

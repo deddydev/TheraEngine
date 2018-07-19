@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Threading;
-//using SharpDX.Direct3D;
 using SharpDX.DXGI;
-using DX12 = SharpDX.Direct3D12;
-//using Device = SharpDX.Direct3D12.Device;
-//using SharpDX.Direct3D11;
-using System.Drawing;
+using DX11 = SharpDX.Direct3D11;
 using SharpDX.Mathematics.Interop;
-using SharpDX.Direct3D12;
-//using SharpDX.Direct3D12;
+using SharpDX.Direct3D11;
+using SharpDX.Direct3D;
 
 namespace TheraEngine.Rendering.DirectX
 {
@@ -22,7 +18,7 @@ namespace TheraEngine.Rendering.DirectX
         private DXRenderer _renderer;
 
         //TODO: pass DXThreadSubContext as generic into RenderContext; use IRenderContext throughout engine
-        public DX12.Device Device => ((DXThreadSubContext)_currentSubContext).Device;
+        public DX11.Device Device => ((DXThreadSubContext)_currentSubContext).Device;
         public SwapChain SwapChain => ((DXThreadSubContext)_currentSubContext).SwapChain;
         //public Texture2D TextureTarget => ((DXThreadSubContext)_currentSubContext).TextureTarget;
         //public RenderTargetView TargetView => ((DXThreadSubContext)_currentSubContext).TargetView;
@@ -31,168 +27,131 @@ namespace TheraEngine.Rendering.DirectX
         {
             private VSyncMode _vsyncMode = VSyncMode.Adaptive;
 
-            public const int FrameCount = 2;
+            //public const int FrameCount = 2;
 
-            public int FrameIndex { get; private set; }
-            public DX12.Device Device { get; private set; }
-            public SwapChain3 SwapChain { get; private set; }
-            public CommandQueue CommandQueue { get; private set; }
-            public CommandAllocator CommandAllocator { get; private set; }
-            public RootSignature RootSignature { get; private set; }
-            public DescriptorHeap RenderTargetViewHeap { get; private set; }
-            public PipelineState PipelineState { get; private set; }
-            public GraphicsCommandList CommandList { get; private set; }
-            public int RtvDescriptorSize { get; private set; }
+            public RasterizerState RasterState { get; private set; }
+            //public int FrameIndex { get; private set; }
+            public DX11.Device Device { get; private set; }
+            public DeviceContext DeviceContext { get; private set; }
+            public SwapChain SwapChain { get; private set; }
+            public Texture2D DepthStencilBuffer { get; private set; }
+            public RenderTargetView RenderTargetView { get; private set; }
+            public DepthStencilState DepthStencilState { get; private set; }
+            public DepthStencilView DepthStencilView { get; private set; }
+            //public CommandQueue CommandQueue { get; private set; }
+            //public CommandAllocator CommandAllocator { get; private set; }
+            //public RootSignature RootSignature { get; private set; }
+            //public DescriptorHeap RenderTargetViewHeap { get; private set; }
+            //public PipelineState PipelineState { get; private set; }
+            //public GraphicsCommandList CommandList { get; private set; }
+            //public int RtvDescriptorSize { get; private set; }
 
-            private readonly DX12.Resource[] RenderTargets = new DX12.Resource[FrameCount];
+            //private readonly DX11.Resource[] RenderTargets = new DX11.Resource[1];
 
             public DXThreadSubContext(IntPtr controlHandle, Thread thread)
                 : base(controlHandle, thread) { }
 
             public override void Generate()
             {
-                //ModeDescription modeDesc = new ModeDescription(0, 0, new Rational(60, 1), Format.R16G16B16A16_Float);
-                //SampleDescription smplDesc = new SampleDescription(1, 0);
-                //SwapChainDescription swapChainDesc = new SwapChainDescription()
-                //{
-                //    BufferCount = 1,
-                //    ModeDescription = modeDesc,
-                //    SampleDescription = smplDesc,
-                //    Usage = Usage.RenderTargetOutput,
-                //    SwapEffect = SwapEffect.Discard,
-                //    OutputHandle = _controlHandle,
-                //    Flags = SwapChainFlags.None,
-                //    IsWindowed = true,
-                //};
-
-                //DeviceCreationFlags flags = DeviceCreationFlags.Debug | DeviceCreationFlags.Debuggable;
-                //Device.CreateWithSwapChain(DriverType.Hardware, flags, swapChainDesc, out Device d, out SwapChain sc);
-
-                //Device = d;
-                //SwapChain = sc;
-
-                //TextureTarget = SwapChain.GetBackBuffer<Texture2D>(0);
-                //TargetView = new RenderTargetView(Device, TextureTarget);
-
-#if DEBUG
-                // Enable the D3D12 debug layer.
-                DebugInterface.Get().EnableDebugLayer();
-#endif
-                
-                Device = new DX12.Device(null, SharpDX.Direct3D.FeatureLevel.Level_11_0);
-                using (var factory = new Factory4())
+                var swapChainDesc = new SwapChainDescription()
                 {
-                    // Describe and create the command queue.
-                    var queueDesc = new CommandQueueDescription(CommandListType.Direct);
-                    CommandQueue = Device.CreateCommandQueue(queueDesc);
-
-                    // Describe and create the swap chain.
-                    var swapChainDesc = new SwapChainDescription()
-                    {
-                        BufferCount = FrameCount,
-                        ModeDescription = new ModeDescription(0, 0, new Rational(60, 1), Format.R8G8B8A8_UNorm),
-                        Usage = Usage.RenderTargetOutput,
-                        SwapEffect = SwapEffect.FlipDiscard,
-                        OutputHandle = _controlHandle,
-                        //Flags = SwapChainFlags.None,
-                        SampleDescription = new SampleDescription(1, 0),
-                        IsWindowed = true
-                    };
-
-                    var tempSwapChain = new SwapChain(factory, CommandQueue, swapChainDesc);
-                    SwapChain = tempSwapChain.QueryInterface<SwapChain3>();
-                    tempSwapChain.Dispose();
-                    FrameIndex = SwapChain.CurrentBackBufferIndex;
-                }
-
-                // Create descriptor heaps.
-                // Describe and create a render target view (RTV) descriptor heap.
-                var rtvHeapDesc = new DescriptorHeapDescription()
-                {
-                    DescriptorCount = FrameCount,
-                    Flags = DescriptorHeapFlags.None,
-                    Type = DescriptorHeapType.RenderTargetView
-                };
-                DescriptorHeap renderTargetViewHeap = Device.CreateDescriptorHeap(rtvHeapDesc);
-                RtvDescriptorSize = Device.GetDescriptorHandleIncrementSize(DescriptorHeapType.RenderTargetView);
-
-                // Create frame resources.
-                var rtvHandle = renderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-                for (int n = 0; n < 2; ++n)
-                {
-                    RenderTargets[n] = SwapChain.GetBackBuffer<DX12.Resource>(n);
-                    Device.CreateRenderTargetView(RenderTargets[n], null, rtvHandle);
-                    rtvHandle += RtvDescriptorSize;
-                }
-
-                CommandAllocator = Device.CreateCommandAllocator(CommandListType.Direct);
-
-                var rootSignatureDesc = new RootSignatureDescription(RootSignatureFlags.AllowInputAssemblerInputLayout);
-                RootSignature = Device.CreateRootSignature(rootSignatureDesc.Serialize());
-                
-                var psoDesc = new GraphicsPipelineStateDescription()
-                {
-                    InputLayout = new InputLayoutDescription(new InputElement[0]),
-                    RootSignature = RootSignature,
-                    VertexShader = null,
-                    PixelShader = null,
-                    RasterizerState = RasterizerStateDescription.Default(),
-                    BlendState = BlendStateDescription.Default(),
-                    DepthStencilFormat = Format.D32_Float,
-                    DepthStencilState = new DepthStencilStateDescription() { IsDepthEnabled = false, IsStencilEnabled = false },
-                    SampleMask = int.MaxValue,
-                    PrimitiveTopologyType = PrimitiveTopologyType.Triangle,
-                    RenderTargetCount = 1,
-                    Flags = PipelineStateFlags.None,
+                    BufferCount = 1,
+                    ModeDescription = new ModeDescription(0, 0, new Rational(60, 1), Format.R8G8B8A8_UNorm),
+                    Usage = Usage.RenderTargetOutput,
+                    SwapEffect = SwapEffect.Discard,
+                    OutputHandle = _controlHandle,
                     SampleDescription = new SampleDescription(1, 0),
-                    StreamOutput = new StreamOutputDescription()
+                    IsWindowed = true
                 };
-                psoDesc.RenderTargetFormats[0] = Format.R8G8B8A8_UNorm;
 
-                PipelineState = Device.CreateGraphicsPipelineState(psoDesc);
+                DX11.Device.CreateWithSwapChain(
+                    DriverType.Hardware,
+                    DeviceCreationFlags.None, 
+                    swapChainDesc,
+                    out DX11.Device device,
+                    out SwapChain swapChain);
 
-                // Create the command list.
-                CommandList = Device.CreateCommandList(CommandListType.Direct, CommandAllocator, PipelineState);
+                Device = device;
+                SwapChain = swapChain;
+                DeviceContext = device.ImmediateContext;
+
+                var backBuffer = DX11.Resource.FromSwapChain<Texture2D>(SwapChain, 0);
+                RenderTargetView = new RenderTargetView(device, backBuffer);
+                backBuffer.Dispose();
+
+                // Initialize and set up the description of the depth buffer.
+                var depthBufferDesc = new Texture2DDescription()
+                {
+                    Width = 0,
+                    Height = 0,
+                    MipLevels = 1,
+                    ArraySize = 1,
+                    Format = Format.D24_UNorm_S8_UInt,
+                    SampleDescription = new SampleDescription(1, 0),
+                    Usage = ResourceUsage.Default,
+                    BindFlags = BindFlags.DepthStencil,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    OptionFlags = ResourceOptionFlags.None
+                };
+                DepthStencilBuffer = new Texture2D(device, depthBufferDesc);
+                
+                var depthStencilDesc = new DepthStencilStateDescription()
+                {
+                    IsDepthEnabled = true,
+                    DepthWriteMask = DepthWriteMask.All,
+                    DepthComparison = Comparison.Less,
+                    IsStencilEnabled = true,
+                    StencilReadMask = 0xFF,
+                    StencilWriteMask = 0xFF,
+                    FrontFace = new DepthStencilOperationDescription()
+                    {
+                        FailOperation = StencilOperation.Keep,
+                        DepthFailOperation = StencilOperation.Increment,
+                        PassOperation = StencilOperation.Keep,
+                        Comparison = Comparison.Always
+                    },
+                    BackFace = new DepthStencilOperationDescription()
+                    {
+                        FailOperation = StencilOperation.Keep,
+                        DepthFailOperation = StencilOperation.Decrement,
+                        PassOperation = StencilOperation.Keep,
+                        Comparison = Comparison.Always
+                    }
+                };
+                DepthStencilState = new DepthStencilState(Device, depthStencilDesc);
+                DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
+                
+                var depthStencilViewDesc = new DepthStencilViewDescription()
+                {
+                    Format = Format.D24_UNorm_S8_UInt,
+                    Dimension = DepthStencilViewDimension.Texture2D,
+                    Texture2D = new DepthStencilViewDescription.Texture2DResource()
+                    {
+                        MipSlice = 0
+                    }
+                };
+                DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, depthStencilViewDesc);
+                DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
+                
+                var rasterDesc = new RasterizerStateDescription()
+                {
+                    IsAntialiasedLineEnabled = false,
+                    CullMode = CullMode.Back,
+                    DepthBias = 0,
+                    DepthBiasClamp = .0f,
+                    IsDepthClipEnabled = true,
+                    FillMode = FillMode.Solid,
+                    IsFrontCounterClockwise = false,
+                    IsMultisampleEnabled = false,
+                    IsScissorEnabled = false,
+                    SlopeScaledDepthBias = .0f
+                };
+                RasterState = new RasterizerState(Device, rasterDesc);
+
+                DeviceContext.Rasterizer.State = RasterState;
+                DeviceContext.Rasterizer.SetViewport(0, 0, 0, 0, 0, 1);
             }
-
-            public void BeginPopulateCommandList()
-            {
-                // Command list allocators can only be reset when the associated 
-                // command lists have finished execution on the GPU; apps should use 
-                // fences to determine GPU execution progress.
-                CommandAllocator.Reset();
-
-                // However, when ExecuteCommandList() is called on a particular command 
-                // list, that command list can then be reset at any time and must be before 
-                // re-recording.
-                CommandList.Reset(CommandAllocator, PipelineState);
-
-                // Set necessary state.
-                CommandList.SetGraphicsRootSignature(RootSignature);
-                //CommandList.SetViewport(viewport);
-                //CommandList.SetScissorRectangles(scissorRect);
-
-                // Indicate that the back buffer will be used as a render target.
-                CommandList.ResourceBarrierTransition(RenderTargets[FrameIndex], ResourceStates.Present, ResourceStates.RenderTarget);
-
-                var rtvHandle = RenderTargetViewHeap.CPUDescriptorHandleForHeapStart;
-                rtvHandle += FrameIndex * RtvDescriptorSize;
-                CommandList.SetRenderTargets(rtvHandle, null);
-
-                // Record commands.
-                CommandList.ClearRenderTargetView(rtvHandle, new RawColor4(0, 0.2F, 0.4f, 1), 0, null);
-
-                //CommandList.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
-                //CommandList.SetVertexBuffer(0, vertexBufferView);
-                //CommandList.DrawInstanced(3, 1, 0, 0);
-
-                // Indicate that the back buffer will now be used to present.
-                CommandList.ResourceBarrierTransition(RenderTargets[FrameIndex], ResourceStates.RenderTarget, ResourceStates.Present);
-
-                CommandList.Close();
-            }
-
-
+            
             internal override void VsyncChanged(VSyncMode vsyncMode)
             {
                 _vsyncMode = vsyncMode;
@@ -234,7 +193,7 @@ namespace TheraEngine.Rendering.DirectX
             public override void OnSwapBuffers()
             {
                 SwapChain.Present(1, PresentFlags.None);
-                FrameIndex = SwapChain.CurrentBackBufferIndex;
+                //FrameIndex = SwapChain.CurrentBackBufferIndex;
             }
 
             public override void OnResized(Vec2 size)

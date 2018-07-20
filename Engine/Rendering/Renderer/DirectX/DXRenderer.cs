@@ -4,16 +4,28 @@ using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Memory;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using DX11 = SharpDX.Direct3D11;
 
 namespace TheraEngine.Rendering.DirectX
 {
     internal unsafe class DXRenderer : AbstractRenderer
     {
-        public static DXRenderer Instance;
         public DXRenderer()
         {
 
         }
+        
+        public DXWindowContext DxCtx => CurrentContext as DXWindowContext;
+        public RasterizerState RasterState => DxCtx.RasterState;
+        public DX11.Device Device => DxCtx.Device;
+        public DeviceContext DeviceContext => DxCtx.DeviceContext;
+        public SwapChain SwapChain => DxCtx.SwapChain;
+        public Texture2D DepthStencilBuffer => DxCtx.DepthStencilBuffer;
+        public RenderTargetView RenderTargetView => DxCtx.RenderTargetView;
+        public DepthStencilState DepthStencilState => DxCtx.DepthStencilState;
+        public DepthStencilView DepthStencilView => DxCtx.DepthStencilView;
 
         public override RenderLibrary RenderLibrary => RenderLibrary.Direct3D11;
         
@@ -43,12 +55,52 @@ namespace TheraEngine.Rendering.DirectX
 
         public override int[] CreateObjects(EObjectType type, int count)
         {
-            throw new NotImplementedException();
+            int[] ids = new int[count];
+            switch (type)
+            {
+                case EObjectType.Buffer:
+                    break;
+                case EObjectType.Framebuffer:
+                    for (int i = 0; i < count; ++i)
+                    {
+                        RenderTargetViewDescription desc = new RenderTargetViewDescription()
+                        {
+
+                        };
+                        RenderTargetView fbo = new RenderTargetView(Device, null, desc);
+                    }
+                    break;
+                case EObjectType.Program:
+                    break;
+                case EObjectType.ProgramPipeline:
+                    break;
+                case EObjectType.Query:
+                    break;
+                case EObjectType.Renderbuffer:
+                    break;
+                case EObjectType.Sampler:
+                    break;
+                case EObjectType.Shader:
+                    break;
+                case EObjectType.Texture:
+                    break;
+                case EObjectType.TransformFeedback:
+                    break;
+                case EObjectType.VertexArray:
+                    break;
+            }
+            return ids;
         }
         
         public override void RenderCurrentPrimitiveManager(int instances)
         {
-            throw new NotImplementedException();
+            if (_currentPrimitiveManager == null)
+                return;
+
+            EPrimitiveType type = _currentPrimitiveManager.Data._type;
+            int count = _currentPrimitiveManager.IndexBuffer.ElementCount;
+            EDrawElementType elemType = _currentPrimitiveManager.ElementType;
+
         }
         
         public override void PushBufferData(DataBuffer buffer)
@@ -70,91 +122,7 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        //public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc info)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override int GetAttribLocation(string name)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override int GetUniformLocation(string name)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params IUniformable4Int[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params IUniformable4Float[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params IUniformable3Int[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params IUniformable3Float[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params IUniformable2Int[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params IUniformable2Float[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params IUniformable1Int[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params IUniformable1Float[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params int[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params float[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, Matrix4 p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params Matrix4[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, Matrix3 p)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Uniform(int location, params Matrix3[] p)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        
         public override void BindTransformFeedback(int bindingId)
         {
             throw new NotImplementedException();

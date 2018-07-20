@@ -102,35 +102,65 @@ namespace TheraEngine.Core.Shapes
         public abstract EContainment Contains(BoundingBox box);
         public abstract EContainment Contains(Box box);
         public abstract EContainment Contains(Sphere sphere);
+        public abstract EContainment Contains(BaseCone cone);
+        public abstract EContainment Contains(BaseCylinder cylinder);
+        public abstract EContainment Contains(BaseCapsule capsule);
         public EContainment Contains(Shape shape)
         {
             if (shape != null)
             {
                 if (shape is BoundingBox bb)
                     return Contains(bb);
-                else if (shape is Box b)
-                    return Contains(b);
-                else if (shape is Sphere s)
-                    return Contains(s);
+                else if (shape is Box box)
+                    return Contains(box);
+                else if (shape is Sphere sphere)
+                    return Contains(sphere);
+                else if (shape is BaseCone cone)
+                    return Contains(cone);
+                else if (shape is BaseCylinder cylinder)
+                    return Contains(cylinder);
+                else if (shape is BaseCapsule capsule)
+                    return Contains(capsule);
             }
-            return EContainment.Disjoint;
+            return EContainment.Contains;
         }
-        public abstract EContainment ContainedWithin(BoundingBox box);
-        public abstract EContainment ContainedWithin(Box box);
-        public abstract EContainment ContainedWithin(Sphere sphere);
-        public abstract EContainment ContainedWithin(Frustum frustum);
-        public EContainment ContainedWithin(Shape shape)
+        public EContainment ContainedWithin(BoundingBox box) => box?.Contains(this) ?? EContainment.Contains;
+        public EContainment ContainedWithin(Box box) => box?.Contains(this) ?? EContainment.Contains;
+        public EContainment ContainedWithin(Sphere sphere) => sphere?.Contains(this) ?? EContainment.Contains;
+        public EContainment ContainedWithin(Frustum frustum) => frustum?.Contains(this) ?? EContainment.Contains;
+        public EContainment ContainedWithin(Shape shape) => shape?.Contains(this) ?? EContainment.Contains;
+
+        public override EContainment Contains(BaseCone cone)
         {
-            if (shape != null)
-            {
-                if (shape is BoundingBox bb)
-                    return ContainedWithin(bb);
-                else if (shape is Box b)
-                    return ContainedWithin(b);
-                else if (shape is Sphere s)
-                    return ContainedWithin(s);
-            }
-            return EContainment.Disjoint;
+            bool top = Contains(cone.GetTopPoint());
+            bool bot = Contains(cone.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
+
+        public override EContainment Contains(BaseCylinder cylinder)
+        {
+            bool top = Contains(cylinder.GetTopCenterPoint());
+            bool bot = Contains(cylinder.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
+
+        public override EContainment Contains(BaseCapsule capsule)
+        {
+            bool top = Contains(capsule.GetTopCenterPoint());
+            bool bot = Contains(capsule.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
         }
 
         /// <summary>

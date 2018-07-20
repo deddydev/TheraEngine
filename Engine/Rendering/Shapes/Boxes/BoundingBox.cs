@@ -446,14 +446,36 @@ namespace TheraEngine.Core.Shapes
             => Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.WorldMatrix);
         public override EContainment Contains(Sphere sphere)
             => Collision.AABBContainsSphere(Minimum, Maximum, sphere.Center, sphere.Radius);
-        public override EContainment ContainedWithin(BoundingBox box)
-            => box.Contains(this);
-        public override EContainment ContainedWithin(Box box)
-            => box.Contains(this);
-        public override EContainment ContainedWithin(Sphere sphere)
-            => sphere.Contains(this);
-        public override EContainment ContainedWithin(Frustum frustum)
-            => frustum.Contains(this);
+        public override EContainment Contains(BaseCone cone)
+        {
+            bool top = Contains(cone.GetTopPoint());
+            bool bot = Contains(cone.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
+        public override EContainment Contains(BaseCylinder cylinder)
+        {
+            bool top = Contains(cylinder.GetTopCenterPoint());
+            bool bot = Contains(cylinder.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
+        public override EContainment Contains(BaseCapsule capsule)
+        {
+            bool top = Contains(capsule.GetTopCenterPoint());
+            bool bot = Contains(capsule.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
         #endregion
 
         #region Static Constructors

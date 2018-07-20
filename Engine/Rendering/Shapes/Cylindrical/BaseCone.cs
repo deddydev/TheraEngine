@@ -159,33 +159,17 @@ namespace TheraEngine.Core.Shapes
         {
             throw new NotImplementedException();
         }
-        public override EContainment ContainedWithin(BoundingBox box)
-        {
-            bool top = box.Contains(GetTopPoint());
-            bool bot = box.Contains(GetBottomCenterPoint());
-            if (top && bot)
-                return EContainment.Contains;
-            else if (!top && !bot)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
-        }
-        public override EContainment ContainedWithin(Box box)
+        public override EContainment Contains(BaseCapsule capsule)
         {
             throw new NotImplementedException();
         }
-        public override EContainment ContainedWithin(Sphere sphere)
+        public override EContainment Contains(BaseCylinder cylinder)
         {
             throw new NotImplementedException();
         }
-        public override EContainment ContainedWithin(Frustum frustum)
+        public override EContainment Contains(BaseCone cone)
         {
-            bool top = frustum.Contains(GetTopPoint());
-            bool bot = frustum.Contains(GetBottomCenterPoint());
-            if (top && bot)
-                return EContainment.Contains;
-            else if (!top && !bot)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
+            throw new NotImplementedException();
         }
         public override Shape HardCopy()
         {

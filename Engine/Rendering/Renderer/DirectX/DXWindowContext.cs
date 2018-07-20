@@ -2,7 +2,6 @@
 using System.Threading;
 using SharpDX.DXGI;
 using DX11 = SharpDX.Direct3D11;
-using SharpDX.Mathematics.Interop;
 using SharpDX.Direct3D11;
 using SharpDX.Direct3D;
 
@@ -20,17 +19,18 @@ namespace TheraEngine.Rendering.DirectX
         //TODO: pass DXThreadSubContext as generic into RenderContext; use IRenderContext throughout engine
         public DX11.Device Device => ((DXThreadSubContext)_currentSubContext).Device;
         public SwapChain SwapChain => ((DXThreadSubContext)_currentSubContext).SwapChain;
-        //public Texture2D TextureTarget => ((DXThreadSubContext)_currentSubContext).TextureTarget;
-        //public RenderTargetView TargetView => ((DXThreadSubContext)_currentSubContext).TargetView;
+        public RasterizerState RasterState => ((DXThreadSubContext)_currentSubContext).RasterState;
+        public DeviceContext DeviceContext => ((DXThreadSubContext)_currentSubContext).DeviceContext;
+        public Texture2D DepthStencilBuffer => ((DXThreadSubContext)_currentSubContext).DepthStencilBuffer;
+        public RenderTargetView RenderTargetView => ((DXThreadSubContext)_currentSubContext).RenderTargetView;
+        public DepthStencilState DepthStencilState => ((DXThreadSubContext)_currentSubContext).DepthStencilState;
+        public DepthStencilView DepthStencilView => ((DXThreadSubContext)_currentSubContext).DepthStencilView;
 
         protected class DXThreadSubContext : ThreadSubContext
         {
             private VSyncMode _vsyncMode = VSyncMode.Adaptive;
-
-            //public const int FrameCount = 2;
-
+            
             public RasterizerState RasterState { get; private set; }
-            //public int FrameIndex { get; private set; }
             public DX11.Device Device { get; private set; }
             public DeviceContext DeviceContext { get; private set; }
             public SwapChain SwapChain { get; private set; }
@@ -38,15 +38,6 @@ namespace TheraEngine.Rendering.DirectX
             public RenderTargetView RenderTargetView { get; private set; }
             public DepthStencilState DepthStencilState { get; private set; }
             public DepthStencilView DepthStencilView { get; private set; }
-            //public CommandQueue CommandQueue { get; private set; }
-            //public CommandAllocator CommandAllocator { get; private set; }
-            //public RootSignature RootSignature { get; private set; }
-            //public DescriptorHeap RenderTargetViewHeap { get; private set; }
-            //public PipelineState PipelineState { get; private set; }
-            //public GraphicsCommandList CommandList { get; private set; }
-            //public int RtvDescriptorSize { get; private set; }
-
-            //private readonly DX11.Resource[] RenderTargets = new DX11.Resource[1];
 
             public DXThreadSubContext(IntPtr controlHandle, Thread thread)
                 : base(controlHandle, thread) { }
@@ -56,7 +47,7 @@ namespace TheraEngine.Rendering.DirectX
                 var swapChainDesc = new SwapChainDescription()
                 {
                     BufferCount = 1,
-                    ModeDescription = new ModeDescription(0, 0, new Rational(60, 1), Format.R8G8B8A8_UNorm),
+                    ModeDescription = new ModeDescription(Size.X, Size.Y, new Rational(60, 1), Format.R8G8B8A8_UNorm),
                     Usage = Usage.RenderTargetOutput,
                     SwapEffect = SwapEffect.Discard,
                     OutputHandle = _controlHandle,
@@ -82,8 +73,8 @@ namespace TheraEngine.Rendering.DirectX
                 // Initialize and set up the description of the depth buffer.
                 var depthBufferDesc = new Texture2DDescription()
                 {
-                    Width = 0,
-                    Height = 0,
+                    Width = Size.X,
+                    Height = Size.Y,
                     MipLevels = 1,
                     ArraySize = 1,
                     Format = Format.D24_UNorm_S8_UInt,
@@ -138,18 +129,18 @@ namespace TheraEngine.Rendering.DirectX
                     IsAntialiasedLineEnabled = false,
                     CullMode = CullMode.Back,
                     DepthBias = 0,
-                    DepthBiasClamp = .0f,
+                    DepthBiasClamp = 0.0f,
                     IsDepthClipEnabled = true,
                     FillMode = FillMode.Solid,
                     IsFrontCounterClockwise = false,
                     IsMultisampleEnabled = false,
                     IsScissorEnabled = false,
-                    SlopeScaledDepthBias = .0f
+                    SlopeScaledDepthBias = 0.0f
                 };
                 RasterState = new RasterizerState(Device, rasterDesc);
 
                 DeviceContext.Rasterizer.State = RasterState;
-                DeviceContext.Rasterizer.SetViewport(0, 0, 0, 0, 0, 1);
+                DeviceContext.Rasterizer.SetViewport(0, 0, Size.X, Size.Y, 0, 1);
             }
             
             internal override void VsyncChanged(VSyncMode vsyncMode)
@@ -196,8 +187,9 @@ namespace TheraEngine.Rendering.DirectX
                 //FrameIndex = SwapChain.CurrentBackBufferIndex;
             }
 
-            public override void OnResized(Vec2 size)
+            public override void OnResized(IVec2 size)
             {
+                Size = size;
                 //_context?.Update(WindowInfo);
             }
 
@@ -206,7 +198,9 @@ namespace TheraEngine.Rendering.DirectX
                 //try
                 //{
                 //    if (!IsContextDisposed() && IsCurrent() != current)
-                //        _context.MakeCurrent(current ? WindowInfo : null);
+                //    {
+
+                //    }
                 //}
                 //catch (Exception ex)
                 //{

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Threading;
 
 namespace TheraEngine.Rendering
@@ -14,6 +15,9 @@ namespace TheraEngine.Rendering
 
         public static event DelContextsChanged BoundContextsChanged;
         public static List<RenderContext> BoundContexts = new List<RenderContext>();
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         private VSyncMode _vsyncMode;
         private static RenderContext _current;
@@ -44,7 +48,8 @@ namespace TheraEngine.Rendering
         }
         
         public BaseRenderPanel Control => _control;
-        public List<BaseRenderObject.ContextBind> States => _states;
+        public List<BaseRenderObject.ContextBind> States { get; } = new List<BaseRenderObject.ContextBind>();
+
         public VSyncMode VSyncMode
         {
             get => _vsyncMode;
@@ -64,6 +69,8 @@ namespace TheraEngine.Rendering
             protected Thread _thread;
             protected IntPtr _controlHandle;
 
+            public IVec2 Size { get; protected set; }
+
             public ThreadSubContext(IntPtr controlHandle, Thread thread)
             {
                 _controlHandle = controlHandle;
@@ -73,13 +80,12 @@ namespace TheraEngine.Rendering
             public abstract bool IsCurrent();
             public abstract bool IsContextDisposed();
             public abstract void OnSwapBuffers();
-            public abstract void OnResized(Vec2 size);
+            public abstract void OnResized(IVec2 size);
             public abstract void SetCurrent(bool current);
             public abstract void Dispose();
             internal abstract void VsyncChanged(VSyncMode vsyncMode);
         }
 
-        private List<BaseRenderObject.ContextBind> _states = new List<BaseRenderObject.ContextBind>();
         protected ConcurrentDictionary<int, ThreadSubContext> _subContexts = new ConcurrentDictionary<int, ThreadSubContext>();
         protected ThreadSubContext _currentSubContext;
 
@@ -115,12 +121,21 @@ namespace TheraEngine.Rendering
             
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
             {
-                IntPtr handle;
+                IntPtr handle = IntPtr.Zero;
+                Size size = Size.Empty;
                 if (_control.InvokeRequired)
-                    handle = (IntPtr)_control.Invoke(new Func<IntPtr>(() => _control.Handle));
+                    _control.Invoke((Action)(() =>
+                    {
+                        handle = _control.Handle;
+                        size = _control.ClientSize;
+                    }));
                 else
+                {
                     handle = _control.Handle;
+                    size = _control.ClientSize;
+                }
                 ThreadSubContext c = CreateSubContext(handle, thread);
+                c.OnResized(size);
                 c.Generate();
                 _subContexts.TryAdd(thread.ManagedThreadId, c);
             }

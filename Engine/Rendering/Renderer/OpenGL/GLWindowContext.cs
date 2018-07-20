@@ -96,6 +96,7 @@ namespace TheraEngine.Rendering.OpenGL
             GL.Enable(EnableCap.TextureCubeMapSeamless);
             GL.FrontFace(FrontFaceDirection.Ccw);
             //GL.ClearDepth(1.0f);
+
             GL.Enable(EnableCap.DebugOutput);
             GL.Enable(EnableCap.DebugOutputSynchronous);
 
@@ -248,8 +249,11 @@ namespace TheraEngine.Rendering.OpenGL
                 _context.SwapBuffers();
             }
 
-            public override void OnResized(Vec2 size)
-                => _context?.Update(WindowInfo);
+            public override void OnResized(IVec2 size)
+            {
+                Size = size;
+                _context?.Update(WindowInfo);
+            }
 
             public override void SetCurrent(bool current)
             {

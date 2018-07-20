@@ -28,6 +28,7 @@ namespace TheraEngine.Core.Shapes
         EContainment Contains(BoundingBox box);
         EContainment Contains(Sphere sphere);
         EContainment Contains(Shape shape);
+        EContainment Contains(BaseCone cone);
         //Vec3 ClosestPoint(Vec3 point);
         bool Contains(Vec3 point);
     }
@@ -485,13 +486,25 @@ namespace TheraEngine.Core.Shapes
         public bool Contains(Vec3 point)
             => Collision.FrustumContainsPoint(this, point);
         public EContainment Contains(Shape shape)
-            => shape?.ContainedWithin(this) ?? EContainment.Disjoint;
+        {
+
+        }
         public EContainment Contains(Box box) 
             => Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix);
         public EContainment Contains(BoundingBox box) 
             => Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum);
         public EContainment Contains(Sphere sphere) 
             => Collision.FrustumContainsSphere(this, sphere.Center, sphere.Radius);
+        public EContainment Contains(BaseCone cone)
+        {
+            bool top = Contains(cone.GetTopPoint());
+            bool bot = Contains(cone.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
         public EContainment Contains(BaseCapsule capsule)
         {
             if (capsule.ContainedWithin(BoundingSphere) == EContainment.Disjoint)

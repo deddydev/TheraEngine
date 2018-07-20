@@ -186,7 +186,9 @@ namespace TheraEngine.Rendering.OpenGL
                     GL.CreateSamplers(count, ids);
                     break;
                 case EObjectType.Texture:
-                    throw new InvalidOperationException("Call CreateTextures instead.");
+                    //throw new InvalidOperationException("Call CreateTextures instead.");
+                    GL.GenTextures(count, ids);
+                    break;
                 case EObjectType.TransformFeedback:
                     GL.CreateTransformFeedbacks(count, ids);
                     break;

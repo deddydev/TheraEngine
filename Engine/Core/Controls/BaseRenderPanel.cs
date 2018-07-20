@@ -366,6 +366,11 @@ namespace TheraEngine
 
             //_currentPanel = isNowCurrent ? this : null;
         }
+        /// <summary>
+        /// Generates a new render context for this panel 
+        /// based on the engine's assigned render library.
+        /// If a context exists already, disposes of it.
+        /// </summary>
         public void CreateContext()
         {
             if (Engine.DesignMode)

@@ -145,10 +145,10 @@ namespace TheraEngine
 
             if (Game != null)
             {
-                RenderLibrary = /*Game.UserSettingsRef.File?.RenderLibrary ?? */RenderLibrary.Direct3D11;
-                AudioLibrary = Game.UserSettingsRef.File?.AudioLibrary ?? AudioLibrary.OpenAL;
-                InputLibrary = Game.UserSettingsRef.File?.InputLibrary ?? InputLibrary.OpenTK;
-                PhysicsLibrary = Game.UserSettingsRef.File?.PhysicsLibrary ?? PhysicsLibrary.Bullet;
+                RenderLibrary = Game.UserSettingsRef.File?.RenderLibrary ?? DefaultRenderLibrary;
+                AudioLibrary = Game.UserSettingsRef.File?.AudioLibrary ?? DefaultAudioLibrary;
+                InputLibrary = Game.UserSettingsRef.File?.InputLibrary ?? DefaultInputLibrary;
+                PhysicsLibrary = Game.UserSettingsRef.File?.PhysicsLibrary ?? DefaultPhysicsLibrary;
 
                 //Set initial world (this would generally be a world for opening videos or the main menu)
                 SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
@@ -323,7 +323,7 @@ namespace TheraEngine
             Network?.RecievePackets();
             float delta = e.Time * TimeDilation;
             TickGroup(ETickGroup.PrePhysics, delta);
-            if (!_isPaused)
+            if (!IsPaused)
                 World?.StepSimulation(delta);
             TickGroup(ETickGroup.PostPhysics, delta);
             Update?.Invoke(sender, e);
@@ -396,7 +396,7 @@ namespace TheraEngine
         /// <param name="toggler">The player that's pausing the game.</param>
         public static void TogglePause(LocalPlayerIndex toggler)
         {
-            SetPaused(!_isPaused, toggler);
+            SetPaused(!IsPaused, toggler);
         }
         /// <summary>
         /// Sets the pause state regardless of what it is currently.
@@ -405,11 +405,11 @@ namespace TheraEngine
         /// <param name="toggler">The player that's pausing the game.</param>
         public static void SetPaused(bool wantsPause, LocalPlayerIndex toggler, bool force = false)
         {
-            if ((!force && wantsPause && ActiveGameMode.DisallowPausing) || _isPaused == wantsPause)
+            if ((!force && wantsPause && ActiveGameMode.DisallowPausing) || IsPaused == wantsPause)
                 return;
-            _isPaused = wantsPause;
-            PauseChanged?.Invoke(_isPaused, toggler);
-            PrintLine("Engine{0}paused.", _isPaused ? " " : " un");
+            IsPaused = wantsPause;
+            PauseChanged?.Invoke(IsPaused, toggler);
+            PrintLine("Engine{0}paused.", IsPaused ? " " : " un");
         }
         public static void Pause(LocalPlayerIndex toggler, bool force = false)
             => SetPaused(true, toggler, force);
@@ -680,7 +680,7 @@ namespace TheraEngine
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
         public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool loadWorldGameMode = true)
         {
-            if (_currentWorld == world)
+            if (World == world)
                 return;
 
             PreWorldChanged?.Invoke();
@@ -693,7 +693,7 @@ namespace TheraEngine
 
             //Stop();
 
-            _currentWorld = world;
+            World = world;
             if (World != null)
             {
                 //if (!deferBeginPlay)

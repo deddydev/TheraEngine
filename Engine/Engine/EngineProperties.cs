@@ -42,6 +42,11 @@ namespace TheraEngine
     }
     public static partial class Engine
     {
+        public const RenderLibrary DefaultRenderLibrary = RenderLibrary.OpenGL;
+        public const AudioLibrary DefaultAudioLibrary = AudioLibrary.OpenAL;
+        public const InputLibrary DefaultInputLibrary = InputLibrary.OpenTK;
+        public const PhysicsLibrary DefaultPhysicsLibrary = PhysicsLibrary.Bullet;
+
         public static string StartupPath = Application.StartupPath + Path.DirectorySeparatorChar;
         public static string ContentFolderAbs = StartupPath + ContentFolderRel;
         public static string ContentFolderRel = "Content" + Path.DirectorySeparatorChar;
@@ -122,13 +127,10 @@ namespace TheraEngine
         /// </summary>
         private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
         public static List<DelTick>[] _tickLists;
-        private static World _currentWorld = null;
-        private static RenderLibrary _renderLibrary = RenderLibrary.Direct3D11;
-        private static AudioLibrary _audioLibrary;
-        private static InputLibrary _inputLibrary;
-        private static PhysicsLibrary _physicsLibrary;
-
-        private static bool _isPaused = false;
+        private static RenderLibrary _renderLibrary = DefaultRenderLibrary;
+        private static AudioLibrary _audioLibrary = DefaultAudioLibrary;
+        private static InputLibrary _inputLibrary = DefaultInputLibrary;
+        private static PhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
         private static EngineTimer _timer = new EngineTimer();
         private static List<DateTime> _debugTimers = new List<DateTime>();
 
@@ -148,8 +150,8 @@ namespace TheraEngine
         /// <summary>
         /// The world that is currently being rendered and played in.
         /// </summary>
-        public static World World => _currentWorld;
-        public static bool IsPaused => _isPaused;
+        public static World World { get; private set; } = null;
+        public static bool IsPaused { get; private set; } = false;
 
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine performance accordingly.

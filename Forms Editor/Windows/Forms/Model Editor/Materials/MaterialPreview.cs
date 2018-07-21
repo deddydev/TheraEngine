@@ -156,8 +156,10 @@ namespace TheraEditor.Windows.Forms
                         _spherePrim = new MeshRenderable( //0.8f instead of 1.0f for border padding
                             new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
                         basicRenderPanel1.Scene.Add(_spherePrim);
+
                         IBLProbeGridActor probes = new IBLProbeGridActor();
-                        probes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
+                        probes.AddProbe(Vec3.Zero);
+                        //probes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
                         probes.SceneComponentCache.ForEach(x => x.OwningScene = basicRenderPanel1.Scene);
                         probes.InitAndCaptureAll(128);
                         basicRenderPanel1.Scene.IBLProbeActor = probes;

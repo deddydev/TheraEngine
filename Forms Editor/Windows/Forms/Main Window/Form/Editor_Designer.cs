@@ -772,34 +772,32 @@ namespace TheraEditor.Windows.Forms
         private static extern int ShowCursor(bool bShow);
         internal static void ShowCursor()
         {
-            while (ShowCursor(true) < 0)
-            {
-                ShowCursor(true);
-            }
+            Cursor.Show();
+            //while (ShowCursor(true) < 0) ;
         }
         internal static void HideCursor()
         {
-            while (ShowCursor(false) >= 0)
-            {
-                ShowCursor(false);
-            }
+            Cursor.Hide();
+            //while (ShowCursor(false) >= 0) ;
         }
 
+        private Rectangle _prevClip;
         private void CaptureMouse(BaseRenderPanel panel)
         {
             CursorManager.WrapCursorWithinClip = true;
             Engine.EditorState.InEditMode = false;
             panel.Focus();
-            panel.Capture = true;
+            //panel.Capture = true;
+            _prevClip = Cursor.Clip;
             Cursor.Clip = panel.RectangleToScreen(panel.ClientRectangle);
-            HideCursor();
+            //HideCursor();
         }
         private void ReleaseMouse()
         {
             CursorManager.WrapCursorWithinClip = false;
             Engine.EditorState.InEditMode = true;
-            Cursor.Clip = new Rectangle();
-            ShowCursor();
+            //ShowCursor();
+            Cursor.Clip = _prevClip;
         }
 
         private EEditorGameplayState _gameState = EEditorGameplayState.Editing;
@@ -883,7 +881,7 @@ namespace TheraEditor.Windows.Forms
             BaseGameMode gameMode = Engine.GetGameMode();
             Engine.SetActiveGameMode(gameMode, false);
             InputInterface.GlobalRegisters.Add(RegisterInput);
-            gameMode.BeginGameplay();
+            gameMode?.BeginGameplay();
         }
         private void SetEditorGameMode()
         {

@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering.DirectX
 
         public override RenderLibrary RenderLibrary => RenderLibrary.Direct3D11;
         
-        public override void Clear(EBufferClear clearBufferMask)
+        public override void Clear(EFBOTextureType clearBufferMask)
         {
             throw new NotImplementedException();
         }

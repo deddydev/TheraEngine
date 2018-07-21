@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -58,9 +59,9 @@ namespace TheraEditor.Windows.Forms
         TPointPointConstraint _currentConstraint;
         private Vec3 _hitPoint;
         private float _toolSize = 1.2f;
-        private static Dictionary<int, StencilTest>
-            _highlightedMaterials = new Dictionary<int, StencilTest>(),
-            _selectedMaterials = new Dictionary<int, StencilTest>();
+        private static ConcurrentDictionary<int, StencilTest>
+            _highlightedMaterials = new ConcurrentDictionary<int, StencilTest>(),
+            _selectedMaterials = new ConcurrentDictionary<int, StencilTest>();
         internal bool MouseDown { get; set; }//=> OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
 
         public bool UseTransformTool => _transformType != TransformType.DragDrop;
@@ -152,7 +153,7 @@ namespace TheraEditor.Windows.Forms
                     //m.RenderParams.StencilTest.FrontFace.Ref |= 1;
                     return;
                 }
-                _highlightedMaterials.Add(m.UniqueID, m.RenderParams.StencilTest);
+                _highlightedMaterials.TryAdd(m.UniqueID, m.RenderParams.StencilTest);
                 m.RenderParams.StencilTest = OutlinePassStencil;
             }
             else
@@ -164,7 +165,7 @@ namespace TheraEditor.Windows.Forms
                     return;
                 }
                 StencilTest t = _highlightedMaterials[m.UniqueID];
-                _highlightedMaterials.Remove(m.UniqueID);
+                _highlightedMaterials.TryRemove(m.UniqueID, out StencilTest value);
                 m.RenderParams.StencilTest = _selectedMaterials.ContainsKey(m.UniqueID) ? _selectedMaterials[m.UniqueID] : t;
             }
         }
@@ -177,7 +178,7 @@ namespace TheraEditor.Windows.Forms
                 StencilPassDepthFailOp = EStencilOp.Replace,
                 BothPassOp = EStencilOp.Replace,
                 Func = EComparison.Always,
-                Ref = 2,
+                Ref = 0xFF,
                 WriteMask = 0xFF,
                 ReadMask = 0xFF,
             },
@@ -187,7 +188,7 @@ namespace TheraEditor.Windows.Forms
                 StencilPassDepthFailOp = EStencilOp.Replace,
                 BothPassOp = EStencilOp.Replace,
                 Func = EComparison.Always,
-                Ref = 1,
+                Ref = 0xFF,
                 WriteMask = 0xFF,
                 ReadMask = 0xFF,
             },

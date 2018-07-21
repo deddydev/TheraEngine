@@ -111,13 +111,13 @@ namespace TheraEngine.Actors
         public override void OnSpawnedPostComponentSpawn()
         {
             if (OwningWorld.Settings.EnableOriginRebasing)
-                RootComponent.WorldTransformChanged += TryWorldRebase;
+                RootComponent.WorldTransformChanged += QueueWorldRebase;
         }
 
         public override void OnDespawned()
         {
             if (OwningWorld.Settings.EnableOriginRebasing)
-                RootComponent.WorldTransformChanged -= TryWorldRebase;
+                RootComponent.WorldTransformChanged -= QueueWorldRebase;
             HUD?.Despawned();
         }
 
@@ -149,7 +149,7 @@ namespace TheraEngine.Actors
 
         public virtual void RegisterInput(InputInterface input) { }
         
-        public void TryWorldRebase()
+        public void QueueWorldRebase()
         {
             if (OwningWorld == null)
                 return;
@@ -157,7 +157,7 @@ namespace TheraEngine.Actors
             BoundingBox bounds = OwningWorld.Settings.OriginRebaseBounds;
             Vec3 point = RootComponent.WorldMatrix.Translation;
             if (!bounds.Contains(point))
-                OwningWorld.RebaseOrigin(point);
+                Engine.QueueRebaseOrigin(OwningWorld, point);
         }
         public bool IsInWorldBounds()
         {

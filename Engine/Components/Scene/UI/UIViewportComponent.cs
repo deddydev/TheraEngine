@@ -15,6 +15,11 @@ namespace TheraEngine.Rendering.UI
         private Viewport _viewport = new Viewport(1, 1);
         private MaterialFrameBuffer _fbo;
 
+        //These bools are to prevent infinite pre-rendering recursion
+        private bool _updating = false;
+        private bool _swapping = false;
+        private bool _rendering = false;
+
         public UIViewportComponent() : base(GetViewportMaterial())
         {
             _fbo = new MaterialFrameBuffer(InterfaceMaterial);
@@ -76,47 +81,53 @@ namespace TheraEngine.Rendering.UI
         //}
         public void PreRenderUpdate(Camera camera)
         {
+            if (_updating)
+                return;
+            _updating = true;
 
+            Camera c = ViewportCamera;
+            if (!IsVisible || c == null)
+            {
+                _updating = false;
+                return;
+            }
+
+            BaseScene scene = c.OwningComponent?.OwningScene;
+            scene.PreRenderUpdate(c);
+            _viewport.Update(scene, c, c.Frustum);
+
+            _updating = false;
         }
         public void PreRenderSwap()
         {
-
-        }
-        public void PreRender(Viewport viewport, Camera camera)
-        {
-            Camera c = ViewportCamera;
-            if (!IsVisible || c == null)
+            if (_swapping)
                 return;
+            _swapping = true;
 
-            BaseScene scene = c.OwningComponent?.OwningScene;
-            _viewport.Render(scene, c, _fbo);
-        }
-        public void Update(object sender, FrameEventArgs args)
-        {
-            if (!IsVisible || ViewportCamera == null)
-                return;
-
-            BaseScene scene = ViewportCamera.OwningComponent?.OwningScene;
-            scene.PreRenderUpdate(ViewportCamera);
-            _viewport.Update(scene, ViewportCamera, ViewportCamera.Frustum);
-        }
-        public override void OnSpawned()
-        {
-            Engine.RegisterTick(null, Update, SwapBuffers);
-            base.OnSpawned();
-        }
-
-        private void SwapBuffers()
-        {
             BaseScene scene = ViewportCamera?.OwningComponent?.OwningScene;
             scene?.PreRenderSwap();
             _viewport.SwapBuffers();
-        }
 
-        public override void OnDespawned()
+            _swapping = false;
+        }
+        public void PreRender(Viewport viewport, Camera camera)
         {
-            Engine.UnregisterTick(null, Update, SwapBuffers);
-            base.OnDespawned();
+            if (_rendering)
+                return;
+            _rendering = true;
+
+            Camera c = ViewportCamera;
+            if (!IsVisible || c == null)
+            {
+                _rendering = false;
+                return;
+            }
+            
+            BaseScene scene = c.OwningComponent?.OwningScene;
+            scene?.PreRender(_viewport, c);
+            _viewport.Render(scene, c, _fbo);
+
+            _rendering = false;
         }
     }
 }

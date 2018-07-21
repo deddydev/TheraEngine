@@ -60,8 +60,8 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in mat4 lightM
 	float bias = GetShadowBias(NoL);
 
 	//Hard shadow
-	//float depth = texture(ShadowMap, fragCoord.xy).r;
-	//float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
+	float depth = texture(ShadowMap, fragCoord.xy).r;
+	float shadow1 = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
 
 	//PCF shadow
 	float shadow = 0.0f;
@@ -75,6 +75,11 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in mat4 lightM
 	    }
 	}
 	shadow *= 0.111111111f; //divided by 9
+
+  float dist = fragCoord.z - depth;
+  float maxBlurDist = 0.1f;
+  float normDist = clamp(dist, 0.0f, maxBlurDist) / maxBlurDist;
+  shadow = mix(shadow1, shadow, normDist);
 
 	return shadow;
 }

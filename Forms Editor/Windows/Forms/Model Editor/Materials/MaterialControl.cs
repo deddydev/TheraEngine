@@ -261,7 +261,7 @@ namespace TheraEditor.Windows.Forms
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            GLSLShaderFile f = new GLSLShaderFile((EShaderMode)comboBox1.SelectedIndex);
+            GLSLShaderFile f = new GLSLShaderFile((EShaderMode)((int)Math.Pow(2, comboBox1.SelectedIndex)));
 
             GlobalFileRef<GLSLShaderFile> shaderRef = f;
 
@@ -272,7 +272,7 @@ namespace TheraEditor.Windows.Forms
                 text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
             text += "[" + shaderRef.File.Type.ToString() + "]";
 
-            ListViewItem item = new ListViewItem(text) { Tag = f };
+            ListViewItem item = new ListViewItem(text) { Tag = shaderRef };
             if (lstShaders.SelectedIndices.Count == 0)
             {
                 _material.Shaders.Add(f);

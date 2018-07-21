@@ -528,7 +528,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             _transformedFrustum.Render();
             if (_viewTarget != null)
-                Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, 1.0f);
+                Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, false, 1.0f);
         }
         public Plane GetScreenPlane()
             => new Plane(WorldPoint, ForwardVector);

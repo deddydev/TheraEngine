@@ -143,7 +143,7 @@ namespace TheraEngine.Components.Scene.Lights
             for (int i = 0; i < ShadowCameras.Length; ++i)
                 program.Uniform(string.Format("ShadowMatrices[{0}]", i), ShadowCameras[i].WorldToCameraProjSpaceMatrix);
         }
-        public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
+        public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
             int cubeExtent = Math.Max(width, height);
             TexRefCube[] refs = new TexRefCube[]

@@ -251,13 +251,9 @@ namespace TheraEngine.Actors.Types
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
 
                 if (_transformSpace == ESpace.Screen)
-                {
                     RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, UpdateScreenSpace);
-                }
                 else
-                {
                     UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, UpdateScreenSpace);
-                }
             }
         }
 
@@ -296,6 +292,10 @@ namespace TheraEngine.Actors.Types
                         break;
                 }
                 int x = 0;
+
+                if (RootComponent.Meshes == null)
+                    return;
+
                 for (int i = 0; i < 3; ++i)
                 {
                     RootComponent.Meshes[x++].Visible = _mode != TransformType.Rotate;

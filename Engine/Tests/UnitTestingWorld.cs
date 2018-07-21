@@ -40,8 +40,8 @@ namespace TheraEngine.Tests
         {
             bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 2;
-            int dirLights = 0;
+            int pointLights = 0;
+            int dirLights = 1;
             int spotLights = 0;
 
             float margin = 2.0f;
@@ -321,6 +321,7 @@ namespace TheraEngine.Tests
                 MagFilter = ETexMagFilter.Nearest,
                 MinFilter = ETexMinFilter.Nearest
             };
+
             StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", true,
                 BoundingBox.FromMinMax(min, max),
                 BoundingBox.SolidMesh(min, max, true,
@@ -332,10 +333,11 @@ namespace TheraEngine.Tests
                     DepthTest = new DepthTest()
                     {
                         Enabled = ERenderParamUsage.Enabled,
-                        UpdateDepth = false,
+                        UpdateDepth = true,
                         Function = EComparison.Less
                     }
                 }));
+
             mesh.RenderInfo.RenderPass = ERenderPass.Background;
             skybox.RigidChildren.Add(mesh);
             Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
@@ -343,8 +345,16 @@ namespace TheraEngine.Tests
             actors.Add(skyboxActor);
 
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
-            iblProbes.RootComponent.Translation.Y += 3.0f;
-            iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.025f));
+            //iblProbes.RootComponent.Translation.Y += 3.0f;
+            iblProbes.AddProbe(new Vec3(50.0f, 0.0f, 0.0f));
+            iblProbes.AddProbe(new Vec3(-51.0f, 0.0f, 0.0f));
+            iblProbes.AddProbe(new Vec3(0.0f, 52.0f, 0.0f));
+            iblProbes.AddProbe(new Vec3(0.0f, -53.0f, 0.0f));
+            iblProbes.AddProbe(new Vec3(10.0f, 0.0f, 54.0f));
+            iblProbes.AddProbe(new Vec3(0.0f, 0.0f, -55.0f));
+            iblProbes.AddProbe(new Vec3(0.0f, -70.0f, 154.0f));
+            iblProbes.AddProbe(new Vec3(0.0f, 60.0f, -155.0f));
+            //iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
             actors.Add(iblProbes);
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
@@ -356,7 +366,7 @@ namespace TheraEngine.Tests
 
             base.BeginPlay();
 
-            iblProbes.InitAndCaptureAll(512);
+            iblProbes.InitAndCaptureAll(256);
         }
     }
 

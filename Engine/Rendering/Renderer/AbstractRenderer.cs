@@ -167,7 +167,7 @@ namespace TheraEngine.Rendering
             SolidCone,
         }
 
-        private IPrimitiveManager[] _debugPrims = new IPrimitiveManager[12];
+        private readonly IPrimitiveManager[] _debugPrims = new IPrimitiveManager[12];
 
         public IPrimitiveManager GetDebugPrimitive(DebugPrimitiveType type)
         {
@@ -248,10 +248,11 @@ namespace TheraEngine.Rendering
         //public abstract void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize);
         //public abstract void RenderLineLoop(bool closedLoop, params Vec3[] points);
         //public abstract void RenderLineLoop(bool closedLoop, PropAnimVec3 points);
-        public virtual void RenderPoint(Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
+        public virtual void RenderPoint(Vec3 position, ColorF4 color, bool depthTestEnabled = true, float pointSize = DefaultPointSize)
         {
             IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Point);
             m.Parameter<ShaderVec4>(0).Value = color;
+            m.Material.RenderParams.DepthTest.Enabled = depthTestEnabled ? ERenderParamUsage.Enabled : ERenderParamUsage.Disabled;
             Matrix4 modelMatrix = Matrix4.CreateTranslation(position);
             //if (Engine.MainThreadID != Thread.CurrentThread.ManagedThreadId)
             //    Engine.Scene.AddDebugPrimitive(new DebugPrimitive() { Manager = m, ModelMatrix = modelMatrix, Color = color, Type = DebugPrimitiveType.Point });
@@ -262,11 +263,12 @@ namespace TheraEngine.Rendering
             //}
         }
 
-        public virtual unsafe void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual unsafe void RenderLine(Vec3 start, Vec3 end, ColorF4 color, bool depthTestEnabled = true, float lineWidth = DefaultLineSize)
         {
             IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Line);
             m.Parameter<ShaderVec4>(0).Value = color;
             m.Material.RenderParams.LineWidth = lineWidth;
+            m.Material.RenderParams.DepthTest.Enabled = depthTestEnabled ? ERenderParamUsage.Enabled : ERenderParamUsage.Disabled;
             //((Vec3*)m.Data[0].Address)[1] = end - start;
             Matrix4 modelMatrix = Matrix4.CreateTranslation(start) * end.LookatAngles(start).GetMatrix() * Matrix4.CreateScale(end.DistanceToFast(start));
             //if (Engine.MainThreadID != Thread.CurrentThread.ManagedThreadId)
@@ -401,7 +403,7 @@ namespace TheraEngine.Rendering
         public abstract void AttributeDivisor(int attributeLocation, int divisor);
 
         public abstract void ClearColor(ColorF4 color);
-        public abstract void Clear(EBufferClear mask);
+        public abstract void Clear(EFBOTextureType mask);
         public abstract void Cull(ECulling culling);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);

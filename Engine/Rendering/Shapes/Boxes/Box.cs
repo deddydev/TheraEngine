@@ -186,22 +186,6 @@ namespace TheraEngine.Core.Shapes
         {
             return Collision.BoxContainsSphere(HalfExtents, WorldMatrix, sphere.Center, sphere.Radius);
         }
-        public override EContainment ContainedWithin(BoundingBox box)
-        {
-            return box.Contains(this);
-        }
-        public override EContainment ContainedWithin(Box box)
-        {
-            return box.Contains(this);
-        }
-        public override EContainment ContainedWithin(Sphere sphere)
-        {
-            return sphere.Contains(this);
-        }
-        public override EContainment ContainedWithin(Frustum frustum)
-        {
-            return frustum.Contains(this);
-        }
         public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             _transform.Matrix = worldMatrix;
@@ -237,6 +221,28 @@ namespace TheraEngine.Core.Shapes
             Vec3 min = Vec3.ComponentMin(corners);
             Vec3 max = Vec3.ComponentMax(corners);
             return BoundingBox.FromMinMax(min, max);
+        }
+
+        public override EContainment Contains(BaseCone cone)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(BaseCylinder cylinder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(BaseCapsule capsule)
+        {
+            Vec3 top = capsule.GetTopCenterPoint();
+            Vec3 bot = capsule.GetBottomCenterPoint();
+            float radius = capsule.Radius;
+            Vec3 topLocal = Vec3.TransformPosition(top, _transform.InverseMatrix);
+            Vec3 botLocal = Vec3.TransformPosition(bot, _transform.InverseMatrix);
+            Vec3 min = Vec3.ComponentMin(topLocal, botLocal) - radius;
+            Vec3 max = Vec3.ComponentMax(topLocal, botLocal) + radius;
+            return Collision.AABBContainsAABB(-_halfExtents.Raw, _halfExtents.Raw, min, max);
         }
     }
 }

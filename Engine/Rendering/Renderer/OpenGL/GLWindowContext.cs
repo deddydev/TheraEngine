@@ -8,6 +8,13 @@ namespace TheraEngine.Rendering.OpenGL
 {
     public class GLWindowContext : RenderContext
     {
+        public const bool DebugMode =
+#if DEBUG
+            true;
+#else
+            false;
+#endif
+
         static GLWindowContext()
         {
             GraphicsContext.ShareContexts = true;
@@ -88,43 +95,34 @@ namespace TheraEngine.Rendering.OpenGL
         public unsafe override void Initialize()
         {
             GetCurrentSubContext();
-
-            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-            //GL.Disable(EnableCap.CullFace);
-            //GL.Enable(EnableCap.Dither);
+            
             GL.Enable(EnableCap.Multisample);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
             GL.FrontFace(FrontFaceDirection.Ccw);
-            //GL.ClearDepth(1.0f);
 
-            GL.Enable(EnableCap.DebugOutput);
-            GL.Enable(EnableCap.DebugOutputSynchronous);
-
-            //Throws an error if HandleDebugMessage is passed in directly
-            _error = HandleDebugMessage;
-            GL.DebugMessageCallback(_error, IntPtr.Zero);
-
-            int[] ids = { };
-            GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, ids, true);
-
-            //Modify depth range so there is no loss of precision with scale and bias conversion
+            //TODO: Modify depth range so there is no loss of precision with scale and bias conversion
             GL.ClipControl(ClipOrigin.LowerLeft, ClipDepthMode.NegativeOneToOne);
-            //GL.DepthRange(0.0, 1.0);
-            //GL.Enable(EnableCap.FramebufferSrgb);
-            //GL.Enable(EnableCap.StencilTest);
-            //GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-            //GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
 
-            //GL.DepthFunc(DepthFunction.Less);
-            //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
+            //Fix gamma manually inside of the post process shader
+            //GL.Enable(EnableCap.FramebufferSrgb);
+
+            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
             GL.UseProgram(0);
+
+            if (DebugMode)
+            {
+                GL.Enable(EnableCap.DebugOutput);
+                GL.Enable(EnableCap.DebugOutputSynchronous);
+
+                //Throws an error if HandleDebugMessage is passed in directly
+                _error = HandleDebugMessage;
+                GL.DebugMessageCallback(_error, IntPtr.Zero);
+
+                int[] ids = { };
+                GL.DebugMessageControl(DebugSourceControl.DontCare, DebugTypeControl.DontCare, DebugSeverityControl.DontCare, 0, ids, true);
+            }
         }
         public unsafe override void BeginDraw()
         {
@@ -173,9 +171,9 @@ namespace TheraEngine.Rendering.OpenGL
                 Engine.RenderThreadId = Thread.CurrentThread.ManagedThreadId;
                 WindowInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
                 GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 24, 8, 8, new ColorFormat(0), 2, false);
-                _context = new GraphicsContext(mode, WindowInfo, 4, 6, GraphicsContextFlags.Debug)
+                _context = new GraphicsContext(mode, WindowInfo, 4, 6, DebugMode ? GraphicsContextFlags.Debug : GraphicsContextFlags.Default)
                 {
-                    ErrorChecking = true
+                    ErrorChecking = DebugMode
                 };
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();

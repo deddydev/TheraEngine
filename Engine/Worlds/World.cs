@@ -59,10 +59,8 @@ namespace TheraEngine.Worlds
             get => State.Scene;
             set => State.Scene = value;
         }
+        public AbstractPhysicsWorld PhysicsWorld { get; private set; }
 
-        private AbstractPhysicsWorld _physicsWorld;
-        public AbstractPhysicsWorld PhysicsWorld => _physicsWorld;
-        
         public BaseGameMode GetGameMode()
             => Settings?.GameModeOverrideRef?.File;
         public T GetGameMode<T>() where T : class, IGameMode
@@ -109,7 +107,7 @@ namespace TheraEngine.Worlds
         }
         
         internal void StepSimulation(float delta)
-            => _physicsWorld?.StepSimulation(delta);
+            => PhysicsWorld?.StepSimulation(delta);
         
         public IActor this[int index]
         {
@@ -128,23 +126,24 @@ namespace TheraEngine.Worlds
                 return;
 
             if (IsRebasingOrigin)
-                throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
+                return;
+                //throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
             IsRebasingOrigin = true;
 
             Engine.PrintLine("Beginning origin rebase.");
 
-            if (_physicsWorld != null)
-                _physicsWorld.AllowIndividualAabbUpdates = false;
+            if (PhysicsWorld != null)
+                PhysicsWorld.AllowIndividualAabbUpdates = false;
 
             //Update each actor in parallel; they should not depend on one another
             await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
             //foreach (IActor a in State.SpawnedActors)
             //    a.RebaseOrigin(newOrigin);
 
-            if (_physicsWorld != null)
+            if (PhysicsWorld != null)
             {
-                _physicsWorld.AllowIndividualAabbUpdates = true;
-                _physicsWorld.UpdateAabbs();
+                PhysicsWorld.AllowIndividualAabbUpdates = true;
+                PhysicsWorld.UpdateAabbs();
             }
 
             Scene.RenderTree.Remake();
@@ -156,13 +155,13 @@ namespace TheraEngine.Worlds
 
         private void CreatePhysicsScene()
         {
-            _physicsWorld?.Dispose();
-            _physicsWorld = Engine.Physics.NewScene();
+            PhysicsWorld?.Dispose();
+            PhysicsWorld = Engine.Physics.NewScene();
         }
         public void Dispose()
         {
-            _physicsWorld?.Dispose();
-            _physicsWorld = null;
+            PhysicsWorld?.Dispose();
+            PhysicsWorld = null;
         }
 
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();

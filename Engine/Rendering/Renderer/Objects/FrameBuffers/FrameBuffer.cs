@@ -15,6 +15,7 @@ namespace TheraEngine.Rendering
         public static FrameBuffer CurrentlyBound { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
+        public EFBOTextureType TextureTypes { get; private set; } = EFBOTextureType.None;
 
         public (IFrameBufferAttachement Target, EFramebufferAttachment Attachment, int MipLevel, int LayerIndex)[] Targets { get; private set; }
         public EDrawBuffersAttachment[] DrawBuffers { get; private set; }
@@ -23,6 +24,7 @@ namespace TheraEngine.Rendering
         {
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)(() => UpdateRenderTarget(i, target)), BaseRenderPanel.PanelType.Rendering))
                 return;
+
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             if (IsActive)
             {
@@ -33,7 +35,7 @@ namespace TheraEngine.Rendering
             {
                 Attach(i);
             }
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, NullBindingId);
         }
         /// <summary>
         /// Informs the framebuffer where it is writing shader output data to;
@@ -53,6 +55,7 @@ namespace TheraEngine.Rendering
                 DetachAll();
 
             Targets = targets;
+            TextureTypes = EFBOTextureType.None;
 
             List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
             foreach (var (Target, Attachment, MipLevel, LayerIndex) in Targets)
@@ -60,14 +63,22 @@ namespace TheraEngine.Rendering
                 switch (Attachment)
                 {
                     case EFramebufferAttachment.Color:
+                        TextureTypes |= EFBOTextureType.Color;
+                        continue;
                     case EFramebufferAttachment.Depth:
                     case EFramebufferAttachment.DepthAttachment:
+                        TextureTypes |= EFBOTextureType.Depth;
+                        continue;
                     case EFramebufferAttachment.DepthStencilAttachment:
+                        TextureTypes |= EFBOTextureType.Depth | EFBOTextureType.Stencil;
+                        continue;
                     case EFramebufferAttachment.Stencil:
                     case EFramebufferAttachment.StencilAttachment:
+                        TextureTypes |= EFBOTextureType.Stencil;
                         continue;
                 }
                 fboAttachments.Add((EDrawBuffersAttachment)(int)Attachment);
+                TextureTypes |= EFBOTextureType.Color;
             }
             DrawBuffers = fboAttachments.ToArray();
 

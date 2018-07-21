@@ -50,9 +50,9 @@ namespace TheraEngine.Core.Shapes
         public IOctreeNode OctreeNode { get; set; }
 
         [TSerialize("IsVisible", XmlNodeType = EXmlNodeType.Attribute)]
-        protected bool _isVisible;
+        protected bool _isVisible = true;
         [TSerialize("RenderSolid", XmlNodeType = EXmlNodeType.Attribute)]
-        protected bool _renderSolid;
+        protected bool _renderSolid = false;
         [TSerialize("RenderColor")]
         protected ColorF3 _renderColor = ColorF3.Red;
         [TSerialize("VisibleInEditorOnly", XmlNodeType = EXmlNodeType.Attribute)]
@@ -129,40 +129,7 @@ namespace TheraEngine.Core.Shapes
         public EContainment ContainedWithin(Sphere sphere) => sphere?.Contains(this) ?? EContainment.Contains;
         public EContainment ContainedWithin(Frustum frustum) => frustum?.Contains(this) ?? EContainment.Contains;
         public EContainment ContainedWithin(Shape shape) => shape?.Contains(this) ?? EContainment.Contains;
-
-        public override EContainment Contains(BaseCone cone)
-        {
-            bool top = Contains(cone.GetTopPoint());
-            bool bot = Contains(cone.GetBottomCenterPoint());
-            if (top && bot)
-                return EContainment.Contains;
-            else if (!top && !bot)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
-        }
-
-        public override EContainment Contains(BaseCylinder cylinder)
-        {
-            bool top = Contains(cylinder.GetTopCenterPoint());
-            bool bot = Contains(cylinder.GetBottomCenterPoint());
-            if (top && bot)
-                return EContainment.Contains;
-            else if (!top && !bot)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
-        }
-
-        public override EContainment Contains(BaseCapsule capsule)
-        {
-            bool top = Contains(capsule.GetTopCenterPoint());
-            bool bot = Contains(capsule.GetBottomCenterPoint());
-            if (top && bot)
-                return EContainment.Contains;
-            else if (!top && !bot)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
-        }
-
+        
         /// <summary>
         /// Applies the transform to this shape.
         /// </summary>

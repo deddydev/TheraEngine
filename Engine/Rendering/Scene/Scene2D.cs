@@ -65,7 +65,7 @@ namespace TheraEngine.Rendering
 
                         Engine.Renderer.EnableDepthTest(true);
                         Engine.Renderer.ClearDepth(1.0f);
-                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        Engine.Renderer.Clear(EFBOTextureType.Color | EFBOTextureType.Depth);
                         renderingPasses.ClearRendering(ERenderPass.OpaqueDeferredLit);
 
                         Engine.Renderer.AllowDepthWrite(false);
@@ -92,7 +92,7 @@ namespace TheraEngine.Rendering
                 {
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
 
-                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                    Engine.Renderer.Clear(EFBOTextureType.Color | EFBOTextureType.Depth);
 
                     renderingPasses.ClearRendering(ERenderPass.OpaqueDeferredLit);
 

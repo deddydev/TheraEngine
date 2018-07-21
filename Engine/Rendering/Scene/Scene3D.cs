@@ -182,7 +182,7 @@ namespace TheraEngine.Rendering
                         {
                             Engine.Renderer.StencilMask(~0);
                             Engine.Renderer.ClearStencil(0);
-                            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
+                            Engine.Renderer.Clear(EFBOTextureType.Color | EFBOTextureType.Depth | EFBOTextureType.Stencil);
                             Engine.Renderer.EnableDepthTest(true);
                             Engine.Renderer.ClearDepth(1.0f);
                             renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
@@ -201,6 +201,8 @@ namespace TheraEngine.Rendering
                         RenderLights(viewport);
                         RenderForwardPass(viewport, renderingPasses);
                         RenderBloom(viewport);
+
+                        camera.PostProcessRef.File.ColorGrading.UpdateExposure(viewport._hdrSceneTexture);
 
                         //TODO: Apply camera post process material pass here
                         TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
@@ -226,9 +228,13 @@ namespace TheraEngine.Rendering
                 else
                 {
                     target?.Bind(EFramebufferTarget.DrawFramebuffer);
+
+                    Engine.Renderer.ClearDepth(1.0f);
+                    Engine.Renderer.EnableDepthTest(true);
+                    Engine.Renderer.AllowDepthWrite(true);
                     Engine.Renderer.StencilMask(~0);
                     Engine.Renderer.ClearStencil(0);
-                    //Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth | EBufferClear.Stencil);
+                    Engine.Renderer.Clear(target?.TextureTypes ?? EFBOTextureType.Color | EFBOTextureType.Depth | EFBOTextureType.Stencil);
 
                     Engine.Renderer.AllowDepthWrite(false);
                     renderingPasses.Render(ERenderPass.Background);
@@ -242,6 +248,7 @@ namespace TheraEngine.Rendering
                     //Disable depth fail for objects on top
                     Engine.Renderer.DepthFunc(EComparison.Always);
                     renderingPasses.Render(ERenderPass.OnTopForward);
+
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
             }
@@ -321,7 +328,7 @@ namespace TheraEngine.Rendering
             viewport.LightCombineFBO.Bind(EFramebufferTarget.DrawFramebuffer);
             {
                 //Start with blank slate so additive blending doesn't ghost old frames
-                Engine.Renderer.Clear(EBufferClear.Color);
+                Engine.Renderer.Clear(EFBOTextureType.Color);
 
                 foreach (PointLightComponent c in Lights.PointLights)
                 {

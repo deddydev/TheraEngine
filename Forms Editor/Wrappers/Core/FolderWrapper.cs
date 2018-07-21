@@ -260,6 +260,11 @@ namespace TheraEditor.Wrappers
                         Editor.Instance.ReportOperation(msg, progress, token);
 
                         TFileObject file = await TFileObject.LoadAsync(fileType, ofd.FileName, progress, token.Token);
+                        if (file == null)
+                        {
+                            token.Cancel();
+                            return;
+                        }
 
                         FolderWrapper folderNode = GetInstance<FolderWrapper>();
                         string dir = folderNode.FilePath as string;

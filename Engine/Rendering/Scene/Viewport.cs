@@ -278,13 +278,7 @@ namespace TheraEngine.Rendering
         private RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(BaseScene scene, Camera camera, FrameBuffer target)
         {
-            var uiScene = HUD?.UIScene; 
-            if (uiScene != null)
-            {
-                Camera c = HUD.Camera;
-                uiScene.Render(HUD.RenderPasses, c, this, HudFBO);
-            }
-
+            HUD?.UIScene?.Render(HUD.RenderPasses, HUD.Camera, this, HudFBO);
             scene.Render(_renderPasses, camera, this, target);
         }
         internal protected virtual void SwapBuffers()
@@ -716,7 +710,7 @@ namespace TheraEngine.Rendering
             fbo.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(region);
             {
-                Engine.Renderer.Clear(EBufferClear.Color);
+                Engine.Renderer.Clear(EFBOTextureType.Color);
                 quad.Render();
             }
             Engine.Renderer.PopRenderArea();
@@ -808,8 +802,8 @@ namespace TheraEngine.Rendering
                 TexRef2D ssaoTexture = TexRef2D.CreateFrameBufferTexture("OutputIntensity", width, height,
                     EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0);
-                ssaoTexture.MinFilter = ETexMinFilter.Linear;
-                ssaoTexture.MagFilter = ETexMagFilter.Linear;
+                ssaoTexture.MinFilter = ETexMinFilter.Nearest;
+                ssaoTexture.MagFilter = ETexMagFilter.Nearest;
                 
                 GLSLShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EShaderMode.Fragment);
                 GLSLShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EShaderMode.Fragment);
@@ -1083,7 +1077,6 @@ namespace TheraEngine.Rendering
                 return;
 
             RenderingCamera.SetUniforms(program);
-            RenderingCamera.PostProcessRef.File.ColorGrading.UpdateExposure(_hdrSceneTexture);
             RenderingCamera.PostProcessRef.File.SetUniforms(program);
         }
 

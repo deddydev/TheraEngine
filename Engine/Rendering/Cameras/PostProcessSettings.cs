@@ -90,11 +90,11 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize]
         [DisplayName("Exponent")]
         [Category("Shadow Map Settings")]
-        public float ShadowMult { get; set; } = 40.0f;
+        public float ShadowMult { get; set; } = 4.0f;
         [TSerialize]
         [DisplayName("Minimum")]
         [Category("Shadow Map Settings")]
-        public float ShadowBiasMin { get; set; } = 0.0001f;
+        public float ShadowBiasMin { get; set; } = 0.001f;
         [TSerialize]
         [DisplayName("Maximum")]
         [Category("Shadow Map Settings")]
@@ -272,7 +272,7 @@ uniform ColorGradeStruct ColorGrade;";
                 return;
 
             //Calculate average color value using 1x1 mipmap of scene
-            var tex = hdrSceneTexture.GetRenderTextureGeneric(true);
+            var tex = hdrSceneTexture.RenderTextureGeneric;
             tex.Bind();
             tex.GenerateMipmaps();
 
@@ -280,7 +280,7 @@ uniform ColorGradeStruct ColorGrade;";
             Vec3 rgb = new Vec3();
             IntPtr addr = (IntPtr)rgb.Data;
             Engine.Renderer.GetTexImage(tex.BindingId, tex.SmallestMipmapLevel, EPixelFormat.Rgb, EPixelType.Float, sizeof(Vec3), addr);
-
+            
             if (float.IsNaN(rgb.X)) return;
             if (float.IsNaN(rgb.Y)) return;
             if (float.IsNaN(rgb.Z)) return;

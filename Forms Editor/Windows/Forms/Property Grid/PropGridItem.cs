@@ -221,30 +221,30 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private static bool UpdatingVisibleItems = false;
         internal static void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
-            if (UpdatingVisibleItems)
-                return;
-            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
-            UpdatingVisibleItems = true;
-            Task.Run(() =>
-            {
-                while (UpdatingVisibleItems)
-                {
-                    if (VisibleItems.Count > 0)
-                        Parallel.For(0, VisibleItems.Count, i =>
-                        {
-                            try
-                            {
-                                if (!VisibleItems.IndexInRange(i))
-                                    return;
-                                var item = VisibleItems[i];
-                                if (!item.Disposing && !item.IsDisposed)
-                                    BaseRenderPanel.ThreadSafeBlockingInvoke((Action)item.UpdateDisplay, BaseRenderPanel.PanelType.Rendering);
-                            }
-                            catch { }
-                        });
-                    Thread.Sleep(sleepTime);
-                }
-            });
+            //if (UpdatingVisibleItems)
+            //    return;
+            //int sleepTime = (int)(updateRateInSeconds * 1000.0f);
+            //UpdatingVisibleItems = true;
+            //Task.Run(() =>
+            //{
+            //    while (UpdatingVisibleItems)
+            //    {
+            //        if (VisibleItems.Count > 0)
+            //            Parallel.For(0, VisibleItems.Count, i =>
+            //            {
+            //                try
+            //                {
+            //                    if (!VisibleItems.IndexInRange(i))
+            //                        return;
+            //                    var item = VisibleItems[i];
+            //                    if (!item.Disposing && !item.IsDisposed)
+            //                        BaseRenderPanel.ThreadSafeBlockingInvoke((Action)item.UpdateDisplay, BaseRenderPanel.PanelType.Rendering);
+            //                }
+            //                catch { }
+            //            });
+            //        Thread.Sleep(sleepTime);
+            //    }
+            //});
         }
         internal static void StopUpdatingVisibleItems()
         {

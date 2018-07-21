@@ -122,6 +122,14 @@ namespace TheraEngine
         /// The index of the currently ticking list of functions (group + order + pause)
         /// </summary>
         private static int _currentTickList = -1;
+
+        private static ConcurrentDictionary<World, Vec3> RebaseWorldsQueue1 = new ConcurrentDictionary<World, Vec3>();
+        private static ConcurrentDictionary<World, Vec3> RebaseWorldsQueue2 = new ConcurrentDictionary<World, Vec3>();
+        public static void QueueRebaseOrigin(World world, Vec3 point)
+        {
+            RebaseWorldsQueue2.AddOrUpdate(world, t => point, (t, t2) => point);
+        }
+
         /// <summary>
         /// Queue for adding to or removing from the currently ticking list
         /// </summary>

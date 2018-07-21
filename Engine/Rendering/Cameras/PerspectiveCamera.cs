@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering.Cameras
             //    f.Render();
 
             if (ViewTarget != null)
-                Engine.Renderer.RenderLine(WorldPoint, ViewTarget.Raw, Color.DarkGray, 1.0f);
+                Engine.Renderer.RenderLine(WorldPoint, ViewTarget.Raw, Color.DarkGray, true, 1.0f);
         }
         public override void SetUniforms(RenderProgram program)
         {

@@ -56,6 +56,7 @@ namespace TheraEngine.Core.Shapes
         public override TCollisionShape GetCollisionShape()
             => TCollisionSphere.New(Radius);
 
+        #region Meshes
         public static PrimitiveData SolidMesh(Vec3 center, float radius, uint precision)
         {
             float halfPI = TMath.PIf * 0.5f;
@@ -101,7 +102,6 @@ namespace TheraEngine.Core.Shapes
 
             return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), strips.SelectMany(x => x.ToTriangles()));
         }
-
         public static PrimitiveData WireframeMesh(Vec3 center, float radius, int pointCount)
         {
             VertexLineStrip d1 = Circle3D.LineStrip(radius, Vec3.Forward, center, pointCount);
@@ -109,7 +109,6 @@ namespace TheraEngine.Core.Shapes
             VertexLineStrip d3 = Circle3D.LineStrip(radius, Vec3.Right, center, pointCount);
             return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), d1, d2, d3);
         }
-
         public static PrimitiveData SolidMesh(Vec3 center, float radius, int slices, int stacks)
         {
             List<Vertex> v = new List<Vertex>();
@@ -142,12 +141,13 @@ namespace TheraEngine.Core.Shapes
             }
             return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), triangles);
         }
-
         public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)
             => SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, slices, stacks);
         public PrimitiveData GetMesh(uint precision, bool includeCenter)
             => SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, precision);
-        
+        #endregion
+
+        #region Containment
         public override bool Contains(Vec3 point)
             => Collision.SphereContainsPoint(Center, Radius, point);
         public override EContainment Contains(BoundingBox box)
@@ -155,22 +155,39 @@ namespace TheraEngine.Core.Shapes
         public override EContainment Contains(Box box)
             => Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.InverseWorldMatrix);
         public override EContainment Contains(Sphere sphere)
-            => Collision.SphereContainsSphere(Center, Radius, sphere.Center, sphere.Radius); 
-        public override EContainment ContainedWithin(BoundingBox box)
-            => box.Contains(this);
-        public override EContainment ContainedWithin(Box box)
-            => box.Contains(this);
-        public override EContainment ContainedWithin(Sphere sphere)
-            => sphere.Contains(this);
-        public override EContainment ContainedWithin(Frustum frustum)
-            => frustum.Contains(this);
-
-        public override void SetRenderTransform(Matrix4 worldMatrix)
+            => Collision.SphereContainsSphere(Center, Radius, sphere.Center, sphere.Radius);
+        public override EContainment Contains(BaseCone cone)
         {
-            _center = worldMatrix.Translation;
-            base.SetRenderTransform(worldMatrix);
+            //TODO
+            return EContainment.Contains;
         }
-        
+        public override EContainment Contains(BaseCylinder cylinder)
+        {
+            //TODO
+            return EContainment.Contains;
+        }
+        public override EContainment Contains(BaseCapsule capsule)
+        {
+            Vec3 top = capsule.GetTopCenterPoint();
+            Vec3 bot = capsule.GetBottomCenterPoint();
+
+            float topDist = top.DistanceToFast(Center);
+            float botDist = bot.DistanceToFast(Center);
+            float distToCenter = Segment.ShortestDistanceToPoint(bot, top, Center);
+
+            bool containsTop = topDist + _radius < Radius;
+            bool containsBot = botDist + _radius < Radius;
+            bool containsSides = distToCenter + _radius < Radius;
+
+            if (containsTop != containsBot)
+                return EContainment.Intersects;
+            if (containsBot && containsTop)
+                return containsSides ? EContainment.Contains : EContainment.Intersects;
+            else
+                return containsSides ? EContainment.Intersects : EContainment.Disjoint;
+        }
+        #endregion
+
         public override Shape HardCopy()
             => new Sphere(Radius, Center);
         
@@ -195,6 +212,12 @@ namespace TheraEngine.Core.Shapes
 
         public override BoundingBox GetAABB()
             => new BoundingBox(_radius, _center);
+
+        public override void SetRenderTransform(Matrix4 worldMatrix)
+        {
+            _center = worldMatrix.Translation;
+            base.SetRenderTransform(worldMatrix);
+        }
 
         public override void Render()
             => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);

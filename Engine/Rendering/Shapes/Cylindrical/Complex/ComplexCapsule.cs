@@ -86,22 +86,6 @@ namespace TheraEngine.Core.Shapes
         {
             throw new NotImplementedException();
         }
-        public override EContainment ContainedWithin(BoundingBox box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(Box box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(Sphere sphere)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(Frustum frustum)
-        {
-            throw new NotImplementedException();
-        }
         public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             throw new NotImplementedException();
@@ -126,6 +110,21 @@ namespace TheraEngine.Core.Shapes
         }
 
         public override BoundingBox GetAABB()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(BaseCone cone)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(BaseCylinder cylinder)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(BaseCapsule capsule)
         {
             throw new NotImplementedException();
         }

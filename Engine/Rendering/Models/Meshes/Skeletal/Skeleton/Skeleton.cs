@@ -165,9 +165,9 @@ namespace TheraEngine.Rendering.Models
             foreach (Bone b in BoneNameCache.Values)
             {
                 Vec3 point = b.WorldMatrix.Translation;
-                Engine.Renderer.RenderPoint(point, b.Parent == null ? Color.Orange : Color.Purple, 5.0f);
+                Engine.Renderer.RenderPoint(point, b.Parent == null ? Color.Orange : Color.Purple, false, 5.0f);
                 if (b.Parent != null)
-                    Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.Translation, Color.Blue, 1.0f);
+                    Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.Translation, Color.Blue, false, 1.0f);
                 //float scale = AbstractRenderer.CurrentCamera.DistanceScale(point, 2.0f);
                 //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), Color.Red, 5.0f);
                 //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), Color.Green, 5.0f);

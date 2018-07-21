@@ -111,7 +111,7 @@ namespace TheraEngine.Actors.Types
 
                 _irradianceFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                 {
-                    Engine.Renderer.Clear(EBufferClear.Color);
+                    Engine.Renderer.Clear(EFBOTextureType.Color);
                     Engine.Renderer.EnableDepthTest(false);
                     _irradianceFBO.RenderFullscreen(face);
                 }
@@ -145,7 +145,7 @@ namespace TheraEngine.Actors.Types
 
                     _prefilterFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                     {
-                        Engine.Renderer.Clear(EBufferClear.Color);
+                        Engine.Renderer.Clear(EFBOTextureType.Color);
                         _prefilterFBO.RenderFullscreen(face);
                     }
                     _prefilterFBO.Unbind(EFramebufferTarget.DrawFramebuffer);

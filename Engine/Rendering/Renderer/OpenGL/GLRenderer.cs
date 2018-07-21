@@ -28,16 +28,16 @@ namespace TheraEngine.Rendering.OpenGL
 
         private ShaderType _currentShaderMode;
         
-        public override void Clear(EBufferClear mask)
+        public override void Clear(EFBOTextureType mask)
         {
             ClearBufferMask newMask = 0;
-            if (mask.HasFlag(EBufferClear.Color))
+            if (mask.HasFlag(EFBOTextureType.Color))
                 newMask |= ClearBufferMask.ColorBufferBit;
-            if (mask.HasFlag(EBufferClear.Depth))
+            if (mask.HasFlag(EFBOTextureType.Depth))
                 newMask |= ClearBufferMask.DepthBufferBit;
-            if (mask.HasFlag(EBufferClear.Stencil))
+            if (mask.HasFlag(EFBOTextureType.Stencil))
                 newMask |= ClearBufferMask.StencilBufferBit;
-            if (mask.HasFlag(EBufferClear.Accum))
+            if (mask.HasFlag(EFBOTextureType.Accum))
                 newMask |= ClearBufferMask.AccumBufferBit;
             GL.Clear(newMask);
         }

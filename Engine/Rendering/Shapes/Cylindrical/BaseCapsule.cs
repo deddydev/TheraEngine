@@ -24,7 +24,7 @@ namespace TheraEngine.Core.Shapes
             Engine.Renderer.RenderCapsule(_state.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Red);
         }
         public override bool Contains(Vec3 point)
-            => Segment.GetShortestDistanceToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point) <= _radius;
+            => Segment.ShortestDistanceToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point) <= _radius;
         public Vec3 ClosestPointTo(Vec3 point)
         {
             Vec3 startPoint = GetBottomCenterPoint();
@@ -47,7 +47,7 @@ namespace TheraEngine.Core.Shapes
         {
             Vec3 startPoint = GetBottomCenterPoint();
             Vec3 endPoint = GetTopCenterPoint();
-            float pointToSegment = Segment.GetShortestDistanceToPoint(startPoint, endPoint, sphere.Center);
+            float pointToSegment = Segment.ShortestDistanceToPoint(startPoint, endPoint, sphere.Center);
             float maxDist = sphere.Radius + Radius;
             if (pointToSegment > maxDist)
                 return EContainment.Disjoint;
@@ -56,67 +56,31 @@ namespace TheraEngine.Core.Shapes
             else
                 return EContainment.Intersects;
         }
+        public override EContainment Contains(BaseCapsule capsule)
+        {
+            //TODO
+            return EContainment.Contains;
+        }
+        public override EContainment Contains(BaseCone cone)
+        {
+            //TODO
+            return EContainment.Contains;
+        }
+        public override EContainment Contains(BaseCylinder cylinder)
+        {
+            //TODO
+            return EContainment.Contains;
+        }
         public override EContainment Contains(Box box)
         {
-            throw new NotImplementedException();
+            //TODO
+            return EContainment.Contains;
         }
         public override EContainment Contains(BoundingBox box)
         {
-            throw new NotImplementedException();
+            //TODO
+            return EContainment.Contains;
         }
-        public override EContainment ContainedWithin(BoundingBox box)
-        {
-            Vec3 top = GetTopCenterPoint();
-            Vec3 bot = GetBottomCenterPoint();
-            Vec3 radiusVec = new Vec3(_radius);
-            Vec3 capsuleMin = Vec3.ComponentMin(top, bot) - radiusVec;
-            Vec3 capsuleMax = Vec3.ComponentMax(top, bot) + radiusVec;
-            Vec3 min = box.Minimum;
-            Vec3 max = box.Maximum;
-
-            bool containsX = false, containsY = false, containsZ = false;
-            bool disjointX = false, disjointY = false, disjointZ = false;
-            
-            containsX = capsuleMin.X >= min.X && capsuleMax.X <= max.X;
-            containsY = capsuleMin.Y >= min.Y && capsuleMax.Y <= max.Y;
-            containsZ = capsuleMin.Z >= min.Z && capsuleMax.Z <= max.Z;
-            if (!containsX) disjointX = capsuleMax.X < min.X || capsuleMin.X > max.X;
-            if (!containsY) disjointY = capsuleMax.Y < min.Y || capsuleMin.Y > max.Y;
-            if (!containsZ) disjointZ = capsuleMax.Z < min.Z || capsuleMin.Z > max.Z;
-            if (containsX && containsY && containsZ)
-                return EContainment.Contains;
-            if (disjointX && disjointY && disjointZ)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
-        }
-        public override EContainment ContainedWithin(Box box)
-        {
-            return ContainedWithin(box.AsFrustum());
-        }
-        public override EContainment ContainedWithin(Frustum frustum)
-        {
-            if (frustum == null)
-                return EContainment.Disjoint;
-            return frustum.Contains(this);
-        }
-        public override EContainment ContainedWithin(Sphere sphere)
-        {
-            Vec3 top = GetTopCenterPoint();
-            Vec3 bot = GetBottomCenterPoint();
-            float topDist = top.DistanceToFast(sphere.Center);
-            float botDist = bot.DistanceToFast(sphere.Center);
-            float distToCenter = Segment.GetShortestDistanceToPoint(bot, top, sphere.Center);
-            bool containsTop = topDist + _radius < sphere.Radius;
-            bool containsBot = botDist + _radius < sphere.Radius;
-            bool containsSides = distToCenter + _radius < sphere.Radius;
-            if (containsTop != containsBot)
-                return EContainment.Intersects;
-            if (containsBot && containsTop)
-                return containsSides ? EContainment.Contains : EContainment.Intersects;
-            else
-                return containsSides ? EContainment.Intersects : EContainment.Disjoint;
-        }
-
         /// <summary>
         /// Returns the closest point on this shape to the given point.
         /// </summary>
@@ -130,7 +94,7 @@ namespace TheraEngine.Core.Shapes
         /// <param name="clampIfInside">If true, finds closest edge point even if the given point is inside the capsule. Otherwise, just returns the given point if it is inside.</param>
         public Vec3 ClosestPoint(Vec3 point, bool clampIfInside)
         {
-            Vec3 colinearPoint = Segment.GetClosestColinearPointToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point);
+            Vec3 colinearPoint = Segment.ClosestColinearPointToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point);
             if (!clampIfInside && colinearPoint.DistanceToFast(point) < _radius)
                 return point;
             return Ray.PointAtLineDistance(colinearPoint, point, _radius);
@@ -138,7 +102,7 @@ namespace TheraEngine.Core.Shapes
 
         public static PrimitiveData WireframeMesh(Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle)
         {
-            upAxis.NormalizeFast();
+            upAxis.Normalize();
 
             Vec3 topPoint = center + upAxis * halfHeight;
             Vec3 bottomPoint = center - upAxis * halfHeight;
@@ -216,7 +180,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle,
             out PrimitiveData cylinder, out PrimitiveData topSphereHalf, out PrimitiveData bottomSphereHalf)
         {
-            upAxis.NormalizeFast();
+            upAxis.Normalize();
 
             Vec3 topPoint = center + upAxis * halfHeight;
             Vec3 bottomPoint = center - upAxis * halfHeight;
@@ -297,10 +261,12 @@ namespace TheraEngine.Core.Shapes
         }
         public override BoundingBox GetAABB()
         {
-            BoundingBox aabb = BoundingBox.ExpandableBox();
-            aabb.Expand(GetTopSphere().GetAABB());
-            aabb.Expand(GetBottomSphere().GetAABB());
-            return aabb;
+            Vec3 top = GetTopCenterPoint();
+            Vec3 bot = GetBottomCenterPoint();
+            float radius = Radius;
+            Vec3 min = Vec3.ComponentMin(top, bot) - radius;
+            Vec3 max = Vec3.ComponentMax(top, bot) + radius;
+            return BoundingBox.FromMinMax(min, max);
         }
     }
 }

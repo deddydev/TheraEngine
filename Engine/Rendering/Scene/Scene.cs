@@ -118,12 +118,21 @@ namespace TheraEngine.Rendering
     }
     public abstract class BaseScene
     {
-        private static List<TMaterial> _activeMaterials = new List<TMaterial>();
-        private static Queue<int> _removedIds = new Queue<int>();
-        protected List<IPreRendered> _preRenderList = new List<IPreRendered>();
-
-        public DelRender Render { get; protected set; }
+        /// <summary>
+        /// Call this method to render the scene.
+        /// </summary>
+        internal protected DelRender Render { get; protected set; }
+        /// <summary>
+        /// The number of renderable items in the scene.
+        /// </summary>
         public abstract int Count { get; }
+
+        protected List<IPreRendered> _preRenderList = new List<IPreRendered>();
+        protected List<IPreRendered> _preRenderAddWaitList = new List<IPreRendered>();
+        protected List<IPreRendered> _preRenderRemoveWaitList = new List<IPreRendered>();
+        
+        //private static List<TMaterial> _activeMaterials = new List<TMaterial>();
+        //private static Queue<int> _removedIds = new Queue<int>();
 
         //public int AddActiveMaterial(TMaterial material)
         //{
@@ -142,15 +151,24 @@ namespace TheraEngine.Rendering
             CollectVisible(passes, collectionVolume, camera, false);
             PreRenderUpdate(camera);
         }
-        public async void PreRenderUpdate(Camera camera)
+        
+        public void PreRenderUpdate(Camera camera)
         {
             //TODO: prerender on own consistent animation thread
-            ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRenderUpdate(camera); }));
-            //foreach (IPreRendered p in _preRenderList)
-            //    p.PreRenderUpdate(camera);
+            //ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRenderUpdate(camera); }));
+            foreach (IPreRendered p in _preRenderList)
+                p.PreRenderUpdate(camera);
         }
         public void PreRenderSwap()
         {
+            foreach (IPreRendered p in _preRenderRemoveWaitList)
+                _preRenderList.Remove(p);
+            foreach (IPreRendered p in _preRenderAddWaitList)
+                _preRenderList.Add(p);
+
+            _preRenderRemoveWaitList.Clear();
+            _preRenderAddWaitList.Clear();
+
             foreach (IPreRendered p in _preRenderList)
                 p.PreRenderSwap();
         }
@@ -164,14 +182,14 @@ namespace TheraEngine.Rendering
             if (obj == null)
                 return;
             if (!_preRenderList.Contains(obj))
-                _preRenderList.Add(obj);
+                _preRenderAddWaitList.Add(obj);
         }
         public void RemovePreRenderedObject(IPreRendered obj)
         {
             if (obj == null)
                 return;
             if (_preRenderList.Contains(obj))
-                _preRenderList.Remove(obj);
+                _preRenderRemoveWaitList.Add(obj);
         }
     }
 }

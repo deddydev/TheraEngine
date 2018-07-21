@@ -12,14 +12,13 @@ namespace TheraEngine.Core
     }
     public class ResourcePool<T> where T : IPoolable
     {
-        private ConcurrentBag<T> _objects;
-        private Func<T> _generator;
+        private readonly ConcurrentBag<T> _objects = new ConcurrentBag<T>();
+        private readonly Func<T> _generator;
 
         public ResourcePool(Func<T> generator) : this(0, generator) { }
         public ResourcePool(int initialCount, Func<T> generator)
         {
             _generator = generator ?? throw new ArgumentNullException(nameof(generator));
-            _objects = new ConcurrentBag<T>();
             for (int i = 0; i < initialCount; ++i)
                 _objects.Add(_generator());
         }

@@ -50,7 +50,7 @@ namespace TheraEngine.Actors
             if (OwningWorld.Scene.IBLProbeActor == null)
                 OwningWorld.Scene.IBLProbeActor = this;
 
-            OwningWorld.Scene.Add(this);
+            //OwningWorld.Scene.Add(this);
         }
         public override void OnDespawned()
         {
@@ -59,9 +59,17 @@ namespace TheraEngine.Actors
             if (OwningWorld.Scene.IBLProbeActor == this)
                 OwningWorld.Scene.IBLProbeActor = null;
 
-            OwningWorld.Scene.Remove(this);
+            //OwningWorld.Scene.Remove(this);
         }
 
+        public void AddProbe(Vec3 position)
+        {
+            IBLProbeComponent probe = new IBLProbeComponent()
+            {
+                Translation = position,
+            };
+            RootComponent.ChildComponents.Add(probe);
+        }
         public void SetFrequencies(BoundingBox bounds, Vec3 probesPerMeter)
         {
             RootComponent.ChildComponents.Clear();
@@ -123,22 +131,21 @@ namespace TheraEngine.Actors
                 return _probe.WorldPoint.ToString();
             }
         }
+
         ITriangulation<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>> _cells;
 
         public bool Visible { get; set; } = true;
         public bool HiddenFromOwner { get; set; }
         public bool VisibleToOwnerOnly { get; set; }
-
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
-
         public bool VisibleInEditorOnly { get; set; }
-
         public Shape CullingVolume => null;
-
         public IOctreeNode OctreeNode { get; set; }
 
         private void Link()
         {
+            if (RootComponent.ChildComponents.Count < 5)
+                return;
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
         }
@@ -173,9 +180,9 @@ namespace TheraEngine.Actors
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
             {
                 comp.SetCaptureResolution(colorResolution, captureDepth, depthResolution);
-                //comp.Capture();
-                //comp.GenerateIrradianceMap();
-                //comp.GeneratePrefilterMap();
+                comp.Capture();
+                comp.GenerateIrradianceMap();
+                comp.GeneratePrefilterMap();
                 comp.FinalizeCapture();
             }
         }
@@ -192,20 +199,24 @@ namespace TheraEngine.Actors
         }
         private void Render()
         {
-            if (_cells != null)
-            {
-                foreach (var cell in _cells.Cells)
-                {
-                    for (int i = 0, x = 3; i < 4; x = ++i - 1)
+            if (_cells == null)
+                return;
+
+            foreach (var cell in _cells.Cells)
+                for (int i = 0; i < 4; ++i)
+                    for (int x = 0; x < 4; ++x)
                     {
+                        if (i == x)
+                            continue;
+
                         var p = cell.Vertices[i].Position;
                         Vec3 pos1 = new Vec3((float)p[0], (float)p[1], (float)p[2]);
+
                         var p2 = cell.Vertices[x].Position;
                         Vec3 pos2 = new Vec3((float)p2[0], (float)p2[1], (float)p2[2]);
-                        Engine.Renderer.RenderLine(pos1, pos2, Color.Black, 1.0f);
+
+                        Engine.Renderer.RenderLine(pos1, pos2, Color.Black, false, 1.0f);
                     }
-                }
-            }
         }
     }
 }

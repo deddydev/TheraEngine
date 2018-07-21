@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Actors;
+using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Files;
 using TheraEngine.GameModes;
@@ -320,6 +321,10 @@ namespace TheraEngine
         /// </summary>
         private static void Tick(object sender, FrameEventArgs e)
         {
+            //RebaseWorldsQueue1.Clear();
+            //THelpers.Swap(ref RebaseWorldsQueue1, ref RebaseWorldsQueue2);
+            //RebaseWorldsQueue1.ForEach(x => x.Key.RebaseOrigin(x.Value));
+
             Network?.RecievePackets();
             float delta = e.Time * TimeDilation;
             TickGroup(ETickGroup.PrePhysics, delta);
@@ -328,6 +333,7 @@ namespace TheraEngine
             TickGroup(ETickGroup.PostPhysics, delta);
             Update?.Invoke(sender, e);
             Network?.UpdatePacketQueue(e.Time);
+
             //SteamAPI.RunCallbacks();
         }
         /// <summary>

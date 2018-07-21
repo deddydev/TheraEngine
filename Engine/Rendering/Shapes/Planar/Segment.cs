@@ -69,15 +69,36 @@ namespace TheraEngine.Core.Shapes
         public static PrimitiveData Mesh(Vec3 start, Vec3 end)
             => PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), new VertexLine(new Vertex(start), new Vertex(end)));
 
+        #region Closest Colinear Point To Point
         /// <summary>
         /// Returns the point on this segment that is closest to the given point.
         /// </summary>
         public Vec3 ClosestColinearPointToPoint(Vec3 point)
-            => GetClosestColinearPointToPoint(StartPoint, EndPoint, point);
+            => ClosestColinearPointToPoint(StartPoint, EndPoint, point);
+        /// <summary>
+        /// Returns the point on this segment that is closest to the given point.
+        /// </summary>
+        public Vec3 ClosestColinearPointToPointFast(Vec3 point)
+            => ClosestColinearPointToPointFast(StartPoint, EndPoint, point);
+
         /// <summary>
         /// Returns the point on the segment that is closest to the given point.
         /// </summary>
-        public static Vec3 GetClosestColinearPointToPoint(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
+        public static Vec3 ClosestColinearPointToPoint(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
+        {
+            Vec3 dir = segmentEndPoint - segmentStartPoint;
+            Vec3 normDir = dir.Normalized();
+            Vec3 colinearDir = ((point - segmentStartPoint).Dot(normDir)) * normDir;
+            if (colinearDir.Dot(normDir) < 0)
+                return segmentStartPoint;
+            if (colinearDir.Length > dir.Length)
+                return segmentEndPoint;
+            return segmentStartPoint + colinearDir;
+        }
+        /// <summary>
+        /// Returns the point on the segment that is closest to the given point.
+        /// </summary>
+        public static Vec3 ClosestColinearPointToPointFast(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
         {
             Vec3 dir = segmentEndPoint - segmentStartPoint;
             Vec3 normDir = dir.NormalizedFast();
@@ -88,33 +109,67 @@ namespace TheraEngine.Core.Shapes
                 return segmentEndPoint;
             return segmentStartPoint + colinearDir;
         }
+        #endregion
 
+        #region Shortest Segment To Point
         /// <summary>
         /// Returns the shortest segment starting on this segment and ending at the given point.
         /// </summary>
         public Segment ShortestSegmentToPoint(Vec3 point)
-            => GetShortestSegmentToPoint(StartPoint, EndPoint, point);
+            => ShortestSegmentToPoint(StartPoint, EndPoint, point);
+        /// <summary>
+        /// Returns the shortest segment starting on this segment and ending at the given point.
+        /// </summary>
+        public Segment ShortestSegmentToPointFast(Vec3 point)
+            => ShortestSegmentToPointFast(StartPoint, EndPoint, point);
+
         /// <summary>
         /// Returns the shortest segment starting from the given point and ending on the segment.
         /// </summary>
-        public static Segment GetShortestSegmentToPoint(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
-            => new Segment(point, GetClosestColinearPointToPoint(segmentStartPoint, segmentEndPoint, point));
+        public static Segment ShortestSegmentToPoint(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
+            => new Segment(point, ClosestColinearPointToPoint(segmentStartPoint, segmentEndPoint, point));
+        /// <summary>
+        /// Returns the shortest segment starting from the given point and ending on the segment.
+        /// Uses an approximation of square root, so the results are less accurate but the calculation is faster.
+        /// </summary>
+        public static Segment ShortestSegmentToPointFast(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
+            => new Segment(point, ClosestColinearPointToPointFast(segmentStartPoint, segmentEndPoint, point));
+        #endregion
 
+        #region Shortest Distance To Point
         /// <summary>
         /// Returns the shortest distance from the given point to this segment.
         /// </summary>
         public float ShortestDistanceToPoint(Vec3 point)
-            => GetShortestDistanceToPoint(StartPoint, EndPoint, point);
+            => ShortestDistanceToPoint(StartPoint, EndPoint, point);
+        /// <summary>
+        /// Returns the shortest distance from the given point to this segment.
+        /// </summary>
+        public float ShortestDistanceToPointFast(Vec3 point)
+            => ShortestDistanceToPointFast(StartPoint, EndPoint, point);
+
         /// <summary>
         /// Returns the shortest distance from the point to the segment.
         /// </summary>
-        public static float GetShortestDistanceToPoint(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
+        public static float ShortestDistanceToPoint(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
+        {
+            Vec3 dir = (segmentEndPoint - segmentStartPoint).Normalized();
+            float perpRayDist = (dir ^ (point - segmentStartPoint)).Length;
+            float closestEndDistance = Math.Min(point.DistanceTo(segmentStartPoint), point.DistanceTo(segmentEndPoint));
+            return Math.Min(closestEndDistance, perpRayDist);
+        }
+        /// <summary>
+        /// Returns the shortest distance from the point to the segment.
+        /// Uses an approximation of square root, so the results are less accurate but the calculation is faster.
+        /// </summary>
+        public static float ShortestDistanceToPointFast(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
         {
             Vec3 dir = (segmentEndPoint - segmentStartPoint).NormalizedFast();
             float perpRayDist = (dir ^ (point - segmentStartPoint)).LengthFast;
             float closestEndDistance = Math.Min(point.DistanceToFast(segmentStartPoint), point.DistanceToFast(segmentEndPoint));
             return Math.Min(closestEndDistance, perpRayDist);
         }
+        #endregion
 
         /// <summary>
         /// Transforms the endpoints of this segment by the given matrix and returns them as a new segment.

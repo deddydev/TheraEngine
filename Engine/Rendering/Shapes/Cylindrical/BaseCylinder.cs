@@ -62,6 +62,50 @@ namespace TheraEngine.Core.Shapes
         public Vec3 LocalUpAxis => _localUpAxis;
         public Vec3 WorldUpAxis => Vec3.TransformNormalInverse(_localUpAxis, _state.InverseMatrix);
 
+        public override BoundingBox GetAABB()
+        {
+            throw new NotImplementedException();
+        }
+        public override bool Contains(Vec3 point)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(Sphere sphere)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(Box box)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(BoundingBox box)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(BaseCylinder cylinder)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(BaseCone cone)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(BaseCapsule capsule)
+        {
+            throw new NotImplementedException();
+        }
+        public override Vec3 ClosestPoint(Vec3 point)
+        {
+            throw new NotImplementedException();
+        }
+        public override Shape TransformedBy(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
+        public override Matrix4 GetTransformMatrix()
+        {
+            throw new NotImplementedException();
+        }
         public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             _state.Matrix = worldMatrix;

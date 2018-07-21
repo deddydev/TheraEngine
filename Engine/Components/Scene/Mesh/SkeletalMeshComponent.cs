@@ -222,7 +222,7 @@ namespace TheraEngine.Components.Scene.Mesh
         
         public void PreRenderUpdate(Camera camera)
         {
-            _targetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
+            //_targetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
         }
         public void PreRenderSwap()
         {
@@ -230,7 +230,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         public void PreRender(Viewport viewport, Camera camera)
         {
-
+            _targetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
         }
 
         protected internal override void OnHighlightChanged(bool highlighted)

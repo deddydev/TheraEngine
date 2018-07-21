@@ -292,6 +292,10 @@ namespace System
                 for (int i = 0; i < _items.Count; ++i)
                 {
                     I3DRenderable r = _items[i] as I3DRenderable;
+#if EDITOR
+                    if (!Engine.EditorState.InEditMode && r.VisibleInEditorOnly)
+                        continue;
+#endif
                     bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
                     if (allowRender)
                         r.AddRenderables(passes, camera);
@@ -411,6 +415,9 @@ namespace System
 
             private bool QueueAdd(T item)
             {
+                if (item == null)
+                    return false;
+
                 if (IsLoopingItems)
                 {
                     _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
@@ -428,6 +435,9 @@ namespace System
             }
             private bool QueueRemove(T item)
             {
+                if (item == null)
+                    return false;
+
                 if (IsLoopingItems)
                 {
                     _itemQueue.Enqueue(new Tuple<bool, T>(false, item));

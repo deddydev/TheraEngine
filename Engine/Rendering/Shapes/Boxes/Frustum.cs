@@ -487,7 +487,22 @@ namespace TheraEngine.Core.Shapes
             => Collision.FrustumContainsPoint(this, point);
         public EContainment Contains(Shape shape)
         {
-
+            switch (shape.GetType().GetFriendlyName())
+            {
+                case nameof(Box):
+                    return Contains(shape as Box);
+                case nameof(BoundingBox):
+                    return Contains(shape as BoundingBox);
+                case nameof(Sphere):
+                    return Contains(shape as Sphere);
+                case nameof(BaseCone):
+                    return Contains(shape as BaseCone);
+                case nameof(BaseCapsule):
+                    return Contains(shape as BaseCapsule);
+                case nameof(BaseCylinder):
+                    return Contains(shape as BaseCylinder);
+            }
+            return EContainment.Contains;
         }
         public EContainment Contains(Box box) 
             => Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix);
@@ -495,6 +510,10 @@ namespace TheraEngine.Core.Shapes
             => Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum);
         public EContainment Contains(Sphere sphere) 
             => Collision.FrustumContainsSphere(this, sphere.Center, sphere.Radius);
+        public EContainment Contains(BaseCylinder cylinder)
+        {
+            return EContainment.Contains;
+        }
         public EContainment Contains(BaseCone cone)
         {
             bool top = Contains(cone.GetTopPoint());
@@ -556,13 +575,13 @@ namespace TheraEngine.Core.Shapes
                     }
 
                     //Now test distances to each plane edge
-                    if (Segment.GetShortestDistanceToPoint(bottomLeft, bottomRight, point) < radius)
+                    if (Segment.ShortestDistanceToPoint(bottomLeft, bottomRight, point) < radius)
                         return EContainment.Intersects;
-                    if (Segment.GetShortestDistanceToPoint(bottomRight, topRight, point) < radius)
+                    if (Segment.ShortestDistanceToPoint(bottomRight, topRight, point) < radius)
                         return EContainment.Intersects;
-                    if (Segment.GetShortestDistanceToPoint(topRight, topLeft, point) < radius)
+                    if (Segment.ShortestDistanceToPoint(topRight, topLeft, point) < radius)
                         return EContainment.Intersects;
-                    if (Segment.GetShortestDistanceToPoint(topLeft, bottomLeft, point) < radius)
+                    if (Segment.ShortestDistanceToPoint(topLeft, bottomLeft, point) < radius)
                         return EContainment.Intersects;
                 }
                 else
@@ -594,20 +613,20 @@ namespace TheraEngine.Core.Shapes
                 _boundingSphere.Render();
             
             //TODO: use PrimitiveManager; render translucent planes
-            Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, SideColor, LineSize);
-            Engine.Renderer.RenderLine(NearTopRight, FarTopRight, SideColor, LineSize);
-            Engine.Renderer.RenderLine(NearBottomLeft, FarBottomLeft, SideColor, LineSize);
-            Engine.Renderer.RenderLine(NearBottomRight, FarBottomRight, SideColor, LineSize);
+            Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, SideColor, true, LineSize);
+            Engine.Renderer.RenderLine(NearTopRight, FarTopRight, SideColor, true, LineSize);
+            Engine.Renderer.RenderLine(NearBottomLeft, FarBottomLeft, SideColor, true, LineSize);
+            Engine.Renderer.RenderLine(NearBottomRight, FarBottomRight, SideColor, true, LineSize);
 
-            Engine.Renderer.RenderLine(NearTopLeft, NearTopRight, NearColor, LineSize);
-            Engine.Renderer.RenderLine(NearBottomLeft, NearBottomRight, NearColor, LineSize);
-            Engine.Renderer.RenderLine(NearBottomLeft, NearTopLeft, NearColor, LineSize);
-            Engine.Renderer.RenderLine(NearBottomRight, NearTopRight, NearColor, LineSize);
+            Engine.Renderer.RenderLine(NearTopLeft, NearTopRight, NearColor, true, LineSize);
+            Engine.Renderer.RenderLine(NearBottomLeft, NearBottomRight, NearColor, true, LineSize);
+            Engine.Renderer.RenderLine(NearBottomLeft, NearTopLeft, NearColor, true, LineSize);
+            Engine.Renderer.RenderLine(NearBottomRight, NearTopRight, NearColor, true, LineSize);
 
-            Engine.Renderer.RenderLine(FarTopLeft, FarTopRight, FarColor, LineSize);
-            Engine.Renderer.RenderLine(FarBottomLeft, FarBottomRight, FarColor, LineSize);
-            Engine.Renderer.RenderLine(FarBottomLeft, FarTopLeft, FarColor, LineSize);
-            Engine.Renderer.RenderLine(FarBottomRight, FarTopRight, FarColor, LineSize);
+            Engine.Renderer.RenderLine(FarTopLeft, FarTopRight, FarColor, true, LineSize);
+            Engine.Renderer.RenderLine(FarBottomLeft, FarBottomRight, FarColor, true, LineSize);
+            Engine.Renderer.RenderLine(FarBottomLeft, FarTopLeft, FarColor, true, LineSize);
+            Engine.Renderer.RenderLine(FarBottomRight, FarTopRight, FarColor, true, LineSize);
         }
 
         public Frustum HardCopy()

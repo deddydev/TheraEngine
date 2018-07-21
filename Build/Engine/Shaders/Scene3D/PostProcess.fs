@@ -122,7 +122,7 @@ void main()
 	ldrSceneColor += mix(-0.5f / 255.0f, 0.5f / 255.0f, rand(uv));
 
 	OutColor = vec4(ldrSceneColor, 1.0f);
-  //uint stencil = texture(Texture3, uv).r;
   //float depth = GetDistanceFromDepth(texture(Texture2, uv).r);
+  //uint stencil = texture(Texture3, uv).r;
   //OutColor = vec4(vec3(float(stencil) / 255.0f), 1.0f);
 }

@@ -155,7 +155,7 @@ namespace TheraEditor.Windows.Forms
 
                 Vec3 max = 1000.0f;
                 Vec3 min = -max;
-                TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg2.png");
+                TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
                 StaticModel skybox = new StaticModel("Skybox");
                 TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
                 {
@@ -184,7 +184,8 @@ namespace TheraEditor.Windows.Forms
                 actors.Add(skyboxActor);
 
                 IBLProbeGridActor iblProbes = new IBLProbeGridActor();
-                iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
+                iblProbes.AddProbe(Vec3.Zero);
+                //iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
                 actors.Add(iblProbes);
 
                 ModelEditorWorld.File = world = new World()
@@ -193,7 +194,7 @@ namespace TheraEditor.Windows.Forms
                 };
 
                 world.BeginPlay();
-                await iblProbes.InitAndCaptureAllAsync(512);
+                iblProbes.InitAndCaptureAll(256);
             }
             else
             {
@@ -201,7 +202,7 @@ namespace TheraEditor.Windows.Forms
                 var ibl = world.State.GetSpawnedActorsOfType<IBLProbeGridActor>().ToArray();
                 if (ibl.Length > 0 && ibl[0] != null)
                 {
-                    await ibl[0].InitAndCaptureAllAsync(512);
+                    ibl[0].InitAndCaptureAll(256);
                 }
             }
             

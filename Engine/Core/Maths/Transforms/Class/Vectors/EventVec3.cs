@@ -1,21 +1,21 @@
-﻿using static System.Math;
-using static System.TMath;
-using System.Xml.Serialization;
-using System.Drawing;
-using TheraEngine;
-using TheraEngine.Rendering.Models;
+﻿using System;
 using System.ComponentModel;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Models.Materials;
-using System;
+using System.Drawing;
+using System.Xml.Serialization;
 using TheraEngine.Core.Memory;
-using TheraEngine.Timers;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using static System.Math;
+using static System.TMath;
 
 namespace TheraEngine.Core.Maths.Transforms
 {
     public delegate void DelFloatChange(float oldValue, float newValue);
     public delegate Vec3 DelGetVec3Value(float delta);
-    
+
+    /// <summary>
+    /// A wrapper class for <see cref="Vec3"/> that supports events and synchronization when its values change.
+    /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public unsafe class EventVec3 : TObject, IEquatable<EventVec3>, IUniformable3Float, IBufferable, IParsable, IPoolable
     {

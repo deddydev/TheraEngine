@@ -96,18 +96,12 @@ namespace TheraEngine.Components.Scene.Lights
                 return;
 
             Engine.Renderer.MaterialOverride = ShadowMap.Material;
-            ShadowMap.Bind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.PushRenderArea(_region);
-            {
-                Engine.Renderer.ClearDepth(1.0f);
-                Engine.Renderer.EnableDepthTest(true);
-                Engine.Renderer.AllowDepthWrite(true);
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                //scene.PreRender(null, ShadowCamera);
-                scene.Render(_passes, ShadowCamera, null, null);
-            }
+
+            //scene.PreRender(null, ShadowCamera);
+            scene.Render(_passes, ShadowCamera, null, ShadowMap);
+            
             Engine.Renderer.PopRenderArea();
-            ShadowMap.Unbind(EFramebufferTarget.DrawFramebuffer);
             Engine.Renderer.MaterialOverride = null;
         }
         public static EPixelInternalFormat GetShadowDepthMapFormat(EDepthPrecision precision)

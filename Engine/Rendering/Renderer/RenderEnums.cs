@@ -259,25 +259,26 @@ namespace TheraEngine.Rendering
         GlAtomicCounterBarrierBit = 4096
     }
     [Flags]
-    public enum EBufferClear
+    public enum EFBOTextureType
     {
-        Color = 1,
-        Depth = 2,
-        Stencil = 4,
-        Accum = 8,
-        All = 0xF,
+        None    = 0x0,
+        Color   = 0x1,
+        Depth   = 0x2,
+        Stencil = 0x4,
+        Accum   = 0x8,
+        All     = 0xF,
     }
     public enum EPrimitive
     {
-        Points = 0,
-        Lines = 1,
-        LineLoop = 2,
-        LineStrip = 3,
-        Triangles = 4,
-        TriangleStrip = 5,
-        TriangleFan = 6,
-        Quads = 7,
-        QuadStrip = 8,
+        Points          = 0,
+        Lines           = 1,
+        LineLoop        = 2,
+        LineStrip       = 3,
+        Triangles       = 4,
+        TriangleStrip   = 5,
+        TriangleFan     = 6,
+        Quads           = 7,
+        QuadStrip       = 8,
     }
     public enum EPixelType
     {

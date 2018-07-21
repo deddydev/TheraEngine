@@ -2,96 +2,28 @@
 using System.ComponentModel;
 using System;
 using TheraEngine.Physics;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
     [FileDef("Y-Aligned Cylinder")]
-    public class CylinderY : Shape
+    public class CylinderY : BaseCylinder
     {
-        public float _radius, _height;
-        
-        public float Radius
+        public CylinderY()
+               : base(Vec3.Zero, Rotator.GetZero(), Vec3.One, Vec3.UnitY, 1.0f, 1.0f)
         {
-            get { return _radius; }
-            set { _radius = value; }
+
         }
-        public float Height
+        public CylinderY(Vec3 center, float radius, float halfHeight) 
+            : base(center, Rotator.GetZero(), Vec3.One, Vec3.UnitY, radius, halfHeight)
         {
-            get { return _height; }
-            set { _height = value; }
-        }
-        
-        public CylinderY(Vec3 center, float radius, float height)
-        {
-            _radius = Abs(radius);
-            _height = Abs(height);
+
         }
         public override TCollisionShape GetCollisionShape()
         {
-            return TCollisionCylinderY.New(Radius, Height);
+            return TCollisionCylinderY.New(Radius, HalfHeight * 2.0f);
         }
-        public override void Render()
-        {
-            //Engine.Renderer.RenderCylinder(this, _renderSolid);
-        }
-        public override bool Contains(Vec3 point)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment Contains(BoundingBox box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment Contains(Box box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment Contains(Sphere sphere)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(BoundingBox box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(Box box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(Sphere sphere)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(Frustum frustum)
-        {
-            throw new NotImplementedException();
-        }
-        public override void SetRenderTransform(Matrix4 worldMatrix)
-        {
-            throw new NotImplementedException();
-        }
-
         public override Shape HardCopy()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Shape TransformedBy(Matrix4 worldMatrix)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Matrix4 GetTransformMatrix()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Vec3 ClosestPoint(Vec3 point)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override BoundingBox GetAABB()
         {
             throw new NotImplementedException();
         }

@@ -153,7 +153,7 @@ namespace System
         }
         /// <summary>
         /// Normalizes this vector to unit length.
-        /// For a faster but less precise method, use NormalizeFast.
+        /// For a faster but less accurate method, use NormalizeFast.
         /// </summary>
         /// <param name="safe">If true, checks that the length of this vector is not zero. If it is, does nothing.</param>
         public void Normalize(bool safe = true)
@@ -164,7 +164,7 @@ namespace System
         }
         /// <summary>
         /// Returns a copy of this vector safely normalized to unit length.
-        /// For a faster but less precise method, use NormalizedFast.
+        /// For a faster but less accurate method, use NormalizedFast.
         /// </summary>
         public Vec3 Normalized()
         {
@@ -173,7 +173,7 @@ namespace System
             return v;
         }
         /// <summary>
-        /// Safely normalizes this vector to unit length using an approximation that does not use square root for a minor speed boost at the cost of precision.
+        /// Safely normalizes this vector to unit length using an approximation that does not use square root for a minor speed boost at the cost of accuracy.
         /// </summary>
         public void NormalizeFast(bool safe = true)
         {
@@ -182,7 +182,7 @@ namespace System
             this *= InverseSqrtFast(lengthSq);
         }
         /// <summary>
-        /// Returns a copy of this vector safely normalized to unit length using an approximation that does not use square root for a minor speed boost at the cost of precision.
+        /// Returns a copy of this vector safely normalized to unit length using an approximation that does not use square root for a minor speed boost at the cost of accuracy.
         /// </summary>
         public Vec3 NormalizedFast()
         {
@@ -273,6 +273,7 @@ namespace System
             a.Z = a.Z > b.Z ? a.Z : b.Z;
             return a;
         }
+        
         /// <summary>
         /// Returns the Vec3 whose magnitude/length is smallest.
         /// </summary>
@@ -506,16 +507,6 @@ namespace System
         }
 
         /// <summary>
-        /// Calculates the angle (in degrees) between two vectors.
-        /// </summary>
-        /// <param name="first">The first vector.</param>
-        /// <param name="second">The second vector.</param>
-        /// <returns>Angle (in radians) between the vectors.</returns>
-        /// <remarks>Note that the returned angle is never bigger than 180.</remarks>
-        public float CalculateAngle(Vec3 second)
-            => RadToDeg((float)Acos((Dot(second) / (LengthFast * second.LengthFast)).Clamp(-1.0f, 1.0f)));
-
-        /// <summary>
         /// Projects a vector from object space into screen space.
         /// </summary>
         /// <param name="worldPoint">The vector to project.</param>
@@ -563,6 +554,76 @@ namespace System
                 (Y - y) / height * 2.0f - 1.0f,
                 Z / (maxZ - minZ) * 2.0f - 1.0f);
 
+        #region Angles
+
+        #region Calculate Angle
+        /// <summary>
+        /// Calculates the angle (in degrees) between two vectors in the range [0, 180].
+        /// Uses an approximation of square root, so slightly less accurate but faster.
+        /// </summary>
+        /// <param name="other">The other vector.</param>
+        /// <returns>Angle (in degrees) between the vectors.</returns>
+        public float CalculateDegAngleFast(Vec3 other)
+            => RadToDeg(CalculateRadAngleFast(other));
+        /// <summary>
+        /// Calculates the angle (in degrees) between two vectors in the range [0, 180].
+        /// </summary>
+        /// <param name="other">The other vector.</param>
+        /// <returns>Angle (in degrees) between the vectors.</returns>
+        public float CalculateDegAngle(Vec3 other)
+            => RadToDeg(CalculateRadAngle(other));
+        /// <summary>
+        /// Calculates the angle (in radians) between two vectors in the range [0, pi].
+        /// Uses an approximation of square root, so slightly less accurate but faster.
+        /// </summary>
+        /// <param name="other">The other vector.</param>
+        /// <returns>Angle (in radians) between the vectors.</returns>
+        public float CalculateRadAngleFast(Vec3 other)
+            => (float)Acos((Dot(other) / (LengthFast * other.LengthFast)).Clamp(-1.0f, 1.0f));
+        /// <summary>
+        /// Calculates the angle (in radians) between two vectors in the range [0, pi].
+        /// </summary>
+        /// <param name="other">The other vector.</param>
+        /// <returns>Angle (in radians) between the vectors.</returns>
+        public float CalculateRadAngle(Vec3 other)
+            => (float)Acos((Dot(other) / (Length * other.Length)).Clamp(-1.0f, 1.0f));
+
+        /// <summary>
+        /// Calculates the angle (in degrees) between two vectors in the range [0, 180].
+        /// Uses an approximation of square root, so slightly less accurate but faster.
+        /// </summary>
+        /// <param name="left">The first vector.</param>
+        /// <param name="right">The second vector.</param>
+        /// <returns>Angle (in degrees) between the vectors.</returns>
+        public static float CalculateDegAngleFast(Vec3 left, Vec3 right)
+            => left.CalculateDegAngleFast(right);
+        /// <summary>
+        /// Calculates the angle (in degrees) between two vectors in the range [0, 180].
+        /// </summary>
+        /// <param name="left">The first vector.</param>
+        /// <param name="right">The second vector.</param>
+        /// <returns>Angle (in degrees) between the vectors.</returns>
+        public static float CalculateDegAngle(Vec3 left, Vec3 right)
+            => left.CalculateDegAngle(right);
+        /// <summary>
+        /// Calculates the angle (in radians) between two vectors in the range [0, pi].
+        /// Uses an approximation of square root, so slightly less accurate but faster.
+        /// </summary>
+        /// <param name="left">The first vector.</param>
+        /// <param name="right">The second vector.</param>
+        /// <returns>Angle (in radians) between the vectors.</returns>
+        public static float CalculateRadAngleFast(Vec3 left, Vec3 right)
+            => left.CalculateRadAngleFast(right);
+        /// <summary>
+        /// Calculates the angle (in radians) between two vectors in the range [0, pi].
+        /// </summary>
+        /// <param name="left">The first vector.</param>
+        /// <param name="right">The second vector.</param>
+        /// <returns>Angle (in radians) between the vectors.</returns>
+        public static float CalculateRadAngle(Vec3 left, Vec3 right)
+            => left.CalculateRadAngle(right);
+        #endregion
+
         ///// <summary>
         ///// Returns a YPR rotator relative to -Z with azimuth as yaw, elevation as pitch, and 0 as roll.
         ///// </summary>
@@ -577,6 +638,17 @@ namespace System
         //    return Quat.BetweenVectors(startNormal, this).ToYawPitchRoll();
         //}
 
+        public Vec3 GetAngles()
+            => new Vec3(AngleX(), AngleY(), AngleZ());
+        public Vec3 GetAngles(Vec3 origin)
+            => (this - origin).GetAngles();
+        public float AngleX()
+            => RadToDeg((float)Atan2(Y, -Z));
+        public float AngleY()
+            => RadToDeg((float)Atan2(-Z, X));
+        public float AngleZ()
+            => RadToDeg((float)Atan2(Y, X));
+
         /// <summary>
         /// Returns a YPR rotator looking from the origin to the end of this vector.
         /// </summary>
@@ -585,7 +657,7 @@ namespace System
         /// Returns a YPR rotator looking from the origin to this point.
         /// </summary>
         public Rotator LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
-        
+
         //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)
         //{
         //    pitch = RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z)));
@@ -630,6 +702,8 @@ namespace System
         //{
         //    (this - origin).LookatAngles(startNormal, out yaw, out pitch);
         //}
+        #endregion
+
         public Vec3 GetSafeNormal(float Tolerance = 1.0e-8f)
         {
             float SquareSum = LengthSquared;
@@ -640,17 +714,6 @@ namespace System
             float Scale = InverseSqrtFast(SquareSum);
 	        return new Vec3(X * Scale, Y * Scale, Z * Scale);
         }
-        public Vec3 GetAngles() 
-            => new Vec3(AngleX(), AngleY(), AngleZ());
-        public Vec3 GetAngles(Vec3 origin)
-            => (this - origin).GetAngles();
-        public float AngleX()
-            => RadToDeg((float)Atan2(Y, -Z));
-        public float AngleY()
-            => RadToDeg((float)Atan2(-Z, X));
-        public float AngleZ()
-            => RadToDeg((float)Atan2(Y, X));
-
         public bool IsInTriangle(Vec3 triPt1, Vec3 triPt2, Vec3 triPt3)
         {
             Vec3 v0 = triPt2 - triPt1;
@@ -719,7 +782,8 @@ namespace System
         /// Returns the portion of this Vec3 that is perpendicular to the given normal.
         /// </summary>
         public Vec3 PerpendicularComponent(Vec3 normal) => this - ParallelComponent(normal);
-        
+
+        #region Sub Vectors
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 Xy
@@ -858,7 +922,9 @@ namespace System
                 Z = value.Z;
             }
         }
+        #endregion
 
+        #region Operators
         public static Vec3 operator +(float left, Vec3 right)
             => right + left;
         public static Vec3 operator +(Vec3 left, float right)
@@ -984,26 +1050,26 @@ namespace System
         public static explicit operator Color(Vec3 v)
             => Color.FromArgb((int)(v.X / _colorFactor), (int)(v.Y / _colorFactor), (int)(v.Z / _colorFactor));
 
-        public static implicit operator Vec3(Vec2 v)                    => new Vec3(v.X, v.Y, 0.0f);
-        public static explicit operator Vec3(ColorF4 v)                 => new Vec3(v.R, v.G, v.B);
-        public static implicit operator Vec3(float v)                   => new Vec3(v);
-        public static explicit operator IVec3(Vec3 v)                   => new IVec3((int)Math.Round(v.X), (int)Math.Round(v.Y), (int)Math.Round(v.Z));
-
-        #region BulletSharp
+        public static implicit operator Vec3(Vec2 v)    => new Vec3(v.X, v.Y, 0.0f);
+        public static explicit operator Vec3(ColorF4 v) => new Vec3(v.R, v.G, v.B);
+        public static implicit operator Vec3(float v)   => new Vec3(v);
+        public static explicit operator IVec3(Vec3 v)   => new IVec3((int)Math.Round(v.X), (int)Math.Round(v.Y), (int)Math.Round(v.Z));
+        
         public static implicit operator BulletSharp.Vector3(Vec3 v) => new BulletSharp.Vector3(v.X, v.Y, v.Z);
         public static implicit operator Vec3(BulletSharp.Vector3 v) => new Vec3(v.X, v.Y, v.Z);
-        #endregion
-
-        #region JitterPhysics
         public static implicit operator Jitter.LinearMath.JVector(Vec3 v) => new Jitter.LinearMath.JVector(v.X, v.Y, v.Z);
         public static implicit operator Vec3(Jitter.LinearMath.JVector v) => new Vec3(v.X, v.Y, v.Z);
-        #endregion
 
-        private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        #endregion
+        
         public override string ToString()
             => ToString(true, true);
         public string ToString(bool includeParentheses, bool includeSeparator)
-            => String.Format("{4}{0}{3} {1}{3} {2}{5}", X, Y, Z, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
+            => String.Format("{4}{0}{3} {1}{3} {2}{5}",
+                X, Y, Z, 
+                includeSeparator ? CultureInfo.CurrentCulture.TextInfo.ListSeparator : "",
+                includeParentheses ? "(" : "", 
+                includeParentheses ? ")" : "");
 
         public override int GetHashCode()
         {

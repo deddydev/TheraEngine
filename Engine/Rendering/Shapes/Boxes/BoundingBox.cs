@@ -468,11 +468,28 @@ namespace TheraEngine.Core.Shapes
         }
         public override EContainment Contains(BaseCapsule capsule)
         {
-            bool top = Contains(capsule.GetTopCenterPoint());
-            bool bot = Contains(capsule.GetBottomCenterPoint());
-            if (top && bot)
+            Vec3 top = capsule.GetTopCenterPoint();
+            Vec3 bot = capsule.GetBottomCenterPoint();
+            Vec3 radiusVec = new Vec3(capsule.Radius);
+            Vec3 capsuleMin = Vec3.ComponentMin(top, bot) - radiusVec;
+            Vec3 capsuleMax = Vec3.ComponentMax(top, bot) + radiusVec;
+            Vec3 min = Minimum;
+            Vec3 max = Maximum;
+
+            bool containsX = false, containsY = false, containsZ = false;
+            bool disjointX = false, disjointY = false, disjointZ = false;
+
+            containsX = capsuleMin.X >= min.X && capsuleMax.X <= max.X;
+            containsY = capsuleMin.Y >= min.Y && capsuleMax.Y <= max.Y;
+            containsZ = capsuleMin.Z >= min.Z && capsuleMax.Z <= max.Z;
+
+            if (!containsX) disjointX = capsuleMax.X < min.X || capsuleMin.X > max.X;
+            if (!containsY) disjointY = capsuleMax.Y < min.Y || capsuleMin.Y > max.Y;
+            if (!containsZ) disjointZ = capsuleMax.Z < min.Z || capsuleMin.Z > max.Z;
+
+            if (containsX && containsY && containsZ)
                 return EContainment.Contains;
-            else if (!top && !bot)
+            if (disjointX && disjointY && disjointZ)
                 return EContainment.Disjoint;
             return EContainment.Intersects;
         }

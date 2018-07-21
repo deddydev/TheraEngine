@@ -108,8 +108,10 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint)
             => new List<I2DRenderable>();//_scene.RenderTree.FindAllIntersecting(viewportPoint);
-        public I2DRenderable FindDeepestComponent(Vec2 viewportPoint)
-            => null;// _scene.RenderTree.FindDeepest(viewportPoint);
+        public UIComponent FindDeepestComponent(Vec2 viewportPoint)
+        {
+            return RootComponent.FindDeepestComponent(viewportPoint);
+        }
         //UIComponent current = null;
         ////Larger z-indices means the component is closer
         //foreach (UIComponent comp in results)

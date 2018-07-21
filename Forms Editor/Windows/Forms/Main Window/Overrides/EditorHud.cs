@@ -476,7 +476,7 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             //Test against HUD
-            SceneComponent comp = v.PickScene(viewportPoint, true, false, out Vec3 hitNormal, out _hitPoint, out float dist);
+            SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out float dist);
             if (comp == null)
             {
                 EditorCameraPawn pawn = OwningPawn as EditorCameraPawn;
@@ -486,6 +486,15 @@ namespace TheraEditor.Windows.Forms
                     _hitPoint = pawn.HitPoint;
                     dist = pawn.HitDistance;
                     comp = pawn.HitObject.Owner as SceneComponent;
+                }
+            }
+            else
+            {
+                if (comp is UIViewportComponent viewport)
+                {
+                    //TODO: special highlight scene here
+                    HighlightScene(viewport.Viewport, viewportPoint - viewport.BottomLeftTranslation);
+                    return;
                 }
             }
 

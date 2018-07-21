@@ -13,7 +13,7 @@ namespace TheraEngine.Actors.Types.Pawns
     {
         IPawn OwningPawn { get; set; }
         void Resize(Vec2 bounds);
-        I2DRenderable FindDeepestComponent(Vec2 viewportPoint);
+        UIComponent FindDeepestComponent(Vec2 viewportPoint);
         List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint);
         void RemoveRenderableComponent(I2DRenderable r);
         void AddRenderableComponent(I2DRenderable r);

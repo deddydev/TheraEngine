@@ -12,7 +12,6 @@ namespace TheraEngine.Rendering.UI
     {
         public event DelSetUniforms SettingUniforms;
 
-        private Viewport _viewport = new Viewport(1, 1);
         private MaterialFrameBuffer _fbo;
 
         //These bools are to prevent infinite pre-rendering recursion
@@ -54,9 +53,10 @@ namespace TheraEngine.Rendering.UI
 
         public Camera ViewportCamera
         {
-            get => _viewport.Camera;
-            set => _viewport.Camera = value;
+            get => Viewport.Camera;
+            set => Viewport.Camera = value;
         }
+        public Viewport Viewport { get; private set; } = new Viewport(1, 1);
 
         public override Vec2 Resize(Vec2 parentBounds)
         {
@@ -66,7 +66,7 @@ namespace TheraEngine.Rendering.UI
                 w = (int)Width.ClampMin(1.0f), 
                 h = (int)Height.ClampMin(1.0f);
 
-            _viewport.Resize(w, h, true, 1.0f, 1.0f);
+            Viewport.Resize(w, h, true, 1.0f, 1.0f);
             _fbo.Resize(w, h);
 
             return r;
@@ -94,7 +94,7 @@ namespace TheraEngine.Rendering.UI
 
             BaseScene scene = c.OwningComponent?.OwningScene;
             scene.PreRenderUpdate(c);
-            _viewport.Update(scene, c, c.Frustum);
+            Viewport.Update(scene, c, c.Frustum);
 
             _updating = false;
         }
@@ -106,7 +106,7 @@ namespace TheraEngine.Rendering.UI
 
             BaseScene scene = ViewportCamera?.OwningComponent?.OwningScene;
             scene?.PreRenderSwap();
-            _viewport.SwapBuffers();
+            Viewport.SwapBuffers();
 
             _swapping = false;
         }
@@ -124,8 +124,8 @@ namespace TheraEngine.Rendering.UI
             }
             
             BaseScene scene = c.OwningComponent?.OwningScene;
-            scene?.PreRender(_viewport, c);
-            _viewport.Render(scene, c, _fbo);
+            scene?.PreRender(Viewport, c);
+            Viewport.Render(scene, c, _fbo);
 
             _rendering = false;
         }

@@ -113,7 +113,17 @@ namespace TheraEngine.Rendering
             AbstractRenderer.PopCurrent2DScene();
             AbstractRenderer.PopCamera();
         }
-        
+
+        public I2DRenderable FindDeepest(Vec2 viewportPoint)
+        {
+            foreach (I2DRenderable r in _renderables)
+            {
+                if (r.AxisAlignedRegion.Contains(viewportPoint))
+                    return r;
+            }
+            return null;
+        }
+
         public void Resize(Vec2 bounds)
         {
             //RenderTree?.Remake(new BoundingRectangle(Vec2.Zero, bounds));

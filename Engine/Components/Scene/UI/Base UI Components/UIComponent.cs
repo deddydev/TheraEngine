@@ -59,7 +59,7 @@ namespace TheraEngine.Rendering.UI
 
         [Browsable(false)]
         [Category("Transform")]
-        public Vec2 ScreenTranslation => Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
+        public Vec2 ScreenTranslation => Vec3.TransformPosition(WorldPoint, GetInvComponentTransform()).Xy;
 
         [Category("Transform")]
         public virtual Vec2 LocalTranslation
@@ -164,8 +164,17 @@ namespace TheraEngine.Rendering.UI
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Matrix4.Identity, LocalTranslation, TransformOrder.TRS);
-            inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Matrix4.Identity, -LocalTranslation, TransformOrder.SRT);
+            localTransform = Matrix4.TransformMatrix(
+                new Vec3(Scale, 1.0f),
+                Matrix4.Identity,
+                LocalTranslation,
+                TransformOrder.TRS);
+
+            inverseLocalTransform = Matrix4.TransformMatrix(
+                new Vec3(1.0f / Scale, 1.0f),
+                Matrix4.Identity,
+                -LocalTranslation,
+                TransformOrder.SRT);
         }
         private bool _resizing = false;
         public virtual Vec2 Resize(Vec2 parentBounds)
@@ -191,11 +200,11 @@ namespace TheraEngine.Rendering.UI
             else
                 Resize(Vec2.Zero);
         }
-        public virtual UIComponent FindDeepestComponent(Vec2 viewportPoint)
+        public virtual UIBoundableComponent FindDeepestComponent(Vec2 cursorPointWorld)
         {
             foreach (UIComponent c in _children)
             {
-                UIComponent comp = c.FindDeepestComponent(viewportPoint);
+                UIBoundableComponent comp = c.FindDeepestComponent(cursorPointWorld);
                 if (comp != null)
                     return comp;
             }

@@ -13,46 +13,47 @@ namespace TheraEngine.Rendering.Models.Materials
         public TBitmap3D() : this(1, 1, 1) { }
         public TBitmap3D(int width, int height, int depth)
         {
-            _format = ETPixelType.Basic;
+            Format = ETPixelType.Basic;
             _pixelSize = GetPixelSize();
             _wh = width * height;
-            _width = width;
-            _height = height;
-            _depth = depth;
-            _data = new DataSource(_wh * _depth * _pixelSize);
+            Width = width;
+            Height = height;
+            Depth = depth;
+            _data = new DataSource(_wh * Depth * _pixelSize);
         }
         public TBitmap3D(int width, int height, int depth, ETPixelType format)
         {
-            _format = format;
+            Format = format;
             _pixelSize = GetPixelSize();
             _wh = width * height;
-            _width = width;
-            _height = height;
-            _depth = depth;
-            _data = new DataSource(_wh * _depth * _pixelSize);
+            Width = width;
+            Height = height;
+            Depth = depth;
+            _data = new DataSource(_wh * Depth * _pixelSize);
         }
         public TBitmap3D(int width, int height, int depth, ETPixelType format, IntPtr scan0)
         {
-            _format = format;
+            Format = format;
             _pixelSize = GetPixelSize();
             _wh = width * height;
-            _width = width;
-            _height = height;
-            _depth = depth;
-            _data = new DataSource(_wh * _depth * _pixelSize);
+            Width = width;
+            Height = height;
+            Depth = depth;
+            _data = new DataSource(_wh * Depth * _pixelSize);
             Memory.Move(_data.Address, scan0, (uint)_data.Length);
         }
 
-        private ETPixelType _format;
         private DataSource _data;
-        private int _width, _height, _depth, _wh, _pixelSize;
+        private int _wh, _pixelSize;
 
         public VoidPtr Scan0 => _data.Address;
-        public ETPixelType Format => _format;
+        public ETPixelType Format { get; }
 
-        public int Width => _width; 
-        public int Height => _height;
-        public int Depth => _depth; 
+        public int Width { get; }
+
+        public int Height { get; }
+
+        public int Depth { get; }
 
         public int GetPixelSize()
         {
@@ -89,12 +90,12 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         public ColorF4 GetPixel(int x, int y, int z)
         {
-            int index = x * (y * _width) * (z * _wh);
+            int index = x * (y * Width) * (z * _wh);
             return GetPixel(_data.Address[index, _pixelSize]);
         }
         public void SetPixel(int x, int y, int z, ColorF4 color)
         {
-            int index = x * (y * _width) * (z * _wh);
+            int index = x * (y * Width) * (z * _wh);
             SetPixel(_data.Address[index, _pixelSize], color);
         }
 
@@ -237,6 +238,11 @@ namespace TheraEngine.Rendering.Models.Materials
             //    case TPixelFormat.RGBA32f: return new ColorF4(*(float*)(addr + 0), *(float*)(addr + 4), *(float*)(addr + 8), *(float*)(addr + 12));
             //}
             return new ColorF4();
+        }
+
+        public void Resize(int width, int height, int depth)
+        {
+            throw new NotImplementedException();
         }
 
         #region IDisposable Support

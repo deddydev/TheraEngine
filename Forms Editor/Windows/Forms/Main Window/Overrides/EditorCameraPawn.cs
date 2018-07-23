@@ -53,12 +53,12 @@ namespace TheraEditor.Actors.Types.Pawns
         private bool _shift = false;
         private bool _leftClickDown = false;
 
-        public bool HasHit { get; private set; } = false;
-        public Vec3 HitPoint { get; private set; }
-        public Vec3 HitNormal { get; private set; }
-        public float HitDistance { get; private set; }
+        public bool HasHit => EditorHud.HighlightedComponent != null;//{ get; private set; } = false;
+        public Vec3 HitPoint => EditorHud.HitPoint;//{ get; private set; }
+        public Vec3 HitNormal => EditorHud.HitNormal;//{ get; private set; }
+        public float HitDistance => EditorHud.HitDistance;//{ get; private set; }
         public Vec3 HitScreenPoint { get; private set; }
-        public TCollisionObject HitObject { get; private set; }
+        //public TCollisionObject HitObject { get; private set; }
 
         private EditorHud EditorHud => HUD as EditorHud;
 
@@ -110,25 +110,25 @@ namespace TheraEditor.Actors.Types.Pawns
         }
         protected override void Tick(float delta)
         {
-            bool moving = Translating || Rotating;
+            bool moving = Moving;
             CursorManager.WrapCursorWithinClip = moving;
-            if (!moving)
-            {
-                Viewport v = LocalPlayerController?.Viewport;
-                if (v != null)
-                {
-                    Vec2 viewportPoint = HUD.CursorPosition(v);
-                    Segment s = v.GetWorldSegment(viewportPoint);
-                    RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
-                    if (HasHit = c.Trace())
-                    {
-                        HitPoint = c.HitPointWorld;
-                        HitNormal = c.HitNormalWorld;
-                        HitDistance = HitPoint.DistanceToFast(s.StartPoint);
-                        HitObject = c.CollisionObject;
-                    }
-                }
-            }
+            //if (!moving)
+            //{
+            //    Viewport v = LocalPlayerController?.Viewport;
+            //    if (v != null)
+            //    {
+            //        Vec2 viewportPoint = HUD.CursorPosition(v);
+            //        Segment s = v.GetWorldSegment(viewportPoint);
+            //        RayTraceClosest c = new RayTraceClosest(s.StartPoint, s.EndPoint, 0, 0xFFFF);
+            //        if (HasHit = c.Trace())
+            //        {
+            //            HitPoint = c.HitPointWorld;
+            //            HitNormal = c.HitNormalWorld;
+            //            HitDistance = HitPoint.DistanceToFast(s.StartPoint);
+            //            HitObject = c.CollisionObject;
+            //        }
+            //    }
+            //}
 
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());

@@ -37,6 +37,11 @@ namespace TheraEngine.Actors.Types.Pawns
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
             return v.ScreenToWorld(CursorPosition(v)).Xy;
         }
+        public Vec2 CursorPositionWorld(Vec2 viewportPosition)
+        {
+            Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
+            return v.ScreenToWorld(viewportPosition).Xy;
+        }
         /// <summary>
         /// Returns the cursor position relative to the the viewport.
         /// </summary>
@@ -54,6 +59,10 @@ namespace TheraEngine.Actors.Types.Pawns
         public Vec2 CursorPositionWorld(Viewport v)
         {
             return v.ScreenToWorld(CursorPosition(v)).Xy;
+        }
+        public Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition)
+        {
+            return v.ScreenToWorld(viewportPosition).Xy;
         }
 
         protected override T OnConstruct()
@@ -108,7 +117,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint)
             => new List<I2DRenderable>();//_scene.RenderTree.FindAllIntersecting(viewportPoint);
-        public UIComponent FindDeepestComponent(Vec2 viewportPoint)
+        public UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint)
         {
             return RootComponent.FindDeepestComponent(viewportPoint);
         }

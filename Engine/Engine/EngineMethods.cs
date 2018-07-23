@@ -503,7 +503,7 @@ namespace TheraEngine
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
-        public static void PrintLine(string message, params object[] args)
+        public static void PrintLine(string message = "", params object[] args)
             => Print(message + Environment.NewLine, args);
         
         public static void LogException(Exception ex)

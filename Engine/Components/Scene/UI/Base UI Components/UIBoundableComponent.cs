@@ -95,11 +95,12 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         public BoundingRectangleF AxisAlignedRegion => _axisAlignedRegion;
         
-        public bool Contains(Vec2 cursorPointWorld)
+        public bool Contains(Vec2 viewportPoint)
         {
-            Vec3 localPoint = Vec3.TransformPosition(cursorPointWorld, InverseWorldMatrix);
+            Vec3 localPoint = viewportPoint * GetInvComponentTransform();
             return Size.Contains(localPoint.Xy);
         }
+
         /// <summary>
         /// Returns true if the given world point projected perpendicularly to the HUD as a 2D point is contained within this component and the Z value is within the given depth margin.
         /// </summary>
@@ -114,8 +115,17 @@ namespace TheraEngine.Rendering.UI
         
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Matrix4.TransformMatrix(new Vec3(Scale, 1.0f), Matrix4.Identity, LocalTranslation - LocalOriginTranslation, TransformOrder.TRS);
-            inverseLocalTransform = Matrix4.TransformMatrix(new Vec3(1.0f / Scale, 1.0f), Matrix4.Identity, -LocalTranslation + LocalOriginTranslation, TransformOrder.SRT);
+            localTransform = Matrix4.TransformMatrix(
+                new Vec3(Scale, 1.0f),
+                Matrix4.Identity,
+                BottomLeftTranslation,
+                TransformOrder.TRS);
+
+            inverseLocalTransform = Matrix4.TransformMatrix(
+                new Vec3(1.0f / Scale, 1.0f),
+                Matrix4.Identity,
+                -BottomLeftTranslation,
+                TransformOrder.SRT);
         }
         public override void RecalcWorldTransform()
         {
@@ -134,7 +144,7 @@ namespace TheraEngine.Rendering.UI
             _axisAlignedRegion.Extents = Size * WorldScale.Xy;
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
-        public override UIComponent FindDeepestComponent(Vec2 viewportPoint)
+        public override UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint)
         {
             if (!Contains(viewportPoint))
                 return null;

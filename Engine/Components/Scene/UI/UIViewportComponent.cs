@@ -5,10 +5,14 @@ using TheraEngine.Timers;
 
 namespace TheraEngine.Rendering.UI
 {
+    public interface IInteractableUI
+    {
+
+    }
     /// <summary>
     /// Houses a viewport that renders a scene from a designated camera.
     /// </summary>
-    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable, IPreRendered
+    public class UIViewportComponent : UIMaterialRectangleComponent, I2DRenderable, IPreRendered, IInteractableUI
     {
         public event DelSetUniforms SettingUniforms;
 

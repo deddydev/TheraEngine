@@ -30,6 +30,8 @@ namespace TheraEngine.Actors.Types.Pawns
         public bool Rotating => _rightClickPressed && _ctrl;
         [Browsable(false)]
         public bool Translating => _rightClickPressed && !_ctrl;
+        [Browsable(false)]
+        public bool Moving => Rotating || Translating;
 
         [TSerialize]
         [Category("Movement")]

@@ -10,6 +10,8 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileDef("3D Texture Reference")]
     public class TexRef3D : BaseTexRef
     {
+        public const string CategoryName = "Texture Reference 2D";
+
         #region Constructors
         public TexRef3D() : this(null, 1, 1, 1) { }
         public TexRef3D(string name, int width, int height, int depth)
@@ -28,7 +30,14 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             _mipmaps = new GlobalFileRef<TBitmap3D>[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
-                _mipmaps[i] = new TBitmap3D(width / scale, height / scale, depth / scale, ETPixelType.Basic);
+            {
+                GlobalFileRef<TBitmap3D> tref = new TBitmap3D(width / scale, height / scale, depth / scale, ETPixelType.Basic);
+                tref.RegisterLoadEvent(OnMipLoaded);
+                tref.RegisterUnloadEvent(OnMipUnloaded);
+                _mipmaps[i] = tref;
+            }
+
+            DetermineTextureFormat();
         }
         public TexRef3D(string name, int width, int height, int depth,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
@@ -67,72 +76,149 @@ namespace TheraEngine.Rendering.Models.Materials
         //Note: one TextureData object may contain all the mips
         public GlobalFileRef<TBitmap3D>[] _mipmaps;
 
+        [Browsable(false)]
+        [Category(CategoryName)]
         [TSerialize]
         public GlobalFileRef<TBitmap3D>[] Mipmaps
         {
             get => _mipmaps;
-            set => _mipmaps = value;
-        }
-        
-        private RenderTex3D _texture;
-
-        [TSerialize("Width")]
-        private int _width;
-        [TSerialize("Height")]
-        private int _height;
-        [TSerialize("Depth")]
-        private int _depth;
-
-        private int _index;
-        private ETexWrapMode _uWrapMode = ETexWrapMode.Repeat;
-        private ETexWrapMode _vWrapMode = ETexWrapMode.Repeat;
-        private ETexWrapMode _wWrapMode = ETexWrapMode.Repeat;
-        private ETexMinFilter _minFilter = ETexMinFilter.LinearMipmapLinear;
-        private ETexMagFilter _magFilter = ETexMagFilter.Linear;
-        private float _lodBias = 0.0f;
-        private EPixelInternalFormat _internalFormat;
-        private EPixelFormat _pixelFormat;
-        private EPixelType _pixelType;
-        
-        [TSerialize]
-        public ETexMagFilter MagFilter
-        {
-            get => _magFilter;
-            set => _magFilter = value;
-        }
-        [TSerialize]
-        public ETexMinFilter MinFilter
-        {
-            get => _minFilter;
-            set => _minFilter = value;
-        }
-        [TSerialize]
-        public ETexWrapMode UWrap
-        {
-            get => _uWrapMode;
-            set => _uWrapMode = value;
-        }
-        [TSerialize]
-        public ETexWrapMode VWrap
-        {
-            get => _uWrapMode;
-            set => _uWrapMode = value;
-        }
-        [TSerialize]
-        public ETexWrapMode WWrap
-        {
-            get => _wWrapMode;
-            set => _wWrapMode = value;
-        }
-        [TSerialize]
-        public float LodBias
-        {
-            get => _lodBias;
-            set => _lodBias = value;
+            set
+            {
+                if (_mipmaps != null)
+                {
+                    for (int i = 0; i < Mipmaps.Length; ++i)
+                    {
+                        var fileRef = Mipmaps[i];
+                        if (fileRef == null)
+                            Mipmaps[i] = new GlobalFileRef<TBitmap3D>();
+                        {
+                            fileRef.UnregisterLoadEvent(OnMipLoaded);
+                            fileRef.UnregisterUnloadEvent(OnMipUnloaded);
+                        }
+                    }
+                }
+                _mipmaps = value;
+                if (_mipmaps != null)
+                {
+                    foreach (var fileRef in Mipmaps)
+                    {
+                        if (fileRef != null)
+                        {
+                            fileRef.RegisterLoadEvent(OnMipLoaded);
+                            fileRef.RegisterUnloadEvent(OnMipUnloaded);
+                        }
+                    }
+                }
+            }
         }
 
+        private void OnMipLoaded(TBitmap3D tex)
+        {
+            //Engine.PrintLine("Mipmap loaded.");
+            if (_texture != null && !_isLoading)
+                LoadMipmaps();
+        }
+        private void OnMipUnloaded(TBitmap3D tex)
+        {
+            //Engine.PrintLine("Mipmap unloaded.");
+            if (_texture != null && !_isLoading)
+                LoadMipmaps();
+        }
+
+        protected RenderTex3D _texture;
+
+        [TSerialize(nameof(Width))]
+        protected int _width;
+        [TSerialize(nameof(Height))]
+        protected int _height;
+        [TSerialize(nameof(Depth))]
+        protected int _depth;
+
+        [TSerialize(nameof(PixelFormat))]
+        private EPixelFormat _pixelFormat = EPixelFormat.Rgba;
+        [TSerialize(nameof(PixelType))]
+        private EPixelType _pixelType = EPixelType.UnsignedByte;
+        [TSerialize(nameof(InternalFormat))]
+        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
+
+        [Category(CategoryName)]
+        public EPixelFormat PixelFormat
+        {
+            get => _pixelFormat;
+            set
+            {
+                _pixelFormat = value;
+                if (_texture != null)
+                {
+                    _texture.PixelFormat = _pixelFormat;
+                    _texture.PushData();
+                }
+            }
+        }
+        [Category(CategoryName)]
+        public EPixelType PixelType
+        {
+            get => _pixelType;
+            set
+            {
+                _pixelType = value;
+                if (_texture != null)
+                {
+                    _texture.PixelType = _pixelType;
+                    _texture.PushData();
+                }
+            }
+        }
+        [Category(CategoryName)]
+        public EPixelInternalFormat InternalFormat
+        {
+            get => _internalFormat;
+            set
+            {
+                _internalFormat = value;
+                if (_texture != null)
+                {
+                    _texture.InternalFormat = _internalFormat;
+                    _texture.PushData();
+                }
+            }
+        }
+
+        /// <summary>
+        /// If false, calling resize will do nothing.
+        /// Useful for repeating textures that must always be a certain size or textures that never need to be dynamically resized during the game.
+        /// False by default.
+        /// </summary>
+        [Category(CategoryName)]
+        public bool Resizable { get; set; } = true;
+
+        [Category(CategoryName)]
+        [TSerialize]
+        public EDepthStencilFmt DepthStencilFormat { get; set; } = EDepthStencilFmt.None;
+        [Category(CategoryName)]
+        [TSerialize]
+        public ETexMagFilter MagFilter { get; set; } = ETexMagFilter.Nearest;
+        [Category(CategoryName)]
+        [TSerialize]
+        public ETexMinFilter MinFilter { get; set; } = ETexMinFilter.Nearest;
+        [Category(CategoryName)]
+        [TSerialize]
+        public ETexWrapMode UWrap { get; set; } = ETexWrapMode.Repeat;
+        [Category(CategoryName)]
+        [TSerialize]
+        public ETexWrapMode VWrap { get; set; } = ETexWrapMode.Repeat;
+        [Category(CategoryName)]
+        [TSerialize]
+        public ETexWrapMode WWrap { get; set; } = ETexWrapMode.Repeat;
+        [Category(CategoryName)]
+        [TSerialize]
+        public float LodBias { get; set; } = 0.0f;
+
+        [Category(CategoryName)]
         public int Width => _width;
+        [Category(CategoryName)]
         public int Height => _height;
+        [Category(CategoryName)]
         public int Depth => _depth;
 
         private void SetParameters()
@@ -142,57 +228,58 @@ namespace TheraEngine.Rendering.Models.Materials
 
             _texture.Bind();
 
-            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureLodBias, _lodBias);
-            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMagFilter, (int)_magFilter);
-            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMinFilter, (int)_minFilter);
-            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapS, (int)_uWrapMode);
-            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapT, (int)_vWrapMode);
-            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapR, (int)_wWrapMode);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureLodBias, LodBias);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMagFilter, (int)MagFilter);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureMinFilter, (int)MinFilter);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapS, (int)UWrap);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapT, (int)VWrap);
+            Engine.Renderer.TexParameter(ETexTarget.Texture3D, ETexParamName.TextureWrapR, (int)WWrap);
         }
 
         private bool _isLoading = false;
         public async Task<RenderTex3D> GetTextureAsync()
         {
-            if (_texture != null || _isLoading)
+            if (_texture != null)
                 return _texture;
 
-            await Task.Run((Action)LoadMipmaps);
-            FinalizeTextureLoaded();
+            if (!_isLoading)
+                await Task.Run(LoadMipmaps);
 
             return _texture;
         }
-        public RenderTex3D GetTexture(bool loadSynchronously)
+        public RenderTex3D GetTexture(bool loadSynchronously = false)
         {
-            if (_texture != null || _isLoading)
+            if (_texture != null)
                 return _texture;
 
-            LoadMipmaps();
-            FinalizeTextureLoaded();
+            if (!_isLoading)
+            {
+                if (loadSynchronously)
+                {
+                    LoadMipmaps();
+                    return _texture;
+                }
+                else
+                {
+                    GetTextureAsync().ContinueWith(task => _texture = task.Result);
+                }
+            }
 
             return _texture;
         }
 
-        public override BaseRenderTexture GetRenderTextureGeneric(bool loadSynchronously) => GetTexture(loadSynchronously);
+        public void UpdateTexture() => _texture?.PushData();
+
+        public override BaseRenderTexture GetRenderTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
-
-        private void FinalizeTextureLoaded()
-        {
-            //if (_mipmaps != null && _mipmaps.Length > 0)
-            //    _texture = new Texture3D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
-            //else
-            //    _texture = new Texture3D(_width, _height, _depth, _internalFormat, _pixelFormat, _pixelType);
-
-            _texture.PostPushData += SetParameters;
-        }
-        
-        public bool DoNotResize { get; internal set; }
 
         /// <summary>
         /// Resizes the textures stored in memory.
+        /// Does nothing if Resizeable is false.
         /// </summary>
-        public void Resize(int width, int height, int depth)
+        public void Resize(int width, int height, int depth, bool resizeRenderTexture = true)
         {
-            if (DoNotResize)
+            if (!Resizable)
                 return;
 
             _width = width;
@@ -202,76 +289,127 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_isLoading)
                 return;
 
+            _mipmaps?.ForEach(x => x.File?.Resize(width, height, depth));
+
+            if (resizeRenderTexture)
+                _texture?.Resize(width, height, depth);
+        }
+        /// <summary>
+        /// Resizes the allocated render texture stored in video memory, if it exists.
+        /// Does not resize the bitmaps stored in RAM.
+        /// Does nothing if Resizeable is false.
+        /// </summary>
+        public void ResizeRenderTexture(int width, int height, int depth, bool doNotLoad = false)
+        {
+            if (!Resizable)
+                return;
+
+            _width = width;
+            _height = height;
+            _depth = depth;
+
+            if (_isLoading)
+                return;
+
+            if (doNotLoad && _texture == null)
+                return;
+
             RenderTex3D t = GetTexture(true);
             t?.Resize(_width, _height, _depth);
         }
+        
+        [Browsable(false)]
+        public bool IsLoaded => _texture != null;
 
         /// <summary>
         /// Call if you want to load all mipmap texture files, in a background thread for example.
         /// </summary>
         public void LoadMipmaps()
         {
-            if (_mipmaps == null)
-                return;
             _isLoading = true;
-            foreach (var tref in _mipmaps)
-                tref.GetInstance();
-            if (_mipmaps.Length > 0)
+            _mipmaps?.ForEach(tex => tex?.GetInstance());
+            DetermineTextureFormat(false);
+            CreateRenderTexture();
+            _isLoading = false;
+        }
+        /// <summary>
+        /// Decides the best internal format, pixel format, and pixel type for the stored mipmaps.
+        /// </summary>
+        /// <param name="force">If true, sets the formats/type even if the mipmaps are loaded.</param>
+        public void DetermineTextureFormat(bool force = true)
+        {
+            if (_mipmaps != null && _mipmaps.Length > 0)
             {
                 var tref = _mipmaps[0];
-                if (tref.File != null)
+                //if (!tref.IsLoaded && !force)
+                //    return;
+                var t = tref.File;
+                if (t != null)
                 {
-                    var t = tref.File;
-                    //if (t.Bitmaps.Length > 0)
+                    //switch (t.Format)
                     //{
-                    //    var b = t.Bitmaps[0];
-                    //    if (b != null)
-                    //    {
-                    //        switch (b.PixelFormat)
-                    //        {
-                    //            case PixelFormat.Format32bppArgb:
-                    //            case PixelFormat.Format32bppPArgb:
-                    //                _internalFormat = EPixelInternalFormat.Rgba8;
-                    //                _pixelFormat = EPixelFormat.Bgra;
-                    //                _pixelType = EPixelType.UnsignedByte;
-                    //                break;
-                    //            case PixelFormat.Format24bppRgb:
-                    //                _internalFormat = EPixelInternalFormat.Rgb8;
-                    //                _pixelFormat = EPixelFormat.Bgr;
-                    //                _pixelType = EPixelType.UnsignedByte;
-                    //                break;
-                    //            case PixelFormat.Format64bppArgb:
-                    //            case PixelFormat.Format64bppPArgb:
-                    //                _internalFormat = EPixelInternalFormat.Rgba16;
-                    //                _pixelFormat = EPixelFormat.Bgra;
-                    //                _pixelType = EPixelType.UnsignedShort;
-                    //                break;
-                    //        }
-                    //    }
+                    //    case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+                    //        InternalFormat = EPixelInternalFormat.Rgb8;
+                    //        PixelFormat = EPixelFormat.Bgr;
+                    //        PixelType = EPixelType.UnsignedByte;
+                    //        break;
+                    //    case System.Drawing.Imaging.PixelFormat.Format32bppRgb:
+                    //        InternalFormat = EPixelInternalFormat.Rgb8;
+                    //        PixelFormat = EPixelFormat.Bgra;
+                    //        PixelType = EPixelType.UnsignedByte;
+                    //        break;
+                    //    case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+                    //    case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
+                    //        InternalFormat = EPixelInternalFormat.Rgba8;
+                    //        PixelFormat = EPixelFormat.Bgra;
+                    //        PixelType = EPixelType.UnsignedByte;
+                    //        break;
+                    //    case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
+                    //    case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
+                    //        InternalFormat = EPixelInternalFormat.Rgba16;
+                    //        PixelFormat = EPixelFormat.Bgra;
+                    //        PixelType = EPixelType.UnsignedShort;
+                    //        break;
                     //}
                 }
             }
-            _isLoading = false;
         }
+        protected virtual void CreateRenderTexture()
+        {
+            if (_texture != null)
+            {
+                _texture.PostPushData -= SetParameters;
+                _texture.Destroy();
+            }
 
+            if (_mipmaps != null && _mipmaps.Length > 0)
+                _texture = new RenderTex3D(InternalFormat, PixelFormat, PixelType,
+                    _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
+                {
+                    Resizable = Resizable,
+                };
+            else
+                _texture = new RenderTex3D(_width, _height, InternalFormat, PixelFormat, PixelType)
+                {
+                    Resizable = Resizable
+                };
+
+            _texture.PostPushData += SetParameters;
+        }
+        
         public override void AttachToFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 AttachToFBO(target, FrameBufferAttachment.Value, mipLevel);
-        }
-        public override void AttachToFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
-        {
-            Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
         }
         public override void DetachFromFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, FrameBufferAttachment.Value, 0, mipLevel);
         }
-
+        public override void AttachToFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
+            => Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, attachment, _texture.BindingId, mipLevel);
         public override void DetachFromFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
-        {
-
-        }
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, ETexTarget.Texture3D, 0, mipLevel);
     }
 }

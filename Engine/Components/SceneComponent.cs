@@ -28,8 +28,8 @@ namespace TheraEngine.Components
 
         Matrix4 GetParentMatrix();
         Matrix4 GetInverseParentMatrix();
-        Matrix4 GetActorTransform();
-        Matrix4 GetInvActorTransform();
+        Matrix4 GetComponentTransform();
+        Matrix4 GetInvComponentTransform();
         
         ISocket AttachTo(SkeletalMeshComponent mesh, string socketName);
         ISocket AttachTo(StaticMeshComponent mesh, string socketName);
@@ -370,13 +370,24 @@ namespace TheraEngine.Components
         /// <summary>
         /// Gets the transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetActorTransform()
-            => WorldMatrix * (OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.InverseWorldMatrix);
+        public Matrix4 GetComponentTransform()
+            => WorldMatrix * GetInvActorTransform();
         /// <summary>
         /// Gets the inverse transformation of this component in relation to the actor's root component.
         /// </summary>
+        public Matrix4 GetInvComponentTransform() =>
+            InverseWorldMatrix * GetActorTransform();
+
+        /// <summary>
+        /// Gets the transformation of this component's owning actor in the world.
+        /// </summary>
+        public Matrix4 GetActorTransform()
+            => OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.WorldMatrix;
+        /// <summary>
+        /// Gets the inverse transformation of this component's owning actor in the world.
+        /// </summary>
         public Matrix4 GetInvActorTransform() =>
-            InverseWorldMatrix * (OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.WorldMatrix);
+            OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.InverseWorldMatrix;
 
         //[Browsable(false)]
         //[Category("Rendering")]

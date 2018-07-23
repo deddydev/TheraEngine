@@ -4,7 +4,9 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Particles;
 
 namespace TheraEngine.Rendering
@@ -14,6 +16,8 @@ namespace TheraEngine.Rendering
     /// </summary>
     public class Scene3D : BaseScene
     {
+        private TMaterial _voxelizationMaterial;
+
         //TODO: implement octree on GPU with compute shader instead of here on CPU
         //Also implement occlusion culling along with frustum culling
         public Octree RenderTree { get; private set; }
@@ -29,55 +33,61 @@ namespace TheraEngine.Rendering
         {
             Clear(new BoundingBox(boundsHalfExtents, Vec3.Zero));
             Render = RenderDeferred;
-            //TMaterial m = new TMaterial("VoxelizeMat",
-            //    new ShaderVar[]
-            //    {
 
-            //    },
-            //    new BaseTexRef[]
-            //    {
-            //        new TexRef3D("VoxelScene"),
-            //    },
-            //    new Shader[]
-            //    {
+            TMaterial m = new TMaterial("VoxelizeMat",
+                new ShaderVar[] { },
+                new BaseTexRef[]
+                {
+                    new TexRef3D("VoxelScene")
+                    {
+                        Resizable = false
+                    },
+                },
+                new GLSLShaderFile[]
+                {
 
-            //    }
-            //);
+                }
+            );
 
-            //m.RenderParams.CullMode = Culling.None;
-            //m.RenderParams.DepthTest.Enabled = false;
-            //m.RenderParams.BlendMode.Enabled = false;
+            m.RenderParams.CullMode = ECulling.None;
+            m.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
+            m.RenderParams.BlendMode.Enabled = ERenderParamUsage.Disabled;
 
-            //_voxelizationMaterial = m;
+            _voxelizationMaterial = m;
         }
 
         public void UpdateShadowMaps() => Lights?.UpdateShadowMaps(this);
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
-        public void Voxelize()
+        public void Voxelize(bool clearVoxelization)
         {
-            //TMaterial m = _voxelizationMaterial.File;
-            //RenderTex3D tex = m.Textures[0].GetTextureGeneric() as RenderTex3D;
+            TMaterial m = _voxelizationMaterial;
+            RenderTex3D tex = m.Textures[0].RenderTextureGeneric as RenderTex3D;
+            if (clearVoxelization)
+            {
+                voxelTexture->Clear(clearColor);
+            }
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+            Engine.Renderer.ColorMask(false, false, false, false);
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0, 0, tex.Width, tex.Height, 0.0f, 0.0f));
+            Engine.Renderer.MaterialOverride = m;
+            {
+                // Texture.
+                tex.Bind();
+                
+                voxelTexture->Activate(material->program, "texture3D", 0);
+                Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
-            //Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-            //Engine.Renderer.ColorMask(false, false, false, false);
-            //Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, tex.Width, tex.Height, 0.0f, 0.0f));
-            //Engine.Renderer.MaterialOverride = m;
-            //{
-            //    // Texture.
-            //    voxelTexture->Activate(material->program, "texture3D", 0);
-            //    Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+                // Lighting.
+                uploadLighting(renderingScene, material->program);
 
-            //    // Lighting.
-            //    uploadLighting(renderingScene, material->program);
+                // Render.
+                renderQueue(renderingScene.renderers, material->program, true);
 
-            //    // Render.
-            //    renderQueue(renderingScene.renderers, material->program, true);
-
-            //    Engine.Renderer.GenerateMipmap(ETexTarget.Texture3D);
-            //}
-            //Engine.Renderer.MaterialOverride = null;
-            //Engine.Renderer.PopRenderArea();
-            //Engine.Renderer.ColorMask(true, true, true, true);
+                Engine.Renderer.GenerateMipmap(ETexTarget.Texture3D);
+            }
+            Engine.Renderer.MaterialOverride = null;
+            Engine.Renderer.PopRenderArea();
+            Engine.Renderer.ColorMask(true, true, true, true);
         }
         public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, Camera camera, bool shadowPass)
         {

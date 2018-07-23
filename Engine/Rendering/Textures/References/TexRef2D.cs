@@ -214,7 +214,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// False by default.
         /// </summary>
         [Category(CategoryName)]
-        public bool Resizeable { get; set; } = true;
+        public bool Resizable { get; set; } = true;
 
         [Category(CategoryName)]
         [TSerialize]
@@ -298,7 +298,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public void Resize(int width, int height, bool resizeRenderTexture = true)
         {
-            if (!Resizeable)
+            if (!Resizable)
                 return;
 
             _width = width;
@@ -327,10 +327,22 @@ namespace TheraEngine.Rendering.Models.Materials
         /// Does not resize the bitmaps stored in RAM.
         /// Does nothing if Resizeable is false.
         /// </summary>
-        public void ResizeRenderTexture(int width, int height)
+        public void ResizeRenderTexture(int width, int height, bool doNotLoad = false)
         {
-            if (Resizeable)
-                _texture?.Resize(width, height);
+            if (!Resizable)
+                return;
+
+            _width = width;
+            _height = height;
+
+            if (_isLoading)
+                return;
+
+            if (doNotLoad && _texture == null)
+                return;
+
+            RenderTex2D t = GetTexture(true);
+            t?.Resize(_width, _height);
         }
 
         [Browsable(false)]
@@ -405,12 +417,12 @@ namespace TheraEngine.Rendering.Models.Materials
                 _texture = new RenderTex2D(InternalFormat, PixelFormat, PixelType,
                     _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
                 {
-                    Resizable = Resizeable,
+                    Resizable = Resizable,
                 };
             else
                 _texture = new RenderTex2D(_width, _height, InternalFormat, PixelFormat, PixelType)
                 {
-                    Resizable = Resizeable
+                    Resizable = Resizable
                 };
 
             _texture.PostPushData += SetParameters;

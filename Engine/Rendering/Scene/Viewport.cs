@@ -361,6 +361,7 @@ namespace TheraEngine.Rendering
         public SceneComponent PickScene(
             Vec2 viewportPoint,
             bool testHud,
+            bool interactableHudOnly,
             bool testWorld,
             out Vec3 hitNormal,
             out Vec3 hitPoint,
@@ -369,13 +370,18 @@ namespace TheraEngine.Rendering
         {
             if (testHud)
             {
-                if (HUD?.FindDeepestComponent(viewportPoint) is UIComponent hudComp && hudComp.IsVisible)
+                UIBoundableComponent hudComp = HUD?.FindDeepestComponent(viewportPoint);
+                bool valid = hudComp?.IsVisible ?? false;
+                if (interactableHudOnly)
+                    valid = valid && hudComp is IInteractableUI;
+                if (valid)
                 {
                     hitNormal = Vec3.Backward;
                     hitPoint = new Vec3(viewportPoint, 0.0f);
                     distance = 0.0f;
                     return hudComp;
                 }
+                //Continue on to test the world is nothing of importance in the HUD was hit
             }
             if (testWorld)
             {
@@ -682,7 +688,7 @@ namespace TheraEngine.Rendering
             renderParams.DepthTest.UpdateDepth = false;
 
             BrdfTex = TexRef2D.CreateFrameBufferTexture("BRDF_LUT", width, height, EPixelInternalFormat.Rg16f, EPixelFormat.Rg, EPixelType.HalfFloat);
-            BrdfTex.Resizeable = true;
+            BrdfTex.Resizable = true;
             BrdfTex.UWrap = ETexWrapMode.ClampToEdge;
             BrdfTex.VWrap = ETexWrapMode.ClampToEdge;
             BrdfTex.MinFilter = ETexMinFilter.Linear;
@@ -742,12 +748,12 @@ namespace TheraEngine.Rendering
                 EFramebufferAttachment.DepthStencilAttachment);
             _depthStencilTexture.MinFilter = ETexMinFilter.Nearest;
             _depthStencilTexture.MagFilter = ETexMagFilter.Nearest;
-            _depthStencilTexture.Resizeable = false;
+            _depthStencilTexture.Resizable = false;
 
             TexRefView2D depthViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
-                Resizeable = false,
+                Resizable = false,
                 DepthStencilFormat = EDepthStencilFmt.Depth,
                 MinFilter = ETexMinFilter.Nearest,
                 MagFilter = ETexMagFilter.Nearest,
@@ -758,7 +764,7 @@ namespace TheraEngine.Rendering
             TexRefView2D stencilViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
-                Resizeable = false,
+                Resizable = false,
                 DepthStencilFormat = EDepthStencilFmt.Stencil,
                 MinFilter = ETexMinFilter.Nearest,
                 MagFilter = ETexMagFilter.Nearest,
@@ -782,7 +788,7 @@ namespace TheraEngine.Rendering
                     MagFilter = ETexMagFilter.Nearest,
                     UWrap = ETexWrapMode.Repeat,
                     VWrap = ETexWrapMode.Repeat,
-                    Resizeable = false,
+                    Resizable = false,
                 };
                 Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
                 BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);

@@ -74,23 +74,23 @@ namespace TheraEngine.Rendering.UI
         //    data[1] = data[4] = new Vec3(Width, 0.0f, 0.0f);
         //    data[2] = data[3] = new Vec3(0.0f, Height, 0.0f);
         //    data[5] = new Vec3(Width, Height, 0.0f);
-        //    buffer.PushSubData();
+        //    buffer.PushData();
 
         //    return r;
         //}
 
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        {
-            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
-            localTransform = localTransform * Matrix4.CreateScale(_size.X, _size.Y, 1.0f);
-            inverseLocalTransform = Matrix4.CreateScale(1.0f / _size.X, 1.0f / _size.Y, 1.0f) * inverseLocalTransform;
-        }
+        //protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        //{
+        //    base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
+        //    localTransform = localTransform * Matrix4.CreateScale(_size.X, _size.Y, 1.0f);
+        //    inverseLocalTransform = Matrix4.CreateScale(1.0f / _size.X, 1.0f / _size.Y, 1.0f) * inverseLocalTransform;
+        //}
 
         private RenderCommandMesh2D _renderCommand = new RenderCommandMesh2D();
         public virtual void AddRenderables(RenderPasses passes)
         {
             _renderCommand.Primitives = _quad;
-            _renderCommand.WorldMatrix = WorldMatrix;
+            _renderCommand.WorldMatrix = WorldMatrix * Matrix4.CreateScale(Width, Height, 1.0f);
             _renderCommand.NormalMatrix = Matrix3.Identity;
             _renderCommand.ZIndex = 0;
             passes.Add(_renderCommand, RenderInfo.RenderPass);

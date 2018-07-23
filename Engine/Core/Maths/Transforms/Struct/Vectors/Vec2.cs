@@ -254,6 +254,11 @@ namespace System
         [XmlIgnore]
         public Vec2 Yx { get { return new Vec2(Y, X); } set { Y = value.X; X = value.Y; } }
 
+        public static Vec3 operator *(Vec2 left, Matrix4 right)
+            => Vec3.TransformPerspective(left, right);
+        public static Vec3 operator *(Matrix4 left, Vec2 right)
+            => Vec3.TransformPerspective(left, right);
+
         public static Vec2 operator +(Vec2 left, Vec2 right)
         {
             left.X += right.X;

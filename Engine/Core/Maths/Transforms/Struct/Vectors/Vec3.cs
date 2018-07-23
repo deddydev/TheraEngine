@@ -1043,7 +1043,7 @@ namespace System
         
         public static Vec3 operator *(Vec3 left, Matrix4 right)
             => TransformPerspective(left, right);
-       
+
         private const float _colorFactor = 1.0f / 255.0f;
         public static explicit operator Vec3(Color c)
             => new Vec3(c.R * _colorFactor, c.G * _colorFactor, c.B * _colorFactor);

@@ -349,10 +349,10 @@ namespace TheraEngine.Rendering.UI
 
             return leftOver;
         }
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        {
-            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
-        }
+        //protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        //{
+        //    base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
+        //}
         private BoundingRectangleF RegionDockComplement(BoundingRectangleF parentRegion, BoundingRectangleF region)
         {
             if (parentRegion.MaxX != region.MaxX)

@@ -12,19 +12,23 @@ namespace TheraEngine.Actors.Types.Pawns
     public interface IUIManager : IPawn
     {
         IPawn OwningPawn { get; set; }
-        void Resize(Vec2 bounds);
-        UIComponent FindDeepestComponent(Vec2 viewportPoint);
-        List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint);
-        void RemoveRenderableComponent(I2DRenderable r);
-        void AddRenderableComponent(I2DRenderable r);
         Scene2D UIScene { get; }
-        Vec2 CursorPosition();
-        Vec2 CursorPositionWorld();
-        Vec2 CursorPosition(Viewport v);
-        Vec2 CursorPositionWorld(Viewport v);
         OrthographicCamera Camera { get; }
         Vec2 Bounds { get; }
         RenderPasses RenderPasses { get; set; }
+
+        Vec2 CursorPosition();
+        Vec2 CursorPositionWorld();
+        Vec2 CursorPositionWorld(Vec2 viewportPosition);
+        Vec2 CursorPosition(Viewport v);
+        Vec2 CursorPositionWorld(Viewport v);
+        Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition);
+
+        void Resize(Vec2 bounds);
+        UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint);
+        List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint);
+        void RemoveRenderableComponent(I2DRenderable r);
+        void AddRenderableComponent(I2DRenderable r);
     }
     /// <summary>
     /// Each viewport has a hud manager. 
@@ -33,13 +37,16 @@ namespace TheraEngine.Actors.Types.Pawns
     public partial class UIManager<T> : Pawn<T>, IUIManager where T : UIDockableComponent, new()
     {
         internal Scene2D _scene;
-        private OrthographicCamera _camera;
-        private Vec2 _bounds;
         private IPawn _owningPawn;
 
-        public Vec2 Bounds => _bounds;
-        public OrthographicCamera Camera => _camera;
-        
+        public Vec2 Bounds { get; private set; }
+        public OrthographicCamera Camera { get; }
+        public RenderInfo3D RenderInfo { get; }
+            = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
+        public Shape CullingVolume => null;
+        public IOctreeNode OctreeNode { get; set; }
+        public Scene2D UIScene => _scene;
+        public RenderPasses RenderPasses { get; set; } = new RenderPasses();
         public IPawn OwningPawn
         {
             get => _owningPawn;
@@ -79,18 +86,11 @@ namespace TheraEngine.Actors.Types.Pawns
             }
         }
 
-        public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
-
-        public Shape CullingVolume => null;
-        public IOctreeNode OctreeNode { get; set; }
-        public Scene2D UIScene => _scene;
-
         public UIManager() : base()
         {
-            _camera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
-            _camera.SetOriginBottomLeft();
-            _camera.Resize(1, 1);
+            Camera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
+            Camera.SetOriginBottomLeft();
+            Camera.Resize(1, 1);
             _scene = new Scene2D();
         }
         public UIManager(Vec2 bounds) : this()
@@ -100,18 +100,18 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public void Resize(Vec2 bounds)
         {
-            _bounds = bounds;
-            if (_bounds == Vec2.Zero)
+            Bounds = bounds;
+            if (Bounds == Vec2.Zero)
                 return;
             _scene.Resize(bounds);
             RootComponent.Resize(bounds);
-            _camera.Resize(bounds.X, bounds.Y);
+            Camera.Resize(bounds.X, bounds.Y);
         }
         protected override void PostConstruct()
         {
             base.PostConstruct();
-            if (_bounds != Vec2.Zero)
-                RootComponent?.Resize(_bounds);
+            if (Bounds != Vec2.Zero)
+                RootComponent?.Resize(Bounds);
         }
         //public void Render()
         //{
@@ -182,9 +182,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public UIComponent FindComponent()
             => FindComponent(CursorPositionWorld());
-        public UIComponent FindComponent(Vec2 cursorWorldPos)
+        public UIBoundableComponent FindComponent(Vec2 cursorWorldPos)
             => RootComponent.FindDeepestComponent(cursorWorldPos);
-
-        public RenderPasses RenderPasses { get; set; } = new RenderPasses();
     }
 }

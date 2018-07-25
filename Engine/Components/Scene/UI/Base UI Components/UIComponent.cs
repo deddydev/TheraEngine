@@ -273,5 +273,18 @@ namespace TheraEngine.Rendering.UI
 
         public IEnumerator<UIComponent> GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
+
+        /// <summary>
+        /// Converts a local-space coordinate of a parent UI component 
+        /// to a local-space coordinate of a child UI component.
+        /// </summary>
+        /// <param name="coordinate">The coordinate relative to the parent UI component.</param>
+        /// <param name="parentUIComp">The parent UI component.</param>
+        /// <param name="targetChildUIComp"></param>
+        /// <returns></returns>
+        public static Vec2 ConvertUICoordinate(Vec2 coordinate, UIComponent parentUIComp, UIComponent targetChildUIComp)
+        {
+            return (coordinate * (targetChildUIComp.WorldMatrix * parentUIComp.InverseWorldMatrix)).Xy;
+        }
     }
 }

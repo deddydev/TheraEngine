@@ -476,37 +476,36 @@ namespace TheraEditor.Windows.Forms
                 HighlightScene(v, viewportPoint);
             }
         }
-        private void HighlightScene(Viewport v, Vec2 viewportPoint)
+        private void HighlightScene(Viewport viewport, Vec2 viewportPoint)
         {
-            Camera c = v.Camera;
+            Camera c = viewport.Camera;
             if (c == null)
                 return;
 
             EditorCameraPawn pawn = OwningPawn as EditorCameraPawn;
             if (pawn.Moving)
                 return;
-
-            //Test against HUD
-            SceneComponent comp = v.PickScene(viewportPoint, true, true, true, out Vec3 _hitNormal, out _hitPoint, out _hitDistance);
-            if (comp is IInteractableUI interactable)
+            
+            SceneComponent comp = viewport.PickScene(viewportPoint, true, true, true, out Vec3 _hitNormal, out _hitPoint, out _hitDistance);
+            bool hasHit = comp != null;
+            _highlightPoint.Visible = hasHit;
+            if (hasHit)
             {
-                if (comp is UIViewportComponent viewport)
+                if (comp is UIViewportComponent subViewport)
                 {
-                    //TODO: special highlight scene here
-                    HighlightScene(viewport.Viewport, (viewportPoint * viewport.GetInvComponentTransform()).Xy);
+                    //Convert viewport point to the sub viewport's local space
+                    viewportPoint = (viewportPoint * subViewport.GetInvComponentTransform()).Xy;
+                    HighlightScene(subViewport.Viewport, viewportPoint);
                     return;
                 }
+
+                _highlightPoint.Transform =
+                    Matrix4.CreateTranslation(_hitPoint) *
+                    _hitNormal.LookatAngles().GetMatrix() *
+                    Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
             }
-            
-            //Vec3 lerpHitPoint = Vec3.Lerp(_lastHitPoint, _hitPoint, 0.2f);
-            _highlightPoint.Transform =
-                Matrix4.CreateTranslation(_hitPoint) *
-                _hitNormal.LookatAngles().GetMatrix() *
-                Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
-            //_lastHitPoint = lerpHitPoint;
 
             HighlightedComponent = comp;
-            _highlightPoint.Visible = true;
         }
         private bool IsSimulatedBody(out IRigidBodyCollidable body)
         {

@@ -378,7 +378,7 @@ namespace System
             Vec3 u = point2 - point0;
             //Cross them to get normal vector
             Vec3 normal = v ^ u;
-            normal.NormalizeFast();
+            normal.Normalize();
             return normal;
         }
 
@@ -652,11 +652,16 @@ namespace System
         /// <summary>
         /// Returns a YPR rotator looking from the origin to the end of this vector.
         /// </summary>
-        public Rotator LookatAngles() { return new Rotator((float)RadToDeg(Atan2(Y, Sqrt(X * X + Z * Z))), (float)RadToDeg(Atan2(-X, -Z)), 0.0f, RotationOrder.YPR); }
+        public Rotator LookatAngles() => new Rotator(
+            (float)RadToDeg(Atan2(Y, Sqrt(X * X + Z * Z))),
+            (float)RadToDeg(Atan2(-X, -Z)),
+            0.0f);
+
         /// <summary>
         /// Returns a YPR rotator looking from the origin to this point.
         /// </summary>
-        public Rotator LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
+        public Rotator LookatAngles(Vec3 origin)
+            => (this - origin).LookatAngles();
 
         //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)
         //{
@@ -758,7 +763,7 @@ namespace System
         /// </summary>
         public static Vec3 ReflectionVector(Vec3 normal, Vec3 vector)
         {
-            normal.NormalizeFast();
+            normal.Normalize();
             return vector - 2.0f * (vector | normal) * normal;
         }
         /// <summary>
@@ -766,7 +771,7 @@ namespace System
         /// </summary>
         public Vec3 ReflectionVector(Vec3 normal)
         {
-            normal.NormalizeFast();
+            normal.Normalize();
             return this - 2.0f * (this | normal) * normal;
         }
         /// <summary>
@@ -774,14 +779,15 @@ namespace System
         /// </summary>
         public Vec3 ParallelComponent(Vec3 normal)
         {
-            normal.NormalizeFast();
+            normal.Normalize();
             return normal * (this | normal);
         }
         
         /// <summary>
         /// Returns the portion of this Vec3 that is perpendicular to the given normal.
         /// </summary>
-        public Vec3 PerpendicularComponent(Vec3 normal) => this - ParallelComponent(normal);
+        public Vec3 PerpendicularComponent(Vec3 normal) 
+            => this - ParallelComponent(normal);
 
         #region Sub Vectors
         [Browsable(false)]

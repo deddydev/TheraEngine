@@ -104,130 +104,105 @@ namespace TheraEngine.Actors.Types
             if (_heightFieldShape == null)
                 throw new InvalidOperationException();
 
-            float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
-
             List<VertexTriangle> list = new List<VertexTriangle>();
-            Vec3 topLeft, topRight, bottomLeft, bottomRight;
-            Vec2 topLeftUV, topRightUV, bottomLeftUV, bottomRightUV;
-            float* heightPtr = (float*)_heightData.Address;
+            Vertex[] vertexNormals = new Vertex[6];
+            
             int xInc = stride, yInc = stride;
             int xDim = _dimensions.X - 1, yDim = _dimensions.Y - 1;
-            float halfX = xDim * 0.5f, halfY = yDim * 0.5f;
             float uInc = 1.0f / xDim, vInc = 1.0f / yDim;
-            int nextX = 0, nextY = 0;
+            int nextX, nextY, nextX2, nextY2, prevX, prevY;
             int xTriStride = _dimensions.X / xInc * 2;
-            Vertex[] vertexNormals = new Vertex[6];
             int triCount = 0;
-            for (int y = 0; y < yDim; )
+
+            float* heightPtr = (float*)_heightData.Address;
+            float halfX = xDim * 0.5f, halfY = yDim * 0.5f;
+            float yOffset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
+            Vec3 GetHeight(int x, int y) => new Vec3(x - halfX, heightPtr[x + y * _dimensions.X] - yOffset, y - halfY);
+            for (int thisY = 0; thisY < yDim; thisY += yInc)
             {
-                nextY = y + yInc;
-                for (int x = 0; x < xDim; )
+                nextY = thisY + yInc;
+                nextY2 = nextY + yInc;
+                prevY = thisY - yInc;
+
+                for (int thisX = 0; thisX < xDim; thisX += xInc)
                 {
-                    nextX = x + xInc;
+                    nextX = thisX + xInc;
+                    prevX = thisX - xInc;
+                    nextX2 = nextX + xInc;
 
-                    topLeft     = new Vec3(x - halfX,        heightPtr[x + y * _dimensions.X] - offset,            y - halfY);
-                    topRight    = new Vec3(nextX - halfX,    heightPtr[nextX + y * _dimensions.X] - offset,        y - halfY);
-                    bottomLeft  = new Vec3(x - halfX,        heightPtr[x + nextY * _dimensions.X] - offset,        nextY - halfY);
-                    bottomRight = new Vec3(nextX - halfX,    heightPtr[nextX + nextY * _dimensions.X] - offset,    nextY - halfY);
+                    Vec3 ptl = GetHeight(thisX, thisY);
+                    Vec3 ptr = GetHeight(nextX, thisY);
+                    Vec3 pbl = GetHeight(thisX, nextY);
+                    Vec3 pbr = GetHeight(nextX, nextY);
 
-                    topLeftUV       = new Vec2(x * uInc, y * vInc);
-                    topRightUV      = new Vec2(nextX * uInc, y * vInc);
-                    bottomLeftUV    = new Vec2(x * uInc, nextY * vInc);
-                    bottomRightUV   = new Vec2(nextX * uInc, nextY * vInc);
+                    Vec3 p01 = GetHeight(prevX, prevY);
+                    Vec3 p02 = GetHeight(thisX, prevY);
+                    Vec3 p03 = GetHeight(nextX, prevY);
+                    Vec3 p04 = GetHeight(nextX2, prevY);
+                    Vec3 p05 = GetHeight(nextX2, thisY);
+                    Vec3 p06 = GetHeight(nextX2, nextY);
+                    Vec3 p07 = GetHeight(nextX2, nextY2);
+                    Vec3 p08 = GetHeight(nextX, nextY2);
+                    Vec3 p09 = GetHeight(thisX, nextY2);
+                    Vec3 p10 = GetHeight(prevX, nextY2);
+                    Vec3 p11 = GetHeight(prevX, nextY);
+                    Vec3 p12 = GetHeight(prevX, thisY);
 
-                    Vec3 triNorm1 = Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
-                    Vec3 triNorm2 = Vec3.CalculateNormal(topLeft, bottomRight, topRight);
-                    
-                    Vec3 topLeftNorm = triNorm1 + triNorm2;
-                    Vec3 bottomLeftNorm = triNorm1;
-                    Vec3 bottomRightNorm = triNorm1 + triNorm2;
-                    Vec3 topRightNorm = triNorm1;
+                    /*
+                    1________4
+                    |\ |\ |\ |
+                    |_\|_\|_\|
+                    |\ |\ |\ |
+                    |_\|_\|_\|
+                    |\ |\ |\ |
+                    |_\|_\|_\|
+                    10       7
+                    */
 
-                    if (triCount - 2 >= 0)
-                    {
-                        VertexTriangle left1 = list[triCount - 2];
-                        VertexTriangle left2 = list[triCount - 1];
-                        
-                        Vec3 prevBottomRightNorm = left1.Vertex2.Normal + left2.Vertex1.Normal;
-                        Vec3 prevTopRightNorm = left2.Vertex2.Normal;
+                    //top row triangle normals left to right
+                    Vec3 n01 = Vec3.CalculateNormal(p01, p12, ptl);
+                    Vec3 n02 = Vec3.CalculateNormal(p01, ptl, p02);
+                    Vec3 n03 = Vec3.CalculateNormal(p02, ptl, ptr);
+                    Vec3 n04 = Vec3.CalculateNormal(p02, ptr, p03);
+                    Vec3 n05 = Vec3.CalculateNormal(p03, ptr, ptl);
+                    Vec3 n06 = Vec3.CalculateNormal(p03, ptl, p04);
 
-                        topLeftNorm += prevTopRightNorm;
-                        bottomLeftNorm += prevBottomRightNorm;
-                    }
-                    if (triCount - xTriStride >= 0)
-                    {
-                        VertexTriangle top1 = list[triCount - xTriStride];
-                        VertexTriangle top2 = list[triCount - xTriStride + 1];
-                        
-                        Vec3 upperBottomLeftNorm = top1.Vertex1.Normal;
-                        Vec3 upperBottomRightNorm = top1.Vertex2.Normal + top2.Vertex1.Normal;
+                    //middle row triangle normals left to right
+                    Vec3 n07 = Vec3.CalculateNormal(p12, p11, pbl);
+                    Vec3 n08 = Vec3.CalculateNormal(p12, ptl, p02);
+                    Vec3 n09 = Vec3.CalculateNormal(ptl, pbl, pbr);
+                    Vec3 n10 = Vec3.CalculateNormal(ptl, pbr, ptr);
+                    Vec3 n11 = Vec3.CalculateNormal(ptr, p12, ptl);
+                    Vec3 n12 = Vec3.CalculateNormal(ptr, ptl, p02);
 
-                        topLeftNorm += upperBottomLeftNorm;
-                        topRightNorm += upperBottomRightNorm;
-                    }
-                    if (triCount - xTriStride - 2 >= 0)
-                    {
-                        VertexTriangle topLeft1 = list[triCount - xTriStride - 2];
-                        VertexTriangle topLeft2 = list[triCount - xTriStride - 1];
-                        
-                        Vec3 upperLeftBottomRightNorm = topLeft1.Vertex2.Normal + topLeft2.Vertex1.Normal;
+                    //bottom row triangle normals left to right
+                    Vec3 n13 = Vec3.CalculateNormal(p01, p12, ptl);
+                    Vec3 n14 = Vec3.CalculateNormal(p01, ptl, p02);
+                    Vec3 n15 = Vec3.CalculateNormal(p01, p12, ptl);
+                    Vec3 n16 = Vec3.CalculateNormal(p01, ptl, p02);
+                    Vec3 n17 = Vec3.CalculateNormal(p01, p12, ptl);
+                    Vec3 n18 = Vec3.CalculateNormal(p01, ptl, p02);
 
-                        topLeftNorm += upperLeftBottomRightNorm;
-                    }
-                    if (triCount - xTriStride + 2 >= 0)
-                    {
-                        VertexTriangle topRight1 = list[triCount - xTriStride + 2];
-                        //VertexTriangle topRight2 = list[triCount - xTriStride + 3];
-                        
-                        Vec3 upperRightBottomLeftNorm = topRight1.Vertex1.Normal;
+                    Vec3 topLeftNorm = (n09 + n10).Normalized();
+                    Vec3 bottomLeftNorm = n09;
+                    Vec3 bottomRightNorm = (n09 + n10).Normalized();
+                    Vec3 topRightNorm = n10;
 
-                        topRightNorm += upperRightBottomLeftNorm;
-                    }
-
-                    topLeftNorm = topLeftNorm.Normalized();
-                    bottomLeftNorm = bottomLeftNorm.Normalized();
-                    bottomRightNorm = bottomRightNorm.Normalized();
-                    topRightNorm = topRightNorm.Normalized();
-
-                    //Update previous normals
-                    if (triCount - 2 >= 0)
-                    {
-                        VertexTriangle left1 = list[triCount - 2];
-                        VertexTriangle left2 = list[triCount - 1];
-                        
-                        left2.Vertex2.Normal = topLeftNorm;
-                        left1.Vertex2.Normal = left2.Vertex1.Normal = bottomLeftNorm;
-                    }
-                    if (triCount - xTriStride >= 0)
-                    {
-                        VertexTriangle top1 = list[triCount - xTriStride];
-                        VertexTriangle top2 = list[triCount - xTriStride + 1];
-                        
-                        top1.Vertex1.Normal = topLeftNorm;
-                        top1.Vertex2.Normal = top2.Vertex1.Normal = topRightNorm;
-                    }
-                    if (triCount - xTriStride - 2 >= 0)
-                    {
-                        VertexTriangle topLeft1 = list[triCount - xTriStride - 2];
-                        VertexTriangle topLeft2 = list[triCount - xTriStride - 1];
-
-                        topLeft1.Vertex2.Normal = topLeft2.Vertex1.Normal = topLeftNorm;
-                    }
+                    Vec2 topLeftUV      = new Vec2(thisX * uInc, thisY * vInc);
+                    Vec2 topRightUV     = new Vec2(nextX * uInc, thisY * vInc);
+                    Vec2 bottomLeftUV   = new Vec2(thisX * uInc, nextY * vInc);
+                    Vec2 bottomRightUV  = new Vec2(nextX * uInc, nextY * vInc);
 
                     list.Add(new VertexTriangle(
-                        new Vertex(topLeft, topLeftNorm, topLeftUV),
-                        new Vertex(bottomLeft, bottomLeftNorm, bottomLeftUV),
-                        new Vertex(bottomRight, bottomRightNorm, bottomRightUV)));
+                        new Vertex(ptl, topLeftNorm, topLeftUV),
+                        new Vertex(pbl, bottomLeftNorm, bottomLeftUV),
+                        new Vertex(pbr, bottomRightNorm, bottomRightUV)));
                     list.Add(new VertexTriangle(
-                        new Vertex(topLeft, topLeftNorm, topLeftUV),
-                        new Vertex(bottomRight, bottomRightNorm, bottomRightUV),
-                        new Vertex(topRight, topRightNorm, topRightUV)));
+                        new Vertex(ptl, topLeftNorm, topLeftUV),
+                        new Vertex(pbr, bottomRightNorm, bottomRightUV),
+                        new Vertex(ptr, topRightNorm, topRightUV)));
                     triCount += 2;
-                    
-                    x += xInc;
                 }
-
-                y += yInc;
             }
 
             PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), list);

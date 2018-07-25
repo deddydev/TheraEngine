@@ -376,25 +376,25 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         protected virtual void CreateRenderTexture()
         {
-            if (_texture != null)
-            {
-                _texture.PostPushData -= SetParameters;
-                _texture.Destroy();
-            }
+            //if (_texture != null)
+            //{
+            //    _texture.PostPushData -= SetParameters;
+            //    _texture.Destroy();
+            //}
 
-            if (_mipmaps != null && _mipmaps.Length > 0)
-                _texture = new RenderTex3D(InternalFormat, PixelFormat, PixelType,
-                    _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
-                {
-                    Resizable = Resizable,
-                };
-            else
-                _texture = new RenderTex3D(_width, _height, InternalFormat, PixelFormat, PixelType)
-                {
-                    Resizable = Resizable
-                };
+            //if (_mipmaps != null && _mipmaps.Length > 0)
+            //    _texture = new RenderTex3D(InternalFormat, PixelFormat, PixelType,
+            //        _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
+            //    {
+            //        Resizable = Resizable,
+            //    };
+            //else
+            //    _texture = new RenderTex3D(_width, _height, InternalFormat, PixelFormat, PixelType)
+            //    {
+            //        Resizable = Resizable
+            //    };
 
-            _texture.PostPushData += SetParameters;
+            //_texture.PostPushData += SetParameters;
         }
         
         public override void AttachToFBO(EFramebufferTarget target, int mipLevel = 0)

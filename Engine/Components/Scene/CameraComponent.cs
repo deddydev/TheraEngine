@@ -145,6 +145,36 @@ namespace TheraEngine.Components.Scene
         }
 
 #if EDITOR
+        public override void OnSpawned()
+        {
+            if (_alwaysShowFrustum)
+                OwningScene.Add(Camera);
+            base.OnSpawned();
+        }
+        public override void OnDespawned()
+        {
+            if (_alwaysShowFrustum)
+                OwningScene.Remove(Camera);
+            base.OnDespawned();
+        }
+        private bool _alwaysShowFrustum = false;
+        public bool AlwaysShowFrustum
+        {
+            get => _alwaysShowFrustum;
+            set
+            {
+                if (_alwaysShowFrustum == value)
+                    return;
+                _alwaysShowFrustum = value;
+                if (IsSpawned)
+                {
+                    if (_alwaysShowFrustum)
+                        OwningScene.Add(Camera);
+                    else
+                        OwningScene.Remove(Camera);
+                }
+            }
+        }
         protected internal override void OnSelectedChanged(bool selected)
         {
             if (IsSpawned)

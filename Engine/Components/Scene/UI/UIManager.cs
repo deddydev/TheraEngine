@@ -31,8 +31,7 @@ namespace TheraEngine.Actors.Types.Pawns
         void AddRenderableComponent(I2DRenderable r);
     }
     /// <summary>
-    /// Each viewport has a hud manager. 
-    /// The main form also has a hud manager to overlay over everything if necessary.
+    /// Each viewport has a hud manager that manages 2D user interface elements.
     /// </summary>
     public partial class UIManager<T> : Pawn<T>, IUIManager where T : UIDockableComponent, new()
     {

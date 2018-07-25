@@ -58,36 +58,36 @@ namespace TheraEngine.Rendering
 
         public void UpdateShadowMaps() => Lights?.UpdateShadowMaps(this);
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
-        public void Voxelize(bool clearVoxelization)
+        public void Voxelize(bool clearVoxelization = true)
         {
-            TMaterial m = _voxelizationMaterial;
-            RenderTex3D tex = m.Textures[0].RenderTextureGeneric as RenderTex3D;
-            if (clearVoxelization)
-            {
-                voxelTexture->Clear(clearColor);
-            }
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-            Engine.Renderer.ColorMask(false, false, false, false);
-            Engine.Renderer.PushRenderArea(new BoundingRectangle(0, 0, tex.Width, tex.Height, 0.0f, 0.0f));
-            Engine.Renderer.MaterialOverride = m;
-            {
-                // Texture.
-                tex.Bind();
+            //TMaterial m = _voxelizationMaterial;
+            //RenderTex3D tex = m.Textures[0].RenderTextureGeneric as RenderTex3D;
+            //if (clearVoxelization)
+            //{
+            //    voxelTexture->Clear(clearColor);
+            //}
+            //Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+            //Engine.Renderer.ColorMask(false, false, false, false);
+            //Engine.Renderer.PushRenderArea(new BoundingRectangle(0, 0, tex.Width, tex.Height, 0.0f, 0.0f));
+            //Engine.Renderer.MaterialOverride = m;
+            //{
+            //    // Texture.
+            //    tex.Bind();
                 
-                voxelTexture->Activate(material->program, "texture3D", 0);
-                Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
+            //    voxelTexture->Activate(material->program, "texture3D", 0);
+            //    Engine.Renderer.BindImageTexture(0, voxelTexture->textureID, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
-                // Lighting.
-                uploadLighting(renderingScene, material->program);
+            //    // Lighting.
+            //    uploadLighting(renderingScene, material->program);
 
-                // Render.
-                renderQueue(renderingScene.renderers, material->program, true);
+            //    // Render.
+            //    renderQueue(renderingScene.renderers, material->program, true);
 
-                Engine.Renderer.GenerateMipmap(ETexTarget.Texture3D);
-            }
-            Engine.Renderer.MaterialOverride = null;
-            Engine.Renderer.PopRenderArea();
-            Engine.Renderer.ColorMask(true, true, true, true);
+            //    Engine.Renderer.GenerateMipmap(ETexTarget.Texture3D);
+            //}
+            //Engine.Renderer.MaterialOverride = null;
+            //Engine.Renderer.PopRenderArea();
+            //Engine.Renderer.ColorMask(true, true, true, true);
         }
         public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, Camera camera, bool shadowPass)
         {

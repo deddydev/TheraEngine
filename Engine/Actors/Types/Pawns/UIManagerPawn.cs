@@ -9,6 +9,9 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
+    /// <summary>
+    /// Each viewport has a hud manager that manages 2D user interface elements.
+    /// </summary>
     public partial class UIManager<T> : Pawn<T> where T : UIDockableComponent, new()
     {
         protected Vec2 _cursorPos = Vec2.Zero;

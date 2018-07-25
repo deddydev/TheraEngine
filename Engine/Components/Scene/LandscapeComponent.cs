@@ -97,7 +97,10 @@ namespace TheraEngine.Actors.Types
         public unsafe float GetHeight(int x, int y)
         {
             float* heightPtr = (float*)_heightData.Address;
-            return heightPtr[x + y * _dimensions.X];
+            int heightIndex = x + y * _dimensions.X;
+            if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(float))
+                throw new IndexOutOfRangeException();
+            return heightPtr[heightIndex];
         }
         public unsafe void GenerateHeightFieldMesh(TMaterial material, int stride = 1)
         {
@@ -117,36 +120,71 @@ namespace TheraEngine.Actors.Types
             float* heightPtr = (float*)_heightData.Address;
             float halfX = xDim * 0.5f, halfY = yDim * 0.5f;
             float yOffset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
-            Vec3 GetHeight(int x, int y) => new Vec3(x - halfX, heightPtr[x + y * _dimensions.X] - yOffset, y - halfY);
+            Vec3 GetPosition(int x, int y) => new Vec3(x - halfX, GetHeight(x, y) - yOffset, y - halfY);
+            bool GetQuad(int x, int y, out Vec3 topLeft, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight)
+            {
+                if (x < 0 || y < 0 || x + xInc >= _dimensions.X || y + yInc >= _dimensions.Y)
+                {
+                    topLeft = Vec3.Zero;
+                    topRight = Vec3.Zero;
+                    bottomLeft = Vec3.Zero;
+                    bottomRight = Vec3.Zero;
+                    return false;
+                }
+                else
+                {
+                    topLeft = GetPosition(x, y);
+                    topRight = GetPosition(x + xInc, y);
+                    bottomLeft = GetPosition(x, y + yInc);
+                    bottomRight = GetPosition(x + xInc, y + yInc);
+                    return true;
+                }
+            }
+            Vec3? GetNormal(int quadX, int quadY, bool tri2)
+            {
+                if (!GetQuad(quadX, quadY, out Vec3 topLeft, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight))
+                    return null;
+                return tri2 ? 
+                    Vec3.CalculateNormal(topLeft, bottomRight, topRight) : 
+                    Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
+            }
+            Vec3 GetSmoothedNormal(int x, int y)
+            {
+                int pX = x - xInc;
+                int pY = y - yInc;
+                
+                Vec3? leftQuadTri2 = GetNormal(pX, y, true);
+                Vec3? thisQuadTri1 = GetNormal(x, y, false);
+                Vec3? thisQuadTri2 = GetNormal(x, y, true);
+                Vec3? topQuadTri1 = GetNormal(x, pY, false);
+                Vec3? topLeftQuadTri1 = GetNormal(pX, pY, false);
+                Vec3? topLeftQuadTri2 = GetNormal(pX, pY, true);
+
+                Vec3 normal = Vec3.Zero;
+                if (thisQuadTri1.HasValue)
+                    normal += thisQuadTri1.Value;
+                if (thisQuadTri2.HasValue)
+                    normal += thisQuadTri2.Value;
+                if (leftQuadTri2.HasValue)
+                    normal += leftQuadTri2.Value;
+                if (topQuadTri1.HasValue)
+                    normal += topQuadTri1.Value;
+                if (topLeftQuadTri1.HasValue)
+                    normal += topLeftQuadTri1.Value;
+                if (topLeftQuadTri2.HasValue)
+                    normal += topLeftQuadTri2.Value;
+
+                return normal.Normalized();
+            }
             for (int thisY = 0; thisY < yDim; thisY += yInc)
             {
                 nextY = thisY + yInc;
-                nextY2 = nextY + yInc;
                 prevY = thisY - yInc;
 
                 for (int thisX = 0; thisX < xDim; thisX += xInc)
                 {
                     nextX = thisX + xInc;
                     prevX = thisX - xInc;
-                    nextX2 = nextX + xInc;
-
-                    Vec3 ptl = GetHeight(thisX, thisY);
-                    Vec3 ptr = GetHeight(nextX, thisY);
-                    Vec3 pbl = GetHeight(thisX, nextY);
-                    Vec3 pbr = GetHeight(nextX, nextY);
-
-                    Vec3 p01 = GetHeight(prevX, prevY);
-                    Vec3 p02 = GetHeight(thisX, prevY);
-                    Vec3 p03 = GetHeight(nextX, prevY);
-                    Vec3 p04 = GetHeight(nextX2, prevY);
-                    Vec3 p05 = GetHeight(nextX2, thisY);
-                    Vec3 p06 = GetHeight(nextX2, nextY);
-                    Vec3 p07 = GetHeight(nextX2, nextY2);
-                    Vec3 p08 = GetHeight(nextX, nextY2);
-                    Vec3 p09 = GetHeight(thisX, nextY2);
-                    Vec3 p10 = GetHeight(prevX, nextY2);
-                    Vec3 p11 = GetHeight(prevX, nextY);
-                    Vec3 p12 = GetHeight(prevX, thisY);
 
                     /*
                     1________4
@@ -158,35 +196,16 @@ namespace TheraEngine.Actors.Types
                     |_\|_\|_\|
                     10       7
                     */
+                    
+                    Vec3 topLeftPos = GetPosition(thisX, thisY);
+                    Vec3 topRightPos = GetPosition(nextX, thisY);
+                    Vec3 bottomLeftPos = GetPosition(thisX, nextY);
+                    Vec3 bottomRightPos = GetPosition(nextX, nextY);
 
-                    //top row triangle normals left to right
-                    Vec3 n01 = Vec3.CalculateNormal(p01, p12, ptl);
-                    Vec3 n02 = Vec3.CalculateNormal(p01, ptl, p02);
-                    Vec3 n03 = Vec3.CalculateNormal(p02, ptl, ptr);
-                    Vec3 n04 = Vec3.CalculateNormal(p02, ptr, p03);
-                    Vec3 n05 = Vec3.CalculateNormal(p03, ptr, ptl);
-                    Vec3 n06 = Vec3.CalculateNormal(p03, ptl, p04);
-
-                    //middle row triangle normals left to right
-                    Vec3 n07 = Vec3.CalculateNormal(p12, p11, pbl);
-                    Vec3 n08 = Vec3.CalculateNormal(p12, ptl, p02);
-                    Vec3 n09 = Vec3.CalculateNormal(ptl, pbl, pbr);
-                    Vec3 n10 = Vec3.CalculateNormal(ptl, pbr, ptr);
-                    Vec3 n11 = Vec3.CalculateNormal(ptr, p12, ptl);
-                    Vec3 n12 = Vec3.CalculateNormal(ptr, ptl, p02);
-
-                    //bottom row triangle normals left to right
-                    Vec3 n13 = Vec3.CalculateNormal(p01, p12, ptl);
-                    Vec3 n14 = Vec3.CalculateNormal(p01, ptl, p02);
-                    Vec3 n15 = Vec3.CalculateNormal(p01, p12, ptl);
-                    Vec3 n16 = Vec3.CalculateNormal(p01, ptl, p02);
-                    Vec3 n17 = Vec3.CalculateNormal(p01, p12, ptl);
-                    Vec3 n18 = Vec3.CalculateNormal(p01, ptl, p02);
-
-                    Vec3 topLeftNorm = (n09 + n10).Normalized();
-                    Vec3 bottomLeftNorm = n09;
-                    Vec3 bottomRightNorm = (n09 + n10).Normalized();
-                    Vec3 topRightNorm = n10;
+                    Vec3 topLeftNorm = GetSmoothedNormal(thisX, thisY);
+                    Vec3 bottomLeftNorm = GetSmoothedNormal(thisX, nextY);
+                    Vec3 bottomRightNorm = GetSmoothedNormal(nextX, nextY);
+                    Vec3 topRightNorm = GetSmoothedNormal(nextX, thisY);
 
                     Vec2 topLeftUV      = new Vec2(thisX * uInc, thisY * vInc);
                     Vec2 topRightUV     = new Vec2(nextX * uInc, thisY * vInc);
@@ -194,13 +213,13 @@ namespace TheraEngine.Actors.Types
                     Vec2 bottomRightUV  = new Vec2(nextX * uInc, nextY * vInc);
 
                     list.Add(new VertexTriangle(
-                        new Vertex(ptl, topLeftNorm, topLeftUV),
-                        new Vertex(pbl, bottomLeftNorm, bottomLeftUV),
-                        new Vertex(pbr, bottomRightNorm, bottomRightUV)));
+                        new Vertex(topLeftPos, topLeftNorm, topLeftUV),
+                        new Vertex(bottomLeftPos, bottomLeftNorm, bottomLeftUV),
+                        new Vertex(bottomRightPos, bottomRightNorm, bottomRightUV)));
                     list.Add(new VertexTriangle(
-                        new Vertex(ptl, topLeftNorm, topLeftUV),
-                        new Vertex(pbr, bottomRightNorm, bottomRightUV),
-                        new Vertex(ptr, topRightNorm, topRightUV)));
+                        new Vertex(topLeftPos, topLeftNorm, topLeftUV),
+                        new Vertex(bottomRightPos, bottomRightNorm, bottomRightUV),
+                        new Vertex(topRightPos, topRightNorm, topRightUV)));
                     triCount += 2;
                 }
             }

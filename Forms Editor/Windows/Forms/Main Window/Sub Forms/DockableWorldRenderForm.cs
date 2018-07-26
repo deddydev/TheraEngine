@@ -142,7 +142,7 @@ namespace TheraEditor.Windows.Forms
                 BaseRenderPanel.HoveredPanel = RenderPanel;
                 RenderPanel.Focus();
                 EditorHud hud = EditorPawn.HUD as EditorHud;
-                Engine.World.SpawnActor(actor, EditorPawn.Camera.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance);
+                Engine.World.SpawnActor(actor, EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance);
                 _prevTransformType = hud.TransformMode;
                 hud.TransformMode = TransformType.DragDrop;
                 hud.HighlightedComponent = actor.RootComponent;

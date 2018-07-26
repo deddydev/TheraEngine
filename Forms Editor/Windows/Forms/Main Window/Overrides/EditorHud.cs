@@ -218,7 +218,13 @@ namespace TheraEditor.Windows.Forms
             SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Width);
             SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
             SubViewport.IsVisible = true;
-            dock.ChildComponents.Add(SubViewport);
+            UIRotatableComponent uirot = new UIRotatableComponent
+            {
+                LocalOriginPercentage = Vec2.Half,
+                RotationAngle = 35.0f,
+            };
+            uirot.ChildComponents.Add(SubViewport);
+            dock.ChildComponents.Add(uirot);
 
             Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
             string t = "Selected Camera View";
@@ -382,18 +388,19 @@ namespace TheraEditor.Windows.Forms
             else
                 DoMouseDown();
         }
+        private CameraActor TestCameraComp;
         public override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             OwningWorld.Scene.Add(_highlightPoint);
 
-            PerspectiveCameraActor c = new PerspectiveCameraActor();
-            c.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
-            OwningWorld.SpawnActor(c);
+            TestCameraComp = new CameraActor();
+            TestCameraComp.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
+            OwningWorld.SpawnActor(TestCameraComp);
 
             SubViewport.IsVisible = true;
-            SubViewport.ViewportCamera = c.Camera;
+            SubViewport.ViewportCamera = TestCameraComp.Camera;
         }
         public override void OnDespawned()
         {
@@ -499,9 +506,16 @@ namespace TheraEditor.Windows.Forms
                     //Convert viewport point to the sub viewport's local space
                     viewportPoint = (viewportPoint * subViewport.GetInvComponentTransform()).Xy;
                     HighlightScene(subViewport.Viewport, viewportPoint);
+
+                    pawn.CameraComp = TestCameraComp.RootComponent.ChildComponents[0] as CameraComponent;
+                    pawn.TargetComponent = TestCameraComp.RootComponent;
                     return;
                 }
-
+                else
+                {
+                    pawn.CameraComp = pawn.RootComponent.ChildComponents[0] as CameraComponent;
+                    pawn.TargetComponent = pawn.RootComponent;
+                }
             }
             UpdateHighlightPoint(c);
             HighlightedComponent = comp;

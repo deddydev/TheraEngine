@@ -146,7 +146,7 @@ namespace TheraEngine.Rendering.UI
         }
         public override UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint)
         {
-            if (!Contains(viewportPoint))
+            if (Size.X > 0.0f && Size.Y > 0.0f && !Contains(viewportPoint))
                 return null;
             
             return base.FindDeepestComponent(viewportPoint) ?? this;

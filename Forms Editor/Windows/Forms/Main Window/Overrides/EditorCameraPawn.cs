@@ -3,12 +3,9 @@ using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Input;
 using TheraEngine.Input.Devices;
-using TheraEngine.Physics;
-using TheraEngine.Physics.RayTracing;
-using TheraEngine.Rendering;
 
 namespace TheraEditor.Actors.Types.Pawns
 {
@@ -16,8 +13,13 @@ namespace TheraEditor.Actors.Types.Pawns
     {
         public EditorCameraPawn() : base() { }
         public EditorCameraPawn(LocalPlayerIndex possessor) : base(possessor) { }
-
-        //public EditorHud HUD => LocalPlayerController.Viewport.HUD as EditorHud;
+        
+        private TRComponent _targetComponent = null;
+        public TRComponent TargetComponent
+        {
+            get => _targetComponent ?? RootComponent;
+            set => _targetComponent = value;
+        }
 
         public override void RegisterInput(InputInterface input)
         {
@@ -41,42 +43,42 @@ namespace TheraEditor.Actors.Types.Pawns
             if (_alt || _shift)
                 return;
 
+            TRComponent comp = TargetComponent;
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else if (HasHit)
-                RootComponent.Translation.Raw = Segment.PointAtLineDistance(RootComponent.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
+                comp.Translation.Raw = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
             else
-                RootComponent.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
+                comp.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
         }
 
         private bool _alt = false;
         private bool _shift = false;
         private bool _leftClickDown = false;
 
-        public bool HasHit => EditorHud.HighlightedComponent != null;//{ get; private set; } = false;
-        public Vec3 HitPoint => EditorHud.HitPoint;//{ get; private set; }
-        public Vec3 HitNormal => EditorHud.HitNormal;//{ get; private set; }
-        public float HitDistance => EditorHud.HitDistance;//{ get; private set; }
+        public bool HasHit => EditorHud.HighlightedComponent != null;
+        public Vec3 HitPoint => EditorHud.HitPoint;
+        public Vec3 HitNormal => EditorHud.HitNormal;
+        public float HitDistance => EditorHud.HitDistance;
         public Vec3 HitScreenPoint { get; private set; }
-        //public TCollisionObject HitObject { get; private set; }
-
         private EditorHud EditorHud => HUD as EditorHud;
 
         private bool DragZooming => _ctrl && _leftClickDown;
 
         protected override void MouseMove(float x, float y)
         {
+            TRComponent comp = TargetComponent;
             if (Rotating)
             {
                 float pitch = y * MouseRotateSpeed;
                 float yaw = -x * MouseRotateSpeed;
 
                 if (EditorHud.SelectedComponent != null)
-                    RootComponent.ArcBallRotate(pitch, yaw, EditorHud.SelectedComponent.WorldPoint);
+                    comp.ArcBallRotate(pitch, yaw, EditorHud.SelectedComponent.WorldPoint);
                 else if (HasHit)
-                    RootComponent.ArcBallRotate(pitch, yaw, HitPoint);
+                    comp.ArcBallRotate(pitch, yaw, HitPoint);
                 else
-                    RootComponent.Rotation.AddRotations(pitch, yaw, 0.0f);
+                    comp.Rotation.AddRotations(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
@@ -94,18 +96,18 @@ namespace TheraEditor.Actors.Types.Pawns
                     HitScreenPoint = screenPoint;
                     Vec3 hitPoint = Camera.ScreenToWorld(HitScreenPoint);
                     Vec3 diff = hitPoint - oldPoint;
-                    RootComponent.Translation += diff;
+                    comp.Translation += diff;
                 }
                 else
-                    RootComponent.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
+                    comp.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
             }
             else if (DragZooming)
             {
                 bool forward = y < 0.0f;
                 if (HasHit)
-                    RootComponent.Translation.Raw = Segment.PointAtLineDistance(RootComponent.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
+                    comp.Translation.Raw = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, forward ? -ScrollSpeed : ScrollSpeed);
                 else
-                    RootComponent.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
+                    comp.TranslateRelative(0.0f, 0.0f, forward ? -ScrollSpeed : ScrollSpeed);
             }
         }
         protected override void Tick(float delta)
@@ -130,12 +132,13 @@ namespace TheraEditor.Actors.Types.Pawns
             //    }
             //}
 
+            TRComponent comp = TargetComponent;
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
             if (translate)
-                RootComponent.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+                comp.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             if (rotate)
-                RootComponent.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
+                comp.Rotation.AddRotations(_pitch * delta, _yaw * delta, 0.0f);
         }
     }
 }

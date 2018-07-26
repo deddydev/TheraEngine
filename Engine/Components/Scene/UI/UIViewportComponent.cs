@@ -97,7 +97,7 @@ namespace TheraEngine.Rendering.UI
             }
 
             BaseScene scene = c.OwningComponent?.OwningScene;
-            scene.PreRenderUpdate(c);
+            scene?.PreRenderUpdate(c);
             Viewport.Update(scene, c, c.Frustum);
 
             _updating = false;

@@ -24,18 +24,22 @@ namespace TheraEngine.Rendering
         private bool UseMorphs => _morphsAllowed && _info._morphCount > 0;
         private bool MultiRig => UseMorphs && _useMorphMultiRig;
         private TMaterial Material { get; set; }
+        private EBillboardMode Billboard { get; set; }
 
         public GLSLShaderFile Generate(
-            VertexShaderDesc info, 
-            bool allowMeshMorphing, 
-            bool useMorphMultiRig, 
-            bool allowColorMorphing,
-            TMaterial material)
+            VertexShaderDesc info,
+            TMaterial material,
+            bool allowMeshMorphing = true, 
+            bool useMorphMultiRig = false, 
+            bool allowColorMorphing = true,
+            EBillboardMode billboardMode = EBillboardMode.None)
         {
             _info = info;
             _morphsAllowed = allowMeshMorphing;
             _useMorphMultiRig = useMorphMultiRig;
+
             Material = material;
+            Billboard = billboardMode;
 
             //Write #definitions
             WriteVersion();

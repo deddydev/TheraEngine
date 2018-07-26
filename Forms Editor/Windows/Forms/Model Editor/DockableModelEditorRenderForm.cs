@@ -113,7 +113,7 @@ namespace TheraEditor.Windows.Forms
             float aspect = w / h;
 
             //Get the aspect of the camera
-            PerspectiveCamera cam = EditorPawn.Camera;
+            PerspectiveCamera cam = EditorPawn.Camera as PerspectiveCamera;
             float cAspect = cam.Width / cam.Height;
 
             //Start the camera off at the center of the aabb

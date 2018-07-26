@@ -12,9 +12,8 @@ namespace TheraEngine.Actors.Types.Pawns
         protected override TRLaggedComponent OnConstruct()
         {
             TRLaggedComponent root = new TRLaggedComponent();
-            Camera = new PerspectiveCamera();
-            CameraComponent cam = new CameraComponent(Camera);
-            root.ChildComponents.Add(cam);
+            CameraComp = new CameraComponent(new PerspectiveCamera());
+            root.ChildComponents.Add(CameraComp);
             return root;
         }
         protected override void OnScrolled(bool up) 

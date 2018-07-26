@@ -325,7 +325,6 @@
   <ItemGroup>
     <Compile Include="Actors\IBLProbeGridActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\LightActors.cs" />
-    <Compile Include="Actors\Types\ComponentActors\OrthographicCameraActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\Shapes\ConeActor.cs" />
     <Compile Include="Actors\Types\GroupActor.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawnBase.cs" />
@@ -908,7 +907,7 @@
     <Compile Include="Rendering\Renderer\RenderContext.cs" />
     <Compile Include="Actors\Types\ComponentActors\Shapes\SphereActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\Shapes\BoxActor.cs" />
-    <Compile Include="Actors\Types\ComponentActors\PerspectiveCameraActor.cs" />
+    <Compile Include="Actors\Types\ComponentActors\CameraActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\DecalActor.cs" />
     <Compile Include="Animation\Property\PropAnimString.cs" />
     <Compile Include="Animation\Property\PropAnimBool.cs" />

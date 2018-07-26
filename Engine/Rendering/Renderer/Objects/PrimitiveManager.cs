@@ -119,7 +119,7 @@ namespace TheraEngine.Rendering.Models
 
         private void _data_BufferInfoChanged()
         {
-            _vertexShader = new VertexShaderGenerator().Generate(_bufferInfo, false, false, false, Material);
+            _vertexShader = new VertexShaderGenerator().Generate(_bufferInfo, Material, false, false, false);
             if (Engine.Settings.AllowShaderPipelines)
             {
                 if (_vertexProgram != null && _vertexProgram.IsActive)

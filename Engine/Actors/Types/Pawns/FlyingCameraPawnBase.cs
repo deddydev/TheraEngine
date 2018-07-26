@@ -13,7 +13,12 @@ namespace TheraEngine.Actors.Types.Pawns
         public FlyingCameraPawnBase() : base() { }
         public FlyingCameraPawnBase(LocalPlayerIndex possessor) : base(false, possessor) { }
         
-        public PerspectiveCamera Camera { get; protected set; }
+        public Camera Camera
+        {
+            get => CameraComp.Camera;
+            set => CameraComp.Camera = value;
+        }
+        public CameraComponent CameraComp { get; set; }
         
         protected float 
             _linearRight = 0.0f,

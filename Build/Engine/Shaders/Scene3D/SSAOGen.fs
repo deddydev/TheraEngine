@@ -37,7 +37,7 @@ void main()
     float Depth = texture(Texture2, uv).r;
 
     vec3 FragPosVS = ViewPosFromDepth(Depth, uv);
-    vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0f)).xyz;
+    //vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0f)).xyz;
 
     vec3 randomVec = vec3(texture(Texture1, uv * NoiseScale).rg * 2.0f - 1.0f, 0.0f);
     vec3 viewNormal = normalize(vec3(WorldToCameraSpaceMatrix * vec4(Normal, 0.0f)));

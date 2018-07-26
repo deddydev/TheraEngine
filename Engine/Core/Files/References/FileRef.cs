@@ -123,8 +123,8 @@ namespace TheraEngine.Files
 
                 if (_file != null)
                 {
-                    if (_file.References.Contains(this))
-                        _file.References.Remove(this);
+                    //if (_file.References.Contains(this))
+                    //    _file.References.Remove(this);
                     Unloaded?.Invoke(_file);
                 }
 
@@ -141,8 +141,8 @@ namespace TheraEngine.Files
                     {
                         ReferencePathAbsolute = null;// Path.DirectorySeparatorChar.ToString();
                     }
-                    if (!_file.References.Contains(this))
-                        _file.References.Add(this);
+                    //if (!_file.References.Contains(this))
+                    //    _file.References.Add(this);
                     LoadAttempted = true;
                 }
                 else
@@ -213,16 +213,16 @@ namespace TheraEngine.Files
         {
             if (_file != null)
             {
-                _file.References.Remove(this);
-                if (_file.References.Count == 0)
-                    _file.Unload();
+                //_file.References.Remove(this);
+                //if (_file.References.Count == 0)
+                //    _file.Unload();
                 _file = null;
             }
         }
 
         protected override void OnFileLoaded(T file)
         {
-            file.References.Add(this);
+            //file.References.Add(this);
         }
 
         public static implicit operator T(FileRef<T> fileRef) => fileRef?.GetInstance();

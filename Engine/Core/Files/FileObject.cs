@@ -51,7 +51,7 @@ namespace TheraEngine.Files
     public interface IFileObject : IObject
     {
         string FilePath { get; set; }
-        List<IFileRef> References { get; set; }
+        //List<IFileRef> References { get; set; }
         FileDef FileDefinition { get; }
         FileExt FileExtension { get; }
         File3rdParty File3rdPartyExtensions { get; }

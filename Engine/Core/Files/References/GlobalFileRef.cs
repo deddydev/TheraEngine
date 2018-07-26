@@ -54,7 +54,7 @@ namespace TheraEngine.Files
                 //{
                 if (file is T casted)
                 {
-                    casted.References.Add(this);
+                    //casted.References.Add(this);
                     File = casted;
                 }
                 else

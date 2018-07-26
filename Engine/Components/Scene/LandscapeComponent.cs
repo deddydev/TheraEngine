@@ -113,7 +113,7 @@ namespace TheraEngine.Actors.Types
             int xInc = stride, yInc = stride;
             int xDim = _dimensions.X - 1, yDim = _dimensions.Y - 1;
             float uInc = 1.0f / xDim, vInc = 1.0f / yDim;
-            int nextX, nextY, nextX2, nextY2, prevX, prevY;
+            int nextX, nextY, prevX, prevY;
             int xTriStride = _dimensions.X / xInc * 2;
             int triCount = 0;
 
@@ -150,17 +150,31 @@ namespace TheraEngine.Actors.Types
             }
             Vec3 GetSmoothedNormal(int x, int y)
             {
-                int pX = x - xInc;
-                int pY = y - yInc;
-                
-                Vec3? leftQuadTri2 = GetNormal(pX, y, true);
+                int xPrev = x - xInc;
+                int yPrev = y - yInc;
+
+                /*
+                 ________
+                |\2|\ |\ |
+                |1\|_\|_\|
+                |\ |\ |\ |
+                |_\|_\|_\|
+                |\ |\ |\ |
+                |_\|_\|_\|
+
+                */
+
+                Vec3? leftQuadTri2 = GetNormal(xPrev, y, true);
+                Vec3? topQuadTri1 = GetNormal(x, yPrev, false);
+
                 Vec3? thisQuadTri1 = GetNormal(x, y, false);
                 Vec3? thisQuadTri2 = GetNormal(x, y, true);
-                Vec3? topQuadTri1 = GetNormal(x, pY, false);
-                Vec3? topLeftQuadTri1 = GetNormal(pX, pY, false);
-                Vec3? topLeftQuadTri2 = GetNormal(pX, pY, true);
+
+                Vec3? topLeftQuadTri1 = GetNormal(xPrev, yPrev, false);
+                Vec3? topLeftQuadTri2 = GetNormal(xPrev, yPrev, true);
 
                 Vec3 normal = Vec3.Zero;
+
                 if (thisQuadTri1.HasValue)
                     normal += thisQuadTri1.Value;
                 if (thisQuadTri2.HasValue)
@@ -186,17 +200,6 @@ namespace TheraEngine.Actors.Types
                     nextX = thisX + xInc;
                     prevX = thisX - xInc;
 
-                    /*
-                    1________4
-                    |\ |\ |\ |
-                    |_\|_\|_\|
-                    |\ |\ |\ |
-                    |_\|_\|_\|
-                    |\ |\ |\ |
-                    |_\|_\|_\|
-                    10       7
-                    */
-                    
                     Vec3 topLeftPos = GetPosition(thisX, thisY);
                     Vec3 topRightPos = GetPosition(nextX, thisY);
                     Vec3 bottomLeftPos = GetPosition(thisX, nextY);

@@ -250,7 +250,7 @@ namespace TheraEngine.Tests
                     for (int r = 0; r < wh; ++r)
                         for (int x = 0; x < wh; ++x)
                         {
-                            temp = noise.GetCubic(x, r) * 50.0f;
+                            temp = noise.GetPerlin(x, r) * 100.0f;
                             *data++ = temp;
                         }
                 }
@@ -267,7 +267,7 @@ namespace TheraEngine.Tests
                 //BitmapData d = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
                 //DataSource source = new DataSource(d.Scan0, d.Width * d.Height * d.Stride, true);
                 landscape.RootComponent.GenerateHeightFieldCollision(
-                    source, wh, wh, -50.0f, 50.0f,
+                    source, wh, wh, -100.0f, 100.0f,
                     TCollisionHeightField.EHeightValueType.Single,
                     landscapeInfo);
                 TMaterial mat = TMaterial.CreateLitColorMaterial(Color.LightBlue);
@@ -275,8 +275,8 @@ namespace TheraEngine.Tests
                 //mat.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
                 mat.Parameter<ShaderFloat>("Roughness").Value = 1.0f;
                 mat.Parameter<ShaderFloat>("Metallic").Value = 0.0f;
-                landscape.RootComponent.GenerateHeightFieldMesh(mat, 10);
-                landscape.RootComponent.Translation.Y -= 20.0f;
+                landscape.RootComponent.GenerateHeightFieldMesh(mat, 5);
+                landscape.RootComponent.Translation.Y -= 25.0f;
                 actors.Add(landscape);
             }
 
@@ -411,7 +411,10 @@ namespace TheraEngine.Tests
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
         public bool Visible { get; set; } = true;
+#if EDITOR
+        [Category("Editor Traits")]
         public bool VisibleInEditorOnly { get; set; } = false;
+#endif
         public bool HiddenFromOwner { get; set; } = false;
         public bool VisibleToOwnerOnly { get; set; } = false;
 

@@ -484,9 +484,12 @@ namespace TheraEditor.Windows.Forms
 
             EditorCameraPawn pawn = OwningPawn as EditorCameraPawn;
             if (pawn.Moving)
+            {
+                UpdateHighlightPoint(c);
                 return;
+            }
             
-            SceneComponent comp = viewport.PickScene(viewportPoint, true, true, true, out Vec3 _hitNormal, out _hitPoint, out _hitDistance);
+            SceneComponent comp = viewport.PickScene(viewportPoint, true, true, true, out _hitNormal, out _hitPoint, out _hitDistance);
             bool hasHit = comp != null;
             _highlightPoint.Visible = hasHit;
             if (hasHit)
@@ -499,13 +502,16 @@ namespace TheraEditor.Windows.Forms
                     return;
                 }
 
-                _highlightPoint.Transform =
-                    Matrix4.CreateTranslation(_hitPoint) *
-                    _hitNormal.LookatAngles().GetMatrix() *
-                    Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
             }
-
+            UpdateHighlightPoint(c);
             HighlightedComponent = comp;
+        }
+        private void UpdateHighlightPoint(Camera c)
+        {
+            _highlightPoint.Transform =
+                Matrix4.CreateTranslation(_hitPoint) *
+                _hitNormal.LookatAngles().GetMatrix() *
+                Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
         }
         private bool IsSimulatedBody(out IRigidBodyCollidable body)
         {

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using TheraEngine;
+using TheraEngine.Components.Scene;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -134,7 +135,7 @@ namespace System
                 _subDivIndex = subDivIndex;
                 _subDivLevel = subDivLevel;
                 _parentNode = parent;
-                _owner = owner;
+                Owner = owner;
             }
 
             protected int _subDivIndex, _subDivLevel;
@@ -142,10 +143,9 @@ namespace System
             protected ThreadSafeList<T> _items;
             protected Node[] _subNodes;
             protected Node _parentNode;
-            private Octree<T> _owner;
-            private ReaderWriterLockSlim _lock;
+            private readonly ReaderWriterLockSlim _lock;
 
-            public Octree<T> Owner { get => _owner; set => _owner = value; }
+            public Octree<T> Owner { get; set; }
             public Node ParentNode { get => _parentNode; set => _parentNode = value; }
             public int SubDivIndex { get => _subDivIndex; set => _subDivIndex = value; }
             public int SubDivLevel { get => _subDivLevel; set => _subDivLevel = value; }
@@ -270,7 +270,10 @@ namespace System
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
 #if EDITOR
-                            if (!Engine.EditorState.InEditMode && r.VisibleInEditorOnly)
+                            bool editMode = Engine.EditorState.InEditMode;
+                            if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is Camera cam && cam == camera))
+                                return;
+                            if (!editMode && r.VisibleInEditorOnly)
                                 continue;
 #endif
                             bool allowRender = r.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
@@ -293,7 +296,10 @@ namespace System
                 {
                     I3DRenderable r = _items[i] as I3DRenderable;
 #if EDITOR
-                    if (!Engine.EditorState.InEditMode && r.VisibleInEditorOnly)
+                    bool editMode = Engine.EditorState.InEditMode;
+                    if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is Camera c && c == camera))
+                        return;
+                    if (!editMode && r.VisibleInEditorOnly)
                         continue;
 #endif
                     bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;

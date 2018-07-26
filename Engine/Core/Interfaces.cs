@@ -49,6 +49,7 @@ namespace TheraEngine
         /// </summary>
         RenderInfo3D RenderInfo { get; }
 #if EDITOR
+        [Category("Editor Traits")]
         bool VisibleInEditorOnly { get; set; }
 #endif
         void AddRenderables(RenderPasses passes, Camera camera);
@@ -64,7 +65,8 @@ namespace TheraEngine
         Shape CullingVolume { get; }
         /// <summary>
         /// The octree bounding box this object is currently located in.
-        /// </summary>
+        /// </summary>   
+        [Browsable(false)]
         IOctreeNode OctreeNode { get; set; }
     }
     public enum ERenderPass2D
@@ -102,7 +104,9 @@ namespace TheraEngine
         /// <summary>
         /// The axis-aligned bounding box for this UI component.
         /// </summary>
+        [Browsable(false)]
         BoundingRectangleF AxisAlignedRegion { get; }
+        [Browsable(false)]
         IQuadtreeNode QuadtreeNode { get; set; }
         //bool Contains(Vec2 point);
     }

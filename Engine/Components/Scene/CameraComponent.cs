@@ -157,6 +157,9 @@ namespace TheraEngine.Components.Scene
                 OwningScene.Remove(Camera);
             base.OnDespawned();
         }
+        [Category("Editor Traits")]
+        [TSerialize(nameof(AlwaysShowFrustum))]
+        [Description("If true, the frustum will always be rendered in edit mode even if the camera is not selected.")]
         private bool _alwaysShowFrustum = false;
         public bool AlwaysShowFrustum
         {
@@ -170,14 +173,14 @@ namespace TheraEngine.Components.Scene
                 {
                     if (_alwaysShowFrustum)
                         OwningScene.Add(Camera);
-                    else
+                    else if (!EditorState.Selected)
                         OwningScene.Remove(Camera);
                 }
             }
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (IsSpawned)
+            if (!AlwaysShowFrustum && IsSpawned)
             {
                 if (selected)
                     OwningScene.Add(Camera);

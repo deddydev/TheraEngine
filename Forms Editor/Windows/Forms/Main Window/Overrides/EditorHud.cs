@@ -11,6 +11,7 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Physics;
@@ -217,14 +218,8 @@ namespace TheraEditor.Windows.Forms
             SubViewport.SizeableHeight.SetSizingProportioned(SubViewport.SizeableWidth, 9.0f / 16.0f, true, ParentBoundsInheritedValue.Height);
             SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Width);
             SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
-            SubViewport.IsVisible = true;
-            UIRotatableComponent uirot = new UIRotatableComponent
-            {
-                LocalOriginPercentage = Vec2.Half,
-                RotationAngle = 35.0f,
-            };
-            uirot.ChildComponents.Add(SubViewport);
-            dock.ChildComponents.Add(uirot);
+            SubViewport.IsVisible = false;
+            dock.ChildComponents.Add(SubViewport);
 
             Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
             string t = "Selected Camera View";
@@ -388,19 +383,12 @@ namespace TheraEditor.Windows.Forms
             else
                 DoMouseDown();
         }
-        private CameraActor TestCameraComp;
         public override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             OwningWorld.Scene.Add(_highlightPoint);
-
-            TestCameraComp = new CameraActor();
-            TestCameraComp.Camera.TranslateAbsolute(0.0f, 20.0f, 0.0f);
-            OwningWorld.SpawnActor(TestCameraComp);
-
-            SubViewport.IsVisible = true;
-            SubViewport.ViewportCamera = TestCameraComp.Camera;
+            SubViewport.IsVisible = false;
         }
         public override void OnDespawned()
         {
@@ -504,18 +492,22 @@ namespace TheraEditor.Windows.Forms
                 if (comp is UIViewportComponent subViewport)
                 {
                     //Convert viewport point to the sub viewport's local space
-                    viewportPoint = (viewportPoint * subViewport.GetInvComponentTransform()).Xy;
+                    viewportPoint = UIComponent.ConvertUICoordinate(viewportPoint, subViewport);
                     HighlightScene(subViewport.Viewport, viewportPoint);
 
-                    pawn.CameraComp = TestCameraComp.RootComponent.ChildComponents[0] as CameraComponent;
-                    pawn.TargetComponent = TestCameraComp.RootComponent;
+                    //ICameraTransformable camComp = SelectedComponent as ICameraTransformable;
+                    //pawn.CameraComp = camComp.RootComponent.ChildComponents[0] as CameraComponent;
+                    //pawn.TargetComponent = camComp;
+                    //pawn.TargetViewportComponent = subViewport;
+
                     return;
                 }
-                else
-                {
-                    pawn.CameraComp = pawn.RootComponent.ChildComponents[0] as CameraComponent;
-                    pawn.TargetComponent = pawn.RootComponent;
-                }
+                //else
+                //{
+                //    pawn.CameraComp = pawn.RootComponent.ChildComponents[0] as CameraComponent;
+                //    pawn.TargetComponent = pawn.RootComponent;
+                //    pawn.TargetViewportComponent = null;
+                //}
             }
             UpdateHighlightPoint(c);
             HighlightedComponent = comp;
@@ -589,16 +581,16 @@ namespace TheraEditor.Windows.Forms
         {
             DragComponent = null;
 
-            //if (SelectedComponent is CameraComponent cam)
-            //{
-            //    SubViewport.ViewportCamera = cam.Camera;
-            //    SubViewport.IsVisible = true;
-            //}
-            //else
-            //{
-            //    SubViewport.ViewportCamera = null;
-            //    SubViewport.IsVisible = false;
-            //}
+            if (SelectedComponent is CameraComponent cam)
+            {
+                SubViewport.ViewportCamera = cam.Camera;
+                SubViewport.IsVisible = true;
+            }
+            else
+            {
+                SubViewport.ViewportCamera = null;
+                SubViewport.IsVisible = false;
+            }
 
             if (SelectedComponent != null)
             {

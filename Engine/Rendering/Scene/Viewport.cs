@@ -38,12 +38,14 @@ namespace TheraEngine.Rendering
         internal QuadFrameBuffer BloomBlurFBO8;
         internal QuadFrameBuffer BloomBlurFBO16;
         internal QuadFrameBuffer LightCombineFBO;
+        internal FrameBuffer DecalsFBO;
         internal QuadFrameBuffer ForwardPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
         internal QuadFrameBuffer HudFBO;
         internal PrimitiveManager PointLightManager;
         internal PrimitiveManager SpotLightManager;
         internal PrimitiveManager DirLightManager;
+        internal PrimitiveManager DecalManager;
         //internal QuadFrameBuffer DirLightFBO;
         internal Camera RenderingCamera => RenderingCameras.Peek();
         internal Stack<Camera> RenderingCameras { get; } = new Stack<Camera>();
@@ -294,11 +296,13 @@ namespace TheraEngine.Rendering
 
         #region Coordinate conversion
         public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
-            => _worldCamera.ScreenToWorld(ToInternalResCoords(viewportPoint), depth);
+            => _worldCamera?.ScreenToWorld(ToInternalResCoords(viewportPoint), depth) ?? new Vec3(viewportPoint, depth);
         public Vec3 ScreenToWorld(Vec3 viewportPoint)
-            => _worldCamera.ScreenToWorld(ToInternalResCoords(viewportPoint.Xy), viewportPoint.Z);
+            => _worldCamera?.ScreenToWorld(ToInternalResCoords(viewportPoint.Xy), viewportPoint.Z) ?? viewportPoint;
         public Vec3 WorldToScreen(Vec3 worldPoint)
         {
+            if (_worldCamera == null)
+                return Vec3.Zero;
             Vec3 screenPoint = _worldCamera.WorldToScreen(worldPoint);
             screenPoint.Xy = FromInternalResCoords(screenPoint.Xy);
             return screenPoint;
@@ -311,6 +315,11 @@ namespace TheraEngine.Rendering
         /// </summary>
         public Vec2 ToInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Extents / _region.Extents);
 
+        internal void RenderDecal(DecalComponent c)
+        {
+            _decalComp = c;
+            DecalManager.Render(c.WorldMatrix);
+        }
         internal void RenderDirLight(DirectionalLightComponent c)
         {
             _lightComp = c;
@@ -861,7 +870,7 @@ namespace TheraEngine.Rendering
                     RgbEquation = EBlendEquationMode.FuncAdd,
                     AlphaEquation = EBlendEquationMode.FuncAdd,
                 };
-                RenderingParameters lightRenderParams = new RenderingParameters
+                RenderingParameters additiveRenderParams = new RenderingParameters
                 {
                     //Render only the backside so that the light still shows if the camera is inside of the volume
                     //and the light does not add itself twice for the front and back faces.
@@ -869,16 +878,8 @@ namespace TheraEngine.Rendering
                     Requirements = EUniformRequirements.Camera,
                     BlendMode = additiveBlend,
                 };
-                lightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-                //RenderingParameters dirLightRenderParams = new RenderingParameters
-                //{
-                //    //Render only the front of the quad that shows over the whole screen
-                //    CullMode = ECulling.Back,
-                //    Requirements = EUniformRequirements.Camera,
-                //    BlendMode = additiveBlend,
-                //};
-                //dirLightRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-
+                additiveRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
+                
                 TexRef2D diffuseTex = TexRef2D.CreateFrameBufferTexture("Diffuse", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat);
                 GLSLShaderFile lightCombineShader = Engine.LoadEngineShader(
@@ -908,18 +909,34 @@ namespace TheraEngine.Rendering
                     depthViewTexture,
                     //shadow map texture
                 };
+                TexRef2D[] decalRefs = new TexRef2D[]
+                {
+                    albedoOpacityTexture,
+                    normalTexture,
+                    rmsiTexture,
+                    depthViewTexture,
+                };
 
                 GLSLShaderFile pointLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingPoint.fs"), EShaderMode.Fragment);
                 GLSLShaderFile spotLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingSpot.fs"), EShaderMode.Fragment);
                 GLSLShaderFile dirLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingDir.fs"), EShaderMode.Fragment);
+                GLSLShaderFile decalShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredDecal.fs"), EShaderMode.Fragment);
 
-                TMaterial pointLightMat = new TMaterial("PointLightMat", lightRenderParams, lightRefs, pointLightShader);
-                TMaterial spotLightMat = new TMaterial("SpotLightMat", lightRenderParams, lightRefs, spotLightShader);
-                TMaterial dirLightMat = new TMaterial("DirLightMat", lightRenderParams, lightRefs, dirLightShader);
+                TMaterial pointLightMat = new TMaterial("PointLightMat", additiveRenderParams, lightRefs, pointLightShader);
+                TMaterial spotLightMat = new TMaterial("SpotLightMat", additiveRenderParams, lightRefs, spotLightShader);
+                TMaterial dirLightMat = new TMaterial("DirLightMat", additiveRenderParams, lightRefs, dirLightShader);
+
+                ShaderVar[] decalVars = new ShaderVar[]
+                {
+                    //new ShaderMat4(Matrix4.Identity, "MeshWorldMatrix", null),
+                    //new ShaderMat4(Matrix4.Identity, "InvMeshWorldMatrix", null),
+                    //new ShaderVec2(Vec2.One, "MeshScale"),
+                };
+                TMaterial decalMat = new TMaterial("DecalMat", additiveRenderParams, decalVars, decalRefs, decalShader);
 
                 PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
                 PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
-                PrimitiveData dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
+                PrimitiveData unitBoxMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
 
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;
@@ -927,8 +944,11 @@ namespace TheraEngine.Rendering
                 SpotLightManager = new PrimitiveManager(spotLightMesh, spotLightMat);
                 SpotLightManager.SettingUniforms += LightManager_SettingUniforms;
                 
-                DirLightManager = new PrimitiveManager(dirLightMesh, dirLightMat);
+                DirLightManager = new PrimitiveManager(unitBoxMesh, dirLightMat);
                 DirLightManager.SettingUniforms += LightManager_SettingUniforms;
+
+                DecalManager = new PrimitiveManager(unitBoxMesh, decalMat);
+                DecalManager.SettingUniforms += DecalManager_SettingUniforms;
 
                 #endregion
             }
@@ -1026,6 +1046,7 @@ namespace TheraEngine.Rendering
         }
 
         private LightComponent _lightComp;
+        private DecalComponent _decalComp;
 
         private void LightManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
@@ -1062,6 +1083,16 @@ namespace TheraEngine.Rendering
                     "Prefilter", 
                     probe.PrefilterTex.GetTexture(true),
                     baseCount);
+        }
+
+        private void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
+        {
+            materialProgram.Uniform("MeshWorldMatrix", _decalComp.DecalRenderMatrix);
+            materialProgram.Uniform("InvMeshWorldMatrix", _decalComp.InverseDecalRenderMatrix);
+            materialProgram.Uniform("MeshScale", _decalComp.Box.HalfExtents * 2.0f);
+            materialProgram.Sampler("Texture4", _decalComp.Material.Textures[0].RenderTextureGeneric, 4);
+            materialProgram.Sampler("Texture5", _decalComp.Material.Textures[1].RenderTextureGeneric, 5);
+            materialProgram.Sampler("Texture6", _decalComp.Material.Textures[2].RenderTextureGeneric, 6);
         }
 
         private void BrightPassFBO_SettingUniforms(RenderProgram program)

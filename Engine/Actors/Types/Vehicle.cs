@@ -2,10 +2,11 @@
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Actors.Types
 {
-    public class Vehicle : Pawn<SkeletalMeshComponent>
+    public class Vehicle : Pawn<TRComponent>
     {
         private ICharacterPawn _driver;
         private List<ICharacterPawn> _passengers;

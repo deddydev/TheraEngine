@@ -27,8 +27,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (DataType == typeof(EventVec2))
             {
                 _eventVec2 = value as EventVec2;
-                numericInputBoxX.Value = _eventVec2?.X;
-                numericInputBoxY.Value = _eventVec2?.Y;
+                if (chkNull.Checked = _eventVec2 == null)
+                {
+                    numericInputBoxX.Value = null;
+                    numericInputBoxY.Value = null;
+                }
+                else
+                {
+                    numericInputBoxX.Value = _eventVec2.X;
+                    numericInputBoxY.Value = _eventVec2.Y;
+                }
+                chkNull.Enabled = !ParentInfo.IsReadOnly();
             }
             else
                 throw new Exception(DataType.GetFriendlyName() + " is not an EventVec2 type.");
@@ -51,13 +60,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected override void SetControlsEnabled(bool enabled)
         {
-            checkBox1.Enabled = enabled;
+            chkNull.Enabled = enabled;
         }
 
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
+                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
         }
     }
 }

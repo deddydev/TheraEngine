@@ -279,12 +279,29 @@ namespace TheraEngine.Rendering.UI
         /// to a local-space coordinate of a child UI component.
         /// </summary>
         /// <param name="coordinate">The coordinate relative to the parent UI component.</param>
-        /// <param name="parentUIComp">The parent UI component.</param>
-        /// <param name="targetChildUIComp"></param>
+        /// <param name="parentUIComp">The parent UI component whose space the coordinate is already in.</param>
+        /// <param name="targetChildUIComp">The UI component whose space you wish to convert the coordinate to.</param>
         /// <returns></returns>
-        public static Vec2 ConvertUICoordinate(Vec2 coordinate, UIComponent parentUIComp, UIComponent targetChildUIComp)
+        public static Vec2 ConvertUICoordinate(Vec2 coordinate, UIComponent parentUIComp, UIComponent targetChildUIComp, bool delta = false)
         {
-            return (coordinate * (targetChildUIComp.WorldMatrix * parentUIComp.InverseWorldMatrix)).Xy;
+            Matrix4 mtx = targetChildUIComp.InverseWorldMatrix * parentUIComp.WorldMatrix;
+            if (delta)
+                mtx = mtx.ClearTranslation();
+            return (coordinate * mtx).Xy;
+        }
+        /// <summary>
+        /// Converts a screen-space coordinate
+        /// to a local-space coordinate of a UI component.
+        /// </summary>
+        /// <param name="coordinate">The coordinate relative to the screen / origin of the root UI component.</param>
+        /// <param name="uiComp">The UI component whose space you wish to convert the coordinate to.</param>
+        /// <returns></returns>
+        public static Vec2 ConvertUICoordinate(Vec2 coordinate, UIComponent uiComp, bool delta = false)
+        {
+            Matrix4 mtx = uiComp.GetInvComponentTransform();
+            if (delta)
+                mtx = mtx.ClearTranslation();
+            return (coordinate * mtx).Xy;
         }
     }
 }

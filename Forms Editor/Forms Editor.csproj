@@ -512,6 +512,12 @@
     </Compile>
     <Compile Include="Windows\Forms\Property Grid\PropGridItemAttribute.cs" />
     <Compile Include="Windows\Forms\Property Grid\StringConverters.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridNullableWrapper.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridNullableWrapper.Designer.cs">
+      <DependentUpon>PropGridNullableWrapper.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDictionary.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -681,6 +687,9 @@
     <Compile Include="Windows\Forms\Property Grid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridNullableWrapper.resx">
+      <DependentUpon>PropGridNullableWrapper.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Texture Viewer\TextureViewerForm.resx">
       <DependentUpon>TextureViewerForm.cs</DependentUpon>
     </EmbeddedResource>

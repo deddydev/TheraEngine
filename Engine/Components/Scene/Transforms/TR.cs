@@ -5,10 +5,37 @@ using TheraEngine.Core.Maths.Transforms;
 namespace TheraEngine.Components.Scene.Transforms
 {
     /// <summary>
+    /// Interface for components that can be transformed via camera controls.
+    /// </summary>
+    public interface ICameraTransformable
+    {
+        Rotator Rotation { get; set; }
+        EventVec3 Translation { get; set; }
+        Vec3 WorldPoint { get; }
+
+        /// <summary>
+        /// Transforms the translation value relative to the current rotation.
+        /// </summary>
+        void TranslateRelative(Vec3 delta);
+        /// <summary>
+        /// Transforms the translation value relative to the current rotation.
+        /// </summary>
+        void TranslateRelative(float dX, float dY, float dZ);
+        /// <summary>
+        /// Rotates the translation and rotation values around a point
+        /// that is a certain distance from the translation point in the direction of the rotation.
+        /// </summary>
+        void Pivot(float pitch, float yaw, float distance);
+        /// <summary>
+        /// Rotates the translation and rotation values around a specific focus point.
+        /// </summary>
+        void ArcBallRotate(float pitch, float yaw, Vec3 origin);
+    }
+    /// <summary>
     /// Translates first, then rotates.
     /// </summary>
     [FileDef("Translate-Rotate Component")]
-    public class TRComponent : TranslationComponent
+    public class TRComponent : TranslationComponent, ICameraTransformable
     {
         public TRComponent() : this(Vec3.Zero, Rotator.GetZero(), true) { }
         public TRComponent(Vec3 translation, Rotator rotation, bool deferLocalRecalc = false) : base(translation, true)
@@ -90,6 +117,8 @@ namespace TheraEngine.Components.Scene.Transforms
 
             //Engine.PrintLine("Recalculated TR.");
         }
+
+        #region Camera Translation
         public void TranslateRelative(float x, float y, float z)
             => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
@@ -99,16 +128,16 @@ namespace TheraEngine.Components.Scene.Transforms
             _translation.SetRawNoUpdate(LocalMatrix.Translation);
             RecalcWorldTransform();
         }
-
         public void Pivot(float pitch, float yaw, float distance)
-            => ArcBallRotate(pitch, yaw, _translation + GetForwardDir() * distance);
+            => ArcBallRotate(pitch, yaw, _translation + GetLocalForwardDir() * distance);
         public void ArcBallRotate(float pitch, float yaw, Vec3 focusPoint)
         {
             //"Arcball" rotation
             //All rotation is done within local component space
-            _translation = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation, GetRightDir());
+            _translation.Raw = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Raw, GetLocalRightDir());
             _rotation.AddRotations(pitch, yaw, 0.0f);
         }
+        #endregion
 
         [Browsable(false)]
         public override bool IsRotatable => true;
@@ -120,8 +149,12 @@ namespace TheraEngine.Components.Scene.Transforms
             base.HandleWorldRotation(delta);
         }
 
-        public Vec3 GetRightDir() => _localTransform.Row0.Xyz;
-        public Vec3 GetUpDir() => _localTransform.Row1.Xyz;
-        public Vec3 GetForwardDir() => _localTransform.Row2.Xyz;
+        public Vec3 GetLocalRightDir() => LocalMatrix.Row0.Xyz;
+        public Vec3 GetLocalUpDir() => LocalMatrix.Row1.Xyz;
+        public Vec3 GetLocalForwardDir() => LocalMatrix.Row2.Xyz;
+
+        public Vec3 GetWorldRightDir() => WorldMatrix.Row0.Xyz;
+        public Vec3 GetWorldUpDir() => WorldMatrix.Row1.Xyz;
+        public Vec3 GetWorldForwardDir() => WorldMatrix.Row2.Xyz;
     }
 }

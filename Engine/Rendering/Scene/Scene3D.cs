@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
@@ -25,7 +27,7 @@ namespace TheraEngine.Rendering
         public LightManager Lights { get; private set; }
         public ParticleManager Particles { get; }
         public IBLProbeGridActor IBLProbeActor { get; set; }
-
+        public ConcurrentHashSet<DecalComponent> Decals { get; } = new ConcurrentHashSet<DecalComponent>();
         //private GlobalFileRef<TMaterial> _voxelizationMaterial;
 
         public Scene3D() : this(0.5f) { }
@@ -196,6 +198,7 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.EnableDepthTest(true);
                             Engine.Renderer.ClearDepth(1.0f);
                             renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
+                            RenderDeferredDecals(viewport);
                             Engine.Renderer.EnableDepthTest(false);
                         }
                         viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -265,8 +268,6 @@ namespace TheraEngine.Rendering
             AbstractRenderer.PopCurrent3DScene();
             AbstractRenderer.PopCamera();
         }
-
-        
         public void Add(I3DRenderable obj)
         {
             if (RenderTree?.Add(obj) == true)
@@ -354,6 +355,17 @@ namespace TheraEngine.Rendering
                 }
             }
             viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+        }
+        private void RenderDeferredDecals(Viewport viewport)
+        {
+            //viewport.DecalsFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+            //{
+                //Start with blank slate so additive blending doesn't ghost old frames
+                //Engine.Renderer.Clear(EFBOTextureType.Color);
+                foreach (DecalComponent c in Decals)
+                    viewport.RenderDecal(c);
+            //}
+            //viewport.DecalsFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         private void RenderBloom(Viewport viewport)
         {

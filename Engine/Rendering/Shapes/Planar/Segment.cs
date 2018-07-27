@@ -128,6 +128,12 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         public static Segment ShortestSegmentToPoint(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)
             => new Segment(point, ClosestColinearPointToPoint(segmentStartPoint, segmentEndPoint, point));
+
+        public static Vec3 PointAtLineDistance(object worldPoint, Vec3 hitPoint, float v)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Returns the shortest segment starting from the given point and ending on the segment.
         /// Uses an approximation of square root, so the results are less accurate but the calculation is faster.

@@ -33,7 +33,7 @@
             this.numericInputBoxZ = new TheraEditor.Windows.Forms.NumericInputBoxSingle();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.numericInputBoxW = new TheraEditor.Windows.Forms.NumericInputBoxSingle();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.chkNull = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -138,7 +138,7 @@
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxY, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxZ, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxW, 3, 0);
-            this.tableLayoutPanel1.Controls.Add(this.checkBox1, 4, 0);
+            this.tableLayoutPanel1.Controls.Add(this.chkNull, 4, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -180,16 +180,16 @@
             // 
             // checkBox1
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.checkBox1.Location = new System.Drawing.Point(-13, 0);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(15, 23);
-            this.checkBox1.TabIndex = 3;
-            this.checkBox1.Text = "Null";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.chkNull_CheckedChanged);
+            this.chkNull.AutoSize = true;
+            this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
+            this.chkNull.Location = new System.Drawing.Point(-13, 0);
+            this.chkNull.Margin = new System.Windows.Forms.Padding(0);
+            this.chkNull.Name = "checkBox1";
+            this.chkNull.Size = new System.Drawing.Size(15, 23);
+            this.chkNull.TabIndex = 3;
+            this.chkNull.Text = "Null";
+            this.chkNull.UseVisualStyleBackColor = true;
+            this.chkNull.CheckedChanged += new System.EventHandler(this.chkNull_CheckedChanged);
             // 
             // PropGridEventVec4
             // 
@@ -210,7 +210,7 @@
         private NumericInputBoxSingle numericInputBoxY;
         private NumericInputBoxSingle numericInputBoxZ;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox chkNull;
         private NumericInputBoxSingle numericInputBoxW;
     }
 }

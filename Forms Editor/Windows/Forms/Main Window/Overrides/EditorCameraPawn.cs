@@ -6,6 +6,7 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Actors.Types.Pawns
 {
@@ -13,13 +14,14 @@ namespace TheraEditor.Actors.Types.Pawns
     {
         public EditorCameraPawn() : base() { }
         public EditorCameraPawn(LocalPlayerIndex possessor) : base(possessor) { }
-        
-        private TRComponent _targetComponent = null;
-        public TRComponent TargetComponent
+
+        private ICameraTransformable _targetComponent = null;
+        public ICameraTransformable TargetComponent
         {
             get => _targetComponent ?? RootComponent;
             set => _targetComponent = value;
         }
+        public UIViewportComponent TargetViewportComponent { get; set; } = null;
 
         public override void RegisterInput(InputInterface input)
         {
@@ -43,7 +45,7 @@ namespace TheraEditor.Actors.Types.Pawns
             if (_alt || _shift)
                 return;
 
-            TRComponent comp = TargetComponent;
+            ICameraTransformable comp = TargetComponent;
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else if (HasHit)
@@ -67,7 +69,13 @@ namespace TheraEditor.Actors.Types.Pawns
 
         protected override void MouseMove(float x, float y)
         {
-            TRComponent comp = TargetComponent;
+            if (TargetViewportComponent != null && Moving)
+            {
+                Vec2 result = UIComponent.ConvertUICoordinate(new Vec2(x, y), /*(UIComponent)TargetViewportComponent.OwningActor.RootComponent,*/ TargetViewportComponent, true);
+                x = result.X;
+                y = result.Y;
+            }
+            ICameraTransformable comp = TargetComponent;
             if (Rotating)
             {
                 float pitch = y * MouseRotateSpeed;
@@ -132,7 +140,7 @@ namespace TheraEditor.Actors.Types.Pawns
             //    }
             //}
 
-            TRComponent comp = TargetComponent;
+            ICameraTransformable comp = TargetComponent;
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
             if (translate)

@@ -93,6 +93,7 @@ namespace TheraEngine.Components.Scene.Lights
             if (Engine.EditorState.InEditMode)
                 OwningScene.Add(this);
 #endif
+            base.OnSpawned();
         }
         public override void OnDespawned()
         {
@@ -102,6 +103,7 @@ namespace TheraEngine.Components.Scene.Lights
             if (Engine.EditorState.InEditMode)
                 OwningScene.Remove(this);
 #endif
+            base.OnDespawned();
         }
 
         protected override IVolume GetShadowVolume() => _influenceVolume;

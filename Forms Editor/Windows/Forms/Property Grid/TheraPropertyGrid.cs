@@ -504,6 +504,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             
             return control;
         }
+        /// <summary>
+        /// Constructs all given control types and 
+        /// </summary>
+        /// <param name="controlTypes"></param>
+        /// <param name="prop"></param>
+        /// <param name="panel"></param>
+        /// <param name="categories"></param>
+        /// <param name="obj"></param>
+        /// <param name="attribs"></param>
+        /// <param name="readOnly"></param>
+        /// <param name="dataChangeHandler"></param>
         public static void CreateControls(
             Deque<Type> controlTypes,
             PropertyInfo prop,

@@ -113,14 +113,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public void OnValueChanged() => ValueChanged?.Invoke();
         public void UpdateValue(object newValue, bool submitStateChange)
         {
-            if (_updating)
+            if (_updating || ParentInfo.IsReadOnly())
                 return;
 
-            if (IsReferenceType && ReferenceEquals(newValue, GetValue()))
-            {
-                Engine.LogWarning("Tried setting class object to the same reference. Are you sure you didn't mean to update a property within?");
-                return;
-            }
+            //if (IsReferenceType && ReferenceEquals(newValue, GetValue()))
+            //{
+            //    Engine.LogWarning("Tried setting class object to the same reference. Are you sure you didn't mean to update a property within?");
+            //    return;
+            //}
 
             if (submitStateChange)
             {
@@ -221,30 +221,30 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private static bool UpdatingVisibleItems = false;
         internal static void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
-            //if (UpdatingVisibleItems)
-            //    return;
-            //int sleepTime = (int)(updateRateInSeconds * 1000.0f);
-            //UpdatingVisibleItems = true;
-            //Task.Run(() =>
-            //{
-            //    while (UpdatingVisibleItems)
-            //    {
-            //        if (VisibleItems.Count > 0)
-            //            Parallel.For(0, VisibleItems.Count, i =>
-            //            {
-            //                try
-            //                {
-            //                    if (!VisibleItems.IndexInRange(i))
-            //                        return;
-            //                    var item = VisibleItems[i];
-            //                    if (!item.Disposing && !item.IsDisposed)
-            //                        BaseRenderPanel.ThreadSafeBlockingInvoke((Action)item.UpdateDisplay, BaseRenderPanel.PanelType.Rendering);
-            //                }
-            //                catch { }
-            //            });
-            //        Thread.Sleep(sleepTime);
-            //    }
-            //});
+            if (UpdatingVisibleItems)
+                return;
+            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
+            UpdatingVisibleItems = true;
+            Task.Run(() =>
+            {
+                while (UpdatingVisibleItems)
+                {
+                    if (VisibleItems.Count > 0)
+                        Parallel.For(0, VisibleItems.Count, i =>
+                        {
+                            try
+                            {
+                                if (!VisibleItems.IndexInRange(i))
+                                    return;
+                                var item = VisibleItems[i];
+                                if (!item.Disposing && !item.IsDisposed)
+                                    BaseRenderPanel.ThreadSafeBlockingInvoke((Action)item.UpdateDisplay, BaseRenderPanel.PanelType.Rendering);
+                            }
+                            catch { }
+                        });
+                    Thread.Sleep(sleepTime);
+                }
+            });
         }
         internal static void StopUpdatingVisibleItems()
         {

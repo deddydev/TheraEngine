@@ -344,6 +344,9 @@ namespace TheraEngine.Tests
             skyboxActor.RootComponent.ModelRef = skybox;
             actors.Add(skyboxActor);
 
+            DecalActor decal = new DecalActor();
+            actors.Add(decal);
+
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
             //iblProbes.RootComponent.Translation.Y += 3.0f;
             iblProbes.AddProbe(new Vec3(50.0f, 0.0f, 0.0f));

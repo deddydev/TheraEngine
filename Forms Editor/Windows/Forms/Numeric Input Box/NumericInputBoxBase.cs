@@ -258,7 +258,7 @@ namespace TheraEditor.Windows.Forms
         protected void UpdateTextWithValue(bool force = false)
         {
             if (!Focused || force)
-                Text = _currentValue == null ? "" : Focused ? _currentValue.Value.ToString() : (_prefix + _currentValue.Value.ToString() + _suffix);
+                Text = _currentValue == null ? "<null>" : Focused ? _currentValue.Value.ToString() : (_prefix + _currentValue.Value.ToString() + _suffix);
         }
 
         protected void GetValueFromText()
@@ -273,8 +273,8 @@ namespace TheraEditor.Windows.Forms
         protected void SetValue(T? value, bool forceTextUpdate)
         {
             T? newValue = value == null ?
-                    (Nullable ? null : (T?)DefaultValue) :
-                    Round(Clamp(value.Value, MinimumValue, MaximumValue));
+                (Nullable ? null : (T?)DefaultValue) :
+                Round(Clamp(value.Value, MinimumValue, MaximumValue));
 
             if (!NumbersAreEqual(_currentValue, newValue))
             {

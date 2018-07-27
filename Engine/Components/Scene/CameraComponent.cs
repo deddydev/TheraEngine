@@ -7,11 +7,12 @@ using System.ComponentModel;
 using TheraEngine.Files;
 using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene
 {
     [FileDef("Camera Component")]
-    public class CameraComponent : OriginRebasableComponent
+    public class CameraComponent : OriginRebasableComponent, ICameraTransformable
     {
         #region Constructors
         public CameraComponent() : this(null) { }
@@ -157,10 +158,11 @@ namespace TheraEngine.Components.Scene
                 OwningScene.Remove(Camera);
             base.OnDespawned();
         }
-        [Category("Editor Traits")]
+
         [TSerialize(nameof(AlwaysShowFrustum))]
-        [Description("If true, the frustum will always be rendered in edit mode even if the camera is not selected.")]
         private bool _alwaysShowFrustum = false;
+        [Category("Editor Traits")]
+        [Description("If true, the frustum will always be rendered in edit mode even if the camera is not selected.")]
         public bool AlwaysShowFrustum
         {
             get => _alwaysShowFrustum;
@@ -178,6 +180,7 @@ namespace TheraEngine.Components.Scene
                 }
             }
         }
+
         protected internal override void OnSelectedChanged(bool selected)
         {
             if (!AlwaysShowFrustum && IsSpawned)
@@ -190,6 +193,35 @@ namespace TheraEngine.Components.Scene
             base.OnSelectedChanged(selected);
         }
 #endif
+
+        public Rotator Rotation { get => Camera.LocalRotation; set => Camera.LocalRotation = value; }
+        public EventVec3 Translation { get => Camera.LocalPoint; set => Camera.LocalPoint = value; }
+
+        public void TranslateRelative(Vec3 delta)
+        {
+            throw new NotImplementedException();
+        }
+        public void TranslateRelative(float dX, float dY, float dZ)
+        {
+            throw new NotImplementedException();
+        }
+        public void Pivot(float pitch, float yaw, float distance)
+        {
+            throw new NotImplementedException();
+        }
+        public void ArcBallRotate(float pitch, float yaw, Vec3 origin)
+        {
+            Translation.Raw = TMath.ArcballTranslation(pitch, yaw, origin, Translation.Raw, GetLocalRightDir());
+            Rotation.AddRotations(pitch, yaw, 0.0f);
+        }
+
+        public Vec3 GetLocalRightDir() => LocalMatrix.Row0.Xyz;
+        public Vec3 GetLocalUpDir() => LocalMatrix.Row1.Xyz;
+        public Vec3 GetLocalForwardDir() => LocalMatrix.Row2.Xyz;
+
+        public Vec3 GetWorldRightDir() => WorldMatrix.Row0.Xyz;
+        public Vec3 GetWorldUpDir() => WorldMatrix.Row1.Xyz;
+        public Vec3 GetWorldForwardDir() => WorldMatrix.Row2.Xyz;
 
         #endregion
     }

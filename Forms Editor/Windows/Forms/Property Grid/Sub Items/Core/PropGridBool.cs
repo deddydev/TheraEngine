@@ -10,7 +10,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             if (value is bool boolVal)
+            {
                 checkBox1.Checked = boolVal;
+                checkBox1.Enabled = !ParentInfo.IsReadOnly();
+            }
             else
                 throw new Exception(DataType.GetFriendlyName() + " is not a boolean type.");
         }

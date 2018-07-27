@@ -93,11 +93,13 @@ namespace TheraEngine.Components.Scene.Lights
                 ShadowCamera.LocalPoint.Raw = WorldPoint;
                 ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
             }
+            base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (Type == ELightType.Dynamic)
                 OwningScene.Lights.Remove(this);
+            base.OnDespawned();
         }
         public override void SetUniforms(RenderProgram program, string targetStructName)
         {

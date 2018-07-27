@@ -18,25 +18,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             comboBox1.LostFocus += comboBox1_LostFocus;
             _containsBit = new Dictionary<TypeCode, DelContainsBit>()
             {
-                { TypeCode.Byte, UInt8ContainsBit },
-                { TypeCode.SByte, Int8ContainsBit },
-                { TypeCode.Int16, Int16ContainsBit },
-                { TypeCode.UInt16, UInt16ContainsBit },
-                { TypeCode.Int32, Int32ContainsBit },
-                { TypeCode.UInt32, UInt32ContainsBit },
-                { TypeCode.Int64, Int64ContainsBit },
-                { TypeCode.UInt64, UInt64ContainsBit },
+                { TypeCode.Byte,    UInt8ContainsBit  },
+                { TypeCode.SByte,   Int8ContainsBit   },
+                { TypeCode.Int16,   Int16ContainsBit  },
+                { TypeCode.UInt16,  UInt16ContainsBit },
+                { TypeCode.Int32,   Int32ContainsBit  },
+                { TypeCode.UInt32,  UInt32ContainsBit },
+                { TypeCode.Int64,   Int64ContainsBit  },
+                { TypeCode.UInt64,  UInt64ContainsBit },
             };
             _convertBit = new Dictionary<TypeCode, DelConvertBit>()
             {
-                { TypeCode.Byte, UInt8ConvertBit },
-                { TypeCode.SByte, Int8ConvertBit },
-                { TypeCode.Int16, Int16ConvertBit },
-                { TypeCode.UInt16, UInt16ConvertBit },
-                { TypeCode.Int32, Int32ConvertBit },
-                { TypeCode.UInt32, UInt32ConvertBit },
-                { TypeCode.Int64, Int64ConvertBit },
-                { TypeCode.UInt64, UInt64ConvertBit },
+                { TypeCode.Byte,    UInt8ConvertBit  },
+                { TypeCode.SByte,   Int8ConvertBit   },
+                { TypeCode.Int16,   Int16ConvertBit  },
+                { TypeCode.UInt16,  UInt16ConvertBit },
+                { TypeCode.Int32,   Int32ConvertBit  },
+                { TypeCode.UInt32,  UInt32ConvertBit },
+                { TypeCode.Int64,   Int64ConvertBit  },
+                { TypeCode.UInt64,  UInt64ConvertBit },
             };
         }
         private void comboBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
@@ -66,6 +66,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         object number = Convert.ChangeType(values.GetValue(i), t);
                         ((CheckBox)tableLayoutPanel1.GetControlFromPosition(0, i)).Checked = contains(totalValue, number);
                     }
+                    tableLayoutPanel1.Enabled = !ParentInfo.IsReadOnly();
                 }
                 else
                 {
@@ -77,6 +78,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             selectedIndex = i;
                     }
                     comboBox1.SelectedIndex = selectedIndex;
+                    comboBox1.Enabled = !ParentInfo.IsReadOnly();
                 }
             }
             else if (value is Exception)

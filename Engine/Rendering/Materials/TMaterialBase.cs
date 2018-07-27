@@ -341,7 +341,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (t is TexRef2D t2d)
                     t2d.Resize(width, height);
         }
-        private void SetTextureUniforms(RenderProgram program)
+        public void SetTextureUniforms(RenderProgram program)
         {
             for (int i = 0; i < Textures.Length; ++i)
             {
@@ -349,6 +349,16 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (tref == null)
                     continue;
                 program.Sampler(tref.SamplerName ?? ("Texture" + i), tref.RenderTextureGeneric, i);
+            }
+        }
+        public void SetTextureUniform(RenderProgram program, int textureIndex, string samplerNameOverride = null)
+        {
+            if (Textures.IndexInArrayRange(textureIndex))
+            {
+                BaseTexRef tref = Textures[textureIndex];
+                if (tref == null)
+                    return;
+                program.Sampler(samplerNameOverride ?? tref.SamplerName ?? ("Texture" + textureIndex), tref.RenderTextureGeneric, textureIndex);
             }
         }
     }

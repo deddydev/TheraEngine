@@ -44,23 +44,15 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnShown(EventArgs e)
         {
-            //Engine.World?.SpawnActor(EditorPawn);
             _world.SpawnActor(RenderPanel.UI);
-            //Engine.RegisterRenderTick(RenderTick);
+            RenderPanel.RegisterTick();
             base.OnShown(e);
         }
-
-        private void RenderTick(object sender, FrameEventArgs e)
-        {
-            RenderPanel.Invalidate();
-            Application.DoEvents();
-        }
-
+        
         protected override void OnClosed(EventArgs e)
         {
-            //Engine.World?.DespawnActor(EditorPawn);
             _world.DespawnActor(RenderPanel.UI);
-            //Engine.UnregisterRenderTick(RenderTick);
+            RenderPanel.UnregisterTick();
             base.OnClosed(e);
         }
 

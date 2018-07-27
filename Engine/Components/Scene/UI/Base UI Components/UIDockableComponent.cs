@@ -175,7 +175,7 @@ namespace TheraEngine.Rendering.UI
             };
         }
 
-        private ISizeable[] _sizeableElements;
+        private readonly ISizeable[] _sizeableElements;
 
         public SizeableElement SizeableWidth { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Width };
         public SizeableElement SizeableHeight { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Height };
@@ -349,10 +349,6 @@ namespace TheraEngine.Rendering.UI
 
             return leftOver;
         }
-        //protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        //{
-        //    base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
-        //}
         private BoundingRectangleF RegionDockComplement(BoundingRectangleF parentRegion, BoundingRectangleF region)
         {
             if (parentRegion.MaxX != region.MaxX)

@@ -18,6 +18,9 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize(ValueName, IsXmlElementString = true)]
         private Matrix4 _value;
 
+        public ShaderMat4() : this(Matrix4.Identity, NoName) { }
+        public ShaderMat4(Matrix4 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderMat4(Matrix4 defaultValue, string name, IShaderVarOwner owner) 
             : base(name, owner)
         {
@@ -43,7 +46,10 @@ namespace TheraEngine.Rendering.Models.Materials
 
         [TSerialize(ValueName, IsXmlElementString = true)]
         private Matrix3 _value;
-        
+
+        public ShaderMat3() : this(Matrix3.Identity, NoName) { }
+        public ShaderMat3(Matrix3 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderMat3(Matrix3 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {

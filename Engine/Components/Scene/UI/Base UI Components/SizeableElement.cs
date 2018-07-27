@@ -111,6 +111,9 @@ namespace TheraEngine.Rendering.UI
                     _parentBoundsInherit = value;
             }
         }
+        /// <summary>
+        /// If the resulting value should be calculated relative to the left/bottom (smaller value) or right/top (larger value).
+        /// </summary>
         public bool SmallerRelative
         {
             get => _smallerRelative;
@@ -200,6 +203,12 @@ namespace TheraEngine.Rendering.UI
             e.SetSizingPixels(pixels, smallerRelative, parentDim);
             return e;
         }
+        /// <summary>
+        /// This element's value will be set to specific value.
+        /// </summary>
+        /// <param name="pixels"></param>
+        /// <param name="smallerRelative"></param>
+        /// <param name="parentDim"></param>
         public void SetSizingPixels(float pixels, bool smallerRelative, ParentBoundsInheritedValue parentDim)
         {
             SmallerRelative = smallerRelative;

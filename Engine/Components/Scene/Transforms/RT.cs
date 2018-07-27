@@ -25,10 +25,7 @@ namespace TheraEngine.Components.Scene.Transforms
         [Category("Transform")]
         public EventVec3 Translation
         {
-            get
-            {
-                return _translation;
-            }
+            get => _translation;
             set
             {
                 _translation = value ?? new EventVec3();

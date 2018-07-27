@@ -10,9 +10,12 @@ layout (location = 2) out vec4 RMSI;
 layout(location = 0) in vec3 FragPos;
 
 uniform sampler2D Texture0; //Screen AlbedoOpacity
-uniform sampler2D Texture1; //Decal AlbedoOpacity
-uniform sampler2D Texture2; //Decal Normal
-uniform sampler2D Texture3; //Decal PBR: Roughness, Metallic, Specular, Index of refraction
+uniform sampler2D Texture1; //Screen Normal
+uniform sampler2D Texture2; //Screen RMSI
+uniform sampler2D Texture3; //Screen Depth
+uniform sampler2D Texture4; //Decal AlbedoOpacity
+uniform sampler2D Texture5; //Decal Normal
+uniform sampler2D Texture6; //Decal PBR: Roughness, Metallic, Specular, Index of refraction
 
 uniform float ScreenWidth;
 uniform float ScreenHeight;
@@ -34,17 +37,28 @@ void main()
   vec2 uv = gl_FragCoord.xy / vec2(ScreenWidth, ScreenHeight);
 
 	//Retrieve shading information from GBuffer textures
-	float depth = texture(Texture0, uv).r;
+	vec4 albedo = texture(Texture0, uv);
+	vec3 normal = texture(Texture1, uv).rgb;
+	vec4 rmsi = texture(Texture2, uv);
+	float depth = texture(Texture3, uv).r;
 
 	//Resolve world fragment position using depth and screen UV
 	vec3 fragPosWS = WorldPosFromDepth(depth, uv);
   vec4 fragPosOS = (InvBoxWorldMatrix * vec4(fragPosWS, 1.0f));
 	fragPosOS.xyz /= BoxHalfScale;
-  if (abs(fragPosOS.x) > 1.0f || abs(fragPosOS.z) > 1.0f)
+  if (abs(fragPosOS.x) > 1.0f || abs(fragPosOS.y) > 1.0f || abs(fragPosOS.z) > 1.0f)
     discard;
   vec2 decalUV = fragPosOS.xz * vec2(0.5f) + vec2(0.5f);
 
-	AlbedoOpacity = texture(Texture1, decalUV);
-  Normal = normalize(mat3(BoxWorldMatrix) * texture(Texture2, decalUV).rgb);
-	RMSI = texture(Texture3, decalUV);
+	vec4 decalAlbedo = texture(Texture4, decalUV);
+	vec3 decalNormal = texture(Texture5, decalUV).rgb;
+	vec4 decalRMSI = texture(Texture6, decalUV);
+
+	decalAlbedo.rgb = mix(albedo.rgb, decalAlbedo.rgb, decalAlbedo.a);
+	decalNormal = mix(normal, decalNormal, decalAlbedo.a);
+	decalRMSI = mix(rmsi, decalRMSI, decalAlbedo.a);
+
+	AlbedoOpacity = vec4(decalAlbedo.rgb, albedo.a);
+  Normal = normalize(mat3(BoxWorldMatrix) * decalNormal);
+	RMSI = decalRMSI;
 }

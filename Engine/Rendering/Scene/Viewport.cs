@@ -911,6 +911,9 @@ namespace TheraEngine.Rendering
                 };
                 TexRef2D[] decalRefs = new TexRef2D[]
                 {
+                    albedoOpacityTexture,
+                    normalTexture,
+                    rmsiTexture,
                     depthViewTexture,
                 };
 
@@ -944,11 +947,12 @@ namespace TheraEngine.Rendering
                 };
                 decalRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
 
-                TMaterial decalMat = new TMaterial("DecalMat", decalRenderParams, decalVars, decalRefs, decalShader);
+                TMaterial decalMat = new TMaterial("DecalMat", additiveRenderParams, decalVars, decalRefs, decalShader);
 
                 PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
                 PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
-                PrimitiveData unitBoxMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
+                PrimitiveData dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
+                PrimitiveData decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
 
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;
@@ -956,10 +960,10 @@ namespace TheraEngine.Rendering
                 SpotLightManager = new PrimitiveManager(spotLightMesh, spotLightMat);
                 SpotLightManager.SettingUniforms += LightManager_SettingUniforms;
                 
-                DirLightManager = new PrimitiveManager(unitBoxMesh, dirLightMat);
+                DirLightManager = new PrimitiveManager(dirLightMesh, dirLightMat);
                 DirLightManager.SettingUniforms += LightManager_SettingUniforms;
 
-                DecalManager = new PrimitiveManager(unitBoxMesh, decalMat);
+                DecalManager = new PrimitiveManager(decalMesh, decalMat);
                 DecalManager.SettingUniforms += DecalManager_SettingUniforms;
 
                 #endregion
@@ -1102,9 +1106,9 @@ namespace TheraEngine.Rendering
             materialProgram.Uniform("BoxWorldMatrix", _decalComp.WorldMatrix);
             materialProgram.Uniform("InvBoxWorldMatrix", _decalComp.InverseWorldMatrix);
             materialProgram.Uniform("BoxHalfScale", _decalComp.Box.HalfExtents.Raw);
-            materialProgram.Sampler("Texture1", _decalComp.AlbedoOpacity.RenderTextureGeneric, 1);
-            materialProgram.Sampler("Texture2", _decalComp.Normal.RenderTextureGeneric, 2);
-            materialProgram.Sampler("Texture3", _decalComp.RMSI.RenderTextureGeneric, 3);
+            materialProgram.Sampler("Texture4", _decalComp.AlbedoOpacity.RenderTextureGeneric, 4);
+            materialProgram.Sampler("Texture5", _decalComp.Normal.RenderTextureGeneric, 5);
+            materialProgram.Sampler("Texture6", _decalComp.RMSI.RenderTextureGeneric, 6);
         }
 
         private void BrightPassFBO_SettingUniforms(RenderProgram program)

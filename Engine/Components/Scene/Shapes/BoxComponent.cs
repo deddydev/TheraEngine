@@ -45,12 +45,12 @@ namespace TheraEngine.Components.Scene.Shapes
         public override Shape CullingVolume => _box;
 
         [Category("Box")]
-        public Vec3 HalfExtents
+        public virtual Vec3 HalfExtents
         {
             get => _box.HalfExtents;
             set
             {
-                _box.HalfExtents = value;
+                _box.HalfExtents.Raw = value;
                 OctreeNode?.ItemMoved(this);
             }
         }

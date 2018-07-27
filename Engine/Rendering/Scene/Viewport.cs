@@ -318,7 +318,7 @@ namespace TheraEngine.Rendering
         internal void RenderDecal(DecalComponent c)
         {
             _decalComp = c;
-            DecalManager.Render(c.WorldMatrix);
+            DecalManager.Render(c.DecalRenderMatrix);
         }
         internal void RenderDirLight(DirectionalLightComponent c)
         {
@@ -911,9 +911,6 @@ namespace TheraEngine.Rendering
                 };
                 TexRef2D[] decalRefs = new TexRef2D[]
                 {
-                    albedoOpacityTexture,
-                    normalTexture,
-                    rmsiTexture,
                     depthViewTexture,
                 };
 
@@ -928,11 +925,26 @@ namespace TheraEngine.Rendering
 
                 ShaderVar[] decalVars = new ShaderVar[]
                 {
-                    //new ShaderMat4(Matrix4.Identity, "MeshWorldMatrix", null),
-                    //new ShaderMat4(Matrix4.Identity, "InvMeshWorldMatrix", null),
-                    //new ShaderVec2(Vec2.One, "MeshScale"),
+
                 };
-                TMaterial decalMat = new TMaterial("DecalMat", additiveRenderParams, decalVars, decalRefs, decalShader);
+                RenderingParameters decalRenderParams = new RenderingParameters
+                {
+                    CullMode = ECulling.Front,
+                    Requirements = EUniformRequirements.Camera,
+                    BlendMode = new BlendMode()
+                    {
+                        Enabled = ERenderParamUsage.Enabled,
+                        RgbEquation = EBlendEquationMode.FuncAdd,
+                        AlphaEquation = EBlendEquationMode.FuncAdd,
+                        RgbSrcFactor = EBlendingFactor.SrcColor,
+                        RgbDstFactor = EBlendingFactor.DstColor,
+                        AlphaSrcFactor = EBlendingFactor.SrcAlpha,
+                        AlphaDstFactor = EBlendingFactor.OneMinusSrcAlpha,
+                    },
+                };
+                decalRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
+
+                TMaterial decalMat = new TMaterial("DecalMat", decalRenderParams, decalVars, decalRefs, decalShader);
 
                 PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
                 PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
@@ -1087,12 +1099,12 @@ namespace TheraEngine.Rendering
 
         private void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
-            materialProgram.Uniform("MeshWorldMatrix", _decalComp.DecalRenderMatrix);
-            materialProgram.Uniform("InvMeshWorldMatrix", _decalComp.InverseDecalRenderMatrix);
-            materialProgram.Uniform("MeshScale", _decalComp.Box.HalfExtents * 2.0f);
-            materialProgram.Sampler("Texture4", _decalComp.Material.Textures[0].RenderTextureGeneric, 4);
-            materialProgram.Sampler("Texture5", _decalComp.Material.Textures[1].RenderTextureGeneric, 5);
-            materialProgram.Sampler("Texture6", _decalComp.Material.Textures[2].RenderTextureGeneric, 6);
+            materialProgram.Uniform("BoxWorldMatrix", _decalComp.WorldMatrix);
+            materialProgram.Uniform("InvBoxWorldMatrix", _decalComp.InverseWorldMatrix);
+            materialProgram.Uniform("BoxHalfScale", _decalComp.Box.HalfExtents.Raw);
+            materialProgram.Sampler("Texture1", _decalComp.AlbedoOpacity.RenderTextureGeneric, 1);
+            materialProgram.Sampler("Texture2", _decalComp.Normal.RenderTextureGeneric, 2);
+            materialProgram.Sampler("Texture3", _decalComp.RMSI.RenderTextureGeneric, 3);
         }
 
         private void BrightPassFBO_SettingUniforms(RenderProgram program)

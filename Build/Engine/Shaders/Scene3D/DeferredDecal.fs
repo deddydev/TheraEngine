@@ -10,18 +10,17 @@ layout (location = 2) out vec4 RMSI;
 layout(location = 0) in vec3 FragPos;
 
 uniform sampler2D Texture0; //Screen AlbedoOpacity
-uniform sampler2D Texture1; //Screen Normal
-uniform sampler2D Texture2; //Screen PBR: Roughness, Metallic, Specular, Index of refraction
-uniform sampler2D Texture3; //Screen Depth
-uniform sampler2D Texture4; //Decal AlbedoOpacity
-uniform sampler2D Texture5; //Decal Normal
-uniform sampler2D Texture6; //Decal PBR: Roughness, Metallic, Specular, Index of refraction
+uniform sampler2D Texture1; //Decal AlbedoOpacity
+uniform sampler2D Texture2; //Decal Normal
+uniform sampler2D Texture3; //Decal PBR: Roughness, Metallic, Specular, Index of refraction
 
+uniform float ScreenWidth;
+uniform float ScreenHeight;
 uniform mat4 InvProjMatrix;
 uniform mat4 CameraToWorldSpaceMatrix;
-uniform mat4 InvMeshWorldMatrix;
-uniform mat4 MeshWorldMatrix;
-uniform vec2 MeshScale;
+uniform mat4 InvBoxWorldMatrix;
+uniform mat4 BoxWorldMatrix;
+uniform vec3 BoxHalfScale;
 
 vec3 WorldPosFromDepth(in float depth, in vec2 uv)
 {
@@ -35,20 +34,17 @@ void main()
   vec2 uv = gl_FragCoord.xy / vec2(ScreenWidth, ScreenHeight);
 
 	//Retrieve shading information from GBuffer textures
-	vec3 albedo = texture(Texture0, uv).rgb;
-	vec3 normal = texture(Texture1, uv).rgb;
-	vec3 rms = texture(Texture2, uv).rgb;
-	float depth = texture(Texture3, uv).r;
+	float depth = texture(Texture0, uv).r;
 
 	//Resolve world fragment position using depth and screen UV
 	vec3 fragPosWS = WorldPosFromDepth(depth, uv);
-  vec3 fragPosOS = (InvMeshWorldMatrix * fragPosWS);
-  fragPosOS.xy /= MeshScale;
-  if (abs(fragPosOS.x) > 0.5f || abs(fragPosOS.y) > 0.5f)
+  vec4 fragPosOS = (InvBoxWorldMatrix * vec4(fragPosWS, 1.0f));
+	fragPosOS.xyz /= BoxHalfScale;
+  if (abs(fragPosOS.x) > 1.0f || abs(fragPosOS.z) > 1.0f)
     discard;
-  vec2 decalUV = fragPosOS.xy + vec2(0.5f);
+  vec2 decalUV = fragPosOS.xz * vec2(0.5f) + vec2(0.5f);
 
-	AlbedoOpacity = texture(Texture4, decalUV);
-  Normal = normalize(mat3(MeshWorldMatrix) * texture(Texture5, decalUV));
-	RMSI = texture(Texture6, decalUV);
+	AlbedoOpacity = texture(Texture1, decalUV);
+  Normal = normalize(mat3(BoxWorldMatrix) * texture(Texture2, decalUV).rgb);
+	RMSI = texture(Texture3, decalUV);
 }

@@ -190,6 +190,9 @@ namespace TheraEngine.Components.Scene.Mesh
 
         [Category("Skeletal Mesh Component")]
         public SkeletalRenderableMesh[] Meshes { get; private set; }
+        [Browsable(false)]
+        public bool PreRenderEnabled { get; set; } = true;
+
         private Skeleton _targetSkeleton;
 
         public void SetAllSimulatingPhysics(bool doSimulation)

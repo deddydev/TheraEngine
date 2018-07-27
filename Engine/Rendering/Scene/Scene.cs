@@ -112,6 +112,7 @@ namespace TheraEngine.Rendering
     /// </summary>
     public interface IPreRendered
     {
+        bool PreRenderEnabled { get; set; }
         void PreRenderUpdate(Camera camera);
         void PreRenderSwap();
         void PreRender(Viewport viewport, Camera camera);

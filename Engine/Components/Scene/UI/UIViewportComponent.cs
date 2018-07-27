@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Timers;
@@ -55,6 +56,8 @@ namespace TheraEngine.Rendering.UI
             SettingUniforms?.Invoke(materialProgram);
         }
 
+        [Browsable(false)]
+        public bool PreRenderEnabled { get; set; } = true;
         public Camera ViewportCamera
         {
             get => Viewport.Camera;

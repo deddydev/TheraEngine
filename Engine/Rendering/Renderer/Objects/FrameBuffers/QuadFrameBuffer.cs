@@ -33,7 +33,7 @@ namespace TheraEngine.Rendering
         }
 
         /// <summary>
-        /// Renders a material to the screen using a fullscreen orthographic quad. Useful for FBOs.
+        /// Renders a material to the screen using a fullscreen orthographic quad.
         /// </summary>
         /// <param name="mat">The material containing textures to render to this fullscreen quad.</param>
         public QuadFrameBuffer(TMaterial mat)

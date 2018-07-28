@@ -521,8 +521,8 @@ namespace TheraEngine.Files
                     unsafe
                     {
                         using (FileMap map = FileMap.FromFile(filePath))
-                        using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                         {
+                            XMLReader reader = new XMLReader(map.Address, map.Length, true);
                             file = SerializationCommon.CreateObject(type) as TFileObject;
                             if (file != null && reader.BeginElement())
                             {

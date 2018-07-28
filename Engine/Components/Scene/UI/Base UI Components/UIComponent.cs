@@ -295,8 +295,9 @@ namespace TheraEngine.Rendering.UI
         /// </summary>
         /// <param name="coordinate">The coordinate relative to the screen / origin of the root UI component.</param>
         /// <param name="uiComp">The UI component whose space you wish to convert the coordinate to.</param>
+        /// <param name="delta">If true, the coordinate and returned value are treated like a vector offset instead of an absolute point.</param>
         /// <returns></returns>
-        public static Vec2 ConvertUICoordinate(Vec2 coordinate, UIComponent uiComp, bool delta = false)
+        public static Vec2 ScreenToLocalPoint(Vec2 coordinate, UIComponent uiComp, bool delta = false)
         {
             Matrix4 mtx = uiComp.GetInvComponentTransform();
             if (delta)

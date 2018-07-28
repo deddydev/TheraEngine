@@ -1,32 +1,25 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 using TheraEngine;
 using TheraEngine.Core.Memory;
 
 namespace System.IO
 {
-    public unsafe class XMLReader : IDisposable
+    public unsafe class XMLReader
     {
-        private const int _nameMax = 128;
-        private const int _valueMax = 384;
-
         internal byte* _base, _ptr, _ceil;
         /// <summary>
         /// True if within tge brackets of an element.
         /// </summary>
         internal bool _inTag;
 
-        private DataSource _stringBuffer;
-        private byte* _namePtr, _valPtr;
+        private string _name, _value;
 
-        public PString Name => _namePtr;
-        public PString Value => _valPtr;
+        public string Name => _name;
+        public string Value => _value;
 
-        public XMLReader()
-        {
-            _stringBuffer = new DataSource(_nameMax + _valueMax + 2);
-            _namePtr = (byte*)_stringBuffer.Address;
-            _valPtr = _namePtr + _nameMax + 1;
-        }
+        public XMLReader() { }
         public XMLReader(void* pSource, int length, bool needsOpenDocument) : this()
         {
             SetMemoryAddress(pSource, length, needsOpenDocument);
@@ -34,8 +27,8 @@ namespace System.IO
 
         internal void SetStringBuffer(string name, string value)
         {
-            name.Write(_namePtr);
-            value.Write(_valPtr);
+            _name = name;
+            _value = value;
         }
 
         public void SetMemoryAddress(DataSource source, bool needsOpenDocument) => SetMemoryAddress(source.Address, source.Length, needsOpenDocument);
@@ -58,24 +51,12 @@ namespace System.IO
             else if (!BeginElement())
                 throw new IOException("Data is not a valid XML snippet.");
         }
-
-        ~XMLReader() { Dispose(); }
-        public void Dispose()
-        {
-            if (_stringBuffer != null)
-            {
-                _stringBuffer.Dispose();
-                _stringBuffer = null;
-            }
-        }
-
+        
         private bool ReadString()
         {
-            int len = 0;
             bool inStr = false;
-            byte* pOut = _valPtr;
-
-            while ((len < _valueMax) && (_ptr < _ceil))
+            List<byte> bytes = new List<byte>();
+            while (_ptr < _ceil)
             {
                 if (*_ptr <= 0x20)
                 {
@@ -95,22 +76,21 @@ namespace System.IO
                     if (!inStr)
                         inStr = true;
                 }
-                pOut[len++] = *_ptr++;
+                bytes.Add(*_ptr++);
             }
-            pOut[len] = 0;
-
-            return len > 0;
+            _name = Encoding.UTF8.GetString(bytes.ToArray());
+            return bytes.Count > 0;
         }
         //Reads characters into name pointer. Mainly for element/attribute names
-        private bool ReadString(byte* pOut, int length)
+        private bool ReadString(out string value)
         {
             int len = 0;
             bool inStr = false;
-            //byte* pOut = _namePtr;
+            List<byte> bytes = new List<byte>();
             byte b;
 
             SkipWhitespace();
-            while ((len < length) && (_ptr < _ceil))
+            while (_ptr < _ceil)
             {
                 if (inStr)
                 {
@@ -139,12 +119,10 @@ namespace System.IO
                     }
                     _ptr++;
                 }
-
-                pOut[len++] = b;
+                bytes.Add(b);
             }
-            pOut[len] = 0;
-
-            return len > 0;
+            value = Encoding.UTF8.GetString(bytes.ToArray());
+            return bytes.Count > 0;
         }
         
         private void SkipWhitespace()
@@ -171,9 +149,9 @@ namespace System.IO
                     if (*_ptr++ == '<')
                     {
                         _inTag = true;
-                        if (ReadString(_namePtr, _nameMax)) //Will fail on delimiter
+                        if (ReadString(out _name)) //Will fail on delimiter
                         {
-                            if ((_namePtr[0] == '!') && (_namePtr[1] == '-') && (_namePtr[2] == '-'))
+                            if (string.Equals(_name.Substring(0, 3), "!--", StringComparison.InvariantCulture))
                                 comment = true;
                             else
                                 return true;
@@ -237,13 +215,13 @@ namespace System.IO
                 return false;
 
             SkipWhitespace();
-            if (ReadString(_namePtr, _nameMax))
+            if (ReadString(out _name))
             {
                 SkipWhitespace();
                 if ((_ptr < _ceil) && (*_ptr == '='))
                 {
                     _ptr++;
-                    if (ReadString(_valPtr, _valueMax))
+                    if (ReadString(out _value))
                         return true;
                 }
             }
@@ -279,7 +257,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
@@ -294,7 +272,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (sbyte.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out sbyte f))
                 {
@@ -309,7 +287,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (byte.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out byte f))
                 {
@@ -324,7 +302,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (short.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out short f))
                 {
@@ -339,7 +317,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (ushort.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out ushort f))
                 {
@@ -354,7 +332,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
                 {
@@ -369,7 +347,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (uint.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out uint f))
                 {
@@ -384,7 +362,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (long.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out long f))
                 {
@@ -399,7 +377,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (ulong.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out ulong f))
                 {
@@ -414,7 +392,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (double.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out double f))
                 {
@@ -429,7 +407,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
@@ -444,7 +422,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
@@ -459,7 +437,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
@@ -475,7 +453,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
             {
                 if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
                 {
@@ -492,7 +470,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(out _value))
                 return true;
 
             return false;

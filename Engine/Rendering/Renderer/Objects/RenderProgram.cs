@@ -116,6 +116,9 @@ namespace TheraEngine.Rendering
 
         protected override int CreateObject()
         {
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Func<int>)CreateObject, BaseRenderPanel.PanelType.Rendering))
+                return CurrentBind.BindingId;
+
             _uniformCache.Clear();
 
             IsValid = true;

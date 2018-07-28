@@ -71,7 +71,7 @@ namespace TheraEditor.Actors.Types.Pawns
         {
             if (TargetViewportComponent != null && Moving)
             {
-                Vec2 result = UIComponent.ConvertUICoordinate(new Vec2(x, y), /*(UIComponent)TargetViewportComponent.OwningActor.RootComponent,*/ TargetViewportComponent, true);
+                Vec2 result = UIComponent.ScreenToLocalPoint(new Vec2(x, y), /*(UIComponent)TargetViewportComponent.OwningActor.RootComponent,*/ TargetViewportComponent, true);
                 x = result.X;
                 y = result.Y;
             }

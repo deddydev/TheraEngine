@@ -655,7 +655,7 @@ namespace TheraEngine.Rendering
                     sample = new Vec3(
                         (float)r.NextDouble() * 2.0f - 1.0f,
                         (float)r.NextDouble() * 2.0f - 1.0f,
-                        (float)r.NextDouble()).Normalized();
+                        (float)r.NextDouble() + 0.1f).Normalized();
                     scale = i / (float)samples;
                     sample *= Interp.Lerp(minSampleDist, maxSampleDist, scale * scale);
                     _kernel[i] = sample;

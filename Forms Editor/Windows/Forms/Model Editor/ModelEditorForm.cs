@@ -301,6 +301,10 @@ namespace TheraEditor.Windows.Forms
 
         private void SwapBuffers()
         {
+            if (World.Scene != null)
+            {
+                World.Scene.Lights.SwapBuffers();
+            }
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.SwapBuffers();
@@ -308,6 +312,7 @@ namespace TheraEditor.Windows.Forms
 
         private void UpdateTick(object sender, FrameEventArgs e)
         {
+            World.Scene.UpdateShadowMaps();
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.UpdateTick(sender, e);

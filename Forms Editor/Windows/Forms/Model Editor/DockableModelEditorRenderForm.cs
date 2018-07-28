@@ -32,6 +32,15 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.GotFocus += RenderPanel_GotFocus;
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+        }
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+        }
+
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             Editor.SetActiveEditorControl(this);

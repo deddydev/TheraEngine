@@ -239,6 +239,9 @@ namespace TheraEngine.Rendering
         /// </summary>
         public virtual void Destroy()
         {
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Destroy, BaseRenderPanel.PanelType.Rendering))
+                return;
+
             ContextBind b;
             int prevCount;
             while ((prevCount = _owners.Count) > 0)

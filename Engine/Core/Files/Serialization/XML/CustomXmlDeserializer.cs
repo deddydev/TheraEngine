@@ -21,11 +21,9 @@ namespace TheraEngine.Files.Serialization
             try
             {
                 using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
-                using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                 {
-                    if (reader.BeginElement() &&
-                        reader.ReadAttribute() && 
-                        reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                    XMLReader reader = new XMLReader(map.Address, map.Length, true);
+                    if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
                     {
                         string value = reader.Value.ToString();
                         t = Type.GetType(value,
@@ -56,8 +54,8 @@ namespace TheraEngine.Files.Serialization
             _rootFilePath = filePath;
             TFileObject obj = null;
             using (FileMap map = FileMap.FromFile(filePath))
-            using (_reader = new XMLReader(map.Address, map.Length, true))
             {
+                _reader = new XMLReader(map.Address, map.Length, true);
                 if (_reader.BeginElement() && _reader.ReadAttribute() && _reader.Name.Equals(SerializationCommon.TypeIdent, true))
                 {
                     string value = _reader.Value.ToString();

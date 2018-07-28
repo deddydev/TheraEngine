@@ -93,6 +93,8 @@ namespace TheraEditor.Windows.Forms
                     ActiveRenderForm.RenderPanel.GetOrAddViewport(0).RegisterController(c);
                     c.ControlledPawn = ActiveRenderForm.EditorPawn;
                 }
+
+                Engine.PrintLine("Set active render form: " + ActiveRenderForm.ToString());
             }
         }
 
@@ -611,13 +613,13 @@ namespace TheraEditor.Windows.Forms
 
         private void UpdateTick(object sender, FrameEventArgs e)
         {
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
             if (Engine.Scene != null)
             {
                 Engine.Scene.UpdateShadowMaps();
             }
+            for (int i = 0; i < 4; ++i)
+                if (RenderFormActive(i))
+                    GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
         }
         private void SwapBuffers()
         {
@@ -642,16 +644,15 @@ namespace TheraEditor.Windows.Forms
 
             BaseRenderPanel.WorldPanel.CaptureContext();
 
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.Invalidate();
-
             if (Engine.Scene != null)
             {
                 //Engine.Scene.Voxelize();
                 Engine.Scene.RenderShadowMaps();
             }
 
+            for (int i = 0; i < 4; ++i)
+                if (RenderFormActive(i))
+                    GetRenderForm(i).RenderPanel.Invalidate();
 
             //Application.DoEvents();
         }

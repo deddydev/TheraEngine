@@ -623,11 +623,9 @@ namespace TheraEngine.Core.Files.Serialization
                         throw new InvalidOperationException("This type of file is not a proprietary file format.");
                     case EFileFormat.XML:
                         using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
-                        using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
                         {
-                            if (reader.BeginElement() &&
-                                reader.ReadAttribute() &&
-                                reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                            XMLReader reader = new XMLReader(map.Address, map.Length, true);
+                            if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
                             {
                                 string value = reader.Value.ToString();
                                 t = Type.GetType(value,

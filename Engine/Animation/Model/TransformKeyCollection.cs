@@ -220,9 +220,9 @@ namespace TheraEngine.Animation
                 "ScaleY",
                 "ScaleZ",
             };
-            if (reader.Name.Equals("TransformKeyCollection", false))
+            if (string.Equals(reader.Name, "TransformKeyCollection", StringComparison.InvariantCulture))
             {
-                if (reader.ReadAttribute() && reader.Name.Equals("LengthInSeconds", false))
+                if (reader.ReadAttribute() && string.Equals(reader.Name, "LengthInSeconds", StringComparison.InvariantCulture))
                     LengthInSeconds = float.TryParse(reader.Value, out float length) ? length : 0.0f;
 
                 ResetKeys();
@@ -235,7 +235,7 @@ namespace TheraEngine.Animation
                         KeyframeTrack<FloatKeyframe> track = _tracks[trackIndex];
                         
                         int keyCount = 0;
-                        if (reader.ReadAttribute() && reader.Name.Equals("Count", false) && !int.TryParse(reader.Value, out keyCount))
+                        if (reader.ReadAttribute() && string.Equals(reader.Name, "Count", StringComparison.InvariantCulture) && !int.TryParse(reader.Value, out keyCount))
                             keyCount = 0;
 
                         if (keyCount > 0)

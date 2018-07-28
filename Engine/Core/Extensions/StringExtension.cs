@@ -22,6 +22,10 @@ namespace System
             else if (File.Exists(path)) return false; //Is a file
             else return null; //Path is invalid
         }
+        public static bool Equals(this string str, string other, bool ignoreCase)
+        {
+            return string.Equals(str, other, ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
+        }
         public static decimal ParseInvariantDecimal(this string str)
         {
             return decimal.Parse(str, CultureInfo.InvariantCulture.NumberFormat);

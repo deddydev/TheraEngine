@@ -492,7 +492,7 @@ namespace TheraEditor.Windows.Forms
                 if (comp is UIViewportComponent subViewport)
                 {
                     //Convert viewport point to the sub viewport's local space
-                    viewportPoint = UIComponent.ConvertUICoordinate(viewportPoint, subViewport);
+                    viewportPoint = UIComponent.ScreenToLocalPoint(viewportPoint, subViewport);
                     HighlightScene(subViewport.Viewport, viewportPoint);
 
                     //ICameraTransformable camComp = SelectedComponent as ICameraTransformable;

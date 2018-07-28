@@ -71,26 +71,42 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
             {
                 ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
-                //await Task.Run(() => Parallel.For(0, dic.Count, i =>
-                int r = 0;
+               
                 object[] dicKeys = new object[dic.Keys.Count];
                 dic.Keys.CopyTo(dicKeys, 0);
                 Array.Sort(dicKeys);
+
+                Deque<Type> valueTypes = TheraPropertyGrid.GetControlTypes(_valueType);
+                Deque<Type> keyTypes = TheraPropertyGrid.GetControlTypes(_keyType);
+
+                //await Task.Run(() => Parallel.For(0, dic.Count, i =>
+                int r = 0;
                 foreach (var key in dicKeys)
                 {
-                    Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(dic[key]?.GetType());
-                    List<PropGridItem> keys = TheraPropertyGrid.InstantiateKeyPropertyEditors(controlTypes, dic, key, DataChangeHandler);
-                    List<PropGridItem> values = TheraPropertyGrid.InstantiateValuePropertyEditors(controlTypes, dic, key, DataChangeHandler);
+                    Type vt = dic[key]?.GetType();
+                    Deque<Type> valueTypes2 = valueTypes;
+                    if (vt != null && vt.IsSubclassOf(_valueType))
+                        valueTypes2 = TheraPropertyGrid.GetControlTypes(vt);
+
+                    Type kt = key?.GetType();
+                    Deque<Type> keyTypes2 = keyTypes;
+                    if (kt != null && kt.IsSubclassOf(_keyType))
+                        valueTypes2 = TheraPropertyGrid.GetControlTypes(kt);
+
+                    List<PropGridItem> keys = TheraPropertyGrid.InstantiateKeyPropertyEditors(keyTypes2, dic, key, DataChangeHandler);
+                    List<PropGridItem> values = TheraPropertyGrid.InstantiateValuePropertyEditors(valueTypes2, dic, key, DataChangeHandler);
+
                     int count = keys.Count + values.Count;
                     List<PropGridItem> interlaced = new List<PropGridItem>(count);
                     int valueIndex = -1;
                     int keyIndex = -1;
                     for (int x = 0; x < count; ++x)
                         interlaced.Add(((x & 1) == 0) ? keys[++keyIndex] : values[++valueIndex]);
+
                     controls.TryAdd(r++, interlaced);
                 }//));
                 propGridDicItems.tblProps.SuspendLayout();
-                for (int i = 0; i < dic.Count; ++i)
+                for (int i = 0; i < controls.Count; ++i)
                 {
                     Label label = propGridDicItems.AddProperty(controls[i], new object[0], false);
                     label.MouseEnter += Label_MouseEnter;

@@ -17,11 +17,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 pnlEditor.Visible = true;
                 Type t = DataType.GetGenericArguments()[0];
-                if (TheraPropertyGrid.InPlaceEditorTypes.ContainsKey(t))
-                {
-                    var types = TheraPropertyGrid.GetControlTypes(t);
-                    TheraPropertyGrid.CreateControls(types, null, pnlEditor, null, null, null, false, DataChangeHandler);
-                }
+                var types = TheraPropertyGrid.GetControlTypes(t);
+                TheraPropertyGrid.CreateControls(types, null, pnlEditor, null, null, null, false, DataChangeHandler);
             }
             chkNull.Enabled = pnlEditor.Enabled = !ParentInfo.IsReadOnly();
 

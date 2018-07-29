@@ -722,6 +722,25 @@ namespace TheraEngine.Rendering
         Texture1DArray = 35864,
         ProxyTexture1DArray = 35865
     }
+    public enum EWaitSyncStatus
+    {
+        /// <summary>
+        /// The sync object was signaled before the function was called. 
+        /// </summary>
+        AlreadySignaled = 37146,
+        /// <summary>
+        /// The sync object did not signal within the given timeout period. 
+        /// </summary>
+        TimeoutExpired = 37147,
+        /// <summary>
+        /// The sync object was signaled within the given timeout period. 
+        /// </summary>
+        ConditionSatisfied = 37148,
+        /// <summary>
+        /// A GPU error occured.
+        /// </summary>
+        WaitFailed = 37149
+    }
     public enum ETexTarget
     {
         Texture1D                       = 3552,

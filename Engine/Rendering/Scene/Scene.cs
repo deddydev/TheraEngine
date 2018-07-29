@@ -21,6 +21,10 @@ namespace TheraEngine.Rendering
         /// </summary>
         OpaqueDeferredLit,
         /// <summary>
+        /// Renders right after all opaque deferred objects.
+        /// </summary>
+        DeferredDecals,
+        /// <summary>
         /// Use for any opaque objects that you need special lighting for (or no lighting at all).
         /// </summary>
         OpaqueForward,
@@ -44,11 +48,13 @@ namespace TheraEngine.Rendering
                 new SortedSet<RenderCommand>(_nearToFarSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
+                new SortedSet<RenderCommand>(_nearToFarSorter),
                 new SortedSet<RenderCommand>(_farToNearSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
             };
             _renderingPasses = new SortedSet<RenderCommand>[]
             {
+                new SortedSet<RenderCommand>(_nearToFarSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
@@ -158,7 +164,8 @@ namespace TheraEngine.Rendering
             //TODO: prerender on own consistent animation thread
             //ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRenderUpdate(camera); }));
             foreach (IPreRendered p in _preRenderList)
-                p.PreRenderUpdate(camera);
+                if (p.PreRenderEnabled)
+                    p.PreRenderUpdate(camera);
         }
         public void PreRenderSwap()
         {
@@ -171,12 +178,14 @@ namespace TheraEngine.Rendering
             _preRenderAddWaitList.Clear();
 
             foreach (IPreRendered p in _preRenderList)
-                p.PreRenderSwap();
+                if (p.PreRenderEnabled)
+                    p.PreRenderSwap();
         }
         public void PreRender(Viewport viewport, Camera camera)
         {
             foreach (IPreRendered p in _preRenderList)
-                p.PreRender(viewport, camera);
+                if (p.PreRenderEnabled)
+                    p.PreRender(viewport, camera);
         }
         public void AddPreRenderedObject(IPreRendered obj)
         {

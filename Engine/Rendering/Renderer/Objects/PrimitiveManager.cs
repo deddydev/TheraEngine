@@ -45,6 +45,9 @@ namespace TheraEngine.Rendering.Models
     /// </summary>
     public class PrimitiveManager : BaseRenderObject, IPrimitiveManager
     {
+        /// <summary>
+        /// Subscribe to this event to send your own uniforms to the material.
+        /// </summary>
         public event DelPrimManagerSettingUniforms SettingUniforms;
 
         //Vertex buffer information
@@ -508,15 +511,15 @@ namespace TheraEngine.Rendering.Models
             //Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.PrevModelMatrix), _lastRenderedModelMatrix);
             vtxProg.Uniform(Uniform.GetLocation(vtxProg, EEngineUniform.NormalMatrix), normalMatrix);
 
-            if (AbstractRenderer.CurrentCamera != null)
+            if (Engine.Renderer.CurrentCamera != null)
             {
                 vtxProg.Uniform(Uniform.GetLocation(vtxProg,
                     EEngineUniform.WorldToCameraSpaceMatrix),
-                    AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
+                    Engine.Renderer.CurrentCamera.WorldToCameraSpaceMatrix);
 
                 vtxProg.Uniform(Uniform.GetLocation(vtxProg,
                     EEngineUniform.ProjMatrix),
-                    AbstractRenderer.CurrentCamera.ProjectionMatrix);
+                    Engine.Renderer.CurrentCamera.ProjectionMatrix);
             }
             else
             {

@@ -112,30 +112,30 @@ namespace TheraEngine.Input.Devices
         /// <param name="left">Low frequency motor speed, 0 - 1.</param>
         /// <param name="right">High frequency motor speed, 0 - 1.</param>
         public abstract void Vibrate(float lowFreq, float highFreq);
-        public void ClearVibration() { Vibrate(0.0f, 0.0f); }
+        public void ClearVibration() => Vibrate(0.0f, 0.0f);
 
-        public ButtonManager DPadUp => _buttonStates[(int)GamePadButton.DPadUp];
-        public ButtonManager DPadDown => _buttonStates[(int)GamePadButton.DPadDown];
-        public ButtonManager DPadLeft => _buttonStates[(int)GamePadButton.DPadLeft];
-        public ButtonManager DPadRight => _buttonStates[(int)GamePadButton.DPadRight];
+        public ButtonManager DPadUp         => _buttonStates[(int)GamePadButton.DPadUp];
+        public ButtonManager DPadDown       => _buttonStates[(int)GamePadButton.DPadDown];
+        public ButtonManager DPadLeft       => _buttonStates[(int)GamePadButton.DPadLeft];
+        public ButtonManager DPadRight      => _buttonStates[(int)GamePadButton.DPadRight];
 
-        public ButtonManager FaceUp => _buttonStates[(int)GamePadButton.FaceUp];
-        public ButtonManager FaceDown => _buttonStates[(int)GamePadButton.FaceDown];
-        public ButtonManager FaceLeft => _buttonStates[(int)GamePadButton.FaceLeft];
-        public ButtonManager FaceRight => _buttonStates[(int)GamePadButton.FaceRight];
+        public ButtonManager FaceUp         => _buttonStates[(int)GamePadButton.FaceUp];
+        public ButtonManager FaceDown       => _buttonStates[(int)GamePadButton.FaceDown];
+        public ButtonManager FaceLeft       => _buttonStates[(int)GamePadButton.FaceLeft];
+        public ButtonManager FaceRight      => _buttonStates[(int)GamePadButton.FaceRight];
 
-        public ButtonManager LeftStick => _buttonStates[(int)GamePadButton.LeftStick];
-        public ButtonManager RightStick => _buttonStates[(int)GamePadButton.RightStick];
-        public ButtonManager LeftBumper => _buttonStates[(int)GamePadButton.LeftBumper];
-        public ButtonManager RightBumper => _buttonStates[(int)GamePadButton.RightBumper];
+        public ButtonManager LeftStick      => _buttonStates[(int)GamePadButton.LeftStick];
+        public ButtonManager RightStick     => _buttonStates[(int)GamePadButton.RightStick];
+        public ButtonManager LeftBumper     => _buttonStates[(int)GamePadButton.LeftBumper];
+        public ButtonManager RightBumper    => _buttonStates[(int)GamePadButton.RightBumper];
 
-        public ButtonManager SpecialLeft => _buttonStates[(int)GamePadButton.SpecialLeft];
-        public ButtonManager SpecialRight => _buttonStates[(int)GamePadButton.SpecialRight];
+        public ButtonManager SpecialLeft    => _buttonStates[(int)GamePadButton.SpecialLeft];
+        public ButtonManager SpecialRight   => _buttonStates[(int)GamePadButton.SpecialRight];
 
-        public AxisManager LeftTrigger => _axisStates[(int)GamePadAxis.LeftTrigger];
-        public AxisManager RightTrigger => _axisStates[(int)GamePadAxis.RightTrigger];
-        public AxisManager LeftThumbstickY => _axisStates[(int)GamePadAxis.LeftThumbstickY];
-        public AxisManager LeftThumbstickX => _axisStates[(int)GamePadAxis.LeftThumbstickX];
+        public AxisManager LeftTrigger      => _axisStates[(int)GamePadAxis.LeftTrigger];
+        public AxisManager RightTrigger     => _axisStates[(int)GamePadAxis.RightTrigger];
+        public AxisManager LeftThumbstickY  => _axisStates[(int)GamePadAxis.LeftThumbstickY];
+        public AxisManager LeftThumbstickX  => _axisStates[(int)GamePadAxis.LeftThumbstickX];
         public AxisManager RightThumbstickY => _axisStates[(int)GamePadAxis.RightThumbstickY];
         public AxisManager RightThumbstickX => _axisStates[(int)GamePadAxis.RightThumbstickX];
     }

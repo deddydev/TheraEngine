@@ -372,15 +372,16 @@ namespace TheraEngine.Rendering.Models
 
                 if (addBinormals || addTangents)
                     data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);
-
+                
                 TMaterial m = null;
-                if (_inst?.
-                    BindMaterialElement?.
-                    TechniqueCommonElement?.
-                    InstanceMaterialElements?[0].
-                    Target.GetElement(scene.GenericRoot)
-                    is LibraryMaterials.Material mat)
-                    m = CreateMaterial(mat);
+                var instanceMats = _inst?.BindMaterialElement?.TechniqueCommonElement?.InstanceMaterialElements;
+                if (instanceMats != null && instanceMats.Length > 0)
+                {
+                    var instanceMat = instanceMats[0];
+                    var mat = instanceMat?.Target?.GetElement<LibraryMaterials.Material>(scene.GenericRoot);
+                    if (mat != null)
+                        m = CreateMaterial(mat);
+                }
 
                 if (m == null)
                     m = TMaterial.CreateLitColorMaterial();
@@ -427,13 +428,14 @@ namespace TheraEngine.Rendering.Models
                     data.GenerateBinormalTangentBuffers(0, 0, 0, addBinormals, addTangents);
 
                 TMaterial m = null;
-                if (_inst?.
-                    BindMaterialElement?.
-                    TechniqueCommonElement?.
-                    InstanceMaterialElements?[0].
-                    Target.GetElement(scene.GenericRoot)
-                    is LibraryMaterials.Material mat)
-                    m = CreateMaterial(mat);
+                var instanceMats = _inst?.BindMaterialElement?.TechniqueCommonElement?.InstanceMaterialElements;
+                if (instanceMats != null && instanceMats.Length > 0)
+                {
+                    var instanceMat = instanceMats[0];
+                    var mat = instanceMat?.Target?.GetElement<LibraryMaterials.Material>(scene.GenericRoot);
+                    if (mat != null)
+                        m = CreateMaterial(mat);
+                }
 
                 if (m == null)
                     m = TMaterial.CreateLitColorMaterial();
@@ -469,7 +471,7 @@ namespace TheraEngine.Rendering.Models
                         var tex = ct.TextureElement;
                         if (tex != null)
                         {
-                            var image = tex.Root.GetIDEntry(tex.TextureID);
+                            var image = tex.Root.GetIDEntry<IImage>(tex.TextureID);
                             if (image == null)
                                 continue;
                             TexRef2D texRef = new TexRef2D();

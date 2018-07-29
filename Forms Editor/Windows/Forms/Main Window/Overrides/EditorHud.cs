@@ -512,12 +512,12 @@ namespace TheraEditor.Windows.Forms
             UpdateHighlightPoint(c);
             HighlightedComponent = comp;
         }
-        private void UpdateHighlightPoint(Camera c)
+        internal void UpdateHighlightPoint(Camera c)
         {
             _highlightPoint.Transform =
                 Matrix4.CreateTranslation(_hitPoint) *
                 _hitNormal.LookatAngles().GetMatrix() *
-                Matrix4.CreateScale(c.DistanceScale(_hitPoint, _toolSize));
+                Matrix4.CreateScale(c?.DistanceScale(_hitPoint, _toolSize) ?? 1.0f);
         }
         private bool IsSimulatedBody(out IRigidBodyCollidable body)
         {

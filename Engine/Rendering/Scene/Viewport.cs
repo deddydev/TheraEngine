@@ -22,10 +22,12 @@ namespace TheraEngine.Rendering
 {
     public class Viewport
     {
+        public const string SceneShaderPath = "Scene3D";
         private static Stack<Viewport> CurrentlyRenderingViewports { get; } = new Stack<Viewport>();
         public static Viewport CurrentlyRendering => CurrentlyRenderingViewports.Peek();
 
         private BoundingRectangle _region;
+        private BoundingRectangle _internalResolution = new BoundingRectangle();
         private Camera _worldCamera;
         private SSAOInfo _ssaoInfo = new SSAOInfo();
 
@@ -45,12 +47,11 @@ namespace TheraEngine.Rendering
         internal PrimitiveManager PointLightManager;
         internal PrimitiveManager SpotLightManager;
         internal PrimitiveManager DirLightManager;
-        internal PrimitiveManager DecalManager;
+        //internal PrimitiveManager DecalManager;
         //internal QuadFrameBuffer DirLightFBO;
         internal Camera RenderingCamera => RenderingCameras.Peek();
         internal Stack<Camera> RenderingCameras { get; } = new Stack<Camera>();
         internal TexRef2D BrdfTex = null;
-        private BoundingRectangle _internalResolution = new BoundingRectangle();
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
@@ -112,6 +113,7 @@ namespace TheraEngine.Rendering
         //}
 
         public BoundingRectangle InternalResolution => _internalResolution;
+        public BaseRenderPanel OwningPanel { get; }
 
         private IUIManager _hud;
         public IUIManager HUD
@@ -125,8 +127,6 @@ namespace TheraEngine.Rendering
                 //Engine.PrintLine("Updated viewport " + _index + " HUD: " + (_hud == null ? "null" : _hud.GetType().GetFriendlyName()));
             }
         }
-
-        public BaseRenderPanel OwningPanel { get; }
 
         public Viewport(BaseRenderPanel panel, int index)
         {
@@ -315,11 +315,11 @@ namespace TheraEngine.Rendering
         /// </summary>
         public Vec2 ToInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Extents / _region.Extents);
 
-        internal void RenderDecal(DecalComponent c)
-        {
-            _decalComp = c;
-            DecalManager.Render(c.DecalRenderMatrix);
-        }
+        //internal void RenderDecal(DecalComponent c)
+        //{
+        //    _decalComp = c;
+        //    DecalManager.Render(c.DecalRenderMatrix);
+        //}
         internal void RenderDirLight(DirectionalLightComponent c)
         {
             _lightComp = c;
@@ -612,15 +612,12 @@ namespace TheraEngine.Rendering
         #region SSAO
         private class SSAOInfo
         {
-            Vec2[] _noise;
-            Vec3[] _kernel;
             public const int DefaultSamples = 64;
             const int DefaultNoiseWidth = 4, DefaultNoiseHeight = 4;
             const float DefaultMinSampleDist = 0.1f, DefaultMaxSampleDist = 1.0f;
-            
-            public Vec2[] Noise => _noise;
-            public Vec3[] Kernel => _kernel;
 
+            public Vec2[] Noise { get; private set; }
+            public Vec3[] Kernel { get; private set; }
             public int Samples { get; private set; }
             public int NoiseWidth { get; private set; }
             public int NoiseHeight { get; private set; }
@@ -643,8 +640,8 @@ namespace TheraEngine.Rendering
 
                 Random r = new Random();
 
-                _kernel = new Vec3[samples];
-                _noise = new Vec2[noiseWidth * noiseHeight];
+                Kernel = new Vec3[samples];
+                Noise = new Vec2[noiseWidth * noiseHeight];
 
                 float scale;
                 Vec3 sample;
@@ -658,23 +655,33 @@ namespace TheraEngine.Rendering
                         (float)r.NextDouble() + 0.1f).Normalized();
                     scale = i / (float)samples;
                     sample *= Interp.Lerp(minSampleDist, maxSampleDist, scale * scale);
-                    _kernel[i] = sample;
+                    Kernel[i] = sample;
                 }
 
-                for (int i = 0; i < _noise.Length; ++i)
+                for (int i = 0; i < Noise.Length; ++i)
                 {
                     noise = new Vec2((float)r.NextDouble(), (float)r.NextDouble());
                     noise.Normalize();
-                    _noise[i] = noise;
+                    Noise[i] = noise;
                 }
             }
         }
         #endregion
 
         #region FBOs
-        internal TexRef2D _depthStencilTexture;
-        internal TexRef2D _hdrSceneTexture;
-        internal TexRef2D _bloomBlurTexture;
+
+        public TexRef2D DepthStencilTexture { get; private set; }
+        public TexRef2D HDRSceneTexture { get; private set; }
+        public TexRef2D BloomBlurTexture { get; private set; }
+        public TexRef2D AlbedoOpacityTexture { get; private set; }
+        public TexRef2D NormalTexture { get; private set; }
+        public TexRef2D RMSITexture { get; private set; }
+        public TexRef2D SSAONoise { get; private set; }
+        public TexRef2D SSAOTexture { get; private set; }
+        public TexRef2D LightingTexture { get; private set; }
+        public TexRefView2D DepthViewTexture { get; private set; }
+        public TexRefView2D StencilViewTexture { get; private set; }
+
         public enum DepthStencilUse
         {
             None,
@@ -745,21 +752,20 @@ namespace TheraEngine.Rendering
             
             int width = InternalResolution.Width;
             int height = InternalResolution.Height;
-            const string SceneShaderPath = "Scene3D";
 
             RenderingParameters renderParams = new RenderingParameters();
             renderParams.DepthTest.Enabled = ERenderParamUsage.Unchanged;
             renderParams.DepthTest.UpdateDepth = false;
             renderParams.DepthTest.Function = EComparison.Always;
             
-            _depthStencilTexture = TexRef2D.CreateFrameBufferTexture("DepthStencil", width, height,
+            DepthStencilTexture = TexRef2D.CreateFrameBufferTexture("DepthStencil", width, height,
                 EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248,
                 EFramebufferAttachment.DepthStencilAttachment);
-            _depthStencilTexture.MinFilter = ETexMinFilter.Nearest;
-            _depthStencilTexture.MagFilter = ETexMagFilter.Nearest;
-            _depthStencilTexture.Resizable = false;
+            DepthStencilTexture.MinFilter = ETexMinFilter.Nearest;
+            DepthStencilTexture.MagFilter = ETexMagFilter.Nearest;
+            DepthStencilTexture.Resizable = false;
 
-            TexRefView2D depthViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
+            DepthViewTexture = new TexRefView2D(DepthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
                 Resizable = false,
@@ -770,7 +776,7 @@ namespace TheraEngine.Rendering
                 VWrap = ETexWrapMode.ClampToEdge,
             };
 
-            TexRefView2D stencilViewTexture = new TexRefView2D(_depthStencilTexture, 0, 1, 0, 1,
+            StencilViewTexture = new TexRefView2D(DepthStencilTexture, 0, 1, 0, 1,
                 EPixelType.UnsignedInt248, EPixelFormat.DepthStencil, EPixelInternalFormat.Depth24Stencil8)
             {
                 Resizable = false,
@@ -788,7 +794,7 @@ namespace TheraEngine.Rendering
             if (Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred)
             {
                 #region SSAO Noise
-                TexRef2D ssaoNoise = new TexRef2D("SSAONoise",
+                SSAONoise = new TexRef2D("SSAONoise",
                     _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
                     EPixelInternalFormat.Rg32f, EPixelFormat.Rg, EPixelType.Float,
                     PixelFormat.Format64bppArgb)
@@ -799,7 +805,7 @@ namespace TheraEngine.Rendering
                     VWrap = ETexWrapMode.Repeat,
                     Resizable = false,
                 };
-                Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
+                Bitmap bmp = SSAONoise.Mipmaps[0].File.Bitmaps[0];
                 BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
                 Vec2* values = (Vec2*)data.Scan0;
                 Vec2[] noise = _ssaoInfo.Noise;
@@ -808,30 +814,30 @@ namespace TheraEngine.Rendering
                 bmp.UnlockBits(data);
                 #endregion
 
-                TexRef2D albedoOpacityTexture = TexRef2D.CreateFrameBufferTexture("AlbedoOpacity", width, height,
+                AlbedoOpacityTexture = TexRef2D.CreateFrameBufferTexture("AlbedoOpacity", width, height,
                     EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat);
-                TexRef2D normalTexture = TexRef2D.CreateFrameBufferTexture("Normal", width, height,
+                NormalTexture = TexRef2D.CreateFrameBufferTexture("Normal", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat);
-                TexRef2D rmsiTexture = TexRef2D.CreateFrameBufferTexture("RoughnessMetallicSpecularUnused", width, height,
+                RMSITexture = TexRef2D.CreateFrameBufferTexture("RoughnessMetallicSpecularUnused", width, height,
                     EPixelInternalFormat.Rgba8, EPixelFormat.Rgba, EPixelType.UnsignedByte);
-                TexRef2D ssaoTexture = TexRef2D.CreateFrameBufferTexture("OutputIntensity", width, height,
+                SSAOTexture = TexRef2D.CreateFrameBufferTexture("OutputIntensity", width, height,
                     EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat,
                     EFramebufferAttachment.ColorAttachment0);
-                ssaoTexture.MinFilter = ETexMinFilter.Nearest;
-                ssaoTexture.MagFilter = ETexMagFilter.Nearest;
+                SSAOTexture.MinFilter = ETexMinFilter.Nearest;
+                SSAOTexture.MagFilter = ETexMagFilter.Nearest;
                 
                 GLSLShaderFile ssaoShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOGen.fs"), EShaderMode.Fragment);
                 GLSLShaderFile ssaoBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "SSAOBlur.fs"), EShaderMode.Fragment);
                 
                 TexRef2D[] ssaoRefs = new TexRef2D[]
                 {
-                    normalTexture,
-                    ssaoNoise,
-                    depthViewTexture,
+                    NormalTexture,
+                    SSAONoise,
+                    DepthViewTexture,
                 };
                 TexRef2D[] ssaoBlurRefs = new TexRef2D[]
                 {
-                    ssaoTexture
+                    SSAOTexture
                 };
                 //TexRef2D[] deferredLightingRefs = new TexRef2D[]
                 //{
@@ -848,14 +854,14 @@ namespace TheraEngine.Rendering
                 SSAOFBO = new QuadFrameBuffer(ssaoMat);
                 SSAOFBO.SettingUniforms += SSAO_SetUniforms;
                 SSAOFBO.SetRenderTargets(
-                    (albedoOpacityTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
-                    (normalTexture, EFramebufferAttachment.ColorAttachment1, 0, -1),
-                    (rmsiTexture, EFramebufferAttachment.ColorAttachment2, 0, -1),
-                    (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
+                    (AlbedoOpacityTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
+                    (NormalTexture, EFramebufferAttachment.ColorAttachment1, 0, -1),
+                    (RMSITexture, EFramebufferAttachment.ColorAttachment2, 0, -1),
+                    (DepthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
 
                 SSAOBlurFBO = new QuadFrameBuffer(ssaoBlurMat);
                 GBufferFBO = new FrameBuffer();
-                GBufferFBO.SetRenderTargets((ssaoTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
+                GBufferFBO.SetRenderTargets((SSAOTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
                 #region Light Meshes
 
@@ -880,79 +886,47 @@ namespace TheraEngine.Rendering
                 };
                 additiveRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
                 
-                TexRef2D diffuseTex = TexRef2D.CreateFrameBufferTexture("Diffuse", width, height,
+                LightingTexture = TexRef2D.CreateFrameBufferTexture("Diffuse", width, height,
                     EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat);
                 GLSLShaderFile lightCombineShader = Engine.LoadEngineShader(
                     Path.Combine(SceneShaderPath, "DeferredLightCombine.fs"), EShaderMode.Fragment);
                 BaseTexRef[] combineRefs = new BaseTexRef[]
                 {
-                    albedoOpacityTexture,
-                    normalTexture,
-                    rmsiTexture,
-                    ssaoTexture,
-                    depthViewTexture,
-                    diffuseTex,
+                    AlbedoOpacityTexture,
+                    NormalTexture,
+                    RMSITexture,
+                    SSAOTexture,
+                    DepthViewTexture,
+                    LightingTexture,
                     BrdfTex,
                     //irradiance
                     //prefilter
                 };
                 TMaterial lightCombineMat = new TMaterial("LightCombineMat", renderParams, combineRefs, lightCombineShader);
                 LightCombineFBO = new QuadFrameBuffer(lightCombineMat);
-                LightCombineFBO.SetRenderTargets((diffuseTex, EFramebufferAttachment.ColorAttachment0, 0, -1));
+                LightCombineFBO.SetRenderTargets((LightingTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
                 LightCombineFBO.SettingUniforms += LightCombineFBO_SettingUniforms;
 
                 TexRef2D[] lightRefs = new TexRef2D[]
                 {
-                    albedoOpacityTexture,
-                    normalTexture,
-                    rmsiTexture,
-                    depthViewTexture,
+                    AlbedoOpacityTexture,
+                    NormalTexture,
+                    RMSITexture,
+                    DepthViewTexture,
                     //shadow map texture
-                };
-                TexRef2D[] decalRefs = new TexRef2D[]
-                {
-                    albedoOpacityTexture,
-                    normalTexture,
-                    rmsiTexture,
-                    depthViewTexture,
                 };
 
                 GLSLShaderFile pointLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingPoint.fs"), EShaderMode.Fragment);
                 GLSLShaderFile spotLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingSpot.fs"), EShaderMode.Fragment);
                 GLSLShaderFile dirLightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredLightingDir.fs"), EShaderMode.Fragment);
-                GLSLShaderFile decalShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "DeferredDecal.fs"), EShaderMode.Fragment);
 
                 TMaterial pointLightMat = new TMaterial("PointLightMat", additiveRenderParams, lightRefs, pointLightShader);
                 TMaterial spotLightMat = new TMaterial("SpotLightMat", additiveRenderParams, lightRefs, spotLightShader);
                 TMaterial dirLightMat = new TMaterial("DirLightMat", additiveRenderParams, lightRefs, dirLightShader);
 
-                ShaderVar[] decalVars = new ShaderVar[]
-                {
-
-                };
-                RenderingParameters decalRenderParams = new RenderingParameters
-                {
-                    CullMode = ECulling.Front,
-                    Requirements = EUniformRequirements.Camera,
-                    BlendMode = new BlendMode()
-                    {
-                        Enabled = ERenderParamUsage.Enabled,
-                        RgbEquation = EBlendEquationMode.FuncAdd,
-                        AlphaEquation = EBlendEquationMode.FuncAdd,
-                        RgbSrcFactor = EBlendingFactor.SrcColor,
-                        RgbDstFactor = EBlendingFactor.DstColor,
-                        AlphaSrcFactor = EBlendingFactor.SrcAlpha,
-                        AlphaDstFactor = EBlendingFactor.OneMinusSrcAlpha,
-                    },
-                };
-                decalRenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-
-                TMaterial decalMat = new TMaterial("DecalMat", additiveRenderParams, decalVars, decalRefs, decalShader);
-
                 PrimitiveData pointLightMesh = Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u);
                 PrimitiveData spotLightMesh = BaseCone.SolidMesh(Vec3.Zero, Vec3.UnitZ, 1.0f, 1.0f, 32, true);
                 PrimitiveData dirLightMesh = BoundingBox.SolidMesh(-Vec3.Half, Vec3.Half);
-                PrimitiveData decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
 
                 PointLightManager = new PrimitiveManager(pointLightMesh, pointLightMat);
                 PointLightManager.SettingUniforms += LightManager_SettingUniforms;
@@ -962,10 +936,7 @@ namespace TheraEngine.Rendering
                 
                 DirLightManager = new PrimitiveManager(dirLightMesh, dirLightMat);
                 DirLightManager.SettingUniforms += LightManager_SettingUniforms;
-
-                DecalManager = new PrimitiveManager(decalMesh, decalMat);
-                DecalManager.SettingUniforms += DecalManager_SettingUniforms;
-
+            
                 #endregion
             }
 
@@ -973,22 +944,22 @@ namespace TheraEngine.Rendering
 
             #region Forward
 
-            _bloomBlurTexture = TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
+            BloomBlurTexture = TexRef2D.CreateFrameBufferTexture("OutputColor", width, height,
                 EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte);
-            _bloomBlurTexture.MagFilter = ETexMagFilter.Linear;
-            _bloomBlurTexture.MinFilter = ETexMinFilter.LinearMipmapLinear;
-            _bloomBlurTexture.UWrap = ETexWrapMode.ClampToEdge;
-            _bloomBlurTexture.VWrap = ETexWrapMode.ClampToEdge;
+            BloomBlurTexture.MagFilter = ETexMagFilter.Linear;
+            BloomBlurTexture.MinFilter = ETexMinFilter.LinearMipmapLinear;
+            BloomBlurTexture.UWrap = ETexWrapMode.ClampToEdge;
+            BloomBlurTexture.VWrap = ETexWrapMode.ClampToEdge;
             
-            _hdrSceneTexture = TexRef2D.CreateFrameBufferTexture("HDRSceneColor", width, height,
+            HDRSceneTexture = TexRef2D.CreateFrameBufferTexture("HDRSceneColor", width, height,
                 EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat,
                 EFramebufferAttachment.ColorAttachment0);
             //_hdrSceneTexture.Resizeable = false;
-            _hdrSceneTexture.MinFilter = ETexMinFilter.Nearest;
-            _hdrSceneTexture.MagFilter = ETexMagFilter.Nearest;
-            _hdrSceneTexture.UWrap = ETexWrapMode.ClampToEdge;
-            _hdrSceneTexture.VWrap = ETexWrapMode.ClampToEdge;
-            _hdrSceneTexture.SamplerName = "HDRSceneTex";
+            HDRSceneTexture.MinFilter = ETexMinFilter.Nearest;
+            HDRSceneTexture.MagFilter = ETexMagFilter.Nearest;
+            HDRSceneTexture.UWrap = ETexWrapMode.ClampToEdge;
+            HDRSceneTexture.VWrap = ETexWrapMode.ClampToEdge;
+            HDRSceneTexture.SamplerName = "HDRSceneTex";
 
             GLSLShaderFile brightShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BrightPass.fs"), EShaderMode.Fragment);
             GLSLShaderFile bloomBlurShader = Engine.LoadEngineShader(Path.Combine(SceneShaderPath, "BloomBlur.fs"), EShaderMode.Fragment);
@@ -1005,11 +976,11 @@ namespace TheraEngine.Rendering
 
             TexRef2D[] brightRefs = new TexRef2D[]
             {
-                _hdrSceneTexture
+                HDRSceneTexture
             };
             TexRef2D[] blurRefs = new TexRef2D[]
             {
-                _bloomBlurTexture,
+                BloomBlurTexture,
             };
             TexRef2D[] hudRefs = new TexRef2D[]
             {
@@ -1017,10 +988,10 @@ namespace TheraEngine.Rendering
             };
             TexRef2D[] postProcessRefs = new TexRef2D[]
             {
-                _hdrSceneTexture,
-                _bloomBlurTexture,
-                depthViewTexture,
-                stencilViewTexture,
+                HDRSceneTexture,
+                BloomBlurTexture,
+                DepthViewTexture,
+                StencilViewTexture,
                 hudTexture,
             };
             ShaderVar[] blurVars = new ShaderVar[]
@@ -1036,19 +1007,19 @@ namespace TheraEngine.Rendering
             ForwardPassFBO = new QuadFrameBuffer(brightMat);
             ForwardPassFBO.SettingUniforms += BrightPassFBO_SettingUniforms;
             ForwardPassFBO.SetRenderTargets(
-                (_hdrSceneTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
-                (_depthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
+                (HDRSceneTexture, EFramebufferAttachment.ColorAttachment0, 0, -1),
+                (DepthStencilTexture, EFramebufferAttachment.DepthStencilAttachment, 0, -1));
 
             BloomBlurFBO1 = new QuadFrameBuffer(bloomBlurMat);
-            BloomBlurFBO1.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
+            BloomBlurFBO1.SetRenderTargets((BloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
             BloomBlurFBO2 = new QuadFrameBuffer(bloomBlurMat);
-            BloomBlurFBO2.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 1, -1));
+            BloomBlurFBO2.SetRenderTargets((BloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 1, -1));
             BloomBlurFBO4 = new QuadFrameBuffer(bloomBlurMat);
-            BloomBlurFBO4.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 2, -1));
+            BloomBlurFBO4.SetRenderTargets((BloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 2, -1));
             BloomBlurFBO8 = new QuadFrameBuffer(bloomBlurMat);
-            BloomBlurFBO8.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 3, -1));
+            BloomBlurFBO8.SetRenderTargets((BloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 3, -1));
             BloomBlurFBO16 = new QuadFrameBuffer(bloomBlurMat);
-            BloomBlurFBO16.SetRenderTargets((_bloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 4, -1));
+            BloomBlurFBO16.SetRenderTargets((BloomBlurTexture, EFramebufferAttachment.ColorAttachment0, 4, -1));
 
             PostProcessFBO = new QuadFrameBuffer(postProcessMat);
             PostProcessFBO.SettingUniforms += _postProcess_SettingUniforms;
@@ -1062,7 +1033,7 @@ namespace TheraEngine.Rendering
         }
 
         private LightComponent _lightComp;
-        private DecalComponent _decalComp;
+        //private DecalComponent _decalComp;
 
         private void LightManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
@@ -1101,15 +1072,15 @@ namespace TheraEngine.Rendering
                     baseCount);
         }
 
-        private void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
-        {
-            materialProgram.Uniform("BoxWorldMatrix", _decalComp.WorldMatrix);
-            materialProgram.Uniform("InvBoxWorldMatrix", _decalComp.InverseWorldMatrix);
-            materialProgram.Uniform("BoxHalfScale", _decalComp.Box.HalfExtents.Raw);
-            materialProgram.Sampler("Texture4", _decalComp.AlbedoOpacity.RenderTextureGeneric, 4);
-            materialProgram.Sampler("Texture5", _decalComp.Normal.RenderTextureGeneric, 5);
-            materialProgram.Sampler("Texture6", _decalComp.RMSI.RenderTextureGeneric, 6);
-        }
+        //private void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
+        //{
+        //    materialProgram.Uniform("BoxWorldMatrix", _decalComp.WorldMatrix);
+        //    materialProgram.Uniform("InvBoxWorldMatrix", _decalComp.InverseWorldMatrix);
+        //    materialProgram.Uniform("BoxHalfScale", _decalComp.Box.HalfExtents.Raw);
+        //    materialProgram.Sampler("Texture4", _decalComp.AlbedoOpacity.RenderTextureGeneric, 4);
+        //    materialProgram.Sampler("Texture5", _decalComp.Normal.RenderTextureGeneric, 5);
+        //    materialProgram.Sampler("Texture6", _decalComp.RMSI.RenderTextureGeneric, 6);
+        //}
 
         private void BrightPassFBO_SettingUniforms(RenderProgram program)
             => RenderingCamera?.PostProcessRef.File.Bloom.SetUniforms(program);

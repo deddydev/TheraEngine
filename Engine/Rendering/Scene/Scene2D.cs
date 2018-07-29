@@ -51,8 +51,8 @@ namespace TheraEngine.Rendering
         }
         public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
-            AbstractRenderer.PushCamera(camera);
-            AbstractRenderer.PushCurrent2DScene(this);
+            Engine.Renderer.PushCamera(camera);
+            Engine.Renderer.PushCurrent2DScene(this);
             {
                 if (viewport != null)
                 {
@@ -110,8 +110,8 @@ namespace TheraEngine.Rendering
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
             }
-            AbstractRenderer.PopCurrent2DScene();
-            AbstractRenderer.PopCamera();
+            Engine.Renderer.PopCurrent2DScene();
+            Engine.Renderer.PopCamera();
         }
 
         public I2DRenderable FindDeepest(Vec2 viewportPoint)

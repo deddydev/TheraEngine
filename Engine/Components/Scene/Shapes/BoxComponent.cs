@@ -42,6 +42,7 @@ namespace TheraEngine.Components.Scene.Shapes
             get => _box;
             set => _box = value;
         }
+        [Browsable(false)]
         public override Shape CullingVolume => _box;
 
         [Category("Box")]

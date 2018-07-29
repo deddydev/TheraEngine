@@ -22,67 +22,42 @@ namespace TheraEngine.Rendering
         public const float DefaultPointSize = 5.0f;
         public const float DefaultLineSize = 1.0f;
         
-        public static Camera CurrentCamera => _cameraStack.Count == 0 ? null : _cameraStack.Peek();
-        public static Scene2D Current2DScene => _2dSceneStack.Count == 0 ? null : _2dSceneStack.Peek();
-        public static Scene3D Current3DScene => _3dSceneStack.Count == 0 ? null : _3dSceneStack.Peek();
-        
-        public abstract RenderLibrary RenderLibrary { get; }
-        public RenderContext CurrentContext => RenderContext.Captured;
-        public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
+        public Camera CurrentCamera => _cameraStack.Count == 0 ? null : _cameraStack.Peek();
+        public Scene2D Current2DScene => _2dSceneStack.Count == 0 ? null : _2dSceneStack.Peek();
+        public Scene3D Current3DScene => _3dSceneStack.Count == 0 ? null : _3dSceneStack.Peek();
 
         /// <summary>
         /// Set this to force every mesh to render with this material.
         /// </summary>
         public TMaterial MaterialOverride { get; set; }
+        public abstract RenderLibrary RenderLibrary { get; }
+        public RenderContext CurrentContext => RenderContext.Captured;
+        public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 
-        protected static IPrimitiveManager _currentPrimitiveManager;
+        protected IPrimitiveManager _currentPrimitiveManager;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
-        private static Stack<Camera> _cameraStack = new Stack<Camera>();
-        private static Stack<Scene2D> _2dSceneStack = new Stack<Scene2D>();
-        private static Stack<Scene3D> _3dSceneStack = new Stack<Scene3D>();
-        
-        public abstract void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor);
-        public void ClearTexImage(int bindingId, int level, ColorF4 color)
-            => ClearTexImage(bindingId, level, EPixelFormat.Rgba, EPixelType.Float, color.Address);
-        public void ClearTexImage(int bindingId, int level, ColorF3 color)
-           => ClearTexImage(bindingId, level, EPixelFormat.Rgb, EPixelType.Float, color.Address);
-        public void ClearTexImage(int bindingId, int level, RGBAPixel color)
-           => ClearTexImage(bindingId, level, EPixelFormat.Rgba, EPixelType.Byte, color.Address);
-        public abstract void SetActiveTexture(int unit);
+        private Stack<Camera> _cameraStack = new Stack<Camera>();
+        private Stack<Scene2D> _2dSceneStack = new Stack<Scene2D>();
+        private Stack<Scene3D> _3dSceneStack = new Stack<Scene3D>();
 
-        public abstract void ColorMask(bool r, bool g, bool b, bool a);
-
-        public abstract void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
-        public abstract void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
-        public abstract void GenerateMipmap(int bindingId);
-        public abstract void GenerateMipmap(ETexTarget target);
-
-        public abstract void GetTexImage<T>(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels) where T : unmanaged;
-        public abstract void GetTexImage(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, IntPtr pixels);
-        public abstract void GetTexImage<T>(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels) where T : unmanaged;
-        public abstract void GetTexImage(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, int bufSize, IntPtr pixels);
-        
-        #region Debug Primitives
-
-        protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
-
-        internal static void PushCurrent3DScene(Scene3D scene)
+        #region Push / Pop Current
+        internal void PushCurrent3DScene(Scene3D scene)
         {
             _3dSceneStack.Push(scene);
         }
-        internal static void PopCurrent3DScene()
+        internal void PopCurrent3DScene()
         {
             _3dSceneStack.Pop();
         }
-        internal static void PushCurrent2DScene(Scene2D scene)
+        internal void PushCurrent2DScene(Scene2D scene)
         {
             _2dSceneStack.Push(scene);
         }
-        internal static void PopCurrent2DScene()
+        internal void PopCurrent2DScene()
         {
             _2dSceneStack.Pop();
         }
-        internal static void PushCamera(Camera camera)
+        internal void PushCamera(Camera camera)
         {
             Camera c = CurrentCamera;
 
@@ -95,7 +70,7 @@ namespace TheraEngine.Rendering
             if (camera != null)
                 camera.IsActiveRenderCamera = true;
         }
-        internal static void PopCamera()
+        internal void PopCamera()
         {
             Camera c = _cameraStack.Pop();
 
@@ -107,6 +82,9 @@ namespace TheraEngine.Rendering
             if (c != null)
                 c.IsActiveRenderCamera = true;
         }
+        #endregion
+
+        #region Debug Primitives
 
         //public class DebugPrimitive : I3DRenderable
         //{
@@ -167,6 +145,7 @@ namespace TheraEngine.Rendering
             SolidCone,
         }
 
+        protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
         private readonly IPrimitiveManager[] _debugPrims = new IPrimitiveManager[12];
 
         public IPrimitiveManager GetDebugPrimitive(DebugPrimitiveType type)
@@ -380,6 +359,7 @@ namespace TheraEngine.Rendering
 
         #endregion
 
+        #region Primitive Management
         public virtual void BindPrimitiveManager(IPrimitiveManager manager)
         {
             _currentPrimitiveManager = manager;
@@ -392,30 +372,52 @@ namespace TheraEngine.Rendering
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
         }
         public abstract void RenderCurrentPrimitiveManager(int instances);
+        #endregion
+
+        #region Data Buffers
         public abstract void LinkRenderIndices(IPrimitiveManager manager, DataBuffer indexBuffer);
         public abstract void BindBufferBase(EBufferRangeTarget rangeTarget, int blockIndex, int bufferBindingId);
-        public abstract int GetUniformBlockIndex(int programBindingId, string name);
         public abstract void InitializeBuffer(DataBuffer buffer);
         public abstract void PushBufferData(DataBuffer buffer);
         public abstract void PushBufferSubData(DataBuffer buffer, int offset, int length);
         public abstract void MapBufferData(DataBuffer buffer);
         public abstract void UnmapBufferData(DataBuffer buffer);
         public abstract void AttributeDivisor(int attributeLocation, int divisor);
+        #endregion
+
+        public abstract int GetUniformBlockIndex(int programBindingId, string name);
 
         public abstract void ClearColor(ColorF4 color);
         public abstract void Clear(EFBOTextureType mask);
-        public abstract void Cull(ECulling culling);
+        public abstract void SetFaceCulling(ECulling culling);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
+
         public abstract byte GetStencilIndex(float x, float y);
         public abstract float GetDepth(float x, float y);
-        public abstract void EnableDepthTest(bool enabled);
-        public abstract void ClearStencil(int value);
-        public abstract void StencilMask(int value);
-        public abstract void StencilOp(EStencilOp fail, EStencilOp zFail, EStencilOp zPass);
 
+        public abstract void ColorMask(bool r, bool g, bool b, bool a);
+
+        public abstract void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
+        public abstract void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
+        public abstract void GenerateMipmap(int bindingId);
+        public abstract void GenerateMipmap(ETexTarget target);
+
+        [Conditional("DEBUG")]
+        public abstract void CheckErrors();
+
+        public abstract Bitmap GetScreenshot(Rectangle region, bool withTransparency);
+
+        public abstract void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type);
+        public abstract void EndConditionalRender();
+
+        #region Synchronization
         public abstract void MemoryBarrier(EMemoryBarrierFlags flags);
         public abstract void MemoryBarrierByRegion(EMemoryBarrierRegionFlags flags);
+        public abstract EWaitSyncStatus ClientWaitSync(IntPtr sync, long timeout);
+        public abstract void WaitSync(IntPtr sync, long timeout);
+        public abstract IntPtr FenceSync();
+        #endregion
 
         #region Shaders
 
@@ -628,11 +630,20 @@ namespace TheraEngine.Rendering
         }
         #endregion
 
+        #region Textures
+        public abstract void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor);
+        public void ClearTexImage(int bindingId, int level, ColorF4 color) => ClearTexImage(bindingId, level, EPixelFormat.Rgba, EPixelType.Float, color.Address);
+        public void ClearTexImage(int bindingId, int level, ColorF3 color) => ClearTexImage(bindingId, level, EPixelFormat.Rgb, EPixelType.Float, color.Address);
+        public void ClearTexImage(int bindingId, int level, RGBAPixel color) => ClearTexImage(bindingId, level, EPixelFormat.Rgba, EPixelType.Byte, color.Address);
+        public abstract void SetActiveTexture(int unit);
+        public abstract void GetTexImage<T>(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels) where T : unmanaged;
+        public abstract void GetTexImage(ETexTarget target, int level, EPixelFormat pixelFormat, EPixelType pixelType, IntPtr pixels);
+        public abstract void GetTexImage<T>(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, T[] pixels) where T : unmanaged;
+        public abstract void GetTexImage(int textureBindingId, int level, EPixelFormat pixelFormat, EPixelType pixelType, int bufSize, IntPtr pixels);
         public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData);
         public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData);
         public abstract void TexParameter(int texBindingId, ETexParamName texParam, float paramData);
         public abstract void TexParameter(int texBindingId, ETexParamName texParam, int paramData);
-        
         public abstract void PushTextureData(
             ETexTarget texTarget, 
             int mipLevel, 
@@ -683,13 +694,9 @@ namespace TheraEngine.Rendering
             ESizedInternalFormat internalFormat,
             int width,
             int height);
-
         public abstract void BindTexture(ETexTarget texTarget, int bindingId);
         public abstract void TextureView(int bindingId, ETexTarget target, int origTextureId, EPixelInternalFormat fmt, int minLevel, int numLevels, int minLayer, int numLayers);
-        //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
-
-        [Conditional("DEBUG")]
-        public abstract void CheckErrors();
+        #endregion
 
         #region Frame Buffers
 
@@ -731,6 +738,7 @@ namespace TheraEngine.Rendering
           EBlitFramebufferFilter filter);
         #endregion
 
+        #region Transform Feedback
         public abstract void BindTransformFeedback(int bindingId);
         public abstract void BeginTransformFeedback(FeedbackPrimitiveType type);
         public abstract void EndTransformFeedback();
@@ -738,26 +746,36 @@ namespace TheraEngine.Rendering
         /// Binds a transform feedback buffer to "out" variables in the shader.
         /// </summary>
         public abstract void TransformFeedbackVaryings(int program, string[] varNames);
+        #endregion
 
-        public abstract Bitmap GetScreenshot(Rectangle region, bool withTransparency);
-
-        public abstract void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type);
-        public abstract void EndConditionalRender();
-
+        #region Queries
         public abstract void BeginQuery(int bindingId, EQueryTarget target);
         public abstract void EndQuery(EQueryTarget target);
         public abstract void QueryCounter(int bindingId);
         public abstract int GetQueryObjectInt(int bindingId, EGetQueryObject obj);
         public abstract long GetQueryObjectLong(int bindingId, EGetQueryObject obj);
+        #endregion
 
+        #region Blending
         public abstract void BlendColor(ColorF4 color);
         public abstract void BlendFunc(EBlendingFactor srcFactor, EBlendingFactor destFactor);
         public abstract void BlendFuncSeparate(EBlendingFactor srcFactorRGB, EBlendingFactor destFactorRGB, EBlendingFactor srcFactorAlpha, EBlendingFactor destFactorAlpha);
         public abstract void BlendEquation(EBlendEquationMode rgb, EBlendEquationMode alpha);
         public abstract void BlendEquationSeparate(EBlendEquationMode rgb, EBlendEquationMode alpha);
+        #endregion
+
+        #region Depth Test
+        public abstract void EnableDepthTest(bool enabled);
         public abstract void ClearDepth(float defaultDepth);
         public abstract void AllowDepthWrite(bool allow);
         public abstract void DepthFunc(EComparison func);
         public abstract void DepthRange(double near, double far);
+        #endregion
+
+        #region Stencil
+        public abstract void ClearStencil(int value);
+        public abstract void StencilMask(int value);
+        public abstract void StencilOp(EStencilOp fail, EStencilOp zFail, EStencilOp zPass);
+        #endregion
     }
 }

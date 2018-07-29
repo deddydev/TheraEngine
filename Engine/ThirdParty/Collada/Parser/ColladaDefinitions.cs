@@ -26,11 +26,16 @@ namespace TheraEngine.Rendering.Models
         public abstract class BaseColladaElement<TParent> : BaseElement<TParent> where TParent : class, IElement
         {
             public COLLADA Root => GenericRoot as COLLADA;
-            public virtual IID GetIDEntry(string id) => Root.IDEntries[id];
+            public virtual List<IID> GetIDEntries(string id) => Root.IDEntries[id];
             public override void OnAttributesRead()
             {
                 if (this is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
-                    Root.IDEntries.Add(IDEntry.ID, IDEntry);
+                {
+                    if (!Root.IDEntries.ContainsKey(IDEntry.ID))
+                        Root.IDEntries.Add(IDEntry.ID, new List<IID>() { IDEntry });
+                    else
+                        Root.IDEntries[IDEntry.ID].Add(IDEntry);
+                }
 
                 if (this is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
                 {
@@ -61,16 +66,44 @@ namespace TheraEngine.Rendering.Models
         {
             public string URI { get; set; }
             bool IsLocal => URI.StartsWith("#");
+
             public void ReadFromString(string str) => URI = str;
             public string WriteToString() => URI;
+
             public T GetElement<T>(IRoot root) where T : IID
-                => (T)GetElement(root as COLLADA);
+                => GetElement<T>(root as COLLADA);
             public T GetElement<T>(COLLADA root) where T : IID
-                => (T)GetElement(root);
-            public IID GetElement(COLLADA root)
-                => IsLocal ? root?.GetIDEntry(URI.Substring(1)) : null;
+            {
+                List<T> elements = GetElements<T>(root);
+                if (elements.Count == 0)
+                    return default;
+                if (elements.Count == 1)
+                    return elements[0];
+                throw new Exception($"{elements.Count} ID entries at '{TargetID}' of type {typeof(T).GetFriendlyName()}. Cannot determine which is which.");
+            }
+
+            public List<T> GetElements<T>(IRoot root) where T : IID
+                => GetElements<T>(root as COLLADA);
+            public List<T> GetElements<T>(COLLADA root) where T : IID
+                => GetElements(root).Where(x => typeof(T).IsAssignableFrom(x.GetType())).Select(x => (T)x).ToList();
+
             public IID GetElement(IRoot root)
-                => IsLocal ? (root as COLLADA)?.GetIDEntry(URI.Substring(1)) : null;
+                => GetElement(root as COLLADA);
+            public IID GetElement(COLLADA root)
+            {
+                List<IID> elements = GetElements(root);
+                if (elements.Count == 0)
+                    return default;
+                if (elements.Count == 1)
+                    return elements[0];
+                throw new Exception($"{elements.Count} ID entries at '{TargetID}'. Cannot determine which is which.");
+            }
+
+            public List<IID> GetElements(IRoot root)
+                => GetElements(root as COLLADA);
+            public List<IID> GetElements(COLLADA root)
+                => IsLocal ? root?.GetIDEntries(URI.Substring(1)) : null;
+
             public string TargetID => IsLocal ? URI.Substring(1) : URI;
         }
         public class SidRef : IParsable
@@ -84,7 +117,17 @@ namespace TheraEngine.Rendering.Models
             {
                 selector = null;
                 string[] parts = Path.Split('/');
-                ISIDAncestor ancestor = root.GetIDEntry(parts[0]);
+                string idName = parts[0];
+                List<IID> ids = root.GetIDEntries(idName);
+                if (ids.Count == 0)
+                    return null;
+                if (ids.Count > 1)
+                {
+                    //Minor edge case which doesn't typically happen.
+                    //TODO: determine which is which
+                    throw new InvalidOperationException($"{ids.Count} ID entries named '{idName}'. Cannot determine which is which.");
+                }
+                ISIDAncestor ancestor = ids[0];
                 for (int i = 1; i < parts.Length; ++i)
                 {
                     string part = parts[i];
@@ -727,9 +770,18 @@ namespace TheraEngine.Rendering.Models
             [Attr("base", false)]
             public string Base { get; set; }
 
-            public Dictionary<string, IID> IDEntries { get; } = new Dictionary<string, IID>();
-            public override IID GetIDEntry(string id)
+            public Dictionary<string, List<IID>> IDEntries { get; } = new Dictionary<string, List<IID>>();
+            public override List<IID> GetIDEntries(string id)
                 => IDEntries.ContainsKey(id) ? IDEntries[id] : null;
+            public T GetIDEntry<T>(string id)
+            {
+                List<T> entries = GetIDEntries(id).Where(x => x is T).Select(x => (T)x).ToList();
+                if (entries.Count == 0)
+                    return default;
+                if (entries.Count == 1)
+                    return entries[0];
+                throw new InvalidOperationException();
+            }
 
             #region Scene
             [ElementName("scene")]
@@ -813,6 +865,8 @@ namespace TheraEngine.Rendering.Models
                 public List<ISID> SIDElementChildren { get; } = new List<ISID>();
             }
 
+            public interface IImage { }
+
             #region Images
             [ElementName("library_images")]
             [ElementChild(typeof(Image15X), 1, -1)]
@@ -834,7 +888,7 @@ namespace TheraEngine.Rendering.Models
                 //[ElementChild(typeof(Create3DEntry), 0, 1)]
                 //[ElementChild(typeof(CreateCubeEntry), 0, 1)]
                 [ElementChild(typeof(Extra), 0, -1)]
-                public class Image15X : BaseColladaElement<LibraryImages>, IID, ISID, IElementName
+                public class Image15X : BaseColladaElement<LibraryImages>, IID, ISID, IElementName, IImage
                 {
                     public Asset AssetElement => GetChild<Asset>();
                     public Renderable RenderableElement => GetChild<Renderable>();
@@ -970,7 +1024,7 @@ namespace TheraEngine.Rendering.Models
                 [ElementChild(typeof(Asset), 0, 1)]
                 [ElementChild(typeof(ISource), 1)]
                 [ElementChild(typeof(Extra), 0, -1)]
-                public class Image14X : BaseColladaElement<LibraryImages>, IID, ISID, IElementName
+                public class Image14X : BaseColladaElement<LibraryImages>, IID, ISID, IElementName, IImage
                 {
                     [Attr("id", false)]
                     public string ID { get; set; } = null;

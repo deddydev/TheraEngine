@@ -179,8 +179,8 @@ namespace TheraEngine.Rendering
         //}
         public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
-            AbstractRenderer.PushCamera(camera);
-            AbstractRenderer.PushCurrent3DScene(this);
+            Engine.Renderer.PushCamera(camera);
+            Engine.Renderer.PushCurrent3DScene(this);
             {
                 if (viewport != null)
                 {
@@ -198,7 +198,7 @@ namespace TheraEngine.Rendering
                             Engine.Renderer.EnableDepthTest(true);
                             Engine.Renderer.ClearDepth(1.0f);
                             renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
-                            RenderDeferredDecals(viewport);
+                            renderingPasses.Render(ERenderPass.DeferredDecals);
                             Engine.Renderer.EnableDepthTest(false);
                         }
                         viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
@@ -215,7 +215,7 @@ namespace TheraEngine.Rendering
                         RenderForwardPass(viewport, renderingPasses);
                         RenderBloom(viewport);
 
-                        camera.PostProcessRef.File.ColorGrading.UpdateExposure(viewport._hdrSceneTexture);
+                        camera.PostProcessRef.File.ColorGrading.UpdateExposure(viewport.HDRSceneTexture);
 
                         //TODO: Apply camera post process material pass here
                         TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
@@ -265,8 +265,8 @@ namespace TheraEngine.Rendering
                     target?.Unbind(EFramebufferTarget.DrawFramebuffer);
                 }
             }
-            AbstractRenderer.PopCurrent3DScene();
-            AbstractRenderer.PopCamera();
+            Engine.Renderer.PopCurrent3DScene();
+            Engine.Renderer.PopCamera();
         }
         public void Add(I3DRenderable obj)
         {
@@ -340,40 +340,27 @@ namespace TheraEngine.Rendering
             {
                 //Start with blank slate so additive blending doesn't ghost old frames
                 Engine.Renderer.Clear(EFBOTextureType.Color);
-
                 foreach (PointLightComponent c in Lights.PointLights)
-                {
                     viewport.RenderPointLight(c);
-                }
                 foreach (SpotLightComponent c in Lights.SpotLights)
-                {
                     viewport.RenderSpotLight(c);
-                }
                 foreach (DirectionalLightComponent c in Lights.DirectionalLights)
-                {
                     viewport.RenderDirLight(c);
-                }
             }
             viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
-        private void RenderDeferredDecals(Viewport viewport)
-        {
-            //viewport.DecalsFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-            //{
-                //Start with blank slate so additive blending doesn't ghost old frames
-                //Engine.Renderer.Clear(EFBOTextureType.Color);
-                foreach (DecalComponent c in Decals)
-                    viewport.RenderDecal(c);
-            //}
-            //viewport.DecalsFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-        }
+        //private void RenderDeferredDecals(Viewport viewport)
+        //{
+        //    foreach (DecalComponent c in Decals)
+        //        viewport.RenderDecal(c);
+        //}
         private void RenderBloom(Viewport viewport)
         {
             viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
             viewport.ForwardPassFBO.RenderFullscreen();
             viewport.BloomBlurFBO1.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-            var tex = viewport._bloomBlurTexture.GetTexture(true);
+            var tex = viewport.BloomBlurTexture.GetTexture(true);
             tex.Bind();
             tex.GenerateMipmaps();
 

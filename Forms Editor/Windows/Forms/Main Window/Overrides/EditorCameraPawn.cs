@@ -52,6 +52,9 @@ namespace TheraEditor.Actors.Types.Pawns
                 comp.Translation.Raw = Segment.PointAtLineDistance(comp.WorldPoint, HitPoint, up ? -ScrollSpeed : ScrollSpeed);
             else
                 comp.TranslateRelative(0.0f, 0.0f, up ? ScrollSpeed : -ScrollSpeed);
+
+            //if (!Moving)
+            //    EditorHud.UpdateHighlightPoint(LocalPlayerController?.Viewport?.Camera);
         }
 
         private bool _alt = false;

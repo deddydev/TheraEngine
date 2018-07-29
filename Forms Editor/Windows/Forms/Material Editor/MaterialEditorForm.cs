@@ -92,10 +92,7 @@ namespace TheraEditor.Windows.Forms
             {
                 MaterialGraph.RenderPanel.UI.TargetMaterial = value;
                 MaterialProperties.TargetMaterial = value;
-                if (value != null)
-                    FormTitle2.Text = value.Name + " [" + value.FilePath + "]";
-                else
-                    FormTitle2.Text = string.Empty;
+                FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
             }
         }
 

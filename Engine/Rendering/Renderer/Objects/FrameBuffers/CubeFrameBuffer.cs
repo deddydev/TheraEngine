@@ -56,9 +56,9 @@ namespace TheraEngine.Rendering
         /// </summary>
         public void RenderFullscreen(ECubemapFace face)
         {
-            AbstractRenderer.PushCamera(Cameras[(int)face]);
+            Engine.Renderer.PushCamera(Cameras[(int)face]);
             _cube.Render();
-            AbstractRenderer.PopCamera();
+            Engine.Renderer.PopCamera();
         }
     }
 }

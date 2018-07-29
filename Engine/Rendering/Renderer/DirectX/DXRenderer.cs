@@ -118,7 +118,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void Cull(ECulling culling)
+        public override void SetFaceCulling(ECulling culling)
         {
             throw new NotImplementedException();
         }
@@ -715,6 +715,21 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         protected override void SetRenderArea(BoundingRectangle region)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EWaitSyncStatus ClientWaitSync(IntPtr sync, long timeout)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WaitSync(IntPtr sync, long timeout)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IntPtr FenceSync()
         {
             throw new NotImplementedException();
         }

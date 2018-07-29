@@ -107,7 +107,11 @@ namespace TheraEditor.Wrappers
         }
         private async void ImportAsSkeletalMesh()
         {
+            if (FilePath != null && File.Exists(FilePath))
+                return;
             TFileObject skeletalModel = await SkeletalModel.LoadDAEAsync(FilePath);
+            if (skeletalModel == null)
+                return;
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
             skeletalModel.Export(dir, name, EFileFormat.XML);

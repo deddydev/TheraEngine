@@ -48,11 +48,19 @@ namespace TheraEngine.Rendering.OpenGL
         [MinGLVersion(EOpenGLVersion.Ver_4_2)]
         public override void MemoryBarrier(EMemoryBarrierFlags flags)
             => GL.MemoryBarrier((MemoryBarrierFlags)flags);
-
         [MinGLVersion(EOpenGLVersion.Ver_4_5)]
         public override void MemoryBarrierByRegion(EMemoryBarrierRegionFlags flags)
             => GL.MemoryBarrierByRegion((MemoryBarrierRegionFlags)flags);
-
+        [MinGLVersion(EOpenGLVersion.Ver_3_2)]
+        public override EWaitSyncStatus ClientWaitSync(IntPtr sync, long timeout)
+            => (EWaitSyncStatus)(int)GL.ClientWaitSync(sync, ClientWaitSyncFlags.SyncFlushCommandsBit, timeout);
+        [MinGLVersion(EOpenGLVersion.Ver_3_2)]
+        public override void WaitSync(IntPtr sync, long timeout)
+            => GL.WaitSync(sync, WaitSyncFlags.None, timeout);
+        [MinGLVersion(EOpenGLVersion.Ver_3_2)]
+        public override IntPtr FenceSync()
+            => GL.FenceSync(SyncCondition.SyncGpuCommandsComplete, WaitSyncFlags.None);
+        
         [MinGLVersion(EOpenGLVersion.Ver_1_0)]
         public override void ClearColor(ColorF4 color)
             => GL.ClearColor(color.R, color.G, color.B, color.A);
@@ -372,7 +380,7 @@ namespace TheraEngine.Rendering.OpenGL
                 return;
 
             Engine.Renderer.ColorMask(r.WriteRed, r.WriteGreen, r.WriteBlue, r.WriteAlpha);
-            Engine.Renderer.Cull(r.CullMode);
+            Engine.Renderer.SetFaceCulling(r.CullMode);
             GL.PointSize(r.PointSize);
             GL.LineWidth(r.LineWidth.Clamp(0.0f, 1.0f));
 
@@ -886,7 +894,7 @@ namespace TheraEngine.Rendering.OpenGL
         #endregion
 
         #region Primitives
-        public override void Cull(ECulling culling)
+        public override void SetFaceCulling(ECulling culling)
         {
             if (culling == ECulling.None)
                 GL.Disable(EnableCap.CullFace);

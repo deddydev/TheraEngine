@@ -91,7 +91,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             //Set engine uniforms
             if (Requirements.HasFlag(EUniformRequirements.Camera))
-                AbstractRenderer.CurrentCamera.SetUniforms(program);
+                Engine.Renderer.CurrentCamera.SetUniforms(program);
             //if (Requirements.HasFlag(EUniformRequirements.Lights))
             //    AbstractRenderer.Current3DScene.Lights.SetUniforms(program);
             if (Requirements.HasFlag(EUniformRequirements.RenderTime))

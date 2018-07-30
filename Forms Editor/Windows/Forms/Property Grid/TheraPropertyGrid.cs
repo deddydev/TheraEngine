@@ -331,11 +331,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Deque<Type> controlTypes = new Deque<Type>();
             while (subType != null)
             {
-                if (mainControlType == null && InPlaceEditorTypes.ContainsKey(subType))
+                if (mainControlType == null)
                 {
-                    mainControlType = InPlaceEditorTypes[subType];
-                    if (!controlTypes.Contains(mainControlType))
-                        controlTypes.PushFront(mainControlType);
+                    Type subType2 = subType;
+                    if (subType.IsGenericType && !InPlaceEditorTypes.ContainsKey(subType))
+                        subType2 = subType.GetGenericTypeDefinition();
+                    if (InPlaceEditorTypes.ContainsKey(subType2))
+                    {
+                        mainControlType = InPlaceEditorTypes[subType2];
+                        if (!controlTypes.Contains(mainControlType))
+                            controlTypes.PushFront(mainControlType);
+                    }
                 }
                 Type[] interfaces = subType.GetInterfaces();
                 foreach (Type i in interfaces)
@@ -384,7 +390,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
 
-            control.SetProperty(prop, propertyOwner);
+            control.SetReferenceHolder(prop, propertyOwner);
             control.Dock = DockStyle.Fill;
             control.Visible = true;
 

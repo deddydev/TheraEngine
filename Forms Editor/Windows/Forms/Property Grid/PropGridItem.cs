@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridItemParentInfo ParentInfo { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public Type DataType { get; set; }
+        public Type DataType => ParentInfo.DataType;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Label Label { get; set; }
@@ -170,30 +170,29 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //    _oldValue, _newValue, classObject, info);
             }
         }
-        internal protected virtual void SetIDictionaryOwner(IDictionary dic, Type dataType, object key, bool isKey)
+        //internal protected virtual void SetIDictionaryOwner(IDictionary dic, Type dataType, object key, bool isKey)
+        //{
+        //    ParentInfo = new PropGridItemParentIDictionaryInfo(dic, key, isKey);
+        //    DataType = dataType;
+        //    SetControlsEnabled(!dic.IsReadOnly && !_readOnly);
+        //    UpdateDisplay();
+        //}
+        //internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
+        //{
+        //    ParentInfo = new PropGridItemParentIListInfo(list, index);
+        //    DataType = elementType;
+        //    SetControlsEnabled(!list.IsReadOnly && !_readOnly);
+        //    UpdateDisplay();
+        //}
+        //protected internal void SetPropertyByName(string propertyName, object propertyOwner)
+        //{
+        //    PropertyInfo propertyInfo = propertyOwner.GetType().GetProperty(propertyName);
+        //    SetReferenceHolder(propertyInfo, propertyOwner);
+        //}
+        internal protected virtual void SetReferenceHolder(PropGridItemParentInfo parentInfo)
         {
-            ParentInfo = new PropGridItemParentIDictionaryInfo(dic, key, isKey);
-            DataType = dataType;
-            SetControlsEnabled(!dic.IsReadOnly && !_readOnly);
-            UpdateDisplay();
-        }
-        internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
-        {
-            ParentInfo = new PropGridItemParentIListInfo(list, index);
-            DataType = elementType;
-            SetControlsEnabled(!list.IsReadOnly && !_readOnly);
-            UpdateDisplay();
-        }
-        protected internal void SetPropertyByName(string propertyName, object propertyOwner)
-        {
-            PropertyInfo propertyInfo = propertyOwner.GetType().GetProperty(propertyName);
-            SetProperty(propertyInfo, propertyOwner);
-        }
-        internal protected virtual void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
-        {
-            ParentInfo = new PropGridItemParentPropertyInfo(propertyOwner, propertyInfo);
-            DataType = propertyInfo.PropertyType;
-            SetControlsEnabled(propertyInfo.CanWrite && !_readOnly);
+            ParentInfo = parentInfo;
+            SetControlsEnabled(!ParentInfo.IsReadOnly() && !_readOnly);
             UpdateDisplay();
         }
         internal void SetLabel(Label label)

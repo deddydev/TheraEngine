@@ -23,13 +23,13 @@ namespace TheraEditor.Windows.Forms
                     DropDownName += " (Farthest)";
 
                 lblMaterial.Text = _lod.MaterialRef?.File?.Name ?? "<null>";
-                propGridSingle1.SetProperty(_lod.GetType().GetProperty(nameof(_lod.VisibleDistance)), _lod);
+                propGridSingle1.SetReferenceHolder(_lod.GetType().GetProperty(nameof(_lod.VisibleDistance)), _lod);
             }
             else
             {
                 lblMaterial.Text = "<null>";
                 DropDownName = "<null>";
-                propGridSingle1.SetProperty(null, null);
+                propGridSingle1.SetReferenceHolder(null, null);
             }
         }
         private void lblMaterial_MouseEnter(object sender, System.EventArgs e)

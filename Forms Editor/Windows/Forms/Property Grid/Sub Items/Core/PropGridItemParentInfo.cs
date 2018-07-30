@@ -7,6 +7,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public abstract class PropGridItemParentInfo
     {
+        public abstract Type DataType { get; }
         public abstract bool IsReadOnly();
         public abstract void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler);
         public abstract object Value { get; set; }
@@ -57,6 +58,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Property.SetValue(Owner, value);
             }
         }
+
+        public override Type DataType => throw new NotImplementedException();
     }
     public class PropGridItemParentIListInfo : PropGridItemParentInfo
     {
@@ -66,6 +69,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public IList Owner { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override Type DataType => Owner == null ? null : (Index >= 0 && Index < Owner.Count ? Owner[Index]?.GetType() ?? Owner.ListType);
 
         public PropGridItemParentIListInfo(IList owner, int index)
         {
@@ -153,5 +159,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
         }
+
+        public override Type DataType => throw new NotImplementedException();
     }
 }

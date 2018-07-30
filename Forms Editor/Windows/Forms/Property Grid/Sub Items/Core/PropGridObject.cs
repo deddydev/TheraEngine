@@ -144,9 +144,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.SetIListOwner(list, elementType, index);
             UpdateMouseDown();
         }
-        protected internal override void SetProperty(PropertyInfo propertyInfo, object propertyOwner)
+        protected internal override void SetReferenceHolder(PropertyInfo propertyInfo, object propertyOwner)
         {
-            base.SetProperty(propertyInfo, propertyOwner);
+            base.SetReferenceHolder(propertyInfo, propertyOwner);
             UpdateMouseDown();
         }
         protected internal override void SetIDictionaryOwner(IDictionary dic, Type dataType, object key, bool isKey)

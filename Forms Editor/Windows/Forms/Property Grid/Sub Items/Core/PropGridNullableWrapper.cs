@@ -9,11 +9,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
+            //Type tt = value.GetType();
             if (chkNull.Checked = value is null)
             {
                 pnlEditor.Visible = false;
             }
-            else if (value.GetType() == DataType)
+            else
             {
                 pnlEditor.Visible = true;
                 Type t = DataType.GetGenericArguments()[0];
@@ -25,6 +26,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //throw new Exception(DataType.GetFriendlyName() + " is not a Nullable<T> type.");
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
-            => UpdateValue(chkNull.Checked, true);
+            => UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
     }
 }

@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             chkNull.Checked = value == null;
-            PropGridItemParentPropertyInfo propInfo = GetParentInfo<PropGridItemParentPropertyInfo>();
+            PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
             if (propInfo?.Property != null)
             {
                 object[] attribs = propInfo.Property.GetCustomAttributes(true);

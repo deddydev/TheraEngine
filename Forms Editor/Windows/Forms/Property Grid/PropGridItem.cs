@@ -22,12 +22,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public event Action DoneEditing;
         public event Action ValueChanged;
 
-        public T GetParentInfo<T>() where T : PropGridItemParentInfo
+        public T GetParentInfo<T>() where T : PropGridItemRefInfo
             => ParentInfo as T;
         
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public PropGridItemParentInfo ParentInfo { get; set; }
+        public PropGridItemRefInfo ParentInfo { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type DataType => ParentInfo.DataType;
@@ -189,7 +189,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //    PropertyInfo propertyInfo = propertyOwner.GetType().GetProperty(propertyName);
         //    SetReferenceHolder(propertyInfo, propertyOwner);
         //}
-        internal protected virtual void SetReferenceHolder(PropGridItemParentInfo parentInfo)
+        internal protected virtual void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
             ParentInfo = parentInfo;
             SetControlsEnabled(!ParentInfo.IsReadOnly() && !_readOnly);

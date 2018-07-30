@@ -91,7 +91,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             string displayName = displayNameAttrib?.DisplayName;
             var parentInfo = editors[0].ParentInfo;
-            string propName = editors[0].GetParentInfo<PropGridItemParentPropertyInfo>()?.Property?.Name;
+            string propName = editors[0].GetParentInfo<PropGridItemRefPropertyInfo>()?.Property?.Name;
             string name;
 
             if (!string.IsNullOrWhiteSpace(displayName))
@@ -102,11 +102,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 name = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
             }
-            else if (parentInfo is PropGridItemParentIListInfo listInfo)
+            else if (parentInfo is PropGridItemRefIListInfo listInfo)
             {
                 name = string.Format("[{0}]", listInfo.Index);
             }
-            else if (parentInfo is PropGridItemParentIDictionaryInfo dicInfo)
+            else if (parentInfo is PropGridItemRefIDictionaryInfo dicInfo)
             {
                 name = string.Format("[{0}]", dicInfo.Key.ToString());
             }

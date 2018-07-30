@@ -13,22 +13,15 @@ namespace TheraEngine.Components.Scene
 {
     public class DecalComponent : BoxComponent, I3DRenderable
     {
-        internal PrimitiveManager DecalManager;
+        protected PrimitiveManager DecalManager { get; set; }
         internal Matrix4 DecalRenderMatrix { get; private set; }
         internal Matrix4 InverseDecalRenderMatrix { get; private set; }
-        //private FrameBuffer RenderFBO { get; set; }
-        //private QuadFrameBuffer QuadFBO { get; set; }
         internal TexRef2D AlbedoOpacity { get; private set; }
-        //internal TexRef2D Normal { get; private set; }
-        //internal TexRef2D RMSI { get; private set; }
-        //private BoundingRectangle ViewRect { get; set; }
 
         [Category("Decal")]
         public TMaterial Material { get; set; }
         [Category("Decal")]
         public bool RenderIntersectionWireframe { get; set; } = false;
-        [Category("Decal")]
-        public bool PreRenderEnabled { get; set; } = true;
         [Category("Decal")]
         public override Vec3 HalfExtents
         {
@@ -72,7 +65,7 @@ namespace TheraEngine.Components.Scene
                 Requirements = EUniformRequirements.Camera,
                 BlendMode = new BlendMode()
                 {
-                    Enabled = ERenderParamUsage.Enabled,
+                    Enabled = ERenderParamUsage.Disabled,
                     RgbEquation = EBlendEquationMode.FuncAdd,
                     AlphaEquation = EBlendEquationMode.FuncAdd,
                     RgbSrcFactor = EBlendingFactor.One,
@@ -86,19 +79,6 @@ namespace TheraEngine.Components.Scene
             PrimitiveData decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
             DecalManager = new PrimitiveManager(decalMesh, decalMat);
             DecalManager.SettingUniforms += DecalManager_SettingUniforms;
-            //ViewRect = new BoundingRectangle(0, 0, width, height);
-            //QuadFBO = new QuadFrameBuffer(Material);
-            AlbedoOpacity = TexRef2D.CreateFrameBufferTexture("DecalAlbedoOpacity", width, height,
-                EPixelInternalFormat.Rgba8, EPixelFormat.Rgba, EPixelType.UnsignedByte);
-            //Normal = TexRef2D.CreateFrameBufferTexture("DecalNormal", width, height,
-            //    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat);
-            //RMSI = TexRef2D.CreateFrameBufferTexture("DecalRMSI", width, height,
-            //    EPixelInternalFormat.Rgba8, EPixelFormat.Rgba, EPixelType.UnsignedByte);
-            //RenderFBO = new FrameBuffer();
-            //RenderFBO.SetRenderTargets(
-            //    (AlbedoOpacity, EFramebufferAttachment.ColorAttachment0, 0, -1),
-            //    (Normal, EFramebufferAttachment.ColorAttachment1, 0, -1),
-            //    (RMSI, EFramebufferAttachment.ColorAttachment2, 0, -1));
         }
         private void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
@@ -114,13 +94,7 @@ namespace TheraEngine.Components.Scene
         public override void OnSpawned()
         {
             Initialize(128, 128);
-            //OwningScene.Decals.Add(this);
             base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            //OwningScene.Decals.Add(this);
-            base.OnDespawned();
         }
         public override void Render()
         {
@@ -128,23 +102,5 @@ namespace TheraEngine.Components.Scene
             if (RenderIntersectionWireframe)
                 base.Render();
         }
-        //public void PreRenderUpdate(Camera camera)
-        //{
-
-        //}
-        //public void PreRenderSwap()
-        //{
-
-        //}
-        //public void PreRender(Viewport viewport, Camera camera)
-        //{
-        //    RenderFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-        //    Engine.Renderer.PushRenderArea(ViewRect);
-        //    Engine.Renderer.Clear(EFBOTextureType.Color);
-        //    QuadFBO.RenderFullscreen();
-        //    Engine.Renderer.PopRenderArea();
-        //    RenderFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-        //    PreRenderEnabled = false;
-        //}
     }
 }

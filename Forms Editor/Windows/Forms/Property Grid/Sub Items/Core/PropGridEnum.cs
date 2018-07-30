@@ -147,16 +147,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             UpdateValue(newTotal, true);
         }
 
-        protected internal override void SetReferenceHolder(PropertyInfo propertyInfo, object propertyOwner)
+        protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
-            UpdateControls(propertyInfo.PropertyType);
-            base.SetReferenceHolder(propertyInfo, propertyOwner);
-        }
-
-        protected internal override void SetIListOwner(IList list, Type elementType, int index)
-        {
-            UpdateControls(elementType);
-            base.SetIListOwner(list, elementType, index);
+            UpdateControls(parentInfo.DataType);
+            base.SetReferenceHolder(parentInfo);
         }
 
         private void UpdateControls(Type enumType)

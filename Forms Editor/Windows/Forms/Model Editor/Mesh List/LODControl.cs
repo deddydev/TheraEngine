@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine.Rendering.Models;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -23,13 +24,13 @@ namespace TheraEditor.Windows.Forms
                     DropDownName += " (Farthest)";
 
                 lblMaterial.Text = _lod.MaterialRef?.File?.Name ?? "<null>";
-                propGridSingle1.SetReferenceHolder(_lod.GetType().GetProperty(nameof(_lod.VisibleDistance)), _lod);
+                propGridSingle1.SetReferenceHolder(new PropGridItemRefPropertyInfo(_lod, _lod.GetType().GetProperty(nameof(_lod.VisibleDistance))));
             }
             else
             {
                 lblMaterial.Text = "<null>";
                 DropDownName = "<null>";
-                propGridSingle1.SetReferenceHolder(null, null);
+                propGridSingle1.SetReferenceHolder(new PropGridItemRefPropertyInfo(null, null));
             }
         }
         private void lblMaterial_MouseEnter(object sender, System.EventArgs e)

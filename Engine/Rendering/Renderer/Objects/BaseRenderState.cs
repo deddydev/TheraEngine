@@ -148,7 +148,7 @@ namespace TheraEngine.Rendering
             bool hasBind = GetCurrentBind();
             if (!hasBind)
             {
-                Engine.LogWarning("Unable to create render object: no captured render context.");
+                //Engine.LogWarning("Unable to create render object: no captured render context.");
                 return NullBindingId;
             }
 
@@ -166,8 +166,8 @@ namespace TheraEngine.Rendering
                 PostGenerated();
                 Generated?.Invoke();
             }
-            else
-                Engine.LogWarning("Unable to create render object.");
+            //else
+            //    Engine.LogWarning("Unable to create render object.");
 
             return id;
         }

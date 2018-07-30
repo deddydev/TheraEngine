@@ -29,55 +29,64 @@
         private void InitializeComponent()
         {
             this.chkNull = new System.Windows.Forms.CheckBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.pnlEditor = new System.Windows.Forms.Panel();
-            this.panel1.SuspendLayout();
+            this.betterTableLayoutPanel1 = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
+            this.pnlEditors = new System.Windows.Forms.Panel();
+            this.betterTableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // chkNull
             // 
-            this.chkNull.Dock = System.Windows.Forms.DockStyle.Top;
-            this.chkNull.Location = new System.Drawing.Point(0, 0);
+            this.chkNull.AutoSize = true;
+            this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
+            this.chkNull.Location = new System.Drawing.Point(-43, 0);
             this.chkNull.Margin = new System.Windows.Forms.Padding(0);
             this.chkNull.Name = "chkNull";
-            this.chkNull.Size = new System.Drawing.Size(0, 20);
+            this.chkNull.Size = new System.Drawing.Size(44, 17);
             this.chkNull.TabIndex = 0;
             this.chkNull.Text = "Null";
             this.chkNull.UseMnemonic = false;
             this.chkNull.UseVisualStyleBackColor = true;
             this.chkNull.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // panel1
+            // betterTableLayoutPanel1
             // 
-            this.panel1.AutoSize = true;
-            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel1.Controls.Add(this.chkNull);
-            this.panel1.Controls.Add(this.pnlEditor);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(0, 20);
-            this.panel1.TabIndex = 1;
+            this.betterTableLayoutPanel1.AutoSize = true;
+            this.betterTableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.betterTableLayoutPanel1.ColumnCount = 2;
+            this.betterTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.betterTableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.betterTableLayoutPanel1.Controls.Add(this.chkNull, 1, 0);
+            this.betterTableLayoutPanel1.Controls.Add(this.pnlEditors, 0, 0);
+            this.betterTableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.betterTableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
+            this.betterTableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.betterTableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            this.betterTableLayoutPanel1.Name = "betterTableLayoutPanel1";
+            this.betterTableLayoutPanel1.RowCount = 1;
+            this.betterTableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.betterTableLayoutPanel1.Size = new System.Drawing.Size(0, 17);
+            this.betterTableLayoutPanel1.TabIndex = 2;
             // 
-            // pnlEditor
+            // pnlEditors
             // 
-            this.pnlEditor.AutoSize = true;
-            this.pnlEditor.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.pnlEditor.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlEditor.Location = new System.Drawing.Point(0, 0);
-            this.pnlEditor.Name = "pnlEditor";
-            this.pnlEditor.Size = new System.Drawing.Size(0, 20);
-            this.pnlEditor.TabIndex = 1;
+            this.pnlEditors.AutoSize = true;
+            this.pnlEditors.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.pnlEditors.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlEditors.Location = new System.Drawing.Point(0, 0);
+            this.pnlEditors.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlEditors.Name = "pnlEditors";
+            this.pnlEditors.Size = new System.Drawing.Size(1, 0);
+            this.pnlEditors.TabIndex = 3;
             // 
             // PropGridNullableWrapper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.betterTableLayoutPanel1);
             this.Name = "PropGridNullableWrapper";
-            this.Size = new System.Drawing.Size(0, 20);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.Size = new System.Drawing.Size(0, 17);
+            this.betterTableLayoutPanel1.ResumeLayout(false);
+            this.betterTableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -85,7 +94,7 @@
 
         #endregion
         private System.Windows.Forms.CheckBox chkNull;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel pnlEditor;
+        private BetterTableLayoutPanel betterTableLayoutPanel1;
+        private System.Windows.Forms.Panel pnlEditors;
     }
 }

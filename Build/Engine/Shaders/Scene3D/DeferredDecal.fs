@@ -1,13 +1,8 @@
 #version 450
 
-const float PI = 3.14159265359f;
-const float InvPI = 0.31831f;
-
 layout (location = 0) out vec4 AlbedoOpacity;
 layout (location = 1) out vec3 Normal;
-layout (location = 2) out vec3 RMS;
-
-layout(location = 0) in vec3 FragPos;
+layout (location = 2) out vec4 RMSI;
 
 uniform sampler2D Texture0; //Screen AlbedoOpacity
 uniform sampler2D Texture1; //Screen Normal
@@ -39,7 +34,7 @@ void main()
 	//Retrieve shading information from GBuffer textures
 	vec4 albedo = texture(Texture0, uv);
 	vec3 normal = texture(Texture1, uv).rgb;
-	vec3 rms = texture(Texture2, uv).rgb;
+	vec4 rmsi = texture(Texture2, uv);
 	float depth = texture(Texture3, uv).r;
 
 	//Resolve world fragment position using depth and screen UV
@@ -69,11 +64,11 @@ void main()
 	//decalNormal = normalize(normal + mat3(BoxWorldMatrix) * (tbnToWorld * decalNormal));
 	//vec4 decalRMSI = texture(Texture6, decalUV);
 
-	decalAlbedoOpacity.rgb = mix(albedo.rgb, decalAlbedoOpacity.rgb, decalAlbedoOpacity.a * intensity);
+	decalAlbedoOpacity.rgb = mix(albedo.rgb, decalAlbedoOpacity.rgb, decalAlbedoOpacity.a);
 	//decalNormal = mix(normal, decalNormal, decalAlbedo.a);
 	//decalRMSI = mix(rmsi, decalRMSI, decalAlbedo.a);
 
 	AlbedoOpacity = vec4(decalAlbedoOpacity.rgb, albedo.a);
   Normal = normal;
-	RMS = rms;
+	RMSI = rmsi;
 }

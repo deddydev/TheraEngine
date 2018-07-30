@@ -27,7 +27,6 @@ namespace TheraEngine.Rendering
         public LightManager Lights { get; private set; }
         public ParticleManager Particles { get; }
         public IBLProbeGridActor IBLProbeActor { get; set; }
-        public ConcurrentHashSet<DecalComponent> Decals { get; } = new ConcurrentHashSet<DecalComponent>();
         //private GlobalFileRef<TMaterial> _voxelizationMaterial;
 
         public Scene3D() : this(0.5f) { }

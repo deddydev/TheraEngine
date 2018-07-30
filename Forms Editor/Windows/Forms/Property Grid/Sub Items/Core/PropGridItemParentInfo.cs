@@ -1,18 +1,45 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public abstract class PropGridItemParentInfo
+    public abstract class PropGridItemRefInfo
     {
         public abstract Type DataType { get; }
         public abstract bool IsReadOnly();
         public abstract void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler);
         public abstract object Value { get; set; }
     }
-    public class PropGridItemParentPropertyInfo : PropGridItemParentInfo
+    public class PropGridItemRefDirectInfo : PropGridItemRefInfo
+    {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override Type DataType => Value?.GetType() ?? _type;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override object Value { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override bool IsReadOnly() => false;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
+        {
+
+        }
+
+        private readonly Type _type;
+
+        public PropGridItemRefDirectInfo(object value, Type type)
+        {
+            Value = value;
+            _type = type;
+        }
+    }
+    public class PropGridItemRefPropertyInfo : PropGridItemRefInfo
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
@@ -20,8 +47,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public object Owner { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override Type DataType => Property?.PropertyType;
 
-        public PropGridItemParentPropertyInfo(object owner, PropertyInfo property)
+        public PropGridItemRefPropertyInfo(object owner, PropertyInfo property)
         {
             Owner = owner;
             Property = property;
@@ -58,10 +88,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Property.SetValue(Owner, value);
             }
         }
-
-        public override Type DataType => throw new NotImplementedException();
     }
-    public class PropGridItemParentIListInfo : PropGridItemParentInfo
+    public class PropGridItemRefIListInfo : PropGridItemRefInfo
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
@@ -71,12 +99,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public IList Owner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => Owner == null ? null : (Index >= 0 && Index < Owner.Count ? Owner[Index]?.GetType() ?? Owner.ListType);
+        public override Type DataType => Owner == null ? null : (Index >= 0 && Index < Owner.Count ? Owner[Index]?.GetType() ?? _dataType : _dataType);
+        private readonly Type _dataType;
 
-        public PropGridItemParentIListInfo(IList owner, int index)
+        public PropGridItemRefIListInfo(IList owner, int index)
         {
             Owner = owner;
             Index = index;
+            _dataType = Owner?.DetermineElementType();
         }
 
         public override bool IsReadOnly()
@@ -103,7 +133,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
     }
-    public class PropGridItemParentIDictionaryInfo : PropGridItemParentInfo
+    public class PropGridItemRefIDictionaryInfo : PropGridItemRefInfo
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
@@ -114,12 +144,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public IDictionary Owner { get; set; }
-        
-        public PropGridItemParentIDictionaryInfo(IDictionary owner, object key, bool isKey)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public Type ValueType => Owner.Contains(Key) ? (Owner[Key]?.GetType() ?? _valueType) : _valueType;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public Type KeyType => Key?.GetType() ?? _keyType;
+
+        private Type _valueType, _keyType;
+
+        public PropGridItemRefIDictionaryInfo(IDictionary owner, object key, bool isKey)
         {
             Owner = owner;
             Key = key;
             IsKey = isKey;
+            _valueType = Owner?.DetermineValueType();
+            _keyType = Owner?.DetermineKeyType();
         }
 
         public override bool IsReadOnly()

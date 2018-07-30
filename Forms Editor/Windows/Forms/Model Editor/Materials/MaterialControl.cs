@@ -51,15 +51,11 @@ namespace TheraEditor.Windows.Forms
                         Type varType = shaderVar.GetType();
 
                         PropGridItem textCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
-                            typeof(PropGridText),
-                            varType.GetProperty(nameof(ShaderVar.Name)), 
-                            shaderVar, this);
+                            typeof(PropGridText), new PropGridItemRefPropertyInfo(shaderVar, varType.GetProperty(nameof(ShaderVar.Name))), this);
                         textCtrl.ValueChanged += RedrawPreview;
 
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
-                            TheraPropertyGrid.GetControlTypes(valType)[0],
-                            varType.GetProperty("Value"), 
-                            shaderVar, this);
+                            TheraPropertyGrid.GetControlTypes(valType)[0], new PropGridItemRefPropertyInfo(shaderVar, varType.GetProperty("Value")), this);
                         valueCtrl.ValueChanged += RedrawPreview;
 
                         tblUniforms.RowStyles.Add(new RowStyle(SizeType.AutoSize));

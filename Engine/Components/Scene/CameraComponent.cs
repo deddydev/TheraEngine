@@ -122,12 +122,21 @@ namespace TheraEngine.Components.Scene
         }
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
-            _cameraRef.File.TranslateAbsolute(-newOrigin);
+            _cameraRef.File?.TranslateAbsolute(-newOrigin);
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = CameraRef.File.CameraToComponentSpaceMatrix;
-            inverseLocalTransform = CameraRef.File.ComponentToCameraSpaceMatrix;
+            Camera c = _cameraRef.File;
+            if (c != null)
+            {
+                localTransform = c.CameraToComponentSpaceMatrix;
+                inverseLocalTransform = c.ComponentToCameraSpaceMatrix;
+            }
+            else
+            {
+                localTransform = Matrix4.Identity;
+                inverseLocalTransform = Matrix4.Identity;
+            }
         }
         public override void RecalcWorldTransform()
         {
@@ -142,19 +151,19 @@ namespace TheraEngine.Components.Scene
         public override bool IsTranslatable => true;
         public override void HandleWorldTranslation(Vec3 delta)
         {
-            _cameraRef.File.TranslateAbsolute(delta);
+            _cameraRef.File?.TranslateAbsolute(delta);
         }
 
 #if EDITOR
         public override void OnSpawned()
         {
-            if (_alwaysShowFrustum)
+            if (_alwaysShowFrustum && Camera != null)
                 OwningScene.Add(Camera);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            if (_alwaysShowFrustum)
+            if (_alwaysShowFrustum && Camera != null)
                 OwningScene.Remove(Camera);
             base.OnDespawned();
         }
@@ -171,7 +180,7 @@ namespace TheraEngine.Components.Scene
                 if (_alwaysShowFrustum == value)
                     return;
                 _alwaysShowFrustum = value;
-                if (IsSpawned)
+                if (IsSpawned && Camera != null)
                 {
                     if (_alwaysShowFrustum)
                         OwningScene.Add(Camera);
@@ -183,7 +192,7 @@ namespace TheraEngine.Components.Scene
 
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (!AlwaysShowFrustum && IsSpawned)
+            if (!AlwaysShowFrustum && IsSpawned && Camera != null)
             {
                 if (selected)
                     OwningScene.Add(Camera);
@@ -194,8 +203,24 @@ namespace TheraEngine.Components.Scene
         }
 #endif
 
-        public Rotator Rotation { get => Camera.LocalRotation; set => Camera.LocalRotation = value; }
-        public EventVec3 Translation { get => Camera.LocalPoint; set => Camera.LocalPoint = value; }
+        public Rotator Rotation
+        {
+            get => Camera?.LocalRotation;
+            set
+            {
+                if (Camera != null)
+                    Camera.LocalRotation = value;
+            }
+        }
+        public EventVec3 Translation
+        {
+            get => Camera?.LocalPoint;
+            set
+            {
+                if (Camera != null)
+                    Camera.LocalPoint = value;
+            }
+        }
 
         public void TranslateRelative(Vec3 delta)
         {
@@ -211,18 +236,10 @@ namespace TheraEngine.Components.Scene
         }
         public void ArcBallRotate(float pitch, float yaw, Vec3 origin)
         {
-            Translation.Raw = TMath.ArcballTranslation(pitch, yaw, origin, Translation.Raw, GetLocalRightDir());
+            Translation.Raw = TMath.ArcballTranslation(pitch, yaw, origin, Translation.Raw, LocalRightDir);
             Rotation.AddRotations(pitch, yaw, 0.0f);
         }
-
-        public Vec3 GetLocalRightDir() => LocalMatrix.Row0.Xyz;
-        public Vec3 GetLocalUpDir() => LocalMatrix.Row1.Xyz;
-        public Vec3 GetLocalForwardDir() => LocalMatrix.Row2.Xyz;
-
-        public Vec3 GetWorldRightDir() => WorldMatrix.Row0.Xyz;
-        public Vec3 GetWorldUpDir() => WorldMatrix.Row1.Xyz;
-        public Vec3 GetWorldForwardDir() => WorldMatrix.Row2.Xyz;
-
+        
         #endregion
     }
 }

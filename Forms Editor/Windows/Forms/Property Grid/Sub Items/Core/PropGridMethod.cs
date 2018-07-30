@@ -38,7 +38,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblMethod_MouseDown(object sender, MouseEventArgs e)
         {
             if (Method.GetParameters().Length == 0)
-                Method.Invoke(GetParentInfo<PropGridItemParentPropertyInfo>().Owner, new object[0]);
+                Method.Invoke(GetParentInfo<PropGridItemRefPropertyInfo>().Owner, new object[0]);
             else
             {
                 //TODO: retrieve parameters from the user

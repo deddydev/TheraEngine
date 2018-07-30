@@ -273,7 +273,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (!propInfo.ContainsKey(i))
                         continue;
                     PropertyData p = propInfo[i];
-                    CreateControls(p.ControlTypes, p.Property, pnlProps, _categories, obj, p.Attribs, p.ReadOnly, this);
+                    CreateControls(p.ControlTypes, new PropGridItemRefPropertyInfo(obj, p.Property), pnlProps, _categories, p.Attribs, p.ReadOnly, this);
                 }
                 //TimeSpan elapsed = DateTime.Now - startTime;
                 //Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
@@ -365,40 +365,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             return controlTypes;
         }
-
-        /// <summary>
-        /// Instantiates the given PropGridItem-derived control types for the given property.
-        /// </summary>
-        /// <param name="controlTypes">The controls to create. All must derive from <see cref="PropGridItem"/>.</param>
-        /// <param name="prop">The info of the property that will be modified.</param>
-        /// <param name="propertyOwner">The object that owns the property.</param>
-        /// <param name="stateChangeMethod">The method that will be called upon a change in value.</param>
-        /// <returns></returns>
-        public static List<PropGridItem> InstantiatePropertyEditors(
-            Deque<Type> controlTypes, PropertyInfo prop, object propertyOwner, IDataChangeHandler dataChangeHandler)
-            => controlTypes.Select(x => InstantiatePropertyEditor(x, prop, propertyOwner, dataChangeHandler)).ToList();
-        /// <summary>
-        /// Instantiates the given PropGridItem-derived control type for the given property.
-        /// </summary>
-        /// <param name="controlType">The control to create. Must derive from <see cref="PropGridItem"/>.</param>
-        /// <param name="prop">The info of the property that will be modified.</param>
-        /// <param name="propertyOwner">The object that owns the property.</param>
-        /// <param name="stateChangeMethod">The method that will be called upon a change in value.</param>
-        /// <returns></returns>
-        public static PropGridItem InstantiatePropertyEditor(
-            Type controlType, PropertyInfo prop, object propertyOwner, IDataChangeHandler dataChangeHandler)
+        public static PropGridItem InstantiatePropertyEditor(Type controlType, PropGridItemRefInfo info, IDataChangeHandler dataChangeHandler)
         {
             PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
 
-            control.SetReferenceHolder(prop, propertyOwner);
+            control.SetReferenceHolder(info);
             control.Dock = DockStyle.Fill;
             control.Visible = true;
 
             if (dataChangeHandler != null)
-            {
                 control.DataChangeHandler = dataChangeHandler;
-                //Engine.PrintLine(stateChangeMethod.Method.Name);
-            }
             else
                 throw new Exception();
 
@@ -408,76 +384,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// Instantiates the given PropGridItem-derived control types for the given object in a list.
         /// </summary>
-        /// <param name="controlTypes"></param>
-        /// <param name="list"></param>
-        /// <param name="listIndex"></param>
-        /// <param name="stateChangeMethod"></param>
-        /// <returns></returns>
         public static List<PropGridItem> InstantiatePropertyEditors(
-            Deque<Type> controlTypes, IList list, int listIndex, IDataChangeHandler dataChangeHandler)
+            Deque<Type> controlTypes, PropGridItemRefInfo info, IDataChangeHandler dataChangeHandler)
         {
-            Type elementType = list.DetermineElementType();
-            return controlTypes.Select(x => InstantiatePropertyEditors(x, list, listIndex, elementType, dataChangeHandler)).ToList();
+            return controlTypes.Select(x => InstantiatePropertyEditor(x, info, dataChangeHandler)).ToList();
         }
-        public static List<PropGridItem> InstantiateValuePropertyEditors(
-            Deque<Type> controlTypes, IDictionary dic, object key, IDataChangeHandler dataChangeHandler)
-        {
-            Type valueType = dic.DetermineValueType();
-            return controlTypes.Select(x => InstantiatePropertyEditors(x, dic, key, false, valueType, dataChangeHandler)).ToList();
-        }
-        public static List<PropGridItem> InstantiateKeyPropertyEditors(
-            Deque<Type> controlTypes, IDictionary dic, object key, IDataChangeHandler dataChangeHandler)
-        {
-            Type keyType = dic.DetermineKeyType();
-            return controlTypes.Select(x => InstantiatePropertyEditors(x, dic, key, true, keyType, dataChangeHandler)).ToList();
-        }
-        /// <summary>
-        /// Instantiates the given PropGridItem-derived control type for the given object in a list.
-        /// </summary>
-        /// <param name="controlType"></param>
-        /// <param name="list"></param>
-        /// <param name="listIndex"></param>
-        /// <param name="stateChangeMethod"></param>
-        /// <returns></returns>
-        public static PropGridItem InstantiatePropertyEditors(Type controlType, IList list, int listIndex, Type listElementType, IDataChangeHandler dataChangeHandler)
-        {
-            PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
-
-            control.SetIListOwner(list, listElementType, listIndex);
-            control.Dock = DockStyle.Fill;
-            control.Visible = true;
-
-            if (dataChangeHandler != null)
-            {
-                control.DataChangeHandler = dataChangeHandler;
-                //Engine.PrintLine(stateChangeMethod.Method.Name);
-            }
-            else
-                throw new Exception();
-
-            control.Show();
-            return control;
-        }
-        public static PropGridItem InstantiatePropertyEditors(Type controlType, IDictionary dic, object key, bool isKey, Type dataType, IDataChangeHandler dataChangeHandler)
-        {
-            PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
-
-            control.SetIDictionaryOwner(dic, dataType, key, isKey);
-            control.Dock = DockStyle.Fill;
-            control.Visible = true;
-
-            if (dataChangeHandler != null)
-            {
-                control.DataChangeHandler = dataChangeHandler;
-                //Engine.PrintLine(stateChangeMethod.Method.Name);
-            }
-            else
-                throw new Exception();
-
-            control.Show();
-            return control;
-        }
-
         public static PropGridMethod CreateMethodControl(
             MethodInfo m,
             string displayName,
@@ -489,7 +400,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             PropGridMethod control = new PropGridMethod()
             {
                 Method = m,
-                ParentInfo = new PropGridItemParentPropertyInfo(obj, null),
+                ParentInfo = new PropGridItemRefPropertyInfo(obj, null),
             };
 
             //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
@@ -523,15 +434,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="dataChangeHandler"></param>
         public static void CreateControls(
             Deque<Type> controlTypes,
-            PropertyInfo prop,
+            PropGridItemRefInfo info,
             Panel panel,
             Dictionary<string, PropGridCategory> categories,
-            object obj,
             object[] attribs,
             bool readOnly,
             IDataChangeHandler dataChangeHandler)
         {
-            var controls = InstantiatePropertyEditors(controlTypes, prop, obj, dataChangeHandler);
+            var controls = InstantiatePropertyEditors(controlTypes, info, dataChangeHandler);
 
             string catName = !(attribs.FirstOrDefault(x => x is CategoryAttribute) is CategoryAttribute category) ? MiscName : category.Category;
             if (categories.ContainsKey(catName))

@@ -33,10 +33,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (DataType == typeof(Rotator))
             {
                 _rotator = value as Rotator;
+
+                bool notNull = _rotator != null;
+                cboOrder.Enabled = checkBox1.Checked = numericInputBoxPitch.Enabled = numericInputBoxYaw.Enabled = numericInputBoxRoll.Enabled = notNull;
+
                 numericInputBoxPitch.Value = _rotator?.Pitch;
                 numericInputBoxYaw.Value = _rotator?.Yaw;
                 numericInputBoxRoll.Value = _rotator?.Roll;
-                cboOrder.SelectedIndex = (int)_rotator.Order;
+                if (notNull)
+                    cboOrder.SelectedIndex = (int)_rotator.Order;
             }
             else
                 throw new Exception(DataType.GetFriendlyName() + " is not a Rotator type.");

@@ -693,7 +693,7 @@ namespace TheraEngine.Rendering
             Depth32Stencil8,
         }
 
-        private void PrecomputeBRDF(int width = 512, int height = 512)
+        protected void PrecomputeBRDF(int width = 512, int height = 512)
         {
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PrecomputeBRDF, BaseRenderPanel.PanelType.Rendering, width, height))
                 return;
@@ -739,7 +739,10 @@ namespace TheraEngine.Rendering
             fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
         
-        internal unsafe void InitFBOs()
+        /// <summary>
+        /// This method is called to generate all framebuffers necessary to render the final image for the viewport.
+        /// </summary>
+        internal protected virtual unsafe void InitFBOs()
         {
             RegeneratingFBOs = true;
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)InitFBOs, BaseRenderPanel.PanelType.Rendering))

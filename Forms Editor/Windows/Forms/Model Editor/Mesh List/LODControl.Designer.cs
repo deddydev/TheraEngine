@@ -49,7 +49,6 @@
             this.propGridSingle1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.propGridSingle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.propGridSingle1.DataChangeHandler = null;
-            this.propGridSingle1.DataType = null;
             this.propGridSingle1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propGridSingle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.propGridSingle1.Label = null;

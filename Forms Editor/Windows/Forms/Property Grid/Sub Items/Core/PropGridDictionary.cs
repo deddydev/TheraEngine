@@ -93,8 +93,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (kt != null && kt.IsSubclassOf(_keyType))
                         valueTypes2 = TheraPropertyGrid.GetControlTypes(kt);
 
-                    List<PropGridItem> keys = TheraPropertyGrid.InstantiateKeyPropertyEditors(keyTypes2, dic, key, DataChangeHandler);
-                    List<PropGridItem> values = TheraPropertyGrid.InstantiateValuePropertyEditors(valueTypes2, dic, key, DataChangeHandler);
+                    List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyTypes2, new PropGridItemRefIDictionaryInfo(dic, key, true), DataChangeHandler);
+                    List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valueTypes2, new PropGridItemRefIDictionaryInfo(dic, key, false), DataChangeHandler);
 
                     int count = keys.Count + values.Count;
                     List<PropGridItem> interlaced = new List<PropGridItem>(count);
@@ -156,10 +156,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             
             _dictionary.Add(key, value);
 
-            var keys = TheraPropertyGrid.InstantiateKeyPropertyEditors(
-                TheraPropertyGrid.GetControlTypes(key?.GetType()), _dictionary, key, DataChangeHandler);
-            var values = TheraPropertyGrid.InstantiateValuePropertyEditors(
-                TheraPropertyGrid.GetControlTypes(value?.GetType()), _dictionary, key, DataChangeHandler);
+            var keys = TheraPropertyGrid.InstantiatePropertyEditors(
+                TheraPropertyGrid.GetControlTypes(key?.GetType()), new PropGridItemRefIDictionaryInfo(_dictionary, key, true), DataChangeHandler);
+            var values = TheraPropertyGrid.InstantiatePropertyEditors(
+                TheraPropertyGrid.GetControlTypes(value?.GetType()), new PropGridItemRefIDictionaryInfo(_dictionary, key, false), DataChangeHandler);
 
             int count = keys.Count + values.Count;
             List<PropGridItem> interlaced = new List<PropGridItem>(count);

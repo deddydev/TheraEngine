@@ -2,9 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Reflection;
-using System.Security.Permissions;
-using System.Threading;
 using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Core.Extensions;
@@ -109,7 +106,7 @@ namespace TheraEngine
         //}
         /// <summary>
         /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method. You should return from the original method if calling this method on itself.
+        /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
         /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
         /// </summary>
         public static bool ThreadSafeBlockingInvoke<T>(Delegate method, PanelType type, out T result, params object[] args)
@@ -124,7 +121,7 @@ namespace TheraEngine
         }
         /// <summary>
         /// Returns true if the render panel needs to be invoked from the calling thread.
-        /// If it does, then it calls the method. You should return from the original method if calling this method on itself.
+        /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
         /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
         /// </summary>
         public static bool ThreadSafeBlockingInvoke(Delegate method, PanelType type, params object[] args)

@@ -6,26 +6,46 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridNullableWrapper : PropGridItem
     {
         public PropGridNullableWrapper() => InitializeComponent();
+        public Type ValueType { get; private set; }
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
             //Type tt = value.GetType();
             if (chkNull.Checked = value is null)
             {
-                pnlEditor.Visible = false;
+                pnlEditors.Controls.Clear();
             }
             else
             {
-                pnlEditor.Visible = true;
-                Type t = DataType.GetGenericArguments()[0];
-                var types = TheraPropertyGrid.GetControlTypes(t);
-                TheraPropertyGrid.CreateControls(types, null, pnlEditor, null, null, null, false, DataChangeHandler);
+                if (pnlEditors.Controls.Count == 0 && DataType != null)
+                {
+                    ValueType = DataType.GetGenericArguments()[0];
+                    var types = TheraPropertyGrid.GetControlTypes(ValueType);
+                    var items = TheraPropertyGrid.InstantiatePropertyEditors(types, new PropGridItemRefDirectInfo(value, ValueType), DataChangeHandler);
+                    foreach (var item in items)
+                    {
+                        item.Dock = System.Windows.Forms.DockStyle.Top;
+                        item.AutoSize = true;
+                        pnlEditors.Controls.Add(item);
+                    }
+                }
             }
-            chkNull.Enabled = pnlEditor.Enabled = !ParentInfo.IsReadOnly();
+            chkNull.Enabled = !ParentInfo.IsReadOnly();
 
             //throw new Exception(DataType.GetFriendlyName() + " is not a Nullable<T> type.");
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
-            => UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
+        {
+            if (chkNull.Checked)
+            {
+                UpdateValue(null, true);
+            }
+            else
+            {
+                ValueType = DataType.GetGenericArguments()[0];
+                object o = Editor.UserCreateInstanceOf(ValueType, true);
+                UpdateValue(o, true);
+            }
+        }
     }
 }

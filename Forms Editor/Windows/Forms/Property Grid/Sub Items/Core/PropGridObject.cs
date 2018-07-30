@@ -38,7 +38,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _object = value;
 
             string typeName = (_object?.GetType() ?? DataType).GetFriendlyName();
-            lblObjectTypeName.Text = ParentInfo is PropGridItemParentIListInfo ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
+            lblObjectTypeName.Text = ParentInfo is PropGridItemRefIListInfo ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
 
             if ((checkBox1.Checked = _object == null))
             {
@@ -117,7 +117,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
 
                     TheraPropertyGrid.CreateControls(
-                        controlTypes, prop, pnlProps, _categories, obj, attribs, false, DataChangeHandler);
+                        controlTypes, new PropGridItemRefPropertyInfo(obj, prop), pnlProps, _categories, attribs, false, DataChangeHandler);
                 }
             }
 
@@ -138,20 +138,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (_object != null)
                 lblObjectTypeName.BackColor = Color.Transparent;
         }
-
-        protected internal override void SetIListOwner(IList list, Type elementType, int index)
+        
+        internal protected override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
-            base.SetIListOwner(list, elementType, index);
-            UpdateMouseDown();
-        }
-        protected internal override void SetReferenceHolder(PropertyInfo propertyInfo, object propertyOwner)
-        {
-            base.SetReferenceHolder(propertyInfo, propertyOwner);
-            UpdateMouseDown();
-        }
-        protected internal override void SetIDictionaryOwner(IDictionary dic, Type dataType, object key, bool isKey)
-        {
-            base.SetIDictionaryOwner(dic, dataType, key, isKey);
+            base.SetReferenceHolder(parentInfo);
             UpdateMouseDown();
         }
 

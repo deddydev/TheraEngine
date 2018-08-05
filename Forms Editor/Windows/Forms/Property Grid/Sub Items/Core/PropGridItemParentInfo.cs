@@ -11,16 +11,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public abstract Type DataType { get; }
         public abstract bool IsReadOnly();
         public abstract void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler);
-        public abstract object Value { get; set; }
+        public abstract object Target { get; set; }
     }
     public class PropGridItemRefDirectInfo : PropGridItemRefInfo
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => Value?.GetType() ?? _type;
+        public override Type DataType => Target?.GetType() ?? _type;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override object Value { get; set; }
+        public override object Target { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override bool IsReadOnly() => false;
@@ -35,7 +35,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public PropGridItemRefDirectInfo(object value, Type type)
         {
-            Value = value;
+            Target = value;
             _type = type;
         }
     }
@@ -65,7 +65,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             dataChangeHandler?.PropertyObjectChanged(oldValue, newValue, Owner, Property);
         }
-        public override object Value
+        public override object Target
         {
             get
             {
@@ -117,7 +117,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             dataChangeHandler?.IListObjectChanged(oldValue, newValue, Owner, Index);
         }
-        public override object Value
+        public override object Target
         {
             get
             {
@@ -135,6 +135,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     }
     public class PropGridItemRefIDictionaryInfo : PropGridItemRefInfo
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override Type DataType => Target?.GetType();
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public object Key { get; set; }
@@ -170,7 +173,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             dataChangeHandler?.IDictionaryObjectChanged(oldValue, newValue, Owner, Key, IsKey);
         }
-        public override object Value
+        public override object Target
         {
             get
             {
@@ -199,7 +202,5 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
         }
-
-        public override Type DataType => throw new NotImplementedException();
     }
 }

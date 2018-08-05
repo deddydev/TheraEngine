@@ -102,7 +102,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             try
             {
-                return ParentInfo?.Value;
+                return ParentInfo?.Target;
             }
             catch (Exception ex)
             {
@@ -124,17 +124,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (submitStateChange)
             {
-                object oldValue = ParentInfo.Value;
+                object oldValue = ParentInfo.Target;
 
-                ParentInfo.Value = newValue;
-                newValue = ParentInfo.Value;
+                ParentInfo.Target = newValue;
+                newValue = ParentInfo.Target;
 
                 SubmitStateChange(oldValue, newValue);
             }
             else
             {
-                ParentInfo.Value = newValue;
-                newValue = ParentInfo.Value;
+                ParentInfo.Target = newValue;
+                newValue = ParentInfo.Target;
             }
             if (_isEditing)
                 _newValue = newValue;
@@ -192,7 +192,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         internal protected virtual void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
             ParentInfo = parentInfo;
-            SetControlsEnabled(!ParentInfo.IsReadOnly() && !_readOnly);
+            SetControlsEnabled(!(ParentInfo?.IsReadOnly() ?? true) && !_readOnly);
             UpdateDisplay();
         }
         internal void SetLabel(Label label)

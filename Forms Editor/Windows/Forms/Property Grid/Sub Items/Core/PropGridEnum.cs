@@ -149,7 +149,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
-            UpdateControls(parentInfo.DataType);
+            UpdateControls(parentInfo?.DataType);
             base.SetReferenceHolder(parentInfo);
         }
 

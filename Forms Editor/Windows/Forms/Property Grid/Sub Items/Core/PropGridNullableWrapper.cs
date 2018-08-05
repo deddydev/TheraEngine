@@ -6,28 +6,35 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridNullableWrapper : PropGridItem
     {
         public PropGridNullableWrapper() => InitializeComponent();
+        /// <summary>
+        /// The value type referenced by the nullable object.
+        /// </summary>
         public Type ValueType { get; private set; }
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-            //Type tt = value.GetType();
+            //TODO: support showing specific editors for derived value types?
             if (chkNull.Checked = value is null)
             {
-                pnlEditors.Controls.Clear();
+                if (pnlEditors.Enabled)
+                {
+                    SetControlsEnabled(false);
+                    foreach (PropGridItem item in pnlEditors.Controls)
+                        item.SetReferenceHolder(null);
+                }
             }
             else
             {
-                if (pnlEditors.Controls.Count == 0 && DataType != null)
+                if (!pnlEditors.Enabled)
                 {
-                    ValueType = DataType.GetGenericArguments()[0];
-                    var types = TheraPropertyGrid.GetControlTypes(ValueType);
-                    var items = TheraPropertyGrid.InstantiatePropertyEditors(types, new PropGridItemRefDirectInfo(value, ValueType), DataChangeHandler);
-                    foreach (var item in items)
-                    {
-                        item.Dock = System.Windows.Forms.DockStyle.Top;
-                        item.AutoSize = true;
-                        pnlEditors.Controls.Add(item);
-                    }
+                    SetControlsEnabled(true);
+                    foreach (PropGridItem item in pnlEditors.Controls)
+                        item.SetReferenceHolder(new PropGridItemRefDirectInfo(value, ValueType));
+                }
+                else
+                {
+                    foreach (PropGridItem item in pnlEditors.Controls)
+                        ((PropGridItemRefDirectInfo)item.ParentInfo).Target = value;
                 }
             }
             chkNull.Enabled = !ParentInfo.IsReadOnly();
@@ -46,6 +53,32 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 object o = Editor.UserCreateInstanceOf(ValueType, true);
                 UpdateValue(o, true);
             }
+        }
+        protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        {
+            base.SetReferenceHolder(parentInfo);
+            UpdateEditors();
+        }
+        private void UpdateEditors()
+        {
+            pnlEditors.Controls.Clear();
+            if (DataType != null)
+            {
+                object value = GetValue();
+                ValueType = DataType.GetGenericArguments()[0];
+                var types = TheraPropertyGrid.GetControlTypes(ValueType);
+                var items = TheraPropertyGrid.InstantiatePropertyEditors(types, null, DataChangeHandler);
+                foreach (var item in items)
+                {
+                    item.Dock = System.Windows.Forms.DockStyle.Top;
+                    item.AutoSize = true;
+                    pnlEditors.Controls.Add(item);
+                }
+            }
+        }
+        protected override void SetControlsEnabled(bool enabled)
+        {
+            pnlEditors.Enabled = enabled;
         }
     }
 }

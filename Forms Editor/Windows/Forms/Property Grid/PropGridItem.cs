@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridItemRefInfo ParentInfo { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public Type DataType => ParentInfo.DataType;
+        public Type DataType => ParentInfo?.DataType;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Label Label { get; set; }
@@ -202,14 +202,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public void UpdateDisplay()
         {
-            if (IsEditing)
+            if (IsEditing || !ControlsEnabled)
                 return;
 
             _updating = true;
             UpdateDisplayInternal();
             _updating = false;
         }
-        protected virtual void SetControlsEnabled(bool enabled) { Enabled = enabled; }
+        public bool ControlsEnabled { get; set; } = true;
+        protected virtual void SetControlsEnabled(bool enabled) { ControlsEnabled = Enabled = enabled; }
         protected virtual void UpdateDisplayInternal() { }
         protected virtual void OnLabelSet() { }
 

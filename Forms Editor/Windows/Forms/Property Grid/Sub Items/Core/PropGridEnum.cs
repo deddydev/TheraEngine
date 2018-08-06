@@ -155,6 +155,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void UpdateControls(Type enumType)
         {
+            bool enabled = enumType != null;
+            SetControlsEnabled(enabled);
+            if (!enabled)
+                return;
+            
             string[] names = Enum.GetNames(enumType);
             Array values = Enum.GetValues(enumType);
             bool flags = enumType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;

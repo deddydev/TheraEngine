@@ -35,8 +35,8 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        public DecalComponent() : base() { }
-        public DecalComponent(Vec3 halfExtents) : base(halfExtents, null) { }
+        public DecalComponent() : base() { RenderInfo.RenderPass = ERenderPass.DeferredDecals; }
+        public DecalComponent(Vec3 halfExtents) : base(halfExtents, null) { RenderInfo.RenderPass = ERenderPass.DeferredDecals; }
 
         protected override void OnWorldTransformChanged()
         {

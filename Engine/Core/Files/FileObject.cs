@@ -159,10 +159,13 @@ namespace TheraEngine.Files
         public TFileObject() { }
         //internal protected virtual void OnLoaded() { }
 
-        [Browsable(false)]
+        //[Browsable(false)]
         [TString(false, true, false)]
         [Category("Object")]
         public string FilePath { get; set; }
+        [TString(false, true, false)]
+        [Category("Object")]
+        public string Original3rdPartyPath { get; set; }
         [Browsable(false)]
         public string DirectoryPath => !string.IsNullOrEmpty(FilePath) && FilePath.IsValidPath() ? Path.GetDirectoryName(FilePath) : string.Empty;
         [Browsable(false)]

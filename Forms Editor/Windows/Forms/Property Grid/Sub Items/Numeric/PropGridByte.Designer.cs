@@ -33,19 +33,25 @@
             // 
             // numericInputBox1
             // 
-            this.numericInputBox1.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
+            this.numericInputBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.numericInputBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.numericInputBox1.DefaultValue = ((byte)(0));
-            this.numericInputBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.numericInputBox1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.numericInputBox1.FocusedColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.numericInputBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.numericInputBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBox1.LargeIncrement = ((byte)(5));
             this.numericInputBox1.LargerIncrement = ((byte)(10));
             this.numericInputBox1.Location = new System.Drawing.Point(0, 0);
             this.numericInputBox1.Margin = new System.Windows.Forms.Padding(0);
+            this.numericInputBox1.MaximumValue = ((byte)(255));
+            this.numericInputBox1.MinimumValue = ((byte)(0));
             this.numericInputBox1.Name = "numericInputBox1";
             this.numericInputBox1.Nullable = false;
-            this.numericInputBox1.Size = new System.Drawing.Size(0, 20);
+            this.numericInputBox1.NumberPrefix = "";
+            this.numericInputBox1.NumberSuffix = "";
+            this.numericInputBox1.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.numericInputBox1.Size = new System.Drawing.Size(0, 16);
             this.numericInputBox1.SmallerIncrement = ((byte)(1));
             this.numericInputBox1.SmallIncrement = ((byte)(2));
             this.numericInputBox1.TabIndex = 0;
@@ -54,11 +60,11 @@
             // 
             // PropGridByte
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.numericInputBox1);
             this.Name = "PropGridByte";
-            this.Size = new System.Drawing.Size(0, 20);
+            this.Size = new System.Drawing.Size(0, 16);
             this.ResumeLayout(false);
             this.PerformLayout();
 

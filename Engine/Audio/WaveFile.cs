@@ -1,30 +1,45 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 
 namespace TheraEngine.Audio
 {
     public class WaveFile : IDisposable
     {
-        int _channels, _bps, _sampleRate;
+        [TSerialize(nameof(Channels), IsXmlAttribute = true)]
+        private int _channels;
+        [TSerialize(nameof(BitsPerSample), IsXmlAttribute = true)]
+        private int _bps;
+        [TSerialize(nameof(SampleRate), IsXmlAttribute = true)]
+        private int _sampleRate;
 
+        [TSerialize(IsXmlElementString = true)]
         public byte[] SoundData { get; private set; }
 
         public int Channels => _channels;
         public int BitsPerSample => _bps;
         public int SampleRate => _sampleRate;
 
+        public WaveFile() { }
         public WaveFile(string filename)
+            => SoundData = LoadWave(filename, out _channels, out _bps, out _sampleRate);
+
+        public static byte[] LoadWave(string filename, out int channels, out int bitsPerSample, out int sampleRate)
         {
             if (!File.Exists(filename))
-                return;
-            SoundData = LoadWave(File.Open(filename, FileMode.Open), 
-                out _channels, out _bps, out _sampleRate);
-        }
+            {
+                channels = 0;
+                bitsPerSample = 0;
+                sampleRate = 0;
+                return null;
+            }
 
-        private byte[] LoadWave(Stream stream, out int channels, out int bits, out int rate)
+            return LoadWave(File.Open(filename, FileMode.Open), out channels, out bitsPerSample, out sampleRate);
+        }
+        public static byte[] LoadWave(Stream stream, out int channels, out int bitsPerSample, out int sampleRate)
         {
             if (stream == null)
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
 
             using (BinaryReader reader = new BinaryReader(stream))
             {
@@ -59,8 +74,8 @@ namespace TheraEngine.Audio
                 int data_chunk_size = reader.ReadInt32();
 
                 channels = num_channels;
-                bits = bits_per_sample;
-                rate = sample_rate;
+                bitsPerSample = bits_per_sample;
+                sampleRate = sample_rate;
 
                 return reader.ReadBytes(data_chunk_size);
             }

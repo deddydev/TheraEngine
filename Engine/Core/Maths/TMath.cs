@@ -2,6 +2,7 @@
 using TheraEngine.Core.Maths.Transforms;
 using System.Linq;
 using TheraEngine;
+using System.Numerics;
 
 namespace System
 {
@@ -22,7 +23,11 @@ namespace System
         /// <summary>
         /// PI represented as a float value.
         /// </summary>
-        public static readonly float PIf = (float)PI;
+        public static readonly float PIf = (float)PI;        
+        /// <summary>
+        /// e represented as a float value.
+        /// </summary>
+        public static readonly float Ef = (float)E;
         /// <summary>
         /// Multiply this constant by a degree value to convert to radians.
         /// </summary>
@@ -131,13 +136,14 @@ namespace System
         }
 
         /// <summary>
-        /// 
+        /// Returns a translation value representing a rotation of the cameraPoint around the focusPoint.
+        /// Assumes the Y axis is up. Yaw is performed before pitch.
         /// </summary>
-        /// <param name="pitch"></param>
-        /// <param name="yaw"></param>
-        /// <param name="focusPoint"></param>
-        /// <param name="cameraPoint"></param>
-        /// <param name="cameraRightDir"></param>
+        /// <param name="pitch">Rotation about the X axis, after yaw.</param>
+        /// <param name="yaw">Rotation about the Y axis.</param>
+        /// <param name="focusPoint">The point to rotate around.</param>
+        /// <param name="cameraPoint">The point to move.</param>
+        /// <param name="cameraRightDir">The direction representing the right side of a camera. This is the reference axis rotated around (at the focusPoint) using the pitch value.</param>
         /// <returns></returns>
         public static Vec3 ArcballTranslation(float pitch, float yaw, Vec3 focusPoint, Vec3 cameraPoint, Vec3 cameraRightDir)
         {
@@ -186,11 +192,14 @@ namespace System
         public static double Sind(double deg) => Sin(deg * DegToRadMult);
         public static double Tand(double deg) => Tan(deg * DegToRadMult);
 
+        public static float Powf(float value, float exponent) => (float)Pow(value, exponent);
+        public static float Sigmoidf(float value) => 1.0f / (1.0f + Powf(Ef, -value));
+        public static double Sigmoid(double value) => 1.0 / (1.0 + Pow(E, -value));
         /// <summary>
         /// Finds the two values of x where the equation ax^2 + bx + c evaluates to 0.
         /// Returns false if the solutions are not a real numbers.
         /// </summary>
-        public static bool QuadraticRealRoots(float a, float b, float c, out float answer1, out float answer2)
+        public static bool QuadraticRealRoots(float a, float b, float c, out float x1, out float x2)
         {
             if (a != 0.0f)
             {
@@ -200,14 +209,59 @@ namespace System
                     mag = (float)Sqrt(mag);
                     a *= 2.0f;
 
-                    answer1 = (-b + mag) / a;
-                    answer2 = (-b - mag) / a;
+                    x1 = (-b + mag) / a;
+                    x2 = (-b - mag) / a;
                     return true;
                 }
             }
-            answer1 = 0.0f;
-            answer2 = 0.0f;
+            else
+            {
+                x1 = x2 = -c / b;
+                return true;
+            }
+            x1 = 0.0f;
+            x2 = 0.0f;
             return false;
+        }       
+        /// <summary>
+        /// Finds the two values of x where the equation ax^2 + bx + c evaluates to 0.
+        /// </summary>
+        public static bool QuadraticRoots(float a, float b, float c, out Complex x1, out Complex x2)
+        {
+            if (a != 0.0f)
+            {
+                float mag = b * b - 4.0f * a * c;
+
+                a *= 2.0f;
+                b /= a;
+
+                if (mag >= 0.0f)
+                {
+                    mag = (float)Sqrt(mag) / a;
+
+                    x1 = new Complex(-b + mag, 0.0);
+                    x2 = new Complex(-b - mag, 0.0);
+                }
+                else
+                {
+                    mag = (float)Sqrt(-mag) / a;
+
+                    x1 = new Complex(-b, mag);
+                    x2 = new Complex(-b, -mag);
+                }
+                
+                return true;
+            }
+            else if (b != 0.0f)
+            {
+                x1 = x2 = -c / b;
+                return true;
+            }
+            else
+            {
+                x1 = x2 = 0.0f;
+                return false;
+            }
         }
         public static Vec3 Morph(Vec3 baseCoord, (Vec3 Position, float Weight)[] targets, bool relative = false)
         {
@@ -341,7 +395,7 @@ namespace System
                     }
                     solvedVector[row] = (expectedOutcome[row] - sigma) / inputMatrix[row, row];
                 }
-                Engine.PrintLine("Step #" + step + ": " + solvedVector.ToString());
+                //Engine.PrintLine("Step #" + step + ": " + solvedVector.ToString());
             }
             return solvedVector;
         }
@@ -360,7 +414,7 @@ namespace System
                     }
                     solvedVector[row] = (expectedOutcome[row] - sigma) / inputMatrix[row, row];
                 }
-                Engine.PrintLine("Step #" + step + ": " + solvedVector.ToString());
+                //Engine.PrintLine("Step #" + step + ": " + solvedVector.ToString());
             }
             return solvedVector;
         }

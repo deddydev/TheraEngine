@@ -14,7 +14,9 @@ namespace TheraEngine.Components
     {
         Matrix4 LocalMatrix { get; }
         Matrix4 InverseLocalMatrix { get; }
-        Scene3D OwningScene { get; set; }
+        BaseScene OwningScene { get; set; }
+        Scene3D OwningScene3D { get; }
+        Scene2D OwningScene2D { get; }
         World OwningWorld { get; }
         IActor OwningActor { get; set; }
         Vec3 LocalRightDir { get; }
@@ -42,6 +44,9 @@ namespace TheraEngine.Components
     [FileExt("scomp")]
     public abstract class SceneComponent : Component, ISocket
     {
+        public const string RenderingCategoryName = "Rendering";
+        public const string PhysicsCategoryName = "Physics";
+
         public SceneComponent()
         {
             ChildComponents = new EventList<SceneComponent>();
@@ -213,13 +218,17 @@ namespace TheraEngine.Components
         [Browsable(false)]
         protected bool SimulatingPhysics => _simulatingPhysics;
 
-        private Scene3D _owningScene;
+        private BaseScene _owningScene;
         [Browsable(false)]
-        public Scene3D OwningScene
+        public BaseScene OwningScene
         {
             get => OwningWorld?.Scene ?? _owningScene;
             set => _owningScene = value;
         }
+        [Browsable(false)]
+        public Scene3D OwningScene3D => OwningScene as Scene3D;
+        [Browsable(false)]
+        public Scene2D OwningScene2D => OwningScene as Scene2D;
         [Browsable(false)]
         public World OwningWorld => OwningActor?.OwningWorld;
 
@@ -664,8 +673,51 @@ namespace TheraEngine.Components
                 comp.OnHighlightChanged(highlighted);
             base.OnHighlightChanged(highlighted);
         }
+        
+        protected void SelectedChangedRenderable3D(I3DRenderable r3d, bool selected)
+        {
+            if (r3d != null && OwningScene is Scene3D scene3D)
+            {
+                bool valid = IsSpawned && !r3d.Visible;
+
+                if (r3d.VisibleInEditorOnly)
+                    valid = valid && Engine.EditorState.InEditMode;
+
+                if (valid)
+                {
+                    if (selected)
+                        scene3D.Add(r3d);
+                    else
+                        scene3D.Remove(r3d);
+                }
+            }
+        }
+        protected void SelectedChangedRenderable2D(I2DRenderable r2d, bool selected)
+        {
+            if (r2d != null && OwningScene is Scene2D scene2D)
+            {
+                bool valid = IsSpawned && !r2d.Visible;
+
+                if (r2d.VisibleInEditorOnly)
+                    valid = valid && Engine.EditorState.InEditMode;
+
+                if (valid)
+                {
+                    if (selected)
+                        scene2D.Add(r2d);
+                    else
+                        scene2D.Remove(r2d);
+                }
+            }
+        }
+
         protected internal override void OnSelectedChanged(bool selected)
         {
+            if (this is I3DRenderable r3d)
+                SelectedChangedRenderable3D(r3d, selected);
+            if (this is I2DRenderable r2d)
+                SelectedChangedRenderable2D(r2d, selected);
+            
             foreach (SceneComponent comp in ChildComponents)
                 comp.OnSelectedChanged(selected);
             base.OnSelectedChanged(selected);

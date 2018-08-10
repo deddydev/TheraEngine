@@ -35,12 +35,12 @@ namespace TheraEngine.Actors.Types
 
         public override void OnSpawned()
         {
-            OwningScene.Add(this);
+            OwningScene3D?.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            OwningScene.Remove(this);
+            OwningScene3D?.Remove(this);
             base.OnDespawned();
         }
         protected override void OnWorldTransformChanged()

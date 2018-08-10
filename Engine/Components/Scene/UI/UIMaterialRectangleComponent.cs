@@ -31,7 +31,11 @@ namespace TheraEngine.Rendering.UI
             get => _quad.Material;
             set => _quad.Material = value;
         }
-        
+        public bool Visible { get; set; } = true;
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
+        public bool VisibleInEditorOnly { get; set; } = false;
+
         public BaseTexRef Texture(int index)
         {
             if (_quad.Material.Textures.IndexInRange(index))

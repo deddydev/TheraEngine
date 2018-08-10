@@ -152,11 +152,25 @@ namespace TheraEngine.Rendering
             PrecomputeBRDF();
             Resize(width, height);
         }
+        internal BoundingRectangle BloomRect16;
+        internal BoundingRectangle BloomRect8;
+        internal BoundingRectangle BloomRect4;
+        internal BoundingRectangle BloomRect2;
+        //internal BoundingRectangle BloomRect1;
         public void SetInternalResolution(int width, int height)
         {
             _internalResolution.Width = width;
             _internalResolution.Height = height;
-            
+            BloomRect16.Width = (int)(width * 0.0625f);
+            BloomRect16.Height = (int)(height * 0.0625f);
+            BloomRect8.Width = (int)(width * 0.125f);
+            BloomRect8.Height = (int)(height * 0.125f);
+            BloomRect4.Width = (int)(width * 0.25f);
+            BloomRect4.Height = (int)(height * 0.25f);
+            BloomRect2.Width = (int)(width * 0.5f);
+            BloomRect2.Height = (int)(height * 0.5f);
+            //BloomRect1.Width = width;
+            //BloomRect1.Height = height;
             InitFBOs();
 
             _worldCamera?.Resize(width, height);
@@ -1053,7 +1067,7 @@ namespace TheraEngine.Rendering
 
             RenderingCamera.SetUniforms(program);
 
-            var probeActor = RenderingCamera.OwningComponent?.OwningScene?.IBLProbeActor;
+            var probeActor = RenderingCamera.OwningComponent?.OwningScene3D?.IBLProbeActor;
             if (probeActor == null)
                 return;
 

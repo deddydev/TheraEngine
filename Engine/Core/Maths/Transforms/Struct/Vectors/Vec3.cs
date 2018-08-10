@@ -99,19 +99,30 @@ namespace System
         }
 
         /// <summary>
-        /// Converts a translation to a matrix.
+        /// Converts a translation vector to a matrix transformation.
         /// </summary>
         public Matrix4 AsTranslationMatrix() => Matrix4.CreateTranslation(this);
         /// <summary>
-        /// Converts a scale to a matrix.
+        /// Converts a scale vector to a matrix transformation.
         /// </summary>
         /// <returns></returns>
         public Matrix4 AsScaleMatrix() => Matrix4.CreateScale(this);
 
+        /// <summary>
+        /// The magnitude of this vector, squared. Also the same thing as the distance to the origin, but squared.
+        /// This is to avoid the use of a square root method call.
+        /// </summary>
         [Browsable(false)]
         public float LengthSquared => Dot(this);
+        /// <summary>
+        /// The magnitude of this vector. Also the same thing as the distance to the origin.
+        /// </summary>
         [Browsable(false)]
         public float Length => (float)Sqrt(LengthSquared);
+        /// <summary>
+        /// The magnitude of this vector. Also the same thing as the distance to the origin.
+        /// Uses an approximation of square root, so results are faster but not as accurate.
+        /// </summary>
         [Browsable(false)]
         public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
 
@@ -193,21 +204,15 @@ namespace System
 
         public void SetLequalTo(Vec3 other)
         {
-            if (!(this <= other))
-            {
-                X = other.X;
-                Y = other.Y;
-                Z = other.Z;
-            }
+            X = X < other.X ? X : other.X;
+            Y = Y < other.Y ? Y : other.Y;
+            Z = Z < other.Z ? Z : other.Z;
         }
         public void SetGequalTo(Vec3 other)
         {
-            if (!(this >= other))
-            {
-                X = other.X;
-                Y = other.Y;
-                Z = other.Z;
-            }
+            X = X > other.X ? X : other.X;
+            Y = Y > other.Y ? Y : other.Y;
+            Z = Z > other.Z ? Z : other.Z;
         }
 
         public void ChangeZupToYup(bool negateX = true)
@@ -217,20 +222,66 @@ namespace System
                 X = -X;
         }
 
+        /// <summary>
+        /// Unit length (1.0f) vector in the direction of the X-axis.
+        /// </summary>
         public static readonly Vec3 UnitX = new Vec3(1.0f, 0.0f, 0.0f);
+        /// <summary>
+        /// Unit length (1.0f) vector in the direction of the Y-axis.
+        /// </summary>
         public static readonly Vec3 UnitY = new Vec3(0.0f, 1.0f, 0.0f);
+        /// <summary>
+        /// Unit length (1.0f) vector in the direction of the Z-axis.
+        /// </summary>
         public static readonly Vec3 UnitZ = new Vec3(0.0f, 0.0f, 1.0f);
+        /// <summary>
+        /// Vector with all values set to 0.0f.
+        /// </summary>
         public static readonly Vec3 Zero = new Vec3(0.0f);
+        /// <summary>
+        /// Vector with all values set to 0.5f.
+        /// </summary>
         public static readonly Vec3 Half = new Vec3(0.5f);
+        /// <summary>
+        /// Vector with all values set to 1.0f.
+        /// </summary>
         public static readonly Vec3 One = new Vec3(1.0f);
+        /// <summary>
+        /// Vector with all values set to 2.0f.
+        /// </summary>
+        public static readonly Vec3 Two = new Vec3(2.0f);
+        /// <summary>
+        /// Vector with all values set to <see cref="float.MinValue"/>.
+        /// </summary>
         public static readonly Vec3 Min = new Vec3(float.MinValue);
+        /// <summary>
+        /// Vector with all values set to <see cref="float.MaxValue"/>.
+        /// </summary>
         public static readonly Vec3 Max = new Vec3(float.MaxValue);
+        /// <summary>
+        /// Unit length (1.0f) vector in the right direction (positive X-axis).
+        /// </summary>
         public static readonly Vec3 Right = UnitX;
-        public static readonly Vec3 Forward = -UnitZ;
-        public static readonly Vec3 Up = UnitY;
+        /// <summary>
+        /// Unit length (1.0f) vector in the left direction (negative X-axis).
+        /// </summary>
         public static readonly Vec3 Left = -Right;
-        public static readonly Vec3 Backward = -Forward;
+        /// <summary>
+        /// Unit length (1.0f) vector in the upward direction (positive Y-axis).
+        /// </summary>
+        public static readonly Vec3 Up = UnitY;
+        /// <summary>
+        /// Unit length (1.0f) vector in the downward direction (negative Y-axis).
+        /// </summary>
         public static readonly Vec3 Down = -Up;
+        /// <summary>
+        /// Unit length (1.0f) vector in the backward direction (positive Z-axis).
+        /// </summary>
+        public static readonly Vec3 Backward = -Forward;
+        /// <summary>
+        /// Unit length (1.0f) vector in the forward direction (negative Z-axis).
+        /// </summary>
+        public static readonly Vec3 Forward = -UnitZ;
 
         #region Max/Min
         /// <summary>

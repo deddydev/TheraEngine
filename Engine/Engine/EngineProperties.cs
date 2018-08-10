@@ -100,7 +100,7 @@ namespace TheraEngine
         /// <summary>
         /// The scene containing actors of the world the engine is currently hosting.
         /// </summary>
-        public static Scene3D Scene => World?.Scene;
+        public static BaseScene Scene => World?.Scene;
         /// <summary>
         /// Information necessary to run a game.
         /// </summary>

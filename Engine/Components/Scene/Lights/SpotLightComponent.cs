@@ -214,27 +214,36 @@ namespace TheraEngine.Components.Scene.Lights
 
         public override void OnSpawned()
         {
+            Scene3D s3d = OwningScene3D;
+            if (s3d == null)
+            {
+                base.OnSpawned();
+                return;
+            }
             if (Type == ELightType.Dynamic)
             {
-                OwningScene.Lights.Add(this);
+                s3d.Lights.Add(this);
                 SetShadowMapResolution(1024, 1024);
             }
 
 #if EDITOR
             if (Engine.EditorState.InEditMode)
-                OwningScene.Add(this);
+                s3d.Add(this);
 #endif
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            if (Type == ELightType.Dynamic)
-                OwningScene.Lights.Remove(this);
-
+            Scene3D s3d = OwningScene3D;
+            if (s3d != null)
+            {
+                if (Type == ELightType.Dynamic)
+                    s3d.Lights.Remove(this);
 #if EDITOR
-            if (Engine.EditorState.InEditMode)
-                OwningScene.Remove(this);
+                if (Engine.EditorState.InEditMode)
+                    s3d.Remove(this);
 #endif
+            }
             base.OnDespawned();
         }
         public override void SetUniforms(RenderProgram program, string targetStructName)
@@ -306,25 +315,8 @@ namespace TheraEngine.Components.Scene.Lights
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (IsSpawned)
-            {
-                if (selected)
-                {
-                    OwningScene.Add(OuterCone);
-                    OwningScene.Add(InnerCone);
-                    //#if DEBUG
-                    //                Engine.Scene.Add(ShadowCamera);
-                    //#endif
-                }
-                else
-                {
-                    OwningScene.Remove(OuterCone);
-                    OwningScene.Remove(InnerCone);
-                    //#if DEBUG
-                    //                Engine.Scene.Remove(ShadowCamera);
-                    //#endif
-                }
-            }
+            SelectedChangedRenderable3D(OuterCone, selected);
+            SelectedChangedRenderable3D(InnerCone, selected);
             base.OnSelectedChanged(selected);
         }
 #endif

@@ -54,11 +54,13 @@ namespace TheraEngine.Worlds
             get => StateRef.File;
             set => StateRef.File = value;
         }
-        public Scene3D Scene
+        public BaseScene Scene
         {
             get => State.Scene;
             set => State.Scene = value;
         }
+        public Scene3D Scene3D => Scene as Scene3D;
+        public Scene2D Scene2D => Scene as Scene2D;
         public AbstractPhysicsWorld PhysicsWorld { get; private set; }
 
         public BaseGameMode GetGameMode()
@@ -146,7 +148,7 @@ namespace TheraEngine.Worlds
                 PhysicsWorld.UpdateAabbs();
             }
 
-            Scene.RenderTree.Remake();
+            Scene.RegenerateTree();
 
             Engine.PrintLine("Finished origin rebase.");
 
@@ -176,7 +178,7 @@ namespace TheraEngine.Worlds
         public virtual void BeginPlay()
         {
             State.Scene = new Scene3D(Settings.Bounds.HalfExtents);
-            State.Scene.Lights.GlobalAmbient = Settings.GlobalAmbient;
+            //State.Scene.Lights.GlobalAmbient = Settings.GlobalAmbient;
             CreatePhysicsScene();
 
             Engine.TimeDilation = Settings.TimeDilation;
@@ -190,10 +192,10 @@ namespace TheraEngine.Worlds
                 }
             }
 
-#if DEBUG
-            if (Settings.EnableOriginRebasing)
-                Scene.Add(Settings.OriginRebaseBounds);
-#endif
+//#if DEBUG
+//            if (Settings.EnableOriginRebasing)
+//                Scene.Add(Settings.OriginRebaseBounds);
+//#endif
 
             //State.Scene.Add(Settings.Bounds);
         }

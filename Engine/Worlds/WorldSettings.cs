@@ -121,15 +121,15 @@ namespace TheraEngine.Worlds
             get => _defaultHud;
             set => _defaultHud = value;
         }
-        [Category("Lighting")]
-        public ColorF3 GlobalAmbient
-        {
-            get => _globalAmbient;
-            set => _globalAmbient = value;
-        }
+        //[Category("Lighting")]
+        //public ColorF3 GlobalAmbient
+        //{
+        //    get => _globalAmbient;
+        //    set => _globalAmbient = value;
+        //}
 
-        [TSerialize(nameof(GlobalAmbient))]
-        private ColorF3 _globalAmbient;
+        //[TSerialize(nameof(GlobalAmbient))]
+        //private ColorF3 _globalAmbient;
         [TSerialize(nameof(DefaultHud))]
         private IUIManager _defaultHud;
         [TSerialize(nameof(Bounds))]

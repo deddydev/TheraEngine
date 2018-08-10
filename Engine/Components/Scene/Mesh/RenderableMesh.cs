@@ -20,9 +20,9 @@ namespace TheraEngine.Components.Scene.Mesh
     /// <summary>
     /// Mesh generated at runtime for internal use.
     /// </summary>
-    public abstract class BaseRenderableMesh : I3DRenderable
+    public abstract class BaseRenderableMesh3D : I3DRenderable
     {
-        public BaseRenderableMesh(List<LOD> lods, RenderInfo3D renderInfo, SceneComponent component)
+        public BaseRenderableMesh3D(List<LOD> lods, RenderInfo3D renderInfo, SceneComponent component)
         {
             _component = component;
 
@@ -70,9 +70,9 @@ namespace TheraEngine.Components.Scene.Mesh
                 //    return;
                 _visible = value;
                 if (_visible)
-                    _component?.OwningScene?.Add(this);
+                    _component?.OwningScene3D?.Add(this);
                 else
-                    _component?.OwningScene?.Remove(this);
+                    _component?.OwningScene3D?.Remove(this);
             }
         }
         public bool VisibleInEditorOnly { get; set; } = false;
@@ -159,7 +159,7 @@ namespace TheraEngine.Components.Scene.Mesh
             passes.Add(_renderCommand, RenderInfo.RenderPass);
         }
     }
-    public class StaticRenderableMesh : BaseRenderableMesh
+    public class StaticRenderableMesh : BaseRenderableMesh3D
     {
         [Browsable(false)]
         public IStaticSubMesh Mesh { get; set; }
@@ -207,7 +207,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         public override string ToString() => Mesh.Name;
     }
-    public class SkeletalRenderableMesh : BaseRenderableMesh
+    public class SkeletalRenderableMesh : BaseRenderableMesh3D
     {
         public SkeletalRenderableMesh(ISkeletalSubMesh mesh, Skeleton skeleton, SceneComponent component)
             : base(mesh.LODs, mesh.RenderInfo, component)

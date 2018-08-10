@@ -11,7 +11,8 @@ namespace TheraEngine.Components.Scene.Shapes
 {
     public abstract class ShapeComponent : TRComponent, I3DRenderable, IRigidBodyCollidable
     {
-        [Category("Rendering")]
+        [TSerialize]
+        [Category(RenderingCategoryName)]
         public RenderInfo3D RenderInfo { get; protected set; } 
             = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
 
@@ -25,7 +26,7 @@ namespace TheraEngine.Components.Scene.Shapes
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        [Category("Rendering")]
+        [Category(RenderingCategoryName)]
         public RenderingParameters RenderParams
         {
             get => _renderParams;
@@ -68,33 +69,33 @@ namespace TheraEngine.Components.Scene.Shapes
             Visible = VisibleByDefault;
             _rigidBodyCollision?.Spawn();
             if (Visible)
-                OwningScene.Add(this);
+                OwningScene3D?.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             _rigidBodyCollision?.Despawn();
             if (Visible)
-                OwningScene.Remove(this);
+                OwningScene3D?.Remove(this);
             base.OnDespawned();
         }
 
-        [TSerialize("RenderParams")]
+        [TSerialize(nameof(RenderParams))]
         private RenderingParameters _renderParams = new RenderingParameters();
-        [TSerialize("CollisionObject")]
+        [TSerialize(nameof(RigidBodyCollision))]
         protected TRigidBody _rigidBodyCollision;
-        [TSerialize("IsVisible")]
+        [TSerialize(nameof(Visible))]
         protected bool _isVisible;
-        [TSerialize("VisibleByDefault")]
+        [TSerialize(nameof(VisibleByDefault))]
         protected bool _visibleByDefault = true;
-        [TSerialize("VisibleInEditorOnly")]
+        [TSerialize(nameof(VisibleInEditorOnly))]
         protected bool _visibleInEditorOnly;
-        [TSerialize("HiddenFromOwner")]
+        [TSerialize(nameof(HiddenFromOwner))]
         protected bool _hiddenFromOwner;
-        [TSerialize("VisibleToOwnerOnly")]
+        [TSerialize(nameof(VisibleToOwnerOnly))]
         protected bool _visibleToOwnerOnly;
-        
-        [Category("Rendering")]
+
+        [Category(RenderingCategoryName)]
         public bool Visible
         {
             get => _isVisible;
@@ -106,31 +107,31 @@ namespace TheraEngine.Components.Scene.Shapes
                 if (IsSpawned && OwningScene != null)
                 {
                     if (_isVisible)
-                        OwningScene.Add(this);
+                        OwningScene3D?.Add(this);
                     else
-                        OwningScene.Remove(this);
+                        OwningScene3D?.Remove(this);
                 }
             }
         }
-        [Category("Rendering")]
+        [Category(RenderingCategoryName)]
         public bool VisibleByDefault => _visibleByDefault;
 
-        [Category("Physics")]
+        [Category(PhysicsCategoryName)]
         public TRigidBody RigidBodyCollision => _rigidBodyCollision;
 
-        [Category("Rendering")]
+        [Category(RenderingCategoryName)]
         public bool VisibleInEditorOnly
         {
             get => _visibleInEditorOnly;
             set => _visibleInEditorOnly = value;
         }
-        [Category("Rendering")]
+        [Category(RenderingCategoryName)]
         public bool HiddenFromOwner
         {
             get => _hiddenFromOwner;
             set => _hiddenFromOwner = value;
         }
-        [Category("Rendering")]
+        [Category(RenderingCategoryName)]
         public bool VisibleToOwnerOnly
         {
             get => _visibleToOwnerOnly;
@@ -140,17 +141,6 @@ namespace TheraEngine.Components.Scene.Shapes
         protected abstract TCollisionShape GetCollisionShape();
 
 #if EDITOR
-        protected internal override void OnSelectedChanged(bool selected)
-        {
-            if (IsSpawned && !Visible)
-            {
-                if (selected)
-                    OwningScene.Add(this);
-                else
-                    OwningScene.Remove(this);
-            }
-            base.OnSelectedChanged(selected);
-        }
         public abstract void Render();
         private RenderCommandDebug3D _rc;
         public virtual void AddRenderables(RenderPasses passes, Camera camera)

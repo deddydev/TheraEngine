@@ -158,13 +158,13 @@ namespace TheraEngine.Components.Scene
         public override void OnSpawned()
         {
             if (_alwaysShowFrustum && Camera != null)
-                OwningScene.Add(Camera);
+                OwningScene3D?.Add(Camera);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (_alwaysShowFrustum && Camera != null)
-                OwningScene.Remove(Camera);
+                OwningScene3D?.Remove(Camera);
             base.OnDespawned();
         }
 
@@ -183,22 +183,16 @@ namespace TheraEngine.Components.Scene
                 if (IsSpawned && Camera != null)
                 {
                     if (_alwaysShowFrustum)
-                        OwningScene.Add(Camera);
+                        OwningScene3D?.Add(Camera);
                     else if (!EditorState.Selected)
-                        OwningScene.Remove(Camera);
+                        OwningScene3D?.Remove(Camera);
                 }
             }
         }
 
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (!AlwaysShowFrustum && IsSpawned && Camera != null)
-            {
-                if (selected)
-                    OwningScene.Add(Camera);
-                else
-                    OwningScene.Remove(Camera);
-            }
+            SelectedChangedRenderable3D(Camera, selected);
             base.OnSelectedChanged(selected);
         }
 #endif

@@ -613,20 +613,14 @@ namespace TheraEditor.Windows.Forms
 
         private void UpdateTick(object sender, FrameEventArgs e)
         {
-            if (Engine.Scene != null)
-            {
-                Engine.Scene.UpdateShadowMaps();
-            }
+            Engine.Scene?.GlobalUpdate();
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
         }
         private void SwapBuffers()
         {
-            if (Engine.Scene != null)
-            {
-                Engine.Scene.Lights.SwapBuffers();
-            }
+            Engine.Scene?.GlobalSwap();
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.SwapBuffers();
@@ -643,13 +637,7 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             BaseRenderPanel.WorldPanel.CaptureContext();
-
-            if (Engine.Scene != null)
-            {
-                //Engine.Scene.Voxelize();
-                Engine.Scene.RenderShadowMaps();
-            }
-
+            Engine.Scene?.GlobalPreRender();
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();

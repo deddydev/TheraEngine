@@ -47,8 +47,9 @@ namespace TheraEngine.Actors
         {
             base.OnSpawnedPostComponentSpawn();
 
-            if (OwningWorld.Scene.IBLProbeActor == null)
-                OwningWorld.Scene.IBLProbeActor = this;
+            Scene3D r3d = OwningScene3D;
+            if (r3d != null && r3d.IBLProbeActor == null)
+                r3d.IBLProbeActor = this;
 
             //OwningWorld.Scene.Add(this);
         }
@@ -56,8 +57,9 @@ namespace TheraEngine.Actors
         {
             base.OnDespawned();
 
-            if (OwningWorld.Scene.IBLProbeActor == this)
-                OwningWorld.Scene.IBLProbeActor = null;
+            Scene3D r3d = OwningScene3D;
+            if (r3d != null && r3d.IBLProbeActor == this)
+                r3d.IBLProbeActor = null;
 
             //OwningWorld.Scene.Remove(this);
         }

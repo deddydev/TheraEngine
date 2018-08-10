@@ -129,13 +129,19 @@ namespace TheraEngine.Rendering
             //RenderTree?.Remake(new BoundingRectangle(Vec2.Zero, bounds));
         }
 
+        public override void Add(IRenderable obj) => Add(obj as I2DRenderable);
+        public override void Remove(IRenderable obj) => Remove(obj as I2DRenderable);
         public void Add(I2DRenderable obj)
         {
+            if (obj == null)
+                return;
             _renderables.Add(obj);
             //RenderTree?.Add(obj);
         }
         public void Remove(I2DRenderable obj)
         {
+            if (obj == null)
+                return;
             _renderables.Remove(obj);
             //RenderTree?.Remove(obj);
         }
@@ -143,6 +149,26 @@ namespace TheraEngine.Rendering
         {
             //RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangle(new Vec2(0.0f), bounds));
             //_renderables.Clear();
+        }
+
+        public override void RegenerateTree()
+        {
+
+        }
+
+        public override void GlobalPreRender()
+        {
+
+        }
+
+        public override void GlobalSwap()
+        {
+
+        }
+
+        public override void GlobalUpdate()
+        {
+
         }
     }
 }

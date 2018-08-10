@@ -144,7 +144,10 @@ namespace TheraEngine.Actors.Types
             if (RenderFBO == null)
                 SetCaptureResolution(512);
 
-            Scene3D scene = OwningScene;
+            Scene3D scene = OwningScene3D;
+            if (scene == null)
+                return;
+
             scene.UpdateShadowMaps();
             scene.Lights.SwapBuffers();
             scene.RenderShadowMaps();

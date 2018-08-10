@@ -296,7 +296,7 @@ namespace TheraEngine.Editor
         private static Dictionary<int, StencilTest> 
             _highlightedMaterials = new Dictionary<int, StencilTest>(), 
             _selectedMaterials = new Dictionary<int, StencilTest>();
-        internal static void RegisterHighlightedMaterial(TMaterial m, bool highlighted, Scene3D scene)
+        internal static void RegisterHighlightedMaterial(TMaterial m, bool highlighted, BaseScene scene)
         {
             //if (m == null)
             //    return;
@@ -325,7 +325,7 @@ namespace TheraEngine.Editor
             //}
         }
 
-        public static void RegisterSelectedMesh(TMaterial m, bool selected, Scene3D scene)
+        public static void RegisterSelectedMesh(TMaterial m, bool selected, BaseScene scene)
         {
             //if (m == null)
             //    return;

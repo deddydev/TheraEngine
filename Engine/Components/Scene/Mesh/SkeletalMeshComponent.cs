@@ -263,11 +263,11 @@ namespace TheraEngine.Components.Scene.Mesh
                     {
                         if (selected)
                         {
-                            OwningScene.Add(m.CullingVolume);
+                            OwningScene3D.Add(m.CullingVolume);
                         }
                         else
                         {
-                            OwningScene.Remove(m.CullingVolume);
+                            OwningScene3D.Remove(m.CullingVolume);
                         }
                     }
                     //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);

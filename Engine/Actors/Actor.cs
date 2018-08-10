@@ -9,6 +9,7 @@ using TheraEngine.Components;
 using TheraEngine.Worlds;
 using TheraEngine.Components.Scene.Transforms;
 using System.Threading.Tasks;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Actors
 {
@@ -87,7 +88,7 @@ namespace TheraEngine.Actors
         {
             Name = string.IsNullOrEmpty(name) ? GetType().GetFriendlyName("[", "]") : name;
 
-            _isConstructing = true;
+            IsConstructing = true;
 
             _logicComponents = new EventList<LogicComponent>(logicComponents.ToList());
             _logicComponents.PostAnythingAdded += _logicComponents_PostAnythingAdded;
@@ -97,11 +98,10 @@ namespace TheraEngine.Actors
             RootComponent = root;
             PostConstruct();
 
-            _isConstructing = false;
+            IsConstructing = false;
             GenerateSceneComponentCache();
         }
 
-        private bool _isConstructing;
         //private List<I3DRenderable> _renderableComponentCache = new List<I3DRenderable>();
         public int _spawnIndex = -1;
         private ReadOnlyCollection<SceneComponent> _sceneComponentCache;
@@ -117,11 +117,11 @@ namespace TheraEngine.Actors
         /// </summary>
         public virtual void Initialize()
         {
-            _isConstructing = true;
+            IsConstructing = true;
             PreConstruct();
             RootComponent = OnConstruct();
             PostConstruct();
-            _isConstructing = false;
+            IsConstructing = false;
             GenerateSceneComponentCache();
         }
         /// <summary>
@@ -142,6 +142,12 @@ namespace TheraEngine.Actors
         public bool IsSpawned => _spawnIndex >= 0;
         [Browsable(false)]
         public World OwningWorld { get; private set; } = null;
+        [Browsable(false)]
+        public BaseScene OwningScene => OwningWorld?.Scene;
+        [Browsable(false)]
+        public Scene3D OwningScene3D => OwningScene as Scene3D;
+        [Browsable(false)]
+        public Scene2D OwningScene2D => OwningScene as Scene2D;
 
         [Browsable(false)]
         public ReadOnlyCollection<SceneComponent> SceneComponentCache => _sceneComponentCache;
@@ -186,7 +192,7 @@ For example, a logic component could give any actor health and/or allow it to ta
         [Browsable(false)]
         public EventList<LogicComponent> LogicComponents => _logicComponents;
         [Browsable(false)]
-        public bool IsConstructing => _isConstructing;
+        public bool IsConstructing { get; private set; }
 
         public T1 GetLogicComponent<T1>() where T1 : LogicComponent
             => LogicComponents.FirstOrDefault(x => x is T1) as T1;
@@ -200,7 +206,7 @@ For example, a logic component could give any actor health and/or allow it to ta
 
         public void GenerateSceneComponentCache()
         {
-            if (!_isConstructing)
+            if (!IsConstructing)
             {
                 //_renderableComponentCache = new List<I3DRenderable>();
                 _sceneComponentCache = _rootComponent?.GenerateChildCache().AsReadOnly();

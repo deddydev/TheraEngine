@@ -22,6 +22,9 @@ namespace TheraEngine.Rendering.Textures
     {
         public Bitmap[] Bitmaps { get; set; } = null;
 
+        public Bitmap GetLargestBitmap()
+            => Bitmaps != null && Bitmaps.Length > 0 ? Bitmaps[0] : null;
+
         public TextureFile2D() : this(1, 1) { }
         public TextureFile2D(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb)
             => Bitmaps = new Bitmap[] { new Bitmap(width, height, format) };

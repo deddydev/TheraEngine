@@ -27,6 +27,11 @@ namespace TheraEditor.Windows.Forms
 
         public event DelSelectedFunctionChanged SelectedFunctionChanged;
 
+        public bool Visible { get; set; } = true;
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
+        public bool VisibleInEditorOnly { get; set; } = false;
+
         public TMaterial TargetMaterial
         {
             get => _targetMaterial;

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
@@ -22,6 +23,7 @@ namespace TheraEngine.Rendering
         OpaqueDeferredLit,
         /// <summary>
         /// Renders right after all opaque deferred objects.
+        /// More than just decals can be rendered in this pass, it is simply for deferred renderables after all opaque deferred objects have been rendered.
         /// </summary>
         DeferredDecals,
         /// <summary>
@@ -201,5 +203,12 @@ namespace TheraEngine.Rendering
             if (_preRenderList.Contains(obj))
                 _preRenderRemoveWaitList.Add(obj);
         }
+        
+        public abstract void RegenerateTree();
+        public abstract void GlobalPreRender();
+        public abstract void GlobalUpdate();
+        public abstract void GlobalSwap();
+        public abstract void Add(IRenderable obj);
+        public abstract void Remove(IRenderable obj);
     }
 }

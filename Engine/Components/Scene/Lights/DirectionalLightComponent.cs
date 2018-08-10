@@ -85,7 +85,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             if (Type == ELightType.Dynamic)
             {
-                OwningScene.Lights.Add(this);
+                OwningScene3D?.Lights?.Add(this);
 
                 if (ShadowMap == null)
                     SetShadowMapResolution(1024, 1024);
@@ -98,7 +98,7 @@ namespace TheraEngine.Components.Scene.Lights
         public override void OnDespawned()
         {
             if (Type == ELightType.Dynamic)
-                OwningScene.Lights.Remove(this);
+                OwningScene3D?.Lights?.Add(this);
             base.OnDespawned();
         }
         public override void SetUniforms(RenderProgram program, string targetStructName)
@@ -159,13 +159,7 @@ namespace TheraEngine.Components.Scene.Lights
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (IsSpawned)
-            {
-                if (selected)
-                    OwningScene.Add(ShadowCamera);
-                else
-                    OwningScene.Remove(ShadowCamera);
-            }
+            SelectedChangedRenderable3D(ShadowCamera, selected);
             base.OnSelectedChanged(selected);
         }
 #endif

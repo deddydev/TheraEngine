@@ -44,14 +44,15 @@ namespace TheraEngine
         bool Visible { get; set; }
         bool HiddenFromOwner { get; set; }
         bool VisibleToOwnerOnly { get; set; }
-        /// <summary>
-        /// Used to determine when to render this object.
-        /// </summary>
-        RenderInfo3D RenderInfo { get; }
 #if EDITOR
         [Category("Editor Traits")]
         bool VisibleInEditorOnly { get; set; }
 #endif
+        /// <summary>
+        /// Used to determine when to render this object.
+        /// </summary>
+        RenderInfo3D RenderInfo { get; }
+
         void AddRenderables(RenderPasses passes, Camera camera);
     }
     /// <summary>
@@ -93,6 +94,13 @@ namespace TheraEngine
     /// </summary>
     public interface I2DRenderable : I2DBoundable, IRenderable
     {
+        bool Visible { get; set; }
+        bool HiddenFromOwner { get; set; }
+        bool VisibleToOwnerOnly { get; set; }
+#if EDITOR
+        [Category("Editor Traits")]
+        bool VisibleInEditorOnly { get; set; }
+#endif
         /// <summary>
         /// Used to determine when to render this object.
         /// </summary>

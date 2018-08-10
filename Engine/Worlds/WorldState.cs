@@ -16,7 +16,7 @@ namespace TheraEngine.Worlds
         public List<Map> SpawnedMaps => _spawnedMaps;
         public EventList<IActor> SpawnedActors => _spawnedActors;
 
-        public Scene3D Scene { get; set; } = null;
+        public BaseScene Scene { get; set; } = null;
 
         [TSerialize("SpawnedMaps")]
         private List<Map> _spawnedMaps;

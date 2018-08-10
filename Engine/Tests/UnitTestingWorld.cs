@@ -7,6 +7,7 @@ using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Animation;
+using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
@@ -344,7 +345,12 @@ namespace TheraEngine.Tests
             skyboxActor.RootComponent.ModelRef = skybox;
             actors.Add(skyboxActor);
 
+            TextureFile2D decalTex = await Engine.LoadEngineTexture2DAsync("decal guide.png");
+            var bmp = decalTex.GetLargestBitmap();
             DecalActor decal = new DecalActor();
+            decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);
+            decal.RootComponent.HalfExtents = new Vec3(bmp.Width * 0.5f, 1.0f, bmp.Height * 0.5f);
+            decal.RootComponent.UniformScale = 1.0f / Math.Max(bmp.Width, bmp.Height);
             actors.Add(decal);
 
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
@@ -426,7 +432,7 @@ namespace TheraEngine.Tests
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
             RootComponent.Rotation.Pitch = -90.0f;
-            OwningWorld.Scene.Add(this);
+            OwningScene3D?.Add(this);
         }
 
         private void RootComponent_WorldTransformChanged()
@@ -438,7 +444,7 @@ namespace TheraEngine.Tests
         public override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            OwningWorld.Scene.Remove(this);
+            OwningScene3D?.Remove(this);
         }
 
         private void Tick(float delta)

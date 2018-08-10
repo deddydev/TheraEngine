@@ -152,13 +152,7 @@ namespace TheraEngine.Components.Scene
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (IsSpawned)
-            {
-                if (selected)
-                    OwningScene.Add(this);
-                else
-                    OwningScene.Remove(this);
-            }
+            
             base.OnSelectedChanged(selected);
         }
 

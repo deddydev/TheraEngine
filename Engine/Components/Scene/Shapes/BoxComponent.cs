@@ -35,7 +35,6 @@ namespace TheraEngine.Components.Scene.Shapes
             _box = new Box(uniformExtents);
             InitPhysicsShape(info);
         }
-        
         [Browsable(false)]
         public Box Box
         {
@@ -45,6 +44,7 @@ namespace TheraEngine.Components.Scene.Shapes
         [Browsable(false)]
         public override Shape CullingVolume => _box;
 
+        [TSerialize]
         [Category("Box")]
         public virtual Vec3 HalfExtents
         {
@@ -52,7 +52,8 @@ namespace TheraEngine.Components.Scene.Shapes
             set
             {
                 _box.HalfExtents.Raw = value;
-                OctreeNode?.ItemMoved(this);
+                base.OnWorldTransformChanged();
+                //OctreeNode?.ItemMoved(this);
             }
         }
         

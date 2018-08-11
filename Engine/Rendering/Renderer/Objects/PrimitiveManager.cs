@@ -158,9 +158,25 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
+        /// <summary>
+        /// All vertices that have changed and are ready for render.
+        /// Only used by CPU skinning.
+        /// </summary>
         public HashSet<int> ModifiedVertexIndicesRendering => _modifiedVertexIndicesRendering;
+        /// <summary>
+        /// All bones that have changed and are ready for render.
+        /// Only used by GPU skinning.
+        /// </summary>
         public HashSet<int> ModifiedBoneIndicesRendering => _modifiedBoneIndicesRendering;
+        /// <summary>
+        /// All vertices that are currently changing.
+        /// Only used by CPU skinning.
+        /// </summary>
         public HashSet<int> ModifiedVertexIndicesUpdating => _modifiedVertexIndicesUpdating;
+        /// <summary>
+        /// All bones that are currently changing.
+        /// Only used by GPU skinning.
+        /// </summary>
         public HashSet<int> ModifiedBoneIndicesUpdating => _modifiedBoneIndicesUpdating;
 
         private HashSet<int> _modifiedVertexIndicesRendering = new HashSet<int>();

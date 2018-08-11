@@ -375,20 +375,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (dataChangeHandler != null)
                 control.DataChangeHandler = dataChangeHandler;
-            else
-                throw new Exception();
 
             control.Show();
             return control;
         }
+
         /// <summary>
         /// Instantiates the given PropGridItem-derived control types for the given object in a list.
         /// </summary>
         public static List<PropGridItem> InstantiatePropertyEditors(
             Deque<Type> controlTypes, PropGridItemRefInfo info, IDataChangeHandler dataChangeHandler)
-        {
-            return controlTypes.Select(x => InstantiatePropertyEditor(x, info, dataChangeHandler)).ToList();
-        }
+            => controlTypes.Select(x => InstantiatePropertyEditor(x, info, dataChangeHandler)).ToList();
+
         public static PropGridMethod CreateMethodControl(
             MethodInfo m,
             string displayName,

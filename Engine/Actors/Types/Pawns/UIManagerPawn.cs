@@ -1,11 +1,10 @@
-﻿using TheraEngine.Input.Devices;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Drawing;
 using System.Windows.Forms;
-using TheraEngine.Rendering.UI;
+using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Actors.Types.Pawns
 {
@@ -67,14 +66,7 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             return v.ScreenToWorld(viewportPosition).Xy;
         }
-
-        protected override T OnConstruct()
-        {
-            return new T()
-            {
-                DockStyle = UIDockStyle.Fill,
-            };
-        }
+        protected override T OnConstruct() => new T() { DockStyle = UIDockStyle.Fill };
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickOnlyWhenPaused);

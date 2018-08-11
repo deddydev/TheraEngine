@@ -208,8 +208,6 @@ namespace TheraEngine.Rendering
         internal void GenerateFBOs()
         {
             DateTime start = DateTime.Now;
-            //RenderQuery query = new RenderQuery();
-            //query.BeginQuery(EQueryTarget.TimeElapsed);
             BloomBlurFBO1?.Generate();
             BloomBlurFBO2?.Generate();
             BloomBlurFBO4?.Generate();
@@ -223,8 +221,6 @@ namespace TheraEngine.Rendering
             PostProcessFBO?.Generate();
             SSAOBlurFBO?.Generate();
             SSAOFBO?.Generate();
-            //query.EndQuery(EQueryTarget.TimeElapsed);
-            //int time = query.GetQueryObjectInt(EGetQueryObject.QueryResult);
             TimeSpan span = DateTime.Now - start;
             Engine.PrintLine($"FBO regeneration took {span.Seconds} seconds.");
         }

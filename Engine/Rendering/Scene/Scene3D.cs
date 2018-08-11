@@ -178,6 +178,7 @@ namespace TheraEngine.Rendering
         //}
         public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
+            _timeQuery.BeginQuery(EQueryTarget.TimeElapsed);
             Engine.Renderer.PushCamera(camera);
             Engine.Renderer.PushCurrent3DScene(this);
             {
@@ -266,6 +267,8 @@ namespace TheraEngine.Rendering
             }
             Engine.Renderer.PopCurrent3DScene();
             Engine.Renderer.PopCamera();
+            _renderMS = 1.0f / (_timeQuery.EndAndGetQueryInt() * 1e-9f);
+            //Engine.PrintLine(_renderMS.ToString() + " ms");
         }
         public override void Add(IRenderable obj) => Add(obj as I3DRenderable);
         public override void Remove(IRenderable obj) => Remove(obj as I3DRenderable);
@@ -308,6 +311,8 @@ namespace TheraEngine.Rendering
             Lights = new LightManager();
         }
 
+        private float _renderMS;
+        private RenderQuery _timeQuery = new RenderQuery();
         private void RenderForwardPass(Viewport viewport, RenderPasses renderingPasses)
         {
             viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);

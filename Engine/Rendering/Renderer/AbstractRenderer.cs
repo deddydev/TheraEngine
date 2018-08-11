@@ -396,19 +396,16 @@ namespace TheraEngine.Rendering
         public abstract byte GetStencilIndex(float x, float y);
         public abstract float GetDepth(float x, float y);
 
+        public void ColorMask(BoolVec4 rgba) => ColorMask(rgba.X, rgba.Y, rgba.Z, rgba.W);
         public abstract void ColorMask(bool r, bool g, bool b, bool a);
 
-        public abstract void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
-        public abstract void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
-        public abstract void GenerateMipmap(int bindingId);
-        public abstract void GenerateMipmap(ETexTarget target);
 
         [Conditional("DEBUG")]
         public abstract void CheckErrors();
 
         public abstract Bitmap GetScreenshot(Rectangle region, bool withTransparency);
-
-        public abstract void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type);
+        
+        public abstract void BeginConditionalRender(RenderQuery query, EConditionalRenderType type);
         public abstract void EndConditionalRender();
 
         #region Synchronization
@@ -631,6 +628,10 @@ namespace TheraEngine.Rendering
         #endregion
 
         #region Textures
+        public abstract void SetMipmapParams(int bindingId, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
+        public abstract void SetMipmapParams(ETexTarget target, int minLOD, int maxLOD, int largestMipmapLevel, int smallestAllowedMipmapLevel);
+        public abstract void GenerateMipmap(int bindingId);
+        public abstract void GenerateMipmap(ETexTarget target);
         public abstract void ClearTexImage(int bindingId, int level, EPixelFormat format, EPixelType type, VoidPtr clearColor);
         public void ClearTexImage(int bindingId, int level, ColorF4 color) => ClearTexImage(bindingId, level, EPixelFormat.Rgba, EPixelType.Float, color.Address);
         public void ClearTexImage(int bindingId, int level, ColorF3 color) => ClearTexImage(bindingId, level, EPixelFormat.Rgb, EPixelType.Float, color.Address);

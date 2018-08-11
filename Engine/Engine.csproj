@@ -367,7 +367,7 @@
     <Compile Include="Components\Scene\UI\Base UI Components\SizeableElement.cs" />
     <Compile Include="Components\Scene\UI\Base UI Components\UIBoundableComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIButtonComponent.cs" />
-    <Compile Include="Components\Scene\UI\Interactable\UIDropDownListComponent.cs" />
+    <Compile Include="Components\Scene\UI\Interactable\UIComboBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIInteractableComponent.cs" />
     <Compile Include="Components\Scene\UI\Interactable\UIListComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UIDebugPrintComponent.cs" />

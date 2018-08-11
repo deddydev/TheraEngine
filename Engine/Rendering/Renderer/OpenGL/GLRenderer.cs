@@ -1361,14 +1361,10 @@ namespace TheraEngine.Rendering.OpenGL
         public override void ColorMask(bool r, bool g, bool b, bool a)
             => GL.ColorMask(r, g, b, a);
 
-        public override void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type)
-        {
-            GL.BeginConditionalRender(queryObjectBindingId, (ConditionalRenderType)(int)type);
-        }
+        public override void BeginConditionalRender(RenderQuery query, EConditionalRenderType type)
+            => GL.BeginConditionalRender(query.BindingId, (ConditionalRenderType)(int)type);
         public override void EndConditionalRender()
-        {
-            GL.EndConditionalRender();
-        }
+            => GL.EndConditionalRender();
 
         #region Queries
         public override void BeginQuery(int bindingId, EQueryTarget target)

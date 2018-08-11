@@ -454,9 +454,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void SetWorld(World world)
         {
-            if (Engine.World != null &&
-                Engine.World.EditorState != null &&
-                Engine.World.EditorState.HasChanges)
+            if (Engine.World?.EditorState?.HasChanges ?? false)
             {
                 DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
                 if (r == DialogResult.Cancel)
@@ -468,12 +466,12 @@ namespace TheraEditor.Windows.Forms
 
             Engine.SetCurrentWorld(world, true, false);
 
-            bool isNull = Engine.World == null;
+            bool worldExists = Engine.World != null;
 
-            btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = !isNull;
+            btnWorldSettings.Enabled = btnSaveWorld.Enabled = btnSaveWorldAs.Enabled = worldExists;
 
             GenerateInitialActorList();
-            if (!isNull)
+            if (worldExists)
             {
                 Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
                 Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
@@ -627,12 +625,6 @@ namespace TheraEditor.Windows.Forms
         }
         private void RenderTick(object sender, FrameEventArgs e)
         {
-            //try { Invoke((Action)Redraw); } catch { }
-            Redraw();
-        }
-
-        private void Redraw()
-        {
             if (BaseRenderPanel.WorldPanel == null)
                 return;
 
@@ -641,8 +633,6 @@ namespace TheraEditor.Windows.Forms
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
-
-            //Application.DoEvents();
         }
         //protected override void OnResizeBegin(EventArgs e)
         //{

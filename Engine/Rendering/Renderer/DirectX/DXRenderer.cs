@@ -529,7 +529,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void BeginConditionalRender(int queryObjectBindingId, EConditionalRenderType type)
+        public override void BeginConditionalRender(RenderQuery query, EConditionalRenderType type)
         {
             throw new NotImplementedException();
         }

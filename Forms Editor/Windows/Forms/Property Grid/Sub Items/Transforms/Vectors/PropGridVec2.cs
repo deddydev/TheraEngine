@@ -24,13 +24,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-            if (value is Vec2 vec3Val)
-            {
-                numericInputBoxX.Value = vec3Val.X;
-                numericInputBoxY.Value = vec3Val.Y;
-            }
-            else
-                throw new Exception(DataType.GetFriendlyName() + " is not a Vec2 type.");
+
+            Vec2 v = (Vec2)value;
+            numericInputBoxX.Value = v.X;
+            numericInputBoxY.Value = v.Y;
+
+            numericInputBoxX.Enabled = numericInputBoxY.Enabled = IsEditable();
         }
 
         protected override void OnLabelSet()

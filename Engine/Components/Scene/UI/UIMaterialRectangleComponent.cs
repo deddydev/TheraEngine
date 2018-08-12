@@ -90,11 +90,18 @@ namespace TheraEngine.Rendering.UI
         //    inverseLocalTransform = Matrix4.CreateScale(1.0f / _size.X, 1.0f / _size.Y, 1.0f) * inverseLocalTransform;
         //}
 
+        protected override void OnWorldTransformChanged()
+        {
+            _renderMatrix = WorldMatrix * Matrix4.CreateScale(Width, Height, 1.0f);
+            base.OnWorldTransformChanged();
+        }
+
+        private Matrix4 _renderMatrix;
         private RenderCommandMesh2D _renderCommand = new RenderCommandMesh2D();
         public virtual void AddRenderables(RenderPasses passes)
         {
             _renderCommand.Primitives = _quad;
-            _renderCommand.WorldMatrix = WorldMatrix * Matrix4.CreateScale(Width, Height, 1.0f);
+            _renderCommand.WorldMatrix = _renderMatrix;
             _renderCommand.NormalMatrix = Matrix3.Identity;
             _renderCommand.ZIndex = 0;
             passes.Add(_renderCommand, RenderInfo.RenderPass);

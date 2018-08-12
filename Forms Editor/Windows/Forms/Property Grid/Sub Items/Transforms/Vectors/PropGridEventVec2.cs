@@ -24,23 +24,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-            if (DataType == typeof(EventVec2))
+
+            _eventVec2 = value as EventVec2;
+            bool notNull = _eventVec2 != null;
+            bool editable = IsEditable();
+
+            if (notNull)
             {
-                _eventVec2 = value as EventVec2;
-                if (chkNull.Checked = _eventVec2 == null)
-                {
-                    numericInputBoxX.Value = null;
-                    numericInputBoxY.Value = null;
-                }
-                else
-                {
-                    numericInputBoxX.Value = _eventVec2.X;
-                    numericInputBoxY.Value = _eventVec2.Y;
-                }
-                chkNull.Enabled = !ParentInfo.IsReadOnly();
+                numericInputBoxX.Value = _eventVec2.X;
+                numericInputBoxY.Value = _eventVec2.Y;
             }
             else
-                throw new Exception(DataType.GetFriendlyName() + " is not an EventVec2 type.");
+            {
+                numericInputBoxX.Value = null;
+                numericInputBoxY.Value = null;
+            }
+
+            chkNull.Checked = !notNull;
+            chkNull.Enabled = editable;
+            numericInputBoxX.Enabled = numericInputBoxY.Enabled = editable && notNull;
         }
         private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
@@ -58,11 +60,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 OnValueChanged();
             }
         }
-        protected override void SetControlsEnabled(bool enabled)
-        {
-            chkNull.Enabled = enabled;
-        }
-
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)

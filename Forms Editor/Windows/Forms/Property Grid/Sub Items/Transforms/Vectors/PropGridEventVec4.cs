@@ -30,28 +30,29 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-            
-            if (DataType == typeof(EventVec4))
+
+            _eventVec4 = value as EventVec4;
+            bool notNull = _eventVec4 != null;
+            bool editable = IsEditable();
+
+            if (notNull)
             {
-                _eventVec4 = value as EventVec4;
-                if (chkNull.Checked = _eventVec4 == null)
-                {
-                    numericInputBoxX.Value = null;
-                    numericInputBoxY.Value = null;
-                    numericInputBoxZ.Value = null;
-                    numericInputBoxW.Value = null;
-                }
-                else
-                {
-                    numericInputBoxX.Value = _eventVec4.X;
-                    numericInputBoxY.Value = _eventVec4.Y;
-                    numericInputBoxZ.Value = _eventVec4.Z;
-                    numericInputBoxW.Value = _eventVec4.W;
-                }
-                chkNull.Enabled = !ParentInfo.IsReadOnly();
+                numericInputBoxX.Value = _eventVec4.X;
+                numericInputBoxY.Value = _eventVec4.Y;
+                numericInputBoxZ.Value = _eventVec4.Z;
+                numericInputBoxW.Value = _eventVec4.W;
             }
             else
-                throw new Exception(string.Format("{0} is not {1}.", DataType.GetFriendlyName(), nameof(EventVec4)));
+            {
+                numericInputBoxX.Value = null;
+                numericInputBoxY.Value = null;
+                numericInputBoxZ.Value = null;
+                numericInputBoxW.Value = null;
+            }
+
+            chkNull.Checked = !notNull;
+            chkNull.Enabled = editable;
+            numericInputBoxX.Enabled = numericInputBoxY.Enabled = numericInputBoxZ.Enabled = numericInputBoxW.Enabled = editable && notNull;
         }
 
         private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
@@ -86,11 +87,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 OnValueChanged();
             }
         }
-        protected override void SetControlsEnabled(bool enabled)
-        {
-            chkNull.Enabled = enabled;
-        }
-
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)

@@ -30,50 +30,50 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// </summary>
         private void InitializeComponent()
         {
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.tblEnumFlags = new System.Windows.Forms.TableLayoutPanel();
+            this.cboEnumNames = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.AutoSize = true;
-            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel1.ColumnCount = 3;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 3);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(0, 0);
-            this.tableLayoutPanel1.TabIndex = 0;
+            this.tblEnumFlags.AutoSize = true;
+            this.tblEnumFlags.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tblEnumFlags.ColumnCount = 3;
+            this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblEnumFlags.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tblEnumFlags.Location = new System.Drawing.Point(3, 3);
+            this.tblEnumFlags.Margin = new System.Windows.Forms.Padding(0);
+            this.tblEnumFlags.Name = "tableLayoutPanel1";
+            this.tblEnumFlags.RowCount = 1;
+            this.tblEnumFlags.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tblEnumFlags.Size = new System.Drawing.Size(0, 0);
+            this.tblEnumFlags.TabIndex = 0;
             // 
             // comboBox1
             // 
-            this.comboBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.comboBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.comboBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.comboBox1.ForeColor = System.Drawing.SystemColors.InactiveBorder;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(0, 57);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(0, 23);
-            this.comboBox1.TabIndex = 0;
-            this.comboBox1.Visible = false;
+            this.cboEnumNames.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.cboEnumNames.Dock = System.Windows.Forms.DockStyle.Top;
+            this.cboEnumNames.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboEnumNames.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboEnumNames.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboEnumNames.ForeColor = System.Drawing.SystemColors.InactiveBorder;
+            this.cboEnumNames.FormattingEnabled = true;
+            this.cboEnumNames.Location = new System.Drawing.Point(0, 57);
+            this.cboEnumNames.Margin = new System.Windows.Forms.Padding(2);
+            this.cboEnumNames.Name = "comboBox1";
+            this.cboEnumNames.Size = new System.Drawing.Size(0, 23);
+            this.cboEnumNames.TabIndex = 0;
+            this.cboEnumNames.Visible = false;
             // 
             // panel1
             // 
             this.panel1.AutoScroll = true;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.tableLayoutPanel1);
+            this.panel1.Controls.Add(this.tblEnumFlags);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.panel1.Location = new System.Drawing.Point(0, 0);
@@ -89,7 +89,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.cboEnumNames);
             this.Controls.Add(this.panel1);
             this.Name = "PropGridEnum";
             this.Size = new System.Drawing.Size(0, 80);
@@ -101,8 +101,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         #endregion
 
-        private TableLayoutPanel tableLayoutPanel1;
-        private ComboBox comboBox1;
+        private TableLayoutPanel tblEnumFlags;
+        private ComboBox cboEnumNames;
         private Panel panel1;
     }
 }

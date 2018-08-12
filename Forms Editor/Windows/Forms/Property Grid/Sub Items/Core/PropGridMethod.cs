@@ -44,9 +44,5 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //TODO: retrieve parameters from the user
             }
         }
-        protected override void SetControlsEnabled(bool enabled)
-        {
-            Enabled = enabled;
-        }
     }
 }

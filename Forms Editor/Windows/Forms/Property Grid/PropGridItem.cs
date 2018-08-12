@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class PropGridItem : UserControl
     {
-        private bool _readOnly = false;
         private bool _isEditing = false;
         private object _oldValue, _newValue;
         protected bool _updating = false;
@@ -36,15 +36,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public Label Label { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public bool ReadOnly
-        {
-            get => _readOnly;
-            set
-            {
-                _readOnly = value;
-                SetControlsEnabled(!_readOnly && (ParentInfo == null || !ParentInfo.IsReadOnly()));
-            }
-        }
+        public bool ReadOnly { get; set; } = false;
+
+        protected bool IsEditable() => !ReadOnly && (ParentInfo == null || !ParentInfo.IsReadOnly());
+
         /// <summary>
         /// When true, disallows UpdateDisplay() from doing anything until set to false.
         /// </summary>
@@ -192,7 +187,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         internal protected virtual void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
             ParentInfo = parentInfo;
-            SetControlsEnabled(!(ParentInfo?.IsReadOnly() ?? true) && !_readOnly);
+            PropGridControlForAttribute attr = GetType().GetCustomAttributeExt<PropGridControlForAttribute>();
+            Type[] types = attr.Types;
+            string str = types.ToStringList(", ", ", or ", t => t.GetFriendlyName());
+            if (!Engine.Assert(types.Any(x => x.IsAssignableFrom(DataType)), $"{DataType.GetFriendlyName()} is not a {str} type."))
+                return;
             UpdateDisplay();
         }
         internal void SetLabel(Label label)
@@ -202,15 +201,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public void UpdateDisplay()
         {
-            if (IsEditing || !ControlsEnabled)
+            if (IsEditing)
                 return;
 
             _updating = true;
             UpdateDisplayInternal();
             _updating = false;
         }
-        public bool ControlsEnabled { get; set; } = true;
-        protected virtual void SetControlsEnabled(bool enabled) { ControlsEnabled = Enabled = enabled; }
         protected virtual void UpdateDisplayInternal() { }
         protected virtual void OnLabelSet() { }
 

@@ -1,10 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using System.Reflection;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -14,8 +12,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridEnum()
         {
             InitializeComponent();
-            comboBox1.GotFocus += comboBox1_GotFocus;
-            comboBox1.LostFocus += comboBox1_LostFocus;
+            cboEnumNames.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
+            cboEnumNames.GotFocus += comboBox1_GotFocus;
+            cboEnumNames.LostFocus += comboBox1_LostFocus;
             _containsBit = new Dictionary<TypeCode, DelContainsBit>()
             {
                 { TypeCode.Byte,    UInt8ContainsBit  },
@@ -45,6 +44,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
+            bool editable = IsEditable();
             if (value is Enum e)
             {
                 string temp = value.ToString();
@@ -64,9 +64,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     for (int i = 0; i < names.Length; ++i)
                     {
                         object number = Convert.ChangeType(values.GetValue(i), t);
-                        ((CheckBox)tableLayoutPanel1.GetControlFromPosition(0, i)).Checked = contains(totalValue, number);
+                        ((CheckBox)tblEnumFlags.GetControlFromPosition(0, i)).Checked = contains(totalValue, number);
                     }
-                    tableLayoutPanel1.Enabled = !ParentInfo.IsReadOnly();
+                    tblEnumFlags.Enabled = editable;
                 }
                 else
                 {
@@ -77,15 +77,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         if (string.Equals(name, _value, StringComparison.InvariantCulture))
                             selectedIndex = i;
                     }
-                    comboBox1.SelectedIndex = selectedIndex;
-                    comboBox1.Enabled = !ParentInfo.IsReadOnly();
+                    cboEnumNames.SelectedIndex = selectedIndex;
+                    cboEnumNames.Enabled = editable;
                 }
             }
             else if (value is Exception)
             {
-                comboBox1.Visible = true;
-                tableLayoutPanel1.Visible = false;
-                comboBox1.Text = value.ToString();
+                cboEnumNames.Visible = true;
+                tblEnumFlags.Visible = false;
+                cboEnumNames.Text = value.ToString();
             }
             else
             {
@@ -95,7 +95,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            UpdateValue(Enum.Parse(DataType, (string)comboBox1.SelectedItem), true);
+            UpdateValue(Enum.Parse(DataType, (string)cboEnumNames.SelectedItem), true);
         }
         
         private bool UInt8ContainsBit(object total, object bits) 
@@ -156,9 +156,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void UpdateControls(Type enumType)
         {
             bool enabled = enumType != null;
-            SetControlsEnabled(enabled);
+
             if (!enabled)
+            {
                 return;
+            }
             
             string[] names = Enum.GetNames(enumType);
             Array values = Enum.GetValues(enumType);
@@ -166,15 +168,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (flags)
             {
                 panel1.Visible = true;
-                comboBox1.Visible = false;
-                tableLayoutPanel1.RowStyles.Clear();
-                tableLayoutPanel1.RowCount = 0;
+                cboEnumNames.Visible = false;
+                tblEnumFlags.RowStyles.Clear();
+                tblEnumFlags.RowCount = 0;
                 for (int i = 0; i < names.Length; ++i)
                 {
                     string name = names[i];
 
-                    tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                    tableLayoutPanel1.RowCount++;
+                    tblEnumFlags.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    tblEnumFlags.RowCount++;
 
                     object number = Convert.ChangeType(values.GetValue(i), Type.GetTypeCode(enumType));
 
@@ -208,18 +210,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         Dock = DockStyle.Fill,
                     };
 
-                    tableLayoutPanel1.Controls.Add(bitSet, 0, tableLayoutPanel1.RowCount - 1);
-                    tableLayoutPanel1.Controls.Add(bitValue, 2, tableLayoutPanel1.RowCount - 1);
-                    tableLayoutPanel1.Controls.Add(bitName, 1, tableLayoutPanel1.RowCount - 1);
+                    tblEnumFlags.Controls.Add(bitSet, 0, tblEnumFlags.RowCount - 1);
+                    tblEnumFlags.Controls.Add(bitValue, 2, tblEnumFlags.RowCount - 1);
+                    tblEnumFlags.Controls.Add(bitName, 1, tblEnumFlags.RowCount - 1);
                 }
             }
             else
             {
                 panel1.Visible = false;
-                comboBox1.Visible = true;
+                cboEnumNames.Visible = true;
+                cboEnumNames.Items.Clear();
                 for (int i = 0; i < names.Length; ++i)
-                    comboBox1.Items.Add(names[i]);
-                comboBox1.SelectedIndexChanged += ComboBox1_SelectedIndexChanged;
+                    cboEnumNames.Items.Add(names[i]);
             }
         }
     }

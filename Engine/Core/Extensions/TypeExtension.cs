@@ -20,60 +20,28 @@ namespace System
     }
     public static class TypeExtension
     {
-        //public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">")
-        //{
-        //    if (type == null)
-        //        return "null";
-
-        //    if (_typeToFriendlyName.TryGetValue(type, out string friendlyName))
-        //        return friendlyName;
-
-        //    friendlyName = type.Name;
-        //    if (type.IsGenericType)
-        //    {
-        //        int backtick = friendlyName.IndexOf('`');
-        //        if (backtick > 0)
-        //        {
-        //            friendlyName = friendlyName.Remove(backtick);
-        //        }
-        //        friendlyName += openBracket;
-        //        Type[] typeParameters = type.GetGenericArguments();
-        //        for (int i = 0; i < typeParameters.Length; i++)
-        //        {
-        //            string typeParamName = typeParameters[i].GetFriendlyName(openBracket, closeBracket);
-        //            friendlyName += (i == 0 ? typeParamName : ", " + typeParamName);
-        //        }
-        //        friendlyName += closeBracket;
-        //    }
-
-        //    if (type.IsArray)
-        //        return type.GetElementType().GetFriendlyName() + "[]";
-
-        //    return friendlyName;
-        //}
-        
-        private static Dictionary<Type, string> _defaultDictionary = new Dictionary<System.Type, string>
+        private static readonly Dictionary<Type, string> DefaultDictionary = new Dictionary<Type, string>
         {
-            { typeof(void), "void" },
-            { typeof(char), "char" },
-            { typeof(bool), "bool" },
-            { typeof(byte), "byte" },
-            { typeof(sbyte), "sbyte" },
-            { typeof(short), "short" },
-            { typeof(ushort), "ushort" },
-            { typeof(int), "int" },
-            { typeof(uint), "uint" },
-            { typeof(long), "long" },
-            { typeof(ulong), "ulong" },
-            { typeof(float), "float" },
-            { typeof(double), "double" },
-            { typeof(decimal), "decimal" },
-            { typeof(string), "string" },
-            { typeof(object), "object" },
+            { typeof(void),     "void"      },
+            { typeof(char),     "char"      },
+            { typeof(bool),     "bool"      },
+            { typeof(byte),     "byte"      },
+            { typeof(sbyte),    "sbyte"     },
+            { typeof(short),    "short"     },
+            { typeof(ushort),   "ushort"    },
+            { typeof(int),      "int"       },
+            { typeof(uint),     "uint"      },
+            { typeof(long),     "long"      },
+            { typeof(ulong),    "ulong"     },
+            { typeof(float),    "float"     },
+            { typeof(double),   "double"    },
+            { typeof(decimal),  "decimal"   },
+            { typeof(string),   "string"    },
+            { typeof(object),   "object"    },
         };
 
         public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">")
-            => type.GetFriendlyName(_defaultDictionary, openBracket, closeBracket);
+            => type.GetFriendlyName(DefaultDictionary, openBracket, closeBracket);
         public static string GetFriendlyName(this Type type, Dictionary<Type, string> translations, string openBracket = "<", string closeBracket = ">")
         {
             if (type == null)

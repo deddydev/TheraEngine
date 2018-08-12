@@ -457,6 +457,15 @@ namespace TheraEngine.Rendering.Models
         internal TMaterial GetRenderMaterial(TMaterial localOverrideMat)
             => Engine.Renderer.MaterialOverride ?? localOverrideMat ?? Material;
 
+        /// <summary>
+        /// Determines how to use the results of the <see cref="ConditionalRenderQuery"/>.
+        /// </summary>
+        public EConditionalRenderType ConditionalRenderType { get; set; } = EConditionalRenderType.QueryNoWait;
+        /// <summary>
+        /// A render query that is used to determine if this mesh should be rendered or not.
+        /// </summary>
+        public RenderQuery ConditionalRenderQuery { get; set; } = null;
+
         public void Render() => Render(1);
         public void Render(int instances) 
             => Render(Matrix4.Identity, Matrix3.Identity, instances);
@@ -502,11 +511,13 @@ namespace TheraEngine.Rendering.Models
             RenderProgram vtxProg, matProg;
             if (Engine.Settings.AllowShaderPipelines)
             {
-                _pipeline.Bind();
-
                 matProg = mat.Program;
+
+                _pipeline.Bind();
                 _pipeline.Clear(EProgramStageMask.AllShaderBits);
                 _pipeline.Set(mat.Program.ShaderTypeMask, matProg.BindingId);
+
+                //If the program doesn't override the vertex shader, use the default one for this mesh
                 if (!mat.Program.ShaderTypeMask.HasFlag(EProgramStageMask.VertexShaderBit))
                 {
                     vtxProg = _vertexProgram;

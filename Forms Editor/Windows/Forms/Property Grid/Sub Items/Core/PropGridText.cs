@@ -44,7 +44,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
                 }
             }
-            SetControlsEnabled(DataType == typeof(string) && !chkNull.Checked);
+            SetTextBoxEditable(DataType == typeof(string) && !chkNull.Checked);
             textBox1.Text = value?.ToString() ?? string.Empty;
         }
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -53,7 +53,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             UpdateValue(textBox1.Text, false);
         }
-        protected override void SetControlsEnabled(bool enabled)
+        protected void SetTextBoxEditable(bool enabled)
         {
             if (textBox1.ReadOnly = !(btnEdit.Enabled = enabled))
             {
@@ -73,7 +73,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (chkNull.Checked)
             {
                 UpdateValue(null, true);
-                SetControlsEnabled(false);
+                SetTextBoxEditable(false);
             }
             else
             {
@@ -84,7 +84,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     object o = Editor.UserCreateInstanceOf(DataType, true);
                     UpdateValue(o, true);
                 }
-                SetControlsEnabled(true);
+                SetTextBoxEditable(true);
             }
         }
 

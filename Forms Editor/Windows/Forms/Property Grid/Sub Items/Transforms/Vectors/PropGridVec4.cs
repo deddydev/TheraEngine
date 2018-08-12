@@ -29,14 +29,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-            if (value is Vec4 Vec4Val)
-            {
-                numericInputBoxX.Value = Vec4Val.X;
-                numericInputBoxY.Value = Vec4Val.Y;
-                numericInputBoxZ.Value = Vec4Val.Z;
-            }
-            else
-                throw new Exception(DataType.GetFriendlyName() + " is not a Vec4 type.");
+
+            Vec4 v = (Vec4)value;
+            numericInputBoxX.Value = v.X;
+            numericInputBoxY.Value = v.Y;
+            numericInputBoxZ.Value = v.Z;
+            numericInputBoxW.Value = v.W;
+
+            numericInputBoxX.Enabled = numericInputBoxY.Enabled = numericInputBoxZ.Enabled = numericInputBoxW.Enabled = IsEditable();
         }
 
         protected override void OnLabelSet()

@@ -28,26 +28,27 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-            
-            if (DataType == typeof(EventVec3))
+
+            _eventVec3 = value as EventVec3;
+            bool notNull = _eventVec3 != null;
+            bool editable = IsEditable();
+
+            if (notNull)
             {
-                _eventVec3 = value as EventVec3;
-                if (chkNull.Checked = _eventVec3 == null)
-                {
-                    numericInputBoxX.Value = null;
-                    numericInputBoxY.Value = null;
-                    numericInputBoxZ.Value = null;
-                }
-                else
-                {
-                    numericInputBoxX.Value = _eventVec3.X;
-                    numericInputBoxY.Value = _eventVec3.Y;
-                    numericInputBoxZ.Value = _eventVec3.Z;
-                }
-                chkNull.Enabled = !ParentInfo.IsReadOnly();
+                numericInputBoxX.Value = _eventVec3.X;
+                numericInputBoxY.Value = _eventVec3.Y;
+                numericInputBoxZ.Value = _eventVec3.Z;
             }
             else
-                throw new Exception(DataType.GetFriendlyName() + " is not an EventVec3 type.");
+            {
+                numericInputBoxX.Value = null;
+                numericInputBoxY.Value = null;
+                numericInputBoxZ.Value = null;
+            }
+
+            chkNull.Checked = !notNull;
+            chkNull.Enabled = editable;
+            numericInputBoxX.Enabled = numericInputBoxY.Enabled = numericInputBoxZ.Enabled = editable && notNull;
         }
 
         private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
@@ -76,11 +77,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 OnValueChanged();
             }
         }
-        protected override void SetControlsEnabled(bool enabled)
-        {
-            chkNull.Enabled = enabled;
-        }
-
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)

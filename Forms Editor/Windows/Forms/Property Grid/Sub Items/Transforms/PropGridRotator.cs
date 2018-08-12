@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using TheraEngine;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -30,21 +32,28 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             
-            if (DataType == typeof(Rotator))
+            _rotator = value as Rotator;
+            bool notNull = _rotator != null;
+            bool editable = IsEditable();
+
+            if (notNull)
             {
-                _rotator = value as Rotator;
-
-                bool notNull = _rotator != null;
-                cboOrder.Enabled = checkBox1.Checked = numericInputBoxPitch.Enabled = numericInputBoxYaw.Enabled = numericInputBoxRoll.Enabled = notNull;
-
-                numericInputBoxPitch.Value = _rotator?.Pitch;
-                numericInputBoxYaw.Value = _rotator?.Yaw;
-                numericInputBoxRoll.Value = _rotator?.Roll;
-                if (notNull)
-                    cboOrder.SelectedIndex = (int)_rotator.Order;
+                numericInputBoxPitch.Value = _rotator.Pitch;
+                numericInputBoxYaw.Value = _rotator.Yaw;
+                numericInputBoxRoll.Value = _rotator.Roll;
+                cboOrder.SelectedIndex = (int)_rotator.Order;
             }
             else
-                throw new Exception(DataType.GetFriendlyName() + " is not a Rotator type.");
+            {
+                numericInputBoxPitch.Value = null;
+                numericInputBoxYaw.Value = null;
+                numericInputBoxRoll.Value = null;
+                cboOrder.SelectedIndex = 0;
+            }
+
+            checkBox1.Checked = !notNull;
+            checkBox1.Enabled = editable;
+            cboOrder.Enabled = numericInputBoxPitch.Enabled = numericInputBoxYaw.Enabled = numericInputBoxRoll.Enabled = editable && notNull;
         }
 
         private void numericInputBoxPitch_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
@@ -75,17 +84,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (_rotator != null && !_updating)
             {
-                SubmitPreManualStateChange(_rotator, "Order");
+                SubmitPreManualStateChange(_rotator, nameof(Rotator.Order));
                 _rotator.Order = (RotationOrder)cboOrder.SelectedIndex;
-                SubmitPostManualStateChange(_rotator, "Order");
+                SubmitPostManualStateChange(_rotator, nameof(Rotator.Order));
             }
         }
-
-        protected override void SetControlsEnabled(bool enabled)
-        {
-            checkBox1.Enabled = enabled;
-        }
-
+        
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)

@@ -196,11 +196,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
             }
         }
-        protected override void SetControlsEnabled(bool enabled)
-        {
-            chkNull.Enabled = enabled;
-        }
-
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)

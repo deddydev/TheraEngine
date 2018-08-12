@@ -45,14 +45,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-            if (value is Matrix4 Matrix4Val)
-            {
-                for (int r = 0; r < 4; ++r)
-                    for (int c = 0; c < 4; ++c)
-                        _boxes[r, c].Value = Matrix4Val[r, c];
-            }
-            else
-                throw new Exception(DataType.GetFriendlyName() + " is not a Matrix4 type.");
+            bool editable = IsEditable();
+            Matrix4 m = (Matrix4)value;
+            for (int r = 0; r < 4; ++r)
+                for (int c = 0; c < 4; ++c)
+                {
+                    var box = _boxes[r, c];
+                    box.Value = m[r, c];
+                    box.Enabled = editable;
+                }
         }
 
         protected override void OnLabelSet()

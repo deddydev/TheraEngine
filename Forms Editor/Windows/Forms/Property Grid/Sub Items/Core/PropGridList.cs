@@ -18,30 +18,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             object value = GetValue();
             lblObjectTypeName.Text = DataType.GetFriendlyName();
-            chkNull.Visible = DataType.IsValueType;
-            if (typeof(IList).IsAssignableFrom(DataType))
+            chkNull.Visible = !DataType.IsValueType;
+            
+            _list = value as IList;
+            if (!(chkNull.Checked = _list == null))
             {
-                _list = value as IList;
-                chkNull.Visible = DataType.IsClass;
-                if (!(chkNull.Checked = _list == null))
-                {
-                    lblObjectTypeName.Enabled = _list.Count > 0;
-                    btnAdd.Visible = !_list.IsFixedSize;
-                    _elementType = _list.DetermineElementType();
-                }
-                else
-                {
-                    lblObjectTypeName.Enabled = false;
-                    btnAdd.Visible = false;
-                }
-            }
-            else if (value is Exception ex)
-            {
-                
+                lblObjectTypeName.Enabled = _list.Count > 0;
+                btnAdd.Visible = !_list.IsFixedSize;
+                _elementType = _list.DetermineElementType();
             }
             else
             {
-                throw new Exception(DataType.GetFriendlyName() + " is not an IList type.");
+                lblObjectTypeName.Enabled = false;
+                btnAdd.Visible = false;
             }
         }
 
@@ -149,11 +138,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
             }
         }
-        protected override void SetControlsEnabled(bool enabled)
-        {
-            chkNull.Enabled = enabled;
-        }
-
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)

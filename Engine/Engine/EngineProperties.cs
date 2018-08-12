@@ -130,6 +130,19 @@ namespace TheraEngine
             RebaseWorldsQueue2.AddOrUpdate(world, t => point, (t, t2) => point);
         }
 
+        public static bool Assert(bool condition, string message, bool throwException = true)
+        {
+            if (!condition)
+            {
+                if (throwException)
+                    throw new Exception(message);
+                else
+                    LogWarning(message);
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// Queue for adding to or removing from the currently ticking list
         /// </summary>

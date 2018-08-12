@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 if (pnlEditors.Enabled)
                 {
-                    SetControlsEnabled(false);
+                    pnlEditors.Enabled = false;
                     foreach (PropGridItem item in pnlEditors.Controls)
                         item.SetReferenceHolder(null);
                 }
@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 if (!pnlEditors.Enabled)
                 {
-                    SetControlsEnabled(true);
+                    pnlEditors.Enabled = true;
                     foreach (PropGridItem item in pnlEditors.Controls)
                         item.SetReferenceHolder(new PropGridItemRefDirectInfo(value, ValueType));
                 }
@@ -75,10 +75,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     pnlEditors.Controls.Add(item);
                 }
             }
-        }
-        protected override void SetControlsEnabled(bool enabled)
-        {
-            pnlEditors.Enabled = enabled;
         }
     }
 }

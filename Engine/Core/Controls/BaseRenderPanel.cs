@@ -19,7 +19,23 @@ namespace TheraEngine
         Enabled,
         Adaptive,
     }
-    public abstract class BaseRenderPanel : UserControl, IEnumerable<Viewport>
+    public interface IRenderPanel : IEnumerable<Viewport>
+    {
+        List<Viewport> Viewports { get; }
+        VSyncMode VsyncMode { get; set; }
+        Point ScreenLocation { get; }
+        Point PointToClient(Point p);
+        Point PointToScreen(Point p);
+        void RegisterTick();
+        void UnregisterTick();
+        void CaptureContext();
+        void CreateContext();
+        Viewport GetOrAddViewport(LocalPlayerIndex index);
+        Viewport GetViewport(LocalPlayerIndex index);
+        Viewport AddViewport();
+        void UnregisterController(LocalPlayerController controller);
+    }
+    public abstract class BaseRenderPanel : UserControl, IRenderPanel
     {
         public virtual int MaxViewports => 4;
 

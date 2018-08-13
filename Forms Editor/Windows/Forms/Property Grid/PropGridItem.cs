@@ -247,18 +247,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             UpdatingVisibleItems = false;
         }
-        //protected override void OnHandleCreated(EventArgs e)
-        //{
-        //    base.OnHandleCreated(e);
-        //    if (!Engine.DesignMode)
-        //        VisibleItems.Add(this);
-        //}
-        //protected override void OnHandleDestroyed(EventArgs e)
-        //{
-        //    if (!Engine.DesignMode)
-        //        VisibleItems.Remove(this);
-        //    base.OnHandleDestroyed(e);
-        //}
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            if (!Engine.DesignMode)
+                VisibleItems.Add(this);
+        }
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            if (!Engine.DesignMode)
+                VisibleItems.Remove(this);
+            base.OnHandleDestroyed(e);
+        }
         public override string ToString()
             => DataType?.ToString() + " - " + ParentInfo?.ToString();
     }

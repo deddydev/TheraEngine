@@ -13,6 +13,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
+            bool editable = IsEditable();
+            bool notNull = value is null;
             //TODO: support showing specific editors for derived value types?
             if (chkNull.Checked = value is null)
             {
@@ -37,7 +39,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         ((PropGridItemRefDirectInfo)item.ParentInfo).Target = value;
                 }
             }
-            chkNull.Enabled = !ParentInfo.IsReadOnly();
+            chkNull.Enabled = editable;
 
             //throw new Exception(DataType.GetFriendlyName() + " is not a Nullable<T> type.");
         }

@@ -18,11 +18,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-
-            if (value is UInt32 UInt32Val)
-                numericInputBox1.Value = UInt32Val;
-            else
-                throw new Exception(DataType.GetFriendlyName() + " is not a UInt32 type.");
+            numericInputBox1.Value = (UInt32)value;
         }
 
         protected override void OnLabelSet()

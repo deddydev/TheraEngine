@@ -30,8 +30,14 @@ namespace TheraEngine.Components.Scene
         [Browsable(false)]
         public Camera Camera
         {
-            get => CameraRef.File;
-            set => CameraRef.File = value;
+            get => CameraRef?.File;
+            set
+            {
+                if (CameraRef != null)
+                    CameraRef.File = value;
+                else
+                    CameraRef = value;
+            }
         }
 
         [DisplayName(nameof(Camera))]
@@ -72,18 +78,25 @@ namespace TheraEngine.Components.Scene
         /// <param name="playerIndex">The index of the local player to assign this camera to.</param>
         public void SetCurrentForPlayer(LocalPlayerIndex playerIndex)
         {
+            Camera c = Camera;
+            if (c == null)
+            {
+                Engine.LogWarning("Camera component has no camera set.");
+                return;
+            }
+
             int index = (int)playerIndex;
             if (index >= 0 && index < Engine.LocalPlayers.Count)
-                Engine.LocalPlayers[index].ViewportCamera = _cameraRef;
+                Engine.LocalPlayers[index].ViewportCamera = c;
             else
             {
                 Dictionary<int, ConcurrentQueue<Camera>> v = LocalPlayerController.CameraPossessionQueue;
                 if (v.ContainsKey(index))
-                    v[index].Enqueue(_cameraRef);
+                    v[index].Enqueue(c);
                 else
                 {
                     ConcurrentQueue<Camera> queue = new ConcurrentQueue<Camera>();
-                    queue.Enqueue(_cameraRef);
+                    queue.Enqueue(c);
                     v.Add(index, queue);
                 }
             }
@@ -94,7 +107,15 @@ namespace TheraEngine.Components.Scene
         public void SetCurrentForController(LocalPlayerController controller)
         {
             if (controller != null)
-                controller.ViewportCamera = _cameraRef;
+            {
+                Camera c = Camera;
+                if (c == null)
+                {
+                    Engine.LogWarning("Camera component has no camera set.");
+                    return;
+                }
+                controller.ViewportCamera = c;
+            }
         }
         /// <summary>
         /// The local player controller of the pawn actor that contains this camera in its scene component tree will see through this camera.
@@ -102,7 +123,15 @@ namespace TheraEngine.Components.Scene
         public void SetCurrentForOwner()
         {
             if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
-                controller.ViewportCamera = _cameraRef;
+            {
+                Camera c = Camera;
+                if (c == null)
+                {
+                    Engine.LogWarning("Camera component has no camera set.");
+                    return;
+                }
+                controller.ViewportCamera = c;
+            }
         }
         /// <summary>
         /// The local player controller of the provided pawn will see through this camera.
@@ -151,20 +180,22 @@ namespace TheraEngine.Components.Scene
         public override bool IsTranslatable => true;
         public override void HandleWorldTranslation(Vec3 delta)
         {
-            _cameraRef.File?.TranslateAbsolute(delta);
+            Camera?.TranslateAbsolute(delta);
         }
 
 #if EDITOR
         public override void OnSpawned()
         {
-            if (_alwaysShowFrustum && Camera != null)
-                OwningScene3D?.Add(Camera);
+            Camera c = Camera;
+            if (_alwaysShowFrustum && c != null)
+                OwningScene3D?.Add(c);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            if (_alwaysShowFrustum && Camera != null)
-                OwningScene3D?.Remove(Camera);
+            Camera c = Camera;
+            if (_alwaysShowFrustum && c != null)
+                OwningScene3D?.Remove(c);
             base.OnDespawned();
         }
 
@@ -197,6 +228,7 @@ namespace TheraEngine.Components.Scene
         }
 #endif
 
+        [Browsable(false)]
         public Rotator Rotation
         {
             get => Camera?.LocalRotation;
@@ -206,6 +238,7 @@ namespace TheraEngine.Components.Scene
                     Camera.LocalRotation = value;
             }
         }
+        [Browsable(false)]
         public EventVec3 Translation
         {
             get => Camera?.LocalPoint;

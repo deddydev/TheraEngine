@@ -16,18 +16,18 @@ namespace System.Windows.Forms
         [Flags()]
         public enum RedrawWindowFlags : uint
         {
-            Invalidate = 0X1,
-            InternalPaint = 0X2,
-            Erase = 0X4,
-            Validate = 0X8,
-            NoInternalPaint = 0X10,
-            NoErase = 0X20,
-            NoChildren = 0X40,
-            AllChildren = 0X80,
-            UpdateNow = 0X100,
-            EraseNow = 0X200,
-            Frame = 0X400,
-            NoFrame = 0X800
+            Invalidate      = 0x001,
+            InternalPaint   = 0x002,
+            Erase           = 0x004,
+            Validate        = 0x008,
+            NoInternalPaint = 0x010,
+            NoErase         = 0x020,
+            NoChildren      = 0x040,
+            AllChildren     = 0x080,
+            UpdateNow       = 0x100,
+            EraseNow        = 0x200,
+            Frame           = 0x400,
+            NoFrame         = 0x800
         }
 
         private const int WM_NCPAINT = 0x85;
@@ -40,8 +40,8 @@ namespace System.Windows.Forms
                     return base.CreateParams;
 
                 CreateParams cp = base.CreateParams;
-                cp.ExStyle &= (~0x00000200); // WS_EX_CLIENTEDGE
-                cp.Style |= 0x00800000; // WS_BORDER
+                cp.ExStyle &= ~0x200; // WS_EX_CLIENTEDGE
+                cp.Style |= 0x800000; // WS_BORDER
                 return cp;
             }
         }
@@ -52,7 +52,7 @@ namespace System.Windows.Forms
             set
             {
                 _focusedPen.Color = value;
-                RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RedrawWindowFlags.Frame | RedrawWindowFlags.UpdateNow | RedrawWindowFlags.Invalidate);
+                Redraw();
             }
         }
         public Color RegularColor
@@ -61,67 +61,70 @@ namespace System.Windows.Forms
             set
             {
                 _regularPen.Color = value;
-                RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RedrawWindowFlags.Frame | RedrawWindowFlags.UpdateNow | RedrawWindowFlags.Invalidate);
+                Redraw();
+            }
+        }
+        public Color HoveredColor
+        {
+            get => _hoverPen.Color;
+            set
+            {
+                _hoverPen.Color = value;
+                Redraw();
             }
         }
 
         private Pen _focusedPen = new Pen(Editor.TurquoiseColor);
         private Pen _regularPen = new Pen(Color.FromArgb(30, 30, 30));
+        private Pen _hoverPen = new Pen(Color.FromArgb(120, 120, 0));
+        private bool _hovered = false;
 
-
-        public override void Refresh()
+        protected override void OnMouseEnter(EventArgs e)
         {
-            Invalidate();
+            base.OnMouseEnter(e);
+            _hovered = true;
+            Redraw();
         }
-
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            _hovered = false;
+            Redraw();
+        }
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            Invalidate();
+            Redraw();
         }
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            Invalidate();
+            Redraw();
         }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            if (BorderStyle == BorderStyle.None)
-                return;
-
-            e.Graphics.DrawRectangle(Focused ? _focusedPen : _regularPen, 0, 0, Width - 1, Height - 1);
-        }
-
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if (m.Msg == WM_NCPAINT)
+            if (BorderStyle != BorderStyle.None)
             {
-                if (BorderStyle == BorderStyle.None)
-                    return;
-                
                 IntPtr hdc = GetWindowDC(Handle);
                 using (Graphics g = Graphics.FromHdcInternal(hdc))
-                {
-                    g.DrawRectangle(Focused ? _focusedPen : _regularPen, 0, 0, Width - 1, Height - 1);
-                }
+                    g.DrawRectangle(Focused ? _focusedPen : (_hovered ? _hoverPen : _regularPen), 0, 0, Width - 1, Height - 1);
                 ReleaseDC(Handle, hdc);
             }
         }
-
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RedrawWindowFlags.Frame | RedrawWindowFlags.UpdateNow | RedrawWindowFlags.Invalidate);
+            Redraw();
         }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             if (DesignMode)
                 RecreateHandle();
-            RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RedrawWindowFlags.Frame | RedrawWindowFlags.UpdateNow | RedrawWindowFlags.Invalidate);
+            Redraw();
         }
+        private void Redraw()
+            => RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RedrawWindowFlags.Frame | RedrawWindowFlags.EraseNow | RedrawWindowFlags.UpdateNow | RedrawWindowFlags.Invalidate);
     }
 }

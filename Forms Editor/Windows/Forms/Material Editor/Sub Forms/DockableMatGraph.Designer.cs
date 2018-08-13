@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.RenderPanel = new TheraEngine.MaterialGraphRenderPanel();
+            this.RenderPanel = new MaterialGraphRenderPanel();
             this.SuspendLayout();
             // 
             // RenderPanel
@@ -69,6 +69,6 @@
 
         #endregion
 
-        public TheraEngine.MaterialGraphRenderPanel RenderPanel;
+        public MaterialGraphRenderPanel RenderPanel;
     }
 }

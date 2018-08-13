@@ -20,7 +20,7 @@ namespace TheraEngine.Input
             _input = new InputInterface(i);
             _input.WantsInputsRegistered += RegisterInput;
 
-            _possessionQueue = possessionQueue;
+            _possessionQueue = possessionQueue ?? new Queue<IPawn>();
             if (_possessionQueue.Count != 0 && ControlledPawn == null)
                 ControlledPawn = _possessionQueue.Dequeue();
 

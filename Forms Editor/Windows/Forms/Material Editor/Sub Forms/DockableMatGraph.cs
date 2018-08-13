@@ -1,15 +1,14 @@
 ﻿//using ComponentOwl.BetterListView;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
+using TheraEngine.Input;
 using TheraEngine.Rendering.Models.Materials.Functions;
-using TheraEngine.Timers;
-using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
-using static TheraEditor.Windows.Forms.DockableMatFuncList;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -20,10 +19,8 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             RenderPanel.AllowDrop = false;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
-            GameMode = new MaterialEditorGameMode() { Editor = this };
-            _world = new World();
+            GameMode = new MaterialEditorGameMode() { RenderPanel = RenderPanel };
         }
-        private World _world;
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             Editor.SetActiveEditorControl(this);
@@ -44,15 +41,12 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnShown(EventArgs e)
         {
-            _world.SpawnActor(RenderPanel.UI);
-            RenderPanel.RegisterTick();
+            RenderPanel.FormShown();
             base.OnShown(e);
         }
-        
         protected override void OnClosed(EventArgs e)
         {
-            _world.DespawnActor(RenderPanel.UI);
-            RenderPanel.UnregisterTick();
+            RenderPanel.FormClosed();
             base.OnClosed(e);
         }
 
@@ -134,4 +128,12 @@ namespace TheraEditor.Windows.Forms
             _dragged = null;
         }
     }
+    public class MaterialEditorController : LocalPlayerController
+    {
+        public MaterialEditorController(LocalPlayerIndex index) : this(index, null) { }
+        public MaterialEditorController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+            : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
+    }
+    public class MaterialGraphRenderPanel : UIRenderPanel<UIMaterialEditor, MaterialEditorGameMode, MaterialEditorController> { }
+    public class MaterialEditorGameMode : UIGameMode<UIMaterialEditor, MaterialEditorController> { }
 }

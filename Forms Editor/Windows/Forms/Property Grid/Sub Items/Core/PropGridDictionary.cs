@@ -18,30 +18,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             object value = GetValue();
             lblObjectTypeName.Text = DataType.GetFriendlyName();
             chkNull.Visible = DataType.IsValueType;
-            if (typeof(IDictionary).IsAssignableFrom(DataType))
+
+            _dictionary = value as IDictionary;
+            chkNull.Visible = DataType.IsClass;
+            if (!(chkNull.Checked = _dictionary == null))
             {
-                _dictionary = value as IDictionary;
-                chkNull.Visible = DataType.IsClass;
-                if (!(chkNull.Checked = _dictionary == null))
-                {
-                    lblObjectTypeName.Enabled = _dictionary.Count > 0;
-                    btnAdd.Visible = !_dictionary.IsFixedSize;
-                    _valueType = _dictionary.DetermineValueType();
-                    _keyType = _dictionary.DetermineKeyType();
-                }
-                else
-                {
-                    lblObjectTypeName.Enabled = false;
-                    btnAdd.Visible = false;
-                }
-            }
-            else if (value is Exception ex)
-            {
-                
+                lblObjectTypeName.Enabled = _dictionary.Count > 0;
+                btnAdd.Visible = !_dictionary.IsFixedSize;
+                _valueType = _dictionary.DetermineValueType();
+                _keyType = _dictionary.DetermineKeyType();
             }
             else
             {
-                throw new Exception(DataType.GetFriendlyName() + " is not an IDictionary type.");
+                lblObjectTypeName.Enabled = false;
+                btnAdd.Visible = false;
             }
         }
         

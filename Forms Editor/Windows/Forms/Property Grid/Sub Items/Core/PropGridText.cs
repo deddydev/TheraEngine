@@ -17,8 +17,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridText()
         {
             InitializeComponent();
-            textBox1.GotFocus += TextBox1_GotFocus;
-            textBox1.LostFocus += TextBox1_LostFocus;
+            textBox.GotFocus += TextBox1_GotFocus;
+            textBox.LostFocus += TextBox1_LostFocus;
         }
         
         private void TextBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
@@ -28,7 +28,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-            chkNull.Checked = value == null;
+            bool notNull = value != null;
+            bool editable = IsEditable();
+            chkNull.Checked = !notNull;
+
             PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
             if (propInfo?.Property != null)
             {
@@ -44,27 +47,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
                 }
             }
-            SetTextBoxEditable(DataType == typeof(string) && !chkNull.Checked);
-            textBox1.Text = value?.ToString() ?? string.Empty;
+            textBox.Text = value?.ToString() ?? string.Empty;
+            textBox.Enabled = btnBrowse.Enabled = btnEdit.Enabled = editable && notNull;
+            chkNull.Enabled = editable;
+            if (textBox.Enabled)
+            {
+                textBox.BackColor = Color.FromArgb(30, 30, 30);
+                textBox.ForeColor = Color.FromArgb(200, 200, 220);
+            }
+            else
+            {
+                textBox.BackColor = Color.FromArgb(30, 30, 30);
+                textBox.ForeColor = Color.FromArgb(100, 100, 100);
+            }
         }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             if (_updating)
                 return;
-            UpdateValue(textBox1.Text, false);
-        }
-        protected void SetTextBoxEditable(bool enabled)
-        {
-            if (textBox1.ReadOnly = !(btnEdit.Enabled = enabled))
-            {
-                textBox1.BackColor = Color.FromArgb(30, 30, 30);
-                textBox1.ForeColor = Color.FromArgb(100, 100, 100);
-            }
-            else
-            {
-                textBox1.BackColor = Color.FromArgb(30, 30, 30);
-                textBox1.ForeColor = Color.FromArgb(200, 200, 220);
-            }
+            UpdateValue(textBox.Text, false);
         }
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
@@ -73,7 +74,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (chkNull.Checked)
             {
                 UpdateValue(null, true);
-                SetTextBoxEditable(false);
+                //SetTextBoxEditable(false);
             }
             else
             {
@@ -84,7 +85,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     object o = Editor.UserCreateInstanceOf(DataType, true);
                     UpdateValue(o, true);
                 }
-                SetTextBoxEditable(true);
+                //SetTextBoxEditable(true);
             }
         }
 

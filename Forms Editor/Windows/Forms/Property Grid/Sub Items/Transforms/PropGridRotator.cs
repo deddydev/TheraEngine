@@ -51,8 +51,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 cboOrder.SelectedIndex = 0;
             }
 
-            checkBox1.Checked = !notNull;
-            checkBox1.Enabled = editable;
+            chkNull.Checked = !notNull;
+            chkNull.Enabled = editable;
             cboOrder.Enabled = numericInputBoxPitch.Enabled = numericInputBoxYaw.Enabled = numericInputBoxRoll.Enabled = editable && notNull;
         }
 
@@ -93,7 +93,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
+                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
         }
     }
 }

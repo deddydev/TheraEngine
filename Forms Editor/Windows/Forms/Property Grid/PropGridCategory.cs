@@ -119,11 +119,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Label label = new Label()
             {
                 Text = name,
-                TextAlign = ContentAlignment.MiddleRight,
+                TextAlign = ContentAlignment.TopRight,
                 AutoSize = true,
                 ForeColor = Color.FromArgb(200, 200, 220),
                 Dock = DockStyle.Fill,
-                Padding = new Padding(3, 0, 3, 0),
+                Padding = new Padding(3, 2, 3, 0),
                 Margin = new Padding(0),
                 Tag = desc,
             };

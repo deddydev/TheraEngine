@@ -166,15 +166,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 btnRemoveLogicComp.Visible = false;
             }
         }
-
-        //internal static GameTimer UpdateTimer = new GameTimer();
         protected override void OnHandleCreated(EventArgs e)
         {
             if (!Engine.DesignMode)
                 PropGridItem.BeginUpdatingVisibleItems(Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
             base.OnHandleCreated(e);
         }
-
         protected override void OnHandleDestroyed(EventArgs e)
         {
             if (!Engine.DesignMode)
@@ -183,7 +180,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             base.OnHandleDestroyed(e);
         }
-
         public event Action<object> PropertiesLoaded;
         private async void LoadProperties(object obj)
         {

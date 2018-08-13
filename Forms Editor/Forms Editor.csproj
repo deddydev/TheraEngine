@@ -264,8 +264,7 @@
     <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatGraph.Designer.cs">
       <DependentUpon>DockableMatGraph.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialEditorGameMode.cs" />
-    <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialEditorController.cs" />
+    <Compile Include="Windows\Forms\UIGameMode.cs" />
     <Compile Include="Windows\Forms\Misc\BetterTableLayoutPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -431,7 +430,7 @@
     <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.Designer.cs">
       <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialGraphRenderPanel.cs">
+    <Compile Include="Windows\Forms\UIRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Numeric Input Box\NumericInputBoxDecimal.cs">
@@ -749,7 +748,7 @@
     <Compile Include="Windows\Forms\Material Editor\MaterialEditorForm.Designer.cs">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Material Editor\Overrides\MaterialEditorHud.cs" />
+    <Compile Include="Windows\Forms\Material Editor\MaterialEditorHud.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectState.cs" />

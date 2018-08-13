@@ -18,11 +18,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal()
         {
             object value = GetValue();
-
-            if (value is Int16 Int16Val)
-                numericInputBox1.Value = Int16Val;
-            else
-                throw new Exception(DataType.GetFriendlyName() + " is not a Int16 type.");
+            numericInputBox1.Value = (Int16)value;
         }
 
         protected override void OnLabelSet()

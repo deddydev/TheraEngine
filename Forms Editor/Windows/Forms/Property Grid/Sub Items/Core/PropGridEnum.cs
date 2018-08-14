@@ -47,13 +47,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value is Enum e)
             {
                 string temp = value.ToString();
-                if (string.Equals(_value, temp, StringComparison.InvariantCulture))
-                    return;
+                //if (string.Equals(_value, temp, StringComparison.InvariantCulture))
+                //    return;
                 _value = temp;
                 
                 string[] names = Enum.GetNames(DataType);
                 Array values = Enum.GetValues(DataType);
                 bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+                tblEnumFlags.Visible = flags;
+                cboEnumNames.Visible = !flags;
                 if (flags)
                 {
                     Type valueType = Enum.GetUnderlyingType(DataType);
@@ -88,12 +90,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                throw new Exception(DataType.GetFriendlyName() + " is not an Enum type.");
+                cboEnumNames.Visible = false;
+                tblEnumFlags.Visible = false;
             }
         }
 
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (cboEnumNames.SelectedItem == null)
+                return;
             UpdateValue(Enum.Parse(DataType, (string)cboEnumNames.SelectedItem), true);
         }
         

@@ -42,9 +42,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private NumericInputBoxSingle[,] _boxes;
 
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
             bool editable = IsEditable();
             Matrix4 m = (Matrix4)value;
             for (int r = 0; r < 4; ++r)

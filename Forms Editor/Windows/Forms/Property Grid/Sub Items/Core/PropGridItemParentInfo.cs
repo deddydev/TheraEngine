@@ -13,11 +13,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public abstract void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler);
         public abstract object Target { get; set; }
     }
-    public class PropGridItemRefDirectInfo : PropGridItemRefInfo
+    public class PropGridItemRefNullableInfo : PropGridItemRefInfo
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => Target?.GetType() ?? _type;
+        public override Type DataType => _parentInfo.DataType;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override object Target { get; set; }
@@ -31,12 +31,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         }
 
-        private readonly Type _type;
+        private readonly PropGridItemRefInfo _parentInfo;
 
-        public PropGridItemRefDirectInfo(object value, Type type)
+        public PropGridItemRefNullableInfo(PropGridItemRefInfo parentInfo)
         {
-            Target = value;
-            _type = type;
+            if (parentInfo?.DataType == null || 
+                !parentInfo.DataType.IsGenericType || 
+                parentInfo.DataType.GetGenericTypeDefinition() != typeof(Nullable<>))
+                throw new Exception();
+
+            _parentInfo = parentInfo;
+            DataType = _parentInfo.DataType;
         }
     }
     public class PropGridItemRefPropertyInfo : PropGridItemRefInfo

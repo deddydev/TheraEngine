@@ -21,10 +21,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override object RefObject => _eventVec2;
 
         public EventVec2 _eventVec2;
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
-
             _eventVec2 = value as EventVec2;
             bool notNull = _eventVec2 != null;
             bool editable = IsEditable();

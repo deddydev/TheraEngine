@@ -10,9 +10,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// The value type referenced by the nullable object.
         /// </summary>
         public Type ValueType { get; private set; }
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
             bool editable = IsEditable();
             bool notNull = value is null;
             //TODO: support showing specific editors for derived value types?
@@ -31,17 +30,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 {
                     pnlEditors.Enabled = true;
                     foreach (PropGridItem item in pnlEditors.Controls)
-                        item.SetReferenceHolder(new PropGridItemRefDirectInfo(value, ValueType));
-                }
-                else
-                {
-                    foreach (PropGridItem item in pnlEditors.Controls)
-                        ((PropGridItemRefDirectInfo)item.ParentInfo).Target = value;
+                        item.SetReferenceHolder(new PropGridItemRefNullableInfo(ParentInfo));
                 }
             }
             chkNull.Enabled = editable;
-
-            //throw new Exception(DataType.GetFriendlyName() + " is not a Nullable<T> type.");
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
@@ -51,7 +43,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                ValueType = DataType.GetGenericArguments()[0];
                 object o = Editor.UserCreateInstanceOf(ValueType, true);
                 UpdateValue(o, true);
             }
@@ -59,6 +50,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
             base.SetReferenceHolder(parentInfo);
+            ValueType = DataType?.GetGenericArguments()[0];
             UpdateEditors();
         }
         private void UpdateEditors()

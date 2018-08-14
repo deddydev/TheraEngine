@@ -41,9 +41,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void comboBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void comboBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
         private string _value = string.Empty;
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
             bool editable = IsEditable();
             if (value is Enum e)
             {

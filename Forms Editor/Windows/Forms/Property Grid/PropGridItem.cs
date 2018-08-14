@@ -187,11 +187,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         internal protected virtual void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
             ParentInfo = parentInfo;
-            PropGridControlForAttribute attr = GetType().GetCustomAttributeExt<PropGridControlForAttribute>();
-            Type[] types = attr.Types;
-            string str = types.ToStringList(", ", ", or ", t => t.GetFriendlyName());
-            if (!Engine.Assert(types.Any(x => x.IsAssignableFrom(DataType)), $"{DataType.GetFriendlyName()} is not a {str} type."))
-                return;
+            if (DataType != null)
+            {
+                PropGridControlForAttribute attr = GetType().GetCustomAttributeExt<PropGridControlForAttribute>();
+                Type[] types = attr.Types;
+                string str = types.ToStringList(", ", ", or ", t => t.GetFriendlyName());
+                bool condition = types.Any(x => x.IsAssignableFrom(DataType) || (DataType.IsGenericType && x == DataType.GetGenericTypeDefinition()));
+                string errorMsg = $"{DataType.GetFriendlyName()} is not a {str} type.";
+                if (!Engine.Assert(condition, errorMsg))
+                    return;
+            }
             UpdateDisplay();
         }
         internal void SetLabel(Label label)
@@ -201,14 +206,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public void UpdateDisplay()
         {
-            if (IsEditing)
+            if (IsEditing || ParentInfo == null)
                 return;
 
             _updating = true;
-            UpdateDisplayInternal();
+            object value = GetValue();
+            UpdateDisplayInternal(value);
             _updating = false;
         }
-        protected virtual void UpdateDisplayInternal() { }
+        protected virtual void UpdateDisplayInternal(object value) { }
         protected virtual void OnLabelSet() { }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         public PropGridMethod() => InitializeComponent();
 
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
 
         }

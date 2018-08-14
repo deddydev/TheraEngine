@@ -14,9 +14,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridList() => InitializeComponent();
         private IList _list = null;
         private Type _elementType;
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
             lblObjectTypeName.Text = DataType.GetFriendlyName();
             chkNull.Visible = !DataType.IsValueType;
             

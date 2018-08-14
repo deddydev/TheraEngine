@@ -21,38 +21,53 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         EventColorF3 _colorF3;
         EventColorF4 _colorF4;
 
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
-            
-            if (DataType == typeof(ColorF3))
+            if (value is ColorF3 colorF3)
             {
-                ColorF3 color = (ColorF3)value;
-                panel1.BackColor = color.Color;
+                panel1.BackColor = colorControl1.Color = colorF3.Color;
+
                 colorControl1.EditAlpha = false;
-                colorControl1.Color = color.Color;
+                btnShowSelector.Enabled = true;
+                panel1.Enabled = true;
             }
-            else if (DataType == typeof(ColorF4))
+            else if (value is ColorF4 colorF4)
             {
-                ColorF4 color = (ColorF4)value;
-                panel1.BackColor = color.Color;
+                panel1.BackColor = colorControl1.Color = colorF4.Color;
+
                 colorControl1.EditAlpha = true;
-                colorControl1.Color = color.Color;
+                btnShowSelector.Enabled = true;
+                panel1.Enabled = true;
             }
-            else if (DataType == typeof(EventColorF3))
+            else if (value is EventColorF3 ecolorF3)
             {
-                _colorF3 = (EventColorF3)value;
+                _colorF3 = ecolorF3;
+
                 colorControl1.Color = panel1.BackColor = _colorF3.Color;
+
                 colorControl1.EditAlpha = false;
+                btnShowSelector.Enabled = true;
+                panel1.Enabled = true;
             }
-            else if (DataType == typeof(EventColorF4))
+            else if (value is EventColorF4 ecolorF4)
             {
-                _colorF4 = (EventColorF4)value;
+                _colorF4 = ecolorF4;
+
                 colorControl1.Color = panel1.BackColor = _colorF4.Color;
+
                 colorControl1.EditAlpha = true;
+                btnShowSelector.Enabled = true;
+                panel1.Enabled = true;
             }
             else
-                throw new Exception(DataType.GetFriendlyName() + " is not ColorF3, EventColorF3, ColorF4 or EventColorF4.");
+            {
+                _colorF3 = null;
+                _colorF4 = null;
+                colorControl1.Color = panel1.BackColor = Color.Black;
+                colorControl1.EditAlpha = false;
+                btnShowSelector.Enabled = false;
+                panel1.Enabled = false;
+            }
         }
 
         private void btnShowSelector_Click(object sender, EventArgs e)

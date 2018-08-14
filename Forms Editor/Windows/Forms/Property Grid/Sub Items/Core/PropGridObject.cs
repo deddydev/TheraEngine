@@ -27,10 +27,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
         protected object _object;
 
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
-
             //Value is boxed as object, so this doesn't work
             //if (pnlProps.Visible && !ReferenceEquals(value, _object))
             //    LoadProperties(value);

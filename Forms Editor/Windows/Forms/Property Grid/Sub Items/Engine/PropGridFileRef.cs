@@ -15,9 +15,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             AllowDrop = true;
         }
         
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            base.UpdateDisplayInternal();
+            base.UpdateDisplayInternal(value);
             if (typeof(IFileRef).IsAssignableFrom(DataType))
             {
                 //_fileRef = _object as IFileRef;

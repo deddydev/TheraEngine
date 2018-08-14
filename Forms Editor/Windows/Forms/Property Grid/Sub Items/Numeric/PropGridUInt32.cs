@@ -15,9 +15,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void NumericInputBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void NumericInputBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
             numericInputBox1.Value = (UInt32)value;
         }
 

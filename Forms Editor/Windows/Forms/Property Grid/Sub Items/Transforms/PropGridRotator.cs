@@ -28,10 +28,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override object RefObject => _rotator;
 
         public Rotator _rotator;
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
-            
             _rotator = value as Rotator;
             bool notNull = _rotator != null;
             bool editable = IsEditable();

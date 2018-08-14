@@ -6,9 +6,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridBool : PropGridItem
     {
         public PropGridBool() => InitializeComponent();
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
             if (value is bool boolVal)
             {
                 checkBox1.Checked = boolVal;

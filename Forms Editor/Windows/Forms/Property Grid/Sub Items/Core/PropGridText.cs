@@ -25,9 +25,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void TextBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
         private bool _multiLine = true;
-        protected override void UpdateDisplayInternal()
+        protected override void UpdateDisplayInternal(object value)
         {
-            object value = GetValue();
             bool notNull = value != null;
             bool editable = IsEditable();
             chkNull.Checked = !notNull;

@@ -86,7 +86,7 @@ namespace TheraEngine.Actors.Types
 
             if (bodyInfo != null)
             {
-                bodyInfo.Mass = 0;
+                bodyInfo.Mass = 0.0f;
                 bodyInfo.LocalInertia = Vec3.Zero;
                 bodyInfo.CollisionShape = _heightFieldShape;
                 bodyInfo.UseMotionState = false;

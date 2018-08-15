@@ -678,7 +678,7 @@ namespace TheraEngine.Components
         {
             if (r3d != null && OwningScene is Scene3D scene3D)
             {
-                bool valid = IsSpawned && !r3d.Visible;
+                bool valid = IsSpawned;
 
                 if (r3d.VisibleInEditorOnly)
                     valid = valid && Engine.EditorState.InEditMode;
@@ -696,7 +696,7 @@ namespace TheraEngine.Components
         {
             if (r2d != null && OwningScene is Scene2D scene2D)
             {
-                bool valid = IsSpawned && !r2d.Visible;
+                bool valid = IsSpawned;
 
                 if (r2d.VisibleInEditorOnly)
                     valid = valid && Engine.EditorState.InEditMode;

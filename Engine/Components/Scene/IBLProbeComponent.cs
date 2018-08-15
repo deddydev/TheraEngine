@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using TheraEngine.Components;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -15,23 +17,41 @@ namespace TheraEngine.Actors.Types
         private CubeFrameBuffer _irradianceFBO;
         private CubeFrameBuffer _prefilterFBO;
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+        [Browsable(false)]
         public Shape CullingVolume => null;
+        [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-
+        [Browsable(false)]
         public TexRefCube IrradianceTex { get; private set; }
+        [Browsable(false)]
         public TexRefCube PrefilterTex { get; private set; }
 
-        public bool Visible { get; set; }
-        public bool VisibleInEditorOnly { get; set; }
-        public bool HiddenFromOwner { get; set; }
-        public bool VisibleToOwnerOnly { get; set; }
+        [Category(RenderingCategoryName)]
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
+        [Category(RenderingCategoryName)]
+        public bool Visible { get; set; } = true;
+        [Category(RenderingCategoryName)]
+        public bool HiddenFromOwner { get; set; } = false;
+        [Category(RenderingCategoryName)]
+        public bool VisibleToOwnerOnly { get; set; } = false;
+#if EDITOR
+        [Category(RenderingCategoryName)]
+        public bool VisibleInEditorOnly { get; set; } = true;
+        private bool _showPrefilterTexture = false;
+        [Category(RenderingCategoryName)]
+        public bool ShowPrefilterTexture
+        {
+            get => _showPrefilterTexture;
+            set
+            {
+                _showPrefilterTexture = value;
+                _irradianceSphere.Material.Textures[0] = _showPrefilterTexture ? PrefilterTex : IrradianceTex;
+            }
+        }
+#endif
 
         private PrimitiveManager _irradianceSphere;
-        public IBLProbeComponent() : base()
-        {
-
-        }
+        public IBLProbeComponent() : base() { }
 
         public override void OnSpawned()
         {
@@ -158,7 +178,7 @@ namespace TheraEngine.Actors.Types
         {
             var shader = Engine.LoadEngineShader("CubeMapSphereMesh.fs", EShaderMode.Fragment);
             TMaterial mat = new TMaterial("IrradianceMat",
-                new ShaderVar[] { new ShaderVec3(Vec3.Zero, "SphereCenter") }, new BaseTexRef[] { IrradianceTex }, shader);
+                new ShaderVar[] { new ShaderVec3(Vec3.Zero, "SphereCenter") }, new BaseTexRef[] { _showPrefilterTexture ? PrefilterTex : IrradianceTex }, shader);
             _irradianceSphere = new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u), mat);
 
             _rc = new RenderCommandMesh3D
@@ -178,8 +198,8 @@ namespace TheraEngine.Actors.Types
         private RenderCommandMesh3D _rc = null;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            //if (_rc != null)
-            //    passes.Add(_rc, RenderInfo.RenderPass);
+            if (_rc != null)
+                passes.Add(_rc, RenderInfo.RenderPass);
         }
     }
 }

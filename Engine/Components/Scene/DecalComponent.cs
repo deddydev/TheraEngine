@@ -16,18 +16,7 @@ namespace TheraEngine.Components.Scene
         internal Matrix4 DecalRenderMatrix { get; private set; }
         internal Matrix4 InverseDecalRenderMatrix { get; private set; }
         protected float _uniformScale = 1.0f;
-
-        [TSerialize]
-        [Category("Decal")]
-        public float UniformScale
-        {
-            get => _uniformScale;
-            set
-            {
-                _uniformScale = value;
-                OnWorldTransformChanged();
-            }
-        }
+        
         [TSerialize]
         [Category("Decal")]
         public TMaterial Material { get; set; }
@@ -65,7 +54,6 @@ namespace TheraEngine.Components.Scene
                 if (bmp != null)
                 {
                     HalfExtents = new Vec3(bmp.Width * 0.5f, height, bmp.Height * 0.5f);
-                    UniformScale = 1.0f / Math.Max(bmp.Width, bmp.Height);
                     Material = CreateDefaultMaterial(texture);
                 }
             }
@@ -73,7 +61,7 @@ namespace TheraEngine.Components.Scene
         
         protected override void OnWorldTransformChanged()
         {
-            Vec3 halfExtents = Box.HalfExtents.Raw * UniformScale;
+            Vec3 halfExtents = Box.HalfExtents.Raw;
             DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
             InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
             base.OnWorldTransformChanged();

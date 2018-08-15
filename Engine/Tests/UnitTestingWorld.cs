@@ -349,8 +349,8 @@ namespace TheraEngine.Tests
             var bmp = decalTex.GetLargestBitmap();
             DecalActor decal = new DecalActor();
             decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);
-            decal.RootComponent.HalfExtents = new Vec3(bmp.Width * 0.5f, 1.0f, bmp.Height * 0.5f);
-            decal.RootComponent.UniformScale = 1.0f / Math.Max(bmp.Width, bmp.Height);
+            int maxDim = Math.Max(bmp.Width, bmp.Height) / 2;
+            decal.RootComponent.HalfExtents = new Vec3(bmp.Width * 0.5f / maxDim, 1.0f, bmp.Height * 0.5f / maxDim);
             actors.Add(decal);
 
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();

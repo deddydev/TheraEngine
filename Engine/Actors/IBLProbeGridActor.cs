@@ -1,6 +1,7 @@
 ﻿using MIConvexHull;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +18,34 @@ namespace TheraEngine.Actors
     {
         //public Vec3 ProbesPerMeter { get; internal set; }
         //public BoundingBox ProbeBounds { get; internal set; }
+        [Category(SceneComponent.RenderingCategoryName)]
+        public bool Visible { get; set; } = true;
+        [Category(SceneComponent.RenderingCategoryName)]
+        public bool HiddenFromOwner { get; set; }
+        [Category(SceneComponent.RenderingCategoryName)]
+        public bool VisibleToOwnerOnly { get; set; }
+        [Category(SceneComponent.RenderingCategoryName)]
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.TransparentForward, false, false);
+#if EDITOR
+        [Category(SceneComponent.RenderingCategoryName)]
+        public bool VisibleInEditorOnly { get; set; }
+#endif
+        [Browsable(false)]
+        public Shape CullingVolume => null;
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+        private bool _showPrefilterTexture = false;
+        [Category(SceneComponent.RenderingCategoryName)]
+        public bool ShowPrefilterTexture
+        {
+            get => _showPrefilterTexture;
+            set
+            {
+                _showPrefilterTexture = value;
+                foreach (IBLProbeComponent probe in RootComponent.ChildComponents)
+                    probe.ShowPrefilterTexture = _showPrefilterTexture;
+            }
+        }
 
         public IBLProbeGridActor() : base(true)
         {
@@ -27,14 +56,9 @@ namespace TheraEngine.Actors
             RootComponent.ChildComponents.PostAdded += ChildComponents_PostAdded;
             _rc = new RenderCommandDebug3D(Render);
         }
-        private void ChildComponents_PostAdded(SceneComponent item)
-        {
-            Link();
-        }
-        private void ChildComponents_PostAddedRange(IEnumerable<SceneComponent> items)
-        {
-            Link();
-        }
+
+        private void ChildComponents_PostAdded(SceneComponent item) => Link();
+        private void ChildComponents_PostAddedRange(IEnumerable<SceneComponent> items) => Link();
 
         //public IBLProbeGridActor(BoundingBox bounds, Vec3 probesPerMeter) : base(true)
         //{
@@ -51,7 +75,7 @@ namespace TheraEngine.Actors
             if (r3d != null && r3d.IBLProbeActor == null)
                 r3d.IBLProbeActor = this;
 
-            //OwningWorld.Scene.Add(this);
+            OwningWorld.Scene.Add(this);
         }
         public override void OnDespawned()
         {
@@ -61,7 +85,7 @@ namespace TheraEngine.Actors
             if (r3d != null && r3d.IBLProbeActor == this)
                 r3d.IBLProbeActor = null;
 
-            //OwningWorld.Scene.Remove(this);
+            OwningWorld.Scene.Remove(this);
         }
 
         public void AddProbe(Vec3 position)
@@ -71,7 +95,9 @@ namespace TheraEngine.Actors
                 Translation = position,
             };
             RootComponent.ChildComponents.Add(probe);
+            probe.WorldTransformChanged += Link;
         }
+        
         public void SetFrequencies(BoundingBox bounds, Vec3 probesPerMeter)
         {
             RootComponent.ChildComponents.Clear();
@@ -109,11 +135,9 @@ namespace TheraEngine.Actors
         {
             private SceneComponent _probe;
 
-            public DelaunayTriVertex(Vec3 point)
-            {
-  
-            }
+            public double[] Position { get; set; }
 
+            public DelaunayTriVertex(Vec3 point) { }
             public DelaunayTriVertex(SceneComponent probe)
             {
                 _probe = probe;
@@ -124,25 +148,20 @@ namespace TheraEngine.Actors
                     point.Y,
                     point.Z,
                 };
+                //_probe.WorldTransformChanged += _probe_WorldTransformChanged;
             }
 
-            public double[] Position { get; set; }
+            //private void _probe_WorldTransformChanged()
+            //{
+            //    Position[0] = _probe.WorldPoint.X;
+            //    Position[1] = _probe.WorldPoint.Y;
+            //    Position[2] = _probe.WorldPoint.Z;
+            //}
 
-            public override string ToString()
-            {
-                return _probe.WorldPoint.ToString();
-            }
+            public override string ToString() => _probe.WorldPoint.ToString();
         }
 
         ITriangulation<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>> _cells;
-
-        public bool Visible { get; set; } = true;
-        public bool HiddenFromOwner { get; set; }
-        public bool VisibleToOwnerOnly { get; set; }
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
-        public bool VisibleInEditorOnly { get; set; }
-        public Shape CullingVolume => null;
-        public IOctreeNode OctreeNode { get; set; }
 
         private void Link()
         {

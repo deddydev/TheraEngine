@@ -187,7 +187,7 @@ namespace TheraEngine.Core.Files.XML
             //DateTime startTime = DateTime.Now;
 
             Type elementType = entry.GetType();
-            entry.GenericParent = parent;
+            entry.Parent = parent;
             entry.ElementIndex = elementIndex;
             entry.PreRead();
 
@@ -234,7 +234,7 @@ namespace TheraEngine.Core.Files.XML
                     string name = reader.Name;
                     string value = reader.Value;
                     if (entry.WantsManualRead)
-                        entry.SetAttribute(name, value);
+                        entry.ManualReadAttribute(name, value);
                     else
                     {
                         MemberInfo info = members.FirstOrDefault(x =>
@@ -308,7 +308,7 @@ namespace TheraEngine.Core.Files.XML
 
                         if (entry.WantsManualRead)
                         {
-                            IElement e = entry.CreateChildElement(elementName, version);
+                            IElement e = entry.ManualReadChildElement(elementName, version);
                             if (e == null)
                             {
                                 //Engine.PrintLine("Element '{0}' not supported by parser.", parentTree + elementName + "/");
@@ -581,8 +581,8 @@ namespace TheraEngine.Core.Files.XML
         Type ParentType { get; }
         bool WantsManualRead { get; }
         object UserData { get; set; }
-        IElement GenericParent { get; set; }
-        IRoot GenericRoot { get; }
+        IElement Parent { get; set; }
+        IRoot Root { get; }
         Dictionary<Type, List<IElement>> ChildElements { get; }
         int ElementIndex { get; set; }
         string Tree { get; set; }
@@ -592,8 +592,8 @@ namespace TheraEngine.Core.Files.XML
         void PreRead();
         void PostRead();
         void OnAttributesRead();
-        void SetAttribute(string name, string value);
-        IElement CreateChildElement(string name, string version);
+        void ManualReadAttribute(string name, string value);
+        IElement ManualReadChildElement(string name, string version);
         /// <summary>
         /// Returns child elements in the same order they appear in the file.
         /// </summary>
@@ -638,33 +638,38 @@ namespace TheraEngine.Core.Files.XML
         [Browsable(false)]
         public object UserData { get; set; }
         [Browsable(false)]
-        public IRoot GenericRoot { get; private set; }
-        [Browsable(false)]
-        public IElement GenericParent
+        public IRoot Root { get; private set; }
+
+        IElement IElement.Parent
         {
-            get => ParentElement;
+            get => Parent;
             set
             {
-                ParentElement = value as TParent;
-                if (ParentElement != null)
+                Parent = value as TParent;
+                if (Parent != null)
                 {
                     Type type = GetType();
-                    if (ParentElement.ChildElements.ContainsKey(type))
-                        ParentElement.ChildElements[type].Add(this);
+                    if (Parent.ChildElements.ContainsKey(type))
+                        Parent.ChildElements[type].Add(this);
                     else
-                        ParentElement.ChildElements.Add(type, new List<IElement>() { this });
-                    if (GenericParent is IRoot c)
-                        GenericRoot = c;
-                    else if (GenericParent.GenericRoot != null)
-                        GenericRoot = GenericParent.GenericRoot;
+                        Parent.ChildElements.Add(type, new List<IElement>() { this });
+                    if (Parent is IRoot c)
+                        Root = c;
+                    else if (Parent.Root != null)
+                        Root = Parent.Root;
 
-                    if (GenericRoot == null)
+                    if (Root == null)
                         throw new Exception("Generic root is null. Make sure the root element implements the IRoot interface.");
                 }
             }
         }
         [Browsable(false)]
-        public TParent ParentElement { get; private set; }
+        public TParent Parent { get; private set; }
+
+        public void ClearChildElements()
+        {
+
+        }
 
         public T2 GetChild<T2>() where T2 : IElement
         {
@@ -708,8 +713,20 @@ namespace TheraEngine.Core.Files.XML
         public virtual void PreRead() { }
         public virtual void PostRead() { }
         public virtual void OnAttributesRead() { }
-        public virtual void SetAttribute(string name, string value) { }
-        public virtual IElement CreateChildElement(string name, string version) => null;
+
+        /// <summary>
+        /// Sets an attribute by name. Must be overridden when <see cref="WantsManualRead"/> is true.
+        /// </summary>
+        /// <param name="name">The name of the attribute to set.</param>
+        /// <param name="value">The value to set the attribute to.</param>
+        public virtual void ManualReadAttribute(string name, string value) { }
+        /// <summary>
+        /// Reads a child element by name. Must be overridden when <see cref="WantsManualRead"/> is true.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        public virtual IElement ManualReadChildElement(string name, string version) => null;
     }
     #endregion
 

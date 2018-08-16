@@ -131,7 +131,7 @@ namespace TheraEditor.Windows.Forms
 
         private class OperationInfo
         {
-            private Action _updated;
+            private readonly Action _updated;
             private CancellationTokenSource _token;
 
             public DateTime StartTime { get; }

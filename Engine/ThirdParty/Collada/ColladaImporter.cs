@@ -234,7 +234,7 @@ namespace TheraEngine.Rendering.Models
                         //Rigged mesh
                         if (child is LibraryControllers.Controller.Skin skin)
                         {
-                            IID element = skin.Source.GetElement(skin.GenericRoot);
+                            IID element = skin.Source.GetElement(skin.Root);
                             if (element is LibraryGeometries.Geometry geometry)
                                 objects.Add(new ObjectInfo(geometry, skin, bindMatrix, controllerRef, parent, node));
                             else if (element is LibraryControllers.Controller.Morph morph)
@@ -378,7 +378,7 @@ namespace TheraEngine.Rendering.Models
                 if (instanceMats != null && instanceMats.Length > 0)
                 {
                     var instanceMat = instanceMats[0];
-                    var mat = instanceMat?.Target?.GetElement<LibraryMaterials.Material>(scene.GenericRoot);
+                    var mat = instanceMat?.Target?.GetElement<LibraryMaterials.Material>(scene.Root);
                     if (mat != null)
                         m = CreateMaterial(mat);
                 }
@@ -432,7 +432,7 @@ namespace TheraEngine.Rendering.Models
                 if (instanceMats != null && instanceMats.Length > 0)
                 {
                     var instanceMat = instanceMats[0];
-                    var mat = instanceMat?.Target?.GetElement<LibraryMaterials.Material>(scene.GenericRoot);
+                    var mat = instanceMat?.Target?.GetElement<LibraryMaterials.Material>(scene.Root);
                     if (mat != null)
                         m = CreateMaterial(mat);
                 }
@@ -459,7 +459,7 @@ namespace TheraEngine.Rendering.Models
             TMaterial m = null;
             if (colladaMaterial.InstanceEffectElement != null)
             {
-                var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<LibraryEffects.Effect>(colladaMaterial.GenericRoot);
+                var eff = colladaMaterial.InstanceEffectElement.Url.GetElement<LibraryEffects.Effect>(colladaMaterial.Root);
                 //var profiles = eff.ProfileElements;
                 var profileCommon = eff.GetChild<LibraryEffects.Effect.ProfileCommon>();
                 if (profileCommon != null)
@@ -548,7 +548,7 @@ namespace TheraEngine.Rendering.Models
 
             foreach (var channel in animElem.ChannelElements)
             {
-                var sampler = channel.Source.GetElement<Sampler>(animElem.GenericRoot);
+                var sampler = channel.Source.GetElement<Sampler>(animElem.Root);
                 ISID target = channel.Target.GetElement(animElem.Root, out string selector);
                 if (!(target is IStringElement))
                     continue;
@@ -557,7 +557,7 @@ namespace TheraEngine.Rendering.Models
                 string[] interpTypeData = null;
                 foreach (var input in sampler.InputElements)
                 {
-                    Source source = input.Source.GetElement<Source>(sampler.GenericRoot);
+                    Source source = input.Source.GetElement<Source>(sampler.Root);
                     switch (input.CommonSemanticType)
                     {
                         case ESemantic.INPUT:
@@ -607,7 +607,7 @@ namespace TheraEngine.Rendering.Models
                                 }
                                 else
                                 {
-                                    Node node = rotate.ParentElement;
+                                    Node node = rotate.Parent;
                                     string targetName = node.Name ?? (node.ID ?? node.SID);
                                     if (node.Type == Node.EType.JOINT)
                                     {
@@ -676,7 +676,7 @@ namespace TheraEngine.Rendering.Models
                             int valueIndex = ((int)s) & 0b11;
                             if (target is Node.Translate translate)
                             {
-                                Node node = translate.ParentElement;
+                                Node node = translate.Parent;
                                 string targetName = node.Name ?? (node.ID ?? node.SID);
                                 if (node.Type == Node.EType.JOINT)
                                 {
@@ -730,7 +730,7 @@ namespace TheraEngine.Rendering.Models
                             }
                             else if (target is Node.Scale scale)
                             {
-                                Node node = scale.ParentElement;
+                                Node node = scale.Parent;
                                 string targetName = node.Name ?? (node.ID ?? node.SID);
                                 if (node.Type == Node.EType.JOINT)
                                 {
@@ -797,7 +797,7 @@ namespace TheraEngine.Rendering.Models
                 {
                     if (target is Node.Matrix mtx)
                     {
-                        Node node = mtx.ParentElement;
+                        Node node = mtx.Parent;
                         string targetName = node.Name ?? (node.ID ?? node.SID);
 
                         if (node.Type == Node.EType.JOINT)
@@ -857,7 +857,7 @@ namespace TheraEngine.Rendering.Models
                     }
                     else if (target is Node.Translate trans)
                     {
-                        if (trans.ParentElement.Type == Node.EType.JOINT)
+                        if (trans.Parent.Type == Node.EType.JOINT)
                         {
                             Engine.LogWarning("Joint all-axes translation animation not supported.");
                         }
@@ -868,7 +868,7 @@ namespace TheraEngine.Rendering.Models
                     }
                     else if (target is Node.Rotate rot)
                     {
-                        if (rot.ParentElement.Type == Node.EType.JOINT)
+                        if (rot.Parent.Type == Node.EType.JOINT)
                         {
                             Engine.LogWarning("Joint all-axes rotation animation not supported.");
                         }
@@ -879,7 +879,7 @@ namespace TheraEngine.Rendering.Models
                     }
                     else if (target is Node.Scale scale)
                     {
-                        if (scale.ParentElement.Type == Node.EType.JOINT)
+                        if (scale.Parent.Type == Node.EType.JOINT)
                         {
                             Engine.LogWarning("Joint all-axes scale animation not supported.");
                         }

@@ -6,6 +6,7 @@ using System.IO;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Files;
+using TheraEngine.ThirdParty;
 
 namespace TheraEditor
 {
@@ -93,6 +94,9 @@ namespace TheraEditor
             GenerateSolution(Path.Combine(DirectoryPath, SourceDirName, "Solution"));
         public void GenerateSolution(string slnDir)
         {
+            MSBuild.Project p = new MSBuild.Project();
+            
+
             EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
             dte.SuppressUI = true;
             Solution4 sln = (Solution4)dte.Solution;

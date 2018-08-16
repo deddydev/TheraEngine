@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.Models
             //Find joint source
             string[] jointSIDs = null;
             foreach (InputUnshared inp in joints.GetChildren<InputUnshared>())
-                if (inp.CommonSemanticType == ESemantic.JOINT && inp.Source.GetElement(inp.GenericRoot) is Source src)
+                if (inp.CommonSemanticType == ESemantic.JOINT && inp.Source.GetElement(inp.Root) is Source src)
                 {
                     jointSIDs = src.GetChild<NameArray>().StringContent.Values;
                     break;
@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering.Models
                     case ESemantic.WEIGHT:
                         pCmd[inp.Offset] = 2;
 
-                        Source src = inp.Source.GetElement<Source>(inp.GenericRoot);
+                        Source src = inp.Source.GetElement<Source>(inp.Root);
                         pWeights = src.GetArrayElement<FloatArray>().StringContent.Values;
 
                         break;
@@ -122,7 +122,7 @@ namespace TheraEngine.Rendering.Models
 
         public static PrimitiveData DecodeMorphedPrimitivesUnweighted(Matrix4 bindMatrix, Morph morph)
         {
-            var baseMesh = morph.BaseMeshUrl.GetElement(morph.GenericRoot) as Geometry;
+            var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as Geometry;
             if (baseMesh == null)
             {
                 Engine.LogWarning("Morph base mesh '" + morph.BaseMeshUrl.TargetID + "' does not point to a valid geometry entry.");
@@ -143,8 +143,8 @@ namespace TheraEngine.Rendering.Models
                 }
             }
 
-            Source targetSource = morphTargets?.Source?.GetElement<Source>(morphTargets.GenericRoot);
-            Source weightSource = morphWeights?.Source?.GetElement<Source>(morphWeights.GenericRoot);
+            Source targetSource = morphTargets?.Source?.GetElement<Source>(morphTargets.Root);
+            Source weightSource = morphWeights?.Source?.GetElement<Source>(morphWeights.Root);
             NameArray nameArray = targetSource?.GetArrayElement<NameArray>();
             FloatArray weightArray = targetSource?.GetArrayElement<FloatArray>();
             string[] geomIds = nameArray?.StringContent?.Values;
@@ -227,7 +227,7 @@ namespace TheraEngine.Rendering.Models
                 {
                     if (inp.CommonSemanticType == ESemantic.VERTEX)
                     {
-                        vertsElem = inp.Source.GetElement<Vertices>(inp.GenericRoot);
+                        vertsElem = inp.Source.GetElement<Vertices>(inp.Root);
                         foreach (InputUnshared input in vertsElem.InputElements)
                         {
                             ESemantic semantic = input.CommonSemanticType;
@@ -236,7 +236,7 @@ namespace TheraEngine.Rendering.Models
                             else
                                 semanticCounts.Add(semantic, 1);
 
-                            src = input.Source.GetElement<Source>(vertsElem.GenericRoot);
+                            src = input.Source.GetElement<Source>(vertsElem.Root);
                             vertexInputSources[input.CommonSemanticType] = src;
                         }
                         continue;
@@ -249,7 +249,7 @@ namespace TheraEngine.Rendering.Models
                         else
                             semanticCounts.Add(semantic, 1);
 
-                        src = inp.Source.GetElement<Source>(inp.GenericRoot);
+                        src = inp.Source.GetElement<Source>(inp.Root);
                         if (src != null)
                         {
                             if (!inputSources.ContainsKey(semantic))

@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.Models
         }
         public abstract class BaseColladaElement<TParent> : BaseElement<TParent> where TParent : class, IElement
         {
-            public COLLADA Root => GenericRoot as COLLADA;
+            public COLLADA Root => base.Root as COLLADA;
             public virtual List<IID> GetIDEntries(string id) => Root.IDEntries[id];
             public override void OnAttributesRead()
             {
@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Models
 
                 if (this is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
                 {
-                    IElement p = SIDEntry.GenericParent;
+                    IElement p = SIDEntry.Parent;
                     while (true)
                     {
                         if (p is ISIDAncestor ancestor)
@@ -47,8 +47,8 @@ namespace TheraEngine.Rendering.Models
                             ancestor.SIDElementChildren.Add(SIDEntry);
                             break;
                         }
-                        else if (p.GenericParent != null)
-                            p = p.GenericParent;
+                        else if (p.Parent != null)
+                            p = p.Parent;
                         else
                             break;
                     }
@@ -420,15 +420,15 @@ namespace TheraEngine.Rendering.Models
                 public string Name { get; set; }
 
                 public override bool WantsManualRead => true;
-                public override void SetAttribute(string ElementName, string value)
+                public override void ManualReadAttribute(string elementName, string value)
                 {
-                    switch (ElementName)
+                    switch (elementName)
                     {
                         case "meter":
                             Meter = Single.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
                             break;
                         case "ElementName":
-                            ElementName = value;
+                            elementName = value;
                             break;
                     }
                 }
@@ -617,7 +617,7 @@ namespace TheraEngine.Rendering.Models
 
             public List<ISID> SIDElementChildren { get; } = new List<ISID>();
             
-            public T2 GetUrlInstance() => Url?.GetElement(GenericRoot as COLLADA) as T2;
+            public T2 GetUrlInstance() => Url?.GetElement(Root as COLLADA) as T2;
         }
         [ElementName("instance_node")]
         public class InstanceNode : BaseInstanceElement<COLLADA.Node, COLLADA.Node>
@@ -625,7 +625,7 @@ namespace TheraEngine.Rendering.Models
             [Attr("proxy", false)]
             public ColladaURI Proxy { get; set; } = null;
 
-            public COLLADA.Node GetProxyInstance() => Proxy?.GetElement(GenericRoot as COLLADA) as COLLADA.Node;
+            public COLLADA.Node GetProxyInstance() => Proxy?.GetElement(Root as COLLADA) as COLLADA.Node;
         }
 
         [ElementName("instance_camera")]
@@ -823,7 +823,7 @@ namespace TheraEngine.Rendering.Models
 
                     public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
-                    public LibraryVisualScenes.VisualScene GetUrlInstance() => Url.GetElement<LibraryVisualScenes.VisualScene>(GenericRoot);
+                    public LibraryVisualScenes.VisualScene GetUrlInstance() => Url.GetElement<LibraryVisualScenes.VisualScene>(Root);
                 }
                 //[ElementName("instance_kinematics_scene")]
                 //[ElementChild(typeof(Asset), 0, 1)]
@@ -2152,9 +2152,9 @@ namespace TheraEngine.Rendering.Models
             #endregion
 
             public override bool WantsManualRead => true;
-            public override void SetAttribute(string ElementName, string value)
+            public override void ManualReadAttribute(string elementName, string value)
             {
-                switch (ElementName)
+                switch (elementName)
                 {
                     case "version":
                         Version = value;
@@ -2167,9 +2167,9 @@ namespace TheraEngine.Rendering.Models
                         break;
                 }
             }
-            public override IElement CreateChildElement(string ElementName, string version)
+            public override IElement ManualReadChildElement(string elementName, string version)
             {
-                switch (ElementName)
+                switch (elementName)
                 {
                     case "asset":
                         return new Asset();

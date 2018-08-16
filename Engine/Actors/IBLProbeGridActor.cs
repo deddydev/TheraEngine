@@ -213,7 +213,7 @@ namespace TheraEngine.Actors
             await Task.Run(() => InitAndCaptureAll(colorResolution, captureDepth, depthResolution));
         }
 
-        RenderCommandDebug3D _rc;
+        private readonly RenderCommandDebug3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_rc, RenderInfo.RenderPass);

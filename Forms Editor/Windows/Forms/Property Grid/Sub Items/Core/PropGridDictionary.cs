@@ -117,12 +117,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         }
 
+        private Color _prevLabelColor;
         private void Label_MouseLeave(object sender, EventArgs e)
         {
             if (_dictionary == null || _dictionary.Count == 0)
                 return;
             Label label = (Label)sender;
-            label.BackColor = Color.FromArgb(82, 83, 90);
+            label.BackColor = _prevLabelColor;
         }
 
         private void Label_MouseEnter(object sender, EventArgs e)
@@ -130,6 +131,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (_dictionary == null || _dictionary.Count == 0)
                 return;
             Label label = (Label)sender;
+            _prevLabelColor = label.BackColor;
             label.BackColor = Color.FromArgb(14, 18, 34);
         }
 

@@ -28,14 +28,14 @@ namespace TheraEngine.Rendering.UI
         {
             _fbo = new MaterialFrameBuffer(InterfaceMaterial);
             _quad.SettingUniforms += SetUniforms;
-            _renderCommand = new RenderCommandViewport
-            {
-                Primitives = _quad,
-                NormalMatrix = Matrix3.Identity,
-                Viewport = Viewport,
-                ZIndex = 0,
-                Framebuffer = _fbo
-            };
+            //_rc = new RenderCommandViewport
+            //{
+            //    Primitives = _quad,
+            //    NormalMatrix = Matrix3.Identity,
+            //    Viewport = Viewport,
+            //    ZIndex = 0,
+            //    Framebuffer = _fbo
+            //};
         }
 
         private static TMaterial GetViewportMaterial()
@@ -78,26 +78,24 @@ namespace TheraEngine.Rendering.UI
 
             return r;
         }
-        private RenderCommandViewport _renderCommand;
-        public override void AddRenderables(RenderPasses passes)
-        {
-            if (!IsVisible)
-                return;
-            _renderCommand.WorldMatrix = WorldMatrix;
-            passes.Add(_renderCommand, RenderInfo.RenderPass);
-        }
+        //private RenderCommandViewport _rc;
+        //public override void AddRenderables(RenderPasses passes)
+        //{
+        //    if (!IsVisible)
+        //        return;
+        //    _rc.WorldMatrix = WorldMatrix;
+        //    passes.Add(_rc, RenderInfo.RenderPass);
+        //}
         public void PreRenderUpdate(Camera camera)
         {
             if (_updating)
                 return;
-            _updating = true;
 
             Camera c = ViewportCamera;
             if (!IsVisible || c == null)
-            {
-                _updating = false;
                 return;
-            }
+            
+            _updating = true;
 
             BaseScene scene = c.OwningComponent?.OwningScene;
             scene?.PreRenderUpdate(c);
@@ -109,6 +107,7 @@ namespace TheraEngine.Rendering.UI
         {
             if (_swapping)
                 return;
+
             _swapping = true;
 
             BaseScene scene = ViewportCamera?.OwningComponent?.OwningScene;
@@ -121,15 +120,13 @@ namespace TheraEngine.Rendering.UI
         {
             if (_rendering)
                 return;
-            _rendering = true;
 
             Camera c = ViewportCamera;
             if (!IsVisible || c == null)
-            {
-                _rendering = false;
                 return;
-            }
             
+            _rendering = true;
+
             BaseScene scene = c.OwningComponent?.OwningScene;
             scene?.PreRender(Viewport, c);
             Viewport.Render(scene, c, _fbo);

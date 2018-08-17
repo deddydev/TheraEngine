@@ -381,6 +381,7 @@
     <Compile Include="Components\Scene\UI\UIMaterialRectangleComponent.cs" />
     <Compile Include="Components\Scene\UI\Base UI Components\UIRotatableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
+    <Compile Include="Components\Scene\Volumes\Boost.cs" />
     <Compile Include="Core\Controls\BasicRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>

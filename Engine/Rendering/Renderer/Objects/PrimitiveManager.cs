@@ -471,11 +471,11 @@ namespace TheraEngine.Rendering.Models
             => Render(Matrix4.Identity, Matrix3.Identity, instances);
         public void Render(Matrix4 modelMatrix, int instances = 1) 
             => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), instances);
-        public void Render(Matrix4 modelMatrix, TMaterial material, int instances = 1)
-            => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), material, instances);
+        public void Render(Matrix4 modelMatrix, TMaterial materialOverride, int instances = 1)
+            => Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3(), materialOverride, instances);
         public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, int instances = 1)
             => Render(modelMatrix, normalMatrix, null, instances);
-        public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial material, int instances = 1)
+        public void Render(Matrix4 modelMatrix, Matrix3 normalMatrix, TMaterial materialOverride, int instances = 1)
         {
             if (_data == null || !_allowRender)
                 return;
@@ -506,7 +506,7 @@ namespace TheraEngine.Rendering.Models
                 normalMatrix = normalMatrix * _singleBind.VertexMatrix.Inverted().Transposed().GetRotationMatrix3();
             }
 
-            TMaterial mat = GetRenderMaterial(material);
+            TMaterial mat = GetRenderMaterial(materialOverride);
 
             RenderProgram vtxProg, matProg;
             if (Engine.Settings.AllowShaderPipelines)

@@ -272,7 +272,7 @@ namespace System
                             I3DRenderable r = _items[i] as I3DRenderable;
 #if EDITOR
                             if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is Camera cam && cam == camera))
-                                return;
+                                continue;
                             bool editMode = Engine.EditorState.InEditMode;
                             if (!editMode && r.RenderInfo.VisibleInEditorOnly)
                                 continue;
@@ -297,13 +297,13 @@ namespace System
                 {
                     I3DRenderable r = _items[i] as I3DRenderable;
 #if EDITOR
-                    bool editMode = Engine.EditorState.InEditMode;
                     if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is Camera c && c == camera))
-                        return;
+                        continue;
+                    bool editMode = Engine.EditorState.InEditMode;
                     if (!editMode && r.RenderInfo.VisibleInEditorOnly)
                         continue;
 #endif
-                    bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
+                    bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                     if (allowRender)
                         r.AddRenderables(passes, camera);
                 }

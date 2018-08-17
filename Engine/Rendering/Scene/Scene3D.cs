@@ -179,7 +179,7 @@ namespace TheraEngine.Rendering
         //}
         public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
-            _timeQuery.BeginQuery(EQueryTarget.TimeElapsed);
+            //_timeQuery.BeginQuery(EQueryTarget.TimeElapsed);
             Engine.Renderer.PushCamera(camera);
             Engine.Renderer.PushCurrent3DScene(this);
             {
@@ -268,7 +268,7 @@ namespace TheraEngine.Rendering
             }
             Engine.Renderer.PopCurrent3DScene();
             Engine.Renderer.PopCamera();
-            _renderMS = 1.0f / (_timeQuery.EndAndGetQueryInt() * 1e-9f);
+            //_renderFPS = 1.0f / (_timeQuery.EndAndGetQueryInt() * 1e-9f);
             //Engine.PrintLine(_renderMS.ToString() + " ms");
         }
         public override void Add(IRenderable obj) => Add(obj as I3DRenderable);
@@ -277,7 +277,7 @@ namespace TheraEngine.Rendering
         {
             if (obj != null && RenderTree?.Add(obj) == true)
             {
-                //obj.RenderInfo.Owner = obj;
+                obj.RenderInfo.Owner = obj;
                 obj.RenderInfo.Scene = this;
                 if (obj is I3DRenderable r && r.CullingVolume != null)
                     RegisterCullingVolume(r.CullingVolume);
@@ -288,6 +288,7 @@ namespace TheraEngine.Rendering
         {
             if (obj != null && RenderTree?.Remove(obj) == true)
             {
+                obj.RenderInfo.Owner = null;
                 obj.RenderInfo.Scene = null;
                 if (obj is I3DRenderable r && r.CullingVolume != null)
                     UnregisterCullingVolume(r.CullingVolume);
@@ -313,7 +314,7 @@ namespace TheraEngine.Rendering
             Lights = new LightManager();
         }
 
-        private float _renderMS;
+        private float _renderFPS;
         private RenderQuery _timeQuery = new RenderQuery();
         private void RenderForwardPass(Viewport viewport, RenderPasses renderingPasses)
         {

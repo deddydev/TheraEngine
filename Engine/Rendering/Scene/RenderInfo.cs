@@ -65,13 +65,13 @@ namespace TheraEngine.Rendering
                 if (Visible == value)
                     return;
                 base.Visible = value;
-                //if (Scene != null)
-                //{
-                //    if (Visible)
-                //        Scene.Add(Owner);
-                //    else
-                //        Scene.Remove(Owner);
-                //}
+                if (Scene != null)
+                {
+                    if (Visible)
+                        Scene.Add(Owner);
+                    else
+                        Scene.Remove(Owner);
+                }
             }
         }
 
@@ -95,7 +95,7 @@ namespace TheraEngine.Rendering
         public int SceneID { get; internal set; } = -1;
         [Browsable(false)]
         public Scene3D Scene { get; internal set; }
-        //public I3DRenderable Owner { get; internal set; }
+        public I3DRenderable Owner { get; internal set; }
 
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
 

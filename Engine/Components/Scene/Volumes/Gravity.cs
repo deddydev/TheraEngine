@@ -6,13 +6,13 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene.Volumes
 {
-    public class GravityVolumeComponent : BoxComponent
+    public class GravityVolumeComponent : TriggerVolumeComponent
     {
         [TSerialize]
         public Vec3 Gravity { get; set; } = new Vec3(0.0f, -9.81f, 0.0f);
 
         public GravityVolumeComponent() : this(Vec3.Half) { }
-        public GravityVolumeComponent(Vec3 halfExtents) : base(halfExtents, null) { }
+        public GravityVolumeComponent(Vec3 halfExtents) : base(halfExtents) { }
 
         public void OnOverlapEntered(TRigidBody obj)
         {

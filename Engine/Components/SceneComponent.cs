@@ -476,6 +476,12 @@ namespace TheraEngine.Components
             if (this is IPreRendered r)
                 OwningScene.RemovePreRenderedObject(r);
 
+            if (this is I3DRenderable r3d && r3d.RenderInfo.Visible)
+                OwningScene.Remove(r3d);
+            
+            if (this is I2DRenderable r2d && r2d.RenderInfo.Visible)
+                OwningScene.Remove(r2d);
+            
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
         }

@@ -300,18 +300,18 @@ namespace TheraEngine.Tests
             //    ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
 
             //Create camera shake test
-            //PositionComponent posComp = new PositionComponent(new Vec3(0.0f, 50.0f, 0.0f));
-            //ScreenShake3DComponent shakeComp = new ScreenShake3DComponent()
-            //{
-            //    MaxTrauma = 100.0f,
-            //    TraumaDecrementPerSecond = 0.0f,
-            //    Trauma = 40.0f,
-            //};
-            //CameraComponent camComp = new CameraComponent(new PerspectiveCamera(0.1f, 2000.0f, 45.0f, 1.0f));
-            //posComp.ChildComponents.Add(shakeComp);
-            //shakeComp.ChildComponents.Add(camComp);
-            //Actor<PositionComponent> testScreenshake = new Actor<PositionComponent>(posComp);
-            //actors.Add(testScreenshake);
+            TranslationComponent posComp = new TranslationComponent(new Vec3(0.0f, 50.0f, 0.0f));
+            ScreenShake3DComponent shakeComp = new ScreenShake3DComponent()
+            {
+                MaxTrauma = 100.0f,
+                TraumaDecrementPerSecond = 0.0f,
+                Trauma = 40.0f,
+            };
+            CameraComponent camComp = new CameraComponent(new PerspectiveCamera(0.1f, 2000.0f, 45.0f, 1.0f));
+            posComp.ChildComponents.Add(shakeComp);
+            shakeComp.ChildComponents.Add(camComp);
+            Actor<TranslationComponent> testScreenshake = new Actor<TranslationComponent>(posComp);
+            actors.Add(testScreenshake);
 
             Vec3 max = 1000.0f;
             Vec3 min = -max;
@@ -468,7 +468,7 @@ namespace TheraEngine.Tests
             Engine.Renderer.RenderLine(_hitPoint, _hitPoint + (_hitNormal * Radius), Color.Orange);
         }
 
-        private RenderCommandDebug3D _renderCommand;
+        private readonly RenderCommandDebug3D _renderCommand;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_renderCommand, RenderInfo.RenderPass);

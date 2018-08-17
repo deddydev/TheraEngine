@@ -12,6 +12,8 @@ namespace TheraEngine.Components.Scene.Volumes
         public DelOnOverlapEnter OnEntered;
         public DelOnOverlapLeave OnLeft;
 
+        public TriggerVolumeComponent()
+            : base(null) { }
         public TriggerVolumeComponent(Vec3 halfExtents)
             : base(halfExtents, null) { }
     }

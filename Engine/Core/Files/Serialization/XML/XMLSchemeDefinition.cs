@@ -352,7 +352,7 @@ namespace TheraEngine.Core.Files.XML
                                             Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
                                         IElement elem = await ParseElementAsync(child.Types[typeIndex], entry, reader, version, ignoreFlags, parentTree, childIndex, stream, progress, cancel);
-                                        elem.ReadElementName = elementName;
+                                        elem.ElementName = elementName;
                                         break;
                                     }
                                 }
@@ -386,7 +386,7 @@ namespace TheraEngine.Core.Files.XML
                                     else
                                     {
                                         IElement elem = await ParseElementAsync(info.Data.Types[i], entry, reader, version, ignoreFlags, parentTree, childIndex, stream, progress, cancel);
-                                        elem.ReadElementName = elementName;
+                                        elem.ElementName = elementName;
                                     }
                                 }
                             }
@@ -577,7 +577,7 @@ namespace TheraEngine.Core.Files.XML
     public interface IElement
     {
         ulong TypeFlag { get; }
-        string ReadElementName { get; set; }
+        string ElementName { get; set; }
         Type ParentType { get; }
         bool WantsManualRead { get; }
         object UserData { get; set; }
@@ -619,7 +619,7 @@ namespace TheraEngine.Core.Files.XML
 
         private string _elementName;
         [Browsable(false)]
-        public string ReadElementName
+        public string ElementName
         {
             get
             {
@@ -727,6 +727,40 @@ namespace TheraEngine.Core.Files.XML
         /// <param name="version"></param>
         /// <returns></returns>
         public virtual IElement ManualReadChildElement(string name, string version) => null;
+
+        public int ChildElementCount => ChildElements.Values.Sum(a => a.Count);
+        public void AddElements(params IElement[] elements)
+        {
+            if (elements == null || elements.Length == 0)
+                return;
+
+            Type t = GetType();
+            ElementChild[] childAttribs = t.GetCustomAttributesExt<ElementChild>();
+            MultiChild[] mc = t.GetCustomAttributesExt<MultiChild>();
+            elements = elements.Where(elem => childAttribs.Any(attrib => attrib.ChildEntryType.IsAssignableFrom(elem.GetType()))).ToArray();
+            int currentCount = ChildElementCount;
+            for (int i = 0; i < elements.Length; ++i)
+            {
+                IElement element = elements[i];
+                element.ElementIndex = currentCount + i;
+                Type elemType = element.GetType();
+                if (ChildElements.ContainsKey(elemType))
+                {
+                    var list = ChildElements[elemType];
+                    if (list == null)
+                    {
+                        list = new List<IElement>();
+                        ChildElements[elemType] = list;
+                    }
+                    list.Add(element);
+                }
+                else
+                {
+                    ChildElements.Add(elemType, new List<IElement>() { element });
+                }
+            }
+        }
+
     }
     #endregion
 

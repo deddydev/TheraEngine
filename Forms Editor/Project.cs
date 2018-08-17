@@ -1,10 +1,12 @@
 ﻿using EnvDTE100;
 using Microsoft.Build.Framework;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core.Files.XML;
 using TheraEngine.Files;
 using TheraEngine.ThirdParty;
 
@@ -95,7 +97,27 @@ namespace TheraEditor
         public void GenerateSolution(string slnDir)
         {
             MSBuild.Project p = new MSBuild.Project();
-            
+            var import = new MSBuild.Import
+            {
+                Project = "$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props",
+                Condition = "Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')"
+            };
+
+            var propGrp1 = new MSBuild.PropertyGroup();
+            propGrp1.AddElements(
+                new MSBuild.PropertyGroup.Property()
+                {
+                    ElementName = "Configuration",
+                    Condition = " '$(Configuration)' == '' ",
+                    StringContent = new ElementString() { Value = "Debug" },
+                },
+                new MSBuild.PropertyGroup.Property()
+                {
+                    ElementName = "Platform",
+                    Condition = " '$(Configuration)' == '' ",
+                    StringContent = new ElementString() { Value = "AnyCPU" },
+                });
+            p.AddElements(import, propGrp1);
 
             EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
             dte.SuppressUI = true;

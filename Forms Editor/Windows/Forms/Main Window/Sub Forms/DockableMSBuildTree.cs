@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void RecursivePopulate(TreeNodeCollection collection, IElement element)
         {
-            TreeNode node = new TreeNode(element.ReadElementName) { Tag = element };
+            TreeNode node = new TreeNode(element.ElementName) { Tag = element };
             collection.Add(node);
             
             foreach (var elem in element.ChildElementsInOrder())

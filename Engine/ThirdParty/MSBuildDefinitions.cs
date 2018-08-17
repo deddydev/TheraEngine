@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheraEngine.Core.Files.XML;
 
 namespace TheraEngine.ThirdParty
@@ -77,6 +78,7 @@ namespace TheraEngine.ThirdParty
             /// </summary>
             [Attr("ToolsVersion", false)]
             public string ToolsVersion { get; set; }
+
             /// <summary>
             /// Optional attribute.
             /// <para>

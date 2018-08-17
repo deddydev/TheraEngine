@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Files;
 using TheraEngine.Worlds;
 

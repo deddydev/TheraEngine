@@ -8,6 +8,7 @@ using TheraEngine.Audio;
 using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds
 {

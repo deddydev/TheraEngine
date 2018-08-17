@@ -8,15 +8,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridBool() => InitializeComponent();
         protected override void UpdateDisplayInternal(object value)
         {
-            if (value is bool boolVal)
-            {
-                checkBox1.Checked = boolVal;
-                checkBox1.Enabled = !ParentInfo.IsReadOnly();
-            }
-            else
-                throw new Exception(DataType.GetFriendlyName() + " is not a boolean type.");
+            chkValue.Checked = (bool)value;
+            chkValue.Enabled = IsEditable();
         }
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-            => UpdateValue(checkBox1.Checked, true);
+        private void chkValue_CheckedChanged(object sender, EventArgs e)
+            => UpdateValue(chkValue.Checked, true);
     }
 }

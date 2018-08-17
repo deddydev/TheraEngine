@@ -47,7 +47,8 @@ namespace TheraEngine.Rendering
         public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, Camera camera, bool shadowPass)
         {
             foreach (I2DRenderable r in _renderables)
-                r.AddRenderables(populatingPasses);
+                if (r.RenderInfo.Visible)
+                    r.AddRenderables(populatingPasses);
         }
         public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {

@@ -66,7 +66,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 propGridListItems.tblProps.SuspendLayout();
                 for (int i = 0; i < list.Count; ++i)
                 {
-                    Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(list[i]?.GetType());
+                    Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(list[i]?.GetType() ?? _elementType);
                     List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, new PropGridItemRefIListInfo(list, i), DataChangeHandler);
                     Label label = propGridListItems.AddProperty(items, new object[0], false);
                     label.MouseEnter += Label_MouseEnter;

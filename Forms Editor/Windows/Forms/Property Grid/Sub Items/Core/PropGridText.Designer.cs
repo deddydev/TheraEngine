@@ -76,7 +76,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.panel1.Controls.Add(this.btnBrowse);
             this.panel1.Controls.Add(this.btnEdit);
             this.panel1.Controls.Add(this.chkNull);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";

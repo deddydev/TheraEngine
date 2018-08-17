@@ -182,11 +182,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void lblCategoryName_MouseEnter(object sender, EventArgs e)
         {
-            lblCategoryName.BackColor = pnlSide.BackColor = Color.FromArgb(14, 18, 34);
+            lblCategoryName.BackColor = pnlSide.BackColor = Color.FromArgb(100, 142, 140);
         }
         private void lblCategoryName_MouseLeave(object sender, EventArgs e)
         {
-            lblCategoryName.BackColor = pnlSide.BackColor = Color.FromArgb(54, 58, 74);
+            lblCategoryName.BackColor = pnlSide.BackColor = Color.FromArgb(60, 102, 100);
         }
         private void lblCategoryName_MouseDown(object sender, MouseEventArgs e)
         {

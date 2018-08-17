@@ -9,7 +9,10 @@ namespace TheraEngine.Rendering
 {
     public abstract class RenderInfo
     {
-        public bool Visible { get; set; } = true;
+        public virtual bool Visible { get; set; } = true;
+#if EDITOR
+        public virtual bool VisibleInEditorOnly { get; set; } = false;
+#endif
     }
     public class RenderInfo2D : RenderInfo
     {
@@ -51,6 +54,27 @@ namespace TheraEngine.Rendering
     public delegate float DelGetSortOrder(bool shadowPass);
     public class RenderInfo3D : RenderInfo
     {
+        public bool HiddenFromOwner { get; set; } = false;
+        public bool VisibleToOwnerOnly { get; set; } = false;
+
+        public override bool Visible
+        {
+            get => base.Visible;
+            set
+            {
+                if (Visible == value)
+                    return;
+                base.Visible = value;
+                //if (Scene != null)
+                //{
+                //    if (Visible)
+                //        Scene.Add(Owner);
+                //    else
+                //        Scene.Remove(Owner);
+                //}
+            }
+        }
+
         /// <summary>
         /// Used to render objects in the same pass in a certain order.
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
@@ -71,6 +95,7 @@ namespace TheraEngine.Rendering
         public int SceneID { get; internal set; } = -1;
         [Browsable(false)]
         public Scene3D Scene { get; internal set; }
+        //public I3DRenderable Owner { get; internal set; }
 
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
 

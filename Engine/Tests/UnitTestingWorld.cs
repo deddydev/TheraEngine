@@ -419,13 +419,6 @@ namespace TheraEngine.Tests
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-        public bool Visible { get; set; } = true;
-#if EDITOR
-        [Category("Editor Traits")]
-        public bool VisibleInEditorOnly { get; set; } = false;
-#endif
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
 
         public override void OnSpawnedPostComponentSpawn()
         {

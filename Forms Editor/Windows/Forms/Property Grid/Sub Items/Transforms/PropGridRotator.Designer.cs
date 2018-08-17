@@ -138,7 +138,7 @@
             this.tableLayoutPanel1.Controls.Add(this.numericInputBoxRoll, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.cboOrder, 3, 0);
             this.tableLayoutPanel1.Controls.Add(this.chkNull, 4, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);

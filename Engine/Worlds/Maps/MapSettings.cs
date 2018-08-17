@@ -5,6 +5,7 @@ using System.Linq;
 using TheraEngine.GameModes;
 using System.ComponentModel;
 using TheraEngine.Actors;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Maps
 {

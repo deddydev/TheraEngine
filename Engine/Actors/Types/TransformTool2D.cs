@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Actors.Types
 {

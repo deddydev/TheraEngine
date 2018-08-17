@@ -12,6 +12,7 @@ using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Physics;
@@ -86,14 +87,14 @@ namespace TheraEditor.Windows.Forms
                 if (value == null && HighlightedComponent != null)
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && HighlightedComponent != TransformTool3D.Instance.RootComponent))
-                        _highlightPoint.Visible = false;
+                        _highlightPoint.RenderInfo.Visible = false;
                     BaseRenderPanel p = BaseRenderPanel.FocusedPanel;
                     p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Default));
                 }
                 else if (value != null && HighlightedComponent == null)
                 {
                     if (TransformTool3D.Instance == null || (TransformTool3D.Instance != null && value != TransformTool3D.Instance.RootComponent))
-                        _highlightPoint.Visible = true;
+                        _highlightPoint.RenderInfo.Visible = true;
                     BaseRenderPanel p = BaseRenderPanel.FocusedPanel;
                     p?.BeginInvoke((Action)(() => p.Cursor = Cursors.Hand));
                 }
@@ -227,8 +228,9 @@ namespace TheraEditor.Windows.Forms
             SubViewportText = new UITextComponent
             {
                 DockStyle = UIDockStyle.Top,
-                Height = s.Height
+                Height = s.Height,
             };
+            SubViewportText.RenderInfo.Visible = false;
             SubViewportText.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, ParentBoundsInheritedValue.Height);
             SubViewportText.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, ParentBoundsInheritedValue.Width);
             StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
@@ -486,7 +488,7 @@ namespace TheraEditor.Windows.Forms
             
             SceneComponent comp = viewport.PickScene(viewportPoint, true, true, true, out _hitNormal, out _hitPoint, out _hitDistance);
             bool hasHit = comp != null;
-            _highlightPoint.Visible = hasHit;
+            _highlightPoint.RenderInfo.Visible = hasHit;
             if (hasHit)
             {
                 if (comp is UIViewportComponent subViewport)
@@ -560,7 +562,7 @@ namespace TheraEditor.Windows.Forms
                 DragComponent = null;
             }
 
-            _highlightPoint.Visible = HighlightedComponent != null;
+            _highlightPoint.RenderInfo.Visible = HighlightedComponent != null;
         }
         public SceneComponent SelectedComponent { get; private set; }
 
@@ -585,11 +587,13 @@ namespace TheraEditor.Windows.Forms
             {
                 SubViewport.ViewportCamera = cam.Camera;
                 SubViewport.IsVisible = true;
+                SubViewportText.RenderInfo.Visible = true;
             }
             else
             {
                 SubViewport.ViewportCamera = null;
                 SubViewport.IsVisible = false;
+                SubViewportText.RenderInfo.Visible = false;
             }
 
             if (SelectedComponent != null)
@@ -597,7 +601,7 @@ namespace TheraEditor.Windows.Forms
                 if (OwningWorld == null)
                     return;
 
-                _highlightPoint.Visible = false;
+                _highlightPoint.RenderInfo.Visible = false;
                 if (SelectedComponent.OwningActor is TransformTool3D tool)
                 {
 
@@ -668,19 +672,19 @@ namespace TheraEditor.Windows.Forms
             public const int CirclePrecision = 20;
             public static readonly Color Color = Color.LimeGreen;
 
-            public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
+            public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, false, false) { VisibleInEditorOnly = true };
             public Shape CullingVolume => null;
             public IOctreeNode OctreeNode { get; set; }
             public SceneComponent HighlightedComponent { get; set; }
             public Matrix4 Transform { get; set; } = Matrix4.Identity;
-            public bool Visible { get; set; }
-            public bool VisibleInEditorOnly { get; set; } = true;
-            public bool HiddenFromOwner { get; set; } = false;
-            public bool VisibleToOwnerOnly { get; set; } = false;
 
             private TMaterial _material;
-            private PrimitiveManager _circlePrimitive;
-            private PrimitiveManager _normalPrimitive;
+            private readonly PrimitiveManager _circlePrimitive;
+            private readonly PrimitiveManager _normalPrimitive;
+
+            private RenderCommandMesh3D
+                _circleRC = new RenderCommandMesh3D(),
+                _normalRC = new RenderCommandMesh3D();
 
             public HighlightPoint()
             {
@@ -693,27 +697,9 @@ namespace TheraEditor.Windows.Forms
                 _circleRC.NormalMatrix = Matrix3.Identity;
                 _normalRC.NormalMatrix = Matrix3.Identity;
             }
-            
-            public void Render()
-            {
-                if (!Visible)
-                    return;
 
-                if (HighlightedComponent != null && HighlightedComponent != TransformTool3D.Instance?.RootComponent)
-                {
-                    _circlePrimitive.Render(Transform, Matrix3.Identity);
-                    _normalPrimitive.Render(Transform, Matrix3.Identity);
-                }
-            }
-
-            private RenderCommandMesh3D 
-                _circleRC = new RenderCommandMesh3D(), 
-                _normalRC = new RenderCommandMesh3D();
             public void AddRenderables(RenderPasses passes, Camera camera)
             {
-                if (!Visible)
-                    return;
-
                 if (HighlightedComponent != null && HighlightedComponent != TransformTool3D.Instance?.RootComponent)
                 {
                     _circleRC.WorldMatrix = Transform;

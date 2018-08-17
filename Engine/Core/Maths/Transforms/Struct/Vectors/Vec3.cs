@@ -1,18 +1,16 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Xml.Serialization;
+using TheraEngine.Core.Memory;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using static System.Math;
 using static System.TMath;
-using System.Xml.Serialization;
-using System.Drawing;
-using TheraEngine;
-using TheraEngine.Rendering.Models;
-using System.ComponentModel;
-using System.Globalization;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Core.Memory;
 
-namespace System
+namespace TheraEngine.Core.Maths.Transforms
 {
     /// <summary>
     /// A struct containing 3 float values.
@@ -22,9 +20,13 @@ namespace System
     [Serializable]
     //[TypeConverter(typeof(Vec3StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable, IParsable
+    public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable, IParsable, IByteColor
     {
+        public static readonly int Size = sizeof(Vec3);
+
         public float X, Y, Z;
+
+        public Color Color { get => (Color)this; set => Xyz = (Vec3)value; }
 
         [Browsable(false)]
         public float* Data => (float*)Address;
@@ -1100,12 +1102,11 @@ namespace System
         
         public static Vec3 operator *(Vec3 left, Matrix4 right)
             => TransformPerspective(left, right);
-
-        private const float _colorFactor = 1.0f / 255.0f;
+        
         public static explicit operator Vec3(Color c)
-            => new Vec3(c.R * _colorFactor, c.G * _colorFactor, c.B * _colorFactor);
+            => new Vec3(c.R * THelpers.ByteToFloat, c.G * THelpers.ByteToFloat, c.B * THelpers.ByteToFloat);
         public static explicit operator Color(Vec3 v)
-            => Color.FromArgb((int)(v.X / _colorFactor), (int)(v.Y / _colorFactor), (int)(v.Z / _colorFactor));
+            => Color.FromArgb(v.X.ToByte(), v.Y.ToByte(), v.Z.ToByte());
 
         public static implicit operator Vec3(Vec2 v)    => new Vec3(v.X, v.Y, 0.0f);
         public static explicit operator Vec3(ColorF4 v) => new Vec3(v.R, v.G, v.B);

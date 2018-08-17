@@ -8,8 +8,6 @@ namespace TheraEngine.Rendering.UI
 {
     public class UIMaterialRectangleComponent : UIDockableComponent, I2DRenderable
     {
-        public override int LayerIndex { get => RenderInfo.LayerIndex; set => RenderInfo.LayerIndex = value; }
-        public override int IndexWithinLayer { get => RenderInfo.IndexWithinLayer; set => RenderInfo.IndexWithinLayer = value; }
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass.OpaqueForward, 0, 0);
 
         public UIMaterialRectangleComponent() 
@@ -31,10 +29,6 @@ namespace TheraEngine.Rendering.UI
             get => _quad.Material;
             set => _quad.Material = value;
         }
-        public bool Visible { get; set; } = true;
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
-        public bool VisibleInEditorOnly { get; set; } = false;
 
         public BaseTexRef Texture(int index)
         {

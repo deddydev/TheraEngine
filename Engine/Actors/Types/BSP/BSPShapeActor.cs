@@ -15,12 +15,6 @@ namespace TheraEngine.Actors.Types.BSP
         public Shape CullingVolume => _cullingVolume;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-        public bool Visible { get; set; } = true;
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
-#if EDITOR
-        public bool VisibleInEditorOnly { get; set; } = false;
-#endif
 
         private Shape _cullingVolume;
         private PrimitiveManager _manager;

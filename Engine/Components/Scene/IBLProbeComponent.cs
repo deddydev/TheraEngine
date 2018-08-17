@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using TheraEngine.Components;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -27,16 +28,8 @@ namespace TheraEngine.Actors.Types
         public TexRefCube PrefilterTex { get; private set; }
 
         [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
-        [Category(RenderingCategoryName)]
-        public bool Visible { get; set; } = true;
-        [Category(RenderingCategoryName)]
-        public bool HiddenFromOwner { get; set; } = false;
-        [Category(RenderingCategoryName)]
-        public bool VisibleToOwnerOnly { get; set; } = false;
-#if EDITOR
-        [Category(RenderingCategoryName)]
-        public bool VisibleInEditorOnly { get; set; } = true;
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, false, false) { Visible = false, VisibleInEditorOnly = true };
+       
         private bool _showPrefilterTexture = false;
         [Category(RenderingCategoryName)]
         public bool ShowPrefilterTexture
@@ -48,21 +41,10 @@ namespace TheraEngine.Actors.Types
                 _irradianceSphere.Material.Textures[0] = _showPrefilterTexture ? PrefilterTex : IrradianceTex;
             }
         }
-#endif
 
         private PrimitiveManager _irradianceSphere;
         public IBLProbeComponent() : base() { }
-
-        public override void OnSpawned()
-        {
-            OwningScene3D?.Add(this);
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            OwningScene3D?.Remove(this);
-            base.OnDespawned();
-        }
+        
         protected override void OnWorldTransformChanged()
         {
             base.OnWorldTransformChanged();

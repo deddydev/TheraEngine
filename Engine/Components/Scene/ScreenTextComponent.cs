@@ -2,6 +2,7 @@
 using TheraEngine.Rendering.Models;
 using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Rendering.Models.Materials.Textures;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene
 {

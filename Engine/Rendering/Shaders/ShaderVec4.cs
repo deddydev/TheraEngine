@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
+using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models.Materials
@@ -37,7 +39,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add(".w", new ShaderBool(defaultValue.W, "W", this));
         }
     }
-    public class ShaderVec4 : ShaderVar
+    public class ShaderVec4 : ShaderVar, IByteColor
     {
         [Browsable(false)]
         public override EShaderVarType TypeName => EShaderVarType._vec4;
@@ -65,6 +67,20 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add(".z", new ShaderFloat(defaultValue.Z, "Z", this));
             _fields.Add(".w", new ShaderFloat(defaultValue.W, "W", this));
         }
+
+        public Color Color { get => (Color)this; set => Value = value; }
+
+        public ShaderVec4(float x, float y, float z, float w)
+            : this(x, y, z, w, NoName) { }
+        public ShaderVec4(float x, float y, float z, float w, string name)
+            : this(x, y, z, w, name, null) { }
+        public ShaderVec4(float x, float y, float z, float w, string name, IShaderVarOwner owner)
+            : this(new Vec4(x, y, z, w), name, owner) { }
+
+        public static implicit operator ShaderVec4(Color p)
+            => new ShaderVec4(p.R * THelpers.ByteToFloat, p.G * THelpers.ByteToFloat, p.B * THelpers.ByteToFloat, p.A * THelpers.ByteToFloat);
+        public static explicit operator Color(ShaderVec4 p)
+            => Color.FromArgb(p.Value.W.ToByte(), p.Value.X.ToByte(), p.Value.Y.ToByte(), p.Value.Z.ToByte());
     }
     public class ShaderDVec4 : ShaderVar
     {

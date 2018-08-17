@@ -2,6 +2,7 @@
 using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Physics;
 using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene.Volumes
 {

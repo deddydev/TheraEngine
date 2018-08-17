@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TheraEngine.Actors.Types;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -16,25 +17,16 @@ namespace TheraEngine.Actors
 {
     public class IBLProbeGridActor : Actor<TranslationComponent>, I3DRenderable
     {
-        //public Vec3 ProbesPerMeter { get; internal set; }
-        //public BoundingBox ProbeBounds { get; internal set; }
+        private bool _showPrefilterTexture = false;
+        private bool _showCaptureSpheres = false;
+
         [Category(SceneComponent.RenderingCategoryName)]
-        public bool Visible { get; set; } = true;
-        [Category(SceneComponent.RenderingCategoryName)]
-        public bool HiddenFromOwner { get; set; }
-        [Category(SceneComponent.RenderingCategoryName)]
-        public bool VisibleToOwnerOnly { get; set; }
-        [Category(SceneComponent.RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.TransparentForward, false, false);
-#if EDITOR
-        [Category(SceneComponent.RenderingCategoryName)]
-        public bool VisibleInEditorOnly { get; set; }
-#endif
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.TransparentForward, false, false) { Visible = false };
+
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-        private bool _showPrefilterTexture = false;
         [Category(SceneComponent.RenderingCategoryName)]
         public bool ShowPrefilterTexture
         {
@@ -44,6 +36,17 @@ namespace TheraEngine.Actors
                 _showPrefilterTexture = value;
                 foreach (IBLProbeComponent probe in RootComponent.ChildComponents)
                     probe.ShowPrefilterTexture = _showPrefilterTexture;
+            }
+        }
+        [Category(SceneComponent.RenderingCategoryName)]
+        public bool CaptureSpheresVisible
+        {
+            get => _showCaptureSpheres;
+            set
+            {
+                _showCaptureSpheres = value;
+                foreach (IBLProbeComponent probe in RootComponent.ChildComponents)
+                    probe.RenderInfo.Visible = _showCaptureSpheres;
             }
         }
 

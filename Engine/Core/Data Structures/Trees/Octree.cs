@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using TheraEngine;
 using TheraEngine.Components.Scene;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -270,13 +271,13 @@ namespace System
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
 #if EDITOR
-                            bool editMode = Engine.EditorState.InEditMode;
                             if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is Camera cam && cam == camera))
                                 return;
-                            if (!editMode && r.VisibleInEditorOnly)
+                            bool editMode = Engine.EditorState.InEditMode;
+                            if (!editMode && r.RenderInfo.VisibleInEditorOnly)
                                 continue;
 #endif
-                            bool allowRender = r.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
+                            bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                             if (allowRender && (r.CullingVolume == null || (c = cullingVolume.Contains(r.CullingVolume)) != EContainment.Disjoint))
                                 r.AddRenderables(passes, camera);
                         }
@@ -299,7 +300,7 @@ namespace System
                     bool editMode = Engine.EditorState.InEditMode;
                     if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is Camera c && c == camera))
                         return;
-                    if (!editMode && r.VisibleInEditorOnly)
+                    if (!editMode && r.RenderInfo.VisibleInEditorOnly)
                         continue;
 #endif
                     bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;

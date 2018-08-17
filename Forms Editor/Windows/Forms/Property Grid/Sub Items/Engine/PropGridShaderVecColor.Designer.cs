@@ -1,6 +1,6 @@
 ﻿namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    partial class PropGridFloatColor
+    partial class PropGridShaderVecColor
     {
         /// <summary> 
         /// Required designer variable.
@@ -71,8 +71,6 @@
             // 
             // colorControl
             // 
-            this.colorControl.AutoSize = true;
-            this.colorControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.colorControl.Color = System.Drawing.Color.Empty;
             this.colorControl.Dock = System.Windows.Forms.DockStyle.Top;
             this.colorControl.EditAlpha = true;
@@ -89,17 +87,16 @@
             this.colorControl.ColorChanged += new System.Windows.Forms.ColorControl.ColorChangedEvent(this.colorControl1_OnColorChanged);
             this.colorControl.Closed += new System.EventHandler(this.colorControl1_Closed);
             // 
-            // PropGridFloatColor
+            // PropGridShaderVec
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.colorControl);
             this.Controls.Add(this.pnlHeader);
-            this.Name = "PropGridFloatColor";
+            this.Name = "PropGridShaderVec";
             this.Size = new System.Drawing.Size(0, 242);
             this.pnlHeader.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

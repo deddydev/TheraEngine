@@ -36,7 +36,7 @@
             this.numericInputBox1.BackColor = System.Drawing.Color.FromArgb(30, 30, 30);
             this.numericInputBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericInputBox1.DefaultValue = ((sbyte)(0));
-            this.numericInputBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.numericInputBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.numericInputBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.numericInputBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.numericInputBox1.LargeIncrement = ((sbyte)(5));

@@ -1,6 +1,7 @@
 using System;
 using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.TypeParsers.Interfaces;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace ObjLoader.Loader.TypeParsers
 {

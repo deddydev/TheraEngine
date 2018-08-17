@@ -25,12 +25,6 @@ namespace TheraEngine.Rendering.Cameras
             get => _transformedFrustum.OctreeNode;
             set => _transformedFrustum.OctreeNode = value;
         }
-        public bool Visible { get; set; } = true;
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
-#if EDITOR
-        public bool VisibleInEditorOnly { get; set; }
-#endif
 
         public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);

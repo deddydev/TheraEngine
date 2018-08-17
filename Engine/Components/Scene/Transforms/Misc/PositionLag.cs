@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 
@@ -14,19 +15,15 @@ namespace TheraEngine.Components.Scene.Transforms
         public PositionLagComponent(float interpSpeed) : this(interpSpeed, 2.0f) { }
         public PositionLagComponent(float interpSpeed, float maxLagDistance) : base()
         {
-            _interpSpeed = interpSpeed;
-            _maxLagDistance = maxLagDistance;
+            InterpSpeed = interpSpeed;
+            MaxLagDistance = maxLagDistance;
         }
-
-        private float _interpSpeed;
-        private float _maxLagDistance;
 
         private float _delta;
         private Vec3 _currentPoint;
         private Vec3 _destPoint;
         private Vec3 _interpPoint;
-        private float _laggingDistance;
-        
+
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
@@ -34,12 +31,12 @@ namespace TheraEngine.Components.Scene.Transforms
 
         [TSerialize]
         [Category("Position Lag Component")]
-        public float InterpSpeed { get => _interpSpeed; set => _interpSpeed = value; }
+        public float InterpSpeed { get; set; }
         [TSerialize]
         [Category("Position Lag Component")]
-        public float MaxLagDistance { get => _maxLagDistance; set => _maxLagDistance = value; }
+        public float MaxLagDistance { get; set; }
         [Browsable(false)]
-        public float LaggingDistance => _laggingDistance;
+        public float LaggingDistance { get; private set; }
 
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
@@ -72,12 +69,12 @@ namespace TheraEngine.Components.Scene.Transforms
             _delta = delta;
             _currentPoint = _worldTransform.Translation;
             _destPoint = GetParentMatrix().Translation;
-            _laggingDistance = _destPoint.DistanceToFast(_currentPoint);
+            LaggingDistance = _destPoint.DistanceToFast(_currentPoint);
 
             //if (_laggingDistance > _maxLagDistance)
             //    _interpPoint = CustomMath.InterpLinearTo(_destPoint, _currentPoint, _maxLagDistance / _laggingDistance);
             //else
-                _interpPoint = Interp.InterpLinearTo(_currentPoint, _destPoint, _delta, _interpSpeed);
+                _interpPoint = Interp.InterpLinearTo(_currentPoint, _destPoint, _delta, InterpSpeed);
 
             //Engine.DebugPrint(_currentPoint.DistanceTo(_destPoint));
             RecalcWorldTransform();

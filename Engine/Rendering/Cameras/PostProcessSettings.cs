@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheraEngine.Rendering.Models.Materials;
 using System;
 using TheraEngine.Core.Maths;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Cameras
 {

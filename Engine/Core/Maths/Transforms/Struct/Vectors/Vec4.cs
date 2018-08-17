@@ -1,13 +1,14 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using TheraEngine.Core.Memory;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using static System.Math;
 using static System.TMath;
-using TheraEngine;
-using TheraEngine.Rendering.Models;
-using System.ComponentModel;
-using System.Globalization;
-using System;
-using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Maths.Transforms
 {
@@ -19,11 +20,13 @@ namespace TheraEngine.Core.Maths.Transforms
     [Serializable]
     //[TypeConverter(typeof(Vec4StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable, IParsable
+    public unsafe struct Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable, IParsable, IByteColor
     {
         public static readonly int Size = sizeof(Vec4);
 
         public float X, Y, Z, W;
+
+        public Color Color { get => (Color)this; set => Xyzw = (Vec4)value; }
 
         [Browsable(false)]
         public float* Data => (float*)Address;
@@ -778,6 +781,12 @@ namespace TheraEngine.Core.Maths.Transforms
             get { return new Vec4(W, Z, Y, W); }
             set { X = value.X; Z = value.Y; Y = value.Z; W = value.W; }
         }
+        [XmlIgnore]
+        public Vec4 Xyzw
+        {
+            get { return new Vec4(X, Y, Z, W); }
+            set { X = value.X; Y = value.Y; Z = value.Z; W = value.W; }
+        }
 
         public static Vec4 operator +(Vec4 left, Vec4 right)
         {
@@ -837,7 +846,11 @@ namespace TheraEngine.Core.Maths.Transforms
         {
             return new Vec4(v.X, v.Y, v.Z, v.W);
         }
-        private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        public static implicit operator Vec4(Color c)
+            => new Vec4(c.R * THelpers.ByteToFloat, c.G * THelpers.ByteToFloat, c.B * THelpers.ByteToFloat, c.A * THelpers.ByteToFloat);
+        public static explicit operator Color(Vec4 v)
+            => Color.FromArgb(v.W.ToByte(), v.X.ToByte(), v.Y.ToByte(), v.Z.ToByte());
+        private static readonly string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString() => ToString(true, true);
         public string ToString(bool includeParentheses, bool includeSeparator)
            => String.Format("{5}{0}{4} {1}{4} {2}{4} {3}{6}", X, Y, Z, W,

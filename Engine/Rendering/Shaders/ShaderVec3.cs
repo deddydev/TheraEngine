@@ -1,5 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
+using TheraEngine.Core;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -34,7 +37,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add(".z", new ShaderBool(defaultValue.Z, "Z", this));
         }
     }
-    public class ShaderVec3 : ShaderVar
+    public class ShaderVec3 : ShaderVar, IByteColor
     {
         [Browsable(false)]
         public override EShaderVarType TypeName => EShaderVarType._vec3;
@@ -61,6 +64,20 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add(".y", new ShaderFloat(defaultValue.Y, "Y", this));
             _fields.Add(".z", new ShaderFloat(defaultValue.Z, "Z", this));
         }
+
+        public Color Color { get => (Color)this; set => Value = (Vec3)value; }
+
+        public ShaderVec3(float x, float y, float z)
+            : this(x, y, z, NoName) { }
+        public ShaderVec3(float x, float y, float z, string name)
+            : this(x, y, z, name, null) { }
+        public ShaderVec3(float x, float y, float z, string name, IShaderVarOwner owner)
+            : this(new Vec3(x, y, z), name, owner) { }
+
+        public static implicit operator ShaderVec3(Color p)
+            => new ShaderVec3(p.R * THelpers.ByteToFloat, p.G * THelpers.ByteToFloat, p.B * THelpers.ByteToFloat);
+        public static explicit operator Color(ShaderVec3 p)
+            => Color.FromArgb(p.Value.X.ToByte(), p.Value.Y.ToByte(), p.Value.Z.ToByte());
     }
     public class ShaderDVec3 : ShaderVar
     {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Animation;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {

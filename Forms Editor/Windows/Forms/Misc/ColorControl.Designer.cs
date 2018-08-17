@@ -136,7 +136,7 @@
             this.chkAlpha.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAlpha.Location = new System.Drawing.Point(33, 49);
             this.chkAlpha.Name = "chkAlpha";
-            this.chkAlpha.Size = new System.Drawing.Size(104, 21);
+            this.chkAlpha.Size = new System.Drawing.Size(83, 17);
             this.chkAlpha.TabIndex = 6;
             this.chkAlpha.Text = "Show Alpha";
             this.chkAlpha.UseVisualStyleBackColor = true;
@@ -173,8 +173,6 @@
             // 
             // ColorControl
             // 
-            this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.goodColorControl1);
             this.Margin = new System.Windows.Forms.Padding(0);

@@ -28,26 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.chkValue = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // checkBox1
             // 
-            this.checkBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.checkBox1.Location = new System.Drawing.Point(0, 0);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(0, 20);
-            this.checkBox1.TabIndex = 0;
-            this.checkBox1.UseMnemonic = false;
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.chkValue.Dock = System.Windows.Forms.DockStyle.Top;
+            this.chkValue.Location = new System.Drawing.Point(0, 0);
+            this.chkValue.Margin = new System.Windows.Forms.Padding(0);
+            this.chkValue.Name = "checkBox1";
+            this.chkValue.Size = new System.Drawing.Size(0, 20);
+            this.chkValue.TabIndex = 0;
+            this.chkValue.UseMnemonic = false;
+            this.chkValue.UseVisualStyleBackColor = true;
+            this.chkValue.CheckedChanged += new System.EventHandler(this.chkValue_CheckedChanged);
             // 
             // PropGridBool
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.chkValue);
             this.Name = "PropGridBool";
             this.Size = new System.Drawing.Size(0, 20);
             this.ResumeLayout(false);
@@ -55,6 +55,6 @@
         }
 
         #endregion
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox chkValue;
     }
 }

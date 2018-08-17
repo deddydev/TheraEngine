@@ -7,6 +7,7 @@ using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Physics;
 using TheraEngine.Actors;
 using TheraEngine.Worlds;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components
 {
@@ -442,6 +443,28 @@ namespace TheraEngine.Components
             if (this is IPreRendered r)
                 OwningScene.AddPreRenderedObject(r);
 
+            if (this is I3DRenderable r3d)
+            {
+                bool spawn = r3d.RenderInfo.Visible;
+#if EDITOR
+                if (r3d.RenderInfo.VisibleInEditorOnly)
+                    spawn = spawn && Engine.EditorState.InEditMode;
+#endif
+                if (spawn)
+                    OwningScene.Add(r3d);
+            }
+
+            if (this is I2DRenderable r2d)
+            {
+                bool spawn = r2d.RenderInfo.Visible;
+#if EDITOR
+                if (r2d.RenderInfo.VisibleInEditorOnly)
+                    spawn = spawn && Engine.EditorState.InEditMode;
+#endif
+                if (spawn)
+                    OwningScene.Add(r2d);
+            }
+
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
         }
@@ -678,18 +701,12 @@ namespace TheraEngine.Components
         {
             if (r3d != null && OwningScene is Scene3D scene3D)
             {
-                bool valid = IsSpawned;
+                bool valid = IsSpawned && selected;
 
-                if (r3d.VisibleInEditorOnly)
+                if (r3d.RenderInfo.VisibleInEditorOnly)
                     valid = valid && Engine.EditorState.InEditMode;
 
-                if (valid)
-                {
-                    if (selected)
-                        scene3D.Add(r3d);
-                    else
-                        scene3D.Remove(r3d);
-                }
+                r3d.RenderInfo.Visible = valid;
             }
         }
         protected void SelectedChangedRenderable2D(I2DRenderable r2d, bool selected)
@@ -698,7 +715,7 @@ namespace TheraEngine.Components
             {
                 bool valid = IsSpawned;
 
-                if (r2d.VisibleInEditorOnly)
+                if (r2d.RenderInfo.VisibleInEditorOnly)
                     valid = valid && Engine.EditorState.InEditMode;
 
                 if (valid)
@@ -713,11 +730,6 @@ namespace TheraEngine.Components
 
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (this is I3DRenderable r3d)
-                SelectedChangedRenderable3D(r3d, selected);
-            if (this is I2DRenderable r2d)
-                SelectedChangedRenderable2D(r2d, selected);
-            
             foreach (SceneComponent comp in ChildComponents)
                 comp.OnSelectedChanged(selected);
             base.OnSelectedChanged(selected);

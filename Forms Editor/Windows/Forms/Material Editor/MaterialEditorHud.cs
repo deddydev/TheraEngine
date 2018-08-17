@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
@@ -26,12 +25,7 @@ namespace TheraEditor.Windows.Forms
         public UIMaterialEditor(Vec2 bounds) : base(bounds) { }
 
         public event DelSelectedFunctionChanged SelectedFunctionChanged;
-
-        public bool Visible { get; set; } = true;
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
-        public bool VisibleInEditorOnly { get; set; } = false;
-
+        
         public TMaterial TargetMaterial
         {
             get => _targetMaterial;

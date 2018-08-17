@@ -189,12 +189,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             ParentInfo = parentInfo;
             if (DataType != null)
             {
+                //Double check that this control is valid for the given type
                 PropGridControlForAttribute attr = GetType().GetCustomAttributeExt<PropGridControlForAttribute>();
                 Type[] types = attr.Types;
                 string str = types.ToStringList(", ", ", or ", t => t.GetFriendlyName());
+
                 bool condition = types.Any(x => x.IsAssignableFrom(DataType) || (DataType.IsGenericType && x == DataType.GetGenericTypeDefinition()));
                 string errorMsg = $"{DataType.GetFriendlyName()} is not a {str} type.";
-                if (!Engine.Assert(condition, errorMsg))
+
+                if ((condition || !types.Any(x => x == typeof(string))) && !Engine.Assert(condition, errorMsg, false))
                     return;
             }
             UpdateDisplay();

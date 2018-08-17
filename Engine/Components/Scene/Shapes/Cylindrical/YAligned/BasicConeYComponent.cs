@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
@@ -30,14 +31,10 @@ namespace TheraEngine.Components.Scene.Shapes
         }
 
         public Vec3 GetTipPosition()
-        {
-            return Vec3.TransformPosition(new Vec3(0.0f, _height / 2.0f, 0.0f), WorldMatrix);
-        }
+            => Vec3.TransformPosition(new Vec3(0.0f, _height / 2.0f, 0.0f), WorldMatrix);
         public Vec3 GetBasePosition()
-        {
-            return Vec3.TransformPosition(new Vec3(0.0f, -_height / 2.0f, 0.0f), WorldMatrix);
-        }
-        
+            => Vec3.TransformPosition(new Vec3(0.0f, -_height / 2.0f, 0.0f), WorldMatrix);
+                
         public BasicConeYComponent(float radius, float height, TRigidBodyConstructionInfo info) : base()
         {
             _radius = radius;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models

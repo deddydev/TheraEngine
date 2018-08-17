@@ -4,6 +4,7 @@ using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
@@ -274,8 +275,9 @@ namespace TheraEngine.Rendering
         public override void Remove(IRenderable obj) => Remove(obj as I3DRenderable);
         public void Add(I3DRenderable obj)
         {
-            if (RenderTree?.Add(obj) == true)
+            if (obj != null && RenderTree?.Add(obj) == true)
             {
+                //obj.RenderInfo.Owner = obj;
                 obj.RenderInfo.Scene = this;
                 if (obj is I3DRenderable r && r.CullingVolume != null)
                     RegisterCullingVolume(r.CullingVolume);
@@ -284,7 +286,7 @@ namespace TheraEngine.Rendering
         }
         public void Remove(I3DRenderable obj)
         {
-            if (RenderTree?.Remove(obj) == true)
+            if (obj != null && RenderTree?.Remove(obj) == true)
             {
                 obj.RenderInfo.Scene = null;
                 if (obj is I3DRenderable r && r.CullingVolume != null)

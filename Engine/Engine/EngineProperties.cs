@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Audio;
 using TheraEngine.Core;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Editor;
 using TheraEngine.Files;
 using TheraEngine.GameModes;

@@ -8,23 +8,18 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false) { Visible = false, VisibleInEditorOnly = true };
 
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
-        public bool Visible { get; set; } = true;
-#if EDITOR
-        public bool VisibleInEditorOnly { get; set; } = true;
-#endif
 
         private PropAnimVec3 _spline;
 

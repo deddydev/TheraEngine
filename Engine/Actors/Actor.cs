@@ -10,6 +10,7 @@ using TheraEngine.Worlds;
 using TheraEngine.Components.Scene.Transforms;
 using System.Threading.Tasks;
 using TheraEngine.Rendering;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Actors
 {

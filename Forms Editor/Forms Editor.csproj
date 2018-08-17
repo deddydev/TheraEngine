@@ -264,6 +264,18 @@
     <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatGraph.Designer.cs">
       <DependentUpon>DockableMatGraph.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.Designer.cs">
+      <DependentUpon>MaterialControlOld.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridShaderVecColor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridShaderVecColor.Designer.cs">
+      <DependentUpon>PropGridShaderVecColor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\UIGameMode.cs" />
     <Compile Include="Windows\Forms\Misc\BetterTableLayoutPanel.cs">
       <SubType>Component</SubType>
@@ -686,8 +698,14 @@
     <Compile Include="Windows\Forms\Property Grid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.resx">
+      <DependentUpon>MaterialControlOld.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridNullableWrapper.resx">
       <DependentUpon>PropGridNullableWrapper.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridShaderVecColor.resx">
+      <DependentUpon>PropGridShaderVecColor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Texture Viewer\TextureViewerForm.resx">
       <DependentUpon>TextureViewerForm.cs</DependentUpon>

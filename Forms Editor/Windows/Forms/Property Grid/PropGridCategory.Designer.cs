@@ -44,7 +44,7 @@
             this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tblProps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblProps.Location = new System.Drawing.Point(10, 25);
+            this.tblProps.Location = new System.Drawing.Point(8, 20);
             this.tblProps.Margin = new System.Windows.Forms.Padding(0);
             this.tblProps.Name = "tblProps";
             this.tblProps.RowCount = 1;
@@ -54,15 +54,15 @@
             // 
             // lblCategoryName
             // 
-            this.lblCategoryName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
+            this.lblCategoryName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(102)))), ((int)(((byte)(100)))));
             this.lblCategoryName.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblCategoryName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCategoryName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.lblCategoryName.Location = new System.Drawing.Point(0, 0);
             this.lblCategoryName.Margin = new System.Windows.Forms.Padding(0);
             this.lblCategoryName.Name = "lblCategoryName";
-            this.lblCategoryName.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this.lblCategoryName.Size = new System.Drawing.Size(10, 25);
+            this.lblCategoryName.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.lblCategoryName.Size = new System.Drawing.Size(8, 20);
             this.lblCategoryName.TabIndex = 0;
             this.lblCategoryName.Text = "Miscellaneous";
             this.lblCategoryName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -74,10 +74,10 @@
             // 
             this.pnlSide.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
             this.pnlSide.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlSide.Location = new System.Drawing.Point(0, 25);
+            this.pnlSide.Location = new System.Drawing.Point(0, 20);
             this.pnlSide.Margin = new System.Windows.Forms.Padding(0);
             this.pnlSide.Name = "pnlSide";
-            this.pnlSide.Size = new System.Drawing.Size(10, 0);
+            this.pnlSide.Size = new System.Drawing.Size(8, 0);
             this.pnlSide.TabIndex = 2;
             this.pnlSide.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblCategoryName_MouseDown);
             this.pnlSide.MouseEnter += new System.EventHandler(this.lblCategoryName_MouseEnter);
@@ -85,7 +85,7 @@
             // 
             // PropGridCategory
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -96,7 +96,7 @@
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "PropGridCategory";
-            this.Size = new System.Drawing.Size(10, 25);
+            this.Size = new System.Drawing.Size(8, 20);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -41,13 +41,6 @@ namespace TheraEngine
     /// </summary>
     public interface I3DRenderable : I3DBoundable, IRenderable
     {
-        bool Visible { get; set; }
-        bool HiddenFromOwner { get; set; }
-        bool VisibleToOwnerOnly { get; set; }
-#if EDITOR
-        [Category("Editor Traits")]
-        bool VisibleInEditorOnly { get; set; }
-#endif
         /// <summary>
         /// Used to determine when to render this object.
         /// </summary>
@@ -94,13 +87,6 @@ namespace TheraEngine
     /// </summary>
     public interface I2DRenderable : I2DBoundable, IRenderable
     {
-        bool Visible { get; set; }
-        bool HiddenFromOwner { get; set; }
-        bool VisibleToOwnerOnly { get; set; }
-#if EDITOR
-        [Category("Editor Traits")]
-        bool VisibleInEditorOnly { get; set; }
-#endif
         /// <summary>
         /// Used to determine when to render this object.
         /// </summary>

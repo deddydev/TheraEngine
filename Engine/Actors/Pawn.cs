@@ -9,6 +9,7 @@ using TheraEngine.Components;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Worlds;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Actors
 {

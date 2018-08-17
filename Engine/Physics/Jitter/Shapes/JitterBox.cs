@@ -1,6 +1,7 @@
 ﻿using System;
 using Jitter;
 using Jitter.Collision.Shapes;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics.Jitter.Shapes;
 
 namespace TheraEngine.Physics.Jitter

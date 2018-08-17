@@ -644,8 +644,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnMoveUpLogicComp_Click(object sender, EventArgs e)
         {
-            IActor a = TargetFileObject as IActor;
-            if (a == null || a.LogicComponents.Count <= 1)
+            if (!(TargetFileObject is IActor a) || a.LogicComponents.Count <= 1)
                 return;
             int i = lstLogicComps.SelectedIndex;
             if (i == a.LogicComponents.Count - 1 || !a.LogicComponents.IndexInRange(i))

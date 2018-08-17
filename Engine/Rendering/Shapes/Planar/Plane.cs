@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System;
 using System.Runtime.InteropServices;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {

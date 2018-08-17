@@ -10,6 +10,7 @@ using System;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -37,14 +38,7 @@ namespace TheraEngine.Core.Shapes
     /// </summary>
     public class Frustum : I3DRenderable, IEnumerable<Plane>, IVolume
     {
-        public RenderInfo3D RenderInfo { get; } 
-            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
-        public bool Visible { get; set; } = true;
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
-#if EDITOR
-        public bool VisibleInEditorOnly { get; set; }
-#endif
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];

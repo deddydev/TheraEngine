@@ -20,12 +20,7 @@ namespace TheraEngine.Rendering
         }
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit);
-        public bool Visible { get; set; } = true;
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
-#if EDITOR
-        public bool VisibleInEditorOnly { get; set; } = false;
-#endif
+        
         public Matrix4 Transform
         {
             get => _rc.WorldMatrix;

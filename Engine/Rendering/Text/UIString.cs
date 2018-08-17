@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -10,9 +11,6 @@ namespace TheraEngine.Rendering.Text
 {
     public class UIString3D : UIString2D
     {
-        private float _worldZ = 0.0f;
-        private float _prevWorldZ = 0.0f;
-        private Vec3 _prevWorldPosition = Vec3.Zero;
         private Vec3 _worldPosition = Vec3.Zero;
         private Vec3 _screenVelocity = Vec3.Zero;
 
@@ -21,26 +19,27 @@ namespace TheraEngine.Rendering.Text
             get => _worldPosition;
             set
             {
-                _prevWorldPosition = _worldPosition;
+                PrevWorldPosition = _worldPosition;
                 _worldPosition = value;
             }
         }
-        public float WorldZ => _worldZ;
-        public float PrevWorldZ => _prevWorldZ;
+        public float WorldZ { get; private set; } = 0.0f;
+        public float PrevWorldZ { get; private set; } = 0.0f;
+
         public Vec3 ScreenVelocity => _screenVelocity;
-        public Vec3 PrevWorldPosition => _prevWorldPosition;
+        public Vec3 PrevWorldPosition { get; private set; } = Vec3.Zero;
 
         public void UpdateScreenPosition(Viewport v)
         {
-            Vec3 screenPrev = v.WorldToScreen(_prevWorldPosition);
+            Vec3 screenPrev = v.WorldToScreen(PrevWorldPosition);
             Vec3 screen = v.WorldToScreen(_worldPosition);
 
-            _prevWorldZ = TMath.DepthToDistance(screenPrev.Z, v.Camera.NearZ, v.Camera.FarZ);
-            _worldZ = TMath.DepthToDistance(screen.Z, v.Camera.NearZ, v.Camera.FarZ);
+            PrevWorldZ = TMath.DepthToDistance(screenPrev.Z, v.Camera.NearZ, v.Camera.FarZ);
+            WorldZ = TMath.DepthToDistance(screen.Z, v.Camera.NearZ, v.Camera.FarZ);
 
             _screenVelocity.X = screen.X - Position.X;
             _screenVelocity.Y = screen.Y - Position.Y;
-            _screenVelocity.Z = _worldZ - _prevWorldZ;
+            _screenVelocity.Z = WorldZ - PrevWorldZ;
 
             Position = screen.Xy;
         }

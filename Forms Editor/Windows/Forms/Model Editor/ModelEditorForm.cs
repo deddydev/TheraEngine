@@ -11,6 +11,7 @@ using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Files;
 using TheraEngine.Rendering;

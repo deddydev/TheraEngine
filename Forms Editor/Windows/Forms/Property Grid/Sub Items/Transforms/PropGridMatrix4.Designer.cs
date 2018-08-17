@@ -145,7 +145,7 @@
             this.tableLayoutPanel1.Controls.Add(this.r3c1, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.r3c2, 2, 3);
             this.tableLayoutPanel1.Controls.Add(this.r3c3, 3, 3);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);

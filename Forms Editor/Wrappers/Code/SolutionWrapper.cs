@@ -1,15 +1,7 @@
-﻿using EnvDTE100;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.IO;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
-using TheraEngine.Actors;
-using TheraEngine.Files;
-using TheraEngine.Rendering.Models;
 
 namespace TheraEditor.Wrappers
 {

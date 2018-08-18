@@ -199,7 +199,15 @@ namespace TheraEngine
         [Category("Paths")]
         [TSerialize]
         public string ModelsFolder { get; set; }
-        
+
+        /// <summary>
+        /// The path to the folder containing default engine files.
+        /// </summary>
+        [Description("The path to the folder containing default engine files.")]
+        [Category("Paths")]
+        [TSerialize]
+        public string EngineDataFolder { get; set; }
+
         /// <summary>
         /// The path to the folder containing custom engine fonts.
         /// </summary>
@@ -244,12 +252,12 @@ namespace TheraEngine
             CapUPS = false;
             TargetUPS = 30.0f;
 
-            string engineFolder = Application.StartupPath + string.Format("{0}..{0}..{0}..{0}Engine{0}", Path.DirectorySeparatorChar);
-            ShadersFolder = engineFolder + "Shaders";
-            TexturesFolder = engineFolder + "Textures";
-            ScriptsFolder = engineFolder + "Scripts";
-            WorldsFolder = engineFolder + "Worlds";
-            FontsFolder = engineFolder + "Fonts";
+            EngineDataFolder = Application.StartupPath + string.Format("{0}..{0}..{0}..{0}Engine{0}", Path.DirectorySeparatorChar);
+            ShadersFolder = EngineDataFolder + "Shaders" + Path.DirectorySeparatorChar;
+            TexturesFolder = EngineDataFolder + "Textures" + Path.DirectorySeparatorChar;
+            ScriptsFolder = EngineDataFolder + "Scripts" + Path.DirectorySeparatorChar;
+            WorldsFolder = EngineDataFolder + "Worlds" + Path.DirectorySeparatorChar;
+            FontsFolder = EngineDataFolder + "Fonts" + Path.DirectorySeparatorChar;
         }
     }
 }

@@ -583,7 +583,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Filter = file.GetFilter()
                 })
                 {
-                    if (sfd.ShowDialog() == DialogResult.OK)
+                    if (sfd.ShowDialog(this) == DialogResult.OK)
                         file.Export(sfd.FileName);
                 }
             }

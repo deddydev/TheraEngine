@@ -346,13 +346,13 @@ namespace TheraEngine
             int start = (int)group;
             for (int i = start; i < start + 15; i += 3)
             {
-                //for (int j = 0; j < 3; ++j)
-                Parallel.For(0, 3, (int j) => 
+                for (int j = 0; j < 3; ++j)
+                //Parallel.For(0, 3, (int j) => 
                 {
                     if (j == 0 || (j == 1 && !IsPaused) || (j == 2 && IsPaused))
                         TickList(i + j, delta);
                 }
-                );
+                //);
             }
         }
         /// <summary>
@@ -362,8 +362,8 @@ namespace TheraEngine
         {
             List<DelTick> currentList = _tickLists[_currentTickList = index];
 
-            Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
-            //currentList.ForEach(x => x(delta));
+            //Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
+            currentList.ForEach(x => x(delta));
 
             //Add or remove the list of methods that tried to register to or unregister from this group while it was ticking.
             while (!_tickListQueue.IsEmpty && _tickListQueue.TryDequeue(out Tuple<bool, DelTick> result))

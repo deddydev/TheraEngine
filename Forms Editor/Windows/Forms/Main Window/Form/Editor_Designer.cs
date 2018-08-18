@@ -515,7 +515,7 @@ namespace TheraEditor.Windows.Forms
             {
                 using (GenericsSelector gs = new GenericsSelector(type))
                 {
-                    if (gs.ShowDialog() == DialogResult.OK)
+                    if (gs.ShowDialog(Instance) == DialogResult.OK)
                         type = gs.FinalClassType;
                     else
                         return null;
@@ -525,7 +525,7 @@ namespace TheraEditor.Windows.Forms
             using (ObjectCreator creator = new ObjectCreator())
             {
                 if (creator.Initialize(type, allowDerivedTypes))
-                    creator.ShowDialog();
+                    creator.ShowDialog(Instance);
 
                 return creator.ConstructedObject;
             }
@@ -695,7 +695,7 @@ namespace TheraEditor.Windows.Forms
                 Description = "",
             })
             {
-                if (fbd.ShowDialog() == DialogResult.OK)
+                if (fbd.ShowDialog(this) == DialogResult.OK)
                     Project = Project.Create(fbd.SelectedPath, "NewProject");
             }
         }
@@ -706,7 +706,7 @@ namespace TheraEditor.Windows.Forms
                 Filter = TFileObject.GetFilter<Project>(),
             })
             {
-                if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
+                if (ofd.ShowDialog(this) == DialogResult.OK && CloseProject())
                     Project = await TFileObject.LoadAsync<Project>(ofd.FileName);
             }
         }
@@ -1042,7 +1042,7 @@ namespace TheraEditor.Windows.Forms
                 Multiselect = false
             })
             {
-                if (ofd.ShowDialog() == DialogResult.OK && CloseWorld())
+                if (ofd.ShowDialog(this) == DialogResult.OK && CloseWorld())
                     CurrentWorld = await TFileObject.LoadAsync<World>(ofd.FileName);
             }
         }

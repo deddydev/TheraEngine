@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using TheraEngine.ThirdParty;
 
 namespace TheraEngine.Core.Files.XML
 {
@@ -428,6 +429,11 @@ namespace TheraEngine.Core.Files.XML
 
             return entry;
         }
+
+        public async Task ExportAsync(string path, T file)
+        {
+            
+        }
     }
 
     #region Attributes
@@ -802,11 +808,19 @@ namespace TheraEngine.Core.Files.XML
     }
     public class ElementString : BaseElementString
     {
+        public ElementString() { }
+        public ElementString(string value) => Value = value;
+
         public string Value { get; set; }
         public override void ReadFromString(string str)
             => Value = str;
         public override string WriteToString()
             => Value;
+
+        public static implicit operator ElementString(string value)
+            => new ElementString(value);
+        public static implicit operator string(ElementString value)
+            => value.Value;
     }
     #endregion
 }

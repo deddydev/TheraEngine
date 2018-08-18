@@ -128,7 +128,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             using (GenericsSelector gs = new GenericsSelector(f))
                             {
-                                if (gs.ShowDialog() == DialogResult.OK)
+                                if (gs.ShowDialog(this) == DialogResult.OK)
                                     f = gs.FinalClassType;
                                 else
                                     return;

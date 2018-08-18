@@ -50,7 +50,7 @@ namespace TheraEditor.Windows.Forms
                 Multiselect = true
             })
             {
-                if (ofd.ShowDialog() == DialogResult.OK)
+                if (ofd.ShowDialog(this) == DialogResult.OK)
                 {
                     foreach (string animPath in ofd.FileNames)
                         LoadAnimation(await TFileObject.LoadAsync<SkeletalAnimation>(animPath));

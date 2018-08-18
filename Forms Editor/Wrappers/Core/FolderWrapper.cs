@@ -239,7 +239,7 @@ namespace TheraEditor.Wrappers
                 {
                     using (GenericsSelector gs = new GenericsSelector(fileType))
                     {
-                        if (gs.ShowDialog() == DialogResult.OK)
+                        if (gs.ShowDialog(Editor.Instance) == DialogResult.OK)
                             fileType = gs.FinalClassType;
                         else
                             return;

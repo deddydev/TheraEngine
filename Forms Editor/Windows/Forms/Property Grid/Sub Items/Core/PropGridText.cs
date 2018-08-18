@@ -116,7 +116,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (path.IsValidPath())
                     ofd.InitialDirectory = Path.GetDirectoryName(path);
 
-                if (ofd.ShowDialog() == DialogResult.OK)
+                if (ofd.ShowDialog(this) == DialogResult.OK)
                 {
                     UpdateValue(string.Join(Environment.NewLine, ofd.FileNames), true);
                 }

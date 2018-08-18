@@ -234,6 +234,19 @@ namespace TheraEngine.ThirdParty
             {
                 [Attr("Condition", false)]
                 public string Condition { get; set; }
+
+                public Property() { }
+                public Property(string elementName, string content, string condition = null)
+                {
+                    ElementName = elementName;
+                    Condition = condition;
+                    StringContent = content;
+                }
+
+                public static implicit operator Property((string, string, string) tuple)
+                    => new Property(tuple.Item1, tuple.Item2, tuple.Item3);
+                public static implicit operator Property((string, string) tuple)
+                    => new Property(tuple.Item1, tuple.Item2);
             }
         }
         /// <summary>
@@ -276,6 +289,8 @@ namespace TheraEngine.ThirdParty
         [ElementName(null)]
         public class Item : BaseElement<IItemOwner>
         {
+            public Item() { }
+            public Item(string elementName) { ElementName = elementName; }
             /// <summary>
             /// The file or wildcard to include in the list of items.
             /// </summary>
@@ -358,6 +373,13 @@ namespace TheraEngine.ThirdParty
             /// </summary>
             [Attr("Condition", false)]
             public string Condition { get; set; }
+
+            public Import() { }
+            public Import(string project, string condition)
+            {
+                Project = project;
+                Condition = condition;
+            }
         }
         /// <summary>
         /// Evaluates child elements to select one set of ItemGroup elements and/or PropertyGroup elements to evaluate.

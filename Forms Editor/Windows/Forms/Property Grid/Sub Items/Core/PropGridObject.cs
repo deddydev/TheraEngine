@@ -181,7 +181,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void MouseDownEditor()
         {
             using (Form f = Activator.CreateInstance(_editorType, GetValue()) as Form)
-                f?.ShowDialog();
+                f?.ShowDialog(this);
         }
         private void MouseDownProperties()
         {

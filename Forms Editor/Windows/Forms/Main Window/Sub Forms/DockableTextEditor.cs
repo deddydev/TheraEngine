@@ -181,7 +181,7 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 fd.Apply += Fd_Apply;
-                if (fd.ShowDialog() == DialogResult.OK)
+                if (fd.ShowDialog(this) == DialogResult.OK)
                 {
                     prevFont = fd.Font;
                     prevColor = fd.Color;
@@ -208,7 +208,7 @@ namespace TheraEditor.Windows.Forms
                 Multiselect = true
             })
             {
-                if (ofd.ShowDialog() == DialogResult.OK)
+                if (ofd.ShowDialog(this) == DialogResult.OK)
                 {
                     string text = "";
                     foreach (string path in ofd.FileNames)
@@ -235,7 +235,7 @@ namespace TheraEditor.Windows.Forms
                 Filter = TFileObject.GetFilter<TextFile>(false, true, true) + "|All files (*.*)|*.*",
             })
             {
-                if (sfd.ShowDialog() == DialogResult.OK)
+                if (sfd.ShowDialog(this) == DialogResult.OK)
                 {
                     File.WriteAllText(sfd.FileName, TextBox.Text);
                 }
@@ -250,7 +250,7 @@ namespace TheraEditor.Windows.Forms
                 Multiselect = true
             })
             {
-                if (ofd.ShowDialog() == DialogResult.OK)
+                if (ofd.ShowDialog(this) == DialogResult.OK)
                 {
                     TextBox.Text = TextBox.Text.Insert(TextBox.SelectionStart, string.Join(Environment.NewLine, ofd.FileNames));
                 }

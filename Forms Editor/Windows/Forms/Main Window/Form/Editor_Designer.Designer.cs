@@ -110,18 +110,18 @@
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
             this.BodyPanel.Controls.Add(this.panel1);
-            this.BodyPanel.Size = new System.Drawing.Size(1119, 1352);
+            this.BodyPanel.Size = new System.Drawing.Size(1185, 836);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(1119, 1392);
+            this.MainPanel.Size = new System.Drawing.Size(1185, 876);
             // 
             // TitlePanel
             // 
             this.TitlePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(23)))), ((int)(((byte)(20)))));
             this.TitlePanel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("TitlePanel.BackgroundImage")));
             this.TitlePanel.Controls.Add(this.PaddingPanel);
-            this.TitlePanel.Size = new System.Drawing.Size(1119, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(1185, 40);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             this.TitlePanel.Controls.SetChildIndex(this.PaddingPanel, 0);
             // 
@@ -129,13 +129,13 @@
             // 
             this.FormTitle.Margin = new System.Windows.Forms.Padding(0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(0);
-            this.FormTitle.Size = new System.Drawing.Size(948, 40);
+            this.FormTitle.Size = new System.Drawing.Size(1014, 40);
             this.FormTitle.Text = "Title Text";
             this.FormTitle.TextAlign = System.Drawing.ContentAlignment.TopLeft;
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(1119, 1400);
+            this.MiddlePanel.Size = new System.Drawing.Size(1185, 884);
             // 
             // menuStrip1
             // 
@@ -179,34 +179,34 @@
             this.btnSaveProject,
             this.btnSaveProjectAs});
             this.btnProject.Name = "btnProject";
-            this.btnProject.Size = new System.Drawing.Size(111, 22);
+            this.btnProject.Size = new System.Drawing.Size(180, 22);
             this.btnProject.Text = "Project";
             // 
             // btnNewProject
             // 
             this.btnNewProject.Name = "btnNewProject";
-            this.btnNewProject.Size = new System.Drawing.Size(114, 22);
+            this.btnNewProject.Size = new System.Drawing.Size(180, 22);
             this.btnNewProject.Text = "New";
             this.btnNewProject.Click += new System.EventHandler(this.BtnNewProject_Click);
             // 
             // btnOpenProject
             // 
             this.btnOpenProject.Name = "btnOpenProject";
-            this.btnOpenProject.Size = new System.Drawing.Size(114, 22);
+            this.btnOpenProject.Size = new System.Drawing.Size(180, 22);
             this.btnOpenProject.Text = "Open";
             this.btnOpenProject.Click += new System.EventHandler(this.BtnOpenProject_Click);
             // 
             // btnSaveProject
             // 
             this.btnSaveProject.Name = "btnSaveProject";
-            this.btnSaveProject.Size = new System.Drawing.Size(114, 22);
+            this.btnSaveProject.Size = new System.Drawing.Size(180, 22);
             this.btnSaveProject.Text = "Save";
             this.btnSaveProject.Click += new System.EventHandler(this.BtnSaveProject_Click);
             // 
             // btnSaveProjectAs
             // 
             this.btnSaveProjectAs.Name = "btnSaveProjectAs";
-            this.btnSaveProjectAs.Size = new System.Drawing.Size(114, 22);
+            this.btnSaveProjectAs.Size = new System.Drawing.Size(180, 22);
             this.btnSaveProjectAs.Text = "Save As";
             this.btnSaveProjectAs.Click += new System.EventHandler(this.BtnSaveProjectAs_Click);
             // 
@@ -218,7 +218,7 @@
             this.btnSaveWorld,
             this.btnSaveWorldAs});
             this.btnWorld.Name = "btnWorld";
-            this.btnWorld.Size = new System.Drawing.Size(111, 22);
+            this.btnWorld.Size = new System.Drawing.Size(180, 22);
             this.btnWorld.Text = "World";
             // 
             // btnNewWorld
@@ -469,21 +469,21 @@
             // btnPlay
             // 
             this.btnPlay.Name = "btnPlay";
-            this.btnPlay.Size = new System.Drawing.Size(180, 22);
+            this.btnPlay.Size = new System.Drawing.Size(149, 22);
             this.btnPlay.Text = "Play";
             this.btnPlay.Click += new System.EventHandler(this.BtPlay_Click);
             // 
             // btnPlayDetached
             // 
             this.btnPlayDetached.Name = "btnPlayDetached";
-            this.btnPlayDetached.Size = new System.Drawing.Size(180, 22);
+            this.btnPlayDetached.Size = new System.Drawing.Size(149, 22);
             this.btnPlayDetached.Text = "Play Detached";
             this.btnPlayDetached.Click += new System.EventHandler(this.btnPlayDetached_Click);
             // 
             // btnCompile
             // 
             this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(180, 22);
+            this.btnCompile.Size = new System.Drawing.Size(149, 22);
             this.btnCompile.Text = "Compile";
             this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
             // 
@@ -496,7 +496,7 @@
             this.targetIPPortToolStripMenuItem,
             this.txtTargetIPPort});
             this.networkingToolStripMenuItem.Name = "networkingToolStripMenuItem";
-            this.networkingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.networkingToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.networkingToolStripMenuItem.Text = "Networking";
             // 
             // connectAsServerToolStripMenuItem
@@ -636,7 +636,7 @@
             this.DockPanel.Margin = new System.Windows.Forms.Padding(2);
             this.DockPanel.Name = "DockPanel";
             this.DockPanel.ShowDocumentIcon = true;
-            this.DockPanel.Size = new System.Drawing.Size(1119, 1319);
+            this.DockPanel.Size = new System.Drawing.Size(1185, 803);
             this.DockPanel.SupportDeeplyNestedContent = true;
             this.DockPanel.TabIndex = 7;
             // 
@@ -649,7 +649,7 @@
             this.PaddingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PaddingPanel.Location = new System.Drawing.Point(44, 0);
             this.PaddingPanel.Name = "PaddingPanel";
-            this.PaddingPanel.Size = new System.Drawing.Size(948, 40);
+            this.PaddingPanel.Size = new System.Drawing.Size(1014, 40);
             this.PaddingPanel.TabIndex = 9;
             // 
             // FormTitle2
@@ -671,9 +671,9 @@
             // 
             this.panel1.Controls.Add(this.statusStrip1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 1319);
+            this.panel1.Location = new System.Drawing.Point(0, 803);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1119, 33);
+            this.panel1.Size = new System.Drawing.Size(1185, 33);
             this.panel1.TabIndex = 8;
             // 
             // statusStrip1
@@ -687,7 +687,7 @@
             this.btnCancelOp});
             this.statusStrip1.Location = new System.Drawing.Point(0, 0);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1119, 33);
+            this.statusStrip1.Size = new System.Drawing.Size(1185, 33);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -696,7 +696,7 @@
             this.toolStripStatusLabel1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripStatusLabel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(1104, 28);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(1170, 28);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Welcome";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -728,7 +728,7 @@
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.ClientSize = new System.Drawing.Size(1127, 1400);
+            this.ClientSize = new System.Drawing.Size(1193, 884);
             this.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(0, 0);

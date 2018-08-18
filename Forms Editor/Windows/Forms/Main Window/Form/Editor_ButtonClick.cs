@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms
                 Filter = TFileObject.GetFilter<Project>(),
             })
             {
-                if (sfd.ShowDialog() == DialogResult.OK)
+                if (sfd.ShowDialog(this) == DialogResult.OK)
                     _project.Export(sfd.FileName);
             }
         }
@@ -67,7 +67,7 @@ namespace TheraEditor.Windows.Forms
                 Filter = TFileObject.GetFilter<World>(),
             })
             {
-                if (sfd.ShowDialog() == DialogResult.OK)
+                if (sfd.ShowDialog(this) == DialogResult.OK)
                 {
                     ContentTree.WatchProjectDirectory = false;
                     CurrentWorld.Export(sfd.FileName);

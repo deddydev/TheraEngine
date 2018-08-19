@@ -84,8 +84,8 @@ namespace System
         //}
         public static string MakePathRelativeTo(this string mainPath, string otherPath)
         {
-            string[] mainParts = Path.GetFullPath(mainPath).Split(Path.DirectorySeparatorChar);
-            string[] otherParts = Path.GetFullPath(otherPath).Split(Path.DirectorySeparatorChar);
+            string[] mainParts = Path.GetFullPath(mainPath).Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+            string[] otherParts = Path.GetFullPath(otherPath).Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             
             int mainLen = mainParts.Length;
             string fileName = mainParts[mainParts.Length - 1];

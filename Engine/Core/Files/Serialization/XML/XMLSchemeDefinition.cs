@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -269,10 +270,10 @@ namespace TheraEngine.Core.Files.XML
                 progress?.Report((float)stream.Position / stream.Length);
 
             reader.MoveToElement();
-            if (entry is IStringElement StringEntry)
+            if (entry is IStringElement stringEntry)
             {
-                StringEntry.GenericStringContent = Activator.CreateInstance(StringEntry.GenericStringType) as BaseElementString;
-                StringEntry.GenericStringContent.ReadFromString(await reader.ReadElementContentAsStringAsync());
+                stringEntry.GenericStringContent = Activator.CreateInstance(stringEntry.GenericStringType) as BaseElementString;
+                stringEntry.GenericStringContent.ReadFromString(await reader.ReadElementContentAsStringAsync());
             }
             else
             {
@@ -429,10 +430,85 @@ namespace TheraEngine.Core.Files.XML
 
             return entry;
         }
-
         public async Task ExportAsync(string path, T file)
+            => await ExportAsync(path, file, null, CancellationToken.None);
+        public async Task ExportAsync(
+            string path,
+            T file,
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
-            
+            XmlWriterSettings settings = new XmlWriterSettings()
+            {
+                Async = true,
+                Encoding = Encoding.UTF8,
+                Indent = true,
+                IndentChars = "\t",
+                NewLineHandling = NewLineHandling.Replace,
+                NewLineChars = Environment.NewLine,
+                OmitXmlDeclaration = false,
+                NewLineOnAttributes = false,
+                WriteEndDocumentOnClose = true,
+                CloseOutput = true,
+            };
+            await ExportAsync(path, file, settings, progress, cancel);
+        }
+        public async Task ExportAsync(
+            string path,
+            T file,
+            XmlWriterSettings settings,
+            IProgress<float> progress,
+            CancellationToken cancel)
+        {
+            using (FileStream f = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            using (XmlWriter r = XmlWriter.Create(f, settings))
+                await ExportAsync(file, r, f, progress, cancel);
+        }
+        private async Task ExportAsync(T file, XmlWriter writer, FileStream stream, IProgress<float> progress, CancellationToken cancel)
+        {
+            await writer.WriteStartDocumentAsync();
+            await WriteElement(file, writer, stream, progress, cancel);
+            await writer.WriteEndDocumentAsync();
+        }
+        private async Task WriteElement(IElement element, XmlWriter writer, FileStream stream, IProgress<float> progress, CancellationToken cancel)
+        {
+            if (cancel.IsCancellationRequested)
+                return;
+            else
+                progress?.Report((float)stream.Position / stream.Length);
+
+            Type elementType = element.GetType();
+
+            await writer.WriteStartElementAsync(null, element.ElementName, null);
+            MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(x => x.GetCustomAttribute<Attr>() != null).ToArray();
+            foreach (MemberInfo member in members)
+            {
+                Attr attr = member.GetCustomAttribute<Attr>();
+                object value = member is PropertyInfo prop ? prop.GetValue(element) : (member is FieldInfo field ? field.GetValue(element) : null);
+                if (!attr.Required && value == elementType.GetDefaultValue())
+                    continue;
+
+                await writer.WriteAttributeStringAsync(null, attr.AttributeName, null, value.ToString());
+
+                if (cancel.IsCancellationRequested)
+                    return;
+                else
+                    progress?.Report((float)stream.Position / stream.Length);
+            }
+            if (element is IStringElement stringEntry)
+            {
+                string value = stringEntry.GenericStringContent.WriteToString();
+                await writer.WriteStringAsync(value);
+            }
+            else
+            {
+                var orderedChildren = element.ChildElements.Values.SelectMany(x => x).OrderBy(x => x.ElementIndex);
+                foreach (IElement child in orderedChildren)
+                {
+                    await WriteElement(child, writer, stream, progress, cancel);
+                }
+            }
+            await writer.WriteEndElementAsync();
         }
     }
 

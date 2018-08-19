@@ -132,9 +132,16 @@ namespace TheraEditor.Wrappers
                 return null;
             if (isDir.Value)
             {
-                w = new FolderWrapper(path);
-                if (Directory.GetFileSystemEntries(path).Length > 0)
-                    w.Nodes.Add("...");
+                try
+                {
+                    w = new FolderWrapper(path);
+                    if (Directory.GetFileSystemEntries(path).Length > 0)
+                        w.Nodes.Add("...");
+                }
+                catch (UnauthorizedAccessException e)
+                {
+
+                }
             }
             else
             {

@@ -53,9 +53,12 @@
             this.btnAddToSibAboveSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnAddToSibBelowSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnAddSibToParentSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.pnlSide = new System.Windows.Forms.Panel();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.pnlHeader.SuspendLayout();
             this.pnlLogicComps.SuspendLayout();
             this.ctxSceneComps.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblSceneComps
@@ -143,14 +146,16 @@
             // pnlProps
             // 
             this.pnlProps.AutoScroll = true;
+            this.pnlProps.AutoSize = true;
+            this.pnlProps.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pnlProps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.pnlProps.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlProps.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlProps.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.pnlProps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.pnlProps.Location = new System.Drawing.Point(0, 170);
             this.pnlProps.Margin = new System.Windows.Forms.Padding(0);
             this.pnlProps.Name = "pnlProps";
-            this.pnlProps.Size = new System.Drawing.Size(631, 511);
+            this.pnlProps.Size = new System.Drawing.Size(631, 0);
             this.pnlProps.TabIndex = 5;
             // 
             // lblObjectName
@@ -343,11 +348,33 @@
             this.btnAddSibToParentSceneComp.Text = "Add As Sibling To Parent";
             this.btnAddSibToParentSceneComp.Click += new System.EventHandler(this.btnAddSibToParentSceneComp_Click);
             // 
+            // pnlSide
+            // 
+            this.pnlSide.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(102)))), ((int)(((byte)(100)))));
+            this.pnlSide.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlSide.Location = new System.Drawing.Point(0, 0);
+            this.pnlSide.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlSide.Name = "pnlSide";
+            this.pnlSide.Size = new System.Drawing.Size(9, 511);
+            this.pnlSide.TabIndex = 3;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.panel1.Controls.Add(this.pnlSide);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 170);
+            this.panel1.Margin = new System.Windows.Forms.Padding(0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(631, 511);
+            this.panel1.TabIndex = 4;
+            // 
             // TheraPropertyGrid
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.pnlProps);
             this.Controls.Add(this.lblProperties);
             this.Controls.Add(this.lstLogicComps);
@@ -362,7 +389,9 @@
             this.pnlHeader.ResumeLayout(false);
             this.pnlLogicComps.ResumeLayout(false);
             this.ctxSceneComps.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -392,5 +421,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnAddToSibAboveSceneComp;
         private System.Windows.Forms.ToolStripMenuItem btnAddToSibBelowSceneComp;
         private System.Windows.Forms.ToolStripMenuItem btnAddSibToParentSceneComp;
+        private System.Windows.Forms.Panel pnlSide;
+        private System.Windows.Forms.Panel panel1;
     }
 }

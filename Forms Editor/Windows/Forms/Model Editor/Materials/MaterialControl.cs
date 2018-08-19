@@ -75,10 +75,17 @@ namespace TheraEditor.Windows.Forms
                         tblUniforms.Controls.Add(valueCtrl, 1, tblUniforms.RowCount - 1);
                     }
 
+                    ImageList images = new ImageList();
+                    lstTextures.LargeImageList = lstTextures.SmallImageList = lstTextures.StateImageList = images;
                     foreach (BaseTexRef tref in _material.Textures)
                     {
                         var item = new ListViewItem(string.Format("{0} [{1}]",
                             tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
+                        if (tref is TexRef2D t2d)
+                        {
+                            images.Images.Add(tref.SamplerName, t2d.Mipmaps[0].File.Bitmaps[0].GetThumbnailImage(128, 128, null, IntPtr.Zero));
+                            item.ImageKey = tref.SamplerName;
+                        }
                         lstTextures.Items.Add(item);
                         tref.Renamed += Tref_Renamed;
                     }

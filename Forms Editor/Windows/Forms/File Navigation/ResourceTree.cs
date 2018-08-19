@@ -504,13 +504,13 @@ namespace TheraEditor.Windows.Forms
                     }
                     if (!(n is FolderWrapper))
                     {
-                        string ext = Path.GetExtension(currentPath).Substring(1).ToLowerInvariant();
-                        if (!Images.Images.ContainsKey(ext))
+                        //string ext = Path.GetExtension(currentPath).Substring(1).ToLowerInvariant();
+                        if (!Images.Images.ContainsKey(currentPath))
                         {
                             Icon iconForFile = Icon.ExtractAssociatedIcon(currentPath);
-                            Images.Images.Add(ext, iconForFile);
+                            Images.Images.Add(currentPath, iconForFile);
                         }
-                        n.ImageKey = n.SelectedImageKey = n.StateImageKey  = ext;
+                        n.ImageKey = n.SelectedImageKey = n.StateImageKey = currentPath;
                     }
                     current.Nodes.Add(n);
                     current = n;

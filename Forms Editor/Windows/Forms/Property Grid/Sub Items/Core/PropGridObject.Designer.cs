@@ -32,7 +32,7 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.pnlProps = new System.Windows.Forms.Panel();
             this.lblObjectTypeName = new System.Windows.Forms.Label();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.chkNull = new System.Windows.Forms.CheckBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.pnlHeader.SuspendLayout();
             this.SuspendLayout();
@@ -68,26 +68,26 @@
             this.lblObjectTypeName.MouseEnter += new System.EventHandler(this.lblObjectTypeName_MouseEnter);
             this.lblObjectTypeName.MouseLeave += new System.EventHandler(this.lblObjectTypeName_MouseLeave);
             // 
-            // checkBox1
+            // chkNull
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.BackColor = System.Drawing.Color.Transparent;
-            this.checkBox1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.checkBox1.Location = new System.Drawing.Point(-44, 0);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(2);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(44, 20);
-            this.checkBox1.TabIndex = 2;
-            this.checkBox1.Text = "Null";
-            this.checkBox1.UseMnemonic = false;
-            this.checkBox1.UseVisualStyleBackColor = false;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.chkNull.AutoSize = true;
+            this.chkNull.BackColor = System.Drawing.Color.Transparent;
+            this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
+            this.chkNull.Location = new System.Drawing.Point(-44, 0);
+            this.chkNull.Margin = new System.Windows.Forms.Padding(2);
+            this.chkNull.Name = "chkNull";
+            this.chkNull.Size = new System.Drawing.Size(44, 20);
+            this.chkNull.TabIndex = 2;
+            this.chkNull.Text = "Null";
+            this.chkNull.UseMnemonic = false;
+            this.chkNull.UseVisualStyleBackColor = false;
+            this.chkNull.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // pnlHeader
             // 
-            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(95)))), ((int)(((byte)(110)))), ((int)(((byte)(170)))));
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(75)))), ((int)(((byte)(110)))), ((int)(((byte)(140)))));
             this.pnlHeader.Controls.Add(this.lblObjectTypeName);
-            this.pnlHeader.Controls.Add(this.checkBox1);
+            this.pnlHeader.Controls.Add(this.chkNull);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Margin = new System.Windows.Forms.Padding(2);
@@ -115,7 +115,7 @@
         private System.Windows.Forms.ToolTip toolTip1;
         protected System.Windows.Forms.Panel pnlProps;
         private System.Windows.Forms.Label lblObjectTypeName;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox chkNull;
         private System.Windows.Forms.Panel pnlHeader;
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.VisualBasic.FileIO;
 using TheraEditor.Windows.Forms;
 using System.Drawing;
 using System.Threading;
+using TheraEngine;
 
 namespace TheraEditor.Wrappers
 {
@@ -121,6 +122,10 @@ namespace TheraEditor.Wrappers
             {
 
             }
+            catch (UnauthorizedAccessException e)
+            {
+                Engine.PrintLine($"Can't delete {FilePath}. Unable to access.");
+            }
             finally
             {
                 tree.WatchProjectDirectory = true;
@@ -177,13 +182,13 @@ namespace TheraEditor.Wrappers
                         if (node != null)
                         {
                             var tree = GetTree();
-                            string ext = Path.GetExtension(file).Substring(1).ToLowerInvariant();
-                            if (!tree.ImageList.Images.ContainsKey(ext))
+                            //string ext = Path.GetExtension(file).Substring(1).ToLowerInvariant();
+                            if (!tree.ImageList.Images.ContainsKey(file))
                             {
                                 Icon iconForFile = Icon.ExtractAssociatedIcon(file);
-                                tree.ImageList.Images.Add(ext, iconForFile);
+                                tree.ImageList.Images.Add(file, iconForFile);
                             }
-                            node.ImageKey = node.SelectedImageKey = node.StateImageKey = ext;
+                            node.ImageKey = node.SelectedImageKey = node.StateImageKey = file;
                             Nodes.Add(node);
                         }
                     }

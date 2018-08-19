@@ -34,10 +34,12 @@
             this.theraPropertyGrid1 = new TheraEditor.Windows.Forms.PropertyGrid.TheraPropertyGrid();
             this.tblUniforms = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.pnlTexturesHeader = new System.Windows.Forms.Panel();
+            this.lblTextures = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.pnlShadersHeader = new System.Windows.Forms.Panel();
+            this.lblShaders = new System.Windows.Forms.Label();
             this.btnRemove = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
@@ -45,8 +47,6 @@
             this.pnlShaders = new System.Windows.Forms.Panel();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitter2 = new System.Windows.Forms.Splitter();
-            this.lblShaders = new System.Windows.Forms.Label();
-            this.lblTextures = new System.Windows.Forms.Label();
             this.pnlTexturesHeader.SuspendLayout();
             this.pnlShadersHeader.SuspendLayout();
             this.pnlTextures.SuspendLayout();
@@ -72,10 +72,10 @@
             // lstTextures
             // 
             this.lstTextures.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.lstTextures.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lstTextures.Dock = System.Windows.Forms.DockStyle.Top;
             this.lstTextures.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lstTextures.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lstTextures.GridLines = true;
             this.lstTextures.Location = new System.Drawing.Point(0, 23);
             this.lstTextures.Margin = new System.Windows.Forms.Padding(0);
             this.lstTextures.MultiSelect = false;
@@ -90,6 +90,7 @@
             // lstShaders
             // 
             this.lstShaders.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.lstShaders.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lstShaders.Dock = System.Windows.Forms.DockStyle.Top;
             this.lstShaders.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lstShaders.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
@@ -102,7 +103,7 @@
             this.lstShaders.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.lstShaders.TabIndex = 3;
             this.lstShaders.UseCompatibleStateImageBehavior = false;
-            this.lstShaders.View = System.Windows.Forms.View.Details;
+            this.lstShaders.View = System.Windows.Forms.View.List;
             this.lstShaders.SelectedIndexChanged += new System.EventHandler(this.lstShaders_SelectedIndexChanged);
             this.lstShaders.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstShaders_MouseDoubleClick);
             // 
@@ -149,6 +150,16 @@
             this.pnlTexturesHeader.Name = "pnlTexturesHeader";
             this.pnlTexturesHeader.Size = new System.Drawing.Size(366, 23);
             this.pnlTexturesHeader.TabIndex = 8;
+            // 
+            // lblTextures
+            // 
+            this.lblTextures.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTextures.Location = new System.Drawing.Point(0, 0);
+            this.lblTextures.Name = "lblTextures";
+            this.lblTextures.Size = new System.Drawing.Size(167, 23);
+            this.lblTextures.TabIndex = 8;
+            this.lblTextures.Text = "Textures";
+            this.lblTextures.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // button1
             // 
@@ -204,6 +215,16 @@
             this.pnlShadersHeader.Name = "pnlShadersHeader";
             this.pnlShadersHeader.Size = new System.Drawing.Size(366, 23);
             this.pnlShadersHeader.TabIndex = 7;
+            // 
+            // lblShaders
+            // 
+            this.lblShaders.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblShaders.Location = new System.Drawing.Point(0, 0);
+            this.lblShaders.Name = "lblShaders";
+            this.lblShaders.Size = new System.Drawing.Size(167, 23);
+            this.lblShaders.TabIndex = 8;
+            this.lblShaders.Text = "Shaders";
+            this.lblShaders.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnRemove
             // 
@@ -289,26 +310,6 @@
             this.splitter2.Size = new System.Drawing.Size(366, 3);
             this.splitter2.TabIndex = 9;
             this.splitter2.TabStop = false;
-            // 
-            // lblShaders
-            // 
-            this.lblShaders.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblShaders.Location = new System.Drawing.Point(0, 0);
-            this.lblShaders.Name = "lblShaders";
-            this.lblShaders.Size = new System.Drawing.Size(167, 23);
-            this.lblShaders.TabIndex = 8;
-            this.lblShaders.Text = "Shaders";
-            this.lblShaders.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblTextures
-            // 
-            this.lblTextures.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblTextures.Location = new System.Drawing.Point(0, 0);
-            this.lblTextures.Name = "lblTextures";
-            this.lblTextures.Size = new System.Drawing.Size(167, 23);
-            this.lblTextures.TabIndex = 8;
-            this.lblTextures.Text = "Textures";
-            this.lblTextures.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // MaterialControl
             // 

@@ -24,9 +24,9 @@ namespace TheraEditor
     [FileDef("Thera Engine Project")]
     public class Project : Game
     {
-        //z[TSerialize(nameof(Guid))]
+        [TSerialize(nameof(Guid), IsXmlElementString = true)]
         protected Guid _guid;
-        //[TSerialize(nameof(ProjectGuid))]
+        [TSerialize(nameof(ProjectGuid), IsXmlElementString = true)]
         protected Guid _projectGuid;
 
         public Guid Guid => _guid;
@@ -56,13 +56,13 @@ namespace TheraEditor
         [Category("Project")]
         public string BinariesDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalBinariesDirectory));
         [Category("Project")]
-        public string SourceDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalBinariesDirectory));
+        public string SourceDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalSourceDirectory));
         [Category("Project")]
-        public string ConfigDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalBinariesDirectory));
+        public string ConfigDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalConfigDirectory));
         [Category("Project")]
-        public string ContentDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalBinariesDirectory));
+        public string ContentDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalContentDirectory));
         [Category("Project")]
-        public string TempDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalBinariesDirectory));
+        public string TempDirectory => Path.GetFullPath(Path.Combine(DirectoryPath, LocalTempDirectory));
 
         [Browsable(false)]
         public ProjectState ProjectState
@@ -143,31 +143,7 @@ namespace TheraEditor
 
             return p;
         }
-
-        private PropertyGroup CreatePropertyGroup(string condition, params (string elementName, string content, string condition)[] properties)
-        {
-            var grp = new PropertyGroup();
-            grp.AddElements(properties.Select(x => (Property)x).ToArray());
-            return grp;
-        }
-        private PropertyGroup CreateConfigPropGrp(bool debug, bool x86, string netVer, bool allowUnsafeCode)
-        {
-            string config = debug ? "Debug" : "Release";
-            string platform = x86 ? "x86" : "x64";
-            return CreatePropertyGroup($"'$(Configuration)|$(Platform)' == '{config}|{platform}'",
-                ("DebugSymbols", "true", null),
-                ("OutputPath", Path.Combine(LocalBinariesDirectory, platform, config), null),
-                ("DefineConstants", debug ? "DEBUG;TRACE" : "TRACE", null),
-                ("Optimize", "false", null),
-                ("AllowUnsafeBlocks", allowUnsafeCode ? "true" : "false", null),
-                ("DebugType", debug ? "full" : "pdbonly", null),
-                ("PlatformTarget", $"{platform}", null),
-                ("ErrorReport", "prompt", null),
-                ("CodeAnalysisRuleSet", "MinimumRecommendedRules.ruleset", null),
-                ("Prefer32Bit", x86 ? "true" : "false", null),
-                ("LangVersion", "latest", null));
-        }
-
+        
         public void CollectCodeFiles(
             out List<string> codeFiles,
             out List<string> contentFiles,
@@ -182,12 +158,16 @@ namespace TheraEditor
                 ref List<string> contentFiles2,
                 ref HashSet<string> references2)
             {
+                if (!Directory.Exists(dir))
+                    return;
+
                 string[] f = Directory.GetFiles(dir);
                 foreach (string path in f)
                 {
-                    if (Path.GetExtension(path).Substring(1).ToLowerInvariant() == "cs")
+                    string path2 = LocalSourceDirectory + path.MakePathRelativeTo(SourceDirectory).Substring(1);
+                    if (Path.GetExtension(path2).Substring(1).ToLowerInvariant() == "cs")
                     {
-                        codeFiles2.Add(path);
+                        codeFiles2.Add(path2);
                         string text = File.ReadAllText(path);
                         string usingStr = "using ";
                         int[] usingIndices = text.FindAllOccurrences(0, usingStr);
@@ -201,7 +181,7 @@ namespace TheraEditor
                     }
                     else
                     {
-                        contentFiles2.Add(path);
+                        contentFiles2.Add(path2);
                     }
                 }
 
@@ -213,16 +193,39 @@ namespace TheraEditor
         }
 
         public void GenerateSolution() =>
-            GenerateSolution(Path.Combine(SourceDirectory, "Solution"));
+            GenerateSolution(DirectoryPath/*Path.Combine(SourceDirectory, "Solution")*/);
         public async void GenerateSolution(string slnDir)
         {
-            MSBuild.Project p = new MSBuild.Project();
+            const string csharpProjectGuid = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
+
+            Process[] devenv = Process.GetProcessesByName("DevEnv");
+            FileVersionInfo info = null;
+            if (devenv != null && devenv.Length > 0)
+            {
+                Process devp = devenv[0];
+                if (devp.Modules != null && devp.Modules.Count > 0)
+                    info = devp.Modules[0].FileVersionInfo;
+            }
+            string ver = info?.ProductVersion ?? "15.7";
+            int majorVer = info?.FileMajorPart ?? 15;
+            int minorVer = info?.FileMinorPart ?? 7;
+            string solutionGuid = _guid.ToString("B").ToUpperInvariant();
+            string projectGuid = _projectGuid.ToString("B").ToUpperInvariant();
+
+            #region csproj
+            MSBuild.Project p = new MSBuild.Project
+            {
+                ToolsVersion =  majorVer.ToString() + "." + minorVer.ToString(),
+                DefaultTargets = "Build",
+                //Schema = "http://schemas.microsoft.com/developer/msbuild/2003"
+            };
+
             var import = new Import(
                 "$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props",
                 "Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')");
 
             const string netVer = "v4.7.2";
-            var mainInfo = CreatePropertyGroup(null,
+            var mainInfo = PropertyGroup.Create(null,
                 ("Configuration", "Debug", " '$(Configuration)' == '' "),
                 ("Platform", "x64", " '$(Configuration)' == '' "),
                 ("ProjectGuid", Guid.ToString("B").ToUpperInvariant(), null),
@@ -235,22 +238,43 @@ namespace TheraEditor
                 ("AutoGenerateBindingRedirects", "true", null),
                 ("TargetFrameworkProfile", null, null));
 
-            var debugx86 = CreateConfigPropGrp(true, true, netVer, true);
-            var debugx64 = CreateConfigPropGrp(true, false, netVer, true);
-            var releasex86 = CreateConfigPropGrp(false, true, netVer, true);
-            var releasex64 = CreateConfigPropGrp(false, false, netVer, true);
+            PropertyGroup CreateConfigPropGrp(bool debug, bool x86, bool allowUnsafeCode)
+            {
+                string config = debug ? "Debug" : "Release";
+                string platform = x86 ? "x86" : "x64";
+                return PropertyGroup.Create($"'$(Configuration)|$(Platform)' == '{config}|{platform}'",
+                    ("DebugSymbols", "true", null),
+                    ("OutputPath", Path.Combine(LocalBinariesDirectory, platform, config), null),
+                    ("DefineConstants", debug ? "DEBUG;TRACE" : "TRACE", null),
+                    ("Optimize", debug ? "false" : "true", null),
+                    ("AllowUnsafeBlocks", allowUnsafeCode ? "true" : "false", null),
+                    ("DebugType", debug ? "full" : "pdbonly", null),
+                    ("PlatformTarget", $"{platform}", null),
+                    ("ErrorReport", "prompt", null),
+                    ("CodeAnalysisRuleSet", "MinimumRecommendedRules.ruleset", null),
+                    ("Prefer32Bit", x86 ? "true" : "false", null),
+                    ("LangVersion", "latest", null));
+            }
+
+            var debugx86 = CreateConfigPropGrp(true, true, true);
+            var debugx64 = CreateConfigPropGrp(true, false, true);
+            var releasex86 = CreateConfigPropGrp(false, true, true);
+            var releasex64 = CreateConfigPropGrp(false, false, true);
 
             CollectCodeFiles(out List<string> codeFiles, out List<string> contentFiles, out HashSet<string> references);
 
             ItemGroup refGrp = new ItemGroup();
-            refGrp.AddElements(references.Select(x => new Item("Reference") { Include = x }).ToArray());
+            refGrp.AddElements(references.OrderBy(x => x).Select(x => new Item("Reference") { Include = x }).ToArray());
 
             ItemGroup compileGrp = new ItemGroup();
-            compileGrp.AddElements(codeFiles.Select(x => new Item("Compile") { Include = x }).ToArray());
+            compileGrp.AddElements(codeFiles.OrderBy(x => x).Select(x => new Item("Compile") { Include = x }).ToArray());
 
             ItemGroup contentGrp = new ItemGroup();
-            compileGrp.AddElements(contentFiles.Select(x => new Item("Content") { Include = x }).ToArray());
+            contentGrp.AddElements(contentFiles.OrderBy(x => x).Select(x => new Item("Content") { Include = x }).ToArray());
 
+            //ItemGroup folderGrp = new ItemGroup();
+            //folderGrp.AddElements(new Item("Folder") { Include = LocalSourceDirectory });
+            
             Import csharpImport = new Import("$(MSBuildToolsPath)\\Microsoft.CSharp.targets", null);
 
             Target beforeBuild = new Target
@@ -270,29 +294,48 @@ namespace TheraEditor
                 releasex86,
                 releasex64,
                 refGrp,
+                //folderGrp,
                 compileGrp,
+                contentGrp,
                 csharpImport,
                 beforeBuild,
                 afterBuild);
 
             var def = new XMLSchemeDefinition<MSBuild.Project>();
             await def.ExportAsync(Path.Combine(slnDir, Name + ".csproj"), p);
+            #endregion
 
-            var info = Process.GetProcessesByName("DevEnv")[0].Modules[0].FileVersionInfo;
-            string ver = info.ProductVersion;
-            int majorVer = info.FileMajorPart;
+            #region sln
+            //0 = project name, 1 = project GUID, 2 = project type
+            //The first GUID is the GUID of a C# project package
+            string projTmpl = "Project(\"{2}\") = \"{0}\", \"{0}.csproj\", \"{1}\"\nEndProject\n";
+            //TODO: allow multiple projects
+            string projects = string.Format(projTmpl, Name, _projectGuid, csharpProjectGuid);
+
+            //0 = config name, 1 = platform name
+            string preSolTmpl = "\t{0}|{1} = {0}|{1}\n\t";
+            string preSol = string.Empty;
+            void AppendPreSol(string config, string platform) => preSol += string.Format(preSolTmpl, config, platform);
+            AppendPreSol("Debug", "x86");
+            AppendPreSol("Debug", "x64");
+            AppendPreSol("Release", "x86");
+            AppendPreSol("Release", "x64");
+
+            //0 = project GUID, 1 = config name, 2 = platform name
+            string postSolTmpl = "\t{0}.{1}|{2}.ActiveCfg = {1}|{2}\n\t\t{0}.{1}|{2}.Build.0 = {1}|{2}\n\t";
+            string postSol = string.Empty;
+            void AppendPostSol(string guid, string config, string platform) => postSol += string.Format(postSolTmpl, guid, config, platform);
+            AppendPostSol(projectGuid, "Debug", "x86");
+            AppendPostSol(projectGuid, "Debug", "x64");
+            AppendPostSol(projectGuid, "Release", "x86");
+            AppendPostSol(projectGuid, "Release", "x64");
+
             //0 = projects, 1 = pre solution list, 2 = post solution list, 3 = solution GUID
             string slnTmpl = File.ReadAllText(Path.Combine(Engine.Settings.EngineDataFolder, "SolutionTemplate.sln"));
-            //0 = project name, 1 = project GUID
-            //The first GUID is the GUID of a C# project package
-            string projTmpl = "Project(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\") = \"{0}\", \"{0}.csproj\", \"{1}\"\nEndProject";
-            //0 = config name, 1 = platform name
-            string preSolTmpl = "{0}|{1} = {0}|{1}";
-            //0 = project GUID, 1 = config name, 2 = platform name
-            string postSolTmpl = "{0}.{1}|{2}.ActiveCfg = {1}|{2}";
+            string sln = string.Format(slnTmpl, projects, preSol, postSol, solutionGuid, majorVer.ToString(), ver);
 
-            //{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|Any CPU.ActiveCfg = ReleaseGameObfuscated|x86
-            //{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|Any CPU.Build.0 = ReleaseGameObfuscated|x86
+            File.WriteAllText(Path.Combine(slnDir, Name + ".sln"), sln);
+            #endregion
 
             //EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
             //dte.SuppressUI = true;

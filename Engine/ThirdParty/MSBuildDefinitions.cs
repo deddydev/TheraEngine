@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
 using TheraEngine.Core.Files.XML;
 
 namespace TheraEngine.ThirdParty
@@ -247,6 +248,13 @@ namespace TheraEngine.ThirdParty
                     => new Property(tuple.Item1, tuple.Item2, tuple.Item3);
                 public static implicit operator Property((string, string) tuple)
                     => new Property(tuple.Item1, tuple.Item2);
+            }
+
+            public static PropertyGroup Create(string condition, params (string elementName, string content, string condition)[] properties)
+            {
+                var grp = new PropertyGroup();
+                grp.AddElements(properties.Select(x => (Property)x).ToArray());
+                return grp;
             }
         }
         /// <summary>

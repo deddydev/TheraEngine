@@ -78,12 +78,12 @@
             this.colorControl.EditAlpha = true;
             this.colorControl.Location = new System.Drawing.Point(0, 22);
             this.colorControl.Margin = new System.Windows.Forms.Padding(0);
-            this.colorControl.MaximumSize = new System.Drawing.Size(238, 220);
-            this.colorControl.MinimumSize = new System.Drawing.Size(238, 220);
+            this.colorControl.MaximumSize = new System.Drawing.Size(317, 271);
+            this.colorControl.MinimumSize = new System.Drawing.Size(317, 271);
             this.colorControl.Name = "colorControl";
             this.colorControl.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.colorControl.ShowOldColor = false;
-            this.colorControl.Size = new System.Drawing.Size(238, 220);
+            this.colorControl.Size = new System.Drawing.Size(317, 271);
             this.colorControl.TabIndex = 4;
             this.colorControl.Visible = false;
             this.colorControl.ColorChanged += new System.Windows.Forms.ColorControl.ColorChangedEvent(this.colorControl1_OnColorChanged);
@@ -96,7 +96,7 @@
             this.Controls.Add(this.colorControl);
             this.Controls.Add(this.pnlHeader);
             this.Name = "PropGridFloatColor";
-            this.Size = new System.Drawing.Size(0, 242);
+            this.Size = new System.Drawing.Size(0, 293);
             this.pnlHeader.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

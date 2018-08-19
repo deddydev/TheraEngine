@@ -38,7 +38,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             string typeName = (_object?.GetType() ?? DataType).GetFriendlyName();
             lblObjectTypeName.Text = ParentInfo is PropGridItemRefIListInfo ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
 
-            if ((checkBox1.Checked = _object == null))
+            if ((chkNull.Checked = _object == null))
             {
                 pnlProps.Visible = false;
                 lblObjectTypeName.Enabled = false;
@@ -128,13 +128,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {
             if (_object != null)
-                lblObjectTypeName.BackColor = Color.FromArgb(14, 18, 34);
+                lblObjectTypeName.BackColor = chkNull.BackColor = Color.FromArgb(105, 140, 170);
         }
 
         private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
         {
             if (_object != null)
-                lblObjectTypeName.BackColor = Color.Transparent;
+                lblObjectTypeName.BackColor = chkNull.BackColor = Color.Transparent;
         }
         
         internal protected override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
@@ -210,7 +210,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                UpdateValue(checkBox1.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
+                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
         }
     }
 }

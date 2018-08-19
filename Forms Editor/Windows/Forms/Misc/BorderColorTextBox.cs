@@ -76,7 +76,7 @@ namespace System.Windows.Forms
 
         private Pen _focusedPen = new Pen(Editor.TurquoiseColor);
         private Pen _regularPen = new Pen(Color.FromArgb(30, 30, 30));
-        private Pen _hoverPen = new Pen(Color.FromArgb(120, 120, 0));
+        private Pen _hoverPen = new Pen(Color.FromArgb(120, 120, 120));
         private bool _hovered = false;
 
         protected override void OnMouseEnter(EventArgs e)
@@ -104,7 +104,7 @@ namespace System.Windows.Forms
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if (BorderStyle != BorderStyle.None)
+            if ((m.Msg == 0xF || m.Msg == 0x85) && BorderStyle != BorderStyle.None)
             {
                 IntPtr hdc = GetWindowDC(Handle);
                 using (Graphics g = Graphics.FromHdcInternal(hdc))

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Build.Framework;
-using Microsoft.VisualStudio.Workspace.Extensions.MSBuild;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +12,6 @@ using TheraEngine.Files;
 using TheraEngine.ThirdParty;
 using static TheraEngine.ThirdParty.MSBuild;
 using static TheraEngine.ThirdParty.MSBuild.Project;
-using static TheraEngine.ThirdParty.MSBuild.PropertyGroup;
 
 namespace TheraEditor
 {
@@ -24,9 +22,11 @@ namespace TheraEditor
     [FileDef("Thera Engine Project")]
     public class Project : Game
     {
-        [TSerialize(nameof(Guid), IsXmlElementString = true)]
+        public const string CSharpProjectGuid = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
+
+        [TSerialize(nameof(Guid))]
         protected Guid _guid;
-        [TSerialize(nameof(ProjectGuid), IsXmlElementString = true)]
+        [TSerialize(nameof(ProjectGuid))]
         protected Guid _projectGuid;
 
         public Guid Guid => _guid;
@@ -144,7 +144,7 @@ namespace TheraEditor
             return p;
         }
         
-        public void CollectCodeFiles(
+        public void CollectFiles(
             out List<string> codeFiles,
             out List<string> contentFiles,
             out HashSet<string> references)
@@ -180,9 +180,7 @@ namespace TheraEditor
                         }
                     }
                     else
-                    {
                         contentFiles2.Add(path2);
-                    }
                 }
 
                 string[] dirs = Directory.GetDirectories(dir);
@@ -196,8 +194,6 @@ namespace TheraEditor
             GenerateSolution(DirectoryPath/*Path.Combine(SourceDirectory, "Solution")*/);
         public async void GenerateSolution(string slnDir)
         {
-            const string csharpProjectGuid = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
-
             Process[] devenv = Process.GetProcessesByName("DevEnv");
             FileVersionInfo info = null;
             if (devenv != null && devenv.Length > 0)
@@ -261,7 +257,7 @@ namespace TheraEditor
             var releasex86 = CreateConfigPropGrp(false, true, true);
             var releasex64 = CreateConfigPropGrp(false, false, true);
 
-            CollectCodeFiles(out List<string> codeFiles, out List<string> contentFiles, out HashSet<string> references);
+            CollectFiles(out List<string> codeFiles, out List<string> contentFiles, out HashSet<string> references);
 
             ItemGroup refGrp = new ItemGroup();
             refGrp.AddElements(references.OrderBy(x => x).Select(x => new Item("Reference") { Include = x }).ToArray());
@@ -310,7 +306,7 @@ namespace TheraEditor
             //The first GUID is the GUID of a C# project package
             string projTmpl = "Project(\"{2}\") = \"{0}\", \"{0}.csproj\", \"{1}\"\nEndProject\n";
             //TODO: allow multiple projects
-            string projects = string.Format(projTmpl, Name, _projectGuid, csharpProjectGuid);
+            string projects = string.Format(projTmpl, Name, _projectGuid, CSharpProjectGuid);
 
             //0 = config name, 1 = platform name
             string preSolTmpl = "\t{0}|{1} = {0}|{1}\n\t";

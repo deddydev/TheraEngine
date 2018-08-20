@@ -185,6 +185,7 @@ namespace TheraEngine.Files.Serialization
                 o.ReadFromString(value);
                 return o;
             }
+
             if (string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture))
             {
                 value = value.ReplaceWhitespace("").Replace("|", ", ");

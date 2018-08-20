@@ -30,52 +30,45 @@
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class TSerialize : Attribute
     {
-        private int _order = -1;
-        private string _nameOverride = null;
-        private EXmlNodeType _xmlNodeType = EXmlNodeType.ChildElement;
-        private string _xmlCategoryGrouping = null;
-        private string _serializeIf = null;
-        private bool _useCategory = false;
-        private bool _ignoreIfNull = true;
-        private bool _ignoreIfDefault = true;
-        private bool _external = false;
-        private bool _config = true;
-        private bool _state = false;
-
         /// <summary>
         /// The order this field should be serialized in.
         /// Defaults to the order this field appears in in the class.
         /// </summary>
-        public int Order { get => _order; set => _order = value; }
+        public int Order { get; set; } = -1;
+
         /// <summary>
         /// The name this field should be serialized with.
         /// Defaults to the name of the field.
         /// </summary>
-        public string NameOverride { get => _nameOverride; set => _nameOverride = value; }
+        public string NameOverride { get; set; } = null;
+
         /// <summary>
         /// Determines if this object should be serialized as an attribute or element.
         /// </summary>
-        public EXmlNodeType XmlNodeType { get => _xmlNodeType; set => _xmlNodeType = value; }
+        public EXmlNodeType XmlNodeType { get; set; } = EXmlNodeType.ChildElement;
+
         /// <summary>
         /// Groups a set of fields together in one tag under this name.
         /// </summary>
-        public string OverrideXmlCategory { get => _xmlCategoryGrouping; set => _xmlCategoryGrouping = value; }
+        public string OverrideXmlCategory { get; set; } = null;
+
         /// <summary>
         /// Determines if the field should be serialized using a boolean expression utilizing information from other fields and properties.
         /// </summary>
-        public string Condition { get => _serializeIf; set => _serializeIf = value; }
+        public string Condition { get; set; } = null;
+
         /// <summary>
         /// Determines if the element should be grouped into a category,
         /// either using the category attribute or the OverrideXmlCategory property.
         /// </summary>
-        public bool UseCategory { get => _useCategory; set => _useCategory = value; }
+        public bool UseCategory { get; set; } = false;
+
         /// <summary>
         /// Determines if this field should not be written if it is null.
         /// </summary>
-        public bool IgnoreIfNull { get => _ignoreIfNull; set => _ignoreIfNull = value; }
-        public bool External { get => _external; set => _external = value; }
-        public bool IgnoreIfDefault { get => _ignoreIfDefault; set => _ignoreIfDefault = value; }
-
+        public bool IgnoreIfNull { get; set; } = true;
+        public bool External { get; set; } = false;
+        public bool IgnoreIfDefault { get; set; } = true;
         public bool IsXmlAttribute
         {
             get => XmlNodeType == EXmlNodeType.Attribute;
@@ -91,16 +84,8 @@
             get => XmlNodeType == EXmlNodeType.ElementString;
             set => XmlNodeType = value ? EXmlNodeType.ElementString : EXmlNodeType.ChildElement;
         }
-        public bool Config
-        {
-            get => _config;
-            set => _config = value;
-        }
-        public bool State
-        {
-            get => _state;
-            set => _state = value;
-        }
+        public bool Config { get; set; } = true;
+        public bool State { get; set; } = false;
 
         /// <summary>
         /// Creates a new TSerialize attribute definition.
@@ -112,7 +97,7 @@
         /// <param name="nameOverride">The name this property or field should go by in the file. If null, empty or whitespace, uses the field or property's name.</param>
         public TSerialize(string nameOverride)
         {
-            _nameOverride = nameOverride;
+            NameOverride = nameOverride;
         }
         /// <summary>
         ///  Creates a new TSerialize attribute definition.
@@ -121,8 +106,8 @@
         /// <param name="order">Defines the order that this field or property should be written in in relation to the others, where 0 is first.</param>
         public TSerialize(string nameOverride, int order)
         {
-            _order = order;
-            _nameOverride = nameOverride;
+            Order = order;
+            NameOverride = nameOverride;
         }
     }
 }

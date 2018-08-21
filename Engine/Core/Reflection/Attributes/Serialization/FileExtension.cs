@@ -2,6 +2,9 @@
 
 namespace System.ComponentModel
 {
+    /// <summary>
+    /// This attribute can be used on <see cref="TFileObject"/> classes to define a proprietary (engine-exclusive) extension for the file.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class FileExt : Attribute
     {
@@ -11,27 +14,42 @@ namespace System.ComponentModel
         }
 
         private string _extension;
+
+        /// <summary>
+        /// The extension for the file. Depending on the <see cref="ESerializeFormat"/>, x, b, etc will be appended to the front of the extension.
+        /// </summary>
         public string Extension
         {
             get => _extension;
             set => _extension = value.ToLowerInvariant();
         }
 
+        /// <summary>
+        /// If true, the file will be de/serialized manually when im/exported as XML config.
+        /// </summary>
         public bool ManualXmlConfigSerialize { get; set; } = false;
+        /// <summary>
+        /// If true, the file will be de/serialized manually when im/exported as XML state.
+        /// </summary>
         public bool ManualXmlStateSerialize { get; set; } = false;
-
+        /// <summary>
+        /// If true, the file will be de/serialized manually when im/exported as binary config.
+        /// </summary>
         public bool ManualBinConfigSerialize { get; set; } = false;
+        /// <summary>
+        /// If true, the file will be de/serialized manually when im/exported as binary state.
+        /// </summary>
         public bool ManualBinStateSerialize { get; set; } = false;
         
-        public SerializeFormat PreferredFormat { get; set; }
+        public ESerializeFormat PreferredFormat { get; set; }
 #if DEBUG
-            = SerializeFormat.XML;
+            = ESerializeFormat.XML;
 #else
             = SerializeFormat.Binary;
 #endif
 
         /// <summary>
-        /// Converts the desired format into the actual extension for this file in that format.
+        /// Retrieves the proper extension depending on the desired proprietary file format.
         /// </summary>
         public string GetProperExtension(EProprietaryFileFormat format)
             => format.ToString().ToLowerInvariant()[0] + Extension;

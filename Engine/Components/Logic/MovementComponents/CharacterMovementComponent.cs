@@ -13,32 +13,39 @@ namespace TheraEngine.Components.Logic.Movement
         Swimming,
         Flying,
     }
-    public class CharacterMovementComponent : MovementComponent
+    public class CharacterMovement3DComponent : MovementComponent
     {
+        #region Fields
         private MovementMode _currentMovementMode = MovementMode.Falling;
-        private bool _isCrouched = false;
-        private float _maxWalkAngle = 50.0f;
-        private float _walkingMovementSpeed = 0.17f;
-        private float _fallingMovementSpeed = 10.0f;
-        private float _jumpSpeed = 8.0f;
         private Vec3 _worldGroundContactPoint;
-
         private TCollisionObject _currentWalkingSurface;
         private Vec3 _groundNormal;
-        private Quat _upToGroundNormalRotation = Quat.Identity;
         private Action<float, Vec3> _subUpdateTick;
-        Vec3 _position, _prevPosition, _velocity, _prevVelocity, _acceleration;
+        private Vec3 _position, _prevPosition, _velocity, _prevVelocity, _acceleration;
         private bool _postWalkAllowJump = false, _justJumped = false;
-        float _allowJumpExtraTime = 1.0f;
-        float _allowJumpTimeDelta;
+        private ShapeTraceClosest _closestTrace = new ShapeTraceClosest(
+            null, Matrix4.Identity, Matrix4.Identity,
+            (ushort)TCollisionGroup.Characters,
+            (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
+        #endregion
 
+        #region Properties
+        public float VerticalStepUpHeight { get; set; } = 1.0f;
+        public bool IsCrouched { get; set; } = false;
+        public float MaxWalkAngle { get; set; } = 50.0f;
+        public float WalkingMovementSpeed { get; set; } = 0.17f;
+        public float JumpSpeed { get; set; } = 8.0f;
+        public float FallingMovementSpeed { get; set; } = 10.0f;
+        public Quat UpToGroundNormalRotation { get; set; } = Quat.Identity;
+        public float AllowJumpTimeDelta { get; set; }
+        public float AllowJumpExtraTime { get; set; } = 1.0f;
         public Vec3 GroundNormal
         {
             get => _groundNormal;
             private set
             {
                 _groundNormal = value;
-                _upToGroundNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
+                UpToGroundNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
             }
         }
         public MovementMode CurrentMovementMode
@@ -68,7 +75,7 @@ namespace TheraEngine.Components.Logic.Movement
 
                             if (_postWalkAllowJump = _currentMovementMode == MovementMode.Walking && !_justJumped)
                             {
-                                _allowJumpTimeDelta = 0.0f;
+                                AllowJumpTimeDelta = 0.0f;
                                 _velocity.Y = 0.0f;
                             }
 
@@ -96,21 +103,7 @@ namespace TheraEngine.Components.Logic.Movement
                     ((SceneComponent)_currentWalkingSurface.Owner).WorldTransformChanged += FloorTransformChanged;
             }
         }
-
-        private void FloorTransformChanged()
-        {
-            //TODO: change to falling if ground accelerates down with gravity faster than the character
-            SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
-            Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
-            Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            Vec3 point = moved.Translation;
-
-            root.Translation = point;
-            root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
-        }
-
-        public float VerticalStepUpHeight { get; set; } = 1.0f;
+        #endregion
 
         public override void OnSpawned()
         {
@@ -129,25 +122,30 @@ namespace TheraEngine.Components.Logic.Movement
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
             base.OnDespawned();
         }
+        private void FloorTransformChanged()
+        {
+            //TODO: change to falling if ground accelerates down with gravity faster than the character
+            SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
+            Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
+            CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
+            Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
+            Vec3 point = moved.Translation;
+
+            root.Translation = point;
+            root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
+        }
         private void MainUpdateTick(float delta)
         {
             if (_postWalkAllowJump)
             {
-                _allowJumpTimeDelta += delta;
-                if (_allowJumpTimeDelta > _allowJumpExtraTime)
+                AllowJumpTimeDelta += delta;
+                if (AllowJumpTimeDelta > AllowJumpExtraTime)
                     _postWalkAllowJump = false;
             }
             _subUpdateTick(delta, ConsumeInput());
         }
-
-        private ShapeTraceClosest _closestTrace = new ShapeTraceClosest(
-            null, Matrix4.Identity, Matrix4.Identity, 
-            (ushort)TCollisionGroup.Characters,
-            (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
-
         protected virtual void TickWalking(float delta, Vec3 movementInput)
         {
-            ShapeTraceClosest result;
             Matrix4 inputTransform;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             TCollisionShape shape = root.CullingVolume.GetCollisionShape();
@@ -165,7 +163,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             //Add input
 
-            Quat groundRot = _upToGroundNormalRotation;
+            Quat groundRot = UpToGroundNormalRotation;
 
             _closestTrace.Shape = shape;
 
@@ -174,7 +172,7 @@ namespace TheraEngine.Components.Logic.Movement
             {
                 if (movementInput != Vec3.Zero)
                 {
-                    Vec3 finalInput = groundRot * (movementInput * _walkingMovementSpeed);
+                    Vec3 finalInput = groundRot * (movementInput * WalkingMovementSpeed);
                     groundRot = Quat.Identity;
                     inputTransform = finalInput.AsTranslationMatrix();
 
@@ -211,7 +209,7 @@ namespace TheraEngine.Components.Logic.Movement
                         if (IsSurfaceNormalWalkable(normal))
                         {
                             GroundNormal = normal;
-                            groundRot = _upToGroundNormalRotation;
+                            groundRot = UpToGroundNormalRotation;
 
                             TRigidBody rigidBody = _closestTrace.CollisionObject as TRigidBody;
                             //if (CurrentWalkingSurface == d)
@@ -288,9 +286,8 @@ namespace TheraEngine.Components.Logic.Movement
             Vec3 v = root.RigidBodyCollision.LinearVelocity;
             //Engine.DebugPrint(v.Xz.LengthFast);
             if (v.Xz.LengthFast < 8.667842f)
-                root.RigidBodyCollision.ApplyCentralForce((root.RigidBodyCollision.Mass * _fallingMovementSpeed) * movementInput);
+                root.RigidBodyCollision.ApplyCentralForce((root.RigidBodyCollision.Mass * FallingMovementSpeed) * movementInput);
         }
-        
         public void Jump()
         {
             //Nothing to jump OFF of?
@@ -314,7 +311,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             if (_postWalkAllowJump = _currentMovementMode == MovementMode.Walking && !_justJumped)
             {
-                _allowJumpTimeDelta = 0.0f;
+                AllowJumpTimeDelta = 0.0f;
                 _velocity.Y = 0.0f;
             }
             //root.PhysicsDriver.Kinematic = false;
@@ -337,7 +334,7 @@ namespace TheraEngine.Components.Logic.Movement
                 Vec3 surfaceVelInitial = rigid.LinearVelocity;
                 Vec3 charaVelInitial = chara.LinearVelocity;
 
-                Vec3 charaVelFinal = up * _jumpSpeed;
+                Vec3 charaVelFinal = up * JumpSpeed;
                 Vec3 surfaceVelFinal = (surfaceMass * surfaceVelInitial + charaMass * charaVelInitial - charaMass * charaVelFinal) / surfaceMass;
 
                 Vec3 surfaceImpulse = (surfaceVelFinal - surfaceVelInitial) * surfaceMass;
@@ -348,7 +345,7 @@ namespace TheraEngine.Components.Logic.Movement
             {
                 //The ground isn't movable, so just apply the jump force directly.
                 //impulse = mass * velocity change
-                chara.ApplyCentralImpulse(up * (_jumpSpeed * chara.Mass));
+                chara.ApplyCentralImpulse(up * (JumpSpeed * chara.Mass));
             }
 
             _currentMovementMode = MovementMode.Falling;
@@ -369,7 +366,7 @@ namespace TheraEngine.Components.Logic.Movement
         public bool IsSurfaceNormalWalkable(Vec3 normal)
         {
             //TODO: use friction between surfaces, not just a constant angle
-            return TMath.AngleBetween(Vec3.Up, normal) <= _maxWalkAngle;
+            return TMath.AngleBetween(Vec3.Up, normal) <= MaxWalkAngle;
         }
         public void OnHit(TCollisionObject other, TContactInfo point, bool thisIsA)
         {

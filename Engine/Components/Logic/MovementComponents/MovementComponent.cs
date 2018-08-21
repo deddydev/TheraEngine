@@ -5,10 +5,10 @@ namespace TheraEngine.Components.Logic.Movement
 {
     public class MovementComponent : LogicComponent
     {
-        private Vec3 _frameInputDirection;
-        public Vec3 ConstantInputDirection;
+        private Vec3 _frameInputDirection = Vec3.Zero;
 
         public Vec3 FrameInputDirection => _frameInputDirection;
+        public Vec3 ConstantInputDirection { get; set; } = Vec3.Zero;
 
         public void AddMovementInput(Vec3 offset)
             => _frameInputDirection += offset;

@@ -18,7 +18,7 @@ namespace TheraEditor
     /// <summary>
     /// Extension of the game class for use with the editor.
     /// </summary>
-    [FileExt("tproj", PreferredFormat = SerializeFormat.XML)]
+    [FileExt("tproj", PreferredFormat = ESerializeFormat.XML)]
     [FileDef("Thera Engine Project")]
     public class Project : Game
     {

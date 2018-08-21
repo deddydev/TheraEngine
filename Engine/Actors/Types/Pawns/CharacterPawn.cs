@@ -27,7 +27,7 @@ namespace TheraEngine.Actors.Types.Pawns
     /// Use this character pawn type for default functionality.
     /// DO NOT USE IN GENERIC CODE! Use ICharacterPawn
     /// </summary>
-    public class CharacterPawn : CharacterPawn<CharacterMovementComponent>
+    public class CharacterPawn : CharacterPawn<CharacterMovement3DComponent>
     {
         public CharacterPawn()
             : base() { }
@@ -41,7 +41,7 @@ namespace TheraEngine.Actors.Types.Pawns
     /// </summary>
     /// <typeparam name="MovementClass"></typeparam>
     public class CharacterPawn<MovementClass> : Pawn<CapsuleYComponent>, ICharacterPawn
-        where MovementClass : CharacterMovementComponent
+        where MovementClass : CharacterMovement3DComponent
     {
         public CharacterPawn()
             : base() { }

@@ -4,9 +4,24 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Components
 {
+    public interface IComponent : IFileObject
+    {
+        bool Locked { get; }
+        IActor OwningActor { get; set; }
+        bool IsSpawned { get; }
+        void OnSpawned();
+        void OnDespawned();
+    }
+    /// <summary>
+    /// Components are plugged into actors to define customizable functionality.
+    /// There are two types of components: <see cref="SceneComponent"/> and <see cref="LogicComponent"/>.
+    /// </summary>
     [FileExt("comp")]
     public abstract class Component : TFileObject
     {
+        private IActor _owner;
+        public bool _locked = true;
+
         /// <summary>
         /// Determines if this component was constructed by code and cannot be removed.
         /// </summary>
@@ -20,9 +35,6 @@ namespace TheraEngine.Components
         }
         [Browsable(false)]
         public bool IsSpawned => OwningActor?.IsSpawned ?? false;
-
-        private IActor _owner;
-        public bool _locked = true;
 
         public virtual void OnSpawned() { }
         public virtual void OnDespawned() { }

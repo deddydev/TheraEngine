@@ -42,8 +42,11 @@ namespace TheraEngine.Components
         List<SceneComponent> GenerateChildCache();
     }
 
+    /// <summary>
+    /// Scene components define how an <see cref="Actor"/> should appear in the scene.
+    /// </summary>
     [FileExt("scomp")]
-    public abstract class SceneComponent : Component, ISocket
+    public abstract class SceneComponent : Component, ISocket, ISceneComponent
     {
         public const string RenderingCategoryName = "Rendering";
         public const string PhysicsCategoryName = "Physics";

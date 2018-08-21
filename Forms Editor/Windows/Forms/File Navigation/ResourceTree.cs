@@ -106,6 +106,13 @@ namespace TheraEditor.Windows.Forms
         {
             SetStyle(ControlStyles.UserMouse, true);
 
+            //SetStyle(
+            //    ControlStyles.UserMouse |
+            //    ControlStyles.UserPaint |
+            //    ControlStyles.DoubleBuffer |
+            //    ControlStyles.Opaque,
+            //    true);
+
             _dragTimer.Interval = 200;
             _dragTimer.Tick += new EventHandler(Timer_Tick);
 
@@ -113,7 +120,7 @@ namespace TheraEditor.Windows.Forms
             AllowDrop = true;
             Sorted = true;
             TreeViewNodeSorter = new NodeComparer();
-            DrawMode = TreeViewDrawMode.OwnerDrawText;
+            //DrawMode = TreeViewDrawMode.OwnerDrawText;
 
             _labelToolTip = new ToolTip()
             {
@@ -1021,13 +1028,59 @@ namespace TheraEditor.Windows.Forms
         #region Multiselect
         protected List<BaseWrapper> _selectedNodes = new List<BaseWrapper>();
         protected BaseWrapper _lastNode, _firstNode;
-        protected override void OnPaint(PaintEventArgs pe)
-        {
-            // TODO: Add custom paint code here
+        //protected override void OnPaint(PaintEventArgs e)
+        //{
+        //    using (SolidBrush BackGroundBrush = new SolidBrush(BackColor))
+        //    using (SolidBrush ForeGroundBrush = new SolidBrush(ForeColor))
+        //    using (SolidBrush BackGroundBrushHighlight = new SolidBrush(HighlightBackColor))
+        //    using (SolidBrush ForeGroundBrushHighlight = new SolidBrush(HighlightTextColor))
+        //    {
+        //        e.Graphics.FillRectangle(BackGroundBrush, e.ClipRectangle);
+                
+        //        void RecursivePaint(TreeNode node)
+        //        {
+        //            Rectangle bounds = node.Bounds;
+        //            Rectangle strBounds = Rectangle.Inflate(bounds, 2, -3);
+        //            strBounds.Offset(2, 0);
+        //            string imageKey = null;
+        //            int imageIndex = 0;
+        //            if (node.IsSelected)
+        //            {
+        //                e.Graphics.FillRectangle(BackGroundBrushHighlight, bounds);
+        //                e.Graphics.DrawString(node.Text, node.NodeFont ?? Font, ForeGroundBrushHighlight, strBounds);
+        //                imageKey = node.SelectedImageKey;
+        //                imageIndex = node.SelectedImageIndex;
+        //            }
+        //            else
+        //            {
+        //                e.Graphics.FillRectangle(BackGroundBrush, bounds);
+        //                e.Graphics.DrawString(node.Text, node.NodeFont ?? Font, ForeGroundBrush, strBounds);
+        //                imageKey = node.ImageKey;
+        //                imageIndex = node.ImageIndex;
+        //            }
 
-            // Calling the base class OnPaint
-            base.OnPaint(pe);
-        }
+        //            Image image;
+        //            if (imageKey != null && imageKey != string.Empty)
+        //                image = ImageList.Images[imageKey];
+        //            else
+        //                image = ImageList.Images[imageIndex];
+                    
+        //            int w = image.Width;
+        //            e.Graphics.DrawImage(image, new Point(bounds.X - w - 2, bounds.Y));
+                    
+        //            if (node.IsExpanded)
+        //                foreach (TreeNode child in node.Nodes)
+        //                    RecursivePaint(child);
+        //        }
+
+        //        foreach (TreeNode node in Nodes)
+        //            RecursivePaint(node);
+        //    }
+
+        //    // Calling the base class OnPaint
+        //    //base.OnPaint(pe);
+        //}
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
         public List<BaseWrapper> SelectedNodes
@@ -1226,12 +1279,12 @@ namespace TheraEditor.Windows.Forms
             {
                 e.Graphics.FillRectangle(new SolidBrush(HighlightBackColor), e.Bounds);
                 ControlPaint.DrawFocusRectangle(e.Graphics, e.Bounds, HighlightTextColor, HighlightBackColor);
-                TextRenderer.DrawText(e.Graphics, e.Node.Text, font, e.Bounds, HighlightTextColor, HighlightBackColor, TextFormatFlags.GlyphOverhangPadding);
+                TextRenderer.DrawText(e.Graphics, e.Node.Text, font, e.Bounds, HighlightTextColor, HighlightBackColor);
             }
             else
             {
                 e.Graphics.FillRectangle(new SolidBrush(back), e.Bounds);
-                TextRenderer.DrawText(e.Graphics, e.Node.Text, font, e.Bounds, fore, TextFormatFlags.GlyphOverhangPadding);
+                TextRenderer.DrawText(e.Graphics, e.Node.Text, font, e.Bounds, fore);
             }
         }
         //private ContextMenuStrip GetMultiSelectMenuStrip()

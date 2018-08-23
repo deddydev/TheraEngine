@@ -247,7 +247,7 @@ For example, a logic component could give any actor health and/or allow it to ta
                 if (r3d.RenderInfo.VisibleInEditorOnly)
                     spawn = spawn && Engine.EditorState.InEditMode;
 #endif
-                if (spawn)
+                if (spawn && OwningScene != null)
                     OwningScene.Add(r3d);
             }
 
@@ -258,7 +258,7 @@ For example, a logic component could give any actor health and/or allow it to ta
                 if (r2d.RenderInfo.VisibleInEditorOnly)
                     spawn = spawn && Engine.EditorState.InEditMode;
 #endif
-                if (spawn)
+                if (spawn && OwningScene != null)
                     OwningScene.Add(r2d);
             }
 

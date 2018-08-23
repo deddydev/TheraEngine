@@ -453,7 +453,7 @@ namespace TheraEngine.Components
                 if (r3d.RenderInfo.VisibleInEditorOnly)
                     spawn = spawn && Engine.EditorState.InEditMode;
 #endif
-                if (spawn)
+                if (spawn && OwningScene != null)
                     OwningScene.Add(r3d);
             }
 
@@ -464,7 +464,7 @@ namespace TheraEngine.Components
                 if (r2d.RenderInfo.VisibleInEditorOnly)
                     spawn = spawn && Engine.EditorState.InEditMode;
 #endif
-                if (spawn)
+                if (spawn && OwningScene != null)
                     OwningScene.Add(r2d);
             }
 

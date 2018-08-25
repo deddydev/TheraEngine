@@ -25,7 +25,6 @@ namespace TheraEngine
     }
     public interface IBaseSubMesh : IObject
     {
-        bool VisibleByDefault { get; set; }
         List<LOD> LODs { get; }
         RenderInfo3D RenderInfo { get; set; }
         Shape CullingVolume { get; set; }
@@ -45,7 +44,7 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo3D RenderInfo { get; }
-
+        Scene3D OwningScene3D { get; }
         void AddRenderables(RenderPasses passes, Camera camera);
     }
     /// <summary>
@@ -91,6 +90,7 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo2D RenderInfo { get; }
+        Scene2D OwningScene2D { get; }
         void AddRenderables(RenderPasses passes);
     }
     public interface I2DBoundable

@@ -412,8 +412,7 @@ namespace TheraEngine.Tests
             set => _sphere.Radius = value;
         }
 
-        public RenderInfo3D RenderInfo { get; } 
-            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, true, true);
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -425,19 +424,16 @@ namespace TheraEngine.Tests
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
             RootComponent.Rotation.Pitch = -90.0f;
-            OwningScene3D?.Add(this);
+        }
+        public override void OnDespawned()
+        {
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
 
         private void RootComponent_WorldTransformChanged()
         {
             _direction = Vec3.TransformVector(new Vec3(0.0f, 0.0f, -_testDistance), RootComponent.Rotation.GetMatrix());
             _endTraceTransform = _direction.AsTranslationMatrix() * RootComponent.WorldMatrix;
-        }
-
-        public override void OnDespawned()
-        {
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            OwningScene3D?.Remove(this);
         }
 
         private void Tick(float delta)

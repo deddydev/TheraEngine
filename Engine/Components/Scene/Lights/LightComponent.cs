@@ -52,7 +52,7 @@ namespace TheraEngine.Components.Scene.Lights
         protected ELightType Type { get; set; } = ELightType.Dynamic;
 
         [Browsable(false)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, true, true);
         [Browsable(false)]
         public virtual Shape CullingVolume { get; } = null;
         [Browsable(false)]

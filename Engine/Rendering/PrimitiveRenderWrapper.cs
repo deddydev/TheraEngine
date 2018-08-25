@@ -48,6 +48,8 @@ namespace TheraEngine.Rendering
         IOctreeNode I3DBoundable.OctreeNode { get; set; }
         Shape I3DBoundable.CullingVolume => null;
 
+        public Scene3D OwningScene3D { get; set; }
+
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {

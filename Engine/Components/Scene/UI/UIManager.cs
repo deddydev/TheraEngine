@@ -40,10 +40,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public Vec2 Bounds { get; private set; }
         public OrthographicCamera Camera { get; }
-        public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
-        public Shape CullingVolume => null;
-        public IOctreeNode OctreeNode { get; set; }
+        
         public Scene2D UIScene => _scene;
         public RenderPasses RenderPasses { get; set; } = new RenderPasses();
         public IPawn OwningPawn

@@ -136,6 +136,7 @@ namespace TheraEngine.Rendering
         {
             if (obj == null)
                 return;
+            obj.RenderInfo.EnforceVisibility(true);
             _renderables.Add(obj);
             //RenderTree?.Add(obj);
         }
@@ -143,6 +144,7 @@ namespace TheraEngine.Rendering
         {
             if (obj == null)
                 return;
+            obj.RenderInfo.EnforceVisibility(false);
             _renderables.Remove(obj);
             //RenderTree?.Remove(obj);
         }

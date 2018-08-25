@@ -45,11 +45,10 @@ namespace TheraEngine.Components.Scene.Mesh
             _currentLOD = LODs.Last;
 
             RenderInfo = renderInfo;
-
-            Visible = false;
         }
 
-        private bool _visible = false;
+        public BaseRenderableMesh3D() { }
+        
         protected SceneComponent _component;
         protected LinkedListNode<RenderableLOD> _currentLOD;
         public RenderableLOD CurrentLOD => _currentLOD.Value;
@@ -62,42 +61,7 @@ namespace TheraEngine.Components.Scene.Mesh
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        public bool Visible
-        {
-            get => _visible;
-            set
-            {
-                //if (_visible == value)
-                //    return;
-                _visible = value;
-                if (_visible)
-                    _component?.OwningScene3D?.Add(this);
-                else
-                    _component?.OwningScene3D?.Remove(this);
-            }
-        }
-        public bool VisibleInEditorOnly { get; set; } = false;
-        public bool HiddenFromOwner { get; set; } = false;
-        public bool VisibleToOwnerOnly { get; set; } = false;
-
-        //public delegate void DelPostRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix);
-        //public delegate void DelPreRender(BaseRenderableMesh mesh, Matrix4 matrix, Matrix3 normalMatrix, TMaterial material, PreRenderCallback callback);
-        //public class PreRenderCallback
-        //{
-        //    public bool ShouldRender { get; set; } = true;
-        //}
-        //public event DelPreRender PreRendered;
-        //public event DelPostRender PostRendered;
-
-        //private float GetRenderDistance(bool shadowPass)
-        //{
-        //    float dist = GetDistance(AbstractRenderer.CurrentCamera);
-
-        //    if (!shadowPass)
-        //        UpdateLOD(dist);
-
-        //    return dist;
-        //}
+        public Scene3D OwningScene3D => _component?.OwningScene3D;
         
         private void UpdateLOD(float viewDist)
         {
@@ -127,26 +91,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 lod.Manager.Destroy();
             }
         }
-
-        //public void Render() => Render(null, true, true);
-        //public void Render(bool allowPreRenderEvent = true, bool allowPostRenderEvent = true) => Render(null, allowPreRenderEvent, allowPostRenderEvent);
-        //public void Render(TMaterial material = null, bool allowPreRenderEvent = true, bool allowPostRenderEvent = true)
-        //{
-        //    if (_currentLOD.Value.Manager == null)
-        //        return;
-        //    Matrix4 mtx = _component.WorldMatrix;
-        //    Matrix3 nrm = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
-        //    PreRenderCallback callback = new PreRenderCallback();
-        //    if (allowPreRenderEvent)
-        //        PreRendered?.Invoke(this, mtx, nrm, material, callback);
-        //    if (callback.ShouldRender)
-        //    {
-        //        _currentLOD.Value.Manager?.Render(mtx, nrm, material);
-        //        if (allowPostRenderEvent)
-        //            PostRendered?.Invoke(this, mtx, nrm);
-        //    }
-        //}
-
+        
         private RenderCommandMesh3D _renderCommand = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {

@@ -275,25 +275,23 @@ namespace TheraEngine.Rendering
         public override void Remove(IRenderable obj) => Remove(obj as I3DRenderable);
         public void Add(I3DRenderable obj)
         {
-            if (obj != null && RenderTree?.Add(obj) == true)
-            {
-                obj.RenderInfo.Owner = obj;
-                obj.RenderInfo.Scene = this;
-                if (obj is I3DRenderable r && r.CullingVolume != null)
-                    RegisterCullingVolume(r.CullingVolume);
-                //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
-            }
+            if (obj == null || RenderTree?.Add(obj) != true)
+                return;
+
+            obj.RenderInfo.EnforceVisibility(true);
+            if (obj is I3DRenderable r && r.CullingVolume != null)
+                RegisterCullingVolume(r.CullingVolume);
+            //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
         }
         public void Remove(I3DRenderable obj)
         {
-            if (obj != null && RenderTree?.Remove(obj) == true)
-            {
-                obj.RenderInfo.Owner = null;
-                obj.RenderInfo.Scene = null;
-                if (obj is I3DRenderable r && r.CullingVolume != null)
-                    UnregisterCullingVolume(r.CullingVolume);
-                //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
-            }
+            if (obj == null || RenderTree?.Remove(obj) != true)
+                return;
+            
+            obj.RenderInfo.EnforceVisibility(false);
+            if (obj is I3DRenderable r && r.CullingVolume != null)
+                UnregisterCullingVolume(r.CullingVolume);
+            //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
         }
         private void RegisterCullingVolume(Shape cullingVolume)
         {

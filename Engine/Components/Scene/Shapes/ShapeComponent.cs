@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene.Shapes
         [TSerialize]
         [Category(RenderingCategoryName)]
         public RenderInfo3D RenderInfo { get; protected set; } 
-            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false) { CastsShadows = false, ReceivesShadows = false };
 
         public ShapeComponent()
         {

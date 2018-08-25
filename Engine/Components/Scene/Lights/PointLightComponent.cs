@@ -83,22 +83,15 @@ namespace TheraEngine.Components.Scene.Lights
         public override void OnSpawned()
         {
             Scene3D s3d = OwningScene3D;
-            if (s3d == null)
+            if (s3d != null)
             {
-                base.OnSpawned();
-                return;
+                if (Type == ELightType.Dynamic)
+                {
+                    s3d.Lights.Add(this);
+                    if (ShadowMap == null)
+                        SetShadowMapResolution(512, 512);
+                }
             }
-            if (Type == ELightType.Dynamic)
-            {
-                s3d.Lights.Add(this);
-
-                if (ShadowMap == null)
-                    SetShadowMapResolution(512, 512);
-            }
-#if EDITOR
-            if (Engine.EditorState.InEditMode)
-                s3d.Add(this);
-#endif
             base.OnSpawned();
         }
         public override void OnDespawned()
@@ -107,11 +100,9 @@ namespace TheraEngine.Components.Scene.Lights
             if (s3d != null)
             {
                 if (Type == ELightType.Dynamic)
+                {
                     s3d.Lights.Remove(this);
-#if EDITOR
-                if (Engine.EditorState.InEditMode)
-                    s3d.Remove(this);
-#endif
+                }
             }
             base.OnDespawned();
         }

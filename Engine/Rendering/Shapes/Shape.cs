@@ -40,8 +40,7 @@ namespace TheraEngine.Core.Shapes
             _rc = new RenderCommandDebug3D(Render);
         }
 
-        public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
 
         public Action VisibilityChanged;
 
@@ -49,52 +48,20 @@ namespace TheraEngine.Core.Shapes
         public virtual Shape CullingVolume => this;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-
-        [TSerialize("IsVisible", XmlNodeType = EXmlNodeType.Attribute)]
-        protected bool _isVisible = true;
+        
         [TSerialize("RenderSolid", XmlNodeType = EXmlNodeType.Attribute)]
         protected bool _renderSolid = false;
         [TSerialize("RenderColor")]
         protected ColorF3 _renderColor = ColorF3.Red;
-        [TSerialize("VisibleInEditorOnly", XmlNodeType = EXmlNodeType.Attribute)]
-        protected bool _visibleInEditorOnly = false;
-        [TSerialize("HiddenFromOwner", XmlNodeType = EXmlNodeType.Attribute)]
-        protected bool _hiddenFromOwner = false;
-        [TSerialize("VisibleToOwnerOnly", XmlNodeType = EXmlNodeType.Attribute)]
-        protected bool _visibleToOwnerOnly = false;
         
         public bool RenderSolid
         {
             get => _renderSolid;
             set => _renderSolid = value;
         }
-        public bool Visible
-        {
-            get => _isVisible;
-            set
-            {
-                if (_isVisible == value)
-                    return;
-                _isVisible = value;
-                VisibilityChanged?.Invoke();
-            }
-        }
-        public bool VisibleInEditorOnly
-        {
-            get => _visibleInEditorOnly;
-            set => _visibleInEditorOnly = value;
-        }
-        public bool HiddenFromOwner
-        {
-            get => _hiddenFromOwner;
-            set => _hiddenFromOwner = value;
-        }
-        public bool VisibleToOwnerOnly
-        {
-            get => _visibleToOwnerOnly;
-            set => _visibleToOwnerOnly = value;
-        }
-        
+
+        public Scene3D OwningScene3D { get; set; }
+
         public abstract TCollisionShape GetCollisionShape();
         public abstract BoundingBox GetAABB();
 
@@ -151,7 +118,7 @@ namespace TheraEngine.Core.Shapes
         public abstract Matrix4 GetTransformMatrix();
         public abstract void Render();
 
-        private RenderCommandDebug3D _rc;
+        private readonly RenderCommandDebug3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_rc, RenderInfo.RenderPass);

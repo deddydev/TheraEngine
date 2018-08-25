@@ -251,7 +251,8 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit, false, false) { Visible = true, VisibleInEditorOnly = true };
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit, false, true);
+
         [Browsable(false)]
         public Shape CullingVolume { get; } = new Sphere(1.0f);
         [Browsable(false)]

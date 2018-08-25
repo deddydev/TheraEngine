@@ -9,8 +9,6 @@ namespace TheraEngine.Components.Scene.Transforms
     [FileDef("Position Lag Component")]
     public class PositionLagComponent : OriginRebasableComponent
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
-
         public PositionLagComponent() : this(20.0f, 2.0f) { }
         public PositionLagComponent(float interpSpeed) : this(interpSpeed, 2.0f) { }
         public PositionLagComponent(float interpSpeed, float maxLagDistance) : base()
@@ -23,12 +21,7 @@ namespace TheraEngine.Components.Scene.Transforms
         private Vec3 _currentPoint;
         private Vec3 _destPoint;
         private Vec3 _interpPoint;
-
-        [Browsable(false)]
-        public Shape CullingVolume => null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-
+        
         [TSerialize]
         [Category("Position Lag Component")]
         public float InterpSpeed { get; set; }
@@ -47,10 +40,10 @@ namespace TheraEngine.Components.Scene.Transforms
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            //    //Matrix4 worldPosMtx = Matrix4.CreateTranslation(_interpPoint);
-            //    //Matrix4 invWorldPosMtx = Matrix4.CreateTranslation(-_interpPoint);
-            //    //localTransform = worldPosMtx * GetInverseParentMatrix();
-            //    //inverseLocalTransform = GetParentMatrix() * invWorldPosMtx;
+            //Matrix4 worldPosMtx = Matrix4.CreateTranslation(_interpPoint);
+            //Matrix4 invWorldPosMtx = Matrix4.CreateTranslation(-_interpPoint);
+            //localTransform = worldPosMtx * GetInverseParentMatrix();
+            //inverseLocalTransform = GetParentMatrix() * invWorldPosMtx;
             localTransform = Matrix4.Identity;
             inverseLocalTransform = Matrix4.Identity;
         }
@@ -75,20 +68,17 @@ namespace TheraEngine.Components.Scene.Transforms
             //    _interpPoint = CustomMath.InterpLinearTo(_destPoint, _currentPoint, _maxLagDistance / _laggingDistance);
             //else
                 _interpPoint = Interp.InterpLinearTo(_currentPoint, _destPoint, _delta, InterpSpeed);
-
-            //Engine.DebugPrint(_currentPoint.DistanceTo(_destPoint));
+            
             RecalcWorldTransform();
         }
         public override void OnSpawned()
         {
             _currentPoint = _worldTransform.Translation;
-            //Engine.Scene.Add(this);
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            //Engine.Scene.Remove(this);
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             base.OnDespawned();
         }

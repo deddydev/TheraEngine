@@ -14,8 +14,7 @@ namespace TheraEngine.Rendering.Cameras
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
     public abstract class Camera : TFileObject, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
 
         [Browsable(false)]
         public Shape CullingVolume => _transformedFrustum.CullingVolume;
@@ -385,6 +384,8 @@ namespace TheraEngine.Rendering.Cameras
                 return _cameraProjToWorldSpaceMatrix;
             }
         }
+
+        public Scene3D OwningScene3D { get; set; }
 
         /// <summary>
         /// Increments the camera's pitch and yaw rotations.

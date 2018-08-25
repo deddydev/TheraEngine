@@ -12,19 +12,19 @@ namespace TheraEngine.Rendering.Models
         public StaticSoftSubMesh() : base() { _name = "StaticSoftSubMesh"; }
         public StaticSoftSubMesh(
             string name,
-            bool visibleByDefault,
+            RenderInfo3D renderInfo,
             Shape cullingVolume,
             PrimitiveData primitives,
-            TMaterial material) : base(name, visibleByDefault, cullingVolume, primitives, material) { }
+            TMaterial material) : base(name, renderInfo, cullingVolume, primitives, material) { }
         public StaticSoftSubMesh(
             string name,
-            bool visibleByDefault,
+            RenderInfo3D renderInfo,
             Shape cullingVolume,
-            List<LOD> lods) : base(name, visibleByDefault, cullingVolume, lods) { }
+            List<LOD> lods) : base(name, renderInfo, cullingVolume, lods) { }
         public StaticSoftSubMesh(
             string name,
-            bool visibleByDefault,
+            RenderInfo3D renderInfo,
             Shape cullingVolume,
-            params LOD[] lods) : base(name, visibleByDefault, cullingVolume, lods) { }
+            params LOD[] lods) : base(name, renderInfo, cullingVolume, lods) { }
     }
 }

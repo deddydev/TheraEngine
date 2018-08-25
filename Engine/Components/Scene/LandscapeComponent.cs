@@ -37,7 +37,7 @@ namespace TheraEngine.Actors.Types
 
         public LandscapeComponent()
         {
-            RenderInfo = new RenderInfo3D(ERenderPass.OpaqueDeferredLit);
+            RenderInfo = new RenderInfo3D(ERenderPass.OpaqueDeferredLit) { CastsShadows = true, ReceivesShadows = true };
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

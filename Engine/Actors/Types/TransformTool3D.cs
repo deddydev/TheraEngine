@@ -148,7 +148,7 @@ namespace TheraEngine.Actors.Types
                 axisPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Axis", !isRotate, null, axisPrim, axisMat)
                 {
-                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
                 });
 
                 float coneHeight = _axisLength - _coneDistance;
@@ -156,35 +156,35 @@ namespace TheraEngine.Actors.Types
                 arrowPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Arrow", !isRotate, null, arrowPrim, axisMat)
                 {
-                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
                 });
                 
                 PrimitiveData transPrim1 = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), transLine1);
                 transPrim1.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane1", isTranslate, null, transPrim1, planeMat1)
                 {
-                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
                 });
 
                 PrimitiveData transPrim2 = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), transLine2);
                 transPrim2.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane2", isTranslate, null, transPrim2, planeMat2)
                 {
-                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
                 });
 
                 PrimitiveData scalePrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), scaleLine1, scaleLine2);
                 scalePrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", isScale, null, scalePrim, scalePlaneMat)
                 {
-                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
                 });
 
                 PrimitiveData rotPrim = Circle3D.WireframeMesh(_orbRadius, unit, Vec3.Zero, _circlePrecision);
                 rotPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Rotation", isRotate, null, rotPrim, axisMat)
                 {
-                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                    RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
                 });
             }
 
@@ -194,7 +194,7 @@ namespace TheraEngine.Actors.Types
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", isRotate, null, screenRotPrim, _screenMat)
             {
-                RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
             });
 
             //Screen-aligned translation
@@ -208,7 +208,7 @@ namespace TheraEngine.Actors.Types
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenTranslation", isTranslate, null, screenTransPrim, _screenMat)
             {
-                RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
             });
 
             TMaterial sphereMat = TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
@@ -225,7 +225,7 @@ namespace TheraEngine.Actors.Types
             spherePrim.SingleBindBone = rootBoneName;
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("RotationSphere", isRotate, null, spherePrim, sphereMat)
             {
-                RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, false),
+                RenderInfo = new RenderInfo3D(ERenderPass.OnTopForward, false, true),
             });
 
             return new SkeletalMeshComponent(mesh, skel);
@@ -299,16 +299,16 @@ namespace TheraEngine.Actors.Types
 
                 for (int i = 0; i < 3; ++i)
                 {
-                    RootComponent.Meshes[x++].Visible = _mode != TransformType.Rotate;
-                    RootComponent.Meshes[x++].Visible = _mode != TransformType.Rotate;
-                    RootComponent.Meshes[x++].Visible = _mode == TransformType.Translate;
-                    RootComponent.Meshes[x++].Visible = _mode == TransformType.Translate;
-                    RootComponent.Meshes[x++].Visible = _mode == TransformType.Scale;
-                    RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
+                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode != TransformType.Rotate;
+                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode != TransformType.Rotate;
+                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Translate;
+                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Translate;
+                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Scale;
+                    RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Rotate;
                 }
-                RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
-                RootComponent.Meshes[x++].Visible = _mode == TransformType.Translate;
-                RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
+                RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Rotate;
+                RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Translate;
+                RootComponent.Meshes[x++].RenderInfo.Visible = _mode == TransformType.Rotate;
 
                 GetDependentColors();
             }

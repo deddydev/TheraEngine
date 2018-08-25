@@ -241,26 +241,10 @@ For example, a logic component could give any actor health and/or allow it to ta
                 comp.OnSpawned();
 
             if (this is I3DRenderable r3d)
-            {
-                bool spawn = r3d.RenderInfo.Visible;
-#if EDITOR
-                if (r3d.RenderInfo.VisibleInEditorOnly)
-                    spawn = spawn && Engine.EditorState.InEditMode;
-#endif
-                if (spawn)
-                    OwningScene.Add(r3d);
-            }
+                RenderInfo3D.TrySpawn(r3d, OwningScene3D);
 
             if (this is I2DRenderable r2d)
-            {
-                bool spawn = r2d.RenderInfo.Visible;
-#if EDITOR
-                if (r2d.RenderInfo.VisibleInEditorOnly)
-                    spawn = spawn && Engine.EditorState.InEditMode;
-#endif
-                if (spawn)
-                    OwningScene.Add(r2d);
-            }
+                RenderInfo2D.TrySpawn(r2d, OwningScene2D);
 
             OnSpawnedPostComponentSpawn();
 
@@ -272,11 +256,11 @@ For example, a logic component could give any actor health and/or allow it to ta
             if (!IsSpawned)
                 return;
 
-            if (this is I3DRenderable r3d && r3d.RenderInfo.Visible)
-                OwningScene.Remove(r3d);
+            if (this is I3DRenderable r3d)
+                RenderInfo3D.TryDespawn(r3d, OwningScene3D);
 
-            if (this is I2DRenderable r2d && r2d.RenderInfo.Visible)
-                OwningScene.Remove(r2d);
+            if (this is I2DRenderable r2d)
+                RenderInfo2D.TryDespawn(r2d, OwningScene2D);
 
             OnDespawned();
 

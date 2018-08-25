@@ -83,22 +83,31 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnSpawned()
         {
-            if (Type == ELightType.Dynamic)
+            Scene3D s3d = OwningScene3D;
+            if (s3d != null)
             {
-                OwningScene3D?.Lights?.Add(this);
+                if (Type == ELightType.Dynamic)
+                {
+                    s3d.Lights.Add(this);
+                    if (ShadowMap == null)
+                        SetShadowMapResolution(1024, 1024);
 
-                if (ShadowMap == null)
-                    SetShadowMapResolution(1024, 1024);
-
-                ShadowCamera.LocalPoint.Raw = WorldPoint;
-                ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
+                    ShadowCamera.LocalPoint.Raw = WorldPoint;
+                    ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
+                }
             }
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            if (Type == ELightType.Dynamic)
-                OwningScene3D?.Lights?.Add(this);
+            Scene3D s3d = OwningScene3D;
+            if (s3d != null)
+            {
+                if (Type == ELightType.Dynamic)
+                {
+                    s3d.Lights.Remove(this);
+                }
+            }
             base.OnDespawned();
         }
         public override void SetUniforms(RenderProgram program, string targetStructName)

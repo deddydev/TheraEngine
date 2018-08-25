@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering.Models
     public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass.OnTopForward, false, false);
+            = new RenderInfo3D(ERenderPass.OnTopForward, false, false) { CastsShadows = false, ReceivesShadows = false };
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -53,19 +53,11 @@ namespace TheraEngine.Rendering.Models
             => BoneNameCache.ContainsKey(name) ? BoneNameCache[name] : null;
         public Bone this[int index] 
             => BoneIndexCache.ContainsKey(index) ? BoneIndexCache[index] : null;
-
-        bool _visible,
-            _visibleInEditorOnly = true,
-            _hiddenFromOwner = false,
-            _visibleToOwnerOnly = false,
-            _visibleByDefault = false;
         
         //Internal usage information, not serialized
         private List<Bone> _physicsDrivableBones = new List<Bone>();
         private List<Bone> _cameraBones = new List<Bone>();
-        private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
-        private Dictionary<int, Bone> _boneIndexCache = new Dictionary<int, Bone>();
-        private SkeletalMeshComponent _owningComponent;
+
         //private bool _childMatrixModified = false;
 
         private Bone[] _rootBones;
@@ -81,47 +73,18 @@ namespace TheraEngine.Rendering.Models
             }
         }
         [Browsable(false)]
-        public Dictionary<string, Bone> BoneNameCache => _boneNameCache;
+        public Dictionary<string, Bone> BoneNameCache { get; } = new Dictionary<string, Bone>();
+
         [Browsable(false)]
-        public Dictionary<int, Bone> BoneIndexCache => _boneIndexCache;
+        public Dictionary<int, Bone> BoneIndexCache { get; } = new Dictionary<int, Bone>();
         [Browsable(false)]
-        public SkeletalMeshComponent OwningComponent
-        {
-            get => _owningComponent;
-            set => _owningComponent = value;
-        }
+        public SkeletalMeshComponent OwningComponent { get; set; }
 
         public IEnumerator<Bone> GetEnumerator() 
-            => ((IEnumerable<Bone>)_boneNameCache.Values).GetEnumerator();
+            => ((IEnumerable<Bone>)BoneNameCache.Values).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() 
-            => ((IEnumerable<Bone>)_boneNameCache.Values).GetEnumerator();
-
-        public bool Visible
-        {
-            get => _visible;
-            set => _visible = value;
-        }
-        public bool VisibleInEditorOnly
-        {
-            get => _visibleInEditorOnly;
-            set => _visibleInEditorOnly = value;
-        }
-        public bool HiddenFromOwner
-        {
-            get => _hiddenFromOwner;
-            set => _hiddenFromOwner = value;
-        }
-        public bool VisibleToOwnerOnly
-        {
-            get => _visibleToOwnerOnly;
-            set => _visibleToOwnerOnly = value;
-        }
-        public bool VisibleByDefault
-        {
-            get => _visibleByDefault;
-            set => _visibleByDefault = value;
-        }
-
+            => ((IEnumerable<Bone>)BoneNameCache.Values).GetEnumerator();
+        
         public ReadOnlyCollection<Bone> GetCameraRelativeBones() => _cameraBones.AsReadOnly();
         public ReadOnlyCollection<Bone> GetPhysicsDrivableBones() => _physicsDrivableBones.AsReadOnly();
 
@@ -135,14 +98,14 @@ namespace TheraEngine.Rendering.Models
 
         public Bone GetBone(string boneName)
         {
-            if (!_boneNameCache.ContainsKey(boneName))
+            if (!BoneNameCache.ContainsKey(boneName))
                 return RootBones[0];
-            return _boneNameCache[boneName];
+            return BoneNameCache[boneName];
         }
         public void RegenerateBoneCache()
         {
-            _boneNameCache.Clear();
-            _boneIndexCache.Clear();
+            BoneNameCache.Clear();
+            BoneIndexCache.Clear();
             _physicsDrivableBones.Clear();
             _cameraBones.Clear();
             if (RootBones != null)
@@ -177,6 +140,10 @@ namespace TheraEngine.Rendering.Models
         }
         [Browsable(false)]
         internal int BillboardBoneCount => _cameraBones.Count;
+
+        [Browsable(false)]
+        public Scene3D OwningScene3D => OwningComponent?.OwningScene3D;
+
         internal void AddCameraBone(Bone bone)
         {
             _cameraBones.Add(bone);
@@ -198,7 +165,7 @@ namespace TheraEngine.Rendering.Models
         //    //_childMatrixModified = true;
         //}
 
-        private RenderCommandDebug3D _rc;
+        private readonly RenderCommandDebug3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_rc, ERenderPass.OpaqueForward);

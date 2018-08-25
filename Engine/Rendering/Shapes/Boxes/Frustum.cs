@@ -38,7 +38,7 @@ namespace TheraEngine.Core.Shapes
     /// </summary>
     public class Frustum : I3DRenderable, IEnumerable<Plane>, IVolume
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];
@@ -358,6 +358,8 @@ namespace TheraEngine.Core.Shapes
                     _boundingSphere = null;
             }
         }
+
+        public Scene3D OwningScene3D { get; set; }
 
         private void CalculateBoundingSphere()
         {

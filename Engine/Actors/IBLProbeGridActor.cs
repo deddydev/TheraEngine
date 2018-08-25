@@ -21,7 +21,7 @@ namespace TheraEngine.Actors
         private bool _showCaptureSpheres = false;
 
         [Category(SceneComponent.RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.TransparentForward, false, false) { Visible = false };
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.TransparentForward, false, true);
 
         [Browsable(false)]
         public Shape CullingVolume => null;

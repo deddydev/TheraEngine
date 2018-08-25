@@ -6,6 +6,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Files;
 using TheraEngine.Physics;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
@@ -126,7 +127,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 {
                     if (IsSpawned)
                         foreach (StaticRenderableMesh mesh in _meshes)
-                            mesh.Visible = false;
+                            mesh.RenderInfo.Visible = false;
                     _meshes = null;
                 }
                 _modelRef.UnregisterLoadEvent(OnModelLoaded);
@@ -148,14 +149,14 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 StaticRenderableMesh m = new StaticRenderableMesh(model.RigidChildren[i], this);
                 if (IsSpawned)
-                    m.Visible = m.Mesh.VisibleByDefault;
+                    RenderInfo3D.TrySpawn(m, OwningScene3D);
                 _meshes[i] = m;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
                 StaticRenderableMesh m = new StaticRenderableMesh(model.SoftChildren[i], this);
                 if (IsSpawned)
-                    m.Visible = m.Mesh.VisibleByDefault;
+                    RenderInfo3D.TrySpawn(m, OwningScene3D);
                 _meshes[model.RigidChildren.Count + i] = m;
             }
             ModelLoaded?.Invoke();
@@ -169,10 +170,10 @@ namespace TheraEngine.Components.Scene.Mesh
                 else
                     _modelRef.GetInstanceAsync().ContinueWith(t => OnModelLoaded(t.Result));
             }
-            
+
             if (_meshes != null)
                 foreach (StaticRenderableMesh m in _meshes)
-                    m.Visible = m.Mesh.VisibleByDefault;
+                    RenderInfo3D.TrySpawn(m, OwningScene3D);
             
             base.OnSpawned();
         }
@@ -180,7 +181,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             if (_meshes != null)
                 foreach (StaticRenderableMesh m in _meshes)
-                    m.Visible = false;
+                    RenderInfo3D.TryDespawn(m, OwningScene3D);
             base.OnDespawned();
         }
         protected internal override void OnHighlightChanged(bool highlighted)

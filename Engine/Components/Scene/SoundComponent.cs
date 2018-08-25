@@ -7,13 +7,7 @@ namespace TheraEngine.Components.Scene
 {
     public class SoundComponent : SphereComponent, I3DRenderable
     {
-        public GlobalFileRef<SoundFile> File
-        {
-            get => _file;
-            set => _file = value;
-        }
-
-        private GlobalFileRef<SoundFile> _file;
+        public GlobalFileRef<SoundFile> File { get; set; }
 
         public SoundComponent() : base(1.0f) { }
         public SoundComponent(float radius) : base(radius) { }

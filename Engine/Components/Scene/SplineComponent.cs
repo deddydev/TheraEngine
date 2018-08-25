@@ -14,12 +14,18 @@ namespace TheraEngine.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, false) { Visible = false, VisibleInEditorOnly = true };
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true) { CastsShadows = false, ReceivesShadows = false };
 
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
+        [TSerialize]
+        public bool RenderTangents { get; set; } = false;
+        [TSerialize]
+        public bool RenderKeyframeTangentPoints { get; set; } = true;
+        [TSerialize]
+        public bool RenderKeyframePoints { get; set; } = true;
 
         private PropAnimVec3 _spline;
 
@@ -27,11 +33,7 @@ namespace TheraEngine.Components.Scene
         private PrimitiveManager _velocityPrimitive;
         private PrimitiveManager _pointPrimitive;
         private PrimitiveManager _tangentPrimitive;
-        private bool
-            _renderTangents = false, 
-            _renderKeyframeTangentPoints = true, 
-            _renderKeyframePoints = true;
-        
+
         public PropAnimVec3 Spline
         {
             get => _spline;
@@ -42,22 +44,6 @@ namespace TheraEngine.Components.Scene
                     _spline.Keyframes.Changed += RegenerateSplinePrimitive;
                 RegenerateSplinePrimitive();
             }
-        }
-        
-        public bool RenderTangents
-        {
-            get => _renderTangents;
-            set => _renderTangents = value;
-        }
-        public bool RenderKeyframeTangentPoints
-        {
-            get => _renderKeyframeTangentPoints;
-            set => _renderKeyframeTangentPoints = value;
-        }
-        public bool RenderKeyframePoints
-        {
-            get => _renderKeyframePoints;
-            set => _renderKeyframePoints = value;
         }
 
         public SplineComponent() : base()
@@ -162,21 +148,21 @@ namespace TheraEngine.Components.Scene
             _rcSpline.NormalMatrix = Matrix3.Identity;
             passes.Add(_rcSpline, RenderInfo.RenderPass);
 
-            if (_renderTangents)
+            if (RenderTangents)
             {
                 _rcTangents.Mesh = _velocityPrimitive;
                 _rcTangents.WorldMatrix = WorldMatrix;
                 _rcTangents.NormalMatrix = Matrix3.Identity;
                 passes.Add(_rcTangents, RenderInfo.RenderPass);
             }
-            if (_renderKeyframePoints)
+            if (RenderKeyframePoints)
             {
                 _rcTangents.Mesh = _pointPrimitive;
                 _rcTangents.WorldMatrix = WorldMatrix;
                 _rcTangents.NormalMatrix = Matrix3.Identity;
                 passes.Add(_rcTangents, RenderInfo.RenderPass);
             }
-            if (_renderKeyframeTangentPoints)
+            if (RenderKeyframeTangentPoints)
             {
                 _rcTangents.Mesh = _tangentPrimitive;
                 _rcTangents.WorldMatrix = WorldMatrix;

@@ -795,6 +795,7 @@
     <Compile Include="Wrappers\Code\SolutionWrapper.cs" />
     <Compile Include="Wrappers\Core\BaseWrappers.cs" />
     <Compile Include="Wrappers\Core\BaseFileWrapper.cs" />
+    <Compile Include="Wrappers\ActorWrapper.cs" />
     <Compile Include="Wrappers\ThirdPartyFileWrapper.cs" />
     <Compile Include="Wrappers\Core\GenericFileWrapper.cs" />
     <Compile Include="Wrappers\Models\ColladaWrapper.cs" />
@@ -1106,7 +1107,6 @@
     <Folder Include="Windows\Forms\HUD Editor\" />
     <Folder Include="Windows\Forms\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
-    <Folder Include="Windows\Forms\Particle Editor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\PythonIcon.png" />

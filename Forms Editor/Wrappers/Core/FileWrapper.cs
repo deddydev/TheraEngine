@@ -8,7 +8,7 @@ using TheraEngine.Files;
 
 namespace TheraEditor.Wrappers
 {
-    public class FileWrapper<T> : BaseFileWrapper where T : TFileObject
+    public class FileWrapper<T> : BaseFileWrapper where T : class, IFileObject
     {
         public FileWrapper() : base() { }
         public FileWrapper(ContextMenuStrip menu) : base(menu) { }
@@ -38,9 +38,9 @@ namespace TheraEditor.Wrappers
                 Name = value;
             }
         }
-        public override TFileObject GetNewInstance() => _fileRef.LoadNewInstance();
-        public override async Task<TFileObject> GetNewInstanceAsync() => await _fileRef.LoadNewInstanceAsync();
-        public override TFileObject SingleInstance
+        public override IFileObject GetNewInstance() => _fileRef.LoadNewInstance();
+        public override async Task<IFileObject> GetNewInstanceAsync() => await _fileRef.LoadNewInstanceAsync();
+        public override IFileObject SingleInstance
         {
             get => ResourceRef.File;
             set
@@ -60,8 +60,7 @@ namespace TheraEditor.Wrappers
         }
         protected void DefaultSaveText(DockableTextEditor obj)
         {
-            ITextSource source = Resource as ITextSource;
-            if (source == null)
+            if (!(Resource is ITextSource source))
                 return;
             source.Text = obj.GetText();
             Editor.Instance.ContentTree.WatchProjectDirectory = false;

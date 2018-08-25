@@ -25,7 +25,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    [EditorFor(typeof(SkeletalModel), typeof(StaticModel))]
+    [EditorFor(typeof(SkeletalModel), typeof(StaticModel), typeof(IActor))]
     public partial class ModelEditorForm : TheraForm
     {
         public ModelEditorForm()
@@ -33,7 +33,7 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             ModelEditorText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
             DockPanel.Theme = new TheraEditorTheme();
-            AutoScaleMode = AutoScaleMode.Dpi;
+            AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
             formMenu.Renderer = new TheraToolstripRenderer();
             FormTitle2.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
@@ -221,9 +221,19 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        public IActor TargetActor;
+        public IActor TargetActor { get; private set; }
         public IModelFile Model { get; private set; }
 
+        public void SetActor(IActor actor)
+        {
+            FormTitle2.Text = actor?.FilePath ?? actor?.Name ?? string.Empty;
+
+            if (TargetActor != null && TargetActor.IsSpawned)
+                World.DespawnActor(TargetActor);
+            
+            TargetActor = actor;
+            World.SpawnActor(TargetActor);
+        }
         public void SetModel(StaticModel stm)
         {
             FormTitle2.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
@@ -263,6 +273,7 @@ namespace TheraEditor.Windows.Forms
             MeshList.DisplayMeshes(skm);
             MaterialList.DisplayMaterials(skm);
             BoneTreeForm.SetSkeleton(skel);
+            AnimList.Show();
 
             //BoundingBox aabb = skm.CalculateBindPoseCullingAABB();
             //RenderForm1.AlignView(aabb);
@@ -274,7 +285,6 @@ namespace TheraEditor.Windows.Forms
             RenderForm1.RenderPanel.CaptureContext();
             await InitWorldAsync();
             SetRenderTicking(true);
-            AnimList.Show();
         }
         protected override void OnClosed(EventArgs e)
         {

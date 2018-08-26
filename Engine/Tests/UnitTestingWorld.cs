@@ -323,7 +323,7 @@ namespace TheraEngine.Tests
                 MinFilter = ETexMinFilter.Nearest
             };
 
-            StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", true,
+            StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", null,
                 BoundingBox.FromMinMax(min, max),
                 BoundingBox.SolidMesh(min, max, true,
                 skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?

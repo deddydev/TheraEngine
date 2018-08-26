@@ -29,7 +29,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
         {
             _name = name;
             StaticModel model = new StaticModel(_name + "_Model") { CollisionShape = collisionShape };
-            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", true, shape, lods));
+            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", null, shape, lods));
             RootComponent = new StaticMeshComponent(model, translation, rotation, Vec3.One, info);
             Initialize();
         }

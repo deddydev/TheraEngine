@@ -18,12 +18,12 @@ namespace TheraEditor.Wrappers
             Text = Path.GetFileName(path);
             FilePath = Name = path;
         }
-        public override TFileObject SingleInstance { get => null; set { } }
+        public override IFileObject SingleInstance { get => null; set { } }
         public override bool IsLoaded => false;
         public override Type FileType => null;
         public override IGlobalFileRef SingleInstanceRef => throw new NotImplementedException();
-        public override TFileObject GetNewInstance() => null;
-        public override Task<TFileObject> GetNewInstanceAsync() => null;
+        public override IFileObject GetNewInstance() => null;
+        public override Task<IFileObject> GetNewInstanceAsync() => null;
         protected internal override void FixPath(string parentFolderPath) { }
 
         //private Process _runningProcess;

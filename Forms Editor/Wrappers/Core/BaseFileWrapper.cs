@@ -121,9 +121,9 @@ namespace TheraEditor.Wrappers
         public abstract bool IsLoaded { get; }
         public bool AlwaysReload { get; set; } = false;
         public bool ExternallyModified { get; set; } = false;
-        public abstract TFileObject SingleInstance { get; set; }
-        public abstract TFileObject GetNewInstance();
-        public abstract Task<TFileObject> GetNewInstanceAsync();
+        public abstract IFileObject SingleInstance { get; set; }
+        public abstract IFileObject GetNewInstance();
+        public abstract Task<IFileObject> GetNewInstanceAsync();
         public abstract IGlobalFileRef SingleInstanceRef { get; }
         
         public void Reload()

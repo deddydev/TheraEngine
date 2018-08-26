@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering.Models
     public abstract class BaseSubMesh : TFileObject, IBaseSubMesh
     {
         [TSerialize(Order = 0)]
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit) { CastsShadows = true, ReceivesShadows = true };
+        public RenderInfo3D RenderInfo { get; set; }
 
         [TSerialize(Order = 1)]
         public Shape CullingVolume { get; set; }
@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.Models
             TMaterial material)
         {
             _name = name;
-            RenderInfo = renderInfo;
+            RenderInfo = renderInfo ?? new RenderInfo3D(ERenderPass.OpaqueDeferredLit) { CastsShadows = true, ReceivesShadows = true };
             CullingVolume = cullingVolume;
             LODs = new List<LOD>() { new LOD(material, primitives, 0.0f) };
         }
@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Models
             List<LOD> lods)
         {
             _name = name;
-            RenderInfo = renderInfo;
+            RenderInfo = renderInfo ?? new RenderInfo3D(ERenderPass.OpaqueDeferredLit) { CastsShadows = true, ReceivesShadows = true };
             CullingVolume = cullingVolume;
             LODs = lods ?? new List<LOD>();
         }
@@ -50,7 +50,7 @@ namespace TheraEngine.Rendering.Models
             params LOD[] lods)
         {
             _name = name;
-            RenderInfo = renderInfo;
+            RenderInfo = renderInfo ?? new RenderInfo3D(ERenderPass.OpaqueDeferredLit) { CastsShadows = true, ReceivesShadows = true };
             CullingVolume = cullingVolume;
             LODs = lods.ToList();
         }

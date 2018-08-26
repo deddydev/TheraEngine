@@ -12,19 +12,19 @@ namespace TheraEngine.Rendering.Models
         public SkeletalRigidSubMesh() : base() { _name = "SkeletalRigidSubMesh"; }
         public SkeletalRigidSubMesh(
             string name,
-            bool visibleByDefault,
+            RenderInfo3D renderInfo,
             Shape cullingVolume,
             PrimitiveData primitives,
-            TMaterial material) : base(name, visibleByDefault, cullingVolume, primitives, material) { }
+            TMaterial material) : base(name, renderInfo, cullingVolume, primitives, material) { }
         public SkeletalRigidSubMesh(
             string name,
-            bool visibleByDefault,
+            RenderInfo3D renderInfo,
             Shape cullingVolume,
-            List<LOD> lods) : base(name, visibleByDefault, cullingVolume, lods) { }
+            List<LOD> lods) : base(name, renderInfo, cullingVolume, lods) { }
         public SkeletalRigidSubMesh(
             string name,
-            bool visibleByDefault,
+            RenderInfo3D renderInfo,
             Shape cullingVolume,
-            params LOD[] lods) : base(name, visibleByDefault, cullingVolume, lods) { }
+            params LOD[] lods) : base(name, renderInfo, cullingVolume, lods) { }
     }
 }

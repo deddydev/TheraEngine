@@ -94,7 +94,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 if (Meshes != null)
                 {
                     foreach (SkeletalRenderableMesh mesh in Meshes)
-                        mesh.Visible = false;
+                        mesh.RenderInfo.Visible = false;
                     Meshes = null;
                 }
 
@@ -162,7 +162,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
                 {
-                    m.Visible = false;
+                    m.RenderInfo.Visible = false;
                     m.Destroy();
                 }
 
@@ -177,13 +177,13 @@ namespace TheraEngine.Components.Scene.Mesh
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {
                 SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], _targetSkeleton, this);
-                mesh.Visible = mesh.Mesh.VisibleByDefault;
+                RenderInfo3D.TrySpawn(mesh, OwningScene3D);
                 Meshes[i] = mesh;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
                 SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], _targetSkeleton, this);
-                mesh.Visible = mesh.Mesh.VisibleByDefault;
+                RenderInfo3D.TrySpawn(mesh, OwningScene3D);
                 Meshes[model.RigidChildren.Count + i] = mesh;
             }
         }
@@ -211,7 +211,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
                 {
-                    m.Visible = false;
+                    m.RenderInfo.Visible = false;
                     m.Destroy();
                 }
             

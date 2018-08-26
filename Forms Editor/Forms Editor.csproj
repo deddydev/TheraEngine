@@ -182,6 +182,19 @@
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Thumbnails.cs" />
+    <Compile Include="Windows\Forms\HUD Editor\DockableHudGraph.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\HUD Editor\DockableHudGraph.Designer.cs">
+      <DependentUpon>DockableHudGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\HUD Editor\HudEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\HUD Editor\HudEditorForm.Designer.cs">
+      <DependentUpon>HudEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\HUD Editor\HudEditorHud.cs" />
     <Compile Include="Windows\Forms\Main Window\Overrides\EditorGameMode.cs" />
     <Compile Include="Windows\Forms\Main Window\Overrides\EditorPlayerController.cs" />
     <Compile Include="Windows\Forms\Main Window\Overrides\EditorCameraPawn.cs" />
@@ -701,6 +714,12 @@
     <Compile Include="Windows\Forms\Property Grid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Windows\Forms\HUD Editor\DockableHudGraph.resx">
+      <DependentUpon>DockableHudGraph.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\HUD Editor\HudEditorForm.resx">
+      <DependentUpon>HudEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.resx">
       <DependentUpon>MaterialControlOld.cs</DependentUpon>
     </EmbeddedResource>
@@ -1104,7 +1123,6 @@
     <Folder Include="Core\OS\Win32\" />
     <Folder Include="Windows\Forms\Animation Timeline Editor\" />
     <Folder Include="Windows\Forms\Cutscene Editor\" />
-    <Folder Include="Windows\Forms\HUD Editor\" />
     <Folder Include="Windows\Forms\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
   </ItemGroup>

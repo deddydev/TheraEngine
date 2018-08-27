@@ -10,7 +10,7 @@ namespace TheraEditor.Windows.Forms
         IUIRenderPanel RenderPanel { get; set; }
     }
     public class UIGameMode<PawnType, ControllerType> : GameMode<PawnType, ControllerType>, IUIGameMode
-        where PawnType : class, IUIManager, new()
+        where PawnType : class, IUserInterface, new()
         where ControllerType : LocalPlayerController
     {
         public IUIRenderPanel RenderPanel { get; set; }

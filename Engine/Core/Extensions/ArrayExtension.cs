@@ -15,16 +15,16 @@ namespace System
         /// <returns>A list of the elements in the array as a string.</returns>
         public static string ToStringList<T>(this T[] a, string separator, string lastSeparator, Func<T, string> elementToString)
         {
-            if (a.Length == 0)
-                return string.Empty;
+            //if (a.Length == 0)
+            //    return string.Empty;
 
-            if (a.Length == 1)
-                return elementToString(a[0]);
+            //if (a.Length == 1)
+            //    return elementToString(a[0]);
 
-            if (a.Length == 2)
-                return elementToString(a[0]) + separator + elementToString(a[1]);
+            //if (a.Length == 2)
+            //    return elementToString(a[0]) + separator + elementToString(a[1]);
 
-            string str = "";
+            string str = string.Empty;
             string sep = separator;
             for (int i = 0; i < a.Length; ++i)
             {
@@ -141,6 +141,16 @@ namespace System
             }
             return l.ToArray();
         }
+
+        public static int[] FindAllMatchIndices<T>(this T[] a, Predicate<T> predicate)
+        {
+            List<int> list = new List<int>(a.Length);
+            for (int i = 0; i < a.Length; ++i)
+                if (predicate(a[i]))
+                    list.Add(i);
+            return list.ToArray();
+        }
+
         public static int IndexOf(this Array a, object value)
             => Array.IndexOf(a, value);
         

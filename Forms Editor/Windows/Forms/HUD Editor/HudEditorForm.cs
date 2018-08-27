@@ -1,102 +1,56 @@
 ﻿using System;
 using TheraEngine;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Functions;
+using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Rendering.UI;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    [EditorFor(typeof(TMaterial))]
-    public partial class MaterialEditorForm : TheraForm
+    [EditorFor(typeof(IUserInterface))]
+    public partial class HudEditorForm : TheraForm
     {
-        public MaterialEditorForm()
+        public HudEditorForm()
         {
             InitializeComponent();
             dockPanel1.Theme = new TheraEditorTheme();
             FormTitle2.MouseDown += TitleBar_MouseDown;
             FormTitle2.MouseUp += (s, e) => { if (e.Button == System.Windows.Forms.MouseButtons.Right && FormTitle.ClientRectangle.Contains(e.Location)) ShowSystemMenu(MouseButtons); };
         }
-        public MaterialEditorForm(TMaterial m) : this()
+        public HudEditorForm(IUserInterface manager) : this()
         {
-            Material = m;
+            TargetHUD = manager;
         }
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            MaterialGraph.Focus();
-            MaterialFunctions.Focus();
-            MaterialFunctionProperties.Focus();
-            MaterialProperties.Focus();
-            MaterialGraph.RenderPanel.UI.SelectedFunctionChanged += UI_SelectedFunctionChanged;
+            HudGraph.Focus();
+            HudGraph.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
         }
-        private DockableMatFuncList _matFuncs = null;
-        public DockableMatFuncList MaterialFunctions
-        {
-            get
-            {
-                if (_matFuncs == null || _matFuncs.IsDisposed)
-                {
-                    Engine.PrintLine("Created material functions form");
-                    _matFuncs = new DockableMatFuncList();
-                    _matFuncs.Show(dockPanel1, DockState.DockRight);
-                }
-                return _matFuncs;
-            }
-        }
-        private DockableMatGraph _materialGraph = null;
-        public DockableMatGraph MaterialGraph
+        private DockableHudGraph _materialGraph = null;
+        public DockableHudGraph HudGraph
         {
             get
             {
                 if (_materialGraph == null || _materialGraph.IsDisposed)
                 {
-                    Engine.PrintLine("Created material graph viewport");
-                    _materialGraph = new DockableMatGraph();
+                    Engine.PrintLine("Created hud graph viewport");
+                    _materialGraph = new DockableHudGraph();
                     _materialGraph.Show(dockPanel1, DockState.Document);
                 }
                 return _materialGraph;
             }
         }
-        private DockableMatFuncProps _matFuncProps = null;
-        public DockableMatFuncProps MaterialFunctionProperties
+        public IUserInterface TargetHUD
         {
-            get
-            {
-                if (_matFuncProps == null || _matFuncProps.IsDisposed)
-                {
-                    Engine.PrintLine("Created material function property grid");
-                    _matFuncProps = new DockableMatFuncProps();
-                    _matFuncProps.Show(dockPanel1, DockState.DockLeft);
-                }
-                return _matFuncProps;
-            }
-        }
-        private DockableMatProps _matProps = null;
-        public DockableMatProps MaterialProperties
-        {
-            get
-            {
-                if (_matProps == null || _matProps.IsDisposed)
-                {
-                    Engine.PrintLine("Created material property grid");
-                    _matProps = new DockableMatProps();
-                    _matProps.Show(MaterialFunctionProperties.Pane, DockAlignment.Top, 0.5);
-                }
-                return _matProps;
-            }
-        }
-        public TMaterial Material
-        {
-            get => MaterialGraph.RenderPanel.UI.TargetMaterial;
+            get => HudGraph.RenderPanel.UI.TargetHUD;
             set
             {
-                MaterialGraph.RenderPanel.UI.TargetMaterial = value;
-                MaterialProperties.TargetMaterial = value;
+                HudGraph.RenderPanel.UI.TargetHUD = value;
                 FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
             }
         }
 
-        private void UI_SelectedFunctionChanged(MaterialFunction func)
+        private void UI_SelectedComponentChanged(UIComponent comp)
         {
             //MaterialFunctionProperties.TargetFunc = func;
         }

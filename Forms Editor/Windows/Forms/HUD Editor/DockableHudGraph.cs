@@ -12,9 +12,9 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableMatGraph : DockContent, IEditorControl
+    public partial class DockableHudGraph : DockContent, IEditorControl
     {
-        public DockableMatGraph()
+        public DockableHudGraph()
         {
             InitializeComponent();
             RenderPanel.AllowDrop = false;
@@ -121,19 +121,19 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_DragLeave_1(object sender, EventArgs e)
         {
-            if (_dragged == null)
-                return;
-            RenderPanel.UI.LeftClickUp();
-            RenderPanel.UI.RemoveMaterialFunction(_dragged);
-            _dragged = null;
+            //if (_dragged == null)
+            //    return;
+            //RenderPanel.UI.LeftClickUp();
+            //RenderPanel.UI.RemoveMaterialFunction(_dragged);
+            //_dragged = null;
         }
     }
-    public class MaterialEditorController : LocalPlayerController
+    public class HudEditorController : LocalPlayerController
     {
-        public MaterialEditorController(LocalPlayerIndex index) : this(index, null) { }
-        public MaterialEditorController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+        public HudEditorController(LocalPlayerIndex index) : this(index, null) { }
+        public HudEditorController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
     }
-    public class MaterialGraphRenderPanel : UIRenderPanel<UIMaterialEditor, MaterialEditorGameMode, MaterialEditorController> { }
-    public class MaterialEditorGameMode : UIGameMode<UIMaterialEditor, MaterialEditorController> { }
+    public class HudGraphRenderPanel : UIRenderPanel<UIHudEditor, HudEditorGameMode, HudEditorController> { }
+    public class HudEditorGameMode : UIGameMode<UIHudEditor, HudEditorController> { }
 }

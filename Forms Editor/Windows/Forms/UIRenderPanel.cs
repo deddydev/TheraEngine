@@ -10,23 +10,26 @@ namespace TheraEngine
 {
     public interface IUIRenderPanel : IRenderPanel
     {
-        IUIManager UI { get; }
+        IUserInterface UI { get; }
         World World { get; }
         IUIGameMode GameMode { get; }
     }
     public class UIRenderPanel<UIPawnType, UIGameModeType, UIControllerType> : RenderPanel<Scene2D>, IUIRenderPanel 
-        where UIPawnType : class, IUIManager, new()
+        where UIPawnType : class, IUserInterface, new()
         where UIGameModeType : UIGameMode<UIPawnType, UIControllerType>
         where UIControllerType : LocalPlayerController
     {
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public UIPawnType UI { get; }
+        /// <summary>
+        /// The self-contained world for items displayed by this render panel.
+        /// </summary>
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public World World { get; } = new World();
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public UIGameModeType GameMode { get; }
 
-        IUIManager IUIRenderPanel.UI => UI;
+        IUserInterface IUIRenderPanel.UI => UI;
         World IUIRenderPanel.World => World;
         IUIGameMode IUIRenderPanel.GameMode => GameMode;
 

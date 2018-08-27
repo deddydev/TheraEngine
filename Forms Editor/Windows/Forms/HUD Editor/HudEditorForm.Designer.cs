@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Windows.Forms
 {
-    partial class MaterialEditorForm
+    partial class HudEditorForm
     {
         /// <summary>
         /// Required designer variable.

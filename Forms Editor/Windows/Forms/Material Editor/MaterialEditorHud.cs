@@ -19,7 +19,7 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public class UIMaterialEditor : UIManager<UIMaterialRectangleComponent>, I2DRenderable
+    public class UIMaterialEditor : UserInterface<UIMaterialRectangleComponent>, I2DRenderable
     {
         public UIMaterialEditor() : base() { }
         public UIMaterialEditor(Vec2 bounds) : base(bounds) { }

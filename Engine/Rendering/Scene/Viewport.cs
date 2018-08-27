@@ -116,8 +116,8 @@ namespace TheraEngine.Rendering
         public BoundingRectangle InternalResolution => _internalResolution;
         public BaseRenderPanel OwningPanel { get; }
 
-        private IUIManager _hud;
-        public IUIManager HUD
+        private IUserInterface _hud;
+        public IUserInterface HUD
         {
             get => _hud;
             set

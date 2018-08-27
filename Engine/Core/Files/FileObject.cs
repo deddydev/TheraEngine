@@ -65,6 +65,9 @@ namespace TheraEngine.Files
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
         void Read3rdParty(string path);
     }
+    /// <summary>
+    /// Base class for classes that can be stored as files.
+    /// </summary>
     //[FileExt("tasset")]
     //[FileDef("Thera Engine Asset")]
     public abstract class TFileObject : TObject, IFileObject

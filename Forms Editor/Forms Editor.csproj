@@ -810,6 +810,7 @@
     <Compile Include="Windows\Forms\Misc\TransparentPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Wrappers\UserInterfaceWrapper.cs" />
     <Compile Include="Wrappers\Code\CSProjWrapper.cs" />
     <Compile Include="Wrappers\Code\SolutionWrapper.cs" />
     <Compile Include="Wrappers\Core\BaseWrappers.cs" />

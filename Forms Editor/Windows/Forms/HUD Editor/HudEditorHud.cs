@@ -15,12 +15,16 @@ using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class UIHudEditor : UIManager<UIMaterialRectangleComponent>, I2DRenderable
+    public delegate void DelUIComponentSelect(UIComponent comp);
+    public class UIHudEditor : UserInterface<UIMaterialRectangleComponent>, I2DRenderable
     {
         public UIHudEditor() : base() { }
         public UIHudEditor(Vec2 bounds) : base(bounds) { }
+
+        public event DelUIComponentSelect UIComponentSelected;
+        public event DelUIComponentSelect UIComponentHighlighted;
         
-        public IUIManager TargetHUD
+        public IUserInterface TargetHUD
         {
             get => _targetHud;
             set
@@ -43,7 +47,7 @@ namespace TheraEditor.Windows.Forms
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
 
-        private IUIManager _targetHud;
+        private IUserInterface _targetHud;
         private Vec2 _minScale = new Vec2(0.1f), _maxScale = new Vec2(4.0f);
         private Vec2 _lastWorldPos = Vec2.Zero;
         //private Vec2 _lastFocusPoint = Vec2.Zero;
@@ -137,15 +141,6 @@ namespace TheraEditor.Windows.Forms
             _lastWorldPos = newFocusPoint;
             return diff;
         }
-        private void HandleDragArg(Vec2 cursorPosScreen, BaseFuncArg draggedArg)
-        {
-            Vec2 posW = Viewport.ScreenToWorld(cursorPosScreen).Xy;
-            if (draggedArg.IsOutput)
-                UpdateCursorBezier(draggedArg.WorldPoint.Xy, posW - BoxDim());
-            else
-                UpdateCursorBezier(posW - BoxDim(), draggedArg.WorldPoint.Xy);
-            HighlightHud();
-        }
         private void HandleDragView(Vec2 cursorPosScreen)
         {
             _rootTransform.LocalTranslation += GetWorldCursorDiff(cursorPosScreen);
@@ -153,26 +148,10 @@ namespace TheraEditor.Windows.Forms
             TMaterial mat = RootComponent.InterfaceMaterial;
             mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
         }
-        private void HandleDragFunc(Vec2 cursorPosScreen, MaterialFunction draggedFunc)
+        private void HandleDragHudComp(Vec2 cursorPosScreen, UIBoundableComponent draggedComp)
         {
             Vec2 diff = GetWorldCursorDiff(cursorPosScreen);
-            if (_ctrlDown)
-            {
-                if (_inputTree == null)
-                {
-                    _inputTree = new HashSet<MaterialFunction>();
-                    draggedFunc.CollectInputTreeRecursive(_inputTree);
-                }
-                DragInputs(diff);
-            }
-            else
-                draggedFunc.LocalTranslation += Vec3.TransformVector(diff, draggedFunc.InverseWorldMatrix).Xy;
-        }
-        private HashSet<MaterialFunction> _inputTree = null;
-        private void DragInputs(Vec2 diff)
-        {
-            foreach (MaterialFunction f in _inputTree)
-                f.LocalTranslation += Vec3.TransformVector(diff, _draggedFunc.InverseWorldMatrix).Xy;
+            draggedComp.LocalTranslation += Vec3.TransformVector(diff, draggedComp.InverseWorldMatrix).Xy;
         }
         #endregion
 

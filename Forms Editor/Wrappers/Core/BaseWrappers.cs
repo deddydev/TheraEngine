@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
+using TheraEngine;
 using TheraEngine.Files;
 
 namespace TheraEditor.Wrappers
@@ -155,59 +157,79 @@ namespace TheraEditor.Wrappers
                 }
                 else
                 {
-                    Type mainType = TFileObject.DetermineType(path);
-                    if (mainType != null)
+                    w = TryWrapType(TFileObject.DetermineType(path));
+                    if (w != null)
                     {
-                        //Try to find wrapper for type or any inherited type, in order
-                        Type tempType = mainType;
-                        while (tempType != null && w == null)
-                        {
-                            if (NodeWrapperAttribute.Wrappers.ContainsKey(tempType))
-                                w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[tempType]) as BaseWrapper;
-                            else
-                                tempType = tempType.BaseType;
-                        }
-
-                        if (w == null)
-                        {
-                            //Make wrapper for whatever file type this is
-                            Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(mainType);
-                            w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
-                        }
-
                         w.Text = Path.GetFileName(path);
                         w.FilePath = w.Name = path;
                     }
                     else
-                    {
                         w = new GenericFileWrapper(path);
-                    }
                 }
             }
             return w;
         }
         public static BaseFileWrapper Wrap(TFileObject file)
         {
-            if (file == null)
-                return null;
-
-            BaseFileWrapper w = null;
-
-            Type type = file.GetType();
-            if (NodeWrapperAttribute.Wrappers.ContainsKey(type))
-                w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type]) as BaseFileWrapper;
-            else
+            BaseFileWrapper w = TryWrapType(file?.GetType());
+            if (w != null)
             {
-                Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
-                w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
+                TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
+                w.Text = name + "." + file.FileExtension.GetProperExtension((EProprietaryFileFormat)fmt);
+                w.SingleInstance = file;
+                //w.SelectedImageIndex = w.ImageIndex = 0;
             }
-            TFileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out EFileFormat fmt, out string thirdPartyExt);
-            w.Text = name + "." + file.FileExtension.GetProperExtension((EProprietaryFileFormat)fmt);
-            w.SingleInstance = file;
-            //w.SelectedImageIndex = w.ImageIndex = 0;
             return w;
         }
+        public static BaseFileWrapper TryWrapType(Type t)
+        {
+            BaseFileWrapper w = null;
+            if (t != null)
+            {
+                //Try to find wrapper for type or any inherited type, in order
+                Type tempType = t;
+                while (tempType != null && w == null)
+                {
+                    if (NodeWrapperAttribute.Wrappers.ContainsKey(tempType))
+                        w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[tempType]) as BaseFileWrapper;
+                    else
+                    {
+                        Type[] interfaces = t.GetInterfaces();
+                        var validInterfaces = interfaces.Where(interfaceType => NodeWrapperAttribute.Wrappers.Keys.Any(wrapperKeyType => wrapperKeyType == interfaceType)).ToArray();
+                        if (validInterfaces.Length > 0)
+                        {
+                            Type match;
 
+                            //TODO: find best interface to use if multiple matches?
+                            if (validInterfaces.Length > 1)
+                            {
+                                Engine.PrintLine("File of type " + t.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName()));
+                                var counts = validInterfaces.Select(inf => validInterfaces.Count(v => inf.IsAssignableFrom(v))).ToArray();
+                                int min = counts.Min();
+                                int[] mins = counts.FindAllMatchIndices(x => x == min);
+                                if (mins.Length > 1)
+                                    Engine.PrintLine("Narrowed down wrappers to " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName()));
+                                match = validInterfaces[mins[0]];
+                            }
+                            else
+                                match = validInterfaces[0];
+                            
+                            w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[match]) as BaseFileWrapper;
+                        }
+                        else
+                            tempType = tempType.BaseType;
+                    }
+                }
+
+                if (w == null)
+                {
+                    //Make wrapper for whatever file type this is
+                    Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(t);
+                    w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
+                }
+            }
+            return w;
+        }
         internal protected abstract void OnExpand();
         internal protected abstract void OnCollapse();
         internal protected abstract void FixPath(string parentFolderPath);

@@ -40,8 +40,16 @@ namespace System
             { typeof(object),   "object"    },
         };
 
+        public static bool IsAssignableTo(this Type type, Type other) => other.IsAssignableFrom(type);
+        
+        /// <summary>
+        /// Returns the type as a string in the form that it is written in code.
+        /// </summary>
         public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">")
             => type.GetFriendlyName(DefaultDictionary, openBracket, closeBracket);
+        /// <summary>
+        /// Returns the type as a string in the form that it is written in code.
+        /// </summary>
         public static string GetFriendlyName(this Type type, Dictionary<Type, string> translations, string openBracket = "<", string closeBracket = ">")
         {
             if (type == null)
@@ -58,6 +66,9 @@ namespace System
                 return type.Name;
         }
 
+        /// <summary>
+        /// Returns the default value for the given type. Similar to default(T).
+        /// </summary>
         public static object GetDefaultValue(this Type t)
             => (t.IsValueType && Nullable.GetUnderlyingType(t) == null) ? Activator.CreateInstance(t) : null;
 

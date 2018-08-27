@@ -17,6 +17,10 @@ namespace TheraEngine.Worlds
         WorldSettings Settings { get; set; }
         AbstractPhysicsWorld PhysicsWorld { get; }
     }
+    /// <summary>
+    /// Manages all 3D scene data for a particular consistent instance.
+    /// For example, multiple viewports can point to cameras in this world and see the same 3D scene from different viewpoints.
+    /// </summary>
     [FileExt("world")]
     [FileDef("World")]
     public class World : TFileObject, IEnumerable<IActor>, IDisposable

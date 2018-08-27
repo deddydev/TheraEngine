@@ -6,6 +6,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
+using TheraEditor.Windows.Forms.PropertyGrid;
+using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Files;
 using WeifenLuo.WinFormsUI.Docking;
@@ -132,7 +134,37 @@ namespace TheraEditor.Wrappers
         }
 
         public virtual void EditResource()
-            => Editor.SetPropertyGridObject(SingleInstance);
+        {
+            IFileObject o = SingleInstance;
+            if (o == null)
+            {
+                Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
+                return;
+            }
+            Type t = FileType;
+            while (t != null && t != typeof(object))
+            {
+                if (TheraPropertyGrid.FullEditorTypes.ContainsKey(t))
+                {
+                    var editorType = TheraPropertyGrid.FullEditorTypes[t];
+                    using (Form f = Activator.CreateInstance(editorType, o) as Form)
+                        f?.ShowDialog(Editor.Instance);
+                    return;
+                }
+                foreach (Type intfType in t.GetInterfaces())
+                {
+                    if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
+                    {
+                        var editorType = TheraPropertyGrid.FullEditorTypes[intfType];
+                        using (Form f = Activator.CreateInstance(editorType, o) as Form)
+                            f?.ShowDialog(Editor.Instance);
+                        return;
+                    }
+                }
+                t = t.BaseType;
+            }
+            Editor.SetPropertyGridObject(SingleInstance);
+        }
         public virtual async void EditResourceRaw()
         {
             DockableTextEditor m = new DockableTextEditor();

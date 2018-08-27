@@ -377,7 +377,6 @@
     <Compile Include="Components\Scene\UI\UI3DComponent.cs" />
     <Compile Include="Components\Scene\UI\Base UI Components\UIComponent.cs" />
     <Compile Include="Components\Scene\UI\Base UI Components\UIDockableComponent.cs" />
-    <Compile Include="Components\Scene\UI\UIManager.cs" />
     <Compile Include="Components\Scene\UI\UIMaterialRectangleComponent.cs" />
     <Compile Include="Components\Scene\UI\Base UI Components\UIRotatableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIViewportComponent.cs" />
@@ -958,7 +957,7 @@
     <Compile Include="Actors\Types\ComponentActors\SoundActor.cs" />
     <Compile Include="Actors\Types\TransformTool2D.cs" />
     <Compile Include="Actors\Types\Pawns\CharacterPawn.cs" />
-    <Compile Include="Actors\Types\Pawns\UIManagerPawn.cs" />
+    <Compile Include="Actors\Types\Pawns\UserInterface.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawnLagged.cs" />
     <Compile Include="Components\Scene\LandscapeComponent.cs" />
     <Compile Include="Actors\Pawn.cs" />

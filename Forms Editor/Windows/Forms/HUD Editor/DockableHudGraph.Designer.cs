@@ -1,6 +1,6 @@
 ﻿namespace TheraEditor.Windows.Forms
 {
-    partial class DockableMatGraph
+    partial class DockableHudGraph
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.RenderPanel = new MaterialGraphRenderPanel();
+            this.RenderPanel = new HudGraphRenderPanel();
             this.SuspendLayout();
             // 
             // RenderPanel
@@ -69,6 +69,6 @@
 
         #endregion
 
-        public MaterialGraphRenderPanel RenderPanel;
+        public HudGraphRenderPanel RenderPanel;
     }
 }

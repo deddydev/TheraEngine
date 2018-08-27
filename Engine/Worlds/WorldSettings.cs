@@ -117,7 +117,7 @@ namespace TheraEngine.Worlds
             set => _ambientParams = value;
         }
         [Browsable(false)]
-        public IUIManager DefaultHud
+        public IUserInterface DefaultHud
         {
             get => _defaultHud;
             set => _defaultHud = value;
@@ -132,7 +132,7 @@ namespace TheraEngine.Worlds
         //[TSerialize(nameof(GlobalAmbient))]
         //private ColorF3 _globalAmbient;
         [TSerialize(nameof(DefaultHud))]
-        private IUIManager _defaultHud;
+        private IUserInterface _defaultHud;
         [TSerialize(nameof(Bounds))]
         private BoundingBox _bounds = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
         [TSerialize(nameof(OriginRebaseBounds))]

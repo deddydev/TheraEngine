@@ -18,9 +18,10 @@ namespace TheraEditor.Windows.Forms
         public UIHudEditor() : base()
         {
             VertexQuad quad = VertexQuad.PosZQuad(1, false, 0, false);
-            VertexLine[] lines = quad.ToLines();
-            PrimitiveData data = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), lines);
+            VertexTriangle[] lines = quad.ToTriangles();
+            PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), lines);
             TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Yellow);
+            mat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
             _highlightMesh.Primitives = new PrimitiveManager(data, mat);
             _uiBoundsMesh.Primitives = new PrimitiveManager(data, mat);
         }
@@ -98,7 +99,6 @@ namespace TheraEditor.Windows.Forms
             frag);
         }
         
-        #region Input
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterButtonPressed(EKey.AltLeft, b => _altDown = b, EInputPauseType.TickAlways);
@@ -194,6 +194,5 @@ namespace TheraEditor.Windows.Forms
             passes.Add(_highlightMesh, ERenderPass.OnTopForward);
             passes.Add(_uiBoundsMesh, ERenderPass.Background);
         }
-        #endregion
     }
 }

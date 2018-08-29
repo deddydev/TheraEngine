@@ -29,8 +29,11 @@ namespace TheraEngine.Rendering.UI
         protected Vec2 _localOriginPercentage = Vec2.Zero;
         protected bool _visible = true;
 
+        [Category("Rendering")]
         public virtual int LayerIndex { get; set; }
+        [Category("Rendering")]
         public virtual int IndexWithinLayer { get; set; }
+        [Category("Rendering")]
         public virtual bool IsVisible
         {
             get => _visible;
@@ -108,6 +111,7 @@ namespace TheraEngine.Rendering.UI
                 //PerformResize();
             }
         }
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float ScaleX
         {
@@ -119,6 +123,7 @@ namespace TheraEngine.Rendering.UI
                 //PerformResize();
             }
         }
+        [Browsable(false)]
         [Category("Transform")]
         public virtual float ScaleY
         {
@@ -176,7 +181,7 @@ namespace TheraEngine.Rendering.UI
                 -LocalTranslation,
                 TransformOrder.SRT);
         }
-        private bool _resizing = false;
+        protected bool _resizing = false;
         public virtual Vec2 Resize(Vec2 parentBounds)
         {
             if (_resizing)

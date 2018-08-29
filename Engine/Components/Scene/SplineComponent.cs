@@ -28,7 +28,6 @@ namespace TheraEngine.Components.Scene
         public bool RenderKeyframePoints { get; set; } = true;
 
         private PropAnimVec3 _spline;
-
         private PrimitiveManager _splinePrimitive;
         private PrimitiveManager _velocityPrimitive;
         private PrimitiveManager _pointPrimitive;
@@ -133,14 +132,20 @@ namespace TheraEngine.Components.Scene
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            
+            if (OwningScene3D != null)
+            {
+                if (selected)
+                    OwningScene3D.Add(this);
+                else
+                    OwningScene3D.Remove(this);
+            }
             base.OnSelectedChanged(selected);
         }
 
-        private RenderCommandMesh3D _rcSpline = new RenderCommandMesh3D();
-        private RenderCommandMesh3D _rcVelocity = new RenderCommandMesh3D();
-        private RenderCommandMesh3D _rcPoints = new RenderCommandMesh3D();
-        private RenderCommandMesh3D _rcTangents = new RenderCommandMesh3D();
+        private readonly RenderCommandMesh3D _rcSpline = new RenderCommandMesh3D();
+        private readonly RenderCommandMesh3D _rcVelocity = new RenderCommandMesh3D();
+        private readonly RenderCommandMesh3D _rcPoints = new RenderCommandMesh3D();
+        private readonly RenderCommandMesh3D _rcTangents = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             _rcSpline.Mesh = _splinePrimitive;

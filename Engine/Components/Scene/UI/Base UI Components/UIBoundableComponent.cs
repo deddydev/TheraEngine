@@ -18,10 +18,7 @@ namespace TheraEngine.Rendering.UI
     }
     public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, I2DBoundable, IEnumerable<UIComponent>
     {
-        public UIBoundableComponent() : base()
-        {
-
-        }
+        public UIBoundableComponent() : base() { }
         
         [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
@@ -42,7 +39,7 @@ namespace TheraEngine.Rendering.UI
                 PerformResize();
             }
         }
-        [Category("Transform")]
+        [Browsable(false)]
         public virtual float Height
         {
             get => _size.Y;
@@ -52,7 +49,7 @@ namespace TheraEngine.Rendering.UI
                 PerformResize();
             }
         }
-        [Category("Transform")]
+        [Browsable(false)]
         public virtual float Width
         {
             get => _size.X;

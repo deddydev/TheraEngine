@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Reflection;
 using TheraEngine.Components;
 using TheraEngine.Core.Shapes;
@@ -33,6 +34,7 @@ namespace TheraEngine.Rendering.UI
         /// The X value of the right boundary line.
         /// Only moves the right edge by resizing width.
         /// </summary>
+        [Category("Transform")]
         public float MaxX
         {
             get => LocalTranslationX + (Width < 0 ? 0 : Width);
@@ -47,6 +49,7 @@ namespace TheraEngine.Rendering.UI
         /// The Y value of the top boundary line.
         /// Only moves the top edge by resizing height.
         /// </summary>
+        [Category("Transform")]
         public float MaxY
         {
             get => LocalTranslationY + (Height < 0 ? 0 : Height);
@@ -61,6 +64,7 @@ namespace TheraEngine.Rendering.UI
         /// The X value of the left boundary line.
         /// Only moves the left edge by resizing width.
         /// </summary>
+        [Category("Transform")]
         public float MinX
         {
             get => LocalTranslationX + (Width < 0 ? Width : 0);
@@ -77,6 +81,7 @@ namespace TheraEngine.Rendering.UI
         /// The Y value of the bottom boundary line.
         /// Only moves the bottom edge by resizing height.
         /// </summary>
+        [Category("Transform")]
         public float MinY
         {
             get => LocalTranslationY + (Height < 0 ? Height : 0);
@@ -106,6 +111,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
+        [Category("Transform")]
         public override Vec2 Size
         {
             get => base.Size;
@@ -116,6 +122,7 @@ namespace TheraEngine.Rendering.UI
                 base.Size = value;
             }
         }
+        [Browsable(false)]
         public override float Width
         {
             get => base.Width;
@@ -125,6 +132,7 @@ namespace TheraEngine.Rendering.UI
                 base.Width = value;
             }
         }
+        [Browsable(false)]
         public override float Height
         {
             get => base.Height;
@@ -134,6 +142,7 @@ namespace TheraEngine.Rendering.UI
                 base.Height = value;
             }
         }
+        [Category("Transform")]
         public override Vec2 LocalTranslation
         {
             get => base.LocalTranslation;
@@ -144,6 +153,7 @@ namespace TheraEngine.Rendering.UI
                 base.LocalTranslation = value;
             }
         }
+        [Browsable(false)]
         public override float LocalTranslationX
         {
             get => base.LocalTranslationX;
@@ -153,6 +163,7 @@ namespace TheraEngine.Rendering.UI
                 base.LocalTranslationX = value;
             }
         }
+        [Browsable(false)]
         public override float LocalTranslationY
         {
             get => base.LocalTranslationY;
@@ -177,16 +188,23 @@ namespace TheraEngine.Rendering.UI
 
         private readonly ISizeable[] _sizeableElements;
 
+        [Category("Transform")]
         public SizeableElement SizeableWidth { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Width };
+        [Category("Transform")]
         public SizeableElement SizeableHeight { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Height };
+        [Category("Transform")]
         public SizeableElement SizeablePosX { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Width };
+        [Category("Transform")]
         public SizeableElement SizeablePosY { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Height };
+        [Category("Transform")]
         protected SizeableElementQuad Padding { get; } = new SizeableElementQuad();
+        [Category("Transform")]
         protected SizeableElementQuad Anchor { get; } = new SizeableElementQuad();
 
         private UIDockStyle _dockStyle = UIDockStyle.None;
         private AnchorFlags _anchorFlags = AnchorFlags.None;
-        
+
+        [Category("Transform")]
         public UIDockStyle DockStyle
         {
             get => _dockStyle;
@@ -196,6 +214,7 @@ namespace TheraEngine.Rendering.UI
                 PerformResize();
             }
         }
+        [Category("Transform")]
         public AnchorFlags SideAnchorFlags
         {
             get => _anchorFlags;
@@ -206,9 +225,12 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
+        [Browsable(false)]
         public bool Docked => _dockStyle != UIDockStyle.None;
+        [Browsable(false)]
         public bool Anchored => _anchorFlags != AnchorFlags.None;
 
+        [Browsable(false)]
         public bool AnchoredBottom
         {
             get => (_anchorFlags & AnchorFlags.Bottom) != 0;
@@ -223,6 +245,7 @@ namespace TheraEngine.Rendering.UI
                 PerformResize();
             }
         }
+        [Browsable(false)]
         public bool AnchoredTop
         {
             get => (_anchorFlags & AnchorFlags.Top) != 0;
@@ -237,6 +260,7 @@ namespace TheraEngine.Rendering.UI
                 PerformResize();
             }
         }
+        [Browsable(false)]
         public bool AnchoredLeft
         {
             get => (_anchorFlags & AnchorFlags.Left) != 0;
@@ -251,6 +275,7 @@ namespace TheraEngine.Rendering.UI
                 PerformResize();
             }
         }
+        [Browsable(false)]
         public bool AnchoredRight
         {
             get => (_anchorFlags & AnchorFlags.Right) != 0;
@@ -268,6 +293,10 @@ namespace TheraEngine.Rendering.UI
 
         public override unsafe Vec2 Resize(Vec2 parentBounds)
         {
+            if (_resizing)
+                return parentBounds;
+            _resizing = true;
+
             Vec2 leftOver = parentBounds;
             Vec2 prevRegion = Size;
 
@@ -346,6 +375,8 @@ namespace TheraEngine.Rendering.UI
             Vec2 bounds = Size;
             foreach (UIComponent c in _children)
                 bounds = c.Resize(bounds);
+
+            _resizing = false;
 
             return leftOver;
         }

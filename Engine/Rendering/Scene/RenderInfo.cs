@@ -38,6 +38,7 @@ namespace TheraEngine.Rendering
         public int LayerIndex { get; set; }
         [TSerialize]
         public int IndexWithinLayer { get; set; }
+        [Browsable(false)]
         public I2DRenderable Owner { get; internal set; }
         [Browsable(false)]
         public Scene2D Scene { get; internal set; }

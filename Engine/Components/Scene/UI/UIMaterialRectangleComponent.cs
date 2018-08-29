@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -8,6 +9,7 @@ namespace TheraEngine.Rendering.UI
 {
     public class UIMaterialRectangleComponent : UIDockableComponent, I2DRenderable
     {
+        [Category("Rendering")]
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass.OpaqueForward, 0, 0);
 
         public UIMaterialRectangleComponent() 
@@ -20,10 +22,32 @@ namespace TheraEngine.Rendering.UI
         }
 
         protected PrimitiveManager _quad;
-        
+
+        [Category("Rendering")]
+        public override int LayerIndex
+        {
+            get => base.LayerIndex;
+            set
+            {
+                base.LayerIndex = value;
+                RenderInfo.LayerIndex = value;
+            }
+        }
+        [Category("Rendering")]
+        public override int IndexWithinLayer
+        {
+            get => base.IndexWithinLayer;
+            set
+            {
+                base.IndexWithinLayer = value;
+                RenderInfo.IndexWithinLayer = value;
+            }
+        }
+
         /// <summary>
         /// The material used to render on this UI component.
         /// </summary>
+        [Category("Rendering")]
         public TMaterial InterfaceMaterial
         {
             get => _quad.Material;

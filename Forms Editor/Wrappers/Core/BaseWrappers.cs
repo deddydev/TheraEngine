@@ -203,12 +203,12 @@ namespace TheraEditor.Wrappers
                             //TODO: find best interface to use if multiple matches?
                             if (validInterfaces.Length > 1)
                             {
-                                Engine.PrintLine("File of type " + t.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName()));
                                 var counts = validInterfaces.Select(inf => validInterfaces.Count(v => inf.IsAssignableFrom(v))).ToArray();
                                 int min = counts.Min();
                                 int[] mins = counts.FindAllMatchIndices(x => x == min);
-                                if (mins.Length > 1)
-                                    Engine.PrintLine("Narrowed down wrappers to " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName()));
+                                string msg = "File of type " + t.GetFriendlyName() + " has multiple valid interface wrappers: " + validInterfaces.ToStringList(", ", " and ", x => x.GetFriendlyName());
+                                msg += ". Narrowed down wrappers to " + mins.Select(x => validInterfaces[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
+                                Engine.PrintLine(msg);
                                 match = validInterfaces[mins[0]];
                             }
                             else

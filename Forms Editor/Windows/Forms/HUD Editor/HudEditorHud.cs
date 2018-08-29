@@ -45,6 +45,9 @@ namespace TheraEditor.Windows.Forms
                 if (_targetHud != null)
                 {
                     _rootTransform.ChildComponents.Add(_targetHud.RootComponent);
+                    IVec2 vec = LocalPlayerController.Viewport.Region.Extents;
+                    UIComponent comp = _targetHud.RootComponent as UIComponent;
+                    comp.Resize(vec);
                 }
                 else
                 {
@@ -53,7 +56,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OpaqueForward, 0, 0);
+        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OpaqueForward, 99, 0);
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
         private UIComponent _dragComp, _highlightedComp;

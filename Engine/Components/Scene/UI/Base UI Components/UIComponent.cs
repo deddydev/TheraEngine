@@ -205,8 +205,8 @@ namespace TheraEngine.Rendering.UI
                 Resize(comp.Size);
             else if (OwningActor != null)
                 Resize(OwningActor.Bounds);
-            else
-                Resize(Vec2.Zero);
+            //else
+            //    Resize(Vec2.Zero);
         }
         public virtual UIBoundableComponent FindDeepestComponent(Vec2 cursorPointWorld)
         {

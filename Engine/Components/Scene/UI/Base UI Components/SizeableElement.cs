@@ -27,6 +27,8 @@ namespace TheraEngine.Rendering.UI
     {
         internal bool IgnoreUserChanges { get; set; } = false;
 
+        public event Action ParameterChanged;
+
         private float
             _currValue = 0.0f,
             _modValue = 0.0f,
@@ -45,7 +47,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _currValue = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         public float ModificationValue
@@ -54,7 +59,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _modValue = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         public float ResultingValue
@@ -63,7 +71,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _resValue = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         public SizingMode SizingOption
@@ -72,7 +83,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _sizingMode = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         public SizeableElement ProportionElement
@@ -81,7 +95,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _propElem = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         public SizeableElement Minimum
@@ -90,7 +107,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _minSize = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         public SizeableElement Maximum
@@ -99,7 +119,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _maxSize = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         public ParentBoundsInheritedValue ParentBoundsInherited
@@ -108,7 +131,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _parentBoundsInherit = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         /// <summary>
@@ -120,7 +146,10 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 if (!IgnoreUserChanges)
+                {
                     _smallerRelative = value;
+                    ParameterChanged?.Invoke();
+                }
             }
         }
         private float GetDim(Vec2 parentBounds)

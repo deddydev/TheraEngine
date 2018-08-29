@@ -42,6 +42,7 @@ namespace TheraEngine.Rendering.UI
             {
                 CheckProperDimensions();
                 _size.X = value - LocalTranslationX;
+                SizeableWidth.CurrentValue = _size.X;
                 PerformResize();
             }
         }
@@ -57,6 +58,7 @@ namespace TheraEngine.Rendering.UI
             {
                 CheckProperDimensions();
                 _size.Y = value - LocalTranslationY;
+                SizeableHeight.CurrentValue = _size.Y;
                 PerformResize();
             }
         }
@@ -74,6 +76,7 @@ namespace TheraEngine.Rendering.UI
                 float origX = _size.X;
                 _translation.X = value;
                 _size.X = origX - LocalTranslationX;
+                SizeableWidth.CurrentValue = _size.X;
                 PerformResize();
             }
         }
@@ -91,6 +94,7 @@ namespace TheraEngine.Rendering.UI
                 float origY = _size.Y;
                 _translation.Y = value;
                 _size.Y = origY - LocalTranslationY;
+                SizeableHeight.CurrentValue = _size.Y;
                 PerformResize();
             }
         }
@@ -175,6 +179,10 @@ namespace TheraEngine.Rendering.UI
         }
         public UIDockableComponent()
         {
+            SizeableHeight.ParameterChanged += SizeableHeight_ParameterChanged;
+            SizeableWidth.ParameterChanged += SizeableHeight_ParameterChanged;
+            SizeablePosX.ParameterChanged += SizeableHeight_ParameterChanged;
+            SizeablePosY.ParameterChanged += SizeableHeight_ParameterChanged;
             _sizeableElements = new ISizeable[]
             {
                 SizeableWidth,
@@ -184,6 +192,11 @@ namespace TheraEngine.Rendering.UI
                 Padding,
                 Anchor,
             };
+        }
+
+        private void SizeableHeight_ParameterChanged()
+        {
+            PerformResize();
         }
 
         private readonly ISizeable[] _sizeableElements;

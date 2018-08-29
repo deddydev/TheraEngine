@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.UI
     /// <summary>
     /// UI component that can be interacted with by the player.
     /// </summary>
-    public abstract class UIInteractableComponent : UIDockableComponent
+    public abstract class UIInteractableComponent : UIMaterialRectangleComponent
     {
         [Category("Events")]
         public event DelMouseMove MouseMove;

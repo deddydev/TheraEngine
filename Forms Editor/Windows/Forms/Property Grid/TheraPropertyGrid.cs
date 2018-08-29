@@ -114,8 +114,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 treeViewSceneComps.Nodes.Clear();
                 lstLogicComps.DataSource = null;
                 btnSave.Visible = _targetFileObject != null && _targetFileObject.EditorState.IsDirty;
-                pnlHeader.Visible = _targetFileObject != null;
-                if (pnlHeader.Visible)
+                bool notNull = _targetFileObject != null;
+                pnlHeader.Visible = notNull;
+                if (notNull)
                 {
                     if (_targetFileObject is IActor actor)
                     {
@@ -806,7 +807,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             sibComps.Add(comp);
 
             TreeNode t = new TreeNode(comp.Name) { Tag = comp };
-            _selectedSceneComp.Parent.Nodes.Add(t);
+            if (_selectedSceneComp.Parent == null)
+                treeViewSceneComps.Nodes.Add(t);
+            else
+                _selectedSceneComp.Parent.Nodes.Add(t);
 
             t.EnsureVisible();
             CalcSceneCompTreeHeight();

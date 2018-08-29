@@ -237,7 +237,7 @@ namespace TheraEngine.Rendering.UI.Functions
         #region Control Arrangement
         public void ArrangeControls()
         {
-            Vec2 headerSize = _headerString.Bounds.Extents;
+            Vec2 headerSize = _headerString.Region.Extents;
             int totalHeaderPadding = HeaderPadding * 2;
             headerSize.Y += totalHeaderPadding;
             headerSize.X += totalHeaderPadding;

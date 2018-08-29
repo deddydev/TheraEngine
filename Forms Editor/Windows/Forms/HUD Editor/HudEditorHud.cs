@@ -1,24 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Drawing;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Files;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Functions;
 using TheraEngine.Rendering.UI;
-using TheraEngine.Rendering.UI.Functions;
 
 namespace TheraEditor.Windows.Forms
 {
     public delegate void DelUIComponentSelect(UIComponent comp);
     public class UIHudEditor : UserInterface<UIMaterialRectangleComponent>, I2DRenderable
     {
-        public UIHudEditor() : base() { }
+        public UIHudEditor() : base()
+        {
+            VertexQuad quad = VertexQuad.PosZQuad(1, false, 0, false);
+            VertexLine[] lines = quad.ToLines();
+            PrimitiveData data = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), lines);
+            TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Yellow);
+            _highlightMesh.Primitives = new PrimitiveManager(data, mat);
+            _uiBoundsMesh.Primitives = new PrimitiveManager(data, mat);
+        }
         public UIHudEditor(Vec2 bounds) : base(bounds) { }
 
         public event DelUIComponentSelect UIComponentSelected;
@@ -31,10 +36,14 @@ namespace TheraEditor.Windows.Forms
             {
                 if (_targetHud == value)
                     return;
+                else if (_targetHud != null)
+                {
+                    _rootTransform.ChildComponents.Remove(_targetHud.RootComponent);
+                }
                 _targetHud = value;
                 if (_targetHud != null)
                 {
-
+                    _rootTransform.ChildComponents.Add(_targetHud.RootComponent);
                 }
                 else
                 {
@@ -43,10 +52,10 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OnTopForward, 0, 0);
+        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OpaqueForward, 0, 0);
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
-
+        private UIComponent _dragComp, _highlightedComp;
         private IUserInterface _targetHud;
         private Vec2 _minScale = new Vec2(0.1f), _maxScale = new Vec2(4.0f);
         private Vec2 _lastWorldPos = Vec2.Zero;
@@ -80,10 +89,10 @@ namespace TheraEditor.Windows.Forms
             GLSLShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", EShaderMode.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
             {
-                new ShaderVec3(new Vec3(0.1f, 0.12f, 0.13f), "LineColor"),
-                new ShaderVec3(new Vec3(0.25f, 0.27f, 0.3f), "BGColor"),
+                new ShaderVec3(new Vec3(0.15f, 0.18f, 0.23f), "LineColor"),
+                new ShaderVec3(new Vec3(0.20f, 0.25f, 0.3f), "BGColor"),
                 new ShaderFloat(1.0f, "Scale"),
-                new ShaderFloat(0.05f, "LineWidth"),
+                new ShaderFloat(0.1f, "LineWidth"),
                 new ShaderVec2(new Vec2(0.0f), "Translation"),
             },
             frag);
@@ -105,11 +114,11 @@ namespace TheraEditor.Windows.Forms
         private bool _ctrlDown = false;
         internal void LeftClickDown()
         {
-
+            _dragComp = _highlightedComp;
         }
         internal void LeftClickUp()
         {
-
+            _dragComp = null;
         }
         private void RightClickDown()
         {
@@ -121,17 +130,21 @@ namespace TheraEditor.Windows.Forms
         {
             _rightClickDown = false;
         }
+
         protected override void MouseMove(float x, float y)
         {
             Vec2 pos = CursorPosition();
             if (_rightClickDown)
                 HandleDragView(pos);
+            else if (_dragComp != null)
+                HandleDragHudComp(pos, _dragComp);
             else
                 HighlightHud();
             _cursorPos = pos;
         }
-
+        
         #region Dragging
+
         private Vec2 GetWorldCursorDiff(Vec2 cursorPosScreen)
         {
             Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
@@ -148,7 +161,7 @@ namespace TheraEditor.Windows.Forms
             TMaterial mat = RootComponent.InterfaceMaterial;
             mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
         }
-        private void HandleDragHudComp(Vec2 cursorPosScreen, UIBoundableComponent draggedComp)
+        private void HandleDragHudComp(Vec2 cursorPosScreen, UIComponent draggedComp)
         {
             Vec2 diff = GetWorldCursorDiff(cursorPosScreen);
             draggedComp.LocalTranslation += Vec3.TransformVector(diff, draggedComp.InverseWorldMatrix).Xy;
@@ -157,11 +170,7 @@ namespace TheraEditor.Windows.Forms
 
         private void HighlightHud()
         {
-            UIComponent comp = FindComponent();
-
-            if (comp is UITextComponent)
-                comp = (UIComponent)comp.ParentSocket;
-            
+            _highlightedComp = FindComponent();
         }
         protected override void OnScrolledInput(bool down)
         {
@@ -173,9 +182,17 @@ namespace TheraEditor.Windows.Forms
             mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
         }
 
+        private RenderCommandMesh2D _highlightMesh = new RenderCommandMesh2D();
+        private RenderCommandMesh2D _uiBoundsMesh = new RenderCommandMesh2D();
         public void AddRenderables(RenderPasses passes)
         {
+            _highlightMesh.WorldMatrix = _highlightedComp == null ? Matrix4.Identity : _highlightedComp.WorldMatrix;
+            _highlightMesh.NormalMatrix = Matrix3.Identity;
+            _uiBoundsMesh.WorldMatrix = Matrix4.CreateScale(TargetHUD.Bounds);
+            _uiBoundsMesh.NormalMatrix = Matrix3.Identity;
 
+            passes.Add(_highlightMesh, ERenderPass.OnTopForward);
+            passes.Add(_uiBoundsMesh, ERenderPass.Background);
         }
         #endregion
     }

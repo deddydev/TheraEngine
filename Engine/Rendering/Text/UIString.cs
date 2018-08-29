@@ -55,9 +55,8 @@ namespace TheraEngine.Rendering.Text
         private float _rotation = 0.0f;
         private ColorF4 _color = new ColorF4(1.0f);
         private StringFormat _format = new StringFormat();
-        private BoundingRectangleF _bounds = new BoundingRectangleF();
 
-        public BoundingRectangleF Bounds => _bounds;
+        public EventBoundingRectangleF Region { get; } = new EventBoundingRectangleF();
         internal SolidBrush Brush { get; private set; } = new SolidBrush(Color.White);
         internal TextDrawer Parent { get; set; }
         internal List<UIString2D> Overlapping { get; set; } //Set after being drawn
@@ -72,7 +71,7 @@ namespace TheraEngine.Rendering.Text
             set
             {
                 _text = value ?? string.Empty;
-                _bounds.Extents = TextRenderer.MeasureText(_text, _font);
+                //Region.Extents = TextRenderer.MeasureText(_text, _font);
                 Parent?.TextChanged(this);
             }
         }
@@ -89,7 +88,7 @@ namespace TheraEngine.Rendering.Text
                     return;
 
                 _font = value;
-                _bounds.Extents = TextRenderer.MeasureText(_text, _font);
+                //Region.Extents = TextRenderer.MeasureText(_text, _font);
                 Parent?.TextChanged(this);
             }
         }
@@ -113,10 +112,10 @@ namespace TheraEngine.Rendering.Text
         [Category("UI String")]
         public Vec2 Position
         {
-            get => _bounds.OriginTranslation;
+            get => Region.OriginTranslation;
             set
             {
-                _bounds.OriginTranslation = value;
+                Region.OriginTranslation = value;
                 Parent?.TextChanged(this);
             }
         }
@@ -126,10 +125,10 @@ namespace TheraEngine.Rendering.Text
         [Category("UI String")]
         public Vec2 OriginPercentages
         {
-            get => _bounds.LocalOriginPercentage;
+            get => Region.LocalOriginPercentage;
             set
             {
-                _bounds.LocalOriginPercentage = value;
+                Region.LocalOriginPercentage = value;
                 Parent?.TextChanged(this);
             }
         }
@@ -186,7 +185,7 @@ namespace TheraEngine.Rendering.Text
                 Parent?.TextChanged(this);
             }
         }
-
+        
         public override int GetHashCode()
         {
             return base.GetHashCode();

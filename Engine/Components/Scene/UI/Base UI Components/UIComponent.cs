@@ -188,6 +188,9 @@ namespace TheraEngine.Rendering.UI
             _resizing = false;
             return parentBounds;
         }
+        /// <summary>
+        /// Resizes self depending on the parent component.
+        /// </summary>
         protected virtual void PerformResize()
         {
             if (_resizing)
@@ -266,7 +269,11 @@ namespace TheraEngine.Rendering.UI
         {
             base.HandleSingleChildAdded(item);
             if (item is UIComponent c)
+            {
                 c.LayerIndex = LayerIndex;
+                c.IndexWithinLayer = IndexWithinLayer + 1;
+                c.PerformResize();
+            }
         }
 
         protected internal override void OriginRebased(Vec3 newOrigin) { }

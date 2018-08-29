@@ -56,13 +56,17 @@ namespace TheraEngine.Actors.Types.Pawns
         internal Scene2D _scene;
         private IPawn _owningPawn;
 
+        [Browsable(false)]
         public Vec2 Bounds { get; private set; }
+        [Browsable(false)]
         public OrthographicCamera Camera { get; }
-
+        [Browsable(false)]
         public UIComponent FocusedComponent { get; set; }
-
+        [Browsable(false)]
         public Scene2D UIScene => _scene;
+        [Browsable(false)]
         public RenderPasses RenderPasses { get; set; } = new RenderPasses();
+        [Browsable(false)]
         public IPawn OwningPawn
         {
             get => _owningPawn;

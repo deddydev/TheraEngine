@@ -295,6 +295,9 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public Vec3 WorldScale => _worldTransform.Scale;
         
+        /// <summary>
+        /// All scene components that derive their transform from this one.
+        /// </summary>
         [TSerialize]
         [Browsable(false)]
         [Category("Scene Component")]

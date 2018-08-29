@@ -11,6 +11,18 @@ namespace TheraEngine.Rendering.Models
     [FileDef("Mesh Primitive Data")]
     public partial class PrimitiveData : TFileObject, IDisposable
     {
+        static PrimitiveData()
+        {
+            //MethodIndexer = new Dictionary<Type, Delegate>()
+            //{
+            //    { typeof(VertexTriangle), (Func<VertexShaderDesc, VertexTriangle[], PrimitiveData>)FromTriangles }
+            //};
+        }
+        private static Dictionary<Type, Func<PrimitiveData>> MethodIndexer;
+        //public static PrimitiveData Create<T>(VertexShaderDesc info, params T[] polygons) where T : VertexPolygon
+        //{
+
+        //}
         public static PrimitiveData FromQuads(VertexShaderDesc info, params VertexQuad[] quads)
             => FromQuadList(info, quads);
         public static PrimitiveData FromQuadList(VertexShaderDesc info, IEnumerable<VertexQuad> quads)

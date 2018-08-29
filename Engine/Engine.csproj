@@ -409,6 +409,7 @@
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
     <Compile Include="Core\ResourcePool.cs" />
     <Compile Include="Rendering\Shapes\BoundingRectangle.cs" />
+    <Compile Include="Rendering\Shapes\EventBoundingRectangleF.cs" />
     <Compile Include="Rendering\Shapes\Cylindrical\XAligned\ConeX.cs" />
     <Compile Include="Input\Devices\OpenTK\TKRift.cs" />
     <Compile Include="Input\Devices\Types\Rift.cs" />

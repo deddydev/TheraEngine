@@ -15,6 +15,8 @@ namespace TheraEditor.Windows.Forms
             dockPanel1.Theme = new TheraEditorTheme();
             FormTitle2.MouseDown += TitleBar_MouseDown;
             FormTitle2.MouseUp += (s, e) => { if (e.Button == System.Windows.Forms.MouseButtons.Right && FormTitle.ClientRectangle.Contains(e.Location)) ShowSystemMenu(MouseButtons); };
+            HUDGraph = new DockableFormInstance<DockableHudGraph>(x => x.Show(dockPanel1, DockState.Document));
+            HUDProps = new DockableFormInstance<DockablePropertyGrid>(x => x.Show(dockPanel1, DockState.DockRight));
         }
         public HudEditorForm(IUserInterface manager) : this()
         {
@@ -23,29 +25,18 @@ namespace TheraEditor.Windows.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            HudGraph.Focus();
-            HudGraph.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
+            HUDGraph.Form.Focus();
+            HUDGraph.Form.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
         }
-        private DockableHudGraph _materialGraph = null;
-        public DockableHudGraph HudGraph
-        {
-            get
-            {
-                if (_materialGraph == null || _materialGraph.IsDisposed)
-                {
-                    Engine.PrintLine("Created hud graph viewport");
-                    _materialGraph = new DockableHudGraph();
-                    _materialGraph.Show(dockPanel1, DockState.Document);
-                }
-                return _materialGraph;
-            }
-        }
+        public DockableFormInstance<DockableHudGraph> HUDGraph { get; }
+        public DockableFormInstance<DockablePropertyGrid> HUDProps { get; }
         public IUserInterface TargetHUD
         {
-            get => HudGraph.RenderPanel.UI.TargetHUD;
+            get => HUDGraph.Form.RenderPanel.UI.TargetHUD;
             set
             {
-                HudGraph.RenderPanel.UI.TargetHUD = value;
+                HUDGraph.Form.RenderPanel.UI.TargetHUD = value;
+                HUDProps.Form.PropertyGrid.TargetFileObject = value;
                 FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
             }
         }

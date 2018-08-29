@@ -1153,4 +1153,29 @@ namespace TheraEditor.Windows.Forms
 
         }
     }
+    public class DockableFormInstance<T> where T : DockContent, new()
+    {
+        public DockableFormInstance(Action<T> onCreated)
+            => _onCreated = onCreated;
+
+        private event Action<T> _onCreated;
+        private T _value;
+
+        public bool Active
+            => _value != null && !_value.IsDisposed;
+
+        public T Form
+        {
+            get
+            {
+                if (_value == null || _value.IsDisposed)
+                {
+                    _value = new T();
+                    Engine.PrintLine("Created " + _value.GetType().GetFriendlyName());
+                    _onCreated?.Invoke(_value);
+                }
+                return _value;
+            }
+        }
+    }
 }

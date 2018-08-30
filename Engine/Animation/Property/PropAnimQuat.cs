@@ -81,11 +81,13 @@ namespace TheraEngine.Animation
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat OutTangent { get; set; }
 
+        [Browsable(false)]
         public new QuatKeyframe Next
         {
             get => _next as QuatKeyframe;
             set => _next = value;
         }
+        [Browsable(false)]
         public new QuatKeyframe Prev
         {
             get => _prev as QuatKeyframe;

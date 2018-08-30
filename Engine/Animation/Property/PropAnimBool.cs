@@ -69,11 +69,13 @@ namespace TheraEngine.Animation
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool Value { get; set; }
 
+        [Browsable(false)]
         public new BoolKeyframe Next
         {
             get => _next as BoolKeyframe;
             set => _next = value;
         }
+        [Browsable(false)]
         public new BoolKeyframe Prev
         {
             get => _prev as BoolKeyframe;

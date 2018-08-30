@@ -64,11 +64,13 @@ namespace TheraEngine.Animation
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Matrix4 Value { get; set; }
 
+        [Browsable(false)]
         public new Matrix4Keyframe Next
         {
             get => _next as Matrix4Keyframe;
             set => _next = value;
         }
+        [Browsable(false)]
         public new Matrix4Keyframe Prev
         {
             get => _prev as Matrix4Keyframe;

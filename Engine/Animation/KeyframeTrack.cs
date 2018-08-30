@@ -28,10 +28,7 @@ namespace TheraEngine.Animation
     public class KeyframeTrack<T> : BaseKeyframeTrack, IList, IList<T>, IEnumerable<T> where T : Keyframe
     {
         private T _first = null;
-        private object _syncRoot = null;
-        private bool _isSynchronized = false;
-        private float _lengthInSeconds = 0.0f;
-        
+
         public T First
         {
             get => _first;
@@ -47,6 +44,7 @@ namespace TheraEngine.Animation
                 }
             }
         }
+        [Browsable(false)]
         public T Last => _first?.Prev as T;
         
         protected internal override Keyframe FirstKey
@@ -55,18 +53,22 @@ namespace TheraEngine.Animation
             internal set => First = value as T;
         }
 
+        [Browsable(false)]
         public bool IsReadOnly => false;
+        [Browsable(false)]
         public bool IsFixedSize => false;
         //public int Count => base.Count;
-        public object SyncRoot => _syncRoot;
-        public bool IsSynchronized => _isSynchronized;
-
-        public float LengthInSeconds => _lengthInSeconds;
+        [Browsable(false)]
+        public object SyncRoot { get; } = null;
+        [Browsable(false)]
+        public bool IsSynchronized { get; } = false;
+        [Browsable(false)]
+        public float LengthInSeconds { get; private set; } = 0.0f;
 
         public override void SetLength(float seconds, bool stretch)
         {
-            float ratio = seconds / _lengthInSeconds;
-            _lengthInSeconds = seconds;
+            float ratio = seconds / LengthInSeconds;
+            LengthInSeconds = seconds;
             if (stretch)
             {
                 Keyframe key = FirstKey;
@@ -81,7 +83,7 @@ namespace TheraEngine.Animation
                 Keyframe key = FirstKey;
                 while (key != null)
                 {
-                    if (key.Second < 0 || key.Second > _lengthInSeconds)
+                    if (key.Second < 0 || key.Second > LengthInSeconds)
                         key.Remove();
                     if (key.Next == FirstKey)
                         break;
@@ -373,17 +375,13 @@ namespace TheraEngine.Animation
 
         protected Keyframe _next, _prev;
 
-        private bool _isFirst;
-        //private int _trackIndex;
-        private BaseKeyframeTrack _owningTrack;
-
         public Keyframe()
         {
             _next = this;
             _prev = this;
             //TrackIndex = 0;
-            _isFirst = false;
-            _owningTrack = null;
+            IsFirst = false;
+            OwningTrack = null;
         }
 
         public float Second
@@ -397,13 +395,15 @@ namespace TheraEngine.Animation
             }
         }
 
+        [Browsable(false)]
         public Keyframe Next => _next;
+        [Browsable(false)]
         public Keyframe Prev => _prev;
-        public BaseKeyframeTrack OwningTrack
-        {
-            get => _owningTrack;
-            internal set => _owningTrack = value;
-        }
+        [Browsable(false)]
+        public bool IsFirst { get; internal set; }
+        [Browsable(false)]
+        public BaseKeyframeTrack OwningTrack { get; internal set; }
+
         //public int TrackIndex
         //{
         //    get => _trackIndex;
@@ -416,16 +416,6 @@ namespace TheraEngine.Animation
         //            Next.TrackIndex = TrackIndex + 1;
         //    }
         //}
-
-        public bool IsFirst
-        {
-            get => _isFirst;
-            internal set
-            {
-                _isFirst = value;
-                //TrackIndex = 0;
-            }
-        }
 
         private void Relink(Keyframe key)
         {
@@ -478,23 +468,24 @@ namespace TheraEngine.Animation
 
         public abstract string WriteToString();
         public abstract void ReadFromString(string str);
+        public override string ToString() => WriteToString();
 
         public void Remove()
         {
-            if (_isFirst && _owningTrack != null)
-                _owningTrack.FirstKey = Next != this ? Next : null;
+            if (IsFirst && OwningTrack != null)
+                OwningTrack.FirstKey = Next != this ? Next : null;
             _next._prev = Prev;
             _prev._next = Next;
             //if (Next != this && Next.TrackIndex != _trackIndex && !Next.IsFirst)
             //    Next.TrackIndex = TrackIndex;
             _next = _prev = this;
             //TrackIndex = 0;
-            if (_owningTrack != null)
+            if (OwningTrack != null)
             {
-                --_owningTrack.Count;
-                _owningTrack.OnChanged();
+                --OwningTrack.Count;
+                OwningTrack.OnChanged();
             }
-            _owningTrack = null;
+            OwningTrack = null;
         }
     }
 }

@@ -90,11 +90,13 @@ namespace TheraEngine.Animation
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 OutTangent { get; set; }
 
+        [Browsable(false)]
         public new Vec3Keyframe Next
         {
             get => _next as Vec3Keyframe;
             set => _next = value;
         }
+        [Browsable(false)]
         public new Vec3Keyframe Prev
         {
             get => _prev as Vec3Keyframe;

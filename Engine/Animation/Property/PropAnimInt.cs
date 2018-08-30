@@ -169,11 +169,13 @@ namespace TheraEngine.Animation
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public float OutTangent { get; set; }
 
+        [Browsable(false)]
         public new IntKeyframe Next
         {
             get => _next as IntKeyframe;
             set => _next = value;
         }
+        [Browsable(false)]
         public new IntKeyframe Prev
         {
             get => _prev as IntKeyframe;

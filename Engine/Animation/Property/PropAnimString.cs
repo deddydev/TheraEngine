@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
 {
@@ -58,18 +59,17 @@ namespace TheraEngine.Animation
     }
     public class StringKeyframe : Keyframe
     {
-        protected string _value;
+        [TString(true, false, false, true)]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public string Value
-        {
-            get => _value;
-            set => _value = value;
-        }
+        public string Value { get; set; }
+
+        [Browsable(false)]
         public new StringKeyframe Next
         {
             get => _next as StringKeyframe;
             set => _next = value;
         }
+        [Browsable(false)]
         public new StringKeyframe Prev
         {
             get => _prev as StringKeyframe;
@@ -82,9 +82,6 @@ namespace TheraEngine.Animation
             Second = float.Parse(str.Substring(0, spaceIndex));
             Value = str.Substring(spaceIndex + 1);
         }
-        public override string WriteToString()
-        {
-            return string.Format("{0} {1}", Second, Value);
-        }
+        public override string WriteToString() => string.Format("{0} {1}", Second, Value);
     }
 }

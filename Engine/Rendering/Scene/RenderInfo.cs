@@ -137,6 +137,7 @@ namespace TheraEngine.Rendering
         public int SceneID { get; internal set; } = -1;
         [Browsable(false)]
         public Scene3D Scene { get; internal set; }
+        [Browsable(false)]
         public I3DRenderable Owner { get; internal set; }
         
         public RenderInfo3D()

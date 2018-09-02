@@ -279,9 +279,11 @@ namespace TheraEngine.Rendering.UI.Functions
                 maxHeights[i] = maxRowHeight;
                 _size.Y += maxRowHeight;
             }
-            SizeableHeight.CurrentValue = _size.Y;
 
-            _size.X = SizeableWidth.CurrentValue = Math.Max(maxRowWidth, headerSize.X);
+            _size.X = Math.Max(maxRowWidth, headerSize.X);
+
+            SizeableWidth.SetSizingPixels(_size.X);
+            SizeableHeight.SetSizingPixels(_size.Y);
 
             float yTrans = _size.Y - headerSize.Y - BaseFuncArg.ConnectionBoxMargin;
             for (int i = 0; i < maxRows; ++i)

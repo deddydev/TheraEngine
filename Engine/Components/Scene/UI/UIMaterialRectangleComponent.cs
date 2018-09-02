@@ -120,7 +120,6 @@ namespace TheraEngine.Rendering.UI
         {
             _renderCommand.Primitives = _quad;
             _renderCommand.WorldMatrix = _renderMatrix;
-            _renderCommand.NormalMatrix = Matrix3.Identity;
             _renderCommand.ZIndex = 0;
             passes.Add(_renderCommand, RenderInfo.RenderPass);
         }

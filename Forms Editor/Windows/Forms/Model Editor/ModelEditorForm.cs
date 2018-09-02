@@ -130,9 +130,14 @@ namespace TheraEditor.Windows.Forms
         public bool MaterialListActive => _materialList != null;
         public DockableMaterialList MaterialList => GetForm(
             ref _materialList, DockState.DockLeft);
+        
+        private DockablePropertyGrid _propGrid;
+        public bool PropGridActive => _propGrid != null;
+        public DockablePropertyGrid PropGrid => GetForm(
+            ref _propGrid, DockState.DockLeft);
 
         #endregion
-        
+
         private LocalFileRef<World> ModelEditorWorld
             = new LocalFileRef<World>(/*Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
 
@@ -157,19 +162,20 @@ namespace TheraEditor.Windows.Forms
                 Vec3 max = 1000.0f;
                 Vec3 min = -max;
                 TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
-                StaticModel skybox = new StaticModel("Skybox");
-                TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
-                {
-                    MagFilter = ETexMagFilter.Nearest,
-                    MinFilter = ETexMinFilter.Nearest
-                };
+
                 StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", null,
                     BoundingBox.FromMinMax(min, max),
                     BoundingBox.SolidMesh(min, max, true,
                     skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?
                         BoundingBox.ECubemapTextureUVs.WidthLarger :
                         BoundingBox.ECubemapTextureUVs.HeightLarger, 0.0f),
-                    TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
+                    TMaterial.CreateUnlitTextureMaterialForward(
+                    new TexRef2D("SkyboxTexture", skyTex)
+                    {
+                        MagFilter = ETexMagFilter.Nearest,
+                        MinFilter = ETexMinFilter.Nearest
+                    }, 
+                    new RenderingParameters()
                     {
                         DepthTest = new DepthTest()
                         {
@@ -178,6 +184,8 @@ namespace TheraEditor.Windows.Forms
                             Function = EComparison.Less
                         }
                     }));
+
+                StaticModel skybox = new StaticModel("Skybox");
                 mesh.RenderInfo.RenderPass = ERenderPass.Background;
                 skybox.RigidChildren.Add(mesh);
                 Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
@@ -202,9 +210,7 @@ namespace TheraEditor.Windows.Forms
                 world.BeginPlay();
                 var ibl = world.State.GetSpawnedActorsOfType<IBLProbeGridActor>().ToArray();
                 if (ibl.Length > 0 && ibl[0] != null)
-                {
                     ibl[0].InitAndCaptureAll(256);
-                }
             }
             
             //DirectionalLightActor light = w.State.GetSpawnedActorsOfType<DirectionalLightActor>().ToArray()[0];
@@ -213,14 +219,7 @@ namespace TheraEditor.Windows.Forms
             //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
         }
 
-        public World World
-        {
-            get
-            {
-                return ModelEditorWorld.File;
-            }
-        }
-        
+        public World World => ModelEditorWorld.File;        
         public IActor TargetActor { get; private set; }
         public IModelFile Model { get; private set; }
 
@@ -233,6 +232,8 @@ namespace TheraEditor.Windows.Forms
             
             TargetActor = actor;
             World.SpawnActor(TargetActor);
+
+            PropGrid.PropertyGrid.TargetFileObject = TargetActor;
         }
         public void SetModel(StaticModel stm)
         {
@@ -342,38 +343,21 @@ namespace TheraEditor.Windows.Forms
 
             //Application.DoEvents();
         }
-        private void btnViewport1_Click(object sender, EventArgs e) => RenderForm1.Focus();
-        private void btnViewport2_Click(object sender, EventArgs e) => RenderForm2.Focus();
-        private void btnViewport3_Click(object sender, EventArgs e) => RenderForm3.Focus();
-        private void btnViewport4_Click(object sender, EventArgs e) => RenderForm4.Focus();
-        private void btnMeshList_Click(object sender, EventArgs e) => MeshList.Focus();
-        private void btnMaterialList_Click(object sender, EventArgs e) => MaterialList.Focus();
-        private void btnSkeleton_Click(object sender, EventArgs e) => BoneTreeForm.Focus();
 
-        private void chkViewNormals_Click(object sender, EventArgs e)
-        {
-            chkViewNormals.Checked = !chkViewNormals.Checked;
-        }
-        private void chkViewBinormals_Click(object sender, EventArgs e)
-        {
-            chkViewBinormals.Checked = !chkViewBinormals.Checked;
-        }
-        private void chkViewTangents_Click(object sender, EventArgs e)
-        {
-            chkViewTangents.Checked = !chkViewTangents.Checked;
-        }
-        private void chkViewWireframe_Click(object sender, EventArgs e)
-        {
-            chkViewWireframe.Checked = !chkViewWireframe.Checked;
-        }
-        private void chkViewCollisions_Click(object sender, EventArgs e)
-        {
-            chkViewCollisions.Checked = !chkViewCollisions.Checked;
-        }
-        private void chkViewCullingVolumes_Click(object sender, EventArgs e)
-        {
-            chkViewCullingVolumes.Checked = !chkViewCullingVolumes.Checked;
-        }
+        private void btnViewport1_Click         (object sender, EventArgs e) => RenderForm1.Focus();
+        private void btnViewport2_Click         (object sender, EventArgs e) => RenderForm2.Focus();
+        private void btnViewport3_Click         (object sender, EventArgs e) => RenderForm3.Focus();
+        private void btnViewport4_Click         (object sender, EventArgs e) => RenderForm4.Focus();
+        private void btnMeshList_Click          (object sender, EventArgs e) => MeshList.Focus();
+        private void btnMaterialList_Click      (object sender, EventArgs e) => MaterialList.Focus();
+        private void btnSkeleton_Click          (object sender, EventArgs e) => BoneTreeForm.Focus();
+        private void chkViewNormals_Click       (object sender, EventArgs e) => chkViewNormals.Checked          = !chkViewNormals.Checked;
+        private void chkViewBinormals_Click     (object sender, EventArgs e) => chkViewBinormals.Checked        = !chkViewBinormals.Checked;
+        private void chkViewTangents_Click      (object sender, EventArgs e) => chkViewTangents.Checked         = !chkViewTangents.Checked;
+        private void chkViewWireframe_Click     (object sender, EventArgs e) => chkViewWireframe.Checked        = !chkViewWireframe.Checked;
+        private void chkViewCollisions_Click    (object sender, EventArgs e) => chkViewCollisions.Checked       = !chkViewCollisions.Checked;
+        private void chkViewCullingVolumes_Click(object sender, EventArgs e) => chkViewCullingVolumes.Checked   = !chkViewCullingVolumes.Checked;
+        private void chkViewConstraints_Click   (object sender, EventArgs e) => chkViewConstraints.Checked      = !chkViewConstraints.Checked;
         private void chkViewBones_Click(object sender, EventArgs e)
         {
             chkViewBones.Checked = !chkViewBones.Checked;
@@ -388,10 +372,6 @@ namespace TheraEditor.Windows.Forms
                 else
                     skel.RootComponent.OwningScene.Add(skel.RootComponent.SkeletonOverride);
             }
-        }
-        private void chkViewConstraints_Click(object sender, EventArgs e)
-        {
-            chkViewConstraints.Checked = !chkViewConstraints.Checked;
         }
     }
 }

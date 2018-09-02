@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.UI
             {
                 CheckProperDimensions();
                 _size.X = value - LocalTranslationX;
-                SizeableWidth.CurrentValue = _size.X;
+                //SizeableWidth.CurrentValue = _size.X;
                 PerformResize();
             }
         }
@@ -58,7 +58,7 @@ namespace TheraEngine.Rendering.UI
             {
                 CheckProperDimensions();
                 _size.Y = value - LocalTranslationY;
-                SizeableHeight.CurrentValue = _size.Y;
+                //SizeableHeight.CurrentValue = _size.Y;
                 PerformResize();
             }
         }
@@ -76,7 +76,7 @@ namespace TheraEngine.Rendering.UI
                 float origX = _size.X;
                 _translation.X = value;
                 _size.X = origX - LocalTranslationX;
-                SizeableWidth.CurrentValue = _size.X;
+                //SizeableWidth.CurrentValue = _size.X;
                 PerformResize();
             }
         }
@@ -94,7 +94,7 @@ namespace TheraEngine.Rendering.UI
                 float origY = _size.Y;
                 _translation.Y = value;
                 _size.Y = origY - LocalTranslationY;
-                SizeableHeight.CurrentValue = _size.Y;
+                //SizeableHeight.CurrentValue = _size.Y;
                 PerformResize();
             }
         }
@@ -115,74 +115,75 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        [Category("Transform")]
-        public override Vec2 Size
-        {
-            get => base.Size;
-            set
-            {
-                SizeableWidth.CurrentValue = value.X;
-                SizeableHeight.CurrentValue = value.Y;
-                base.Size = value;
-            }
-        }
-        [Browsable(false)]
-        public override float Width
-        {
-            get => base.Width;
-            set
-            {
-                SizeableWidth.CurrentValue = value;
-                base.Width = value;
-            }
-        }
-        [Browsable(false)]
-        public override float Height
-        {
-            get => base.Height;
-            set
-            {
-                SizeableHeight.CurrentValue = value;
-                base.Height = value;
-            }
-        }
-        [Category("Transform")]
-        public override Vec2 LocalTranslation
-        {
-            get => base.LocalTranslation;
-            set
-            {
-                SizeablePosX.CurrentValue = value.X;
-                SizeablePosY.CurrentValue = value.Y;
-                base.LocalTranslation = value;
-            }
-        }
-        [Browsable(false)]
-        public override float LocalTranslationX
-        {
-            get => base.LocalTranslationX;
-            set
-            {
-                SizeablePosX.CurrentValue = value;
-                base.LocalTranslationX = value;
-            }
-        }
-        [Browsable(false)]
-        public override float LocalTranslationY
-        {
-            get => base.LocalTranslationY;
-            set
-            {
-                SizeablePosY.CurrentValue = value;
-                base.LocalTranslationY = value;
-            }
-        }
+        //[Category("Transform")]
+        //public override Vec2 Size
+        //{
+        //    get => base.Size;
+        //    set
+        //    {
+        //        //SizeableWidth.CurrentValue = value.X;
+        //        //SizeableHeight.CurrentValue = value.Y;
+        //        base.Size = value;
+        //        PerformResize();
+        //    }
+        //}
+        //[Browsable(false)]
+        //public override float Width
+        //{
+        //    get => base.Width;
+        //    set
+        //    {
+        //        SizeableWidth.CurrentValue = value;
+        //        base.Width = value;
+        //    }
+        //}
+        //[Browsable(false)]
+        //public override float Height
+        //{
+        //    get => base.Height;
+        //    set
+        //    {
+        //        SizeableHeight.CurrentValue = value;
+        //        base.Height = value;
+        //    }
+        //}
+        //[Category("Transform")]
+        //public override Vec2 LocalTranslation
+        //{
+        //    get => base.LocalTranslation;
+        //    set
+        //    {
+        //        SizeablePosX.CurrentValue = value.X;
+        //        SizeablePosY.CurrentValue = value.Y;
+        //        base.LocalTranslation = value;
+        //    }
+        //}
+        //[Browsable(false)]
+        //public override float LocalTranslationX
+        //{
+        //    get => base.LocalTranslationX;
+        //    set
+        //    {
+        //        SizeablePosX.CurrentValue = value;
+        //        base.LocalTranslationX = value;
+        //    }
+        //}
+        //[Browsable(false)]
+        //public override float LocalTranslationY
+        //{
+        //    get => base.LocalTranslationY;
+        //    set
+        //    {
+        //        SizeablePosY.CurrentValue = value;
+        //        base.LocalTranslationY = value;
+        //    }
+        //}
         public UIDockableComponent()
         {
-            SizeableHeight.ParameterChanged += SizeableHeight_ParameterChanged;
-            SizeableWidth.ParameterChanged += SizeableHeight_ParameterChanged;
-            SizeablePosX.ParameterChanged += SizeableHeight_ParameterChanged;
-            SizeablePosY.ParameterChanged += SizeableHeight_ParameterChanged;
+            SizeableHeight.ParameterChanged += SizingParameterChanged;
+            SizeableWidth.ParameterChanged += SizingParameterChanged;
+            //SizeablePosX.ParameterChanged += SizingParameterChanged;
+            //SizeablePosY.ParameterChanged += SizingParameterChanged;
             _sizeableElements = new ISizeable[]
             {
                 SizeableWidth,
@@ -194,7 +195,7 @@ namespace TheraEngine.Rendering.UI
             };
         }
 
-        private void SizeableHeight_ParameterChanged()
+        private void SizingParameterChanged()
         {
             PerformResize();
         }
@@ -224,6 +225,45 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _dockStyle = value;
+                switch (_dockStyle)
+                {
+                    case UIDockStyle.None:
+                        SizeablePosX.SetSizingPixels(SizeablePosX.GetValue(ParentBounds));
+                        SizeablePosY.SetSizingPixels(SizeablePosY.GetValue(ParentBounds));
+                        SizeableWidth.SetSizingPixels(SizeableWidth.GetValue(ParentBounds));
+                        SizeableHeight.SetSizingPixels(SizeableHeight.GetValue(ParentBounds));
+                        break;
+                    case UIDockStyle.Fill:
+                        SizeablePosX.SetSizingPixels(0.0f);
+                        SizeablePosY.SetSizingPixels(0.0f);
+                        SizeableWidth.SetSizingPercentageOfParent(1.0f);
+                        SizeableHeight.SetSizingPercentageOfParent(1.0f);
+                        break;
+                    case UIDockStyle.Left:
+                        SizeablePosX.SetSizingPixels(0.0f);
+                        SizeablePosY.SetSizingPixels(0.0f);
+                        SizeableWidth.SetSizingPercentageOfParent(1.0f);
+                        SizeableHeight.SetSizingPercentageOfParent(1.0f);
+                        break;
+                    case UIDockStyle.Right:
+                        SizeablePosX.SetSizingPixels(0.0f);
+                        SizeablePosY.SetSizingPixels(0.0f);
+                        SizeableWidth.SetSizingPercentageOfParent(1.0f);
+                        SizeableHeight.SetSizingPercentageOfParent(1.0f);
+                        break;
+                    case UIDockStyle.Top:
+                        SizeablePosX.SetSizingPixels(0.0f);
+                        SizeablePosY.SetSizingPixels(0.0f);
+                        SizeableWidth.SetSizingPercentageOfParent(1.0f);
+                        SizeableHeight.SetSizingPercentageOfParent(1.0f);
+                        break;
+                    case UIDockStyle.Bottom:
+                        SizeablePosX.SetSizingPixels(0.0f);
+                        SizeablePosY.SetSizingPixels(0.0f);
+                        SizeableWidth.SetSizingPercentageOfParent(1.0f);
+                        SizeableHeight.SetSizingPercentageOfParent(1.0f);
+                        break;
+                }
                 PerformResize();
             }
         }
@@ -310,6 +350,7 @@ namespace TheraEngine.Rendering.UI
                 return parentBounds;
             _resizing = true;
 
+            ParentBounds = parentBounds;
             Vec2 leftOver = parentBounds;
             Vec2 prevRegion = Size;
 
@@ -321,67 +362,67 @@ namespace TheraEngine.Rendering.UI
             _translation.X = SizeablePosX.GetValue(parentBounds);
             _translation.Y = SizeablePosY.GetValue(parentBounds);
 
-            if (Docked || Anchored)
-            {
-                bool 
-                    allowLeft = true, 
-                    allowRight = true, 
-                    allowTop = true, 
-                    allowBottom = true;
+            //if (Docked || Anchored)
+            //{
+            //    bool 
+            //        allowLeft = true, 
+            //        allowRight = true, 
+            //        allowTop = true, 
+            //        allowBottom = true;
 
-                if (Docked)
-                {
-                    allowLeft = false;
-                    allowRight = false;
-                    allowTop = false;
-                    allowBottom = false;
-                    switch (_dockStyle)
-                    {
-                        case UIDockStyle.Fill:
-                            _size = parentBounds;
-                            _translation = Vec2.Zero;
-                            break;
-                        case UIDockStyle.Bottom:
-                            _localOriginPercentage = new Vec2(0.0f, 0.0f);
-                            _translation = Vec2.Zero;
-                            _size.X = parentBounds.X;
-                            allowTop = true;
-                            break;
-                        case UIDockStyle.Top:
-                            _localOriginPercentage = new Vec2(0.0f, 1.0f);
-                            _translation = new Vec2(0.0f, parentBounds.Y);
-                            _size.X = parentBounds.X;
-                            allowBottom = true;
-                            break;
-                        case UIDockStyle.Left:
-                            _localOriginPercentage = new Vec2(0.0f, 0.0f);
-                            _translation = Vec2.Zero;
-                            _size.Y = parentBounds.Y;
-                            allowRight = true;
-                            break;
-                        case UIDockStyle.Right:
-                            _localOriginPercentage = new Vec2(1.0f, 0.0f);
-                            _translation = new Vec2(parentBounds.X, 0.0f);
-                            _size.Y = parentBounds.Y;
-                            allowLeft = true;
-                            break;
-                    }
-                }
-                if (Anchored)
-                {
-                    if (allowBottom && AnchoredBottom)
-                        MinY = Anchor.Bottom.GetValue(parentBounds);
-                    if (allowTop && AnchoredTop)
-                        MaxY = Anchor.Top.GetValue(parentBounds);
-                    if (allowLeft && AnchoredLeft)
-                        MinX = Anchor.Left.GetValue(parentBounds);
-                    if (allowRight && AnchoredRight)
-                        MaxX = Anchor.Right.GetValue(parentBounds);
-                }
+            //    if (Docked)
+            //    {
+            //        allowLeft = false;
+            //        allowRight = false;
+            //        allowTop = false;
+            //        allowBottom = false;
+            //        switch (_dockStyle)
+            //        {
+            //            case UIDockStyle.Fill:
+            //                _size = parentBounds;
+            //                _translation = Vec2.Zero;
+            //                break;
+            //            case UIDockStyle.Bottom:
+            //                _localOriginPercentage = new Vec2(0.0f, 0.0f);
+            //                _translation = Vec2.Zero;
+            //                _size.X = parentBounds.X;
+            //                allowTop = true;
+            //                break;
+            //            case UIDockStyle.Top:
+            //                _localOriginPercentage = new Vec2(0.0f, 1.0f);
+            //                _translation = new Vec2(0.0f, parentBounds.Y);
+            //                _size.X = parentBounds.X;
+            //                allowBottom = true;
+            //                break;
+            //            case UIDockStyle.Left:
+            //                _localOriginPercentage = new Vec2(0.0f, 0.0f);
+            //                _translation = Vec2.Zero;
+            //                _size.Y = parentBounds.Y;
+            //                allowRight = true;
+            //                break;
+            //            case UIDockStyle.Right:
+            //                _localOriginPercentage = new Vec2(1.0f, 0.0f);
+            //                _translation = new Vec2(parentBounds.X, 0.0f);
+            //                _size.Y = parentBounds.Y;
+            //                allowLeft = true;
+            //                break;
+            //        }
+            //    }
+            //    if (Anchored)
+            //    {
+            //        if (allowBottom && AnchoredBottom)
+            //            MinY = Anchor.Bottom.GetValue(parentBounds);
+            //        if (allowTop && AnchoredTop)
+            //            MaxY = Anchor.Top.GetValue(parentBounds);
+            //        if (allowLeft && AnchoredLeft)
+            //            MinX = Anchor.Left.GetValue(parentBounds);
+            //        if (allowRight && AnchoredRight)
+            //            MaxX = Anchor.Right.GetValue(parentBounds);
+            //    }
 
-                //if (_dockStyle != HudDockStyle.None)
-                //    leftOver = RegionDockComplement(parentBounds, AxisAlignedRegion);
-            }
+            //    //if (_dockStyle != HudDockStyle.None)
+            //    //    leftOver = RegionDockComplement(parentBounds, AxisAlignedRegion);
+            //}
 
             RecalcLocalTransform();
 

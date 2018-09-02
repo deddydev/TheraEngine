@@ -41,54 +41,59 @@ namespace TheraEditor.Windows.Forms
             // 
             // BodyPanel
             // 
+            this.BodyPanel.BackColor = System.Drawing.Color.Transparent;
             this.BodyPanel.Controls.Add(this.btnOkay);
             this.BodyPanel.Controls.Add(this.btnCancel);
-            this.BodyPanel.Location = new System.Drawing.Point(0, 102);
-            this.BodyPanel.Size = new System.Drawing.Size(424, 295);
+            this.BodyPanel.Location = new System.Drawing.Point(0, 91);
+            this.BodyPanel.Size = new System.Drawing.Size(376, 204);
             // 
             // MainPanel
             // 
+            this.MainPanel.BackColor = System.Drawing.Color.Transparent;
             this.MainPanel.Controls.Add(this.lblClassName);
-            this.MainPanel.Size = new System.Drawing.Size(424, 397);
+            this.MainPanel.Size = new System.Drawing.Size(376, 295);
             this.MainPanel.Controls.SetChildIndex(this.TitlePanel, 0);
             this.MainPanel.Controls.SetChildIndex(this.lblClassName, 0);
             this.MainPanel.Controls.SetChildIndex(this.BodyPanel, 0);
             // 
             // TitlePanel
             // 
-            this.TitlePanel.Size = new System.Drawing.Size(424, 50);
+            this.TitlePanel.BackColor = System.Drawing.Color.Transparent;
+            this.TitlePanel.Size = new System.Drawing.Size(376, 39);
             // 
             // FormTitle
             // 
-            this.FormTitle.Size = new System.Drawing.Size(231, 50);
+            this.FormTitle.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.FormTitle.Size = new System.Drawing.Size(205, 39);
             this.FormTitle.Text = "Class Generics Selector";
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(424, 407);
+            this.MiddlePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
+            this.MiddlePanel.Size = new System.Drawing.Size(376, 303);
             // 
             // lblClassName
             // 
             this.lblClassName.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblClassName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.lblClassName.Location = new System.Drawing.Point(0, 50);
+            this.lblClassName.Location = new System.Drawing.Point(0, 39);
             this.lblClassName.Name = "lblClassName";
             this.lblClassName.Padding = new System.Windows.Forms.Padding(5);
-            this.lblClassName.Size = new System.Drawing.Size(424, 52);
+            this.lblClassName.Size = new System.Drawing.Size(376, 52);
             this.lblClassName.TabIndex = 1;
             this.lblClassName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.btnCancel.Cursor = System.Windows.Forms.Cursors.Default;
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.btnCancel.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(102)))), ((int)(((byte)(103)))), ((int)(((byte)(110)))));
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.btnCancel.Location = new System.Drawing.Point(237, 252);
+            this.btnCancel.Location = new System.Drawing.Point(189, 161);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(87, 36);
             this.btnCancel.TabIndex = 0;
@@ -99,13 +104,13 @@ namespace TheraEditor.Windows.Forms
             // btnOkay
             // 
             this.btnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOkay.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.btnOkay.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.btnOkay.Enabled = false;
             this.btnOkay.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.btnOkay.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(102)))), ((int)(((byte)(103)))), ((int)(((byte)(110)))));
             this.btnOkay.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOkay.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.btnOkay.Location = new System.Drawing.Point(330, 252);
+            this.btnOkay.Location = new System.Drawing.Point(282, 161);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(87, 36);
             this.btnOkay.TabIndex = 1;
@@ -115,9 +120,10 @@ namespace TheraEditor.Windows.Forms
             // 
             // GenericsSelector
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(434, 407);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.ClientSize = new System.Drawing.Size(384, 303);
             this.Location = new System.Drawing.Point(0, 0);
             this.MaximizeBox = false;
             this.MinimizeBox = false;

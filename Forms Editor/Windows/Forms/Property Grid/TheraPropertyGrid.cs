@@ -115,33 +115,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 lstLogicComps.DataSource = null;
                 btnSave.Visible = _targetFileObject != null && _targetFileObject.EditorState.IsDirty;
                 bool notNull = _targetFileObject != null;
-                pnlHeader.Visible = notNull;
+                pnlHeader.Visible = pnlProps2.Visible = notNull;
                 if (notNull)
                 {
-                    if (_targetFileObject is IActor actor)
-                    {
-                        PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor.RootComponent);
-                        PopulateLogicComponentList(actor.LogicComponents);
-                        pnlLogicComps.Visible =
-                        lblSceneComps.Visible =
-                        treeViewSceneComps.Visible = true;
-                    }
-                    else
-                    {
-                        pnlLogicComps.Visible =
-                        lstLogicComps.Visible =
-                        lblSceneComps.Visible =
-                        treeViewSceneComps.Visible = false;
-                    }
+                    IActor actor = _targetFileObject as IActor;
+                    tableLayoutPanel1.Visible = actor != null;
+                    PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
+                    PopulateLogicComponentList(actor?.LogicComponents);
                     lblProperties.Visible = true;
                 }
                 else
                 {
-                    pnlLogicComps.Visible =
-                    lstLogicComps.Visible =
-                    lblSceneComps.Visible =
-                    treeViewSceneComps.Visible =
-                    lblProperties.Visible = false;
+                    tableLayoutPanel1.Visible = false;
                 }
                 _updating = false;
 
@@ -457,6 +442,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void PopulateSceneComponentTree(TreeNodeCollection nodes, SceneComponent currentSceneComp)
         {
+            if (currentSceneComp == null)
+            {
+                nodes.Clear();
+                return;
+            }
             TreeNode s = new TreeNode(currentSceneComp.Name) { Tag = currentSceneComp };
             foreach (SceneComponent childSceneComp in currentSceneComp.ChildComponents)
                 PopulateSceneComponentTree(s.Nodes, childSceneComp);
@@ -961,6 +951,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void treeViewSceneComps_AfterCollapse(object sender, TreeViewEventArgs e)
         {
             CalcSceneCompTreeHeight();
+        }
+
+        private void toolStripSeparator1_Click(object sender, EventArgs e)
+        {
+
         }
     }
     public interface IDataChangeHandler

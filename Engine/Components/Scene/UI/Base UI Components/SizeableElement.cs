@@ -9,9 +9,21 @@ namespace TheraEngine.Rendering.UI
 {
     public enum SizingMode
     {
-        Ignore,
+        /// <summary>
+        /// 
+        /// </summary>
+        //Ignore,
+        /// <summary>
+        /// 
+        /// </summary>
         Pixels,
+        /// <summary>
+        /// 
+        /// </summary>
         PercentageOfParent,
+        /// <summary>
+        /// 
+        /// </summary>
         Proportion,
     }
     public enum ParentBoundsInheritedValue
@@ -33,26 +45,27 @@ namespace TheraEngine.Rendering.UI
             _currValue = 0.0f,
             _modValue = 0.0f,
             _resValue = 0.0f;
-        private SizingMode _sizingMode = SizingMode.Ignore;
+        private SizingMode _sizingMode = SizingMode.Pixels;
         private SizeableElement
             _propElem = null,
             _minSize,
-            _maxSize;
+            _maxSize,
+            _origin;
         private ParentBoundsInheritedValue _parentBoundsInherit = ParentBoundsInheritedValue.Width;
         private bool _smallerRelative = true;
 
-        public float CurrentValue
-        {
-            get => _currValue;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _currValue = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
-        }
+        //public float CurrentValue
+        //{
+        //    get => _currValue;
+        //    set
+        //    {
+        //        if (!IgnoreUserChanges)
+        //        {
+        //            _currValue = value;
+        //            ParameterChanged?.Invoke();
+        //        }
+        //    }
+        //}
         public float ModificationValue
         {
             get => _modValue;
@@ -125,6 +138,18 @@ namespace TheraEngine.Rendering.UI
                 }
             }
         }
+        public SizeableElement Origin
+        {
+            get => _origin;
+            set
+            {
+                if (!IgnoreUserChanges)
+                {
+                    _origin = value;
+                    ParameterChanged?.Invoke();
+                }
+            }
+        }
         public ParentBoundsInheritedValue ParentBoundsInherited
         {
             get => _parentBoundsInherit;
@@ -165,29 +190,25 @@ namespace TheraEngine.Rendering.UI
         }
         public float GetValue(Vec2 parentBounds)
         {
+            float origin = Origin?.GetValue(parentBounds) ?? 0.0f;
+            float size = GetDim(parentBounds);
+            float newValue = origin;
             switch (SizingOption)
             {
                 default:
-                case SizingMode.Ignore:
-                    ResultingValue = CurrentValue;
-                    break;
                 case SizingMode.Pixels:
-                    ResultingValue = _smallerRelative ? ModificationValue : GetDim(parentBounds) - ModificationValue;
+                    newValue += ModificationValue;
                     break;
                 case SizingMode.PercentageOfParent:
-                    float size = GetDim(parentBounds);
-                    float scaledValue = size * ModificationValue;
-                    ResultingValue = _smallerRelative ? scaledValue : size - scaledValue;
+                    newValue += size * ModificationValue;
                     break;
                 case SizingMode.Proportion:
                     if (ProportionElement != null)
-                    {
-                        ResultingValue = ProportionElement.GetValue(parentBounds) * ModificationValue;
-                        if (!_smallerRelative)
-                            ResultingValue = GetDim(parentBounds) - ResultingValue;
-                    }
+                        newValue += ProportionElement.GetValue(parentBounds) * ModificationValue;
                     break;
             }
+
+            ResultingValue = _smallerRelative ? newValue : size - newValue;
 
             if (Minimum != null)
                 ResultingValue = ResultingValue.ClampMin(Minimum.GetValue(parentBounds));
@@ -199,26 +220,26 @@ namespace TheraEngine.Rendering.UI
         }
 
         #region Sizing modes
-        public static SizeableElement PercentageOfParent(float percentage, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        public static SizeableElement PercentageOfParent(float percentage, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
         {
             SizeableElement e = new SizeableElement();
             e.SetSizingPercentageOfParent(percentage, smallerRelative, parentDim);
             return e;
         }
-        public void SetSizingPercentageOfParent(float percentage, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        public void SetSizingPercentageOfParent(float percentage, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
         {
             SmallerRelative = smallerRelative;
             ParentBoundsInherited = parentDim;
             SizingOption = SizingMode.PercentageOfParent;
             ModificationValue = percentage;
         }
-        public static SizeableElement Proportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        public static SizeableElement Proportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
         {
             SizeableElement e = new SizeableElement();
             e.SetSizingProportioned(proportionalElement, ratio, smallerRelative, parentDim);
             return e;
         }
-        public void SetSizingProportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        public void SetSizingProportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
         {
             SmallerRelative = smallerRelative;
             ParentBoundsInherited = parentDim;
@@ -226,7 +247,7 @@ namespace TheraEngine.Rendering.UI
             ProportionElement = proportionalElement;
             ModificationValue = ratio;
         }
-        public static SizeableElement Pixels(float pixels, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        public static SizeableElement Pixels(float pixels, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
         {
             SizeableElement e = new SizeableElement();
             e.SetSizingPixels(pixels, smallerRelative, parentDim);
@@ -238,17 +259,17 @@ namespace TheraEngine.Rendering.UI
         /// <param name="pixels"></param>
         /// <param name="smallerRelative"></param>
         /// <param name="parentDim"></param>
-        public void SetSizingPixels(float pixels, bool smallerRelative, ParentBoundsInheritedValue parentDim)
+        public void SetSizingPixels(float pixels, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
         {
             SmallerRelative = smallerRelative;
             ParentBoundsInherited = parentDim;
             SizingOption = SizingMode.Pixels;
             ModificationValue = pixels;
         }
-        public void SetSizingIgnored()
-        {
-            SizingOption = SizingMode.Ignore;
-        }
+        //public void SetSizingIgnored()
+        //{
+        //    SizingOption = SizingMode.Ignore;
+        //}
         #endregion
 
         public void Update(Vec2 parentBounds)

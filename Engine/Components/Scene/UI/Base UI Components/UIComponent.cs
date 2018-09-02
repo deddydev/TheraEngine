@@ -182,11 +182,13 @@ namespace TheraEngine.Rendering.UI
                 TransformOrder.SRT);
         }
         protected bool _resizing = false;
+        public Vec2 ParentBounds { get; protected set; }
         public virtual Vec2 Resize(Vec2 parentBounds)
         {
             if (_resizing)
                 return parentBounds;
             _resizing = true;
+            ParentBounds = parentBounds;
             foreach (UIComponent c in _children)
                 c.Resize(parentBounds);
             RecalcLocalTransform();

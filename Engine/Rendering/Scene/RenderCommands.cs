@@ -96,26 +96,23 @@ namespace TheraEngine.Rendering
     {
         public PrimitiveManager Primitives { get; set; }
         public Matrix4 WorldMatrix { get; set; }
-        public Matrix3 NormalMatrix { get; set; }
         public TMaterial Material { get; set; }
 
         public RenderCommandMesh2D() { }
         public RenderCommandMesh2D(
             PrimitiveManager manager,
             Matrix4 worldMatrix,
-            Matrix3 normalMatrix,
             int zIndex,
             TMaterial materialOverride = null) : base(zIndex)
         {
             Primitives = manager;
             WorldMatrix = worldMatrix;
-            NormalMatrix = normalMatrix;
             Material = materialOverride;
         }
 
         public override void Render()
         {
-            Primitives?.Render(WorldMatrix, NormalMatrix, Material);
+            Primitives?.Render(WorldMatrix, Matrix3.Identity, Material);
         }
     }
     public class RenderCommandViewport : RenderCommandMesh2D
@@ -129,9 +126,8 @@ namespace TheraEngine.Rendering
             PrimitiveManager quad, 
             MaterialFrameBuffer viewportFBO, 
             Matrix4 worldMatrix, 
-            Matrix3 normalMatrix,
             int zIndex)
-            : base(quad, worldMatrix, normalMatrix, zIndex, null)
+            : base(quad, worldMatrix, zIndex, null)
         {
             Viewport = viewport;
             Framebuffer = viewportFBO;

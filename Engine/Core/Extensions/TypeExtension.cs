@@ -70,7 +70,7 @@ namespace System
         /// Returns the default value for the given type. Similar to default(T).
         /// </summary>
         public static object GetDefaultValue(this Type t)
-            => (t.IsValueType && Nullable.GetUnderlyingType(t) == null) ? Activator.CreateInstance(t) : null;
+            => t == null ? null : (t.IsValueType && Nullable.GetUnderlyingType(t) == null) ? Activator.CreateInstance(t) : null;
 
         public static void GetGenericParameterConstraints(this Type genericTypeParam, out GenericVarianceFlag gvf, out TypeConstraintFlag tcf)
         {

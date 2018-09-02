@@ -52,47 +52,53 @@ namespace TheraEditor.Windows.Forms
             // BodyPanel
             // 
             this.BodyPanel.AutoScroll = true;
+            this.BodyPanel.BackColor = System.Drawing.Color.Transparent;
             this.BodyPanel.Controls.Add(this.tblConstructors);
             this.BodyPanel.Controls.Add(this.toolStripTypeSelection);
             this.BodyPanel.Controls.Add(this.pnlArrayLength);
             this.BodyPanel.Controls.Add(this.pnlOkayCancel);
-            this.BodyPanel.Location = new System.Drawing.Point(0, 50);
+            this.BodyPanel.Location = new System.Drawing.Point(0, 39);
             this.BodyPanel.Padding = new System.Windows.Forms.Padding(6);
-            this.BodyPanel.Size = new System.Drawing.Size(435, 229);
+            this.BodyPanel.Size = new System.Drawing.Size(384, 475);
             // 
             // MainPanel
             // 
             this.MainPanel.AutoSize = true;
             this.MainPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.MainPanel.Size = new System.Drawing.Size(435, 279);
+            this.MainPanel.BackColor = System.Drawing.Color.Transparent;
+            this.MainPanel.Size = new System.Drawing.Size(384, 514);
             // 
             // TitlePanel
             // 
             this.TitlePanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.TitlePanel.Size = new System.Drawing.Size(435, 50);
+            this.TitlePanel.BackColor = System.Drawing.Color.Transparent;
+            this.TitlePanel.Size = new System.Drawing.Size(384, 39);
             // 
             // FormTitle
             // 
-            this.FormTitle.Size = new System.Drawing.Size(264, 50);
+            this.FormTitle.BackColor = System.Drawing.Color.Transparent;
+            this.FormTitle.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.FormTitle.Size = new System.Drawing.Size(213, 39);
             this.FormTitle.Text = "Object Creator";
             // 
             // MiddlePanel
             // 
             this.MiddlePanel.AutoSize = true;
             this.MiddlePanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.MiddlePanel.Size = new System.Drawing.Size(435, 287);
+            this.MiddlePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
+            this.MiddlePanel.Size = new System.Drawing.Size(384, 522);
             // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.btnCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.btnCancel.Cursor = System.Windows.Forms.Cursors.Default;
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.btnCancel.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(102)))), ((int)(((byte)(103)))), ((int)(((byte)(110)))));
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.btnCancel.Location = new System.Drawing.Point(243, 6);
+            this.btnCancel.Location = new System.Drawing.Point(192, 6);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(0);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(87, 36);
@@ -103,13 +109,13 @@ namespace TheraEditor.Windows.Forms
             // 
             // btnOkay
             // 
-            this.btnOkay.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.btnOkay.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.btnOkay.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnOkay.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.btnOkay.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(102)))), ((int)(((byte)(103)))), ((int)(((byte)(110)))));
             this.btnOkay.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOkay.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.btnOkay.Location = new System.Drawing.Point(336, 6);
+            this.btnOkay.Location = new System.Drawing.Point(285, 6);
             this.btnOkay.Margin = new System.Windows.Forms.Padding(0);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(87, 36);
@@ -125,11 +131,11 @@ namespace TheraEditor.Windows.Forms
             this.pnlOkayCancel.Controls.Add(this.btnCancel);
             this.pnlOkayCancel.Controls.Add(this.btnOkay);
             this.pnlOkayCancel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlOkayCancel.Location = new System.Drawing.Point(6, 181);
+            this.pnlOkayCancel.Location = new System.Drawing.Point(6, 427);
             this.pnlOkayCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pnlOkayCancel.Name = "pnlOkayCancel";
             this.pnlOkayCancel.Padding = new System.Windows.Forms.Padding(6, 6, 0, 0);
-            this.pnlOkayCancel.Size = new System.Drawing.Size(423, 42);
+            this.pnlOkayCancel.Size = new System.Drawing.Size(372, 42);
             this.pnlOkayCancel.TabIndex = 3;
             // 
             // toolStripTypeSelection
@@ -137,10 +143,10 @@ namespace TheraEditor.Windows.Forms
             this.toolStripTypeSelection.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStripTypeSelection.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripDropDownButton1});
-            this.toolStripTypeSelection.Location = new System.Drawing.Point(6, 32);
+            this.toolStripTypeSelection.Location = new System.Drawing.Point(6, 30);
             this.toolStripTypeSelection.Name = "toolStripTypeSelection";
-            this.toolStripTypeSelection.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.toolStripTypeSelection.Size = new System.Drawing.Size(423, 27);
+            this.toolStripTypeSelection.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
+            this.toolStripTypeSelection.Size = new System.Drawing.Size(372, 27);
             this.toolStripTypeSelection.TabIndex = 4;
             this.toolStripTypeSelection.Text = "toolStrip1";
             // 
@@ -161,45 +167,50 @@ namespace TheraEditor.Windows.Forms
             this.tblConstructors.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblConstructors.Dock = System.Windows.Forms.DockStyle.Top;
             this.tblConstructors.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tblConstructors.Location = new System.Drawing.Point(6, 59);
+            this.tblConstructors.Location = new System.Drawing.Point(6, 57);
             this.tblConstructors.Margin = new System.Windows.Forms.Padding(0);
             this.tblConstructors.Name = "tblConstructors";
             this.tblConstructors.RowCount = 1;
             this.tblConstructors.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tblConstructors.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 1F));
-            this.tblConstructors.Size = new System.Drawing.Size(423, 0);
+            this.tblConstructors.Size = new System.Drawing.Size(372, 0);
             this.tblConstructors.TabIndex = 5;
             // 
             // pnlArrayLength
             // 
+            this.pnlArrayLength.AutoSize = true;
+            this.pnlArrayLength.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pnlArrayLength.Controls.Add(this.numericInputBoxSingle1);
             this.pnlArrayLength.Controls.Add(this.label1);
             this.pnlArrayLength.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlArrayLength.Location = new System.Drawing.Point(6, 6);
             this.pnlArrayLength.Margin = new System.Windows.Forms.Padding(0);
             this.pnlArrayLength.Name = "pnlArrayLength";
-            this.pnlArrayLength.Size = new System.Drawing.Size(423, 26);
+            this.pnlArrayLength.Padding = new System.Windows.Forms.Padding(0, 0, 0, 2);
+            this.pnlArrayLength.Size = new System.Drawing.Size(372, 24);
             this.pnlArrayLength.TabIndex = 6;
             this.pnlArrayLength.Visible = false;
             // 
             // numericInputBoxSingle1
             // 
-            this.numericInputBoxSingle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(93)))), ((int)(((byte)(100)))));
-            this.numericInputBoxSingle1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numericInputBoxSingle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
             this.numericInputBoxSingle1.DefaultValue = 0;
-            this.numericInputBoxSingle1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numericInputBoxSingle1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.numericInputBoxSingle1.FocusedColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.numericInputBoxSingle1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.numericInputBoxSingle1.HoveredColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
             this.numericInputBoxSingle1.LargeIncrement = 10;
             this.numericInputBoxSingle1.LargerIncrement = 100;
-            this.numericInputBoxSingle1.Location = new System.Drawing.Point(120, 0);
+            this.numericInputBoxSingle1.Location = new System.Drawing.Point(93, 0);
             this.numericInputBoxSingle1.Margin = new System.Windows.Forms.Padding(0);
             this.numericInputBoxSingle1.MaximumValue = 2147483647;
-            this.numericInputBoxSingle1.MinimumValue = -2147483648;
+            this.numericInputBoxSingle1.MinimumValue = 0;
             this.numericInputBoxSingle1.Name = "numericInputBoxSingle1";
             this.numericInputBoxSingle1.Nullable = false;
             this.numericInputBoxSingle1.NumberPrefix = "";
             this.numericInputBoxSingle1.NumberSuffix = "";
-            this.numericInputBoxSingle1.Size = new System.Drawing.Size(303, 22);
+            this.numericInputBoxSingle1.RegularColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.numericInputBoxSingle1.Size = new System.Drawing.Size(279, 22);
             this.numericInputBoxSingle1.SmallerIncrement = 1;
             this.numericInputBoxSingle1.SmallIncrement = 5;
             this.numericInputBoxSingle1.TabIndex = 6;
@@ -208,11 +219,13 @@ namespace TheraEditor.Windows.Forms
             // 
             // label1
             // 
+            this.label1.AutoSize = true;
             this.label1.Dock = System.Windows.Forms.DockStyle.Left;
             this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(120, 26);
+            this.label1.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
+            this.label1.Size = new System.Drawing.Size(93, 19);
             this.label1.TabIndex = 5;
             this.label1.Text = "Array length: ";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -221,7 +234,7 @@ namespace TheraEditor.Windows.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(443, 287);
+            this.ClientSize = new System.Drawing.Size(392, 522);
             this.Location = new System.Drawing.Point(0, 0);
             this.MaximizeBox = false;
             this.MinimizeBox = false;

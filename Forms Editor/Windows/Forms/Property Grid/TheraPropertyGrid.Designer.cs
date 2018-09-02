@@ -53,12 +53,23 @@
             this.btnAddToSibAboveSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnAddToSibBelowSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnAddSibToParentSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlSide = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.pnlScene = new System.Windows.Forms.Panel();
+            this.pnlLogic = new System.Windows.Forms.Panel();
+            this.pnlProps2 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.pnlHeader.SuspendLayout();
             this.pnlLogicComps.SuspendLayout();
             this.ctxSceneComps.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
+            this.pnlScene.SuspendLayout();
+            this.pnlLogic.SuspendLayout();
+            this.pnlProps2.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblSceneComps
@@ -66,13 +77,12 @@
             this.lblSceneComps.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblSceneComps.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSceneComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblSceneComps.Location = new System.Drawing.Point(0, 33);
+            this.lblSceneComps.Location = new System.Drawing.Point(0, 0);
             this.lblSceneComps.Name = "lblSceneComps";
-            this.lblSceneComps.Size = new System.Drawing.Size(631, 25);
+            this.lblSceneComps.Size = new System.Drawing.Size(617, 25);
             this.lblSceneComps.TabIndex = 0;
             this.lblSceneComps.Text = "Scene Components";
             this.lblSceneComps.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblSceneComps.Visible = false;
             // 
             // lblLogicComps
             // 
@@ -81,7 +91,7 @@
             this.lblLogicComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lblLogicComps.Location = new System.Drawing.Point(74, 0);
             this.lblLogicComps.Name = "lblLogicComps";
-            this.lblLogicComps.Size = new System.Drawing.Size(483, 25);
+            this.lblLogicComps.Size = new System.Drawing.Size(469, 25);
             this.lblLogicComps.TabIndex = 1;
             this.lblLogicComps.Text = "Logic Components";
             this.lblLogicComps.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -93,9 +103,10 @@
             this.lblProperties.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblProperties.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblProperties.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.lblProperties.Location = new System.Drawing.Point(0, 145);
+            this.lblProperties.Location = new System.Drawing.Point(0, 0);
+            this.lblProperties.Margin = new System.Windows.Forms.Padding(0);
             this.lblProperties.Name = "lblProperties";
-            this.lblProperties.Size = new System.Drawing.Size(631, 25);
+            this.lblProperties.Size = new System.Drawing.Size(617, 25);
             this.lblProperties.TabIndex = 2;
             this.lblProperties.Text = "Properties";
             this.lblProperties.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -112,12 +123,11 @@
             this.treeViewSceneComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.treeViewSceneComps.HideSelection = false;
             this.treeViewSceneComps.HotTracking = true;
-            this.treeViewSceneComps.Location = new System.Drawing.Point(0, 58);
-            this.treeViewSceneComps.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.treeViewSceneComps.Location = new System.Drawing.Point(0, 25);
+            this.treeViewSceneComps.Margin = new System.Windows.Forms.Padding(0);
             this.treeViewSceneComps.Name = "treeViewSceneComps";
-            this.treeViewSceneComps.Size = new System.Drawing.Size(631, 31);
+            this.treeViewSceneComps.Size = new System.Drawing.Size(617, 31);
             this.treeViewSceneComps.TabIndex = 3;
-            this.treeViewSceneComps.Visible = false;
             this.treeViewSceneComps.AfterCollapse += new System.Windows.Forms.TreeViewEventHandler(this.treeViewSceneComps_AfterCollapse);
             this.treeViewSceneComps.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeViewSceneComps_AfterExpand);
             this.treeViewSceneComps.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewSceneComps_BeforeSelect);
@@ -133,29 +143,27 @@
             this.lstLogicComps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lstLogicComps.FormattingEnabled = true;
             this.lstLogicComps.IntegralHeight = false;
-            this.lstLogicComps.ItemHeight = 15;
-            this.lstLogicComps.Location = new System.Drawing.Point(0, 114);
-            this.lstLogicComps.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.lstLogicComps.ItemHeight = 20;
+            this.lstLogicComps.Location = new System.Drawing.Point(0, 25);
+            this.lstLogicComps.Margin = new System.Windows.Forms.Padding(0);
             this.lstLogicComps.Name = "lstLogicComps";
-            this.lstLogicComps.Size = new System.Drawing.Size(631, 31);
+            this.lstLogicComps.Size = new System.Drawing.Size(617, 31);
             this.lstLogicComps.TabIndex = 4;
-            this.lstLogicComps.Visible = false;
             this.lstLogicComps.SelectedIndexChanged += new System.EventHandler(this.lstLogicComps_SelectedIndexChanged);
             this.lstLogicComps.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstLogicComps_MouseDoubleClick);
             // 
             // pnlProps
             // 
-            this.pnlProps.AutoScroll = true;
             this.pnlProps.AutoSize = true;
             this.pnlProps.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pnlProps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.pnlProps.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlProps.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.pnlProps.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.pnlProps.Location = new System.Drawing.Point(0, 170);
+            this.pnlProps.Location = new System.Drawing.Point(0, 0);
             this.pnlProps.Margin = new System.Windows.Forms.Padding(0);
             this.pnlProps.Name = "pnlProps";
-            this.pnlProps.Size = new System.Drawing.Size(631, 0);
+            this.pnlProps.Size = new System.Drawing.Size(617, 0);
             this.pnlProps.TabIndex = 5;
             // 
             // lblObjectName
@@ -165,7 +173,7 @@
             this.lblObjectName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lblObjectName.Location = new System.Drawing.Point(0, 0);
             this.lblObjectName.Name = "lblObjectName";
-            this.lblObjectName.Size = new System.Drawing.Size(557, 33);
+            this.lblObjectName.Size = new System.Drawing.Size(543, 33);
             this.lblObjectName.TabIndex = 6;
             this.lblObjectName.Text = "ObjectName";
             this.lblObjectName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -179,9 +187,9 @@
             this.pnlHeader.Controls.Add(this.btnSave);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
-            this.pnlHeader.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.pnlHeader.Margin = new System.Windows.Forms.Padding(0);
             this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(631, 33);
+            this.pnlHeader.Size = new System.Drawing.Size(617, 33);
             this.pnlHeader.TabIndex = 7;
             this.pnlHeader.Visible = false;
             // 
@@ -191,7 +199,7 @@
             this.btnSave.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSave.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.btnSave.Location = new System.Drawing.Point(557, 0);
+            this.btnSave.Location = new System.Drawing.Point(543, 0);
             this.btnSave.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(74, 33);
@@ -209,11 +217,10 @@
             this.pnlLogicComps.Controls.Add(this.btnAddLogicComp);
             this.pnlLogicComps.Controls.Add(this.btnRemoveLogicComp);
             this.pnlLogicComps.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlLogicComps.Location = new System.Drawing.Point(0, 89);
+            this.pnlLogicComps.Location = new System.Drawing.Point(0, 0);
             this.pnlLogicComps.Name = "pnlLogicComps";
-            this.pnlLogicComps.Size = new System.Drawing.Size(631, 25);
+            this.pnlLogicComps.Size = new System.Drawing.Size(617, 25);
             this.pnlLogicComps.TabIndex = 8;
-            this.pnlLogicComps.Visible = false;
             // 
             // btnMoveUpLogicComp
             // 
@@ -249,7 +256,7 @@
             this.btnAddLogicComp.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnAddLogicComp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAddLogicComp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.btnAddLogicComp.Location = new System.Drawing.Point(557, 0);
+            this.btnAddLogicComp.Location = new System.Drawing.Point(543, 0);
             this.btnAddLogicComp.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnAddLogicComp.Name = "btnAddLogicComp";
             this.btnAddLogicComp.Size = new System.Drawing.Size(37, 25);
@@ -264,7 +271,7 @@
             this.btnRemoveLogicComp.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnRemoveLogicComp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRemoveLogicComp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.btnRemoveLogicComp.Location = new System.Drawing.Point(594, 0);
+            this.btnRemoveLogicComp.Location = new System.Drawing.Point(580, 0);
             this.btnRemoveLogicComp.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnRemoveLogicComp.Name = "btnRemoveLogicComp";
             this.btnRemoveLogicComp.Size = new System.Drawing.Size(37, 25);
@@ -285,68 +292,76 @@
             this.toolStripSeparator2,
             this.btnAddToSibAboveSceneComp,
             this.btnAddToSibBelowSceneComp,
-            this.btnAddSibToParentSceneComp});
+            this.btnAddSibToParentSceneComp,
+            this.removeToolStripMenuItem});
             this.ctxSceneComps.Name = "ctxSceneComps";
-            this.ctxSceneComps.Size = new System.Drawing.Size(236, 170);
+            this.ctxSceneComps.Size = new System.Drawing.Size(282, 208);
             // 
             // btnAddSiblingSceneComp
             // 
             this.btnAddSiblingSceneComp.Name = "btnAddSiblingSceneComp";
-            this.btnAddSiblingSceneComp.Size = new System.Drawing.Size(235, 22);
+            this.btnAddSiblingSceneComp.Size = new System.Drawing.Size(281, 24);
             this.btnAddSiblingSceneComp.Text = "Add Sibling";
             this.btnAddSiblingSceneComp.Click += new System.EventHandler(this.btnAddSiblingSceneComp_Click);
             // 
             // btnAddChildSceneComp
             // 
             this.btnAddChildSceneComp.Name = "btnAddChildSceneComp";
-            this.btnAddChildSceneComp.Size = new System.Drawing.Size(235, 22);
+            this.btnAddChildSceneComp.Size = new System.Drawing.Size(281, 24);
             this.btnAddChildSceneComp.Text = "Add Child";
             this.btnAddChildSceneComp.Click += new System.EventHandler(this.btnAddChildSceneComp_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(232, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(278, 6);
+            this.toolStripSeparator1.Click += new System.EventHandler(this.toolStripSeparator1_Click);
             // 
             // btnMoveUpSceneComp
             // 
             this.btnMoveUpSceneComp.Name = "btnMoveUpSceneComp";
-            this.btnMoveUpSceneComp.Size = new System.Drawing.Size(235, 22);
+            this.btnMoveUpSceneComp.Size = new System.Drawing.Size(281, 24);
             this.btnMoveUpSceneComp.Text = "Move Up";
             this.btnMoveUpSceneComp.Click += new System.EventHandler(this.btnMoveUpSceneComp_Click);
             // 
             // btnMoveDownSceneComp
             // 
             this.btnMoveDownSceneComp.Name = "btnMoveDownSceneComp";
-            this.btnMoveDownSceneComp.Size = new System.Drawing.Size(235, 22);
+            this.btnMoveDownSceneComp.Size = new System.Drawing.Size(281, 24);
             this.btnMoveDownSceneComp.Text = "Move Down";
             this.btnMoveDownSceneComp.Click += new System.EventHandler(this.btnMoveDownSceneComp_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(232, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(278, 6);
             // 
             // btnAddToSibAboveSceneComp
             // 
             this.btnAddToSibAboveSceneComp.Name = "btnAddToSibAboveSceneComp";
-            this.btnAddToSibAboveSceneComp.Size = new System.Drawing.Size(235, 22);
+            this.btnAddToSibAboveSceneComp.Size = new System.Drawing.Size(281, 24);
             this.btnAddToSibAboveSceneComp.Text = "Add As Child To Sibling Above";
             this.btnAddToSibAboveSceneComp.Click += new System.EventHandler(this.btnAddToSibAboveSceneComp_Click);
             // 
             // btnAddToSibBelowSceneComp
             // 
             this.btnAddToSibBelowSceneComp.Name = "btnAddToSibBelowSceneComp";
-            this.btnAddToSibBelowSceneComp.Size = new System.Drawing.Size(235, 22);
+            this.btnAddToSibBelowSceneComp.Size = new System.Drawing.Size(281, 24);
             this.btnAddToSibBelowSceneComp.Text = "Add As Child To Sibling Below";
             this.btnAddToSibBelowSceneComp.Click += new System.EventHandler(this.btnAddToSibBelowSceneComp_Click);
             // 
             // btnAddSibToParentSceneComp
             // 
             this.btnAddSibToParentSceneComp.Name = "btnAddSibToParentSceneComp";
-            this.btnAddSibToParentSceneComp.Size = new System.Drawing.Size(235, 22);
+            this.btnAddSibToParentSceneComp.Size = new System.Drawing.Size(281, 24);
             this.btnAddSibToParentSceneComp.Text = "Add As Sibling To Parent";
             this.btnAddSibToParentSceneComp.Click += new System.EventHandler(this.btnAddSibToParentSceneComp_Click);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(281, 24);
+            this.removeToolStripMenuItem.Text = "Remove";
             // 
             // pnlSide
             // 
@@ -355,7 +370,7 @@
             this.pnlSide.Location = new System.Drawing.Point(0, 0);
             this.pnlSide.Margin = new System.Windows.Forms.Padding(0);
             this.pnlSide.Name = "pnlSide";
-            this.pnlSide.Size = new System.Drawing.Size(9, 511);
+            this.pnlSide.Size = new System.Drawing.Size(10, 141);
             this.pnlSide.TabIndex = 3;
             // 
             // panel1
@@ -363,33 +378,106 @@
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.panel1.Controls.Add(this.pnlSide);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 170);
+            this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(631, 511);
+            this.panel1.Size = new System.Drawing.Size(617, 141);
             this.panel1.TabIndex = 4;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.AutoSize = true;
+            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.pnlScene, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.pnlLogic, 0, 1);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 33);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(617, 112);
+            this.tableLayoutPanel1.TabIndex = 4;
+            // 
+            // pnlScene
+            // 
+            this.pnlScene.AutoSize = true;
+            this.pnlScene.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.pnlScene.Controls.Add(this.treeViewSceneComps);
+            this.pnlScene.Controls.Add(this.lblSceneComps);
+            this.pnlScene.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlScene.Location = new System.Drawing.Point(0, 56);
+            this.pnlScene.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlScene.Name = "pnlScene";
+            this.pnlScene.Size = new System.Drawing.Size(617, 56);
+            this.pnlScene.TabIndex = 0;
+            // 
+            // pnlLogic
+            // 
+            this.pnlLogic.AutoSize = true;
+            this.pnlLogic.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.pnlLogic.Controls.Add(this.lstLogicComps);
+            this.pnlLogic.Controls.Add(this.pnlLogicComps);
+            this.pnlLogic.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlLogic.Location = new System.Drawing.Point(0, 0);
+            this.pnlLogic.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlLogic.Name = "pnlLogic";
+            this.pnlLogic.Size = new System.Drawing.Size(617, 56);
+            this.pnlLogic.TabIndex = 8;
+            // 
+            // pnlProps2
+            // 
+            this.pnlProps2.AutoSize = true;
+            this.pnlProps2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.pnlProps2.Controls.Add(this.panel2);
+            this.pnlProps2.Controls.Add(this.lblProperties);
+            this.pnlProps2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlProps2.Location = new System.Drawing.Point(0, 145);
+            this.pnlProps2.Name = "pnlProps2";
+            this.pnlProps2.Size = new System.Drawing.Size(617, 166);
+            this.pnlProps2.TabIndex = 4;
+            // 
+            // panel2
+            // 
+            this.panel2.AutoScroll = true;
+            this.panel2.Controls.Add(this.panel1);
+            this.panel2.Controls.Add(this.pnlProps);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(0, 25);
+            this.panel2.Margin = new System.Windows.Forms.Padding(0);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(617, 141);
+            this.panel2.TabIndex = 4;
             // 
             // TheraPropertyGrid
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.pnlProps);
-            this.Controls.Add(this.lblProperties);
-            this.Controls.Add(this.lstLogicComps);
-            this.Controls.Add(this.pnlLogicComps);
-            this.Controls.Add(this.treeViewSceneComps);
-            this.Controls.Add(this.lblSceneComps);
+            this.Controls.Add(this.pnlProps2);
+            this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.pnlHeader);
             this.Enabled = false;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "TheraPropertyGrid";
-            this.Size = new System.Drawing.Size(631, 681);
+            this.Size = new System.Drawing.Size(617, 311);
             this.pnlHeader.ResumeLayout(false);
             this.pnlLogicComps.ResumeLayout(false);
             this.ctxSceneComps.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
+            this.pnlScene.ResumeLayout(false);
+            this.pnlLogic.ResumeLayout(false);
+            this.pnlProps2.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -423,5 +511,11 @@
         private System.Windows.Forms.ToolStripMenuItem btnAddSibToParentSceneComp;
         private System.Windows.Forms.Panel pnlSide;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.Panel pnlProps2;
+        private System.Windows.Forms.Panel pnlScene;
+        private System.Windows.Forms.Panel pnlLogic;
+        private System.Windows.Forms.Panel panel2;
     }
 }

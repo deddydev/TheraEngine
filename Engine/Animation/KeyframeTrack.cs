@@ -10,16 +10,11 @@ namespace TheraEngine.Animation
     {
         public event Action Changed;
         protected internal void OnChanged() => Changed?.Invoke();
-        
-        private int _count = 0;
 
         protected internal abstract Keyframe FirstKey { get; internal set; }
 
-        public int Count
-        {
-            get => _count;
-            internal set => _count = value;
-        }
+        [Browsable(false)]
+        public int Count { get; internal set; } = 0;
 
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
@@ -29,6 +24,7 @@ namespace TheraEngine.Animation
     {
         private T _first = null;
 
+        [Browsable(false)]
         public T First
         {
             get => _first;
@@ -174,6 +170,7 @@ namespace TheraEngine.Animation
         }
         public void Add(T key)
         {
+            key.OwningTrack = this;
             if (key.Second < 0)
                 return;
             if (key.Second > LengthInSeconds)
@@ -279,7 +276,7 @@ namespace TheraEngine.Animation
         public void Clear()
         {
             _first = null;
-            base.Count = 0;
+            Count = 0;
         }
 
         public int IndexOf(object value)
@@ -390,6 +387,8 @@ namespace TheraEngine.Animation
             set
             {
                 _second = value;
+                if (float.IsNaN(_second))
+                    _second = 0.0f;
                 if (Prev != this)
                     Prev.Relink(this);
             }
@@ -460,9 +459,9 @@ namespace TheraEngine.Animation
 
         public Keyframe Link(Keyframe key)
         {
-            Relink(key);
             if (key.OwningTrack != null)
                 ++key.OwningTrack.Count;
+            Relink(key);
             return key;
         }
 

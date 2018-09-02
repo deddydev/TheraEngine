@@ -297,6 +297,11 @@ namespace TheraEngine
                 f.Move += UpdateScreenLocation;
             }
         }
+        protected override void OnMove(EventArgs e)
+        {
+            base.OnMove(e);
+            UpdateScreenLocation(this, e);
+        }
         public Point ScreenLocation { get; private set; }
         #endregion
 

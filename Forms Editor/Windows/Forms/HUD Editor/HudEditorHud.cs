@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
@@ -17,11 +18,11 @@ namespace TheraEditor.Windows.Forms
     {
         public UIHudEditor() : base()
         {
-            VertexQuad quad = VertexQuad.PosZQuad(1, false, 0, false);
+            VertexQuad quad = VertexQuad.PosZQuad(1, true, -0.5f, false);
             VertexTriangle[] lines = quad.ToTriangles();
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), lines);
             TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Yellow);
-            mat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
+            //mat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
             _highlightMesh.Primitives = new PrimitiveManager(data, mat);
             _uiBoundsMesh.Primitives = new PrimitiveManager(data, mat);
         }
@@ -46,8 +47,8 @@ namespace TheraEditor.Windows.Forms
                 {
                     _rootTransform.ChildComponents.Add(_targetHud.RootComponent);
                     IVec2 vec = LocalPlayerController.Viewport.Region.Extents;
-                    UIComponent comp = _targetHud.RootComponent as UIComponent;
-                    comp.Resize(vec);
+                    UIDockableComponent comp = _targetHud.RootComponent as UIDockableComponent;
+                    //comp.Bounds = vec;
                 }
                 else
                 {
@@ -56,8 +57,10 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OpaqueForward, 99, 0);
+        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OnTopForward, 99, 0);
+        [Browsable(false)]
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
+        [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
         private UIComponent _dragComp, _highlightedComp;
         private IUserInterface _targetHud;
@@ -189,13 +192,14 @@ namespace TheraEditor.Windows.Forms
         private RenderCommandMesh2D _uiBoundsMesh = new RenderCommandMesh2D();
         public void AddRenderables(RenderPasses passes)
         {
-            _highlightMesh.WorldMatrix = _highlightedComp == null ? Matrix4.Identity : _highlightedComp.WorldMatrix;
-            _highlightMesh.NormalMatrix = Matrix3.Identity;
-            _uiBoundsMesh.WorldMatrix = Matrix4.CreateScale(TargetHUD.Bounds);
-            _uiBoundsMesh.NormalMatrix = Matrix3.Identity;
+            if (_highlightedComp != null)
+            {
+                _highlightMesh.WorldMatrix = _highlightedComp.WorldMatrix;
+                passes.Add(_highlightMesh, ERenderPass.TransparentForward);
+            }
 
-            passes.Add(_highlightMesh, ERenderPass.OnTopForward);
-            passes.Add(_uiBoundsMesh, ERenderPass.Background);
+            _uiBoundsMesh.WorldMatrix = Matrix4.CreateScale(TargetHUD.Bounds);
+            passes.Add(_uiBoundsMesh, ERenderPass.TransparentForward);
         }
     }
 }

@@ -120,8 +120,8 @@ namespace System.Windows.Forms
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            if (DesignMode)
-                RecreateHandle();
+            //if (DesignMode)
+            //    RecreateHandle();
             Redraw();
         }
         private void Redraw()

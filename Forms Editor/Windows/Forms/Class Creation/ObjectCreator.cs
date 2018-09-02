@@ -222,8 +222,9 @@ namespace TheraEditor.Windows.Forms
                         ConstructedObject = Activator.CreateInstance(ClassType);
                     else
                     {
-                        ConstructorInfo constructor = ClassType.GetConstructor(Parameters[ConstructorIndex].Select(x => x.ParameterType).ToArray());
-                        ConstructedObject = constructor.Invoke(paramData);
+                        var parameters = FinalArguments[ConstructorIndex];
+                        ConstructorInfo constructorInfo = ClassType.GetConstructors()[ConstructorIndex];
+                        ConstructedObject = constructorInfo.Invoke(parameters);
                     }
                 }
                 else
@@ -331,6 +332,8 @@ namespace TheraEditor.Windows.Forms
                 AutoSize = true,
                 Tag = index,
                 Checked = index == 0,
+                ForeColor = Color.FromArgb(200, 200, 220),
+                BackColor = Color.Transparent,
             };
 
             ConstructorIndex = 0;
@@ -371,6 +374,9 @@ namespace TheraEditor.Windows.Forms
 
         private void ResizeArray(NumericInputBoxBase<int> box, int? previous, int? current)
         {
+            if (current == null)
+                return;
+
             object[][] array = FinalArguments;
             int countBefore;
             if (array == null)

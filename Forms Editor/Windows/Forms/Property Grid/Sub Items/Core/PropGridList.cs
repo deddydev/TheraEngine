@@ -15,7 +15,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal(object value)
         {
             string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
-            lblObjectTypeName.Text = ParentInfo is PropGridItemRefIListInfo ? (value == null ? "null" : value.ToString()) + " [" + typeName + "]" : typeName;
+            lblObjectTypeName.Text = "[" + typeName + "] " + value?.ToString() ?? "null";
 
             chkNull.Visible = !DataType.IsValueType;
             

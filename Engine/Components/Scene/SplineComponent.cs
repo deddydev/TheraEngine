@@ -171,6 +171,9 @@ namespace TheraEngine.Components.Scene
         private readonly RenderCommandMesh3D _rcTangents = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
+            if (_spline == null)
+                return;
+
             passes.Add(_rcSpline, RenderInfo.RenderPass);
 
             if (RenderCurrentTimePoint)

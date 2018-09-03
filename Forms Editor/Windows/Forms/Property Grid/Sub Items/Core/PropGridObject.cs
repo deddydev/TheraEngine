@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _object = value;
 
             string typeName = (_object?.GetType() ?? DataType).GetFriendlyName();
-            lblObjectTypeName.Text = ParentInfo is PropGridItemRefIListInfo ? (_object == null ? "null" : _object.ToString()) + " [" + typeName + "]" : typeName;
+            lblObjectTypeName.Text = "[" + typeName + "] " + _object?.ToString() ?? "null";
 
             if ((chkNull.Checked = _object == null))
             {

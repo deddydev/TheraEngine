@@ -701,7 +701,7 @@ namespace TheraEditor.Windows.Forms
                                 if (_genericTypeArgs.IndexInArrayRange(argIndex))
                                     t = _genericTypeArgs[argIndex];
                             }
-                            object o = Editor.UserCreateInstanceOf(t, true);
+                            object o = Editor.UserCreateInstanceOf(t, true, this);
 
                             if (o == null && argInfo.Type.IsValueType)
                                 o = argInfo.Type.GetDefaultValue();

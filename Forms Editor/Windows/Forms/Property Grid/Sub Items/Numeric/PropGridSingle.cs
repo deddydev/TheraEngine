@@ -18,6 +18,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal(object value)
         {
             numericInputBox1.Value = (Single)value;
+            numericInputBox1.Enabled = IsEditable();
         }
 
         protected override void OnLabelSet()

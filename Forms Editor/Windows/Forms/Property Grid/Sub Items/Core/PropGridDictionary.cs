@@ -138,10 +138,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAdd_Click(object sender, EventArgs e)
         {
             int i = _dictionary.Count;
-            object key = Editor.UserCreateInstanceOf(_keyType, true);
+            object key = Editor.UserCreateInstanceOf(_keyType, true, this);
             if (key == null)
                 return;
-            object value = Editor.UserCreateInstanceOf(_valueType, true);
+            object value = Editor.UserCreateInstanceOf(_valueType, true, this);
             if (value == null)
                 return;
             
@@ -190,7 +190,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
+                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true, this), true);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -88,7 +89,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.BackColor = Color.Transparent;
             this.Controls.Add(this.cboEnumNames);
             this.Controls.Add(this.panel1);
             this.Name = "PropGridEnum";

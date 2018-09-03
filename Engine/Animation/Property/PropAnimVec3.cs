@@ -15,6 +15,7 @@ namespace TheraEngine.Animation
         /// <summary>
         /// The default value to return when no keyframes are set.
         /// </summary>
+        [Category(PropAnimCategory)]
         [TSerialize(Condition = "!Baked")]
         public Vec3 DefaultValue { get; set; } = Vec3.Zero;
 
@@ -81,22 +82,56 @@ namespace TheraEngine.Animation
         protected DelInterpolate _interpolateAcceleration = CubicHermiteAcceleration;
         
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Vec3 InValue { get; set; }
+        public Vec3 InValue
+        {
+            get => _inValue;
+            set
+            {
+                _inValue = value;
+                OwningTrack?.OnChanged();
+            }
+        }
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Vec3 OutValue { get; set; }
+        public Vec3 OutValue
+        {
+            get => _outValue;
+            set
+            {
+                _outValue = value;
+                OwningTrack?.OnChanged();
+            }
+        }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Vec3 InTangent { get; set; }
+        public Vec3 InTangent
+        {
+            get => _inTangent;
+            set
+            {
+                _inTangent = value;
+                OwningTrack?.OnChanged();
+            }
+        }
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Vec3 OutTangent { get; set; }
+        public Vec3 OutTangent
+        {
+            get => _outTangent;
+            set
+            {
+                _outTangent = value;
+                OwningTrack?.OnChanged();
+            }
+        }
 
-        [Browsable(false)]
+        private Vec3 _inValue, _outValue, _inTangent, _outTangent;
+
+        //[Browsable(false)]
         public new Vec3Keyframe Next
         {
             get => _next as Vec3Keyframe;
             set => _next = value;
         }
-        [Browsable(false)]
+        //[Browsable(false)]
         public new Vec3Keyframe Prev
         {
             get => _prev as Vec3Keyframe;
@@ -133,6 +168,7 @@ namespace TheraEngine.Animation
                         _interpolateAcceleration = CubicBezierAcceleration;
                         break;
                 }
+                OwningTrack?.OnChanged();
             }
         }
         public Vec3 Interpolate(float desiredSecond)

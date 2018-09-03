@@ -503,7 +503,7 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         /// <param name="type">The object type to create.</param>
         /// <returns>A newly created instance of elementType.</returns>
-        public static object UserCreateInstanceOf(Type type, bool allowDerivedTypes)
+        public static object UserCreateInstanceOf(Type type, bool allowDerivedTypes, IWin32Window window = null)
         {
             if (type.IsPrimitive)
                 return type.GetDefaultValue();
@@ -515,7 +515,7 @@ namespace TheraEditor.Windows.Forms
             {
                 using (GenericsSelector gs = new GenericsSelector(type))
                 {
-                    if (gs.ShowDialog(Instance) == DialogResult.OK)
+                    if (gs.ShowDialog(window ?? Instance) == DialogResult.OK)
                         type = gs.FinalClassType;
                     else
                         return null;
@@ -525,7 +525,7 @@ namespace TheraEditor.Windows.Forms
             using (ObjectCreator creator = new ObjectCreator())
             {
                 if (creator.Initialize(type, allowDerivedTypes))
-                    creator.ShowDialog(Instance);
+                    creator.ShowDialog(window ?? Instance);
 
                 return creator.ConstructedObject;
             }

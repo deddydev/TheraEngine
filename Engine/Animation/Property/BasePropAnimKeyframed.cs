@@ -8,14 +8,14 @@ namespace TheraEngine.Animation
     {
         public BasePropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false)
             : base(lengthInSeconds, looped, isBaked) { }
-        public BasePropAnimKeyframed(int frameCount, float fPS, bool looped, bool isBaked = false)
-            : base(frameCount, fPS, looped, isBaked) { }
+        public BasePropAnimKeyframed(int frameCount, float fps, bool looped, bool isBaked = false)
+            : base(frameCount, fps, looped, isBaked) { }
         public override void SetLength(float lengthInSeconds, bool stretchAnimation)
         {
             InternalKeyframes.SetLength(lengthInSeconds, stretchAnimation);
             base.SetLength(lengthInSeconds, stretchAnimation);
         }
-        [Category("Property Animation")]
+        [Category(PropAnimCategory)]
         protected abstract BaseKeyframeTrack InternalKeyframes { get; }
     }
 }

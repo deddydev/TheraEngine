@@ -244,7 +244,7 @@ namespace TheraEditor.Wrappers
                 {
                     using (GenericsSelector gs = new GenericsSelector(fileType))
                     {
-                        if (gs.ShowDialog(Editor.Instance) == DialogResult.OK)
+                        if (gs.ShowDialog(button.Owner) == DialogResult.OK)
                             fileType = gs.FinalClassType;
                         else
                             return;
@@ -256,7 +256,7 @@ namespace TheraEditor.Wrappers
                     Title = "Import File"
                 })
                 {
-                    DialogResult r = ofd.ShowDialog(Editor.Instance);
+                    DialogResult r = ofd.ShowDialog(button.Owner);
                     if (r == DialogResult.OK)
                     {
                         CancellationTokenSource token = new CancellationTokenSource();
@@ -286,7 +286,7 @@ namespace TheraEditor.Wrappers
             {
                 Type fileType = button.Tag as Type;
 
-                if (!(Editor.UserCreateInstanceOf(fileType, true) is TFileObject file))
+                if (!(Editor.UserCreateInstanceOf(fileType, true, button.Owner) is TFileObject file))
                     return;
 
                 FolderWrapper folderNode = GetInstance<FolderWrapper>();

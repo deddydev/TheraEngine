@@ -104,7 +104,7 @@ namespace TheraEditor.Windows.Forms
 
                 ToolStripDropDownButton root = new ToolStripDropDownButton("Select a type...") { Tag = i };
 
-                Predicate<Type> test = type =>
+                bool test(Type type)
                 {
                     return !(
 
@@ -117,9 +117,9 @@ namespace TheraEditor.Windows.Forms
                     //Has no default constructor?
                     //type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) == null
                     );
-                };
+                }
 
-                EventHandler onClick = (sender, e) =>
+                void onClick(object sender, EventArgs e)
                 {
                     if (sender is ToolStripDropDownButton button)
                     {
@@ -140,7 +140,7 @@ namespace TheraEditor.Windows.Forms
 
                         btnOkay.Enabled = !SelectedTypes.Any(x => x == null);
                     }
-                };
+                }
 
                 Program.PopulateMenuDropDown(root, onClick, test);
 

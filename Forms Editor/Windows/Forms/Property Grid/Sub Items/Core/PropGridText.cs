@@ -81,7 +81,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     UpdateValue(string.Empty, true);
                 else
                 {
-                    object o = Editor.UserCreateInstanceOf(DataType, true);
+                    object o = Editor.UserCreateInstanceOf(DataType, true, this);
                     UpdateValue(o, true);
                 }
                 //SetTextBoxEditable(true);

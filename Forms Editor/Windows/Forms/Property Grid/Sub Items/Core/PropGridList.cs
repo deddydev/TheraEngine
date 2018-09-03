@@ -1,10 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Collections;
-using System.Collections.Concurrent;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -16,7 +14,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Type _elementType;
         protected override void UpdateDisplayInternal(object value)
         {
-            lblObjectTypeName.Text = DataType.GetFriendlyName();
+            string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
+            lblObjectTypeName.Text = ParentInfo is PropGridItemRefIListInfo ? (value == null ? "null" : value.ToString()) + " [" + typeName + "]" : typeName;
+
             chkNull.Visible = !DataType.IsValueType;
             
             _list = value as IList;
@@ -103,13 +103,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             Label label = (Label)sender;
             _prevLabelColor = label.BackColor;
-            label.BackColor = Color.FromArgb(14, 18, 34);
+            label.BackColor = Color.FromArgb(44, 48, 64);
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
             int i = _list.Count;
-            object value = Editor.UserCreateInstanceOf(_elementType, true);
+            object value = Editor.UserCreateInstanceOf(_elementType, true, this);
             if (value == null)
                 return;
 
@@ -123,7 +123,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {
             if (_list != null)
-                pnlHeader.BackColor = Color.FromArgb(14, 18, 34);
+                pnlHeader.BackColor = Color.FromArgb(105, 140, 170);
         }
         private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
         {
@@ -142,7 +142,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true), true);
+                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true, this), true);
         }
     }
 }

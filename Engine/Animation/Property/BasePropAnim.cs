@@ -10,6 +10,8 @@ namespace TheraEngine.Animation
     [FileDef("Property Animation")]
     public abstract class BasePropAnim : BaseAnimation
     {
+        public const string PropAnimCategory = "Property Animation";
+
         public BasePropAnim(float lengthInSeconds, bool looped, bool isBaked = false)
             : base(lengthInSeconds, looped, isBaked) { }
         public BasePropAnim(int frameCount, float fPS, bool looped, bool isBaked = false)

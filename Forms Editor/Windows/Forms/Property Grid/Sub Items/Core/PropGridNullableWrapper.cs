@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            object o = chkNull.Checked ? null : Editor.UserCreateInstanceOf(ValueType, true);
+            object o = chkNull.Checked ? null : Editor.UserCreateInstanceOf(ValueType, true, this);
             UpdateValue(o, true);
         }
         protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)

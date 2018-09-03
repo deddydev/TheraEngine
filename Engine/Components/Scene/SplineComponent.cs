@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true) { CastsShadows = false, ReceivesShadows = false };
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, true, true) { CastsShadows = false, ReceivesShadows = false };
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -62,71 +62,66 @@ namespace TheraEngine.Components.Scene
 
         public void RegenerateSplinePrimitive()
         {
-            //List<Vertex> vertices = new List<Vertex>();
-            //Vec3 point, velocity;
-            //int max = _spline.FrameCount - 1;
-            //for (float i = 0.0f, step = 0.0f; i < max; i = (i + step).ClampMax(max))
-            //{
-            //    point = _spline.GetValueKeyframed(i);
-            //    velocity = _spline.GetVelocityKeyframed(i);
-            //    step = (velocity.LengthFast / 2.0f).ClampMin(0.1f);
-            //    vertices.Add(new Vertex(point));
-            //}
-            //VertexLineStrip strip = new VertexLineStrip(false, vertices.ToArray());
-
+            _splinePrimitive?.Dispose();
+            _splinePrimitive = null;
+            _velocityPrimitive?.Dispose();
+            _velocityPrimitive = null;
+            _pointPrimitive?.Dispose();
+            _pointPrimitive = null;
+            _tangentPrimitive?.Dispose();
+            _tangentPrimitive = null;
+            
             if (_spline == null)
-                _splinePrimitive = null;
-            else
+                return;
+                        
+            Vertex[] splinePoints = new Vertex[_spline.BakedFrameCount];
+            VertexLine[] velocity = new VertexLine[_spline.BakedFrameCount];
+            Vec3[] keyframePositions = new Vec3[_spline.Keyframes.Count << 1];
+            Vec3[] tangentPositions = new Vec3[_spline.Keyframes.Count << 1];
+
+            int i, x = 0;
+            for (i = 0; i < splinePoints.Length; ++i)
             {
-                Vertex[] splinePoints = new Vertex[_spline.BakedFrameCount];
-                VertexLine[] velocity = new VertexLine[_spline.BakedFrameCount];
-                Vec3[] keyframePositions = new Vec3[_spline.Keyframes.Count << 1];
-                Vec3[] tangentPositions = new Vec3[_spline.Keyframes.Count << 1];
-
-                int i, x = 0;
-                for (i = 0; i < splinePoints.Length; ++i)
-                {
-                    Vertex pos = new Vertex(_spline.GetValueKeyframed(i));
-                    splinePoints[i] = pos;
-                    velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _spline.GetVelocityKeyframed(i).NormalizedFast()));
-                }
-                i = 0;
-                foreach (Vec3Keyframe keyframe in _spline)
-                {
-                    keyframePositions[i++] = keyframe.InValue;
-                    keyframePositions[i++] = keyframe.OutValue;
-                    tangentPositions[x++] = keyframe.InValue + keyframe.InTangent;
-                    tangentPositions[x++] = keyframe.OutValue + keyframe.OutTangent;
-                }
-
-                VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
-
-                RenderingParameters p = new RenderingParameters
-                {
-                    LineWidth = 1.0f,
-                    PointSize = 5.0f
-                };
-
-                PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
-                TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
-                mat.RenderParams = p;
-                _splinePrimitive = new PrimitiveManager(splineData, mat);
-
-                PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
-                mat = TMaterial.CreateUnlitColorMaterialForward(Color.Blue);
-                mat.RenderParams = p;
-                _velocityPrimitive = new PrimitiveManager(velocityData, mat);
-                
-                PrimitiveData pointData = PrimitiveData.FromPoints(keyframePositions);
-                mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
-                mat.RenderParams = p;
-                _pointPrimitive = new PrimitiveManager(pointData, mat);
-
-                PrimitiveData tangentData = PrimitiveData.FromPoints(tangentPositions);
-                mat = TMaterial.CreateUnlitColorMaterialForward(Color.Purple);
-                mat.RenderParams = p;
-                _tangentPrimitive = new PrimitiveManager(tangentData, mat);
+                Vertex pos = new Vertex(_spline.GetValueKeyframed(i));
+                splinePoints[i] = pos;
+                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _spline.GetVelocityKeyframed(i).Normalized()));
             }
+            i = 0;
+            foreach (Vec3Keyframe keyframe in _spline)
+            {
+                keyframePositions[i++] = keyframe.InValue;
+                keyframePositions[i++] = keyframe.OutValue;
+                tangentPositions[x++] = keyframe.InValue + keyframe.InTangent;
+                tangentPositions[x++] = keyframe.OutValue + keyframe.OutTangent;
+            }
+
+            VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
+
+            RenderingParameters p = new RenderingParameters
+            {
+                LineWidth = 1.0f,
+                PointSize = 5.0f
+            };
+
+            PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
+            TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
+            mat.RenderParams = p;
+            _splinePrimitive = new PrimitiveManager(splineData, mat);
+
+            PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
+            mat = TMaterial.CreateUnlitColorMaterialForward(Color.Blue);
+            mat.RenderParams = p;
+            _velocityPrimitive = new PrimitiveManager(velocityData, mat);
+
+            PrimitiveData pointData = PrimitiveData.FromPoints(keyframePositions);
+            mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
+            mat.RenderParams = p;
+            _pointPrimitive = new PrimitiveManager(pointData, mat);
+
+            PrimitiveData tangentData = PrimitiveData.FromPoints(tangentPositions);
+            mat = TMaterial.CreateUnlitColorMaterialForward(Color.Purple);
+            mat.RenderParams = p;
+            _tangentPrimitive = new PrimitiveManager(tangentData, mat);
         }
 
 #if EDITOR
@@ -155,17 +150,17 @@ namespace TheraEngine.Components.Scene
 
             if (RenderTangents)
             {
-                _rcTangents.Mesh = _velocityPrimitive;
-                _rcTangents.WorldMatrix = WorldMatrix;
-                _rcTangents.NormalMatrix = Matrix3.Identity;
-                passes.Add(_rcTangents, RenderInfo.RenderPass);
+                _rcVelocity.Mesh = _velocityPrimitive;
+                _rcVelocity.WorldMatrix = WorldMatrix;
+                _rcVelocity.NormalMatrix = Matrix3.Identity;
+                passes.Add(_rcVelocity, RenderInfo.RenderPass);
             }
             if (RenderKeyframePoints)
             {
-                _rcTangents.Mesh = _pointPrimitive;
-                _rcTangents.WorldMatrix = WorldMatrix;
-                _rcTangents.NormalMatrix = Matrix3.Identity;
-                passes.Add(_rcTangents, RenderInfo.RenderPass);
+                _rcPoints.Mesh = _pointPrimitive;
+                _rcPoints.WorldMatrix = WorldMatrix;
+                _rcPoints.NormalMatrix = Matrix3.Identity;
+                passes.Add(_rcPoints, RenderInfo.RenderPass);
             }
             if (RenderKeyframeTangentPoints)
             {

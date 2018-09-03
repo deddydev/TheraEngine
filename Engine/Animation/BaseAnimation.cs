@@ -64,9 +64,9 @@ namespace TheraEngine.Animation
 
         public BaseAnimation(float lengthInSeconds, bool looped, bool isBaked = false)
         {
-            _bakedFrameCount = (int)Math.Ceiling(lengthInSeconds * 60.0f);
             _bakedFPS = 60.0f;
             _lengthInSeconds = lengthInSeconds;
+            SetBakedFramecount();
             Looped = looped;
             Baked = isBaked;
         }
@@ -77,6 +77,11 @@ namespace TheraEngine.Animation
             _lengthInSeconds = frameCount / FPS;
             Looped = looped;
             Baked = isBaked;
+        }
+
+        protected void SetBakedFramecount()
+        {
+            _bakedFrameCount = (int)Math.Ceiling(_lengthInSeconds * _bakedFPS);
         }
 
         /// <summary>
@@ -102,11 +107,16 @@ namespace TheraEngine.Animation
         public virtual void SetLength(float seconds, bool stretchAnimation)
         {
             _lengthInSeconds = seconds;
+            SetBakedFramecount();
             LengthChanged?.Invoke();
         }
 
         [Category("Animation")]
-        public float LengthInSeconds => _lengthInSeconds;
+        public float LengthInSeconds
+        {
+            get => _lengthInSeconds;
+            set => SetLength(value, false);
+        }
         
         /// <summary>
         /// How fast the animation plays back.

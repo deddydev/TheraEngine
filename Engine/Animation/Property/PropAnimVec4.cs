@@ -15,6 +15,7 @@ namespace TheraEngine.Animation
         /// <summary>
         /// The default value to return when no keyframes are set.
         /// </summary>
+        [Category(PropAnimCategory)]
         [TSerialize(Condition = "!Baked")]
         public Vec4 DefaultValue { get; set; } = Vec4.Zero;
 

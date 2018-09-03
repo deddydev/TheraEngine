@@ -5,24 +5,31 @@ namespace TheraEngine.Animation
     public abstract class PropAnimKeyframed<T> : BasePropAnimKeyframed where T : Keyframe
     {
         public delegate T2 DelGetValue<T2>(float second);
+
+        [TSerialize(nameof(Keyframes))]
         protected KeyframeTrack<T> _keyframes;
 
         public PropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false) 
-            : base(lengthInSeconds, looped, isBaked)
-        {
-            _keyframes = new KeyframeTrack<T>();
-        }
+            : base(lengthInSeconds, looped, isBaked) => ConstructKeyframes();
         public PropAnimKeyframed(int frameCount, float FPS, bool looped, bool isBaked = false)
-            : base(frameCount, FPS, looped, isBaked)
+            : base(frameCount, FPS, looped, isBaked) => ConstructKeyframes();
+        
+        private void ConstructKeyframes()
         {
             _keyframes = new KeyframeTrack<T>();
+            _keyframes.LengthChanged += _keyframes_LengthChanged;
         }
-        
-        [Category("Property Animation")]
+
+        private void _keyframes_LengthChanged(float oldLength, float newLength)
+        {
+            _lengthInSeconds = newLength;
+            SetBakedFramecount();
+            OnLengthChanged();
+        }
+
         protected override BaseKeyframeTrack InternalKeyframes => _keyframes;
 
-        [TSerialize]
-        [Category("Property Animation")]
+        [Category(PropAnimCategory)]
         public KeyframeTrack<T> Keyframes => _keyframes;
 
         /// <summary>

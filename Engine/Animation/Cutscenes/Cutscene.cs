@@ -15,25 +15,13 @@ namespace TheraEngine.Cutscenes
             : base(lengthInSeconds, looped, isBaked) { }
         public Cutscene(int frameCount, float FPS, bool looped, bool isBaked = false)
             : base(frameCount, FPS, looped, isBaked) { }
-        
-        public List<GlobalFileRef<IActor>> InvolvedActors
-        {
-            get => _involvedActors;
-            set => _involvedActors = value;
-        }
-        public GlobalFileRef<World> WorldRef
-        {
-            get => _worldRef;
-            set => _worldRef = value;
-        }
+
+        public List<GlobalFileRef<IActor>> InvolvedActors { get; set; }
+        public GlobalFileRef<World> WorldRef { get; set; }
 
         [TSerialize]
-        private KeyframeTrack<CutsceneKeyframe> _keyframes;
+        private List<BaseKeyframeTrack> _keyframes = new List<BaseKeyframeTrack>();
 
-        //ONLY render actors visible in the cutsene to improve performance
-        //Precompute visibility in the editor, then compile the list of visible actors here.
-        private List<GlobalFileRef<IActor>> _involvedActors;
-        private GlobalFileRef<World> _worldRef;
         private Camera CurrentCamera { get; set; }
 
         /// <summary>
@@ -45,8 +33,8 @@ namespace TheraEngine.Cutscenes
         }
         protected override void PreStarted()
         {
-            if (Engine.World != _worldRef.File)
-                Engine.SetCurrentWorld(_worldRef.File, false, false);
+            if (Engine.World != WorldRef.File)
+                Engine.SetCurrentWorld(WorldRef.File, false, false);
         }
         protected override void BakedChanged()
         {
@@ -55,19 +43,6 @@ namespace TheraEngine.Cutscenes
         public override void Bake(float framesPerSecond)
         {
 
-        }
-    }
-    public class CutsceneKeyframe : Keyframe
-    {
-        public AnimationContainer Animation { get; set; }
-
-        public override void ReadFromString(string str)
-        {
-
-        }
-        public override string WriteToString()
-        {
-            return null;
         }
     }
 }

@@ -42,15 +42,15 @@ namespace TheraEngine.Animation
             }
             else
             {
-                Keyframe key = FirstKey;
-                while (key != null)
-                {
-                    if (key.Second < 0 || key.Second > LengthInSeconds)
-                        key.Remove();
-                    if (key.Next == FirstKey)
-                        break;
-                    key = key.Next;
-                }
+                //Keyframe key = FirstKey;
+                //while (key != null)
+                //{
+                //    if (key.Second < 0 || key.Second > LengthInSeconds)
+                //        key.Remove();
+                //    if (key.Next == FirstKey)
+                //        break;
+                //    key = key.Next;
+                //}
             }
             LengthChanged?.Invoke(prevLength, LengthInSeconds);
             OnChanged();

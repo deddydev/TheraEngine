@@ -12,7 +12,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public MethodInfo Method
         {
             get => _method;
-            internal set
+            private set
             {
                 _method = value;
                 string fName = _method.GetFriendlyName();
@@ -24,6 +24,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         
         public PropGridMethod() => InitializeComponent();
+
+        protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        {
+            base.SetReferenceHolder(parentInfo);
+            if (parentInfo is PropGridItemRefMethodInfo methodInfo)
+            {
+                Method = methodInfo.Method;
+            }
+        }
 
         protected override void UpdateDisplayInternal(object value)
         {

@@ -139,13 +139,29 @@ namespace TheraEngine.Animation
         /// Only one frame of this animation will show for every two game frames (the animation won't be sped up).
         /// </summary>
         [Category("Animation")]
-        public float BakedFramesPerSecond => _bakedFPS;
+        public float BakedFramesPerSecond
+        {
+            get => _bakedFPS;
+            set
+            {
+                _bakedFPS = value;
+                SetBakedFramecount();
+            }
+        }
         
         /// <summary>
         /// How many frames this animation contains.
         /// </summary>
         [Category("Animation")]
-        public int BakedFrameCount => _bakedFrameCount;
+        public int BakedFrameCount
+        {
+            get => _bakedFrameCount;
+            set
+            {
+                _bakedFrameCount = value;
+                LengthInSeconds = _bakedFrameCount / _bakedFPS;
+            }
+        }
         
         [Category("Animation")]
         public bool Looped

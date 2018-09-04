@@ -50,40 +50,74 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             tblProps.RowStyles.Clear();
             tblProps.RowCount = 0;
         }
-        public Label AddMethod(PropGridMethod methodControl, object[] attributes, string displayName)
-        {
-            var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
+        //public Label AddMethod(PropGridMethod methodControl, object[] attributes, string displayName)
+        //{
+        //    var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
 
-            //string fName = methodControl.Method.GetFriendlyName();
-            //int paren = fName.IndexOf('(');
-            //string methodName = fName.Substring(0, paren);
+        //    //string fName = methodControl.Method.GetFriendlyName();
+        //    //int paren = fName.IndexOf('(');
+        //    //string methodName = fName.Substring(0, paren);
 
-            string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
-            Label label = new Label()
-            {
-                Text = displayName,
-                TextAlign = ContentAlignment.MiddleRight,
-                AutoSize = true,
-                ForeColor = Color.FromArgb(200, 200, 220),
-                Dock = DockStyle.Fill,
-                Padding = new Padding(3, 0, 3, 0),
-                Margin = new Padding(0),
-                Tag = desc,
-            };
-            label.MouseEnter += Label_MouseEnter;
-            label.MouseLeave += Label_MouseLeave;
-            tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tblProps.RowCount = tblProps.RowStyles.Count;
-            tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
+        //    string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
+        //    Label label = new Label()
+        //    {
+        //        Text = displayName,
+        //        TextAlign = ContentAlignment.MiddleRight,
+        //        AutoSize = true,
+        //        ForeColor = Color.FromArgb(200, 200, 220),
+        //        Dock = DockStyle.Fill,
+        //        Padding = new Padding(3, 0, 3, 0),
+        //        Margin = new Padding(0),
+        //        Tag = desc,
+        //    };
+        //    label.MouseEnter += Label_MouseEnter;
+        //    label.MouseLeave += Label_MouseLeave;
+        //    tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        //    tblProps.RowCount = tblProps.RowStyles.Count;
+        //    tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
 
-            methodControl.SetLabel(label);
-            methodControl.Dock = DockStyle.Fill;
-            methodControl.Margin = new Padding(0);
-            methodControl.Padding = new Padding(0);
-            tblProps.Controls.Add(methodControl, 1, tblProps.RowCount - 1);
+        //    methodControl.SetLabel(label);
+        //    methodControl.Dock = DockStyle.Fill;
+        //    methodControl.Margin = new Padding(0);
+        //    methodControl.Padding = new Padding(0);
+        //    tblProps.Controls.Add(methodControl, 1, tblProps.RowCount - 1);
             
-            return label;
-        }
+        //    return label;
+        //}
+        //public Label AddEvent(PropGridEvent eventControl, object[] attributes, string displayName)
+        //{
+        //    var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
+
+        //    //string fName = methodControl.Method.GetFriendlyName();
+        //    //int paren = fName.IndexOf('(');
+        //    //string methodName = fName.Substring(0, paren);
+
+        //    string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
+        //    Label label = new Label()
+        //    {
+        //        Text = displayName,
+        //        TextAlign = ContentAlignment.MiddleRight,
+        //        AutoSize = true,
+        //        ForeColor = Color.FromArgb(200, 200, 220),
+        //        Dock = DockStyle.Fill,
+        //        Padding = new Padding(3, 0, 3, 0),
+        //        Margin = new Padding(0),
+        //        Tag = desc,
+        //    };
+        //    label.MouseEnter += Label_MouseEnter;
+        //    label.MouseLeave += Label_MouseLeave;
+        //    tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        //    tblProps.RowCount = tblProps.RowStyles.Count;
+        //    tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
+
+        //    eventControl.SetLabel(label);
+        //    eventControl.Dock = DockStyle.Fill;
+        //    eventControl.Margin = new Padding(0);
+        //    eventControl.Padding = new Padding(0);
+        //    tblProps.Controls.Add(eventControl, 1, tblProps.RowCount - 1);
+
+        //    return label;
+        //}
         public Label AddProperty(List<PropGridItem> editors, object[] attributes, bool readOnly)
         {
             var displayNameAttrib = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
@@ -91,7 +125,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             string displayName = displayNameAttrib?.DisplayName;
             var parentInfo = editors[0].ParentInfo;
-            string propName = editors[0].GetParentInfo<PropGridItemRefPropertyInfo>()?.Property?.Name;
+            string propName = parentInfo.DisplayName; //editors[0].GetParentInfo<PropGridItemRefPropertyInfo>()?.Property?.Name;
             string name;
 
             if (!string.IsNullOrWhiteSpace(displayName))
@@ -102,17 +136,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 name = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
             }
-            else if (parentInfo is PropGridItemRefIListInfo listInfo)
-            {
-                name = string.Format("[{0}]", listInfo.Index);
-            }
-            else if (parentInfo is PropGridItemRefIDictionaryInfo dicInfo)
-            {
-                name = string.Format("[{0}]", dicInfo.Key.ToString());
-            }
             else
             {
-                name = null;
+                name = "[No Name]";
             }
 
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;

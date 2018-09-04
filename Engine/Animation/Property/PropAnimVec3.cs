@@ -129,13 +129,13 @@ namespace TheraEngine.Animation
         public new Vec3Keyframe Next
         {
             get => _next as Vec3Keyframe;
-            set => _next = value;
+            //set => _next = value;
         }
         //[Browsable(false)]
         public new Vec3Keyframe Prev
         {
             get => _prev as Vec3Keyframe;
-            set => _prev = value;
+            //set => _prev = value;
         }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]

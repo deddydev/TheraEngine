@@ -286,6 +286,12 @@
     <Compile Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.Designer.cs">
       <DependentUpon>MaterialControlOld.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.Designer.cs">
+      <DependentUpon>PropGridEvent.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridShaderVecColor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -722,6 +728,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.resx">
       <DependentUpon>MaterialControlOld.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.resx">
+      <DependentUpon>PropGridEvent.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridNullableWrapper.resx">
       <DependentUpon>PropGridNullableWrapper.cs</DependentUpon>

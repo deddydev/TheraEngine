@@ -125,6 +125,7 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
             numericInputBoxSingle1.MinimumValue = 0;
+            toolStripTypeSelection.Renderer = new TheraToolstripRenderer();
         }
 
         private bool _updating = false;

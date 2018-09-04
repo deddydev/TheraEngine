@@ -398,7 +398,7 @@ namespace TheraEngine.Animation
             get => _second;
             set
             {
-                _second = value;
+                _second = value.ClampMin(0.0f);
                 if (float.IsNaN(_second))
                     _second = 0.0f;
                 //if (Prev != this)
@@ -410,7 +410,7 @@ namespace TheraEngine.Animation
         public Keyframe Next => _next;
         [Browsable(false)]
         public Keyframe Prev => _prev;
-        [Browsable(false)]
+        //[Browsable(false)]
         public bool IsFirst { get; internal set; }
         [Browsable(false)]
         public BaseKeyframeTrack OwningTrack { get; internal set; }

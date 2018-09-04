@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine;
-using System.Reflection;
-using System.Collections;
 using static System.Windows.Forms.Control;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -35,10 +34,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _object = value;
 
-            string typeName = (_object?.GetType() ?? DataType).GetFriendlyName();
-            lblObjectTypeName.Text = "[" + typeName + "] " + _object?.ToString() ?? "null";
+            if (Editor.GetSettings().PropertyGrid.ShowTypeNames)
+            {
+                string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
+                lblObjectTypeName.Text = "[" + typeName + "] " + (value == null ? "null" : value.ToString());
+            }
+            else
+            {
+                lblObjectTypeName.Text = value == null ? "null" : value.ToString();
+            }
 
-            if ((chkNull.Checked = _object == null))
+            if (chkNull.Checked = _object == null)
             {
                 pnlProps.Visible = false;
                 lblObjectTypeName.Enabled = false;

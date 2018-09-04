@@ -38,7 +38,7 @@ namespace TheraEditor
         [TSerialize]
         public string DockConfigPath { get; set; }
 
-        [TSerialize("RecentlyOpenedProjectPaths")]
+        [TSerialize(nameof(RecentlyOpenedProjectPaths))]
         private List<string> _recentlyOpenedProjectPaths = new List<string>();
         public List<string> RecentlyOpenedProjectPaths => _recentlyOpenedProjectPaths;
 
@@ -66,6 +66,8 @@ namespace TheraEditor
                 get => _expandedCategories;
                 set => _expandedCategories = value ?? new List<string>();
             }
+            [TSerialize]
+            public bool ShowTypeNames { get; set; } = false;
 
             public PropertyGridSettings()
             {

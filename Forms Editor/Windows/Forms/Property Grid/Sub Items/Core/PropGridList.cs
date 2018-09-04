@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEngine;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -14,8 +15,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Type _elementType;
         protected override void UpdateDisplayInternal(object value)
         {
-            string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
-            lblObjectTypeName.Text = "[" + typeName + "] " + value?.ToString() ?? "null";
+            if (Editor.GetSettings().PropertyGrid.ShowTypeNames)
+            {
+                string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
+                lblObjectTypeName.Text = "[" + typeName + "] " + (value == null ? "null" : value.ToString());
+            }
+            else
+            {
+                lblObjectTypeName.Text = value == null ? "null" : value.ToString();
+            }
 
             chkNull.Visible = !DataType.IsValueType;
             

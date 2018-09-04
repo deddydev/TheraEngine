@@ -39,9 +39,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             public object[] Attribs { get; set; }
             public string DisplayName { get; set; }
         }
+        private class EventData
+        {
+            public EventInfo Event { get; set; }
+            public object[] Attribs { get; set; }
+            public string DisplayName { get; set; }
+        }
 
         private const string MiscName = "Miscellaneous";
         private const string MethodName = "Methods";
+        private const string EventName = "Events";
 
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
         private bool _updating;
@@ -184,17 +191,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //pnlProps.ResumeLayout(true);
                 return;
             }
-
+            
             PropertyInfo[] props = null;
             MethodInfo[] methods = null;
+            EventInfo[] events = null;
             ConcurrentDictionary<int, PropertyData> propInfo = new ConcurrentDictionary<int, PropertyData>();
             ConcurrentDictionary<int, MethodData> methodInfo = new ConcurrentDictionary<int, MethodData>();
+            ConcurrentDictionary<int, EventData> eventInfo = new ConcurrentDictionary<int, EventData>();
 
             await Task.Run(() =>
             {
                 Type targetObjectType = obj.GetType();
                 props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+                events = targetObjectType.GetEvents(BindingFlags.Public | BindingFlags.Instance);
                 Parallel.For(0, props.Length, i =>
                 {
                     PropertyInfo prop = props[i];
@@ -227,22 +237,38 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                     propInfo.TryAdd(i, p);
                 });
-                //Parallel.For(0, methods.Length, i =>
-                //{
-                //    MethodInfo method = methods[i];
-                //    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
-                //    {
-                //        object[] attribs = method.GetCustomAttributes(true);
-                //        MethodData m = new MethodData()
-                //        {
-                //            Method = method,
-                //            Attribs = attribs,
-                //            DisplayName = (attribs.FirstOrDefault(x => x is GridCallable) as GridCallable)?.DisplayName ?? method.Name,
-                //        };
+                Parallel.For(0, methods.Length, i =>
+                {
+                    MethodInfo method = methods[i];
+                    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
+                    {
+                        object[] attribs = method.GetCustomAttributes(true);
+                        MethodData m = new MethodData()
+                        {
+                            Method = method,
+                            Attribs = attribs,
+                            DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? method.Name,
+                        };
 
-                //        methodInfo.TryAdd(i, m);
-                //    }
-                //});
+                        methodInfo.TryAdd(i, m);
+                    }
+                });
+                Parallel.For(0, events.Length, i =>
+                {
+                    EventInfo @event = events[i];
+                    if (!@event.IsSpecialName/* && (@event.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false)*/)
+                    {
+                        object[] attribs = @event.GetCustomAttributes(true);
+                        EventData m = new EventData()
+                        {
+                            Event = @event,
+                            Attribs = attribs,
+                            DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? @event.Name,
+                        };
+
+                        eventInfo.TryAdd(i, m);
+                    }
+                });
             });
 
             if (!Disposing && !IsDisposed && IsHandleCreated)
@@ -260,13 +286,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //TimeSpan elapsed = DateTime.Now - startTime;
                 //Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
 
-                //for (int i = 0; i < methods.Length; ++i)
-                //{
-                //    if (!methodInfo.ContainsKey(i))
-                //        continue;
-                //    MethodData m = methodInfo[i];
-                //    CreateMethodControl(m.Method, m.DisplayName, m.Attribs, pnlProps, _categories, obj);
-                //}
+                for (int i = 0; i < methods.Length; ++i)
+                {
+                    if (!methodInfo.ContainsKey(i))
+                        continue;
+                    MethodData m = methodInfo[i];
+                    var deque = new Deque<Type>();
+                    deque.PushBack(typeof(PropGridMethod));
+                    CreateControls(deque, new PropGridItemRefMethodInfo(obj, m.Method), pnlProps, _categories, m.Attribs, false, this);
+                }
+
+                for (int i = 0; i < events.Length; ++i)
+                {
+                    if (!eventInfo.ContainsKey(i))
+                        continue;
+                    EventData e = eventInfo[i];
+                    var deque = new Deque<Type>();
+                    deque.PushBack(typeof(PropGridEvent));
+                    CreateControls(deque, new PropGridItemRefEventInfo(obj, e.Event), pnlProps, _categories, e.Attribs, false, this);
+                }
 
                 bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
                 if (ignoreLoneSubCats && _categories.Count == 1)
@@ -369,38 +407,72 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Deque<Type> controlTypes, PropGridItemRefInfo info, IDataChangeHandler dataChangeHandler)
             => controlTypes.Select(x => InstantiatePropertyEditor(x, info, dataChangeHandler)).ToList();
 
-        public static PropGridMethod CreateMethodControl(
-            MethodInfo m,
-            string displayName,
-            object[] attribs,
-            Panel panel,
-            Dictionary<string, PropGridCategory> categories, 
-            object obj)
-        {
-            PropGridMethod control = new PropGridMethod()
-            {
-                Method = m,
-                ParentInfo = new PropGridItemRefPropertyInfo(obj, null),
-            };
+        //public static PropGridMethod CreateMethodControl(
+        //    MethodInfo m,
+        //    string displayName,
+        //    object[] attribs,
+        //    Panel panel,
+        //    Dictionary<string, PropGridCategory> categories, 
+        //    object obj)
+        //{
+        //    PropGridMethod control = new PropGridMethod()
+        //    {
+        //        Method = m,
+        //        ParentInfo = new PropGridItemRefPropertyInfo(obj, null),
+        //    };
 
-            //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
-            string catName = MethodName;//category == null ? MethodName : category.Category;
-            if (categories.ContainsKey(catName))
-                categories[catName].AddMethod(control, attribs, displayName);
-            else
-            {
-                PropGridCategory methods = new PropGridCategory()
-                {
-                    CategoryName = catName,
-                    Dock = DockStyle.Top,
-                };
-                methods.AddMethod(control, attribs, displayName);
-                categories.Add(catName, methods);
-                panel.Controls.Add(methods);
-            }
+        //    //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
+        //    string catName = MethodName;//category == null ? MethodName : category.Category;
+        //    if (categories.ContainsKey(catName))
+        //        categories[catName].AddMethod(control, attribs, displayName);
+        //    else
+        //    {
+        //        PropGridCategory methods = new PropGridCategory()
+        //        {
+        //            CategoryName = catName,
+        //            Dock = DockStyle.Top,
+        //        };
+        //        methods.AddMethod(control, attribs, displayName);
+        //        categories.Add(catName, methods);
+        //        panel.Controls.Add(methods);
+        //    }
             
-            return control;
-        }
+        //    return control;
+        //}
+        
+        //public static PropGridEvent CreateEventControl(
+        //    EventInfo m,
+        //    string displayName,
+        //    object[] attribs,
+        //    Panel panel,
+        //    Dictionary<string, PropGridCategory> categories,
+        //    object obj)
+        //{
+        //    PropGridEvent control = new PropGridEvent()
+        //    {
+        //        Event = m,
+        //        ParentInfo = new PropGridItemRefPropertyInfo(obj, null),
+        //    };
+
+        //    //var category = attribs.FirstOrDefault(x => x is CategoryAttribute) as CategoryAttribute;
+        //    string catName = EventName;//category == null ? MethodName : category.Category;
+        //    if (categories.ContainsKey(catName))
+        //        categories[catName].AddEvent(control, attribs, displayName);
+        //    else
+        //    {
+        //        PropGridCategory methods = new PropGridCategory()
+        //        {
+        //            CategoryName = catName,
+        //            Dock = DockStyle.Top,
+        //        };
+        //        methods.AddEvent(control, attribs, displayName);
+        //        categories.Add(catName, methods);
+        //        panel.Controls.Add(methods);
+        //    }
+
+        //    return control;
+        //}
+
         /// <summary>
         /// Constructs all given control types and 
         /// </summary>

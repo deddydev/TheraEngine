@@ -130,8 +130,9 @@ namespace TheraEngine.Animation
         IEnumerator IEnumerable.GetEnumerator()
             => ((IEnumerable<IntKeyframe>)_keyframes).GetEnumerator();
     }
-    public class IntKeyframe : Keyframe
+    public class IntKeyframe : Keyframe, IPlanarKeyframe<int>
     {
+        public IntKeyframe() { }
         public IntKeyframe(int frameIndex, float FPS, int inValue, int outValue, float inTangent, float outTangent, PlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
         public IntKeyframe(int frameIndex, float FPS, int inoutValue, float inoutTangent, PlanarInterpType type)
@@ -215,6 +216,14 @@ namespace TheraEngine.Animation
                 }
             }
         }
+        
+        object IPlanarKeyframe.InValue { get => InValue; set => InValue = (int)value; }
+        object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (int)value; }
+        object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (int)value; }
+        object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (int)value; }
+        int IPlanarKeyframe<int>.InTangent { get => (int)InTangent; set => InTangent = value; }
+        int IPlanarKeyframe<int>.OutTangent { get => (int)OutTangent; set => OutTangent = value; }
+
         /// <summary>
         /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
         /// </summary>
@@ -355,6 +364,39 @@ namespace TheraEngine.Animation
             InTangent = float.Parse(parts[3]);
             OutTangent = float.Parse(parts[4]);
             InterpolationType = parts[5].AsEnum<PlanarInterpType>();
+        }
+        
+        void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
+        {
+            InValue = int.Parse(inValue);
+            OutValue = int.Parse(outValue);
+            InTangent = float.Parse(inTangent);
+            OutTangent = float.Parse(outTangent);
+        }
+
+        void IPlanarKeyframe.AverageKeyframe()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IPlanarKeyframe.AverageValues()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IPlanarKeyframe.AverageTangents()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IPlanarKeyframe.MakeOutLinear()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IPlanarKeyframe.MakeInLinear()
+        {
+            throw new NotImplementedException();
         }
     }
 }

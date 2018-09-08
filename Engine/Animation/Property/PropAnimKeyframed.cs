@@ -1,8 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public abstract class PropAnimKeyframed<T> : BasePropAnimKeyframed where T : Keyframe
+    public abstract class PropAnimKeyframed<T> : BasePropAnimKeyframed, IEnumerable<T> where T : Keyframe, new()
     {
         public delegate T2 DelGetValue<T2>(float second);
 
@@ -38,5 +40,10 @@ namespace TheraEngine.Animation
         /// </summary>
         public void Append(PropAnimKeyframed<T> other)
             => Keyframes.Append(other.Keyframes);
+
+        public IEnumerator<T> GetEnumerator()
+            => ((IEnumerable<T>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => ((IEnumerable<T>)_keyframes).GetEnumerator();
     }
 }

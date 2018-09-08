@@ -124,14 +124,10 @@ namespace TheraEngine.Animation
                 }
             }
         }
-
-        public IEnumerator<FloatKeyframe> GetEnumerator()
-            => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
     }
     public class FloatKeyframe : Keyframe, IPlanarKeyframe
     {
+        public FloatKeyframe() { }
         public FloatKeyframe(int frameIndex, float FPS, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
         public FloatKeyframe(int frameIndex, float FPS, float inoutValue, float inoutTangent, PlanarInterpType type)
@@ -355,6 +351,14 @@ namespace TheraEngine.Animation
             InTangent = float.Parse(parts[3]);
             OutTangent = float.Parse(parts[4]);
             InterpolationType = parts[5].AsEnum<PlanarInterpType>();
+        }
+
+        public void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
+        {
+            InValue = float.Parse(inValue);
+            OutValue = float.Parse(outValue);
+            InTangent = float.Parse(inTangent);
+            OutTangent = float.Parse(outTangent);
         }
     }
 }

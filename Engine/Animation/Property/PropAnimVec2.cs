@@ -54,6 +54,7 @@ namespace TheraEngine.Animation
     }
     public class Vec2Keyframe : Keyframe
     {
+        public Vec2Keyframe() { }
         public Vec2Keyframe(int frameIndex, float FPS, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, PlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
         public Vec2Keyframe(int frameIndex, float FPS, Vec2 inoutValue, Vec2 inoutTangent, PlanarInterpType type)

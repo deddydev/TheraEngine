@@ -7,7 +7,7 @@ using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimVec3 : PropAnimKeyframed<Vec3Keyframe>, IEnumerable<Vec3Keyframe>
+    public class PropAnimVec3 : PropAnimKeyframed<Vec3Keyframe>
     {
         private DelGetValue<Vec3> _getValue;
 
@@ -52,14 +52,10 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-
-        public IEnumerator<Vec3Keyframe> GetEnumerator()
-            => ((IEnumerable<Vec3Keyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() 
-            => ((IEnumerable<Vec3Keyframe>)_keyframes).GetEnumerator();
     }
-    public class Vec3Keyframe : Keyframe
+    public class Vec3Keyframe : Keyframe, IPlanarKeyframe<Vec3>
     {
+        public Vec3Keyframe() { }
         public Vec3Keyframe(int frameIndex, float FPS, Vec3 inValue, Vec3 outValue, Vec3 inTangent, Vec3 outTangent, PlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
         public Vec3Keyframe(int frameIndex, float FPS, Vec3 inoutValue, Vec3 inoutTangent, PlanarInterpType type)
@@ -81,6 +77,11 @@ namespace TheraEngine.Animation
         protected DelInterpolate _interpolate = CubicHermite;
         protected DelInterpolate _interpolateVelocity = CubicHermiteVelocity;
         protected DelInterpolate _interpolateAcceleration = CubicHermiteAcceleration;
+
+        object IPlanarKeyframe.InValue { get => InValue; set => InValue = (Vec3)value; }
+        object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (Vec3)value; }
+        object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (Vec3)value; }
+        object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (Vec3)value; }
 
         [Category("Keyframe")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
@@ -129,14 +130,14 @@ namespace TheraEngine.Animation
 
         private Vec3 _inValue, _outValue, _inTangent, _outTangent;
 
-        //[Browsable(false)]
+        [Browsable(false)]
         [Category("Keyframe")]
         public new Vec3Keyframe Next
         {
             get => _next as Vec3Keyframe;
             //set => _next = value;
         }
-        //[Browsable(false)]
+        [Browsable(false)]
         [Category("Keyframe")]
         public new Vec3Keyframe Prev
         {
@@ -178,6 +179,7 @@ namespace TheraEngine.Animation
                 OwningTrack?.OnChanged();
             }
         }
+        
         public enum EVec3InterpValueType
         {
             Position,
@@ -283,6 +285,14 @@ namespace TheraEngine.Animation
             InTangent = new Vec3(float.Parse(parts[7]), float.Parse(parts[8]), float.Parse(parts[9]));
             OutTangent = new Vec3(float.Parse(parts[10]), float.Parse(parts[11]), float.Parse(parts[12]));
             InterpolationType = parts[13].AsEnum<PlanarInterpType>();
+        }
+        
+        void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
+        {
+            InValue = new Vec3(inValue);
+            OutValue = new Vec3(outValue);
+            InTangent = new Vec3(inTangent);
+            OutTangent = new Vec3(outTangent);
         }
     }
 }

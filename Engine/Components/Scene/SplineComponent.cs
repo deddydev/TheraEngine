@@ -36,6 +36,7 @@ namespace TheraEngine.Components.Scene
         private PrimitiveManager _tangentPrimitive;
         private PrimitiveManager _timePointPrimitive;
 
+        [TSerialize]
         public PropAnimVec3 Spline
         {
             get => _spline;
@@ -57,11 +58,11 @@ namespace TheraEngine.Components.Scene
             Spline = spline;
         }
 
-        public override void RecalcWorldTransform()
-        {
-            base.RecalcWorldTransform();
-            //RenderNode?.ItemMoved(this);
-        }
+        //public override void RecalcWorldTransform()
+        //{
+        //    base.RecalcWorldTransform();
+        //    //RenderNode?.ItemMoved(this);
+        //}
 
         public void RegenerateSplinePrimitive()
         {

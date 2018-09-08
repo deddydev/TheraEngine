@@ -73,7 +73,7 @@ namespace TheraEngine.Core.Maths.Transforms
         {
             X = Y = Z = 0.0f;
 
-            char[] delims = new char[] { ',', '(', ')', ' ' };
+            char[] delims = new char[] { '[', ']', ',', '(', ')', ' ' };
             string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
 
             if (arr.Length >= 3)

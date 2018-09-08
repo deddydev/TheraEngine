@@ -192,14 +192,35 @@ namespace TheraEngine.Animation
         }
 
         [Category("Animation")]
-        public EAnimationState State  => _state;
+        public EAnimationState State
+        {
+            get => _state;
+            set
+            {
+                if (value == _state)
+                    return;
+                _state = value;
+                switch (_state)
+                {
+                    case EAnimationState.Playing:
+                        Start();
+                        break;
+                    case EAnimationState.Paused:
+                        Pause();
+                        break;
+                    case EAnimationState.Stopped:
+                        Stop();
+                        break;
+                }
+            }
+        }
 
         [PostDeserialize]
         private void PostDeserialize()
         {
             if (_state == EAnimationState.Playing)
             {
-                _state = EAnimationState.Stopped;
+                _state = EAnimationState.Paused;
                 Start();
             }
         }

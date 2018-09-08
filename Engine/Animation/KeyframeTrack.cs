@@ -7,6 +7,7 @@ using TheraEngine.Core.Maths.Transforms;
 using System.IO;
 using System.Xml;
 using System.Linq;
+using EnumsNET;
 
 namespace TheraEngine.Animation
 {
@@ -27,6 +28,7 @@ namespace TheraEngine.Animation
         void AverageTangents();
         void MakeOutLinear();
         void MakeInLinear();
+        void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent);
     }
     public interface IPlanarKeyframe<T> : IPlanarKeyframe where T : unmanaged
     {
@@ -98,7 +100,7 @@ namespace TheraEngine.Animation
     }
     [FileExt("kf", ManualXmlConfigSerialize = true)]
     [FileDef("Keyframe Track")]
-    public class KeyframeTrack<T> : BaseKeyframeTrack, IList, IList<T>, IEnumerable<T> where T : Keyframe
+    public class KeyframeTrack<T> : BaseKeyframeTrack, IList, IList<T>, IEnumerable<T> where T : Keyframe, new()
     {
         private T _first = null;
         private T _last = null;
@@ -428,7 +430,61 @@ namespace TheraEngine.Animation
 
         protected internal override void Read(XMLReader reader)
         {
-            base.Read(reader);
+            if (string.Equals(reader.Name, "KeyframeTrack", StringComparison.InvariantCulture))
+            {
+                if (reader.ReadAttribute() && string.Equals(reader.Name, nameof(LengthInSeconds), StringComparison.InvariantCulture))
+                    LengthInSeconds = float.TryParse(reader.Value, out float length) ? length : 0.0f;
+
+                Clear();
+
+                if (reader.ReadAttribute() &&
+                    string.Equals(reader.Name, "Count", StringComparison.InvariantCulture) &&
+                    !int.TryParse(reader.Value, out int keyCount))
+                {
+                    Type t = typeof(T);
+                    if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
+                    {
+                        string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
+                        while (reader.BeginElement())
+                        {
+                            switch (reader.Name)
+                            {
+                                case "Second":
+                                    seconds = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    break;
+                                case "InValues":
+                                    inValues = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    break;
+                                case "OutValues":
+                                    outValues = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    break;
+                                case "InTangents":
+                                    inTans = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    break;
+                                case "OutTangents":
+                                    outTans = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    break;
+                                case "Interpolation":
+                                    interpolation = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    break;
+                            }
+                            reader.EndElement();
+                        }
+                        for (int i = 0; i < keyCount; ++i)
+                        {
+                            T kf = new T { Second = float.Parse(seconds[i]) };
+                            IPlanarKeyframe kfp = (IPlanarKeyframe)kf;
+                            kfp.InterpolationType = Enums.Parse<PlanarInterpType>(interpolation[i]);
+                            kfp.ParsePlanar(inValues[i], outValues[i], inTans[i], outTans[i]);
+                            Add(kf);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                LengthInSeconds = 0;
+            }
         }
         protected internal override void Write(XmlWriter writer, ESerializeFlags flags)
         {
@@ -533,9 +589,10 @@ namespace TheraEngine.Animation
         public Keyframe Next => _next;
         [Browsable(false)]
         public Keyframe Prev => _prev;
-        //[Browsable(false)]
+        [Browsable(false)]
         [Category("Keyframe")]
         public bool IsFirst => Prev == null;
+        [Browsable(false)]
         [Category("Keyframe")]
         public bool IsLast => Next == null;
         [Browsable(false)]

@@ -46,14 +46,10 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-
-        public IEnumerator<Matrix4Keyframe> GetEnumerator()
-            => ((IEnumerable<Matrix4Keyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<Matrix4Keyframe>)_keyframes).GetEnumerator();
     }
-    public class Matrix4Keyframe : Keyframe
+    public class Matrix4Keyframe : Keyframe, IStepKeyframe
     {
+        public Matrix4Keyframe() { }
         public Matrix4Keyframe(float second, Matrix4 value) : base()
         {
             Second = second;

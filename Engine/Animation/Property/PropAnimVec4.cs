@@ -47,14 +47,10 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-
-        public IEnumerator<Vec4Keyframe> GetEnumerator()
-            => ((IEnumerable<Vec4Keyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<Vec4Keyframe>)_keyframes).GetEnumerator();
     }
     public class Vec4Keyframe : Keyframe
     {
+        public Vec4Keyframe() { }
         public Vec4Keyframe(int frameIndex, float FPS, Vec4 inValue, Vec4 outValue, Vec4 inTangent, Vec4 outTangent, PlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
         public Vec4Keyframe(int frameIndex, float FPS, Vec4 inoutValue, Vec4 inoutTangent, PlanarInterpType type)

@@ -51,14 +51,10 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-
-        public IEnumerator<BoolKeyframe> GetEnumerator()
-            => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
     }
-    public class BoolKeyframe : Keyframe
+    public class BoolKeyframe : Keyframe, IStepKeyframe
     {
+        public BoolKeyframe() { }
         public BoolKeyframe(int frameIndex, float FPS, bool value)
             : this(frameIndex / FPS, value) { }
         public BoolKeyframe(float second, bool value) : base()

@@ -50,8 +50,9 @@ namespace TheraEngine.Animation
         public IEnumerator<QuatKeyframe> GetEnumerator() { return ((IEnumerable<QuatKeyframe>)_keyframes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<QuatKeyframe>)_keyframes).GetEnumerator(); }
     }
-    public class QuatKeyframe : Keyframe
+    public class QuatKeyframe : Keyframe, IRadialKeyframe
     {
+        public QuatKeyframe() { }
         public QuatKeyframe(int frameIndex, float FPS, Quat inValue, Quat outValue, Quat inTangent, Quat outTangent, RadialInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
         public QuatKeyframe(int frameIndex, float FPS, Quat inoutValue, Quat inTangent, Quat outTangent, RadialInterpType type)

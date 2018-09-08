@@ -52,13 +52,8 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-
-        public IEnumerator<StringKeyframe> GetEnumerator()
-            => ((IEnumerable<StringKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<StringKeyframe>)_keyframes).GetEnumerator();
     }
-    public class StringKeyframe : Keyframe
+    public class StringKeyframe : Keyframe, IStepKeyframe
     {
         [TString(true, false, false, true)]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]

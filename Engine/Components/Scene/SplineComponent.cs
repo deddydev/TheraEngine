@@ -78,7 +78,7 @@ namespace TheraEngine.Components.Scene
 
             if (_spline == null)
                 return;
-                        
+
             Vertex[] splinePoints = new Vertex[_spline.BakedFrameCount];
             VertexLine[] velocity = new VertexLine[_spline.BakedFrameCount];
             Vec3[] keyframePositions = new Vec3[_spline.Keyframes.Count << 1];

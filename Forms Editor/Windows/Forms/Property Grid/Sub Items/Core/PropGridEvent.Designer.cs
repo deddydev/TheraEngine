@@ -31,6 +31,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void InitializeComponent()
         {
             this.lblEvent = new System.Windows.Forms.Label();
+            this.pnlSubscribed = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // lblEvent
@@ -51,19 +52,33 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.lblEvent.MouseEnter += new System.EventHandler(this.lblMethod_MouseEnter);
             this.lblEvent.MouseLeave += new System.EventHandler(this.lblMethod_MouseLeave);
             // 
+            // pnlSubscribed
+            // 
+            this.pnlSubscribed.AutoSize = true;
+            this.pnlSubscribed.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.pnlSubscribed.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlSubscribed.Location = new System.Drawing.Point(0, 16);
+            this.pnlSubscribed.Name = "pnlSubscribed";
+            this.pnlSubscribed.Size = new System.Drawing.Size(0, 0);
+            this.pnlSubscribed.TabIndex = 2;
+            this.pnlSubscribed.Visible = false;
+            // 
             // PropGridEvent
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Red;
+            this.BackColor = System.Drawing.Color.Transparent;
+            this.Controls.Add(this.pnlSubscribed);
             this.Controls.Add(this.lblEvent);
             this.Name = "PropGridEvent";
             this.Size = new System.Drawing.Size(0, 16);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
         private Label lblEvent;
+        private Panel pnlSubscribed;
     }
 }

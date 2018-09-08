@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //Label.MouseUp += LabelMouseUp;
 
             PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
-            if (propInfo.Owner is TObject obj)
+            if (propInfo.Owner() is TObject obj)
             {
                 var anims = obj.Animations?.
                     Where(x => x.RootFolder?.PropertyName == propInfo.Property.Name && x.RootFolder?.Animation.File != null).
@@ -73,7 +73,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void CreateAnimation(object sender, EventArgs e)
         {
             PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
-            if (propInfo.Owner is TObject obj)
+            if (propInfo.Owner() is TObject obj)
             {
                 var anim = new AnimationContainer("NewAnimVec2", propInfo.Property.Name, false, new PropAnimVec2(0.0f, true, true));
                 obj.AddAnimation(anim);

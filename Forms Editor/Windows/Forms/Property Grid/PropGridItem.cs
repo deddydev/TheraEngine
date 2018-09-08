@@ -95,15 +95,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public object GetValue()
         {
-            try
-            {
+            //try
+            //{
                 return ParentInfo?.Target;
-            }
-            catch (Exception ex)
-            {
-                Engine.PrintLine(ex.ToString());
-                return ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Engine.PrintLine(ex.ToString());
+            //    return ex;
+            //}
         }
         public void OnValueChanged() => ValueChanged?.Invoke();
         public void UpdateValue(object newValue, bool submitStateChange)
@@ -217,7 +217,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _updating = true;
             object value = GetValue();
-            UpdateDisplayInternal(value);
+            //if (value is Exception ex)
+            //    Engine.LogWarning(ex.ToString());
+            //else
+                UpdateDisplayInternal(value);
             _updating = false;
         }
         protected virtual void UpdateDisplayInternal(object value) { }

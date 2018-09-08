@@ -55,9 +55,9 @@ namespace TheraEngine.Actors.Types
             TransformSpace = ESpace.Local;
         }
 
-        private TMaterial[] _axisMat = new TMaterial[3];
-        private TMaterial[] _transPlaneMat = new TMaterial[6];
-        private TMaterial[] _scalePlaneMat = new TMaterial[3];
+        private readonly TMaterial[] _axisMat = new TMaterial[3];
+        private readonly TMaterial[] _transPlaneMat = new TMaterial[6];
+        private readonly TMaterial[] _scalePlaneMat = new TMaterial[3];
         private TMaterial _screenMat;
         
         private ESpace _transformSpace;

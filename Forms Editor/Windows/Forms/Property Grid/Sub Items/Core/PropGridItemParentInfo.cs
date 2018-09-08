@@ -8,12 +8,33 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public abstract class PropGridItemRefInfo
     {
+        /// <summary>
+        /// The type that is expected of this instance's <see cref="Target"/>.
+        /// </summary>
         public abstract Type DataType { get; }
+        /// <summary>
+        /// False if the <see cref="Target"/> can be set.
+        /// </summary>
         public abstract bool IsReadOnly();
-        public abstract void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="oldValue"></param>
+        /// <param name="newValue"></param>
+        /// <param name="dataChangeHandler"></param>
+        internal protected abstract void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler);
+        /// <summary>
+        /// 
+        /// </summary>
         public abstract object Target { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public abstract string DisplayName { get; }
-        public abstract object Owner { get; set; }
+        /// <summary>
+        /// Retrieves a boxed version of the owner's current state.
+        /// </summary>
+        public abstract Func<object> Owner { get; set; }
     }
     public class PropGridItemRefNullableInfo : PropGridItemRefInfo
     {
@@ -31,12 +52,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override bool IsReadOnly() => _parentInfo.IsReadOnly();
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override object Owner
+        public override Func<object> Owner
         {
             get => _parentInfo.Owner;
             set => _parentInfo.Owner = value;
         }
-        public override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
+        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
             => _parentInfo.SubmitStateChange(oldValue, newValue, dataChangeHandler);
         private readonly PropGridItemRefInfo _parentInfo;
 
@@ -61,12 +82,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropertyInfo Property { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override object Owner { get; set; }
+        public override Func<object> Owner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override Type DataType => Property?.PropertyType;
 
-        public PropGridItemRefPropertyInfo(object owner, PropertyInfo property)
+        public PropGridItemRefPropertyInfo(Func<object> owner, PropertyInfo property)
         {
             Owner = owner;
             Property = property;
@@ -76,7 +97,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             return Property == null || !Property.CanWrite;
         }
-        public override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
+        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
         {
             dataChangeHandler?.PropertyObjectChanged(oldValue, newValue, Owner, Property);
         }
@@ -90,7 +111,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (!Property.CanRead)
                     return null;
 
-                return Property.GetValue(Owner);
+                return Property.GetValue(Owner());
             }
             set
             {
@@ -100,7 +121,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (!Property.CanWrite)
                     return;
 
-                Property.SetValue(Owner, value);
+                Property.SetValue(Owner(), value);
             }
         }
     }
@@ -114,19 +135,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public MethodInfo Method { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override object Owner { get; set; }
+        public override Func<object> Owner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override Type DataType => Method?.ReturnType;
         
-        public PropGridItemRefMethodInfo(object owner, MethodInfo method)
+        public PropGridItemRefMethodInfo(Func<object> owner, MethodInfo method)
         {
             Owner = owner;
             Method = method;
         }
 
         public override bool IsReadOnly() => false;
-        public override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler) { }
+        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler) { }
         public override object Target { get { return null; } set { } }
     }
     public class PropGridItemRefEventInfo : PropGridItemRefInfo
@@ -139,19 +160,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public EventInfo Event { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override object Owner { get; set; }
+        public override Func<object> Owner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override Type DataType => Event?.EventHandlerType;
 
-        public PropGridItemRefEventInfo(object owner, EventInfo @event)
+        public PropGridItemRefEventInfo(Func<object> owner, EventInfo @event)
         {
             Owner = owner;
             Event = @event;
         }
 
         public override bool IsReadOnly() => false;
-        public override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler) { }
+        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler) { }
         public override object Target { get { return null; } set { } }
     }
     public class PropGridItemRefIListInfo : PropGridItemRefInfo
@@ -164,16 +185,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public int Index { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override object Owner { get; set; }
+        public override Func<object> Owner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public IList OwnerIList => Owner as IList;
+        public IList OwnerIList => Owner() as IList;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => Owner == null ? null : (Index >= 0 && Index < OwnerIList.Count ? OwnerIList[Index]?.GetType() ?? _dataType : _dataType);
+        public override Type DataType => Owner() == null ? null : (Index >= 0 && Index < OwnerIList.Count ? OwnerIList[Index]?.GetType() ?? _dataType : _dataType);
         private readonly Type _dataType;
 
-        public PropGridItemRefIListInfo(IList owner, int index)
+        public PropGridItemRefIListInfo(Func<object> owner, int index)
         {
             Owner = owner;
             Index = index;
@@ -182,9 +203,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public override bool IsReadOnly()
         {
-            return Owner == null || OwnerIList.IsReadOnly;
+            return OwnerIList == null || OwnerIList.IsReadOnly;
         }
-        public override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
+        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
         {
             dataChangeHandler?.IListObjectChanged(oldValue, newValue, OwnerIList, Index);
         }
@@ -220,10 +241,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public bool IsKey { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override object Owner { get; set; }
+        public override Func<object> Owner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public IDictionary OwnerDictionary => Owner as IDictionary;
+        public IDictionary OwnerDictionary => Owner() as IDictionary;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type ValueType => OwnerDictionary.Contains(Key) ? (OwnerDictionary[Key]?.GetType() ?? _valueType) : _valueType;
@@ -233,7 +254,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private Type _valueType, _keyType;
 
-        public PropGridItemRefIDictionaryInfo(IDictionary owner, object key, bool isKey)
+        public PropGridItemRefIDictionaryInfo(Func<object> owner, object key, bool isKey)
         {
             Owner = owner;
             Key = key;
@@ -242,11 +263,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _keyType = OwnerDictionary?.DetermineKeyType();
         }
 
-        public override bool IsReadOnly()
-        {
-            return Owner == null || OwnerDictionary.IsReadOnly;
-        }
-        public override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
+        public override bool IsReadOnly() => Owner == null || OwnerDictionary.IsReadOnly;
+        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
         {
             dataChangeHandler?.IDictionaryObjectChanged(oldValue, newValue, OwnerDictionary, Key, IsKey);
         }

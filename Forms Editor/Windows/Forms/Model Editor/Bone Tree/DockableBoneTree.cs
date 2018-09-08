@@ -27,34 +27,41 @@ namespace TheraEditor.Windows.Forms
             TreeView tree = (TreeView)sender;
             BoneTreeNode node = (BoneTreeNode)e.Node;
             Font nodeFont = node.NodeFont ?? tree.Font;
-            int index = node.HighlightIndex;
-            int length = node.HighlightLength;
-            length = Math.Min(length, node.Text.Length - index);
-            if (index >= 0 && length > 0 && index < node.Text.Length)
+            if (node.IsSelected)
             {
-                e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), e.Bounds);
-
-                CharacterRange[] characterRanges = { new CharacterRange(index, length) };
-                StringFormat stringFormat = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Near,
-                };
-                stringFormat.SetMeasurableCharacterRanges(characterRanges);
-                Rectangle r = e.Bounds;
-                r.Location = new Point();
-                Region[] regions = e.Graphics.MeasureCharacterRanges(node.Text, nodeFont, e.Bounds, stringFormat);
-
-                foreach (Region region in regions)
-                {
-                    Rectangle rect = Rectangle.Round(region.GetBounds(e.Graphics));
-                    rect.X -= 9;
-                    e.Graphics.FillRectangle(new SolidBrush(node.BackColor), rect);
-                }
+                e.Graphics.FillRectangle(new SolidBrush(Editor.TurquoiseColor), e.Bounds);
+                ControlPaint.DrawFocusRectangle(e.Graphics, e.Bounds, node.ForeColor, node.BackColor);
             }
             else
-                e.Graphics.FillRectangle(new SolidBrush(node.BackColor), e.Bounds);
+            {
+                int index = node.HighlightIndex;
+                int length = node.HighlightLength;
+                length = Math.Min(length, node.Text.Length - index);
+                if (index >= 0 && length > 0 && index < node.Text.Length)
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), e.Bounds);
 
+                    CharacterRange[] characterRanges = { new CharacterRange(index, length) };
+                    StringFormat stringFormat = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Near,
+                    };
+                    stringFormat.SetMeasurableCharacterRanges(characterRanges);
+                    Rectangle r = e.Bounds;
+                    r.Location = new Point();
+                    Region[] regions = e.Graphics.MeasureCharacterRanges(node.Text, nodeFont, e.Bounds, stringFormat);
+
+                    foreach (Region region in regions)
+                    {
+                        Rectangle rect = Rectangle.Round(region.GetBounds(e.Graphics));
+                        rect.X -= 9;
+                        e.Graphics.FillRectangle(new SolidBrush(node.BackColor), rect);
+                    }
+                }
+                else
+                    e.Graphics.FillRectangle(new SolidBrush(node.BackColor), e.Bounds);
+            }
             e.Graphics.DrawString(node.Text, nodeFont, new SolidBrush(node.ForeColor), Rectangle.Inflate(e.Bounds, 2, 0));
         }
         private class BoneComparer : IComparer<TreeNode>, IComparer
@@ -94,8 +101,8 @@ namespace TheraEditor.Windows.Forms
         {
             BoneNode node = new BoneNode(b)
             {
-                //ForeColor = ForeColor,
-                //BackColor = Color.Transparent,
+                ForeColor = NodeTree.ForeColor,
+                BackColor = NodeTree.BackColor,
             };
             c.Add(node);
             lstBonesFlat.Items.Add(b);
@@ -403,7 +410,7 @@ namespace TheraEditor.Windows.Forms
                 if (IsMatch(tn.Text, out int index, out int length))
                 {
                     tn.BackColor = Editor.TurquoiseColor;
-                    tn.ForeColor = Color.Black;
+                    tn.ForeColor = NodeTree.ForeColor;
                     tn.HighlightIndex = index;
                     tn.HighlightLength = length;
                     if (makeMatchesVisible)

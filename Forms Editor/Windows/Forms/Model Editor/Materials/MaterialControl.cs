@@ -57,7 +57,8 @@ namespace TheraEditor.Windows.Forms
                         //textCtrl.ValueChanged += RedrawPreview;
                         Label textCtrl = new Label()
                         {
-                            Text = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? shaderVar.Name.SplitCamelCase() : shaderVar.Name,
+                            Text = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ?
+                                shaderVar.Name.SplitCamelCase() : shaderVar.Name,
                             TextAlign = ContentAlignment.MiddleRight,
                             Dock = DockStyle.Top,
                             AutoSize = false,
@@ -65,7 +66,10 @@ namespace TheraEditor.Windows.Forms
                         shaderVar.Renamed += ShaderVar_Renamed;
 
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
-                            TheraPropertyGrid.GetControlTypes(valType)[0], new PropGridItemRefPropertyInfo(shaderVar, varType.GetProperty("Value")) /*new PropGridItemRefIListInfo(_material.Parameters, i)*/, this);
+                            TheraPropertyGrid.GetControlTypes(valType)[0], 
+                            new PropGridItemRefPropertyInfo(() => shaderVar, 
+                            varType.GetProperty("Value")), this);
+
                         valueCtrl.ValueChanged += RedrawPreview;
 
                         tblUniforms.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -77,14 +81,26 @@ namespace TheraEditor.Windows.Forms
 
                     ImageList images = new ImageList();
                     lstTextures.LargeImageList = lstTextures.SmallImageList = lstTextures.StateImageList = images;
-                    foreach (BaseTexRef tref in _material.Textures)
+                    for (int i = 0; i < _material.Textures.Length; ++i)
                     {
+                        BaseTexRef tref = _material.Textures[i];
                         var item = new ListViewItem(string.Format("{0} [{1}]",
                             tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
                         if (tref is TexRef2D t2d)
                         {
-                            images.Images.Add(tref.SamplerName, t2d.Mipmaps[0].File.Bitmaps[0].GetThumbnailImage(128, 128, null, IntPtr.Zero));
-                            item.ImageKey = tref.SamplerName;
+                            if (t2d.Mipmaps.Length > 0)
+                            {
+                                var file = t2d.Mipmaps[0]?.File;
+                                if (file != null)
+                                {
+                                    if (file.Bitmaps.Length > 0 && file.Bitmaps[0] != null)
+                                    {
+                                        string samplerName = tref.ResolveSamplerName(i);
+                                        images.Images.Add(samplerName, file.Bitmaps[0].GetThumbnailImage(128, 128, null, IntPtr.Zero));
+                                        item.ImageKey = samplerName;
+                                    }
+                                }
+                            }
                         }
                         lstTextures.Items.Add(item);
                         tref.Renamed += Tref_Renamed;

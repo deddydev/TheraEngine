@@ -75,8 +75,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 for (int i = 0; i < list.Count; ++i)
                 {
                     Deque<Type> controlTypes = TheraPropertyGrid.GetControlTypes(list[i]?.GetType() ?? _elementType);
-                    List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, new PropGridItemRefIListInfo(list, i), DataChangeHandler);
-                    Label label = propGridListItems.AddProperty(items, new object[0], false);
+                    List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, new PropGridItemRefIListInfo(() => _list, i), DataChangeHandler);
+                    Label label = propGridListItems.AddMember(items, new object[0], false);
                     label.MouseEnter += Label_MouseEnter;
                     label.MouseLeave += Label_MouseLeave;
                     label.MouseDown += Label_MouseDown;
@@ -123,8 +123,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _list.Add(value);
             var items = TheraPropertyGrid.InstantiatePropertyEditors(
-                TheraPropertyGrid.GetControlTypes(value?.GetType()), new PropGridItemRefIListInfo(_list, i), DataChangeHandler);
-            propGridListItems.AddProperty(items, new object[0], false);
+                TheraPropertyGrid.GetControlTypes(value?.GetType()), new PropGridItemRefIListInfo(() => _list, i), DataChangeHandler);
+            propGridListItems.AddMember(items, new object[0], false);
             Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(items[items.Count - 1]);
         }
         

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Models.Materials.Textures;
@@ -82,5 +83,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
             }
         }
+
+        public string ResolveSamplerName(int textureIndex, string samplerNameOverride = null)
+            => samplerNameOverride ?? SamplerName ?? ($"Texture{textureIndex.ToString()}");
     }
 }

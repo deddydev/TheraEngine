@@ -118,30 +118,29 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         //    return label;
         //}
-        public Label AddProperty(List<PropGridItem> editors, object[] attributes, bool readOnly)
+        public string ResolveMemberName(PropGridItem editor, object[] attributes)
         {
             var displayNameAttrib = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
-            var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
-
+            
             string displayName = displayNameAttrib?.DisplayName;
-            var parentInfo = editors[0].ParentInfo;
+            var parentInfo = editor.ParentInfo;
             string propName = parentInfo.DisplayName; //editors[0].GetParentInfo<PropGridItemRefPropertyInfo>()?.Property?.Name;
             string name;
 
             if (!string.IsNullOrWhiteSpace(displayName))
-            {
                 name = displayName;
-            }
             else if (!string.IsNullOrWhiteSpace(propName))
-            {
                 name = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
-            }
             else
-            {
                 name = "[No Name]";
-            }
 
+            return name;
+        }
+        public Label AddMember(List<PropGridItem> editors, object[] attributes, bool readOnly)
+        {
+            var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
+            string name = ResolveMemberName(editors[0], attributes);
             Label label = new Label()
             {
                 Text = name,

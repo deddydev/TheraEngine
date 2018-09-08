@@ -121,7 +121,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
 
                     TheraPropertyGrid.CreateControls(
-                        controlTypes, new PropGridItemRefPropertyInfo(obj, prop), pnlProps, _categories, attribs, false, DataChangeHandler);
+                        controlTypes, new PropGridItemRefPropertyInfo(() => _object, prop), pnlProps, _categories, attribs, false, DataChangeHandler);
                 }
             }
 

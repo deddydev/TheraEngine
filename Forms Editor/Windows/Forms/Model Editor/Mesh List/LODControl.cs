@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms
                     DropDownName += " (Farthest)";
 
                 lblMaterial.Text = _lod.MaterialRef?.File?.Name ?? "<null>";
-                propGridSingle1.SetReferenceHolder(new PropGridItemRefPropertyInfo(_lod, _lod.GetType().GetProperty(nameof(_lod.VisibleDistance))));
+                propGridSingle1.SetReferenceHolder(new PropGridItemRefPropertyInfo(() => _lod, _lod.GetType().GetProperty(nameof(_lod.VisibleDistance))));
             }
             else
             {

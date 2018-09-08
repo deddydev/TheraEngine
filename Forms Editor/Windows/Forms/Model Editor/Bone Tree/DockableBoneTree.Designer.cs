@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.NodeTree = new TheraEditor.Windows.Forms.BoneTree();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.editAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,7 +56,6 @@
             this.collapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.expandSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.collapseSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.theraPropertyGrid1 = new TheraEditor.Windows.Forms.PropertyGrid.TheraPropertyGrid();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.pnlRenameAll = new System.Windows.Forms.Panel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
@@ -83,6 +81,8 @@
             this.txtRename = new System.Windows.Forms.TextBox();
             this.lstBonesFlat = new System.Windows.Forms.ListBox();
             this.splitter2 = new System.Windows.Forms.Splitter();
+            this.NodeTree = new TheraEditor.Windows.Forms.BoneTree();
+            this.theraPropertyGrid1 = new TheraEditor.Windows.Forms.PropertyGrid.TheraPropertyGrid();
             this.menuStrip1.SuspendLayout();
             this.pnlRenameAll.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
@@ -93,22 +93,6 @@
             this.flowLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
-            // NodeTree
-            // 
-            this.NodeTree.AllowDrop = true;
-            this.NodeTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.NodeTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.NodeTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.NodeTree.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.NodeTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.NodeTree.Location = new System.Drawing.Point(0, 204);
-            this.NodeTree.Margin = new System.Windows.Forms.Padding(0);
-            this.NodeTree.Name = "NodeTree";
-            this.NodeTree.Size = new System.Drawing.Size(572, 184);
-            this.NodeTree.Sorted = true;
-            this.NodeTree.TabIndex = 4;
-            this.NodeTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.NodeTree_AfterSelect);
-            // 
             // menuStrip1
             // 
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
@@ -117,7 +101,7 @@
             this.viewToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(572, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(572, 24);
             this.menuStrip1.TabIndex = 5;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -127,20 +111,20 @@
             this.renameToolStripMenuItem,
             this.renameAllToolStripMenuItem});
             this.editAllToolStripMenuItem.Name = "editAllToolStripMenuItem";
-            this.editAllToolStripMenuItem.Size = new System.Drawing.Size(47, 24);
+            this.editAllToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editAllToolStripMenuItem.Text = "Edit";
             // 
             // renameToolStripMenuItem
             // 
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(160, 26);
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.renameToolStripMenuItem.Text = "Rename";
             this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
             // 
             // renameAllToolStripMenuItem
             // 
             this.renameAllToolStripMenuItem.Name = "renameAllToolStripMenuItem";
-            this.renameAllToolStripMenuItem.Size = new System.Drawing.Size(160, 26);
+            this.renameAllToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.renameAllToolStripMenuItem.Text = "Rename All";
             this.renameAllToolStripMenuItem.Click += new System.EventHandler(this.renameAllToolStripMenuItem_Click);
             // 
@@ -153,7 +137,7 @@
             this.btnSearch,
             this.expandToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "View";
             // 
             // btnViewFlat
@@ -163,7 +147,7 @@
             this.btnSortByDecendantLevel,
             this.btnSortAlphabetically});
             this.btnViewFlat.Name = "btnViewFlat";
-            this.btnViewFlat.Size = new System.Drawing.Size(221, 26);
+            this.btnViewFlat.Size = new System.Drawing.Size(182, 22);
             this.btnViewFlat.Text = "Flat View";
             this.btnViewFlat.Click += new System.EventHandler(this.btnViewFlat_Click);
             // 
@@ -175,7 +159,7 @@
             this.btnSortByAppearanceAscending,
             this.btnSortByAppearanceDescending});
             this.btnSortByAppearance.Name = "btnSortByAppearance";
-            this.btnSortByAppearance.Size = new System.Drawing.Size(273, 26);
+            this.btnSortByAppearance.Size = new System.Drawing.Size(223, 22);
             this.btnSortByAppearance.Text = "Sort In Order Of Appearance";
             this.btnSortByAppearance.Click += new System.EventHandler(this.btnSortByAppearance_Click);
             // 
@@ -184,13 +168,13 @@
             this.btnSortByAppearanceAscending.Checked = true;
             this.btnSortByAppearanceAscending.CheckState = System.Windows.Forms.CheckState.Checked;
             this.btnSortByAppearanceAscending.Name = "btnSortByAppearanceAscending";
-            this.btnSortByAppearanceAscending.Size = new System.Drawing.Size(162, 26);
+            this.btnSortByAppearanceAscending.Size = new System.Drawing.Size(136, 22);
             this.btnSortByAppearanceAscending.Text = "Ascending";
             // 
             // btnSortByAppearanceDescending
             // 
             this.btnSortByAppearanceDescending.Name = "btnSortByAppearanceDescending";
-            this.btnSortByAppearanceDescending.Size = new System.Drawing.Size(162, 26);
+            this.btnSortByAppearanceDescending.Size = new System.Drawing.Size(136, 22);
             this.btnSortByAppearanceDescending.Text = "Descending";
             // 
             // btnSortByDecendantLevel
@@ -199,14 +183,14 @@
             this.btnSortByDecendantLevelAscending,
             this.btnSortByDecendantLevelDescending});
             this.btnSortByDecendantLevel.Name = "btnSortByDecendantLevel";
-            this.btnSortByDecendantLevel.Size = new System.Drawing.Size(273, 26);
+            this.btnSortByDecendantLevel.Size = new System.Drawing.Size(223, 22);
             this.btnSortByDecendantLevel.Text = "Sort By Descendant Level";
             this.btnSortByDecendantLevel.Click += new System.EventHandler(this.btnSortByDecendantLevel_Click);
             // 
             // btnSortByDecendantLevelAscending
             // 
             this.btnSortByDecendantLevelAscending.Name = "btnSortByDecendantLevelAscending";
-            this.btnSortByDecendantLevelAscending.Size = new System.Drawing.Size(162, 26);
+            this.btnSortByDecendantLevelAscending.Size = new System.Drawing.Size(136, 22);
             this.btnSortByDecendantLevelAscending.Text = "Ascending";
             // 
             // btnSortByDecendantLevelDescending
@@ -214,7 +198,7 @@
             this.btnSortByDecendantLevelDescending.Checked = true;
             this.btnSortByDecendantLevelDescending.CheckState = System.Windows.Forms.CheckState.Checked;
             this.btnSortByDecendantLevelDescending.Name = "btnSortByDecendantLevelDescending";
-            this.btnSortByDecendantLevelDescending.Size = new System.Drawing.Size(162, 26);
+            this.btnSortByDecendantLevelDescending.Size = new System.Drawing.Size(136, 22);
             this.btnSortByDecendantLevelDescending.Text = "Descending";
             // 
             // btnSortAlphabetically
@@ -223,7 +207,7 @@
             this.btnSortAlphabeticallyAscending,
             this.btnSortAlphabeticallyDescending});
             this.btnSortAlphabetically.Name = "btnSortAlphabetically";
-            this.btnSortAlphabetically.Size = new System.Drawing.Size(273, 26);
+            this.btnSortAlphabetically.Size = new System.Drawing.Size(223, 22);
             this.btnSortAlphabetically.Text = "Sort Alphabetically";
             this.btnSortAlphabetically.Click += new System.EventHandler(this.btnSortAlphabetically_Click);
             // 
@@ -232,13 +216,13 @@
             this.btnSortAlphabeticallyAscending.Checked = true;
             this.btnSortAlphabeticallyAscending.CheckState = System.Windows.Forms.CheckState.Checked;
             this.btnSortAlphabeticallyAscending.Name = "btnSortAlphabeticallyAscending";
-            this.btnSortAlphabeticallyAscending.Size = new System.Drawing.Size(162, 26);
+            this.btnSortAlphabeticallyAscending.Size = new System.Drawing.Size(136, 22);
             this.btnSortAlphabeticallyAscending.Text = "Ascending";
             // 
             // btnSortAlphabeticallyDescending
             // 
             this.btnSortAlphabeticallyDescending.Name = "btnSortAlphabeticallyDescending";
-            this.btnSortAlphabeticallyDescending.Size = new System.Drawing.Size(162, 26);
+            this.btnSortAlphabeticallyDescending.Size = new System.Drawing.Size(136, 22);
             this.btnSortAlphabeticallyDescending.Text = "Descending";
             // 
             // btnViewAsTree
@@ -246,7 +230,7 @@
             this.btnViewAsTree.Checked = true;
             this.btnViewAsTree.CheckState = System.Windows.Forms.CheckState.Checked;
             this.btnViewAsTree.Name = "btnViewAsTree";
-            this.btnViewAsTree.Size = new System.Drawing.Size(221, 26);
+            this.btnViewAsTree.Size = new System.Drawing.Size(182, 22);
             this.btnViewAsTree.Text = "Tree View";
             this.btnViewAsTree.Click += new System.EventHandler(this.btnViewAsTree_Click);
             // 
@@ -258,7 +242,7 @@
             this.chkViewUnriggedBones,
             this.chkViewSceneComps});
             this.displayToolStripMenuItem1.Name = "displayToolStripMenuItem1";
-            this.displayToolStripMenuItem1.Size = new System.Drawing.Size(221, 26);
+            this.displayToolStripMenuItem1.Size = new System.Drawing.Size(182, 22);
             this.displayToolStripMenuItem1.Text = "Display";
             // 
             // chkViewMeshSockets
@@ -266,7 +250,7 @@
             this.chkViewMeshSockets.Checked = true;
             this.chkViewMeshSockets.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkViewMeshSockets.Name = "chkViewMeshSockets";
-            this.chkViewMeshSockets.Size = new System.Drawing.Size(216, 26);
+            this.chkViewMeshSockets.Size = new System.Drawing.Size(177, 22);
             this.chkViewMeshSockets.Text = "Mesh Sockets";
             this.chkViewMeshSockets.Click += new System.EventHandler(this.chkViewMeshSockets_Click);
             // 
@@ -275,7 +259,7 @@
             this.chkViewRiggedBones.Checked = true;
             this.chkViewRiggedBones.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkViewRiggedBones.Name = "chkViewRiggedBones";
-            this.chkViewRiggedBones.Size = new System.Drawing.Size(216, 26);
+            this.chkViewRiggedBones.Size = new System.Drawing.Size(177, 22);
             this.chkViewRiggedBones.Text = "Rigged Bones";
             // 
             // chkViewUnriggedBones
@@ -283,7 +267,7 @@
             this.chkViewUnriggedBones.Checked = true;
             this.chkViewUnriggedBones.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkViewUnriggedBones.Name = "chkViewUnriggedBones";
-            this.chkViewUnriggedBones.Size = new System.Drawing.Size(216, 26);
+            this.chkViewUnriggedBones.Size = new System.Drawing.Size(177, 22);
             this.chkViewUnriggedBones.Text = "Unrigged Bones";
             // 
             // chkViewSceneComps
@@ -291,7 +275,7 @@
             this.chkViewSceneComps.Checked = true;
             this.chkViewSceneComps.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkViewSceneComps.Name = "chkViewSceneComps";
-            this.chkViewSceneComps.Size = new System.Drawing.Size(216, 26);
+            this.chkViewSceneComps.Size = new System.Drawing.Size(177, 22);
             this.chkViewSceneComps.Text = "Scene Components";
             // 
             // btnSearch
@@ -299,14 +283,14 @@
             this.btnSearch.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.clearToolStripMenuItem});
             this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(221, 26);
+            this.btnSearch.Size = new System.Drawing.Size(182, 22);
             this.btnSearch.Text = "Search";
             this.btnSearch.Click += new System.EventHandler(this.findToolStripMenuItem_Click);
             // 
             // clearToolStripMenuItem
             // 
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(118, 26);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.resetSearchToolStripMenuItem_Click);
             // 
@@ -318,48 +302,36 @@
             this.expandSelectedToolStripMenuItem,
             this.collapseSelectedToolStripMenuItem});
             this.expandToolStripMenuItem.Name = "expandToolStripMenuItem";
-            this.expandToolStripMenuItem.Size = new System.Drawing.Size(221, 26);
+            this.expandToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.expandToolStripMenuItem.Text = "Expand Descendants";
             // 
             // allToolStripMenuItem
             // 
             this.allToolStripMenuItem.Name = "allToolStripMenuItem";
-            this.allToolStripMenuItem.Size = new System.Drawing.Size(202, 26);
+            this.allToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.allToolStripMenuItem.Text = "Expand All";
             this.allToolStripMenuItem.Click += new System.EventHandler(this.btnExpandAll_Click);
             // 
             // collapseAllToolStripMenuItem
             // 
             this.collapseAllToolStripMenuItem.Name = "collapseAllToolStripMenuItem";
-            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(202, 26);
+            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.collapseAllToolStripMenuItem.Text = "Collapse All";
             this.collapseAllToolStripMenuItem.Click += new System.EventHandler(this.btnCloseAll_Click);
             // 
             // expandSelectedToolStripMenuItem
             // 
             this.expandSelectedToolStripMenuItem.Name = "expandSelectedToolStripMenuItem";
-            this.expandSelectedToolStripMenuItem.Size = new System.Drawing.Size(202, 26);
+            this.expandSelectedToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.expandSelectedToolStripMenuItem.Text = "Expand Selected";
             this.expandSelectedToolStripMenuItem.Click += new System.EventHandler(this.btnExpandAllSelected_Click);
             // 
             // collapseSelectedToolStripMenuItem
             // 
             this.collapseSelectedToolStripMenuItem.Name = "collapseSelectedToolStripMenuItem";
-            this.collapseSelectedToolStripMenuItem.Size = new System.Drawing.Size(202, 26);
+            this.collapseSelectedToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.collapseSelectedToolStripMenuItem.Text = "Collapse Selected";
             this.collapseSelectedToolStripMenuItem.Click += new System.EventHandler(this.btnCloseAllSelected_Click);
-            // 
-            // theraPropertyGrid1
-            // 
-            this.theraPropertyGrid1.AutoScroll = true;
-            this.theraPropertyGrid1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.theraPropertyGrid1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.theraPropertyGrid1.Enabled = false;
-            this.theraPropertyGrid1.Location = new System.Drawing.Point(0, 388);
-            this.theraPropertyGrid1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.theraPropertyGrid1.Name = "theraPropertyGrid1";
-            this.theraPropertyGrid1.Size = new System.Drawing.Size(572, 165);
-            this.theraPropertyGrid1.TabIndex = 6;
             // 
             // splitter1
             // 
@@ -372,53 +344,60 @@
             // 
             // pnlRenameAll
             // 
+            this.pnlRenameAll.AutoSize = true;
+            this.pnlRenameAll.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pnlRenameAll.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.pnlRenameAll.Controls.Add(this.panel2);
             this.pnlRenameAll.Controls.Add(this.flowLayoutPanel3);
             this.pnlRenameAll.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlRenameAll.Location = new System.Drawing.Point(0, 28);
+            this.pnlRenameAll.Location = new System.Drawing.Point(0, 24);
             this.pnlRenameAll.Name = "pnlRenameAll";
-            this.pnlRenameAll.Size = new System.Drawing.Size(572, 173);
+            this.pnlRenameAll.Size = new System.Drawing.Size(572, 123);
             this.pnlRenameAll.TabIndex = 8;
             this.pnlRenameAll.Visible = false;
             // 
             // flowLayoutPanel3
             // 
+            this.flowLayoutPanel3.AutoSize = true;
+            this.flowLayoutPanel3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(30)))));
             this.flowLayoutPanel3.Controls.Add(this.grpSearchMethod);
-            this.flowLayoutPanel3.Controls.Add(this.panel2);
             this.flowLayoutPanel3.Controls.Add(this.grpRenamingMethod);
-            this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(572, 173);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(572, 85);
             this.flowLayoutPanel3.TabIndex = 6;
             // 
             // grpSearchMethod
             // 
-            this.grpSearchMethod.Controls.Add(this.flowLayoutPanel1);
-            this.grpSearchMethod.Controls.Add(this.txtSearch);
+            this.grpSearchMethod.AutoSize = true;
+            this.grpSearchMethod.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.grpSearchMethod.Controls.Add(this.chkIgnoreCase);
+            this.grpSearchMethod.Controls.Add(this.txtSearch);
+            this.grpSearchMethod.Controls.Add(this.flowLayoutPanel1);
             this.grpSearchMethod.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.grpSearchMethod.Location = new System.Drawing.Point(3, 3);
             this.grpSearchMethod.Name = "grpSearchMethod";
-            this.grpSearchMethod.Size = new System.Drawing.Size(209, 118);
+            this.grpSearchMethod.Size = new System.Drawing.Size(6, 79);
             this.grpSearchMethod.TabIndex = 2;
             this.grpSearchMethod.TabStop = false;
             this.grpSearchMethod.Text = "Search For...";
             // 
             // flowLayoutPanel1
             // 
+            this.flowLayoutPanel1.AutoSize = true;
+            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
             this.flowLayoutPanel1.Controls.Add(this.rdoContains);
             this.flowLayoutPanel1.Controls.Add(this.rdoStartsWith);
             this.flowLayoutPanel1.Controls.Add(this.rdoEndsWith);
             this.flowLayoutPanel1.Controls.Add(this.rdoRegEx);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 18);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 16);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(203, 54);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(0, 23);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // rdoContains
@@ -426,7 +405,7 @@
             this.rdoContains.AutoSize = true;
             this.rdoContains.Location = new System.Drawing.Point(3, 3);
             this.rdoContains.Name = "rdoContains";
-            this.rdoContains.Size = new System.Drawing.Size(84, 21);
+            this.rdoContains.Size = new System.Drawing.Size(66, 17);
             this.rdoContains.TabIndex = 0;
             this.rdoContains.TabStop = true;
             this.rdoContains.Text = "Contains";
@@ -436,9 +415,9 @@
             // rdoStartsWith
             // 
             this.rdoStartsWith.AutoSize = true;
-            this.rdoStartsWith.Location = new System.Drawing.Point(3, 30);
+            this.rdoStartsWith.Location = new System.Drawing.Point(3, 26);
             this.rdoStartsWith.Name = "rdoStartsWith";
-            this.rdoStartsWith.Size = new System.Drawing.Size(98, 21);
+            this.rdoStartsWith.Size = new System.Drawing.Size(77, 17);
             this.rdoStartsWith.TabIndex = 1;
             this.rdoStartsWith.TabStop = true;
             this.rdoStartsWith.Text = "Starts With";
@@ -448,9 +427,9 @@
             // rdoEndsWith
             // 
             this.rdoEndsWith.AutoSize = true;
-            this.rdoEndsWith.Location = new System.Drawing.Point(107, 3);
+            this.rdoEndsWith.Location = new System.Drawing.Point(3, 49);
             this.rdoEndsWith.Name = "rdoEndsWith";
-            this.rdoEndsWith.Size = new System.Drawing.Size(93, 21);
+            this.rdoEndsWith.Size = new System.Drawing.Size(74, 17);
             this.rdoEndsWith.TabIndex = 2;
             this.rdoEndsWith.TabStop = true;
             this.rdoEndsWith.Text = "Ends With";
@@ -460,9 +439,9 @@
             // rdoRegEx
             // 
             this.rdoRegEx.AutoSize = true;
-            this.rdoRegEx.Location = new System.Drawing.Point(107, 30);
+            this.rdoRegEx.Location = new System.Drawing.Point(3, 72);
             this.rdoRegEx.Name = "rdoRegEx";
-            this.rdoRegEx.Size = new System.Drawing.Size(70, 21);
+            this.rdoRegEx.Size = new System.Drawing.Size(57, 17);
             this.rdoRegEx.TabIndex = 3;
             this.rdoRegEx.TabStop = true;
             this.rdoRegEx.Text = "RegEx";
@@ -473,11 +452,11 @@
             // 
             this.txtSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(30)))));
             this.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtSearch.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.txtSearch.Dock = System.Windows.Forms.DockStyle.Top;
             this.txtSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.txtSearch.Location = new System.Drawing.Point(3, 72);
+            this.txtSearch.Location = new System.Drawing.Point(3, 39);
             this.txtSearch.Name = "txtSearch";
-            this.txtSearch.Size = new System.Drawing.Size(203, 22);
+            this.txtSearch.Size = new System.Drawing.Size(0, 20);
             this.txtSearch.TabIndex = 3;
             this.txtSearch.TextChanged += new System.EventHandler(this.txtSearch_TextChanged);
             // 
@@ -485,10 +464,10 @@
             // 
             this.chkIgnoreCase.AutoSize = true;
             this.chkIgnoreCase.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.chkIgnoreCase.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.chkIgnoreCase.Location = new System.Drawing.Point(3, 94);
+            this.chkIgnoreCase.Dock = System.Windows.Forms.DockStyle.Top;
+            this.chkIgnoreCase.Location = new System.Drawing.Point(3, 59);
             this.chkIgnoreCase.Name = "chkIgnoreCase";
-            this.chkIgnoreCase.Size = new System.Drawing.Size(203, 21);
+            this.chkIgnoreCase.Size = new System.Drawing.Size(0, 17);
             this.chkIgnoreCase.TabIndex = 4;
             this.chkIgnoreCase.Text = "Ignore Case";
             this.chkIgnoreCase.UseVisualStyleBackColor = false;
@@ -496,23 +475,24 @@
             // 
             // panel2
             // 
-            this.panel2.AutoSize = true;
             this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.panel2.Controls.Add(this.btnOkay);
             this.panel2.Controls.Add(this.btnCancel);
-            this.panel2.Location = new System.Drawing.Point(3, 127);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel2.Location = new System.Drawing.Point(0, 85);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(143, 38);
+            this.panel2.Size = new System.Drawing.Size(572, 38);
             this.panel2.TabIndex = 4;
             // 
             // btnOkay
             // 
             this.btnOkay.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.btnOkay.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnOkay.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOkay.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.btnOkay.Location = new System.Drawing.Point(70, 0);
+            this.btnOkay.Location = new System.Drawing.Point(432, 0);
             this.btnOkay.Name = "btnOkay";
-            this.btnOkay.Size = new System.Drawing.Size(70, 35);
+            this.btnOkay.Size = new System.Drawing.Size(70, 38);
             this.btnOkay.TabIndex = 0;
             this.btnOkay.Text = "Okay";
             this.btnOkay.UseVisualStyleBackColor = false;
@@ -521,11 +501,12 @@
             // btnCancel
             // 
             this.btnCancel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.btnCancel.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.btnCancel.Location = new System.Drawing.Point(0, 0);
+            this.btnCancel.Location = new System.Drawing.Point(502, 0);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(70, 35);
+            this.btnCancel.Size = new System.Drawing.Size(70, 38);
             this.btnCancel.TabIndex = 1;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = false;
@@ -533,12 +514,14 @@
             // 
             // grpRenamingMethod
             // 
+            this.grpRenamingMethod.AutoSize = true;
+            this.grpRenamingMethod.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.grpRenamingMethod.Controls.Add(this.flowLayoutPanel2);
             this.grpRenamingMethod.Controls.Add(this.txtRename);
             this.grpRenamingMethod.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.grpRenamingMethod.Location = new System.Drawing.Point(218, 3);
+            this.grpRenamingMethod.Location = new System.Drawing.Point(15, 3);
             this.grpRenamingMethod.Name = "grpRenamingMethod";
-            this.grpRenamingMethod.Size = new System.Drawing.Size(343, 162);
+            this.grpRenamingMethod.Size = new System.Drawing.Size(6, 62);
             this.grpRenamingMethod.TabIndex = 3;
             this.grpRenamingMethod.TabStop = false;
             this.grpRenamingMethod.Text = "Rename To...";
@@ -546,6 +529,8 @@
             // 
             // flowLayoutPanel2
             // 
+            this.flowLayoutPanel2.AutoSize = true;
+            this.flowLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
             this.flowLayoutPanel2.Controls.Add(this.rdoAppendToStart);
             this.flowLayoutPanel2.Controls.Add(this.rdoAppendToEnd);
@@ -553,11 +538,10 @@
             this.flowLayoutPanel2.Controls.Add(this.rdoAppendAfterSearchTerm);
             this.flowLayoutPanel2.Controls.Add(this.rdoReplaceFullName);
             this.flowLayoutPanel2.Controls.Add(this.rdoReplaceSearchTerm);
-            this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 40);
+            this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 36);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(337, 119);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(0, 23);
             this.flowLayoutPanel2.TabIndex = 0;
             // 
             // rdoAppendToStart
@@ -565,7 +549,7 @@
             this.rdoAppendToStart.AutoSize = true;
             this.rdoAppendToStart.Location = new System.Drawing.Point(3, 3);
             this.rdoAppendToStart.Name = "rdoAppendToStart";
-            this.rdoAppendToStart.Size = new System.Drawing.Size(133, 21);
+            this.rdoAppendToStart.Size = new System.Drawing.Size(103, 17);
             this.rdoAppendToStart.TabIndex = 2;
             this.rdoAppendToStart.TabStop = true;
             this.rdoAppendToStart.Text = "Append To Start";
@@ -575,9 +559,9 @@
             // rdoAppendToEnd
             // 
             this.rdoAppendToEnd.AutoSize = true;
-            this.rdoAppendToEnd.Location = new System.Drawing.Point(3, 30);
+            this.rdoAppendToEnd.Location = new System.Drawing.Point(3, 26);
             this.rdoAppendToEnd.Name = "rdoAppendToEnd";
-            this.rdoAppendToEnd.Size = new System.Drawing.Size(128, 21);
+            this.rdoAppendToEnd.Size = new System.Drawing.Size(100, 17);
             this.rdoAppendToEnd.TabIndex = 3;
             this.rdoAppendToEnd.TabStop = true;
             this.rdoAppendToEnd.Text = "Append To End";
@@ -587,9 +571,9 @@
             // rdoAppendBeforeSearchTerm
             // 
             this.rdoAppendBeforeSearchTerm.AutoSize = true;
-            this.rdoAppendBeforeSearchTerm.Location = new System.Drawing.Point(3, 57);
+            this.rdoAppendBeforeSearchTerm.Location = new System.Drawing.Point(3, 49);
             this.rdoAppendBeforeSearchTerm.Name = "rdoAppendBeforeSearchTerm";
-            this.rdoAppendBeforeSearchTerm.Size = new System.Drawing.Size(166, 21);
+            this.rdoAppendBeforeSearchTerm.Size = new System.Drawing.Size(129, 17);
             this.rdoAppendBeforeSearchTerm.TabIndex = 4;
             this.rdoAppendBeforeSearchTerm.TabStop = true;
             this.rdoAppendBeforeSearchTerm.Text = "Append Before Match";
@@ -599,9 +583,9 @@
             // rdoAppendAfterSearchTerm
             // 
             this.rdoAppendAfterSearchTerm.AutoSize = true;
-            this.rdoAppendAfterSearchTerm.Location = new System.Drawing.Point(3, 84);
+            this.rdoAppendAfterSearchTerm.Location = new System.Drawing.Point(3, 72);
             this.rdoAppendAfterSearchTerm.Name = "rdoAppendAfterSearchTerm";
-            this.rdoAppendAfterSearchTerm.Size = new System.Drawing.Size(154, 21);
+            this.rdoAppendAfterSearchTerm.Size = new System.Drawing.Size(120, 17);
             this.rdoAppendAfterSearchTerm.TabIndex = 5;
             this.rdoAppendAfterSearchTerm.TabStop = true;
             this.rdoAppendAfterSearchTerm.Text = "Append After Match";
@@ -611,9 +595,9 @@
             // rdoReplaceFullName
             // 
             this.rdoReplaceFullName.AutoSize = true;
-            this.rdoReplaceFullName.Location = new System.Drawing.Point(175, 3);
+            this.rdoReplaceFullName.Location = new System.Drawing.Point(3, 95);
             this.rdoReplaceFullName.Name = "rdoReplaceFullName";
-            this.rdoReplaceFullName.Size = new System.Drawing.Size(148, 21);
+            this.rdoReplaceFullName.Size = new System.Drawing.Size(115, 17);
             this.rdoReplaceFullName.TabIndex = 0;
             this.rdoReplaceFullName.TabStop = true;
             this.rdoReplaceFullName.Text = "Replace Full Name";
@@ -623,9 +607,9 @@
             // rdoReplaceSearchTerm
             // 
             this.rdoReplaceSearchTerm.AutoSize = true;
-            this.rdoReplaceSearchTerm.Location = new System.Drawing.Point(175, 30);
+            this.rdoReplaceSearchTerm.Location = new System.Drawing.Point(3, 118);
             this.rdoReplaceSearchTerm.Name = "rdoReplaceSearchTerm";
-            this.rdoReplaceSearchTerm.Size = new System.Drawing.Size(123, 21);
+            this.rdoReplaceSearchTerm.Size = new System.Drawing.Size(98, 17);
             this.rdoReplaceSearchTerm.TabIndex = 1;
             this.rdoReplaceSearchTerm.TabStop = true;
             this.rdoReplaceSearchTerm.Text = "Replace Match";
@@ -638,9 +622,9 @@
             this.txtRename.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtRename.Dock = System.Windows.Forms.DockStyle.Top;
             this.txtRename.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.txtRename.Location = new System.Drawing.Point(3, 18);
+            this.txtRename.Location = new System.Drawing.Point(3, 16);
             this.txtRename.Name = "txtRename";
-            this.txtRename.Size = new System.Drawing.Size(337, 22);
+            this.txtRename.Size = new System.Drawing.Size(0, 20);
             this.txtRename.TabIndex = 4;
             // 
             // lstBonesFlat
@@ -650,20 +634,47 @@
             this.lstBonesFlat.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstBonesFlat.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lstBonesFlat.FormattingEnabled = true;
-            this.lstBonesFlat.ItemHeight = 16;
-            this.lstBonesFlat.Location = new System.Drawing.Point(0, 204);
+            this.lstBonesFlat.Location = new System.Drawing.Point(0, 150);
             this.lstBonesFlat.Name = "lstBonesFlat";
-            this.lstBonesFlat.Size = new System.Drawing.Size(572, 184);
+            this.lstBonesFlat.Size = new System.Drawing.Size(572, 238);
             this.lstBonesFlat.TabIndex = 9;
             // 
             // splitter2
             // 
             this.splitter2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitter2.Location = new System.Drawing.Point(0, 201);
+            this.splitter2.Location = new System.Drawing.Point(0, 147);
             this.splitter2.Name = "splitter2";
             this.splitter2.Size = new System.Drawing.Size(572, 3);
             this.splitter2.TabIndex = 10;
             this.splitter2.TabStop = false;
+            // 
+            // NodeTree
+            // 
+            this.NodeTree.AllowDrop = true;
+            this.NodeTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.NodeTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.NodeTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.NodeTree.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.NodeTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.NodeTree.Location = new System.Drawing.Point(0, 150);
+            this.NodeTree.Margin = new System.Windows.Forms.Padding(0);
+            this.NodeTree.Name = "NodeTree";
+            this.NodeTree.Size = new System.Drawing.Size(572, 238);
+            this.NodeTree.Sorted = true;
+            this.NodeTree.TabIndex = 4;
+            this.NodeTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.NodeTree_AfterSelect);
+            // 
+            // theraPropertyGrid1
+            // 
+            this.theraPropertyGrid1.AutoScroll = true;
+            this.theraPropertyGrid1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.theraPropertyGrid1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.theraPropertyGrid1.Enabled = false;
+            this.theraPropertyGrid1.Location = new System.Drawing.Point(0, 388);
+            this.theraPropertyGrid1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.theraPropertyGrid1.Name = "theraPropertyGrid1";
+            this.theraPropertyGrid1.Size = new System.Drawing.Size(572, 165);
+            this.theraPropertyGrid1.TabIndex = 6;
             // 
             // DockableBoneTree
             // 
@@ -681,6 +692,7 @@
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.pnlRenameAll.ResumeLayout(false);
+            this.pnlRenameAll.PerformLayout();
             this.flowLayoutPanel3.ResumeLayout(false);
             this.flowLayoutPanel3.PerformLayout();
             this.grpSearchMethod.ResumeLayout(false);

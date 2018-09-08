@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
 {
@@ -37,11 +38,11 @@ namespace TheraEngine.Animation
         public Vec3 GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Vec3 GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
+            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second, Vec3Keyframe.EVec3InterpValueType.Position);
         public Vec3 GetVelocityKeyframed(float second)
-            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.InterpolateVelocity(second);
+            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.Interpolate(second, Vec3Keyframe.EVec3InterpValueType.Velocity);
         public Vec3 GetAccelerationKeyframed(float second)
-            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.InterpolateAcceleration(second);
+            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.Interpolate(second, Vec3Keyframe.EVec3InterpValueType.Acceleration);
 
         public override void Bake(float framesPerSecond)
         {
@@ -80,7 +81,8 @@ namespace TheraEngine.Animation
         protected DelInterpolate _interpolate = CubicHermite;
         protected DelInterpolate _interpolateVelocity = CubicHermiteVelocity;
         protected DelInterpolate _interpolateAcceleration = CubicHermiteAcceleration;
-        
+
+        [Category("Keyframe")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 InValue
         {
@@ -91,6 +93,7 @@ namespace TheraEngine.Animation
                 OwningTrack?.OnChanged();
             }
         }
+        [Category("Keyframe")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 OutValue
         {
@@ -101,7 +104,7 @@ namespace TheraEngine.Animation
                 OwningTrack?.OnChanged();
             }
         }
-
+        [Category("Keyframe")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 InTangent
         {
@@ -112,6 +115,7 @@ namespace TheraEngine.Animation
                 OwningTrack?.OnChanged();
             }
         }
+        [Category("Keyframe")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec3 OutTangent
         {
@@ -126,18 +130,21 @@ namespace TheraEngine.Animation
         private Vec3 _inValue, _outValue, _inTangent, _outTangent;
 
         //[Browsable(false)]
+        [Category("Keyframe")]
         public new Vec3Keyframe Next
         {
             get => _next as Vec3Keyframe;
             //set => _next = value;
         }
         //[Browsable(false)]
+        [Category("Keyframe")]
         public new Vec3Keyframe Prev
         {
             get => _prev as Vec3Keyframe;
             //set => _prev = value;
         }
 
+        [Category("Keyframe")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public PlanarInterpType InterpolationType
         {
@@ -171,76 +178,52 @@ namespace TheraEngine.Animation
                 OwningTrack?.OnChanged();
             }
         }
-        public Vec3 Interpolate(float desiredSecond)
+        public enum EVec3InterpValueType
+        {
+            Position,
+            Velocity,
+            Acceleration,
+        }
+        public Vec3 Interpolate(float desiredSecond, EVec3InterpValueType type)
         {
             //First, check if the desired second is between this key and the next key.
             if (desiredSecond < Second)
             {
+                if (_prev == null)
+                    return InValue;
+
                 //If the previous key's second is greater than this second, this key must be the first key. 
                 //Return the InValue as the desired second comes before this one.
                 //Otherwise, move to the previous key to calculate the interpolated value.
-                return _prev.Second < Second ? Prev.Interpolate(desiredSecond) : InValue;
+                return _prev.Second < Second ? Prev.Interpolate(desiredSecond, type) : InValue;
+            }
+            else if (_next == null)
+            {
+                return OutValue;
             }
             else if (desiredSecond > _next.Second)
             {
                 //If the next key's second is less than this second, this key must be the last key. 
                 //Return the OutValue as the desired second comes after this one.
                 //Otherwise, move to the previous key to calculate the interpolated value.
-                return _next.Second > Second ? Next.Interpolate(desiredSecond) : OutValue;
+                return _next.Second > Second ? Next.Interpolate(desiredSecond, type) : OutValue;
             }
 
             float span = _next.Second - Second;
             float diff = desiredSecond - Second;
             float time = diff / span;
-            return _interpolate(this, Next, time);
-        }
-        public Vec3 InterpolateVelocity(float desiredSecond)
-        {
-            //First, check if the desired second is between this key and the next key.
-            if (desiredSecond < Second)
-            {
-                //If the previous key's second is greater than this second, this key must be the first key. 
-                //Return the InValue as the desired second comes before this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _prev.Second < Second ? Prev.InterpolateVelocity(desiredSecond) : InValue;
-            }
-            else if (desiredSecond > _next.Second)
-            {
-                //If the next key's second is less than this second, this key must be the last key. 
-                //Return the OutValue as the desired second comes after this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _next.Second > Second ? Next.InterpolateVelocity(desiredSecond) : OutValue;
-            }
 
-            float span = _next.Second - Second;
-            float diff = desiredSecond - Second;
-            float time = diff / span;
-            return _interpolateVelocity(this, Next, time);
-        }
-        public Vec3 InterpolateAcceleration(float desiredSecond)
-        {
-            //First, check if the desired second is between this key and the next key.
-            if (desiredSecond < Second)
+            switch (type)
             {
-                //If the previous key's second is greater than this second, this key must be the first key. 
-                //Return the InValue as the desired second comes before this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _prev.Second < Second ? Prev.InterpolateVelocity(desiredSecond) : InValue;
+                default:
+                case EVec3InterpValueType.Position:
+                    return _interpolate(this, Next, time);
+                case EVec3InterpValueType.Velocity:
+                    return _interpolateVelocity(this, Next, time);
+                case EVec3InterpValueType.Acceleration:
+                    return _interpolateAcceleration(this, Next, time);
             }
-            else if (desiredSecond > _next.Second)
-            {
-                //If the next key's second is less than this second, this key must be the last key. 
-                //Return the OutValue as the desired second comes after this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _next.Second > Second ? Next.InterpolateVelocity(desiredSecond) : OutValue;
-            }
-
-            float span = _next.Second - Second;
-            float diff = desiredSecond - Second;
-            float time = diff / span;
-            return _interpolateAcceleration(this, Next, time);
         }
-
         public static Vec3 Step(Vec3Keyframe key1, Vec3Keyframe key2, float time)
             => time < 1.0f ? key1.OutValue : key2.OutValue;
         public static Vec3 StepVelocity(Vec3Keyframe key1, Vec3Keyframe key2, float time)
@@ -269,25 +252,28 @@ namespace TheraEngine.Animation
         public static Vec3 CubicHermiteAcceleration(Vec3Keyframe key1, Vec3Keyframe key2, float time)
             => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
 
+        [GridCallable]
         public void AverageKeyframe()
         {
             AverageValues();
             AverageTangents();
         }
+        [GridCallable]
         public void AverageTangents()
             => InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+        [GridCallable]
         public void AverageValues()
             => InValue = OutValue = (InValue + OutValue) / 2.0f;
+        [GridCallable]
         public void MakeOutLinear()
             => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);
+        [GridCallable]
         public void MakeInLinear()
             => InTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
 
         public override string WriteToString()
-        {
-            return string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
-        }
-
+            => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
+        
         public override void ReadFromString(string str)
         {
             string[] parts = str.Split(' ');

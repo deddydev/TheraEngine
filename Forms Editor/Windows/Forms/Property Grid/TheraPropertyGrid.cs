@@ -96,7 +96,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     obj.EditorState.Selected = true;
                 
                 //Load the properties of the object
-                LoadProperties(_subObject);
+                LoadProperties();
             }
         }
 
@@ -174,7 +174,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.OnHandleDestroyed(e);
         }
         public event Action<object> PropertiesLoaded;
-        private async void LoadProperties(object obj)
+        private async void LoadProperties()
         {
             if (Disposing || IsDisposed)
                 return;
@@ -186,7 +186,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 category.DestroyProperties();
             _categories.Clear();
 
-            if (obj == null)
+            if (_subObject == null)
             {
                 //pnlProps.ResumeLayout(true);
                 return;
@@ -201,7 +201,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             await Task.Run(() =>
             {
-                Type targetObjectType = obj.GetType();
+                Type targetObjectType = _subObject.GetType();
                 props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
                 methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
                 events = targetObjectType.GetEvents(BindingFlags.Public | BindingFlags.Instance);
@@ -212,7 +212,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (indexParams != null && indexParams.Length > 0)
                         return;
 
-                    object propObj = prop.GetValue(obj);
+                    object propObj = prop.GetValue(_subObject);
                     Type subType = propObj?.GetType() ?? prop.PropertyType;
                     var attribs = prop.GetCustomAttributes(true);
                     bool readOnly = false;
@@ -221,7 +221,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     {
                         if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
                             return;
-                        if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(obj))
+                        if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(_subObject))
                             return;
                         if (attrib is ReadOnlyAttribute readOnlyAttrib)
                             readOnly = readOnlyAttrib.IsReadOnly;
@@ -240,7 +240,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Parallel.For(0, methods.Length, i =>
                 {
                     MethodInfo method = methods[i];
-                    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
+                    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(_subObject) ?? false))
                     {
                         object[] attribs = method.GetCustomAttributes(true);
                         MethodData m = new MethodData()
@@ -281,7 +281,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (!propInfo.ContainsKey(i))
                         continue;
                     PropertyData p = propInfo[i];
-                    CreateControls(p.ControlTypes, new PropGridItemRefPropertyInfo(obj, p.Property), pnlProps, _categories, p.Attribs, p.ReadOnly, this);
+                    CreateControls(p.ControlTypes, new PropGridItemRefPropertyInfo(() => _subObject, p.Property), pnlProps, _categories, p.Attribs, p.ReadOnly, this);
                 }
                 //TimeSpan elapsed = DateTime.Now - startTime;
                 //Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
@@ -293,7 +293,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     MethodData m = methodInfo[i];
                     var deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridMethod));
-                    CreateControls(deque, new PropGridItemRefMethodInfo(obj, m.Method), pnlProps, _categories, m.Attribs, false, this);
+                    CreateControls(deque, new PropGridItemRefMethodInfo(() => _subObject, m.Method), pnlProps, _categories, m.Attribs, false, this);
                 }
 
                 for (int i = 0; i < events.Length; ++i)
@@ -303,7 +303,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     EventData e = eventInfo[i];
                     var deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridEvent));
-                    CreateControls(deque, new PropGridItemRefEventInfo(obj, e.Event), pnlProps, _categories, e.Attribs, false, this);
+                    CreateControls(deque, new PropGridItemRefEventInfo(() => _subObject, e.Event), pnlProps, _categories, e.Attribs, false, this);
                 }
 
                 bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
@@ -313,7 +313,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
                 pnlProps.ResumeLayout(true);
 
-                PropertiesLoaded?.Invoke(obj);
+                PropertiesLoaded?.Invoke(_subObject);
             }
         }
 
@@ -494,10 +494,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             IDataChangeHandler dataChangeHandler)
         {
             var controls = InstantiatePropertyEditors(controlTypes, info, dataChangeHandler);
-
-            string catName = !(attribs.FirstOrDefault(x => x is CategoryAttribute) is CategoryAttribute category) ? MiscName : category.Category;
+            string GetDefaultCatName()
+            {
+                if (info is PropGridItemRefEventInfo)
+                    return "Events";
+                if (info is PropGridItemRefMethodInfo)
+                    return "Methods";
+                return MiscName;
+            }
+            string catName = !(attribs.FirstOrDefault(x => x is CategoryAttribute) is CategoryAttribute category) ? GetDefaultCatName() : category.Category;
             if (categories.ContainsKey(catName))
-                categories[catName].AddProperty(controls, attribs, readOnly);
+                categories[catName].AddMember(controls, attribs, readOnly);
             else
             {
                 PropGridCategory misc = new PropGridCategory()
@@ -505,7 +512,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     CategoryName = catName,
                     Dock = DockStyle.Top,
                 };
-                misc.AddProperty(controls, attribs, readOnly);
+                misc.AddMember(controls, attribs, readOnly);
                 categories.Add(catName, misc);
                 panel.Controls.Add(misc);
             }

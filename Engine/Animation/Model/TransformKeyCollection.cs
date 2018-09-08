@@ -142,26 +142,28 @@ namespace TheraEngine.Animation
                 bt = defaultTransform.Translation.Raw,
                 br = defaultTransform.Rotation.PitchYawRoll,
                 bs = defaultTransform.Scale.Raw;
+
             float* pt = (float*)&t;
             float* pr = (float*)&r;
             float* ps = (float*)&s;
             float* pbt = (float*)&bt;
             float* pbr = (float*)&br;
             float* pbs = (float*)&bs;
-            for (int i = 0; i < 3; ++i)
+
+            for (int i = 0; i < 3; ++i, pbt++)
             {
                 var track = _tracks[i];
-                *pt++ = track.First == null ? pbt[i] : track.First.Interpolate(second);
+                *pt++ = track.First == null ? *pbt : track.First.Interpolate(second);
             }
-            for (int i = 3; i < 6; ++i)
+            for (int i = 3; i < 6; ++i, pbr++)
             {
                 var track = _tracks[i];
-                *pr++ = track.First == null ? pbr[i] : track.First.Interpolate(second);
+                *pr++ = track.First == null ? *pbr : track.First.Interpolate(second);
             }
-            for (int i = 6; i < 9; ++i)
+            for (int i = 6; i < 9; ++i, pbs++)
             {
                 var track = _tracks[i];
-                *ps++ = track.First == null ? pbs[i] : track.First.Interpolate(second);
+                *ps++ = track.First == null ? *pbs : track.First.Interpolate(second);
             }
 
             return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
@@ -243,7 +245,7 @@ namespace TheraEngine.Animation
                             string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
                             while (reader.BeginElement())
                             {
-                                switch ((string)reader.Name)
+                                switch (reader.Name)
                                 {
                                     case "Second":
                                         seconds = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -310,9 +312,9 @@ namespace TheraEngine.Animation
                 "ScaleY",
                 "ScaleZ",
             };
-            writer.WriteStartElement("TransformKeyCollection");
+            writer.WriteStartElement(nameof(TransformKeyCollection));
             {
-                writer.WriteAttributeString("LengthInSeconds", LengthInSeconds.ToString());
+                writer.WriteAttributeString(nameof(LengthInSeconds), LengthInSeconds.ToString());
                 for (int i = 0; i < 9; ++i)
                 {
                     var track = _tracks[i];

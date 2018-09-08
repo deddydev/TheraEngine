@@ -389,6 +389,7 @@
     <Compile Include="Core\Editor\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
     <Compile Include="Core\Extensions\ControlExtension.cs" />
+    <Compile Include="Core\Extensions\EventInfoExtension.cs" />
     <Compile Include="Core\Extensions\GenericExtensions.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />

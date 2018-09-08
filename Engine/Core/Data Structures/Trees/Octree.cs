@@ -279,7 +279,10 @@ namespace System
 #endif
                             bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                             if (allowRender && (r.CullingVolume == null || (c = cullingVolume.Contains(r.CullingVolume)) != EContainment.Disjoint))
+                            {
+                                r.RenderInfo.LastRenderedTime = DateTime.Now;
                                 r.AddRenderables(passes, camera);
+                            }
                         }
                         IsLoopingItems = false;
 
@@ -305,7 +308,10 @@ namespace System
 #endif
                     bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                     if (allowRender)
+                    {
+                        r.RenderInfo.LastRenderedTime = DateTime.Now;
                         r.AddRenderables(passes, camera);
+                    }
                 }
                 IsLoopingItems = false;
 

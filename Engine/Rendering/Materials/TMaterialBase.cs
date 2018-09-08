@@ -348,7 +348,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 BaseTexRef tref = Textures[i];
                 if (tref == null)
                     continue;
-                program.Sampler(tref.SamplerName ?? ("Texture" + i), tref.RenderTextureGeneric, i);
+                program.Sampler(tref.ResolveSamplerName(i), tref.RenderTextureGeneric, i);
             }
         }
         public void SetTextureUniform(RenderProgram program, int textureIndex, string samplerNameOverride = null)
@@ -358,7 +358,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 BaseTexRef tref = Textures[textureIndex];
                 if (tref == null)
                     return;
-                program.Sampler(samplerNameOverride ?? tref.SamplerName ?? ("Texture" + textureIndex), tref.RenderTextureGeneric, textureIndex);
+                program.Sampler(tref.ResolveSamplerName(textureIndex, samplerNameOverride), tref.RenderTextureGeneric, textureIndex);
             }
         }
     }

@@ -222,9 +222,9 @@ namespace TheraEngine.Animation
                 "ScaleY",
                 "ScaleZ",
             };
-            if (string.Equals(reader.Name, "TransformKeyCollection", StringComparison.InvariantCulture))
+            if (string.Equals(reader.Name, nameof(TransformKeyCollection), StringComparison.InvariantCulture))
             {
-                if (reader.ReadAttribute() && string.Equals(reader.Name, "LengthInSeconds", StringComparison.InvariantCulture))
+                if (reader.ReadAttribute() && string.Equals(reader.Name, nameof(LengthInSeconds), StringComparison.InvariantCulture))
                     LengthInSeconds = float.TryParse(reader.Value, out float length) ? length : 0.0f;
 
                 ResetKeys();
@@ -268,7 +268,6 @@ namespace TheraEngine.Animation
                                 }
                                 reader.EndElement();
                             }
-                            FloatKeyframe prev = null, first = null;
                             for (int i = 0; i < keyCount; ++i)
                             {
                                 FloatKeyframe kf = new FloatKeyframe(
@@ -278,13 +277,8 @@ namespace TheraEngine.Animation
                                     float.Parse(inTans[i]),
                                     float.Parse(outTans[i]),
                                     Enums.Parse<PlanarInterpType>(interpolation[i]));
-                                if (prev != null)
-                                    prev.Link(kf);
-                                else
-                                    first = kf;
-                                prev = kf;
+                                track.Add(kf);
                             }
-                            track.Add(first);
                         }
                         _tracks[trackIndex] = track;
                     }

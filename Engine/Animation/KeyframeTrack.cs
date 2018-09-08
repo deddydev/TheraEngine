@@ -4,9 +4,45 @@ using System;
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using System.IO;
+using System.Xml;
+using System.Linq;
 
 namespace TheraEngine.Animation
 {
+    public interface IKeyframe
+    {
+        float Second { get; set; }
+    }
+    public interface IPlanarKeyframe : IKeyframe
+    {
+        object InValue { get; set; }
+        object OutValue { get; set; }
+        object InTangent { get; set; }
+        object OutTangent { get; set; }
+        PlanarInterpType InterpolationType { get; set; }
+
+        void AverageKeyframe();
+        void AverageValues();
+        void AverageTangents();
+        void MakeOutLinear();
+        void MakeInLinear();
+    }
+    public interface IPlanarKeyframe<T> : IPlanarKeyframe where T : unmanaged
+    {
+        new T InValue { get; set; }
+        new T OutValue { get; set; }
+        new T InTangent { get; set; }
+        new T OutTangent { get; set; }
+    }
+    public interface IRadialKeyframe
+    {
+
+    }
+    public interface IStepKeyframe
+    {
+
+    }
     public abstract class BaseKeyframeTrack : TFileObject
     {
         public event Action Changed;
@@ -60,6 +96,8 @@ namespace TheraEngine.Animation
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
     }
+    [FileExt("kf", ManualXmlConfigSerialize = true)]
+    [FileDef("Keyframe Track")]
     public class KeyframeTrack<T> : BaseKeyframeTrack, IList, IList<T>, IEnumerable<T> where T : Keyframe
     {
         private T _first = null;
@@ -191,15 +229,17 @@ namespace TheraEngine.Animation
         }
         public void Add(T key)
         {
-            if (key.Second < 0)
+            if (key == null)
                 return;
-            if (key.Second > LengthInSeconds)
-                SetLength(key.Second, false);
+
+            //Reset key location before adding
+            key.Remove();
+
             if (First == null)
             {
+                Count = 1;
                 First = key;
                 Last = key;
-                ++Count;
                 OnChanged();
             }
             else if (key.Second < First.Second)
@@ -219,26 +259,32 @@ namespace TheraEngine.Animation
         }
         public void RemoveLast()
         {
-            if (First == null)
+            if (Last == null)
                 return;
 
             if (First == Last)
             {
                 First = null;
+                Last = null;
                 --Count;
                 OnChanged();
             }
             else
-                Last.Remove();
+            {
+                Keyframe temp = Last;
+                Last = (T)Last.Prev;
+                temp.Remove();
+            }
         }
         public void RemoveFirst()
         {
             if (First == null)
                 return;
 
-            if (First.Next == First)
+            if (First == Last)
             {
                 First = null;
+                Last = null;
                 --Count;
                 OnChanged();
             }
@@ -303,6 +349,7 @@ namespace TheraEngine.Animation
         public void Clear()
         {
             _first = null;
+            _last = null;
             Count = 0;
         }
 
@@ -377,6 +424,55 @@ namespace TheraEngine.Animation
             {
 
             }
+        }
+
+        protected internal override void Read(XMLReader reader)
+        {
+            base.Read(reader);
+        }
+        protected internal override void Write(XmlWriter writer, ESerializeFlags flags)
+        {
+            writer.WriteStartElement("KeyframeTrack");
+            {
+                writer.WriteAttributeString(nameof(LengthInSeconds), LengthInSeconds.ToString());
+                writer.WriteAttributeString("Count", Count.ToString());
+                if (Count > 0)
+                {
+                    Type t = typeof(T);
+                    if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
+                    {
+                        string seconds = "", inval = "", outval = "", intan = "", outtan = "", interp = "";
+                        bool first = true;
+                        foreach (IPlanarKeyframe kf in this)
+                        {
+                            if (first)
+                                first = false;
+                            else
+                            {
+                                seconds += ",";
+                                inval += ",";
+                                outval += ",";
+                                intan += ",";
+                                outtan += ",";
+                                interp += ",";
+                            }
+                            seconds += kf.Second;
+                            inval += kf.InValue;
+                            outval += kf.OutValue;
+                            intan += kf.InTangent;
+                            outtan += kf.OutTangent;
+                            interp += kf.InterpolationType;
+                        }
+                        writer.WriteElementString("Second", seconds);
+                        writer.WriteElementString("InValues", inval);
+                        writer.WriteElementString("OutValues", outval);
+                        writer.WriteElementString("InTangents", intan);
+                        writer.WriteElementString("OutTangents", outtan);
+                        writer.WriteElementString("Interpolation", interp);
+                    }
+                }
+            }
+            writer.WriteEndElement();
         }
     }
     public enum RadialInterpType
@@ -506,7 +602,8 @@ namespace TheraEngine.Animation
 
         public Keyframe Link(Keyframe key)
         {
-            ++OwningTrack.Count;
+            if (OwningTrack != null)
+                ++OwningTrack.Count;
             Relink(key);
             return key;
         }
@@ -532,8 +629,62 @@ namespace TheraEngine.Animation
                 --OwningTrack.Count;
                 OwningTrack.OnChanged();
             }
+
             _next = _prev = null;
             OwningTrack = null;
+        }
+
+        public Keyframe GetFirstInSequence()
+        {
+            Keyframe temp = this;
+            while (temp.Prev != null)
+                temp = temp.Prev;
+            return temp;
+        }
+        public Keyframe GetLastInSequence()
+        {
+            Keyframe temp = this;
+            while (temp.Next != null)
+                temp = temp.Next;
+            return temp;
+        }
+        public int GetCountInSequence()
+        {
+            int count = 1;
+            Keyframe temp = Prev;
+            while (temp != null)
+            {
+                ++count;
+                temp = temp.Prev;
+            }
+            temp = Next;
+            while (temp != null)
+            {
+                ++count;
+                temp = temp.Next;
+            }
+            return count;
+        }
+        public int GetSequence(out Keyframe first, out Keyframe last)
+        {
+            int count = 1;
+            first = this;
+            last = this;
+            Keyframe temp = Prev;
+            while (temp != null)
+            {
+                ++count;
+                first = temp;
+                temp = temp.Prev;
+            }
+            temp = Next;
+            while (temp != null)
+            {
+                ++count;
+                last = temp;
+                temp = temp.Next;
+            }
+            return count;
         }
     }
 }

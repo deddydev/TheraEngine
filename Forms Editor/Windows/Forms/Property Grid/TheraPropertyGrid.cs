@@ -81,17 +81,28 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 _subObject = value;
 
-                if (Enabled = _subObject != null)
+                object mainTarget = _targetFileObject ?? _subObject;
+                if (Enabled = mainTarget != null)
                 {
                     lblObjectName.Text = string.Format("{0} [{1}]",
-                      _subObject.ToString(),
-                      _subObject.GetType().GetFriendlyName());
+                      mainTarget.ToString(),
+                      mainTarget.GetType().GetFriendlyName());
                 }
                 else
                 {
                     lblObjectName.Text = "<null>";
                 }
-
+                if (_subObject != null && mainTarget != _subObject)
+                {
+                    lblProperties.Text = string.Format("Properties: {0} [{1}]",
+                      _subObject.ToString(),
+                      _subObject.GetType().GetFriendlyName());
+                }
+                else
+                {
+                    lblProperties.Text = "Properties";
+                }
+                
                 if (_subObject is TObject obj)
                     obj.EditorState.Selected = true;
                 
@@ -627,7 +638,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void treeViewSceneComps_BeforeSelect(object sender, TreeViewCancelEventArgs e)
         {
-            if (_updating || e.Action == TreeViewAction.ByMouse || e.Action == TreeViewAction.Unknown)
+            if (_updating || 
+                e.Action == TreeViewAction.ByMouse || 
+                e.Action == TreeViewAction.Unknown)
                 return;
 
             _selectedSceneComp = e.Node;

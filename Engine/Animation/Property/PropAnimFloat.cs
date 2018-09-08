@@ -130,7 +130,7 @@ namespace TheraEngine.Animation
         IEnumerator IEnumerable.GetEnumerator()
             => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
     }
-    public class FloatKeyframe : Keyframe
+    public class FloatKeyframe : Keyframe, IPlanarKeyframe
     {
         public FloatKeyframe(int frameIndex, float FPS, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
@@ -211,6 +211,12 @@ namespace TheraEngine.Animation
                 }
             }
         }
+
+        object IPlanarKeyframe.InValue { get => InValue; set => InValue = (float)value; }
+        object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (float)value; }
+        object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (float)value; }
+        object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (float)value; }
+
         /// <summary>
         /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
         /// </summary>

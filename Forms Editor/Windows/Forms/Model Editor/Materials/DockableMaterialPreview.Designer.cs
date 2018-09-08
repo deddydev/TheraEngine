@@ -52,7 +52,7 @@
             this.Controls.Add(this.materialControl1);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.Name = "DockableMaterialEditor";
-            this.Text = "Material Editor";
+            this.Text = "Material Preview";
             this.ResumeLayout(false);
 
         }

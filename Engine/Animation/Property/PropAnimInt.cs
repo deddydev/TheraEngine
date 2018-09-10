@@ -133,15 +133,15 @@ namespace TheraEngine.Animation
     public class IntKeyframe : Keyframe, IPlanarKeyframe<int>
     {
         public IntKeyframe() { }
-        public IntKeyframe(int frameIndex, float FPS, int inValue, int outValue, float inTangent, float outTangent, PlanarInterpType type)
+        public IntKeyframe(int frameIndex, float FPS, int inValue, int outValue, float inTangent, float outTangent, EPlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public IntKeyframe(int frameIndex, float FPS, int inoutValue, float inoutTangent, PlanarInterpType type)
+        public IntKeyframe(int frameIndex, float FPS, int inoutValue, float inoutTangent, EPlanarInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public IntKeyframe(float second, int inoutValue, float inoutTangent, PlanarInterpType type)
+        public IntKeyframe(float second, int inoutValue, float inoutTangent, EPlanarInterpType type)
             : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public IntKeyframe(float second, int inoutValue, float inTangent, float outTangent, PlanarInterpType type)
+        public IntKeyframe(float second, int inoutValue, float inTangent, float outTangent, EPlanarInterpType type)
             : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
-        public IntKeyframe(float second, int inValue, int outValue, float inTangent, float outTangent, PlanarInterpType type) : base()
+        public IntKeyframe(float second, int inValue, int outValue, float inTangent, float outTangent, EPlanarInterpType type) : base()
         {
             Second = second;
             InValue = inValue;
@@ -159,7 +159,7 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate;
         private DelInterpolate _interpolateVelocity;
         private DelInterpolate _interpolateAcceleration;
-        protected PlanarInterpType _interpolationType;
+        protected EPlanarInterpType _interpolationType;
         
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public int InValue { get; set; }
@@ -185,7 +185,7 @@ namespace TheraEngine.Animation
         }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public PlanarInterpType InterpolationType
+        public EPlanarInterpType InterpolationType
         {
             get => _interpolationType;
             set
@@ -193,22 +193,22 @@ namespace TheraEngine.Animation
                 _interpolationType = value;
                 switch (_interpolationType)
                 {
-                    case PlanarInterpType.Step:
+                    case EPlanarInterpType.Step:
                         _interpolate = Step;
                         _interpolateVelocity = StepVelocity;
                         _interpolateAcceleration = StepAcceleration;
                         break;
-                    case PlanarInterpType.Linear:
+                    case EPlanarInterpType.Linear:
                         _interpolate = Lerp;
                         _interpolateVelocity = LerpVelocity;
                         _interpolateAcceleration = LerpAcceleration;
                         break;
-                    case PlanarInterpType.CubicHermite:
+                    case EPlanarInterpType.CubicHermite:
                         _interpolate = CubicHermite;
                         _interpolateVelocity = CubicHermiteVelocity;
                         _interpolateAcceleration = CubicHermiteAcceleration;
                         break;
-                    case PlanarInterpType.CubicBezier:
+                    case EPlanarInterpType.CubicBezier:
                         _interpolate = CubicBezier;
                         _interpolateVelocity = CubicBezierVelocity;
                         _interpolateAcceleration = CubicBezierAcceleration;
@@ -363,7 +363,7 @@ namespace TheraEngine.Animation
             OutValue = int.Parse(parts[2]);
             InTangent = float.Parse(parts[3]);
             OutTangent = float.Parse(parts[4]);
-            InterpolationType = parts[5].AsEnum<PlanarInterpType>();
+            InterpolationType = parts[5].AsEnum<EPlanarInterpType>();
         }
         
         void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)

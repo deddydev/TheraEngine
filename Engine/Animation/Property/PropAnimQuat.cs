@@ -53,13 +53,13 @@ namespace TheraEngine.Animation
     public class QuatKeyframe : Keyframe, IRadialKeyframe
     {
         public QuatKeyframe() { }
-        public QuatKeyframe(int frameIndex, float FPS, Quat inValue, Quat outValue, Quat inTangent, Quat outTangent, RadialInterpType type)
+        public QuatKeyframe(int frameIndex, float FPS, Quat inValue, Quat outValue, Quat inTangent, Quat outTangent, ERadialInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public QuatKeyframe(int frameIndex, float FPS, Quat inoutValue, Quat inTangent, Quat outTangent, RadialInterpType type)
+        public QuatKeyframe(int frameIndex, float FPS, Quat inoutValue, Quat inTangent, Quat outTangent, ERadialInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inTangent, outTangent, type) { }
-        public QuatKeyframe(float second, Quat inoutValue, Quat inTangent, Quat outTangent, RadialInterpType type)
+        public QuatKeyframe(float second, Quat inoutValue, Quat inTangent, Quat outTangent, ERadialInterpType type)
             : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
-        public QuatKeyframe(float second, Quat inValue, Quat outValue, Quat inTangent, Quat outTangent, RadialInterpType type) : base()
+        public QuatKeyframe(float second, Quat inValue, Quat outValue, Quat inTangent, Quat outTangent, ERadialInterpType type) : base()
         {
             Second = second;
             InValue = inValue;
@@ -71,7 +71,7 @@ namespace TheraEngine.Animation
 
         private delegate Quat DelInterpolate(QuatKeyframe key1, QuatKeyframe key2, float time);
         private DelInterpolate _interpolate = CubicBezier;
-        protected RadialInterpType _interpolationType;
+        protected ERadialInterpType _interpolationType;
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Quat InValue { get; set; }
@@ -97,7 +97,7 @@ namespace TheraEngine.Animation
         }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public RadialInterpType InterpolationType
+        public ERadialInterpType InterpolationType
         {
             get => _interpolationType;
             set
@@ -105,13 +105,13 @@ namespace TheraEngine.Animation
                 _interpolationType = value;
                 switch (_interpolationType)
                 {
-                    case RadialInterpType.Step:
+                    case ERadialInterpType.Step:
                         _interpolate = Step;
                         break;
-                    case RadialInterpType.Linear:
+                    case ERadialInterpType.Linear:
                         _interpolate = Linear;
                         break;
-                    case RadialInterpType.CubicBezier:
+                    case ERadialInterpType.CubicBezier:
                         _interpolate = CubicBezier;
                         break;
                 }
@@ -160,7 +160,7 @@ namespace TheraEngine.Animation
             OutValue = new Quat(float.Parse(parts[5]), float.Parse(parts[6]), float.Parse(parts[7]), float.Parse(parts[8]));
             InTangent = new Quat(float.Parse(parts[9]), float.Parse(parts[10]), float.Parse(parts[11]), float.Parse(parts[12]));
             OutTangent = new Quat(float.Parse(parts[13]), float.Parse(parts[14]), float.Parse(parts[15]), float.Parse(parts[16]));
-            InterpolationType = parts[17].AsEnum<RadialInterpType>();
+            InterpolationType = parts[17].AsEnum<ERadialInterpType>();
         }
     }
 }

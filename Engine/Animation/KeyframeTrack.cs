@@ -21,7 +21,7 @@ namespace TheraEngine.Animation
         object OutValue { get; set; }
         object InTangent { get; set; }
         object OutTangent { get; set; }
-        PlanarInterpType InterpolationType { get; set; }
+        EPlanarInterpType InterpolationType { get; set; }
 
         void AverageKeyframe();
         void AverageValues();
@@ -29,6 +29,7 @@ namespace TheraEngine.Animation
         void MakeOutLinear();
         void MakeInLinear();
         void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent);
+        void WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent);
     }
     public interface IPlanarKeyframe<T> : IPlanarKeyframe where T : unmanaged
     {
@@ -474,7 +475,7 @@ namespace TheraEngine.Animation
                         {
                             T kf = new T { Second = float.Parse(seconds[i]) };
                             IPlanarKeyframe kfp = (IPlanarKeyframe)kf;
-                            kfp.InterpolationType = Enums.Parse<PlanarInterpType>(interpolation[i]);
+                            kfp.InterpolationType = Enums.Parse<EPlanarInterpType>(interpolation[i]);
                             kfp.ParsePlanar(inValues[i], outValues[i], inTans[i], outTans[i]);
                             Add(kf);
                         }
@@ -513,11 +514,8 @@ namespace TheraEngine.Animation
                                 interp += ",";
                             }
                             seconds += kf.Second;
-                            inval += kf.InValue;
-                            outval += kf.OutValue;
-                            intan += kf.InTangent;
-                            outtan += kf.OutTangent;
                             interp += kf.InterpolationType;
+                            kf.WritePlanar(out inval, out outval, out intan, out outtan);
                         }
                         writer.WriteElementString("Second", seconds);
                         writer.WriteElementString("InValues", inval);
@@ -531,13 +529,13 @@ namespace TheraEngine.Animation
             writer.WriteEndElement();
         }
     }
-    public enum RadialInterpType
+    public enum ERadialInterpType
     {
         Step,
         Linear,
         CubicBezier
     }
-    public enum PlanarInterpType
+    public enum EPlanarInterpType
     {
         Step,
         Linear,

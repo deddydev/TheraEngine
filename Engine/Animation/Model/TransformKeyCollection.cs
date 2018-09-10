@@ -235,12 +235,9 @@ namespace TheraEngine.Animation
                     if (_tracks.IndexInRange(trackIndex))
                     {
                         KeyframeTrack<FloatKeyframe> track = _tracks[trackIndex];
-                        
-                        int keyCount = 0;
-                        if (reader.ReadAttribute() && string.Equals(reader.Name, "Count", StringComparison.InvariantCulture) && !int.TryParse(reader.Value, out keyCount))
-                            keyCount = 0;
-
-                        if (keyCount > 0)
+                        if (reader.ReadAttribute() &&
+                            string.Equals(reader.Name, "Count", StringComparison.InvariantCulture) &&
+                            !int.TryParse(reader.Value, out int keyCount))
                         {
                             string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
                             while (reader.BeginElement())
@@ -276,7 +273,7 @@ namespace TheraEngine.Animation
                                     float.Parse(outValues[i]),
                                     float.Parse(inTans[i]),
                                     float.Parse(outTans[i]),
-                                    Enums.Parse<PlanarInterpType>(interpolation[i]));
+                                    Enums.Parse<EPlanarInterpType>(interpolation[i]));
                                 track.Add(kf);
                             }
                         }

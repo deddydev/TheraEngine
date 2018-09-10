@@ -55,13 +55,13 @@ namespace TheraEngine.Animation
     public class Vec2Keyframe : Keyframe
     {
         public Vec2Keyframe() { }
-        public Vec2Keyframe(int frameIndex, float FPS, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, PlanarInterpType type)
+        public Vec2Keyframe(int frameIndex, float FPS, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, EPlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public Vec2Keyframe(int frameIndex, float FPS, Vec2 inoutValue, Vec2 inoutTangent, PlanarInterpType type)
+        public Vec2Keyframe(int frameIndex, float FPS, Vec2 inoutValue, Vec2 inoutTangent, EPlanarInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public Vec2Keyframe(float second, Vec2 inoutValue, Vec2 inoutTangent, PlanarInterpType type)
+        public Vec2Keyframe(float second, Vec2 inoutValue, Vec2 inoutTangent, EPlanarInterpType type)
             : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public Vec2Keyframe(float second, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, PlanarInterpType type) : base()
+        public Vec2Keyframe(float second, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, EPlanarInterpType type) : base()
         {
             Second = second;
             InValue = inValue;
@@ -71,7 +71,7 @@ namespace TheraEngine.Animation
             InterpolationType = type;
         }
 
-        protected PlanarInterpType _interpolationType;
+        protected EPlanarInterpType _interpolationType;
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public Vec2 InValue { get; set; }
@@ -97,7 +97,7 @@ namespace TheraEngine.Animation
         }
 
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public PlanarInterpType InterpolationType
+        public EPlanarInterpType InterpolationType
         {
             get => _interpolationType;
             set
@@ -105,16 +105,16 @@ namespace TheraEngine.Animation
                 _interpolationType = value;
                 switch (_interpolationType)
                 {
-                    case PlanarInterpType.Step:
+                    case EPlanarInterpType.Step:
                         _interpolate = Step;
                         break;
-                    case PlanarInterpType.Linear:
+                    case EPlanarInterpType.Linear:
                         _interpolate = Lerp;
                         break;
-                    case PlanarInterpType.CubicHermite:
+                    case EPlanarInterpType.CubicHermite:
                         _interpolate = CubicHermite;
                         break;
-                    case PlanarInterpType.CubicBezier:
+                    case EPlanarInterpType.CubicBezier:
                         _interpolate = Bezier;
                         break;
                 }
@@ -182,7 +182,7 @@ namespace TheraEngine.Animation
             OutValue = new Vec2(float.Parse(parts[3]), float.Parse(parts[4]));
             InTangent = new Vec2(float.Parse(parts[5]), float.Parse(parts[6]));
             OutTangent = new Vec2(float.Parse(parts[7]), float.Parse(parts[8]));
-            InterpolationType = parts[9].AsEnum<PlanarInterpType>();
+            InterpolationType = parts[9].AsEnum<EPlanarInterpType>();
         }
     }
 }

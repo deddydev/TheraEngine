@@ -1120,14 +1120,9 @@ namespace TheraEngine.Core.Maths.Transforms
 
         #endregion
         
-        public override string ToString()
-            => ToString(true, true);
-        public string ToString(bool includeParentheses, bool includeSeparator)
-            => String.Format("{4}{0}{3} {1}{3} {2}{5}",
-                X, Y, Z, 
-                includeSeparator ? CultureInfo.CurrentCulture.TextInfo.ListSeparator : "",
-                includeParentheses ? "(" : "", 
-                includeParentheses ? ")" : "");
+        public override string ToString() => ToString();
+        public string ToString(string openingBracket = "(", string closingBracket = ")", string separator = ", ")
+            => String.Format("{4}{0}{3}{1}{3}{2}{5}", X, Y, Z, separator, openingBracket, closingBracket);
 
         public override int GetHashCode()
         {
@@ -1158,9 +1153,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 Abs(Y - other.Y) < precision &&
                 Abs(Z - other.Z) < precision;
 
-        public string WriteToString()
-            => ToString(false, false);
-        public void ReadFromString(string str)
-            => this = new Vec3(str);
+        public string WriteToString() => ToString();
+        public void ReadFromString(string str) => this = new Vec3(str);
     }
 }

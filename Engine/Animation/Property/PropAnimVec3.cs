@@ -7,6 +7,12 @@ using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
 {
+    public enum EVectorInterpValueType
+    {
+        Position,
+        Velocity,
+        Acceleration,
+    }
     public class PropAnimVec3 : PropAnimKeyframed<Vec3Keyframe>
     {
         private DelGetValue<Vec3> _getValue;
@@ -38,11 +44,11 @@ namespace TheraEngine.Animation
         public Vec3 GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public Vec3 GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second, Vec3Keyframe.EVec3InterpValueType.Position);
+            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second, EVectorInterpValueType.Position);
         public Vec3 GetVelocityKeyframed(float second)
-            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.Interpolate(second, Vec3Keyframe.EVec3InterpValueType.Velocity);
+            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.Interpolate(second, EVectorInterpValueType.Velocity);
         public Vec3 GetAccelerationKeyframed(float second)
-            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.Interpolate(second, Vec3Keyframe.EVec3InterpValueType.Acceleration);
+            => _keyframes.Count == 0 ? 0.0f : _keyframes.First.Interpolate(second, EVectorInterpValueType.Acceleration);
 
         public override void Bake(float framesPerSecond)
         {
@@ -56,13 +62,13 @@ namespace TheraEngine.Animation
     public class Vec3Keyframe : Keyframe, IPlanarKeyframe<Vec3>
     {
         public Vec3Keyframe() { }
-        public Vec3Keyframe(int frameIndex, float FPS, Vec3 inValue, Vec3 outValue, Vec3 inTangent, Vec3 outTangent, PlanarInterpType type)
+        public Vec3Keyframe(int frameIndex, float FPS, Vec3 inValue, Vec3 outValue, Vec3 inTangent, Vec3 outTangent, EPlanarInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public Vec3Keyframe(int frameIndex, float FPS, Vec3 inoutValue, Vec3 inoutTangent, PlanarInterpType type)
+        public Vec3Keyframe(int frameIndex, float FPS, Vec3 inoutValue, Vec3 inoutTangent, EPlanarInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public Vec3Keyframe(float second, Vec3 inoutValue, Vec3 inoutTangent, PlanarInterpType type)
+        public Vec3Keyframe(float second, Vec3 inoutValue, Vec3 inoutTangent, EPlanarInterpType type)
             : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public Vec3Keyframe(float second, Vec3 inValue, Vec3 outValue, Vec3 inTangent, Vec3 outTangent, PlanarInterpType type) : base()
+        public Vec3Keyframe(float second, Vec3 inValue, Vec3 outValue, Vec3 inTangent, Vec3 outTangent, EPlanarInterpType type) : base()
         {
             Second = second;
             InValue = inValue;
@@ -73,7 +79,7 @@ namespace TheraEngine.Animation
         }
 
         protected delegate Vec3 DelInterpolate(Vec3Keyframe key1, Vec3Keyframe key2, float time);
-        protected PlanarInterpType _interpolationType;
+        protected EPlanarInterpType _interpolationType;
         protected DelInterpolate _interpolate = CubicHermite;
         protected DelInterpolate _interpolateVelocity = CubicHermiteVelocity;
         protected DelInterpolate _interpolateAcceleration = CubicHermiteAcceleration;
@@ -147,7 +153,7 @@ namespace TheraEngine.Animation
 
         [Category("Keyframe")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public PlanarInterpType InterpolationType
+        public EPlanarInterpType InterpolationType
         {
             get => _interpolationType;
             set
@@ -155,22 +161,22 @@ namespace TheraEngine.Animation
                 _interpolationType = value;
                 switch (_interpolationType)
                 {
-                    case PlanarInterpType.Step:
+                    case EPlanarInterpType.Step:
                         _interpolate = Step;
                         _interpolateVelocity = StepVelocity;
                         _interpolateAcceleration = StepAcceleration;
                         break;
-                    case PlanarInterpType.Linear:
+                    case EPlanarInterpType.Linear:
                         _interpolate = Lerp;
                         _interpolateVelocity = LerpVelocity;
                         _interpolateAcceleration = LerpAcceleration;
                         break;
-                    case PlanarInterpType.CubicHermite:
+                    case EPlanarInterpType.CubicHermite:
                         _interpolate = CubicHermite;
                         _interpolateVelocity = CubicHermiteVelocity;
                         _interpolateAcceleration = CubicHermiteAcceleration;
                         break;
-                    case PlanarInterpType.CubicBezier:
+                    case EPlanarInterpType.CubicBezier:
                         _interpolate = CubicBezier;
                         _interpolateVelocity = CubicBezierVelocity;
                         _interpolateAcceleration = CubicBezierAcceleration;
@@ -180,13 +186,7 @@ namespace TheraEngine.Animation
             }
         }
         
-        public enum EVec3InterpValueType
-        {
-            Position,
-            Velocity,
-            Acceleration,
-        }
-        public Vec3 Interpolate(float desiredSecond, EVec3InterpValueType type)
+        public Vec3 Interpolate(float desiredSecond, EVectorInterpValueType type)
         {
             //First, check if the desired second is between this key and the next key.
             if (desiredSecond < Second)
@@ -218,11 +218,11 @@ namespace TheraEngine.Animation
             switch (type)
             {
                 default:
-                case EVec3InterpValueType.Position:
+                case EVectorInterpValueType.Position:
                     return _interpolate(this, Next, time);
-                case EVec3InterpValueType.Velocity:
+                case EVectorInterpValueType.Velocity:
                     return _interpolateVelocity(this, Next, time);
-                case EVec3InterpValueType.Acceleration:
+                case EVectorInterpValueType.Acceleration:
                     return _interpolateAcceleration(this, Next, time);
             }
         }
@@ -284,7 +284,7 @@ namespace TheraEngine.Animation
             OutValue = new Vec3(float.Parse(parts[4]), float.Parse(parts[5]), float.Parse(parts[6]));
             InTangent = new Vec3(float.Parse(parts[7]), float.Parse(parts[8]), float.Parse(parts[9]));
             OutTangent = new Vec3(float.Parse(parts[10]), float.Parse(parts[11]), float.Parse(parts[12]));
-            InterpolationType = parts[13].AsEnum<PlanarInterpType>();
+            InterpolationType = parts[13].AsEnum<EPlanarInterpType>();
         }
         
         void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
@@ -293,6 +293,13 @@ namespace TheraEngine.Animation
             OutValue = new Vec3(outValue);
             InTangent = new Vec3(inTangent);
             OutTangent = new Vec3(outTangent);
+        }
+        void IPlanarKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
+        {
+            inValue = InValue.ToString("", "", " ");
+            outValue = OutValue.ToString("", "", " ");
+            inTangent = InTangent.ToString("", "", " ");
+            outTangent = OutTangent.ToString("", "", " ");
         }
     }
 }

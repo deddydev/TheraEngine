@@ -111,7 +111,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (!Property.CanRead)
                     return null;
 
-                return Property.GetValue(Owner());
+                object o = Owner();
+                return Property.GetValue(o);
             }
             set
             {
@@ -121,7 +122,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (!Property.CanWrite)
                     return;
 
-                Property.SetValue(Owner(), value);
+                object o = Owner();
+
+                if (o != null)
+                    Property.SetValue(o, value);
             }
         }
     }

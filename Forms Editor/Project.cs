@@ -169,12 +169,17 @@ namespace TheraEditor
                     {
                         codeFiles2.Add(path2);
                         string text = File.ReadAllText(path);
+                        int end = text.FindFirst(0, "namespace");
+                        if (end > 0)
+                            text = text.Substring(0, end);
                         string usingStr = "using ";
                         int[] usingIndices = text.FindAllOccurrences(0, usingStr);
                         foreach (int i in usingIndices)
                         {
                             int startIndex = i + usingStr.Length;
                             int endIndex = text.FindFirst(startIndex, ';');
+                            if (endIndex < 0)
+                                continue;
                             string reference = text.Substring(startIndex, endIndex - startIndex).Trim();
                             references2.Add(reference);
                         }
@@ -311,7 +316,8 @@ namespace TheraEditor
             //0 = config name, 1 = platform name
             string preSolTmpl = "\t{0}|{1} = {0}|{1}\n\t";
             string preSol = string.Empty;
-            void AppendPreSol(string config, string platform) => preSol += string.Format(preSolTmpl, config, platform);
+            void AppendPreSol(string config, string platform) 
+                => preSol += string.Format(preSolTmpl, config, platform);
             AppendPreSol("Debug", "x86");
             AppendPreSol("Debug", "x64");
             AppendPreSol("Release", "x86");
@@ -320,7 +326,8 @@ namespace TheraEditor
             //0 = project GUID, 1 = config name, 2 = platform name
             string postSolTmpl = "\t{0}.{1}|{2}.ActiveCfg = {1}|{2}\n\t\t{0}.{1}|{2}.Build.0 = {1}|{2}\n\t";
             string postSol = string.Empty;
-            void AppendPostSol(string guid, string config, string platform) => postSol += string.Format(postSolTmpl, guid, config, platform);
+            void AppendPostSol(string guid, string config, string platform) 
+                => postSol += string.Format(postSolTmpl, guid, config, platform);
             AppendPostSol(projectGuid, "Debug", "x86");
             AppendPostSol(projectGuid, "Debug", "x64");
             AppendPostSol(projectGuid, "Release", "x86");

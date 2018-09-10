@@ -112,9 +112,7 @@ namespace System
         /// Parses the given string as an enum of the given type.
         /// </summary>
         public static T AsEnum<T>(this string s) where T : struct
-        {
-            return (T)Enum.Parse(typeof(T), s);
-        }
+            => (T)Enum.Parse(typeof(T), s);
         public static T ParseAs<T>(this string value)
             => (T)value.ParseAs(typeof(T));
         public static object ParseAs(this string value, Type t)
@@ -126,7 +124,7 @@ namespace System
                 else
                     return value.ParseAs(t.GetGenericArguments()[0]);
             }
-            if (t.GetInterface("IParsable") != null)
+            if (t.GetInterface(nameof(IParsable)) != null)
             {
                 IParsable o = (IParsable)Activator.CreateInstance(t);
                 o.ReadFromString(value);

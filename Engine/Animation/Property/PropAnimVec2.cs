@@ -46,11 +46,6 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
-
-        public IEnumerator<Vec2Keyframe> GetEnumerator()
-            => ((IEnumerable<Vec2Keyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<Vec2Keyframe>)_keyframes).GetEnumerator();
     }
     public class Vec2Keyframe : Keyframe
     {

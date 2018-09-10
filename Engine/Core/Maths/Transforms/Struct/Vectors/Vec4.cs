@@ -93,11 +93,11 @@ namespace TheraEngine.Core.Maths.Transforms
             Z = v.Z;
             W = v.W;
         }
-        public Vec4(string s)
+        public Vec4(string s, params char[] delimiters)
         {
             X = Y = Z = W = 0.0f;
 
-            char[] delims = new char[] { ',', '(', ')', ' ' };
+            char[] delims = delimiters != null && delimiters.Length > 0 ? delimiters : new char[] { ',', '(', ')', ' ' };
             string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
 
             if (arr.Length >= 4)
@@ -851,10 +851,9 @@ namespace TheraEngine.Core.Maths.Transforms
         public static explicit operator Color(Vec4 v)
             => Color.FromArgb(v.W.ToByte(), v.X.ToByte(), v.Y.ToByte(), v.Z.ToByte());
         private static readonly string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-        public override string ToString() => ToString(true, true);
-        public string ToString(bool includeParentheses, bool includeSeparator)
-           => String.Format("{5}{0}{4} {1}{4} {2}{4} {3}{6}", X, Y, Z, W,
-               includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
+        public override string ToString() => ToString();
+        public string ToString(string openingBracket = "(", string closingBracket = ")", string separator = ", ")
+           => string.Format("{5}{0}{4}{1}{4}{2}{4}{3}{6}", X, Y, Z, W, separator, openingBracket, closingBracket);
 
         public override int GetHashCode()
         {

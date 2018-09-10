@@ -124,11 +124,6 @@ namespace TheraEngine.Animation
                 }
             }
         }
-
-        public IEnumerator<IntKeyframe> GetEnumerator()
-            => ((IEnumerable<IntKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<IntKeyframe>)_keyframes).GetEnumerator();
     }
     public class IntKeyframe : Keyframe, IPlanarKeyframe<int>
     {
@@ -373,30 +368,12 @@ namespace TheraEngine.Animation
             InTangent = float.Parse(inTangent);
             OutTangent = float.Parse(outTangent);
         }
-
-        void IPlanarKeyframe.AverageKeyframe()
+        void IPlanarKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
         {
-            throw new NotImplementedException();
-        }
-
-        void IPlanarKeyframe.AverageValues()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IPlanarKeyframe.AverageTangents()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IPlanarKeyframe.MakeOutLinear()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IPlanarKeyframe.MakeInLinear()
-        {
-            throw new NotImplementedException();
+            inValue = InValue.ToString();
+            outValue = OutValue.ToString();
+            inTangent = InTangent.ToString();
+            outTangent = OutTangent.ToString();
         }
     }
 }

@@ -63,21 +63,13 @@ namespace System
             return uint.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         }
         public static bool EqualsOrdinalIgnoreCase(this string str, string other)
-        {
-            return str.Equals(other, StringComparison.OrdinalIgnoreCase);
-        }
+            => str.Equals(other, StringComparison.OrdinalIgnoreCase);
         public static bool EqualsOrdinal(this string str, string other)
-        {
-            return str.Equals(other, StringComparison.Ordinal);
-        }
+            => str.Equals(other, StringComparison.Ordinal);
         public static bool EqualsInvariantIgnoreCase(this string str, string other)
-        {
-            return str.Equals(other, StringComparison.InvariantCultureIgnoreCase);
-        }
+            => str.Equals(other, StringComparison.InvariantCultureIgnoreCase);
         public static bool EqualsInvariant(this string str, string other)
-        {
-            return str.Equals(other, StringComparison.InvariantCulture);
-        }
+            => str.Equals(other, StringComparison.InvariantCulture);
         //public static bool IsNullOrEmpty(this string str)
         //{
         //    return string.IsNullOrEmpty(str);

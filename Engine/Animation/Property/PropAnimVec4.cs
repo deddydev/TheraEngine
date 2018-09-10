@@ -48,7 +48,7 @@ namespace TheraEngine.Animation
                 _baked[i] = GetValueKeyframed(i);
         }
     }
-    public class Vec4Keyframe : Keyframe
+    public class Vec4Keyframe : Keyframe, IPlanarKeyframe<Vec3>
     {
         public Vec4Keyframe() { }
         public Vec4Keyframe(int frameIndex, float FPS, Vec4 inValue, Vec4 outValue, Vec4 inTangent, Vec4 outTangent, EPlanarInterpType type)
@@ -179,6 +179,20 @@ namespace TheraEngine.Animation
             InTangent = new Vec4(float.Parse(parts[9]), float.Parse(parts[10]), float.Parse(parts[11]), float.Parse(parts[12]));
             OutTangent = new Vec4(float.Parse(parts[13]), float.Parse(parts[14]), float.Parse(parts[15]), float.Parse(parts[16]));
             InterpolationType = parts[17].AsEnum<EPlanarInterpType>();
+        }
+        void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
+        {
+            InValue = new Vec4(inValue);
+            OutValue = new Vec4(outValue);
+            InTangent = new Vec4(inTangent);
+            OutTangent = new Vec4(outTangent);
+        }
+        void IPlanarKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
+        {
+            inValue = InValue.ToString("", "", " ");
+            outValue = OutValue.ToString("", "", " ");
+            inTangent = InTangent.ToString("", "", " ");
+            outTangent = OutTangent.ToString("", "", " ");
         }
     }
 }

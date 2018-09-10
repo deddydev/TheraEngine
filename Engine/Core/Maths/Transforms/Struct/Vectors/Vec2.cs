@@ -67,11 +67,11 @@ namespace System
                 Y = v.Y;
             }
         }
-        public Vec2(string s)
+        public Vec2(string s, params char[] delimiters)
         {
             X = Y = 0.0f;
 
-            char[] delims = new char[] { ',', '(', ')', ' ' };
+            char[] delims = delimiters != null && delimiters.Length > 0 ? delimiters : new char[] { ',', '(', ')', ' ' };
             string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
 
             if (arr.Length >= 2)

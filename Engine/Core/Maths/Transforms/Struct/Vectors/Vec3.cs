@@ -69,11 +69,11 @@ namespace TheraEngine.Core.Maths.Transforms
                 Z = v.Z;
             }
         }
-        public Vec3(string s)
+        public Vec3(string s, params char[] delimiters)
         {
             X = Y = Z = 0.0f;
 
-            char[] delims = new char[] { '[', ']', ',', '(', ')', ' ' };
+            char[] delims = delimiters != null && delimiters.Length > 0 ? delimiters : new char[] { ',', '(', ')', ' ' };
             string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
 
             if (arr.Length >= 3)
@@ -1122,7 +1122,7 @@ namespace TheraEngine.Core.Maths.Transforms
         
         public override string ToString() => ToString();
         public string ToString(string openingBracket = "(", string closingBracket = ")", string separator = ", ")
-            => String.Format("{4}{0}{3}{1}{3}{2}{5}", X, Y, Z, separator, openingBracket, closingBracket);
+            => string.Format("{4}{0}{3}{1}{3}{2}{5}", X, Y, Z, separator, openingBracket, closingBracket);
 
         public override int GetHashCode()
         {

@@ -125,7 +125,7 @@ namespace TheraEngine.Animation
             }
         }
     }
-    public class FloatKeyframe : Keyframe, IPlanarKeyframe
+    public class FloatKeyframe : Keyframe, IPlanarKeyframe<float>
     {
         public FloatKeyframe() { }
         public FloatKeyframe(int frameIndex, float FPS, float inValue, float outValue, float inTangent, float outTangent, EPlanarInterpType type)

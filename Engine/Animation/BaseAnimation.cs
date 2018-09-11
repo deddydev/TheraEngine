@@ -35,6 +35,7 @@ namespace TheraEngine.Animation
         public event Action SpeedChanged;
         public event Action LoopChanged;
         public event Action LengthChanged;
+        public event Action FPSChanged;
 
         protected void OnAnimationStarted() => AnimationStarted?.Invoke();
         protected void OnAnimationEnded() => AnimationEnded?.Invoke();
@@ -43,10 +44,11 @@ namespace TheraEngine.Animation
         protected void OnSpeedChanged() => SpeedChanged?.Invoke();
         protected void OnLoopChanged() => LoopChanged?.Invoke();
         protected void OnLengthChanged() => LengthChanged?.Invoke();
+        protected void OnFPSChanged() => FPSChanged?.Invoke();
 
-        [TSerialize("BakedFrameCount", Condition = "_isBaked")]
+        [TSerialize("BakedFrameCount")]
         protected int _bakedFrameCount = 0;
-        [TSerialize("BakedFPS", Condition = "_isBaked")]
+        [TSerialize("BakedFPS")]
         protected float _bakedFPS = 0.0f;
 
         [TSerialize("LengthInSeconds")]
@@ -73,8 +75,13 @@ namespace TheraEngine.Animation
         public BaseAnimation(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
         {
             _bakedFrameCount = frameCount;
-            _bakedFPS = framesPerSecond;
-            _lengthInSeconds = frameCount / framesPerSecond;
+            _bakedFPS = framesPerSecond.ClampMin(0.0f);
+
+            if (_bakedFPS == 0.0f)
+                _lengthInSeconds = 0;
+            else
+                _lengthInSeconds = _bakedFrameCount / _bakedFPS;
+
             Looped = looped;
             Baked = isBaked;
         }
@@ -106,6 +113,8 @@ namespace TheraEngine.Animation
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
         public virtual void SetLength(float seconds, bool stretchAnimation)
         {
+            if (seconds < 0.0f)
+                return;
             _lengthInSeconds = seconds;
             SetBakedFramecount();
             LengthChanged?.Invoke();
@@ -146,6 +155,7 @@ namespace TheraEngine.Animation
             {
                 _bakedFPS = value;
                 SetBakedFramecount();
+                OnFPSChanged();
             }
         }
         
@@ -159,7 +169,11 @@ namespace TheraEngine.Animation
             set
             {
                 _bakedFrameCount = value;
-                LengthInSeconds = _bakedFrameCount / _bakedFPS;
+
+                if (_bakedFPS <= 0.0f)
+                    LengthInSeconds = 0.0f;
+                else
+                    LengthInSeconds = _bakedFrameCount / _bakedFPS;
             }
         }
         

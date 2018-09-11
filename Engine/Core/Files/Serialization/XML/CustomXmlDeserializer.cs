@@ -242,6 +242,8 @@ namespace TheraEngine.Files.Serialization
                 allElementsNull = false;
                 string elemName = _reader.Name.ToString();
 
+                Engine.PrintLine("Reading " + elemName);
+
                 //Categorized key is the name of the category
                 //So match element name to the key
                 var categoryMembers = categorized?.Where(x => string.Equals(elemName, x.Key, StringComparison.InvariantCultureIgnoreCase))?.SelectMany(x => x).ToArray();

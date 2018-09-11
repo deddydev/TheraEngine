@@ -438,9 +438,9 @@ namespace TheraEngine.Animation
 
                 Clear();
 
-                if (reader.ReadAttribute() &&
+                if (reader.ReadAttribute() && 
                     string.Equals(reader.Name, "Count", StringComparison.InvariantCulture) &&
-                    !int.TryParse(reader.Value, out int keyCount))
+                    int.TryParse(reader.Value, out int keyCount))
                 {
                     Type t = typeof(T);
                     if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
@@ -448,26 +448,15 @@ namespace TheraEngine.Animation
                         string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
                         while (reader.BeginElement())
                         {
+                            string[] str = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                             switch (reader.Name)
                             {
-                                case "Second":
-                                    seconds = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                    break;
-                                case "InValues":
-                                    inValues = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                    break;
-                                case "OutValues":
-                                    outValues = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                    break;
-                                case "InTangents":
-                                    inTans = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                    break;
-                                case "OutTangents":
-                                    outTans = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                    break;
-                                case "Interpolation":
-                                    interpolation = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                    break;
+                                case "Seconds": seconds = str; break;
+                                case "InValues": inValues = str; break;
+                                case "OutValues": outValues = str; break;
+                                case "InTangents": inTans = str; break;
+                                case "OutTangents": outTans = str; break;
+                                case "InterpTypes": interpolation = str; break;
                             }
                             reader.EndElement();
                         }
@@ -498,7 +487,14 @@ namespace TheraEngine.Animation
                     Type t = typeof(T);
                     if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
                     {
-                        string seconds = "", inval = "", outval = "", intan = "", outtan = "", interp = "";
+                        string 
+                            seconds = "", 
+                            inValues = "", 
+                            outValues = "",
+                            inTans = "",
+                            outTans = "",
+                            interpTypes = "";
+
                         bool first = true;
                         foreach (IPlanarKeyframe kf in this)
                         {
@@ -507,22 +503,27 @@ namespace TheraEngine.Animation
                             else
                             {
                                 seconds += ",";
-                                inval += ",";
-                                outval += ",";
-                                intan += ",";
-                                outtan += ",";
-                                interp += ",";
+                                inValues += ",";
+                                outValues += ",";
+                                inTans += ",";
+                                outTans += ",";
+                                interpTypes += ",";
                             }
+
+                            kf.WritePlanar(out string tempInVal, out string tempOutVal, out string tempInTan, out string tempOutTan);
                             seconds += kf.Second;
-                            interp += kf.InterpolationType;
-                            kf.WritePlanar(out inval, out outval, out intan, out outtan);
+                            interpTypes += kf.InterpolationType;
+                            inValues += tempInVal;
+                            outValues += tempOutVal;
+                            inTans += tempInTan;
+                            outTans += tempOutTan;
                         }
-                        writer.WriteElementString("Second", seconds);
-                        writer.WriteElementString("InValues", inval);
-                        writer.WriteElementString("OutValues", outval);
-                        writer.WriteElementString("InTangents", intan);
-                        writer.WriteElementString("OutTangents", outtan);
-                        writer.WriteElementString("Interpolation", interp);
+                        writer.WriteElementString("Seconds", seconds);
+                        writer.WriteElementString("InValues", inValues);
+                        writer.WriteElementString("OutValues", outValues);
+                        writer.WriteElementString("InTangents", inTans);
+                        writer.WriteElementString("OutTangents", outTans);
+                        writer.WriteElementString("InterpTypes", interpTypes);
                     }
                 }
             }

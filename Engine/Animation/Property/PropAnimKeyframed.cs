@@ -8,7 +8,7 @@ namespace TheraEngine.Animation
     {
         public delegate T2 DelGetValue<T2>(float second);
 
-        [TSerialize(nameof(Keyframes))]
+        [TSerialize("KeyframeTrack")]
         protected KeyframeTrack<T> _keyframes;
 
         public PropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false) 

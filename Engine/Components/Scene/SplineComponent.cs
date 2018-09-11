@@ -2,13 +2,13 @@
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Animation;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene
 {
@@ -46,36 +46,29 @@ namespace TheraEngine.Components.Scene
                 {
                     _spline.Keyframes.Changed -= RegenerateSplinePrimitive;
                     _spline.AnimationStarted -= _spline_AnimationStarted;
-                    _spline.AnimationPaused -= _spline_AnimationPaused;
+                    _spline.AnimationPaused -= _spline_AnimationEnded;
                     _spline.AnimationEnded -= _spline_AnimationEnded;
+                    _spline_AnimationEnded();
                 }
                 _spline = value;
                 if (_spline != null)
                 {
                     _spline.Keyframes.Changed += RegenerateSplinePrimitive;
                     _spline.AnimationStarted += _spline_AnimationStarted;
-                    _spline.AnimationPaused += _spline_AnimationPaused;
+                    _spline.AnimationPaused += _spline_AnimationEnded;
                     _spline.AnimationEnded += _spline_AnimationEnded;
+                    if (_spline.State == EAnimationState.Playing)
+                        _spline_AnimationStarted();
                 }
                 RegenerateSplinePrimitive();
             }
         }
 
         private void _spline_AnimationEnded()
-        {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
-        }
-
-        private void _spline_AnimationPaused()
-        {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
-        }
-
+            => UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
         private void _spline_AnimationStarted()
-        {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
-        }
-
+            => RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
+        
         public SplineComponent() : base()
         {
             Spline = null;
@@ -84,6 +77,12 @@ namespace TheraEngine.Components.Scene
         {
             Spline = spline;
         }
+
+        //[PostDeserialize]
+        //private void PostDeserialize()
+        //{
+
+        //}
 
         //public override void RecalcWorldTransform()
         //{
@@ -104,7 +103,7 @@ namespace TheraEngine.Components.Scene
             _timePointPrimitive?.Dispose();
             _timePointPrimitive = null;
 
-            if (_spline == null)
+            if (_spline == null || _spline.BakedFrameCount == 0)
                 return;
 
             Vertex[] splinePoints = new Vertex[_spline.BakedFrameCount];
@@ -119,7 +118,7 @@ namespace TheraEngine.Components.Scene
                 sec = i / _spline.BakedFramesPerSecond;
                 Vertex pos = new Vertex(_spline.GetValueKeyframed(sec));
                 splinePoints[i] = pos;
-                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _spline.GetVelocityKeyframed(sec).Normalized()));
+                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _spline.GetVelocityKeyframed(sec)/*.Normalized()*/));
             }
             i = 0;
             foreach (Vec3Keyframe keyframe in _spline)
@@ -185,6 +184,7 @@ namespace TheraEngine.Components.Scene
 
         protected override void OnWorldTransformChanged()
         {
+            //TODO: use parent matrix
             _rcSpline.WorldMatrix = WorldMatrix;
             _rcVelocity.WorldMatrix = WorldMatrix;
             _rcPoints.WorldMatrix = WorldMatrix;

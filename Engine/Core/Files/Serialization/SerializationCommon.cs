@@ -216,11 +216,16 @@ namespace TheraEngine.Files.Serialization
         /// </summary>
         public static List<VarInfo> CollectSerializedMembers(Type t)
         {
-            var members = t.GetMembers(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+            BindingFlags retrieveFlags =
+                BindingFlags.Instance |
+                BindingFlags.NonPublic | 
+                BindingFlags.Public | 
+                BindingFlags.FlattenHierarchy;
+
+            var members = t.GetMembersExt(retrieveFlags);
             List<VarInfo> fields = members.
                 Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).
                 Select(x => new VarInfo(x)).
-                //False comes first, so negate the bool so attributes are first
                 OrderBy(x => (int)x.Attrib.XmlNodeType).ToList();
 
             int attribCount = 0, elementCount = 0, elementStringCount = 0;

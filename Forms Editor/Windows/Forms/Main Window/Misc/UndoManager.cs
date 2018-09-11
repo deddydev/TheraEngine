@@ -27,9 +27,7 @@ namespace TheraEditor.Windows.Forms
         private void CheckChangeSize()
         {
             while (Changes.Count > _maxChanges)
-            {
                 Changes.PopFront().DestroySelf();
-            }
         }
         public void AddChange(EditorState editorState, object oldValue, object newValue, IList listOwner, int listIndex)
         {

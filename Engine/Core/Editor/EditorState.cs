@@ -43,13 +43,13 @@ namespace TheraEngine.Editor
         private void OnSelectedChanged(bool selected)
         {
             _selected = selected;
-            _object.OnSelectedChanged(_selected);
+            _object?.OnSelectedChanged(_selected);
             SelectedChanged?.Invoke(_selected);
         }
         private void OnHighlightedChanged(bool highlighted)
         {
             _highlighted = highlighted;
-            _object.OnHighlightChanged(_highlighted);
+            _object?.OnHighlightChanged(_highlighted);
             HighlightingChanged?.Invoke(highlighted);
         }
 

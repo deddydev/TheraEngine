@@ -219,6 +219,78 @@ namespace System
             first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
             zero = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
         }
+        public static void CubicHermiteCoefs(
+            Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
+            out Vec2 third, out Vec2 second, out Vec2 first, out Vec2 zero)
+        {
+            third = (2.0f * p0 + t0 - 2.0f * p1 + t1);
+            second = (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
+            first = t0;
+            zero = p0;
+        }
+        public static void CubicHermiteVelocityCoefs(
+           Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
+           out Vec2 second, out Vec2 first, out Vec2 zero)
+        {
+            second = 6.0f * p0 + 3.0f * t0 - 6.0f * p1 + 3.0f * t1;
+            first = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
+            zero = t0;
+        }
+        public static void CubicHermiteAccelerationCoefs(
+           Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
+           out Vec2 first, out Vec2 zero)
+        {
+            first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
+            zero = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
+        }
+        public static void CubicHermiteCoefs(
+            Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
+            out Vec3 third, out Vec3 second, out Vec3 first, out Vec3 zero)
+        {
+            third = (2.0f * p0 + t0 - 2.0f * p1 + t1);
+            second = (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
+            first = t0;
+            zero = p0;
+        }
+        public static void CubicHermiteVelocityCoefs(
+           Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
+           out Vec3 second, out Vec3 first, out Vec3 zero)
+        {
+            second = 6.0f * p0 + 3.0f * t0 - 6.0f * p1 + 3.0f * t1;
+            first = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
+            zero = t0;
+        }
+        public static void CubicHermiteAccelerationCoefs(
+           Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
+           out Vec3 first, out Vec3 zero)
+        {
+            first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
+            zero = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
+        }
+        public static void CubicHermiteCoefs(
+            Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
+            out Vec4 third, out Vec4 second, out Vec4 first, out Vec4 zero)
+        {
+            third = (2.0f * p0 + t0 - 2.0f * p1 + t1);
+            second = (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
+            first = t0;
+            zero = p0;
+        }
+        public static void CubicHermiteVelocityCoefs(
+           Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
+           out Vec4 second, out Vec4 first, out Vec4 zero)
+        {
+            second = 6.0f * p0 + 3.0f * t0 - 6.0f * p1 + 3.0f * t1;
+            first = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
+            zero = t0;
+        }
+        public static void CubicHermiteAccelerationCoefs(
+           Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
+           out Vec4 first, out Vec4 zero)
+        {
+            first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
+            zero = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
+        }
         public static float CubicHermite(float p0, float t0, float t1, float p1, float time)
         {
             float time2 = time * time;

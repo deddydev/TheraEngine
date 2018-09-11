@@ -237,7 +237,7 @@ namespace TheraEngine.Animation
             for (int i = 0; i < 9; ++i)
             {
                 track = _tracks[i];
-                values[i] = track.First == null ? null : (float?)track.First.Interpolate(second);
+                values[i] = track.First == null ? null : (float?)track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             return new BoneFrame(_name, values, _tracks.EulerOrder);
         }

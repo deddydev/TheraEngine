@@ -1,13 +1,17 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimVec3 : PropAnimVector<Vec3, Vec3Keyframe> { }
+    public class PropAnimVec3 : PropAnimVector<Vec3, Vec3Keyframe>
+    {
+        public PropAnimVec3() : base() { }
+        public PropAnimVec3(float lengthInSeconds, bool looped, bool useKeyframes)
+            : base(lengthInSeconds, looped, useKeyframes) { }
+        public PropAnimVec3(int frameCount, float FPS, bool looped, bool useKeyframes)
+            : base(frameCount, FPS, looped, useKeyframes) { }
+    }
     public class Vec3Keyframe : VectorKeyframe<Vec3>
     {
         public override Vec3 Lerp(VectorKeyframe<Vec3> key1, VectorKeyframe<Vec3> key2, float time)

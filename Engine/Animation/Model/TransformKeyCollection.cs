@@ -84,17 +84,17 @@ namespace TheraEngine.Animation
             for (int i = 0; i < 3; ++i)
             {
                 var track = _tracks[i];
-                *pt++ = track.First == null ? pbt[i] : track.First.Interpolate(second);
+                *pt++ = track.First == null ? pbt[i] : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             for (int i = 3; i < 6; ++i)
             {
                 var track = _tracks[i];
-                *pr++ = track.First == null ? pbr[i] : track.First.Interpolate(second);
+                *pr++ = track.First == null ? pbr[i] : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             for (int i = 6; i < 9; ++i)
             {
                 var track = _tracks[i];
-                *ps++ = track.First == null ? pbs[i] : track.First.Interpolate(second);
+                *ps++ = track.First == null ? pbs[i] : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
 
             translation = t;
@@ -114,17 +114,17 @@ namespace TheraEngine.Animation
             for (int i = 0; i < 3; ++i)
             {
                 var track = _tracks[i];
-                *pt++ = track.First == null ? 0.0f : track.First.Interpolate(second);
+                *pt++ = track.First == null ? 0.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             for (int i = 3; i < 6; ++i)
             {
                 var track = _tracks[i];
-                *pr++ = track.First == null ? 0.0f : track.First.Interpolate(second);
+                *pr++ = track.First == null ? 0.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             for (int i = 6; i < 9; ++i)
             {
                 var track = _tracks[i];
-                *ps++ = track.First == null ? 1.0f : track.First.Interpolate(second);
+                *ps++ = track.First == null ? 1.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
 
             translation = t;
@@ -153,17 +153,17 @@ namespace TheraEngine.Animation
             for (int i = 0; i < 3; ++i, pbt++)
             {
                 var track = _tracks[i];
-                *pt++ = track.First == null ? *pbt : track.First.Interpolate(second);
+                *pt++ = track.First == null ? *pbt : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             for (int i = 3; i < 6; ++i, pbr++)
             {
                 var track = _tracks[i];
-                *pr++ = track.First == null ? *pbr : track.First.Interpolate(second);
+                *pr++ = track.First == null ? *pbr : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             for (int i = 6; i < 9; ++i, pbs++)
             {
                 var track = _tracks[i];
-                *ps++ = track.First == null ? *pbs : track.First.Interpolate(second);
+                *ps++ = track.First == null ? *pbs : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
 
             return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
@@ -180,17 +180,17 @@ namespace TheraEngine.Animation
             for (int i = 0; i < 3; ++i)
             {
                 var track = _tracks[i];
-                *pt++ = track.First == null ? 0.0f : track.First.Interpolate(second);
+                *pt++ = track.First == null ? 0.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             for (int i = 3; i < 6; ++i)
             {
                 var track = _tracks[i];
-                *pr++ = track.First == null ? 0.0f : track.First.Interpolate(second);
+                *pr++ = track.First == null ? 0.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
             for (int i = 6; i < 9; ++i)
             {
                 var track = _tracks[i];
-                *ps++ = track.First == null ? 1.0f : track.First.Interpolate(second);
+                *ps++ = track.First == null ? 1.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
             }
 
             return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);

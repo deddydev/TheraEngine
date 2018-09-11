@@ -1,173 +1,52 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimVec2 : PropAnimKeyframed<Vec2Keyframe>, IEnumerable<Vec2Keyframe>
+    public class PropAnimVec2 : PropAnimVector<Vec2, Vec2Keyframe>
     {
-        private DelGetValue<Vec2> _getValue;
-
-        [TSerialize(Condition = "Baked")]
-        private Vec2[] _baked = null;
-        /// <summary>
-        /// The default value to return when no keyframes are set.
-        /// </summary>
-        [Category(PropAnimCategory)]
-        [TSerialize(Condition = "!Baked")]
-        public Vec2 DefaultValue { get; set; } = Vec2.Zero;
-
-        public PropAnimVec2() : base(0.0f, false) { }
+        public PropAnimVec2() : base() { }
         public PropAnimVec2(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
-        public PropAnimVec2(int frameCount, float FPS, bool looped, bool useKeyframes) 
+        public PropAnimVec2(int frameCount, float FPS, bool looped, bool useKeyframes)
             : base(frameCount, FPS, looped, useKeyframes) { }
-
-        protected override void BakedChanged()
-            => _getValue = !Baked ? (DelGetValue<Vec2>)GetValueKeyframed : GetValueBaked;
-
-        public Vec2 GetValue(float second)
-            => _getValue(second);
-        protected override object GetValueGeneric(float second)
-            => _getValue(second);
-        public Vec2 GetValueBaked(float second)
-            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
-        public Vec2 GetValueBaked(int frameIndex)
-            => _baked[frameIndex];
-        public Vec2 GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
-
-        public override void Bake(float framesPerSecond)
-        {
-            _bakedFPS = framesPerSecond;
-            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
-            _baked = new Vec2[BakedFrameCount];
-            for (int i = 0; i < BakedFrameCount; ++i)
-                _baked[i] = GetValueKeyframed(i);
-        }
     }
-    public class Vec2Keyframe : Keyframe
+    public class Vec2Keyframe : VectorKeyframe<Vec2>
     {
-        public Vec2Keyframe() { }
-        public Vec2Keyframe(int frameIndex, float FPS, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, EPlanarInterpType type)
-            : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public Vec2Keyframe(int frameIndex, float FPS, Vec2 inoutValue, Vec2 inoutTangent, EPlanarInterpType type)
-            : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public Vec2Keyframe(float second, Vec2 inoutValue, Vec2 inoutTangent, EPlanarInterpType type)
-            : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public Vec2Keyframe(float second, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, EPlanarInterpType type) : base()
-        {
-            Second = second;
-            InValue = inValue;
-            OutValue = outValue;
-            InTangent = inTangent;
-            OutTangent = outTangent;
-            InterpolationType = type;
-        }
-
-        protected EPlanarInterpType _interpolationType;
-
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Vec2 InValue { get; set; }
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Vec2 OutValue { get; set; }
-
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Vec2 InTangent { get; set; }
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public Vec2 OutTangent { get; set; }
-
-        [Browsable(false)]
-        public new Vec2Keyframe Next
-        {
-            get => _next as Vec2Keyframe;
-            set => _next = value;
-        }
-        [Browsable(false)]
-        public new Vec2Keyframe Prev
-        {
-            get => _prev as Vec2Keyframe;
-            set => _prev = value;
-        }
-
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public EPlanarInterpType InterpolationType
-        {
-            get => _interpolationType;
-            set
-            {
-                _interpolationType = value;
-                switch (_interpolationType)
-                {
-                    case EPlanarInterpType.Step:
-                        _interpolate = Step;
-                        break;
-                    case EPlanarInterpType.Linear:
-                        _interpolate = Lerp;
-                        break;
-                    case EPlanarInterpType.CubicHermite:
-                        _interpolate = CubicHermite;
-                        break;
-                    case EPlanarInterpType.CubicBezier:
-                        _interpolate = Bezier;
-                        break;
-                }
-            }
-        }
-
-        private delegate Vec2 DelInterpolate(Vec2Keyframe key1, Vec2Keyframe key2, float time);
-        private DelInterpolate _interpolate = CubicHermite;
-        public Vec2 Interpolate(float desiredSecond)
-        {
-            if (desiredSecond < Second)
-            {
-                if (_prev == this)
-                    return InValue;
-
-                return Prev.Interpolate(desiredSecond);
-            }
-
-            if (desiredSecond > _next.Second)
-            {
-                if (_next == this)
-                    return OutValue;
-
-                return Next.Interpolate(desiredSecond);
-            }
-
-            float span = _next.Second - Second;
-            float diff = desiredSecond - Second;
-            float time = diff / span;
-            return _interpolate(this, Next, time);
-        }
-        public static Vec2 Step(Vec2Keyframe key1, Vec2Keyframe key2, float time)
-            => time < 1.0f ? key1.OutValue : key2.OutValue;
-        public static Vec2 Lerp(Vec2Keyframe key1, Vec2Keyframe key2, float time)
+        public override Vec2 Lerp(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
             => Vec2.Lerp(key1.OutValue, key2.InValue, time);
-        public static Vec2 Bezier(Vec2Keyframe key1, Vec2Keyframe key2, float time)
-            => Interp.CubicBezier(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
-        public static Vec2 CubicHermite(Vec2Keyframe key1, Vec2Keyframe key2, float time)
-            => Interp.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+        public override Vec2 LerpVelocity(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
+            => (key2.InValue - key1.OutValue) / time;
 
-        public void AverageKeyframe()
-        {
-            AverageValues();
-            AverageTangents();
-        }
-        public void AverageTangents()
+        public override Vec2 CubicBezier(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
+            => Interp.CubicBezier(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+        public override Vec2 CubicBezierVelocity(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
+            => Interp.CubicBezierVelocity(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+        public override Vec2 CubicBezierAcceleration(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
+            => Interp.CubicBezierAcceleration(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+
+        public override Vec2 CubicHermite(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
+            => Interp.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+        public override Vec2 CubicHermiteVelocity(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
+            => Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+        public override Vec2 CubicHermiteAcceleration(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
+            => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+
+        [GridCallable]
+        public override void AverageTangents()
             => InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
-        public void AverageValues()
+        [GridCallable]
+        public override void AverageValues()
             => InValue = OutValue = (InValue + OutValue) / 2.0f;
-        public void MakeOutLinear()
+        [GridCallable]
+        public override void MakeOutLinear()
             => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);
-        public void MakeInLinear()
+        [GridCallable]
+        public override void MakeInLinear()
             => InTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
 
         public override string WriteToString()
-        {
-            return string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
-        }
+            => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
 
         public override void ReadFromString(string str)
         {
@@ -178,6 +57,20 @@ namespace TheraEngine.Animation
             InTangent = new Vec2(float.Parse(parts[5]), float.Parse(parts[6]));
             OutTangent = new Vec2(float.Parse(parts[7]), float.Parse(parts[8]));
             InterpolationType = parts[9].AsEnum<EPlanarInterpType>();
+        }
+        protected override void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
+        {
+            InValue = new Vec2(inValue);
+            OutValue = new Vec2(outValue);
+            InTangent = new Vec2(inTangent);
+            OutTangent = new Vec2(outTangent);
+        }
+        protected override void WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
+        {
+            inValue = InValue.ToString("", "", " ");
+            outValue = OutValue.ToString("", "", " ");
+            inTangent = InTangent.ToString("", "", " ");
+            outTangent = OutTangent.ToString("", "", " ");
         }
     }
 }

@@ -890,7 +890,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 Abs(W - other.W) < precision;
         }
         public string WriteToString()
-            => ToString(false, false);
+            => ToString("", "", " ");
         public void ReadFromString(string str)
             => this = new Vec4(str);
     }

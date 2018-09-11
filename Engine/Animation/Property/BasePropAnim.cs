@@ -14,8 +14,8 @@ namespace TheraEngine.Animation
 
         public BasePropAnim(float lengthInSeconds, bool looped, bool isBaked = false)
             : base(lengthInSeconds, looped, isBaked) { }
-        public BasePropAnim(int frameCount, float fPS, bool looped, bool isBaked = false)
-            : base(frameCount, fPS, looped, isBaked) { }
+        public BasePropAnim(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
+            : base(frameCount, framesPerSecond, looped, isBaked) { }
         public void Tick(object obj, PropertyInfo property, float delta)
         {
             if (_state != EAnimationState.Playing)
@@ -36,7 +36,6 @@ namespace TheraEngine.Animation
                 return;
             PreStarted();
             _state = EAnimationState.Playing;
-            CurrentTime = 0.0f;
             OnAnimationStarted();
             PostStarted();
         }

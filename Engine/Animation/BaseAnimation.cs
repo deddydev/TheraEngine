@@ -70,11 +70,11 @@ namespace TheraEngine.Animation
             Looped = looped;
             Baked = isBaked;
         }
-        public BaseAnimation(int frameCount, float FPS, bool looped, bool isBaked = false)
+        public BaseAnimation(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
         {
             _bakedFrameCount = frameCount;
-            _bakedFPS = FPS;
-            _lengthInSeconds = frameCount / FPS;
+            _bakedFPS = framesPerSecond;
+            _lengthInSeconds = frameCount / framesPerSecond;
             Looped = looped;
             Baked = isBaked;
         }
@@ -199,8 +199,8 @@ namespace TheraEngine.Animation
             {
                 if (value == _state)
                     return;
-                _state = value;
-                switch (_state)
+                //_state = value;
+                switch (value)
                 {
                     case EAnimationState.Playing:
                         Start();
@@ -235,7 +235,6 @@ namespace TheraEngine.Animation
             PreStarted();
             _state = EAnimationState.Playing;
             AnimationStarted?.Invoke();
-            CurrentTime = 0.0f;
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostStarted();
         }

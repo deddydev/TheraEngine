@@ -13,8 +13,8 @@ namespace TheraEngine.Animation
 
         public PropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false) 
             : base(lengthInSeconds, looped, isBaked) => ConstructKeyframes();
-        public PropAnimKeyframed(int frameCount, float FPS, bool looped, bool isBaked = false)
-            : base(frameCount, FPS, looped, isBaked) => ConstructKeyframes();
+        public PropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
+            : base(frameCount, framesPerSecond, looped, isBaked) => ConstructKeyframes();
         
         private void ConstructKeyframes()
         {
@@ -41,9 +41,7 @@ namespace TheraEngine.Animation
         public void Append(PropAnimKeyframed<T> other)
             => Keyframes.Append(other.Keyframes);
 
-        public IEnumerator<T> GetEnumerator()
-            => ((IEnumerable<T>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<T>)_keyframes).GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)_keyframes).GetEnumerator();
     }
 }

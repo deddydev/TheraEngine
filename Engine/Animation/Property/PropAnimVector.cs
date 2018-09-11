@@ -188,7 +188,20 @@ namespace TheraEngine.Animation
                 OwningTrack?.OnChanged();
             }
         }
-        
+
+        /// <summary>
+        /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolateNextNormalized(float time) => _interpolate(this, Next, time);
+        /// <summary>
+        /// Interpolates velocity from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolateVelocityNextNormalized(float time) => _interpolateVelocity(this, Next, time);
+        /// <summary>
+        /// Interpolates acceleration from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolateAccelerationNextNormalized(float time) => _interpolateAcceleration(this, Next, time);
+
         public T Interpolate(float desiredSecond, EVectorInterpValueType type)
         {
             //First, check if the desired second is between this key and the next key.

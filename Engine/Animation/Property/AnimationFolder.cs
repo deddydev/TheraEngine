@@ -8,11 +8,7 @@ namespace TheraEngine.Animation.Property
 {
     public class AnimFolder
     {
-        public AnimFolder()
-        {
-
-        }
-
+        public AnimFolder() { }
         /// <summary>
         /// Constructor to create a subtree without an animation at this level.
         /// </summary>

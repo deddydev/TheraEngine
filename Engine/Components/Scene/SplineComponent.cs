@@ -42,11 +42,38 @@ namespace TheraEngine.Components.Scene
             get => _spline;
             set
             {
+                if (_spline != null)
+                {
+                    _spline.Keyframes.Changed -= RegenerateSplinePrimitive;
+                    _spline.AnimationStarted -= _spline_AnimationStarted;
+                    _spline.AnimationPaused -= _spline_AnimationPaused;
+                    _spline.AnimationEnded -= _spline_AnimationEnded;
+                }
                 _spline = value;
                 if (_spline != null)
+                {
                     _spline.Keyframes.Changed += RegenerateSplinePrimitive;
+                    _spline.AnimationStarted += _spline_AnimationStarted;
+                    _spline.AnimationPaused += _spline_AnimationPaused;
+                    _spline.AnimationEnded += _spline_AnimationEnded;
+                }
                 RegenerateSplinePrimitive();
             }
+        }
+
+        private void _spline_AnimationEnded()
+        {
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
+        }
+
+        private void _spline_AnimationPaused()
+        {
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
+        }
+
+        private void _spline_AnimationStarted()
+        {
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
         }
 
         public SplineComponent() : base()

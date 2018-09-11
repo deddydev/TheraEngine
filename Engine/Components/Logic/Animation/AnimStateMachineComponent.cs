@@ -177,7 +177,7 @@ namespace TheraEngine.Components.Logic.Animation
                             _blendFunction = (time) => Interp.InterpQuadraticEaseEnd(0.0f, 1.0f, time);
                             break;
                         case AnimBlendType.Custom:
-                            _blendFunction = (time) => _customBlendFunction.First.Interpolate(time);
+                            _blendFunction = (time) => _customBlendFunction.First.Interpolate(time, EVectorInterpValueType.Position);
                             break;
                     }
                 }

@@ -347,12 +347,10 @@ namespace System
 
         public static implicit operator Vec2(Size v)    => new Vec2(v.Width, v.Height);
         public static explicit operator Size(Vec2 v)    => new Size((int)v.X, (int)v.Y);
-
-        private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-        public override string ToString()
-            => ToString(true, true);
-        public string ToString(bool includeParentheses, bool includeSeparator)
-            => String.Format("{3}{0}{2} {1}{4}", X, Y, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
+        
+        public override string ToString() => ToString();
+        public string ToString(string openingBracket = "(", string closingBracket = ")", string separator = ", ")
+            => string.Format("{3}{0}{2}{1}{4}", X, Y, separator, openingBracket, closingBracket);
 
         public override int GetHashCode()
         {
@@ -365,20 +363,17 @@ namespace System
         {
             if (!(obj is Vec2))
                 return false;
-
             return Equals((Vec2)obj);
         }
         public bool Equals(Vec2 other)
-            =>
-                X == other.X &&
-                Y == other.Y;
+            => X == other.X &&
+               Y == other.Y;
         public bool Equals(Vec2 other, float precision)
-            =>
-                Abs(X - other.X) < precision &&
-                Abs(Y - other.Y) < precision;
+            => Abs(X - other.X) < precision &&
+               Abs(Y - other.Y) < precision;
 
         public string WriteToString()
-            => ToString(false, false);
+            => ToString("", "", " ");
         public void ReadFromString(string str)
             => this = new Vec2(str);
     }

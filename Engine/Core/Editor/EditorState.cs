@@ -43,25 +43,22 @@ namespace TheraEngine.Editor
         private void OnSelectedChanged(bool selected)
         {
             _selected = selected;
-            _object?.OnSelectedChanged(_selected);
+            Object?.OnSelectedChanged(_selected);
             SelectedChanged?.Invoke(_selected);
         }
         private void OnHighlightedChanged(bool highlighted)
         {
             _highlighted = highlighted;
-            _object?.OnHighlightChanged(_highlighted);
+            Object?.OnHighlightChanged(_highlighted);
             HighlightingChanged?.Invoke(highlighted);
         }
 
-        public EditorState(TObject obj)
-        {
-            _object = obj;
-        }
+        public EditorState(TObject obj) => Object = obj;
 
-        private TObject _object;
-        private TreeNode _treeNode;
+        public TObject Object { get; internal set; }
         private Dictionary<string, List<object>> _changedProperties = new Dictionary<string, List<object>>();
-        private bool _highlighted = false, _selected = false;
+        private bool _highlighted = false;
+        private bool _selected = false;
 
         public bool HasChanges => _changedProperties.Count > 0;
         public bool Highlighted
@@ -84,12 +81,8 @@ namespace TheraEngine.Editor
                 SelectedState = value ? this : null;
             }
         }
-        
-        public TreeNode TreeNode
-        {
-            get => _treeNode;
-            set => _treeNode = value;
-        }
+
+        public TreeNode TreeNode { get; set; }
 
         public bool IsDirty { get; set; }
         public List<LocalValueChange> ChangedValues { get; } = new List<LocalValueChange>();

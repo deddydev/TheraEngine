@@ -45,6 +45,7 @@ namespace TheraEngine.Components.Scene
                 if (_spline != null)
                 {
                     _spline.Keyframes.Changed -= RegenerateSplinePrimitive;
+                    _spline.FPSChanged -= RegenerateSplinePrimitive;
                     _spline.AnimationStarted -= _spline_AnimationStarted;
                     _spline.AnimationPaused -= _spline_AnimationEnded;
                     _spline.AnimationEnded -= _spline_AnimationEnded;
@@ -54,6 +55,7 @@ namespace TheraEngine.Components.Scene
                 if (_spline != null)
                 {
                     _spline.Keyframes.Changed += RegenerateSplinePrimitive;
+                    _spline.FPSChanged += RegenerateSplinePrimitive;
                     _spline.AnimationStarted += _spline_AnimationStarted;
                     _spline.AnimationPaused += _spline_AnimationEnded;
                     _spline.AnimationEnded += _spline_AnimationEnded;
@@ -118,7 +120,7 @@ namespace TheraEngine.Components.Scene
                 sec = i / _spline.BakedFramesPerSecond;
                 Vertex pos = new Vertex(_spline.GetValueKeyframed(sec));
                 splinePoints[i] = pos;
-                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _spline.GetVelocityKeyframed(sec)/*.Normalized()*/));
+                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _spline.GetVelocityKeyframed(sec).Normalized()));
             }
             i = 0;
             foreach (Vec3Keyframe keyframe in _spline)

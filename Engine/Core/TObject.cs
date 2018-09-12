@@ -120,15 +120,20 @@ namespace TheraEngine
 
 #if EDITOR
 
-        [TSerialize(nameof(EditorState))]
         private EditorState _editorState = null;
 
-        [Browsable(false)]
         //[BrowsableIf("_editorState != null")]
+        //[TSerialize]
+        [Browsable(false)]
         public EditorState EditorState
         {
             get => _editorState ?? (_editorState = new EditorState(this));
-            set => _editorState = value;
+            set
+            {
+                _editorState = value;
+                if (_editorState != null)
+                    _editorState.Object = this;
+            }
         }
 
         internal protected virtual void OnHighlightChanged(bool highlighted) { }

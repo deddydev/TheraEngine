@@ -462,10 +462,18 @@ namespace TheraEngine.Animation
                         }
                         for (int i = 0; i < keyCount; ++i)
                         {
-                            T kf = new T { Second = float.Parse(seconds[i]) };
+                            float sec = seconds == null || !seconds.IndexInArrayRange(i) ? 0.0f : float.Parse(seconds[i]);
+                            EPlanarInterpType interp = interpolation == null || !interpolation.IndexInArrayRange(i) ? EPlanarInterpType.Step : Enums.Parse<EPlanarInterpType>(interpolation[i]);
+                            string inVal = inValues == null || !inValues.IndexInArrayRange(i) ? string.Empty : inValues[i];
+                            string outVal = outValues == null || !outValues.IndexInArrayRange(i) ? string.Empty : outValues[i];
+                            string inTan = inTans == null || !inTans.IndexInArrayRange(i) ? string.Empty : inTans[i];
+                            string outTan = outTans == null || !outTans.IndexInArrayRange(i) ? string.Empty : outTans[i];
+
+                            T kf = new T { Second = sec };
                             IPlanarKeyframe kfp = (IPlanarKeyframe)kf;
-                            kfp.InterpolationType = Enums.Parse<EPlanarInterpType>(interpolation[i]);
-                            kfp.ParsePlanar(inValues[i], outValues[i], inTans[i], outTans[i]);
+                            kfp.InterpolationType = interp;
+                            kfp.ParsePlanar(inVal, outVal, inTan, outTan);
+
                             Add(kf);
                         }
                     }

@@ -33,7 +33,7 @@ namespace TheraEngine.Animation
         
         protected override void BakedChanged()
             => _getValue = !Baked ? (DelGetValue<T>)GetValueKeyframed : GetValueBaked;
-
+       
         public T GetValue(float second)
             => _getValue(second);
         protected override object GetValueGeneric(float second)
@@ -43,11 +43,20 @@ namespace TheraEngine.Animation
         public T GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public T GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second, EVectorInterpValueType.Position);
+            => Interpolate(second, EVectorInterpValueType.Position);
         public T GetVelocityKeyframed(float second)
-            => _keyframes.Count == 0 ? new T() : _keyframes.First.Interpolate(second, EVectorInterpValueType.Velocity);
+            => Interpolate(second, EVectorInterpValueType.Velocity);
         public T GetAccelerationKeyframed(float second)
-            => _keyframes.Count == 0 ? new T() : _keyframes.First.Interpolate(second, EVectorInterpValueType.Acceleration);
+            => Interpolate(second, EVectorInterpValueType.Acceleration);
+
+        private T Interpolate(float second, EVectorInterpValueType type)
+        {
+            if (_keyframes.Count == 0)
+                return DefaultValue;
+
+            //TODO: optimize, don't search from start every time
+            return _keyframes.First.Interpolate(second, type);
+        }
 
         public override void Bake(float framesPerSecond)
         {

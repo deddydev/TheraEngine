@@ -16,7 +16,7 @@ namespace TheraEngine.Animation
     {
         private DelGetValue<T> _getValue;
 
-        [TSerialize(Condition = "Baked")]
+        [TSerialize("BakedValues", Condition = "Baked")]
         private T[] _baked = null;
         /// <summary>
         /// The default value to return when no keyframes are set.
@@ -24,6 +24,9 @@ namespace TheraEngine.Animation
         [Category(PropAnimCategory)]
         [TSerialize(Condition = "!Baked")]
         public T DefaultValue { get; set; } = new T();
+        [Category(PropAnimCategory)]
+        [TSerialize(Condition = "!Baked")]
+        public bool RestrainKeyframeFPS { get; set; } = false;
 
         public PropAnimVector() : base(0.0f, false) { }
         public PropAnimVector(float lengthInSeconds, bool looped, bool useKeyframes)
@@ -53,6 +56,13 @@ namespace TheraEngine.Animation
         {
             if (_keyframes.Count == 0)
                 return DefaultValue;
+
+            if (RestrainKeyframeFPS)
+            {
+                second *= _bakedFPS;
+                second = (int)second;
+                second /= _bakedFPS;
+            }
 
             //TODO: optimize, don't search from start every time
             return _keyframes.First.Interpolate(second, type);

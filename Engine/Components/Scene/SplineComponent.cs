@@ -46,6 +46,7 @@ namespace TheraEngine.Components.Scene
                 {
                     _spline.Keyframes.Changed -= RegenerateSplinePrimitive;
                     _spline.FPSChanged -= RegenerateSplinePrimitive;
+                    _spline.LengthChanged -= RegenerateSplinePrimitive;
                     _spline.AnimationStarted -= _spline_AnimationStarted;
                     _spline.AnimationPaused -= _spline_AnimationEnded;
                     _spline.AnimationEnded -= _spline_AnimationEnded;
@@ -56,6 +57,7 @@ namespace TheraEngine.Components.Scene
                 {
                     _spline.Keyframes.Changed += RegenerateSplinePrimitive;
                     _spline.FPSChanged += RegenerateSplinePrimitive;
+                    _spline.LengthChanged += RegenerateSplinePrimitive;
                     _spline.AnimationStarted += _spline_AnimationStarted;
                     _spline.AnimationPaused += _spline_AnimationEnded;
                     _spline.AnimationEnded += _spline_AnimationEnded;

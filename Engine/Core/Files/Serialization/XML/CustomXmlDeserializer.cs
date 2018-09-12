@@ -59,15 +59,12 @@ namespace TheraEngine.Files.Serialization
                 if (_reader.BeginElement() && _reader.ReadAttribute() && _reader.Name.Equals(SerializationCommon.TypeIdent, true))
                 {
                     string value = _reader.Value.ToString();
-                    Type t = Type.GetType(value,
-                        (name) =>
-                        {
-                            return AppDomain.CurrentDomain.GetAssemblies().
-                            Where(z => z.FullName == name.FullName).FirstOrDefault();
-                        },
-                        null,
-                        false);
+
+                    Assembly resolver(AssemblyName name) => AppDomain.CurrentDomain.GetAssemblies().Where(z => z.FullName == name.FullName).FirstOrDefault();
+
+                    Type t = Type.GetType(value, resolver, null, false);
                     //Type t = Type.GetType(_reader.Value.ToString(), false, false);
+
                     obj = ReadObject(t) as TFileObject;
                     _reader.EndElement();
 
@@ -242,7 +239,7 @@ namespace TheraEngine.Files.Serialization
                 allElementsNull = false;
                 string elemName = _reader.Name.ToString();
 
-                Engine.PrintLine("Reading " + elemName);
+                //Engine.PrintLine("Reading " + elemName);
 
                 //Categorized key is the name of the category
                 //So match element name to the key

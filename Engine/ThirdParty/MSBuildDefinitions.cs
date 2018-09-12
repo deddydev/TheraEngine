@@ -350,6 +350,26 @@ namespace TheraEngine.ThirdParty
                 [Attr("Condition", false)]
                 public string Condition { get; set; }
             }
+
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (Include != null)
+                    s += $" [{nameof(Include)}: {Include}]";
+                if (Exclude != null)
+                    s += $" [{nameof(Exclude)}: {Exclude}]";
+                if (Condition != null)
+                    s += $" [{nameof(Condition)}: {Condition}]";
+                if (Remove != null)
+                    s += $" [{nameof(Remove)}: {Remove}]";
+                if (KeepMetadata != null)
+                    s += $" [{nameof(KeepMetadata)}: {KeepMetadata}]";
+                if (RemoveMetadata != null)
+                    s += $" [{nameof(RemoveMetadata)}: {RemoveMetadata}]";
+                if (KeepDuplicates != null)
+                    s += $" [{nameof(KeepDuplicates)}: {KeepDuplicates}]";
+                return s;
+            }
         }
         /// <summary>
         /// A grouping element for individual items. Items are specified by using the Item element. There may be zero or more ItemGroup elements in a project.

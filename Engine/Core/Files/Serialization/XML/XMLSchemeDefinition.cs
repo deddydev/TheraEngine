@@ -692,6 +692,13 @@ namespace TheraEngine.Core.Files.XML
     /// <typeparam name="TParent">The type of the parent element.</typeparam>
     public abstract class BaseElement<TParent> : IElement where TParent : class, IElement
     {
+        public override string ToString()
+        {
+            return ElementName;
+        }
+
+        [Browsable(false)]
+        public int ChildElementCount => ChildElements.Values.Sum(a => a.Count);
         [Browsable(false)]
         public virtual ulong TypeFlag => 0;
         [Browsable(false)]
@@ -810,7 +817,6 @@ namespace TheraEngine.Core.Files.XML
         /// <returns></returns>
         public virtual IElement ManualReadChildElement(string name, string version) => null;
 
-        public int ChildElementCount => ChildElements.Values.Sum(a => a.Count);
         public void AddElements(params IElement[] elements)
         {
             if (elements == null || elements.Length == 0)

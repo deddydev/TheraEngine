@@ -141,14 +141,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
                     PopulateLogicComponentList(actor?.LogicComponents);
                     lblProperties.Visible = true;
+                    CalcSceneCompTreeHeight();
                 }
                 else
                 {
                     tableLayoutPanel1.Visible = false;
                 }
                 _updating = false;
-
-                CalcSceneCompTreeHeight();
 
                 TargetObject = value;
             }
@@ -648,7 +647,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            IFileObject file = TargetFileObject.Root ?? TargetFileObject;
+            IFileObject file = TargetFileObject.RootFile ?? TargetFileObject;
 
             if (file == null)
                 return;

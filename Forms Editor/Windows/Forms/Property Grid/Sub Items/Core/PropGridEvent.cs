@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 _event = value;
                 lblEvent.Text = _event.EventHandlerType.GetFriendlyName().ToString();
-                lblEvent.Text += $" ({_event.GetSubscribedMethods(ParentInfo.Owner()).Length})";
+                lblEvent.Text += $" ({_event.GetSubscribedMethods(ParentInfo.GetOwner()).Length})";
             }
         }
         
@@ -37,7 +37,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             MethodInfo raiseMethod = Event.GetRaiseMethod();
             if (raiseMethod != null)
-                raiseMethod.Invoke(ParentInfo.Owner(), new object[] { });
+                raiseMethod.Invoke(ParentInfo.GetOwner(), new object[] { });
         }
         public void AddMethod(MethodInfo method)
         {
@@ -60,7 +60,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (pnlSubscribed.Visible)
             {
-                if (pnlSubscribed.Controls.Count != Event.GetSubscribedMethods(ParentInfo.Owner()).Length)
+                if (pnlSubscribed.Controls.Count != Event.GetSubscribedMethods(ParentInfo.GetOwner()).Length)
                 {
                     LoadSubscribedMethods();
                 }
@@ -82,7 +82,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void LoadSubscribedMethods()
         {
             pnlSubscribed.Controls.Clear();
-            Delegate[] m = Event.GetSubscribedMethods(ParentInfo.Owner());
+            Delegate[] m = Event.GetSubscribedMethods(ParentInfo.GetOwner());
             foreach (Delegate d in m)
             {
                 Label l = new Label

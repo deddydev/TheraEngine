@@ -34,7 +34,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// Retrieves a boxed version of the owner's current state.
         /// </summary>
-        public abstract Func<object> Owner { get; set; }
+        public abstract Func<object> GetOwner { get; set; }
     }
     public class PropGridItemRefNullableInfo : PropGridItemRefInfo
     {
@@ -52,10 +52,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override bool IsReadOnly() => _parentInfo.IsReadOnly();
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> Owner
+        public override Func<object> GetOwner
         {
-            get => _parentInfo.Owner;
-            set => _parentInfo.Owner = value;
+            get => _parentInfo.GetOwner;
+            set => _parentInfo.GetOwner = value;
         }
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
             => _parentInfo.SubmitStateChange(oldValue, newValue, dataChangeHandler);
@@ -82,14 +82,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropertyInfo Property { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> Owner { get; set; }
+        public override Func<object> GetOwner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override Type DataType => Property?.PropertyType;
 
         public PropGridItemRefPropertyInfo(Func<object> owner, PropertyInfo property)
         {
-            Owner = owner;
+            GetOwner = owner;
             Property = property;
         }
 
@@ -99,32 +99,40 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
         {
-            dataChangeHandler?.PropertyObjectChanged(oldValue, newValue, Owner, Property);
+            dataChangeHandler?.PropertyObjectChanged(oldValue, newValue, GetOwner, Property);
         }
         public override object Target
         {
             get
             {
                 if (Property == null)
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"{nameof(Property)} cannot be null.");
 
                 if (!Property.CanRead)
-                    return null;
+                    return DataType.GetDefaultValue();
 
-                object o = Owner();
+                object o = GetOwner();
+
+                //If the owner is null or does not own this property,
+                //return the default value for the data type.
+                //This specifically fixes the owner-property mismatch exception
+                //when the grid is switching target sub object
+                if (o == null || !Property.DeclaringType.IsAssignableFrom(o.GetType()))
+                    return DataType.GetDefaultValue();
+
                 return Property.GetValue(o);
             }
             set
             {
                 if (Property == null)
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"{nameof(Property)} cannot be null.");
 
                 if (!Property.CanWrite)
                     return;
 
-                object o = Owner();
+                object o = GetOwner();
 
-                if (o != null)
+                if (o != null && Property.DeclaringType.IsAssignableFrom(o.GetType()))
                     Property.SetValue(o, value);
             }
         }
@@ -139,14 +147,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public MethodInfo Method { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> Owner { get; set; }
+        public override Func<object> GetOwner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override Type DataType => Method?.ReturnType;
         
         public PropGridItemRefMethodInfo(Func<object> owner, MethodInfo method)
         {
-            Owner = owner;
+            GetOwner = owner;
             Method = method;
         }
 
@@ -164,14 +172,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public EventInfo Event { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> Owner { get; set; }
+        public override Func<object> GetOwner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override Type DataType => Event?.EventHandlerType;
 
         public PropGridItemRefEventInfo(Func<object> owner, EventInfo @event)
         {
-            Owner = owner;
+            GetOwner = owner;
             Event = @event;
         }
 
@@ -189,18 +197,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public int Index { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> Owner { get; set; }
+        public override Func<object> GetOwner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public IList OwnerIList => Owner() as IList;
+        public IList OwnerIList => GetOwner() as IList;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => Owner() == null ? null : (Index >= 0 && Index < OwnerIList.Count ? OwnerIList[Index]?.GetType() ?? _dataType : _dataType);
+        public override Type DataType => GetOwner() == null ? null : (Index >= 0 && Index < OwnerIList.Count ? OwnerIList[Index]?.GetType() ?? _dataType : _dataType);
         private readonly Type _dataType;
 
         public PropGridItemRefIListInfo(Func<object> owner, int index)
         {
-            Owner = owner;
+            GetOwner = owner;
             Index = index;
             _dataType = OwnerIList?.DetermineElementType();
         }
@@ -217,7 +225,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             get
             {
-                if (Owner == null)
+                if (GetOwner == null)
                     throw new InvalidOperationException();
                 return OwnerIList[Index];
             }
@@ -245,10 +253,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public bool IsKey { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> Owner { get; set; }
+        public override Func<object> GetOwner { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public IDictionary OwnerDictionary => Owner() as IDictionary;
+        public IDictionary OwnerDictionary => GetOwner() as IDictionary;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type ValueType => OwnerDictionary.Contains(Key) ? (OwnerDictionary[Key]?.GetType() ?? _valueType) : _valueType;
@@ -260,14 +268,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public PropGridItemRefIDictionaryInfo(Func<object> owner, object key, bool isKey)
         {
-            Owner = owner;
+            GetOwner = owner;
             Key = key;
             IsKey = isKey;
             _valueType = OwnerDictionary?.DetermineValueType();
             _keyType = OwnerDictionary?.DetermineKeyType();
         }
 
-        public override bool IsReadOnly() => Owner == null || OwnerDictionary.IsReadOnly;
+        public override bool IsReadOnly() => GetOwner == null || OwnerDictionary.IsReadOnly;
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
         {
             dataChangeHandler?.IDictionaryObjectChanged(oldValue, newValue, OwnerDictionary, Key, IsKey);

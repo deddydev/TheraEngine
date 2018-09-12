@@ -16,33 +16,81 @@ namespace TheraEngine.Animation
     {
         private DelGetValue<T> _getValue;
 
-        [TSerialize("BakedValues", Condition = "Baked")]
+        [TSerialize("BakedValues"/*, Condition = "Baked"*/)]
         private T[] _baked = null;
         /// <summary>
         /// The default value to return when no keyframes are set.
         /// </summary>
         [Category(PropAnimCategory)]
-        [TSerialize(Condition = "!Baked")]
+        [TSerialize(/*Condition = "!Baked"*/)]
         public T DefaultValue { get; set; } = new T();
         [Category(PropAnimCategory)]
-        [TSerialize(Condition = "!Baked")]
+        [TSerialize(/*Condition = "!Baked"*/)]
         public bool RestrainKeyframeFPS { get; set; } = false;
-
+        [Category(PropAnimCategory)]
+        [TSerialize(/*Condition = "!Baked"*/)]
+        public bool LerpConstrainedFPS { get; set; } = false;
+        
         public PropAnimVector() : base(0.0f, false) { }
         public PropAnimVector(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimVector(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
-        
+
         protected override void BakedChanged()
-            => _getValue = !Baked ? (DelGetValue<T>)GetValueKeyframed : GetValueBaked;
+        {
+            if (Baked)
+            {
+                Bake(_bakedFPS);
+                _getValue = GetValueBaked;
+            }
+            else
+            {
+                _baked = null;
+                _getValue = GetValueKeyframed;
+            }
+        }
        
         public T GetValue(float second)
             => _getValue(second);
         protected override object GetValueGeneric(float second)
             => _getValue(second);
         public T GetValueBaked(float second)
-            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
+        {
+            float frameTime = second * BakedFramesPerSecond;
+            int frame = (int)frameTime;
+            if (LerpConstrainedFPS)
+            {
+                if (frame == _baked.Length - 1)
+                {
+                    if (Looped && frame != 0)
+                    {
+                        T t1 = _baked[frame];
+                        T t2 = _baked[0];
+
+                        //TODO: interpolate values by creating tangents dynamically?
+                        float lerpTime = frameTime - frame;
+                        return LerpValues(t1, t2, lerpTime);
+                    }
+                    return _baked[frame];
+                }
+                else
+                {
+                    T t1 = _baked[frame];
+                    T t2 = _baked[frame + 1];
+
+                    //TODO: interpolate values by creating tangents dynamically?
+                    float lerpTime = frameTime - frame;
+                    return LerpValues(t1, t2, lerpTime);
+                }
+            }
+            else
+            {
+                return _baked[frame];
+            }
+        }
+        protected abstract T LerpValues(T t1, T t2, float time);
+
         public T GetValueBaked(int frameIndex)
             => _baked[frameIndex];
         public T GetValueKeyframed(float second)
@@ -59,9 +107,13 @@ namespace TheraEngine.Animation
 
             if (RestrainKeyframeFPS)
             {
-                second *= _bakedFPS;
-                second = (int)second;
-                second /= _bakedFPS;
+                float alignedSec = ((int)(second * _bakedFPS)) / _bakedFPS;
+                float diff = second - alignedSec;
+                if (LerpConstrainedFPS)
+                {
+
+                }
+                second = alignedSec;
             }
 
             //TODO: optimize, don't search from start every time

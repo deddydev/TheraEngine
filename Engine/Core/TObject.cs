@@ -94,6 +94,13 @@ namespace TheraEngine
             = new ThreadSafeList<(ETickGroup Group, ETickOrder Order, DelTick Tick)>();
         [Browsable(false)]
         public bool IsTicking => _tickFunctions.Count > 0;
+        /// <summary>
+        /// Registers a method to be called on every update tick.
+        /// </summary>
+        /// <param name="group">The group to execute before, during, or after physics simulation.</param>
+        /// <param name="order">Specifies when to run the method within the group.</param>
+        /// <param name="tickFunc">The method to call.</param>
+        /// <param name="pausedBehavior">Whether to tick when paused or not.</param>
         public void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
             if (_tickFunctions.FindIndex(t => t.Group == group && t.Order == order && t.Tick == tickFunc) >= 0)

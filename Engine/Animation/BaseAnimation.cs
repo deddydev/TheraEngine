@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
 {
@@ -126,7 +127,7 @@ namespace TheraEngine.Animation
             get => _lengthInSeconds;
             set => SetLength(value, false);
         }
-        
+
         /// <summary>
         /// How fast the animation plays back.
         /// A speed of 2.0f would shorten the animation to play in half the time, where 0.5f would be lengthen the animation to play two times slower.
@@ -158,7 +159,7 @@ namespace TheraEngine.Animation
                 OnFPSChanged();
             }
         }
-        
+
         /// <summary>
         /// How many frames this animation contains.
         /// </summary>
@@ -176,7 +177,7 @@ namespace TheraEngine.Animation
                     LengthInSeconds = _bakedFrameCount / _bakedFPS;
             }
         }
-        
+
         [Category("Animation")]
         public bool Looped
         {
@@ -187,6 +188,10 @@ namespace TheraEngine.Animation
                 LoopChanged?.Invoke();
             }
         }
+        /// <summary>
+        /// Sets the current time within the animation.
+        /// Do not use to progress forward or backward every frame, instead use Progress().
+        /// </summary>
         [Category("Animation")]
         public float CurrentTime
         {
@@ -283,7 +288,13 @@ namespace TheraEngine.Animation
         /// Progresses this animation forward by the specified change in seconds.
         /// </summary>
         /// <param name="delta"></param>
-        public void Progress(float delta) => CurrentTime += delta * _speed;
+        public void Progress(float delta)
+        {
+            //TODO: don't use CurrentTime,
+            //determine if delta * speed is positive or negative,
+            //optimize previously accessed keyframe accordingly
+            CurrentTime += delta * _speed;
+        }
 
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.

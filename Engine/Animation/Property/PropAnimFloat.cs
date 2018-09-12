@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
@@ -10,6 +11,8 @@ namespace TheraEngine.Animation
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimFloat(int frameCount, float FPS, bool looped, bool useKeyframes)
             : base(frameCount, FPS, looped, useKeyframes) { }
+
+        protected override float LerpValues(float t1, float t2, float time) => Interp.Lerp(t1, t2, time);
 
         public void GetMinMax(out float min, out float max)
         {

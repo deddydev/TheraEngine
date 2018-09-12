@@ -1,8 +1,9 @@
 ﻿using static System.TMath;
 using static System.Math;
 using TheraEngine.Core.Maths.Transforms;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Maths
 {
     /// <summary>
     /// Provides tools pertaining to interpolation.

@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes;
 
@@ -11,6 +12,8 @@ namespace TheraEngine.Animation
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimVec3(int frameCount, float FPS, bool looped, bool useKeyframes)
             : base(frameCount, FPS, looped, useKeyframes) { }
+
+        protected override Vec3 LerpValues(Vec3 t1, Vec3 t2, float time) => Vec3.Lerp(t1, t2, time);
     }
     public class Vec3Keyframe : VectorKeyframe<Vec3>
     {

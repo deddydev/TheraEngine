@@ -10,14 +10,8 @@ namespace TheraEditor.Windows.Forms
         public DockableMSBuildTree()
         {
             InitializeComponent();
-            theraPropertyGrid1.PropertiesLoaded += TheraPropertyGrid1_PropertiesLoaded;
         }
-
-        private void TheraPropertyGrid1_PropertiesLoaded(object obj)
-        {
-            theraPropertyGrid1.ExpandAll();
-        }
-
+        
         public void SetProject(MSBuild.Project project)
         {
             buildTree.Nodes.Clear();
@@ -25,7 +19,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void RecursivePopulate(TreeNodeCollection collection, IElement element)
         {
-            TreeNode node = new TreeNode(element.ElementName) { Tag = element };
+            TreeNode node = new TreeNode(element.ToString()) { Tag = element };
             collection.Add(node);
             
             foreach (var elem in element.ChildElementsInOrder())
@@ -34,7 +28,9 @@ namespace TheraEditor.Windows.Forms
 
         private void buildTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            theraPropertyGrid1.TargetObject = buildTree.SelectedNode.Tag;
+            var form = Editor.Instance.PropertyGridForm.PropertyGrid;
+            form.TargetObject = buildTree.SelectedNode.Tag;
+            form.ExpandAll();
         }
     }
 }

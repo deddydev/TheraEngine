@@ -116,7 +116,7 @@ namespace TheraEngine.Files.Serialization
                 if (_rootFileObject == null)
                     _rootFileObject = tobj;
                 else
-                    tobj.Root = _rootFileObject;
+                    tobj.RootFile = _rootFileObject;
                 tobj.FilePath = _rootFilePath;
             }
 

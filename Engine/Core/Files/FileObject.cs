@@ -55,7 +55,7 @@ namespace TheraEngine.Files
         FileDef FileDefinition { get; }
         FileExt FileExtension { get; }
         File3rdParty File3rdPartyExtensions { get; }
-        TFileObject Root { get; }
+        TFileObject RootFile { get; }
         void Unload();
         void Export(ESerializeFlags flags = ESerializeFlags.Default);
         void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
@@ -177,7 +177,7 @@ namespace TheraEngine.Files
         [Browsable(false)]
         public List<IFileRef> References { get; set; } = new List<IFileRef>();
         [Browsable(false)]
-        public TFileObject Root { get; internal set; }
+        public TFileObject RootFile { get; internal set; }
 
         public void Unload()
         {

@@ -106,6 +106,24 @@ namespace TheraEngine.ThirdParty
             [DefaultValue("http://schemas.microsoft.com/developer/msbuild/2003")]
             public string Schema { get; set; }
 
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (DefaultTargets != null)
+                    s += $" [{nameof(DefaultTargets)}: {DefaultTargets}]";
+                if (InitialTargets != null)
+                    s += $" [{nameof(InitialTargets)}: {InitialTargets}]";
+                if (Sdk != null)
+                    s += $" [{nameof(Sdk)}: {Sdk}]";
+                if (ToolsVersion != null)
+                    s += $" [{nameof(ToolsVersion)}: {ToolsVersion}]";
+                if (TreatAsLocalProperty != null)
+                    s += $" [{nameof(TreatAsLocalProperty)}: {TreatAsLocalProperty}]";
+                if (Schema != null)
+                    s += $" [{nameof(Schema)}: {Schema}]";
+                return s;
+            }
+
             /// <summary>
             /// Contains a set of tasks for MSBuild to sequentially execute. Tasks are specified by using the Task element. There may be zero or more Target elements in a project.
             /// </summary>
@@ -146,6 +164,32 @@ namespace TheraEngine.ThirdParty
                 [Attr("Label", false)]
                 public string Label { get; set; }
 
+                public override string ToString()
+                {
+                    string s = ElementName;
+                    if (Name != null)
+                        s += $" [{nameof(Name)}: {Name}]";
+                    if (Inputs != null)
+                        s += $" [{nameof(Inputs)}: {Inputs}]";
+                    if (Outputs != null)
+                        s += $" [{nameof(Outputs)}: {Outputs}]";
+                    if (Returns != null)
+                        s += $" [{nameof(Returns)}: {Returns}]";
+                    if (KeepDuplicateOutputs != null)
+                        s += $" [{nameof(KeepDuplicateOutputs)}: {KeepDuplicateOutputs}]";
+                    if (BeforeTargets != null)
+                        s += $" [{nameof(BeforeTargets)}: {BeforeTargets}]";
+                    if (AfterTargets != null)
+                        s += $" [{nameof(AfterTargets)}: {AfterTargets}]";
+                    if (DependsOnTargets != null)
+                        s += $" [{nameof(DependsOnTargets)}: {DependsOnTargets}]";
+                    if (Label != null)
+                        s += $" [{nameof(Label)}: {Label}]";
+                    if (Condition != null)
+                        s += $" [{nameof(Condition)}: {Condition}]";
+                    return s;
+                }
+
                 [ElementName("OnError")]
                 public class OnError : BaseElement<Target>
                 {
@@ -153,6 +197,16 @@ namespace TheraEngine.ThirdParty
                     public string Condition { get; set; }
                     [Attr("ExecuteTargets", true)]
                     public string ExecuteTargets { get; set; }
+
+                    public override string ToString()
+                    {
+                        string s = ElementName;
+                        if (ExecuteTargets != null)
+                            s += $" [{nameof(ExecuteTargets)}: {ExecuteTargets}]";
+                        if (Condition != null)
+                            s += $" [{nameof(Condition)}: {Condition}]";
+                        return s;
+                    }
                 }
 
                 [ElementChild(typeof(Output), 0, -1)]
@@ -196,6 +250,32 @@ namespace TheraEngine.ThirdParty
                         public string ItemName { get; set; }
                         [Attr("Condition", false)]
                         public string Condition { get; set; }
+
+                        public override string ToString()
+                        {
+                            string s = ElementName;
+                            if (TaskParameter != null)
+                                s += $" [{nameof(TaskParameter)}: {TaskParameter}]";
+                            if (PropertyName != null)
+                                s += $" [{nameof(PropertyName)}: {PropertyName}]";
+                            if (ItemName != null)
+                                s += $" [{nameof(ItemName)}: {ItemName}]";
+                            if (Condition != null)
+                                s += $" [{nameof(Condition)}: {Condition}]";
+                            return s;
+                        }
+                    }
+
+                    public override string ToString()
+                    {
+                        string s = ElementName;
+                        if (ContinueOnError != null)
+                            s += $" [{nameof(ContinueOnError)}: {ContinueOnError}]";
+                        if (Parameter != null)
+                            s += $" [{nameof(Parameter)}: {Parameter}]";
+                        if (Condition != null)
+                            s += $" [{nameof(Condition)}: {Condition}]";
+                        return s;
                     }
                 }
             }
@@ -216,6 +296,16 @@ namespace TheraEngine.ThirdParty
             /// </summary>
             [Attr("Version", false)]
             public string Version { get; set; }
+
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (Name != null)
+                    s += $" [{nameof(Name)}: {Name}]";
+                if (Version != null)
+                    s += $" [{nameof(Version)}: {Version}]";
+                return s;
+            }
         }
         /// <summary>
         /// A grouping element for individual properties. Properties are specified by using the Property element. There may be zero or more PropertyGroup elements in a project.
@@ -248,6 +338,22 @@ namespace TheraEngine.ThirdParty
                     => new Property(tuple.Item1, tuple.Item2, tuple.Item3);
                 public static implicit operator Property((string, string) tuple)
                     => new Property(tuple.Item1, tuple.Item2);
+
+                public override string ToString()
+                {
+                    string s = ElementName;
+                    if (Condition != null)
+                        s += $" [{nameof(Condition)}: {Condition}]";
+                    return s;
+                }
+            }
+
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (Condition != null)
+                    s += $" [{nameof(Condition)}: {Condition}]";
+                return s;
             }
 
             public static PropertyGroup Create(string condition, params (string elementName, string content, string condition)[] properties)
@@ -282,6 +388,14 @@ namespace TheraEngine.ThirdParty
         {
             [Attr("Condition", false)]
             public string Condition { get; set; }
+
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (Condition != null)
+                    s += $" [{nameof(Condition)}: {Condition}]";
+                return s;
+            }
         }
         /// <summary>
         /// A grouping element for individual items. Items are specified by using the Item element. There may be zero or more ItemDefinitionGroup elements in a project.
@@ -292,6 +406,14 @@ namespace TheraEngine.ThirdParty
         {
             [Attr("Condition", false)]
             public string Condition { get; set; }
+
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (Condition != null)
+                    s += $" [{nameof(Condition)}: {Condition}]";
+                return s;
+            }
         }
         [ElementChild(typeof(ItemMetadata), 0, -1)]
         [ElementName(null)]
@@ -349,6 +471,14 @@ namespace TheraEngine.ThirdParty
             {
                 [Attr("Condition", false)]
                 public string Condition { get; set; }
+
+                public override string ToString()
+                {
+                    string s = ElementName;
+                    if (Condition != null)
+                        s += $" [{nameof(Condition)}: {Condition}]";
+                    return s;
+                }
             }
 
             public override string ToString()
@@ -358,8 +488,6 @@ namespace TheraEngine.ThirdParty
                     s += $" [{nameof(Include)}: {Include}]";
                 if (Exclude != null)
                     s += $" [{nameof(Exclude)}: {Exclude}]";
-                if (Condition != null)
-                    s += $" [{nameof(Condition)}: {Condition}]";
                 if (Remove != null)
                     s += $" [{nameof(Remove)}: {Remove}]";
                 if (KeepMetadata != null)
@@ -368,6 +496,8 @@ namespace TheraEngine.ThirdParty
                     s += $" [{nameof(RemoveMetadata)}: {RemoveMetadata}]";
                 if (KeepDuplicates != null)
                     s += $" [{nameof(KeepDuplicates)}: {KeepDuplicates}]";
+                if (Condition != null)
+                    s += $" [{nameof(Condition)}: {Condition}]";
                 return s;
             }
         }
@@ -380,6 +510,14 @@ namespace TheraEngine.ThirdParty
         {
             [Attr("Condition", false)]
             public string Condition { get; set; }
+
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (Condition != null)
+                    s += $" [{nameof(Condition)}: {Condition}]";
+                return s;
+            }
         }
         /// <summary>
         /// Enables a project file to import another project file. There may be zero or more Import elements in a project.
@@ -407,6 +545,16 @@ namespace TheraEngine.ThirdParty
             {
                 Project = project;
                 Condition = condition;
+            }
+
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (Project != null)
+                    s += $" [{nameof(Project)}: {Project}]";
+                if (Condition != null)
+                    s += $" [{nameof(Condition)}: {Condition}]";
+                return s;
             }
         }
         /// <summary>
@@ -437,6 +585,14 @@ namespace TheraEngine.ThirdParty
         {
             [Attr("Condition", true)]
             public string Condition { get; set; }
+
+            public override string ToString()
+            {
+                string s = ElementName;
+                if (Condition != null)
+                    s += $" [{nameof(Condition)}: {Condition}]";
+                return s;
+            }
         }
     }
 }

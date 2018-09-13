@@ -49,6 +49,16 @@ namespace TheraEngine.Animation
 
         public IEnumerator<QuatKeyframe> GetEnumerator() { return ((IEnumerable<QuatKeyframe>)_keyframes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<QuatKeyframe>)_keyframes).GetEnumerator(); }
+
+        protected override object GetValueGeneric()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnProgressed(float delta)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class QuatKeyframe : Keyframe, IRadialKeyframe
     {

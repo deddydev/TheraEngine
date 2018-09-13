@@ -167,6 +167,11 @@ namespace TheraEngine.Animation
         {
 
         }
+
+        protected override void OnProgressed(float delta)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class BoneAnimation
     {

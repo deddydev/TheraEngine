@@ -40,7 +40,7 @@ namespace TheraEngine.Animation
         /// </summary>
         public void Append(PropAnimKeyframed<T> other)
             => Keyframes.Append(other.Keyframes);
-
+        
         public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)_keyframes).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)_keyframes).GetEnumerator();
     }

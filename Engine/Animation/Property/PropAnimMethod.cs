@@ -64,5 +64,15 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = TickMethod(i);
         }
+
+        protected override object GetValueGeneric()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnProgressed(float delta)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

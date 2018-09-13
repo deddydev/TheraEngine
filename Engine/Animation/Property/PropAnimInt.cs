@@ -125,6 +125,16 @@ namespace TheraEngine.Animation
                 }
             }
         }
+
+        protected override object GetValueGeneric()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnProgressed(float delta)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class IntKeyframe : Keyframe, IPlanarKeyframe<int>
     {

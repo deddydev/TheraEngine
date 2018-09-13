@@ -26,7 +26,7 @@ namespace TheraEngine.Animation
         public T DefaultValue { get; set; } = new T();
         [Category(PropAnimCategory)]
         [TSerialize(/*Condition = "!Baked"*/)]
-        public bool RestrainKeyframeFPS { get; set; } = false;
+        public bool ConstrainKeyframeFPS { get; set; } = false;
         [Category(PropAnimCategory)]
         [TSerialize(/*Condition = "!Baked"*/)]
         public bool LerpConstrainedFPS { get; set; } = false;
@@ -37,24 +37,14 @@ namespace TheraEngine.Animation
         public PropAnimVector(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void BakedChanged()
-        {
-            if (Baked)
-            {
-                Bake(_bakedFPS);
-                _getValue = GetValueBaked;
-            }
-            else
-            {
-                _baked = null;
-                _getValue = GetValueKeyframed;
-            }
-        }
-       
-        public T GetValue(float second)
-            => _getValue(second);
-        protected override object GetValueGeneric(float second)
-            => _getValue(second);
+        public T CurrentPosition { get; private set; }
+        public T CurrentVelocity { get; private set; }
+        public T CurrentAcceleration { get; private set; }
+
+        protected override object GetValueGeneric() => CurrentPosition;
+        protected override object GetValueGeneric(float second) => _getValue(second);
+
+        public T GetValue(float second) => _getValue(second);
         public T GetValueBaked(float second)
         {
             float frameTime = second * BakedFramesPerSecond;
@@ -91,35 +81,110 @@ namespace TheraEngine.Animation
         }
         protected abstract T LerpValues(T t1, T t2, float time);
 
+        protected override void BakedChanged()
+        {
+            if (Baked)
+            {
+                Bake(_bakedFPS);
+                _getValue = GetValueBaked;
+            }
+            else
+            {
+                _baked = null;
+                _getValue = GetValueKeyframed;
+            }
+        }
         public T GetValueBaked(int frameIndex)
-            => _baked[frameIndex];
+            => _baked == null || _baked.Length == 0 ? new T() :
+            _baked[frameIndex.Clamp(0, _baked.Length - 1)];
+
         public T GetValueKeyframed(float second)
             => Interpolate(second, EVectorInterpValueType.Position);
         public T GetVelocityKeyframed(float second)
             => Interpolate(second, EVectorInterpValueType.Velocity);
         public T GetAccelerationKeyframed(float second)
             => Interpolate(second, EVectorInterpValueType.Acceleration);
-
         private T Interpolate(float second, EVectorInterpValueType type)
         {
             if (_keyframes.Count == 0)
                 return DefaultValue;
 
-            if (RestrainKeyframeFPS)
+            if (ConstrainKeyframeFPS)
             {
-                float alignedSec = ((int)(second * _bakedFPS)) / _bakedFPS;
-                float diff = second - alignedSec;
+                int frame = (int)(second * _bakedFPS);
+                float floorSec = frame / _bakedFPS;
+                float ceilSec = (frame + 1) / _bakedFPS;
+                float time = second - floorSec;
                 if (LerpConstrainedFPS)
-                {
-
-                }
-                second = alignedSec;
+                    return LerpKeyedValues(floorSec, ceilSec, time, type);
+                second = floorSec;
             }
-
-            //TODO: optimize, don't search from start every time
+            
             return _keyframes.First.Interpolate(second, type);
         }
+        private VectorKeyframe<T> _prevKeyframe = null;
+        protected override void OnProgressed(float delta)
+        {
+            if (_prevKeyframe == null)
+                _prevKeyframe = Keyframes.First;
+            if (_keyframes.Count == 0)
+            {
+                CurrentPosition = DefaultValue;
+                CurrentVelocity = new T();
+                CurrentAcceleration = new T();
+            }
+            float second = _currentTime;
+            if (ConstrainKeyframeFPS)
+            {
+                int frame = (int)(second * _bakedFPS);
+                float floorSec = frame / _bakedFPS;
+                float ceilSec = (frame + 1) / _bakedFPS;
+                float time = (second - floorSec) * _bakedFPS;
+                if (LerpConstrainedFPS)
+                {
+                    _prevKeyframe.Interpolate(floorSec,
+                        out _prevKeyframe, 
+                        out VectorKeyframe<T> nextKeyF,
+                        out float normalizedTimeF,
+                        out T floorPosition,
+                        out T floorVelocity,
+                        out T floorAcceleration);
 
+                    _prevKeyframe.Interpolate(ceilSec,
+                       out VectorKeyframe<T> prevKeyC,
+                       out VectorKeyframe<T> nextKeyC,
+                       out float normalizedTimeC,
+                       out T ceilPosition,
+                       out T ceilVelocity,
+                       out T ceilAcceleration);
+
+                    CurrentPosition = LerpValues(floorPosition, ceilPosition, time);
+                    CurrentVelocity = LerpValues(floorVelocity, ceilVelocity, time);
+                    CurrentAcceleration = LerpValues(floorAcceleration, ceilAcceleration, time);
+                    return;
+                }
+                second = floorSec;
+            }
+
+            _prevKeyframe.Interpolate(second,
+                out _prevKeyframe,
+                out VectorKeyframe<T> nextKey,
+                out float normalizedTime,
+                out T pos,
+                out T vel,
+                out T acc);
+
+            CurrentPosition = pos;
+            CurrentVelocity = vel;
+            CurrentAcceleration = acc;
+        }
+        private T LerpKeyedValues(float floorSec, float ceilSec, float time, EVectorInterpValueType type)
+        {
+            T floorValue = _keyframes.First.Interpolate(floorSec, type,
+                out VectorKeyframe<T> prevKey, out VectorKeyframe<T> nextKey, out float normalizedTime);
+            T ceilValue = prevKey.Interpolate(ceilSec, type);
+            return LerpValues(floorValue, ceilValue, time);
+        }
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
@@ -275,24 +340,74 @@ namespace TheraEngine.Animation
             //First, check if the desired second is between this key and the next key.
             if (desiredSecond < Second)
             {
-                if (_prev == null)
-                    return InValue;
+                if (_prev == null || _prev.Second >= Second)
+                {
+                    //This is the first key
+                    if (OwningTrack.LastKey != this)
+                    {
+                        VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
+
+                        float span2 = OwningTrack.LengthInSeconds - last.Second + Second;
+                        float diff2 = OwningTrack.LengthInSeconds - last.Second + desiredSecond;
+                        float normalizedTime = diff2 / span2;
+
+                        switch (type)
+                        {
+                            default:
+                            case EVectorInterpValueType.Position:
+                                return _interpolate(last, this, normalizedTime);
+                            case EVectorInterpValueType.Velocity:
+                                return _interpolateVelocity(last, this, normalizedTime);
+                            case EVectorInterpValueType.Acceleration:
+                                return _interpolateAcceleration(last, this, normalizedTime);
+                        }
+                    }
+
+                    if (type == EVectorInterpValueType.Position)
+                        return InValue;
+                    else
+                        return new T();
+                }
 
                 //If the previous key's second is greater than this second, this key must be the first key. 
                 //Return the InValue as the desired second comes before this one.
                 //Otherwise, move to the previous key to calculate the interpolated value.
-                return _prev.Second < Second ? Prev.Interpolate(desiredSecond, type) : InValue;
+                return Prev.Interpolate(desiredSecond, type);
             }
-            else if (_next == null)
+            else if (_next == null || _next.Second <= Second)
             {
-                return OutValue;
+                //This is the last key
+                if (OwningTrack.FirstKey != this)
+                {
+                    VectorKeyframe<T> first = (VectorKeyframe<T>)OwningTrack.FirstKey;
+
+                    float span2 = OwningTrack.LengthInSeconds - Second + first.Second;
+                    float diff2 = OwningTrack.LengthInSeconds - desiredSecond + first.Second;
+                    float normalizedTime = diff2 / span2;
+
+                    switch (type)
+                    {
+                        default:
+                        case EVectorInterpValueType.Position:
+                            return _interpolate(this, first, normalizedTime);
+                        case EVectorInterpValueType.Velocity:
+                            return _interpolateVelocity(this, first, normalizedTime);
+                        case EVectorInterpValueType.Acceleration:
+                            return _interpolateAcceleration(this, first, normalizedTime);
+                    }
+                }
+
+                if (type == EVectorInterpValueType.Position)
+                    return OutValue;
+                else
+                    return new T();
             }
             else if (desiredSecond > _next.Second)
             {
                 //If the next key's second is less than this second, this key must be the last key. 
                 //Return the OutValue as the desired second comes after this one.
                 //Otherwise, move to the previous key to calculate the interpolated value.
-                return _next.Second > Second ? Next.Interpolate(desiredSecond, type) : OutValue;
+                return Next.Interpolate(desiredSecond, type);
             }
 
             float span = _next.Second - Second;
@@ -309,6 +424,209 @@ namespace TheraEngine.Animation
                 case EVectorInterpValueType.Acceleration:
                     return _interpolateAcceleration(this, Next, time);
             }
+        }
+        public T Interpolate(
+            float desiredSecond, 
+            EVectorInterpValueType type,
+            out VectorKeyframe<T> prevKey,
+            out VectorKeyframe<T> nextKey,
+            out float normalizedTime)
+        {
+            prevKey = this;
+            nextKey = Next;
+
+            //First, check if the desired second is between this key and the next key.
+            if (desiredSecond < Second)
+            {
+                if (_prev == null || _prev.Second >= Second)
+                {
+                    //This is the first key
+                    if (OwningTrack.LastKey != this)
+                    {
+                        VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
+
+                        float span2 = OwningTrack.LengthInSeconds - last.Second + Second;
+                        float diff2 = OwningTrack.LengthInSeconds - last.Second + desiredSecond;
+                        normalizedTime = diff2 / span2;
+
+                        switch (type)
+                        {
+                            default:
+                            case EVectorInterpValueType.Position:
+                                return _interpolate(last, this, normalizedTime);
+                            case EVectorInterpValueType.Velocity:
+                                return _interpolateVelocity(last, this, normalizedTime);
+                            case EVectorInterpValueType.Acceleration:
+                                return _interpolateAcceleration(last, this, normalizedTime);
+                        }
+                    }
+
+                    normalizedTime = 0.0f;
+                    if (type == EVectorInterpValueType.Position)
+                        return InValue;
+                    else
+                        return new T();
+                }
+
+                //If the previous key's second is greater than this second, this key must be the first key. 
+                //Return the InValue as the desired second comes before this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return Prev.Interpolate(desiredSecond, type, out prevKey, out nextKey, out normalizedTime);
+            }
+            else if (_next == null || _next.Second <= Second)
+            {
+                //This is the last key
+                if (OwningTrack.FirstKey != this)
+                {
+                    VectorKeyframe<T> first = (VectorKeyframe<T>)OwningTrack.FirstKey;
+
+                    float span2 = OwningTrack.LengthInSeconds - Second + first.Second;
+                    float diff2 = OwningTrack.LengthInSeconds - desiredSecond + first.Second;
+                    normalizedTime = diff2 / span2;
+
+                    switch (type)
+                    {
+                        default:
+                        case EVectorInterpValueType.Position:
+                            return _interpolate(this, first, normalizedTime);
+                        case EVectorInterpValueType.Velocity:
+                            return _interpolateVelocity(this, first, normalizedTime);
+                        case EVectorInterpValueType.Acceleration:
+                            return _interpolateAcceleration(this, first, normalizedTime);
+                    }
+                }
+
+                normalizedTime = 0.0f;
+                if (type == EVectorInterpValueType.Position)
+                    return OutValue;
+                else
+                    return new T();
+            }
+            else if (desiredSecond > _next.Second)
+            {
+                //If the next key's second is less than this second, this key must be the last key. 
+                //Return the OutValue as the desired second comes after this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                return Next.Interpolate(desiredSecond, type, out prevKey, out nextKey, out normalizedTime);
+            }
+
+            float span = _next.Second - Second;
+            float diff = desiredSecond - Second;
+            normalizedTime = diff / span;
+
+            switch (type)
+            {
+                default:
+                case EVectorInterpValueType.Position:
+                    return _interpolate(this, Next, normalizedTime);
+                case EVectorInterpValueType.Velocity:
+                    return _interpolateVelocity(this, Next, normalizedTime);
+                case EVectorInterpValueType.Acceleration:
+                    return _interpolateAcceleration(this, Next, normalizedTime);
+            }
+        }
+        public void Interpolate(
+            float desiredSecond,
+            out VectorKeyframe<T> prevKey,
+            out VectorKeyframe<T> nextKey,
+            out float normalizedTime,
+            out T position,
+            out T velocity,
+            out T acceleration)
+        {
+            prevKey = this;
+            nextKey = Next;
+
+            //First, check if the desired second is between this key and the next key.
+            if (desiredSecond < Second)
+            {
+                if (_prev == null || _prev.Second >= Second)
+                {
+                    //This is the first key
+                    if (OwningTrack.LastKey != this)
+                    {
+                        VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
+                        
+                        float span2 = OwningTrack.LengthInSeconds - last.Second + Second;
+                        float diff2 = OwningTrack.LengthInSeconds - last.Second + desiredSecond;
+                        normalizedTime = diff2 / span2;
+
+                        position = _interpolate(last, this, normalizedTime);
+                        velocity = _interpolateVelocity(last, this, normalizedTime);
+                        acceleration = _interpolateAcceleration(last, this, normalizedTime);
+
+                        return;
+                    }
+
+                    normalizedTime = 0.0f;
+                    position = InValue;
+                    velocity = new T();
+                    acceleration = new T();
+
+                    return;
+                }
+
+                //If the previous key's second is greater than this second, this key must be the first key. 
+                //Return the InValue as the desired second comes before this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                Prev.Interpolate(desiredSecond,
+                    out prevKey,
+                    out nextKey, 
+                    out normalizedTime, 
+                    out position,
+                    out velocity,
+                    out acceleration);
+
+                return;
+            }
+            else if (_next == null || _next.Second <= Second)
+            {
+                //This is the last key
+                if (OwningTrack.FirstKey != this)
+                {
+                    VectorKeyframe<T> first = (VectorKeyframe<T>)OwningTrack.FirstKey;
+
+                    float span2 = OwningTrack.LengthInSeconds - Second + first.Second;
+                    float diff2 = OwningTrack.LengthInSeconds - desiredSecond + first.Second;
+                    normalizedTime = diff2 / span2;
+
+                    position = _interpolate(this, first, normalizedTime);
+                    velocity = _interpolateVelocity(this, first, normalizedTime);
+                    acceleration = _interpolateAcceleration(this, first, normalizedTime);
+
+                    return;
+                }
+
+                normalizedTime = 0.0f;
+                position = OutValue;
+                velocity = new T();
+                acceleration = new T();
+
+                return;
+            }
+            else if (desiredSecond > _next.Second)
+            {
+                //If the next key's second is less than this second, this key must be the last key. 
+                //Return the OutValue as the desired second comes after this one.
+                //Otherwise, move to the previous key to calculate the interpolated value.
+                Next.Interpolate(desiredSecond, 
+                    out prevKey, 
+                    out nextKey,
+                    out normalizedTime,
+                    out position, 
+                    out velocity, 
+                    out acceleration);
+
+                return;
+            }
+
+            float span = _next.Second - Second;
+            float diff = desiredSecond - Second;
+            normalizedTime = diff / span;
+            
+            position = _interpolate(this, Next, normalizedTime);
+            velocity = _interpolateVelocity(this, Next, normalizedTime);
+            acceleration = _interpolateAcceleration(this, Next, normalizedTime);
         }
 
         public T Step(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time)

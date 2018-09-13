@@ -27,6 +27,8 @@ namespace TheraEngine.Animation
         protected override void BakedChanged()
             => _getValue = !Baked ? (DelGetValue<bool>)GetValueKeyframed : GetValueBaked;
 
+        private bool _value = false;
+        protected override object GetValueGeneric() => _value;
         public bool GetValue(float second)
             => _getValue(second);
         protected override object GetValueGeneric(float second)
@@ -50,6 +52,11 @@ namespace TheraEngine.Animation
             _baked = new bool[BakedFrameCount];
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
+        }
+
+        protected override void OnProgressed(float delta)
+        {
+            throw new NotImplementedException();
         }
     }
     public class BoolKeyframe : Keyframe, IStepKeyframe

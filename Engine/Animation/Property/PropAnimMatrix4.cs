@@ -46,6 +46,16 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
+
+        protected override object GetValueGeneric()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnProgressed(float delta)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class Matrix4Keyframe : Keyframe, IStepKeyframe
     {

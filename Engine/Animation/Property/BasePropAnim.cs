@@ -20,7 +20,7 @@ namespace TheraEngine.Animation
         {
             if (_state != EAnimationState.Playing)
                 return;
-            property.SetValue(obj, GetValueGeneric(_currentTime));
+            property.SetValue(obj, GetValueGeneric());
             Progress(delta);
         }
         public void Tick(object obj, MethodInfo method, float delta)
@@ -44,7 +44,6 @@ namespace TheraEngine.Animation
             if (_state == EAnimationState.Stopped)
                 return;
             PreStopped();
-            CurrentTime = 0.0f;
             _state = EAnimationState.Stopped;
             OnAnimationEnded();
             PostStopped();
@@ -58,6 +57,12 @@ namespace TheraEngine.Animation
             OnAnimationPaused();
             PostPaused();
         }
+        /// <summary>
+        /// Retrieves the value for the animation's current time.
+        /// Used by the internal animation implementation to set property values and call methods,
+        /// so must be overridden.
+        /// </summary>
+        protected abstract object GetValueGeneric();
         /// <summary>
         /// Retrieves the value for the given second.
         /// Used by the internal animation implementation to set property values and call methods,

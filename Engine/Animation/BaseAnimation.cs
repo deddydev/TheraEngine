@@ -107,6 +107,16 @@ namespace TheraEngine.Animation
                 BakedChanged();
             }
         }
+        [Category("Animation"), TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public bool ProgressSelf
+        {
+            get => _isBaked;
+            set
+            {
+                _isBaked = value;
+                BakedChanged();
+            }
+        }
 
         protected abstract void BakedChanged();
 
@@ -193,19 +203,12 @@ namespace TheraEngine.Animation
         /// Do not use to progress forward or backward every frame, instead use Progress().
         /// </summary>
         [Category("Animation")]
-        public float CurrentTime
+        public virtual float CurrentTime
         {
             get => _currentTime;
             set
             {
-                _currentTime = value;
-                if (_currentTime > _lengthInSeconds || _currentTime < 0.0f)
-                {
-                    if (_state == EAnimationState.Playing && !_looped)
-                        Stop();
-                    else
-                        _currentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
-                }
+                _currentTime = value.RemapToRange(0.0f, _lengthInSeconds);
                 OnCurrentFrameChanged();
             }
         }
@@ -252,9 +255,12 @@ namespace TheraEngine.Animation
             if (_state == EAnimationState.Playing)
                 return;
             PreStarted();
+            if (_state == EAnimationState.Stopped)
+                _currentTime = 0.0f;
             _state = EAnimationState.Playing;
             AnimationStarted?.Invoke();
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+            if (ProgressSelf)
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostStarted();
         }
         protected virtual void PreStopped() { }
@@ -264,10 +270,10 @@ namespace TheraEngine.Animation
             if (_state == EAnimationState.Stopped)
                 return;
             PreStopped();
-            _currentTime = 0.0f;
             _state = EAnimationState.Stopped;
             OnAnimationEnded();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+            if (ProgressSelf)
+                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostStopped();
         }
         protected virtual void PrePaused() { }
@@ -279,22 +285,34 @@ namespace TheraEngine.Animation
             PrePaused();
             _state = EAnimationState.Paused;
             OnAnimationPaused();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+            if (ProgressSelf)
+                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostPaused();
         }
         #endregion
 
         /// <summary>
-        /// Progresses this animation forward by the specified change in seconds.
+        /// Progresses this animation forward (or backward) by the specified change in seconds.
         /// </summary>
         /// <param name="delta"></param>
         public void Progress(float delta)
         {
-            //TODO: don't use CurrentTime,
-            //determine if delta * speed is positive or negative,
-            //optimize previously accessed keyframe accordingly
-            CurrentTime += delta * _speed;
+            _currentTime += delta * Speed;
+            if (_currentTime > _lengthInSeconds || _currentTime < 0.0f)
+            {
+                if (_state == EAnimationState.Playing && !_looped)
+                {
+                    Stop();
+                    OnCurrentFrameChanged();
+                    return;
+                }
+                else
+                    _currentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
+            }
+            OnProgressed(delta);
+            OnCurrentFrameChanged();
         }
+        protected abstract void OnProgressed(float delta);
 
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.

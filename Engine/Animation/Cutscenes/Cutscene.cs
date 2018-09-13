@@ -44,5 +44,10 @@ namespace TheraEngine.Cutscenes
         {
 
         }
+
+        protected override void OnProgressed(float delta)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

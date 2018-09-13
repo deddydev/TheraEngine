@@ -29,7 +29,8 @@ namespace TheraEngine.Components.Scene
         [TSerialize]
         public bool RenderCurrentTimePoint { get; set; } = true;
         
-        private PropAnimVec3 _spline;
+        private PropAnimVec3 _position;
+        private PropAnimFloat _speed;
         private PrimitiveManager _splinePrimitive;
         private PrimitiveManager _velocityPrimitive;
         private PrimitiveManager _pointPrimitive;
@@ -37,31 +38,31 @@ namespace TheraEngine.Components.Scene
         private PrimitiveManager _timePointPrimitive;
 
         [TSerialize]
-        public PropAnimVec3 Spline
+        public PropAnimVec3 Position
         {
-            get => _spline;
+            get => _position;
             set
             {
-                if (_spline != null)
+                if (_position != null)
                 {
-                    _spline.Keyframes.Changed -= RegenerateSplinePrimitive;
-                    _spline.FPSChanged -= RegenerateSplinePrimitive;
-                    _spline.LengthChanged -= RegenerateSplinePrimitive;
-                    _spline.AnimationStarted -= _spline_AnimationStarted;
-                    _spline.AnimationPaused -= _spline_AnimationEnded;
-                    _spline.AnimationEnded -= _spline_AnimationEnded;
+                    _position.Keyframes.Changed -= RegenerateSplinePrimitive;
+                    _position.FPSChanged -= RegenerateSplinePrimitive;
+                    _position.LengthChanged -= RegenerateSplinePrimitive;
+                    _position.AnimationStarted -= _spline_AnimationStarted;
+                    _position.AnimationPaused -= _spline_AnimationEnded;
+                    _position.AnimationEnded -= _spline_AnimationEnded;
                     _spline_AnimationEnded();
                 }
-                _spline = value;
-                if (_spline != null)
+                _position = value;
+                if (_position != null)
                 {
-                    _spline.Keyframes.Changed += RegenerateSplinePrimitive;
-                    _spline.FPSChanged += RegenerateSplinePrimitive;
-                    _spline.LengthChanged += RegenerateSplinePrimitive;
-                    _spline.AnimationStarted += _spline_AnimationStarted;
-                    _spline.AnimationPaused += _spline_AnimationEnded;
-                    _spline.AnimationEnded += _spline_AnimationEnded;
-                    if (_spline.State == EAnimationState.Playing)
+                    _position.Keyframes.Changed += RegenerateSplinePrimitive;
+                    _position.FPSChanged += RegenerateSplinePrimitive;
+                    _position.LengthChanged += RegenerateSplinePrimitive;
+                    _position.AnimationStarted += _spline_AnimationStarted;
+                    _position.AnimationPaused += _spline_AnimationEnded;
+                    _position.AnimationEnded += _spline_AnimationEnded;
+                    if (_position.State == EAnimationState.Playing)
                         _spline_AnimationStarted();
                 }
                 RegenerateSplinePrimitive();
@@ -69,17 +70,26 @@ namespace TheraEngine.Components.Scene
         }
 
         private void _spline_AnimationEnded()
-            => UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
+            => UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
         private void _spline_AnimationStarted()
-            => RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, _spline.Progress, Input.Devices.EInputPauseType.TickAlways);
-        
+            => RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+        private void Progress(float delta)
+        {
+            if (_speed != null)
+            {
+                _position.Speed = _speed.CurrentPosition;
+                _speed.Progress(delta);
+            }
+            _position.Progress(delta);
+        }
+
         public SplineComponent() : base()
         {
-            Spline = null;
+            Position = null;
         }
         public SplineComponent(PropAnimVec3 spline) : base()
         {
-            Spline = spline;
+            Position = spline;
         }
 
         //[PostDeserialize]
@@ -107,25 +117,25 @@ namespace TheraEngine.Components.Scene
             _timePointPrimitive?.Dispose();
             _timePointPrimitive = null;
 
-            if (_spline == null || _spline.BakedFrameCount == 0)
+            if (_position == null || _position.BakedFrameCount == 0)
                 return;
 
-            Vertex[] splinePoints = new Vertex[_spline.BakedFrameCount];
-            VertexLine[] velocity = new VertexLine[_spline.BakedFrameCount];
-            Vec3[] keyframePositions = new Vec3[_spline.Keyframes.Count << 1];
-            Vec3[] tangentPositions = new Vec3[_spline.Keyframes.Count << 1];
+            Vertex[] splinePoints = new Vertex[_position.BakedFrameCount];
+            VertexLine[] velocity = new VertexLine[_position.BakedFrameCount];
+            Vec3[] keyframePositions = new Vec3[_position.Keyframes.Count << 1];
+            Vec3[] tangentPositions = new Vec3[_position.Keyframes.Count << 1];
 
             int i, x = 0;
             float sec;
             for (i = 0; i < splinePoints.Length; ++i)
             {
-                sec = i / _spline.BakedFramesPerSecond;
-                Vertex pos = new Vertex(_spline.GetValueKeyframed(sec));
+                sec = i / _position.BakedFramesPerSecond;
+                Vertex pos = new Vertex(_position.GetValueKeyframed(sec));
                 splinePoints[i] = pos;
-                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _spline.GetVelocityKeyframed(sec).Normalized()));
+                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _position.GetVelocityKeyframed(sec).Normalized()));
             }
             i = 0;
-            foreach (Vec3Keyframe keyframe in _spline)
+            foreach (Vec3Keyframe keyframe in _position)
             {
                 keyframePositions[i++] = keyframe.InValue;
                 keyframePositions[i++] = keyframe.OutValue;
@@ -189,10 +199,11 @@ namespace TheraEngine.Components.Scene
         protected override void OnWorldTransformChanged()
         {
             //TODO: use parent matrix
-            _rcSpline.WorldMatrix = WorldMatrix;
-            _rcVelocity.WorldMatrix = WorldMatrix;
-            _rcPoints.WorldMatrix = WorldMatrix;
-            _rcTangents.WorldMatrix = WorldMatrix;
+            Matrix4 mtx = GetParentMatrix();
+            _rcSpline.WorldMatrix = mtx;
+            _rcVelocity.WorldMatrix = mtx;
+            _rcPoints.WorldMatrix = mtx;
+            _rcTangents.WorldMatrix = mtx;
             base.OnWorldTransformChanged();
         }
 
@@ -203,15 +214,15 @@ namespace TheraEngine.Components.Scene
         private readonly RenderCommandMesh3D _rcTangents = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            if (_spline == null)
+            if (_position == null)
                 return;
 
             passes.Add(_rcSpline, RenderInfo.RenderPass);
 
             if (RenderCurrentTimePoint)
             {
-                Vec3 point = _spline.GetValueKeyframed(_spline.CurrentTime);
-                _rcCurrentPoint.WorldMatrix = WorldMatrix * Matrix4.CreateTranslation(point);
+                Vec3 point = _position.CurrentPosition;
+                _rcCurrentPoint.WorldMatrix = GetParentMatrix() * Matrix4.CreateTranslation(point);
                 passes.Add(_rcCurrentPoint, RenderInfo.RenderPass);
             }
             if (RenderTangents)

@@ -28,7 +28,7 @@ namespace TheraEngine.Animation
             => _getValue = !Baked ? (DelGetValue<bool>)GetValueKeyframed : GetValueBaked;
 
         private bool _value = false;
-        protected override object GetValueGeneric() => _value;
+        protected override object GetCurrentValueGeneric() => _value;
         public bool GetValue(float second)
             => _getValue(second);
         protected override object GetValueGeneric(float second)

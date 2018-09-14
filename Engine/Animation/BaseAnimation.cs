@@ -37,6 +37,7 @@ namespace TheraEngine.Animation
         public event Action LoopChanged;
         public event Action LengthChanged;
         public event Action FPSChanged;
+        public event Action TickSelfChanged;
 
         protected void OnAnimationStarted() => AnimationStarted?.Invoke();
         protected void OnAnimationEnded() => AnimationEnded?.Invoke();
@@ -46,6 +47,7 @@ namespace TheraEngine.Animation
         protected void OnLoopChanged() => LoopChanged?.Invoke();
         protected void OnLengthChanged() => LengthChanged?.Invoke();
         protected void OnFPSChanged() => FPSChanged?.Invoke();
+        protected void OnTickSelfChanged() => TickSelfChanged?.Invoke();
 
         [TSerialize("BakedFrameCount", Order = 1)]
         protected int _bakedFrameCount = 0;
@@ -64,6 +66,8 @@ namespace TheraEngine.Animation
         protected EAnimationState _state = EAnimationState.Stopped;
         [TSerialize("IsBaked")]
         protected bool _isBaked = false;
+        [TSerialize("TickSelf")]
+        protected bool _tickSelf = true;
 
         public BaseAnimation(float lengthInSeconds, bool looped, bool isBaked = false)
         {
@@ -108,13 +112,21 @@ namespace TheraEngine.Animation
             }
         }
         [Category("Animation"), TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
-        public bool ProgressSelf
+        public bool TickSelf
         {
-            get => _isBaked;
+            get => _tickSelf;
             set
             {
-                _isBaked = value;
-                BakedChanged();
+                if (_tickSelf == value)
+                    return;
+                _tickSelf = value;
+
+                if (_state == EAnimationState.Playing)
+                    RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+                else
+                    UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+
+                OnTickSelfChanged();
             }
         }
 
@@ -258,8 +270,8 @@ namespace TheraEngine.Animation
             if (_state == EAnimationState.Stopped)
                 _currentTime = 0.0f;
             _state = EAnimationState.Playing;
-            AnimationStarted?.Invoke();
-            if (ProgressSelf)
+            OnAnimationStarted();
+            if (TickSelf)
                 RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostStarted();
         }
@@ -272,7 +284,7 @@ namespace TheraEngine.Animation
             PreStopped();
             _state = EAnimationState.Stopped;
             OnAnimationEnded();
-            if (ProgressSelf)
+            if (TickSelf)
                 UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostStopped();
         }
@@ -285,7 +297,7 @@ namespace TheraEngine.Animation
             PrePaused();
             _state = EAnimationState.Paused;
             OnAnimationPaused();
-            if (ProgressSelf)
+            if (TickSelf)
                 UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
             PostPaused();
         }

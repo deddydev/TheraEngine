@@ -126,7 +126,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        protected override object GetValueGeneric()
+        protected override object GetCurrentValueGeneric()
         {
             throw new NotImplementedException();
         }

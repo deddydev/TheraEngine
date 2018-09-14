@@ -38,6 +38,15 @@ namespace TheraEditor.Windows.Forms
             
             SetArgumentTypes(OriginalClassType.GetGenericArguments());
         }
+        //public GenericsSelector(Type classTypeDefinition, Type[] genericArguments) : base()
+        //{
+        //    InitializeComponent();
+
+        //    OriginalClassType = classTypeDefinition;
+        //    lblClassName.Text = classTypeDefinition.MakeGenericType(genericArguments).GetFriendlyName();
+
+        //    SetArgumentTypes(OriginalClassType.GetGenericArguments());
+        //}
         private void SetArgumentTypes(Type[] args)
         {
             SelectedTypes = new Type[args.Length];

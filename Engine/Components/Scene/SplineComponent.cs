@@ -5,6 +5,7 @@ using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
@@ -49,11 +50,11 @@ namespace TheraEngine.Components.Scene
                     _position.ConstrainKeyframedFPSChanged -= RegenerateSplinePrimitive;
                     _position.FPSChanged -= RegenerateSplinePrimitive;
                     _position.LengthChanged -= RegenerateSplinePrimitive;
-                    _position.AnimationStarted -= _spline_AnimationStarted;
-                    _position.AnimationPaused -= _spline_AnimationEnded;
-                    _position.AnimationEnded -= _spline_AnimationEnded;
+                    //_position.AnimationStarted -= _spline_AnimationStarted;
+                    //_position.AnimationPaused -= _spline_AnimationEnded;
+                    //_position.AnimationEnded -= _spline_AnimationEnded;
                     _position.CurrentPositionChanged -= RecalcLocalTransform;
-                    _spline_AnimationEnded();
+                    //_spline_AnimationEnded();
                 }
                 _position = value;
                 if (_position != null)
@@ -62,12 +63,12 @@ namespace TheraEngine.Components.Scene
                     _position.ConstrainKeyframedFPSChanged += RegenerateSplinePrimitive;
                     _position.FPSChanged += RegenerateSplinePrimitive;
                     _position.LengthChanged += RegenerateSplinePrimitive;
-                    _position.AnimationStarted += _spline_AnimationStarted;
-                    _position.AnimationPaused += _spline_AnimationEnded;
-                    _position.AnimationEnded += _spline_AnimationEnded;
+                    //_position.AnimationStarted += _spline_AnimationStarted;
+                    //_position.AnimationPaused += _spline_AnimationEnded;
+                    //_position.AnimationEnded += _spline_AnimationEnded;
                     _position.CurrentPositionChanged += RecalcLocalTransform;
-                    if (_position.State == EAnimationState.Playing)
-                        _spline_AnimationStarted();
+                    //if (_position.State == EAnimationState.Playing)
+                    //    _spline_AnimationStarted();
                 }
                 RegenerateSplinePrimitive();
             }
@@ -80,10 +81,6 @@ namespace TheraEngine.Components.Scene
             set => _speed = value;
         }
 
-        private void _spline_AnimationEnded()
-            => UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
-        private void _spline_AnimationStarted()
-            => RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
         private void Progress(float delta)
         {
             if (Speed != null)
@@ -131,6 +128,7 @@ namespace TheraEngine.Components.Scene
             if (_position == null || _position.LengthInSeconds <= 0.0f)
                 return;
 
+            //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
             float fps = _position.ConstrainKeyframedFPS ? _position.BakedFramesPerSecond : (Engine.TargetFramesPerSecond == 0 ? 60.0f : Engine.TargetFramesPerSecond);
             int frameCount = (int)Math.Ceiling(_position.LengthInSeconds * fps) + 1;
             float invFps = 1.0f / fps;
@@ -147,7 +145,7 @@ namespace TheraEngine.Components.Scene
                 sec = i * invFps;
                 Vec3 val = _position.GetValueKeyframed(sec);
                 Vec3 vel = _position.GetVelocityKeyframed(sec);
-                Vertex pos = new Vertex(val) { Color = vel };
+                Vertex pos = new Vertex(val) { Color = Color.Red };
                 splinePoints[i] = pos;
                 velocity[i] = new VertexLine(pos, new Vertex(pos.Position + vel.Normalized()));
             }
@@ -169,8 +167,21 @@ namespace TheraEngine.Components.Scene
             };
 
             PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.PosColor(), strip);
-            TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
-            mat.RenderParams = p;
+            TMaterial mat = new TMaterial("SplineColor", new GLSLShaderFile(EShaderMode.Fragment,
+@"
+#version 450
+
+layout (location = 0) out vec4 OutColor;
+layout (location = 4) in vec4 FragColor0;
+
+void main()
+{
+    OutColor = FragColor0;
+}
+"))
+            {
+                RenderParams = p
+            };
             _splinePrimitive = new PrimitiveManager(splineData, mat);
 
             PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);

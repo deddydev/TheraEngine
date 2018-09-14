@@ -50,7 +50,7 @@ namespace TheraEngine.Animation
         public IEnumerator<QuatKeyframe> GetEnumerator() { return ((IEnumerable<QuatKeyframe>)_keyframes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<QuatKeyframe>)_keyframes).GetEnumerator(); }
 
-        protected override object GetValueGeneric()
+        protected override object GetCurrentValueGeneric()
         {
             throw new NotImplementedException();
         }

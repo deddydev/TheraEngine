@@ -13,56 +13,37 @@ namespace TheraEngine.Animation
         public const string PropAnimCategory = "Property Animation";
 
         public BasePropAnim(float lengthInSeconds, bool looped, bool isBaked = false)
-            : base(lengthInSeconds, looped, isBaked) { }
+            : base(lengthInSeconds, looped, isBaked) { _tickSelf = false; }
         public BasePropAnim(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
-            : base(frameCount, framesPerSecond, looped, isBaked) { }
+            : base(frameCount, framesPerSecond, looped, isBaked) { _tickSelf = false; }
+
+        /// <summary>
+        /// Call to set this animation's current value to an object's property and then advance the animation by the given delta.
+        /// </summary>
         public void Tick(object obj, PropertyInfo property, float delta)
         {
             if (_state != EAnimationState.Playing)
                 return;
-            property.SetValue(obj, GetValueGeneric());
+            property.SetValue(obj, GetCurrentValueGeneric());
             Progress(delta);
         }
+        /// <summary>
+        /// Call to set this animation's current value to an object's method that takes it as a single argument and then advance the animation by the given delta.
+        /// </summary>
         public void Tick(object obj, MethodInfo method, float delta)
         {
             if (_state != EAnimationState.Playing)
                 return;
-            method.Invoke(obj, new object[] { GetValueGeneric(_currentTime) });
+            method.Invoke(obj, new object[] { GetCurrentValueGeneric() });
             Progress(delta);
         }
-        public override void Start()
-        {
-            if (_state == EAnimationState.Playing)
-                return;
-            PreStarted();
-            _state = EAnimationState.Playing;
-            OnAnimationStarted();
-            PostStarted();
-        }
-        public override void Stop()
-        {
-            if (_state == EAnimationState.Stopped)
-                return;
-            PreStopped();
-            _state = EAnimationState.Stopped;
-            OnAnimationEnded();
-            PostStopped();
-        }
-        public override void Pause()
-        {
-            if (_state != EAnimationState.Playing)
-                return;
-            PrePaused();
-            _state = EAnimationState.Paused;
-            OnAnimationPaused();
-            PostPaused();
-        }
+
         /// <summary>
         /// Retrieves the value for the animation's current time.
         /// Used by the internal animation implementation to set property values and call methods,
         /// so must be overridden.
         /// </summary>
-        protected abstract object GetValueGeneric();
+        protected abstract object GetCurrentValueGeneric();
         /// <summary>
         /// Retrieves the value for the given second.
         /// Used by the internal animation implementation to set property values and call methods,

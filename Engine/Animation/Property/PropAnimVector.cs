@@ -118,11 +118,12 @@ namespace TheraEngine.Animation
             }
         }
 
-        protected override object GetValueGeneric() => CurrentPosition;
+        protected override object GetCurrentValueGeneric() => CurrentPosition;
         protected override object GetValueGeneric(float second) => _getValue(second);
 
         public T GetValue(float second) => _getValue(second);
-        public T GetValueBaked(float second)
+
+        public T GetValueBakedBySecond(float second)
         {
             float frameTime = second * BakedFramesPerSecond;
             int frame = (int)frameTime;
@@ -156,6 +157,12 @@ namespace TheraEngine.Animation
                 return _baked[frame];
             }
         }
+        public T GetValueBakedByFrame(int frame)
+        {
+            if (!_baked.IndexInArrayRange(frame))
+                return new T();
+            return _baked[frame.Clamp(0, _baked.Length - 1)];
+        }
         protected abstract T LerpValues(T t1, T t2, float time);
 
         protected override void BakedChanged()
@@ -163,7 +170,7 @@ namespace TheraEngine.Animation
             if (Baked)
             {
                 Bake(_bakedFPS);
-                _getValue = GetValueBaked;
+                _getValue = GetValueBakedBySecond;
             }
             else
             {
@@ -199,9 +206,31 @@ namespace TheraEngine.Animation
             
             return _keyframes.First.Interpolate(second, type);
         }
+        public override float CurrentTime
+        {
+            get => base.CurrentTime;
+            set
+            {
+                float newTime = value.RemapToRange(0.0f, _lengthInSeconds);
+                float oldTime = _currentTime;
+                _currentTime = newTime;
+                OnProgressed(newTime - oldTime);
+                OnCurrentFrameChanged();
+            }
+        }
         private VectorKeyframe<T> _prevKeyframe = null;
         protected override void OnProgressed(float delta)
         {
+            //TODO: assign separate functions to be called by OnProgressed to avoid if statements and returns
+
+            if (Baked)
+            {
+                CurrentPosition = GetValueBakedBySecond(_currentTime);
+                CurrentVelocity = new T();
+                CurrentAcceleration = new T();
+                return;
+            }
+
             if (_prevKeyframe == null)
                 _prevKeyframe = Keyframes.First;
             if (_keyframes.Count == 0)
@@ -217,7 +246,12 @@ namespace TheraEngine.Animation
                 int frame = (int)(second * _bakedFPS);
                 float floorSec = frame / _bakedFPS;
                 float ceilSec = (frame + 1) / _bakedFPS;
+
+                //second - floorSec is the resulting delta from one frame to the next.
+                //we want the delta to be between two frames with a specified number of frames in between, 
+                //so we multiply by the FPS.
                 float time = (second - floorSec) * _bakedFPS;
+
                 if (LerpConstrainedFPS)
                 {
                     _prevKeyframe.Interpolate(floorSec,
@@ -269,7 +303,7 @@ namespace TheraEngine.Animation
             _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
             _baked = new T[BakedFrameCount];
             for (int i = 0; i < BakedFrameCount; ++i)
-                _baked[i] = GetValueKeyframed(i);
+                _baked[i] = GetValueKeyframed(i / _bakedFPS);
         }
     }
     public abstract class VectorKeyframe<T> : Keyframe, IPlanarKeyframe<T> where T : unmanaged

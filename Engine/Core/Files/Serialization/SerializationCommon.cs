@@ -128,10 +128,11 @@ namespace TheraEngine.Files.Serialization
                 Name = Attrib.NameOverride;
             else
             {
-                DisplayNameAttribute nameAttrib = _info.GetCustomAttribute<DisplayNameAttribute>();
-                if (nameAttrib != null)
-                    Name = nameAttrib.DisplayName;
-                else
+                //Don't want to use display name, usually includes spaces or specialized formatting
+                //DisplayNameAttribute nameAttrib = _info.GetCustomAttribute<DisplayNameAttribute>();
+                //if (nameAttrib != null)
+                //    Name = nameAttrib.DisplayName;
+                //else
                     Name = _info.Name;
             }
             Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());

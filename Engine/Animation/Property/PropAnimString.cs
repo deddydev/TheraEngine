@@ -53,7 +53,7 @@ namespace TheraEngine.Animation
                 _baked[i] = GetValueKeyframed(i);
         }
 
-        protected override object GetValueGeneric()
+        protected override object GetCurrentValueGeneric()
         {
             throw new NotImplementedException();
         }

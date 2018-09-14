@@ -19,6 +19,8 @@ namespace TheraEditor.Windows.Forms
         /// <returns></returns>
         public bool Initialize(Type type, bool allowDerivedTypes)
         {
+            ConstructedObject = null;
+
             if (type.IsGenericTypeDefinition)
                 throw new InvalidOperationException("Cannot create an instance of a generic type definition. Pass in the type created with each generic parameter set.");
 
@@ -61,6 +63,8 @@ namespace TheraEditor.Windows.Forms
                         {
                             if (constructors[0].GetParameters().Length == 0)
                             {
+                                if (type.IsGenericTypeDefinition)
+                                    type = type.MakeGenericType(_genericTypeArgs);
                                 ConstructedObject = Activator.CreateInstance(type);
                                 return false;
                             }

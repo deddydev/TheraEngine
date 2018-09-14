@@ -47,9 +47,9 @@ namespace TheraEngine.Animation
         protected void OnLengthChanged() => LengthChanged?.Invoke();
         protected void OnFPSChanged() => FPSChanged?.Invoke();
 
-        [TSerialize("BakedFrameCount")]
+        [TSerialize("BakedFrameCount", Order = 1)]
         protected int _bakedFrameCount = 0;
-        [TSerialize("BakedFPS")]
+        [TSerialize("BakedFPS", Order = 0)]
         protected float _bakedFPS = 0.0f;
 
         [TSerialize("LengthInSeconds")]
@@ -97,7 +97,7 @@ namespace TheraEngine.Animation
         /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
         /// Baked takes up more memory but requires no calculations. However, the animation cannot be sped up at all, nor slowed down without artifacts.
         /// </summary>
-        [Category("Animation"), TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [Category("Animation"), TSerialize(XmlNodeType = EXmlNodeType.Attribute, Order = 2)]
         public bool Baked
         {
             get => _isBaked;
@@ -298,7 +298,7 @@ namespace TheraEngine.Animation
         public void Progress(float delta)
         {
             _currentTime += delta * Speed;
-            if (_currentTime > _lengthInSeconds || _currentTime < 0.0f)
+            if (_currentTime >= _lengthInSeconds || _currentTime <= 0.0f)
             {
                 if (_state == EAnimationState.Playing && !_looped)
                 {

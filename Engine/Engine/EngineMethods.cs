@@ -141,8 +141,8 @@ namespace TheraEngine
         /// </summary>
         public static void Initialize(bool loadOpeningWorldGameMode = true)
         {
-            TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
-            TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
+            TargetFramesPerSecond = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
+            TargetUpdatesPerSecond = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
 
             if (Game != null)
             {

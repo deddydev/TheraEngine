@@ -195,7 +195,7 @@ namespace TheraEngine
         /// <summary>
         /// Frames per second that the game will try to render at.
         /// </summary>
-        public static float TargetRenderFreq
+        public static float TargetFramesPerSecond
         {
             get => _timer.TargetRenderFrequency;
             set
@@ -206,7 +206,7 @@ namespace TheraEngine
         /// <summary>
         /// Frames per second that the game will try to update at.
         /// </summary>
-        public static float TargetUpdateFreq
+        public static float TargetUpdatesPerSecond
         {
             get => _timer.TargetUpdateFrequency;
             set => _timer.TargetUpdateFrequency = value;

@@ -46,27 +46,38 @@ namespace TheraEngine.Components.Scene
                 if (_position != null)
                 {
                     _position.Keyframes.Changed -= RegenerateSplinePrimitive;
+                    _position.ConstrainKeyframedFPSChanged -= RegenerateSplinePrimitive;
                     _position.FPSChanged -= RegenerateSplinePrimitive;
                     _position.LengthChanged -= RegenerateSplinePrimitive;
                     _position.AnimationStarted -= _spline_AnimationStarted;
                     _position.AnimationPaused -= _spline_AnimationEnded;
                     _position.AnimationEnded -= _spline_AnimationEnded;
+                    _position.CurrentPositionChanged -= RecalcLocalTransform;
                     _spline_AnimationEnded();
                 }
                 _position = value;
                 if (_position != null)
                 {
                     _position.Keyframes.Changed += RegenerateSplinePrimitive;
+                    _position.ConstrainKeyframedFPSChanged += RegenerateSplinePrimitive;
                     _position.FPSChanged += RegenerateSplinePrimitive;
                     _position.LengthChanged += RegenerateSplinePrimitive;
                     _position.AnimationStarted += _spline_AnimationStarted;
                     _position.AnimationPaused += _spline_AnimationEnded;
                     _position.AnimationEnded += _spline_AnimationEnded;
+                    _position.CurrentPositionChanged += RecalcLocalTransform;
                     if (_position.State == EAnimationState.Playing)
                         _spline_AnimationStarted();
                 }
                 RegenerateSplinePrimitive();
             }
+        }
+        
+        [TSerialize]
+        public PropAnimFloat Speed
+        {
+            get => _speed;
+            set => _speed = value;
         }
 
         private void _spline_AnimationEnded()
@@ -75,10 +86,10 @@ namespace TheraEngine.Components.Scene
             => RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
         private void Progress(float delta)
         {
-            if (_speed != null)
+            if (Speed != null)
             {
-                _position.Speed = _speed.CurrentPosition;
-                _speed.Progress(delta);
+                _position.Speed = Speed.CurrentPosition;
+                Speed.Progress(delta);
             }
             _position.Progress(delta);
         }
@@ -117,11 +128,14 @@ namespace TheraEngine.Components.Scene
             _timePointPrimitive?.Dispose();
             _timePointPrimitive = null;
 
-            if (_position == null || _position.BakedFrameCount == 0)
+            if (_position == null || _position.LengthInSeconds <= 0.0f)
                 return;
 
-            Vertex[] splinePoints = new Vertex[_position.BakedFrameCount];
-            VertexLine[] velocity = new VertexLine[_position.BakedFrameCount];
+            float fps = _position.ConstrainKeyframedFPS ? _position.BakedFramesPerSecond : (Engine.TargetFramesPerSecond == 0 ? 60.0f : Engine.TargetFramesPerSecond);
+            int frameCount = (int)Math.Ceiling(_position.LengthInSeconds * fps);
+            
+            Vertex[] splinePoints = new Vertex[frameCount];
+            VertexLine[] velocity = new VertexLine[frameCount];
             Vec3[] keyframePositions = new Vec3[_position.Keyframes.Count << 1];
             Vec3[] tangentPositions = new Vec3[_position.Keyframes.Count << 1];
 
@@ -129,7 +143,7 @@ namespace TheraEngine.Components.Scene
             float sec;
             for (i = 0; i < splinePoints.Length; ++i)
             {
-                sec = i / _position.BakedFramesPerSecond;
+                sec = i / fps;
                 Vertex pos = new Vertex(_position.GetValueKeyframed(sec));
                 splinePoints[i] = pos;
                 velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _position.GetVelocityKeyframed(sec).Normalized()));
@@ -195,11 +209,21 @@ namespace TheraEngine.Components.Scene
             }
             base.OnSelectedChanged(selected);
         }
+        private Matrix4 _transform = Matrix4.Identity;
+        private Matrix4 _splineLocalTransform = Matrix4.Identity;
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        {
+            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
 
+            _transform = localTransform;
+            _splineLocalTransform = Matrix4.CreateTranslation(_position.CurrentPosition);
+
+            localTransform = _transform * _splineLocalTransform;
+            inverseLocalTransform = Matrix4.CreateTranslation(-_position.CurrentPosition) * inverseLocalTransform;
+        }
         protected override void OnWorldTransformChanged()
         {
-            //TODO: use parent matrix
-            Matrix4 mtx = GetParentMatrix();
+            Matrix4 mtx = _transform;
             _rcSpline.WorldMatrix = mtx;
             _rcVelocity.WorldMatrix = mtx;
             _rcPoints.WorldMatrix = mtx;
@@ -221,8 +245,7 @@ namespace TheraEngine.Components.Scene
 
             if (RenderCurrentTimePoint)
             {
-                Vec3 point = _position.CurrentPosition;
-                _rcCurrentPoint.WorldMatrix = GetParentMatrix() * Matrix4.CreateTranslation(point);
+                _rcCurrentPoint.WorldMatrix = WorldMatrix;
                 passes.Add(_rcCurrentPoint, RenderInfo.RenderPass);
             }
             if (RenderTangents)

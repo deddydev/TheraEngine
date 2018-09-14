@@ -104,7 +104,7 @@ namespace TheraEngine.Files.Serialization
         }
         public VarInfo(Type type, Type owningType, string name) : this(type, owningType)
         {
-            Name = name;
+            Name = new string(name.Where(x => !char.IsWhiteSpace(x)).ToArray());
         }
         public VarInfo(Type type, Type owningType)
         {
@@ -134,6 +134,7 @@ namespace TheraEngine.Files.Serialization
                 else
                     Name = _info.Name;
             }
+            Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
             if (Attrib.UseCategory)
             {
                 if (Attrib.OverrideXmlCategory != null)

@@ -170,12 +170,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else if (DataType == typeof(EventColorF3))
             {
-                _colorF3.Color = newColor;
+                if (_colorF3 != null)
+                    _colorF3.Color = newColor;
                 pnlColorPreview.BackColor = newColor;
             }
             else if (DataType == typeof(EventColorF4))
             {
-                _colorF4.Color = newColor;
+                if (_colorF4 != null)
+                    _colorF4.Color = newColor;
                 pnlColorPreview.BackColor = newColor;
             }
         }

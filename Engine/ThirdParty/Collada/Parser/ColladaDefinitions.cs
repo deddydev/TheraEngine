@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.Models
         }
         public abstract class BaseColladaElement<TParent> : BaseElement<TParent> where TParent : class, IElement
         {
-            public COLLADA Root => base.Root as COLLADA;
+            public new COLLADA Root => base.Root as COLLADA;
             public virtual List<IID> GetIDEntries(string id) => Root.IDEntries[id];
             public override void OnAttributesRead()
             {

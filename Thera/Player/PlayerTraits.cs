@@ -7,18 +7,15 @@ namespace Thera.GameModes
     {
         public ZoomLevel(float fovX, float aimAssistDistance)
         {
-            _fovX = fovX;
-            _aimAssistDistance = aimAssistDistance;
+            FovX = fovX;
+            AimAssistDistance = aimAssistDistance;
         }
-
-        private float _fovX;
-        private float _aimAssistDistance;
 
         public static readonly ZoomLevel DefaultNonZoomed = new ZoomLevel(90.0f, 1000.0f);
         public static readonly ZoomLevel DefaultZoomed = new ZoomLevel(60.0f, 2000.0f);
 
-        public float FovX { get => _fovX; set => _fovX = value; }
-        public float AimAssistDistance { get => _aimAssistDistance; set => _aimAssistDistance = value; }
+        public float FovX { get; set; }
+        public float AimAssistDistance { get; set; }
     }
     public struct StaticPlayerTraits
     {

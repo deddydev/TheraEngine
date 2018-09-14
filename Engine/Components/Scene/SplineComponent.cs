@@ -132,8 +132,9 @@ namespace TheraEngine.Components.Scene
                 return;
 
             float fps = _position.ConstrainKeyframedFPS ? _position.BakedFramesPerSecond : (Engine.TargetFramesPerSecond == 0 ? 60.0f : Engine.TargetFramesPerSecond);
-            int frameCount = (int)Math.Ceiling(_position.LengthInSeconds * fps);
-            
+            int frameCount = (int)Math.Ceiling(_position.LengthInSeconds * fps) + 1;
+            float invFps = 1.0f / fps;
+
             Vertex[] splinePoints = new Vertex[frameCount];
             VertexLine[] velocity = new VertexLine[frameCount];
             Vec3[] keyframePositions = new Vec3[_position.Keyframes.Count << 1];
@@ -143,10 +144,12 @@ namespace TheraEngine.Components.Scene
             float sec;
             for (i = 0; i < splinePoints.Length; ++i)
             {
-                sec = i / fps;
-                Vertex pos = new Vertex(_position.GetValueKeyframed(sec));
+                sec = i * invFps;
+                Vec3 val = _position.GetValueKeyframed(sec);
+                Vec3 vel = _position.GetVelocityKeyframed(sec);
+                Vertex pos = new Vertex(val) { Color = vel };
                 splinePoints[i] = pos;
-                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + _position.GetVelocityKeyframed(sec).Normalized()));
+                velocity[i] = new VertexLine(pos, new Vertex(pos.Position + vel.Normalized()));
             }
             i = 0;
             foreach (Vec3Keyframe keyframe in _position)
@@ -165,7 +168,7 @@ namespace TheraEngine.Components.Scene
                 PointSize = 5.0f
             };
 
-            PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
+            PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.PosColor(), strip);
             TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
             mat.RenderParams = p;
             _splinePrimitive = new PrimitiveManager(splineData, mat);
@@ -215,11 +218,23 @@ namespace TheraEngine.Components.Scene
         {
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
 
-            _transform = localTransform;
-            _splineLocalTransform = Matrix4.CreateTranslation(_position.CurrentPosition);
+            Matrix4 splineTransform, invSplineTransform;
+            if (_position != null)
+            {
+                splineTransform = Matrix4.CreateTranslation(_position.CurrentPosition);
+                invSplineTransform = Matrix4.CreateTranslation(-_position.CurrentPosition);
+            }
+            else
+            {
+                splineTransform = Matrix4.Identity;
+                invSplineTransform = Matrix4.Identity;
+            }
 
-            localTransform = _transform * _splineLocalTransform;
-            inverseLocalTransform = Matrix4.CreateTranslation(-_position.CurrentPosition) * inverseLocalTransform;
+            _transform = localTransform;
+            _splineLocalTransform = splineTransform;
+
+            localTransform = _transform * splineTransform;
+            inverseLocalTransform = invSplineTransform * inverseLocalTransform;
         }
         protected override void OnWorldTransformChanged()
         {

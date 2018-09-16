@@ -67,6 +67,7 @@ namespace TheraEngine.Components.Scene
                     //_position.AnimationPaused += _spline_AnimationEnded;
                     //_position.AnimationEnded += _spline_AnimationEnded;
                     _position.CurrentPositionChanged += RecalcLocalTransform;
+                    _position.TickSelf = true;
                     //if (_position.State == EAnimationState.Playing)
                     //    _spline_AnimationStarted();
                 }
@@ -145,7 +146,7 @@ namespace TheraEngine.Components.Scene
                 sec = i * invFps;
                 Vec3 val = _position.GetValueKeyframed(sec);
                 Vec3 vel = _position.GetVelocityKeyframed(sec);
-                Vertex pos = new Vertex(val) { Color = Color.Red };
+                Vertex pos = new Vertex(val) { Color = vel / (1.0f + vel) };
                 splinePoints[i] = pos;
                 velocity[i] = new VertexLine(pos, new Vertex(pos.Position + vel.Normalized()));
             }

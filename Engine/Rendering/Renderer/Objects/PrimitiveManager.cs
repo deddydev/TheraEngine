@@ -139,9 +139,7 @@ namespace TheraEngine.Rendering.Models
             if (Material?.Program != null && Material.Program.IsValid)
                 return Material;
             else
-            {
                 return TMaterial.InvalidMaterial;
-            }
         }
 
         public RenderProgram VertexProgram
@@ -610,10 +608,7 @@ namespace TheraEngine.Rendering.Models
                 {
                     Destroy();
                 }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
+                
                 _data.Dispose();
                 IndexBuffer.Dispose();
                 _vertexProgram = null;

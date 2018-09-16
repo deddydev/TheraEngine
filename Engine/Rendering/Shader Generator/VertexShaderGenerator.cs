@@ -82,6 +82,7 @@ namespace TheraEngine.Rendering
                 Line("{0} = {2}{1};", string.Format(FragUVName, i), i, EBufferType.TexCoord.ToString());
 
             string source = EndMain();
+            Engine.PrintLine(source);
             return new GLSLShaderFile(EShaderMode.Vertex, source);
         }
         private void WriteBuffers()
@@ -252,7 +253,6 @@ namespace TheraEngine.Rendering
                 CloseBracket();
 
                 Line();
-                Line("finalPosition = ModelMatrix * vec4(finalPosition.xyz, 1.0f);");
                 if (_info.HasNormals)
                     Line($"{FragNormName} = normalize(NormalMatrix * finalNormal);");
                 if (_info.HasBinormals)
@@ -293,18 +293,16 @@ namespace TheraEngine.Rendering
                 }
                 CloseBracket();
 
-                Line("finalPosition = ModelMatrix * (finalPosition / vec4(vec3(total), 1.0f));");
                 if (_info.HasNormals)
                     Line($"{FragNormName} = normalize(NormalMatrix * (finalNormal / total));");
                 if (_info.HasBinormals)
                     Line($"{FragBinormName} = normalize(NormalMatrix * (finalBinormal / total));");
                 if (_info.HasTangents)
                     Line($"{FragTanName} = normalize(NormalMatrix * (finalTangent / total));");
+                Line("finalPosition /= vec4(vec3(total), 1.0f);");
             }
-            Line($"{FragPosName} = finalPosition.xyz;");
-            Line("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * finalPosition;");
+            ResolvePosition("finalPosition");
         }
-
         /// <summary>
         /// Calculates positions, and optionally normals, tangents, and binormals for a static mesh.
         /// </summary>
@@ -360,15 +358,25 @@ namespace TheraEngine.Rendering
                 Line();
             }
 
-            Line("position = ModelMatrix * position;");
-            Line($"{FragPosName} = position.xyz;");
-            Line("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * position;");
+            ResolvePosition("position");
             if (_info.HasNormals)
                 Line($"{FragNormName} = normalize(NormalMatrix * normal);");
             if (_info.HasBinormals)
                 Line($"{FragBinormName} = normalize(NormalMatrix * binormal);");
             if (_info.HasTangents)
                 Line($"{FragTanName} = normalize(NormalMatrix * tangent);");
+        }
+        private void ResolvePosition(string posName)
+        {
+            //if (Billboard == EBillboardMode.None)
+            {
+                Line($"{posName} = ModelMatrix * vec4({posName}.xyz, 1.0f);");
+                Line($"{FragPosName} = {posName}.xyz;");
+                Line($"gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * {posName};");
+                return;
+            }
+
+
         }
     }
     /// <summary>

@@ -111,6 +111,10 @@ namespace TheraEngine.Animation
                 BakedChanged();
             }
         }
+        /// <summary>
+        /// If true, the animation will progress itself when playing.
+        /// If false, <see cref="Progress(float)"/> must be called to progress the animation.
+        /// </summary>
         [Category("Animation"), TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool TickSelf
         {

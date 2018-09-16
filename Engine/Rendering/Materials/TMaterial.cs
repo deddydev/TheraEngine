@@ -15,6 +15,7 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileDef("Material")]
     public class TMaterial : TMaterialBase
     {
+        //TODO: load a material from the engine directory
         public static TMaterial InvalidMaterial { get; }
             = CreateUnlitColorMaterialForward(Color.Magenta);
         

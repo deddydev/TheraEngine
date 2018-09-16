@@ -203,10 +203,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
 
                 if (_mipmaps != null)
                     Array.ForEach(_mipmaps, x => x?.Dispose());
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
+                
                 _disposedValue = true;
             }
         }

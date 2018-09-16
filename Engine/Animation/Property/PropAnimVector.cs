@@ -18,6 +18,7 @@ namespace TheraEngine.Animation
         private T _defaultValue = new T();
         private bool _constrainKeyframedFPS = false;
         private bool _lerpConstrainedFPS = false;
+        private VectorKeyframe<T> _prevKeyframe = null;
 
         public event Action DefaultValueChanged;
         public event Action ConstrainKeyframedFPSChanged;
@@ -218,7 +219,6 @@ namespace TheraEngine.Animation
                 OnCurrentFrameChanged();
             }
         }
-        private VectorKeyframe<T> _prevKeyframe = null;
         protected override void OnProgressed(float delta)
         {
             //TODO: assign separate functions to be called by OnProgressed to avoid if statements and returns

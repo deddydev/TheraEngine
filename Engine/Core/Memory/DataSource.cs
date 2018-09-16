@@ -73,11 +73,6 @@ namespace TheraEngine.Core.Memory
         {
             if (!_disposedValue)
             {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects).
-                }
-
                 try
                 {
                     if (!_external && _address != null)
@@ -94,8 +89,7 @@ namespace TheraEngine.Core.Memory
                 _disposedValue = true;
             }
         }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        
         ~DataSource()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
@@ -107,7 +101,6 @@ namespace TheraEngine.Core.Memory
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
             GC.SuppressFinalize(this);
         }
         #endregion

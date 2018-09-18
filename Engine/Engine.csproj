@@ -344,6 +344,7 @@
     <Compile Include="Actors\Types\GroupActor.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawnBase.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawn.cs" />
+    <Compile Include="Animation\Cutscenes\Scene.cs" />
     <Compile Include="Animation\Property\PropAnimVector.cs" />
     <Compile Include="Components\Scene\IBLProbeComponent.cs" />
     <Compile Include="Components\Scene\SceneCaptureComponent.cs" />
@@ -978,6 +979,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThirdParty\openvr_api.cs" />
     <Compile Include="ThirdParty\VisualStudioSolution.cs" />
+    <Compile Include="Worlds\EventDictionary.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapSettings.cs" />
     <Compile Include="Worlds\Maps\MapState.cs" />

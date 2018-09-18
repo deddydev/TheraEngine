@@ -36,7 +36,7 @@
             this.meshControl1.AutoSize = true;
             this.meshControl1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.meshControl1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.meshControl1.Collapsible = true;
+            this.meshControl1.Collapsible = false;
             this.meshControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.meshControl1.DropDownColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(58)))), ((int)(((byte)(74)))));
             this.meshControl1.DropDownHighlightColor = System.Drawing.Color.FromArgb(((int)(((byte)(14)))), ((int)(((byte)(18)))), ((int)(((byte)(34)))));

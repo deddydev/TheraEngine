@@ -13,7 +13,6 @@ namespace TheraEngine.Components.Scene.Mesh
 {
     public class RenderableLOD : TObject
     {
-        [Browsable(false)]
         public PrimitiveManager Manager { get; set; }
         public float VisibleDistance { get; set; }
         public ShaderVar[] Parameters => Manager.Material.Parameters;
@@ -51,6 +50,7 @@ namespace TheraEngine.Components.Scene.Mesh
         
         protected SceneComponent _component;
         protected LinkedListNode<RenderableLOD> _currentLOD;
+        [Browsable(false)]
         public RenderableLOD CurrentLOD => _currentLOD.Value;
 
         public LinkedList<RenderableLOD> LODs { get; private set; }
@@ -61,6 +61,7 @@ namespace TheraEngine.Components.Scene.Mesh
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
+        [Browsable(false)]
         public Scene3D OwningScene3D => _component?.OwningScene3D;
         
         private void UpdateLOD(float viewDist)

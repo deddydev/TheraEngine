@@ -47,17 +47,11 @@ namespace TheraEngine.Rendering.Models
             _name = name;
         }
 
-        private TCollisionShape _collisionShape;
-
         public List<StaticRigidSubMesh> RigidChildren => _rigidChildren;
         public List<StaticSoftSubMesh> SoftChildren => _softChildren;
 
         [TSerialize]
-        public TCollisionShape CollisionShape
-        {
-            get => _collisionShape;
-            set => _collisionShape = value;
-        }
+        public TCollisionShape CollisionShape { get; set; }
 
         //[CustomXMLSerializeMethod(nameof(Collision))]
         //private void SerializeConvexShape(XmlWriter writer)
@@ -68,7 +62,7 @@ namespace TheraEngine.Rendering.Models
         //    //TODO: serialize convex shape collision using bullet serializer
         //    //int size = _collision.CalculateSerializeBufferSize();
         //}
-        
+
         [TSerialize(nameof(RigidChildren))]
         protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();
         [TSerialize(nameof(SoftChildren))]

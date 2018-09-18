@@ -18,17 +18,20 @@ namespace TheraEditor.Windows.Forms
             if ((_lod = lod) != null)
             {
                 DropDownName = $"[{i}] LOD";
-                if (i == 0)
-                    DropDownName += " (Nearest)";
-                else if (i == maxLods - 1)
-                    DropDownName += " (Farthest)";
+                if (maxLods > 1)
+                {
+                    if (i == 0)
+                        DropDownName += " (Nearest)";
+                    else if (i == maxLods - 1)
+                        DropDownName += " (Farthest)";
+                }
 
-                lblMaterial.Text = _lod.MaterialRef?.File?.Name ?? "<null>";
+                lblMaterial.Text = "Material: " + (_lod.MaterialRef?.File?.Name ?? "<null>");
                 propGridSingle1.SetReferenceHolder(new PropGridItemRefPropertyInfo(() => _lod, _lod.GetType().GetProperty(nameof(_lod.VisibleDistance))));
             }
             else
             {
-                lblMaterial.Text = "<null>";
+                lblMaterial.Text = "Material: <null>";
                 DropDownName = "<null>";
                 propGridSingle1.SetReferenceHolder(new PropGridItemRefPropertyInfo(null, null));
             }
@@ -43,13 +46,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void lblMaterial_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            DockContent dc = ParentForm as DockContent;
-            if (dc == null)
-                return;
-            ModelEditorForm f = dc.DockPanel.FindForm() as ModelEditorForm;
-            if (f == null)
-                return;
-            f.MaterialEditor.SetMaterial(_lod?.MaterialRef?.File);
+            if (ParentForm is DockContent dc && dc.DockPanel.FindForm() is ModelEditorForm f)
+                f.MaterialEditor.SetMaterial(_lod?.MaterialRef?.File);
         }
     }
 }

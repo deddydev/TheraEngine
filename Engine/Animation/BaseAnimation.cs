@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Animation
 {
@@ -29,31 +30,30 @@ namespace TheraEngine.Animation
     [FileDef("Animation")]
     public abstract class BaseAnimation : TFileObject
     {
-        public event Action AnimationStarted;
-        public event Action AnimationEnded;
-        public event Action AnimationPaused;
-        public event Action CurrentFrameChanged;
-        public event Action SpeedChanged;
-        public event Action LoopChanged;
-        public event Action LengthChanged;
-        public event Action FPSChanged;
-        public event Action TickSelfChanged;
+        public event Action<BaseAnimation> AnimationStarted;
+        public event Action<BaseAnimation> AnimationEnded;
+        public event Action<BaseAnimation> AnimationPaused;
+        public event Action<BaseAnimation> CurrentFrameChanged;
+        public event Action<BaseAnimation> SpeedChanged;
+        public event Action<BaseAnimation> LoopChanged;
+        public event Action<BaseAnimation> LengthChanged;
+        public event Action<BaseAnimation> TickSelfChanged;
 
-        protected void OnAnimationStarted() => AnimationStarted?.Invoke();
-        protected void OnAnimationEnded() => AnimationEnded?.Invoke();
-        protected void OnAnimationPaused() => AnimationPaused?.Invoke();
-        protected void OnCurrentFrameChanged() => CurrentFrameChanged?.Invoke();
-        protected void OnSpeedChanged() => SpeedChanged?.Invoke();
-        protected void OnLoopChanged() => LoopChanged?.Invoke();
-        protected void OnLengthChanged() => LengthChanged?.Invoke();
-        protected void OnFPSChanged() => FPSChanged?.Invoke();
-        protected void OnTickSelfChanged() => TickSelfChanged?.Invoke();
+        protected void OnAnimationStarted() => AnimationStarted?.Invoke(this);
+        protected void OnAnimationEnded() => AnimationEnded?.Invoke(this);
+        protected void OnAnimationPaused() => AnimationPaused?.Invoke(this);
+        protected void OnCurrentTimeChanged() => CurrentFrameChanged?.Invoke(this);
+        protected void OnSpeedChanged() => SpeedChanged?.Invoke(this);
+        protected void OnLoopChanged() => LoopChanged?.Invoke(this);
+        protected void OnLengthChanged() => LengthChanged?.Invoke(this);
+        protected void OnTickSelfChanged() => TickSelfChanged?.Invoke(this);
 
-        [TSerialize("BakedFrameCount", Order = 1)]
-        protected int _bakedFrameCount = 0;
-        [TSerialize("BakedFPS", Order = 0)]
-        protected float _bakedFPS = 0.0f;
-
+        [TSerialize("TickGroup")]
+        protected ETickGroup _group = ETickGroup.PostPhysics;
+        [TSerialize("TickOrder")]
+        protected ETickOrder _order = ETickOrder.Animation;
+        [TSerialize("TickPausedBehavior")]
+        protected EInputPauseType _pausedBehavior = EInputPauseType.TickAlways;
         [TSerialize("LengthInSeconds")]
         protected float _lengthInSeconds = 0.0f;
         [TSerialize("Speed")]
@@ -64,57 +64,65 @@ namespace TheraEngine.Animation
         protected bool _looped = false;
         [TSerialize("State")]
         protected EAnimationState _state = EAnimationState.Stopped;
-        [TSerialize("IsBaked")]
-        protected bool _isBaked = false;
         [TSerialize("TickSelf")]
         protected bool _tickSelf = true;
 
-        public BaseAnimation(float lengthInSeconds, bool looped, bool isBaked = false)
+        public BaseAnimation(float lengthInSeconds, bool looped)
         {
-            _bakedFPS = 60.0f;
             _lengthInSeconds = lengthInSeconds;
-            SetBakedFramecount();
             Looped = looped;
-            Baked = isBaked;
-        }
-        public BaseAnimation(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
-        {
-            _bakedFrameCount = frameCount;
-            _bakedFPS = framesPerSecond.ClampMin(0.0f);
-
-            if (_bakedFPS == 0.0f)
-                _lengthInSeconds = 0;
-            else
-                _lengthInSeconds = _bakedFrameCount / _bakedFPS;
-
-            Looped = looped;
-            Baked = isBaked;
         }
 
-        protected void SetBakedFramecount()
+        public ETickGroup Group
         {
-            _bakedFrameCount = (int)Math.Ceiling(_lengthInSeconds * _bakedFPS);
-        }
-
-        /// <summary>
-        /// Determines which method to use, baked or keyframed.
-        /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
-        /// Baked takes up more memory but requires no calculations. However, the animation cannot be sped up at all, nor slowed down without artifacts.
-        /// </summary>
-        [Category("Animation"), TSerialize(XmlNodeType = EXmlNodeType.Attribute, Order = 2)]
-        public bool Baked
-        {
-            get => _isBaked;
+            get => _group;
             set
             {
-                _isBaked = value;
-                BakedChanged();
+                if (_group == value)
+                    return;
+                if (_state == EAnimationState.Playing)
+                {
+                    UnregisterTick(_group, _order, OnProgressed, _pausedBehavior);
+                    RegisterTick(value, _order, OnProgressed, _pausedBehavior);
+                }
+                _group = value;
+            }
+        }
+        public ETickOrder Order
+        {
+            get => _order;
+            set
+            {
+                if (_order == value)
+                    return;
+                if (_state == EAnimationState.Playing)
+                {
+                    UnregisterTick(_group, _order, OnProgressed, _pausedBehavior);
+                    RegisterTick(_group, value, OnProgressed, _pausedBehavior);
+                }
+                _order = value;
+            }
+        }
+        public EInputPauseType PausedBehavior
+        {
+            get => _pausedBehavior;
+            set
+            {
+                if (_pausedBehavior == value)
+                    return;
+                if (_state == EAnimationState.Playing)
+                {
+                    UnregisterTick(_group, _order, OnProgressed, _pausedBehavior);
+                    RegisterTick(_group, _order, OnProgressed, value);
+                }
+                _pausedBehavior = value;
             }
         }
         /// <summary>
         /// If true, the animation will progress itself when playing.
         /// If false, <see cref="Progress(float)"/> must be called to progress the animation.
         /// </summary>
+        [Browsable(false)]
         [Category("Animation"), TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public bool TickSelf
         {
@@ -126,15 +134,11 @@ namespace TheraEngine.Animation
                 _tickSelf = value;
 
                 if (_state == EAnimationState.Playing)
-                    RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
-                else
-                    UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+                    RegisterTick(!_tickSelf);
 
                 OnTickSelfChanged();
             }
         }
-
-        protected abstract void BakedChanged();
 
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
@@ -143,8 +147,7 @@ namespace TheraEngine.Animation
             if (seconds < 0.0f)
                 return;
             _lengthInSeconds = seconds;
-            SetBakedFramecount();
-            LengthChanged?.Invoke();
+            OnLengthChanged();
         }
 
         [Category("Animation")]
@@ -166,44 +169,9 @@ namespace TheraEngine.Animation
             set
             {
                 _speed = value;
-                SpeedChanged?.Invoke();
+                OnSpeedChanged();
             }
         }
-        /// <summary>
-        /// How many frames of this animation should pass in a second.
-        /// For example, if the animation is 30fps, and the game is running at 60fps,
-        /// Only one frame of this animation will show for every two game frames (the animation won't be sped up).
-        /// </summary>
-        [Category("Animation")]
-        public float BakedFramesPerSecond
-        {
-            get => _bakedFPS;
-            set
-            {
-                _bakedFPS = value;
-                SetBakedFramecount();
-                OnFPSChanged();
-            }
-        }
-
-        /// <summary>
-        /// How many frames this animation contains.
-        /// </summary>
-        [Category("Animation")]
-        public int BakedFrameCount
-        {
-            get => _bakedFrameCount;
-            set
-            {
-                _bakedFrameCount = value;
-
-                if (_bakedFPS <= 0.0f)
-                    LengthInSeconds = 0.0f;
-                else
-                    LengthInSeconds = _bakedFrameCount / _bakedFPS;
-            }
-        }
-
         [Category("Animation")]
         public bool Looped
         {
@@ -211,7 +179,7 @@ namespace TheraEngine.Animation
             set
             {
                 _looped = value;
-                LoopChanged?.Invoke();
+                OnLoopChanged();
             }
         }
         /// <summary>
@@ -225,7 +193,7 @@ namespace TheraEngine.Animation
             set
             {
                 _currentTime = value.RemapToRange(0.0f, _lengthInSeconds);
-                OnCurrentFrameChanged();
+                OnCurrentTimeChanged();
             }
         }
 
@@ -237,7 +205,6 @@ namespace TheraEngine.Animation
             {
                 if (value == _state)
                     return;
-                //_state = value;
                 switch (value)
                 {
                     case EAnimationState.Playing:
@@ -262,8 +229,7 @@ namespace TheraEngine.Animation
                 Start();
             }
         }
-
-        #region Playback
+        
         protected virtual void PreStarted() { }
         protected virtual void PostStarted() { }
         public virtual void Start()
@@ -276,7 +242,7 @@ namespace TheraEngine.Animation
             _state = EAnimationState.Playing;
             OnAnimationStarted();
             if (TickSelf)
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+                RegisterTick(false);
             PostStarted();
         }
         protected virtual void PreStopped() { }
@@ -289,7 +255,7 @@ namespace TheraEngine.Animation
             _state = EAnimationState.Stopped;
             OnAnimationEnded();
             if (TickSelf)
-                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+                RegisterTick(true);
             PostStopped();
         }
         protected virtual void PrePaused() { }
@@ -302,38 +268,69 @@ namespace TheraEngine.Animation
             _state = EAnimationState.Paused;
             OnAnimationPaused();
             if (TickSelf)
-                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress, Input.Devices.EInputPauseType.TickAlways);
+                RegisterTick(true);
             PostPaused();
         }
-        #endregion
-
+        protected virtual void RegisterTick(bool unregister = false)
+        {
+            if (unregister)
+                UnregisterTick(_group, _order, OnProgressed, _pausedBehavior);
+            else
+                RegisterTick(_group, _order, OnProgressed, _pausedBehavior);
+        }
         /// <summary>
         /// Progresses this animation forward (or backward) by the specified change in seconds.
         /// </summary>
-        /// <param name="delta"></param>
+        /// <param name="delta">The change in seconds to add to the current time. Negative values are allowed.</param>
         public void Progress(float delta)
         {
-            _currentTime += delta * Speed;
-            if (_currentTime >= _lengthInSeconds || _currentTime <= 0.0f)
+            //Modify delta with speed
+            delta *= Speed;
+
+            //Increment the current time with the delta value
+            _currentTime += delta;
+
+            //Is the new current time out of range of the animation?
+            bool greater = _currentTime >= _lengthInSeconds;
+            bool less = _currentTime <= 0.0f;
+            if (greater || less)
             {
+                //If playing but not looped, end the animation
                 if (_state == EAnimationState.Playing && !_looped)
                 {
+                    //Correct delta and current time for over-progression past the start or end point
+                    if (greater)
+                    {
+                        delta -= _currentTime - _lengthInSeconds;
+                        _currentTime = _lengthInSeconds;
+                    }
+                    else if (less)
+                    {
+                        delta -= _currentTime;
+                        _currentTime = 0.0f;
+                    }
+                    //Progress whatever delta is remaining and then stop
+                    OnProgressed(delta);
+                    OnCurrentTimeChanged();
                     Stop();
-                    OnCurrentFrameChanged();
                     return;
                 }
                 else
-                    _currentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
+                {
+                    //Remap current time into proper range and correct delta
+                    float remappedCurrentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
+                    delta = remappedCurrentTime - _currentTime;
+                    _currentTime = remappedCurrentTime;
+                }
             }
-            OnProgressed(delta);
-            OnCurrentFrameChanged();
-        }
-        protected abstract void OnProgressed(float delta);
 
+            OnProgressed(delta);
+            OnCurrentTimeChanged();
+        }
         /// <summary>
-        /// Bakes the interpolated data for fastest access by the game.
-        /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
+        /// Called when <see cref="Progress(float)"/> has been called and <see cref="CurrentTime"/> has been updated.
         /// </summary>
-        public abstract void Bake(float framesPerSecond);
+        /// <param name="delta"></param>
+        protected abstract void OnProgressed(float delta);
     }
 }

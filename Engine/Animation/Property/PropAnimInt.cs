@@ -26,7 +26,7 @@ namespace TheraEngine.Animation
             : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override void BakedChanged()
-            => _getValue = !Baked ? (DelGetValue<int>)GetValueKeyframed : GetValueBaked;
+            => _getValue = !IsBaked ? (DelGetValue<int>)GetValueKeyframed : GetValueBaked;
         
         public int GetValue(float second)
             => _getValue(second);

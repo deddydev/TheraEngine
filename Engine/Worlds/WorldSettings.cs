@@ -9,6 +9,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Cutscenes;
 
 namespace TheraEngine.Worlds
 {
@@ -45,11 +46,11 @@ namespace TheraEngine.Worlds
         /// </summary>
         public GlobalFileRef<BaseGameMode> GameModeOverrideRef
         {
-            get => _gameMode;
+            get => _gameModeOverrideRef;
             set
             {
-                BaseGameMode oldMode = _gameMode;
-                _gameMode = value;
+                BaseGameMode oldMode = _gameModeOverrideRef;
+                _gameModeOverrideRef = value;
                 OnGameModeOverrideChanged(oldMode);
             }
         }
@@ -74,13 +75,50 @@ namespace TheraEngine.Worlds
                 Engine.TimeDilation = _timeSpeed;
             }
         }
-        [TSerialize("Gravity")]
+
+        [TSerialize(nameof(Gravity))]
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
-        [TSerialize("GameMode")]
-        private GlobalFileRef<BaseGameMode> _gameMode;
-        [TSerialize("TimeDilation")]
+
+        [TSerialize(nameof(GameModeOverrideRef))]
+        private GlobalFileRef<BaseGameMode> _gameModeOverrideRef;
+
+        [TSerialize(nameof(TimeDilation))]
         private float _timeSpeed = 1.0f;
 
+        [TSerialize(nameof(Cutscenes))]
+        private EventDictionary<string, Cutscene> _cutscenes;
+
+        //[TSerialize(nameof(GlobalAmbient))]
+        //private ColorF3 _globalAmbient;
+
+        [TSerialize(nameof(DefaultHud))]
+        private IUserInterface _defaultHud;
+
+        [TSerialize(nameof(Bounds))]
+        private BoundingBox _bounds = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
+
+        [TSerialize(nameof(OriginRebaseBounds))]
+        private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
+
+        [TSerialize(nameof(Maps))]
+        private List<LocalFileRef<Map>> _maps = new List<LocalFileRef<Map>>();
+
+        [TSerialize(nameof(AmbientSound))]
+        private SoundFile _ambientSound;
+
+        [TSerialize(nameof(AmbientParams))]
+        private AudioSourceParameters _ambientParams = new AudioSourceParameters()
+        {
+            SourceRelative = new UsableValue<bool>(true, false, true),
+            Gain = new UsableValue<float>(0.6f, 1.0f, true),
+            Loop = new UsableValue<bool>(true, false, true),
+        };
+
+        /// <summary>
+        /// Determines if the origin of the world should be moved to keep the local players closest to it.
+        /// This is useful for open-world games as the player will be moving far from the original origin
+        /// and floating-point precision will become very poor at large distances.
+        /// </summary>
         [Description("Determines if the origin of the world should be moved to keep the local players closest to it." +
             "This is useful for open-world games as the player will be moving far from the original origin" +
             " and floating-point precision will become very poor at large distances.")]
@@ -97,6 +135,23 @@ namespace TheraEngine.Worlds
         {
             get => _bounds;
             set => _bounds = value;
+        }
+        [Category("World")]
+        public EventDictionary<string, Cutscene> Cutscenes
+        {
+            get => _cutscenes;
+            set
+            {
+                if (_cutscenes != null)
+                {
+
+                }
+                _cutscenes = value;
+                if (_cutscenes != null)
+                {
+
+                }
+            }
         }
         [Category("Audio")]
         public SoundFile AmbientSound
@@ -128,27 +183,6 @@ namespace TheraEngine.Worlds
         //    get => _globalAmbient;
         //    set => _globalAmbient = value;
         //}
-
-        //[TSerialize(nameof(GlobalAmbient))]
-        //private ColorF3 _globalAmbient;
-        [TSerialize(nameof(DefaultHud))]
-        private IUserInterface _defaultHud;
-        [TSerialize(nameof(Bounds))]
-        private BoundingBox _bounds = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
-        [TSerialize(nameof(OriginRebaseBounds))]
-        private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
-        [TSerialize(nameof(Maps))]
-        private List<LocalFileRef<Map>> _maps = new List<LocalFileRef<Map>>();
-        [TSerialize(nameof(AmbientSound))]
-        private SoundFile _ambientSound;
-        [TSerialize(nameof(AmbientParams))]
-        private AudioSourceParameters _ambientParams = new AudioSourceParameters()
-        {
-            SourceRelative = new UsableValue<bool>(true, false, true),
-            Gain = new UsableValue<float>(0.6f, 1.0f, true),
-            Loop = new UsableValue<bool>(true, false, true),
-        };
-
         public List<TMaterial> CollectDefaultMaterials()
         {
             foreach (Map m in _maps)
@@ -171,7 +205,6 @@ namespace TheraEngine.Worlds
             _originRebaseBounds = _bounds;
             _name = name;
         }
-
         public void SetOriginRebaseDistance(float distance)
         {
             _originRebaseBounds = new BoundingBox(distance);

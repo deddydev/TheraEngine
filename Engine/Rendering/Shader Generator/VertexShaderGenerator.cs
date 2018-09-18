@@ -24,22 +24,19 @@ namespace TheraEngine.Rendering
         private bool UseMorphs => _morphsAllowed && _info._morphCount > 0;
         private bool MultiRig => UseMorphs && _useMorphMultiRig;
         private TMaterial Material { get; set; }
-        private EBillboardMode Billboard { get; set; }
 
         public GLSLShaderFile Generate(
             VertexShaderDesc info,
             TMaterial material,
             bool allowMeshMorphing = true, 
             bool useMorphMultiRig = false, 
-            bool allowColorMorphing = true,
-            EBillboardMode billboardMode = EBillboardMode.None)
+            bool allowColorMorphing = true)
         {
             _info = info;
             _morphsAllowed = allowMeshMorphing;
             _useMorphMultiRig = useMorphMultiRig;
 
             Material = material;
-            Billboard = billboardMode;
 
             //Write #definitions
             WriteVersion();
@@ -82,7 +79,7 @@ namespace TheraEngine.Rendering
                 Line("{0} = {2}{1};", string.Format(FragUVName, i), i, EBufferType.TexCoord.ToString());
 
             string source = EndMain();
-            Engine.PrintLine(source);
+            //Engine.PrintLine(source);
             return new GLSLShaderFile(EShaderMode.Vertex, source);
         }
         private void WriteBuffers()
@@ -160,6 +157,8 @@ namespace TheraEngine.Rendering
             WriteUniform(EShaderVarType._mat4, EEngineUniform.ModelMatrix.ToString());
             WriteUniform(EShaderVarType._mat3, EEngineUniform.NormalMatrix.ToString());
             WriteUniform(EShaderVarType._mat4, EEngineUniform.WorldToCameraSpaceMatrix.ToString());
+            if (_info.BillboardMode != EBillboardMode.None)
+                WriteUniform(EShaderVarType._mat4, EEngineUniform.CameraToWorldSpaceMatrix.ToString());
             WriteUniform(EShaderVarType._mat4, EEngineUniform.ProjMatrix.ToString());
             if (_info.IsWeighted)
             {
@@ -368,15 +367,70 @@ namespace TheraEngine.Rendering
         }
         private void ResolvePosition(string posName)
         {
-            //if (Billboard == EBillboardMode.None)
+            if (_info.BillboardMode == EBillboardMode.None)
             {
                 Line($"{posName} = ModelMatrix * vec4({posName}.xyz, 1.0f);");
                 Line($"{FragPosName} = {posName}.xyz;");
                 Line($"gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * {posName};");
                 return;
             }
+            Line("mat4 BillboardMatrix = CameraToWorldSpaceMatrix;");
+            if (_info.BillboardMode.HasFlag(EBillboardMode.RotateX))
+            {
+                //Do not align X column to be stationary from camera's viewpoint
+                Line("WorldToCameraSpaceMatrix[0][0] = 1.0f;");
+                Line("WorldToCameraSpaceMatrix[0][1] = 0.0f;");
+                Line("WorldToCameraSpaceMatrix[0][2] = 0.0f;");
 
+                //Do not fix Y column to rotate with camera
+                Line("BillboardMatrix[1][0] = 0.0f;");
+                Line("BillboardMatrix[1][1] = 1.0f;");
+                Line("BillboardMatrix[1][2] = 0.0f;");
 
+                //Do not fix Z column to rotate with camera
+                Line("BillboardMatrix[2][0] = 0.0f;");
+                Line("BillboardMatrix[2][1] = 0.0f;");
+                Line("BillboardMatrix[2][2] = 1.0f;");
+            }
+            if (_info.BillboardMode.HasFlag(EBillboardMode.RotateY))
+            {
+                //Do not fix X column to rotate with camera
+                Line("BillboardMatrix[0][0] = 1.0f;");
+                Line("BillboardMatrix[0][1] = 0.0f;");
+                Line("BillboardMatrix[0][2] = 0.0f;");
+
+                //Do not align Y column to be stationary from camera's viewpoint
+                Line("WorldToCameraSpaceMatrix[1][0] = 0.0f;");
+                Line("WorldToCameraSpaceMatrix[1][1] = 1.0f;");
+                Line("WorldToCameraSpaceMatrix[1][2] = 0.0f;");
+
+                //Do not fix Z column to rotate with camera
+                Line("BillboardMatrix[2][0] = 0.0f;");
+                Line("BillboardMatrix[2][1] = 0.0f;");
+                Line("BillboardMatrix[2][2] = 1.0f;");
+            }
+            if (_info.BillboardMode.HasFlag(EBillboardMode.RotateZ))
+            {
+                //Do not fix X column to rotate with camera
+                Line("BillboardMatrix[0][0] = 1.0f;");
+                Line("BillboardMatrix[0][1] = 0.0f;");
+                Line("BillboardMatrix[0][2] = 0.0f;");
+
+                //Do not fix Y column to rotate with camera
+                Line("BillboardMatrix[1][0] = 0.0f;");
+                Line("BillboardMatrix[1][1] = 1.0f;");
+                Line("BillboardMatrix[1][2] = 0.0f;");
+
+                //Do not align Z column to be stationary from camera's viewpoint
+                Line("WorldToCameraSpaceMatrix[2][0] = 0.0f;");
+                Line("WorldToCameraSpaceMatrix[2][1] = 0.0f;");
+                Line("WorldToCameraSpaceMatrix[2][2] = 1.0f;");
+            }
+
+            Line($"{posName} = ModelMatrix * vec4({posName}.xyz, 1.0f);");
+            Line($"{FragPosName} = (BillboardMatrix * {posName}).xyz;");
+            Line($"gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * {posName};");
+            return;
         }
     }
     /// <summary>

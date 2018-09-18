@@ -46,13 +46,15 @@ namespace TheraEngine.Animation
     {
 
     }
+    public delegate void DelLengthChange(float oldValue, BaseKeyframeTrack track);
     public abstract class BaseKeyframeTrack : TFileObject
     {
-        public event Action Changed;
-        public event DelFloatChange LengthChanged;
+        public event Action<BaseKeyframeTrack> Changed;
+        public event DelLengthChange LengthChanged;
 
-        protected internal void OnChanged() => Changed?.Invoke();
-        
+        protected internal void OnChanged() => Changed?.Invoke(this);
+        protected internal void OnLengthChanged(float prevLength) => LengthChanged?.Invoke(prevLength, this);
+
         protected internal abstract Keyframe FirstKey { get; internal set; }
         protected internal abstract Keyframe LastKey { get; internal set; }
         
@@ -92,7 +94,7 @@ namespace TheraEngine.Animation
                 //    key = key.Next;
                 //}
             }
-            LengthChanged?.Invoke(prevLength, LengthInSeconds);
+            OnLengthChanged(prevLength);
             OnChanged();
         }
 
@@ -144,7 +146,6 @@ namespace TheraEngine.Animation
         public bool IsReadOnly => false;
         [Browsable(false)]
         public bool IsFixedSize => false;
-        //public int Count => base.Count;
         [Browsable(false)]
         public object SyncRoot { get; } = null;
         [Browsable(false)]
@@ -423,9 +424,14 @@ namespace TheraEngine.Animation
         //TODO: write keyframe append method
         public void Append(KeyframeTrack<T> keyframes)
         {
-            foreach (Keyframe k in keyframes)
+            Keyframe k = keyframes.First, temp;
+            while (k != null)
             {
-
+                temp = k.Next;
+                k.Remove();
+                k.Second += LengthInSeconds;
+                Add(k);
+                k = temp;
             }
         }
 

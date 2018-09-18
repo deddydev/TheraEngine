@@ -243,10 +243,11 @@ namespace TheraEditor.Windows.Forms
                 World.DespawnActor(TargetActor);
 
             Model = stm;
-            TargetActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(stm));
+            StaticMeshComponent comp = new StaticMeshComponent(stm);
+            TargetActor = new Actor<StaticMeshComponent>(comp);
             World.SpawnActor(TargetActor);
             
-            MeshList.DisplayMeshes(stm);
+            MeshList.DisplayMeshes(comp);
             MaterialList.DisplayMaterials(stm);
 
             //BoundingBox aabb = stm?.CalculateCullingAABB() ?? new BoundingBox();
@@ -264,14 +265,15 @@ namespace TheraEditor.Windows.Forms
                 World.DespawnActor(TargetActor);
 
             Model = skm;
-            TargetActor = new Actor<SkeletalMeshComponent>(new SkeletalMeshComponent(skm, skel));
+            SkeletalMeshComponent comp = new SkeletalMeshComponent(skm, skel);
+            TargetActor = new Actor<SkeletalMeshComponent>(comp);
             AnimStateMachineComponent machine = new AnimStateMachineComponent(skm.SkeletonRef.File);
             TargetActor.LogicComponents.Add(machine);
             World.SpawnActor(TargetActor);
             if (chkViewBones.Checked)
                 World.Scene.Add(skel);
 
-            MeshList.DisplayMeshes(skm);
+            MeshList.DisplayMeshes(comp);
             MaterialList.DisplayMaterials(skm);
             BoneTreeForm.SetSkeleton(skel);
             AnimList.Show();

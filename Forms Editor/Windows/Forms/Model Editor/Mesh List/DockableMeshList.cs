@@ -14,38 +14,38 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
         }
 
-        public void DisplayMeshes(StaticModel staticModel)
+        public void DisplayMeshes(StaticMeshComponent comp)
         {
             lstRigid.Items.Clear();
             lstSoft.Items.Clear();
 
-            if (staticModel == null)
+            if (comp?.Model == null)
                 return;
 
-            var rigidMeshes = staticModel.RigidChildren;
+            var rigidMeshes = comp.Model.RigidChildren;
             if (!(splitContainer1.Panel1Collapsed = rigidMeshes.Count == 0))
                 for (int i = 0; i < rigidMeshes.Count; ++i)
-                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = rigidMeshes[i] });
+                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = (rigidMeshes[i], comp.Meshes[i]) });
 
-            var softMeshes = staticModel.SoftChildren;
+            var softMeshes = comp.Model.SoftChildren;
             if (!(splitContainer1.Panel2Collapsed = softMeshes.Count == 0))
                 for (int i = 0; i < softMeshes.Count; ++i)
-                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = softMeshes[i] });
+                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = (softMeshes[i], comp.Meshes[i + rigidMeshes.Count]) });
         }
-        public void DisplayMeshes(SkeletalModel skelModel)
+        public void DisplayMeshes(SkeletalMeshComponent comp)
         {
             lstRigid.Items.Clear();
             lstSoft.Items.Clear();
 
-            if (skelModel == null)
+            if (comp?.Model == null)
                 return;
 
-            var rigidMeshes = skelModel.RigidChildren;
+            var rigidMeshes = comp.Model.RigidChildren;
             if (!(splitContainer1.Panel1Collapsed = rigidMeshes.Count == 0))
                 for (int i = 0; i < rigidMeshes.Count; ++i)
                     lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = rigidMeshes[i] });
 
-            var softMeshes = skelModel.SoftChildren;
+            var softMeshes = comp.Model.SoftChildren;
             if (!(splitContainer1.Panel2Collapsed = softMeshes.Count == 0))
                 for (int i = 0; i < softMeshes.Count; ++i)
                     lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = softMeshes[i] });
@@ -53,13 +53,10 @@ namespace TheraEditor.Windows.Forms
 
         private void lstRigid_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ModelEditorForm f = DockPanel.FindForm() as ModelEditorForm;
-            if (f == null)
+            if (!(DockPanel.FindForm() is ModelEditorForm f))
                 return;
             if (lstRigid.SelectedItems.Count == 0)
-            {
                 f.MeshEditor.ClearMesh();
-            }
             else
             {
                 object mesh = lstRigid.SelectedItems[0].Tag;
@@ -72,13 +69,10 @@ namespace TheraEditor.Windows.Forms
 
         private void lstSoft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ModelEditorForm f = DockPanel.FindForm() as ModelEditorForm;
-            if (f == null)
+            if (!(DockPanel.FindForm() is ModelEditorForm f))
                 return;
             if (lstSoft.SelectedItems.Count == 0)
-            {
                 f.MeshEditor.ClearMesh();
-            }
             else
             {
                 object mesh = lstRigid.SelectedItems[0].Tag;

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -9,6 +10,8 @@ namespace TheraEngine.Rendering.Models
         public static readonly int MaxTexCoords = 8;
         public static readonly int MaxOtherBuffers = 10;
         public static readonly int TotalBufferCount = (MaxMorphs + 1) * 6 + MaxColors + MaxTexCoords + MaxOtherBuffers;
+
+        public event Action Changed;
 
         [TSerialize("MorphCount", IsXmlAttribute = true)]
         public int _morphCount = 0;
@@ -35,6 +38,17 @@ namespace TheraEngine.Rendering.Models
         public bool HasTangents => _hasTangents;
         public bool HasTexCoords => _texcoordCount > 0;
         public bool HasColors => _colorCount > 0;
+
+        private EBillboardMode _billboardMode = EBillboardMode.None;
+        public EBillboardMode BillboardMode
+        {
+            get => _billboardMode;
+            set
+            {
+                _billboardMode = value;
+                Changed?.Invoke();
+            }
+        }
 
         public VertexShaderDesc() { }
 

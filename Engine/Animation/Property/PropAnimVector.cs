@@ -20,9 +20,17 @@ namespace TheraEngine.Animation
         private bool _lerpConstrainedFPS = false;
         private VectorKeyframe<T> _prevKeyframe = null;
 
-        public event Action DefaultValueChanged;
-        public event Action ConstrainKeyframedFPSChanged;
-        public event Action LerpConstrainedFPSChanged;
+        public event Action<PropAnimVector<T, T2>> DefaultValueChanged;
+        public event Action<PropAnimVector<T, T2>> ConstrainKeyframedFPSChanged;
+        public event Action<PropAnimVector<T, T2>> LerpConstrainedFPSChanged;
+
+        public event Action<PropAnimVector<T, T2>> CurrentPositionChanged;
+        public event Action<PropAnimVector<T, T2>> CurrentVelocityChanged;
+        public event Action<PropAnimVector<T, T2>> CurrentAccelerationChanged;
+
+        protected void OnDefaultValueChanged() => DefaultValueChanged?.Invoke(this);
+        protected void OnConstrainKeyframedFPSChanged() => ConstrainKeyframedFPSChanged?.Invoke(this);
+        protected void OnLerpConstrainedFPSChanged() => LerpConstrainedFPSChanged?.Invoke(this);
         
         [TSerialize("BakedValues", Condition = "Baked")]
         private T[] _baked = null;
@@ -39,7 +47,7 @@ namespace TheraEngine.Animation
             set
             {
                 _defaultValue = value;
-                DefaultValueChanged?.Invoke();
+                OnDefaultValueChanged();
             }
         }
 
@@ -52,7 +60,7 @@ namespace TheraEngine.Animation
             set
             {
                 _constrainKeyframedFPS = value;
-                ConstrainKeyframedFPSChanged?.Invoke();
+                OnConstrainKeyframedFPSChanged();
             }
         }
         [DisplayName("Lerp Constrained FPS")]
@@ -73,7 +81,7 @@ namespace TheraEngine.Animation
             set
             {
                 _lerpConstrainedFPS = value;
-                LerpConstrainedFPSChanged?.Invoke();
+                OnLerpConstrainedFPSChanged();
             }
         }
 
@@ -83,10 +91,6 @@ namespace TheraEngine.Animation
         public PropAnimVector(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        public event Action CurrentPositionChanged;
-        public event Action CurrentVelocityChanged;
-        public event Action CurrentAccelerationChanged;
-        
         private T _currentPosition;
         private T _currentVelocity;
         private T _currentAcceleration;
@@ -97,7 +101,7 @@ namespace TheraEngine.Animation
             private set
             {
                 _currentPosition = value;
-                CurrentPositionChanged?.Invoke();
+                CurrentPositionChanged?.Invoke(this);
             }
         }
         public T CurrentVelocity
@@ -106,7 +110,7 @@ namespace TheraEngine.Animation
             private set
             {
                 _currentVelocity = value;
-                CurrentVelocityChanged?.Invoke();
+                CurrentVelocityChanged?.Invoke(this);
             }
         }
         public T CurrentAcceleration
@@ -115,7 +119,7 @@ namespace TheraEngine.Animation
             private set
             {
                 _currentAcceleration = value;
-                CurrentAccelerationChanged?.Invoke();
+                CurrentAccelerationChanged?.Invoke(this);
             }
         }
 
@@ -168,7 +172,7 @@ namespace TheraEngine.Animation
 
         protected override void BakedChanged()
         {
-            if (Baked)
+            if (IsBaked)
             {
                 Bake(_bakedFPS);
                 _getValue = GetValueBakedBySecond;
@@ -216,14 +220,14 @@ namespace TheraEngine.Animation
                 float oldTime = _currentTime;
                 _currentTime = newTime;
                 OnProgressed(newTime - oldTime);
-                OnCurrentFrameChanged();
+                OnCurrentTimeChanged();
             }
         }
         protected override void OnProgressed(float delta)
         {
             //TODO: assign separate functions to be called by OnProgressed to avoid if statements and returns
 
-            if (Baked)
+            if (IsBaked)
             {
                 CurrentPosition = GetValueBakedBySecond(_currentTime);
                 CurrentVelocity = new T();

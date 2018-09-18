@@ -32,17 +32,17 @@ namespace TheraEngine.Animation
         [TSerialize(Condition = "!Baked")]
         public T DefaultValue { get; set; }
         
-        public PropAnimMethod() : base(0.0f, false, false) { }
-        public PropAnimMethod(float lengthInSeconds, bool looped, bool isBaked = false)
-            : base(lengthInSeconds, looped, isBaked) { }
-        public PropAnimMethod(int frameCount, float FPS, bool looped, bool isBaked = false)
-            : base(frameCount, FPS, looped, isBaked) { }
+        public PropAnimMethod() : base(0.0f, false) { }
+        public PropAnimMethod(float lengthInSeconds, bool looped)
+            : base(lengthInSeconds, looped) { }
+        public PropAnimMethod(int frameCount, float FPS, bool looped)
+            : base(FPS <= 0.0f ? 0.0f : frameCount / FPS, looped) { }
 
         public PropAnimMethod(DelGetValue method) : base(0.0f, false) => TickMethod = method;
         public PropAnimMethod(float lengthInSeconds, bool looped, DelGetValue method)
-            : base(lengthInSeconds, looped, false) => TickMethod = method;
+            : base(lengthInSeconds, looped) => TickMethod = method;
         public PropAnimMethod(int frameCount, float FPS, bool looped, DelGetValue method)
-            : base(frameCount, FPS, looped, false) => TickMethod = method;
+            : base(FPS <= 0.0f ? 0.0f : frameCount / FPS, looped) => TickMethod = method;
 
         public T GetValueMethod(float second)
             => TickMethod != null ? TickMethod(second) : DefaultValue;

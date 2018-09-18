@@ -139,7 +139,7 @@ namespace TheraEngine.Rendering
         public Scene3D Scene { get; internal set; }
         [Browsable(false)]
         public I3DRenderable Owner { get; internal set; }
-        
+
         public RenderInfo3D()
         {
             RenderPass = ERenderPass.OpaqueDeferredLit;

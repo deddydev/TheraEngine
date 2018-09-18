@@ -12,10 +12,12 @@ namespace TheraEngine.Animation
     {
         public const string PropAnimCategory = "Property Animation";
 
-        public BasePropAnim(float lengthInSeconds, bool looped, bool isBaked = false)
-            : base(lengthInSeconds, looped, isBaked) { _tickSelf = false; }
-        public BasePropAnim(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
-            : base(frameCount, framesPerSecond, looped, isBaked) { _tickSelf = false; }
+        public BasePropAnim(float lengthInSeconds, bool looped)
+            : base(lengthInSeconds, looped)
+        {
+            //Animation container will tick all of its children
+            _tickSelf = false;
+        }
 
         /// <summary>
         /// Call to set this animation's current value to an object's property and then advance the animation by the given delta.

@@ -32,11 +32,11 @@ namespace TheraEngine.Animation
             return (await Collada.ImportAsync(path, o))?.Models[0].Animation;
         }
         
-        public SkeletalAnimation() : base(0.0f, false, false) { }
-        public SkeletalAnimation(float lengthInSeconds, bool looped, bool isBaked = false)
-            : base(lengthInSeconds, looped, isBaked) { }
-        public SkeletalAnimation(int frameCount, float FPS, bool looped, bool isBaked = false)
-            : base(frameCount, FPS, looped, isBaked) { }
+        public SkeletalAnimation() : base(0.0f, false) { }
+        public SkeletalAnimation(float lengthInSeconds, bool looped)
+            : base(lengthInSeconds, looped) { }
+        public SkeletalAnimation(int frameCount, float FPS, bool looped)
+            : base(frameCount / FPS, looped) { }
 
         [TSerialize("BoneAnimations")]
         private Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
@@ -157,17 +157,7 @@ namespace TheraEngine.Animation
             //    }
             //}
         }
-
-        protected override void BakedChanged()
-        {
-
-        }
-
-        public override void Bake(float framesPerSecond)
-        {
-
-        }
-
+        
         protected override void OnProgressed(float delta)
         {
             throw new NotImplementedException();

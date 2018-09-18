@@ -184,6 +184,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //    PropertyInfo propertyInfo = propertyOwner.GetType().GetProperty(propertyName);
         //    SetReferenceHolder(propertyInfo, propertyOwner);
         //}
+        /// <summary>
+        /// Designates where this item gets and sets its value.
+        /// </summary>
         internal protected virtual void SetReferenceHolder(PropGridItemRefInfo parentInfo)
         {
             ParentInfo = parentInfo;

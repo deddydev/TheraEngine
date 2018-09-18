@@ -13,9 +13,6 @@ namespace TheraEditor.Windows.Forms
         public GenericDropDownControl()
         {
             InitializeComponent();
-            //DestroyChildControls();
-            Collapsible = true;
-            //tblControls.Visible = false;
         }
 
         private Color 
@@ -70,7 +67,7 @@ namespace TheraEditor.Windows.Forms
                 UpdateColors();
             }
         }
-        private bool _collapsible;
+        private bool _collapsible = true;
         public bool Collapsible
         {
             get => _collapsible;
@@ -80,11 +77,12 @@ namespace TheraEditor.Windows.Forms
                 if (!_collapsible)
                 {
                     pnlMain.Visible = true;
+                    pnlSide.Visible = false;
                     UpdateColors();
                 }
                 else
                 {
-                    
+                    pnlSide.Visible = true;
                 }
             }
         }

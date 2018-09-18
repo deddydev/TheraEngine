@@ -89,7 +89,7 @@ namespace TheraEngine.Rendering.Models
         public ReadOnlyCollection<Bone> GetPhysicsDrivableBones() => _physicsDrivableBones.AsReadOnly();
 
         [PostDeserialize]
-        private void PostDeserialize()
+        internal void PostDeserialize()
         {
             //TriggerChildFrameMatrixUpdate();
             RegenerateBoneCache();

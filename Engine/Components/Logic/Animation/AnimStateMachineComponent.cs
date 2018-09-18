@@ -36,11 +36,11 @@ namespace TheraEngine.Components.Logic.Animation
             _skeleton = skeleton;
         }
 
-        [PostDeserialize]
-        private void InitPostDeserialize()
-        {
+        //[PostDeserialize]
+        //private void InitPostDeserialize()
+        //{
 
-        }
+        //}
 
         public AnimState InitialState
         {

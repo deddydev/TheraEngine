@@ -78,7 +78,7 @@ namespace TheraEngine.Animation
                 _totalAnimCount = _root != null ? _root.Register(this) : 0;
             }
         }
-        internal void AnimationHasEnded()
+        internal void AnimationHasEnded(BaseAnimation obj)
         {
             if (++_endedAnimations >= _totalAnimCount)
                 Stop();

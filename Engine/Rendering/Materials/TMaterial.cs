@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         [PostDeserialize]
-        private void ShadersChanged()
+        internal void ShadersChanged()
         {
             FragmentShaders.Clear();
             GeometryShaders.Clear();

@@ -30,7 +30,6 @@ namespace TheraEngine.Cutscenes
 
         private EventList<GlobalFileRef<Scene>> _scenes;
         private Scene _nextScene;
-        private int _currentSceneIndex = -1;
         private bool _isNextSceneLoading = false;
         private bool _isNextSceneLoaded = false;
 
@@ -45,14 +44,7 @@ namespace TheraEngine.Cutscenes
                 _isNextSceneLoaded = true;
             }
         }
-        private int CurrentSceneIndex
-        {
-            get => _currentSceneIndex;
-            set
-            {
-                _currentSceneIndex = value;
-            }
-        }
+        private int CurrentSceneIndex { get; set; } = -1;
 
         [TSerialize]
         public EventList<GlobalFileRef<Scene>> Scenes
@@ -111,11 +103,6 @@ namespace TheraEngine.Cutscenes
 
         }
         private void _scenes_PostAnythingAdded(GlobalFileRef<Scene> item)
-        {
-
-        }
-        [PostDeserialize]
-        private void PostDeserialize()
         {
 
         }

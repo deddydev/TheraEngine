@@ -5,24 +5,42 @@ namespace TheraEngine.Animation
 {
     [FileExt("kpanm")]
     [FileDef("Keyframed Property Animation")]
-    public abstract class BasePropAnimKeyframed : BasePropAnim
+    public abstract class BasePropAnimKeyframed : BasePropAnimBakeable
     {
-        public event Action<BasePropAnimKeyframed> BakedFPSChanged;
-        public event Action<BasePropAnimKeyframed> BakedFrameCountChanged;
-        public event Action<BasePropAnimKeyframed> IsBakedChanged;
+        public BasePropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false)
+            : base(lengthInSeconds, looped, isBaked) { }
+        public BasePropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
+            : base(frameCount, framesPerSecond, looped, isBaked) { }
         
+        [Category(PropAnimCategory)]
+        protected abstract BaseKeyframeTrack InternalKeyframes { get; }
+
+        public override void SetLength(float lengthInSeconds, bool stretchAnimation)
+        {
+            if (lengthInSeconds < 0.0f)
+                return;
+            InternalKeyframes.SetLength(lengthInSeconds, stretchAnimation);
+            base.SetLength(lengthInSeconds, stretchAnimation);
+        }
+    }
+    public abstract class BasePropAnimBakeable : BasePropAnim
+    {
+        public event Action<BasePropAnimBakeable> BakedFPSChanged;
+        public event Action<BasePropAnimBakeable> BakedFrameCountChanged;
+        public event Action<BasePropAnimBakeable> IsBakedChanged;
+
         protected void OnBakedFPSChanged() => BakedFPSChanged?.Invoke(this);
         protected void OnBakedFrameCountChanged() => BakedFrameCountChanged?.Invoke(this);
         protected void OnBakedChanged() => IsBakedChanged?.Invoke(this);
-
-        public BasePropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false)
+        
+        public BasePropAnimBakeable(float lengthInSeconds, bool looped, bool isBaked = false)
             : base(lengthInSeconds, looped)
         {
             _bakedFPS = 60.0f;
             SetBakedFramecount();
             IsBaked = isBaked;
         }
-        public BasePropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
+        public BasePropAnimBakeable(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
             : base(framesPerSecond <= 0.0f ? 0.0f : frameCount / framesPerSecond, looped)
         {
             _bakedFrameCount = frameCount;
@@ -36,9 +54,7 @@ namespace TheraEngine.Animation
         protected float _bakedFPS = 0.0f;
         [TSerialize("IsBaked")]
         protected bool _isBaked = false;
-
-        [Category(PropAnimCategory)]
-        protected abstract BaseKeyframeTrack InternalKeyframes { get; }
+        
         /// <summary>
         /// Determines which method to use, baked or keyframed.
         /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
@@ -88,12 +104,11 @@ namespace TheraEngine.Animation
 
         protected void SetBakedFramecount()
             => _bakedFrameCount = (int)Math.Ceiling(_lengthInSeconds * _bakedFPS);
-        
+
         public override void SetLength(float lengthInSeconds, bool stretchAnimation)
         {
             if (lengthInSeconds < 0.0f)
                 return;
-            InternalKeyframes.SetLength(lengthInSeconds, stretchAnimation);
             _lengthInSeconds = lengthInSeconds;
             SetBakedFramecount();
             base.SetLength(lengthInSeconds, stretchAnimation);

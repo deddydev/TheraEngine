@@ -52,7 +52,7 @@ namespace TheraEngine.Components.Scene
                 {
                     _position.Keyframes.Changed -= Keyframes_Changed;
                     _position.ConstrainKeyframedFPSChanged -= _position_ConstrainKeyframedFPSChanged;
-                    _position.BakedFPSChanged -= _position_BakedFPSChanged;
+                    _position.BakedFPSChanged -= _position_BakedFPSChanged1;
                     _position.LengthChanged -= _position_LengthChanged;
                     //_position.AnimationStarted -= _spline_AnimationStarted;
                     //_position.AnimationPaused -= _spline_AnimationEnded;
@@ -65,7 +65,7 @@ namespace TheraEngine.Components.Scene
                 {
                     _position.Keyframes.Changed += Keyframes_Changed;
                     _position.ConstrainKeyframedFPSChanged += _position_ConstrainKeyframedFPSChanged;
-                    _position.BakedFPSChanged += _position_BakedFPSChanged;
+                    _position.BakedFPSChanged += _position_BakedFPSChanged1;
                     _position.LengthChanged += _position_LengthChanged;
                     //_position.AnimationStarted += _spline_AnimationStarted;
                     //_position.AnimationPaused += _spline_AnimationEnded;
@@ -79,15 +79,16 @@ namespace TheraEngine.Components.Scene
             }
         }
 
+        private void _position_BakedFPSChanged1(BasePropAnimBakeable obj)
+        {
+            RegenerateSplinePrimitive();
+        }
         private void _position_CurrentPositionChanged(PropAnimVector<Vec3, Vec3Keyframe> obj)
         {
-            RegenerateSplinePrimitive();
+            RecalcLocalTransform();
+            //RegenerateSplinePrimitive();
         }
         private void _position_LengthChanged(BaseAnimation obj)
-        {
-            RegenerateSplinePrimitive();
-        }
-        private void _position_BakedFPSChanged(BasePropAnimKeyframed obj)
         {
             RegenerateSplinePrimitive();
         }
@@ -144,7 +145,7 @@ namespace TheraEngine.Components.Scene
                 sec = i * invFps;
                 Vec3 val = _position.GetValueKeyframed(sec);
                 Vec3 vel = _position.GetVelocityKeyframed(sec);
-                Vertex pos = new Vertex(val) { Color = vel / (1.0f + vel) };
+                Vertex pos = new Vertex(val) { Color = 1.0f / (1.0f + 0.1f * (vel * vel)) };
                 splinePoints[i] = pos;
                 velocity[i] = new VertexLine(pos, new Vertex(pos.Position + vel.Normalized()));
             }

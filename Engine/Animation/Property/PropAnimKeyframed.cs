@@ -19,16 +19,16 @@ namespace TheraEngine.Animation
         private void ConstructKeyframes()
         {
             _keyframes = new KeyframeTrack<T>();
-            _keyframes.LengthChanged += _keyframes_LengthChanged;
+            _keyframes.LengthChanged += _keyframes_LengthChanged1;
         }
 
-        private void _keyframes_LengthChanged(float oldLength, float newLength)
+        private void _keyframes_LengthChanged1(float oldValue, BaseKeyframeTrack track)
         {
-            _lengthInSeconds = newLength;
+            _lengthInSeconds = track.LengthInSeconds;
             SetBakedFramecount();
             OnLengthChanged();
         }
-
+        
         protected override BaseKeyframeTrack InternalKeyframes => _keyframes;
 
         [Category(PropAnimCategory)]

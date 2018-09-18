@@ -71,7 +71,7 @@ namespace TheraEngine.Worlds
         #endregion
 
         [PostDeserialize]
-        private void CreateActorMap()
+        internal void CreateActorMap()
         {
             _actorMap = new Dictionary<Type, HashSet<int>>();
             for (int i = 0; i < _spawnedActors.Count; ++i)

@@ -214,11 +214,12 @@ namespace TheraEngine
                 _animations = null;
             return removed;
         }
-        private void RemoveAnimationSelf(AnimationContainer anim)
+        private void RemoveAnimationSelf(BaseAnimation anim)
         {
             anim.AnimationEnded -= RemoveAnimationSelf;
-            anim.Owners.Remove(this);
-            _animations.Remove(anim);
+            AnimationContainer cont = anim as AnimationContainer;
+            cont.Owners.Remove(this);
+            _animations.Remove(cont);
         }
         #endregion
 

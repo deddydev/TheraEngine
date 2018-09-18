@@ -4,10 +4,10 @@ using System.ComponentModel;
 namespace TheraEngine.Animation
 {
     /// <summary>
-    /// Executes a method instead of using keyframes.
+    /// Retrieves an animated value by executing a method with the current animation time.
     /// </summary>
     /// <typeparam name="T">The type of value to animate.</typeparam>
-    public class PropAnimMethod<T> : BasePropAnim
+    public class PropAnimMethod<T> : BasePropAnimBakeable
     {
         public delegate T DelGetValue(float second);
 
@@ -18,31 +18,33 @@ namespace TheraEngine.Animation
             set
             {
                 _tickMethod = value;
-                if (!Baked)
+                if (!IsBaked)
                     GetValue = _tickMethod;
             }
         }
         public DelGetValue GetValue { get; private set; }
         
-        [TSerialize(Condition = "Baked")]
+        [TSerialize(Condition = "IsBaked")]
         private T[] _baked = null;
         /// <summary>
         /// The default value to return when the tick method is not set.
         /// </summary>
-        [TSerialize(Condition = "!Baked")]
+        [TSerialize(/*Condition = "!IsBaked"*/)]
         public T DefaultValue { get; set; }
         
-        public PropAnimMethod() : base(0.0f, false) { }
+        public PropAnimMethod() 
+            : base(0.0f, false) { }
         public PropAnimMethod(float lengthInSeconds, bool looped)
             : base(lengthInSeconds, looped) { }
         public PropAnimMethod(int frameCount, float FPS, bool looped)
-            : base(FPS <= 0.0f ? 0.0f : frameCount / FPS, looped) { }
+            : base(frameCount, FPS, looped) { }
 
-        public PropAnimMethod(DelGetValue method) : base(0.0f, false) => TickMethod = method;
+        public PropAnimMethod(DelGetValue method) 
+            : base(0.0f, false) => TickMethod = method;
         public PropAnimMethod(float lengthInSeconds, bool looped, DelGetValue method)
             : base(lengthInSeconds, looped) => TickMethod = method;
         public PropAnimMethod(int frameCount, float FPS, bool looped, DelGetValue method)
-            : base(FPS <= 0.0f ? 0.0f : frameCount / FPS, looped) => TickMethod = method;
+            : base(frameCount, FPS, looped) => TickMethod = method;
 
         public T GetValueMethod(float second)
             => TickMethod != null ? TickMethod(second) : DefaultValue;
@@ -54,7 +56,7 @@ namespace TheraEngine.Animation
             => _baked[frameIndex];
 
         protected override void BakedChanged()
-            => GetValue = !Baked ? (DelGetValue)GetValueMethod : GetValueBaked;
+            => GetValue = !IsBaked ? (DelGetValue)GetValueMethod : GetValueBaked;
 
         public override void Bake(float framesPerSecond)
         {
@@ -65,14 +67,7 @@ namespace TheraEngine.Animation
                 _baked[i] = TickMethod(i);
         }
 
-        protected override object GetCurrentValueGeneric()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void OnProgressed(float delta)
-        {
-            throw new NotImplementedException();
-        }
+        protected override object GetCurrentValueGeneric() => GetValue(CurrentTime);
+        protected override void OnProgressed(float delta) { }
     }
 }

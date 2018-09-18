@@ -1,8 +1,7 @@
-﻿using TheraEngine.Files;
-using System;
+﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Files;
 using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Animation
@@ -73,6 +72,7 @@ namespace TheraEngine.Animation
             Looped = looped;
         }
 
+        [Category("Animation")]
         public ETickGroup Group
         {
             get => _group;
@@ -82,12 +82,13 @@ namespace TheraEngine.Animation
                     return;
                 if (_state == EAnimationState.Playing)
                 {
-                    UnregisterTick(_group, _order, OnProgressed, _pausedBehavior);
-                    RegisterTick(value, _order, OnProgressed, _pausedBehavior);
+                    UnregisterTick(_group, _order, Progress, _pausedBehavior);
+                    RegisterTick(value, _order, Progress, _pausedBehavior);
                 }
                 _group = value;
             }
         }
+        [Category("Animation")]
         public ETickOrder Order
         {
             get => _order;
@@ -97,12 +98,13 @@ namespace TheraEngine.Animation
                     return;
                 if (_state == EAnimationState.Playing)
                 {
-                    UnregisterTick(_group, _order, OnProgressed, _pausedBehavior);
-                    RegisterTick(_group, value, OnProgressed, _pausedBehavior);
+                    UnregisterTick(_group, _order, Progress, _pausedBehavior);
+                    RegisterTick(_group, value, Progress, _pausedBehavior);
                 }
                 _order = value;
             }
         }
+        [Category("Animation")]
         public EInputPauseType PausedBehavior
         {
             get => _pausedBehavior;
@@ -112,8 +114,8 @@ namespace TheraEngine.Animation
                     return;
                 if (_state == EAnimationState.Playing)
                 {
-                    UnregisterTick(_group, _order, OnProgressed, _pausedBehavior);
-                    RegisterTick(_group, _order, OnProgressed, value);
+                    UnregisterTick(_group, _order, Progress, _pausedBehavior);
+                    RegisterTick(_group, _order, Progress, value);
                 }
                 _pausedBehavior = value;
             }
@@ -221,7 +223,7 @@ namespace TheraEngine.Animation
         }
 
         [PostDeserialize]
-        private void PostDeserialize()
+        internal virtual void PostDeserialize()
         {
             if (_state == EAnimationState.Playing)
             {
@@ -274,9 +276,9 @@ namespace TheraEngine.Animation
         protected virtual void RegisterTick(bool unregister = false)
         {
             if (unregister)
-                UnregisterTick(_group, _order, OnProgressed, _pausedBehavior);
+                UnregisterTick(_group, _order, Progress, _pausedBehavior);
             else
-                RegisterTick(_group, _order, OnProgressed, _pausedBehavior);
+                RegisterTick(_group, _order, Progress, _pausedBehavior);
         }
         /// <summary>
         /// Progresses this animation forward (or backward) by the specified change in seconds.

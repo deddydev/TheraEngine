@@ -280,7 +280,7 @@ namespace TheraEngine.Core.Shapes
         }
 
         [PostDeserialize]
-        private void PostDeserialize()
+        internal void PostDeserialize()
         {
             UpdatePoints(FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight, NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
         }

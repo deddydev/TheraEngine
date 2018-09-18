@@ -123,7 +123,7 @@ namespace TheraEngine.Rendering.Models
         private TRigidBody _rigidBodyCollision;
 
         [PostDeserialize]
-        private void PostDeserialize()
+        internal void PostDeserialize()
         {
             foreach (Bone b in _childBones)
                 b._parent = this;

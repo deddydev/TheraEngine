@@ -10,19 +10,16 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class PostDeserialize : Attribute
     {
-        private int _order = -1;
-        private object[] _arguments;
-        private ESerializeFormatFlag _runForFormats;
         public PostDeserialize(int order = -1, ESerializeFormatFlag runForFormats = ESerializeFormatFlag.All, params object[] arguments)
         {
-            _order = order;
-            _arguments = arguments;
-            _runForFormats = runForFormats;
+            Order = order;
+            Arguments = arguments;
+            RunForFormats = runForFormats;
         }
 
-        public int Order { get => _order; set => _order = value; }
-        public object[] Arguments { get => _arguments; set => _arguments = value; }
-        public ESerializeFormatFlag RunForFormats { get => _runForFormats; set => _runForFormats = value; }
+        public int Order { get; set; } = -1;
+        public object[] Arguments { get; set; }
+        public ESerializeFormatFlag RunForFormats { get; set; }
     }
     /// <summary>
     /// Called before a class is deserialized.
@@ -31,19 +28,16 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class PreDeserialize : Attribute
     {
-        private int _order = -1;
-        private object[] _arguments;
-        private ESerializeFormatFlag _runForFormats;
         public PreDeserialize(int order = -1, ESerializeFormatFlag runForFormats = ESerializeFormatFlag.All, params object[] arguments)
         {
-            _order = order;
-            _arguments = arguments;
-            _runForFormats = runForFormats;
+            Order = order;
+            Arguments = arguments;
+            RunForFormats = runForFormats;
         }
 
-        public int Order { get => _order; set => _order = value; }
-        public object[] Arguments { get => _arguments; set => _arguments = value; }
-        public ESerializeFormatFlag RunForFormats { get => _runForFormats; set => _runForFormats = value; }
+        public int Order { get; set; } = -1;
+        public object[] Arguments { get; set; }
+        public ESerializeFormatFlag RunForFormats { get; set; }
     }
 
 }

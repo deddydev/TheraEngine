@@ -42,10 +42,11 @@ namespace TheraEngine.Animation
         private Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
 
         [PostDeserialize]
-        private void PostDeserialize()
+        internal override void PostDeserialize()
         {
             foreach (BoneAnimation b in _boneAnimations.Values)
                 b.Parent = this;
+            base.PostDeserialize();
         }
 
         public Dictionary<string, BoneAnimation> BoneAnimations { get => _boneAnimations; set => _boneAnimations = value; }

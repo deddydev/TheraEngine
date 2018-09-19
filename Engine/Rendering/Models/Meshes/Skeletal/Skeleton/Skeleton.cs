@@ -27,11 +27,11 @@ namespace TheraEngine.Rendering.Models
 
         public Skeleton() : base()
         {
-            _rc = new RenderCommandDebug3D(Render);
+            _rc = new RenderCommandMethod3D(Render);
         }
         public Skeleton(params Bone[] rootBones) : base()
         {
-            _rc = new RenderCommandDebug3D(Render);
+            _rc = new RenderCommandMethod3D(Render);
             RootBones = rootBones;
             foreach (Bone b in RootBones)
             {
@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.Models
         }
         public Skeleton(Bone rootBone) : base()
         {
-            _rc = new RenderCommandDebug3D(Render);
+            _rc = new RenderCommandMethod3D(Render);
             RootBones = new Bone[1] { rootBone };
             rootBone.CalcBindMatrix(true);
             rootBone.TriggerFrameMatrixUpdate();
@@ -165,7 +165,7 @@ namespace TheraEngine.Rendering.Models
         //    //_childMatrixModified = true;
         //}
 
-        private readonly RenderCommandDebug3D _rc;
+        private readonly RenderCommandMethod3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_rc, ERenderPass.OpaqueForward);

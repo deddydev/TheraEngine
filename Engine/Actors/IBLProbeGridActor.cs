@@ -57,7 +57,7 @@ namespace TheraEngine.Actors
             Initialize();
             RootComponent.ChildComponents.PostAddedRange += ChildComponents_PostAddedRange;
             RootComponent.ChildComponents.PostAdded += ChildComponents_PostAdded;
-            _rc = new RenderCommandDebug3D(Render);
+            _rc = new RenderCommandMethod3D(Render);
         }
 
         private void ChildComponents_PostAdded(SceneComponent item) => Link();
@@ -216,7 +216,7 @@ namespace TheraEngine.Actors
             await Task.Run(() => InitAndCaptureAll(colorResolution, captureDepth, depthResolution));
         }
 
-        private readonly RenderCommandDebug3D _rc;
+        private readonly RenderCommandMethod3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_rc, RenderInfo.RenderPass);

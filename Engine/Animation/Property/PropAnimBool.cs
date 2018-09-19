@@ -8,14 +8,14 @@ namespace TheraEngine.Animation
     public class PropAnimBool : PropAnimKeyframed<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
         private DelGetValue<bool> _getValue;
-
-        [TSerialize(Condition = "Baked")]
+        
+        [TSerialize(Condition = "IsBaked")]
         private bool[] _baked = null;
         /// <summary>
         /// The default value to return when no keyframes are set.
         /// </summary>
         [Category(PropAnimCategory)]
-        [TSerialize(Condition = "!Baked")]
+        [TSerialize(Condition = "!IsBaked")]
         public bool DefaultValue { get; set; } = false;
 
         public PropAnimBool() : base(0.0f, false) { }

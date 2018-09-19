@@ -23,8 +23,8 @@ namespace TheraEditor.Windows.Forms
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), lines);
             TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Yellow);
             //mat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
-            _highlightMesh.Primitives = new PrimitiveManager(data, mat);
-            _uiBoundsMesh.Primitives = new PrimitiveManager(data, mat);
+            _highlightMesh.Mesh = new PrimitiveManager(data, mat);
+            _uiBoundsMesh.Mesh = new PrimitiveManager(data, mat);
         }
         public UIHudEditor(Vec2 bounds) : base(bounds) { }
 

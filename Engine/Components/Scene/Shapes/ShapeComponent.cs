@@ -18,7 +18,7 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public ShapeComponent()
         {
-            _rc = new RenderCommandDebug3D(Render);
+            _rc = new RenderCommandMethod3D(Render);
         }
 
         [Browsable(false)]
@@ -142,7 +142,7 @@ namespace TheraEngine.Components.Scene.Shapes
 
 #if EDITOR
         public abstract void Render();
-        private RenderCommandDebug3D _rc;
+        private RenderCommandMethod3D _rc;
         public virtual void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_rc, RenderInfo.RenderPass);

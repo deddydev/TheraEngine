@@ -64,7 +64,7 @@ namespace TheraEngine.Core.Shapes
         public Frustum()
         {
             _boundingSphere = new Sphere() { RenderSolid = false };
-            _renderCommand = new RenderCommandDebug3D(Render);
+            _renderCommand = new RenderCommandMethod3D(Render);
         }
         public Frustum(
             float fovY,
@@ -630,7 +630,7 @@ namespace TheraEngine.Core.Shapes
                 FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight,
                 NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
 
-        private RenderCommandDebug3D _renderCommand;
+        private RenderCommandMethod3D _renderCommand;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_renderCommand, RenderInfo.RenderPass);

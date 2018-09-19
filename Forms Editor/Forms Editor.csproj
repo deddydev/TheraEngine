@@ -286,6 +286,13 @@
     <Compile Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.Designer.cs">
       <DependentUpon>MaterialControlOld.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Prop Anim Editor\DockablePropAnimFloatGraph.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Prop Anim Editor\DockablePropAnimFloatGraph.Designer.cs">
+      <DependentUpon>DockablePropAnimFloatGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatHud.cs" />
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -457,12 +464,6 @@
     </Compile>
     <Compile Include="Windows\Forms\Model Editor\GenericDropDownControl.Designer.cs">
       <DependentUpon>GenericDropDownControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.Designer.cs">
-      <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\UIRenderPanel.cs">
       <SubType>UserControl</SubType>
@@ -729,6 +730,9 @@
     <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.resx">
       <DependentUpon>MaterialControlOld.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Prop Anim Editor\DockablePropAnimFloatGraph.resx">
+      <DependentUpon>DockablePropAnimFloatGraph.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.resx">
       <DependentUpon>PropGridEvent.cs</DependentUpon>
     </EmbeddedResource>
@@ -963,9 +967,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\GenericDropDownControl.resx">
       <DependentUpon>GenericDropDownControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Prop Anim Editor\PropAnimFloatEditor.resx">
-      <DependentUpon>PropAnimFloatEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Material Editor\MaterialEditorForm.resx">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>

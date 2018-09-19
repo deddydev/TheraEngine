@@ -31,9 +31,9 @@ namespace TheraEditor.Wrappers
 
         public override void EditResource()
         {
-            PropAnimFloatEditor m = new PropAnimFloatEditor();
-            m.Animation = ResourceRef;
-            m.Show();
+            DockablePropAnimFloatGraph m = new DockablePropAnimFloatGraph();
+            m.RenderPanel.UI.TargetAnimation = ResourceRef.File;
+            m.Show(Editor.Instance.DockPanel);
         }
     }
 }

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using TheraEngine.Actors;
 using TheraEngine.Animation;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Worlds;
 
 namespace TheraEngine.Cutscenes
 {

@@ -36,7 +36,7 @@ namespace TheraEngine.Components.Scene
         
         private PropAnimVec3 _position;
         private PrimitiveManager _splinePrimitive;
-        private PrimitiveManager _velocityPrimitive;
+        private PrimitiveManager _velocityTangentsPrimitive;
         private PrimitiveManager _pointPrimitive;
         private PrimitiveManager _tangentPrimitive;
         private PrimitiveManager _keyframeLinesPrimitive;
@@ -114,8 +114,8 @@ namespace TheraEngine.Components.Scene
         {
             _splinePrimitive?.Dispose();
             _splinePrimitive = null;
-            _velocityPrimitive?.Dispose();
-            _velocityPrimitive = null;
+            _velocityTangentsPrimitive?.Dispose();
+            _velocityTangentsPrimitive = null;
             _pointPrimitive?.Dispose();
             _pointPrimitive = null;
             _tangentPrimitive?.Dispose();
@@ -127,7 +127,10 @@ namespace TheraEngine.Components.Scene
                 return;
 
             //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-            float fps = _position.ConstrainKeyframedFPS ? _position.BakedFramesPerSecond : (Engine.TargetFramesPerSecond == 0 ? 60.0f : Engine.TargetFramesPerSecond);
+            float fps = _position.ConstrainKeyframedFPS ?
+                _position.BakedFramesPerSecond :
+                (Engine.TargetFramesPerSecond == 0 ? 60.0f : Engine.TargetFramesPerSecond);
+
             int frameCount = (int)Math.Ceiling(_position.LengthInSeconds * fps) + 1;
             float invFps = 1.0f / fps;
             int kfCount = _position.Keyframes.Count << 1;
@@ -145,21 +148,23 @@ namespace TheraEngine.Components.Scene
                 sec = i * invFps;
                 Vec3 val = _position.GetValueKeyframed(sec);
                 Vec3 vel = _position.GetVelocityKeyframed(sec);
-                Vertex pos = new Vertex(val) { Color = 1.0f / (1.0f + 0.1f * (vel * vel)) };
+                float velLength = vel.LengthFast;
+                Vec3 velColor = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, 1.0f / (1.0f + 0.1f * (velLength * velLength)));
+                Vertex pos = new Vertex(val) { Color = velColor };
                 splinePoints[i] = pos;
                 velocity[i] = new VertexLine(pos, new Vertex(pos.Position + vel.Normalized()));
             }
             i = 0;
             Vec3 p0, p1;
-            foreach (Vec3Keyframe keyframe in _position)
+            foreach (Vec3Keyframe kf in _position)
             {
-                keyframePositions[i] = p0 = keyframe.InValue;
-                tangentPositions[i] = p1 = keyframe.InValue + keyframe.InTangent;
+                keyframePositions[i] = p0 = kf.InValue;
+                tangentPositions[i] = p1 = p0 + kf.InTangent;
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
 
-                keyframePositions[i] = p0 = keyframe.OutValue;
-                tangentPositions[i] = p1 = keyframe.OutValue + keyframe.OutTangent;
+                keyframePositions[i] = p0 = kf.OutValue;
+                tangentPositions[i] = p1 = p0 + kf.OutTangent;
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
             }
@@ -193,7 +198,7 @@ void main()
             PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Blue);
             mat.RenderParams = p;
-            _velocityPrimitive = new PrimitiveManager(velocityData, mat);
+            _velocityTangentsPrimitive = new PrimitiveManager(velocityData, mat);
 
             PrimitiveData pointData = PrimitiveData.FromPoints(keyframePositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
@@ -215,9 +220,9 @@ void main()
             mat.RenderParams = p;
             _timePointPrimitive = new PrimitiveManager(timePointData, mat);
 
-            _rcVelocity.Mesh = _velocityPrimitive;
+            _rcVelocityTangents.Mesh = _velocityTangentsPrimitive;
             _rcPoints.Mesh = _pointPrimitive;
-            _rcTangents.Mesh = _tangentPrimitive;
+            _rcKeyframeTangents.Mesh = _tangentPrimitive;
             _rcSpline.Mesh = _splinePrimitive;
             _rcKfLines.Mesh = _keyframeLinesPrimitive;
             _rcCurrentPoint.Mesh = _timePointPrimitive;
@@ -264,18 +269,18 @@ void main()
             Matrix4 mtx = _transform;
             _rcKfLines.WorldMatrix = mtx;
             _rcSpline.WorldMatrix = mtx;
-            _rcVelocity.WorldMatrix = mtx;
+            _rcVelocityTangents.WorldMatrix = mtx;
             _rcPoints.WorldMatrix = mtx;
-            _rcTangents.WorldMatrix = mtx;
+            _rcKeyframeTangents.WorldMatrix = mtx;
             base.OnWorldTransformChanged();
         }
         
         private readonly RenderCommandMesh3D _rcKfLines = new RenderCommandMesh3D();
         private readonly RenderCommandMesh3D _rcCurrentPoint = new RenderCommandMesh3D();
         private readonly RenderCommandMesh3D _rcSpline = new RenderCommandMesh3D();
-        private readonly RenderCommandMesh3D _rcVelocity = new RenderCommandMesh3D();
+        private readonly RenderCommandMesh3D _rcVelocityTangents = new RenderCommandMesh3D();
         private readonly RenderCommandMesh3D _rcPoints = new RenderCommandMesh3D();
-        private readonly RenderCommandMesh3D _rcTangents = new RenderCommandMesh3D();
+        private readonly RenderCommandMesh3D _rcKeyframeTangents = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             if (_position == null)
@@ -284,11 +289,11 @@ void main()
             if (RenderSpline)
                 passes.Add(_rcSpline, RenderInfo.RenderPass);
             if (RenderTangents)
-                passes.Add(_rcVelocity, RenderInfo.RenderPass);
+                passes.Add(_rcVelocityTangents, RenderInfo.RenderPass);
             if (RenderKeyframePoints)
                 passes.Add(_rcPoints, RenderInfo.RenderPass);
             if (RenderKeyframeTangentPoints)
-                passes.Add(_rcTangents, RenderInfo.RenderPass);
+                passes.Add(_rcKeyframeTangents, RenderInfo.RenderPass);
             if (RenderKeyframeTangentLines)
                 passes.Add(_rcKfLines, RenderInfo.RenderPass);
             if (RenderCurrentTimePoint)

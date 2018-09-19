@@ -37,7 +37,7 @@ namespace TheraEngine.Core.Shapes
     {
         public Shape()
         {
-            _rc = new RenderCommandDebug3D(Render);
+            _rc = new RenderCommandMethod3D(Render);
         }
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
@@ -118,7 +118,7 @@ namespace TheraEngine.Core.Shapes
         public abstract Matrix4 GetTransformMatrix();
         public abstract void Render();
 
-        private readonly RenderCommandDebug3D _rc;
+        private readonly RenderCommandMethod3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_rc, RenderInfo.RenderPass);

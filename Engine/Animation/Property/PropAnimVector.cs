@@ -32,7 +32,7 @@ namespace TheraEngine.Animation
         protected void OnConstrainKeyframedFPSChanged() => ConstrainKeyframedFPSChanged?.Invoke(this);
         protected void OnLerpConstrainedFPSChanged() => LerpConstrainedFPSChanged?.Invoke(this);
         
-        [TSerialize("BakedValues", Condition = "Baked")]
+        [TSerialize("BakedValues", Condition = "IsBaked")]
         private T[] _baked = null;
 
         /// <summary>

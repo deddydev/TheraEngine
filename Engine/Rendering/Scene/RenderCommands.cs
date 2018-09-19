@@ -52,17 +52,17 @@ namespace TheraEngine.Rendering
             ZIndex = zIndex;
         }
     }
-    public class RenderCommandDebug2D : RenderCommand2D
+    public class RenderCommandMethod2D : RenderCommand2D
     {
-        public RenderCommandDebug2D() { }
-        public RenderCommandDebug2D(Action render) => Rendered = render;
+        public RenderCommandMethod2D() { }
+        public RenderCommandMethod2D(Action render) => Rendered = render;
         public Action Rendered { get; set; }
         public override void Render() => Rendered?.Invoke();
     }
-    public class RenderCommandDebug3D : RenderCommand3D
+    public class RenderCommandMethod3D : RenderCommand3D
     {
-        public RenderCommandDebug3D() { }
-        public RenderCommandDebug3D(Action render) => Rendered = render;
+        public RenderCommandMethod3D() { }
+        public RenderCommandMethod3D(Action render) => Rendered = render;
         public Action Rendered { get; set; }
         public override void Render() => Rendered?.Invoke();
     }
@@ -94,9 +94,9 @@ namespace TheraEngine.Rendering
     }
     public class RenderCommandMesh2D : RenderCommand2D
     {
-        public PrimitiveManager Primitives { get; set; }
+        public PrimitiveManager Mesh { get; set; }
         public Matrix4 WorldMatrix { get; set; }
-        public TMaterial Material { get; set; }
+        public TMaterial MaterialOverride { get; set; }
 
         public RenderCommandMesh2D() { }
         public RenderCommandMesh2D(
@@ -105,14 +105,14 @@ namespace TheraEngine.Rendering
             int zIndex,
             TMaterial materialOverride = null) : base(zIndex)
         {
-            Primitives = manager;
+            Mesh = manager;
             WorldMatrix = worldMatrix;
-            Material = materialOverride;
+            MaterialOverride = materialOverride;
         }
 
         public override void Render()
         {
-            Primitives?.Render(WorldMatrix, Matrix3.Identity, Material);
+            Mesh?.Render(WorldMatrix, Matrix3.Identity, MaterialOverride);
         }
     }
     public class RenderCommandViewport : RenderCommandMesh2D

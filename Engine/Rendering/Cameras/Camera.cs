@@ -37,7 +37,7 @@ namespace TheraEngine.Rendering.Cameras
             : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
         public Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
         {
-            _renderCommand = new RenderCommandDebug3D(Render);
+            _renderCommand = new RenderCommandMethod3D(Render);
             _postProcessSettingsRef = new PostProcessSettings();
             _transformedFrustum = new Frustum();
             _localRotation = rotation;
@@ -562,7 +562,7 @@ namespace TheraEngine.Rendering.Cameras
             return distance * radius * 0.1f;
         }
 
-        RenderCommandDebug3D _renderCommand;
+        RenderCommandMethod3D _renderCommand;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_renderCommand, RenderInfo.RenderPass);

@@ -118,7 +118,7 @@ namespace TheraEngine.Rendering.UI
         private RenderCommandMesh2D _renderCommand = new RenderCommandMesh2D();
         public virtual void AddRenderables(RenderPasses passes)
         {
-            _renderCommand.Primitives = _quad;
+            _renderCommand.Mesh = _quad;
             _renderCommand.WorldMatrix = _renderMatrix;
             _renderCommand.ZIndex = 0;
             passes.Add(_renderCommand, RenderInfo.RenderPass);

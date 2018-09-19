@@ -383,7 +383,7 @@ namespace TheraEngine.Tests
     {
         public SphereTraceActor()
         {
-            _renderCommand = new RenderCommandDebug3D(Render);
+            _renderCommand = new RenderCommandMethod3D(Render);
             _sphere = TCollisionSphere.New(2.0f);
             _shapeCast = new ShapeTraceClosest(_sphere, Matrix4.Identity, Matrix4.Identity,
                 (ushort)(TCollisionGroup.DynamicWorld), (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
@@ -464,7 +464,7 @@ namespace TheraEngine.Tests
             Engine.Renderer.RenderLine(_hitPoint, _hitPoint + (_hitNormal * Radius), Color.Orange);
         }
 
-        private readonly RenderCommandDebug3D _renderCommand;
+        private readonly RenderCommandMethod3D _renderCommand;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(_renderCommand, RenderInfo.RenderPass);

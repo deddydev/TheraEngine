@@ -4,10 +4,12 @@ namespace System
 {
     public static class MethodInfoExtension
     {
-        public static string GetFriendlyName(this MethodInfo method, string openBracket = "<", string closeBracket = ">")
+        public static string GetFriendlyName(this MethodBase method, string openBracket = "<", string closeBracket = ">")
         {
             if (method == null)
                 return "null";
+            
+            MethodInfo realMethod = method as MethodInfo;
 
             string friendlyName = "";
             if (method.IsPublic)
@@ -30,12 +32,13 @@ namespace System
 
             if (method.IsVirtual)
                 friendlyName += "virtual ";
-            if (method.GetBaseDefinition() != method)
+            if (realMethod != null && realMethod.GetBaseDefinition() != realMethod)
                 friendlyName += "override ";
             if (method.IsAbstract)
                 friendlyName += "abstract ";
 
-            friendlyName += method.ReturnType.GetFriendlyName() + " ";
+            if (realMethod != null)
+                friendlyName += realMethod.ReturnType.GetFriendlyName() + " ";
             friendlyName += method.Name;
 
             bool first = true;

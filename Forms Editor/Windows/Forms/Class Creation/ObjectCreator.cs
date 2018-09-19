@@ -9,6 +9,41 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class ObjectCreator : TheraForm
     {
+        private class ArgumentInfo
+        {
+            public Type Type { get; set; }
+            public int ColumnIndex { get; set; }
+            public int RowIndex { get; set; }
+            public object Value { get; set; }
+        }
+        public enum EObjectCreatorMode
+        {
+            Object,
+            Array,
+            Boolean,
+            Char,
+            String,
+            Int8,
+            UInt8,
+            Int16,
+            UInt16,
+            Int32,
+            UInt32,
+            Int64,
+            UInt64,
+            Decimal,
+            Single,
+            Double
+        }
+
+        public ObjectCreator() : base()
+        {
+            InitializeComponent();
+            numArrayLength.MinimumValue = 0;
+            toolStripTypeSelection.Renderer = new TheraToolstripRenderer();
+        }
+
+        private bool _updating = false;
         internal Type[] _genericTypeArgs = null;
         
         /// <summary>
@@ -46,15 +81,78 @@ namespace TheraEditor.Windows.Forms
                     _genericTypeArgs = null;
             }
 
-            ArrayMode = type.IsArray;
-
-            if (ArrayMode)
-                type = type.GetElementType();
-
-            if (allowDerivedTypes)
+            if (type.IsArray)
             {
-                Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-                if (types.Length == 1)
+                Mode = EObjectCreatorMode.Array;
+                type = type.GetElementType();
+            }
+            else
+            {
+                switch (type.Name)
+                {
+                    case "Boolean":     Mode = EObjectCreatorMode.Boolean;  break;
+                    case "SByte":       Mode = EObjectCreatorMode.Int8;     break;
+                    case "Byte":        Mode = EObjectCreatorMode.UInt8;    break;
+                    case "Char":        Mode = EObjectCreatorMode.Char;     break;
+                    case "Int16":       Mode = EObjectCreatorMode.Int16;    break;
+                    case "UInt16":      Mode = EObjectCreatorMode.UInt16;   break;
+                    case "Int32":       Mode = EObjectCreatorMode.Int32;    break;
+                    case "UInt32":      Mode = EObjectCreatorMode.UInt32;   break;
+                    case "Int64":       Mode = EObjectCreatorMode.Int64;    break;
+                    case "UInt64":      Mode = EObjectCreatorMode.UInt64;   break;
+                    case "Single":      Mode = EObjectCreatorMode.Single;   break;
+                    case "Double":      Mode = EObjectCreatorMode.Double;   break;
+                    case "Decimal":     Mode = EObjectCreatorMode.Decimal;  break;
+                    case "String":      Mode = EObjectCreatorMode.String;   break;
+                    default:            Mode = EObjectCreatorMode.Object;   break;
+                }
+            }
+
+            if (Mode == EObjectCreatorMode.Object || 
+                Mode == EObjectCreatorMode.Array)
+            {
+                if (allowDerivedTypes)
+                {
+                    Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+                    if (types.Length == 1)
+                    {
+                        ConstructorInfo[] constructors = type.GetConstructors();
+                        if (constructors.Length <= 1)
+                        {
+                            if (constructors.Length == 1)
+                            {
+                                if (constructors[0].GetParameters().Length == 0)
+                                {
+                                    if (type.IsGenericTypeDefinition)
+                                        type = type.MakeGenericType(_genericTypeArgs);
+                                    ConstructedObject = Activator.CreateInstance(type);
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                if (type.IsEnum || type.IsPrimitive)
+                                {
+                                    ConstructedObject = type.GetDefaultValue();
+                                    return false;
+                                }
+                                else
+                                {
+                                    Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
+                                    return false;
+                                }
+                            }
+                        }
+
+                        SetTargetType(types[0]);
+                        toolStripTypeSelection.Visible = false;
+                    }
+                    else
+                        toolStripTypeSelection.Visible = true;
+                }
+                else if (type.IsAbstract || type.IsInterface)
+                    return false;
+                else
                 {
                     ConstructorInfo[] constructors = type.GetConstructors();
                     if (constructors.Length <= 1)
@@ -63,57 +161,20 @@ namespace TheraEditor.Windows.Forms
                         {
                             if (constructors[0].GetParameters().Length == 0)
                             {
-                                if (type.IsGenericTypeDefinition)
-                                    type = type.MakeGenericType(_genericTypeArgs);
                                 ConstructedObject = Activator.CreateInstance(type);
                                 return false;
                             }
                         }
                         else
                         {
-                            if (type.IsEnum || type.IsPrimitive)
-                            {
-                                ConstructedObject = type.GetDefaultValue();
-                                return false;
-                            }
-                            else
-                            {
-                                Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
-                                return false;
-                            }
-                        }
-                    }
-
-                    SetTargetType(types[0]);
-                    toolStripTypeSelection.Visible = false;
-                }
-                else
-                    toolStripTypeSelection.Visible = true;
-            }
-            else if (type.IsAbstract || type.IsInterface)
-                return false;
-            else
-            {
-                ConstructorInfo[] constructors = type.GetConstructors();
-                if (constructors.Length <= 1)
-                {
-                    if (constructors.Length == 1)
-                    {
-                        if (constructors[0].GetParameters().Length == 0)
-                        {
-                            ConstructedObject = Activator.CreateInstance(type);
+                            Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
                             return false;
                         }
                     }
-                    else
-                    {
-                        Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
-                        return false;
-                    }
+
+                    SetTargetType(type);
+                    toolStripTypeSelection.Visible = false;
                 }
-                
-                SetTargetType(type);
-                toolStripTypeSelection.Visible = false;
             }
             
             return true;
@@ -125,14 +186,6 @@ namespace TheraEditor.Windows.Forms
             SetTargetType(item?.Tag as Type);
         }
 
-        public ObjectCreator() : base()
-        {
-            InitializeComponent();
-            numericInputBoxSingle1.MinimumValue = 0;
-            toolStripTypeSelection.Renderer = new TheraToolstripRenderer();
-        }
-
-        private bool _updating = false;
         private void ConstructorSelector_CheckedChanged(object sender, EventArgs e)
         {
             if (_updating)
@@ -156,14 +209,6 @@ namespace TheraEditor.Windows.Forms
             _updating = false;
         }
 
-        private class ArgumentInfo
-        {
-            public Type Type { get; set; }
-            public int ColumnIndex { get; set; }
-            public int RowIndex { get; set; }
-            public object Value { get; set; }
-        }
-
         public bool IsNullable { get; private set; }
         public int ConstructorIndex { get; private set; } = -1;
         public Type ClassType { get; private set; }
@@ -172,25 +217,51 @@ namespace TheraEditor.Windows.Forms
         public object[][] FinalArguments;
         public ParameterInfo[][] Parameters;
         public object ConstructedObject { get; private set; } = null;
-        private bool _arrayMode = false;
-        private bool ArrayMode
+        private EObjectCreatorMode _mode = EObjectCreatorMode.Object;
+        private EObjectCreatorMode Mode
         {
-            get => _arrayMode;
+            get => _mode;
             set
             {
-                _arrayMode = value;
-                toolStripTypeSelection.Visible = !_arrayMode;
-                pnlArrayLength.Visible = _arrayMode;
-                toolStripDropDownButton1.Text = _arrayMode ? "Select an element type..." : "Select an object type...";
+                _mode = value;
+                switch (_mode)
+                {
+                    case EObjectCreatorMode.Object:
+                        toolStripTypeSelection.Visible = true;
+                        pnlArrayLength.Visible = false;
+                        toolStripDropDownButton1.Visible = true;
+                        tblConstructors.Visible = true;
+                        toolStripDropDownButton1.Text = "Select an object type...";
+                        tblConstructors.Controls.Clear();
+                        richTextBox1.Visible = false;
+                        break;
+                    case EObjectCreatorMode.Array:
+                        toolStripTypeSelection.Visible = false;
+                        pnlArrayLength.Visible = true;
+                        toolStripDropDownButton1.Visible = true;
+                        tblConstructors.Visible = true;
+                        toolStripDropDownButton1.Text = "Select an element type...";
+                        richTextBox1.Visible = false;
 
-                tblConstructors.ColumnStyles.Clear();
-                tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-                tblConstructors.ColumnCount = 1;
+                        tblConstructors.ColumnStyles.Clear();
+                        tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+                        tblConstructors.ColumnCount = 1;
 
-                tblConstructors.RowStyles.Clear();
-                tblConstructors.RowCount = numericInputBoxSingle1.Value.Value;
-                for (int i = 0; i < tblConstructors.RowCount; ++i)
-                    tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                        tblConstructors.RowStyles.Clear();
+                        tblConstructors.RowCount = numArrayLength.Value.Value;
+                        for (int i = 0; i < tblConstructors.RowCount; ++i)
+                            tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+                        break;
+                    default:
+                        toolStripTypeSelection.Visible =
+                        pnlArrayLength.Visible = 
+                        toolStripDropDownButton1.Visible =
+                        tblConstructors.Visible = false;
+                        toolStripDropDownButton1.Text = string.Empty;
+                        richTextBox1.Visible = true;
+                        break;
+                }
             }
         }
 
@@ -213,30 +284,34 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            if (ArrayMode)
+            switch (Mode)
             {
-                ConstructedObject = Array.CreateInstance(ClassType, FinalArguments.GetLength(0));
-                FinalArguments.Select(x => x[0]).ToArray().CopyTo((Array)ConstructedObject, 0);
-            }
-            else
-            {
-                object[] paramData = FinalArguments.IndexInArrayRange(ConstructorIndex) ? FinalArguments[ConstructorIndex] : null;
-                if (ConstructorIndex < PublicInstanceConstructors.Length)
-                {
-                    if (paramData == null || paramData.Length == 0)
-                        ConstructedObject = Activator.CreateInstance(ClassType);
+                case EObjectCreatorMode.Array:
+                    ConstructedObject = Array.CreateInstance(ClassType, FinalArguments.GetLength(0));
+                    FinalArguments.Select(x => x[0]).ToArray().CopyTo((Array)ConstructedObject, 0);
+                    break;
+                case EObjectCreatorMode.String:
+                    ConstructedObject = richTextBox1.Text;
+                    break;
+                case EObjectCreatorMode.Object:
+                    object[] paramData = FinalArguments.IndexInArrayRange(ConstructorIndex) ? FinalArguments[ConstructorIndex] : null;
+                    if (ConstructorIndex < PublicInstanceConstructors.Length)
+                    {
+                        if (paramData == null || paramData.Length == 0)
+                            ConstructedObject = Activator.CreateInstance(ClassType);
+                        else
+                        {
+                            var parameters = FinalArguments[ConstructorIndex];
+                            ConstructorInfo constructorInfo = ClassType.GetConstructors()[ConstructorIndex];
+                            ConstructedObject = constructorInfo.Invoke(parameters);
+                        }
+                    }
                     else
                     {
-                        var parameters = FinalArguments[ConstructorIndex];
-                        ConstructorInfo constructorInfo = ClassType.GetConstructors()[ConstructorIndex];
-                        ConstructedObject = constructorInfo.Invoke(parameters);
+                        int index = ConstructorIndex - PublicInstanceConstructors.Length;
+                        ConstructedObject = PublicStaticConstructors[index].Invoke(null, paramData);
                     }
-                }
-                else
-                {
-                    int index = ConstructorIndex - PublicInstanceConstructors.Length;
-                    ConstructedObject = PublicStaticConstructors[index].Invoke(null, paramData);
-                }
+                    break;
             }
 
             if (IsNullable)
@@ -261,20 +336,15 @@ namespace TheraEditor.Windows.Forms
 
             toolStripDropDownButton1.Text = type.GetFriendlyName();
 
-            if (ArrayMode)
+            if (Mode == EObjectCreatorMode.Array)
             {
                 toolStripTypeSelection.Visible = true;
-                FinalArguments = new object[numericInputBoxSingle1.Value.Value][].FillWith(new object[1] { type.GetDefaultValue() });
-                for (int i = 0; i < numericInputBoxSingle1.Value.Value; ++i)
+                FinalArguments = new object[numArrayLength.Value.Value][].FillWith(new object[1] { type.GetDefaultValue() });
+                for (int i = 0; i < numArrayLength.Value.Value; ++i)
                     tblConstructors.Controls.Add(CreateControl(type, 0, i, FinalArguments));
             }
             else
             {
-                tblConstructors.RowStyles.Clear();
-                tblConstructors.RowCount = 0;
-                tblConstructors.ColumnStyles.Clear();
-                tblConstructors.ColumnCount = 0;
-
                 PublicInstanceConstructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
                 PublicStaticConstructors = type.GetMethods(BindingFlags.Public | BindingFlags.Static).Where(x => x.ReturnType == type && !x.IsSpecialName).ToArray();
 
@@ -292,22 +362,40 @@ namespace TheraEditor.Windows.Forms
                 Parameters = new ParameterInfo[count][];
                 FinalArguments = new object[count][];
 
-                string constructorName = ClassType.Name.Split('`')[0];
+                cboConstructor.Items.Clear();
                 for (int index = 0; index < PublicInstanceConstructors.Length; ++index)
-                {
-                    ConstructorInfo c = PublicInstanceConstructors[index];
-                    DisplayConstructorMethod(constructorName, c.GetParameters(), index);
-                }
+                    cboConstructor.Items.Add(PublicInstanceConstructors[index].GetFriendlyName());
                 for (int index = 0; index < PublicStaticConstructors.Length; ++index)
+                    cboConstructor.Items.Add(PublicStaticConstructors[index].GetFriendlyName());
+            }
+        }
+
+        private void cboConstructor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int index = cboConstructor.SelectedIndex;
+            if (index < PublicInstanceConstructors.Length)
+            {
+                ConstructorInfo c = PublicInstanceConstructors[index];
+                DisplayConstructorMethod(ClassType.Name.Split('`')[0], c.GetParameters(), index);
+            }
+            else
+            {
+                index -= PublicInstanceConstructors.Length;
+                if (index < PublicStaticConstructors.Length)
                 {
                     MethodInfo m = PublicStaticConstructors[index];
-                    DisplayConstructorMethod(m.Name, m.GetParameters(), index + PublicInstanceConstructors.Length);
+                    DisplayConstructorMethod(m.Name, m.GetParameters(), PublicInstanceConstructors.Length + index);
                 }
             }
         }
 
         private void DisplayConstructorMethod(string funcName, ParameterInfo[] parameters, int index)
         {
+            tblConstructors.RowStyles.Clear();
+            tblConstructors.RowCount = 0;
+            tblConstructors.ColumnStyles.Clear();
+            tblConstructors.ColumnCount = 0;
+
             //First row: text representation
             tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             tblConstructors.RowCount = tblConstructors.RowStyles.Count;
@@ -730,17 +818,5 @@ namespace TheraEditor.Windows.Forms
             }
             return paramTool;
         }
-        
-        //public static ObjectCreator Current = null;
-        //protected override void OnActivated(EventArgs e)
-        //{
-        //    Current = this;
-        //    base.OnActivated(e);
-        //}
-        //protected override void OnDeactivate(EventArgs e)
-        //{
-        //    Current = null;
-        //    base.OnDeactivate(e);
-        //}
     }
 }

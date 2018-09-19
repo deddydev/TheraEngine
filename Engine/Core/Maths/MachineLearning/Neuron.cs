@@ -13,5 +13,10 @@ namespace TheraEngine.Core.Maths.MachineLearning
         public float WeightedValue => Weight * Value;
         public static float ImportanceSum(List<Neuron> neurons, float bias)
             => TMath.Sigmoidf(neurons.Sum(x => x.WeightedValue) - bias);
+
+        public void Initialize()
+        {
+
+        }
     }
 }

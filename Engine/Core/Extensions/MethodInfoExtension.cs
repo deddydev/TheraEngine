@@ -24,12 +24,9 @@ namespace System
                 friendlyName += "sealed ";
             if (method.IsStatic)
                 friendlyName += "static ";
-
-            //There is no way to know if new should be included or not 
-            //without the class type passed in as well to check if it is a derived type
-            //if (method.IsHideBySig && method.DeclaringType.IsAssignableFrom(classType))
+            
+            //if (method.IsHideBySig && method.DeclaringType.IsAssignableFrom(method.ReflectedType))
             //    friendlyName += "new ";
-
             if (method.IsVirtual)
                 friendlyName += "virtual ";
             if (realMethod != null && realMethod.GetBaseDefinition() != realMethod)
@@ -39,7 +36,19 @@ namespace System
 
             if (realMethod != null)
                 friendlyName += realMethod.ReturnType.GetFriendlyName() + " ";
-            friendlyName += method.Name;
+            if (!method.IsSpecialName)
+                friendlyName += method.Name;
+            else 
+            {
+                string name = method.ReflectedType.GetFriendlyName();
+                int index = name.IndexOf('<');
+                if (index > 0)
+                    name = name.Substring(0, index);
+                if (method.IsConstructor)
+                    friendlyName += name;
+                else
+                    friendlyName += "~" + name;
+            }
 
             bool first = true;
             if (method.IsGenericMethod)

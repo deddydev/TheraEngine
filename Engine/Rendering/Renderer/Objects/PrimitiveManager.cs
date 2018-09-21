@@ -234,16 +234,16 @@ namespace TheraEngine.Rendering.Models
                             //else
                                 list = b._influencedVertices[BindingId].Item2;
 
-                            if (!list.Contains(point.VertexIndex))
-                                list.Add(point.VertexIndex);
+                            if (!list.Contains(point.Index))
+                                list.Add(point.Index);
                         }
                         else
                         {
                             //if (b._influencedVertices.ContainsKey(BindingId))
                             //{
                             ThreadSafeList<int> list = b._influencedVertices[BindingId].Item2;
-                                if (list.Contains(point.VertexIndex))
-                                    list.Remove(point.VertexIndex);
+                                if (list.Contains(point.Index))
+                                    list.Remove(point.Index);
                                 //if (list.Count == 0)
                                 //    b._influencedVertices.Remove(BindingId);
                             //}

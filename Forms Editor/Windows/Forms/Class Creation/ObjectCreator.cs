@@ -88,6 +88,7 @@ namespace TheraEditor.Windows.Forms
                 else
                     _genericTypeArgs = null;
             }
+            chkNull.Visible = IsNullable || !type.IsValueType;
 
             if (type.IsArray)
             {
@@ -98,65 +99,61 @@ namespace TheraEditor.Windows.Forms
             {
                 switch (type.Name)
                 {
-                    case "Boolean":
-                        Mode = EObjectCreatorMode.Boolean;
-                        chkNull.Visible = IsNullable;
-                        break;
-                    case "SByte":
-                        Mode = EObjectCreatorMode.Int8;
-                        numericInputBoxSByte1.Nullable = IsNullable;
-                        break;
-                    case "Byte":
-                        Mode = EObjectCreatorMode.UInt8;
-                        numericInputBoxByte1.Nullable = IsNullable;
+                    default:
+                        Mode = EObjectCreatorMode.Object;
                         break;
                     case "Char":
                         Mode = EObjectCreatorMode.Char;
-                        chkNull.Visible = IsNullable;
-                        break;
-                    case "Int16":
-                        Mode = EObjectCreatorMode.Int16;
-                        numericInputBoxInt161.Nullable = IsNullable;
-                        break;
-                    case "UInt16":
-                        Mode = EObjectCreatorMode.UInt16;
-                        numericInputBoxUInt161.Nullable = IsNullable;
-                        break;
-                    case "Int32":
-                        Mode = EObjectCreatorMode.Int32;
-                        numericInputBoxInt321.Nullable = IsNullable;
-                        break;
-                    case "UInt32":
-                        Mode = EObjectCreatorMode.UInt32;
-                        numericInputBoxUInt321.Nullable = IsNullable;
-                        break;
-                    case "Int64":
-                        Mode = EObjectCreatorMode.Int64;
-                        numericInputBoxInt641.Nullable = IsNullable;
-                        break;
-                    case "UInt64":
-                        Mode = EObjectCreatorMode.UInt64;
-                        numericInputBoxUInt641.Nullable = IsNullable;
-                        break;
-                    case "Single":
-                        Mode = EObjectCreatorMode.Single;
-                        numericInputBoxSingle1.Nullable = IsNullable;
-                        break;
-                    case "Double":
-                        Mode = EObjectCreatorMode.Double;
-                        numericInputBoxDouble1.Nullable = IsNullable;
-                        break;
-                    case "Decimal":
-                        Mode = EObjectCreatorMode.Decimal;
-                        numericInputBoxDecimal1.Nullable = IsNullable;
                         break;
                     case "String":
                         Mode = EObjectCreatorMode.String;
-                        chkNull.Visible = IsNullable;
                         break;
-                    default:
-                        Mode = EObjectCreatorMode.Object;
-
+                    case "Boolean":
+                        Mode = EObjectCreatorMode.Boolean;
+                        break;
+                    case "SByte":
+                        Mode = EObjectCreatorMode.Int8;
+                        numericInputBoxSByte.Nullable = chkNull.Visible;
+                        break;
+                    case "Byte":
+                        Mode = EObjectCreatorMode.UInt8;
+                        numericInputBoxByte.Nullable = chkNull.Visible;
+                        break;
+                    case "Int16":
+                        Mode = EObjectCreatorMode.Int16;
+                        numericInputBoxInt16.Nullable = chkNull.Visible;
+                        break;
+                    case "UInt16":
+                        Mode = EObjectCreatorMode.UInt16;
+                        numericInputBoxUInt16.Nullable = chkNull.Visible;
+                        break;
+                    case "Int32":
+                        Mode = EObjectCreatorMode.Int32;
+                        numericInputBoxInt32.Nullable = chkNull.Visible;
+                        break;
+                    case "UInt32":
+                        Mode = EObjectCreatorMode.UInt32;
+                        numericInputBoxUInt32.Nullable = chkNull.Visible;
+                        break;
+                    case "Int64":
+                        Mode = EObjectCreatorMode.Int64;
+                        numericInputBoxInt64.Nullable = chkNull.Visible;
+                        break;
+                    case "UInt64":
+                        Mode = EObjectCreatorMode.UInt64;
+                        numericInputBoxUInt64.Nullable = chkNull.Visible;
+                        break;
+                    case "Single":
+                        Mode = EObjectCreatorMode.Single;
+                        numericInputBoxSingle.Nullable = chkNull.Visible;
+                        break;
+                    case "Double":
+                        Mode = EObjectCreatorMode.Double;
+                        numericInputBoxDouble.Nullable = chkNull.Visible;
+                        break;
+                    case "Decimal":
+                        Mode = EObjectCreatorMode.Decimal;
+                        numericInputBoxDecimal.Nullable = chkNull.Visible;
                         break;
                 }
             }
@@ -287,17 +284,17 @@ namespace TheraEditor.Windows.Forms
                     toolStripDropDownButton1.Text = "Select an object type...";
                     tblConstructors.Controls.Clear();
 
-                    numericInputBoxByte1.Visible =
-                    numericInputBoxSByte1.Visible =
-                    numericInputBoxSingle1.Visible =
-                    numericInputBoxDouble1.Visible =
-                    numericInputBoxDecimal1.Visible =
-                    numericInputBoxInt161.Visible =
-                    numericInputBoxUInt161.Visible =
-                    numericInputBoxInt321.Visible =
-                    numericInputBoxUInt321.Visible =
-                    numericInputBoxInt641.Visible =
-                    numericInputBoxUInt641.Visible =
+                    numericInputBoxByte.Visible =
+                    numericInputBoxSByte.Visible =
+                    numericInputBoxSingle.Visible =
+                    numericInputBoxDouble.Visible =
+                    numericInputBoxDecimal.Visible =
+                    numericInputBoxInt16.Visible =
+                    numericInputBoxUInt16.Visible =
+                    numericInputBoxInt32.Visible =
+                    numericInputBoxUInt32.Visible =
+                    numericInputBoxInt64.Visible =
+                    numericInputBoxUInt64.Visible =
                     richTextBox1.Visible = 
                     chkBoolean.Visible =
                     false;
@@ -312,17 +309,17 @@ namespace TheraEditor.Windows.Forms
                     cboConstructor.Visible = false;
                     toolStripDropDownButton1.Text = "Select an element type...";
 
-                    numericInputBoxByte1.Visible =
-                    numericInputBoxSByte1.Visible =
-                    numericInputBoxSingle1.Visible =
-                    numericInputBoxDouble1.Visible =
-                    numericInputBoxDecimal1.Visible =
-                    numericInputBoxInt161.Visible =
-                    numericInputBoxUInt161.Visible =
-                    numericInputBoxInt321.Visible =
-                    numericInputBoxUInt321.Visible =
-                    numericInputBoxInt641.Visible =
-                    numericInputBoxUInt641.Visible =
+                    numericInputBoxByte.Visible =
+                    numericInputBoxSByte.Visible =
+                    numericInputBoxSingle.Visible =
+                    numericInputBoxDouble.Visible =
+                    numericInputBoxDecimal.Visible =
+                    numericInputBoxInt16.Visible =
+                    numericInputBoxUInt16.Visible =
+                    numericInputBoxInt32.Visible =
+                    numericInputBoxUInt32.Visible =
+                    numericInputBoxInt64.Visible =
+                    numericInputBoxUInt64.Visible =
                     richTextBox1.Visible =
                     chkBoolean.Visible = 
                     false;
@@ -346,17 +343,17 @@ namespace TheraEditor.Windows.Forms
 
                     toolStripDropDownButton1.Text = string.Empty;
 
-                    numericInputBoxByte1.Visible = _mode == EObjectCreatorMode.UInt8;
-                    numericInputBoxSByte1.Visible = _mode == EObjectCreatorMode.Int8;
-                    numericInputBoxSingle1.Visible = _mode == EObjectCreatorMode.Single;
-                    numericInputBoxDouble1.Visible = _mode == EObjectCreatorMode.Double;
-                    numericInputBoxDecimal1.Visible = _mode == EObjectCreatorMode.Decimal;
-                    numericInputBoxInt161.Visible = _mode == EObjectCreatorMode.Int16;
-                    numericInputBoxUInt161.Visible = _mode == EObjectCreatorMode.UInt16;
-                    numericInputBoxInt321.Visible = _mode == EObjectCreatorMode.Int32;
-                    numericInputBoxUInt321.Visible = _mode == EObjectCreatorMode.UInt32;
-                    numericInputBoxInt641.Visible = _mode == EObjectCreatorMode.Int64;
-                    numericInputBoxUInt641.Visible = _mode == EObjectCreatorMode.UInt64;
+                    numericInputBoxByte.Visible = _mode == EObjectCreatorMode.UInt8;
+                    numericInputBoxSByte.Visible = _mode == EObjectCreatorMode.Int8;
+                    numericInputBoxSingle.Visible = _mode == EObjectCreatorMode.Single;
+                    numericInputBoxDouble.Visible = _mode == EObjectCreatorMode.Double;
+                    numericInputBoxDecimal.Visible = _mode == EObjectCreatorMode.Decimal;
+                    numericInputBoxInt16.Visible = _mode == EObjectCreatorMode.Int16;
+                    numericInputBoxUInt16.Visible = _mode == EObjectCreatorMode.UInt16;
+                    numericInputBoxInt32.Visible = _mode == EObjectCreatorMode.Int32;
+                    numericInputBoxUInt32.Visible = _mode == EObjectCreatorMode.UInt32;
+                    numericInputBoxInt64.Visible = _mode == EObjectCreatorMode.Int64;
+                    numericInputBoxUInt64.Visible = _mode == EObjectCreatorMode.UInt64;
                     richTextBox1.Visible = _mode == EObjectCreatorMode.String || _mode == EObjectCreatorMode.Char;
                     chkBoolean.Visible = _mode == EObjectCreatorMode.Boolean;
                 }
@@ -402,37 +399,37 @@ namespace TheraEditor.Windows.Forms
                     ConstructedObject = richTextBox1.Text.Length == 0 ? 0 : richTextBox1.Text[0];
                     break;
                 case EObjectCreatorMode.Int8:
-                    ConstructedObject = numericInputBoxSByte1.Value;
+                    ConstructedObject = numericInputBoxSByte.Value;
                     break;
                 case EObjectCreatorMode.UInt8:
-                    ConstructedObject = numericInputBoxByte1.Value;
+                    ConstructedObject = numericInputBoxByte.Value;
                     break;
                 case EObjectCreatorMode.Int16:
-                    ConstructedObject = numericInputBoxInt161.Value;
+                    ConstructedObject = numericInputBoxInt16.Value;
                     break;
                 case EObjectCreatorMode.UInt16:
-                    ConstructedObject = numericInputBoxUInt161.Value;
+                    ConstructedObject = numericInputBoxUInt16.Value;
                     break;
                 case EObjectCreatorMode.Int32:
-                    ConstructedObject = numericInputBoxInt321.Value;
+                    ConstructedObject = numericInputBoxInt32.Value;
                     break;
                 case EObjectCreatorMode.UInt32:
-                    ConstructedObject = numericInputBoxUInt321.Value;
+                    ConstructedObject = numericInputBoxUInt32.Value;
                     break;
                 case EObjectCreatorMode.Int64:
-                    ConstructedObject = numericInputBoxInt641.Value;
+                    ConstructedObject = numericInputBoxInt64.Value;
                     break;
                 case EObjectCreatorMode.UInt64:
-                    ConstructedObject = numericInputBoxUInt641.Value;
+                    ConstructedObject = numericInputBoxUInt64.Value;
                     break;
                 case EObjectCreatorMode.Single:
-                    ConstructedObject = numericInputBoxSingle1.Value;
+                    ConstructedObject = numericInputBoxSingle.Value;
                     break;
                 case EObjectCreatorMode.Double:
-                    ConstructedObject = numericInputBoxDouble1.Value;
+                    ConstructedObject = numericInputBoxDouble.Value;
                     break;
                 case EObjectCreatorMode.Decimal:
-                    ConstructedObject = numericInputBoxDecimal1.Value;
+                    ConstructedObject = numericInputBoxDecimal.Value;
                     break;
                 case EObjectCreatorMode.Boolean:
                     ConstructedObject = chkBoolean.Checked;

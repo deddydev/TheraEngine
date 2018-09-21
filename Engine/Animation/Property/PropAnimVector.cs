@@ -142,7 +142,10 @@ namespace TheraEngine.Animation
                         T t2 = _baked[0];
 
                         //TODO: interpolate values by creating tangents dynamically?
-                        float lerpTime = frameTime - frame;
+
+                        //Span is always 1 frame, so no need to divide to normalize
+                        float lerpTime = frameTime - frame; 
+
                         return LerpValues(t1, t2, lerpTime);
                     }
                     return _baked[frame];
@@ -153,7 +156,10 @@ namespace TheraEngine.Animation
                     T t2 = _baked[frame + 1];
 
                     //TODO: interpolate values by creating tangents dynamically?
+
+                    //Span is always 1 frame, so no need to divide to normalize
                     float lerpTime = frameTime - frame;
+
                     return LerpValues(t1, t2, lerpTime);
                 }
             }

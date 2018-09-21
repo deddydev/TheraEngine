@@ -521,36 +521,43 @@ namespace TheraEngine.Files
                 if (!File.Exists(filePath))
                     return null;
 
-                TFileObject file;
-                FileExt ext = GetFileExtension(type);
-                if (ext?.ManualXmlConfigSerialize ?? false)
+                TFileObject file = null;
+                try
                 {
-                    unsafe
+                    FileExt ext = GetFileExtension(type);
+                    if (ext?.ManualXmlConfigSerialize ?? false)
                     {
-                        using (FileMap map = FileMap.FromFile(filePath))
+                        unsafe
                         {
-                            XMLReader reader = new XMLReader(map.Address, map.Length, true);
-                            file = SerializationCommon.CreateObject(type) as TFileObject;
-                            if (file != null && reader.BeginElement())
+                            using (FileMap map = FileMap.FromFile(filePath))
                             {
-                                file.FilePath = filePath;
-                                //if (reader.Name.Equals(t.ToString(), true))
-                                file.Read(reader);
-                                //else
-                                //    throw new Exception("File was not of expected type.");
-                                reader.EndElement();
+                                XMLReader reader = new XMLReader(map.Address, map.Length, true);
+                                file = SerializationCommon.CreateObject(type) as TFileObject;
+                                if (file != null && reader.BeginElement())
+                                {
+                                    file.FilePath = filePath;
+                                    //if (reader.Name.Equals(t.ToString(), true))
+                                    file.Read(reader);
+                                    //else
+                                    //    throw new Exception("File was not of expected type.");
+                                    reader.EndElement();
+                                }
                             }
                         }
                     }
+                    else
+                        file = new CustomXmlSerializer().Deserialize(filePath);
                 }
-                else
-                    file = new CustomXmlSerializer().Deserialize(filePath);
+                catch (Exception ex)
+                {
+                    Engine.LogWarning($"Unable to load XML file at {filePath}.\n{ex.ToString()}");
+                }
                 if (file != null)
                     file.FilePath = filePath;
                 return file;
             });
         }
-        private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
+        private static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings()
         {
             Indent = true,
             IndentChars = "\t",
@@ -571,7 +578,7 @@ namespace TheraEngine.Files
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
 
             if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 directory += Path.DirectorySeparatorChar;
@@ -586,7 +593,7 @@ namespace TheraEngine.Files
             if (ext.ManualXmlConfigSerialize)
             {
                 using (FileStream stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
-                using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
+                using (XmlWriter writer = XmlWriter.Create(stream, DefaultWriterSettings))
                 {
                     writer.Flush();
                     stream.Position = 0;
@@ -664,7 +671,7 @@ namespace TheraEngine.Files
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
 
             if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 directory += Path.DirectorySeparatorChar;

@@ -306,6 +306,8 @@ void main()
         private bool _ctrlDown = false;
         internal void LeftClickDown()
         {
+            Vec2 worldPos = CursorPositionWorld();
+            _targetAnimation?.Keyframes?.Add(new FloatKeyframe(worldPos.X, worldPos.Y, 1.0f, EPlanarInterpType.Linear));
             //if (_selectedKf != null && _selectedKf != _highlightedKf)
             //{
             //    //Reset current _selectedKf

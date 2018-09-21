@@ -1,4 +1,7 @@
-﻿using Microsoft.Build.Framework;
+﻿using EnvDTE100;
+using Microsoft.Build.Evaluation;
+using Microsoft.Build.Execution;
+using Microsoft.Build.Framework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,6 +25,9 @@ namespace TheraEditor
     [FileDef("Thera Engine Project")]
     public class Project : Game
     {
+        /// <summary>
+        /// This is the global GUID for a C# project.
+        /// </summary>
         public const string CSharpProjectGuid = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
 
         [TSerialize(nameof(Guid))]
@@ -354,23 +360,24 @@ namespace TheraEditor
             //VisualStudioManager.VSInstanceClosed();
         }
 
-        //private string GenerateGameProject(string slnDir, EnvDTE80.DTE2 dte, Solution4 sln)
-        //{
-        //    Dictionary<string, string> props = new Dictionary<string, string>
-        //    {
-        //        { "Configuration", "Debug" },
-        //        { "Platform", "x86" }
-        //    };
-        //    EngineLogger logger = new EngineLogger(LoggerVerbosity.Diagnostic);
-        //    ProjectCollection pc = new ProjectCollection(props, new ILogger[] { logger },
-        //        ToolsetDefinitionLocations.ConfigurationFile | ToolsetDefinitionLocations.Registry);
-        //    BuildParameters buildParams = new BuildParameters(pc);
-        //    BuildRequestData buildRequest = new BuildRequestData(Name, props, null, new string[] { "Build" }, null);
-        //    BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
+        private string GenerateGameProject(string slnDir, EnvDTE80.DTE2 dte, Solution4 sln)
+        {
+            Dictionary<string, string> props = new Dictionary<string, string>
+            {
+                { "Configuration", "Debug" },
+                { "Platform", "x86" }
+            };
+            EngineLogger logger = new EngineLogger(LoggerVerbosity.Diagnostic);
+            ProjectCollection pc = new ProjectCollection(props, new ILogger[] { logger },
+                ToolsetDefinitionLocations.ConfigurationFile | ToolsetDefinitionLocations.Registry);
+            pc.LoadProject(slnDir);
+            BuildParameters buildParams = new BuildParameters(pc);
+            BuildRequestData buildRequest = new BuildRequestData(Name, props, null, new string[] { "Build" }, null);
+            BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
 
-        //    //File.WriteAllText(projPath, @"");
-        //    return projPath;
-        //}
+            //File.WriteAllText(projPath, @"");
+            return null;
+        }
 
         private class EngineLogger : ILogger
         {

@@ -21,6 +21,7 @@ namespace TheraEngine.Physics
             bool addNeighborsDistPoints = false,
             bool addFacesPoints = false)
         {
+            //TODO: finish hacd convex decomposition
             return null;
 
             Hacd hacd = new Hacd();

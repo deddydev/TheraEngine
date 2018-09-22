@@ -164,7 +164,7 @@ namespace TheraEngine.Actors.Types.Pawns
         //return current;
         //return RootComponent.FindComponent(viewportPoint);
 
-        public void Resize(Vec2 bounds)
+        public virtual void Resize(Vec2 bounds)
         {
             Bounds = bounds;
             if (Bounds == Vec2.Zero)

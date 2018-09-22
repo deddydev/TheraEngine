@@ -13,8 +13,8 @@ uniform vec2 Translation;
 
 void main()
 {
-    
-    float realScale = fract(Scale / 300.0f) * 10.0f + 1.0f;
+
+    float realScale = fract(Scale / 100.0f) * 10.0f + 1.0f;
     
     vec2 scaledUV = (FragPos.xy - Translation) / Scale / 30.0f;
     vec2 fractUV = fract(scaledUV);

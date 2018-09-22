@@ -2,18 +2,17 @@
 {
     public class VertexLineStrip : VertexPrimitive
     {
-        public override FaceType Type { get { return _closedLoop ? FaceType.LineLoop : FaceType.LineStrip; } }
-        bool _closedLoop;
+        public override FaceType Type => ClosedLoop ? FaceType.LineLoop : FaceType.LineStrip;
 
-        public VertexLineStrip(bool closedLoop, params Vertex[] vertices) : base(vertices)
-        {
-            _closedLoop = closedLoop;
-        }
+        public bool ClosedLoop { get; set; }
 
+        public VertexLineStrip(bool closedLoop, params Vertex[] vertices)
+            : base(vertices) => ClosedLoop = closedLoop;
+        
         public VertexLine[] ToLines()
         {
             int count = _vertices.Count;
-            if (!_closedLoop && count > 0)
+            if (!ClosedLoop && count > 0)
                 --count;
             VertexLine[] lines = new VertexLine[count];
             for (int i = 0; i < count; ++i)

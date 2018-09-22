@@ -26,7 +26,6 @@ namespace TheraEngine.Rendering.UI
 
         protected Vec2 _translation = Vec2.Zero;
         protected Vec2 _scale = Vec2.One;
-        protected Vec2 _localOriginPercentage = Vec2.Zero;
         protected bool _visible = true;
 
         [Category("Rendering")]

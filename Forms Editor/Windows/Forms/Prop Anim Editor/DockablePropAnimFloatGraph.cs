@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
+using TheraEngine.Animation;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
@@ -24,6 +25,8 @@ namespace TheraEditor.Windows.Forms
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             Editor.SetActiveEditorControl(this);
+            if (TargetAnimation != null)
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = TargetAnimation;
         }
         
         public PropAnimFloatEditorGameMode GameMode { get; set; }
@@ -32,6 +35,17 @@ namespace TheraEditor.Windows.Forms
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => RenderPanel.UI;
         BaseGameMode IEditorControl.GameMode => GameMode;
+
+        public PropAnimFloat TargetAnimation
+        {
+            get => RenderPanel.UI.TargetAnimation;
+            internal set
+            {
+                RenderPanel.UI.TargetAnimation = value;
+                if (TargetAnimation != null)
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = TargetAnimation;
+            }
+        }
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

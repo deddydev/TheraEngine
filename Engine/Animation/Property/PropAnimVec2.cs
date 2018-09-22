@@ -36,8 +36,28 @@ namespace TheraEngine.Animation
             => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
 
         [GridCallable]
-        public override void AverageTangents()
-            => InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+        public override void AverageTangentDirections()
+        {
+            float inLength = InTangent.Length;
+            float outLength = OutTangent.Length;
+            Vec2 inTan = InTangent.Normalized();
+            Vec2 outTan = OutTangent.Normalized();
+            Vec2 avg = (inTan + outTan) * 0.5f;
+            avg.Normalize();
+            InTangent = -avg * inLength;
+            OutTangent = avg * outLength;
+        }
+        [GridCallable]
+        public override void AverageTangentMagnitudes()
+        {
+            float inLength = InTangent.Length;
+            float outLength = OutTangent.Length;
+            float avgLength = (inLength + outLength) * 0.5f;
+            Vec2 inTan = InTangent.Normalized();
+            Vec2 outTan = OutTangent.Normalized();
+            InTangent = inTan * avgLength;
+            OutTangent = outTan * avgLength;
+        }
         [GridCallable]
         public override void AverageValues()
             => InValue = OutValue = (InValue + OutValue) / 2.0f;

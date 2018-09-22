@@ -294,111 +294,67 @@ namespace TheraEngine.Core.Maths
         }
         public static float CubicHermite(float p0, float t0, float t1, float p1, float time)
         {
+            CubicHermiteCoefs(p0, t0, t1, p1, out float third, out float second, out float first, out float zero);
             float time2 = time * time;
-            float time3 = time2 * time;
-            return
-                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
-                t0 * (time3 - 2.0f * time2 + time) +
-                p1 * (-2.0f * time3 + 3.0f * time2) +
-                t1 * (time3 - time2);
+            return third * time2 * time + second * time2 + first * time + zero;
         }
         public static float CubicHermiteVelocity(float p0, float t0, float t1, float p1, float time)
         {
-            float time2 = time * time;
-            return
-                p0 * (6.0f * time2 - 6.0f * time) +
-                t0 * (3.0f * time2 - 4.0f * time + 1.0f) +
-                p1 * (-6.0f * time2 + 6.0f * time) +
-                t1 * (3.0f * time2 - 2.0f * time);
+            CubicHermiteVelocityCoefs(p0, t0, t1, p1, out float second, out float first, out float zero);
+            return second * time * time + first * time + zero;
         }
         public static float CubicHermiteAcceleration(float p0, float t0, float t1, float p1, float time)
         {
-            return
-                p0 * (12.0f * time - 6.0f) +
-                t0 * (6.0f * time - 4.0f) +
-                p1 * (-12.0f * time + 6.0f) +
-                t1 * (6.0f * time - 2.0f);
+            CubicHermiteAccelerationCoefs(p0, t0, t1, p1, out float first, out float zero);
+            return first * time + zero;
         }
         public static Vec2 CubicHermite(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
         {
+            CubicHermiteCoefs(p0, t0, t1, p1, out Vec2 third, out Vec2 second, out Vec2 first, out Vec2 zero);
             float time2 = time * time;
-            float time3 = time2 * time;
-            return
-                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
-                t0 * (time3 - 2.0f * time2 + time) +
-                p1 * (-2.0f * time3 + 3.0f * time2) +
-                t1 * (time3 - time2);
+            return third * time2 * time + second * time2 + first * time + zero;
         }
         public static Vec2 CubicHermiteVelocity(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
         {
-            float time2 = time * time;
-            return
-                p0 * (6.0f * time2 - 6.0f * time) +
-                t0 * (3.0f * time2 - 4.0f * time + 1.0f) +
-                p1 * (-6.0f * time2 + 6.0f * time) +
-                t1 * (3.0f * time2 - 2.0f * time);
+            CubicHermiteVelocityCoefs(p0, t0, t1, p1, out Vec2 second, out Vec2 first, out Vec2 zero);
+            return second * time * time + first * time + zero;
         }
         public static Vec2 CubicHermiteAcceleration(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
         {
-            return
-                p0 * (12.0f * time - 6.0f) +
-                t0 * (6.0f * time - 4.0f) +
-                p1 * (-12.0f * time + 6.0f) +
-                t1 * (6.0f * time - 2.0f);
+            CubicHermiteAccelerationCoefs(p0, t0, t1, p1, out Vec2 first, out Vec2 zero);
+            return first * time + zero;
         }
         public static Vec3 CubicHermite(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
         {
+            CubicHermiteCoefs(p0, t0, t1, p1, out Vec3 third, out Vec3 second, out Vec3 first, out Vec3 zero);
             float time2 = time * time;
-            float time3 = time2 * time;
-            return
-                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
-                t0 * (time3 - 2.0f * time2 + time) +
-                p1 * (-2.0f * time3 + 3.0f * time2) +
-                t1 * (time3 - time2);
+            return third * time2 * time + second * time2 + first * time + zero;
         }
         public static Vec3 CubicHermiteVelocity(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
         {
-            float time2 = time * time;
-            return
-                p0 * (6.0f * time2 - 6.0f * time) +
-                t0 * (3.0f * time2 - 4.0f * time + 1.0f) +
-                p1 * (-6.0f * time2 + 6.0f * time) +
-                t1 * (3.0f * time2 - 2.0f * time);
+            CubicHermiteVelocityCoefs(p0, t0, t1, p1, out Vec3 second, out Vec3 first, out Vec3 zero);
+            return second * time * time + first * time + zero;
         }
         public static Vec3 CubicHermiteAcceleration(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
         {
-            return
-                p0 * (12.0f * time - 6.0f) +
-                t0 * (6.0f * time - 4.0f) +
-                p1 * (-12.0f * time + 6.0f) +
-                t1 * (6.0f * time - 2.0f);
+            CubicHermiteAccelerationCoefs(p0, t0, t1, p1, out Vec3 first, out Vec3 zero);
+            return first * time + zero;
         }
         public static Vec4 CubicHermite(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
         {
+            CubicHermiteCoefs(p0, t0, t1, p1, out Vec4 third, out Vec4 second, out Vec4 first, out Vec4 zero);
             float time2 = time * time;
-            float time3 = time2 * time;
-            return
-                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
-                t0 * (time3 - 2.0f * time2 + time) +
-                p1 * (-2.0f * time3 + 3.0f * time2) +
-                t1 * (time3 - time2);
+            return third * time2 * time + second * time2 + first * time + zero;
         }
         public static Vec4 CubicHermiteVelocity(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
         {
-            float time2 = time * time;
-            return
-                p0 * (6.0f * time2 - 6.0f * time) +
-                t0 * (3.0f * time2 - 4.0f * time + 1.0f) +
-                p1 * (-6.0f * time2 + 6.0f * time) +
-                t1 * (3.0f * time2 - 2.0f * time);
+            CubicHermiteVelocityCoefs(p0, t0, t1, p1, out Vec4 second, out Vec4 first, out Vec4 zero);
+            return second * time * time + first * time + zero;
         }
         public static Vec4 CubicHermiteAcceleration(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
         {
-            return
-                p0 * (12.0f * time - 6.0f) +
-                t0 * (6.0f * time - 4.0f) +
-                p1 * (-12.0f * time + 6.0f) +
-                t1 * (6.0f * time - 2.0f);
+            CubicHermiteAccelerationCoefs(p0, t0, t1, p1, out Vec4 first, out Vec4 zero);
+            return first * time + zero;
         }
         #endregion
 

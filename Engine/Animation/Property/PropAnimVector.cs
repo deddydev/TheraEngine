@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
@@ -312,9 +314,147 @@ namespace TheraEngine.Animation
             _bakedFPS = framesPerSecond;
             _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
             _baked = new T[BakedFrameCount];
+            float invFPS = 1.0f / _bakedFPS;
             for (int i = 0; i < BakedFrameCount; ++i)
-                _baked[i] = GetValueKeyframed(i / _bakedFPS);
+                _baked[i] = GetValueKeyframed(i * invFPS);
         }
+        public void GetMinMax(
+            out (float Time, float Value)[] min,
+            out (float Time, float Value)[] max)
+        {
+            float[] inComps = GetComponents(DefaultValue), outComps, inTanComps, outTanComps;
+            int compCount = inComps.Length;
+            if (_keyframes.Count == 0)
+            {
+                min = max = inComps.Select(x => (0.0f, x)).ToArray();
+                return;
+            }
+
+            VectorKeyframe<T> kf = _keyframes.First;
+            if (_keyframes.Count == 1)
+            {
+                if (kf.Second.IsZero())
+                {
+                    outComps = GetComponents(kf.OutValue);
+                    min = max = outComps.Select(x => (kf.Second, x)).ToArray();
+                }
+                else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
+                {
+                    inComps = GetComponents(kf.InValue);
+                    min = max = inComps.Select(x => (kf.Second, x)).ToArray();
+                }
+                else
+                {
+                    inComps = GetComponents(kf.InValue);
+                    outComps = GetComponents(kf.OutValue);
+
+                    min = new (float Time, float Value)[compCount];
+                    max = new (float Time, float Value)[compCount];
+
+                    for (int i = 0; i < compCount; ++i)
+                    {
+                        min[i] = (kf.Second, Math.Min(inComps[i], outComps[i]));
+                        max[i] = (kf.Second, Math.Max(inComps[i], outComps[i]));
+                    }
+                }
+            }
+            else
+            {
+                min = new(float Time, float Value)[compCount];
+                min = min.FillWith((0.0f, float.MaxValue));
+
+                max = new(float Time, float Value)[compCount];
+                max = max.FillWith((0.0f, float.MinValue));
+
+                VectorKeyframe<T> next;
+                for (int i = 0; i < _keyframes.Count; ++i, kf = next)
+                {
+                    next = kf.Next;
+                    for (int x = 0; x < compCount; ++x)
+                    {
+                        float minVal = min[x].Value;
+                        float maxVal = max[x].Value;
+
+                        float oldMin = minVal;
+                        float oldMax = maxVal;
+
+                        inComps = GetComponents(kf.InValue);
+                        outComps = GetComponents(kf.OutValue);
+
+                        //Check if the keyframe already exceeds the current bounds
+                        if (kf.Second.IsZero())
+                        {
+                            min[x].Value = Math.Min(minVal, outComps[x]);
+                            max[x].Value = Math.Max(maxVal, outComps[x]);
+                        }
+                        else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
+                        {
+                            min[x].Value = Math.Min(minVal, inComps[x]);
+                            max[x].Value = Math.Max(maxVal, inComps[x]);
+                        }
+                        else
+                        {
+                            min[x].Value = TMath.Min(minVal, inComps[x], outComps[x]);
+                            max[x].Value = TMath.Max(maxVal, inComps[x], outComps[x]);
+                        }
+
+                        if (oldMin != minVal)
+                            min[x].Time = kf.Second;
+                        if (oldMax != maxVal)
+                            max[x].Time = kf.Second;
+
+                        //If not the last keyframe, evaluate the interpolation
+                        //between this keyframe and the next to find spots where
+                        //velocity reaches zero. This means that the position value
+                        //is an extrema and should be considered for min/max.
+                        if (i != _keyframes.Count - 1)
+                        {
+                            inTanComps = GetComponents(kf.InTangent);
+                            outTanComps = GetComponents(kf.OutTangent);
+
+                            //Retrieve velocity interpolation equation coefficients
+                            //so we can solve for the two time values where velocity is zero.
+                            Interp.CubicHermiteVelocityCoefs(
+                                outComps[x], outTanComps[x], inTanComps[x], inComps[x],
+                                out float second, out float first, out float zero);
+
+                            if (TMath.QuadraticRealRoots(second, first, zero,
+                                out float time1, out float time2))
+                            {
+                                T val1 = kf.InterpolateNextNormalized(time1);
+                                T val2 = kf.InterpolateNextNormalized(time2);
+
+                                oldMin = min.Value;
+                                oldMax = max.Value;
+
+                                min.Value = ComponentMin(min.Value, val1, val2);
+                                max.Value = ComponentMax(max.Value, val1, val2);
+
+                                float[] values = GetComponents();
+                                if (!Equal(oldMin, min.Value))
+                                {
+                                    if (min.Value == val1)
+                                        min.Time = time1;
+                                    if (min.Value == val2)
+                                        min.Time = time2;
+                                }
+                                if (!Equal(oldMax, max.Value))
+                                {
+                                    if (max.Value == val1)
+                                        max.Time = time1;
+                                    if (max.Value == val2)
+                                        max.Time = time2;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        internal abstract float[] GetComponents(T defaultValue);
+        internal abstract T GetMaxValue();
+        internal abstract T GetMinValue();
     }
     public abstract class VectorKeyframe<T> : Keyframe, IPlanarKeyframe<T> where T : unmanaged
     {
@@ -347,6 +487,52 @@ namespace TheraEngine.Animation
         object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (T)value; }
         object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (T)value; }
 
+        private T _inValue, _outValue, _inTangent, _outTangent;
+        private bool _syncInOutValues = true;
+        private bool _syncInOutTangentDirections = true;
+        private bool _syncInOutTangentMagnitudes = true;
+
+#if EDITOR
+        [Category("Keyframe")]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public bool SyncInOutValues
+        {
+            get => _syncInOutValues;
+            set
+            {
+                _syncInOutValues = value;
+                if (_syncInOutValues)
+                    AverageValues();
+                OwningTrack?.OnChanged();
+            }
+        }
+        [Category("Keyframe")]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public bool SyncInOutTangentDirections
+        {
+            get => _syncInOutTangentDirections;
+            set
+            {
+                _syncInOutTangentDirections = value;
+                if (_syncInOutTangentDirections)
+                    AverageValues();
+                OwningTrack?.OnChanged();
+            }
+        }
+        [Category("Keyframe")]
+        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        public bool SyncInOutTangentMagnitudes
+        {
+            get => _syncInOutTangentMagnitudes;
+            set
+            {
+                _syncInOutTangentMagnitudes = value;
+                if (_syncInOutTangentMagnitudes)
+                    AverageValues();
+                OwningTrack?.OnChanged();
+            }
+        }
+#endif
         [Category("Keyframe")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public T InValue
@@ -391,8 +577,6 @@ namespace TheraEngine.Animation
                 OwningTrack?.OnChanged();
             }
         }
-
-        private T _inValue, _outValue, _inTangent, _outTangent;
 
         [Browsable(false)]
         [Category("Keyframe")]
@@ -743,10 +927,13 @@ namespace TheraEngine.Animation
         public void AverageKeyframe()
         {
             AverageValues();
-            AverageTangents();
+            AverageTangentDirections();
+            AverageTangentMagnitudes();
         }
         [GridCallable]
-        public abstract void AverageTangents();
+        public abstract void AverageTangentDirections();
+        [GridCallable]
+        public abstract void AverageTangentMagnitudes();
         [GridCallable]
         public abstract void AverageValues();
         [GridCallable]

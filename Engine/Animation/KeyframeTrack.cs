@@ -25,7 +25,8 @@ namespace TheraEngine.Animation
 
         void AverageKeyframe();
         void AverageValues();
-        void AverageTangents();
+        void AverageTangentDirections();
+        void AverageTangentMagnitudes();
         void MakeOutLinear();
         void MakeInLinear();
         void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent);

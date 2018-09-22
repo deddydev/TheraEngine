@@ -14,83 +14,6 @@ namespace TheraEngine.Animation
 
         protected override float LerpValues(float t1, float t2, float time) => Interp.Lerp(t1, t2, time);
 
-        public void GetMinMax(out float min, out float max)
-        {
-            if (_keyframes.Count == 0)
-            {
-                min = DefaultValue;
-                max = DefaultValue;
-            }
-            else
-            {
-                VectorKeyframe<float> kf = _keyframes.First;
-                if (_keyframes.Count == 1)
-                {
-                    if (kf.Second.IsZero())
-                    {
-                        min = max = kf.OutValue;
-                    }
-                    else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
-                    {
-                        min = max = kf.InValue;
-                    }
-                    else
-                    {
-                        min = Math.Min(kf.InValue, kf.OutValue);
-                        max = Math.Max(kf.InValue, kf.OutValue);
-                    }
-                }
-                else
-                {
-                    min = float.MaxValue;
-                    max = float.MinValue;
-                    for (int i = 0; i < _keyframes.Count; ++i)
-                    {
-                        if (kf.Second.IsZero())
-                        {
-                            min = TMath.Min(min, kf.OutValue);
-                            max = TMath.Max(min, kf.OutValue);
-                        }
-                        else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
-                        {
-                            min = TMath.Min(min, kf.InValue);
-                            max = TMath.Max(min, kf.InValue);
-                        }
-                        else
-                        {
-                            min = TMath.Min(min, kf.InValue, kf.OutValue);
-                            max = TMath.Max(max, kf.InValue, kf.OutValue);
-                        }
-
-                        //If not the last keyframe, evaluate the interpolation
-                        //between this keyframe and the next to find spots where
-                        //velocity reaches zero. This means that the position value
-                        //is an extrema and should be considered for min/max.
-                        if (i != _keyframes.Count - 1)
-                        {
-                            VectorKeyframe<float> next = kf.Next;
-
-                            //Retrieve velocity interpolation equation coefficients
-                            //so we can solve for the two time values where velocity is zero.
-                            Interp.CubicHermiteVelocityCoefs(
-                                kf.OutValue, kf.OutTangent, next.InTangent, next.InValue,
-                                out float second, out float first, out float zero);
-
-                            if (TMath.QuadraticRealRoots(second, first, zero,
-                                out float time1, out float time2))
-                            {
-                                float val1 = kf.InterpolateNextNormalized(time1);
-                                float val2 = kf.InterpolateNextNormalized(time2);
-                                min = TMath.Min(min, val1, val2);
-                                max = TMath.Max(max, val1, val2);
-                            }
-
-                            kf = next;
-                        }
-                    }
-                }
-            }
-        }
     }
     public class FloatKeyframe : VectorKeyframe<float>
     {
@@ -127,8 +50,15 @@ namespace TheraEngine.Animation
             => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
 
         [GridCallable]
-        public override void AverageTangents()
-            => InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+        public override void AverageTangentDirections()
+        {
+            InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+        }
+        [GridCallable]
+        public override void AverageTangentMagnitudes()
+        {
+            InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+        }
         [GridCallable]
         public override void AverageValues()
             => InValue = OutValue = (InValue + OutValue) / 2.0f;

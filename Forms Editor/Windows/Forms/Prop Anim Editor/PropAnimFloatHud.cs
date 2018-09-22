@@ -63,6 +63,11 @@ namespace TheraEditor.Windows.Forms
                     _targetAnimation.TickSelf = true;
                     //if (_position.State == EAnimationState.Playing)
                     //    _spline_AnimationStarted();
+
+                    _targetAnimation.GetMinMax(out float min, out float max);
+                    float midPoint = (max + min) * 0.5f;
+                    //_rootTransform.LocalTranslation = new Vec2(_targetAnimation.LengthInSeconds * 0.5f, midPoint);
+                    _rootTransform.Scale = new Vec2(_targetAnimation.LengthInSeconds, max - min);
                 }
                 RegenerateSplinePrimitive();
             }
@@ -71,12 +76,6 @@ namespace TheraEditor.Windows.Forms
         private void _position_BakedFPSChanged1(BasePropAnimBakeable obj)
         {
             RegenerateSplinePrimitive();
-        }
-        private void _position_CurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
-        {
-            _rcCurrentPoint.WorldMatrix = Matrix4.CreateTranslation(
-                _targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
-            //RegenerateSplinePrimitive();
         }
         private void _position_LengthChanged(BaseAnimation obj)
         {
@@ -112,6 +111,9 @@ namespace TheraEditor.Windows.Forms
                 _targetAnimation.BakedFramesPerSecond :
                 (Engine.TargetFramesPerSecond == 0 ? 60.0f : Engine.TargetFramesPerSecond);
 
+            if (fps <= 0.0f)
+                return;
+
             int frameCount = (int)Math.Ceiling(_targetAnimation.LengthInSeconds * fps) + 1;
             float invFps = 1.0f / fps;
             int kfCount = _targetAnimation.Keyframes.Count << 1;
@@ -141,16 +143,16 @@ namespace TheraEditor.Windows.Forms
             }
             i = 0;
             Vec3 p0, p1;
-            float tangentScale = 1.0f;
+            float tangentScale = 10.0f;
             foreach (FloatKeyframe kf in _targetAnimation)
             {
                 keyframePositions[i] = p0 = new Vec3(kf.Second, kf.InValue, 0.0f);
-                tangentPositions[i] = p1 = p0 + new Vec3(tangentScale, kf.InTangent * tangentScale, 0.0f);
+                tangentPositions[i] = p1 = new Vec3(kf.Second - tangentScale, kf.InValue + kf.InTangent * tangentScale, 0.0f);
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
 
                 keyframePositions[i] = p0 = new Vec3(kf.Second, kf.OutValue, 0.0f);
-                tangentPositions[i] = p1 = p0 + new Vec3(tangentScale, kf.OutTangent * tangentScale, 0.0f);
+                tangentPositions[i] = p1 = new Vec3(kf.Second + tangentScale, kf.OutValue + kf.OutTangent * tangentScale, 0.0f);
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
             }
@@ -246,7 +248,7 @@ void main()
         private PrimitiveManager _timePointPrimitive;
 
         private PropAnimFloat _targetAnimation;
-        private Vec2 _minScale = new Vec2(0.1f), _maxScale = new Vec2(4.0f);
+        private Vec2 _minScale = new Vec2(0.01f), _maxScale = new Vec2(1.0f);
         private Vec2 _lastWorldPos = Vec2.Zero;
         //private Vec2 _lastFocusPoint = Vec2.Zero;
         internal UIComponent _rootTransform;
@@ -264,8 +266,28 @@ void main()
             };
             _rootTransform = new UIComponent();
             root.ChildComponents.Add(_rootTransform);
+            _rootTransform.WorldTransformChanged += _rootTransform_WorldTransformChanged;
             return root;
         }
+        private void _position_CurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
+        {
+            _rcCurrentPoint.WorldMatrix = _rootTransform.WorldMatrix * Matrix4.CreateTranslation(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
+            //RegenerateSplinePrimitive();
+        }
+        private void _rootTransform_WorldTransformChanged()
+        {
+            _rcKfLines.WorldMatrix = _rootTransform.WorldMatrix;
+            _rcCurrentPoint.WorldMatrix = _rootTransform.WorldMatrix * (_targetAnimation == null ? Matrix4.Identity : Matrix4.CreateTranslation(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f));
+            _rcSpline.WorldMatrix = _rootTransform.WorldMatrix;
+            _rcVelocity.WorldMatrix = _rootTransform.WorldMatrix;
+            _rcPoints.WorldMatrix = _rootTransform.WorldMatrix;
+            _rcTangents.WorldMatrix = _rootTransform.WorldMatrix;
+
+            TMaterial mat = RootComponent.InterfaceMaterial;
+            mat.Parameter<ShaderFloat>(2).Value = _rootTransform.ScaleX;
+            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+        }
+
         public override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
@@ -289,8 +311,6 @@ void main()
             },
             frag);
         }
-        
-        #region Input
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterButtonPressed(EKey.AltLeft, b => _altDown = b, EInputPauseType.TickAlways);
@@ -364,11 +384,9 @@ void main()
                 HighlightGraph();
             _cursorPos = pos;
         }
-
-        #region Dragging
         private Vec2 GetWorldCursorDiff(Vec2 cursorPosScreen)
         {
-            Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
+            Vec2 screenPoint = _cursorPos;//Viewport.WorldToScreen(_lastWorldPos).Xy;
             screenPoint += cursorPosScreen - _cursorPos;
             Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
             Vec2 diff = newFocusPoint - _lastWorldPos;
@@ -377,10 +395,8 @@ void main()
         }
         private void HandleDragView(Vec2 cursorPosScreen)
         {
-            _rootTransform.LocalTranslation += GetWorldCursorDiff(cursorPosScreen);
-
-            TMaterial mat = RootComponent.InterfaceMaterial;
-            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+            Vec2 diff = GetWorldCursorDiff(cursorPosScreen);
+            _rootTransform.LocalTranslation += diff;
         }
         private bool _draggingInValue;
         private bool _draggingTangent;
@@ -411,24 +427,24 @@ void main()
             }
             //draggedKf.InTangent += Vec3.TransformVector(diff, draggedKf.InverseWorldMatrix).Xy;
         }
-        #endregion
-
         private void HighlightGraph()
         {
             UIComponent comp = FindComponent();
             
         }
+        //public override void Resize(Vec2 bounds)
+        //{
+        //    base.Resize(bounds);
+
+        //    //TMaterial mat = RootComponent.InterfaceMaterial;
+        //    //mat.Parameter<ShaderFloat>(2).Value = _rootTransform.ScaleX;
+        //    //mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+        //}
         protected override void OnScrolledInput(bool down)
         {
             Vec3 worldPoint = CursorPositionWorld();
-            _rootTransform.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, _minScale, _maxScale);
-
-            TMaterial mat = RootComponent.InterfaceMaterial;
-            mat.Parameter<ShaderFloat>(2).Value = _rootTransform.ScaleX;
-            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+            _rootTransform.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, null, null);
         }
-        #endregion
-        
         public void AddRenderables(RenderPasses passes)
         {
             if (_targetAnimation == null)

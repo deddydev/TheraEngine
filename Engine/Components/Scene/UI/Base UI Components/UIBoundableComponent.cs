@@ -24,7 +24,8 @@ namespace TheraEngine.Rendering.UI
         public IQuadtreeNode QuadtreeNode { get; set; }
 
         protected IQuadtreeNode _renderNode;
-        
+
+        protected Vec2 _localOriginPercentage = Vec2.Zero;
         protected Vec2 _size = Vec2.Zero;
         protected BoundingRectangleF _axisAlignedRegion = new BoundingRectangleF();
         

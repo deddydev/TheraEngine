@@ -37,17 +37,12 @@ namespace TheraEngine.Input.Devices
                 CacheButton(button)?.RegisterPressedState(func, pauseType, false);
         }
         public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
-        {
-            RegisterButtonEvent(unregister ? _buttonStates[(int)button] : CacheButton(button), type, pauseType, func, unregister);
-        }
+            => RegisterButtonEvent(unregister ? _buttonStates[(int)button] : CacheButton(button), type, pauseType, func, unregister);
         public void RegisterScroll(DelMouseScroll func, EInputPauseType pauseType, bool unregister)
-        {
-            _wheel.Register(func, pauseType, unregister);
-        }
+            => _wheel.Register(func, pauseType, unregister);
         public void RegisterMouseMove(DelCursorUpdate func, EInputPauseType pauseType, MouseMoveType type, bool unregister)
-        {
-            _cursor.Register(func, pauseType, type, unregister);
-        }
+            => _cursor.Register(func, pauseType, type, unregister);
+
         public ButtonManager LeftClick => _buttonStates[(int)EMouseButton.LeftClick];
         public ButtonManager RightClick => _buttonStates[(int)EMouseButton.RightClick];
         public ButtonManager MiddleClick => _buttonStates[(int)EMouseButton.MiddleClick];
@@ -155,17 +150,11 @@ namespace TheraEngine.Input.Devices
             }
         }
         private void OnAbsolute(float x, float y)
-        {
-            PerformAction(MouseMoveType.Absolute, x, y);
-        }
+            => PerformAction(MouseMoveType.Absolute, x, y);
         private void OnRelative(float x, float y)
-        {
-            PerformAction(MouseMoveType.Relative, x, y);
-        }
+            => PerformAction(MouseMoveType.Relative, x, y);
         private void OnUnbounded(float x, float y)
-        {
-            PerformAction(MouseMoveType.Unbounded, x, y);
-        }
+            => PerformAction(MouseMoveType.Unbounded, x, y);
         protected void PerformAction(MouseMoveType type, float x, float y)
         {
             int index = (int)type * 3;
@@ -189,7 +178,7 @@ namespace TheraEngine.Input.Devices
     }
     public class ScrollWheelManager
     {
-        List<Tuple<EInputPauseType, DelMouseScroll>> _onUpdate = new List<Tuple<EInputPauseType, DelMouseScroll>>();
+        List<(EInputPauseType PauseType, DelMouseScroll Method)> _onUpdate = new List<(EInputPauseType, DelMouseScroll)>();
 
         float _lastValue = 0.0f;
 
@@ -212,23 +201,23 @@ namespace TheraEngine.Input.Devices
         {
             if (unregister)
             {
-                int index = _onUpdate.FindIndex(x => x.Item2 == func);
+                int index = _onUpdate.FindIndex(x => x.Method == func);
                 if (index >= 0 && index < _onUpdate.Count)
                     _onUpdate.RemoveAt(index);
             }
             else
-                _onUpdate.Add(new Tuple<EInputPauseType, DelMouseScroll>(pauseType, func));
+                _onUpdate.Add((pauseType, func));
         }
         private void OnUpdate(bool down)
         {
             int i = _onUpdate.Count;
             for (int x = 0; x < i; ++x)
             {
-                var update = _onUpdate[x];
-                if (update.Item1 == EInputPauseType.TickAlways ||
-                    (update.Item1 == EInputPauseType.TickOnlyWhenUnpaused && !Engine.IsPaused) ||
-                    (update.Item1 == EInputPauseType.TickOnlyWhenPaused && Engine.IsPaused))
-                    update.Item2(down);
+                var (PauseType, Method) = _onUpdate[x];
+                if (PauseType == EInputPauseType.TickAlways ||
+                    (PauseType == EInputPauseType.TickOnlyWhenUnpaused && !Engine.IsPaused) ||
+                    (PauseType == EInputPauseType.TickOnlyWhenPaused && Engine.IsPaused))
+                    Method(down);
             }
         }
     }

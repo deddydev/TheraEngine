@@ -47,7 +47,9 @@ namespace TheraEditor
             }
         }
 
-        /// <summary>Returns true if any editor window has focus.</summary>
+        /// <summary>
+        /// Returns true if any editor window has focus.
+        /// </summary>
         private static bool CheckFocus()
         {
             var activatedHandle = NativeMethods.GetForegroundWindow();

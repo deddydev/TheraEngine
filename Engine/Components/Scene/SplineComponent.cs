@@ -33,6 +33,8 @@ namespace TheraEngine.Components.Scene
         public bool RenderKeyframePoints { get; set; } = true;
         [TSerialize]
         public bool RenderCurrentTimePoint { get; set; } = true;
+        [TSerialize]
+        public bool RenderExtrema { get; set; } = true;
         
         private PropAnimVec3 _position;
         private PrimitiveManager _splinePrimitive;
@@ -41,6 +43,7 @@ namespace TheraEngine.Components.Scene
         private PrimitiveManager _tangentPrimitive;
         private PrimitiveManager _keyframeLinesPrimitive;
         private PrimitiveManager _timePointPrimitive;
+        private PrimitiveManager _extremaPrimitive;
 
         [TSerialize]
         public PropAnimVec3 Position
@@ -122,6 +125,8 @@ namespace TheraEngine.Components.Scene
             _tangentPrimitive = null;
             _timePointPrimitive?.Dispose();
             _timePointPrimitive = null;
+            _extremaPrimitive?.Dispose();
+            _extremaPrimitive = null;
 
             if (_position == null || _position.LengthInSeconds <= 0.0f)
                 return;
@@ -171,6 +176,25 @@ namespace TheraEngine.Components.Scene
 
             VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 
+            _position.GetMinMax(
+                out (float Time, float Value)[] min, 
+                out (float Time, float Value)[] max);
+
+            Vec3[] extrema = new Vec3[6];
+            for (int x = 0; x < 3; ++x)
+            {
+                var (TimeMin, ValueMin) = min[x];
+                Vec3 minPos = _position.GetValue(TimeMin);
+                minPos[x] = ValueMin;
+                
+                var (TimeMax, ValueMax) = max[x];
+                Vec3 maxPos = _position.GetValue(TimeMax);
+                maxPos[x] = ValueMax;
+
+                extrema[x << 1] = minPos;
+                extrema[(x << 1) + 1] = maxPos;
+            }
+
             RenderingParameters p = new RenderingParameters
             {
                 LineWidth = 1.0f,
@@ -205,6 +229,11 @@ void main()
             mat.RenderParams = p;
             _pointPrimitive = new PrimitiveManager(pointData, mat);
 
+            PrimitiveData extremaData = PrimitiveData.FromPoints(extrema);
+            mat = TMaterial.CreateUnlitColorMaterialForward(Color.Red);
+            mat.RenderParams = p;
+            _extremaPrimitive = new PrimitiveManager(extremaData, mat);
+
             PrimitiveData tangentData = PrimitiveData.FromPoints(tangentPositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Purple);
             mat.RenderParams = p;
@@ -226,6 +255,7 @@ void main()
             _rcSpline.Mesh = _splinePrimitive;
             _rcKfLines.Mesh = _keyframeLinesPrimitive;
             _rcCurrentPoint.Mesh = _timePointPrimitive;
+            _rcExtrema.Mesh = _extremaPrimitive;
         }
 
 #if EDITOR
@@ -240,6 +270,7 @@ void main()
             }
             base.OnSelectedChanged(selected);
         }
+#endif
         private Matrix4 _transform = Matrix4.Identity;
         private Matrix4 _splineLocalTransform = Matrix4.Identity;
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
@@ -272,6 +303,7 @@ void main()
             _rcVelocityTangents.WorldMatrix = mtx;
             _rcPoints.WorldMatrix = mtx;
             _rcKeyframeTangents.WorldMatrix = mtx;
+            _rcExtrema.WorldMatrix = mtx;
             base.OnWorldTransformChanged();
         }
         
@@ -281,6 +313,7 @@ void main()
         private readonly RenderCommandMesh3D _rcVelocityTangents = new RenderCommandMesh3D();
         private readonly RenderCommandMesh3D _rcPoints = new RenderCommandMesh3D();
         private readonly RenderCommandMesh3D _rcKeyframeTangents = new RenderCommandMesh3D();
+        private readonly RenderCommandMesh3D _rcExtrema = new RenderCommandMesh3D();
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             if (_position == null)
@@ -296,12 +329,13 @@ void main()
                 passes.Add(_rcKeyframeTangents, RenderInfo.RenderPass);
             if (RenderKeyframeTangentLines)
                 passes.Add(_rcKfLines, RenderInfo.RenderPass);
+            if (RenderExtrema)
+                passes.Add(_rcExtrema, RenderInfo.RenderPass);
             if (RenderCurrentTimePoint)
             {
                 _rcCurrentPoint.WorldMatrix = WorldMatrix;
                 passes.Add(_rcCurrentPoint, RenderInfo.RenderPass);
             }
         }
-#endif
     }
 }

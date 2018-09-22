@@ -30,9 +30,9 @@ namespace TheraEditor
         /// </summary>
         public const string CSharpProjectGuid = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
 
-        [TSerialize(nameof(Guid))]
+        //[TSerialize(nameof(Guid))]
         protected Guid _guid;
-        [TSerialize(nameof(ProjectGuid))]
+        //[TSerialize(nameof(ProjectGuid))]
         protected Guid _projectGuid;
 
         public Guid Guid => _guid;

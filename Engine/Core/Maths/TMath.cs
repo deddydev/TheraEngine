@@ -214,9 +214,15 @@ namespace System
                     return true;
                 }
             }
-            else
+            else if (b != 0.0f)
             {
                 x1 = x2 = -c / b;
+                return true;
+            }
+            else if (c != 0.0f)
+            {
+                x1 = 0.0f;
+                x2 = 0.0f;
                 return true;
             }
             x1 = 0.0f;

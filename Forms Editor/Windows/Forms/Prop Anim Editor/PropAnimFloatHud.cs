@@ -64,10 +64,15 @@ namespace TheraEditor.Windows.Forms
                     //if (_position.State == EAnimationState.Playing)
                     //    _spline_AnimationStarted();
 
-                    _targetAnimation.GetMinMax(out float min, out float max);
-                    float midPoint = (max + min) * 0.5f;
+                    _targetAnimation.GetMinMax(
+                        out (float Time, float Value)[] min,
+                        out (float Time, float Value)[] max);
+
+                    float minVal = min[0].Value;
+                    float maxVal = max[0].Value;
+                    float midPoint = (maxVal + minVal) * 0.5f;
                     //_rootTransform.LocalTranslation = new Vec2(_targetAnimation.LengthInSeconds * 0.5f, midPoint);
-                    _rootTransform.Scale = new Vec2(_targetAnimation.LengthInSeconds, max - min);
+                    _rootTransform.Scale = new Vec2(_targetAnimation.LengthInSeconds, maxVal - minVal);
                 }
                 RegenerateSplinePrimitive();
             }

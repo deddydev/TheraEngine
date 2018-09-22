@@ -35,24 +35,25 @@
             // 
             this.RenderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.RenderPanel.Location = new System.Drawing.Point(0, 0);
+            this.RenderPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.RenderPanel.Name = "RenderPanel";
-            this.RenderPanel.Size = new System.Drawing.Size(722, 630);
+            this.RenderPanel.Size = new System.Drawing.Size(513, 262);
             this.RenderPanel.TabIndex = 0;
             this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Adaptive;
             // 
             // DockablePropAnimFloatGraph
             // 
             this.AllowDrop = true;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(722, 630);
+            this.ClientSize = new System.Drawing.Size(513, 262);
             this.CloseButton = false;
             this.CloseButtonVisible = false;
             this.Controls.Add(this.RenderPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "DockablePropAnimFloatGraph";
-            this.Text = "Material Graph";
+            this.Text = "Float Animation Editor";
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
             this.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);

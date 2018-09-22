@@ -196,6 +196,8 @@ namespace TheraEngine.Core.Maths
         #endregion
 
         #region Hermite
+
+        #region Coefficients
         public static void CubicHermiteCoefs(
             float p0, float t0, float t1, float p1,
             out float third, out float second, out float first, out float zero)
@@ -292,6 +294,8 @@ namespace TheraEngine.Core.Maths
             first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
             zero = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
         }
+        #endregion
+
         public static float CubicHermite(float p0, float t0, float t1, float p1, float time)
         {
             CubicHermiteCoefs(p0, t0, t1, p1, out float third, out float second, out float first, out float zero);

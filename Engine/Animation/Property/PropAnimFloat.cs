@@ -13,7 +13,9 @@ namespace TheraEngine.Animation
             : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override float LerpValues(float t1, float t2, float time) => Interp.Lerp(t1, t2, time);
-
+        protected override float[] GetComponents(float value) => new float[] { value };
+        protected override float GetMaxValue() => float.MaxValue;
+        protected override float GetMinValue() => float.MinValue;
     }
     public class FloatKeyframe : VectorKeyframe<float>
     {
@@ -49,26 +51,6 @@ namespace TheraEngine.Animation
         public override float CubicHermiteAcceleration(VectorKeyframe<float> key1, VectorKeyframe<float> key2, float time)
             => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
 
-        [GridCallable]
-        public override void AverageTangentDirections()
-        {
-            InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
-        }
-        [GridCallable]
-        public override void AverageTangentMagnitudes()
-        {
-            InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
-        }
-        [GridCallable]
-        public override void AverageValues()
-            => InValue = OutValue = (InValue + OutValue) / 2.0f;
-        [GridCallable]
-        public override void MakeOutLinear()
-            => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);
-        [GridCallable]
-        public override void MakeInLinear()
-            => InTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
-
         public override string WriteToString()
             => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);
 
@@ -95,6 +77,81 @@ namespace TheraEngine.Animation
             outValue = OutValue.ToString();
             inTangent = InTangent.ToString();
             outTangent = OutTangent.ToString();
+        }
+
+        [GridCallable]
+        public override void MakeOutLinear()
+        {
+            var next = Next;
+            float span;
+            if (next == null)
+            {
+                if (OwningTrack != null && OwningTrack.FirstKey != this)
+                {
+                    next = (VectorKeyframe<float>)OwningTrack.FirstKey;
+                    span = OwningTrack.LengthInSeconds - Second + next.Second;
+                }
+                else
+                    return;
+            }
+            else
+                span = next.Second - Second;
+            OutTangent = (next.InValue - OutValue) / span;
+        }
+        [GridCallable]
+        public override void MakeInLinear()
+        {
+            var prev = Prev;
+            float span;
+            if (prev == null)
+            {
+                if (OwningTrack != null && OwningTrack.LastKey != this)
+                {
+                    prev = (VectorKeyframe<float>)OwningTrack.LastKey;
+                    span = OwningTrack.LengthInSeconds - prev.Second + Second;
+                }
+                else
+                    return;
+            }
+            else
+                span = Second - prev.Second;
+            InTangent = (InValue - prev.OutValue) / span;
+        }
+
+        public override void UnifyTangentDirections(EUnifyBias bias) => UnifyTangents(bias);
+        public override void UnifyTangentMagnitudes(EUnifyBias bias) => UnifyTangents(bias);
+
+        [GridCallable]
+        public override void UnifyTangents(EUnifyBias bias)
+        {
+            switch (bias)
+            {
+                case EUnifyBias.Average:
+                    InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+                    break;
+                case EUnifyBias.In:
+                    OutTangent = InTangent;
+                    break;
+                case EUnifyBias.Out:
+                    InTangent = OutTangent;
+                    break;
+            }
+        }
+        [GridCallable]
+        public override void UnifyValues(EUnifyBias bias)
+        {
+            switch (bias)
+            {
+                case EUnifyBias.Average:
+                    InValue = OutValue = (InValue + OutValue) / 2.0f;
+                    break;
+                case EUnifyBias.In:
+                    OutValue = InValue;
+                    break;
+                case EUnifyBias.Out:
+                    InValue = OutValue;
+                    break;
+            }
         }
     }
 }

@@ -23,10 +23,11 @@ namespace TheraEngine.Animation
         object OutTangent { get; set; }
         EPlanarInterpType InterpolationType { get; set; }
 
-        void AverageKeyframe();
-        void AverageValues();
-        void AverageTangentDirections();
-        void AverageTangentMagnitudes();
+        void UnifyKeyframe(EUnifyBias bias);
+        void UnifyValues(EUnifyBias bias);
+        void UnifyTangents(EUnifyBias bias);
+        void UnifyTangentDirections(EUnifyBias bias);
+        void UnifyTangentMagnitudes(EUnifyBias bias);
         void MakeOutLinear();
         void MakeInLinear();
         void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent);

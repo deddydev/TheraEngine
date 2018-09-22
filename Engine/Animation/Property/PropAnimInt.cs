@@ -341,16 +341,7 @@ namespace TheraEngine.Animation
             => ConvertInterpolatedValue(Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time));
         public int CubicHermiteAcceleration(IntKeyframe key1, IntKeyframe key2, float time)
             => ConvertInterpolatedValue(Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time));
-
-        public void AverageKeyframe()
-        {
-            AverageValues();
-            AverageTangents();
-        }
-        public void AverageTangents()
-            => InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
-        public void AverageValues()
-            => InValue = OutValue = (InValue + OutValue) / 2;
+        
         public void MakeOutLinear()
             => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);
         public void MakeInLinear()
@@ -385,6 +376,43 @@ namespace TheraEngine.Animation
             outValue = OutValue.ToString();
             inTangent = InTangent.ToString();
             outTangent = OutTangent.ToString();
+        }
+        public void UnifyTangentDirections(EUnifyBias bias) => UnifyTangents(bias);
+        public void UnifyTangentMagnitudes(EUnifyBias bias) => UnifyTangents(bias);
+        public void UnifyTangents(EUnifyBias bias)
+        {
+            switch (bias)
+            {
+                case EUnifyBias.Average:
+                    InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+                    break;
+                case EUnifyBias.In:
+                    OutTangent = InTangent;
+                    break;
+                case EUnifyBias.Out:
+                    InTangent = OutTangent;
+                    break;
+            }
+        }
+        public void UnifyValues(EUnifyBias bias)
+        {
+            switch (bias)
+            {
+                case EUnifyBias.Average:
+                    InValue = OutValue = (InValue + OutValue) / 2;
+                    break;
+                case EUnifyBias.In:
+                    OutValue = InValue;
+                    break;
+                case EUnifyBias.Out:
+                    InValue = OutValue;
+                    break;
+            }
+        }
+
+        public void UnifyKeyframe(EUnifyBias bias)
+        {
+            throw new NotImplementedException();
         }
     }
 }

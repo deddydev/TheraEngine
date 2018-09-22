@@ -13,6 +13,9 @@ namespace TheraEngine.Animation
             : base(frameCount, FPS, looped, useKeyframes) { }
 
         protected override Vec2 LerpValues(Vec2 t1, Vec2 t2, float time) => Vec2.Lerp(t1, t2, time);
+        protected override float[] GetComponents(Vec2 value) => new float[] { value.X, value.Y };
+        protected override Vec2 GetMaxValue() => new Vec2(float.MaxValue);
+        protected override Vec2 GetMinValue() => new Vec2(float.MinValue);
     }
     public class Vec2Keyframe : VectorKeyframe<Vec2>
     {
@@ -34,40 +37,7 @@ namespace TheraEngine.Animation
             => Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
         public override Vec2 CubicHermiteAcceleration(VectorKeyframe<Vec2> key1, VectorKeyframe<Vec2> key2, float time)
             => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
-
-        [GridCallable]
-        public override void AverageTangentDirections()
-        {
-            float inLength = InTangent.Length;
-            float outLength = OutTangent.Length;
-            Vec2 inTan = InTangent.Normalized();
-            Vec2 outTan = OutTangent.Normalized();
-            Vec2 avg = (inTan + outTan) * 0.5f;
-            avg.Normalize();
-            InTangent = -avg * inLength;
-            OutTangent = avg * outLength;
-        }
-        [GridCallable]
-        public override void AverageTangentMagnitudes()
-        {
-            float inLength = InTangent.Length;
-            float outLength = OutTangent.Length;
-            float avgLength = (inLength + outLength) * 0.5f;
-            Vec2 inTan = InTangent.Normalized();
-            Vec2 outTan = OutTangent.Normalized();
-            InTangent = inTan * avgLength;
-            OutTangent = outTan * avgLength;
-        }
-        [GridCallable]
-        public override void AverageValues()
-            => InValue = OutValue = (InValue + OutValue) / 2.0f;
-        [GridCallable]
-        public override void MakeOutLinear()
-            => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);
-        [GridCallable]
-        public override void MakeInLinear()
-            => InTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
-
+        
         public override string WriteToString()
             => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
 
@@ -94,6 +64,143 @@ namespace TheraEngine.Animation
             outValue = OutValue.ToString("", "", " ");
             inTangent = InTangent.ToString("", "", " ");
             outTangent = OutTangent.ToString("", "", " ");
+        }
+
+        [GridCallable]
+        public override void MakeOutLinear()
+        {
+            var next = Next;
+            float span;
+            if (next == null)
+            {
+                if (OwningTrack != null && OwningTrack.FirstKey != this)
+                {
+                    next = (VectorKeyframe<Vec2>)OwningTrack.FirstKey;
+                    span = OwningTrack.LengthInSeconds - Second + next.Second;
+                }
+                else
+                    return;
+            }
+            else
+                span = next.Second - Second;
+            OutTangent = (next.InValue - OutValue) / span;
+        }
+        [GridCallable]
+        public override void MakeInLinear()
+        {
+            var prev = Prev;
+            float span;
+            if (prev == null)
+            {
+                if (OwningTrack != null && OwningTrack.LastKey != this)
+                {
+                    prev = (VectorKeyframe<Vec2>)OwningTrack.LastKey;
+                    span = OwningTrack.LengthInSeconds - prev.Second + Second;
+                }
+                else
+                    return;
+            }
+            else
+                span = Second - prev.Second;
+            InTangent = (InValue - prev.OutValue) / span;
+        }
+
+        [GridCallable]
+        public override void UnifyTangents(EUnifyBias bias)
+        {
+            switch (bias)
+            {
+                case EUnifyBias.Average:
+                    InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+                    break;
+                case EUnifyBias.In:
+                    OutTangent = InTangent;
+                    break;
+                case EUnifyBias.Out:
+                    InTangent = OutTangent;
+                    break;
+            }
+        }
+        [GridCallable]
+        public override void UnifyTangentDirections(EUnifyBias bias)
+        {
+            switch (bias)
+            {
+                case EUnifyBias.Average:
+                    {
+                        float inLength = InTangent.Length;
+                        float outLength = OutTangent.Length;
+                        Vec2 inTan = InTangent.Normalized();
+                        Vec2 outTan = OutTangent.Normalized();
+                        Vec2 avg = (-inTan + outTan) * 0.5f;
+                        avg.Normalize();
+                        InTangent = -avg * inLength;
+                        OutTangent = avg * outLength;
+                    }
+                    break;
+                case EUnifyBias.In:
+                    {
+                        float outLength = OutTangent.Length;
+                        Vec2 inTan = InTangent.Normalized();
+                        OutTangent = -inTan * outLength;
+                    }
+                    break;
+                case EUnifyBias.Out:
+                    {
+                        float inLength = InTangent.Length;
+                        Vec2 outTan = OutTangent.Normalized();
+                        InTangent = -outTan * inLength;
+                    }
+                    break;
+            }
+        }
+        [GridCallable]
+        public override void UnifyTangentMagnitudes(EUnifyBias bias)
+        {
+            switch (bias)
+            {
+                case EUnifyBias.Average:
+                    {
+                        float inLength = InTangent.Length;
+                        float outLength = OutTangent.Length;
+                        float avgLength = (inLength + outLength) * 0.5f;
+                        Vec2 inTan = InTangent.Normalized();
+                        Vec2 outTan = OutTangent.Normalized();
+                        InTangent = inTan * avgLength;
+                        OutTangent = outTan * avgLength;
+                    }
+                    break;
+                case EUnifyBias.In:
+                    {
+                        float inLength = InTangent.Length;
+                        Vec2 outTan = OutTangent.Normalized();
+                        OutTangent = -outTan * inLength;
+                        break;
+                    }
+                case EUnifyBias.Out:
+                    {
+                        float outLength = OutTangent.Length;
+                        Vec2 inTan = InTangent.Normalized();
+                        InTangent = -inTan * outLength;
+                        break;
+                    }
+            }
+        }
+        [GridCallable]
+        public override void UnifyValues(EUnifyBias bias)
+        {
+            switch (bias)
+            {
+                case EUnifyBias.Average:
+                    InValue = OutValue = (InValue + OutValue) * 0.5f;
+                    break;
+                case EUnifyBias.In:
+                    OutValue = InValue;
+                    break;
+                case EUnifyBias.Out:
+                    InValue = OutValue;
+                    break;
+            }
         }
     }
 }

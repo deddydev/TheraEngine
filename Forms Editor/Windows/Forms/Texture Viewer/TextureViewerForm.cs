@@ -7,7 +7,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    [EditorFor(typeof(ITextureFile))]
+    //[EditorFor(typeof(ITextureFile))]
     public partial class TextureViewerForm : TheraForm
     {
         public TextureViewerForm()

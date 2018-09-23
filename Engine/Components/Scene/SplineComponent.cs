@@ -16,11 +16,13 @@ namespace TheraEngine.Components.Scene
     public class SplineComponent : TRSComponent, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, true, true) { CastsShadows = false, ReceivesShadows = false };
-
+        
         [Browsable(false)]
-        public Shape CullingVolume => null;
+        public Shape CullingVolume { get; set; } = null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
+        [TSerialize]
+        public bool RenderBounds { get; set; } = true;
         [TSerialize]
         public bool RenderSpline { get; set; } = true;
         [TSerialize]
@@ -185,15 +187,19 @@ namespace TheraEngine.Components.Scene
             {
                 var (TimeMin, ValueMin) = min[x];
                 Vec3 minPos = _position.GetValue(TimeMin);
-                //minPos[x] = ValueMin;
+                minPos[x] = ValueMin;
                 
                 var (TimeMax, ValueMax) = max[x];
                 Vec3 maxPos = _position.GetValue(TimeMax);
-                //maxPos[x] = ValueMax;
+                maxPos[x] = ValueMax;
 
                 extrema[x << 1] = minPos;
                 extrema[(x << 1) + 1] = maxPos;
             }
+
+            CullingVolume = BoundingBox.FromMinMax(
+                TMath.ComponentMin(extrema), 
+                TMath.ComponentMax(extrema));
 
             RenderingParameters p = new RenderingParameters
             {
@@ -331,6 +337,8 @@ void main()
                 passes.Add(_rcKfLines, RenderInfo.RenderPass);
             if (RenderExtrema)
                 passes.Add(_rcExtrema, RenderInfo.RenderPass);
+            if (RenderBounds)
+                CullingVolume?.AddRenderables(passes, camera);
             if (RenderCurrentTimePoint)
             {
                 _rcCurrentPoint.WorldMatrix = WorldMatrix;

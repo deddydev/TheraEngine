@@ -102,7 +102,7 @@ namespace TheraEngine.Rendering.Models.Materials
         //Note: one TextureData object may contain all the mips
         public GlobalFileRef<TextureFile2D>[] _mipmaps;
 
-        [Browsable(false)]
+        //[Browsable(false)]
         [Category(CategoryName)]
         [TSerialize]
         public GlobalFileRef<TextureFile2D>[] Mipmaps

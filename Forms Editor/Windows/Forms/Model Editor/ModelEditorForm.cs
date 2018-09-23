@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
+using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Components.Scene.Lights;
@@ -158,38 +159,9 @@ namespace TheraEditor.Windows.Forms
                 comp.Rotation.Pitch = -45.0f;
                 comp.Scale = new Vec3(5.0f);
                 actors.Add(light);
-
-                Vec3 max = 1000.0f;
-                Vec3 min = -max;
+                
                 TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
-
-                StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", null,
-                    BoundingBox.FromMinMax(min, max),
-                    BoundingBox.SolidMesh(min, max, true,
-                    skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?
-                        BoundingBox.ECubemapTextureUVs.WidthLarger :
-                        BoundingBox.ECubemapTextureUVs.HeightLarger, 0.0f),
-                    TMaterial.CreateUnlitTextureMaterialForward(
-                    new TexRef2D("SkyboxTexture", skyTex)
-                    {
-                        MagFilter = ETexMagFilter.Nearest,
-                        MinFilter = ETexMinFilter.Nearest
-                    }, 
-                    new RenderingParameters()
-                    {
-                        DepthTest = new DepthTest()
-                        {
-                            Enabled = ERenderParamUsage.Enabled,
-                            UpdateDepth = false,
-                            Function = EComparison.Less
-                        }
-                    }));
-
-                StaticModel skybox = new StaticModel("Skybox");
-                mesh.RenderInfo.RenderPass = ERenderPass.Background;
-                skybox.RigidChildren.Add(mesh);
-                Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
-                skyboxActor.RootComponent.ModelRef = skybox;
+                SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
                 actors.Add(skyboxActor);
 
                 IBLProbeGridActor iblProbes = new IBLProbeGridActor();

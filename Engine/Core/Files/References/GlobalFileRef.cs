@@ -71,5 +71,10 @@ namespace TheraEngine.Files
         public static implicit operator GlobalFileRef<T>(T file) => file == null ? null : new GlobalFileRef<T>(file);
         public static implicit operator GlobalFileRef<T>(Type type) => new GlobalFileRef<T>(type);
         public static implicit operator GlobalFileRef<T>(string relativePath) => new GlobalFileRef<T>(relativePath);
+
+        public override string ToString()
+        {
+            return $"Global File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(ReferencePath) ? "<null>" : ReferencePath)}";
+        }
     }
 }

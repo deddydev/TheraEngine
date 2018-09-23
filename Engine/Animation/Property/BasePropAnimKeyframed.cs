@@ -82,7 +82,7 @@ namespace TheraEngine.Animation
             get => _bakedFPS;
             set
             {
-                _bakedFPS = value;
+                _bakedFPS = value.ClampMin(0.0f);
                 SetBakedFramecount();
                 OnBakedFPSChanged();
             }

@@ -35,6 +35,7 @@ namespace TheraEngine.Rendering.Models
         [Category("LOD")]
         public GlobalFileRef<PrimitiveData> PrimitivesRef => _primitives;
         [Category("LOD")]
+        [TSerialize(IsXmlAttribute = true)]
         public float VisibleDistance
         {
             get => _visibleDistance;
@@ -60,12 +61,14 @@ namespace TheraEngine.Rendering.Models
         protected GlobalFileRef<PrimitiveData> _primitives;
         [TSerialize("Material")]
         protected GlobalFileRef<TMaterial> _material;
-        [TSerialize(nameof(VisibleDistance), IsXmlAttribute = true)]
         protected float _visibleDistance = 0.0f;
-        [TSerialize(nameof(BillboardMode), IsXmlAttribute = true)]
         protected EBillboardMode _billboardMode = EBillboardMode.None;
 
         public PrimitiveManager CreatePrimitiveManager()
-            => new PrimitiveManager(_primitives.File, _material.File);
+        {
+            PrimitiveManager m = new PrimitiveManager(_primitives.File, _material.File);
+            m.BufferInfo.BillboardMode = BillboardMode;
+            return m;
+        }
     }
 }

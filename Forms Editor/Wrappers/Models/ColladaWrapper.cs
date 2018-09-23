@@ -105,16 +105,34 @@ namespace TheraEditor.Wrappers
                 staticModel.Export(dir, name, EFileFormat.XML);
             });
         }
-        private async void ImportAsSkeletalMesh()
+        private void ImportAsSkeletalMesh()
         {
-            if (FilePath != null && File.Exists(FilePath))
-                return;
-            TFileObject skeletalModel = await SkeletalModel.LoadDAEAsync(FilePath);
-            if (skeletalModel == null)
-                return;
-            string dir = Path.GetDirectoryName(FilePath);
-            string name = Path.GetFileNameWithoutExtension(FilePath);
-            skeletalModel.Export(dir, name, EFileFormat.XML);
+            Progress<float> p = new Progress<float>();
+            CancellationTokenSource token = new CancellationTokenSource();
+            Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as skeletal model...", p, token);
+            ModelImportOptions o = new ModelImportOptions()
+            {
+                IgnoreFlags =
+                   Collada.EIgnoreFlags.Extra |
+                   Collada.EIgnoreFlags.Cameras |
+                   Collada.EIgnoreFlags.Lights
+            };
+
+            Collada.ImportAsync(FilePath, o, p, token.Token).ContinueWith(t =>
+            {
+                var data = t.Result;
+                if (data == null || data.Models.Count == 0)
+                    return;
+                
+                TFileObject skeletalModel = data.Models[0].SkeletalModel;
+                if (skeletalModel == null)
+                    return;
+
+                //TFileObject staticModel = await StaticModel.LoadDAEAsync(FilePath);
+                string dir = Path.GetDirectoryName(FilePath);
+                string name = Path.GetFileNameWithoutExtension(FilePath);
+                skeletalModel.Export(dir, name, EFileFormat.XML);
+            });
         }
     }
 }

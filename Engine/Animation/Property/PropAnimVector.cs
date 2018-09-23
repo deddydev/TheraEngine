@@ -411,12 +411,8 @@ namespace TheraEngine.Animation
                         //between this keyframe and the next to find spots where
                         //velocity reaches zero. This means that the position value
                         //is an extrema and should be considered for min/max.
-                        if (i != _keyframes.Count - 1)
+                        //if (i != _keyframes.Count - 1)
                         {
-                            inComps = GetComponents(next.InValue);
-                            inTanComps = GetComponents(next.InTangent);
-                            outTanComps = GetComponents(kf.OutTangent);
-
                             float second = 0.0f, first = 0.0f, zero = 0.0f;
                             switch (kf.InterpolationType)
                             {
@@ -424,22 +420,24 @@ namespace TheraEngine.Animation
                                 case EPlanarInterpType.Linear:
                                     continue;
                                 case EPlanarInterpType.CubicHermite:
-
+                                    inComps = GetComponents(next.InValue);
+                                    inTanComps = GetComponents(next.InTangent);
+                                    outTanComps = GetComponents(kf.OutTangent);
                                     //Retrieve velocity interpolation equation coefficients
                                     //so we can solve for the two time values where velocity is zero.
                                     Interp.CubicHermiteVelocityCoefs(
                                         outComps[x], outTanComps[x], inTanComps[x], inComps[x],
                                         out second, out first, out zero);
-
                                     break;
                                 case EPlanarInterpType.CubicBezier:
-
+                                    inComps = GetComponents(next.InValue);
+                                    inTanComps = GetComponents(next.InTangent);
+                                    outTanComps = GetComponents(kf.OutTangent);
                                     //Retrieve velocity interpolation equation coefficients
                                     //so we can solve for the two time values where velocity is zero.
                                     Interp.CubicBezierVelocityCoefs(
                                         outComps[x], outComps[x] + outTanComps[x], inComps[x] + inTanComps[x], inComps[x],
                                         out second, out first, out zero);
-
                                     break;
                             }
 
@@ -454,7 +452,7 @@ namespace TheraEngine.Animation
                                     bool timeValid = time >= 0.0f && time <= 1.0f;
                                     if (timeValid)
                                     {
-                                        T val = kf.InterpolateNextNormalized(time);
+                                        T val = kf.InterpolateNormalized(next, time);
 
                                         float interpSec = 0.0f;
                                         if (kf.Next == null)
@@ -723,6 +721,19 @@ namespace TheraEngine.Animation
         /// Interpolates acceleration from this keyframe to the next using a normalized time value (0.0f - 1.0f)
         /// </summary>
         public T InterpolateAccelerationNextNormalized(float time) => _interpolateAcceleration(this, Next, time);
+
+        /// <summary>
+        /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolateNormalized(VectorKeyframe<T> next, float time) => _interpolate(this, next, time);
+        /// <summary>
+        /// Interpolates velocity from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolateVelocityNormalized(VectorKeyframe<T> next, float time) => _interpolateVelocity(this, next, time);
+        /// <summary>
+        /// Interpolates acceleration from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolateAccelerationNormalized(VectorKeyframe<T> next, float time) => _interpolateAcceleration(this, next, time);
 
         public T Interpolate(float desiredSecond, EVectorInterpValueType type)
         {

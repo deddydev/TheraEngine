@@ -367,20 +367,21 @@ namespace TheraEngine.Rendering
         }
         private void ResolvePosition(string posName)
         {
+            Line("mat4 ViewMatrix = WorldToCameraSpaceMatrix;");
             if (_info.BillboardMode == EBillboardMode.None)
             {
                 Line($"{posName} = ModelMatrix * vec4({posName}.xyz, 1.0f);");
                 Line($"{FragPosName} = {posName}.xyz;");
-                Line($"gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * {posName};");
+                Line($"gl_Position = ProjMatrix * ViewMatrix * {posName};");
                 return;
             }
             Line("mat4 BillboardMatrix = CameraToWorldSpaceMatrix;");
             if (_info.BillboardMode.HasFlag(EBillboardMode.RotateX))
             {
                 //Do not align X column to be stationary from camera's viewpoint
-                Line("WorldToCameraSpaceMatrix[0][0] = 1.0f;");
-                Line("WorldToCameraSpaceMatrix[0][1] = 0.0f;");
-                Line("WorldToCameraSpaceMatrix[0][2] = 0.0f;");
+                Line("ViewMatrix[0][0] = 1.0f;");
+                Line("ViewMatrix[0][1] = 0.0f;");
+                Line("ViewMatrix[0][2] = 0.0f;");
 
                 //Do not fix Y column to rotate with camera
                 Line("BillboardMatrix[1][0] = 0.0f;");
@@ -400,9 +401,9 @@ namespace TheraEngine.Rendering
                 Line("BillboardMatrix[0][2] = 0.0f;");
 
                 //Do not align Y column to be stationary from camera's viewpoint
-                Line("WorldToCameraSpaceMatrix[1][0] = 0.0f;");
-                Line("WorldToCameraSpaceMatrix[1][1] = 1.0f;");
-                Line("WorldToCameraSpaceMatrix[1][2] = 0.0f;");
+                Line("ViewMatrix[1][0] = 0.0f;");
+                Line("ViewMatrix[1][1] = 1.0f;");
+                Line("ViewMatrix[1][2] = 0.0f;");
 
                 //Do not fix Z column to rotate with camera
                 Line("BillboardMatrix[2][0] = 0.0f;");
@@ -422,14 +423,32 @@ namespace TheraEngine.Rendering
                 Line("BillboardMatrix[1][2] = 0.0f;");
 
                 //Do not align Z column to be stationary from camera's viewpoint
-                Line("WorldToCameraSpaceMatrix[2][0] = 0.0f;");
-                Line("WorldToCameraSpaceMatrix[2][1] = 0.0f;");
-                Line("WorldToCameraSpaceMatrix[2][2] = 1.0f;");
+                Line("ViewMatrix[2][0] = 0.0f;");
+                Line("ViewMatrix[2][1] = 0.0f;");
+                Line("ViewMatrix[2][2] = 1.0f;");
+            }
+            if (_info.BillboardMode.HasFlag(EBillboardMode.ConstrainTranslationX))
+            {
+                //Clear X translation
+                Line("ViewMatrix[3][0] = 0.0f;");
+                Line("BillboardMatrix[3][0] = 0.0f;");
+            }
+            if (_info.BillboardMode.HasFlag(EBillboardMode.ConstrainTranslationY))
+            {
+                //Clear Y translation
+                Line("ViewMatrix[3][1] = 0.0f;");
+                Line("BillboardMatrix[3][1] = 0.0f;");
+            }
+            if (_info.BillboardMode.HasFlag(EBillboardMode.ConstrainTranslationZ))
+            {
+                //Clear Z translation
+                Line("ViewMatrix[3][2] = 0.0f;");
+                Line("BillboardMatrix[3][2] = 0.0f;");
             }
 
             Line($"{posName} = ModelMatrix * vec4({posName}.xyz, 1.0f);");
             Line($"{FragPosName} = (BillboardMatrix * {posName}).xyz;");
-            Line($"gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * {posName};");
+            Line($"gl_Position = ProjMatrix * ViewMatrix * {posName};");
             return;
         }
     }
@@ -501,5 +520,17 @@ namespace TheraEngine.Rendering
         /// If set, the Z axis will rotate to face the camera.
         /// </summary>
         ScaleZ = 0x800,
+        /// <summary>
+        /// If set, the X axis translation will not move with the camera.
+        /// </summary>
+        ConstrainTranslationX = 0x1000,
+        /// <summary>
+        /// If set, the Y axis translation will not move with the camera.
+        /// </summary>
+        ConstrainTranslationY = 0x2000,
+        /// <summary>
+        /// If set, the Z axis translation will not move with the camera.
+        /// </summary>
+        ConstrainTranslationZ = 0x4000,
     }
 }

@@ -137,7 +137,7 @@ namespace TheraEngine.Tests
 
                     actors.Add(sphere);
                 }
-            
+
             //Create walls
             if (createWalls)
             {
@@ -313,36 +313,8 @@ namespace TheraEngine.Tests
             Actor<TranslationComponent> testScreenshake = new Actor<TranslationComponent>(posComp);
             actors.Add(testScreenshake);
 
-            Vec3 max = 1000.0f;
-            Vec3 min = -max;
             TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
-            StaticModel skybox = new StaticModel("Skybox");
-            TexRef2D texRef = new TexRef2D("SkyboxTexture", skyTex)
-            {
-                MagFilter = ETexMagFilter.Nearest,
-                MinFilter = ETexMinFilter.Nearest
-            };
-
-            StaticRigidSubMesh mesh = new StaticRigidSubMesh("Mesh", null,
-                BoundingBox.FromMinMax(min, max),
-                BoundingBox.SolidMesh(min, max, true,
-                skyTex.Bitmaps[0].Width > skyTex.Bitmaps[0].Height ?
-                    BoundingBox.ECubemapTextureUVs.WidthLarger :
-                    BoundingBox.ECubemapTextureUVs.HeightLarger),
-                TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
-                {
-                    DepthTest = new DepthTest()
-                    {
-                        Enabled = ERenderParamUsage.Enabled,
-                        UpdateDepth = true,
-                        Function = EComparison.Less
-                    }
-                }));
-
-            mesh.RenderInfo.RenderPass = ERenderPass.Background;
-            skybox.RigidChildren.Add(mesh);
-            Actor<StaticMeshComponent> skyboxActor = new Actor<StaticMeshComponent>();
-            skyboxActor.RootComponent.ModelRef = skybox;
+            SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
             actors.Add(skyboxActor);
 
             TextureFile2D decalTex = await Engine.LoadEngineTexture2DAsync("decal guide.png");

@@ -1,6 +1,7 @@
 ﻿//using ComponentOwl.BetterListView;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
@@ -58,11 +59,15 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.FormShown();
             base.OnShown(e);
         }
-        protected override void OnClosed(EventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
             RenderPanel.FormClosed();
-            base.OnClosed(e);
+            base.OnClosing(e);
         }
+        //protected override void OnClosed(EventArgs e)
+        //{
+        //    base.OnClosed(e);
+        //}
 
         public void AlignView(BoundingRectangleF bounds)
         {

@@ -79,11 +79,11 @@ namespace TheraEngine.Rendering.Models
 
         /// <summary>
         /// Dictates what information to ignore.
-        /// Ignoring certain elements will give a decent parsing speed boost.
+        /// Ignoring certain elements can give a decent parsing speed boost.
         /// </summary>
         [TSerialize(UseCategory = true)]
         [Description("Dictates what information to ignore. " +
-            "Ignoring certain elements will give a decent parsing speed boost.")]
+            "Ignoring certain elements can give a decent parsing speed boost.")]
         [Category("Import")]
         public EIgnoreFlags IgnoreFlags { get; set; } = EIgnoreFlags.None;
         

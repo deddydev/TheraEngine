@@ -56,5 +56,10 @@ namespace TheraEngine.Files
         public static implicit operator LocalFileRef<T>(T file) => file == null ? null : new LocalFileRef<T>(file);
         public static implicit operator LocalFileRef<T>(Type type) => new LocalFileRef<T>(type);
         public static implicit operator LocalFileRef<T>(string relativePath) => new LocalFileRef<T>(relativePath);
+
+        public override string ToString()
+        {
+            return $"Local File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(ReferencePath) ? "<null>" : ReferencePath)}";
+        }
     }
 }

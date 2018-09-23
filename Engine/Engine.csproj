@@ -339,6 +339,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actors\IBLProbeGridActor.cs" />
+    <Compile Include="Actors\Types\ComponentActors\SkyboxActor.cs" />
     <Compile Include="Actors\Types\ComponentActors\LightActors.cs" />
     <Compile Include="Actors\Types\ComponentActors\Shapes\ConeActor.cs" />
     <Compile Include="Actors\Types\GroupActor.cs" />

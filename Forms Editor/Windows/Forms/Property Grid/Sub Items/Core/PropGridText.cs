@@ -77,13 +77,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                if (DataType == typeof(string))
-                    UpdateValue(string.Empty, true);
-                else
-                {
+                //if (DataType == typeof(string))
+                //    UpdateValue(string.Empty, true);
+                //else
+                //{
                     object o = Editor.UserCreateInstanceOf(DataType, true, this);
                     UpdateValue(o, true);
-                }
+                //}
                 //SetTextBoxEditable(true);
             }
         }

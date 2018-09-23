@@ -105,39 +105,24 @@ namespace TheraEngine.Files
                 _updating = true;
                 if (!string.IsNullOrEmpty(value))
                 {
-                    _absoluteRefPath = Path.GetFullPath(value);
-                    if (PathType == EPathType.Absolute)
-                        _localRefPath = _absoluteRefPath;
-                    else
+                    bool validPath = value.IsDirectoryPath() == false;
+                    if (validPath)
                     {
-                        string root = Path.GetPathRoot(value);
-                        int colonIndex = root.IndexOf(":");
-                        if (colonIndex > 0)
-                            root = root.Substring(0, colonIndex);
+                        _absoluteRefPath = Path.GetFullPath(value);
+                        if (PathType == EPathType.Absolute)
+                            _localRefPath = _absoluteRefPath;
                         else
-                            root = string.Empty;
-
-                        if (PathType == EPathType.EngineRelative)
                         {
-                            string root2 = Path.GetPathRoot(Application.StartupPath);
-                            colonIndex = root2.IndexOf(":");
+                            string root = Path.GetPathRoot(value);
+                            int colonIndex = root.IndexOf(":");
                             if (colonIndex > 0)
-                                root2 = root2.Substring(0, colonIndex);
+                                root = root.Substring(0, colonIndex);
                             else
-                                root2 = string.Empty;
-                            if (!string.Equals(root, root2))
+                                root = string.Empty;
+
+                            if (PathType == EPathType.EngineRelative)
                             {
-                                PathType = EPathType.Absolute;
-                                _localRefPath = _absoluteRefPath;
-                            }
-                            else
-                                _localRefPath = _absoluteRefPath.MakePathRelativeTo(Application.StartupPath);
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(DirectoryPath))
-                            {
-                                string root2 = Path.GetPathRoot(DirectoryPath);
+                                string root2 = Path.GetPathRoot(Application.StartupPath);
                                 colonIndex = root2.IndexOf(":");
                                 if (colonIndex > 0)
                                     root2 = root2.Substring(0, colonIndex);
@@ -149,11 +134,35 @@ namespace TheraEngine.Files
                                     _localRefPath = _absoluteRefPath;
                                 }
                                 else
-                                    _localRefPath = _absoluteRefPath.MakePathRelativeTo(DirectoryPath);
+                                    _localRefPath = _absoluteRefPath.MakePathRelativeTo(Application.StartupPath);
                             }
                             else
-                                _localRefPath = null;
+                            {
+                                if (!string.IsNullOrEmpty(DirectoryPath))
+                                {
+                                    string root2 = Path.GetPathRoot(DirectoryPath);
+                                    colonIndex = root2.IndexOf(":");
+                                    if (colonIndex > 0)
+                                        root2 = root2.Substring(0, colonIndex);
+                                    else
+                                        root2 = string.Empty;
+                                    if (!string.Equals(root, root2))
+                                    {
+                                        PathType = EPathType.Absolute;
+                                        _localRefPath = _absoluteRefPath;
+                                    }
+                                    else
+                                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(DirectoryPath);
+                                }
+                                else
+                                    _localRefPath = null;
+                            }
                         }
+                    }
+                    else
+                    {
+                        _absoluteRefPath = value;
+                        _localRefPath = value;
                     }
                 }
                 else

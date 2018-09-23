@@ -68,11 +68,11 @@ namespace TheraEditor.Windows.Forms
                         out (float Time, float Value)[] min,
                         out (float Time, float Value)[] max);
 
-                    float minVal = min[0].Value;
-                    float maxVal = max[0].Value;
-                    float midPoint = (maxVal + minVal) * 0.5f;
-                    //_rootTransform.LocalTranslation = new Vec2(_targetAnimation.LengthInSeconds * 0.5f, midPoint);
-                    _rootTransform.Scale = new Vec2(_targetAnimation.LengthInSeconds, maxVal - minVal);
+                    //float minVal = min[0].Value;
+                    //float maxVal = max[0].Value;
+                    //float midPoint = (maxVal + minVal) * 0.5f;
+                    ////_rootTransform.LocalTranslation = new Vec2(_targetAnimation.LengthInSeconds * 0.5f, midPoint);
+                    //_rootTransform.Scale = new Vec2(_targetAnimation.LengthInSeconds, maxVal - minVal);
                 }
                 RegenerateSplinePrimitive();
             }

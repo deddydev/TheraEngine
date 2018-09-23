@@ -198,7 +198,10 @@ namespace TheraEditor.Windows.Forms
                         toolStripTypeSelection.Visible = false;
                     }
                     else
+                    {
+                        SetTargetType(type);
                         toolStripTypeSelection.Visible = true;
+                    }
                 }
                 else if (type.IsAbstract || type.IsInterface)
                     return false;
@@ -225,6 +228,11 @@ namespace TheraEditor.Windows.Forms
                     SetTargetType(type);
                     toolStripTypeSelection.Visible = false;
                 }
+            }
+            else
+            {
+                SetTargetType(type);
+                toolStripTypeSelection.Visible = false;
             }
             
             return true;
@@ -343,19 +351,19 @@ namespace TheraEditor.Windows.Forms
 
                     toolStripDropDownButton1.Text = string.Empty;
 
-                    numericInputBoxByte.Visible = _mode == EObjectCreatorMode.UInt8;
-                    numericInputBoxSByte.Visible = _mode == EObjectCreatorMode.Int8;
-                    numericInputBoxSingle.Visible = _mode == EObjectCreatorMode.Single;
-                    numericInputBoxDouble.Visible = _mode == EObjectCreatorMode.Double;
-                    numericInputBoxDecimal.Visible = _mode == EObjectCreatorMode.Decimal;
-                    numericInputBoxInt16.Visible = _mode == EObjectCreatorMode.Int16;
-                    numericInputBoxUInt16.Visible = _mode == EObjectCreatorMode.UInt16;
-                    numericInputBoxInt32.Visible = _mode == EObjectCreatorMode.Int32;
-                    numericInputBoxUInt32.Visible = _mode == EObjectCreatorMode.UInt32;
-                    numericInputBoxInt64.Visible = _mode == EObjectCreatorMode.Int64;
-                    numericInputBoxUInt64.Visible = _mode == EObjectCreatorMode.UInt64;
-                    richTextBox1.Visible = _mode == EObjectCreatorMode.String || _mode == EObjectCreatorMode.Char;
-                    chkBoolean.Visible = _mode == EObjectCreatorMode.Boolean;
+                    numericInputBoxByte.Visible     = _mode == EObjectCreatorMode.UInt8;
+                    numericInputBoxSByte.Visible    = _mode == EObjectCreatorMode.Int8;
+                    numericInputBoxSingle.Visible   = _mode == EObjectCreatorMode.Single;
+                    numericInputBoxDouble.Visible   = _mode == EObjectCreatorMode.Double;
+                    numericInputBoxDecimal.Visible  = _mode == EObjectCreatorMode.Decimal;
+                    numericInputBoxInt16.Visible    = _mode == EObjectCreatorMode.Int16;
+                    numericInputBoxUInt16.Visible   = _mode == EObjectCreatorMode.UInt16;
+                    numericInputBoxInt32.Visible    = _mode == EObjectCreatorMode.Int32;
+                    numericInputBoxUInt32.Visible   = _mode == EObjectCreatorMode.UInt32;
+                    numericInputBoxInt64.Visible    = _mode == EObjectCreatorMode.Int64;
+                    numericInputBoxUInt64.Visible   = _mode == EObjectCreatorMode.UInt64;
+                    richTextBox1.Visible            = _mode == EObjectCreatorMode.String || _mode == EObjectCreatorMode.Char;
+                    chkBoolean.Visible              = _mode == EObjectCreatorMode.Boolean;
                 }
             }
         }

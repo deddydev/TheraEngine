@@ -592,7 +592,7 @@ namespace TheraEngine.Files
 
             if (ext.ManualXmlConfigSerialize)
             {
-                using (FileStream stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
+                using (FileStream stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 0x1000, FileOptions.SequentialScan))
                 using (XmlWriter writer = XmlWriter.Create(stream, DefaultWriterSettings))
                 {
                     writer.Flush();

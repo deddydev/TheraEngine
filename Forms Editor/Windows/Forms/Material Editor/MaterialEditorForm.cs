@@ -43,6 +43,23 @@ namespace TheraEditor.Windows.Forms
                 return _matFuncs;
             }
         }
+
+        private DockableTexRefControl _texRefForm;
+        public bool TexRefFormActive => _texRefForm != null;
+        public DockableTexRefControl TexRefForm
+        {
+            get
+            {
+                if (_texRefForm == null || _texRefForm.IsDisposed)
+                {
+                    Engine.PrintLine("Created texture reference editor");
+                    _texRefForm = new DockableTexRefControl();
+                    _texRefForm.Show(dockPanel1, DockState.DockRight);
+                }
+                return _texRefForm;
+            }
+        }
+
         private DockableMatGraph _materialGraph = null;
         public DockableMatGraph MaterialGraph
         {

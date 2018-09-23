@@ -846,6 +846,7 @@ namespace TheraEngine.Core.Maths.Transforms
         {
             return new Vec4(v.X, v.Y, v.Z, v.W);
         }
+        public static implicit operator Vec4(float v) => new Vec4(v);
         public static implicit operator Vec4(Color c)
             => new Vec4(c.R * THelpers.ByteToFloat, c.G * THelpers.ByteToFloat, c.B * THelpers.ByteToFloat, c.A * THelpers.ByteToFloat);
         public static explicit operator Color(Vec4 v)

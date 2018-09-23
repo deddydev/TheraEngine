@@ -127,13 +127,13 @@ namespace TheraEngine.Animation
             switch (bias)
             {
                 case EUnifyBias.Average:
-                    InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+                    InTangent = -(OutTangent = (-InTangent + OutTangent) * 0.5f);
                     break;
                 case EUnifyBias.In:
-                    OutTangent = InTangent;
+                    OutTangent = -InTangent;
                     break;
                 case EUnifyBias.Out:
-                    InTangent = OutTangent;
+                    InTangent = -OutTangent;
                     break;
             }
         }

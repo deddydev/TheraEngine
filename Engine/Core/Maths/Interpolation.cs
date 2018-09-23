@@ -10,7 +10,68 @@ namespace TheraEngine.Core.Maths
     /// </summary>
     public static class Interp
     {
+        #region Polynomials
+        public static float EvaluatePolynomial(float third, float second, float first, float zero, float x)
+        {
+            float x2 = x * x;
+            return third * x2 * x + second * x2 + first * x + zero;
+        }
+        public static Vec2 EvaluatePolynomial(Vec2 third, Vec2 second, Vec2 first, Vec2 zero, Vec2 x)
+        {
+            Vec2 x2 = x * x;
+            return third * x2 * x + second * x2 + first * x + zero;
+        }
+        public static Vec3 EvaluatePolynomial(Vec3 third, Vec3 second, Vec3 first, Vec3 zero, Vec3 x)
+        {
+            Vec3 x2 = x * x;
+            return third * x2 * x + second * x2 + first * x + zero;
+        }
+        public static Vec4 EvaluatePolynomial(Vec4 third, Vec4 second, Vec4 first, Vec4 zero, Vec4 x)
+        {
+            Vec4 x2 = x * x;
+            return third * x2 * x + second * x2 + first * x + zero;
+        }
+        public static float EvaluatePolynomial(float second, float first, float zero, float x)
+        {
+            float x2 = x * x;
+            return second * x2 + first * x + zero;
+        }
+        public static Vec2 EvaluatePolynomial(Vec2 second, Vec2 first, Vec2 zero, Vec2 x)
+        {
+            Vec2 x2 = x * x;
+            return second * x2 + first * x + zero;
+        }
+        public static Vec3 EvaluatePolynomial(Vec3 second, Vec3 first, Vec3 zero, Vec3 x)
+        {
+            Vec3 x2 = x * x;
+            return second * x2 + first * x + zero;
+        }
+        public static Vec4 EvaluatePolynomial(Vec4 second, Vec4 first, Vec4 zero, Vec4 x)
+        {
+            Vec4 x2 = x * x;
+            return second * x2 + first * x + zero;
+        }
+        public static float EvaluatePolynomial(float first, float zero, float x)
+        {
+            return first * x + zero;
+        }
+        public static Vec2 EvaluatePolynomial(Vec2 first, Vec2 zero, Vec2 x)
+        {
+            return first * x + zero;
+        }
+        public static Vec3 EvaluatePolynomial(Vec3 first, Vec3 zero, Vec3 x)
+        {
+            return first * x + zero;
+        }
+        public static Vec4 EvaluatePolynomial(Vec4 first, Vec4 zero, Vec4 x)
+        {
+            return first * x + zero;
+        }
+        #endregion
+
         #region Bezier
+
+        #region Point Approximation
         public static Vec2[] GetBezierPoints(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, int pointCount, out float length)
         {
             Vec2[] points = new Vec2[pointCount];
@@ -48,7 +109,6 @@ namespace TheraEngine.Core.Maths
             }
             return points;
         }
-
         public static Vec2[] GetBezierPoints(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, int pointCount)
         {
             if (pointCount < 2)
@@ -61,138 +121,186 @@ namespace TheraEngine.Core.Maths
 
             return points;
         }
-        public static float CubicBezier(float p0, float p1, float p2, float p3, float time)
+        #endregion
+
+        #region Coefficients
+
+        #region Position
+        public static void CubicBezierCoefs(
+            float p0, float t0, float t1, float p1,
+            out float third, out float second, out float first, out float zero)
         {
-            float invT = 1.0f - time;
-            float invT2 = invT * invT;
-            float invT3 = invT2 * invT;
-            float t2 = time * time;
-            float t3 = t2 * time;
-            return
-                p0 * invT3 +
-                p1 * 3.0f * invT2 * time +
-                p2 * 3.0f * invT * t2 +
-                p3 * t3;
+            third =        -p0 + 3.0f * t0 - 3.0f * t1 + p1;
+            second = 3.0f * p0 - 6.0f * t0 + 3.0f * t1;
+            first = -3.0f * p0 + 3.0f * t0;
+            zero =          p0;
         }
-        public static float CubicBezierVelocity(float p0, float p1, float p2, float p3, float time)
+        public static void CubicBezierCoefs(
+            Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
+            out Vec2 third, out Vec2 second, out Vec2 first, out Vec2 zero)
         {
-            float invT = 1.0f - time;
-            float invT2 = invT * invT;
-            float t2 = time * time;
-            return
-                p0 * (-3.0f * invT2) +
-                p1 * (9.0f * t2 - 12.0f * time + 3.0f) +
-                p2 * (6.0f * time - 9.0f * t2) +
-                p3 * 3.0f * t2;
+            third =        -p0 + 3.0f * t0 - 3.0f * t1 + p1;
+            second = 3.0f * p0 - 6.0f * t0 + 3.0f * t1;
+            first = -3.0f * p0 + 3.0f * t0;
+            zero =          p0;
         }
-        public static float CubicBezierAcceleration(float p0, float p1, float p2, float p3, float time)
+        public static void CubicBezierCoefs(
+            Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
+            out Vec3 third, out Vec3 second, out Vec3 first, out Vec3 zero)
         {
-            float invT = 1.0f - time;
-            return
-                p0 * (6.0f * invT) +
-                p1 * (18.0f * time - 12.0f) +
-                p2 * (-18.0f * time + 6.0f) +
-                p3 * 6.0f * time;
+            third =        -p0 + 3.0f * t0 - 3.0f * t1 + p1;
+            second = 3.0f * p0 - 6.0f * t0 + 3.0f * t1;
+            first = -3.0f * p0 + 3.0f * t0;
+            zero =          p0;
         }
-        public static Vec2 CubicBezier(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
+        public static void CubicBezierCoefs(
+            Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
+            out Vec4 third, out Vec4 second, out Vec4 first, out Vec4 zero)
         {
-            float invT = 1.0f - time;
-            float invT2 = invT * invT;
-            float invT3 = invT2 * invT;
-            float t2 = time * time;
-            float t3 = t2 * time;
-            return
-                p0 * invT3 +
-                p1 * 3.0f * invT2 * time +
-                p2 * 3.0f * invT * t2 +
-                p3 * t3;
+            third =        -p0 + 3.0f * t0 - 3.0f * t1 + p1;
+            second = 3.0f * p0 - 6.0f * t0 + 3.0f * t1;
+            first = -3.0f * p0 + 3.0f * t0;
+            zero =          p0;
         }
-        public static Vec2 CubicBezierVelocity(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
+        #endregion
+
+        #region Velocity
+        public static void CubicBezierVelocityCoefs(
+            float p0, float t0, float t1, float p1,
+            out float second, out float first, out float zero)
         {
-            float invT = 1.0f - time;
-            float invT2 = invT * invT;
-            float t2 = time * time;
-            return
-                p0 * (-3.0f * invT2) +
-                p1 * (9.0f * t2 - 12.0f * time + 3.0f) +
-                p2 * (6.0f * time - 9.0f * t2) +
-                p3 * 3.0f * t2;
+            second = 3.0f * ( 3.0f * t0 - p0 - 3.0f * t1 + p1);
+            first  = 6.0f * (-2.0f * t0 + p0 +        t1);
+            zero   = 3.0f * (        t0 - p0);
         }
-        public static Vec2 CubicBezierAcceleration(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
+        public static void CubicBezierVelocityCoefs(
+            Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
+            out Vec2 second, out Vec2 first, out Vec2 zero)
         {
-            float invT = 1.0f - time;
-            return
-                p0 * (6.0f * invT) +
-                p1 * (18.0f * time - 12.0f) +
-                p2 * (-18.0f * time + 6.0f) +
-                p3 * 6.0f * time;
+            second = 3.0f * ( 3.0f * t0 - p0 - 3.0f * t1 + p1);
+            first  = 6.0f * (-2.0f * t0 + p0 +        t1);
+            zero   = 3.0f * (        t0 - p0);
         }
-        public static Vec3 CubicBezier(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
+        public static void CubicBezierVelocityCoefs(
+            Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
+            out Vec3 second, out Vec3 first, out Vec3 zero)
         {
-            float invT = 1.0f - time;
-            float invT2 = invT * invT;
-            float invT3 = invT2 * invT;
-            float t2 = time * time;
-            float t3 = t2 * time;
-            return
-                p0 * invT3 +
-                p1 * 3.0f * invT2 * time +
-                p2 * 3.0f * invT * t2 +
-                p3 * t3;
+            second = 3.0f * ( 3.0f * t0 - p0 - 3.0f * t1 + p1);
+            first  = 6.0f * (-2.0f * t0 + p0 +        t1);
+            zero   = 3.0f * (        t0 - p0);
         }
-        public static Vec3 CubicBezierVelocity(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
+        public static void CubicBezierVelocityCoefs(
+            Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
+            out Vec4 second, out Vec4 first, out Vec4 zero)
         {
-            float invT = 1.0f - time;
-            float invT2 = invT * invT;
-            float t2 = time * time;
-            return
-                p0 * (-3.0f * invT2) +
-                p1 * (9.0f * t2 - 12.0f * time + 3.0f) +
-                p2 * (6.0f * time - 9.0f * t2) +
-                p3 * 3.0f * t2;
+            second = 3.0f * ( 3.0f * t0 - p0 - 3.0f * t1 + p1);
+            first  = 6.0f * (-2.0f * t0 + p0 +        t1);
+            zero   = 3.0f * (        t0 - p0);
         }
-        public static Vec3 CubicBezierAcceleration(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
+        #endregion
+
+        #region Acceleration
+        public static void CubicBezierAccelerationCoefs(
+           float p0, float t0, float t1, float p1,
+           out float first, out float zero)
         {
-            float invT = 1.0f - time;
-            return
-                p0 * (6.0f * invT) +
-                p1 * (18.0f * time - 12.0f) +
-                p2 * (-18.0f * time + 6.0f) +
-                p3 * 6.0f * time;
+            first = 6.0f * (-3.0f * t1 + 3.0f * t0 - p0 + p1);
+            zero  = 6.0f * (        t1 - 2.0f * t0 + p0);
         }
-        public static Vec4 CubicBezier(Vec4 p0, Vec4 p1, Vec4 p2, Vec4 p3, float time)
+        public static void CubicBezierAccelerationCoefs(
+           Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
+           out Vec2 first, out Vec2 zero)
         {
-            float invT = 1.0f - time;
-            float invT2 = invT * invT;
-            float invT3 = invT2 * invT;
-            float t2 = time * time;
-            float t3 = t2 * time;
-            return
-                p0 * invT3 +
-                p1 * 3.0f * invT2 * time +
-                p2 * 3.0f * invT * t2 +
-                p3 * t3;
+            first = 6.0f * (-3.0f * t1 + 3.0f * t0 - p0 + p1);
+            zero  = 6.0f * (        t1 - 2.0f * t0 + p0);
         }
-        public static Vec4 CubicBezierVelocity(Vec4 p0, Vec4 p1, Vec4 p2, Vec4 p3, float time)
+        public static void CubicBezierAccelerationCoefs(
+           Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
+           out Vec3 first, out Vec3 zero)
         {
-            float invT = 1.0f - time;
-            float invT2 = invT * invT;
-            float t2 = time * time;
-            return
-                p0 * (-3.0f * invT2) +
-                p1 * (9.0f * t2 - 12.0f * time + 3.0f) +
-                p2 * (6.0f * time - 9.0f * t2) +
-                p3 * 3.0f * t2;
+            first = 6.0f * (-3.0f * t1 + 3.0f * t0 - p0 + p1);
+            zero  = 6.0f * (        t1 - 2.0f * t0 + p0);
         }
-        public static Vec4 CubicBezierAcceleration(Vec4 p0, Vec4 p1, Vec4 p2, Vec4 p3, float time)
+        public static void CubicBezierAccelerationCoefs(
+           Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
+           out Vec4 first, out Vec4 zero)
         {
-            float invT = 1.0f - time;
-            return
-                p0 * (6.0f * invT) +
-                p1 * (18.0f * time - 12.0f) +
-                p2 * (-18.0f * time + 6.0f) +
-                p3 * 6.0f * time;
+            first = 6.0f * (-3.0f * t1 + 3.0f * t0 - p0 + p1);
+            zero  = 6.0f * (        t1 - 2.0f * t0 + p0);
         }
+        #endregion
+
+        #endregion
+
+        #region Position
+        public static float CubicBezier(float p0, float t0, float t1, float p1, float time)
+        {
+            CubicBezierCoefs(p0, t0, t1, p1, out float third, out float second, out float first, out float zero);
+            return EvaluatePolynomial(third, second, first, zero, time);
+        }
+        public static Vec2 CubicBezier(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
+        {
+            CubicBezierCoefs(p0, t0, t1, p1, out Vec2 third, out Vec2 second, out Vec2 first, out Vec2 zero);
+            return EvaluatePolynomial(third, second, first, zero, time);
+        }
+        public static Vec3 CubicBezier(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
+        {
+            CubicBezierCoefs(p0, t0, t1, p1, out Vec3 third, out Vec3 second, out Vec3 first, out Vec3 zero);
+            return EvaluatePolynomial(third, second, first, zero, time);
+        }
+        public static Vec4 CubicBezier(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
+        {
+            CubicBezierCoefs(p0, t0, t1, p1, out Vec4 third, out Vec4 second, out Vec4 first, out Vec4 zero);
+            return EvaluatePolynomial(third, second, first, zero, new Vec4(time));
+        }
+        #endregion
+
+        #region Velocity
+        public static float CubicBezierVelocity(float p0, float t0, float t1, float p1, float time)
+        {
+            CubicBezierVelocityCoefs(p0, t0, t1, p1, out float second, out float first, out float zero);
+            return EvaluatePolynomial(second, first, zero, time);
+        }
+        public static Vec2 CubicBezierVelocity(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
+        {
+            CubicBezierVelocityCoefs(p0, t0, t1, p1, out Vec2 second, out Vec2 first, out Vec2 zero);
+            return EvaluatePolynomial(second, first, zero, time);
+        }
+        public static Vec3 CubicBezierVelocity(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
+        {
+            CubicBezierVelocityCoefs(p0, t0, t1, p1, out Vec3 second, out Vec3 first, out Vec3 zero);
+            return EvaluatePolynomial(second, first, zero, time);
+        }
+        public static Vec4 CubicBezierVelocity(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
+        {
+            CubicBezierVelocityCoefs(p0, t0, t1, p1, out Vec4 second, out Vec4 first, out Vec4 zero);
+            return EvaluatePolynomial(second, first, zero, time);
+        }
+        #endregion
+
+        #region Acceleration
+        public static float CubicBezierAcceleration(float p0, float t0, float t1, float p1, float time)
+        {
+            CubicBezierAccelerationCoefs(p0, t0, t1, p1, out float first, out float zero);
+            return EvaluatePolynomial(first, zero, time);
+        }
+        public static Vec2 CubicBezierAcceleration(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
+        {
+            CubicBezierAccelerationCoefs(p0, t0, t1, p1, out Vec2 first, out Vec2 zero);
+            return EvaluatePolynomial(first, zero, time);
+        }
+        public static Vec3 CubicBezierAcceleration(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
+        {
+            CubicBezierAccelerationCoefs(p0, t0, t1, p1, out Vec3 first, out Vec3 zero);
+            return EvaluatePolynomial(first, zero, time);
+        }
+        public static Vec4 CubicBezierAcceleration(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
+        {
+            CubicBezierAccelerationCoefs(p0, t0, t1, p1, out Vec4 first, out Vec4 zero);
+            return EvaluatePolynomial(first, zero, time);
+        }
+        #endregion
+
         #endregion
 
         #region Hermite
@@ -310,26 +418,22 @@ namespace TheraEngine.Core.Maths
         public static float CubicHermite(float p0, float t0, float t1, float p1, float time)
         {
             CubicHermiteCoefs(p0, t0, t1, p1, out float third, out float second, out float first, out float zero);
-            float time2 = time * time;
-            return third * time2 * time + second * time2 + first * time + zero;
+            return EvaluatePolynomial(third, second, first, zero, time);
         }
         public static Vec2 CubicHermite(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
         {
             CubicHermiteCoefs(p0, t0, t1, p1, out Vec2 third, out Vec2 second, out Vec2 first, out Vec2 zero);
-            float time2 = time * time;
-            return third * time2 * time + second * time2 + first * time + zero;
+            return EvaluatePolynomial(third, second, first, zero, time);
         }
         public static Vec3 CubicHermite(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
         {
             CubicHermiteCoefs(p0, t0, t1, p1, out Vec3 third, out Vec3 second, out Vec3 first, out Vec3 zero);
-            float time2 = time * time;
-            return third * time2 * time + second * time2 + first * time + zero;
+            return EvaluatePolynomial(third, second, first, zero, time);
         }
         public static Vec4 CubicHermite(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
         {
             CubicHermiteCoefs(p0, t0, t1, p1, out Vec4 third, out Vec4 second, out Vec4 first, out Vec4 zero);
-            float time2 = time * time;
-            return third * time2 * time + second * time2 + first * time + zero;
+            return EvaluatePolynomial(third, second, first, zero, time);
         }
         #endregion
 
@@ -337,22 +441,22 @@ namespace TheraEngine.Core.Maths
         public static float CubicHermiteVelocity(float p0, float t0, float t1, float p1, float time)
         {
             CubicHermiteVelocityCoefs(p0, t0, t1, p1, out float second, out float first, out float zero);
-            return second * time * time + first * time + zero;
+            return EvaluatePolynomial(second, first, zero, time);
         }
         public static Vec2 CubicHermiteVelocity(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
         {
             CubicHermiteVelocityCoefs(p0, t0, t1, p1, out Vec2 second, out Vec2 first, out Vec2 zero);
-            return second * time * time + first * time + zero;
+            return EvaluatePolynomial(second, first, zero, time);
         }
         public static Vec3 CubicHermiteVelocity(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
         {
             CubicHermiteVelocityCoefs(p0, t0, t1, p1, out Vec3 second, out Vec3 first, out Vec3 zero);
-            return second * time * time + first * time + zero;
+            return EvaluatePolynomial(second, first, zero, time);
         }
         public static Vec4 CubicHermiteVelocity(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
         {
             CubicHermiteVelocityCoefs(p0, t0, t1, p1, out Vec4 second, out Vec4 first, out Vec4 zero);
-            return second * time * time + first * time + zero;
+            return EvaluatePolynomial(second, first, zero, time);
         }
         #endregion
 
@@ -360,22 +464,22 @@ namespace TheraEngine.Core.Maths
         public static float CubicHermiteAcceleration(float p0, float t0, float t1, float p1, float time)
         {
             CubicHermiteAccelerationCoefs(p0, t0, t1, p1, out float first, out float zero);
-            return first * time + zero;
+            return EvaluatePolynomial(first, zero, time);
         }
         public static Vec2 CubicHermiteAcceleration(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
         {
             CubicHermiteAccelerationCoefs(p0, t0, t1, p1, out Vec2 first, out Vec2 zero);
-            return first * time + zero;
+            return EvaluatePolynomial(first, zero, time);
         }
         public static Vec3 CubicHermiteAcceleration(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
         {
             CubicHermiteAccelerationCoefs(p0, t0, t1, p1, out Vec3 first, out Vec3 zero);
-            return first * time + zero;
+            return EvaluatePolynomial(first, zero, time);
         }
         public static Vec4 CubicHermiteAcceleration(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
         {
             CubicHermiteAccelerationCoefs(p0, t0, t1, p1, out Vec4 first, out Vec4 zero);
-            return first * time + zero;
+            return EvaluatePolynomial(first, zero, time);
         }
         #endregion
 
@@ -419,21 +523,22 @@ namespace TheraEngine.Core.Maths
         public static Vec4 InterpLinearTo(Vec4 start, Vec4 end, float time, float speed = 1.0f)
             => Vec4.Lerp(start, end, time * speed);
 
-        public static Vec3 VInterpNormalRotationTo(Vec3 Current, Vec3 Target, float DeltaTime, float RotationSpeedDegrees)
+        public static Vec3 VInterpNormalRotationTo(Vec3 current, Vec3 target, float delta, float rotationSpeedDegrees)
         {
-            Quat DeltaQuat = Quat.BetweenVectors(Current, Target);
+            Quat deltaQuat = Quat.BetweenVectors(current, target);
 
-            DeltaQuat.ToAxisAngle(out Vec3 DeltaAxis, out float DeltaAngle);
+            deltaQuat.ToAxisAngle(out Vec3 deltaAxis, out float deltaAngle);
 
-            float RotationStepRadians = RotationSpeedDegrees * (PIf / 180.0f) * DeltaTime;
+            float rotStepRads = DegToRad(rotationSpeedDegrees) * delta;
 
-            if (Abs(DeltaAngle) > RotationStepRadians)
+            if (Abs(deltaAngle) > rotStepRads)
             {
-                DeltaAngle = DeltaAngle.Clamp(-RotationStepRadians, RotationStepRadians);
-                DeltaQuat = new Quat(DeltaAxis, DeltaAngle);
-                return DeltaQuat * Current;
+                deltaAngle = deltaAngle.Clamp(-rotStepRads, rotStepRads);
+                deltaQuat = new Quat(deltaAxis, deltaAngle);
+                return deltaQuat * current;
             }
-            return Target;
+
+            return target;
         }
     }
 }

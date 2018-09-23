@@ -185,11 +185,11 @@ namespace TheraEngine.Components.Scene
             {
                 var (TimeMin, ValueMin) = min[x];
                 Vec3 minPos = _position.GetValue(TimeMin);
-                minPos[x] = ValueMin;
+                //minPos[x] = ValueMin;
                 
                 var (TimeMax, ValueMax) = max[x];
                 Vec3 maxPos = _position.GetValue(TimeMax);
-                maxPos[x] = ValueMax;
+                //maxPos[x] = ValueMax;
 
                 extrema[x << 1] = minPos;
                 extrema[(x << 1) + 1] = maxPos;

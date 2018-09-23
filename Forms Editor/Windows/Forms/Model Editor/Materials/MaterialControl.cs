@@ -278,8 +278,15 @@ namespace TheraEditor.Windows.Forms
 
             DockContent form = FindForm() as DockContent;
             DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
-            ModelEditorForm editor = p.FindForm() as ModelEditorForm;
-            editor.TexRefForm.texRefControl1.SetTexRef(tref);
+            var editor = p.FindForm();
+            if (editor is MaterialEditorForm me)
+            {
+                me.TexRefForm?.texRefControl1?.SetTexRef(tref);
+            }
+            else if (editor is ModelEditorForm mdl)
+            {
+                mdl.TexRefForm?.texRefControl1?.SetTexRef(tref);
+            }
         }
 
         private void tabControl1_Selected(object sender, TabControlEventArgs e)

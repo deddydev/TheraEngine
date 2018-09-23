@@ -322,7 +322,7 @@ namespace TheraEngine.Animation
             out (float Time, float Value)[] min,
             out (float Time, float Value)[] max)
         {
-            float[] inComps = GetComponents(DefaultValue), outComps, inTanComps, outTanComps, val1Comps, val2Comps;
+            float[] inComps = GetComponents(DefaultValue), outComps, inTanComps, outTanComps, valComps;
             int compCount = inComps.Length;
             if (_keyframes.Count == 0)
             {
@@ -371,7 +371,9 @@ namespace TheraEngine.Animation
 
                 for (int i = 0; i < _keyframes.Count; ++i, kf = next)
                 {
-                    next = kf.Next;
+                    next = kf.Next ?? (kf.OwningTrack.FirstKey != kf ? (VectorKeyframe<T>)kf.OwningTrack.FirstKey : null);
+                    if (next == null)
+                        break;
                     for (int x = 0; x < compCount; ++x)
                     {
                         minVal = min[x].Value;
@@ -411,11 +413,11 @@ namespace TheraEngine.Animation
                         //is an extrema and should be considered for min/max.
                         if (i != _keyframes.Count - 1)
                         {
-                            inComps = GetComponents(kf.Next.InValue);
-                            inTanComps = GetComponents(kf.Next.InTangent);
+                            inComps = GetComponents(next.InValue);
+                            inTanComps = GetComponents(next.InTangent);
                             outTanComps = GetComponents(kf.OutTangent);
 
-                            float time1, time2;
+                            float second = 0.0f, first = 0.0f, zero = 0.0f;
                             switch (kf.InterpolationType)
                             {
                                 case EPlanarInterpType.Step:
@@ -427,41 +429,53 @@ namespace TheraEngine.Animation
                                     //so we can solve for the two time values where velocity is zero.
                                     Interp.CubicHermiteVelocityCoefs(
                                         outComps[x], outTanComps[x], inTanComps[x], inComps[x],
-                                        out float second, out float first, out float zero);
+                                        out second, out first, out zero);
 
-                                    if (TMath.QuadraticRealRoots(second, first, zero, out time1, out time2))
-                                    {
-                                        T val1 = kf.InterpolateNextNormalized(time1);
-                                        T val2 = kf.InterpolateNextNormalized(time2);
-
-                                        val1Comps = GetComponents(val1);
-                                        val2Comps = GetComponents(val2);
-
-                                        oldMin = minVal;
-                                        oldMax = maxVal;
-
-                                        minVal = TMath.Min(minVal, val1Comps[x], val2Comps[x]);
-                                        maxVal = TMath.Max(maxVal, val1Comps[x], val2Comps[x]);
-
-                                        if (oldMin != minVal)
-                                        {
-                                            if (minVal == val1Comps[x])
-                                                min[x].Time = time1;
-                                            if (minVal == val2Comps[x])
-                                                min[x].Time = time2;
-                                        }
-                                        if (oldMax != maxVal)
-                                        {
-                                            if (maxVal == val1Comps[x])
-                                                max[x].Time = time1;
-                                            if (maxVal == val2Comps[x])
-                                                max[x].Time = time2;
-                                        }
-                                    }
                                     break;
                                 case EPlanarInterpType.CubicBezier:
 
+                                    //Retrieve velocity interpolation equation coefficients
+                                    //so we can solve for the two time values where velocity is zero.
+                                    Interp.CubicBezierVelocityCoefs(
+                                        outComps[x], outComps[x] + outTanComps[x], inComps[x] + inTanComps[x], inComps[x],
+                                        out second, out first, out zero);
+
                                     break;
+                            }
+
+                            if (TMath.QuadraticRealRoots(second, first, zero, out float time1, out float time2))
+                            {
+                                oldMin = minVal;
+                                oldMax = maxVal;
+
+                                float[] times = new float[] { time1, time2 };
+                                foreach (float time in times)
+                                {
+                                    bool timeValid = time >= 0.0f && time <= 1.0f;
+                                    if (timeValid)
+                                    {
+                                        T val = kf.InterpolateNextNormalized(time);
+
+                                        float interpSec = 0.0f;
+                                        if (kf.Next == null)
+                                        {
+                                            float span = LengthInSeconds - kf.Second + next.Second;
+                                            interpSec = (kf.Second + span * time).RemapToRange(0.0f, LengthInSeconds);
+                                        }
+                                        else
+                                            interpSec = Interp.Lerp(kf.Second, next.Second, time);
+
+                                        valComps = GetComponents(val);
+
+                                        minVal = TMath.Min(minVal, valComps[x]);
+                                        maxVal = TMath.Max(maxVal, valComps[x]);
+
+                                        if (oldMin != minVal && minVal == valComps[x])
+                                            min[x].Time = interpSec;
+                                        if (oldMax != maxVal && maxVal == valComps[x])
+                                            max[x].Time = interpSec;
+                                    }
+                                }
                             }
                         }
                         min[x].Value = minVal;
@@ -512,9 +526,9 @@ namespace TheraEngine.Animation
         object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (T)value; }
 
         private T _inValue, _outValue, _inTangent, _outTangent;
-        private bool _syncInOutValues = true;
-        private bool _syncInOutTangentDirections = true;
-        private bool _syncInOutTangentMagnitudes = true;
+        private bool _syncInOutValues = false;
+        private bool _syncInOutTangentDirections = false;
+        private bool _syncInOutTangentMagnitudes = false;
         private bool _synchronizing = false;
         
         [Category("Keyframe")]
@@ -524,10 +538,8 @@ namespace TheraEngine.Animation
             get => _syncInOutValues;
             set
             {
-                if (_synchronizing)
-                    return;
                 _syncInOutValues = value;
-                if (_syncInOutValues)
+                if (_syncInOutValues && !_synchronizing)
                 {
                     _synchronizing = true;
                     UnifyValues(EUnifyBias.Average);
@@ -543,10 +555,8 @@ namespace TheraEngine.Animation
             get => _syncInOutTangentDirections;
             set
             {
-                if (_synchronizing)
-                    return;
                 _syncInOutTangentDirections = value;
-                if (_syncInOutTangentDirections)
+                if (_syncInOutTangentDirections && !_synchronizing)
                 {
                     _synchronizing = true;
                     UnifyTangentDirections(EUnifyBias.Average);
@@ -562,10 +572,8 @@ namespace TheraEngine.Animation
             get => _syncInOutTangentMagnitudes;
             set
             {
-                if (_synchronizing)
-                    return;
                 _syncInOutTangentMagnitudes = value;
-                if (_syncInOutTangentMagnitudes)
+                if (_syncInOutTangentMagnitudes && !_synchronizing)
                 {
                     _synchronizing = true;
                     UnifyTangentMagnitudes(EUnifyBias.Average);
@@ -581,10 +589,8 @@ namespace TheraEngine.Animation
             get => _inValue;
             set
             {
-                if (_synchronizing)
-                    return;
                 _inValue = value;
-                if (_syncInOutValues)
+                if (_syncInOutValues && !_synchronizing)
                 {
                     _synchronizing = true;
                     UnifyValues(EUnifyBias.In);
@@ -600,10 +606,8 @@ namespace TheraEngine.Animation
             get => _outValue;
             set
             {
-                if (_synchronizing)
-                    return;
                 _outValue = value;
-                if (_syncInOutValues)
+                if (_syncInOutValues && !_synchronizing)
                 {
                     _synchronizing = true;
                     UnifyValues(EUnifyBias.Out);
@@ -619,19 +623,18 @@ namespace TheraEngine.Animation
             get => _inTangent;
             set
             {
-                if (_synchronizing)
-                    return;
                 _inTangent = value;
-
-                _synchronizing = true;
-                if (SyncInOutTangentDirections && SyncInOutTangentMagnitudes)
-                    UnifyTangents(EUnifyBias.In);
-                else if (SyncInOutTangentMagnitudes)
-                    UnifyTangentMagnitudes(EUnifyBias.In);
-                else if (SyncInOutTangentDirections)
-                    UnifyTangentDirections(EUnifyBias.In);
-                _synchronizing = false;
-
+                if (!_synchronizing)
+                {
+                    _synchronizing = true;
+                    if (SyncInOutTangentDirections && SyncInOutTangentMagnitudes)
+                        UnifyTangents(EUnifyBias.In);
+                    else if (SyncInOutTangentMagnitudes)
+                        UnifyTangentMagnitudes(EUnifyBias.In);
+                    else if (SyncInOutTangentDirections)
+                        UnifyTangentDirections(EUnifyBias.In);
+                    _synchronizing = false;
+                }
                 OwningTrack?.OnChanged();
             }
         }
@@ -642,19 +645,18 @@ namespace TheraEngine.Animation
             get => _outTangent;
             set
             {
-                if (_synchronizing)
-                    return;
                 _outTangent = value;
-
-                _synchronizing = true;
-                if (SyncInOutTangentDirections && SyncInOutTangentMagnitudes)
-                    UnifyTangents(EUnifyBias.Out);
-                else if (SyncInOutTangentMagnitudes)
-                    UnifyTangentMagnitudes(EUnifyBias.Out);
-                else if (SyncInOutTangentDirections)
-                    UnifyTangentDirections(EUnifyBias.Out);
-                _synchronizing = false;
-
+                if (!_synchronizing)
+                {
+                    _synchronizing = true;
+                    if (SyncInOutTangentDirections && SyncInOutTangentMagnitudes)
+                        UnifyTangents(EUnifyBias.Out);
+                    else if (SyncInOutTangentMagnitudes)
+                        UnifyTangentMagnitudes(EUnifyBias.Out);
+                    else if (SyncInOutTangentDirections)
+                        UnifyTangentDirections(EUnifyBias.Out);
+                    _synchronizing = false;
+                }
                 OwningTrack?.OnChanged();
             }
         }
@@ -1045,7 +1047,8 @@ namespace TheraEngine.Animation
 
         public void UnifyKeyframe(EUnifyBias bias)
         {
-            throw new NotImplementedException();
+            UnifyTangents(bias);
+            UnifyValues(bias);
         }
     }
 }

@@ -345,7 +345,6 @@
     <Compile Include="Actors\Types\GroupActor.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawnBase.cs" />
     <Compile Include="Actors\Types\Pawns\FlyingCameraPawn.cs" />
-    <Compile Include="Animation\Cutscenes\Scene.cs" />
     <Compile Include="Animation\Property\PropAnimVector.cs" />
     <Compile Include="Components\Scene\IBLProbeComponent.cs" />
     <Compile Include="Components\Scene\SceneCaptureComponent.cs" />

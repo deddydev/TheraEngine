@@ -11,43 +11,43 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Cutscenes
 {
+    [FileExt("cut")]
+    [FileDef("Cutscene")]
     public class Cutscene : BaseAnimation
     {
         public Cutscene() : base(0.0f, false)
         {
-            Scenes = new EventList<GlobalFileRef<Scene>>();
+            SubScenes = new EventList<Clip<Cutscene>>();
         }
         public Cutscene(float lengthInSeconds, bool looped)
             : base(lengthInSeconds, looped)
         {
-            Scenes = new EventList<GlobalFileRef<Scene>>();
+            SubScenes = new EventList<Clip<Cutscene>>();
         }
         public Cutscene(int frameCount, float FPS, bool looped)
             : base(FPS <= 0.0f ? 0.0f : frameCount / FPS, looped)
         {
-            Scenes = new EventList<GlobalFileRef<Scene>>();
+            SubScenes = new EventList<Clip<Cutscene>>();
         }
 
-        private EventList<GlobalFileRef<Scene>> _scenes;
-        private Scene _nextScene;
-        private bool _isNextSceneLoading = false;
-        private bool _isNextSceneLoaded = false;
+        
+        private EventList<Clip<Cutscene>> _scenes = new EventList<Clip<Cutscene>>();
+        private EventList<Clip<BasePropAnim>> _animationTracks = new EventList<Clip<BasePropAnim>>();
 
+        public List<GlobalFileRef<IActor>> InvolvedActors { get; set; }
+        private Camera CurrentCamera { get; set; }
         public GlobalFileRef<World> WorldRef { get; set; }
-        public Scene CurrentScene { get; private set; }
-        public Scene NextScene
-        {
-            get => _nextScene;
-            private set
-            {
-                _nextScene = value;
-                _isNextSceneLoaded = true;
-            }
-        }
+        public Cutscene CurrentScene { get; private set; }
         private int CurrentSceneIndex { get; set; } = -1;
 
         [TSerialize]
-        public EventList<GlobalFileRef<Scene>> Scenes
+        public EventList<Clip<BasePropAnim>> AnimationTracks
+        {
+            get => _animationTracks;
+            set => _animationTracks = value;
+        }
+        [TSerialize]
+        public EventList<Clip<Cutscene>> SubScenes
         {
             get => _scenes;
             set
@@ -65,44 +65,71 @@ namespace TheraEngine.Cutscenes
                 }
             }
         }
-        public void PreLoadScenes()
+        
+        #region Loading
+        public void LoadSubScenes()
         {
-            foreach (var scene in Scenes)
-                scene.GetInstance();
+            foreach (var scene in SubScenes)
+                scene.Animation.GetInstance();
         }
-        public void PreLoadScene(int index)
+        public void LoadSubScene(int index)
         {
-            if (Scenes.IndexInRange(index))
-                Scenes[index].GetInstance();
+            if (SubScenes.IndexInRange(index))
+                SubScenes[index].Animation.GetInstance();
         }
-        public async Task PreLoadScenesAsync()
+        public async Task LoadSubScenesAsync()
         {
-            foreach (var scene in Scenes)
-                await scene.GetInstanceAsync();
+            foreach (var scene in SubScenes)
+                await scene.Animation.GetInstanceAsync();
         }
-        public async Task PreLoadSceneAsync(int index)
+        public async Task LoadSubSceneAsync(int index)
         {
-            if (Scenes.IndexInRange(index))
-                await Scenes[index].GetInstanceAsync();
+            if (SubScenes.IndexInRange(index))
+                await SubScenes[index].Animation.GetInstanceAsync();
         }
+        public void LoadAnimations()
+        {
+            foreach (var anim in AnimationTracks)
+                anim.Animation.GetInstance();
+        }
+        public void LoadAnimationsParallel()
+        {
+            Parallel.ForEach(AnimationTracks, anim => anim.Animation.GetInstance());
+        }
+        public async Task LoadAnimationsAsync()
+        {
+            foreach (var anim in AnimationTracks)
+                await anim.Animation.GetInstanceAsync();
+        }
+        #endregion
+
         protected override void PreStarted()
         {
-            if (Scenes.Count == 0)
+            if (SubScenes.Count == 0)
             {
                 CurrentSceneIndex = -1;
                 CurrentScene = null;
-                return;
             }
-            CurrentScene = Scenes[0].GetInstance();
-            CurrentSceneIndex = 0;
-            _isNextSceneLoaded = false;
-        }
+            else
+            {
+                CurrentScene = SubScenes[0].Animation.File;
+                CurrentSceneIndex = 0;
+                foreach (var anim in AnimationTracks)
+                {
 
-        private void _scenes_PostAnythingRemoved(GlobalFileRef<Scene> item)
+                }
+            }
+        }
+        protected override void PostStopped()
         {
 
         }
-        private void _scenes_PostAnythingAdded(GlobalFileRef<Scene> item)
+
+        private void _scenes_PostAnythingRemoved(Clip<Cutscene> item)
+        {
+
+        }
+        private void _scenes_PostAnythingAdded(Clip<Cutscene> item)
         {
 
         }
@@ -114,29 +141,38 @@ namespace TheraEngine.Cutscenes
         {
 
         }
+        private float _lastDelta = 0.0f;
         protected override void OnProgressed(float delta)
         {
+            //Progress animations in this cutscene level
+            foreach (var anim in AnimationTracks)
+                anim?.Animation?.File?.Progress(delta);
+
+            //Progress sub scenes
             if (CurrentScene == null)
                 return;
+
+            _lastDelta = delta;
+
             float newTime = CurrentScene.CurrentTime + delta;
             if (newTime > CurrentScene.LengthInSeconds)
             {
+                CurrentScene.Stop();
+
                 //New time is beyond current scene, need to move to the next scene (or further, so use a while loop)
                 while (newTime > CurrentScene.LengthInSeconds)
                 {
                     newTime -= CurrentScene.LengthInSeconds;
-                    ++CurrentSceneIndex;
-                    if (CurrentSceneIndex < Scenes.Count)
-                    {
-                        CurrentScene = Scenes[CurrentSceneIndex]?.File;
-                        if (CurrentScene != null)
-                        {
-
-                        }
-                    }
+                    if (++CurrentSceneIndex < SubScenes.Count)
+                        CurrentScene = SubScenes[CurrentSceneIndex]?.Animation?.File;
                     else
                         return;
                 }
+
+                CurrentScene.TickSelf = false;
+                CurrentScene.CurrentTime = 0.0f;
+                CurrentScene.Start();
+                CurrentScene.Progress(newTime);
             }
             else if (newTime < 0.0f)
             {
@@ -147,8 +183,21 @@ namespace TheraEngine.Cutscenes
                     newTime += CurrentScene.LengthInSeconds;
                 }
             }
-
-            CurrentScene.Progress(delta);
+            else
+            {
+                CurrentScene.Progress(delta);
+            }
         }
+    }
+    [FileExt("clip")]
+    [FileDef("Cutscene Animation Clip")]
+    public class Clip<T> : TFileObject where T : BaseAnimation
+    {
+        [TSerialize]
+        public LocalFileRef<T> Animation { get; set; }
+        [TSerialize(IsXmlAttribute = true)]
+        public float StartSecond { get; set; }
+        [TSerialize(IsXmlAttribute = true)]
+        public float EndSecond { get; set; }
     }
 }

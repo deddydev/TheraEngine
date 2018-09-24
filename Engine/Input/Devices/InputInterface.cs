@@ -106,23 +106,17 @@ namespace TheraEngine.Input.Devices
             InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
 
             if (_playerIndex >= 0 && _playerIndex < gamepads.Length)
-            {
                 Gamepad = gamepads[_playerIndex] as BaseGamePad;
-            }
 
             //Keyboard and mouse are reserved for the first player only
             //TODO: support multiple mice and keyboard? Could get difficult with laptops and trackpads and whatnot. Probably no-go.
             //TODO: support input from ALL keyboards and mice for first player. Not just the first found keyboard and mouse.
 
             if (keyboards.Length > 0 && _playerIndex == 0)
-            {
                 Keyboard = keyboards[0] as BaseKeyboard;
-            }
 
             if (mice.Length > 0 && _playerIndex == 0)
-            {
                 Mouse = mice[0] as BaseMouse;
-            }
 
             AttachInterfaceToDevices(false);
         }
@@ -132,32 +126,20 @@ namespace TheraEngine.Input.Devices
             if (detach)
             {
                 if (Gamepad != null)
-                {
                     Gamepad.InputInterface = null;
-                }
                 if (Keyboard != null)
-                {
                     Keyboard.InputInterface = null;
-                }
                 if (Mouse != null)
-                {
                     Mouse.InputInterface = null;
-                }
             }
             else
             {
                 if (Gamepad != null)
-                {
                     Gamepad.InputInterface = this;
-                }
                 if (Keyboard != null)
-                {
                     Keyboard.InputInterface = this;
-                }
                 if (Mouse != null)
-                {
                     Mouse.InputInterface = this;
-                }
             }
         }
 

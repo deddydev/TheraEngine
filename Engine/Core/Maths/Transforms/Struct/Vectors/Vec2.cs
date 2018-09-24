@@ -142,7 +142,15 @@ namespace System
         public static readonly Vec2 Zero = new Vec2(0.0f);
         public static readonly Vec2 Half = new Vec2(0.5f);
         public static readonly Vec2 One = new Vec2(1.0f);
-        
+        /// <summary>
+        /// Vector with all values set to <see cref="float.MinValue"/>.
+        /// </summary>
+        public static readonly Vec2 Min = new Vec2(float.MinValue);
+        /// <summary>
+        /// Vector with all values set to <see cref="float.MaxValue"/>.
+        /// </summary>
+        public static readonly Vec2 Max = new Vec2(float.MaxValue);
+
         public static Vec2 ComponentMin(Vec2 a, Vec2 b)
             => new Vec2(
                 a.X < b.X ? a.X : b.X,

@@ -7,6 +7,7 @@ using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -153,7 +154,12 @@ namespace TheraEngine.Rendering.UI
                     PerformResize();
             }
         }
-
+        internal protected virtual void RegisterInputs(InputInterface input)
+        {
+            foreach (SceneComponent comp in ChildComponents)
+                if (comp is UIComponent uiComp)
+                    uiComp.RegisterInputs(input);
+        }
         public override void OnSpawned()
         {
             if (this is I2DRenderable r)

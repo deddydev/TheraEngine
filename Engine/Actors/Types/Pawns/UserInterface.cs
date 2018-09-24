@@ -109,6 +109,8 @@ namespace TheraEngine.Actors.Types.Pawns
         protected override T OnConstruct() => new T() { DockStyle = UIDockStyle.Fill };
         public override void RegisterInput(InputInterface input)
         {
+            RootComponent.RegisterInputs(input);
+
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickOnlyWhenPaused);
             input.RegisterMouseMove(MouseMove, MouseMoveType.Absolute, EInputPauseType.TickOnlyWhenPaused);
             //input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);

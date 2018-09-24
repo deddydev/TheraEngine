@@ -455,167 +455,228 @@ namespace System
         #region Min/Max
         public static float Max(params float[] values)
         {
-            float v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Max(v, values[i]);
-            return v;
+            float max = float.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
+        }
+        public static double Max(params double[] values)
+        {
+            double max = double.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
+        }
+        public static decimal Max(params decimal[] values)
+        {
+            decimal max = decimal.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
         }
         public static int Max(params int[] values)
         {
-            int v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Max(v, values[i]);
-            return v;
+            int max = int.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
         }
         public static uint Max(params uint[] values)
         {
-            uint v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Max(v, values[i]);
-            return v;
+            uint max = uint.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
         }
         public static short Max(params short[] values)
         {
-            short v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Max(v, values[i]);
-            return v;
+            short max = short.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
         }
         public static ushort Max(params ushort[] values)
         {
-            ushort v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Max(v, values[i]);
-            return v;
+            ushort max = ushort.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
         }
         public static byte Max(params byte[] values)
         {
-            byte v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Max(v, values[i]);
-            return v;
+            byte max = byte.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
         }
         public static sbyte Max(params sbyte[] values)
         {
-            sbyte v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Max(v, values[i]);
-            return v;
-        }
-        public static float Min(params float[] values)
-        {
-            float v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Min(v, values[i]);
-            return v;
-        }
-        public static Vec2 ComponentMin(params Vec2[] values)
-        {
-            Vec2 value = Vec2.Zero;
-            for (int i = 0; i < 2; ++i)
-            {
-                float v = values[0][i];
-                if (values.Length > 1)
-                    for (int x = 1; x < values.Length; x++)
-                        v = Math.Min(v, values[x][i]);
-                value[i] = v;
-            }
-            return value;
+            sbyte max = sbyte.MinValue;
+            for (int i = 0; i < values.Length; i++)
+                max = Math.Max(max, values[i]);
+            return max;
         }
         public static Vec2 ComponentMax(params Vec2[] values)
         {
-            Vec2 value = Vec2.Zero;
+            Vec2 max = Vec2.Min;
             for (int i = 0; i < 2; ++i)
-            {
-                float v = values[0][i];
-                if (values.Length > 1)
-                    for (int x = 1; x < values.Length; x++)
-                        v = Math.Max(v, values[x][i]);
-                value[i] = v;
-            }
-            return value;
-        }
-        public static Vec3 ComponentMin(params Vec3[] values)
-        {
-            Vec3 value = Vec3.Zero;
-            for (int i = 0; i < 3; ++i)
-            {
-                float v = values[0][i];
-                if (values.Length > 1)
-                    for (int x = 1; x < values.Length; x++)
-                        v = Math.Min(v, values[x][i]);
-                value[i] = v;
-            }
-            return value;
+                for (int x = 0; x < values.Length; x++)
+                    max[i] = Math.Max(max[i], values[x][i]);
+            return max;
         }
         public static Vec3 ComponentMax(params Vec3[] values)
         {
-            Vec3 value = Vec3.Zero;
+            Vec3 max = Vec3.Min;
             for (int i = 0; i < 3; ++i)
-            {
-                float v = values[0][i];
-                if (values.Length > 1)
-                    for (int x = 1; x < values.Length; x++)
-                        v = Math.Max(v, values[x][i]);
-                value[i] = v;
-            }
-            return value;
+                for (int x = 0; x < values.Length; x++)
+                    max[i] = Math.Max(max[i], values[x][i]);
+            return max;
+        }
+        public static Vec4 ComponentMax(params Vec4[] values)
+        {
+            Vec4 max = Vec4.Min;
+            for (int i = 0; i < 4; ++i)
+                for (int x = 0; x < values.Length; x++)
+                    max[i] = Math.Max(max[i], values[x][i]);
+            return max;
+        }
+        public static float Min(params float[] values)
+        {
+            float min = float.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
+        }
+        public static double Min(params double[] values)
+        {
+            double min = double.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
+        }
+        public static decimal Min(params decimal[] values)
+        {
+            decimal min = decimal.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
         }
         public static int Min(params int[] values)
         {
-            int v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Min(v, values[i]);
-            return v;
+            int min = int.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
         }
         public static uint Min(params uint[] values)
         {
-            uint v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Min(v, values[i]);
-            return v;
+            uint min = uint.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
         }
         public static short Min(params short[] values)
         {
-            short v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Min(v, values[i]);
-            return v;
+            short min = short.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
         }
         public static ushort Min(params ushort[] values)
         {
-            ushort v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Min(v, values[i]);
-            return v;
+            ushort min = ushort.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
         }
         public static byte Min(params byte[] values)
         {
-            byte v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Min(v, values[i]);
-            return v;
+            byte min = byte.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
         }
         public static sbyte Min(params sbyte[] values)
         {
-            sbyte v = values[0];
-            if (values.Length > 1)
-                for (int i = 1; i < values.Length; i++)
-                    v = Math.Min(v, values[i]);
-            return v;
+            sbyte min = sbyte.MaxValue;
+            for (int i = 0; i < values.Length; i++)
+                min = Math.Min(min, values[i]);
+            return min;
+        }
+        public static Vec2 ComponentMin(params Vec2[] values)
+        {
+            Vec2 min = Vec2.Max;
+            for (int i = 0; i < 2; ++i)
+                for (int x = 0; x < values.Length; x++)
+                    min[i] = Math.Min(min[i], values[x][i]);
+            return min;
+        }
+        public static Vec3 ComponentMin(params Vec3[] values)
+        {
+            Vec3 min = Vec3.Max;
+            for (int i = 0; i < 3; ++i)
+                for (int x = 0; x < values.Length; x++)
+                    min[i] = Math.Min(min[i], values[x][i]);
+            return min;
+        }
+        public static Vec4 ComponentMin(params Vec4[] values)
+        {
+            Vec4 min = Vec4.Max;
+            for (int i = 0; i < 4; ++i)
+                for (int x = 0; x < values.Length; x++)
+                    min[i] = Math.Min(min[i], values[x][i]);
+            return min;
+        }
+        public static void MinMax(out float min, out float max, params float[] values)
+        {
+            min = float.MaxValue;
+            max = float.MinValue;
+            float value;
+            for (int i = 0; i < values.Length; i++)
+            {
+                value = values[i];
+                min = Math.Min(min, value);
+                max = Math.Max(max, value);
+            }
+        }
+        public static void ComponentMinMax(out Vec2 min, out Vec2 max, params Vec2[] values)
+        {
+            min = Vec2.Max;
+            max = Vec2.Min;
+            float value;
+            for (int i = 0; i < 2; ++i)
+                for (int x = 0; x < values.Length; x++)
+                {
+                    value = values[x][i];
+                    min[i] = Math.Min(min[i], value);
+                    max[i] = Math.Max(max[i], value);
+                }
+        }
+        public static void ComponentMinMax(out Vec3 min, out Vec3 max, params Vec3[] values)
+        {
+            min = Vec3.Max;
+            max = Vec3.Min;
+            float value;
+            for (int i = 0; i < 3; ++i)
+                for (int x = 0; x < values.Length; x++)
+                {
+                    value = values[x][i];
+                    min[i] = Math.Min(min[i], value);
+                    max[i] = Math.Max(max[i], value);
+                }
+        }
+        public static void ComponentMinMax(out Vec4 min, out Vec4 max, params Vec4[] values)
+        {
+            min = Vec4.Max;
+            max = Vec4.Min;
+            float value;
+            for (int i = 0; i < 4; ++i)
+                for (int x = 0; x < values.Length; x++)
+                {
+                    value = values[x][i];
+                    min[i] = Math.Min(min[i], value);
+                    max[i] = Math.Max(max[i], value);
+                }
         }
         public static int[] PascalTriangleRow(int rowIndex)
         {
@@ -655,10 +716,30 @@ namespace System
             double power = -x * 0.5 / m;
             return Exp(power) / (sigma * Sqrt(2.0 * PI));
         }
-        public static double[] NormalDistributionKernel(int pascalRow)
+        public static double[] NormalDistributionKernelDouble(int pascalRow)
         {
             int[] rowValues = PascalTriangleRow(pascalRow, out int sum);
             return rowValues.Select(x => (double)x / sum).ToArray();
+        }
+        /// <summary>
+        /// Returns the Y-value from a normal distribution given the following parameters.
+        /// </summary>
+        /// <param name="x">The X-value on the distribution.</param>
+        /// <param name="sigma">The standard deviation.</param>
+        /// <param name="mu">Mu is the mean or expectation of the distribution (and also its median and mode),</param>
+        /// <returns>The Y-value.</returns>
+        public static float NormalDistribution(float x, float sigma = 1.0f, float mu = 0.0f)
+        {
+            x -= mu;
+            x = x * x;
+            float m = sigma * sigma;
+            float power = -x * 0.5f / m;
+            return (float)Exp(power) / (sigma * (float)Sqrt(2.0f * PIf));
+        }
+        public static float[] NormalDistributionKernelFloat(int pascalRow)
+        {
+            int[] rowValues = PascalTriangleRow(pascalRow, out int sum);
+            return rowValues.Select(x => (float)x / sum).ToArray();
         }
         #endregion
     }

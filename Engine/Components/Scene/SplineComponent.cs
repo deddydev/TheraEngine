@@ -197,9 +197,8 @@ namespace TheraEngine.Components.Scene
                 extrema[(x << 1) + 1] = maxPos;
             }
 
-            CullingVolume = BoundingBox.FromMinMax(
-                TMath.ComponentMin(extrema), 
-                TMath.ComponentMax(extrema));
+            TMath.ComponentMinMax(out Vec3 minVal, out Vec3 maxVal, extrema);
+            CullingVolume = BoundingBox.FromMinMax(minVal, maxVal);
 
             RenderingParameters p = new RenderingParameters
             {

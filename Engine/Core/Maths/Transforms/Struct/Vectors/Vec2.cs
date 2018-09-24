@@ -22,6 +22,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable, IParsable
     {
+        public static readonly int Size = sizeof(Vec2);
+
         public float X, Y;
 
         [Browsable(false)]
@@ -261,7 +263,7 @@ namespace System
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 Yx { get { return new Vec2(Y, X); } set { Y = value.X; X = value.Y; } }
-
+        
         public static Vec3 operator *(Vec2 left, Matrix4 right)
             => Vec3.TransformPerspective(left, right);
         public static Vec3 operator *(Matrix4 left, Vec2 right)

@@ -46,6 +46,7 @@ namespace System.ComponentModel
             { "rtf", "Rich Text File" },
             { "txt", "Text File" },
             { "py", "Python Script" },
+            { "pmx", "Miku Miku Dance Extended Model" },
         };
 
         public static void Register3rdPartyExtension(string extension, string userFriendlyName)

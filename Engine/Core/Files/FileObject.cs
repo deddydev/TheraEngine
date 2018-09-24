@@ -83,6 +83,17 @@ namespace TheraEngine.Files
                 Async = isAsync;
             }
         }
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+        public class ThirdPartyExporter : Attribute
+        {
+            public string Extension { get; private set; }
+            public bool Async { get; private set; }
+            public ThirdPartyExporter(string extension, bool isAsync = false)
+            {
+                Extension = extension;
+                Async = isAsync;
+            }
+        }
 
         [Browsable(false)]
         public FileDef FileDefinition => GetFileDefinition(GetType());
@@ -105,9 +116,11 @@ namespace TheraEngine.Files
             //throw new Exception("No File3rdParty attribute specified for " + t.ToString());
         }
         
-        public delegate TFileObject DelThirdPartyFileMethod(string path);
-        public delegate Task<TFileObject> DelThirdPartyFileMethodAsync(string path);
-
+        public delegate TFileObject Del3rdPartyImportFileMethod(string path);
+        public delegate Task<TFileObject> Del3rdPartyImportFileMethodAsync(string path);
+        public delegate void Del3rdPartyExportFileMethod(object obj, string path);
+        public delegate Task Del3rdPartyExportFileMethodAsync(object obj, string path);
+        
         static TFileObject()
         {
             _3rdPartyLoaders = new Dictionary<string, Dictionary<Type, Delegate>>();
@@ -139,12 +152,12 @@ namespace TheraEngine.Files
                                 bool async = m.GetCustomAttribute<ThirdPartyLoader>().Async;
                                 if (async)
                                 {
-                                    if (Delegate.CreateDelegate(typeof(DelThirdPartyFileMethodAsync), m) is DelThirdPartyFileMethodAsync result)
+                                    if (Delegate.CreateDelegate(typeof(Del3rdPartyImportFileMethodAsync), m) is Del3rdPartyImportFileMethodAsync result)
                                         d.Add(t, result);
                                 }
                                 else
                                 {
-                                    if (Delegate.CreateDelegate(typeof(DelThirdPartyFileMethod), m) is DelThirdPartyFileMethod result)
+                                    if (Delegate.CreateDelegate(typeof(Del3rdPartyImportFileMethod), m) is Del3rdPartyImportFileMethod result)
                                         d.Add(t, result);
                                 }
                             }
@@ -152,12 +165,42 @@ namespace TheraEngine.Files
                         else
                             throw new Exception(t.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
                     }
+
+                    foreach (string ext3rd in attrib.ExportableExtensions)
+                    {
+                        string extLower = ext3rd.ToLowerInvariant();
+                        Dictionary<Type, Delegate> d;
+                        if (_3rdPartyExporters.ContainsKey(extLower))
+                            d = _3rdPartyExporters[extLower];
+                        else
+                            _3rdPartyExporters.Add(extLower, d = new Dictionary<Type, Delegate>());
+                        if (!d.ContainsKey(t))
+                        {
+                            var methods = t.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                                .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyExporter>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
+                                .ToArray();
+                            if (methods.Length > 0)
+                            {
+                                MethodInfo m = methods[0];
+                                bool async = m.GetCustomAttribute<ThirdPartyExporter>().Async;
+                                if (async)
+                                {
+                                    if (Delegate.CreateDelegate(typeof(Del3rdPartyExportFileMethodAsync), m) is Del3rdPartyExportFileMethodAsync result)
+                                        d.Add(t, result);
+                                }
+                                else
+                                {
+                                    if (Delegate.CreateDelegate(typeof(Del3rdPartyExportFileMethod), m) is Del3rdPartyExportFileMethod result)
+                                        d.Add(t, result);
+                                }
+                            }
+                        }
+                        else
+                            throw new Exception(t.GetFriendlyName() + " has already been added to the third party exporter list for " + extLower);
+                    }
                 }
             }
-            catch
-            {
-
-            }
+            catch { }
         }
         public TFileObject() { }
         //internal protected virtual void OnLoaded() { }
@@ -782,9 +825,9 @@ namespace TheraEngine.Files
             Delegate loader = Get3rdPartyLoader(classType, ext);
             if (loader != null)
             {
-                if (loader is DelThirdPartyFileMethod method)
+                if (loader is Del3rdPartyImportFileMethod method)
                     return method.Invoke(filePath);
-                else if (loader is DelThirdPartyFileMethodAsync methodAsync)
+                else if (loader is Del3rdPartyImportFileMethodAsync methodAsync)
                     return await methodAsync.Invoke(filePath);
                 else
                     return null;
@@ -820,18 +863,18 @@ namespace TheraEngine.Files
             }
             return null;
         }
-        public static void Register3rdPartyLoader<T>(string extension, DelThirdPartyFileMethod loadMethod) where T : TFileObject
+        public static void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethod loadMethod) where T : TFileObject
         {
             Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
         }
-        public static void Register3rdPartyExporter<T>(string extension, DelThirdPartyFileMethod exportMethod) where T : TFileObject
+        public static void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethod exportMethod) where T : TFileObject
         {
             Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
         }
         private static void Register3rdParty<T>(
             Dictionary<string, Dictionary<Type, Delegate>> methodDic, 
             string extension, 
-            DelThirdPartyFileMethod method)
+            Del3rdPartyImportFileMethod method)
             where T : TFileObject
         {
             extension = extension.ToLowerInvariant();

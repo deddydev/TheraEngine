@@ -980,6 +980,8 @@
     <Compile Include="Core\Maths\TMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThirdParty\openvr_api.cs" />
+    <Compile Include="ThirdParty\PMX\Exporter.cs" />
+    <Compile Include="ThirdParty\PMX\Format.cs" />
     <Compile Include="ThirdParty\VisualStudioSolution.cs" />
     <Compile Include="Worlds\EventDictionary.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />

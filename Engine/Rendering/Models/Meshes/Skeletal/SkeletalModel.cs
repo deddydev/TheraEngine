@@ -5,14 +5,41 @@ using TheraEngine.Core.Maths.Transforms;
 using System;
 using TheraEngine.Core.Shapes;
 using System.Threading.Tasks;
+using TheraEngine.ThirdParty.PMX;
 
 namespace TheraEngine.Rendering.Models
 {
-    [File3rdParty(new string[] { "dae", "obj" }, null)]
+    [File3rdParty(new string[] { "dae", "obj" }, new string[] { "pmd" })]
     [FileExt("skmdl")]
     [FileDef("Skeletal Model")]
     public class SkeletalModel : TFileObject, IModelFile
     {
+        public SkeletalModel() : base() { }
+        public SkeletalModel(string name) : this() { _name = name; }
+        
+        [TSerialize("Skeleton")]
+        protected GlobalFileRef<Skeleton> _skeleton = new GlobalFileRef<Skeleton>();
+        [TSerialize("RigidChildren")]
+        protected List<SkeletalRigidSubMesh> _rigidChildren = new List<SkeletalRigidSubMesh>();
+        [TSerialize("SoftChildren")]
+        protected List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
+
+        public GlobalFileRef<Skeleton> SkeletonRef => _skeleton;
+        public List<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
+        public List<SkeletalSoftSubMesh> SoftChildren => _softChildren;
+
+        public BoundingBox CalculateBindPoseCullingAABB()
+        {
+            BoundingBox aabb = new BoundingBox();
+            foreach (var s in RigidChildren)
+                if (s.CullingVolume != null)
+                    aabb.Expand(s.CullingVolume.GetAABB());
+            //foreach (var s in SoftChildren)
+            //    if (s.CullingVolume != null)
+            //        aabb.Expand(s.CullingVolume.GetAABB());
+            return aabb;
+        }
+
         [ThirdPartyLoader("dae", true)]
         public static async Task<TFileObject> LoadDAEAsync(string path)
         {
@@ -40,31 +67,12 @@ namespace TheraEngine.Rendering.Models
             };
             return OBJ.Import(path, o);
         }
-
-        public SkeletalModel() : base() { }
-        public SkeletalModel(string name) : this() { _name = name; }
-        
-        [TSerialize("Skeleton")]
-        protected GlobalFileRef<Skeleton> _skeleton = new GlobalFileRef<Skeleton>();
-        [TSerialize("RigidChildren")]
-        protected List<SkeletalRigidSubMesh> _rigidChildren = new List<SkeletalRigidSubMesh>();
-        [TSerialize("SoftChildren")]
-        protected List<SkeletalSoftSubMesh> _softChildren = new List<SkeletalSoftSubMesh>();
-
-        public GlobalFileRef<Skeleton> SkeletonRef => _skeleton;
-        public List<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
-        public List<SkeletalSoftSubMesh> SoftChildren => _softChildren;
-
-        public BoundingBox CalculateBindPoseCullingAABB()
+        [ThirdPartyExporter("pmx")]
+        public static void ExportPMXAsync(object obj, string path)
         {
-            BoundingBox aabb = new BoundingBox();
-            foreach (var s in RigidChildren)
-                if (s.CullingVolume != null)
-                    aabb.Expand(s.CullingVolume.GetAABB());
-            //foreach (var s in SoftChildren)
-            //    if (s.CullingVolume != null)
-            //        aabb.Expand(s.CullingVolume.GetAABB());
-            return aabb;
+            SkeletalModel m = obj as SkeletalModel;
+            PMXExporter e = new PMXExporter(m);
+            e.Export(path);
         }
     }
 }

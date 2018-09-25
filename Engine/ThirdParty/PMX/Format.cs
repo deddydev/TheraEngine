@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -52,14 +53,19 @@ namespace TheraEngine.ThirdParty.PMX
         public byte RigidBodyIndexSize => Globals[7];
 
         public StringValue* ModelNameJPStringValue => (StringValue*)(Address + 9 + _globalsCount);
-        public StringValue* ModelNameENStringValue => (StringValue*)(Address + 9 + _globalsCount + ModelNameJPStringValue->TotalLength);
-        public StringValue* ModelCommentsJPStringValue => (StringValue*)(Address + 9 + _globalsCount + ModelNameJPStringValue->TotalLength + ModelNameENStringValue->TotalLength);
-        public StringValue* ModelCommentsENStringValue => (StringValue*)(Address + 9 + _globalsCount + ModelNameJPStringValue->TotalLength + ModelNameENStringValue->TotalLength + ModelCommentsJPStringValue->TotalLength);
+        public StringValue* ModelNameENStringValue => (StringValue*)((VoidPtr)ModelNameJPStringValue + ModelNameJPStringValue->TotalLength);
+        public StringValue* ModelCommentsJPStringValue => (StringValue*)((VoidPtr)ModelNameENStringValue + ModelNameENStringValue->TotalLength);
+        public StringValue* ModelCommentsENStringValue => (StringValue*)((VoidPtr)ModelCommentsJPStringValue + ModelCommentsJPStringValue->TotalLength);
 
         public string ModelNameJP => ModelNameJPStringValue->GetString(StringEncoding);
         public string ModelNameEN => ModelNameENStringValue->GetString(StringEncoding);
         public string ModelCommentsJP => ModelCommentsJPStringValue->GetString(StringEncoding);
         public string ModelCommentsEN => ModelCommentsENStringValue->GetString(StringEncoding);
+
+        public VertexArrayHeader* VertexHeader => (VertexArrayHeader*)((VoidPtr)ModelCommentsENStringValue + ModelCommentsENStringValue->TotalLength);
+        public TriangleArrayHeader* TrianglesHeader => (TriangleArrayHeader*)((VoidPtr)VertexHeader + VertexHeader->GetSize(ExtraVec4Count, BoneIndexSize));
+        public TextureArrayHeader* TexturesHeader => (TextureArrayHeader*)((VoidPtr)TrianglesHeader + TrianglesHeader->GetSize(VertexIndexSize));
+
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct VertexArrayHeader
@@ -99,194 +105,195 @@ namespace TheraEngine.ThirdParty.PMX
             size += weightHeader->GetSize(boneIndexSize) + 4; // + 4 for edge scale float
             return size;
         }
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct WeightHeader
-    {
-        public enum EWeightType : byte
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct WeightHeader
         {
-            BDef1 = 0,
-            BDef2 = 1,
-            BDef4 = 2,
-            SDef  = 3,
-            QDef  = 4,
-        }
+            public enum EWeightType : byte
+            {
+                BDef1 = 0,
+                BDef2 = 1,
+                BDef4 = 2,
+                SDef = 3,
+                QDef = 4,
+            }
 
-        public EWeightType _type;
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        public BDef1* BoneDef1 => (BDef1*)(Address + 1);
-        public BDef2* BoneDef2 => (BDef2*)(Address + 1);
-        public BDef4QDef* BoneDef4QuatDef => (BDef4QDef*)(Address + 1);
-        public SDef* SphericalDef => (SDef*)(Address + 1);
-        
-        public int GetSize(byte boneIndexSize)
-        {
-            switch (_type)
+            public EWeightType _type;
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+            public BDef1* BoneDef1 => (BDef1*)(Address + 1);
+            public BDef2* BoneDef2 => (BDef2*)(Address + 1);
+            public BDef4QDef* BoneDef4QuatDef => (BDef4QDef*)(Address + 1);
+            public SDef* SphericalDef => (SDef*)(Address + 1);
+
+            public int GetSize(byte boneIndexSize)
             {
-                default:
-                case EWeightType.BDef1:
-                    return 1 + BoneDef1->GetSize(boneIndexSize);
-                case EWeightType.BDef2:
-                    return 1 + BoneDef2->GetSize(boneIndexSize);
-                case EWeightType.BDef4:
-                case EWeightType.QDef:
-                    return 1 + BoneDef4QuatDef->GetSize(boneIndexSize);
-                case EWeightType.SDef:
-                    return 1 + SphericalDef->GetSize(boneIndexSize);
+                switch (_type)
+                {
+                    default:
+                    case EWeightType.BDef1:
+                        return 1 + BoneDef1->GetSize(boneIndexSize);
+                    case EWeightType.BDef2:
+                        return 1 + BoneDef2->GetSize(boneIndexSize);
+                    case EWeightType.BDef4:
+                    case EWeightType.QDef:
+                        return 1 + BoneDef4QuatDef->GetSize(boneIndexSize);
+                    case EWeightType.SDef:
+                        return 1 + SphericalDef->GetSize(boneIndexSize);
+                }
+            }
+            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+            public unsafe struct BDef1
+            {
+                public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+                public int GetBoneIndex(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)Address;
+                        case 2:
+                            return *(short*)Address;
+                        case 4:
+                            return *(int*)Address;
+                    }
+                }
+                public int GetSize(byte boneIndexSize) => boneIndexSize;
+            }
+            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+            public unsafe struct BDef2
+            {
+                public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+                public int GetBoneIndex1(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)Address;
+                        case 2:
+                            return *(short*)Address;
+                        case 4:
+                            return *(int*)Address;
+                    }
+                }
+                public int GetBoneIndex2(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)(Address + boneIndexSize);
+                        case 2:
+                            return *(short*)(Address + boneIndexSize);
+                        case 4:
+                            return *(int*)(Address + boneIndexSize);
+                    }
+                }
+                public float Bone1Weight(byte boneIndexSize) => *(float*)(Address + boneIndexSize * 2);
+                public float Bone2Weight(byte boneIndexSize) => 1.0f - Bone1Weight(boneIndexSize);
+                public int GetSize(byte boneIndexSize) => boneIndexSize * 2 + 4;
+            }
+            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+            public unsafe struct BDef4QDef
+            {
+                public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+                public int GetBoneIndex1(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)Address;
+                        case 2:
+                            return *(short*)Address;
+                        case 4:
+                            return *(int*)Address;
+                    }
+                }
+                public int GetBoneIndex2(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)(Address + boneIndexSize);
+                        case 2:
+                            return *(short*)(Address + boneIndexSize);
+                        case 4:
+                            return *(int*)(Address + boneIndexSize);
+                    }
+                }
+                public int GetBoneIndex3(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)(Address + boneIndexSize * 2);
+                        case 2:
+                            return *(short*)(Address + boneIndexSize * 2);
+                        case 4:
+                            return *(int*)(Address + boneIndexSize * 2);
+                    }
+                }
+                public int GetBoneIndex4(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)(Address + boneIndexSize * 3);
+                        case 2:
+                            return *(short*)(Address + boneIndexSize * 3);
+                        case 4:
+                            return *(int*)(Address + boneIndexSize * 3);
+                    }
+                }
+                public Vec4 GetWeights(byte boneIndexSize) => *(Vec4*)(Address + boneIndexSize * 4);
+                public int GetSize(byte boneIndexSize) => boneIndexSize * 4 + 16;
+            }
+            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+            public unsafe struct SDef
+            {
+                public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+                public int GetBoneIndex1(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)Address;
+                        case 2:
+                            return *(short*)Address;
+                        case 4:
+                            return *(int*)Address;
+                    }
+                }
+                public int GetBoneIndex2(byte boneIndexSize)
+                {
+                    switch (boneIndexSize)
+                    {
+                        default:
+                        case 1:
+                            return *(sbyte*)(Address + boneIndexSize);
+                        case 2:
+                            return *(short*)(Address + boneIndexSize);
+                        case 4:
+                            return *(int*)(Address + boneIndexSize);
+                    }
+                }
+                public float Bone1Weight(byte boneIndexSize) => *(float*)(Address + boneIndexSize * 2);
+                public float Bone2Weight(byte boneIndexSize) => 1.0f - Bone1Weight(boneIndexSize);
+                public Vec3 GetC(byte boneIndexSize) => *(Vec3*)(Address + boneIndexSize * 2 + 4);
+                public Vec3 GetR0(byte boneIndexSize) => *(Vec3*)(Address + boneIndexSize * 2 + 16);
+                public Vec3 GetR1(byte boneIndexSize) => *(Vec3*)(Address + boneIndexSize * 2 + 28);
+                public int GetSize(byte boneIndexSize) => boneIndexSize * 2 + 40;
             }
         }
     }
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct BDef1
-    {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        public int GetBoneIndex(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)Address;
-                case 2:
-                    return *(short*)Address;
-                case 4:
-                    return *(int*)Address;
-            }
-        }
-        public int GetSize(byte boneIndexSize) => boneIndexSize;
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct BDef2
-    {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        public int GetBoneIndex1(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)Address;
-                case 2:
-                    return *(short*)Address;
-                case 4:
-                    return *(int*)Address;
-            }
-        }
-        public int GetBoneIndex2(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)(Address + boneIndexSize);
-                case 2:
-                    return *(short*)(Address + boneIndexSize);
-                case 4:
-                    return *(int*)(Address + boneIndexSize);
-            }
-        }
-        public float Bone1Weight(byte boneIndexSize) => *(float*)(Address + boneIndexSize * 2);
-        public float Bone2Weight(byte boneIndexSize) => 1.0f - Bone1Weight(boneIndexSize);
-        public int GetSize(byte boneIndexSize) => boneIndexSize * 2 + 4;
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct BDef4QDef
-    {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        public int GetBoneIndex1(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)Address;
-                case 2:
-                    return *(short*)Address;
-                case 4:
-                    return *(int*)Address;
-            }
-        }
-        public int GetBoneIndex2(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)(Address + boneIndexSize);
-                case 2:
-                    return *(short*)(Address + boneIndexSize);
-                case 4:
-                    return *(int*)(Address + boneIndexSize);
-            }
-        }
-        public int GetBoneIndex3(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)(Address + boneIndexSize * 2);
-                case 2:
-                    return *(short*)(Address + boneIndexSize * 2);
-                case 4:
-                    return *(int*)(Address + boneIndexSize * 2);
-            }
-        }
-        public int GetBoneIndex4(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)(Address + boneIndexSize * 3);
-                case 2:
-                    return *(short*)(Address + boneIndexSize * 3);
-                case 4:
-                    return *(int*)(Address + boneIndexSize * 3);
-            }
-        }
-        public Vec4 GetWeights(byte boneIndexSize) => *(Vec4*)(Address + boneIndexSize * 4);
-        public int GetSize(byte boneIndexSize) => boneIndexSize * 4 + 16;
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct SDef
-    {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        public int GetBoneIndex1(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)Address;
-                case 2:
-                    return *(short*)Address;
-                case 4:
-                    return *(int*)Address;
-            }
-        }
-        public int GetBoneIndex2(byte boneIndexSize)
-        {
-            switch (boneIndexSize)
-            {
-                default:
-                case 1:
-                    return *(sbyte*)(Address + boneIndexSize);
-                case 2:
-                    return *(short*)(Address + boneIndexSize);
-                case 4:
-                    return *(int*)(Address + boneIndexSize);
-            }
-        }
-        public float Bone1Weight(byte boneIndexSize) => *(float*)(Address + boneIndexSize * 2);
-        public float Bone2Weight(byte boneIndexSize) => 1.0f - Bone1Weight(boneIndexSize);
-        public Vec3 GetC(byte boneIndexSize) => *(Vec3*)(Address + boneIndexSize * 2 + 4);
-        public Vec3 GetR0(byte boneIndexSize) => *(Vec3*)(Address + boneIndexSize * 2 + 16);
-        public Vec3 GetR1(byte boneIndexSize) => *(Vec3*)(Address + boneIndexSize * 2 + 28);
-        public int GetSize(byte boneIndexSize) => boneIndexSize * 2 + 40;
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct FaceArrayHeader
+    public unsafe struct TriangleArrayHeader
     {
         //TODO: is the vertex count _count * 3?
         //Or is this literally the vertex count, not face count
@@ -333,18 +340,27 @@ namespace TheraEngine.ThirdParty.PMX
         }
         public int GetSize(byte vertexIndexSize) => 4 + vertexIndexSize * _count * 3;
     }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct TextureHeader
+    public unsafe struct TextureArrayHeader
     {
+        //Textures "toon01.bmp" through to "toon10.bmp" are reserved.
+
+        public int _count;
+        public StringValue* Textures => (StringValue*)(Address + 4);
+
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
 
         public int GetSize()
         {
-            int size = 0;
+            int size = 4;
+            StringValue* value = Textures;
+            for (int i = 0; i < _count; ++i, ++value)
+                size += value->TotalLength;
             return size;
         }
     }
-    ////Textures "toon01.bmp" through to "toon10.bmp" are reserved.
+
     //[StructLayout(LayoutKind.Sequential, Pack = 1)]
     //public unsafe struct TextureArrayHeader
     //{

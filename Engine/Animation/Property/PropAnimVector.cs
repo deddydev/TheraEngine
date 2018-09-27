@@ -318,12 +318,19 @@ namespace TheraEngine.Animation
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i * invFPS);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
         public void GetMinMax(
             out (float Time, float Value)[] min,
             out (float Time, float Value)[] max)
         {
-            float[] inComps = GetComponents(DefaultValue), outComps, inTanComps, outTanComps, valComps;
+            float[] inComps = GetComponents(DefaultValue), outComps, inTanComps = null, outTanComps = null, valComps;
             int compCount = inComps.Length;
+
+            //No keyframes? Return default value
             if (_keyframes.Count == 0)
             {
                 min = max = inComps.Select(x => (0.0f, x)).ToArray();
@@ -331,13 +338,18 @@ namespace TheraEngine.Animation
             }
 
             VectorKeyframe<T> kf = _keyframes.First;
+
+            //Only one keyframe?
             if (_keyframes.Count == 1)
             {
+                //If the second is zero, the in value is irrelevant.
                 if (kf.Second.IsZero())
                 {
                     outComps = GetComponents(kf.OutValue);
                     min = max = outComps.Select(x => (kf.Second, x)).ToArray();
                 }
+                //Otherwise, if the second is equal to the total length,
+                //the out value is irrelevant.
                 else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
                 {
                     inComps = GetComponents(kf.InValue);
@@ -345,6 +357,8 @@ namespace TheraEngine.Animation
                 }
                 else
                 {
+                    //Keyframe is somewhere in between the start and end,
+                    //look at both the in and out values
                     inComps = GetComponents(kf.InValue);
                     outComps = GetComponents(kf.OutValue);
 
@@ -358,7 +372,7 @@ namespace TheraEngine.Animation
                     }
                 }
             }
-            else
+            else //There are two or more keyframes, need to evaluate interpolation for extrema using velocity
             {
                 min = new(float Time, float Value)[compCount];
                 min = min.FillWith((0.0f, float.MaxValue));
@@ -369,11 +383,29 @@ namespace TheraEngine.Animation
                 VectorKeyframe<T> next;
                 float minVal, maxVal, oldMin, oldMax;
 
+                //Evaluate all keyframes
                 for (int i = 0; i < _keyframes.Count; ++i, kf = next)
                 {
-                    next = kf.Next ?? (kf.OwningTrack.FirstKey != kf ? (VectorKeyframe<T>)kf.OwningTrack.FirstKey : null);
+                    //Retrieve the next keyframe; will be the first keyframe if this is the last
+                    next = kf.Next ?? 
+                        (kf.OwningTrack.FirstKey != kf ? 
+                        (VectorKeyframe<T>)kf.OwningTrack.FirstKey :
+                        null);
+
                     if (next == null)
                         break;
+
+                    inComps = GetComponents(next.InValue);
+                    outComps = GetComponents(kf.OutValue);
+
+                    bool cubic = kf.InterpolationType > EPlanarInterpType.Linear;
+                    if (cubic)
+                    {
+                        inTanComps = GetComponents(next.InTangent);
+                        outTanComps = GetComponents(kf.OutTangent);
+                    }
+
+                    //Evaluate interpolation
                     for (int x = 0; x < compCount; ++x)
                     {
                         minVal = min[x].Value;
@@ -382,15 +414,15 @@ namespace TheraEngine.Animation
                         oldMin = minVal;
                         oldMax = maxVal;
 
-                        inComps = GetComponents(kf.InValue);
-                        outComps = GetComponents(kf.OutValue);
-
                         //Check if the keyframe already exceeds the current bounds
+                        //If the second is zero, the in value is irrelevant.
                         if (kf.Second.IsZero())
                         {
                             minVal = Math.Min(minVal, outComps[x]);
                             maxVal = Math.Max(maxVal, outComps[x]);
                         }
+                        //Otherwise, if the second is equal to the total length,
+                        //the out value is irrelevant.
                         else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
                         {
                             minVal = Math.Min(minVal, inComps[x]);
@@ -398,84 +430,87 @@ namespace TheraEngine.Animation
                         }
                         else
                         {
+                            //Keyframe is somewhere in between the start and end,
+                            //look at both the in and out values
                             minVal = TMath.Min(minVal, inComps[x], outComps[x]);
                             maxVal = TMath.Max(maxVal, inComps[x], outComps[x]);
                         }
 
+                        //Make sure to update the second of the current min and max
                         if (oldMin != minVal)
                             min[x].Time = kf.Second;
                         if (oldMax != maxVal)
                             max[x].Time = kf.Second;
 
+                        if (!cubic)
+                            continue;
+
                         //If not the last keyframe, evaluate the interpolation
-                        //between this keyframe and the next to find spots where
-                        //velocity reaches zero. This means that the position value
+                        //between this keyframe and the next to find the exact second(s) where
+                        //velocity reaches zero. This means that the position value at that second
                         //is an extrema and should be considered for min/max.
-                        //if (i != _keyframes.Count - 1)
+
+                        //Retrieve velocity interpolation equation coefficients
+                        //so we can solve for the two time values where velocity is zero.
+                        float second = 0.0f, first = 0.0f, zero = 0.0f;
+                        if (kf.InterpolationType == EPlanarInterpType.CubicHermite)
+                            Interp.CubicHermiteVelocityCoefs(
+                                outComps[x],
+                                outTanComps[x],
+                                inTanComps[x],
+                                inComps[x],
+                                out second, out first, out zero);
+                        else
+                            Interp.CubicBezierVelocityCoefs(
+                                outComps[x],
+                                outComps[x] + outTanComps[x],
+                                inComps[x] + inTanComps[x],
+                                inComps[x],
+                                out second, out first, out zero);
+                        
+                        //Find the roots (zeroes) of the interpolation binomial using the coefficients
+                        if (TMath.QuadraticRealRoots(second, first, zero, out float time1, out float time2))
                         {
-                            float second = 0.0f, first = 0.0f, zero = 0.0f;
-                            switch (kf.InterpolationType)
-                            {
-                                case EPlanarInterpType.Step:
-                                case EPlanarInterpType.Linear:
-                                    continue;
-                                case EPlanarInterpType.CubicHermite:
-                                    inComps = GetComponents(next.InValue);
-                                    inTanComps = GetComponents(next.InTangent);
-                                    outTanComps = GetComponents(kf.OutTangent);
-                                    //Retrieve velocity interpolation equation coefficients
-                                    //so we can solve for the two time values where velocity is zero.
-                                    Interp.CubicHermiteVelocityCoefs(
-                                        outComps[x], outTanComps[x], inTanComps[x], inComps[x],
-                                        out second, out first, out zero);
-                                    break;
-                                case EPlanarInterpType.CubicBezier:
-                                    inComps = GetComponents(next.InValue);
-                                    inTanComps = GetComponents(next.InTangent);
-                                    outTanComps = GetComponents(kf.OutTangent);
-                                    //Retrieve velocity interpolation equation coefficients
-                                    //so we can solve for the two time values where velocity is zero.
-                                    Interp.CubicBezierVelocityCoefs(
-                                        outComps[x], outComps[x] + outTanComps[x], inComps[x] + inTanComps[x], inComps[x],
-                                        out second, out first, out zero);
-                                    break;
-                            }
+                            oldMin = minVal;
+                            oldMax = maxVal;
 
-                            if (TMath.QuadraticRealRoots(second, first, zero, out float time1, out float time2))
+                            //The quadratic equation will return two times
+                            float[] times = new float[] { time1, time2 };
+                            foreach (float time in times)
                             {
-                                oldMin = minVal;
-                                oldMax = maxVal;
-
-                                float[] times = new float[] { time1, time2 };
-                                foreach (float time in times)
+                                //We only want times that are within 0 - 1
+                                bool timeValid = time >= 0.0f && time <= 1.0f;
+                                if (timeValid)
                                 {
-                                    bool timeValid = time >= 0.0f && time <= 1.0f;
-                                    if (timeValid)
+                                    //Retrieve position value using time found using velocity
+                                    T val = kf.InterpolateNormalized(next, time);
+
+                                    //Find real second within the animation using normalized time value
+                                    float interpSec = 0.0f;
+                                    if (kf.Next == null)
                                     {
-                                        T val = kf.InterpolateNormalized(next, time);
-
-                                        float interpSec = 0.0f;
-                                        if (kf.Next == null)
-                                        {
-                                            float span = LengthInSeconds - kf.Second + next.Second;
-                                            interpSec = (kf.Second + span * time).RemapToRange(0.0f, LengthInSeconds);
-                                        }
-                                        else
-                                            interpSec = Interp.Lerp(kf.Second, next.Second, time);
-
-                                        valComps = GetComponents(val);
-
-                                        minVal = TMath.Min(minVal, valComps[x]);
-                                        maxVal = TMath.Max(maxVal, valComps[x]);
-
-                                        if (oldMin != minVal && minVal == valComps[x])
-                                            min[x].Time = interpSec;
-                                        if (oldMax != maxVal && maxVal == valComps[x])
-                                            max[x].Time = interpSec;
+                                        //This is the last keyframe,
+                                        //So evaluate past the end to the first keyframe
+                                        float span = LengthInSeconds - kf.Second + next.Second;
+                                        interpSec = (kf.Second + span * time).RemapToRange(0.0f, LengthInSeconds);
                                     }
+                                    else //Just lerp from this second to the next, easy
+                                        interpSec = Interp.Lerp(kf.Second, next.Second, time);
+
+                                    //Retrieve the components from the value and update min/max and second as usual
+                                    valComps = GetComponents(val);
+
+                                    minVal = TMath.Min(minVal, valComps[x]);
+                                    maxVal = TMath.Max(maxVal, valComps[x]);
+
+                                    if (oldMin != minVal && minVal == valComps[x])
+                                        min[x].Time = interpSec;
+                                    if (oldMax != maxVal && maxVal == valComps[x])
+                                        max[x].Time = interpSec;
                                 }
                             }
                         }
+
                         min[x].Value = minVal;
                         max[x].Value = maxVal;
                     }

@@ -40,6 +40,16 @@ namespace TheraEngine.Rendering.Models
             return aabb;
         }
 
+        public BaseSubMesh[] CollectAllMeshes()
+        {
+            BaseSubMesh[] meshes = new BaseSubMesh[RigidChildren.Count + SoftChildren.Count];
+            for (int i = 0; i < RigidChildren.Count; ++i)
+                meshes[i] = RigidChildren[i];
+            for (int i = 0; i < SoftChildren.Count; ++i)
+                meshes[RigidChildren.Count + i] = SoftChildren[i];
+            return meshes;
+        }
+
         [ThirdPartyLoader("dae", true)]
         public static async Task<TFileObject> LoadDAEAsync(string path)
         {

@@ -52,7 +52,9 @@ namespace TheraEngine.Core.Maths.Transforms
             ZValueChanged = null;
             Changed = null;
         }
-
+        /// <summary>
+        /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
+        /// </summary>
         public void SetRawNoUpdate(Vec3 raw)
         {
             _data = raw;

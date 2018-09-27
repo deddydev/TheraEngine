@@ -99,7 +99,7 @@ namespace TheraEngine.Core.Shapes
         public EContainment ContainedWithin(Shape shape) => shape?.Contains(this) ?? EContainment.Contains;
         
         /// <summary>
-        /// Applies the transform to this shape.
+        /// Sets the given matrix transform to this shape.
         /// </summary>
         public virtual void SetRenderTransform(Matrix4 worldMatrix)
         {

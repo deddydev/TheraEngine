@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TheraEngine.Core.Memory;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.ThirdParty.PMX
 {
@@ -24,7 +23,7 @@ namespace TheraEngine.ThirdParty.PMX
             _skeleton = skeleton;
         }
         
-        public void Export(string path)
+        public unsafe void Export(string path)
         {
             int size = CalcSize();
             using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.SequentialScan))
@@ -32,7 +31,38 @@ namespace TheraEngine.ThirdParty.PMX
                 stream.SetLength(size);
                 using (FileMap map = FileMap.FromStream(stream))
                 {
+                    VoidPtr baseAddr = map.Address;
+                    Header* pmx = (Header*)baseAddr;
+                    string magic = "PMX ";
+                    magic.Write(pmx->_magic);
+                    pmx->_version = 2.1f;
+                    pmx->_globalsCount = 8;
+                    pmx->StringEncoding = EStringEncoding.UTF16LE; //TODO: determine encoding from all strings
+                    pmx->ExtraVec4Count = 0;
 
+                    //Collect all relevant texture names
+                    HashSet<string> texNames = new HashSet<string>();
+
+                    BaseSubMesh[] meshes = _model.CollectAllMeshes();
+
+                    foreach (BaseSubMesh mesh in meshes)
+                        foreach (var lod in mesh.LODs)
+                            if (lod.MaterialRef?.File?.Textures != null)
+                                foreach (var tex in lod.MaterialRef.File.Textures)
+                                {
+                                    if (tex is TexRef2D tex2D)
+                                        foreach (var mip in tex2D.Mipmaps)
+                                            if (!string.IsNullOrEmpty(mip.ReferencePath) && 
+                                                mip.ReferencePath.IsDirectoryPath() == false)
+                                                texNames.Add(mip.ReferencePath);
+                                }
+
+                    int texCount = texNames.Count;
+                    int boneCount = _skeleton.BoneNameCache.Count;
+
+                    pmx->MaterialIndexSize = 
+                    pmx->BoneIndexSize = (byte)(boneCount > sbyte.MaxValue ? (boneCount > short.MaxValue ? 4 : 2) : 1);
+                    pmx->TextureIndexSize = (byte)(texCount > sbyte.MaxValue ? (texCount > short.MaxValue ? 4 : 2) : 1);
                 }
             }
         }

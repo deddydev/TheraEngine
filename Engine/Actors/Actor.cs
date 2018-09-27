@@ -250,6 +250,13 @@ For example, a logic component could give any actor health and/or allow it to ta
 
             //OnSpawned is called just after the actor is added to the actor list
             _spawnIndex = world.SpawnedActorCount - 1;
+
+            if (Animations != null && Animations.Count > 0)
+                Animations.ForEach(x => 
+                {
+                    //if (x.BeginOnSpawn)
+                    //    x.Start();
+                });
         }
         public void Despawned()
         {

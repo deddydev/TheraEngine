@@ -88,7 +88,6 @@ namespace TheraEditor.Windows.Forms
                 else
                     _genericTypeArgs = null;
             }
-            chkNull.Visible = IsNullable || !type.IsValueType;
 
             if (type.IsArray)
             {
@@ -199,7 +198,8 @@ namespace TheraEditor.Windows.Forms
                     }
                     else
                     {
-                        SetTargetType(type);
+                        if (!type.IsAbstract && !type.IsInterface)
+                            SetTargetType(type);
                         toolStripTypeSelection.Visible = true;
                     }
                 }
@@ -483,7 +483,11 @@ namespace TheraEditor.Windows.Forms
             tblConstructors.Controls.Clear();
             ClassType = type;
 
-            toolStripDropDownButton1.Text = type.GetFriendlyName();
+            toolStripDropDownButton1.Text = type?.GetFriendlyName();
+            bool notNull = ClassType != null;
+            cboConstructor.Visible = notNull && ClassType.GetConstructors().Length > 1;
+            chkNull.Visible = (IsNullable || !type.IsValueType) && notNull;
+            btnOkay.Enabled = notNull;
 
             if (Mode == EObjectCreatorMode.Array)
             {

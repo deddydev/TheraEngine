@@ -445,6 +445,13 @@ namespace TheraEngine.Core.Maths.Transforms
         //    }
         //}
 
+        /// <summary>
+        /// Converts this transform's matrix back into its translation, rotation and scale components.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="translation"></param>
+        /// <param name="scale"></param>
+        /// <param name="rotation"></param>
         public static void DeriveTRS(Matrix4 m, out Vec3 translation, out Vec3 scale, out Quat rotation)
         {
             translation = m.Row3.Xyz;

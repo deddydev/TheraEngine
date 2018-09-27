@@ -809,8 +809,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //}
 
         #region Static
+        /// <summary>
+        /// Object type editors that appear within the property grid.
+        /// </summary>
         public static Dictionary<Type, Type> InPlaceEditorTypes = new Dictionary<Type, Type>();
+        /// <summary>
+        /// Object type editors that have their own dedicated window for the type.
+        /// </summary>
         public static Dictionary<Type, Type> FullEditorTypes = new Dictionary<Type, Type>();
+
         static TheraPropertyGrid()
         {
             if (Engine.DesignMode)

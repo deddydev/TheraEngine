@@ -276,39 +276,46 @@ void main()
             base.OnSelectedChanged(selected);
         }
 #endif
-        private Matrix4 _transform = Matrix4.Identity;
-        private Matrix4 _splineLocalTransform = Matrix4.Identity;
+        private Matrix4 _localTRS = Matrix4.Identity;
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
 
-            Matrix4 splineTransform, invSplineTransform;
+            Matrix4 splinePosMtx, invSplinePosMtx;
             if (_position != null)
             {
-                splineTransform = Matrix4.CreateTranslation(_position.CurrentPosition);
-                invSplineTransform = Matrix4.CreateTranslation(-_position.CurrentPosition);
+                splinePosMtx = Matrix4.CreateTranslation(_position.CurrentPosition);
+                invSplinePosMtx = Matrix4.CreateTranslation(-_position.CurrentPosition);
             }
             else
             {
-                splineTransform = Matrix4.Identity;
-                invSplineTransform = Matrix4.Identity;
+                splinePosMtx = Matrix4.Identity;
+                invSplinePosMtx = Matrix4.Identity;
             }
 
-            _transform = localTransform;
-            _splineLocalTransform = splineTransform;
+            _localTRS = localTransform;
 
-            localTransform = _transform * splineTransform;
-            inverseLocalTransform = invSplineTransform * inverseLocalTransform;
+            localTransform = _localTRS * splinePosMtx;
+            inverseLocalTransform = invSplinePosMtx * inverseLocalTransform;
+        }
+        protected override void DeriveMatrix()
+        {
+            Transform.DeriveTRS(_localTRS, out Vec3 t, out Vec3 s, out Quat r);
+            _translation.SetRawNoUpdate(t);
+            _scale.SetRawNoUpdate(s);
+            _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
         }
         protected override void OnWorldTransformChanged()
         {
-            Matrix4 mtx = _transform;
+            Matrix4 mtx = GetParentMatrix() * _localTRS;
             _rcKfLines.WorldMatrix = mtx;
             _rcSpline.WorldMatrix = mtx;
             _rcVelocityTangents.WorldMatrix = mtx;
             _rcPoints.WorldMatrix = mtx;
             _rcKeyframeTangents.WorldMatrix = mtx;
             _rcExtrema.WorldMatrix = mtx;
+            _rcCurrentPoint.WorldMatrix = WorldMatrix;
+            CullingVolume?.SetRenderTransform(mtx);
             base.OnWorldTransformChanged();
         }
         
@@ -339,10 +346,7 @@ void main()
             if (RenderBounds)
                 CullingVolume?.AddRenderables(passes, camera);
             if (RenderCurrentTimePoint)
-            {
-                _rcCurrentPoint.WorldMatrix = WorldMatrix;
                 passes.Add(_rcCurrentPoint, RenderInfo.RenderPass);
-            }
         }
     }
 }

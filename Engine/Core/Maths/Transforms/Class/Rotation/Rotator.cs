@@ -416,6 +416,9 @@ namespace TheraEngine.Core.Maths.Transforms
             _rotationOrder = order;
             EndUpdate();
         }
+        /// <summary>
+        /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
+        /// </summary>
         public void SetRotationsNoUpdate(float pitch, float yaw, float roll)
         {
             if (!_lockPitch)
@@ -425,6 +428,9 @@ namespace TheraEngine.Core.Maths.Transforms
             if (!_lockRoll)
                 _pyr.Z = roll;
         }
+        /// <summary>
+        /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
+        /// </summary>
         public void SetRotationsNoUpdate(Rotator other)
         {
             if (other != null)
@@ -443,6 +449,9 @@ namespace TheraEngine.Core.Maths.Transforms
                 _rotationOrder = RotationOrder.PYR;
             }
         }
+        /// <summary>
+        /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
+        /// </summary>
         public void SetRotationsNoUpdate(float pitch, float yaw, float roll, RotationOrder order)
         {
             if (!_lockPitch)

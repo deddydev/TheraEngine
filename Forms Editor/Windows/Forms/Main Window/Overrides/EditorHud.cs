@@ -415,6 +415,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void MouseMove(Viewport v, Vec2 viewportPoint)
         {
+            SceneComponent dragComp = DragComponent;
             if (TransformTool3D.Instance.IsSpawned)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
@@ -433,9 +434,9 @@ namespace TheraEditor.Windows.Forms
                 Ray cursor = v.GetWorldRay(viewportPoint);
                 _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * DraggingTestDistance;
             }
-            else if (DragComponent != null)
+            else if (dragComp != null)
             {
-                IRigidBodyCollidable p = DragComponent as IRigidBodyCollidable;
+                IRigidBodyCollidable p = dragComp as IRigidBodyCollidable;
                 SceneComponent comp = v.PickScene(viewportPoint, true, true, true, out _hitNormal, out _hitPoint, out float dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 if (dist > DraggingTestDistance)
@@ -464,7 +465,7 @@ namespace TheraEditor.Windows.Forms
 
                 translation += up * upDist;
 
-                DragComponent.WorldMatrix = Matrix4.CreateSpacialTransform(
+                dragComp.WorldMatrix = Matrix4.CreateSpacialTransform(
                     translation,
                     right * _draggingUniformScale,
                     up * _draggingUniformScale,

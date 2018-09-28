@@ -9,7 +9,7 @@ using TheraEngine.ThirdParty.PMX;
 
 namespace TheraEngine.Rendering.Models
 {
-    [File3rdParty(new string[] { "dae", "obj" }, new string[] { "pmd" })]
+    [File3rdParty(new string[] { "dae", "obj" }, new string[] { "pmx" })]
     [FileExt("skmdl")]
     [FileDef("Skeletal Model")]
     public class SkeletalModel : TFileObject, IModelFile

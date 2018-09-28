@@ -39,28 +39,47 @@ namespace TheraEngine.ThirdParty.PMX
                     pmx->_globalsCount = 8;
                     pmx->StringEncoding = EStringEncoding.UTF16LE; //TODO: determine encoding from all strings
                     pmx->ExtraVec4Count = 0;
-
+                    pmx->RigidBodyIndexSize = 0;
+                    pmx->MorphIndexSize = 0;
                     //Collect all relevant texture names
                     HashSet<string> texNames = new HashSet<string>();
 
                     BaseSubMesh[] meshes = _model.CollectAllMeshes();
+                    HashSet<string> materialPaths = new HashSet<string>();
+                    List<TMaterial> materials = new List<TMaterial>();
 
                     foreach (BaseSubMesh mesh in meshes)
                         foreach (var lod in mesh.LODs)
-                            if (lod.MaterialRef?.File?.Textures != null)
-                                foreach (var tex in lod.MaterialRef.File.Textures)
+                        {
+                            var mref = lod.MaterialRef;
+                            TMaterial mat = mref?.File;
+                            if (mat != null)
+                            {
+                                string refPathAbs = mref.ReferencePathAbsolute;
+                                if (!string.IsNullOrEmpty(refPathAbs) && refPathAbs.IsDirectoryPath() == false)
                                 {
-                                    if (tex is TexRef2D tex2D)
-                                        foreach (var mip in tex2D.Mipmaps)
-                                            if (!string.IsNullOrEmpty(mip.ReferencePath) && 
-                                                mip.ReferencePath.IsDirectoryPath() == false)
-                                                texNames.Add(mip.ReferencePath);
-                                }
+                                    if (materialPaths.Contains(refPathAbs))
+                                    {
 
+                                    }
+                                }
+                                if (mat.Textures != null)
+                                    foreach (var tex in lod.MaterialRef.File.Textures)
+                                    {
+                                        if (tex is TexRef2D tex2D)
+                                            foreach (var mip in tex2D.Mipmaps)
+                                                if (!string.IsNullOrEmpty(mip.ReferencePath) &&
+                                                    mip.ReferencePath.IsDirectoryPath() == false)
+                                                    texNames.Add(mip.ReferencePath);
+                                    }
+                            }
+                        }
+
+                    int matCount = 0;
                     int texCount = texNames.Count;
                     int boneCount = _skeleton.BoneNameCache.Count;
 
-                    pmx->MaterialIndexSize = 
+                    pmx->MaterialIndexSize = (byte)(matCount > sbyte.MaxValue ? (matCount > short.MaxValue ? 4 : 2) : 1);
                     pmx->BoneIndexSize = (byte)(boneCount > sbyte.MaxValue ? (boneCount > short.MaxValue ? 4 : 2) : 1);
                     pmx->TextureIndexSize = (byte)(texCount > sbyte.MaxValue ? (texCount > short.MaxValue ? 4 : 2) : 1);
                 }

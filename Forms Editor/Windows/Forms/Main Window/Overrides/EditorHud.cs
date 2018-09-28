@@ -205,7 +205,7 @@ namespace TheraEditor.Windows.Forms
         public UIViewportComponent SubViewport { get; private set; }
         public UITextComponent SubViewportText { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
-        protected override UIDockableComponent OnConstruct()
+        protected override UIDockableComponent OnConstructRoot()
         {
             UIDockableComponent dock = new UIDockableComponent()
             {

@@ -105,7 +105,6 @@ namespace TheraEngine.Actors
 
         //private List<I3DRenderable> _renderableComponentCache = new List<I3DRenderable>();
         public int _spawnIndex = -1;
-        private ReadOnlyCollection<SceneComponent> _sceneComponentCache;
         private T _rootComponent;
 
         [TSerialize("LogicComponents")]
@@ -120,7 +119,7 @@ namespace TheraEngine.Actors
         {
             IsConstructing = true;
             PreConstruct();
-            RootComponent = OnConstruct();
+            RootComponent = OnConstructRoot();
             PostConstruct();
             IsConstructing = false;
             GenerateSceneComponentCache();
@@ -137,7 +136,7 @@ namespace TheraEngine.Actors
         /// Sets the root component (and usually any logic components as well).
         /// </summary>
         /// <returns>The root scene component for this actor.</returns>
-        protected virtual T OnConstruct() => RootComponent ?? Activator.CreateInstance<T>();
+        protected virtual T OnConstructRoot() => RootComponent ?? Activator.CreateInstance<T>();
 
         [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0;
@@ -151,7 +150,7 @@ namespace TheraEngine.Actors
         public Scene2D OwningScene2D => OwningScene as Scene2D;
 
         [Browsable(false)]
-        public ReadOnlyCollection<SceneComponent> SceneComponentCache => _sceneComponentCache;
+        public ReadOnlyCollection<SceneComponent> SceneComponentCache { get; private set; }
 
         [Browsable(false)]
         SceneComponent IActor.RootComponent => RootComponent;
@@ -210,7 +209,7 @@ For example, a logic component could give any actor health and/or allow it to ta
             if (!IsConstructing)
             {
                 //_renderableComponentCache = new List<I3DRenderable>();
-                _sceneComponentCache = _rootComponent?.GenerateChildCache().AsReadOnly();
+                SceneComponentCache = _rootComponent?.GenerateChildCache().AsReadOnly();
             }
         }
         public void RebaseOrigin(Vec3 newOrigin)

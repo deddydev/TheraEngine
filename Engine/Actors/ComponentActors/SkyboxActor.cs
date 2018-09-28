@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -23,26 +25,28 @@ namespace TheraEngine.Actors.Types
             HalfExtents = halfExtents;
             Initialize();
         }
+        public SkyboxActor(GlobalFileRef<TextureFile2D> skyboxTexture, Vec3 halfExtents) : base(true)
+        {
+            SkyboxTexture = skyboxTexture;
+            HalfExtents = halfExtents;
+            Initialize();
+        }
 
         [TSerialize]
         public Vec3 HalfExtents { get; set; }
         [TSerialize]
-        public TextureFile2D SkyboxTexture { get; set; }
+        public GlobalFileRef<TextureFile2D> SkyboxTexture { get; set; }
 
-        protected override StaticMeshComponent OnConstruct()
+        protected override StaticMeshComponent OnConstructRoot()
         {
+            TextureFile2D tex = SkyboxTexture?.File;
             Vec3 max = HalfExtents;
             Vec3 min = -max;
 
             StaticModel skybox = new StaticModel("Skybox");
-            
-            TexRef2D texRef = new TexRef2D("SkyboxTexture", SkyboxTexture)
-            {
-                MagFilter = ETexMagFilter.Nearest,
-                MinFilter = ETexMinFilter.Nearest
-            };
-
-            TMaterial mat = TMaterial.CreateUnlitTextureMaterialForward(texRef, new RenderingParameters()
+            TMaterial mat = null;
+            BoundingBox.ECubemapTextureUVs uvType = BoundingBox.ECubemapTextureUVs.WidthLarger;
+            RenderingParameters renderParams = new RenderingParameters()
             {
                 DepthTest = new DepthTest()
                 {
@@ -50,13 +54,25 @@ namespace TheraEngine.Actors.Types
                     UpdateDepth = false,
                     Function = EComparison.Less
                 }
-            });
+            };
 
-            BoundingBox.ECubemapTextureUVs uvType =
-                SkyboxTexture == null || 
-                SkyboxTexture.Bitmaps[0].Width > SkyboxTexture.Bitmaps[0].Height ?
+            if (tex != null)
+            {
+                TexRef2D texRef = new TexRef2D("SkyboxTexture", tex)
+                {
+                    MagFilter = ETexMagFilter.Nearest,
+                    MinFilter = ETexMinFilter.Nearest
+                };
+                mat = TMaterial.CreateUnlitTextureMaterialForward(texRef, renderParams);
+                uvType = tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
                     BoundingBox.ECubemapTextureUVs.WidthLarger :
                     BoundingBox.ECubemapTextureUVs.HeightLarger;
+            }
+            else
+            {
+                mat = TMaterial.CreateUnlitColorMaterialForward(Color.Magenta);
+                mat.RenderParams = renderParams;
+            }
 
             StaticRigidSubMesh mesh = new StaticRigidSubMesh(
                 "Mesh", 

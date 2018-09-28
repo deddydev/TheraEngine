@@ -262,7 +262,7 @@ void main()
         private FloatKeyframe _highlightedKf;
         private FloatKeyframe _draggedKf;
 
-        protected override UIMaterialRectangleComponent OnConstruct()
+        protected override UIMaterialRectangleComponent OnConstructRoot()
         {
             UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
             {

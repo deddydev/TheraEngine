@@ -7,7 +7,7 @@ namespace TheraEngine.Actors.Types
 {
     public class CharacterSpawnPointActor : Actor<TranslationComponent>
     {
-        protected override TranslationComponent OnConstruct()
+        protected override TranslationComponent OnConstructRoot()
         {
             //TRigidBodyConstructionInfo info = new TRigidBodyConstructionInfo()
             //{

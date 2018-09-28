@@ -10,7 +10,7 @@ namespace TheraEngine.Actors.Types.Pawns
     {
         public FlyingCameraPawnLagged() : base() { }
         public FlyingCameraPawnLagged(LocalPlayerIndex possessor) : base(possessor) { }
-        protected override TRLaggedComponent OnConstruct()
+        protected override TRLaggedComponent OnConstructRoot()
         {
             TRLaggedComponent root = new TRLaggedComponent();
             CameraComp = new CameraComponent(new PerspectiveCamera());

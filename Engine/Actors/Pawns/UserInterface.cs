@@ -106,7 +106,7 @@ namespace TheraEngine.Actors.Types.Pawns
             }
         }
 
-        protected override T OnConstruct() => new T() { DockStyle = UIDockStyle.Fill };
+        protected override T OnConstructRoot() => new T() { DockStyle = UIDockStyle.Fill };
         public override void RegisterInput(InputInterface input)
         {
             RootComponent.RegisterInputs(input);

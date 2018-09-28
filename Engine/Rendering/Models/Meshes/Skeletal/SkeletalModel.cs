@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using TheraEngine.Files;
 using System.ComponentModel;
-using TheraEngine.Core.Maths.Transforms;
-using System;
-using TheraEngine.Core.Shapes;
 using System.Threading.Tasks;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Files;
 using TheraEngine.ThirdParty.PMX;
 
 namespace TheraEngine.Rendering.Models

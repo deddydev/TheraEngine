@@ -214,7 +214,7 @@ namespace TheraEngine.Actors.Types.Pawns
             LogicComponents.Add(_movement);
             LogicComponents.Add(_animationStateMachine);
         }
-        protected override CapsuleYComponent OnConstruct()
+        protected override CapsuleYComponent OnConstructRoot()
         {
             //5'8" in m = 1.72f
             float characterHeight = new FeetInches(5, 8.0f).ToMeters();

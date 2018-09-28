@@ -100,7 +100,7 @@ namespace TheraEditor.Windows.Forms
             _materialFuncCache.Remove(func);
         }
 
-        protected override UIMaterialRectangleComponent OnConstruct()
+        protected override UIMaterialRectangleComponent OnConstructRoot()
         {
             UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
             {

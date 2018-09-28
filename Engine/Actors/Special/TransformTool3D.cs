@@ -62,7 +62,7 @@ namespace TheraEngine.Actors.Types
         
         private ESpace _transformSpace;
 
-        protected override SkeletalMeshComponent OnConstruct()
+        protected override SkeletalMeshComponent OnConstructRoot()
         {
             #region Mesh Generation
 

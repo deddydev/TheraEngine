@@ -17,7 +17,7 @@ namespace TheraEngine.Actors.Types
             set => CameraComponent.CameraRef.File = value;
         }
         
-        protected override TRComponent OnConstruct()
+        protected override TRComponent OnConstructRoot()
         {
             Camera camera = new PerspectiveCamera(1.0f, 10000.0f, 45.0f, 16.0f / 9.0f);
             //Camera camera = new OrthographicCamera(1.0f, 10000.0f);

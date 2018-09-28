@@ -70,7 +70,7 @@ namespace TheraEditor.Windows.Forms
         internal UIComponent _rootTransform;
         private bool _rightClickDown = false;
 
-        protected override UIMaterialRectangleComponent OnConstruct()
+        protected override UIMaterialRectangleComponent OnConstructRoot()
         {
             UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
             {

@@ -2,11 +2,5 @@
 
 namespace TheraEngine.Actors.Types
 {
-    public class DecalActor : Actor<DecalComponent>
-    {
-        protected override DecalComponent OnConstruct()
-        {
-            return new DecalComponent();
-        }
-    }
+    public class DecalActor : Actor<DecalComponent> { }
 }

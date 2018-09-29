@@ -444,7 +444,7 @@ namespace TheraEngine.Components
         public override void OnSpawned()
         {
             if (this is IRigidBodyCollidable p)
-                p.RigidBodyCollision?.Spawn();
+                p.RigidBodyCollision?.Spawn(OwningWorld);
 
             if (this is IPreRendered r)
                 OwningScene.AddPreRenderedObject(r);
@@ -461,7 +461,7 @@ namespace TheraEngine.Components
         public override void OnDespawned()
         {
             if (this is IRigidBodyCollidable p)
-                p.RigidBodyCollision?.Despawn();
+                p.RigidBodyCollision?.Despawn(OwningWorld);
 
             if (this is IPreRendered r)
                 OwningScene.RemovePreRenderedObject(r);

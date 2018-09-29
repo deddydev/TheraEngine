@@ -69,9 +69,9 @@ namespace TheraEngine.Components.Scene.Transforms
             RecalcLocalTransform();
         }
 
-        [TSerialize("Rotation", UseCategory = true, OverrideXmlCategory = "Transform")]
+        [TSerialize(nameof(Rotation), UseCategory = true, OverrideXmlCategory = "Transform")]
         protected Rotator _rotation;
-
+        
         [Category("Transform")]
         public Rotator Rotation
         {
@@ -98,6 +98,8 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected internal override void OnDeserialized()
         {
+            if (_rotation == null)
+                _rotation = new Rotator();
             _rotation.Changed += RecalcLocalTransform;
             base.OnDeserialized();
         }

@@ -107,7 +107,6 @@ namespace TheraEngine.Actors
         public int _spawnIndex = -1;
         private T _rootComponent;
 
-        [TSerialize("LogicComponents")]
         private EventList<LogicComponent> _logicComponents;
 
         //Do not call Initialize when deserializing!
@@ -145,14 +144,22 @@ namespace TheraEngine.Actors
             get => _lifeSpan;
             set
             {
+                bool doNothing = (_lifeSpan > 0.0f && value > 0.0f) || (_lifeSpan <= 0.0f && value <= 0.0f);
+                if (doNothing)
+                {
+                    _lifeSpan = value;
+                    return;
+                }
                 if (_lifeSpan > 0.0f)
                 {
-
+                    if (IsSpawned)
+                        UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
                 }
                 _lifeSpan = value;
                 if (_lifeSpan > 0.0f)
                 {
-
+                    if (IsSpawned)
+                        RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
                 }
             }
         }
@@ -208,7 +215,26 @@ namespace TheraEngine.Actors
 For example, a logic component could give any actor health and/or allow it to take damage.")]
         [Category("Actor")]
         [Browsable(false)]
-        public EventList<LogicComponent> LogicComponents => _logicComponents;
+        [TSerialize]
+        public EventList<LogicComponent> LogicComponents
+        {
+            get => _logicComponents;
+            set
+            {
+                if (_logicComponents != null)
+                {
+                    _logicComponents.PostAnythingAdded -= _logicComponents_PostAnythingAdded;
+                    _logicComponents.PostAnythingRemoved -= _logicComponents_PostAnythingRemoved;
+                    foreach (LogicComponent comp in _logicComponents)
+                        _logicComponents_PostAnythingRemoved(comp);
+                }
+                _logicComponents = value ?? new EventList<LogicComponent>();
+                _logicComponents.PostAnythingAdded += _logicComponents_PostAnythingAdded;
+                _logicComponents.PostAnythingRemoved += _logicComponents_PostAnythingRemoved;
+                foreach (LogicComponent comp in _logicComponents)
+                    _logicComponents_PostAnythingAdded(comp);
+            }
+        }
         [Browsable(false)]
         public bool IsConstructing { get; private set; }
 
@@ -274,7 +300,22 @@ For example, a logic component could give any actor health and/or allow it to ta
                     //if (x.BeginOnSpawn)
                     //    x.Start();
                 });
+
+            SpawnTime = DateTime.Now;
+            if (_lifeSpan > 0.0f)
+                RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
         }
+
+        private void DespawnTimer(float delta)
+        {
+            _lifeSpan -= delta;
+            if (_lifeSpan <= 0.0f)
+            {
+                UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+                Despawn();
+            }
+        }
+
         public void Despawned()
         {
             if (!IsSpawned)

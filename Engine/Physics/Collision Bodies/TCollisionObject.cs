@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Files;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Physics
 {
@@ -128,15 +129,11 @@ namespace TheraEngine.Physics
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract Vec3 AabbMax { get; set; }
 
-        public void Spawn()
-        {
-            Engine.World.PhysicsWorld.AddCollisionObject(this);
-        }
-        public void Despawn()
-        {
-            Engine.World.PhysicsWorld.RemoveCollisionObject(this);
-        }
-
+        public void Spawn(World world)
+            => world.PhysicsWorld.AddCollisionObject(this);
+        public void Despawn(World world)
+            => world.PhysicsWorld.RemoveCollisionObject(this);
+        
         public abstract void Activate();
         public abstract void Activate(bool forceActivation);
         public abstract bool CheckCollideWith(TCollisionObject collisionObject);

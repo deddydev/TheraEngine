@@ -23,16 +23,16 @@ namespace TheraEngine.Components.Scene.Transforms
         public RotationComponent(Vec3 pitchYawRoll, RotationOrder order = RotationOrder.YPR, bool deferLocalRecalc = false)
              : this(new Rotator(pitchYawRoll, order), deferLocalRecalc) { }
 
-        [TSerialize("Rotation", UseCategory = true, OverrideXmlCategory = "Transform")]
+        [TSerialize(nameof(Rotation), UseCategory = true, OverrideXmlCategory = "Transform")]
         protected Rotator _rotation;
-
+        
         [Category("Transform")]
         public Rotator Rotation
         {
             get => _rotation;
             set
             {
-                _rotation = value;
+                _rotation = value ?? new Rotator();
                 _rotation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }

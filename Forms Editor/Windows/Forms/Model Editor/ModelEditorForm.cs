@@ -195,8 +195,13 @@ namespace TheraEditor.Windows.Forms
         public IActor TargetActor { get; private set; }
         public IModelFile Model { get; private set; }
 
-        public void SetActor(IActor actor)
+        public async void SetActor(IActor actor)
         {
+            if (World == null)
+            {
+                await InitWorldAsync();
+            }
+
             FormTitle2.Text = actor?.FilePath ?? actor?.Name ?? string.Empty;
 
             if (TargetActor != null && TargetActor.IsSpawned)
@@ -207,8 +212,13 @@ namespace TheraEditor.Windows.Forms
 
             PropGrid.PropertyGrid.TargetFileObject = TargetActor;
         }
-        public void SetModel(StaticModel stm)
+        public async void SetModel(StaticModel stm)
         {
+            if (World == null)
+            {
+                await InitWorldAsync();
+            }
+
             FormTitle2.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
 
             if (TargetActor != null && TargetActor.IsSpawned)
@@ -225,8 +235,13 @@ namespace TheraEditor.Windows.Forms
             //BoundingBox aabb = stm?.CalculateCullingAABB() ?? new BoundingBox();
             //RenderForm1.AlignView(aabb);
         }
-        public void SetModel(SkeletalModel skm)
+        public async void SetModel(SkeletalModel skm)
         {
+            if (World == null)
+            {
+                await InitWorldAsync();
+            }
+
             Skeleton skel = skm.SkeletonRef?.File;
 
             FormTitle2.Text = string.Format("{0} [{1}]", 
@@ -258,7 +273,8 @@ namespace TheraEditor.Windows.Forms
             base.OnShown(e);
             //Editor.Instance.SetRenderTicking(false);
             RenderForm1.RenderPanel.CaptureContext();
-            await InitWorldAsync();
+            if (World == null)
+                await InitWorldAsync();
             SetRenderTicking(true);
         }
         protected override void OnClosed(EventArgs e)

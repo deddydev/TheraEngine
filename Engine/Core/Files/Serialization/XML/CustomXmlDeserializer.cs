@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Files.Serialization
@@ -512,7 +514,13 @@ namespace TheraEngine.Files.Serialization
         }
         private object ReadStruct(Type t, FieldInfo[] members)
         {
-            return null;
+            string structBytes = _reader.ReadElementString();
+            string[] strBytes = structBytes.Split(' ');
+            byte[] bytes = strBytes.Select(x => byte.Parse(x, NumberStyles.HexNumber | NumberStyles.AllowHexSpecifier)).ToArray();
+            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            object result = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), t);
+            handle.Free();
+            return result;
         }
         private void ReadStringArray(IList list, int count, Type elementType, bool parsable)
         {

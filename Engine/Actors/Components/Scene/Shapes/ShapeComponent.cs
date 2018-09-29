@@ -67,14 +67,14 @@ namespace TheraEngine.Components.Scene.Shapes
         public override void OnSpawned()
         {
             Visible = VisibleByDefault;
-            _rigidBodyCollision?.Spawn();
+            _rigidBodyCollision?.Spawn(OwningWorld);
             if (Visible)
                 OwningScene3D?.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            _rigidBodyCollision?.Despawn();
+            _rigidBodyCollision?.Despawn(OwningWorld);
             if (Visible)
                 OwningScene3D?.Remove(this);
             base.OnDespawned();

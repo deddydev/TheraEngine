@@ -64,6 +64,9 @@ namespace TheraEngine
         [TSerialize(nameof(Name), XmlNodeType = EXmlNodeType.Attribute)]
         protected string _name = null;
 
+        [TSerialize(nameof(Guid))]
+        protected Guid _guid = Guid.NewGuid();
+
         [TSerialize]
         //[BrowsableIf("_userData != null")]
         [Browsable(false)]

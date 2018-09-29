@@ -46,7 +46,7 @@ namespace TheraEngine.Files
             if (_file != null || LoadAttempted)
                 return _file;
 
-            LoadAttempted = false;
+            LoadAttempted = true;
             string absolutePath = ReferencePathAbsolute;
             if (absolutePath != null && Engine.GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
             {
@@ -64,7 +64,6 @@ namespace TheraEngine.Files
 
             T value = await LoadNewInstanceAsync(false, null, progress, cancel);
             File = value;
-            LoadAttempted = true;
             return value;
         }
         

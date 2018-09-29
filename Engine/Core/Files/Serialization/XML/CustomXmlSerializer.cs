@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Xml;
 using TheraEngine.Core.Tools;
 
@@ -418,7 +419,13 @@ namespace TheraEngine.Files.Serialization
         }
         private void WriteStruct(object structObj, FieldInfo[] structMembers)
         {
-            throw new NotImplementedException();
+            int size = Marshal.SizeOf(structObj);
+            byte[] arr = new byte[size];
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(structObj, ptr, true);
+            Marshal.Copy(ptr, arr, 0, size);
+            Marshal.FreeHGlobal(ptr);
+            _writer.WriteElementString(structObj.GetType().GetFriendlyName(), arr.ToStringList(" ", " ", s => s.ToString("X2")));
             //foreach (FieldInfo member in structMembers)
             //{
             //    object value = member.GetValue(structObj);

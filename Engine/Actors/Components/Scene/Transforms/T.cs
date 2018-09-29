@@ -20,10 +20,10 @@ namespace TheraEngine.Components.Scene.Transforms
                 RecalcLocalTransform();
         }
 
-        [TSerialize("Translation", UseCategory = true, OverrideXmlCategory = "Transform")]
+        [TSerialize(nameof(Translation), UseCategory = true, OverrideXmlCategory = "Transform")]
         protected EventVec3 _translation;
         protected bool _matrixChanged = false;
-
+        
         [Category("Transform")]
         public EventVec3 Translation
         {
@@ -71,6 +71,8 @@ namespace TheraEngine.Components.Scene.Transforms
         [PostDeserialize]
         protected internal virtual void OnDeserialized()
         {
+            if (_translation == null)
+                _translation = new EventVec3();
             _translation.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }

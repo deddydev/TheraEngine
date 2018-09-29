@@ -1,18 +1,17 @@
-﻿using System;
+﻿using System.ComponentModel;
 using System.Drawing;
-using TheraEngine.Core.Shapes;
-using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
     public class CapsuleYComponent : ShapeComponent
     {
-        BaseCapsule _capsule;
+        [TSerialize("Capsule")]
+        private BaseCapsule _capsule;
 
+        public CapsuleYComponent() { }
         public CapsuleYComponent(float radius, float halfHeight, TRigidBodyConstructionInfo info) : base()
         {
             _capsule = new CapsuleY(Vec3.Zero, Rotator.GetZero(), Vec3.One, radius, halfHeight);

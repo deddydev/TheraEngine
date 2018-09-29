@@ -18,6 +18,7 @@ namespace TheraEngine.Rendering.Models.Materials
         ColorF3 _raw;
         private float _oldR, _oldG, _oldB;
 
+        public EventColorF3() { }
         public EventColorF3(ColorF3 rgb)
         {
             _raw = rgb;

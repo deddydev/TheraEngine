@@ -1086,9 +1086,15 @@ namespace System
             Memory.Move(m.Data, &matrix, 64);
             return m;
         }
-        public override string ToString()
+        public override string ToString() => ToString();
+        public string ToString(string rowSeparator = "\n", string openingBracket = "(", string closingBracket = ")", string separator = ", ")
         {
-            return String.Format("{0}\n{1}\n{2}\n{3}", Row0, Row1, Row2, Row3);
+            return String.Format("{0}{4}{1}{4}{2}{4}{3}", 
+                Row0.ToString(openingBracket, closingBracket, separator),
+                Row1.ToString(openingBracket, closingBracket, separator),
+                Row2.ToString(openingBracket, closingBracket, separator),
+                Row3.ToString(openingBracket, closingBracket, separator),
+                rowSeparator);
         }
         public override int GetHashCode()
         {

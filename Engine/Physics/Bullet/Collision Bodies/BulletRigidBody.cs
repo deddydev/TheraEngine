@@ -1,7 +1,10 @@
 ﻿using BulletSharp;
 using System;
 using System.ComponentModel;
+using System.IO;
+using System.Xml;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Files;
 using TheraEngine.Physics.Bullet.Shapes;
 
 namespace TheraEngine.Physics.Bullet
@@ -9,6 +12,7 @@ namespace TheraEngine.Physics.Bullet
     internal class BulletRigidBody : TRigidBody, IBulletCollisionObject
     {
         private RigidBody _body;
+        [TSerialize(Order = 0)]
         public RigidBody Body
         {
             get => _body;
@@ -22,8 +26,68 @@ namespace TheraEngine.Physics.Bullet
             }
         }
 
-        CollisionObject IBulletCollisionObject.CollisionObject => Body;
+        [CustomXMLSerializeMethod(nameof(Body))]
+        internal bool SerializeBody(XmlWriter writer, ESerializeFlags flags)
+        {
+            writer.WriteStartElement(nameof(Body));
+            {
+                TBulletMotionState state = Body.MotionState as TBulletMotionState;
+                writer.WriteAttributeString("ShapeType", Body.CollisionShape.ShapeType.ToString());
+                writer.WriteAttributeString("UseMotionState", (state != null).ToString());
 
+                //RigidBody properties
+                writer.WriteElementString("AngularDamping", AngularDamping.ToString());
+                writer.WriteElementString("AngularSleepingThreshold", AngularSleepingThreshold.ToString());
+                writer.WriteElementString("Friction", Friction.ToString());
+                writer.WriteElementString("LinearDamping", LinearDamping.ToString());
+                writer.WriteElementString("LocalInertia", LocalInertia.ToString("", "", " "));
+                writer.WriteElementString("Mass", Mass.ToString());
+                writer.WriteElementString("Restitution", Restitution.ToString());
+                writer.WriteElementString("RollingFriction", RollingFriction.ToString());
+                writer.WriteElementString("LinearSleepingThreshold", LinearSleepingThreshold.ToString());
+
+                //CollisionObject properties
+                writer.WriteElementString("CollisionFlags", Body.CollisionFlags.ToString().Replace(", ", "|"));
+                writer.WriteElementString("ActivationState", ActivationState.ToString());
+                writer.WriteElementString("DeactivationTime", DeactivationTime.ToString());
+                writer.WriteElementString("ContactProcessingThreshold", ContactProcessingThreshold.ToString());
+                writer.WriteElementString("CcdMotionThreshold", CcdMotionThreshold.ToString());
+                writer.WriteElementString("CcdSweptSphereRadius", CcdSweptSphereRadius.ToString());
+                writer.WriteElementString("AnisotropicFriction", AnisotropicFriction.ToString("", "", " "));
+                writer.WriteElementString("CollidesWith", CollidesWith.ToString());
+                writer.WriteElementString("CollisionGroup", CollisionGroup.ToString());
+                //writer.WriteElementString("AabbMin", AabbMin.ToString("", "", " "));
+                //writer.WriteElementString("AabbMax", AabbMax.ToString("", "", " "));
+                
+                //writer.WriteElementString("AdditionalDamping", AdditionalDamping.ToString());
+                //writer.WriteElementString("AdditionalDampingFactor", AdditionalDampingFactor.ToString());
+                //writer.WriteElementString("AdditionalLinearDampingThresholdSqr", AdditionalLinearDampingThresholdSqr.ToString());
+                //writer.WriteElementString("AdditionalAngularDampingFactor", AdditionalAngularDampingFactor.ToString());
+                //writer.WriteElementString("AdditionalAngularDampingThresholdSqr", AdditionalAngularDampingThresholdSqr.ToString());
+                if (state != null)
+                {
+                    Matrix4 mtx = state.WorldTransform;
+                    Matrix4 massOff = state.CenterOfMassOffset;
+                    writer.WriteElementString("WorldTransform", mtx.ToString(" ", "", "", " "));
+                    writer.WriteElementString("CenterOfMassOffset", massOff.ToString(" ", "", "", " "));
+                }
+                else
+                {
+                    Matrix4 mtx = Body.WorldTransform;
+                    writer.WriteElementString("WorldTransform", mtx.ToString(" ", "", "", " "));
+                }
+            }
+            writer.WriteEndElement();
+            return true;
+        }
+        [CustomXMLDeserializeMethod(nameof(Body))]
+        internal bool DeserializeBody(XMLReader writer)
+        {
+            return true;
+        }
+
+        CollisionObject IBulletCollisionObject.CollisionObject => Body;
+        
         public BulletRigidBody(IRigidBodyCollidable owner, RigidBodyConstructionInfo info, TCollisionShape shape) : base(owner, shape)
         {
             Body = new RigidBody(info);
@@ -48,44 +112,37 @@ namespace TheraEngine.Physics.Bullet
         #region Collision Object Implementation
 
         #region Properties
-        [TSerialize]
         public override int IslandTag
         {
             get => Body.IslandTag;
             set => Body.IslandTag = value;
         }
         public override bool IsActive => Body.IsActive;
-        [TSerialize]
         public override Matrix4 WorldTransform
         {
             get => Body.WorldTransform;
             set => Body.WorldTransform = value;
         }
-        [TSerialize]
         public override Matrix4 InterpolationWorldTransform
         {
             get => Body.InterpolationWorldTransform;
             set => Body.InterpolationWorldTransform = value;
         }
-        [TSerialize]
         public override Vec3 InterpolationLinearVelocity
         {
             get => Body.InterpolationLinearVelocity;
             set => Body.InterpolationLinearVelocity = value;
         }
-        [TSerialize]
         public override Vec3 InterpolationAngularVelocity
         {
             get => Body.InterpolationAngularVelocity;
             set => Body.InterpolationAngularVelocity = value;
         }
-        [TSerialize]
         public override float HitFraction
         {
             get => Body.HitFraction;
             set => Body.HitFraction = value;
         }
-        [TSerialize]
         public override bool HasContactResponse
         {
             get
@@ -99,7 +156,6 @@ namespace TheraEngine.Physics.Bullet
                     Body.CollisionFlags & ~CollisionFlags.NoContactResponse :
                     Body.CollisionFlags | CollisionFlags.NoContactResponse;
         }
-        [TSerialize]
         public override bool IsKinematic
         {
             get
@@ -113,7 +169,6 @@ namespace TheraEngine.Physics.Bullet
                     Body.CollisionFlags | CollisionFlags.KinematicObject :
                     Body.CollisionFlags & ~CollisionFlags.KinematicObject;
         }
-        [TSerialize]
         public override bool IsStatic
         {
             get
@@ -127,7 +182,6 @@ namespace TheraEngine.Physics.Bullet
                     Body.CollisionFlags | CollisionFlags.StaticObject :
                     Body.CollisionFlags & ~CollisionFlags.StaticObject;
         }
-        [TSerialize]
         public override bool CustomMaterialCallback
         {
             get => (Body.CollisionFlags & CollisionFlags.CustomMaterialCallback) != 0;
@@ -135,25 +189,21 @@ namespace TheraEngine.Physics.Bullet
                   Body.CollisionFlags | CollisionFlags.CustomMaterialCallback :
                   Body.CollisionFlags & ~CollisionFlags.CustomMaterialCallback;
         }
-        [TSerialize]
         public override float Friction
         {
             get => Body.Friction;
             set => Body.Friction = value;
         }
-        [TSerialize]
         public override float DeactivationTime
         {
             get => Body.DeactivationTime;
             set => Body.DeactivationTime = value;
         }
-        [TSerialize]
         public override float ContactProcessingThreshold
         {
             get => Body.ContactProcessingThreshold;
             set => Body.ContactProcessingThreshold = value;
         }
-        [TSerialize]
         public override TCollisionShape CollisionShape
         {
             get => base.CollisionShape;
@@ -163,46 +213,38 @@ namespace TheraEngine.Physics.Bullet
                 Body.CollisionShape = ((IBulletShape)value).Shape;
             }
         }
-        [TSerialize]
         public override float CcdSweptSphereRadius
         {
             get => Body.CcdSweptSphereRadius;
             set => Body.CcdSweptSphereRadius = value;
         }
         public override float CcdSquareMotionThreshold => Body.CcdSquareMotionThreshold;
-        [TSerialize]
         public override float CcdMotionThreshold
         {
             get => Body.CcdMotionThreshold;
             set => Body.CcdMotionThreshold = value;
         }
-        [TSerialize]
         public override Vec3 AnisotropicFriction
         {
             get => Body.AnisotropicFriction;
             set => Body.AnisotropicFriction = value;
         }
-        [TSerialize]
         public override EBodyActivationState ActivationState
         {
             get => (EBodyActivationState)(int)Body.ActivationState;
             set => Body.ActivationState = (ActivationState)(int)value;
         }
         public override bool MergesSimulationIslands => Body.MergesSimulationIslands;
-        [TSerialize]
         public override float RollingFriction
         {
             get => Body.RollingFriction;
             set => Body.RollingFriction = value;
         }
-        [TSerialize]
         public override float Restitution
         {
             get => Body.Restitution;
             set => Body.Restitution = value;
         }
-
-        [TSerialize]
         public override ushort CollidesWith
         {
             get => base.CollidesWith;
@@ -218,7 +260,6 @@ namespace TheraEngine.Physics.Bullet
                     _previousCollidesWith = value;
             }
         }
-        [TSerialize]
         public override ushort CollisionGroup
         {
             get => base.CollisionGroup;
@@ -229,13 +270,11 @@ namespace TheraEngine.Physics.Bullet
                     Body.BroadphaseHandle.CollisionFilterGroup = (CollisionFilterGroups)value;
             }
         }
-        [TSerialize]
         public override Vec3 AabbMin
         {
             get => Body.BroadphaseHandle.AabbMin;
             set => Body.BroadphaseHandle.AabbMin = value;
         }
-        [TSerialize]
         public override Vec3 AabbMax
         {
             get => Body.BroadphaseHandle.AabbMax;

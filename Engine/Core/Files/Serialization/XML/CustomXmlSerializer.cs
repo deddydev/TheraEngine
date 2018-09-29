@@ -194,7 +194,7 @@ namespace TheraEngine.Files.Serialization
             int categorizedCount, 
             IEnumerable<MethodInfo> customMethods)
         {
-            int nonAttribCount = members.Where(x => !x.Attrib.IsXmlAttribute && x.GetValue(obj) != null).Count() + categorizedCount;
+            int nonAttribCount = members.Where(x => !x.Attrib.IsXmlAttribute/* && x.GetValue(obj) != null*/).Count() + categorizedCount;
             foreach (VarInfo member in members)
             {
                 if (member.Attrib.State)

@@ -338,6 +338,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actors\Components\Logic\Common\HealthComponent.cs" />
     <Compile Include="Actors\Special\IBLProbeGridActor.cs" />
     <Compile Include="Actors\ComponentActors\SkyboxActor.cs" />
     <Compile Include="Actors\ComponentActors\LightActors.cs" />

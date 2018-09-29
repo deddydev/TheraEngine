@@ -103,7 +103,7 @@ namespace TheraEngine.Actors
             GenerateSceneComponentCache();
         }
 
-        //private List<I3DRenderable> _renderableComponentCache = new List<I3DRenderable>();
+        public float _lifeSpan = -1.0f;
         public int _spawnIndex = -1;
         private T _rootComponent;
 
@@ -138,6 +138,24 @@ namespace TheraEngine.Actors
         /// <returns>The root scene component for this actor.</returns>
         protected virtual T OnConstructRoot() => RootComponent ?? Activator.CreateInstance<T>();
 
+        public DateTime SpawnTime { get; private set; }
+        public TimeSpan ActiveTime => DateTime.Now - SpawnTime;
+        public float LifeSpan
+        {
+            get => _lifeSpan;
+            set
+            {
+                if (_lifeSpan > 0.0f)
+                {
+
+                }
+                _lifeSpan = value;
+                if (_lifeSpan > 0.0f)
+                {
+
+                }
+            }
+        }
         [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0;
         [Browsable(false)]

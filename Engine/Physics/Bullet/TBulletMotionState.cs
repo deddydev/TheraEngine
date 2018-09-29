@@ -6,6 +6,9 @@ namespace TheraEngine.Physics.Bullet
     {
         public IBulletCollisionObject Body { get; set; }
 
+        private Matrix _worldTransform = Matrix.Identity;
+        private Matrix _centerOfMassOffset = Matrix.Identity;
+
         public TBulletMotionState() : base()
         {
 
@@ -13,23 +16,31 @@ namespace TheraEngine.Physics.Bullet
         public TBulletMotionState(Matrix startTrans) : base()
         {
             _worldTransform = startTrans;
+            _centerOfMassOffset = Matrix.Identity;
         }
         public TBulletMotionState(Matrix startTrans, Matrix centerOfMassOffset) : base()
         {
             _worldTransform = startTrans;
+            _centerOfMassOffset = centerOfMassOffset;
         }
 
-        private Matrix _worldTransform = Matrix.Identity;
         public override Matrix WorldTransform
         {
             get => _worldTransform;
             set
             {
                 _worldTransform = value;
-                Body.OnTransformChanged(_worldTransform);
+                Body.OnTransformChanged(_worldTransform * _centerOfMassOffset);
             }
         }
-
-        internal void SetWorldTransform_Internal(Matrix transform) => _worldTransform = transform;
+        public Matrix CenterOfMassOffset
+        {
+            get => _centerOfMassOffset;
+            set
+            {
+                _centerOfMassOffset = value;
+                Body.OnTransformChanged(_worldTransform * _centerOfMassOffset);
+            }
+        }
     }
 }

@@ -104,14 +104,14 @@ namespace TheraEditor.Wrappers
                 string name = Path.GetFileNameWithoutExtension(FilePath);
                 staticModel.Export(dir, name, EFileFormat.XML);
 
-                Editor.Instance.FinishOperation(index);
+                Editor.Instance.EndOperation(index);
             });
         }
         private void ImportAsSkeletalMesh()
         {
             Progress<float> p = new Progress<float>();
             CancellationTokenSource token = new CancellationTokenSource();
-            Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as skeletal model...", p, token);
+            int index = Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as skeletal model...", p, token);
             ModelImportOptions o = new ModelImportOptions()
             {
                 IgnoreFlags =
@@ -134,6 +134,8 @@ namespace TheraEditor.Wrappers
                 string dir = Path.GetDirectoryName(FilePath);
                 string name = Path.GetFileNameWithoutExtension(FilePath);
                 skeletalModel.Export(dir, name, EFileFormat.XML);
+
+                Editor.Instance.EndOperation(index);
             });
         }
     }

@@ -651,11 +651,11 @@ namespace TheraEngine.Rendering.Models
                                             FloatKeyframe kf = new FloatKeyframe(second, value, inTan, outTan, pType);
                                             animationLength = Math.Max(animationLength, second);
                                             if (xAxis)
-                                                bone.RotationX.Add(kf);
+                                                bone.RotationX.Keyframes.Add(kf);
                                             else if (yAxis)
-                                                bone.RotationY.Add(kf);
+                                                bone.RotationY.Keyframes.Add(kf);
                                             else
-                                                bone.RotationZ.Add(kf);
+                                                bone.RotationZ.Keyframes.Add(kf);
                                         }
                                     }
                                     else
@@ -717,9 +717,9 @@ namespace TheraEngine.Rendering.Models
                                         animationLength = Math.Max(animationLength, second);
                                         switch (valueIndex)
                                         {
-                                            case 0: bone.TranslationX.Add(kf); break;
-                                            case 1: bone.TranslationY.Add(kf); break;
-                                            case 2: bone.TranslationZ.Add(kf); break;
+                                            case 0: bone.TranslationX.Keyframes.Add(kf); break;
+                                            case 1: bone.TranslationY.Keyframes.Add(kf); break;
+                                            case 2: bone.TranslationZ.Keyframes.Add(kf); break;
                                         }
                                     }
                                 }
@@ -771,9 +771,9 @@ namespace TheraEngine.Rendering.Models
                                         animationLength = Math.Max(animationLength, second);
                                         switch (valueIndex)
                                         {
-                                            case 0: bone.ScaleX.Add(kf); break;
-                                            case 1: bone.ScaleY.Add(kf); break;
-                                            case 2: bone.ScaleZ.Add(kf); break;
+                                            case 0: bone.ScaleX.Keyframes.Add(kf); break;
+                                            case 1: bone.ScaleY.Keyframes.Add(kf); break;
+                                            case 2: bone.ScaleZ.Keyframes.Add(kf); break;
                                         }
                                     }
                                 }
@@ -835,17 +835,17 @@ namespace TheraEngine.Rendering.Models
 
                                 BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
 
-                                bone.TranslationX.Add(new FloatKeyframe(second, transform.Translation.X, inTan, outTan, pType));
-                                bone.TranslationY.Add(new FloatKeyframe(second, transform.Translation.Y, inTan, outTan, pType));
-                                bone.TranslationZ.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
+                                bone.TranslationX.Keyframes.Add(new FloatKeyframe(second, transform.Translation.X, inTan, outTan, pType));
+                                bone.TranslationY.Keyframes.Add(new FloatKeyframe(second, transform.Translation.Y, inTan, outTan, pType));
+                                bone.TranslationZ.Keyframes.Add(new FloatKeyframe(second, transform.Translation.Z, inTan, outTan, pType));
 
-                                bone.RotationX.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
-                                bone.RotationY.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
-                                bone.RotationZ.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
+                                bone.RotationX.Keyframes.Add(new FloatKeyframe(second, transform.Rotation.Pitch, inTan, outTan, pType));
+                                bone.RotationY.Keyframes.Add(new FloatKeyframe(second, transform.Rotation.Yaw, inTan, outTan, pType));
+                                bone.RotationZ.Keyframes.Add(new FloatKeyframe(second, transform.Rotation.Roll, inTan, outTan, pType));
 
-                                bone.ScaleX.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
-                                bone.ScaleY.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));
-                                bone.ScaleZ.Add(new FloatKeyframe(second, transform.Scale.Z, inTan, outTan, pType));
+                                bone.ScaleX.Keyframes.Add(new FloatKeyframe(second, transform.Scale.X, inTan, outTan, pType));
+                                bone.ScaleY.Keyframes.Add(new FloatKeyframe(second, transform.Scale.Y, inTan, outTan, pType));
+                                bone.ScaleZ.Keyframes.Add(new FloatKeyframe(second, transform.Scale.Z, inTan, outTan, pType));
 
                                 animationLength = Math.Max(animationLength, second);
                             }

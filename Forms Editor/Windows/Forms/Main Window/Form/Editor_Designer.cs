@@ -212,7 +212,7 @@ namespace TheraEditor.Windows.Forms
             if (value >= resolution)
                 EndOperation(index);
         }
-        private void EndOperation(int index)
+        public void EndOperation(int index)
         {
             if (_operations.IndexInRange(index))
                 _operations[index] = null;

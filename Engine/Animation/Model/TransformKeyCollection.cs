@@ -13,7 +13,7 @@ namespace TheraEngine.Animation
 {
     [FileExt("tkc", ManualXmlConfigSerialize = true)]
     [FileDef("Transform Key Collection")]
-    public class TransformKeyCollection : TFileObject, IEnumerable<KeyframeTrack<FloatKeyframe>>
+    public class TransformKeyCollection : TFileObject, IEnumerable<PropAnimFloat>
     {
         public TransformKeyCollection() { }
 
@@ -21,19 +21,19 @@ namespace TheraEngine.Animation
         public TransformOrder TransformOrder { get; set; } = TransformOrder.TRS;
         public RotationOrder EulerOrder { get; set; } = RotationOrder.RYP;
 
-        public KeyframeTrack<FloatKeyframe> TranslationX => _tracks[0];
-        public KeyframeTrack<FloatKeyframe> TranslationY => _tracks[1];
-        public KeyframeTrack<FloatKeyframe> TranslationZ => _tracks[2];
+        public PropAnimFloat TranslationX => _tracks[0];
+        public PropAnimFloat TranslationY => _tracks[1];
+        public PropAnimFloat TranslationZ => _tracks[2];
         
-        public KeyframeTrack<FloatKeyframe> RotationX => _tracks[3];
-        public KeyframeTrack<FloatKeyframe> RotationY => _tracks[4];
-        public KeyframeTrack<FloatKeyframe> RotationZ => _tracks[5];
+        public PropAnimFloat RotationX => _tracks[3];
+        public PropAnimFloat RotationY => _tracks[4];
+        public PropAnimFloat RotationZ => _tracks[5];
         
-        public KeyframeTrack<FloatKeyframe> ScaleX => _tracks[6];
-        public KeyframeTrack<FloatKeyframe> ScaleY => _tracks[7];
-        public KeyframeTrack<FloatKeyframe> ScaleZ => _tracks[8];
+        public PropAnimFloat ScaleX => _tracks[6];
+        public PropAnimFloat ScaleY => _tracks[7];
+        public PropAnimFloat ScaleZ => _tracks[8];
 
-        public KeyframeTrack<FloatKeyframe> this[int index]
+        public PropAnimFloat this[int index]
         {
             get => _tracks.IndexInRange(index) ? _tracks[index] : null;
             set
@@ -43,17 +43,17 @@ namespace TheraEngine.Animation
             }
         }
 
-        private KeyframeTrack<FloatKeyframe>[] _tracks = new KeyframeTrack<FloatKeyframe>[]
+        private PropAnimFloat[] _tracks = new PropAnimFloat[]
         {
-            new KeyframeTrack<FloatKeyframe>(), //tx
-            new KeyframeTrack<FloatKeyframe>(), //ty
-            new KeyframeTrack<FloatKeyframe>(), //tz
-            new KeyframeTrack<FloatKeyframe>(), //rx
-            new KeyframeTrack<FloatKeyframe>(), //ry
-            new KeyframeTrack<FloatKeyframe>(), //rz
-            new KeyframeTrack<FloatKeyframe>(), //sx
-            new KeyframeTrack<FloatKeyframe>(), //sy
-            new KeyframeTrack<FloatKeyframe>(), //sz
+            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //tx
+            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //ty
+            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //tz
+            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //rx
+            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //ry
+            new PropAnimFloat() { DefaultValue = 0.0f, TickSelf = false },  //rz
+            new PropAnimFloat() { DefaultValue = 1.0f, TickSelf = false },  //sx
+            new PropAnimFloat() { DefaultValue = 1.0f, TickSelf = false },  //sy
+            new PropAnimFloat() { DefaultValue = 1.0f, TickSelf = false },  //sz
         };
 
         public void SetLength(float seconds, bool stretchAnimation)
@@ -63,6 +63,46 @@ namespace TheraEngine.Animation
                 track.SetLength(seconds, stretchAnimation);
         }
 
+        public void Progress(float delta) => _tracks.ForEach(x => x.Progress(delta));
+
+        /// <summary>
+        /// Retrieves the parts of the transform at the requested frame second.
+        /// Uses the defaultTransform for tracks that have no keys.
+        /// </summary>
+        public unsafe void GetTransform(Transform bindState,
+            out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        {
+            Vec3 t, r, s;
+            Vec3
+                bt = bindState.Translation.Raw,
+                br = bindState.Rotation.PitchYawRoll,
+                bs = bindState.Scale.Raw;
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* ps = (float*)&s;
+            float* pbt = (float*)&bt;
+            float* pbr = (float*)&br;
+            float* pbs = (float*)&bs;
+            for (int i = 0; i < 3; ++i, ++pbt)
+            {
+                var track = _tracks[i];
+                *pt++ = track.Keyframes.Count == 0 ? *pbt : track.CurrentPosition;
+            }
+            for (int i = 3; i < 6; ++i, ++pbr)
+            {
+                var track = _tracks[i];
+                *pr++ = track.Keyframes.Count == 0 ? *pbr : track.CurrentPosition;
+            }
+            for (int i = 6; i < 9; ++i, ++pbs)
+            {
+                var track = _tracks[i];
+                *ps++ = track.Keyframes.Count == 0 ? *pbs : track.CurrentPosition;
+            }
+
+            translation = t;
+            rotation = new Rotator(r, EulerOrder);
+            scale = s;
+        }
         /// <summary>
         /// Retrieves the parts of the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
@@ -81,21 +121,43 @@ namespace TheraEngine.Animation
             float* pbt = (float*)&bt;
             float* pbr = (float*)&br;
             float* pbs = (float*)&bs;
+            for (int i = 0; i < 3; ++i, ++pbt)
+            {
+                var track = _tracks[i];
+                *pt++ = track.Keyframes.Count == 0 ? *pbt : track.GetValue(second);
+            }
+            for (int i = 3; i < 6; ++i, ++pbr)
+            {
+                var track = _tracks[i];
+                *pr++ = track.Keyframes.Count == 0 ? *pbr : track.GetValue(second);
+            }
+            for (int i = 6; i < 9; ++i, ++pbs)
+            {
+                var track = _tracks[i];
+                *ps++ = track.Keyframes.Count == 0 ? *pbs : track.GetValue(second);
+            }
+
+            translation = t;
+            rotation = new Rotator(r, EulerOrder);
+            scale = s;
+        }
+        /// <summary>
+        /// Retrieves the parts of the transform at the current frame second.
+        /// Uses the defaultTransform for tracks that have no keys.
+        /// </summary>
+        public unsafe void GetTransform(out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        {
+            Vec3 t, r, s;
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* ps = (float*)&s;
+
             for (int i = 0; i < 3; ++i)
-            {
-                var track = _tracks[i];
-                *pt++ = track.First == null ? pbt[i] : track.First.Interpolate(second, EVectorInterpValueType.Position);
-            }
+                *pt++ = _tracks[i].CurrentPosition;
             for (int i = 3; i < 6; ++i)
-            {
-                var track = _tracks[i];
-                *pr++ = track.First == null ? pbr[i] : track.First.Interpolate(second, EVectorInterpValueType.Position);
-            }
+                *pr++ = _tracks[i].CurrentPosition;
             for (int i = 6; i < 9; ++i)
-            {
-                var track = _tracks[i];
-                *ps++ = track.First == null ? pbs[i] : track.First.Interpolate(second, EVectorInterpValueType.Position);
-            }
+                *ps++ = _tracks[i].CurrentPosition;
 
             translation = t;
             rotation = new Rotator(r, EulerOrder);
@@ -111,25 +173,54 @@ namespace TheraEngine.Animation
             float* pt = (float*)&t;
             float* pr = (float*)&r;
             float* ps = (float*)&s;
+
             for (int i = 0; i < 3; ++i)
-            {
-                var track = _tracks[i];
-                *pt++ = track.First == null ? 0.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
-            }
+                *pt++ = _tracks[i].GetValue(second);
             for (int i = 3; i < 6; ++i)
-            {
-                var track = _tracks[i];
-                *pr++ = track.First == null ? 0.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
-            }
+                *pr++ = _tracks[i].GetValue(second);
             for (int i = 6; i < 9; ++i)
-            {
-                var track = _tracks[i];
-                *ps++ = track.First == null ? 1.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
-            }
+                *ps++ = _tracks[i].GetValue(second);
 
             translation = t;
             rotation = new Rotator(r, EulerOrder);
             scale = s;
+        }
+        /// <summary>
+        /// Retrieves the transform at the requested frame second.
+        /// Uses the defaultTransform for tracks that have no keys.
+        /// </summary>
+        public unsafe Transform GetTransform(Transform defaultTransform)
+        {
+            Vec3 t, r, s;
+            Vec3
+                bt = defaultTransform.Translation.Raw,
+                br = defaultTransform.Rotation.PitchYawRoll,
+                bs = defaultTransform.Scale.Raw;
+
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* ps = (float*)&s;
+            float* pbt = (float*)&bt;
+            float* pbr = (float*)&br;
+            float* pbs = (float*)&bs;
+
+            for (int i = 0; i < 3; ++i, ++pbt)
+            {
+                var track = _tracks[i];
+                *pt++ = track.Keyframes.Count == 0 ? *pbt : track.CurrentPosition;
+            }
+            for (int i = 3; i < 6; ++i, ++pbr)
+            {
+                var track = _tracks[i];
+                *pr++ = track.Keyframes.Count == 0 ? *pbr : track.CurrentPosition;
+            }
+            for (int i = 6; i < 9; ++i, ++pbs)
+            {
+                var track = _tracks[i];
+                *ps++ = track.Keyframes.Count == 0 ? *pbs : track.CurrentPosition;
+            }
+
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
         }
         /// <summary>
         /// Retrieves the transform at the requested frame second.
@@ -150,21 +241,40 @@ namespace TheraEngine.Animation
             float* pbr = (float*)&br;
             float* pbs = (float*)&bs;
 
-            for (int i = 0; i < 3; ++i, pbt++)
+            for (int i = 0; i < 3; ++i, ++pbt)
             {
                 var track = _tracks[i];
-                *pt++ = track.First == null ? *pbt : track.First.Interpolate(second, EVectorInterpValueType.Position);
+                *pt++ = track.Keyframes.Count == 0 ? *pbt : track.GetValue(second);
             }
-            for (int i = 3; i < 6; ++i, pbr++)
+            for (int i = 3; i < 6; ++i, ++pbr)
             {
                 var track = _tracks[i];
-                *pr++ = track.First == null ? *pbr : track.First.Interpolate(second, EVectorInterpValueType.Position);
+                *pr++ = track.Keyframes.Count == 0 ? *pbr : track.GetValue(second);
             }
-            for (int i = 6; i < 9; ++i, pbs++)
+            for (int i = 6; i < 9; ++i, ++pbs)
             {
                 var track = _tracks[i];
-                *ps++ = track.First == null ? *pbs : track.First.Interpolate(second, EVectorInterpValueType.Position);
+                *ps++ = track.Keyframes.Count == 0 ? *pbs : track.GetValue(second);
             }
+
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+        }
+        /// <summary>
+        /// Retrieves the transform at the current frame second.
+        /// </summary>
+        public unsafe Transform GetTransform()
+        {
+            Vec3 t, r, s;
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* ps = (float*)&s;
+
+            for (int i = 0; i < 3; ++i)
+                *pt++ = _tracks[i].CurrentPosition;
+            for (int i = 3; i < 6; ++i)
+                *pr++ = _tracks[i].CurrentPosition;
+            for (int i = 6; i < 9; ++i)
+                *ps++ = _tracks[i].CurrentPosition;
 
             return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
         }
@@ -177,23 +287,57 @@ namespace TheraEngine.Animation
             float* pt = (float*)&t;
             float* pr = (float*)&r;
             float* ps = (float*)&s;
+
+            for (int i = 0; i < 3; ++i)
+                *pt++ = _tracks[i].GetValue(second);
+            for (int i = 3; i < 6; ++i)
+                *pr++ = _tracks[i].GetValue(second);
+            for (int i = 6; i < 9; ++i)
+                *ps++ = _tracks[i].GetValue(second);
+
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+        }
+        public float?[] GetValues()
+        {
+            float?[] values = new float?[9];
             for (int i = 0; i < 3; ++i)
             {
                 var track = _tracks[i];
-                *pt++ = track.First == null ? 0.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
+                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.CurrentPosition;
             }
             for (int i = 3; i < 6; ++i)
             {
                 var track = _tracks[i];
-                *pr++ = track.First == null ? 0.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
+                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.CurrentPosition;
             }
             for (int i = 6; i < 9; ++i)
             {
                 var track = _tracks[i];
-                *ps++ = track.First == null ? 1.0f : track.First.Interpolate(second, EVectorInterpValueType.Position);
+                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.CurrentPosition;
             }
 
-            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+            return values;
+        }
+        public float?[] GetValues(float second)
+        {
+            float?[] values = new float?[9];
+            for (int i = 0; i < 3; ++i)
+            {
+                var track = _tracks[i];
+                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.GetValue(second);
+            }
+            for (int i = 3; i < 6; ++i)
+            {
+                var track = _tracks[i];
+                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.GetValue(second);
+            }
+            for (int i = 6; i < 9; ++i)
+            {
+                var track = _tracks[i];
+                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.GetValue(second);
+            }
+
+            return values;
         }
 
         /// <summary>
@@ -203,7 +347,7 @@ namespace TheraEngine.Animation
         {
             foreach (var track in _tracks)
             {
-                track.Clear();
+                track.Keyframes.Clear();
                 track.SetLength(LengthInSeconds, false);
             }
         }
@@ -234,10 +378,11 @@ namespace TheraEngine.Animation
                     int trackIndex = names.IndexOf(reader.Name.ToString());
                     if (_tracks.IndexInRange(trackIndex))
                     {
-                        KeyframeTrack<FloatKeyframe> track = _tracks[trackIndex];
-                        if (reader.ReadAttribute() &&
+                        PropAnimFloat track = _tracks[trackIndex];
+                        bool read = reader.ReadAttribute();
+                        if (read &&
                             string.Equals(reader.Name, "Count", StringComparison.InvariantCulture) &&
-                            !int.TryParse(reader.Value, out int keyCount))
+                            int.TryParse(reader.Value, out int keyCount))
                         {
                             string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
                             while (reader.BeginElement())
@@ -274,7 +419,7 @@ namespace TheraEngine.Animation
                                     float.Parse(inTans[i]),
                                     float.Parse(outTans[i]),
                                     Enums.Parse<EPlanarInterpType>(interpolation[i]));
-                                track.Add(kf);
+                                track.Keyframes.Add(kf);
                             }
                         }
                         _tracks[trackIndex] = track;
@@ -309,11 +454,11 @@ namespace TheraEngine.Animation
                 for (int i = 0; i < 9; ++i)
                 {
                     var track = _tracks[i];
-                    if (track.Count > 0)
+                    if (track.Keyframes.Count > 0)
                     {
                         writer.WriteStartElement(names[i]);
                         {
-                            writer.WriteAttributeString("Count", track.Count.ToString());
+                            writer.WriteAttributeString("Count", track.Keyframes.Count.ToString());
                             writer.WriteElementString("Second", string.Join(",", track.Select(x => x.Second)));
                             writer.WriteElementString("InValues", string.Join(",", track.Select(x => x.InValue)));
                             writer.WriteElementString("OutValues", string.Join(",", track.Select(x => x.OutValue)));
@@ -328,9 +473,9 @@ namespace TheraEngine.Animation
             writer.WriteEndElement();
         }
 
-        public IEnumerator<KeyframeTrack<FloatKeyframe>> GetEnumerator()
-            => ((IEnumerable<KeyframeTrack<FloatKeyframe>>)_tracks).GetEnumerator();
+        public IEnumerator<PropAnimFloat> GetEnumerator()
+            => ((IEnumerable<PropAnimFloat>)_tracks).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<KeyframeTrack<FloatKeyframe>>)_tracks).GetEnumerator();
+            => ((IEnumerable<PropAnimFloat>)_tracks).GetEnumerator();
     }
 }

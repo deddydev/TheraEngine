@@ -161,7 +161,7 @@ namespace TheraEngine.Animation
         
         protected override void OnProgressed(float delta)
         {
-            BoneAnimations.ForEach(x => x.Value.Progress(CurrentTime));
+            BoneAnimations.ForEach(x => x.Value.Progress(delta));
         }
     }
     public class BoneAnimation
@@ -204,61 +204,38 @@ namespace TheraEngine.Animation
         private TransformKeyCollection _tracks = new TransformKeyCollection();
 
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> TranslationX => _tracks.TranslationX;
+        public PropAnimFloat TranslationX => _tracks.TranslationX;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> TranslationY => _tracks.TranslationY;
+        public PropAnimFloat TranslationY => _tracks.TranslationY;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> TranslationZ => _tracks.TranslationZ;
+        public PropAnimFloat TranslationZ => _tracks.TranslationZ;
 
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationX => _tracks.RotationX;
+        public PropAnimFloat RotationX => _tracks.RotationX;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationY => _tracks.RotationY;
+        public PropAnimFloat RotationY => _tracks.RotationY;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> RotationZ => _tracks.RotationZ;
+        public PropAnimFloat RotationZ => _tracks.RotationZ;
 
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> ScaleX => _tracks.ScaleX;
+        public PropAnimFloat ScaleX => _tracks.ScaleX;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> ScaleY => _tracks.ScaleY;
+        public PropAnimFloat ScaleY => _tracks.ScaleY;
         [Category("Bone Animation")]
-        public KeyframeTrack<FloatKeyframe> ScaleZ => _tracks.ScaleZ;
-
-        private FloatKeyframe[] _lastKeyframes = new FloatKeyframe[9];
-        private float?[] _currentValues = new float?[9];
-
-        public float? CurrentTranslationX => _currentValues[0];
-        public float? CurrentTranslationY => _currentValues[1];
-        public float? CurrentTranslationZ => _currentValues[2];
-        public float? CurrentRotationX => _currentValues[3];
-        public float? CurrentRotationY => _currentValues[4];
-        public float? CurrentRotationZ => _currentValues[5];
-        public float? CurrentScaleX => _currentValues[6];
-        public float? CurrentScaleY => _currentValues[7];
-        public float? CurrentScaleZ => _currentValues[8];
-
-        public void Progress(float second)
+        public PropAnimFloat ScaleZ => _tracks.ScaleZ;
+        
+        public void Progress(float delta)
         {
-            KeyframeTrack<FloatKeyframe> track;
-            for (int i = 0; i < 9; ++i)
-            {
-                track = _tracks[i];
-                FloatKeyframe lastKf = _lastKeyframes[i] ?? track.First;
-                _currentValues[i] = lastKf == null ? null : (float?)lastKf.Interpolate(second, EVectorInterpValueType.Position);
-            }
+            _tracks.Progress(delta);
         }
 
-        public BoneFrame GetFrame() => new BoneFrame(_name, _currentValues, _tracks.EulerOrder);
+        public BoneFrame GetFrame()
+        {
+            return new BoneFrame(_name, _tracks.GetValues(), _tracks.EulerOrder);
+        }
         public BoneFrame GetFrame(float second)
         {
-            float?[] values = new float?[9];
-            KeyframeTrack<FloatKeyframe> track;
-            for (int i = 0; i < 9; ++i)
-            {
-                track = _tracks[i];
-                values[i] = track.First == null ? null : (float?)track.First.Interpolate(second, EVectorInterpValueType.Position);
-            }
-            return new BoneFrame(_name, values, _tracks.EulerOrder);
+            return new BoneFrame(_name, _tracks.GetValues(second), _tracks.EulerOrder);
         }
         //public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
         //{
@@ -274,13 +251,21 @@ namespace TheraEngine.Animation
                 UpdateState(bone.FrameState, bone.BindState);
         }
         public void UpdateState(Transform frameState, Transform bindState)
-            => UpdateState(frameState, bindState, Parent.CurrentTime);
-        public unsafe void UpdateState(Transform frameState, Transform bindState, float second)
+        {
+            GetTransform(bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale);
+            frameState.SetAll(translation, rotation, scale);
+        }
+        public void UpdateState(Transform frameState, Transform bindState, float second)
         {
             GetTransform(bindState, second, out Vec3 translation, out Rotator rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
         }
 
+        /// <summary>
+        /// Retrieves the parts of the transform for this bone at the current frame second.
+        /// </summary>
+        public unsafe void GetTransform(Transform bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+            => _tracks.GetTransform(bindState, out translation, out rotation, out scale);
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the requested frame second.
         /// </summary>

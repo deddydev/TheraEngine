@@ -247,7 +247,7 @@ namespace TheraEngine.Components.Logic.Animation
             var stateNode = _stateQueue.First;
 
             //Tick first animation
-            //stateNode.Value.Tick(delta);
+            stateNode?.Value?.Tick(delta);
 
             //Get frame of first animation
             SkeletalAnimationFrame frame = stateNode?.Value?.GetFrame();
@@ -265,7 +265,7 @@ namespace TheraEngine.Components.Logic.Animation
                     
                     //Tick the animation to be blended with next
                     stateNode = stateNode.Next;
-                    //stateNode.Value.Tick(delta);
+                    stateNode?.Value?.Tick(delta);
 
                     //Update blending information
                     if (blend.Tick(delta))

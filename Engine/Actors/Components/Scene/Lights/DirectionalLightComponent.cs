@@ -95,6 +95,7 @@ namespace TheraEngine.Components.Scene.Lights
                     ShadowCamera.LocalPoint.Raw = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
+                ShadowCamera.RenderInfo.LinkScene(ShadowCamera, s3d);
             }
             base.OnSpawned();
         }
@@ -107,6 +108,7 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     s3d.Lights.Remove(this);
                 }
+                ShadowCamera.RenderInfo.UnlinkScene(ShadowCamera, s3d);
             }
             base.OnDespawned();
         }
@@ -168,8 +170,7 @@ namespace TheraEngine.Components.Scene.Lights
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            SelectedChangedRenderable3D(ShadowCamera, selected);
-            base.OnSelectedChanged(selected);
+            ShadowCamera.RenderInfo.Visible = selected;
         }
 #endif
     }

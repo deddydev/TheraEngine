@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -7,13 +8,14 @@ using TheraEngine.Files;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
     public delegate void DelBoomLengthChange(float newLength);
 
     [FileDef("Boom Component")]
-    public class BoomComponent : RTComponent
+    public class BoomComponent : RTComponent, I3DRenderable
     {
         public event DelBoomLengthChange CurrentDistanceChanged;
 
@@ -21,15 +23,38 @@ namespace TheraEngine.Components.Scene.Transforms
         private float _currentLength = 0.0f;
         private Vec3 _startPoint = Vec3.Zero;
         
+        public float TraceRadius
+        {
+            get => _traceShape.Radius;
+            set => _traceShape.Radius = value;
+        }
+
         [TSerialize]
         public float InterpSpeed { get; set; } = 15.0f;
         [TSerialize]
         public float MaxLength { get; set; } = 300.0f;
         [TSerialize]
         public LocalFileRef<TCollisionObject> IgnoreCast { get; set; } = null;
-        
-        public BoomComponent() : base() { }
-        
+        [TSerialize]
+        public RenderInfo3D RenderInfo { get; private set; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        [Browsable(false)]
+        public Shape CullingVolume => null;
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+
+        public BoomComponent() : base() { _rc = new RenderCommandMethod3D(Render); }
+
+        private void Render()
+        {
+            Engine.Renderer.RenderSphere(WorldPoint, _traceShape.Radius, false, Color.Black);
+            Engine.Renderer.RenderLine(GetParentMatrix().Translation, WorldPoint, Color.Black);
+        }
+
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            RenderInfo.Visible = selected;
+        }
+
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Matrix4
@@ -49,13 +74,13 @@ namespace TheraEngine.Components.Scene.Transforms
         public override void OnSpawned()
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            //Engine.Scene.AddRenderable(this);
+            RenderInfo.LinkScene(this, OwningScene3D);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            //Engine.Scene.RemoveRenderable(this);
+            RenderInfo.UnlinkScene(this, OwningScene3D);
             base.OnDespawned();
         }
 
@@ -84,6 +109,11 @@ namespace TheraEngine.Components.Scene.Transforms
                 RecalcLocalTransform();
                 CurrentDistanceChanged?.Invoke(_currentLength);
             }
+        }
+        private RenderCommandMethod3D _rc;
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            passes.Add(_rc, RenderInfo.RenderPass);
         }
     }
 }

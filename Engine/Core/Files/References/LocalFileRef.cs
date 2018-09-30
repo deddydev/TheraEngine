@@ -59,7 +59,7 @@ namespace TheraEngine.Files
 
         public override string ToString()
         {
-            return $"Local File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(ReferencePath) ? "<null>" : ReferencePath)}";
+            return $"Local File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(ReferencePathAbsolute) ? "<null path>" : ReferencePathAbsolute)}";
         }
     }
 }

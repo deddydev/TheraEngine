@@ -58,7 +58,7 @@ namespace TheraEngine.Files
                     File = casted;
                 }
                 else
-                    throw new InvalidOperationException(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
+                    Engine.LogWarning(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
                 //}
             }
 
@@ -73,7 +73,7 @@ namespace TheraEngine.Files
 
         public override string ToString()
         {
-            return $"Global File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(ReferencePath) ? "<null>" : ReferencePath)}";
+            return $"Global File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(ReferencePathAbsolute) ? "<null path>" : ReferencePathAbsolute)}";
         }
     }
 }

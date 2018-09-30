@@ -221,8 +221,10 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     s3d.Lights.Add(this);
                     if (ShadowMap == null)
-                        SetShadowMapResolution(1024, 1024);
+                        SetShadowMapResolution(_region.Width, _region.Height);
                 }
+                InnerCone.RenderInfo.LinkScene(InnerCone, s3d);
+                OuterCone.RenderInfo.LinkScene(OuterCone, s3d);
             }
             base.OnSpawned();
         }
@@ -235,6 +237,8 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     s3d.Lights.Remove(this);
                 }
+                InnerCone.RenderInfo.UnlinkScene(InnerCone, s3d);
+                OuterCone.RenderInfo.UnlinkScene(OuterCone, s3d);
             }
             base.OnDespawned();
         }
@@ -307,9 +311,8 @@ namespace TheraEngine.Components.Scene.Lights
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            SelectedChangedRenderable3D(OuterCone, selected);
-            SelectedChangedRenderable3D(InnerCone, selected);
-            base.OnSelectedChanged(selected);
+            OuterCone.RenderInfo.Visible = selected;
+            InnerCone.RenderInfo.Visible = selected;
         }
 #endif
     }

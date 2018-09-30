@@ -149,14 +149,14 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 StaticRenderableMesh m = new StaticRenderableMesh(model.RigidChildren[i], this);
                 if (IsSpawned)
-                    RenderInfo3D.TrySpawn(m, OwningScene3D);
+                    m.RenderInfo.LinkScene(m, OwningScene3D);
                 _meshes[i] = m;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
                 StaticRenderableMesh m = new StaticRenderableMesh(model.SoftChildren[i], this);
                 if (IsSpawned)
-                    RenderInfo3D.TrySpawn(m, OwningScene3D);
+                    m.RenderInfo.LinkScene(m, OwningScene3D);
                 _meshes[model.RigidChildren.Count + i] = m;
             }
             ModelLoaded?.Invoke();
@@ -173,7 +173,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
             if (_meshes != null)
                 foreach (StaticRenderableMesh m in _meshes)
-                    RenderInfo3D.TrySpawn(m, OwningScene3D);
+                    m.RenderInfo.LinkScene(m, OwningScene3D);
             
             base.OnSpawned();
         }
@@ -181,7 +181,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             if (_meshes != null)
                 foreach (StaticRenderableMesh m in _meshes)
-                    RenderInfo3D.TryDespawn(m, OwningScene3D);
+                    m.RenderInfo.UnlinkScene(m, OwningScene3D);
             base.OnDespawned();
         }
         protected internal override void OnHighlightChanged(bool highlighted)
@@ -201,25 +201,13 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            base.OnSelectedChanged(selected);
-
-            if (OwningScene == null)
-                return;
-
             if (Meshes != null)
                 foreach (StaticRenderableMesh m in Meshes)
                 {
-                    if (m?.CullingVolume != null)
-                    {
-                        if (selected)
-                        {
-                            OwningScene3D.Add(m.CullingVolume);
-                        }
-                        else
-                        {
-                            OwningScene3D.Remove(m.CullingVolume);
-                        }
-                    }
+                    var cull = m?.CullingVolume;
+                    if (cull != null)
+                        cull.RenderInfo.Visible = selected;
+
                     //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
                 }
         }

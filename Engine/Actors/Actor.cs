@@ -284,10 +284,10 @@ For example, a logic component could give any actor health and/or allow it to ta
                 comp.OnSpawned();
 
             if (this is I3DRenderable r3d)
-                RenderInfo3D.TrySpawn(r3d, OwningScene3D);
+                r3d.RenderInfo.LinkScene(r3d, OwningScene3D);
 
             if (this is I2DRenderable r2d)
-                RenderInfo2D.TrySpawn(r2d, OwningScene2D);
+                r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
 
             OnSpawnedPostComponentSpawn();
 
@@ -322,10 +322,10 @@ For example, a logic component could give any actor health and/or allow it to ta
                 return;
 
             if (this is I3DRenderable r3d)
-                RenderInfo3D.TryDespawn(r3d, OwningScene3D);
+                r3d.RenderInfo.UnlinkScene(r3d, OwningScene3D);
 
             if (this is I2DRenderable r2d)
-                RenderInfo2D.TryDespawn(r2d, OwningScene2D);
+                r2d.RenderInfo.UnlinkScene(r2d, OwningScene2D);
 
             OnDespawned();
 

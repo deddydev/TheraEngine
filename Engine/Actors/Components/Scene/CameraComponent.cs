@@ -188,19 +188,26 @@ namespace TheraEngine.Components.Scene
 #if EDITOR
         public override void OnSpawned()
         {
-            Camera c = Camera;
-            if (_alwaysShowFrustum && c != null)
-                OwningScene3D?.Add(c);
             base.OnSpawned();
+
+            Camera c = Camera;
+            if (c != null)
+                c.RenderInfo.LinkScene(c, OwningScene3D, _alwaysShowFrustum);
         }
         public override void OnDespawned()
         {
-            Camera c = Camera;
-            if (_alwaysShowFrustum && c != null)
-                OwningScene3D?.Remove(c);
             base.OnDespawned();
-        }
 
+            Camera c = Camera;
+            if (c != null)
+                c.RenderInfo.UnlinkScene(c, OwningScene3D);
+        }
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            Camera c = Camera;
+            if (c != null)
+                c.RenderInfo.Visible = selected;
+        }
         [TSerialize(nameof(AlwaysShowFrustum))]
         private bool _alwaysShowFrustum = false;
         [Category("Editor Traits")]
@@ -213,20 +220,15 @@ namespace TheraEngine.Components.Scene
                 if (_alwaysShowFrustum == value)
                     return;
                 _alwaysShowFrustum = value;
-                if (IsSpawned && Camera != null)
+                Camera c = Camera;
+                if (IsSpawned && c != null)
                 {
                     if (_alwaysShowFrustum)
-                        OwningScene3D?.Add(Camera);
+                        c.RenderInfo.Visible = true;
                     else if (!EditorState.Selected)
-                        OwningScene3D?.Remove(Camera);
+                        c.RenderInfo.Visible = false;
                 }
             }
-        }
-
-        protected internal override void OnSelectedChanged(bool selected)
-        {
-            SelectedChangedRenderable3D(Camera, selected);
-            base.OnSelectedChanged(selected);
         }
 #endif
 

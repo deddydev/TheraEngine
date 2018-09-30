@@ -59,25 +59,24 @@ namespace TheraEngine.Rendering
             return false;
         }
 
-        internal static void TrySpawn(I2DRenderable r2d, Scene2D scene)
+        public void LinkScene(I2DRenderable r2d, Scene2D scene, bool forceVisible = false)
         {
             if (r2d?.RenderInfo == null || scene == null)
                 return;
 
-            bool spawn = r2d.RenderInfo.VisibleByDefault;
+            r2d.RenderInfo.Scene = scene;
+            r2d.RenderInfo.Owner = r2d;
+
+            bool spawn = r2d.RenderInfo.VisibleByDefault || forceVisible;
 #if EDITOR
             if (r2d.RenderInfo.VisibleInEditorOnly)
                 spawn = spawn && Engine.EditorState.InEditMode;
 #endif
             if (spawn)
-            {
-                r2d.RenderInfo.Scene = scene;
-                r2d.RenderInfo.Owner = r2d;
                 scene.Add(r2d);
-            }
         }
 
-        internal static void TryDespawn(I2DRenderable r2d, Scene2D scene)
+        public void UnlinkScene(I2DRenderable r2d, Scene2D scene)
         {
             if (r2d?.RenderInfo == null || scene == null || !r2d.RenderInfo.Visible)
                 return;
@@ -97,20 +96,15 @@ namespace TheraEngine.Rendering
         [TSerialize(State = true, Config = false)]
         public override bool Visible
         {
-            get => Scene != null && SceneID >= 0 && base.Visible;
+            get => Scene != null && base.Visible;
             set
             {
                 if (Visible == value)
                     return;
-                //if (Scene == null || SceneID < 0)
-                //{
-                //    base.Visible = false;
-                //    return;
-                //}
                 base.Visible = value;
                 if (Scene != null)
                 {
-                    if (Visible)
+                    if (value)
                         Scene.Add(Owner);
                     else
                         Scene.Remove(Owner);
@@ -149,25 +143,24 @@ namespace TheraEngine.Rendering
         
         public override int GetHashCode() => SceneID;
 
-        internal static void TrySpawn(I3DRenderable r3d, Scene3D scene)
+        public void LinkScene(I3DRenderable r3d, Scene3D scene, bool forceVisible = false)
         {
             if (r3d?.RenderInfo == null || scene == null)
                 return;
 
-            bool spawn = r3d.RenderInfo.VisibleByDefault;
+            r3d.RenderInfo.Scene = scene;
+            r3d.RenderInfo.Owner = r3d;
+
+            bool spawn = r3d.RenderInfo.VisibleByDefault || forceVisible;
 #if EDITOR
             if (r3d.RenderInfo.VisibleInEditorOnly)
                 spawn = spawn && Engine.EditorState.InEditMode;
 #endif
             if (spawn)
-            {
-                r3d.RenderInfo.Scene = scene;
-                r3d.RenderInfo.Owner = r3d;
                 scene.Add(r3d);
-            }
         }
 
-        internal static void TryDespawn(I3DRenderable r3d, Scene3D scene)
+        public void UnlinkScene(I3DRenderable r3d, Scene3D scene)
         {
             if (r3d?.RenderInfo == null || scene == null || !r3d.RenderInfo.Visible)
                 return;

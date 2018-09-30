@@ -35,7 +35,7 @@ namespace TheraEngine.Components.Scene.Lights
         public Camera ShadowCamera { get; protected set; }
         public ShadowSettings ShadowSettings { get; } = new ShadowSettings();
 
-        protected BoundingRectangle _region = new BoundingRectangle();
+        protected BoundingRectangle _region = new BoundingRectangle(0, 0, 1024, 1024);
         
         [Category("Light Component")]
         public EventColorF3 LightColor

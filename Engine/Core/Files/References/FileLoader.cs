@@ -103,7 +103,7 @@ namespace TheraEngine.Files
             set
             {
                 _updating = true;
-                if (!string.IsNullOrEmpty(value))
+                if (value != null)
                 {
                     bool validPath = value.IsDirectoryPath() == false;
                     if (validPath)
@@ -183,7 +183,7 @@ namespace TheraEngine.Files
             set
             {
                 _updating = true;
-                if (!string.IsNullOrEmpty(value))
+                if (value != null)
                 {
                     _localRefPath = value;
                     if (PathType == EPathType.Absolute)

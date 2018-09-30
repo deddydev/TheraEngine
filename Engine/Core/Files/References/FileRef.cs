@@ -217,6 +217,7 @@ namespace TheraEngine.Files
                 //if (_file.References.Count == 0)
                 //    _file.Unload();
                 _file = null;
+                LoadAttempted = false;
             }
         }
 

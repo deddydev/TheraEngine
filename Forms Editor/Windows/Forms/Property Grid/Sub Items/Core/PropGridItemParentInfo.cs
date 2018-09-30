@@ -225,15 +225,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             get
             {
-                if (GetOwner == null)
-                    throw new InvalidOperationException();
+                if (OwnerIList == null || Index < 0 || Index >= OwnerIList.Count)
+                    return DataType.GetDefaultValue();
                 return OwnerIList[Index];
             }
             set
             {
-                if (OwnerIList == null)
-                    throw new InvalidOperationException();
-                OwnerIList[Index] = value;
+                if (OwnerIList != null && Index >= 0 && Index < OwnerIList.Count)
+                    OwnerIList[Index] = value;
             }
         }
     }

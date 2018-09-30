@@ -450,10 +450,10 @@ namespace TheraEngine.Components
                 OwningScene.AddPreRenderedObject(r);
 
             if (this is I3DRenderable r3d)
-                RenderInfo3D.TrySpawn(r3d, OwningScene3D);
+                r3d.RenderInfo.LinkScene(r3d, OwningScene3D);
 
             if (this is I2DRenderable r2d)
-                RenderInfo2D.TrySpawn(r2d, OwningScene2D);
+                r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
 
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
@@ -467,11 +467,11 @@ namespace TheraEngine.Components
                 OwningScene.RemovePreRenderedObject(r);
 
             if (this is I3DRenderable r3d)
-                RenderInfo3D.TryDespawn(r3d, OwningScene3D);
+                r3d.RenderInfo.UnlinkScene(r3d, OwningScene3D);
 
             if (this is I2DRenderable r2d)
-                RenderInfo2D.TryDespawn(r2d, OwningScene2D);
-            
+                r2d.RenderInfo.UnlinkScene(r2d, OwningScene2D);
+
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
         }
@@ -688,47 +688,18 @@ namespace TheraEngine.Components
 #if EDITOR
         protected internal override void OnHighlightChanged(bool highlighted)
         {
-            foreach (SceneComponent comp in ChildComponents)
-                comp.OnHighlightChanged(highlighted);
-            base.OnHighlightChanged(highlighted);
+            //foreach (SceneComponent comp in ChildComponents)
+            //    comp.OnHighlightChanged(highlighted);
         }
-        
-        protected void SelectedChangedRenderable3D(I3DRenderable r3d, bool selected)
-        {
-            if (r3d != null && OwningScene is Scene3D scene3D)
-            {
-                bool valid = IsSpawned && selected;
-
-                if (r3d.RenderInfo.VisibleInEditorOnly)
-                    valid = valid && Engine.EditorState.InEditMode;
-
-                r3d.RenderInfo.Visible = valid;
-            }
-        }
-        protected void SelectedChangedRenderable2D(I2DRenderable r2d, bool selected)
-        {
-            if (r2d != null && OwningScene is Scene2D scene2D)
-            {
-                bool valid = IsSpawned;
-
-                if (r2d.RenderInfo.VisibleInEditorOnly)
-                    valid = valid && Engine.EditorState.InEditMode;
-
-                if (valid)
-                {
-                    if (selected)
-                        scene2D.Add(r2d);
-                    else
-                        scene2D.Remove(r2d);
-                }
-            }
-        }
-
         protected internal override void OnSelectedChanged(bool selected)
         {
-            foreach (SceneComponent comp in ChildComponents)
-                comp.OnSelectedChanged(selected);
-            base.OnSelectedChanged(selected);
+            if (this is I3DRenderable r3d)
+                r3d.RenderInfo.Visible = selected;
+            if (this is I2DRenderable r2d)
+                r2d.RenderInfo.Visible = selected;
+
+            //foreach (SceneComponent comp in ChildComponents)
+            //    comp.OnSelectedChanged(selected);
         }
 #endif
 

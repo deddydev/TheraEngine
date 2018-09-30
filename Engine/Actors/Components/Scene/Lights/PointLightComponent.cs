@@ -91,6 +91,7 @@ namespace TheraEngine.Components.Scene.Lights
                     if (ShadowMap == null)
                         SetShadowMapResolution(512, 512);
                 }
+                _influenceVolume.RenderInfo.LinkScene(_influenceVolume, s3d);
             }
             base.OnSpawned();
         }
@@ -103,6 +104,7 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     s3d.Lights.Remove(this);
                 }
+                _influenceVolume.RenderInfo.UnlinkScene(_influenceVolume, s3d);
             }
             base.OnDespawned();
         }
@@ -182,14 +184,10 @@ namespace TheraEngine.Components.Scene.Lights
 
             return mat;
         }
-        
 #if EDITOR
         protected internal override void OnSelectedChanged(bool selected)
         {
-            SelectedChangedRenderable3D(_influenceVolume, selected);
-            //foreach (PerspectiveCamera c in ShadowCameras)
-            //SelectedChangedRenderable3D(c, selected);
-            base.OnSelectedChanged(selected);
+            _influenceVolume.RenderInfo.Visible = selected;
         }
 #endif
     }

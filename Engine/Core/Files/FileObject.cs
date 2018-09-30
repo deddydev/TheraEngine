@@ -589,7 +589,13 @@ namespace TheraEngine.Files
                         }
                     }
                     else
-                        file = new CustomXmlSerializer().Deserialize(filePath);
+                    {
+                        Type fileType = CustomXmlSerializer.DetermineType(filePath);
+                        if (type.IsAssignableFrom(fileType))
+                            file = new CustomXmlSerializer().Deserialize(filePath);
+                        else
+                            Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -680,8 +686,9 @@ namespace TheraEngine.Files
                 if (!File.Exists(filePath))
                     return null;
 
-                TFileObject file;
-                if (GetFileExtension(type).ManualBinConfigSerialize)
+                TFileObject file = null;
+                FileExt ext = GetFileExtension(type);
+                if (ext?.ManualBinConfigSerialize ?? false)
                 {
                     file = SerializationCommon.CreateObject(type) as TFileObject;
                     if (file != null)
@@ -696,7 +703,13 @@ namespace TheraEngine.Files
                     }
                 }
                 else
-                    file = CustomBinarySerializer.Deserialize(filePath, type) as TFileObject;
+                {
+                    Type fileType = CustomBinarySerializer.DetermineType(filePath);
+                    if (type.IsAssignableFrom(fileType))
+                        file = CustomBinarySerializer.Deserialize(filePath, type) as TFileObject;
+                    else
+                        Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
+                }
 
                 if (file != null)
                     file.FilePath = filePath;

@@ -108,7 +108,7 @@ namespace TheraEngine.Components.Scene.Mesh
         /// May load synchronously if not currently loaded.
         /// </summary>
         [Browsable(false)]
-        public Skeleton SkeletonOverride => SkeletonOverrideRef.File;
+        public Skeleton SkeletonOverride => SkeletonOverrideRef?.File;
 
         [TSerialize]
         [Category("Skeletal Mesh Component")]
@@ -157,7 +157,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 MakeMeshes();
         }
 
-        private void MakeMeshes()
+        private async void MakeMeshes()
         {
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
@@ -166,8 +166,20 @@ namespace TheraEngine.Components.Scene.Mesh
                     m.Destroy();
                 }
 
-            SkeletalModel model = ModelRef?.File;
-            _targetSkeleton = SkeletonOverride ?? ModelRef?.File?.SkeletonRef?.File;
+            if (ModelRef == null)
+                return;
+
+            SkeletalModel model = await ModelRef.GetInstanceAsync();
+            if (model == null)
+                return;
+
+            _targetSkeleton = null;
+            if (SkeletonOverrideRef != null)
+                _targetSkeleton = await SkeletonOverrideRef.GetInstanceAsync();
+
+            if (_targetSkeleton == null && model.SkeletonRef != null)
+                _targetSkeleton = await model.SkeletonRef.GetInstanceAsync();
+            
             if (_targetSkeleton == null || model == null)
                 return;
 
@@ -177,13 +189,13 @@ namespace TheraEngine.Components.Scene.Mesh
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {
                 SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], _targetSkeleton, this);
-                RenderInfo3D.TrySpawn(mesh, OwningScene3D);
+                mesh.RenderInfo.LinkScene(mesh, OwningScene3D);
                 Meshes[i] = mesh;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
                 SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], _targetSkeleton, this);
-                RenderInfo3D.TrySpawn(mesh, OwningScene3D);
+                mesh.RenderInfo.LinkScene(mesh, OwningScene3D);
                 Meshes[model.RigidChildren.Count + i] = mesh;
             }
         }
@@ -251,25 +263,13 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            base.OnSelectedChanged(selected);
-
-            if (OwningScene == null)
-                return;
-
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
                 {
-                    if (m?.CullingVolume != null)
-                    {
-                        if (selected)
-                        {
-                            OwningScene3D.Add(m.CullingVolume);
-                        }
-                        else
-                        {
-                            OwningScene3D.Remove(m.CullingVolume);
-                        }
-                    }
+                    var cull = m?.CullingVolume;
+                    if (cull != null)
+                        cull.RenderInfo.Visible = selected;
+                    
                     //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
                 }
         }

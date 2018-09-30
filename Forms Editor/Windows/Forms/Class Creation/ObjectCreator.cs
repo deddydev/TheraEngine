@@ -375,6 +375,7 @@ namespace TheraEditor.Windows.Forms
                 ConstructedObject = null;
                 DialogResult = DialogResult.OK;
                 Close();
+                return;
             }
 
             if (ClassType.ContainsGenericParameters)

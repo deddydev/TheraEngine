@@ -262,20 +262,6 @@ void main()
             _rcCurrentPoint.Mesh = _timePointPrimitive;
             _rcExtrema.Mesh = _extremaPrimitive;
         }
-
-#if EDITOR
-        protected internal override void OnSelectedChanged(bool selected)
-        {
-            if (OwningScene3D != null)
-            {
-                if (selected)
-                    OwningScene3D.Add(this);
-                else
-                    OwningScene3D.Remove(this);
-            }
-            base.OnSelectedChanged(selected);
-        }
-#endif
         private Matrix4 _localTRS = Matrix4.Identity;
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {

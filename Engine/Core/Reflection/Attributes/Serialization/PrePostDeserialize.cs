@@ -7,7 +7,7 @@ namespace TheraEngine.Core.Reflection.Attributes.Serialization
     /// Called after a class has just been deserialized.
     /// Can be used for setup after all values have been set.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class PostDeserialize : Attribute
     {
         public PostDeserialize(int order = -1, ESerializeFormatFlag runForFormats = ESerializeFormatFlag.All, params object[] arguments)

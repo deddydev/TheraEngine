@@ -135,29 +135,24 @@ namespace TheraEngine.Components.Scene.Mesh
 
         private void _skeletonRef_Loaded(Skeleton skel)
         {
-            if (ModelRef != null && !ModelRef.IsLoaded)
+            if (ModelRef == null || !ModelRef.IsLoaded)
                 return;
-
-            //_targetSkeleton = SkeletonOverride ?? ModelRef.File.SkeletonRef.File;
-            //_targetSkeleton.OwningComponent = this;
-
-            //if (Meshes != null)
-            //    foreach (SkeletalRenderableMesh m in Meshes)
-            //        m.Skeleton = _targetSkeleton;
-
+            
             if (IsSpawned)
-                MakeMeshes();
+                MakeMeshes(ModelRef.File, skel);
         }
-        private void _modelRef_Loaded(SkeletalModel model)
+        private async void _modelRef_Loaded(SkeletalModel model)
         {
-            //_targetSkeleton = SkeletonOverride ?? model.SkeletonRef.File;
-            //_targetSkeleton.OwningComponent = this;
-
             if (IsSpawned)
-                MakeMeshes();
+            {
+                Skeleton skelOverride = null;
+                if (SkeletonOverrideRef != null)
+                    skelOverride = await SkeletonOverrideRef.GetInstanceAsync();
+                MakeMeshes(model, skelOverride);
+            }
         }
 
-        private async void MakeMeshes()
+        private async void MakeMeshes(SkeletalModel model, Skeleton skeletonOverride)
         {
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
@@ -165,22 +160,13 @@ namespace TheraEngine.Components.Scene.Mesh
                     m.RenderInfo.Visible = false;
                     m.Destroy();
                 }
-
-            if (ModelRef == null)
-                return;
-
-            SkeletalModel model = await ModelRef.GetInstanceAsync();
+            
             if (model == null)
                 return;
 
-            _targetSkeleton = null;
-            if (SkeletonOverrideRef != null)
-                _targetSkeleton = await SkeletonOverrideRef.GetInstanceAsync();
+            _targetSkeleton = skeletonOverride ?? await model.SkeletonRef?.GetInstanceAsync();
 
-            if (_targetSkeleton == null && model.SkeletonRef != null)
-                _targetSkeleton = await model.SkeletonRef.GetInstanceAsync();
-            
-            if (_targetSkeleton == null || model == null)
+            if (_targetSkeleton == null)
                 return;
 
             _targetSkeleton.OwningComponent = this;
@@ -213,9 +199,11 @@ namespace TheraEngine.Components.Scene.Mesh
                 if (b.RigidBodyCollision != null)
                     b.RigidBodyCollision.SimulatingPhysics = doSimulation;
         }
-        public override void OnSpawned()
+        public override async void OnSpawned()
         {
-            MakeMeshes();
+            var model = await ModelRef?.GetInstanceAsync();
+            var skeletonOverride = await SkeletonOverrideRef?.GetInstanceAsync();
+            MakeMeshes(model, skeletonOverride);
             base.OnSpawned();
         }
         public override void OnDespawned()

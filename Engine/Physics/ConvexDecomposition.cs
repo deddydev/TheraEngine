@@ -22,7 +22,6 @@ namespace TheraEngine.Physics
             bool addFacesPoints = false)
         {
             //TODO: finish hacd convex decomposition
-            return null;
 
             Hacd hacd = new Hacd();
             List<int> indices = new List<int>();
@@ -31,7 +30,7 @@ namespace TheraEngine.Physics
             int baseIndexOffset = 0;
             foreach (PrimitiveData primData in primitives)
             {
-                primData[Rendering.Models.EBufferType.Position].GetData(out Vec3[] array, false);
+                primData[EBufferType.Position].GetData(out Vec3[] array, false);
                 meshIndices = primData.GetIndices();
                 foreach (int i in meshIndices)
                     indices.Add(i + baseIndexOffset);
@@ -67,7 +66,9 @@ namespace TheraEngine.Physics
                 for (int i = 0; i < meshPoints.Length; ++i)
                     meshPoints[i] -= centroid;
 
-                TCollisionConvexHull convexShape = TCollisionConvexHull.New(meshPoints.Select(x => new Vec3(x.X, x.Y, x.Z)));
+                TCollisionConvexHull convexShape = TCollisionConvexHull.New(
+                    meshPoints.Select(x => (Vec3)x));
+
                 shapes[c] = (Matrix.Translation(centroid), convexShape);
             }
 

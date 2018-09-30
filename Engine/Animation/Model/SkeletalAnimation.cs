@@ -41,7 +41,7 @@ namespace TheraEngine.Animation
         [TSerialize("BoneAnimations")]
         private Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
 
-        [PostDeserialize]
+        //[PostDeserialize]
         internal override void PostDeserialize()
         {
             foreach (BoneAnimation b in _boneAnimations.Values)
@@ -223,6 +223,30 @@ namespace TheraEngine.Animation
         public KeyframeTrack<FloatKeyframe> ScaleY => _tracks.ScaleY;
         [Category("Bone Animation")]
         public KeyframeTrack<FloatKeyframe> ScaleZ => _tracks.ScaleZ;
+
+        private FloatKeyframe[] _lastKeyframes = new FloatKeyframe[9];
+        private float?[] _currentValues = new float?[9];
+
+        public float? CurrentTranslationX => _currentValues[0];
+        public float? CurrentTranslationY => _currentValues[1];
+        public float? CurrentTranslationZ => _currentValues[2];
+        public float? CurrentRotationX => _currentValues[3];
+        public float? CurrentRotationY => _currentValues[4];
+        public float? CurrentRotationZ => _currentValues[5];
+        public float? CurrentScaleX => _currentValues[6];
+        public float? CurrentScaleY => _currentValues[7];
+        public float? CurrentScaleZ => _currentValues[8];
+
+        public void Progress(float delta)
+        {
+            KeyframeTrack<FloatKeyframe> track;
+            for (int i = 0; i < 9; ++i)
+            {
+                track = _tracks[i];
+                FloatKeyframe lastKf = _lastKeyframes[i] ?? track.First;
+                _currentValues[i] = lastKf == null ? null : (float?)lastKf.Interpolate(second, EVectorInterpValueType.Position);
+            }
+        }
 
         public BoneFrame GetFrame()
             => GetFrame(Parent.CurrentTime);

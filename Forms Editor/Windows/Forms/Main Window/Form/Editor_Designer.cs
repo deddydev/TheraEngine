@@ -131,9 +131,10 @@ namespace TheraEditor.Windows.Forms
 
         private class OperationInfo
         {
-            private readonly Action _updated;
+            private readonly Action<int> _updated;
             private CancellationTokenSource _token;
 
+            public int Index { get; }
             public DateTime StartTime { get; }
             public TimeSpan OperationDuration { get; private set; }
             public Progress<float> Progress { get; }
@@ -141,7 +142,7 @@ namespace TheraEditor.Windows.Forms
             public bool IsComplete => ProgressValue >= 0.99f;
             public bool CanCancel => _token != null && _token.Token.CanBeCanceled;
 
-            public OperationInfo(Progress<float> progress, CancellationTokenSource cancel, Action updated)
+            public OperationInfo(Progress<float> progress, CancellationTokenSource cancel, Action<int> updated, int index)
             {
                 _updated = updated;
                 Progress = progress;
@@ -149,17 +150,19 @@ namespace TheraEditor.Windows.Forms
                     Progress.ProgressChanged += Progress_ProgressChanged;
                 _token = cancel;
                 StartTime = DateTime.Now;
+                Index = index;
             }
             
             private void Progress_ProgressChanged(object sender, float progressValue)
             {
                 ProgressValue = progressValue;
                 OperationDuration = DateTime.Now - StartTime;
-                _updated();
+                _updated(Index);
             }
 
             public void Cancel()
             {
+                Instance._operations[Index] = null;
                 _token?.Cancel();
                 if (Progress != null)
                     Progress.ProgressChanged -= Progress_ProgressChanged;
@@ -167,21 +170,22 @@ namespace TheraEditor.Windows.Forms
         }
         private List<OperationInfo> _operations = new List<OperationInfo>();
 
-        public void ReportOperation(string statusBarMessage, Progress<float> progress, CancellationTokenSource token)
+        public int ReportOperation(string statusBarMessage, Progress<float> progress, CancellationTokenSource token)
         {
             if (_operations.Count == 0)
             {
                 toolStripProgressBar1.Value = 0;
             }
-            
-            _operations.Add(new OperationInfo(progress, token, Info_Updated));
+
+            int index = _operations.Count;
+            _operations.Add(new OperationInfo(progress, token, Info_Updated, index));
             
             btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
             toolStripProgressBar1.Visible = true;
             toolStripStatusLabel1.Text = statusBarMessage;
+            return index;
         }
-        
-        private void Info_Updated()
+        private void Info_Updated(int index)
         {
             int resolution = toolStripProgressBar1.Maximum;
 
@@ -206,13 +210,18 @@ namespace TheraEditor.Windows.Forms
             int value = (int)(avgProgress * (resolution + 0.5f));
             toolStripProgressBar1.ProgressBar.Value = value;
             if (value >= resolution)
-                EndOperation();
+                EndOperation(index);
         }
-        private void EndOperation()
+        private void EndOperation(int index)
         {
-            _operations.Clear();
-            btnCancelOp.Visible = false;
-            toolStripProgressBar1.Visible = false;
+            if (_operations.IndexInRange(index))
+                _operations[index] = null;
+            if (_operations.All(x => x == null))
+            {
+                _operations.Clear();
+                btnCancelOp.Visible = false;
+                toolStripProgressBar1.Visible = false;
+            }
         }
         private void btnCancelOp_ButtonClick(object sender, EventArgs e)
         {
@@ -220,7 +229,7 @@ namespace TheraEditor.Windows.Forms
             {
                 info.Cancel();
             }
-            EndOperation();
+            EndOperation(-1);
             toolStripStatusLabel1.Text = _operations.Count == 1 ?
                 "Operation was canceled." :
                 "Operations were canceled.";

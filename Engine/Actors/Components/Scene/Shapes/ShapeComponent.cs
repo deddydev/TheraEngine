@@ -13,8 +13,7 @@ namespace TheraEngine.Components.Scene.Shapes
     {
         [TSerialize]
         [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; protected set; } 
-            = new RenderInfo3D(ERenderPass.OpaqueForward, false, false) { CastsShadows = false, ReceivesShadows = false };
+        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
 
         public ShapeComponent()
         {
@@ -66,17 +65,12 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public override void OnSpawned()
         {
-            Visible = VisibleByDefault;
             _rigidBodyCollision?.Spawn(OwningWorld);
-            if (Visible)
-                OwningScene3D?.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             _rigidBodyCollision?.Despawn(OwningWorld);
-            if (Visible)
-                OwningScene3D?.Remove(this);
             base.OnDespawned();
         }
 
@@ -84,59 +78,9 @@ namespace TheraEngine.Components.Scene.Shapes
         private RenderingParameters _renderParams = new RenderingParameters();
         [TSerialize(nameof(RigidBodyCollision))]
         protected TRigidBody _rigidBodyCollision;
-        [TSerialize(nameof(Visible))]
-        protected bool _isVisible;
-        [TSerialize(nameof(VisibleByDefault))]
-        protected bool _visibleByDefault = true;
-        [TSerialize(nameof(VisibleInEditorOnly))]
-        protected bool _visibleInEditorOnly;
-        [TSerialize(nameof(HiddenFromOwner))]
-        protected bool _hiddenFromOwner;
-        [TSerialize(nameof(VisibleToOwnerOnly))]
-        protected bool _visibleToOwnerOnly;
-
-        [Category(RenderingCategoryName)]
-        public bool Visible
-        {
-            get => _isVisible;
-            set
-            {
-                if (_isVisible == value)
-                    return;
-                _isVisible = value;
-                if (IsSpawned && OwningScene != null)
-                {
-                    if (_isVisible)
-                        OwningScene3D?.Add(this);
-                    else
-                        OwningScene3D?.Remove(this);
-                }
-            }
-        }
-        [Category(RenderingCategoryName)]
-        public bool VisibleByDefault => _visibleByDefault;
-
+        
         [Category(PhysicsCategoryName)]
         public TRigidBody RigidBodyCollision => _rigidBodyCollision;
-
-        [Category(RenderingCategoryName)]
-        public bool VisibleInEditorOnly
-        {
-            get => _visibleInEditorOnly;
-            set => _visibleInEditorOnly = value;
-        }
-        [Category(RenderingCategoryName)]
-        public bool HiddenFromOwner
-        {
-            get => _hiddenFromOwner;
-            set => _hiddenFromOwner = value;
-        }
-        [Category(RenderingCategoryName)]
-        public bool VisibleToOwnerOnly
-        {
-            get => _visibleToOwnerOnly;
-            set => _visibleToOwnerOnly = value;
-        }
         
         protected abstract TCollisionShape GetCollisionShape();
 

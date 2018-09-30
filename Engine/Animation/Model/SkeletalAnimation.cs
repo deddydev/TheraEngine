@@ -22,12 +22,12 @@ namespace TheraEngine.Animation
         {
             ModelImportOptions o = new ModelImportOptions()
             {
-                IgnoreFlags =
-                Collada.EIgnoreFlags.Extra |
-                Collada.EIgnoreFlags.Geometry |
-                Collada.EIgnoreFlags.Controllers |
-                Collada.EIgnoreFlags.Cameras |
-                Collada.EIgnoreFlags.Lights
+                //IgnoreFlags =
+                //Collada.EIgnoreFlags.Extra |
+                //Collada.EIgnoreFlags.Geometry |
+                //Collada.EIgnoreFlags.Controllers |
+                //Collada.EIgnoreFlags.Cameras |
+                //Collada.EIgnoreFlags.Lights
             };
             return (await Collada.ImportAsync(path, o))?.Models[0].Animation;
         }
@@ -161,7 +161,7 @@ namespace TheraEngine.Animation
         
         protected override void OnProgressed(float delta)
         {
-            throw new NotImplementedException();
+            BoneAnimations.ForEach(x => x.Value.Progress(CurrentTime));
         }
     }
     public class BoneAnimation
@@ -237,7 +237,7 @@ namespace TheraEngine.Animation
         public float? CurrentScaleY => _currentValues[7];
         public float? CurrentScaleZ => _currentValues[8];
 
-        public void Progress(float delta)
+        public void Progress(float second)
         {
             KeyframeTrack<FloatKeyframe> track;
             for (int i = 0; i < 9; ++i)
@@ -248,8 +248,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        public BoneFrame GetFrame()
-            => GetFrame(Parent.CurrentTime);
+        public BoneFrame GetFrame() => new BoneFrame(_name, _currentValues, _tracks.EulerOrder);
         public BoneFrame GetFrame(float second)
         {
             float?[] values = new float?[9];

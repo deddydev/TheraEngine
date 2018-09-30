@@ -36,7 +36,7 @@ namespace TheraEngine.Components.Scene.Transforms
         [TSerialize]
         public LocalFileRef<TCollisionObject> IgnoreCast { get; set; } = null;
         [TSerialize]
-        public RenderInfo3D RenderInfo { get; private set; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]

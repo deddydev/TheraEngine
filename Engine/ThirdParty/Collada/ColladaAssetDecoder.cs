@@ -285,7 +285,12 @@ namespace TheraEngine.Rendering.Models
                     info._texcoordCount);
                 
                 Vertex[][] vertices = new Vertex[prim.PointCount][];
-                int[] indices = prim.IndicesElement.StringContent.Values;
+                int[] indices = prim?.IndicesElement?.StringContent?.Values;
+                if (indices == null)
+                {
+                    Engine.LogWarning("Mesh has no face indices. Mesh will be empty.", prim.Type.ToString());
+                    return;
+                }
 
                 Matrix4 invTranspBindMatrix = bindMatrix;
                 if (info.HasNormals || info.HasBinormals || info.HasTangents)

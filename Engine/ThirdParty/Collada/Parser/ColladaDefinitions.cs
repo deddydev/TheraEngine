@@ -1583,7 +1583,14 @@ namespace TheraEngine.Rendering.Models
 
                             public override void PostRead()
                             {
-                                PointCount = IndicesElement.StringContent.Values.Length / InputElements.Length;
+                                var values = IndicesElement?.StringContent?.Values;
+                                if (values == null || InputElements == null)
+                                {
+                                    PointCount = FaceCount = 0;
+                                    return;
+                                }
+
+                                PointCount = values.Length / InputElements.Length;
                                 switch (Type)
                                 {
                                     case EColladaPrimitiveType.Trifans:

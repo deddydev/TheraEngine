@@ -285,10 +285,10 @@ namespace TheraEngine.Core.Files.XML
                     int childIndex = 0;
 
                     ChildInfo[] childElements = entry.WantsManualRead ? null :
-                        elementType.GetCustomAttributesExt<ElementChild>().Select(x => new ChildInfo(x)).ToArray();
+                        elementType.GetCustomAttributes<ElementChild>().Select(x => new ChildInfo(x)).ToArray();
 
                     MultiChildInfo[] multiChildElements = entry.WantsManualRead ? null : 
-                        elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
+                        elementType.GetCustomAttributes<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
 
                     //Read all child elements
                     while (reader.NodeType != XmlNodeType.EndElement)
@@ -321,7 +321,7 @@ namespace TheraEngine.Core.Files.XML
                         }
                         else
                         {
-                            bool isUnsupported = elementType.GetCustomAttributesExt<UnsupportedElementChild>().
+                            bool isUnsupported = elementType.GetCustomAttributes<UnsupportedElementChild>().
                                 Any(x => string.Equals(x.ElementName, elementName, StringComparison.InvariantCultureIgnoreCase));
 
                             if (isUnsupported)
@@ -823,8 +823,8 @@ namespace TheraEngine.Core.Files.XML
                 return;
 
             Type t = GetType();
-            ElementChild[] childAttribs = t.GetCustomAttributesExt<ElementChild>();
-            MultiChild[] mc = t.GetCustomAttributesExt<MultiChild>();
+            var childAttribs = t.GetCustomAttributes<ElementChild>();
+            var mc = t.GetCustomAttributes<MultiChild>();
             elements = elements.Where(elem => childAttribs.Any(attrib => attrib.ChildEntryType.IsAssignableFrom(elem.GetType()))).ToArray();
             int currentCount = ChildElementCount;
             for (int i = 0; i < elements.Length; ++i)

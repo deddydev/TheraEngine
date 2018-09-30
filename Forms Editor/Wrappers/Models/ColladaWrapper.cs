@@ -79,7 +79,7 @@ namespace TheraEditor.Wrappers
         {
             Progress<float> p = new Progress<float>();
             CancellationTokenSource token = new CancellationTokenSource();
-            Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as static model...", p, token);
+            int index = Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as static model...", p, token);
             ModelImportOptions o = new ModelImportOptions()
             {
                 IgnoreFlags =
@@ -103,6 +103,8 @@ namespace TheraEditor.Wrappers
                 string dir = Path.GetDirectoryName(FilePath);
                 string name = Path.GetFileNameWithoutExtension(FilePath);
                 staticModel.Export(dir, name, EFileFormat.XML);
+
+                Editor.Instance.FinishOperation(index);
             });
         }
         private void ImportAsSkeletalMesh()

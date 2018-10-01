@@ -225,10 +225,9 @@ namespace TheraEditor.Windows.Forms
         }
         private void btnCancelOp_ButtonClick(object sender, EventArgs e)
         {
-            foreach (OperationInfo info in _operations)
-            {
-                info.Cancel();
-            }
+            for (int i = 0; i < _operations.Count; ++i)
+                _operations[i].Cancel();
+            
             EndOperation(-1);
             toolStripStatusLabel1.Text = _operations.Count == 1 ?
                 "Operation was canceled." :

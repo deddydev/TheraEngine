@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Logic.Animation
     public class AnimStateMachineComponent : LogicComponent
     {
         [TSerialize("InitialStateIndex", XmlNodeType = EXmlNodeType.Attribute)]
-        private int _initialStateIndex;
+        private int _initialStateIndex = -1;
         [TSerialize("States", XmlNodeType = EXmlNodeType.Attribute)]
         private List<AnimState> _states;
         [TSerialize("Skeleton", XmlNodeType = EXmlNodeType.Attribute)]
@@ -44,10 +44,10 @@ namespace TheraEngine.Components.Logic.Animation
 
         public AnimState InitialState
         {
-            get => _initialStateIndex >= 0 ? _states[_initialStateIndex] : null;
+            get => _states.IndexInRange(_initialStateIndex) ? _states[_initialStateIndex] : null;
             set
             {
-                bool wasNull = _initialStateIndex < 0;
+                bool wasNull = !_states.IndexInRange(_initialStateIndex);
                 int index = _states.IndexOf(value);
                 if (index >= 0)
                     _initialStateIndex = index;
@@ -59,10 +59,10 @@ namespace TheraEngine.Components.Logic.Animation
                 else
                     _initialStateIndex = -1;
 
-                if (IsSpawned && wasNull && _initialStateIndex >= 0)
+                if (IsSpawned && wasNull && _states.IndexInRange(_initialStateIndex))
                 {
                     _currentState = InitialState;
-                    _blendManager = new BlendManager(InitialState.Animation);
+                    _blendManager = new BlendManager(InitialState?.Animation);
                     RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
                 }
             }
@@ -75,16 +75,16 @@ namespace TheraEngine.Components.Logic.Animation
 
         public override void OnSpawned()
         {
-            if (_initialStateIndex >= 0)
+            if (_states.IndexInRange(_initialStateIndex))
             {
                 _currentState = InitialState;
-                _blendManager = new BlendManager(InitialState.Animation);
+                _blendManager = new BlendManager(InitialState?.Animation);
                 RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
             }
         }
         public override void OnDespawned()
         {
-            if (_initialStateIndex >= 0)
+            if (_states.IndexInRange(_initialStateIndex))
             {
                 UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
                 _blendManager = null;

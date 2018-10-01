@@ -39,6 +39,7 @@ namespace TheraEngine.Rendering.Models
 
                 if (this is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
                 {
+                    Engine.PrintLine(SIDEntry.SID);
                     IElement p = SIDEntry.Parent;
                     while (true)
                     {
@@ -54,7 +55,41 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
             }
+        }
+        public abstract class BaseColladaStringElement<TParent, TString> : BaseStringElement<TParent, TString>, IStringElement
+            where TParent : class, IElement
+            where TString : BaseElementString
+        {
+            public new COLLADA Root => base.Root as COLLADA;
+            public virtual List<IID> GetIDEntries(string id) => Root.IDEntries[id];
+            public override void OnAttributesRead()
+            {
+                if (this is IID IDEntry && !string.IsNullOrEmpty(IDEntry.ID))
+                {
+                    if (!Root.IDEntries.ContainsKey(IDEntry.ID))
+                        Root.IDEntries.Add(IDEntry.ID, new List<IID>() { IDEntry });
+                    else
+                        Root.IDEntries[IDEntry.ID].Add(IDEntry);
+                }
 
+                if (this is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
+                {
+                    Engine.PrintLine(SIDEntry.SID);
+                    IElement p = SIDEntry.Parent;
+                    while (true)
+                    {
+                        if (p is ISIDAncestor ancestor)
+                        {
+                            ancestor.SIDElementChildren.Add(SIDEntry);
+                            break;
+                        }
+                        else if (p.Parent != null)
+                            p = p.Parent;
+                        else
+                            break;
+                    }
+                }
+            }
         }
         /// <summary>
         /// This is a url that references the unique id of another element.
@@ -211,7 +246,7 @@ namespace TheraEngine.Rendering.Models
             public List<ISID> SIDElementChildren { get; } = new List<ISID>();
 
             [ElementName("semantic")]
-            public class Semantic : BaseStringElement<NewParam, ElementString>
+            public class Semantic : BaseColladaStringElement<NewParam, ElementString>
             {
                 public string Value
                 {
@@ -220,7 +255,7 @@ namespace TheraEngine.Rendering.Models
                 }
             }
             [ElementName("modifier")]
-            public class Modifier : BaseStringElement<NewParam, StringNumeric<ELinkageModifier>>
+            public class Modifier : BaseColladaStringElement<NewParam, StringNumeric<ELinkageModifier>>
             {
                 public ELinkageModifier LinkageModifier
                 {
@@ -343,19 +378,19 @@ namespace TheraEngine.Rendering.Models
             public class Contributor : BaseColladaElement<Asset>
             {
                 [ElementName("author")]
-                public class Author : BaseStringElement<Contributor, ElementString> { }
+                public class Author : BaseColladaStringElement<Contributor, ElementString> { }
                 [ElementName("author_email")]
-                public class AuthorEmail : BaseStringElement<Contributor, ElementString> { }
+                public class AuthorEmail : BaseColladaStringElement<Contributor, ElementString> { }
                 [ElementName("author_website")]
-                public class AuthorWebsite : BaseStringElement<Contributor, ElementString> { }
+                public class AuthorWebsite : BaseColladaStringElement<Contributor, ElementString> { }
                 [ElementName("authoring_tool")]
-                public class AuthoringTool : BaseStringElement<Contributor, ElementString> { }
+                public class AuthoringTool : BaseColladaStringElement<Contributor, ElementString> { }
                 [ElementName("comments")]
-                public class Comments : BaseStringElement<Contributor, ElementString> { }
+                public class Comments : BaseColladaStringElement<Contributor, ElementString> { }
                 [ElementName("copyright")]
-                public class Copyright : BaseStringElement<Contributor, ElementString> { }
+                public class Copyright : BaseColladaStringElement<Contributor, ElementString> { }
                 [ElementName("source_data")]
-                public class SourceData : BaseStringElement<Contributor, ElementString> { }
+                public class SourceData : BaseColladaStringElement<Contributor, ElementString> { }
             }
             #endregion
 
@@ -374,14 +409,14 @@ namespace TheraEngine.Rendering.Models
                     /// -180.0f to 180.0f
                     /// </summary>
                     [ElementName("longitude")]
-                    public class Longitude : BaseStringElement<GeographicLocation, StringNumeric<float>> { }
+                    public class Longitude : BaseColladaStringElement<GeographicLocation, StringNumeric<float>> { }
                     /// <summary>
                     /// -90.0f to 90.0f
                     /// </summary>
                     [ElementName("latitude")]
-                    public class Latitude : BaseStringElement<GeographicLocation, StringNumeric<float>> { }
+                    public class Latitude : BaseColladaStringElement<GeographicLocation, StringNumeric<float>> { }
                     [ElementName("altitude")]
-                    public class Altitude : BaseStringElement<GeographicLocation, StringNumeric<float>>
+                    public class Altitude : BaseColladaStringElement<GeographicLocation, StringNumeric<float>>
                     {
                         public enum EMode
                         {
@@ -397,17 +432,17 @@ namespace TheraEngine.Rendering.Models
 
             #region ElementChild Elements
             [ElementName("created")]
-            public class Created : BaseStringElement<Asset, ElementString> { }
+            public class Created : BaseColladaStringElement<Asset, ElementString> { }
             [ElementName("keywords")]
-            public class Keywords : BaseStringElement<Asset, ElementString> { }
+            public class Keywords : BaseColladaStringElement<Asset, ElementString> { }
             [ElementName("modified")]
-            public class Modified : BaseStringElement<Asset, ElementString> { }
+            public class Modified : BaseColladaStringElement<Asset, ElementString> { }
             [ElementName("revision")]
-            public class Revision : BaseStringElement<Asset, ElementString> { }
+            public class Revision : BaseColladaStringElement<Asset, ElementString> { }
             [ElementName("subject")]
-            public class Subject : BaseStringElement<Asset, ElementString> { }
+            public class Subject : BaseColladaStringElement<Asset, ElementString> { }
             [ElementName("title")]
-            public class Title : BaseStringElement<Asset, ElementString> { }
+            public class Title : BaseColladaStringElement<Asset, ElementString> { }
             [ElementName("unit")]
             public class Unit : BaseColladaElement<Asset>
             {
@@ -444,7 +479,7 @@ namespace TheraEngine.Rendering.Models
                         //Negate the original axis value if swapping into that spot and sign is different
             }
             [ElementName("up_axis")]
-            public class UpAxis : BaseStringElement<Asset, StringNumeric<EUpAxis>> { }
+            public class UpAxis : BaseColladaStringElement<Asset, StringNumeric<EUpAxis>> { }
             #endregion
 
             //public override bool WantsManualRead => true;
@@ -570,7 +605,7 @@ namespace TheraEngine.Rendering.Models
             }
             public interface IArrayElement : IElement { }
             public class ArrayElement<T> :
-                BaseStringElement<Source, T>, IID, IElementName, IArrayElement
+                BaseColladaStringElement<Source, T>, IID, IElementName, IArrayElement
                 where T : BaseElementString
             {
                 [Attr("id", false)]
@@ -658,7 +693,7 @@ namespace TheraEngine.Rendering.Models
             public Skeleton[] SkeletonElements => GetChildren<Skeleton>();
 
             [ElementName("skeleton")]
-            public class Skeleton : BaseStringElement<InstanceController, ElementColladaURI> { }
+            public class Skeleton : BaseColladaStringElement<InstanceController, ElementColladaURI> { }
         }
         public interface IInstanceMesh : IElement
         {
@@ -949,7 +984,7 @@ namespace TheraEngine.Rendering.Models
                         /// maps, volumes, MIPs, and so on.
                         /// </summary>
                         [ElementName("ref")]
-                        public class Ref : BaseStringElement<InitFrom, ElementString> { }
+                        public class Ref : BaseColladaStringElement<InitFrom, ElementString> { }
                         /// <summary>
                         /// Contains the embedded image data as a sequence of
                         /// hexadecimal-encoded binary octets. The data typically
@@ -957,7 +992,7 @@ namespace TheraEngine.Rendering.Models
                         /// such as data width and height.
                         /// </summary>
                         [ElementName("hex")]
-                        public class Embedded : BaseStringElement<InitFrom, ElementHex>
+                        public class Embedded : BaseColladaStringElement<InitFrom, ElementHex>
                         {
                             /// <summary>
                             /// Use the required format attribute(xs:token) to specify which codec decodes the
@@ -1047,9 +1082,9 @@ namespace TheraEngine.Rendering.Models
                     public interface ISource : IElement { }
 
                     [ElementName("init_from")]
-                    public class InitFrom : BaseStringElement<Image14X, ElementString>, ISource { }
+                    public class InitFrom : BaseColladaStringElement<Image14X, ElementString>, ISource { }
                     [ElementName("data")]
-                    public class Data : BaseStringElement<Image14X, ElementHex>, ISource { }
+                    public class Data : BaseColladaStringElement<Image14X, ElementHex>, ISource { }
                 }
                 #endregion
             }
@@ -1234,7 +1269,7 @@ namespace TheraEngine.Rendering.Models
                                 public Texture TextureElement => GetChild<Texture>();
                                 
                                 [ElementName("color")]
-                                public class Color : BaseStringElement<BaseFXColorTexture, StringParsable<Vec4>>, ISID
+                                public class Color : BaseColladaStringElement<BaseFXColorTexture, StringParsable<Vec4>>, ISID
                                 {
                                     [Attr("sid", false)]
                                     public string SID { get; set; } = null;
@@ -1258,7 +1293,7 @@ namespace TheraEngine.Rendering.Models
                             public class BaseFXFloatParam : BaseColladaElement<BaseTechniqueElementChild>, IRefParam
                             {
                                 [ElementName("float")]
-                                public class Float : BaseStringElement<BaseFXFloatParam, StringNumeric<float>>, ISID
+                                public class Float : BaseColladaStringElement<BaseFXFloatParam, StringNumeric<float>>, ISID
                                 {
                                     [Attr("sid", false)]
                                     public string SID { get; set; } = null;
@@ -1612,7 +1647,7 @@ namespace TheraEngine.Rendering.Models
                             }
 
                             [ElementName("p")]
-                            public class Indices : BaseStringElement<BasePrimitive, ElementIntArray> { }
+                            public class Indices : BaseColladaStringElement<BasePrimitive, ElementIntArray> { }
                         }
                         public enum EColladaPrimitiveType
                         {
@@ -1648,7 +1683,7 @@ namespace TheraEngine.Rendering.Models
                             public PolyCounts PolyCountsElement => GetChild<PolyCounts>();
 
                             [ElementName("vcount")]
-                            public class PolyCounts : BaseStringElement<BasePrimitive, ElementIntArray> { }
+                            public class PolyCounts : BaseColladaStringElement<BasePrimitive, ElementIntArray> { }
                         }
                         [ElementName("triangles")]
                         public class Triangles : BasePrimitive
@@ -1723,7 +1758,7 @@ namespace TheraEngine.Rendering.Models
                         public ColladaURI Source { get; set; }
 
                         [ElementName("bind_shape_matrix")]
-                        public class BindShapeMatrix : BaseStringElement<Skin, StringParsable<Matrix4>>
+                        public class BindShapeMatrix : BaseColladaStringElement<Skin, StringParsable<Matrix4>>
                         {
                             public override void PostRead() => StringContent.Value = StringContent.Value.Transposed();
                         }
@@ -1751,9 +1786,9 @@ namespace TheraEngine.Rendering.Models
                             public uint Count { get; set; } = 0;
                             
                             [ElementName("vcount")]
-                            public class BoneCounts : BaseStringElement<VertexWeights, ElementIntArray> { }
+                            public class BoneCounts : BaseColladaStringElement<VertexWeights, ElementIntArray> { }
                             [ElementName("v")]
-                            public class PrimitiveIndices : BaseStringElement<VertexWeights, ElementIntArray> { }
+                            public class PrimitiveIndices : BaseColladaStringElement<VertexWeights, ElementIntArray> { }
                         }
                     }
                     public enum EMorphMethod
@@ -2008,7 +2043,7 @@ namespace TheraEngine.Rendering.Models
                 {
                     Matrix4 GetMatrix();
                 }
-                public abstract class Transformation<T> : BaseStringElement<Node, StringParsable<T>>, ISID, ITransformation where T : IParsable
+                public abstract class Transformation<T> : BaseColladaStringElement<Node, StringParsable<T>>, ISID, ITransformation where T : IParsable
                 {
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;

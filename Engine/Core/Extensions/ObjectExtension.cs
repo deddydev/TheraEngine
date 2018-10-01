@@ -24,7 +24,7 @@ namespace System
             object o2 = FormatterServices.GetUninitializedObject(t);
             FieldInfo[] fields = t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
             foreach (FieldInfo field in fields)
-                field.SetValue(o2, field.GetValue(o));
+                field.SetValue(o2, field.GetValue(o).HardCopy());
 
             return o2;
         }

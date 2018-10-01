@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Mesh;
@@ -85,8 +84,8 @@ namespace TheraEngine.Rendering.Models
         IEnumerator IEnumerable.GetEnumerator() 
             => ((IEnumerable<Bone>)BoneNameCache.Values).GetEnumerator();
         
-        public ReadOnlyCollection<Bone> GetCameraRelativeBones() => _cameraBones.AsReadOnly();
-        public ReadOnlyCollection<Bone> GetPhysicsDrivableBones() => _physicsDrivableBones.AsReadOnly();
+        public IReadOnlyCollection<Bone> GetCameraRelativeBones() => _cameraBones;
+        public IReadOnlyCollection<Bone> GetPhysicsDrivableBones() => _physicsDrivableBones;
 
         [PostDeserialize]
         internal void PostDeserialize()

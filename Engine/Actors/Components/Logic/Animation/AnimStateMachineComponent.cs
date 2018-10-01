@@ -145,12 +145,13 @@ namespace TheraEngine.Components.Logic.Animation
             [TSerialize(IsXmlAttribute = true)]
             public float Duration
             {
-                get => 1.0f / _invDuration;
-                set => _invDuration = 1.0f / value;
+                get => _invDuration == 0.0f ? 0.0f : 1.0f / _invDuration;
+                set => _invDuration = value == 0.0f ? 0.0f : 1.0f / value;
             }
             /// <summary>
             /// How long until the blend is done in seconds.
             /// </summary>
+            [TSerialize(State = true)]
             public float ElapsedTime { get; private set; }
             /// <summary>
             /// The blending method to use.
@@ -190,6 +191,7 @@ namespace TheraEngine.Components.Logic.Animation
             [TSerialize("CustomFunction", Order = 0)]
             private KeyframeTrack<FloatKeyframe> _customBlendFunction;
 
+            public BlendInfo() { }
             public BlendInfo(float blendDuration, AnimBlendType blendType, KeyframeTrack<FloatKeyframe> customFunction)
             {
                 Duration = blendDuration;
@@ -208,7 +210,7 @@ namespace TheraEngine.Components.Logic.Animation
             /// <summary>
             /// Returns a value from 0.0f - 1.0f indicating a linear time between two animations.
             /// </summary>
-            public float GetBlendTime() => _blendFunction((ElapsedTime * _invDuration).ClampMax(1.0f));
+            public float GetBlendTime() => _blendFunction(_invDuration == 0.0f ? 1.0f : (ElapsedTime * _invDuration).ClampMax(1.0f));
         }
 
         private LinkedList<SkeletalAnimation> _stateQueue;
@@ -247,11 +249,15 @@ namespace TheraEngine.Components.Logic.Animation
             var stateNode = _stateQueue.First;
 
             //Tick first animation
-            stateNode?.Value?.Tick(delta);
+            SkeletalAnimation anim = stateNode?.Value;
+            SkeletalAnimationFrame baseFrame = null;
+            if (anim != null)
+            {
+                baseFrame = anim.GetFrame();
+                anim.Tick(delta);
+            }
 
-            //Get frame of first animation
-            SkeletalAnimationFrame frame = stateNode?.Value?.GetFrame();
-            if (frame == null)
+            if (baseFrame == null)
                 return;
 
             if (_blendQueue.Count > 0)
@@ -265,42 +271,46 @@ namespace TheraEngine.Components.Logic.Animation
                     
                     //Tick the animation to be blended with next
                     stateNode = stateNode.Next;
-                    stateNode?.Value?.Tick(delta);
-
-                    //Update blending information
-                    if (blend.Tick(delta))
+                    anim = stateNode?.Value;
+                    if (anim != null)
                     {
-                        //Frame is now entirely the next animation.
-                        frame = stateNode.Value.GetFrame();
-
-                        //All previous animations are now irrelevant. Remove them
-                        while (_stateQueue.First != stateNode)
+                        //Update blending information
+                        if (blend.Tick(delta))
                         {
-                            _stateQueue.First.Value.Stop();
-                            _stateQueue.RemoveFirst();
-                        }
-                        //Remove all previous blends
-                        while (_blendQueue.First != blendNode)
+                            //Frame is now entirely the next animation.
+                            baseFrame = anim.GetFrame();
+
+                            //All previous animations are now irrelevant. Remove them
+                            while (_stateQueue.First != stateNode)
+                            {
+                                _stateQueue.First.Value.Stop();
+                                _stateQueue.RemoveFirst();
+                            }
+                            //Remove all previous blends
+                            while (_blendQueue.First != blendNode)
+                                _blendQueue.RemoveFirst();
+                            //And this one
                             _blendQueue.RemoveFirst();
-                        //And this one
-                        _blendQueue.RemoveFirst();
 
-                        //Get next blend info
-                        blendNode = _blendQueue.First;
-                    }
-                    else
-                    {
-                        //Update frame by blending it with the next animation using the current blending time
-                        frame.BlendWith(stateNode.Value.GetFrame(), blend.GetBlendTime());
+                            //Get next blend info
+                            blendNode = _blendQueue.First;
+                        }
+                        else
+                        {
+                            //Update frame by blending it with the next animation using the current blending time
+                            baseFrame?.BlendWith(stateNode.Value.GetFrame(), blend.GetBlendTime());
 
-                        //Increment to next blend info
-                        blendNode = blendNode.Next;
+                            //Increment to next blend info
+                            blendNode = blendNode.Next;
+                        }
+
+                        anim.Tick(delta);
                     }
                 }
             }
 
             //Update the skeleton with the final blended frame
-            frame.UpdateSkeleton(skeleton);
+            baseFrame.UpdateSkeleton(skeleton);
         }
     }
     /// <summary>

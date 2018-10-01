@@ -28,7 +28,10 @@ namespace TheraEngine.Animation
             foreach (BoneFrame b in _boneFrames.Values)
                 b.UpdateSkeleton(skeleton);
         }
-        public IEnumerable<string> GetAllNames(SkeletalAnimationFrame other)
+        /// <summary>
+        /// Returns all bone names that exist in this and the other.
+        /// </summary>
+        public IEnumerable<string> GetCommonNames(SkeletalAnimationFrame other)
         {
             string[] theseNames = new string[_boneFrames.Keys.Count];
             _boneFrames.Keys.CopyTo(theseNames, 0);
@@ -36,7 +39,10 @@ namespace TheraEngine.Animation
             other._boneFrames.Keys.CopyTo(thoseNames, 0);
             return theseNames.Intersect(thoseNames);
         }
-        public IEnumerable<string> GetAllNames(SkeletalAnimation other)
+        /// <summary>
+        /// Returns all bone names that exist in this and the other.
+        /// </summary>
+        public IEnumerable<string> GetCommonNames(SkeletalAnimation other)
         {
             string[] theseNames = new string[_boneFrames.Keys.Count];
             _boneFrames.Keys.CopyTo(theseNames, 0);
@@ -47,7 +53,7 @@ namespace TheraEngine.Animation
         public SkeletalAnimationFrame BlendedWith(SkeletalAnimationFrame other, float otherWeight)
         {
             SkeletalAnimationFrame blendedFrame = new SkeletalAnimationFrame();
-            foreach (string name in GetAllNames(other))
+            foreach (string name in GetCommonNames(other))
             {
                 if (_boneFrames.ContainsKey(name))
                 {
@@ -67,7 +73,7 @@ namespace TheraEngine.Animation
         public SkeletalAnimationFrame BlendedWith(SkeletalAnimation other, float frameIndex, float otherWeight)
         {
             SkeletalAnimationFrame blendedFrame = new SkeletalAnimationFrame();
-            foreach (string name in GetAllNames(other))
+            foreach (string name in GetCommonNames(other))
             {
                 if (_boneFrames.ContainsKey(name))
                 {
@@ -87,7 +93,9 @@ namespace TheraEngine.Animation
 
         public void BlendWith(SkeletalAnimationFrame other, float otherWeight)
         {
-            foreach (string name in GetAllNames(other))
+            if (other == null)
+                return;
+            foreach (string name in GetCommonNames(other))
             {
                 if (_boneFrames.ContainsKey(name))
                 {
@@ -107,7 +115,7 @@ namespace TheraEngine.Animation
         }
         public void BlendWith(SkeletalAnimation other, float frameIndex, float otherWeight)
         {
-            foreach (string name in GetAllNames(other))
+            foreach (string name in GetCommonNames(other))
             {
                 if (_boneFrames.ContainsKey(name))
                 {

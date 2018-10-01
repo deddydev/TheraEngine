@@ -8,14 +8,14 @@ namespace TheraEngine.Physics.Bullet.Constraints
     {
         public BulletPointPointConstraint(BulletRigidBody rigidBodyA, Vec3 pivotInA)
         {
-            _rigidBodyA = rigidBodyA;
+            BulletRigidBodyA = rigidBodyA;
             Constraint = new Point2PointConstraint(rigidBodyA.Body, pivotInA);
         }
 
         public BulletPointPointConstraint(BulletRigidBody rigidBodyA, BulletRigidBody rigidBodyB, Vec3 pivotInA, Vec3 pivotInB)
         {
-            _rigidBodyA = rigidBodyA;
-            _rigidBodyB = rigidBodyB;
+            BulletRigidBodyA = rigidBodyA;
+            BulletRigidBodyB = rigidBodyB;
             Constraint = new Point2PointConstraint(rigidBodyA.Body, rigidBodyB.Body, pivotInA, pivotInB);
         }
 
@@ -57,10 +57,11 @@ namespace TheraEngine.Physics.Bullet.Constraints
             get => Constraint.IsEnabled;
             set => Constraint.IsEnabled = value;
         }
-        
-        private BulletRigidBody _rigidBodyA, _rigidBodyB;
-        public override TRigidBody RigidBodyB => _rigidBodyB;
-        public override TRigidBody RigidBodyA => _rigidBodyA;
+
+        public override TRigidBody RigidBodyB => BulletRigidBodyB;
+        public override TRigidBody RigidBodyA => BulletRigidBodyA;
+        public BulletRigidBody BulletRigidBodyB { get; }
+        public BulletRigidBody BulletRigidBodyA { get; }
 
         public override int OverrideNumSolverIterations
         {

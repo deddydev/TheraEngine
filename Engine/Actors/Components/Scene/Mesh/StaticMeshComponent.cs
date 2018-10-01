@@ -87,22 +87,12 @@ namespace TheraEngine.Components.Scene.Mesh
             => FindOrCreateSocket(socketName).ChildComponents.Add(component);
         public void AddRangeToSocket(string socketName, IEnumerable<SceneComponent> components)
             => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
+
         #endregion
-
-        //public override void RecalcGlobalTransform()
-        //{
-        //    base.RecalcGlobalTransform();
-        //    if (_meshes != null)
-        //        foreach (RenderableMesh m in _meshes)
-        //            m.CullingVolume.SetTransform(WorldMatrix);
-        //}
-
-        //For internal runtime use
-        private StaticRenderableMesh[] _meshes = null;
 
         private GlobalFileRef<StaticModel> _modelRef;
 
-        [TSerialize("RigidBodyCollision")]
+        [TSerialize(nameof(RigidBodyCollision))]
         private TRigidBody _rigidBodyCollision = null;
         [TSerialize("Sockets")]
         private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
@@ -123,12 +113,12 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 if (_modelRef == value)
                     return;
-                if (_meshes != null)
+                if (Meshes != null)
                 {
                     if (IsSpawned)
-                        foreach (StaticRenderableMesh mesh in _meshes)
+                        foreach (StaticRenderableMesh mesh in Meshes)
                             mesh.RenderInfo.Visible = false;
-                    _meshes = null;
+                    Meshes = null;
                 }
                 _modelRef.UnregisterLoadEvent(OnModelLoaded);
                 _modelRef = value ?? new GlobalFileRef<StaticModel>();
@@ -137,33 +127,40 @@ namespace TheraEngine.Components.Scene.Mesh
         }
 
         [Category("Static Mesh Component")]
-        public TRigidBody RigidBodyCollision => _rigidBodyCollision;
+        public TRigidBody RigidBodyCollision
+        {
+            get => _rigidBodyCollision;
+            set
+            {
+                _rigidBodyCollision = value;
+            }
+        }
 
         [Category("Static Mesh Component")]
-        public StaticRenderableMesh[] Meshes => _meshes;
-        
+        public StaticRenderableMesh[] Meshes { get; private set; } = null;
+
         private void OnModelLoaded(StaticModel model)
         {
-            _meshes = new StaticRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
+            Meshes = new StaticRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {
                 StaticRenderableMesh m = new StaticRenderableMesh(model.RigidChildren[i], this);
                 if (IsSpawned)
                     m.RenderInfo.LinkScene(m, OwningScene3D);
-                _meshes[i] = m;
+                Meshes[i] = m;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
                 StaticRenderableMesh m = new StaticRenderableMesh(model.SoftChildren[i], this);
                 if (IsSpawned)
                     m.RenderInfo.LinkScene(m, OwningScene3D);
-                _meshes[model.RigidChildren.Count + i] = m;
+                Meshes[model.RigidChildren.Count + i] = m;
             }
             ModelLoaded?.Invoke();
         }
         public override void OnSpawned()
         {
-            if (_meshes == null)
+            if (Meshes == null)
             {
                 if (_modelRef.IsLoaded)
                     OnModelLoaded(_modelRef.File);
@@ -171,16 +168,16 @@ namespace TheraEngine.Components.Scene.Mesh
                     _modelRef.GetInstanceAsync().ContinueWith(t => OnModelLoaded(t.Result));
             }
 
-            if (_meshes != null)
-                foreach (StaticRenderableMesh m in _meshes)
+            if (Meshes != null)
+                foreach (StaticRenderableMesh m in Meshes)
                     m.RenderInfo.LinkScene(m, OwningScene3D);
             
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            if (_meshes != null)
-                foreach (StaticRenderableMesh m in _meshes)
+            if (Meshes != null)
+                foreach (StaticRenderableMesh m in Meshes)
                     m.RenderInfo.UnlinkScene(m, OwningScene3D);
             base.OnDespawned();
         }

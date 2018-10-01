@@ -7,6 +7,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
 using System;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
@@ -184,6 +185,16 @@ namespace TheraEngine.Components.Scene.Mesh
                 mesh.RenderInfo.LinkScene(mesh, OwningScene3D);
                 Meshes[model.RigidChildren.Count + i] = mesh;
             }
+            AbstractPhysicsWorld world = OwningWorld.PhysicsWorld;
+            foreach (Bone b in _targetSkeleton.GetPhysicsDrivableBones())
+            {
+                TConstraint constraint = b.ParentPhysicsConstraint;
+                if (constraint != null)
+                    world.AddConstraint(constraint);
+                TRigidBody body = b.RigidBodyCollision;
+                if (body != null)
+                    world.AddCollisionObject(body);
+            }
         }
 
         [Category("Skeletal Mesh Component")]
@@ -214,7 +225,17 @@ namespace TheraEngine.Components.Scene.Mesh
                     m.RenderInfo.Visible = false;
                     m.Destroy();
                 }
-            
+            AbstractPhysicsWorld world = OwningWorld.PhysicsWorld;
+            foreach (Bone b in _targetSkeleton.GetPhysicsDrivableBones())
+            {
+                TConstraint constraint = b.ParentPhysicsConstraint;
+                if (constraint != null)
+                    world.RemoveConstraint(constraint);
+                TRigidBody body = b.RigidBodyCollision;
+                if (body != null)
+                    world.RemoveCollisionObject(body);
+            }
+
             base.OnDespawned();
         }
         public override void RecalcWorldTransform()

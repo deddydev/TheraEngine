@@ -90,7 +90,7 @@ namespace TheraEngine.Animation
         }
         public IEnumerable<string> GetAllNames(SkeletalAnimationFrame other)
         {
-            return other.GetAllNames(this);
+            return other.GetCommonNames(this);
         }
         public IEnumerable<string> GetAllNames(SkeletalAnimation other)
         {

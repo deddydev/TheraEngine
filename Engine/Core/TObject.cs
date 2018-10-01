@@ -169,7 +169,7 @@ namespace TheraEngine
         
         #region Animation
         
-        [TSerialize]
+        [TSerialize(nameof(Animations))]
         private List<AnimationContainer> _animations = null;
 
         [Browsable(false)]

@@ -33,7 +33,11 @@ namespace TheraEngine.Files
         /// If set, exports global file refs if they point to an external path and are loaded.
         /// </summary>
         ExportGlobalRefs = 0x8,
-        Default = SerializeConfig | ExportGlobalRefs | ExportLocalRefs,
+        /// <summary>
+        /// If set, only exports members that have been modified from the default constructor value within the editor.
+        /// </summary>
+        ChangedOnly = 0x10,
+        Default = SerializeConfig | ExportGlobalRefs | ExportLocalRefs | ChangedOnly,
         All = 0xF,
     }
     public enum EProprietaryFileFormat

@@ -24,6 +24,7 @@ namespace TheraEngine.Files.Serialization
         private ESerializeFlags _flags;
         private XmlWriter _writer;
         private string _fileDir;
+        private Dictionary<Guid, TObject> _objects;
 
         /// <summary>
         /// Writes the given object to the path as xml.
@@ -33,6 +34,7 @@ namespace TheraEngine.Files.Serialization
             string filePath,
             ESerializeFlags flags = ESerializeFlags.Default)
         {
+            _objects = new Dictionary<Guid, TObject>();
             _flags = flags;
             _fileDir = Path.GetDirectoryName(filePath);
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))

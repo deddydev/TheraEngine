@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering.UI.Functions
 
         public override bool HasConnection => Connections.Count > 0;
 
-        protected EventList<TInput> _connections = new EventList<TInput>(false);
+        protected EventList<TInput> _connections = new EventList<TInput>(false, false);
         
         public FuncValueOutput(string name, TParent parent) : base(name, parent)
         {

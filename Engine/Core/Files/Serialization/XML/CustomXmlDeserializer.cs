@@ -52,6 +52,7 @@ namespace TheraEngine.Files.Serialization
         /// </summary>
         public unsafe TFileObject Deserialize(string filePath)
         {
+            _objects = new Dictionary<Guid, TObject>();
             _rootFileObject = null;
             _rootFilePath = filePath;
             TFileObject obj = null;

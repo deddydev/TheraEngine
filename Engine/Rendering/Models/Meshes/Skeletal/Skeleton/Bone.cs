@@ -122,17 +122,17 @@ namespace TheraEngine.Rendering.Models
         [TSerialize(nameof(RigidBodyCollision))]
         private TRigidBody _rigidBodyCollision;
         [TSerialize(nameof(RigidBodyLocalTransform))]
-        private Matrix4 _rigidBodyLocalTransform = Matrix4.Identity;
+        private Transform _rigidBodyLocalTransform = Transform.GetIdentity();
 
         [Category("Bone")]
-        public Matrix4 RigidBodyLocalTransform
+        public Transform RigidBodyLocalTransform
         {
             get => _rigidBodyLocalTransform;
             set
             {
                 _rigidBodyLocalTransform = value;
                 if (_rigidBodyCollision != null)
-                    _rigidBodyCollision.WorldTransform = WorldMatrix * _rigidBodyLocalTransform;
+                    _rigidBodyCollision.WorldTransform = WorldMatrix * _rigidBodyLocalTransform.Matrix;
             }
         }
 
@@ -201,7 +201,7 @@ namespace TheraEngine.Rendering.Models
                 FrameState.Matrix = localMatrix;
 
                 if (_rigidBodyCollision != null)
-                    _rigidBodyCollision.WorldTransform = value * _rigidBodyLocalTransform;
+                    _rigidBodyCollision.WorldTransform = value * _rigidBodyLocalTransform.Matrix;
             }
         }
 
@@ -378,6 +378,13 @@ namespace TheraEngine.Rendering.Models
             bool needsUpdate = FrameMatrixChanged || force || usesCamera;
             if (needsUpdate)
             {
+                if (_rigidBodyCollision != null)
+                {
+                    Matrix4 worldMatrix = _rigidBodyCollision.WorldTransform * _rigidBodyLocalTransform.InverseMatrix;
+                    Matrix4 frameMatrix = worldMatrix * OwningComponent.InverseWorldMatrix;
+                    Matrix4 localMatrix = inverseParentMatrix * frameMatrix;
+                    FrameState.Matrix = localMatrix;
+                }
                 if (usesCamera)
                 {
                     if (BillboardType != BillboardType.None)

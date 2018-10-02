@@ -195,7 +195,7 @@ namespace TheraEngine.Files.Serialization
             int categorizedCount, 
             IEnumerable<MethodInfo> customMethods)
         {
-            int nonAttribCount = members.Where(x => !x.Attrib.IsXmlAttribute/* && x.GetValue(obj) != null*/).Count() + categorizedCount;
+            int nonAttribCount = members.Where(x => !x.Attrib.IsXmlAttribute && x.GetValue(obj) != null).Count() + categorizedCount;
             foreach (VarInfo member in members)
             {
                 if (member.Attrib.State)
@@ -318,7 +318,7 @@ namespace TheraEngine.Files.Serialization
                                 BindingFlags.Instance |
                                 BindingFlags.Public |
                                 BindingFlags.FlattenHierarchy);
-                            WriteStruct(value, members);
+                            WriteStruct(value, members, false);
                         }
                     }
                     break;
@@ -413,11 +413,11 @@ namespace TheraEngine.Files.Serialization
                         BindingFlags.Public | 
                         BindingFlags.FlattenHierarchy);
                     foreach (object o in array)
-                        WriteStruct(o, members);
+                        WriteStruct(o, members, false);
                 }
             }
         }
-        private void WriteStruct(object structObj, FieldInfo[] structMembers)
+        private void WriteStruct(object structObj, FieldInfo[] structMembers, bool attrib)
         {
             int size = Marshal.SizeOf(structObj);
             byte[] arr = new byte[size];
@@ -425,7 +425,12 @@ namespace TheraEngine.Files.Serialization
             Marshal.StructureToPtr(structObj, ptr, true);
             Marshal.Copy(ptr, arr, 0, size);
             Marshal.FreeHGlobal(ptr);
-            _writer.WriteElementString(structObj.GetType().GetFriendlyName(), arr.ToStringList(" ", " ", s => s.ToString("X2")));
+            string structTypeName = structObj.GetType().GetFriendlyName();
+            string bytes = arr.ToStringList(" ", " ", s => s.ToString("X2"));
+            if (attrib)
+                _writer.WriteAttributeStringAsync(null, structTypeName, null, bytes);
+            else
+                _writer.WriteElementString(structTypeName, bytes);
             //foreach (FieldInfo member in structMembers)
             //{
             //    object value = member.GetValue(structObj);

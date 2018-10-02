@@ -782,7 +782,7 @@ namespace System
         public Matrix4 Inverted()
         {
             Matrix4 m = this;
-            if (m.Determinant != 0)
+            if (m.Determinant != 0.0f)
                 m.Invert();
             return m;
         }

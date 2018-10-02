@@ -161,7 +161,12 @@ namespace System
                 Node node = _subNodes[index];
                 if (node != null)
                     return node.Bounds;
-                
+
+                if (Min.X >= Max.X || 
+                    Min.Y >= Max.Y || 
+                    Min.Z >= Max.Z)
+                    return null;
+
                 Vec3 center = Center;
                 switch (index)
                 {
@@ -195,6 +200,10 @@ namespace System
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         BoundingBox bounds = GetSubdivision(i);
+                        if (bounds is null)
+                        {
+                            return;
+                        }
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
                             bool shouldDestroy = Remove(item);
@@ -379,6 +388,10 @@ namespace System
                             continue;
 
                         BoundingBox bounds = GetSubdivision(i);
+                        if (bounds is null)
+                        {
+                            return QueueAdd(item);
+                        }
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
                             CreateSubNode(bounds, i)?.Add(item);

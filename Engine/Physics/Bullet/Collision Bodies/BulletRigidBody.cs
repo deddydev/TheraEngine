@@ -9,7 +9,7 @@ using TheraEngine.Physics.Bullet.Shapes;
 
 namespace TheraEngine.Physics.Bullet
 {
-    internal class BulletRigidBody : TRigidBody, IBulletCollisionObject
+    public class BulletRigidBody : TRigidBody, IBulletCollisionObject
     {
         private RigidBody _body;
         [TSerialize(Order = 0)]
@@ -328,7 +328,10 @@ namespace TheraEngine.Physics.Bullet
 
         CollisionObject IBulletCollisionObject.CollisionObject => Body;
 
-        public BulletRigidBody() : base(null, null) { }
+        public BulletRigidBody() : base(null, null)
+        {
+            Body = null;
+        }
         public BulletRigidBody(IRigidBodyCollidable owner, RigidBodyConstructionInfo info, TCollisionShape shape) : base(owner, shape)
         {
             Body = new RigidBody(info);

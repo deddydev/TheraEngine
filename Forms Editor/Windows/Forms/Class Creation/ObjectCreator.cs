@@ -163,47 +163,20 @@ namespace TheraEditor.Windows.Forms
                 if (allowDerivedTypes)
                 {
                     Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-                    if (types.Length == 1)
-                    {
-                        ConstructorInfo[] constructors = type.GetConstructors();
-                        if (constructors.Length <= 1)
-                        {
-                            if (constructors.Length == 1)
-                            {
-                                if (constructors[0].GetParameters().Length == 0)
-                                {
-                                    if (type.IsGenericTypeDefinition)
-                                        type = type.MakeGenericType(_genericTypeArgs);
-                                    ConstructedObject = Activator.CreateInstance(type);
-                                    return false;
-                                }
-                            }
-                            else
-                            {
-                                if (type.IsEnum || type.IsPrimitive)
-                                {
-                                    ConstructedObject = type.GetDefaultValue();
-                                    return false;
-                                }
-                                else
-                                {
-                                    Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
-                                    return false;
-                                }
-                            }
-                        }
-
-                        SetTargetType(types[0]);
-                        toolStripTypeSelection.Visible = false;
-                    }
-                    else
+                    if (types.Length > 1)
                     {
                         if (!type.IsAbstract && !type.IsInterface)
                             SetTargetType(type);
-                        toolStripTypeSelection.Visible = true;
+                        toolStripTypeSelection.Visible = false;
+                        int constructorCount = type.GetConstructors().Length;
+                        int staticConstructorCount = type.GetMethods(BindingFlags.Public | BindingFlags.Static).Where(x => x.ReturnType == type && !x.IsSpecialName).ToArray().Length;
+                        return constructorCount + staticConstructorCount > 0;
                     }
+                    else if (types.Length == 1)
+                        type = types[0];
                 }
-                else if (type.IsAbstract || type.IsInterface)
+
+                if (type.IsAbstract || type.IsInterface)
                     return false;
                 else
                 {
@@ -214,14 +187,39 @@ namespace TheraEditor.Windows.Forms
                         {
                             if (constructors[0].GetParameters().Length == 0)
                             {
+                                if (type.IsGenericTypeDefinition)
+                                    type = type.MakeGenericType(_genericTypeArgs);
                                 ConstructedObject = Activator.CreateInstance(type);
                                 return false;
                             }
                         }
                         else
                         {
-                            Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
-                            return false;
+                            if (type.IsEnum || type.IsPrimitive)
+                            {
+                                ConstructedObject = type.GetDefaultValue();
+                                return false;
+                            }
+                            else
+                            {
+                                var staticConstructors = type.GetMethods(BindingFlags.Public | BindingFlags.Static).Where(x => x.ReturnType == type && !x.IsSpecialName).ToArray();
+                                if (staticConstructors.Length == 0)
+                                {
+                                    Engine.LogWarning($"Can't create type {type.GetFriendlyName()}; has no public constructors.");
+                                    return false;
+                                }
+                                else if (staticConstructors.Length == 1)
+                                {
+                                    MethodInfo method = staticConstructors[0];
+                                    if (method.GetParameters().Length == 0)
+                                    {
+                                        if (type.IsGenericTypeDefinition)
+                                            type = type.MakeGenericType(_genericTypeArgs);
+                                        ConstructedObject = method.Invoke(null, null);
+                                        return false;
+                                    }
+                                }
+                            }
                         }
                     }
 

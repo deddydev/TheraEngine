@@ -153,6 +153,16 @@ namespace TheraEngine.Actors.Types
         {
             return null;
         }
+
+        void IActor.OnHighlightChanged(bool highlighted)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IActor.OnSelectedChanged(bool selected)
+        {
+            throw new NotImplementedException();
+        }
 #endif
     }
 }

@@ -28,6 +28,10 @@ namespace TheraEngine.Actors
         void RebaseOrigin(Vec3 newOrigin);
         T GetLogicComponent<T>() where T : LogicComponent;
         T[] GetLogicComponents<T>() where T : LogicComponent;
+#if EDITOR
+        void OnHighlightChanged(bool highlighted);
+        void OnSelectedChanged(bool selected);
+#endif
     }
 
     #region Generic Actor
@@ -351,17 +355,25 @@ For example, a logic component could give any actor health and/or allow it to ta
         #endregion
 
 #if EDITOR
+        void IActor.OnHighlightChanged(bool highlighted) => OnHighlightChanged(highlighted);
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             foreach (SceneComponent s in SceneComponentCache)
+            {
                 s.OnHighlightChanged(highlighted);
-            base.OnHighlightChanged(highlighted);
+            }
         }
+        void IActor.OnSelectedChanged(bool selected) => OnSelectedChanged(selected);
         protected internal override void OnSelectedChanged(bool selected)
         {
             foreach (SceneComponent s in SceneComponentCache)
-                s.OnSelectedChanged(selected);
-            base.OnSelectedChanged(selected);
+            {
+                //s.OnSelectedChanged(selected);
+                if (s is I3DRenderable r3d)
+                    r3d.RenderInfo.Visible = selected;
+                if (s is I2DRenderable r2d)
+                    r2d.RenderInfo.Visible = selected;
+            }
         }
 #endif
 

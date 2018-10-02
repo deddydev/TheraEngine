@@ -277,15 +277,22 @@ namespace TheraEngine.Files.Serialization
         /// </summary>
         public static object CreateObject(Type t)
         {
+            object o = null;
             try
             {
-                return Activator.CreateInstance(t);
+                o = Activator.CreateInstance(t);
             }
             catch (Exception ex)
             {
-                Engine.PrintLine("Problem constructing " + t.GetFriendlyName() + "." + Environment.NewLine + ex.ToString());
-                return FormatterServices.GetUninitializedObject(t);
+                Engine.PrintLine($"Problem constructing {t.GetFriendlyName()}.\n{ex.ToString()}");
+                o = FormatterServices.GetUninitializedObject(t);
             }
+            finally
+            {
+                if (o is TObject tobj)
+                    tobj.ConstructedProgrammatically = false;
+            }
+            return o;
         }
         public enum ValueType
         {

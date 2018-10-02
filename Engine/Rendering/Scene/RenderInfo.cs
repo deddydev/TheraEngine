@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Files;
 
 namespace TheraEngine.Rendering
 {
-    public abstract class RenderInfo
+    public abstract class RenderInfo : TFileObject
     {
         /// <summary>
         /// Used by the engine for proper order of rendering.

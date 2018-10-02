@@ -64,7 +64,9 @@ namespace TheraEngine
         [TSerialize(nameof(Name), XmlNodeType = EXmlNodeType.Attribute)]
         protected string _name = null;
 
-        [TSerialize(nameof(Guid))]
+        public bool ConstructedProgrammatically { get; internal set; } = true;
+
+        [TSerialize(nameof(Guid), IsXmlAttribute = true)]
         protected Guid _guid = Guid.NewGuid();
 
         [TSerialize]

@@ -89,12 +89,17 @@ namespace System.Collections.Generic
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         private bool _updating = false;
-        private bool _allowDuplicates = true;
+        private readonly bool _allowDuplicates = true;
+        private readonly bool _allowNull = true;
 
         public EventList() { }
-        public EventList(bool allowDuplicates) => _allowDuplicates = allowDuplicates;
+        public EventList(bool allowDuplicates, bool allowNull)
+        {
+            _allowDuplicates = allowDuplicates;
+            _allowNull = allowNull;
+        }
         public EventList(IEnumerable<T> list) => AddRange(list);
-        public EventList(IEnumerable<T> list, bool allowDuplicates) : this(allowDuplicates) => AddRange(list);
+        public EventList(IEnumerable<T> list, bool allowDuplicates, bool allowNull) : this(allowDuplicates, allowNull) => AddRange(list);
         public EventList(int capacity) : base(capacity) { }
         
         /// <summary>
@@ -110,11 +115,14 @@ namespace System.Collections.Generic
             AddRange(items, reportAdded, reportModified);
         }
 
-        public new void Add(T item) => Add(item, true, true);
-        public void Add(T item, bool reportAdded, bool reportModified)
+        public new bool Add(T item) => Add(item, true, true);
+        public bool Add(T item, bool reportAdded, bool reportModified)
         {
+            if (!_allowNull && item == null)
+                return false;
+
             if (!_allowDuplicates && Contains(item))
-                return;
+                return false;
 
             if (!_updating)
             {
@@ -142,6 +150,8 @@ namespace System.Collections.Generic
                     CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
                 }
             }
+
+            return true;
         }
         public new void AddRange(IEnumerable<T> collection) => AddRange(collection, true, true);
         public void AddRange(IEnumerable<T> collection, bool reportAddedRange, bool reportModified)
@@ -151,6 +161,8 @@ namespace System.Collections.Generic
 
             if (!_allowDuplicates)
                collection = collection.Where(x => !Contains(x));
+            if (!_allowNull)
+                collection = collection.Where(x => x != null);
 
             if (!_updating)
             {
@@ -371,6 +383,9 @@ namespace System.Collections.Generic
         public new void Insert(int index, T item) => Insert(index, item, true, true);
         public void Insert(int index, T item, bool reportInserted, bool reportModified)
         {
+            if (!_allowNull && item == null)
+                return;
+
             if (!_allowDuplicates && Contains(item))
                 return;
 
@@ -409,6 +424,8 @@ namespace System.Collections.Generic
 
             if (!_allowDuplicates)
                 collection = collection.Where(x => !Contains(x));
+            if (!_allowNull)
+                collection = collection.Where(x => x != null);
 
             if (!_updating)
             {
@@ -511,6 +528,10 @@ namespace System.Collections.Generic
             get => base[index];
             set
             {
+                if (!_allowNull && value == null)
+                    return;
+                if (!_allowDuplicates && Contains(value))
+                    return;
                 PreModified?.Invoke();
                 base[index] = value;
                 PostModified?.Invoke();

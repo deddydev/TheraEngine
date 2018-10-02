@@ -274,6 +274,11 @@ namespace TheraEngine.Files.Serialization
                 result = value.ToString().Replace(", ", "|");
                 return true;
             }
+            else if (t.IsValueType)
+            {
+                result = WriteStruct(value);
+                return true;
+            }
             result = null;
             return false;
             //throw new InvalidOperationException(t.Name + " cannot be written as a string.");
@@ -313,12 +318,14 @@ namespace TheraEngine.Files.Serialization
                         {
                             //Custom struct with no members marked as serializable
                             //Serialize all members
-                            FieldInfo[] members = member.VariableType.GetFields(
-                                BindingFlags.NonPublic |
-                                BindingFlags.Instance |
-                                BindingFlags.Public |
-                                BindingFlags.FlattenHierarchy);
-                            WriteStruct(value, members, false);
+                            //FieldInfo[] members = member.VariableType.GetFields(
+                            //    BindingFlags.NonPublic |
+                            //    BindingFlags.Instance |
+                            //    BindingFlags.Public |
+                            //    BindingFlags.FlattenHierarchy);
+                            string str = WriteStruct(value);
+                            string structTypeName = value.GetType().GetFriendlyName();
+                            _writer.WriteElementString(structTypeName, str);
                         }
                     }
                     break;
@@ -407,17 +414,21 @@ namespace TheraEngine.Files.Serialization
                     WriteStringArray(array, false, false);
                 else
                 {
-                    var members = elementType.GetFields(
-                        BindingFlags.NonPublic | 
-                        BindingFlags.Instance |
-                        BindingFlags.Public | 
-                        BindingFlags.FlattenHierarchy);
+                    //var members = elementType.GetFields(
+                    //    BindingFlags.NonPublic | 
+                    //    BindingFlags.Instance |
+                    //    BindingFlags.Public | 
+                    //    BindingFlags.FlattenHierarchy);
                     foreach (object o in array)
-                        WriteStruct(o, members, false);
+                    {
+                        string str = WriteStruct(o);
+                        string structTypeName = o.GetType().GetFriendlyName();
+                        _writer.WriteElementString(structTypeName, str);
+                    }
                 }
             }
         }
-        private void WriteStruct(object structObj, FieldInfo[] structMembers, bool attrib)
+        private string WriteStruct(object structObj)
         {
             int size = Marshal.SizeOf(structObj);
             byte[] arr = new byte[size];
@@ -425,12 +436,7 @@ namespace TheraEngine.Files.Serialization
             Marshal.StructureToPtr(structObj, ptr, true);
             Marshal.Copy(ptr, arr, 0, size);
             Marshal.FreeHGlobal(ptr);
-            string structTypeName = structObj.GetType().GetFriendlyName();
-            string bytes = arr.ToStringList(" ", " ", s => s.ToString("X2"));
-            if (attrib)
-                _writer.WriteAttributeStringAsync(null, structTypeName, null, bytes);
-            else
-                _writer.WriteElementString(structTypeName, bytes);
+            return arr.ToStringList(" ", " ", s => s.ToString("X2"));
             //foreach (FieldInfo member in structMembers)
             //{
             //    object value = member.GetValue(structObj);

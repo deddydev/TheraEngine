@@ -81,24 +81,22 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor)
         {
-            if (State.SpawnedActors.Contains(actor))
-                return;
-            
-            State.SpawnedActors.Add(actor);
-            actor.Spawned(this);
-            //Engine.PrintLine("Spawned " + actor.Name);
+            if (State.SpawnedActors.Add(actor))
+            {
+                actor.Spawned(this);
+                //Engine.PrintLine("Spawned " + actor.Name);
+            }
         }
         /// <summary>
         /// Adds an actor to the scene.
         /// </summary>
         public void SpawnActor(IActor actor, Vec3 position)
         {
-            if (State.SpawnedActors.Contains(actor))
-                return;
-
-            State.SpawnedActors.Add(actor);
-            actor.Spawned(this);
-            actor.RebaseOrigin(-position);
+            if (State.SpawnedActors.Add(actor))
+            {
+                actor.Spawned(this);
+                actor.RebaseOrigin(-position);
+            }
         }
         /// <summary>
         /// Removes an actor from the scene.

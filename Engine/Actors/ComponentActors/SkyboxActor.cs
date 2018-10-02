@@ -14,10 +14,11 @@ namespace TheraEngine.Actors.Types
 {
     public class SkyboxActor : Actor<StaticMeshComponent>
     {
-        public SkyboxActor()
+        public SkyboxActor() : base(true)
         {
             SkyboxTexture = null;
             HalfExtents = 5000.0f;
+            Initialize();
         }
         public SkyboxActor(TextureFile2D skyboxTexture, Vec3 halfExtents) : base(true)
         {

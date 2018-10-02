@@ -23,13 +23,15 @@ namespace TheraEngine.Worlds
         [TSerialize("SpawnedActors")]
         private EventList<IActor> _spawnedActors;
 
-        public Dictionary<Type, HashSet<int>> _actorMap;
+        public Dictionary<Type, HashSet<int>> _actorTypeMap;
+        public Dictionary<string, IActor> _actorNameMap;
 
         public WorldState()
         {
             _spawnedMaps = new List<Map>();
-            _spawnedActors = new EventList<IActor>();
-            _actorMap = new Dictionary<Type, HashSet<int>>();
+            _spawnedActors = new EventList<IActor>(false, false);
+            _actorTypeMap = new Dictionary<Type, HashSet<int>>();
+            _actorNameMap = new Dictionary<string, IActor>();
 
             _spawnedActors.PostAdded += _spawnedActors_Added;
             _spawnedActors.PostInserted += _spawnedActors_Inserted;
@@ -46,10 +48,10 @@ namespace TheraEngine.Worlds
         private void _spawnedActors_Inserted(IActor item, int index)
         {
             Type t = item.GetType();
-            if (!_actorMap.ContainsKey(t))
-                _actorMap[t] = new HashSet<int>() { index };
+            if (!_actorTypeMap.ContainsKey(t))
+                _actorTypeMap[t] = new HashSet<int>() { index };
             else
-                _actorMap[t].Add(index);
+                _actorTypeMap[t].Add(index);
         }
         private void _spawnedActors_AddedRange(IEnumerable<IActor> items)
         {
@@ -61,10 +63,10 @@ namespace TheraEngine.Worlds
             foreach (IActor item in items)
             {
                 Type t = item.GetType();
-                if (!_actorMap.ContainsKey(t))
-                    _actorMap[t] = new HashSet<int>() { index + i };
+                if (!_actorTypeMap.ContainsKey(t))
+                    _actorTypeMap[t] = new HashSet<int>() { index + i };
                 else
-                    _actorMap[t].Add(index + i);
+                    _actorTypeMap[t].Add(index + i);
                 ++i;
             }
         }
@@ -73,28 +75,32 @@ namespace TheraEngine.Worlds
         [PostDeserialize]
         internal void CreateActorMap()
         {
-            _actorMap = new Dictionary<Type, HashSet<int>>();
+            _actorTypeMap = new Dictionary<Type, HashSet<int>>();
+            _actorNameMap = new Dictionary<string, IActor>();
+
             for (int i = 0; i < _spawnedActors.Count; ++i)
             {
-                Type t = _spawnedActors[i].GetType();
-                if (!_actorMap.ContainsKey(t))
-                    _actorMap[t] = new HashSet<int>() { i };
+                IActor actor = _spawnedActors[i];
+                Type t = actor.GetType();
+                if (!_actorTypeMap.ContainsKey(t))
+                    _actorTypeMap[t] = new HashSet<int>() { i };
                 else
-                    _actorMap[t].Add(i);
+                    _actorTypeMap[t].Add(i);
+                _actorNameMap.Add(actor.Name, actor);
             }
         }
 
         public IEnumerable<T> GetSpawnedActorsOfType<T>() where T : IActor
         {
             Type t = typeof(T);
-            if (_actorMap.ContainsKey(t))
-                return _actorMap[t].Select(x => (T)_spawnedActors[x]);
+            if (_actorTypeMap.ContainsKey(t))
+                return _actorTypeMap[t].Select(x => (T)_spawnedActors[x]);
             return null;
         }
         public IEnumerable<IActor> GetSpawnedActorsOfType(Type actorType)
         {
-            if (_actorMap.ContainsKey(actorType))
-                return _actorMap[actorType].Select(x => _spawnedActors[x]);
+            if (_actorTypeMap.ContainsKey(actorType))
+                return _actorTypeMap[actorType].Select(x => _spawnedActors[x]);
             return null;
         }
     }

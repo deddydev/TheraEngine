@@ -90,7 +90,7 @@ namespace TheraEngine.Rendering.Models.Materials
             for (int i = 0; i < mipmaps.Length; ++i)
             {
                 TextureFile2D mip = mipmaps[i];
-                GlobalFileRef<TextureFile2D> tref = mip;
+                GlobalFileRef<TextureFile2D> tref = new GlobalFileRef<TextureFile2D>(mip);
                 tref.RegisterLoadEvent(OnMipLoaded);
                 tref.RegisterUnloadEvent(OnMipUnloaded);
                 _mipmaps[i] = tref;
@@ -116,11 +116,10 @@ namespace TheraEngine.Rendering.Models.Materials
                     {
                         var fileRef = Mipmaps[i];
                         if (fileRef == null)
-                            Mipmaps[i] = new GlobalFileRef<TextureFile2D>();
-                        {
-                            fileRef.UnregisterLoadEvent(OnMipLoaded);
-                            fileRef.UnregisterUnloadEvent(OnMipUnloaded);
-                        }
+                            Mipmaps[i] = fileRef = new GlobalFileRef<TextureFile2D>();
+                        
+                        fileRef.UnregisterLoadEvent(OnMipLoaded);
+                        fileRef.UnregisterUnloadEvent(OnMipUnloaded);
                     }
                 }
                 _mipmaps = value;
@@ -138,13 +137,13 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
         
-        private void OnMipLoaded(TextureFile2D tex)
+        internal void OnMipLoaded(TextureFile2D tex)
         {
             //Engine.PrintLine("Mipmap loaded.");
             if (_texture != null && !_isLoading)
                 LoadMipmaps();
         }
-        private void OnMipUnloaded(TextureFile2D tex)
+        internal void OnMipUnloaded(TextureFile2D tex)
         {
             //Engine.PrintLine("Mipmap unloaded.");
             if (_texture != null && !_isLoading)

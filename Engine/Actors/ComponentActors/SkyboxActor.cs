@@ -16,36 +16,73 @@ namespace TheraEngine.Actors.Types
     {
         public SkyboxActor() : base(true)
         {
-            SkyboxTexture = null;
-            HalfExtents = 5000.0f;
             Initialize();
         }
         public SkyboxActor(TextureFile2D skyboxTexture, Vec3 halfExtents) : base(true)
         {
-            SkyboxTexture = skyboxTexture;
+            SkyboxTextureRef = skyboxTexture;
             HalfExtents = halfExtents;
             Initialize();
         }
         public SkyboxActor(GlobalFileRef<TextureFile2D> skyboxTexture, Vec3 halfExtents) : base(true)
         {
-            SkyboxTexture = skyboxTexture;
+            SkyboxTextureRef = skyboxTexture;
             HalfExtents = halfExtents;
             Initialize();
         }
 
-        [TSerialize]
-        public Vec3 HalfExtents { get; set; }
-        [TSerialize]
-        public GlobalFileRef<TextureFile2D> SkyboxTexture { get; set; }
+        private GlobalFileRef<TextureFile2D> _skyboxTextureRef = new GlobalFileRef<TextureFile2D>();
+        private TMaterial _material;
 
+        [TSerialize]
+        public Vec3 HalfExtents { get; set; } = 5000.0f;
+        [TSerialize]
+        public GlobalFileRef<TextureFile2D> SkyboxTextureRef
+        {
+            get => _skyboxTextureRef;
+            set
+            {
+                if (_skyboxTextureRef != null)
+                {
+                    _skyboxTextureRef.UnregisterLoadEvent(TextureLoaded);
+                    _skyboxTextureRef.UnregisterUnloadEvent(TextureUnloaded);
+                }
+                _skyboxTextureRef = value;
+                if (_skyboxTextureRef != null)
+                {
+                    _skyboxTextureRef.RegisterLoadEvent(TextureLoaded);
+                    _skyboxTextureRef.RegisterUnloadEvent(TextureUnloaded);
+                }
+            }
+        }
+        private void TextureLoaded(TextureFile2D tex)
+        {
+            if (_material != null && _material.Textures.Length > 0)
+            {
+                TexRef2D tref = (TexRef2D)_material.Textures[0];
+                if (tref.Mipmaps.Length > 0)
+                {
+                    if (tref.Mipmaps[0] != null)
+                        tref.Mipmaps[0].File = tex;
+                    else
+                        tref.Mipmaps[0] = new GlobalFileRef<TextureFile2D>(tex);
+                    tref.OnMipLoaded(tex);
+                }
+            }
+        }
+        private void TextureUnloaded(TextureFile2D tex)
+        {
+
+        }
         protected override StaticMeshComponent OnConstructRoot()
         {
-            TextureFile2D tex = SkyboxTexture?.File;
+            _material = null;
+
+            TextureFile2D tex = SkyboxTextureRef?.File;
             Vec3 max = HalfExtents;
             Vec3 min = -max;
 
             StaticModel skybox = new StaticModel("Skybox");
-            TMaterial mat = null;
             BoundingBox.ECubemapTextureUVs uvType = BoundingBox.ECubemapTextureUVs.WidthLarger;
             RenderingParameters renderParams = new RenderingParameters()
             {
@@ -57,30 +94,30 @@ namespace TheraEngine.Actors.Types
                 }
             };
 
-            if (tex != null)
-            {
+            //if (tex != null)
+            //{
                 TexRef2D texRef = new TexRef2D("SkyboxTexture", tex)
                 {
                     MagFilter = ETexMagFilter.Nearest,
                     MinFilter = ETexMinFilter.Nearest
                 };
-                mat = TMaterial.CreateUnlitTextureMaterialForward(texRef, renderParams);
-                uvType = tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
+                _material = TMaterial.CreateUnlitTextureMaterialForward(texRef, renderParams);
+                uvType = tex == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
                     BoundingBox.ECubemapTextureUVs.WidthLarger :
                     BoundingBox.ECubemapTextureUVs.HeightLarger;
-            }
-            else
-            {
-                mat = TMaterial.CreateUnlitColorMaterialForward(Color.Magenta);
-                mat.RenderParams = renderParams;
-            }
+            //}
+            //else
+            //{
+            //    _material = TMaterial.CreateUnlitColorMaterialForward(Color.Magenta);
+            //    _material.RenderParams = renderParams;
+            //}
 
             StaticRigidSubMesh mesh = new StaticRigidSubMesh(
                 "Mesh", 
                 null,
                 BoundingBox.FromMinMax(min, max),
                 BoundingBox.SolidMesh(min, max, true, uvType),
-                mat);
+                _material);
 
             foreach (LOD lod in mesh.LODs)
                 lod.BillboardMode =

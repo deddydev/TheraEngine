@@ -71,86 +71,79 @@ namespace TheraEngine.Files.Serialization
             if (obj is IFileObject fobj)
             {
                 fobj.FilePath = _rootFilePath;
-
-                if (obj is IFileLoader fldr)
+                if (obj is IFileRef fref && !fref.StoredInternally)
                 {
-                    //Update local path now that the file path has been set
-                    fldr.UpdateLocalReferencePath();
-
-                    if (obj is IFileRef fref && !fref.StoredInternally)
+                    //Make some last minute adjustments to external file refs
+                    //First, update file relative paths using the new file location
+                    if (fref.PathType == EPathType.FileRelative)
                     {
-                        //Make some last minute adjustments to external file refs
-                        //First, update file relative paths using the new file location
-                        if (fref.PathType == EPathType.FileRelative)
+                        string root = Path.GetPathRoot(fref.ReferencePathAbsolute);
+                        int colonIndex = root.IndexOf(":");
+                        if (colonIndex > 0)
+                            root = root.Substring(0, colonIndex);
+                        else
+                            root = string.Empty;
+
+                        string root2 = Path.GetPathRoot(_fileDir);
+                        colonIndex = root2.IndexOf(":");
+                        if (colonIndex > 0)
+                            root2 = root2.Substring(0, colonIndex);
+                        else
+                            root2 = string.Empty;
+
+                        if (!string.Equals(root, root2))
                         {
-                            string root = Path.GetPathRoot(fref.ReferencePathAbsolute);
-                            int colonIndex = root.IndexOf(":");
-                            if (colonIndex > 0)
-                                root = root.Substring(0, colonIndex);
-                            else
-                                root = string.Empty;
-
-                            string root2 = Path.GetPathRoot(_fileDir);
-                            colonIndex = root2.IndexOf(":");
-                            if (colonIndex > 0)
-                                root2 = root2.Substring(0, colonIndex);
-                            else
-                                root2 = string.Empty;
-
-                            if (!string.Equals(root, root2))
-                            {
-                                //Totally different drives, cannot be relative in any way
-                                fref.PathType = EPathType.Absolute;
-                            }
+                            //Totally different drives, cannot be relative in any way
+                            fref.PathType = EPathType.Absolute;
                         }
-                        if (fref.IsLoaded)
+                    }
+                    if (fref.IsLoaded)
+                    {
+                        string path = fref.ReferencePathAbsolute;
+                        bool fileExists =
+                            !string.IsNullOrWhiteSpace(path) &&
+                            path.IsExistingDirectoryPath() == false &&
+                            File.Exists(path);
+
+                        //TODO: export even if the file exists,
+                        //however only if the file has changed
+                        if (!fileExists)
                         {
-                            string path = fref.ReferencePathAbsolute;
-                            bool fileExists =
-                                !string.IsNullOrWhiteSpace(path) &&
-                                path.IsExistingDirectoryPath() == false &&
-                                File.Exists(path);
+                            if (fref is IGlobalFileRef && !_flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
+                                return;
+                            if (fref is ILocalFileRef && !_flags.HasFlag(ESerializeFlags.ExportLocalRefs))
+                                return;
 
-                            //TODO: export even if the file exists,
-                            //however only if the file has changed
-                            if (!fileExists)
+                            string absPath;
+                            if (fref.PathType == EPathType.FileRelative)
                             {
-                                if (fref is IGlobalFileRef && !_flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
-                                    return;
-                                if (fref is ILocalFileRef && !_flags.HasFlag(ESerializeFlags.ExportLocalRefs))
-                                    return;
+                                string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(_fileDir);
+                                absPath = Path.GetFullPath(Path.Combine(_fileDir, rel));
+                                //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
+                            }
+                            else
+                                absPath = fref.ReferencePathAbsolute;
 
-                                string absPath;
-                                if (fref.PathType == EPathType.FileRelative)
+                            string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
+
+                            IFileObject file = fref.File;
+                            if (file.FileExtension != null)
+                            {
+                                string fileName = SerializationCommon.ResolveFileName(
+                                    _fileDir, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
+                                file.Export(dir, fileName, EFileFormat.XML, null, _flags);
+                            }
+                            else
+                            {
+                                var f = file.File3rdPartyExtensions;
+                                if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
                                 {
-                                    string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(_fileDir);
-                                    absPath = Path.GetFullPath(Path.Combine(_fileDir, rel));
-                                    //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
+                                    string ext = f.ExportableExtensions[0];
+                                    string fileName = SerializationCommon.ResolveFileName(_fileDir, file.Name, ext);
+                                    file.Export(dir, fileName, EFileFormat.ThirdParty, ext, _flags);
                                 }
                                 else
-                                    absPath = fref.ReferencePathAbsolute;
-
-                                string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
-
-                                IFileObject file = fref.File;
-                                if (file.FileExtension != null)
-                                {
-                                    string fileName = SerializationCommon.ResolveFileName(
-                                        _fileDir, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
-                                    file.Export(dir, fileName, EFileFormat.XML, null, _flags);
-                                }
-                                else
-                                {
-                                    var f = file.File3rdPartyExtensions;
-                                    if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
-                                    {
-                                        string ext = f.ExportableExtensions[0];
-                                        string fileName = SerializationCommon.ResolveFileName(_fileDir, file.Name, ext);
-                                        file.Export(dir, fileName, EFileFormat.ThirdParty, ext, _flags);
-                                    }
-                                    else
-                                        Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
-                                }
+                                    Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
                             }
                         }
                     }

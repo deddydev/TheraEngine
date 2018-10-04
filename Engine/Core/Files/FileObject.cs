@@ -212,7 +212,7 @@ namespace TheraEngine.Files
         [Browsable(false)]
         [TString(false, true, false)]
         [Category("Object")]
-        public string FilePath { get; set; }
+        public virtual string FilePath { get; set; }
         [Browsable(false)]
         [TString(false, true, false)]
         [Category("Object")]

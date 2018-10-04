@@ -67,6 +67,27 @@ namespace TheraEngine.Files
         protected EPathType _pathType = EPathType.FileRelative;
         protected bool _updating;
 
+        [Browsable(false)]
+        [TString(false, true, false)]
+        [Category("Object")]
+        public override string FilePath
+        {
+            get => base.FilePath;
+            set
+            {
+                base.FilePath = value;
+                if (_pathType == EPathType.FileRelative)
+                {
+                    if (!string.IsNullOrWhiteSpace(DirectoryPath) && 
+                        !string.IsNullOrWhiteSpace(_absoluteRefPath) &&
+                        _absoluteRefPath.IsValidExistingPath())
+                    {
+                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(DirectoryPath);
+                    }
+                }
+            }
+        }
+
         [Category("File Reference")]
         [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
         public EPathType PathType
@@ -86,7 +107,7 @@ namespace TheraEngine.Files
                         if (!string.IsNullOrEmpty(DirectoryPath))
                             _localRefPath = _absoluteRefPath.MakePathRelativeTo(DirectoryPath);
                         else
-                            _localRefPath = null;
+                            _localRefPath = Path.GetFileName(_absoluteRefPath);
                     }
                 }
                 else

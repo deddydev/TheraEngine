@@ -113,7 +113,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 FileName = path,
             })
             {
-                if (path.IsValidPath())
+                if (path.IsValidExistingPath())
                     ofd.InitialDirectory = Path.GetDirectoryName(path);
 
                 if (ofd.ShowDialog(this) == DialogResult.OK)

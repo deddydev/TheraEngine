@@ -15,12 +15,27 @@ namespace System
             => !string.IsNullOrEmpty(str) && str[str.Length - 1] == Path.DirectorySeparatorChar;
         public static string SplitCamelCase(this string str)
             => Regex.Replace(Regex.Replace(str, @"(\P{Ll})(\P{Ll}\p{Ll})", "$1 $2"), @"(\p{Ll})(\P{Ll})", "$1 $2");
-        public static bool IsValidPath(this string path) => path.IsDirectoryPath() != null;
-        public static bool? IsDirectoryPath(this string path)
+        public static bool IsValidExistingPath(this string path) => path.IsExistingDirectoryPath() != null;
+        /// <summary>
+        /// Determines the type of this path.
+        /// <see langword="true"/> is a directory,
+        /// <see langword="false"/> is a file,
+        /// and <see langword="null"/> means the path is not valid.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static bool? IsExistingDirectoryPath(this string path)
         {
+            //if (string.IsNullOrWhiteSpace(path))
+            //    return null;
+            //char[] invalid = { '<', '>', /*':',*/ '"', /*'\\', '/',*/ '|', '?', '*' };
+            //if (path.IndexOfAny(invalid) >= 0)
+            //    return null;
+            //if (path.EndsWith(".") || path.EndsWith(" "))
+            //    return null;
             if (Directory.Exists(path)) return true; //Is a folder 
-            else if (File.Exists(path)) return false; //Is a file
-            else return null; //Path is invalid
+            if (File.Exists(path)) return false; //Is a file
+            return null; //Path is invalid
         }
         public static bool Equals(this string str, string other, bool ignoreCase)
         {

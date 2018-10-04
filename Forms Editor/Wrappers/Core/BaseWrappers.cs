@@ -129,7 +129,7 @@ namespace TheraEditor.Wrappers
         public static BaseWrapper Wrap(string path)
         {
             BaseWrapper w = null;
-            bool? isDir = path.IsDirectoryPath();
+            bool? isDir = path.IsExistingDirectoryPath();
             if (isDir == null)
                 return null;
             if (isDir.Value)
@@ -236,7 +236,7 @@ namespace TheraEditor.Wrappers
 
         internal void HandlePathDrop(string path, bool copy)
         {
-            bool? isDir = path.IsDirectoryPath();
+            bool? isDir = path.IsExistingDirectoryPath();
             if (isDir == null)
                 return;
             string newPath = this is BaseFileWrapper ? Path.GetDirectoryName(FilePath) : FilePath;

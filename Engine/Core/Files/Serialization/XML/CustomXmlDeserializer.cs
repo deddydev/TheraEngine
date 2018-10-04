@@ -355,12 +355,13 @@ namespace TheraEngine.Files.Serialization
                         {
                             //Custom struct with no members marked as serializable
                             //Serialize all members
-                            var members = memberType.GetFields(
-                                BindingFlags.NonPublic |
-                                BindingFlags.Instance |
-                                BindingFlags.Public |
-                                BindingFlags.FlattenHierarchy);
-                            return ReadStruct(memberType, members);
+                            //var members = memberType.GetFields(
+                            //    BindingFlags.NonPublic |
+                            //    BindingFlags.Instance |
+                            //    BindingFlags.Public |
+                            //    BindingFlags.FlattenHierarchy);
+                            string structBytes = _reader.ReadElementString();
+                            return SerializationCommon.ParseStructBytesString(memberType, structBytes);
                         }
                     }
                 case SerializationCommon.ValueType.Pointer:
@@ -500,7 +501,8 @@ namespace TheraEngine.Files.Serialization
                     {
                         if (_reader.BeginElement())
                         {
-                            object structValue = ReadStruct(elementType, structMembers);
+                            string structBytes = _reader.ReadElementString();
+                            object structValue = SerializationCommon.ParseStructBytesString(elementType, structBytes);
                             if (list.IsFixedSize)
                                 list[i] = structValue;
                             else
@@ -512,16 +514,6 @@ namespace TheraEngine.Files.Serialization
                     }
                 }
             }
-        }
-        private object ReadStruct(Type t, FieldInfo[] members)
-        {
-            string structBytes = _reader.ReadElementString();
-            string[] strBytes = structBytes.Split(' ');
-            byte[] bytes = strBytes.Select(x => byte.Parse(x, NumberStyles.HexNumber | NumberStyles.AllowHexSpecifier)).ToArray();
-            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            object result = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), t);
-            handle.Free();
-            return result;
         }
         private void ReadStringArray(IList list, int count, Type elementType, bool parsable)
         {

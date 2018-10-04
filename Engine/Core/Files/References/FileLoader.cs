@@ -77,7 +77,7 @@ namespace TheraEngine.Files
                 _pathType = value;
                 if (_pathType == EPathType.Absolute)
                     _localRefPath = _absoluteRefPath;
-                else if (!string.IsNullOrWhiteSpace(_absoluteRefPath) && _absoluteRefPath.IsValidPath())
+                else if (!string.IsNullOrWhiteSpace(_absoluteRefPath) && _absoluteRefPath.IsValidExistingPath())
                 {
                     if (PathType == EPathType.EngineRelative)
                         _localRefPath = _absoluteRefPath.MakePathRelativeTo(Application.StartupPath);
@@ -105,7 +105,7 @@ namespace TheraEngine.Files
                 _updating = true;
                 if (value != null)
                 {
-                    bool validPath = value.IsDirectoryPath() == false;
+                    bool validPath = value.IsExistingDirectoryPath() == false;
                     if (validPath)
                     {
                         _absoluteRefPath = Path.GetFullPath(value);
@@ -188,13 +188,30 @@ namespace TheraEngine.Files
                     _localRefPath = value;
                     if (PathType == EPathType.Absolute)
                     {
-                        _absoluteRefPath = _localRefPath;
+                        _absoluteRefPath = Path.GetFullPath(_localRefPath);
                     }
                     else
                     {
-                        bool engineRelative = PathType == EPathType.EngineRelative || string.IsNullOrEmpty(DirectoryPath);
-                        string combinedPath = (engineRelative ? Application.StartupPath : DirectoryPath) + _localRefPath;
-                        _absoluteRefPath = Path.GetFullPath(combinedPath);
+                        bool fileRelative = PathType == EPathType.FileRelative;
+                        if (fileRelative)
+                        {
+                            if (string.IsNullOrWhiteSpace(DirectoryPath))
+                            {
+                                _absoluteRefPath = Path.GetFileName(_localRefPath);
+                            }
+                            else
+                            {
+                                string relPath = _localRefPath.MakePathRelativeTo(DirectoryPath);
+                                string combinedPath = Path.Combine(Application.StartupPath, _localRefPath);
+                                _absoluteRefPath = Path.GetFullPath(combinedPath);
+                            }
+                        }
+                        else
+                        {
+                            string relPath = _localRefPath.MakePathRelativeTo(Application.StartupPath);
+                            string combinedPath = Path.Combine(Application.StartupPath, _localRefPath);
+                            _absoluteRefPath = Path.GetFullPath(combinedPath);
+                        }
                     }
                 }
                 else

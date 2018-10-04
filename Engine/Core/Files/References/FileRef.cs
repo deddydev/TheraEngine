@@ -132,7 +132,7 @@ namespace TheraEngine.Files
                 if (_file != null)
                 {
                     string path = _file.FilePath;
-                    if (!string.IsNullOrEmpty(path) && path.IsDirectoryPath() == false)
+                    if (!string.IsNullOrEmpty(path) && path.IsExistingDirectoryPath() == false)
                     {
                         ReferencePathAbsolute = path;
                         RegisterFile(path, _file);

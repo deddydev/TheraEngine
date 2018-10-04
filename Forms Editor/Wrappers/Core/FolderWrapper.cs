@@ -311,7 +311,7 @@ namespace TheraEditor.Wrappers
             set
             {
                 base.Text = value;
-                if (FilePath != null && FilePath.IsDirectoryPath() == true)
+                if (FilePath != null && FilePath.IsExistingDirectoryPath() == true)
                     FilePath = Path.GetDirectoryName(FilePath) + Path.DirectorySeparatorChar + value;
                 else
                     FilePath = Path.DirectorySeparatorChar + value;

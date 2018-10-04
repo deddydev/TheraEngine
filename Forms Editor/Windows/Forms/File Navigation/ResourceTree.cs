@@ -181,7 +181,7 @@ namespace TheraEditor.Windows.Forms
             Nodes.Clear();
             ShowIcons = true;
 
-            bool? isDir = path?.IsDirectoryPath();
+            bool? isDir = path?.IsExistingDirectoryPath();
             if (isDir != null)
             {
                 string dir = isDir.Value ? path : Path.GetDirectoryName(path);
@@ -355,7 +355,7 @@ namespace TheraEditor.Windows.Forms
             if (pastedPaths == null || pastedPaths.Length == 0)
                 return;
             
-            bool? isDestDir = destPath.IsDirectoryPath();
+            bool? isDestDir = destPath.IsExistingDirectoryPath();
             if (isDestDir.HasValue && !isDestDir.Value)
                 destPath = Path.GetDirectoryName(destPath);
             if (!destPath.EndsWith("\\"))
@@ -364,7 +364,7 @@ namespace TheraEditor.Windows.Forms
             //WatchProjectDirectory = false;
             foreach (string pastedPath in pastedPaths)
             {
-                bool? isDir = pastedPath.IsDirectoryPath();
+                bool? isDir = pastedPath.IsExistingDirectoryPath();
                 if (isDir == null)
                     continue;
 

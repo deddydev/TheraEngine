@@ -218,7 +218,7 @@ namespace TheraEngine.Files
         [Category("Object")]
         public string Original3rdPartyPath { get; set; }
         [Browsable(false)]
-        public string DirectoryPath => !string.IsNullOrEmpty(FilePath) && FilePath.IsValidPath() ? Path.GetDirectoryName(FilePath) : string.Empty;
+        public string DirectoryPath => !string.IsNullOrEmpty(FilePath) && FilePath.IsValidExistingPath() ? Path.GetDirectoryName(FilePath) : string.Empty;
         [Browsable(false)]
         public int CalculatedSize { get; private set; }
         [Browsable(false)]
@@ -571,7 +571,8 @@ namespace TheraEngine.Files
                 TFileObject file = null;
                 try
                 {
-                    FileExt ext = GetFileExtension(type);
+                    Type fileType = CustomXmlSerializer.DetermineType(filePath);
+                    FileExt ext = GetFileExtension(fileType);
                     if (ext?.ManualXmlConfigSerialize ?? false)
                     {
                         unsafe
@@ -579,7 +580,7 @@ namespace TheraEngine.Files
                             using (FileMap map = FileMap.FromFile(filePath))
                             {
                                 XMLReader reader = new XMLReader(map.Address, map.Length, true);
-                                file = SerializationCommon.CreateObject(type) as TFileObject;
+                                file = SerializationCommon.CreateObject(fileType) as TFileObject;
                                 if (file != null && reader.BeginElement())
                                 {
                                     file.FilePath = filePath;
@@ -594,7 +595,6 @@ namespace TheraEngine.Files
                     }
                     else
                     {
-                        Type fileType = CustomXmlSerializer.DetermineType(filePath);
                         if (type.IsAssignableFrom(fileType))
                             file = new CustomXmlSerializer().Deserialize(filePath);
                         else

@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using TheraEngine.Core.Tools;
 
@@ -177,17 +179,40 @@ namespace TheraEngine.Files.Serialization
             }
             return t.Name;
         }
+        public static bool GetString(object value, Type t, out string result)
+        {
+            if (t.GetInterface(nameof(IParsable)) != null)
+            {
+                result = ((IParsable)value).WriteToString();
+                return true;
+            }
+            else if (IsPrimitiveType(t))
+            {
+                result = value.ToString();
+                return true;
+            }
+            else if (IsEnum(t))
+            {
+                result = value.ToString().Replace(", ", "|");
+                return true;
+            }
+            else if (t.IsValueType)
+            {
+                result = GetStructAsBytesString(value);
+                return true;
+            }
+            result = null;
+            return false;
+            //throw new InvalidOperationException(t.Name + " cannot be written as a string.");
+        }
         public static object ParseString(string value, Type t)
         {
-            //Engine.PrintLine(value.ToString());
-
             if (t.GetInterface(nameof(IParsable)) != null)
             {
                 IParsable o = (IParsable)Activator.CreateInstance(t);
                 o.ReadFromString(value);
                 return o;
             }
-
             if (string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture))
             {
                 value = value.ReplaceWhitespace("").Replace("|", ", ");
@@ -210,7 +235,34 @@ namespace TheraEngine.Files.Serialization
                 case "Decimal": return Decimal.Parse(value);
                 case "String": return value;
             }
+            if (t.IsValueType)
+            {
+                return ParseStructBytesString(t, value);
+            }
             throw new InvalidOperationException(t.ToString() + " is not parsable");
+        }
+        public static string GetStructAsBytesString(object structObj)
+        {
+            int size = Marshal.SizeOf(structObj);
+            byte[] arr = new byte[size];
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(structObj, ptr, true);
+            Marshal.Copy(ptr, arr, 0, size);
+            Marshal.FreeHGlobal(ptr);
+            return arr.ToStringList(" ", " ", s => s.ToString("X2"));
+            //foreach (FieldInfo member in structMembers)
+            //{
+            //    object value = member.GetValue(structObj);
+            //}
+        }
+        public static object ParseStructBytesString(Type t, string structBytes)
+        {
+            string[] strBytes = structBytes.Split(' ');
+            byte[] bytes = strBytes.Select(x => byte.Parse(x, NumberStyles.HexNumber | NumberStyles.AllowHexSpecifier)).ToArray();
+            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            object result = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), t);
+            handle.Free();
+            return result;
         }
         /// <summary>
         /// Collects and returns all public and non public properties that the type and all derived types define as serialized.

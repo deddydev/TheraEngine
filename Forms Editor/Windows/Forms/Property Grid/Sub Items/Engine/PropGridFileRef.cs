@@ -39,7 +39,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (paths.Length > 0)
                     {
                         string path = paths[0];
-                        if (path.IsDirectoryPath() == false && !string.IsNullOrWhiteSpace(path))
+                        if (path.IsExistingDirectoryPath() == false && !string.IsNullOrWhiteSpace(path))
                         {
                             r.ReferencePathAbsolute = path;
                             r.IsLoaded = false;

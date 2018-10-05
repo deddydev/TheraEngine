@@ -184,37 +184,51 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.OnHandleDestroyed(e);
         }
         public event Action<object> PropertiesLoaded;
-        private async void LoadProperties()
+        
+        private async void LoadProperties(bool showProperties = true, bool showEvents = false, bool showMethods = false)
         {
             if (Disposing || IsDisposed)
                 return;
 
-            //pnlProps.SuspendLayout();
+            await LoadPropertiesToPanel(pnlProps, _categories, _subObject, () => _subObject, this, false);
 
+            PropertiesLoaded?.Invoke(_subObject);
+        }
+        public static async Task LoadPropertiesToPanel(
+            Panel pnlProps,
+            Dictionary<string, PropGridCategory> categories,
+            object obj,
+            Func<object> getOwnerMethod,
+            IDataChangeHandler changeHandler,
+            bool readOnly,
+            bool showProperties = true,
+            bool showMethods = true,
+            bool showEvents = true)
+        {
+            foreach (Control control in pnlProps.Controls)
+                control.Dispose();
             pnlProps.Controls.Clear();
-            foreach (var category in _categories.Values)
+            foreach (var category in categories.Values)
                 category.DestroyProperties();
-            _categories.Clear();
+            categories.Clear();
 
-            if (_subObject == null)
-            {
-                //pnlProps.ResumeLayout(true);
+            if (obj == null)
                 return;
-            }
-            
+
             PropertyInfo[] props = null;
             MethodInfo[] methods = null;
             EventInfo[] events = null;
+
             ConcurrentDictionary<int, PropertyData> propInfo = new ConcurrentDictionary<int, PropertyData>();
             ConcurrentDictionary<int, MethodData> methodInfo = new ConcurrentDictionary<int, MethodData>();
             ConcurrentDictionary<int, EventData> eventInfo = new ConcurrentDictionary<int, EventData>();
 
             await Task.Run(() =>
             {
-                Type targetObjectType = _subObject.GetType();
-                props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-                methods = targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-                events = targetObjectType.GetEvents(BindingFlags.Public | BindingFlags.Instance);
+                Type targetObjectType = obj.GetType();
+                props = showProperties ? targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance) : new PropertyInfo[0];
+                methods = showMethods ? targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance) : new MethodInfo[0];
+                events = showEvents ? targetObjectType.GetEvents(BindingFlags.Public | BindingFlags.Instance) : new EventInfo[0];
                 Parallel.For(0, props.Length, i =>
                 {
                     PropertyInfo prop = props[i];
@@ -222,19 +236,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (indexParams != null && indexParams.Length > 0)
                         return;
 
-                    object propObj = prop.GetValue(_subObject);
+                    object propObj = prop.GetValue(obj);
                     Type subType = propObj?.GetType() ?? prop.PropertyType;
                     var attribs = prop.GetCustomAttributes(true);
-                    bool readOnly = false;
 
                     foreach (var attrib in attribs)
                     {
                         if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
                             return;
-                        if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(_subObject))
+                        if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(obj))
                             return;
                         if (attrib is ReadOnlyAttribute readOnlyAttrib)
-                            readOnly = readOnlyAttrib.IsReadOnly;
+                            readOnly = readOnlyAttrib.IsReadOnly || readOnly;
                     }
 
                     PropertyData p = new PropertyData()
@@ -250,7 +263,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Parallel.For(0, methods.Length, i =>
                 {
                     MethodInfo method = methods[i];
-                    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(_subObject) ?? false))
+                    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
                     {
                         object[] attribs = method.GetCustomAttributes(true);
                         MethodData m = new MethodData()
@@ -281,7 +294,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 });
             });
 
-            if (!Disposing && !IsDisposed && IsHandleCreated)
+            if (!pnlProps.Disposing && !pnlProps.IsDisposed && pnlProps.IsHandleCreated)
             {
                 pnlProps.SuspendLayout();
 
@@ -291,7 +304,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (!propInfo.ContainsKey(i))
                         continue;
                     PropertyData p = propInfo[i];
-                    CreateControls(p.ControlTypes, new PropGridItemRefPropertyInfo(() => _subObject, p.Property), pnlProps, _categories, p.Attribs, p.ReadOnly, this);
+                    CreateControls(p.ControlTypes, new PropGridItemRefPropertyInfo(getOwnerMethod, p.Property), pnlProps, categories, p.Attribs, p.ReadOnly, changeHandler);
                 }
                 //TimeSpan elapsed = DateTime.Now - startTime;
                 //Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
@@ -303,7 +316,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     MethodData m = methodInfo[i];
                     var deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridMethod));
-                    CreateControls(deque, new PropGridItemRefMethodInfo(() => _subObject, m.Method), pnlProps, _categories, m.Attribs, false, this);
+                    CreateControls(deque, new PropGridItemRefMethodInfo(getOwnerMethod, m.Method), pnlProps, categories, m.Attribs, false, changeHandler);
                 }
 
                 for (int i = 0; i < events.Length; ++i)
@@ -313,20 +326,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     EventData e = eventInfo[i];
                     var deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridEvent));
-                    CreateControls(deque, new PropGridItemRefEventInfo(() => _subObject, e.Event), pnlProps, _categories, e.Attribs, false, this);
+                    CreateControls(deque, new PropGridItemRefEventInfo(getOwnerMethod, e.Event), pnlProps, categories, e.Attribs, false, changeHandler);
                 }
 
                 bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
-                if (ignoreLoneSubCats && _categories.Count == 1)
-                    _categories.Values.ToArray()[0].CategoryName = null;
-                        
+                if (ignoreLoneSubCats && categories.Count == 1)
+                    categories.Values.ToArray()[0].CategoryName = null;
+
                 //Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
                 pnlProps.ResumeLayout(true);
-
-                PropertiesLoaded?.Invoke(_subObject);
             }
         }
-
         public void ExpandAll()
         {
             RecursiveExpand(pnlProps.Controls, false);

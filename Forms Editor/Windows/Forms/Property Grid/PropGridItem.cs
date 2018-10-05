@@ -16,14 +16,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private object _oldValue, _newValue;
         protected bool _updating = false;
 
-        public PropGridItem() => InitializeComponent();
+        public PropGridItem()
+        {
+            InitializeComponent();
+        }
 
         public event Action DoneEditing;
         public event Action ValueChanged;
 
         public T GetParentInfo<T>() where T : PropGridItemRefInfo
             => ParentInfo as T;
-        
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public PropGridCategory ParentCategory { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public PropGridItemRefInfo ParentInfo { get; set; }
@@ -35,9 +41,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public Label Label { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public bool ReadOnly { get; set; } = false;
+        public virtual bool ReadOnly { get; set; } = false;
 
-        protected bool IsEditable() => !ReadOnly && (ParentInfo == null || !ParentInfo.IsReadOnly());
+        protected bool IsEditable() => !ReadOnly && (ParentInfo == null || !ParentInfo.IsReadOnly()) && (!(ParentCategory?.ReadOnly ?? false));
 
         /// <summary>
         /// When true, disallows UpdateDisplay() from doing anything until set to false.

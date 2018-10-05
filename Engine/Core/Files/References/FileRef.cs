@@ -82,9 +82,15 @@ namespace TheraEngine.Files
         #endregion
 
         //TODO: export map actors externally, relative to map / world file location
-        [TSerialize(nameof(File), Condition = "StoredInternally")]
+        [TSerialize(nameof(File), Condition = nameof(StoredInternally))]
         protected T _file;
         
+        /// <summary>
+        /// Returns true if the file object is not null, even if it was set using code rather than from a file.
+        /// If set to false when true, the file object will be fully unloaded and set to null.
+        /// </summary>
+        [Description("Returns true if the file object is not null, even if it was set using code rather than from a file.\n" +
+            "If set to false when true, the file object will be fully unloaded and set to null.")]
         [Category("File Reference")]
         public bool IsLoaded
         {
@@ -135,7 +141,7 @@ namespace TheraEngine.Files
                     if (!string.IsNullOrEmpty(path) && path.IsExistingDirectoryPath() == false)
                     {
                         ReferencePathAbsolute = path;
-                        RegisterFile(path, _file);
+                        RegisterInstance();
                     }
                     else
                     {
@@ -152,7 +158,7 @@ namespace TheraEngine.Files
             }
         }
 
-        protected abstract bool RegisterFile(string path, T file);
+        protected abstract bool RegisterInstance();
 
         public event Action<T> Unloaded;
         /// <summary>
@@ -187,10 +193,10 @@ namespace TheraEngine.Files
 
         [Browsable(false)]
         public bool LoadAttempted { get; protected set; } = false;
-        protected override void OnPathChanged()
+        protected override void OnAbsoluteRefPathChanged(string oldAbsRefPath)
         {
             LoadAttempted = false;
-            base.OnPathChanged();
+            base.OnAbsoluteRefPathChanged(oldAbsRefPath);
         }
         public T GetInstance()
         {

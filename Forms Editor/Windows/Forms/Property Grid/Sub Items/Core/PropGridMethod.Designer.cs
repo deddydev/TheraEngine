@@ -36,14 +36,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // lblMethod
             // 
             this.lblMethod.AutoEllipsis = true;
-            this.lblMethod.BackColor = System.Drawing.Color.DarkGreen;
+            this.lblMethod.BackColor = System.Drawing.Color.Transparent;
             this.lblMethod.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblMethod.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblMethod.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
             this.lblMethod.Location = new System.Drawing.Point(0, 0);
             this.lblMethod.Margin = new System.Windows.Forms.Padding(0);
             this.lblMethod.Name = "lblMethod";
-            this.lblMethod.Size = new System.Drawing.Size(0, 20);
+            this.lblMethod.Size = new System.Drawing.Size(0, 16);
             this.lblMethod.TabIndex = 1;
             this.lblMethod.Text = "lblMethod";
             this.lblMethod.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -53,12 +53,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // 
             // PropGridMethod
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Red;
             this.Controls.Add(this.lblMethod);
             this.Name = "PropGridMethod";
-            this.Size = new System.Drawing.Size(0, 20);
+            this.Size = new System.Drawing.Size(0, 16);
             this.ResumeLayout(false);
 
         }

@@ -30,7 +30,10 @@ namespace TheraEngine.Files
     [FileDef("File Loader")]
     public class FileLoader<T> : TFileObject, IFileLoader where T : class, IFileObject
     {
-        public event Action RefPathChanged;
+        public event DelPathChange AbsoluteRefPathChanged;
+        public event DelPathChange LocalRefPathChanged;
+
+        public delegate void DelPathChange(string oldPath, string newPath);
 
         #region Constructors
         public FileLoader() : this(typeof(T)) { }
@@ -96,6 +99,7 @@ namespace TheraEngine.Files
             set
             {
                 _pathType = value;
+                string oldPath = _localRefPath;
                 if (_pathType == EPathType.Absolute)
                     _localRefPath = _absoluteRefPath;
                 else if (!string.IsNullOrWhiteSpace(_absoluteRefPath) && _absoluteRefPath.IsValidExistingPath())
@@ -112,7 +116,7 @@ namespace TheraEngine.Files
                 }
                 else
                     _localRefPath = null;
-                OnPathChanged();
+                OnLocalRefPathChanged(oldPath);
             }
         }
 
@@ -124,6 +128,8 @@ namespace TheraEngine.Files
             set
             {
                 _updating = true;
+                string oldAbsPath = _absoluteRefPath;
+                string oldLocalPath = _localRefPath;
                 if (value != null)
                 {
                     bool validPath = value.IsExistingDirectoryPath() == false;
@@ -192,7 +198,8 @@ namespace TheraEngine.Files
                     _absoluteRefPath = null;
                 }
                 _updating = false;
-                OnPathChanged();
+                OnLocalRefPathChanged(oldLocalPath);
+                OnAbsoluteRefPathChanged(oldAbsPath);
             }
         }
         [TString(false, true, false)]
@@ -204,6 +211,8 @@ namespace TheraEngine.Files
             set
             {
                 _updating = true;
+                string oldAbsPath = _absoluteRefPath;
+                string oldLocalPath = _localRefPath;
                 if (value != null)
                 {
                     _localRefPath = value;
@@ -241,7 +250,8 @@ namespace TheraEngine.Files
                     _absoluteRefPath = null;
                 }
                 _updating = false;
-                OnPathChanged();
+                OnLocalRefPathChanged(oldLocalPath);
+                OnAbsoluteRefPathChanged(oldAbsPath);
             }
         }
         /// <summary>
@@ -284,10 +294,15 @@ namespace TheraEngine.Files
             Loaded -= onLoaded;
         }
 
-        protected virtual void OnPathChanged()
+        protected virtual void OnAbsoluteRefPathChanged(string oldAbsRefPath)
         {
             if (!_updating)
-                RefPathChanged?.Invoke();
+                AbsoluteRefPathChanged?.Invoke(oldAbsRefPath, _absoluteRefPath);
+        }
+        protected virtual void OnLocalRefPathChanged(string oldLocalRefPath)
+        {
+            if (!_updating)
+                LocalRefPathChanged?.Invoke(oldLocalRefPath, _localRefPath);
         }
 
         /// <summary>

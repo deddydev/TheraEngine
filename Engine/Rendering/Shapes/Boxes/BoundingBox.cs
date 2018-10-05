@@ -23,6 +23,24 @@ namespace TheraEngine.Core.Shapes
         protected EventVec3 _halfExtents = Vec3.Half;
         [TSerialize("Translation")]
         protected EventVec3 _translation = Vec3.Zero;
+
+        [Category("Bounding Box")]
+        public EventVec3 HalfExtents
+        {
+            get => _halfExtents;
+            set => _halfExtents = value ?? Vec3.Half;
+        }
+        [Category("Bounding Box")]
+        public EventVec3 Translation
+        {
+            get => _translation;
+            set
+            {
+                _translation = value ?? Vec3.Zero;
+                base.SetRenderTransform(Matrix4.Identity);
+            }
+        }
+
         #endregion
 
         #region Properties
@@ -53,23 +71,6 @@ namespace TheraEngine.Core.Shapes
                 _halfExtents.Raw = (value - Minimum) / 2.0f;
             }
         }
-        /// <summary>
-        /// Half of the box's total bounds.
-        /// Basically a vector starting at the box's origin that pushes outward diagonally to dictate a corner.
-        /// </summary>
-        public EventVec3 HalfExtents
-        {
-            get => _halfExtents;
-            set => _halfExtents = value ?? Vec3.Half;
-        }
-        /// <summary>
-        /// The translation of the box's origin from the world/parent origin.
-        /// </summary>
-        public EventVec3 Translation
-        {
-            get => _translation;
-            set => _translation = value ?? Vec3.Zero;
-        }
         #endregion
 
         #region Constructors
@@ -85,7 +86,15 @@ namespace TheraEngine.Core.Shapes
             : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ), new Vec3(x, y, z)) { }
         public BoundingBox(Vec3 halfExtents)
             : this(halfExtents, Vec3.Zero) { }
+        public BoundingBox(EventVec3 halfExtents)
+            : this(halfExtents, new EventVec3(Vec3.Zero)) { }
         public BoundingBox(Vec3 halfExtents, Vec3 translation) 
+            : this()
+        {
+            _halfExtents = halfExtents;
+            _translation = translation;
+        }
+        public BoundingBox(EventVec3 halfExtents, EventVec3 translation)
             : this()
         {
             _halfExtents = halfExtents;
@@ -500,11 +509,16 @@ namespace TheraEngine.Core.Shapes
         /// Creates a new bounding box from minimum and maximum coordinates.
         /// </summary>
         public static BoundingBox FromMinMax(Vec3 min, Vec3 max)
-            => new BoundingBox((max - min) / 2.0f, (max + min) / 2.0f);
+            => new BoundingBox((max - min) * 0.5f, (max + min) * 0.5f);
         /// <summary>
         /// Creates a new bounding box from half extents and a translation.
         /// </summary>
         public static BoundingBox FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
+            => new BoundingBox(halfExtents, translation);
+        /// <summary>
+        /// Creates a new bounding box from half extents and a translation.
+        /// </summary>
+        public static BoundingBox FromHalfExtentsTranslation(EventVec3 halfExtents, EventVec3 translation)
             => new BoundingBox(halfExtents, translation);
         /// <summary>
         /// Creates a bounding box that encloses the given sphere.
@@ -546,7 +560,7 @@ namespace TheraEngine.Core.Shapes
         }
         public override void SetRenderTransform(Matrix4 worldMatrix)
         {
-            _translation = worldMatrix.Translation;
+            _translation.Raw = worldMatrix.Translation;
             base.SetRenderTransform(worldMatrix);
         }
         public override Shape HardCopy()

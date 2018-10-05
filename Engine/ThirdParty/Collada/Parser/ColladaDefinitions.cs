@@ -39,7 +39,6 @@ namespace TheraEngine.Rendering.Models
 
                 if (this is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
                 {
-                    Engine.PrintLine(SIDEntry.SID);
                     IElement p = SIDEntry.Parent;
                     while (true)
                     {

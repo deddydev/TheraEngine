@@ -338,6 +338,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actors\Components\Logic\Animation\Poses\PoseBlend1D.cs" />
+    <Compile Include="Actors\Components\Logic\Animation\Poses\Pose.cs" />
+    <Compile Include="Actors\Components\Logic\Animation\Poses\PoseBase.cs" />
+    <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimState.cs" />
+    <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
+    <Compile Include="Actors\Components\Logic\Animation\StateMachine\BlendManager.cs" />
+    <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
     <Compile Include="Actors\Components\Logic\Common\HealthComponent.cs" />
     <Compile Include="Actors\Special\IBLProbeGridActor.cs" />
     <Compile Include="Actors\ComponentActors\SkyboxActor.cs" />
@@ -346,6 +353,7 @@
     <Compile Include="Actors\Special\GroupActor.cs" />
     <Compile Include="Actors\Pawns\FlyingCameraPawnBase.cs" />
     <Compile Include="Actors\Pawns\FlyingCameraPawn.cs" />
+    <Compile Include="Animation\Functions\Skeleton\BlendSpace1D.cs" />
     <Compile Include="Animation\Property\PropAnimVector.cs" />
     <Compile Include="Actors\Components\Scene\IBLProbeComponent.cs" />
     <Compile Include="Actors\Components\Scene\SceneCaptureComponent.cs" />
@@ -625,10 +633,9 @@
     <Compile Include="Rendering\Scene\Scene.cs" />
     <Compile Include="Rendering\Scene\Scene2D.cs" />
     <Compile Include="Tests\TestDefaults.cs" />
-    <Compile Include="Actors\Components\Logic\Animation\AnimStateMachineComponent.cs" />
+    <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimStateMachineComponent.cs" />
     <Compile Include="Animation\BaseAnimation.cs" />
     <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
-    <Compile Include="Animation\Model\BlendSpace1D.cs" />
     <Compile Include="Animation\Model\SkeletalAnimation.cs" />
     <Compile Include="Engine\Game.cs" />
     <Compile Include="Networking\NetworkConnection.cs" />

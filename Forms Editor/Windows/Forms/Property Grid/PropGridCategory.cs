@@ -41,7 +41,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     tblProps.Visible = true;
             }
         }
-        
+
+        private bool _readOnly = false;
+        public bool ReadOnly
+        {
+            get => _readOnly;
+            set
+            {
+                _readOnly = value;
+                //for (int i = 0; i < tblProps.RowStyles.Count; ++i)
+                //{
+                //    Panel panel = tblProps.GetControlFromPosition(1, i) as Panel;
+                //    foreach (PropGridItem item in panel)
+                //    {
+                //        item
+                //    }
+                //}
+            }
+        }
+
         public void DestroyProperties()
         {
             foreach (Control control in tblProps.Controls)
@@ -175,6 +193,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.Margin = new Padding(0);
                     item.Padding = new Padding(0);
                     item.ReadOnly = readOnly;
+                    item.ParentCategory = this;
                     p.Controls.Add(item);
                 }
                 tblProps.Controls.Add(p, 1, tblProps.RowCount - 1);

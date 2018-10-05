@@ -47,7 +47,7 @@ namespace TheraEngine.Files.Serialization
                 await _writer.WriteEndDocumentAsync();
             }
         }
-        private  void WriteObject(
+        private void WriteObject(
             object obj,
             string name,
             bool writeTypeDefinition)
@@ -201,16 +201,11 @@ namespace TheraEngine.Files.Serialization
             int nonAttribCount = members.Where(x => !x.Attrib.IsXmlAttribute && x.GetValue(obj) != null).Count() + categorizedCount;
             foreach (VarInfo member in members)
             {
-                if (member.Attrib.State)
-                {
-                    if (!_flags.HasFlag(ESerializeFlags.SerializeState))
-                        continue;
-                }
-                if (member.Attrib.Config)
-                {
-                    if (!_flags.HasFlag(ESerializeFlags.SerializeConfig))
-                        continue;
-                }
+                if (member.Attrib.State && !_flags.HasFlag(ESerializeFlags.SerializeState))
+                    continue;
+                if (member.Attrib.Config && !_flags.HasFlag(ESerializeFlags.SerializeConfig))
+                    continue;
+                
                 MethodInfo customMethod = customMethods.FirstOrDefault(
                     x => string.Equals(member.Name, x.GetCustomAttribute<CustomXMLSerializeMethod>().Name));
                 if (customMethod != null)

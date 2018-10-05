@@ -55,7 +55,7 @@ namespace TheraEngine.Tests
                 //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
                 {
                     _animationStateMachine.Skeleton = _meshComp.SkeletonOverride;
-                    _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/m);
+                    _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/new Files.GlobalFileRef<SkelAnimPoseBase>(new SkelAnimPose(m)));
                 }
             }
         }

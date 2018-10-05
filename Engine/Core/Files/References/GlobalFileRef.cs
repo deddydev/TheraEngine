@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,16 @@ namespace TheraEngine.Files
     {
 
     }
+
+    public interface IGlobalFilesContext<T> where T : class, IFileObject
+    {
+        ConcurrentDictionary<string, GlobalFileRef<T>> GlobalFileInstances { get; }
+    }
+    public interface IGlobalFilesContext
+    {
+        ConcurrentDictionary<string, IGlobalFileRef> GlobalFileInstances { get; }
+    }
+
     /// <summary>
     /// Allows only one loaded instance of this file throughout the program.
     /// File can be loaded on-demand or preloaded.
@@ -38,8 +49,45 @@ namespace TheraEngine.Files
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound)
             : base(dir, name, format, createIfNotFound) { }
 
-        protected override bool RegisterFile(string path, T file)
-            => Engine.AddGlobalFileInstance(path, file);
+        protected override bool RegisterInstance()
+        {
+            if (Context != null)
+            {
+                if (string.IsNullOrEmpty(ReferencePathAbsolute) || IsLoaded)
+                    return false;
+
+                Context.GlobalFileInstances.AddOrUpdate(ReferencePathAbsolute, this, (key, oldValue) => this);
+
+                return true;
+            }
+            else
+                return Engine.AddGlobalFileInstance(this);
+        }
+
+        protected override void OnAbsoluteRefPathChanged(string oldAbsRefPath)
+        {
+            base.OnAbsoluteRefPathChanged(oldAbsRefPath);
+            if (IsLoaded)
+            {
+                if (Context != null)
+                {
+                    if (!string.IsNullOrEmpty(oldAbsRefPath))
+                        Context.GlobalFileInstances.TryRemove(oldAbsRefPath, out GlobalFileRef<T> value);
+                    if (!string.IsNullOrEmpty(ReferencePathAbsolute))
+                        Context.GlobalFileInstances.AddOrUpdate(ReferencePathAbsolute, this, (key, oldValue) => this);
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(oldAbsRefPath))
+                    Engine.RemoveGlobalFileInstance(oldAbsRefPath);
+                if (!string.IsNullOrEmpty(ReferencePathAbsolute))
+                    Engine.AddGlobalFileInstance(this);
+            }
+        }
+
+        [Browsable(false)]
+        public IGlobalFilesContext<T> Context { get; set; } = null;
 
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
@@ -48,18 +96,28 @@ namespace TheraEngine.Files
 
             LoadAttempted = true;
             string absolutePath = ReferencePathAbsolute;
-            if (absolutePath != null && Engine.GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
+            if (absolutePath != null)
             {
-                //lock (file)
-                //{
-                if (file is T casted)
+                if (Context == null)
                 {
-                    //casted.References.Add(this);
-                    File = casted;
+                    if (Engine.GlobalFileInstances.TryGetValue(absolutePath, out IGlobalFileRef fileRef))
+                    {
+                        if (fileRef.File is T casted)
+                        {
+                            //casted.References.Add(this);
+                            File = casted;
+                        }
+                        else
+                            Engine.LogWarning(fileRef.File.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
+                    }
                 }
                 else
-                    Engine.LogWarning(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
-                //}
+                {
+                    if (Context.GlobalFileInstances.TryGetValue(absolutePath, out GlobalFileRef<T> fileRef))
+                    {
+                        File = fileRef.File;
+                    }
+                }
             }
 
             T value = await LoadNewInstanceAsync(false, null, progress, cancel);

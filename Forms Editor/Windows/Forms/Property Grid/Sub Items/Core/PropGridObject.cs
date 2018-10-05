@@ -26,6 +26,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
         protected object _object;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override bool ReadOnly
+        {
+            get => base.ReadOnly;
+            set
+            {
+                base.ReadOnly = value;
+                if (pnlProps.Visible)
+                    foreach (PropGridCategory cat in _categories.Values)
+                        cat.ReadOnly = value;
+            }
+        }
+
         protected override void UpdateDisplayInternal(object value)
         {
             //Value is boxed as object, so this doesn't work
@@ -66,69 +80,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.DestroyHandle();
         }
 
-        private void LoadProperties(object obj)
+        private async void LoadProperties(bool notNull)
         {
-            pnlProps.SuspendLayout();
-            foreach (Control control in pnlProps.Controls)
-                control.Dispose();
-            pnlProps.Controls.Clear();
-            foreach (var category in _categories.Values)
-                category.DestroyProperties();
-            _categories.Clear();
-
-            if (obj != null)
-            {
-                Type targetObjectType = obj.GetType();
-                PropertyInfo[] props = targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-                foreach (PropertyInfo prop in props)
-                {
-                    var indexParams = prop.GetIndexParameters();
-                    if (indexParams != null && indexParams.Length > 0)
-                        continue;
-
-                    Type subType = prop.PropertyType;
-                    var attribs = prop.GetCustomAttributes(true);
-                    if (attribs.FirstOrDefault(x => x is BrowsableAttribute) is BrowsableAttribute browsable && !browsable.Browsable)
-                        continue;
-
-                    Type mainControlType = null;
-                    Deque<Type> controlTypes = new Deque<Type>();
-                    while (subType != null)
-                    {
-                        if (mainControlType == null && TheraPropertyGrid.InPlaceEditorTypes.ContainsKey(subType))
-                        {
-                            mainControlType = TheraPropertyGrid.InPlaceEditorTypes[subType];
-                            if (!controlTypes.Contains(mainControlType))
-                                controlTypes.PushFront(mainControlType);
-                        }
-                        Type[] interfaces = subType.GetInterfaces();
-                        foreach (Type i in interfaces)
-                            if (TheraPropertyGrid.InPlaceEditorTypes.ContainsKey(i))
-                            {
-                                Type controlType = TheraPropertyGrid.InPlaceEditorTypes[i];
-                                if (!controlTypes.Contains(controlType))
-                                    controlTypes.PushBack(controlType);
-                            }
-
-                        subType = subType.BaseType;
-                    }
-
-                    if (controlTypes.Count == 0)
-                    {
-                        Engine.PrintLine("Unable to find control for " + prop.PropertyType.GetFriendlyName());
-                        controlTypes.PushBack(typeof(PropGridText));
-                    }
-
-                    TheraPropertyGrid.CreateControls(
-                        controlTypes, new PropGridItemRefPropertyInfo(() => _object, prop), pnlProps, _categories, attribs, false, DataChangeHandler);
-                }
-            }
-
-            if (Editor.GetSettings().PropertyGridRef.File.IgnoreLoneSubCategories && _categories.Count == 1)
-                _categories.Values.ToArray()[0].CategoryName = null;
-
-            pnlProps.ResumeLayout(true);
+            await TheraPropertyGrid.LoadPropertiesToPanel(pnlProps, _categories, notNull ? _object : null, notNull ? (Func<object>)(() => _object) : (() => null), DataChangeHandler, ReadOnly);
         }
         
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
@@ -205,11 +159,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (pnlProps.Visible)
             {
                 if (pnlProps.Controls.Count == 0)
-                    LoadProperties(_object);
+                    LoadProperties(true);
             }
             else
             {
-                LoadProperties(null);
+                LoadProperties(false);
             }
         }
         

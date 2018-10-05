@@ -146,10 +146,13 @@ namespace TheraEngine.Rendering.Models
 
             Source targetSource = morphTargets?.Source?.GetElement<Source>(morphTargets.Root);
             Source weightSource = morphWeights?.Source?.GetElement<Source>(morphWeights.Root);
+
             NameArray nameArray = targetSource?.GetArrayElement<NameArray>();
-            FloatArray weightArray = targetSource?.GetArrayElement<FloatArray>();
+            FloatArray weightArray = weightSource?.GetArrayElement<FloatArray>();
+
             string[] geomIds = nameArray?.StringContent?.Values;
             float[] weights = weightArray?.StringContent?.Values;
+
             if (geomIds == null || weights == null)
             {
                 Engine.LogWarning("Morph set for '" + morph.BaseMeshUrl.TargetID + "' does not have valid target and weight inputs.");
@@ -161,6 +164,7 @@ namespace TheraEngine.Rendering.Models
                 Engine.LogWarning("Morph set for '" + morph.BaseMeshUrl.TargetID + "' does not have a target count that matches weight count.");
                 count = Math.Min(geomIds.Length, weights.Length);
             }
+
             Geometry geom;
             List<VertexPrimitive>[] morphLines = new List<VertexPrimitive>[count];
             List<VertexPolygon>[] morphFaces = new List<VertexPolygon>[count];
@@ -173,6 +177,8 @@ namespace TheraEngine.Rendering.Models
                 morphLines[i] = lines;
                 morphFaces[i] = faces;
             }
+
+            //TODO: create data using weights and morphLines or morphFaces array
 
             return CreateData(baseInfo, baseLines, baseFaces);
         }

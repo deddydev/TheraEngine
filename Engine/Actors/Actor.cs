@@ -140,8 +140,9 @@ namespace TheraEngine.Actors
         /// </summary>
         /// <returns>The root scene component for this actor.</returns>
         protected virtual T OnConstructRoot() => RootComponent ?? Activator.CreateInstance<T>();
-
+        [ReadOnly(true)]
         public DateTime SpawnTime { get; private set; }
+        [ReadOnly(true)]
         public TimeSpan ActiveTime => DateTime.Now - SpawnTime;
         public float LifeSpan
         {

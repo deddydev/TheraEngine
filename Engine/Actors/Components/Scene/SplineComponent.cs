@@ -114,7 +114,8 @@ namespace TheraEngine.Components.Scene
         {
             Position = spline;
         }
-        
+
+        EventVec3 _cullingVolumeTranslation = null;
         public void RegenerateSplinePrimitive()
         {
             _splinePrimitive?.Dispose();
@@ -198,7 +199,9 @@ namespace TheraEngine.Components.Scene
             }
 
             TMath.ComponentMinMax(out Vec3 minVal, out Vec3 maxVal, extrema);
-            CullingVolume = BoundingBox.FromMinMax(minVal, maxVal);
+            var box = BoundingBox.FromMinMax(minVal, maxVal);
+            _cullingVolumeTranslation = box.Translation;
+            CullingVolume = box;
 
             RenderingParameters p = new RenderingParameters
             {
@@ -301,7 +304,8 @@ void main()
             _rcKeyframeTangents.WorldMatrix = mtx;
             _rcExtrema.WorldMatrix = mtx;
             _rcCurrentPoint.WorldMatrix = WorldMatrix;
-            CullingVolume?.SetRenderTransform(mtx);
+            if (CullingVolume != null)
+                CullingVolume.SetRenderTransform(mtx * Matrix4.CreateTranslation(_cullingVolumeTranslation.Raw));
             base.OnWorldTransformChanged();
         }
         

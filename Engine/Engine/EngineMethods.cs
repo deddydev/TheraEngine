@@ -219,12 +219,15 @@ namespace TheraEngine
             //SteamAPI.Shutdown();
             Stop();
             SetCurrentWorld(null, true, true);
-            IEnumerable<IFileObject> files = LocalFileInstances.SelectMany(x => x.Value);
-            foreach (IFileObject o in files)
-                o?.Unload();
+
+            IEnumerable<IFileObject>
+            //files = LocalFileInstances.SelectMany(x => x.Value);
+            //foreach (IFileObject o in files)
+            //    o?.Unload();
             files = GlobalFileInstances.Values;
             foreach (IFileObject o in files)
                 o?.Unload();
+
             var contexts = new List<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in contexts)
                 c?.Dispose();
@@ -650,27 +653,34 @@ namespace TheraEngine
         //    return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
         //}
 
-        internal static bool AddLocalFileInstance<T>(string path, T file) where T : class, IFileObject
+        //internal static bool AddLocalFileInstance<T>(string path, T file) where T : class, IFileObject
+        //{
+        //    if (string.IsNullOrEmpty(path) || file == null)
+        //        return false;
+
+        //    LocalFileInstances.AddOrUpdate(path, new List<IFileObject>() { file }, (key, oldValue) =>
+        //    {
+        //        oldValue.Add(file);
+        //        return oldValue;
+        //    });
+            
+        //    return true;
+        //}
+        internal static bool AddGlobalFileInstance<T>(GlobalFileRef<T> gref) where T : class, IFileObject
         {
-            if (string.IsNullOrEmpty(path) || file == null)
+            if (string.IsNullOrEmpty(gref.ReferencePathAbsolute) || !gref.IsLoaded)
                 return false;
 
-            LocalFileInstances.AddOrUpdate(path, new List<IFileObject>() { file }, (key, oldValue) =>
-            {
-                oldValue.Add(file);
-                return oldValue;
-            });
+            GlobalFileInstances.AddOrUpdate(gref.ReferencePathAbsolute, gref, (key, oldValue) => gref);
             
             return true;
         }
-        internal static bool AddGlobalFileInstance<T>(string path, T file) where T : class, IFileObject
+        internal static bool RemoveGlobalFileInstance(string absRefPath)
         {
-            if (string.IsNullOrEmpty(path) || file == null)
+            if (string.IsNullOrEmpty(absRefPath))
                 return false;
 
-            GlobalFileInstances.AddOrUpdate(path, file, (key, oldValue) => file);
-            
-            return true;
+            return GlobalFileInstances.TryRemove(absRefPath, out IGlobalFileRef value);
         }
 
         /// <summary>

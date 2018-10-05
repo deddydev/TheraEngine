@@ -39,8 +39,11 @@ namespace TheraEngine.Files
         public LocalFileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound)
             : base(dir, name, format, createIfNotFound) { }
 
-        protected override bool RegisterFile(string path, T file)
-            => Engine.AddLocalFileInstance(path, file);
+        protected override bool RegisterInstance()
+        {
+            //Engine.AddLocalFileInstance(path, file);
+            return true;
+        }
 
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {

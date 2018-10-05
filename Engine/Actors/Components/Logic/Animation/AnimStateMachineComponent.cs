@@ -1,38 +1,61 @@
-﻿using TheraEngine.Rendering.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Files;
 using System.Linq;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Animation;
 using TheraEngine.Core.Maths;
+using TheraEngine.Files;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Logic.Animation
 {
+    public abstract class SkeletalAnimationResult : TFileObject
+    {
+        public abstract SkeletalAnimationFrame GetFrame();
+        public abstract float CurrentTime { get; set; }
+        public abstract void Tick(float delta);
+    }
+    public class SkeletalAnimationPose : SkeletalAnimationResult
+    {
+        public override float CurrentTime
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+        public override SkeletalAnimationFrame GetFrame()
+        {
+            throw new NotImplementedException();
+        }
+        public override void Tick(float delta)
+        {
+            throw new NotImplementedException();
+        }
+    }
     [FileDef("Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent
     {
         [TSerialize("InitialStateIndex", XmlNodeType = EXmlNodeType.Attribute)]
         private int _initialStateIndex = -1;
         [TSerialize("States", XmlNodeType = EXmlNodeType.Attribute)]
-        private List<AnimState> _states;
+        private EventList<AnimState> _states;
         [TSerialize("Skeleton", XmlNodeType = EXmlNodeType.Attribute)]
-        private GlobalFileRef<Skeleton> _skeleton;
-        
+        private LocalFileRef<Skeleton> _skeleton;
+        [TSerialize("Animations", XmlNodeType = EXmlNodeType.Attribute)]
+        private EventList<GlobalFileRef<SkeletalAnimation>> _animations;
+
         private BlendManager _blendManager;
         private AnimState _currentState;
 
         public AnimStateMachineComponent()
         {
             _initialStateIndex = -1;
-            _states = new List<AnimState>();
-            _skeleton = new GlobalFileRef<Skeleton>();
+            States = new EventList<AnimState>();
+            _skeleton = new LocalFileRef<Skeleton>();
         }
         public AnimStateMachineComponent(Skeleton skeleton)
         {
             _initialStateIndex = -1;
-            _states = new List<AnimState>();
+            States = new EventList<AnimState>();
             _skeleton = skeleton;
         }
 
@@ -44,47 +67,52 @@ namespace TheraEngine.Components.Logic.Animation
 
         public AnimState InitialState
         {
-            get => _states.IndexInRange(_initialStateIndex) ? _states[_initialStateIndex] : null;
+            get => States.IndexInRange(_initialStateIndex) ? States[_initialStateIndex] : null;
             set
             {
-                bool wasNull = !_states.IndexInRange(_initialStateIndex);
-                int index = _states.IndexOf(value);
+                bool wasNull = !States.IndexInRange(_initialStateIndex);
+                int index = States.IndexOf(value);
                 if (index >= 0)
                     _initialStateIndex = index;
                 else if (value != null)
                 {
-                    _initialStateIndex = _states.Count;
-                    _states.Add(value);
+                    _initialStateIndex = States.Count;
+                    States.Add(value);
                 }
                 else
                     _initialStateIndex = -1;
 
-                if (IsSpawned && wasNull && _states.IndexInRange(_initialStateIndex))
+                if (IsSpawned && wasNull && States.IndexInRange(_initialStateIndex))
                 {
                     _currentState = InitialState;
-                    _blendManager = new BlendManager(InitialState?.Animation);
+                    _blendManager = new BlendManager(InitialState);
                     RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
                 }
             }
         }
-        public GlobalFileRef<Skeleton> Skeleton
+        public LocalFileRef<Skeleton> Skeleton
         {
             get => _skeleton;
             set => _skeleton = value;
         }
+        public EventList<AnimState> States
+        {
+            get => _states;
+            set => _states = value;
+        }
 
         public override void OnSpawned()
         {
-            if (_states.IndexInRange(_initialStateIndex))
+            if (States.IndexInRange(_initialStateIndex))
             {
                 _currentState = InitialState;
-                _blendManager = new BlendManager(InitialState?.Animation);
+                _blendManager = new BlendManager(InitialState);
                 RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
             }
         }
         public override void OnDespawned()
         {
-            if (_states.IndexInRange(_initialStateIndex))
+            if (States.IndexInRange(_initialStateIndex))
             {
                 UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
                 _blendManager = null;
@@ -95,37 +123,77 @@ namespace TheraEngine.Components.Logic.Animation
             AnimStateTransition transition = _currentState?.TryTransition();
             if (transition != null)
             {
-                _currentState = _states[transition.DestinationStateIndex];
-                _blendManager.QueueState(_currentState.Animation, transition.BlendDuration, transition.BlendType, transition.CustomBlendFunction);
+                _currentState = States[transition.DestinationStateIndex];
+                _blendManager.QueueState(_currentState, transition.BlendDuration, transition.BlendType, transition.CustomBlendFunction);
             }
             _blendManager?.Tick(delta, Skeleton.File);
         }
     }
     public class AnimState
     {
+        /// <summary>
+        /// All possible transitions to move out of this state and into another state.
+        /// </summary>
         [TSerialize]
         public List<AnimStateTransition> Transitions { get; set; } = new List<AnimStateTransition>();
+        /// <summary>
+        /// The pose retrieval animation to use to retrieve a result.
+        /// </summary>
         [TSerialize]
-        public GlobalFileRef<SkeletalAnimation> Animation { get; set; }
+        public GlobalFileRef<SkeletalAnimationResult> Animation { get; set; }
+        [TSerialize]
+        public float StartSecond { get; set; } = 0.0f;
+        [TSerialize]
+        public float EndSecond { get; set; } = -1.0f;
 
+
+        
         public AnimState() { }
-        public AnimState(SkeletalAnimation animation)
+        public AnimState(GlobalFileRef<SkeletalAnimationResult> animation)
         {
             Animation = animation;
         }
-        public AnimState(SkeletalAnimation animation, params AnimStateTransition[] transitions)
+        public AnimState(GlobalFileRef<SkeletalAnimationResult> animation, params AnimStateTransition[] transitions)
         {
             Animation = animation;
             Transitions = transitions.ToList();
         }
-        public AnimState(SkeletalAnimation animation, List<AnimStateTransition> transitions)
+        public AnimState(GlobalFileRef<SkeletalAnimationResult> animation, List<AnimStateTransition> transitions)
         {
             Animation = animation;
             Transitions = new List<AnimStateTransition>(transitions);
         }
 
+        /// <summary>
+        /// Attempts to find any transitions that evaluate to true and returns the one with the highest priority.
+        /// </summary>
         public AnimStateTransition TryTransition()
-            => Transitions.Find(x => x.ConditionMethod());
+        {
+            AnimStateTransition[] transitions = 
+                Transitions.
+                FindAll(x => x.ConditionMethod()).
+                OrderBy(x => x.Priority).
+                ToArray();
+
+            return transitions.Length > 0 ? transitions[0] : null;
+        }
+
+        public void Tick(float delta)
+        {
+
+        }
+        public SkeletalAnimationFrame GetFrame()
+        {
+            return null;
+        }
+        public void Begin()
+        {
+
+        }
+        public void End()
+        {
+
+        }
     }
     public enum AnimBlendType
     {
@@ -213,34 +281,33 @@ namespace TheraEngine.Components.Logic.Animation
             public float GetBlendTime() => _blendFunction(_invDuration == 0.0f ? 1.0f : (ElapsedTime * _invDuration).ClampMax(1.0f));
         }
 
-        private LinkedList<SkeletalAnimation> _stateQueue;
+        private LinkedList<AnimState> _stateQueue;
         private LinkedList<BlendInfo> _blendQueue;
 
-        public BlendManager(SkeletalAnimation initialState)
+        public BlendManager(AnimState initialState)
         {
             _blendQueue = new LinkedList<BlendInfo>();
-            _stateQueue = new LinkedList<SkeletalAnimation>();
+            _stateQueue = new LinkedList<AnimState>();
             if (initialState != null)
             {
                 _stateQueue.AddFirst(initialState);
-                initialState.Start();
+                //initialState.Start();
             }
         }
 
         public void QueueState(
-            SkeletalAnimation destinationState,
+            AnimState destinationState,
             float blendDuration,
             AnimBlendType type,
             KeyframeTrack<FloatKeyframe> customBlendMethod)
         {
             if (destinationState == null)
                 return;
-            destinationState.Start();
+            //destinationState.Start();
             _stateQueue.AddLast(destinationState);
             if (_stateQueue.Count > 1)
                 _blendQueue.AddLast(new BlendInfo(blendDuration, type, customBlendMethod));
         }
-        
         internal void Tick(float delta, Skeleton skeleton)
         {
             if (skeleton == null)
@@ -249,7 +316,7 @@ namespace TheraEngine.Components.Logic.Animation
             var stateNode = _stateQueue.First;
 
             //Tick first animation
-            SkeletalAnimation anim = stateNode?.Value;
+            AnimState anim = stateNode?.Value;
             SkeletalAnimationFrame baseFrame = null;
             if (anim != null)
             {
@@ -283,7 +350,7 @@ namespace TheraEngine.Components.Logic.Animation
                             //All previous animations are now irrelevant. Remove them
                             while (_stateQueue.First != stateNode)
                             {
-                                _stateQueue.First.Value.Stop();
+                                //_stateQueue.First.Value.Stop();
                                 _stateQueue.RemoveFirst();
                             }
                             //Remove all previous blends
@@ -339,5 +406,9 @@ namespace TheraEngine.Components.Logic.Animation
         /// uses these keyframes to interpolate between 0.0f and 1.0f.
         /// </summary>
         public KeyframeTrack<FloatKeyframe> CustomBlendFunction { get; set; }
+        /// <summary>
+        /// If multiple transitions evaluate to true at the same time, this dictates which transition will occur.
+        /// </summary>
+        public int Priority { get; set; } = 0;
     }
 }

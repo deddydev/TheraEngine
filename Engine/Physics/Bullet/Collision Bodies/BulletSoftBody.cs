@@ -193,7 +193,7 @@ namespace TheraEngine.Physics.Bullet
 
         #endregion
 
-        public BulletSoftBody(ISoftBodyCollidable owner, SoftBodyWorldInfo info, TCollisionShape shape) : base(owner, shape)
+        public BulletSoftBody(SoftBodyWorldInfo info, TCollisionShape shape) : base()
         {
             Body = new SoftBody(info);
             CollisionShape = shape;

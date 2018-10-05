@@ -50,12 +50,9 @@ namespace TheraEngine.Physics
         protected internal void OnOverlapped(TCollisionObject other, TContactInfo info, bool thisIsA)
             => Overlapped?.Invoke(this, other, info, thisIsA);
         
-        protected TCollisionObject(ICollidable owner, TCollisionShape shape)
-        {
-            Owner = owner;
-        }
+        protected TCollisionObject() { }
 
-        public ICollidable Owner { get; set; }
+        public ICollidable Owner { get; internal set; }
 
         //[PhysicsSupport(PhysicsLibrary.Bullet)]
         //public abstract int UniqueID { get; }

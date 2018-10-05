@@ -27,13 +27,12 @@ namespace TheraEngine.Components.Scene.Mesh
             _modelRef.RegisterLoadEvent(OnModelLoaded);
 
             if (info == null)
-                _rigidBodyCollision = null;
+                RigidBodyCollision = null;
             else
             {
                 info.CollisionShape = model.File.CollisionShape;
                 info.InitialWorldTransform = WorldMatrix;
-                _rigidBodyCollision = TRigidBody.New(this, info);
-                _rigidBodyCollision.TransformChanged += RigidBodyTransformUpdated;
+                RigidBodyCollision = TRigidBody.New(info);
 
                 //WorldTransformChanged += ThisTransformUpdated;
                 //ThisTransformUpdated();
@@ -91,8 +90,7 @@ namespace TheraEngine.Components.Scene.Mesh
         #endregion
 
         private GlobalFileRef<StaticModel> _modelRef;
-
-        [TSerialize(nameof(RigidBodyCollision))]
+        
         private TRigidBody _rigidBodyCollision = null;
         [TSerialize("Sockets")]
         private Dictionary<string, MeshSocket> _sockets = new Dictionary<string, MeshSocket>();
@@ -126,15 +124,35 @@ namespace TheraEngine.Components.Scene.Mesh
             }
         }
 
+        [TSerialize]
         [Category("Static Mesh Component")]
         public TRigidBody RigidBodyCollision
         {
             get => _rigidBodyCollision;
             set
             {
+                if (_rigidBodyCollision == value)
+                    return;
+                if (_rigidBodyCollision != null)
+                {
+                    if (IsSpawned)
+                        OwningWorld.PhysicsWorld?.RemoveCollisionObject(_rigidBodyCollision);
+
+                    _rigidBodyCollision.Owner = null;
+                    _rigidBodyCollision.TransformChanged -= RigidBodyTransformUpdated;
+                }
                 _rigidBodyCollision = value;
+                if (_rigidBodyCollision != null)
+                {
+                    _rigidBodyCollision.Owner = this;
+                    _rigidBodyCollision.TransformChanged += RigidBodyTransformUpdated;
+
+                    if (IsSpawned)
+                        OwningWorld.PhysicsWorld?.AddCollisionObject(_rigidBodyCollision);
+                }
             }
         }
+
 
         [Category("Static Mesh Component")]
         public StaticRenderableMesh[] Meshes { get; private set; } = null;

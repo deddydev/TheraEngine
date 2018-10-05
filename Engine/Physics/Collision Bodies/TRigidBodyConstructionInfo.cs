@@ -7,6 +7,31 @@ namespace TheraEngine.Physics
     [FileDef("Rigid Body Construction Info")]
     public class TRigidBodyConstructionInfo : TSettings
     {
+        public TRigidBodyConstructionInfo() { }
+        public TRigidBodyConstructionInfo(
+            TCollisionShape shape,
+            float mass,
+            Vec3? localIntertia,
+            bool useMotionState,
+            ushort collisionGroup,
+            ushort collidesWith,
+            bool collisionEnabled,
+            bool simulatePhysics,
+            bool sleepingEnabled,
+            float deactivationTime)
+        {
+            CollisionShape = shape;
+            Mass = mass;
+            LocalInertia = localIntertia ?? shape?.CalculateLocalInertia(mass) ?? Vec3.Zero;
+            UseMotionState = useMotionState;
+            CollisionGroup = collisionGroup;
+            CollidesWith = collidesWith;
+            CollisionEnabled = collisionEnabled;
+            SimulatePhysics = simulatePhysics;
+            SleepingEnabled = sleepingEnabled;
+            DeactivationTime = deactivationTime;
+        }
+
         [TSerialize]
         public bool SleepingEnabled { get; set; } = true;
         [TSerialize]

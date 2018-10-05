@@ -193,13 +193,19 @@ namespace TheraEngine.Physics
 
         public override void AddCollisionObject(TCollisionObject collision)
         {
-            IBulletCollisionObject b = (IBulletCollisionObject)collision;
-            _dynamicsWorld.AddCollisionObject(b.CollisionObject, (short)collision.CollisionGroup, (short)collision.CollidesWith);
+            IBulletCollisionObject b = collision as IBulletCollisionObject;
+            if (b?.CollisionObject != null)
+                _dynamicsWorld.AddCollisionObject(b.CollisionObject, (short)collision.CollisionGroup, (short)collision.CollidesWith);
+            else
+                Engine.LogWarning("Collision object is null; cannot add to Bullet physics world.");
         }
         public override void RemoveCollisionObject(TCollisionObject collision)
         {
-            IBulletCollisionObject b = (IBulletCollisionObject)collision;
-            _dynamicsWorld.RemoveCollisionObject(b.CollisionObject);
+            IBulletCollisionObject b = collision as IBulletCollisionObject;
+            if (b?.CollisionObject != null)
+                _dynamicsWorld.RemoveCollisionObject(b.CollisionObject);
+            else
+                Engine.LogWarning("Collision object is null; nothing to remove from Bullet physics world.");
         }
         public override void StepSimulation(float delta)
         {

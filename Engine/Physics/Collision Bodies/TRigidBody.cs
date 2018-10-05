@@ -15,10 +15,7 @@ namespace TheraEngine.Physics
     public delegate void DelOnHit(TRigidBody me, TRigidBody other, TContactInfo collisionPoint);
     public abstract class TRigidBody : TCollisionObject
     {
-        protected TRigidBody(IRigidBodyCollidable owner, TCollisionShape shape) : base(owner, shape)
-        {
-
-        }
+        protected TRigidBody() : base() { }
 
         public new IRigidBodyCollidable Owner
         {
@@ -26,8 +23,8 @@ namespace TheraEngine.Physics
             set => base.Owner = value;
         }
 
-        public static TRigidBody New(IRigidBodyCollidable owner, TRigidBodyConstructionInfo info)
-            => Engine.Physics.NewRigidBody(owner, info);
+        public static TRigidBody New(TRigidBodyConstructionInfo info)
+            => Engine.Physics.NewRigidBody(info);
 
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract Vec3 TotalForce { get; }

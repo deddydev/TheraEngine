@@ -12,7 +12,7 @@ namespace TheraEngine.Physics.Bullet
     public class BulletPhysicsInterface : AbstractPhysicsInterface
     {
         public override AbstractPhysicsWorld NewScene()  => new BulletPhysicsWorld();
-        public override TRigidBody NewRigidBody(IRigidBodyCollidable owner, TRigidBodyConstructionInfo info)
+        public override TRigidBody NewRigidBody(TRigidBodyConstructionInfo info)
         {
             TBulletMotionState state = null;
 
@@ -37,7 +37,7 @@ namespace TheraEngine.Physics.Bullet
                 AdditionalAngularDampingFactor = info.AdditionalAngularDampingFactor,
             };
 
-            BulletRigidBody rigidBody = new BulletRigidBody(owner, bulletInfo, info.CollisionShape);
+            BulletRigidBody rigidBody = new BulletRigidBody(bulletInfo, info.CollisionShape);
 
             if (state != null)
                 state.Body = rigidBody;
@@ -56,7 +56,7 @@ namespace TheraEngine.Physics.Bullet
 
             return rigidBody;
         }
-        public override TSoftBody NewSoftBody(ISoftBodyCollidable owner, TSoftBodyConstructionInfo info)
+        public override TSoftBody NewSoftBody(TSoftBodyConstructionInfo info)
         {
             SoftBodyWorldInfo bulletInfo = new SoftBodyWorldInfo()
             {
@@ -68,7 +68,7 @@ namespace TheraEngine.Physics.Bullet
                 WaterOffset = info.WaterOffset,
             };
 
-            BulletSoftBody softBody = new BulletSoftBody(owner, bulletInfo, null);
+            BulletSoftBody softBody = new BulletSoftBody(bulletInfo, null);
             
             return softBody;
         }

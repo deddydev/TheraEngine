@@ -1,19 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
     public abstract class ShapeComponent : TRComponent, I3DRenderable, IRigidBodyCollidable
     {
-        [TSerialize]
-        [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        protected TRigidBody _rigidBodyCollision;
 
         public ShapeComponent()
         {
@@ -24,15 +21,35 @@ namespace TheraEngine.Components.Scene.Shapes
         public abstract Shape CullingVolume { get; }
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-
+        [TSerialize]
         [Category(RenderingCategoryName)]
-        public RenderingParameters RenderParams
+        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        [Category(PhysicsCategoryName)]
+        [TSerialize]
+        public TRigidBody RigidBodyCollision
         {
-            get => _renderParams;
+            get => _rigidBodyCollision;
             set
             {
-                if (value != null)
-                    _renderParams = value;
+                if (_rigidBodyCollision == value)
+                    return;
+                if (_rigidBodyCollision != null)
+                {
+                    if (IsSpawned)
+                        OwningWorld.PhysicsWorld?.RemoveCollisionObject(_rigidBodyCollision);
+
+                    _rigidBodyCollision.Owner = null;
+                    _rigidBodyCollision.TransformChanged -= _rigidBodyCollision_TransformChanged;
+                }
+                _rigidBodyCollision = value;
+                if (_rigidBodyCollision != null)
+                {
+                    _rigidBodyCollision.Owner = this;
+                    _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
+
+                    if (IsSpawned)
+                        OwningWorld.PhysicsWorld?.AddCollisionObject(_rigidBodyCollision);
+                }
             }
         }
 
@@ -42,12 +59,11 @@ namespace TheraEngine.Components.Scene.Shapes
             {
                 info.CollisionShape = GetCollisionShape();
                 info.InitialWorldTransform = WorldMatrix;
-                _rigidBodyCollision = TRigidBody.New(this, info);
-                _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
+                RigidBodyCollision = TRigidBody.New(info);
                 WorldTransformChanged += ShapeComponent_WorldTransformChanged;
             }
             else
-                _rigidBodyCollision = null;
+                RigidBodyCollision = null;
         }
 
         private void _rigidBodyCollision_TransformChanged(Matrix4 transform)
@@ -74,14 +90,6 @@ namespace TheraEngine.Components.Scene.Shapes
             base.OnDespawned();
         }
 
-        [TSerialize(nameof(RenderParams))]
-        private RenderingParameters _renderParams = new RenderingParameters();
-        [TSerialize(nameof(RigidBodyCollision))]
-        protected TRigidBody _rigidBodyCollision;
-        
-        [Category(PhysicsCategoryName)]
-        public TRigidBody RigidBodyCollision => _rigidBodyCollision;
-        
         protected abstract TCollisionShape GetCollisionShape();
 
 #if EDITOR

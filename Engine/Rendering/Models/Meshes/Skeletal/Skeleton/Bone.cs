@@ -293,25 +293,28 @@ namespace TheraEngine.Rendering.Models
             {
                 if (_rigidBodyCollision == value)
                     return;
+                SkeletalMeshComponent comp = Skeleton?.OwningComponent;
                 if (_rigidBodyCollision != null)
                 {
-                    if (Skeleton?.OwningComponent != null)
+                    if (comp != null)
                     {
-                        if (Skeleton.OwningComponent.IsSpawned)
-                            Skeleton.OwningComponent.OwningWorld.PhysicsWorld?.RemoveCollisionObject(_rigidBodyCollision);
+                        if (comp.IsSpawned)
+                            comp.OwningWorld.PhysicsWorld?.RemoveCollisionObject(_rigidBodyCollision);
                     }
                     _rigidBodyCollision.Owner = null;
                     _rigidBodyCollision.TransformChanged -= _rigidBodyCollision_TransformChanged;
+                    Skeleton?.RemovePhysicsBone(this);
                 }
                 _rigidBodyCollision = value;
                 if (_rigidBodyCollision != null)
                 {
+                    Skeleton?.AddPhysicsBone(this);
                     _rigidBodyCollision.Owner = this;
                     _rigidBodyCollision.TransformChanged += _rigidBodyCollision_TransformChanged;
-                    if (Skeleton?.OwningComponent != null)
+                    if (comp != null)
                     {
-                        if (Skeleton.OwningComponent.IsSpawned)
-                        Skeleton.OwningComponent.OwningWorld.PhysicsWorld?.AddCollisionObject(_rigidBodyCollision);
+                        if (comp.IsSpawned)
+                            comp.OwningWorld.PhysicsWorld?.AddCollisionObject(_rigidBodyCollision);
                     }
                 }
             }

@@ -13,7 +13,7 @@ namespace TheraEngine.Components.Logic.Animation
     public class AnimState
     {
         private EventList<AnimStateTransition> _transitions = new EventList<AnimStateTransition>();
-        private GlobalFileRef<SkelAnimPoseBase> _poseRef;
+        private GlobalFileRef<SkelAnimPoseGenBase> _poseRef;
 
         [Browsable(false)]
         public AnimStateMachineComponent Owner { get; internal set; }
@@ -44,28 +44,28 @@ namespace TheraEngine.Components.Logic.Animation
         /// The pose retrieval animation to use to retrieve a result.
         /// </summary>
         [TSerialize]
-        public GlobalFileRef<SkelAnimPoseBase> Animation { get; set; }
+        public GlobalFileRef<SkelAnimPoseGenBase> Animation { get; set; }
         [TSerialize]
         public float StartSecond { get; set; } = 0.0f;
         [TSerialize]
         public float EndSecond { get; set; } = -1.0f;
         
         public AnimState() { }
-        public AnimState(GlobalFileRef<SkelAnimPoseBase> animation)
+        public AnimState(GlobalFileRef<SkelAnimPoseGenBase> animation)
         {
             Animation = animation;
         }
-        public AnimState(GlobalFileRef<SkelAnimPoseBase> animation, params AnimStateTransition[] transitions)
-        {
-            Animation = animation;
-            Transitions = new EventList<AnimStateTransition>(transitions);
-        }
-        public AnimState(GlobalFileRef<SkelAnimPoseBase> animation, List<AnimStateTransition> transitions)
+        public AnimState(GlobalFileRef<SkelAnimPoseGenBase> animation, params AnimStateTransition[] transitions)
         {
             Animation = animation;
             Transitions = new EventList<AnimStateTransition>(transitions);
         }
-        public AnimState(GlobalFileRef<SkelAnimPoseBase> animation, EventList<AnimStateTransition> transitions)
+        public AnimState(GlobalFileRef<SkelAnimPoseGenBase> animation, List<AnimStateTransition> transitions)
+        {
+            Animation = animation;
+            Transitions = new EventList<AnimStateTransition>(transitions);
+        }
+        public AnimState(GlobalFileRef<SkelAnimPoseGenBase> animation, EventList<AnimStateTransition> transitions)
         {
             Animation = animation;
             Transitions = new EventList<AnimStateTransition>(transitions);
@@ -86,11 +86,11 @@ namespace TheraEngine.Components.Logic.Animation
         }
         public void Tick(float delta)
         {
-
+            Animation?.File?.Tick(delta);
         }
-        public SkeletalAnimationFrame GetFrame()
+        public SkeletalAnimationPose GetFrame()
         {
-            return null;
+            return Animation?.File?.GetPose();
         }
         public void OnStarted()
         {

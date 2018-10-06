@@ -20,18 +20,18 @@ namespace TheraEngine.Actors.Types
         private IVec2 _dimensions = new IVec2(100, 100);
         private Vec2 _minMaxHeight = new Vec2(0.0f, 1.0f);
         private TCollisionHeightField _heightFieldShape;
-        private PrimitiveManager _mesh;
         private DataSource _heightData;
-        private TCollisionHeightField.EHeightValueType _heightValueType = TCollisionHeightField.EHeightValueType.Single;
+        private TCollisionHeightField.EHeightValueType _heightValueType 
+            = TCollisionHeightField.EHeightValueType.Single;
         //private Matrix4 _heightOffsetTransform, _heightOffsetTransformInv;
 
         public TMaterial Material
         {
-            get => _mesh?.Material;
+            get => _rc.Mesh?.Material;
             set
             {
-                if (_mesh != null)
-                    _mesh.Material = value;
+                if (_rc.Mesh != null)
+                    _rc.Mesh.Material = value;
             }
         }
 
@@ -230,7 +230,7 @@ namespace TheraEngine.Actors.Types
 
             PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), list);
             material.RenderParams.CullMode = ECulling.Back;
-            _mesh = new PrimitiveManager(data, material);
+            _rc.Mesh = new PrimitiveManager(data, material);
         }
         
         public override Shape CullingVolume => null;
@@ -240,13 +240,12 @@ namespace TheraEngine.Actors.Types
         {
             base.OnHighlightChanged(highlighted);
 
-            Editor.EditorState.RegisterHighlightedMaterial(_mesh.Material, highlighted, OwningScene);
+            Editor.EditorState.RegisterHighlightedMaterial(_rc.Mesh.Material, highlighted, OwningScene);
         }
 
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
         public override void AddRenderables(RenderPasses passes, Camera camera)
         {
-            _rc.Mesh = _mesh;
             _rc.WorldMatrix = WorldMatrix;
             _rc.NormalMatrix = WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
             passes.Add(_rc, RenderInfo.RenderPass);

@@ -8,32 +8,24 @@ using TheraEngine.Files;
 
 namespace TheraEngine.Components.Logic.Animation
 {
-    public class SkelAnimPoseBlend1D : SkelAnimPoseBase
+    public class SkelAnimPoseBlend1D : SkelAnimPoseGenBase
     {
-        private GlobalFileRef<SkeletalAnimation>[] _animations = null;
-        public GlobalFileRef<SkeletalAnimation>[] Animations
+        private class SkelAnimKeyframe : Keyframe
         {
-            get => _animations;
-            set
+            public override void ReadFromString(string str)
             {
-                _animations = value;
+                throw new NotImplementedException();
+            }
+            public override string WriteToString()
+            {
+                throw new NotImplementedException();
             }
         }
-
+        private KeyframeTrack<SkelAnimKeyframe> _poses;
+        
         public SkelAnimPoseBlend1D() { }
-        public SkelAnimPoseBlend1D(GlobalFileRef<SkeletalAnimation>[] anims)
-        {
-            Animations = anims;
-        }
-        public override float CurrentTime
-        {
-            get => 0.0f;
-            set
-            {
-
-            }
-        }
-        public override SkeletalAnimationFrame GetFrame()
+        
+        public override SkeletalAnimationPose GetPose()
         {
             return null;
         }

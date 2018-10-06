@@ -4,11 +4,11 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Physics.Bullet.Shapes
 {
-    internal class BulletSphere : TCollisionSphere, IBulletShape
+    public class BulletSphere : TCollisionSphere, IBulletShape
     {
         public SphereShape Shape { get; }
         CollisionShape IBulletShape.Shape => Shape;
-
+        
         public override float Radius
         {
             get => Shape.Radius;

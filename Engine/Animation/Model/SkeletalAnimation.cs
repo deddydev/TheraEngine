@@ -88,7 +88,7 @@ namespace TheraEngine.Animation
             foreach (BoneAnimation bone in _boneAnimations.Values)
                 bone.UpdateSkeleton(skeleton);
         }
-        public IEnumerable<string> GetAllNames(SkeletalAnimationFrame other)
+        public IEnumerable<string> GetAllNames(SkeletalAnimationPose other)
         {
             return other.GetCommonNames(this);
         }
@@ -125,9 +125,9 @@ namespace TheraEngine.Animation
             }
         }
 
-        public SkeletalAnimationFrame GetFrame()
+        public SkeletalAnimationPose GetFrame()
         {
-            SkeletalAnimationFrame frame = new SkeletalAnimationFrame();
+            SkeletalAnimationPose frame = new SkeletalAnimationPose();
             foreach (BoneAnimation bone in _boneAnimations.Values)
                 frame.AddBoneFrame(bone.GetFrame());
             return frame;

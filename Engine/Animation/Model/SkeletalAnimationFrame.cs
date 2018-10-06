@@ -7,7 +7,7 @@ using TheraEngine.Core.Maths;
 
 namespace TheraEngine.Animation
 {
-    public class SkeletalAnimationFrame
+    public class SkeletalAnimationPose
     {
         public Dictionary<string, BoneFrame> _boneFrames = new Dictionary<string, BoneFrame>();
 
@@ -31,7 +31,7 @@ namespace TheraEngine.Animation
         /// <summary>
         /// Returns all bone names that exist in this and the other.
         /// </summary>
-        public IEnumerable<string> GetCommonNames(SkeletalAnimationFrame other)
+        public IEnumerable<string> GetCommonNames(SkeletalAnimationPose other)
         {
             string[] theseNames = new string[_boneFrames.Keys.Count];
             _boneFrames.Keys.CopyTo(theseNames, 0);
@@ -50,9 +50,9 @@ namespace TheraEngine.Animation
             other.BoneAnimations.Keys.CopyTo(thoseNames, 0);
             return theseNames.Intersect(thoseNames);
         }
-        public SkeletalAnimationFrame BlendedWith(SkeletalAnimationFrame other, float otherWeight)
+        public SkeletalAnimationPose BlendedWith(SkeletalAnimationPose other, float otherWeight)
         {
-            SkeletalAnimationFrame blendedFrame = new SkeletalAnimationFrame();
+            SkeletalAnimationPose blendedFrame = new SkeletalAnimationPose();
             foreach (string name in GetCommonNames(other))
             {
                 if (_boneFrames.ContainsKey(name))
@@ -70,9 +70,9 @@ namespace TheraEngine.Animation
             }
             return blendedFrame;
         }
-        public SkeletalAnimationFrame BlendedWith(SkeletalAnimation other, float frameIndex, float otherWeight)
+        public SkeletalAnimationPose BlendedWith(SkeletalAnimation other, float frameIndex, float otherWeight)
         {
-            SkeletalAnimationFrame blendedFrame = new SkeletalAnimationFrame();
+            SkeletalAnimationPose blendedFrame = new SkeletalAnimationPose();
             foreach (string name in GetCommonNames(other))
             {
                 if (_boneFrames.ContainsKey(name))
@@ -91,7 +91,7 @@ namespace TheraEngine.Animation
             return blendedFrame;
         }
 
-        public void BlendWith(SkeletalAnimationFrame other, float otherWeight)
+        public void BlendWith(SkeletalAnimationPose other, float otherWeight)
         {
             if (other == null)
                 return;

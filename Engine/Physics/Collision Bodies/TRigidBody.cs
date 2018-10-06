@@ -20,7 +20,12 @@ namespace TheraEngine.Physics
         public new IRigidBodyCollidable Owner
         {
             get => (IRigidBodyCollidable)base.Owner;
-            set => base.Owner = value;
+            set
+            {
+                base.Owner = value;
+                if (_simulatingPhysics && value != null)
+                    WorldTransform = value.WorldMatrix;
+            }
         }
 
         public static TRigidBody New(TRigidBodyConstructionInfo info)
@@ -128,7 +133,7 @@ namespace TheraEngine.Physics
                     IsStatic = false;
                     LinearFactor = _previousLinearFactor;
                     AngularFactor = _previousAngularFactor;
-                    WorldTransform = Owner.WorldMatrix;
+                    WorldTransform = Owner?.WorldMatrix ?? Matrix4.Identity;
                     ActivationState = SleepingEnabled ? EBodyActivationState.Active : EBodyActivationState.DisableSleep;
                 }
             }

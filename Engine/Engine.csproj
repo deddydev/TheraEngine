@@ -339,8 +339,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actors\Components\Logic\Animation\Poses\PoseBlend1D.cs" />
-    <Compile Include="Actors\Components\Logic\Animation\Poses\Pose.cs" />
-    <Compile Include="Actors\Components\Logic\Animation\Poses\PoseBase.cs" />
+    <Compile Include="Actors\Components\Logic\Animation\Poses\DirectPose.cs" />
+    <Compile Include="Actors\Components\Logic\Animation\Poses\PoseGenBase.cs" />
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimState.cs" />
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\BlendManager.cs" />

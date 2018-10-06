@@ -145,7 +145,7 @@ namespace TheraEngine.Components.Logic.Animation
 
             //Tick first animation
             AnimState anim = stateNode?.Value;
-            SkeletalAnimationFrame baseFrame = null;
+            SkeletalAnimationPose baseFrame = null;
             if (anim != null)
             {
                 baseFrame = anim.GetFrame();

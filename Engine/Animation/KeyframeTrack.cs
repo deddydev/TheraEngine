@@ -559,18 +559,6 @@ namespace TheraEngine.Animation
         CubicHermite,
         CubicBezier
     }
-    public class InterpPlanarKeyframe<T> : Keyframe where T : unmanaged
-    {
-        public delegate T DelInterpPlanar(InterpPlanarKeyframe<T> key1, InterpPlanarKeyframe<T> key2, float time);
-        public override void ReadFromString(string str)
-        {
-            throw new NotImplementedException();
-        }
-        public override string WriteToString()
-        {
-            throw new NotImplementedException();
-        }
-    }
     public abstract class Keyframe : IParsable
     {
         [TSerialize(nameof(Second), XmlNodeType = EXmlNodeType.Attribute)]

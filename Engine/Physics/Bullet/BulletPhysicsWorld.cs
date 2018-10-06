@@ -48,11 +48,11 @@ namespace TheraEngine.Physics
                 {
                     DebugMode =
                     DebugDrawModes.DrawNormals |
-                    //DebugDrawModes.DrawAabb | 
+                    DebugDrawModes.DrawAabb | 
                     DebugDrawModes.DrawConstraints |
                     DebugDrawModes.DrawConstraintLimits |
-                    DebugDrawModes.DrawContactPoints
-                    //DebugDrawModes.DrawWireframe |
+                    DebugDrawModes.DrawContactPoints |
+                    DebugDrawModes.DrawWireframe
                     //DebugDrawModes.FastWireframe
                     //DebugDrawModes.DrawFeaturesText
                 }

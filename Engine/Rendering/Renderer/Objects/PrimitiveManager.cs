@@ -274,7 +274,16 @@ namespace TheraEngine.Rendering.Models
 
             if (_utilizedBones != null)
                 foreach (Bone b in _utilizedBones)
+                {
                     b.RemovePrimitiveManager(this);
+                    b.Renamed -= B_Renamed;
+                }
+
+            if (_singleBind != null)
+            {
+                _singleBind.Renamed -= _singleBind_Renamed;
+                _singleBind = null;
+            }
 
             _boneRemap = null;
             if (skeleton != null)
@@ -283,9 +292,10 @@ namespace TheraEngine.Rendering.Models
                 {
                     if (!string.IsNullOrEmpty(_data.SingleBindBone) &&
                         skeleton.BoneNameCache.ContainsKey(_data.SingleBindBone))
+                    {
                         _singleBind = skeleton.BoneNameCache[_data.SingleBindBone];
-                    else
-                        _singleBind = null;
+                        _singleBind.Renamed += _singleBind_Renamed;
+                    }
 
                     _cpuSkinInfo = null;
                 }
@@ -369,6 +379,8 @@ namespace TheraEngine.Rendering.Models
                     }
 
                     _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneNameCache[x]).ToArray();
+                    foreach (Bone b in _utilizedBones)
+                        b.Renamed += B_Renamed;
                     _boneMatrixBuffer = new DataBuffer("BoneMatrices", EBufferTarget.UniformBuffer, false)
                     {
                         MapData = false,
@@ -397,6 +409,22 @@ namespace TheraEngine.Rendering.Models
             UpdateBoneInfo(true);
             SwapModifiedBuffers();
         }
+
+        private void B_Renamed(TObject node, string oldName)
+        {
+            if (node is Bone b)
+            {
+                int index = _utilizedBones.IndexOf(b);
+                if (_utilizedBones.IndexInArrayRange(index))
+                    _utilizedBones[index] = b;
+            }
+        }
+
+        private void _singleBind_Renamed(TObject node, string oldName)
+        {
+            _data.SingleBindBone = node.Name;
+        }
+
         private DataBuffer _boneMatrixBuffer;
         private void SetSkinningUniforms(RenderProgram program)
         {

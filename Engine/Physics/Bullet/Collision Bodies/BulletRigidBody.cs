@@ -482,7 +482,7 @@ namespace TheraEngine.Physics.Bullet
                 TBulletMotionState state = Body.MotionState as TBulletMotionState;
                 writer.WriteAttributeString("Mass", Mass.ToString());
                 writer.WriteAttributeString("UseMotionState", (state != null).ToString());
-                writer.WriteAttributeString("ShapeType", Body.CollisionShape.ShapeType.ToString());
+                writer.WriteAttributeString("ShapeType", (Body.CollisionShape?.ShapeType ?? BroadphaseNativeType.EmptyShape).ToString());
 
                 if (state != null)
                 {
@@ -509,26 +509,37 @@ namespace TheraEngine.Physics.Bullet
                         {
                             case BroadphaseNativeType.BoxShape:
                                 BoxShape boxShape = Body.CollisionShape as BoxShape;
-                                Vec3 halfExtents = boxShape.HalfExtentsWithoutMargin;
-                                writer.WriteElementString("HalfExtents", halfExtents.ToString("", "", " "));
+                                Vec3 halfExtents1 = boxShape.HalfExtentsWithoutMargin;
+                                writer.WriteElementString("HalfExtents", halfExtents1.ToString("", "", " "));
                                 break;
                             case BroadphaseNativeType.CapsuleShape:
                                 CapsuleShape capsuleShape = Body.CollisionShape as CapsuleShape;
-                                int upAxis = capsuleShape.UpAxis;
-                                writer.WriteElementString("UpAxis", upAxis.ToString());
+                                int upAxis1 = capsuleShape.UpAxis;
+                                writer.WriteElementString("UpAxis", upAxis1.ToString());
                                 writer.WriteElementString("Radius", capsuleShape.Radius.ToString());
                                 writer.WriteElementString("HalfHeight", capsuleShape.HalfHeight.ToString());
                                 break;
                             case BroadphaseNativeType.ConeShape:
-
+                                ConeShape coneShape = Body.CollisionShape as ConeShape;
+                                int upAxis3 = coneShape.ConeUpIndex;
+                                writer.WriteElementString("UpAxis", upAxis3.ToString());
+                                writer.WriteElementString("Radius", coneShape.Radius.ToString());
+                                writer.WriteElementString("Height", coneShape.Height.ToString());
                                 break;
                             case BroadphaseNativeType.SphereShape:
-
+                                SphereShape sphereShape = Body.CollisionShape as SphereShape;
+                                writer.WriteElementString("Radius", sphereShape.Radius.ToString());
                                 break;
                             case BroadphaseNativeType.CylinderShape:
-
+                                CylinderShape cylinderShape = Body.CollisionShape as CylinderShape;
+                                int upAxis2 = cylinderShape.UpAxis;
+                                writer.WriteElementString("UpAxis", upAxis2.ToString());
+                                writer.WriteElementString("Radius", cylinderShape.Radius.ToString());
+                                Vec3 halfExtents2 = cylinderShape.HalfExtentsWithoutMargin;
+                                writer.WriteElementString("HalfExtents", halfExtents2.ToString("", "", " "));
                                 break;
                             case BroadphaseNativeType.TerrainShape:
+                                HeightfieldTerrainShape terrainShape = Body.CollisionShape as HeightfieldTerrainShape;
 
                                 break;
                         }
@@ -639,50 +650,71 @@ namespace TheraEngine.Physics.Bullet
 
                         switch (type)
                         {
+                            case BroadphaseNativeType.SphereShape:
+                                {
+                                    reader.BeginElement();
+                                    {
+                                        string radiusStr = reader.ReadElementString();
+                                        float radius = float.Parse(radiusStr);
+                                        shape = new SphereShape(radius);
+                                    }
+                                    reader.EndElement();
+                                }
+                                break;
                             case BroadphaseNativeType.BoxShape:
-
-                                reader.BeginElement();
-                                string halfExtentsStr = reader.ReadElementString();
-                                Vec3 halfExtents = new Vec3(halfExtentsStr);
-                                reader.EndElement();
-
-                                shape = new BoxShape(halfExtents.X, halfExtents.Y, halfExtents.Z);
+                                {
+                                    reader.BeginElement();
+                                    {
+                                        string halfExtentsStr = reader.ReadElementString();
+                                        Vec3 halfExtents = new Vec3(halfExtentsStr);
+                                        shape = new BoxShape(halfExtents.X, halfExtents.Y, halfExtents.Z);
+                                    }
+                                    reader.EndElement();
+                                }
                                 break;
                             case BroadphaseNativeType.CapsuleShape:
-
-                                reader.BeginElement();
-                                int upAxis;
-                                reader.ReadValue(&upAxis);
-                                reader.EndElement();
-
-                                reader.BeginElement();
-                                float radius;
-                                reader.ReadValue(&radius);
-                                reader.EndElement();
-
-                                reader.BeginElement();
-                                float height;
-                                reader.ReadValue(&height);
-                                height *= 2.0f;
-                                reader.EndElement();
-
-                                switch (upAxis)
                                 {
-                                    case 0:
-                                        shape = new CapsuleShapeX(radius, height);
-                                        break;
-                                    default:
-                                    case 1:
-                                        shape = new CapsuleShape(radius, height);
-                                        break;
-                                    case 2:
-                                        shape = new CapsuleShapeZ(radius, height);
-                                        break;
+                                    int upAxis = 1;
+                                    float radius = 0.0f;
+                                    float height = 0.0f;
+                                    while (reader.BeginElement())
+                                    {
+                                        switch (reader.Name)
+                                        {
+                                            case "UpAxis":
+                                                reader.ReadValue(&upAxis);
+                                                break;
+                                            case "Radius":
+                                                reader.ReadValue(&radius);
+                                                break;
+                                            case "HalfHeight":
+                                                reader.ReadValue(&height);
+                                                height *= 2.0f;
+                                                break;
+                                        }
+                                        reader.EndElement();
+                                    }
+                                    switch (upAxis)
+                                    {
+                                        case 0:
+                                            shape = new CapsuleShapeX(radius, height);
+                                            break;
+                                        default:
+                                        case 1:
+                                            shape = new CapsuleShape(radius, height);
+                                            break;
+                                        case 2:
+                                            shape = new CapsuleShapeZ(radius, height);
+                                            break;
+                                    }
                                 }
                                 break;
                         }
-                        shape.Margin = margin;
-                        shape.LocalScaling = localScaling;
+                        if (shape != null)
+                        {
+                            shape.Margin = margin;
+                            shape.LocalScaling = localScaling;
+                        }
                         break;
 
                     case "Construction":

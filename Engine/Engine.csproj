@@ -404,6 +404,7 @@
     <Compile Include="Core\Extensions\GenericExtensions.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
+    <Compile Include="Core\Files\FileObject\Statics.cs" />
     <Compile Include="Core\Files\References\FileLoader.cs" />
     <Compile Include="Core\Files\References\LocalFileRef.cs" />
     <Compile Include="Core\Files\References\GlobalFileRef.cs" />
@@ -849,7 +850,7 @@
     <Compile Include="Core\Reflection\Attributes\Serialization\PrePostDeserialize.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TSerialize.cs" />
     <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
-    <Compile Include="Core\Files\FileObject.cs" />
+    <Compile Include="Core\Files\FileObject\FileObject.cs" />
     <Compile Include="Core\Time\EngineTimer.cs" />
     <Compile Include="Core\Controls\RenderPanel.cs">
       <SubType>UserControl</SubType>

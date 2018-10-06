@@ -15,6 +15,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize(Order = 1)]
         public Shape CullingVolume { get; set; }
 
+        [DisplayName("Levels Of Detail")]
         [Browsable(false)]
         [TSerialize(Order = 2)]
         public List<LOD> LODs { get; set; }

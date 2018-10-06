@@ -39,7 +39,7 @@ namespace TheraEditor.Windows.Forms
                 length = Math.Min(length, node.Text.Length - index);
                 if (index >= 0 && length > 0 && index < node.Text.Length)
                 {
-                    e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), e.Bounds);
+                    //e.Graphics.FillRectangle(new SolidBrush(tree.BackColor), e.Bounds);
 
                     CharacterRange[] characterRanges = { new CharacterRange(index, length) };
                     StringFormat stringFormat = new StringFormat
@@ -55,7 +55,7 @@ namespace TheraEditor.Windows.Forms
                     foreach (Region region in regions)
                     {
                         Rectangle rect = Rectangle.Round(region.GetBounds(e.Graphics));
-                        rect.X -= 9;
+                        rect.X -= 3;
                         e.Graphics.FillRectangle(new SolidBrush(node.BackColor), rect);
                     }
                 }
@@ -312,8 +312,8 @@ namespace TheraEditor.Windows.Forms
             AppendToStart,
             AppendToEnd,
         }
-        private ESearchingMethod _searchMethod;
-        private ERenamingMethod _renameMethod;
+        private ESearchingMethod _searchMethod = ESearchingMethod.Contains;
+        private ERenamingMethod _renameMethod = ERenamingMethod.ReplaceSearchMatch;
         private void rdoAppendToStart_CheckedChanged(object sender, EventArgs e)
         {
             if (sender is RadioButton btn && btn.Checked)

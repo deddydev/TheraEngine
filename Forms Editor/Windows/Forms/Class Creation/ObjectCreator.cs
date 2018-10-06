@@ -242,28 +242,28 @@ namespace TheraEditor.Windows.Forms
             SetTargetType(item?.Tag as Type);
         }
 
-        private void ConstructorSelector_CheckedChanged(object sender, EventArgs e)
-        {
-            if (_updating)
-                return;
-            CheckBox c = (CheckBox)sender;
-            ConstructorIndex = (int)c.Tag;
-            _updating = true;
-            if (c.Checked)
-            {
-                for (int i = 0; i < FinalArguments.Length; ++i)
-                {
-                    if (i == ConstructorIndex)
-                        continue;
-                    int rowIndex = i << 1;
-                    CheckBox box = (CheckBox)tblConstructors.GetControlFromPosition(0, rowIndex);
-                    box.Checked = false;
-                }
-            }
-            else
-                c.Checked = true;
-            _updating = false;
-        }
+        //private void ConstructorSelector_CheckedChanged(object sender, EventArgs e)
+        //{
+        //    if (_updating)
+        //        return;
+        //    CheckBox c = (CheckBox)sender;
+        //    ConstructorIndex = (int)c.Tag;
+        //    _updating = true;
+        //    if (c.Checked)
+        //    {
+        //        for (int i = 0; i < FinalArguments.Length; ++i)
+        //        {
+        //            if (i == ConstructorIndex)
+        //                continue;
+        //            int rowIndex = i << 1;
+        //            CheckBox box = (CheckBox)tblConstructors.GetControlFromPosition(0, rowIndex);
+        //            box.Checked = false;
+        //        }
+        //    }
+        //    else
+        //        c.Checked = true;
+        //    _updating = false;
+        //}
 
         public bool IsNullable { get; private set; }
         public int ConstructorIndex { get; private set; } = -1;
@@ -541,6 +541,7 @@ namespace TheraEditor.Windows.Forms
                     DisplayConstructorMethod(m.Name, m.GetParameters(), PublicInstanceConstructors.Length + index);
                 }
             }
+            ConstructorIndex = index;
         }
 
         private void DisplayConstructorMethod(string funcName, ParameterInfo[] parameters, int index)
@@ -573,21 +574,19 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            CheckBox constructorSelector = new CheckBox()
-            {
-                Text = funcName,
-                Dock = DockStyle.Left,
-                AutoSize = true,
-                Tag = index,
-                Checked = index == 0,
-                ForeColor = Color.FromArgb(200, 200, 220),
-                BackColor = Color.Transparent,
-            };
-
-            ConstructorIndex = 0;
-
-            constructorSelector.CheckedChanged += ConstructorSelector_CheckedChanged;
-            tblConstructors.Controls.Add(constructorSelector, 0, tblConstructors.RowCount - 2);
+            //CheckBox constructorSelector = new CheckBox()
+            //{
+            //    Text = funcName,
+            //    Dock = DockStyle.Left,
+            //    AutoSize = true,
+            //    Tag = index,
+            //    Checked = index == 0,
+            //    ForeColor = Color.FromArgb(200, 200, 220),
+            //    BackColor = Color.Transparent,
+            //};
+            
+            //constructorSelector.CheckedChanged += ConstructorSelector_CheckedChanged;
+            //tblConstructors.Controls.Add(constructorSelector, 0, tblConstructors.RowCount - 2);
             
             for (int paramIndex = 0; paramIndex < parameters.Length; ++paramIndex)
             {

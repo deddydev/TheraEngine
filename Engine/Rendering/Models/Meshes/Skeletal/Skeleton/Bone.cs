@@ -406,7 +406,9 @@ namespace TheraEngine.Rendering.Models
             {
                 if (_rigidBodyCollision != null)
                 {
-                    Matrix4 worldMatrix = _rigidBodyCollision.WorldTransform * _rigidBodyLocalTransform.InverseMatrix;
+                    Matrix4 bodyMtx = _rigidBodyCollision.WorldTransform;
+                    bodyMtx = bodyMtx.ClearScale();
+                    Matrix4 worldMatrix = bodyMtx * _rigidBodyLocalTransform.InverseMatrix;
                     Matrix4 frameMatrix = worldMatrix * OwningComponent.InverseWorldMatrix;
                     Matrix4 localMatrix = inverseParentMatrix * frameMatrix;
                     FrameState.Matrix = localMatrix;

@@ -285,10 +285,10 @@ namespace TheraEngine.Core.Files.XML
                     int childIndex = 0;
 
                     ChildInfo[] childElements = entry.WantsManualRead ? null :
-                        elementType.GetCustomAttributes<ElementChild>().Select(x => new ChildInfo(x)).ToArray();
+                        elementType.GetCustomAttributesExt<ElementChild>().Select(x => new ChildInfo(x)).ToArray();
 
                     MultiChildInfo[] multiChildElements = entry.WantsManualRead ? null : 
-                        elementType.GetCustomAttributes<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
+                        elementType.GetCustomAttributesExt<MultiChild>().Select(x => new MultiChildInfo(x)).ToArray();
 
                     //Read all child elements
                     while (reader.NodeType != XmlNodeType.EndElement)

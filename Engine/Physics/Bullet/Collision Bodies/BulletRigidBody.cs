@@ -59,7 +59,7 @@ namespace TheraEngine.Physics.Bullet
             Body = new RigidBody(bulletInfo);
             Body.Activate();
 
-            CollisionShape = info.CollisionShape;
+            base.CollisionShape = info.CollisionShape;
 
             Constraints.PostAnythingAdded += Constraints_PostAnythingAdded;
             Constraints.PostAnythingRemoved += Constraints_PostAnythingRemoved;

@@ -123,8 +123,7 @@ namespace TheraEngine.Rendering.Models
 
         public static PrimitiveData DecodeMorphedPrimitivesUnweighted(Matrix4 bindMatrix, Morph morph)
         {
-            var baseMesh = morph.BaseMeshUrl.GetElement(morph.Root) as Geometry;
-            if (baseMesh == null)
+            if (!(morph.BaseMeshUrl.GetElement(morph.Root) is Geometry baseMesh))
             {
                 Engine.LogWarning("Morph base mesh '" + morph.BaseMeshUrl.TargetID + "' does not point to a valid geometry entry.");
                 return null;

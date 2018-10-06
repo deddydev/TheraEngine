@@ -53,10 +53,10 @@ namespace TheraEngine.Rendering.Models
         {
             ModelImportOptions o = new ModelImportOptions()
             {
-                //IgnoreFlags =
-                //Core.Files.IgnoreFlags.Extra |
-                //Core.Files.IgnoreFlags.Cameras |
-                //Core.Files.IgnoreFlags.Lights,
+                IgnoreFlags =
+                Collada.EIgnoreFlags.Extra |
+                Collada.EIgnoreFlags.Cameras |
+                Collada.EIgnoreFlags.Lights,
             };
             Collada.Data data = await Collada.ImportAsync(path, o);
             if (data != null && data.Models != null && data.Models.Count > 0)
@@ -76,7 +76,7 @@ namespace TheraEngine.Rendering.Models
             return OBJ.Import(path, o);
         }
         [ThirdPartyExporter("pmx")]
-        public static void ExportPMXAsync(object obj, string path)
+        public static void ExportPMX(object obj, string path)
         {
             SkeletalModel m = obj as SkeletalModel;
             PMXExporter e = new PMXExporter(m);

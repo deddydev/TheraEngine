@@ -73,7 +73,6 @@ namespace TheraEngine.Rendering.Models
 
                 if (this is ISID SIDEntry && !string.IsNullOrEmpty(SIDEntry.SID))
                 {
-                    Engine.PrintLine(SIDEntry.SID);
                     IElement p = SIDEntry.Parent;
                     while (true)
                     {
@@ -126,7 +125,7 @@ namespace TheraEngine.Rendering.Models
             public IID GetElement(COLLADA root)
             {
                 List<IID> elements = GetElements(root);
-                if (elements.Count == 0)
+                if (elements == null || elements.Count == 0)
                     return default;
                 if (elements.Count == 1)
                     return elements[0];
@@ -136,7 +135,7 @@ namespace TheraEngine.Rendering.Models
             public List<IID> GetElements(IRoot root)
                 => GetElements(root as COLLADA);
             public List<IID> GetElements(COLLADA root)
-                => IsLocal ? root?.GetIDEntries(URI.Substring(1)) : null;
+                => IsLocal ? root?.GetIDEntries(URI.Substring(1)) : new List<IID>();
 
             public string TargetID => IsLocal ? URI.Substring(1) : URI;
         }

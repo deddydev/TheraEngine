@@ -329,7 +329,7 @@ namespace TheraEngine.Files.Serialization
             {
                 case SerializationCommon.ValueType.Manual:
                     TFileObject o = (TFileObject)Activator.CreateInstance(memberType);
-                    o.Read(_reader);
+                    o.ReadAsync(_reader);
                     return o;
                 case SerializationCommon.ValueType.Array:
                     return ReadArray(memberType);

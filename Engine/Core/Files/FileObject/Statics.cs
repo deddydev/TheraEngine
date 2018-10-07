@@ -341,7 +341,7 @@ namespace TheraEngine.Files
                                 {
                                     file.FilePath = filePath;
                                     //if (reader.Name.Equals(t.ToString(), true))
-                                    file.Read(reader);
+                                    file.ReadAsync(reader);
                                     //else
                                     //    throw new Exception("File was not of expected type.");
                                     reader.EndElement();

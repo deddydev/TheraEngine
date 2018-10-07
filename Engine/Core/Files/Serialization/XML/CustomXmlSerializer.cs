@@ -264,7 +264,7 @@ namespace TheraEngine.Files.Serialization
             switch (SerializationCommon.GetValueType(member.VariableType))
             {
                 case SerializationCommon.ValueType.Manual:
-                    ((TFileObject)value).Write(_writer, _flags);
+                    ((TFileObject)value).WriteAsync(_writer, _flags);
                     break;
                 case SerializationCommon.ValueType.Parsable:
                     _writer.WriteElementString(member.Name, ((IParsable)value).WriteToString());

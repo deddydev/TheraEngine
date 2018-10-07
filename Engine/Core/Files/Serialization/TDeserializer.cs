@@ -43,7 +43,7 @@ namespace TheraEngine.Core.Files.Serialization
             public override void EndElement() => Reader.EndElement();
             public override string ReadElementString() => Reader.ReadElementString();
             public override void MoveBackToElementClose() => Reader.MoveBackToElementClose();
-            public override void ManualRead(TFileObject o) => o.Read(Reader);
+            public override void ManualRead(TFileObject o) => o.ReadAsync(Reader);
         }
         private class TFileReaderBinary : TFileReader
         {

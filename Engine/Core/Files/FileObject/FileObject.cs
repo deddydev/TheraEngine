@@ -284,35 +284,35 @@ namespace TheraEngine.Files
             Engine.LogWarning("{0} cannot be exported with extension '{1}'.", type.GetFriendlyName(), ext);
         }
         //[GridCallable("Save")]
-        //public async Task ExportAsync(
-        //    string directory,
-        //    string fileName,
-        //    ESerializeFlags flags = ESerializeFlags.Default)
-        //{
-        //    string ext = null;
-        //    FileExt fileExt = FileExtension;
-        //    if (fileExt != null)
-        //    {
-        //        ext = fileExt.GetProperExtension((EProprietaryFileFormat)fileExt.PreferredFormat);
-        //    }
-        //    else
-        //    {
-        //        File3rdParty tp = File3rdPartyExtensions;
-        //        if (tp != null &&
-        //            tp.ExportableExtensions != null &&
-        //            tp.ExportableExtensions.Length > 0)
-        //        {
-        //            ext = tp.ExportableExtensions[0];
-        //        }
-        //    }
-        //    if (ext != null)
-        //    {
-        //        EFileFormat format = GetFormat(ext, out string ext2);
-        //        await ExportAsync(directory, fileName, format, ext, flags);
-        //    }
-        //    else
-        //        Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
-        //}
+        public async Task ExportAsync(
+            string directory,
+            string fileName,
+            ESerializeFlags flags = ESerializeFlags.Default)
+        {
+            string ext = null;
+            FileExt fileExt = FileExtension;
+            if (fileExt != null)
+            {
+                ext = fileExt.GetProperExtension((EProprietaryFileFormat)fileExt.PreferredFormat);
+            }
+            else
+            {
+                File3rdParty tp = File3rdPartyExtensions;
+                if (tp != null &&
+                    tp.ExportableExtensions != null &&
+                    tp.ExportableExtensions.Length > 0)
+                {
+                    ext = tp.ExportableExtensions[0];
+                }
+            }
+            if (ext != null)
+            {
+                EFileFormat format = GetFormat(ext, out string ext2);
+                await ExportAsync(directory, fileName, format, ext, flags);
+            }
+            else
+                Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
+        }
         //[GridCallable("Save")]
         public async Task ExportAsync(
             string directory,
@@ -374,8 +374,60 @@ namespace TheraEngine.Files
                     stream.Position = 0;
 
                     writer.WriteStartDocument();
-                    Write(writer, flags);
+                    WriteAsync(writer, flags);
                     writer.WriteEndDocument();
+                }
+            }
+            else
+                new CustomXmlSerializer().Serialize(this, FilePath, flags);
+
+            Engine.PrintLine("Saved XML file to {0}", FilePath);
+        }
+        internal async Task ToXMLAsync(
+            string directory,
+            string fileName,
+            ESerializeFlags flags = ESerializeFlags.Default)
+        {
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                Engine.LogWarning("Cannot export file to XML; directory is null.");
+                return;
+            }
+
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+
+            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                directory += Path.DirectorySeparatorChar;
+
+            FileExt ext = FileExtension;
+
+            if (ext == null)
+                throw new Exception("No FileExt attribute specified for " + GetType().GetFriendlyName());
+
+            FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.XML);
+
+            if (ext.ManualXmlConfigSerialize)
+            {
+                XmlWriterSettings settings = new XmlWriterSettings()
+                {
+                    Indent = true,
+                    IndentChars = "\t",
+                    NewLineChars = Environment.NewLine,
+                    NewLineHandling = NewLineHandling.Replace,
+                    Async = true,
+                };
+                using (FileStream stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 0x1000, FileOptions.SequentialScan))
+                using (XmlWriter writer = XmlWriter.Create(stream, settings))
+                {
+                    await writer.FlushAsync();
+                    stream.Position = 0;
+
+                    await writer.WriteStartDocumentAsync();
+                    await WriteAsync(writer, flags);
+                    await writer.WriteEndDocumentAsync();
                 }
             }
             else
@@ -388,15 +440,15 @@ namespace TheraEngine.Files
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="writer">The xml writer to write the file with.</param>
-        internal protected virtual void Write(XmlWriter writer, ESerializeFlags flags)
-            => throw new NotImplementedException("Override of \"internal protected virtual void Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
+        internal protected virtual async Task WriteAsync(XmlWriter writer, ESerializeFlags flags)
+            => throw new NotImplementedException("Override of \"internal protected virtual async Task Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from an xml file using the given xml reader.
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="reader">The xml reader to read the file with.</param>
-        internal protected virtual void Read(XMLReader reader)
-            => throw new NotImplementedException("Override of \"internal protected virtual void Read(XMLReader reader)\" required when using ManualXmlSerialize in FileClass attribute.");
+        internal protected virtual async Task ReadAsync(XMLReader reader)
+            => throw new NotImplementedException("Override of \"internal protected virtual async Task Read(XMLReader reader)\" required when using ManualXmlSerialize in FileClass attribute.");
 
         #endregion
 

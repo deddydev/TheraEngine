@@ -437,7 +437,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        protected internal override void Read(XMLReader reader)
+        protected internal override void ReadAsync(XMLReader reader)
         {
             if (string.Equals(reader.Name, "KeyframeTrack", StringComparison.InvariantCulture))
             {
@@ -492,7 +492,7 @@ namespace TheraEngine.Animation
                 LengthInSeconds = 0;
             }
         }
-        protected internal override void Write(XmlWriter writer, ESerializeFlags flags)
+        protected internal override void WriteAsync(XmlWriter writer, ESerializeFlags flags)
         {
             writer.WriteStartElement("KeyframeTrack");
             {

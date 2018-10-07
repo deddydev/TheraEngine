@@ -352,7 +352,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        protected internal override void Read(XMLReader reader)
+        protected internal override void ReadAsync(XMLReader reader)
         {
             string[] names =
             {
@@ -434,7 +434,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        protected internal override void Write(XmlWriter writer, ESerializeFlags flags)
+        protected internal override void WriteAsync(XmlWriter writer, ESerializeFlags flags)
         {
             string[] names = 
             {

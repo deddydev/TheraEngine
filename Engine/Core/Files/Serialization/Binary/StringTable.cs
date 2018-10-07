@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using TheraEngine.Core.Memory;
-using TheraEngine.Files.Serialization;
+using TheraEngine.Core.Files.Serialization;
 
-namespace TheraEngine.Files
+namespace TheraEngine.Core.Files
 {
     public unsafe class StringTable
     {

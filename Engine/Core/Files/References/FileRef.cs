@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using System.Xml;
 using TheraEngine.Core.Reflection.Attributes;
 
-namespace TheraEngine.Files
+namespace TheraEngine.Core.Files
 {
     public interface IFileRef : IFileLoader
     {

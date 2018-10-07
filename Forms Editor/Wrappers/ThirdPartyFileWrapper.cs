@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEditor.Wrappers
 {

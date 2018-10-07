@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Xml;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Physics.Bullet.Shapes;
 
 namespace TheraEngine.Physics.Bullet

@@ -1,10 +1,10 @@
-﻿using TheraEngine.Files;
+﻿using TheraEngine.Core.Files;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 using System.Linq;
-using TheraEngine.Files.Serialization;
+using TheraEngine.Core.Files.Serialization;
 using System.Collections.Generic;
 
 namespace TheraEngine

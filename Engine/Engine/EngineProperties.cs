@@ -10,7 +10,7 @@ using TheraEngine.Audio;
 using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Editor;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;

@@ -4,7 +4,7 @@ using System.Drawing;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;

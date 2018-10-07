@@ -5,7 +5,7 @@ using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Timers;
 using WeifenLuo.WinFormsUI.Docking;

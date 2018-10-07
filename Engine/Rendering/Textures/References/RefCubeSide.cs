@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Drawing.Imaging;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures

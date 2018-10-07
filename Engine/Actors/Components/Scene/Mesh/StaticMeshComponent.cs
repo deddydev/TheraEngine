@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
 

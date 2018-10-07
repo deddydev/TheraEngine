@@ -6,7 +6,7 @@ using System.Linq;
 using TheraEngine.Animation;
 using TheraEngine.Core.Attributes;
 using TheraEngine.Core.Maths;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Logic.Animation

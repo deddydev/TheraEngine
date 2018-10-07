@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using TheraEngine.Core.Tools;
 
-namespace TheraEngine.Files.Serialization
+namespace TheraEngine.Core.Files.Serialization
 {
     public partial class CustomXmlSerializer
     {
@@ -25,29 +27,44 @@ namespace TheraEngine.Files.Serialization
         private XmlWriter _writer;
         private string _fileDir;
         private Dictionary<Guid, TObject> _objects;
+        private IProgress<float> _progress;
+        private CancellationToken _cancel;
+        private FileStream _stream;
+
+        private bool ReportProgress()
+        {
+            _progress.Report((float)_stream.Position / _stream.Length);
+            return _cancel.IsCancellationRequested;
+        }
 
         /// <summary>
         /// Writes the given object to the path as xml.
         /// </summary>
-        public async void Serialize(
+        public async Task SerializeAsync(
             TFileObject obj,
             string filePath,
-            ESerializeFlags flags = ESerializeFlags.Default)
+            ESerializeFlags flags,
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
             _objects = new Dictionary<Guid, TObject>();
             _flags = flags;
             _fileDir = Path.GetDirectoryName(filePath);
-            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
-            using (_writer = XmlWriter.Create(stream, _writerSettings))
+            _progress = progress;
+            _cancel = cancel;
+
+            using (_stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
+            using (_writer = XmlWriter.Create(_stream, _writerSettings))
             {
                 _writer.Flush();
-                stream.Position = 0;
+                _stream.Position = 0;
+
                 await _writer.WriteStartDocumentAsync();
-                WriteObject(obj, null, true);
+                await WriteObjectAsync(obj, null, true);
                 await _writer.WriteEndDocumentAsync();
             }
         }
-        private void WriteObject(
+        private async Task WriteObjectAsync(
             object obj,
             string name,
             bool writeTypeDefinition)
@@ -56,9 +73,9 @@ namespace TheraEngine.Files.Serialization
                 return;
             
             List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(obj.GetType());
-            WriteObject(obj, fields, name, writeTypeDefinition);
+            await WriteObjectAsync(obj, fields, name, writeTypeDefinition);
         }
-        private void WriteObject(
+        private async Task WriteObjectAsync(
             object obj,
             List<VarInfo> members,
             string name,
@@ -131,7 +148,7 @@ namespace TheraEngine.Files.Serialization
                             {
                                 string fileName = SerializationCommon.ResolveFileName(
                                     _fileDir, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
-                                file.Export(dir, fileName, EFileFormat.XML, null, _flags);
+                                await file.ExportAsync(dir, fileName, EFileFormat.XML, null, _flags);
                             }
                             else
                             {
@@ -140,7 +157,7 @@ namespace TheraEngine.Files.Serialization
                                 {
                                     string ext = f.ExportableExtensions[0];
                                     string fileName = SerializationCommon.ResolveFileName(_fileDir, file.Name, ext);
-                                    file.Export(dir, fileName, EFileFormat.ThirdParty, ext, _flags);
+                                    await file.ExportAsync(dir, fileName, EFileFormat.ThirdParty, ext, _flags);
                                 }
                                 else
                                     Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
@@ -168,29 +185,32 @@ namespace TheraEngine.Files.Serialization
             foreach (var grouping in categorized)
                 foreach (VarInfo p in grouping)
                     members.Remove(p);
-            
+
+            if (string.IsNullOrEmpty(name))
+                name = SerializationCommon.GetTypeName(objType);
+
             //Write the element for this object
-            _writer.WriteStartElement(string.IsNullOrEmpty(name) ? SerializationCommon.GetTypeName(objType) : name);
+            await _writer.WriteStartElementAsync(null, name, null);
             {
                 if (writeTypeDefinition)
-                    _writer.WriteAttributeString(SerializationCommon.TypeIdent, objType.AssemblyQualifiedName);
+                    await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, objType.AssemblyQualifiedName);
                 
                 //Attributes are already sorted to come first, then elements
-                WriteMembers(obj, members, categorized.Count, customMethods);
+                await WriteMembers(obj, members, categorized.Count, customMethods);
 
                 //Write categorized elements
                 foreach (var grouping in categorized)
                 {
                     //Write category element
-                    _writer.WriteStartElement(grouping.Key);
+                    await _writer.WriteStartElementAsync(null, grouping.Key, null);
                     {
                         //Write members for this category
                         WriteMembers(obj, grouping.OrderBy(x => !x.Attrib.IsXmlAttribute).ToList(), 0, customMethods);
                     }
-                    _writer.WriteEndElement();
+                    await _writer.WriteEndElementAsync();
                 }
             }
-            _writer.WriteEndElement();
+            await _writer.WriteEndElementAsync();
         }
         private void WriteMembers(
             object obj,
@@ -282,7 +302,7 @@ namespace TheraEngine.Files.Serialization
                 case SerializationCommon.ValueType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(member.VariableType);
                     if (structFields.Count > 0)
-                        WriteObject(value, structFields, member.Name, writeTypeDefinition);
+                        WriteObjectAsync(value, structFields, member.Name, writeTypeDefinition);
                     else
                     {
                         if (SerializationCommon.IsPrimitiveType(member.VariableType))
@@ -303,7 +323,7 @@ namespace TheraEngine.Files.Serialization
                     }
                     break;
                 case SerializationCommon.ValueType.Pointer:
-                    WriteObject(value, member.Name, writeTypeDefinition);
+                    WriteObjectAsync(value, member.Name, writeTypeDefinition);
                     break;
             }
         }
@@ -366,7 +386,7 @@ namespace TheraEngine.Files.Serialization
                         break;
                     case SerializationCommon.ValueType.Pointer:
                         foreach (object o in array)
-                            WriteObject(o, elementName, o?.GetType() != elementType);
+                            WriteObjectAsync(o, elementName, o?.GetType() != elementType);
                         break;
                 }
             }
@@ -380,7 +400,7 @@ namespace TheraEngine.Files.Serialization
             //Needs a full element
             if (fields.Count > 0)
                 foreach (object o in array)
-                    WriteObject(o, fields, elementName, false);
+                    WriteObjectAsync(o, fields, elementName, false);
             else
             {
                 if (SerializationCommon.IsPrimitiveType(elementType))

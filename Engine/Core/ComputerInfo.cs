@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Memory;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Core
 {

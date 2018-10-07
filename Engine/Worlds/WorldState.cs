@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Actors;
 

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models.Materials;
 using WeifenLuo.WinFormsUI.Docking;
 

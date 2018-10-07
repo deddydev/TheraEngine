@@ -13,7 +13,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {

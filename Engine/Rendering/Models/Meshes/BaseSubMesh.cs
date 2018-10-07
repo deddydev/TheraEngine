@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models

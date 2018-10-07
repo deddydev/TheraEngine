@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEditor.Properties;
 using TheraEditor.Wrappers;
 using System.IO;

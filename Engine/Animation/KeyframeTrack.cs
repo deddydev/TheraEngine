@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
 using System;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 using System.IO;
 using System.Xml;
 using System.Linq;
 using EnumsNET;
+using System.Threading;
+using System.Threading.Tasks;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Animation
 {
@@ -437,75 +440,87 @@ namespace TheraEngine.Animation
             }
         }
 
-        protected internal override void ReadAsync(XMLReader reader)
+        #region Reading / Writing
+        protected internal override async Task ReadAsync(TDeserializer.AbstractReader reader)
         {
-            if (string.Equals(reader.Name, "KeyframeTrack", StringComparison.InvariantCulture))
+            if (!string.Equals(reader.ElementName, "KeyframeTrack", StringComparison.InvariantCulture))
             {
-                if (reader.ReadAttribute() && string.Equals(reader.Name, nameof(LengthInSeconds), StringComparison.InvariantCulture))
-                    LengthInSeconds = float.TryParse(reader.Value, out float length) ? length : 0.0f;
-
-                Clear();
-
-                if (reader.ReadAttribute() && 
-                    string.Equals(reader.Name, "Count", StringComparison.InvariantCulture) &&
-                    int.TryParse(reader.Value, out int keyCount))
-                {
-                    Type t = typeof(T);
-                    if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
-                    {
-                        string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
-                        while (reader.BeginElement())
-                        {
-                            string[] str = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                            switch (reader.Name)
-                            {
-                                case "Seconds": seconds = str; break;
-                                case "InValues": inValues = str; break;
-                                case "OutValues": outValues = str; break;
-                                case "InTangents": inTans = str; break;
-                                case "OutTangents": outTans = str; break;
-                                case "InterpTypes": interpolation = str; break;
-                            }
-                            reader.EndElement();
-                        }
-                        for (int i = 0; i < keyCount; ++i)
-                        {
-                            float sec = seconds == null || !seconds.IndexInArrayRange(i) ? 0.0f : float.Parse(seconds[i]);
-                            EPlanarInterpType interp = interpolation == null || !interpolation.IndexInArrayRange(i) ? EPlanarInterpType.Step : Enums.Parse<EPlanarInterpType>(interpolation[i]);
-                            string inVal = inValues == null || !inValues.IndexInArrayRange(i) ? string.Empty : inValues[i];
-                            string outVal = outValues == null || !outValues.IndexInArrayRange(i) ? string.Empty : outValues[i];
-                            string inTan = inTans == null || !inTans.IndexInArrayRange(i) ? string.Empty : inTans[i];
-                            string outTan = outTans == null || !outTans.IndexInArrayRange(i) ? string.Empty : outTans[i];
-
-                            T kf = new T { Second = sec };
-                            IPlanarKeyframe kfp = (IPlanarKeyframe)kf;
-                            kfp.InterpolationType = interp;
-                            kfp.ParsePlanar(inVal, outVal, inTan, outTan);
-
-                            Add(kf);
-                        }
-                    }
-                }
+                LengthInSeconds = 0.0f;
+                return;
             }
+            
+            bool read = await reader.ExpectAttribute(nameof(LengthInSeconds));
+            if (read && float.TryParse(reader.AttributeValue, out float length))
+                LengthInSeconds = length;
             else
+                LengthInSeconds = 0.0f;
+
+            Clear();
+
+            read = await reader.ExpectAttribute(nameof(Count));
+            if (!read || !int.TryParse(reader.AttributeValue, out int keyCount))
+                return;
+            
+            Type t = typeof(T);
+            if (!typeof(IPlanarKeyframe).IsAssignableFrom(t))
+                return;
+            
+            string[] 
+                seconds = null, 
+                inValues = null, 
+                outValues = null, 
+                inTans = null, 
+                outTans = null, 
+                interpolation = null;
+
+            //Read all keyframe information, split into separate element arrays
+            while (await reader.BeginElementAsync())
             {
-                LengthInSeconds = 0;
+                string elemStr = await reader.ReadElementStringAsync();
+                string[] str = elemStr.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                switch (reader.ElementName)
+                {
+                    case "Seconds": seconds = str; break;
+                    case "InValues": inValues = str; break;
+                    case "OutValues": outValues = str; break;
+                    case "InTangents": inTans = str; break;
+                    case "OutTangents": outTans = str; break;
+                    case "InterpTypes": interpolation = str; break;
+                }
+                await reader.EndElementAsync();
+            }
+
+            for (int i = 0; i < keyCount; ++i)
+            {
+                float sec = seconds == null || !seconds.IndexInArrayRange(i) ? 0.0f : float.Parse(seconds[i]);
+                EPlanarInterpType interp = interpolation == null || !interpolation.IndexInArrayRange(i) ? EPlanarInterpType.Step : Enums.Parse<EPlanarInterpType>(interpolation[i]);
+                string inVal = inValues == null || !inValues.IndexInArrayRange(i) ? string.Empty : inValues[i];
+                string outVal = outValues == null || !outValues.IndexInArrayRange(i) ? string.Empty : outValues[i];
+                string inTan = inTans == null || !inTans.IndexInArrayRange(i) ? string.Empty : inTans[i];
+                string outTan = outTans == null || !outTans.IndexInArrayRange(i) ? string.Empty : outTans[i];
+
+                T kf = new T { Second = sec };
+                IPlanarKeyframe kfp = (IPlanarKeyframe)kf;
+                kfp.InterpolationType = interp;
+                kfp.ParsePlanar(inVal, outVal, inTan, outTan);
+
+                Add(kf);
             }
         }
-        protected internal override void WriteAsync(XmlWriter writer, ESerializeFlags flags)
+        protected internal override async Task WriteAsync(TSerializer.AbstractWriter writer)
         {
-            writer.WriteStartElement("KeyframeTrack");
+            await writer.WriteStartElementAsync("KeyframeTrack");
             {
-                writer.WriteAttributeString(nameof(LengthInSeconds), LengthInSeconds.ToString());
-                writer.WriteAttributeString("Count", Count.ToString());
+                await writer.WriteAttributeStringAsync(nameof(LengthInSeconds), LengthInSeconds.ToString());
+                await writer.WriteAttributeStringAsync(nameof(Count), Count.ToString());
                 if (Count > 0)
                 {
                     Type t = typeof(T);
                     if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
                     {
-                        string 
-                            seconds = "", 
-                            inValues = "", 
+                        string
+                            seconds = "",
+                            inValues = "",
                             outValues = "",
                             inTans = "",
                             outTans = "",
@@ -534,17 +549,18 @@ namespace TheraEngine.Animation
                             inTans += tempInTan;
                             outTans += tempOutTan;
                         }
-                        writer.WriteElementString("Seconds", seconds);
-                        writer.WriteElementString("InValues", inValues);
-                        writer.WriteElementString("OutValues", outValues);
-                        writer.WriteElementString("InTangents", inTans);
-                        writer.WriteElementString("OutTangents", outTans);
-                        writer.WriteElementString("InterpTypes", interpTypes);
+                        await writer.WriteElementStringAsync("Seconds", seconds);
+                        await writer.WriteElementStringAsync("InValues", inValues);
+                        await writer.WriteElementStringAsync("OutValues", outValues);
+                        await writer.WriteElementStringAsync("InTangents", inTans);
+                        await writer.WriteElementStringAsync("OutTangents", outTans);
+                        await writer.WriteElementStringAsync("InterpTypes", interpTypes);
                     }
                 }
             }
-            writer.WriteEndElement();
+            await writer.WriteEndElementAsync();
         }
+        #endregion
     }
     public enum ERadialInterpType
     {

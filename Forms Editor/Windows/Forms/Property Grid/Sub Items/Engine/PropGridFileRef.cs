@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEditor.Wrappers;
 using System.Drawing;
 

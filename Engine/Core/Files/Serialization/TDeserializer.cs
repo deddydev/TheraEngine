@@ -9,71 +9,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Files;
-using TheraEngine.Files.Serialization;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class TDeserializer
+    public partial class TDeserializer
     {
-        private TFileReader _reader;
-        private string _rootFilePath;
-        private TFileObject _rootFileObject;
+        public AbstractReader Reader { get; private set; }
 
-        private abstract class TFileReader
-        {
-            public virtual string Name { get; }
-            public virtual string Value { get; }
 
-            public abstract bool BeginElement();
-            public abstract bool ReadAttribute();
-            public abstract void EndElement();
-            public abstract string ReadElementString();
-            public abstract void MoveBackToElementClose();
-            public abstract void ManualRead(TFileObject o);
-        }
-        private class TFileReaderXML : TFileReader
-        {
-            XMLReader Reader { get; set; } = new XMLReader();
-
-            public override string Name => Reader.Name;
-            public override string Value => Reader.Value;
-            public override bool BeginElement() => Reader.BeginElement();
-            public override bool ReadAttribute() => Reader.ReadAttribute();
-            public override void EndElement() => Reader.EndElement();
-            public override string ReadElementString() => Reader.ReadElementString();
-            public override void MoveBackToElementClose() => Reader.MoveBackToElementClose();
-            public override void ManualRead(TFileObject o) => o.ReadAsync(Reader);
-        }
-        private class TFileReaderBinary : TFileReader
-        {
-            public override string Name => null;//Reader.Name;
-            public override string Value => null;//Reader.Value;
-            public override bool BeginElement()
-            {
-                throw new NotImplementedException();
-            }
-            public override bool ReadAttribute()
-            {
-                throw new NotImplementedException();
-            }
-            public override void EndElement()
-            {
-                throw new NotImplementedException();
-            }
-            public override string ReadElementString()
-            {
-                throw new NotImplementedException();
-            }
-            public override void MoveBackToElementClose()
-            {
-                throw new NotImplementedException();
-            }
-            public override void ManualRead(TFileObject o)
-            {
-                throw new NotImplementedException();
-            }
-        }
         public TFileObject Deserialize(string filePath)
         {
             EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
@@ -86,10 +31,10 @@ namespace TheraEngine.Core.Files.Serialization
                     task.Wait();
                     return task.Result;
                 case EFileFormat.XML:
-                    _reader = new TFileReaderXML();
+                    _reader = new ReaderXML();
                     break;
                 case EFileFormat.Binary:
-                    _reader = new TFileReaderBinary();
+                    _reader = new ReaderBinary();
                     break;
             }
             return Deserialize2(filePath);
@@ -379,7 +324,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 case SerializationCommon.ValueType.Manual:
                     TFileObject o = (TFileObject)Activator.CreateInstance(memberType);
-                    _reader.ManualRead(o);
+                    _reader.ManualReadAsync(o);
                     return o;
                 case SerializationCommon.ValueType.Array:
                     return ReadArray(memberType);

@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using TheraEngine;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEditor
 {

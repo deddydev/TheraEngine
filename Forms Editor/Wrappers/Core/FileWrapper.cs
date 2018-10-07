@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEditor.Wrappers
 {

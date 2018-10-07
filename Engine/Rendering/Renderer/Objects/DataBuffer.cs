@@ -5,7 +5,7 @@ using System.Xml;
 using System.ComponentModel;
 using System.IO;
 using TheraEngine.Core.Memory;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models
 {

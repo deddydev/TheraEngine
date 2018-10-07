@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models
 {

@@ -1,4 +1,4 @@
-﻿using TheraEngine.Files.Serialization;
+﻿using TheraEngine.Core.Files.Serialization;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml;
@@ -11,7 +11,7 @@ using TheraEngine.Core.Memory;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace TheraEngine.Files
+namespace TheraEngine.Core.Files
 {
     public abstract partial class TFileObject : TObject, IFileObject
     {

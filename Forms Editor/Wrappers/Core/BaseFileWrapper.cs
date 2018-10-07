@@ -9,7 +9,7 @@ using TheraEditor.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
 using TheraEngine.Core.Files;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers

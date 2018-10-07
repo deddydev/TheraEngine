@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms

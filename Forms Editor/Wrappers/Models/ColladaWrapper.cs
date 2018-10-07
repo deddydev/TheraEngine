@@ -5,7 +5,7 @@ using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models;
 
 namespace TheraEditor.Wrappers

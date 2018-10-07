@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models;
 using WeifenLuo.WinFormsUI.Docking;
 

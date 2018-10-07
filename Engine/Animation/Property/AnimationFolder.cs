@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Animation.Property
 {

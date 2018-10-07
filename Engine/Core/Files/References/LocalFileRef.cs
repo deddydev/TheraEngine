@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TheraEngine.Files
+namespace TheraEngine.Core.Files
 {
     public interface ILocalFileRef : IFileRef
     {

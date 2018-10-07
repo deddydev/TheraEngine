@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Animation

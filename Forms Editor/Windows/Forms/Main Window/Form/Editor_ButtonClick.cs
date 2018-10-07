@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms

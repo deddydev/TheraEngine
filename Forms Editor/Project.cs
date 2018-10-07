@@ -11,7 +11,7 @@ using System.Linq;
 using TheraEngine;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.ThirdParty;
 using static TheraEngine.ThirdParty.MSBuild;
 using static TheraEngine.ThirdParty.MSBuild.Project;

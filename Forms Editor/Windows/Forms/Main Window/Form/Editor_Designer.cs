@@ -18,7 +18,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Core.Extensions;
 using TheraEngine.Editor;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;

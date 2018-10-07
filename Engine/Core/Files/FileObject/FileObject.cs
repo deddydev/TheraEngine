@@ -1,4 +1,4 @@
-﻿using TheraEngine.Files.Serialization;
+﻿using TheraEngine.Core.Files.Serialization;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml;
@@ -10,19 +10,20 @@ using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Memory;
 using System.Threading.Tasks;
 using System.Threading;
+using TheraEngine.Core.Files.Serialization;
 
-namespace TheraEngine.Files
+namespace TheraEngine.Core.Files
 {
     [Flags]
     public enum ESerializeFlags
     {
         None = 0,
         /// <summary>
-        /// If set, exports properties TSerialize.Config set to true.
+        /// If set, exports properties with TSerialize.Config set to true.
         /// </summary>
         SerializeConfig = 0x1,
         /// <summary>
-        /// If set, exports properties TSerialize.State set to true.
+        /// If set, exports properties with TSerialize.State set to true.
         /// </summary>
         SerializeState = 0x2,
         /// <summary>
@@ -34,7 +35,7 @@ namespace TheraEngine.Files
         /// </summary>
         ExportGlobalRefs = 0x8,
         /// <summary>
-        /// If set, only exports members that have been modified from the default constructor value within the editor.
+        /// If set, only exports members that have been changed from the value that was set when they were first deserialized or constructed.
         /// </summary>
         ChangedOnly = 0x10,
         Default = SerializeConfig | ExportGlobalRefs | ExportLocalRefs | ChangedOnly,
@@ -61,13 +62,20 @@ namespace TheraEngine.Files
         File3rdParty File3rdPartyExtensions { get; }
         TFileObject RootFile { get; }
         void Unload();
+        
+        string GetFilePath(string dir, string name, EProprietaryFileFormat format);
+        string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
+        void Read3rdParty(string path);
+
         void Export(ESerializeFlags flags = ESerializeFlags.Default);
         void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
         void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
         void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.Default);
-        string GetFilePath(string dir, string name, EProprietaryFileFormat format);
-        string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
-        void Read3rdParty(string path);
+
+        Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportAsync(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportAsync(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
     }
     /// <summary>
     /// Base class for classes that can be stored as files.
@@ -248,10 +256,10 @@ namespace TheraEngine.Files
                     throw new InvalidOperationException("Not a valid file format.");
             }
         }
-        public async Task ExportAsync(ESerializeFlags flags = ESerializeFlags.Default)
-            => await ExportAsync(FilePath, flags);
+        public async Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+            => await ExportAsync(FilePath, flags, progress, cancel);
         //[GridCallable("Save")]
-        public async Task ExportAsync(string path, ESerializeFlags flags = ESerializeFlags.Default)
+        public async Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -267,7 +275,7 @@ namespace TheraEngine.Files
             if (extAttrib != null && pathFormat != EFileFormat.ThirdParty)
             {
                 ext = extAttrib.GetProperExtension((EProprietaryFileFormat)(int)pathFormat);
-                await ExportAsync(dir, name, pathFormat, ext, flags);
+                await ExportAsync(dir, name, pathFormat, ext, flags, progress, cancel);
                 return;
             }
             else if (tpAttrib != null)
@@ -277,7 +285,7 @@ namespace TheraEngine.Files
                 if (!hasWildcard && !hasExt && tpAttrib.ExportableExtensions.Length > 0)
                     ext = tpAttrib.ExportableExtensions[0];
 
-                await ExportAsync(dir, name, EFileFormat.ThirdParty, ext, flags);
+                await ExportAsync(dir, name, EFileFormat.ThirdParty, ext, flags, progress, cancel);
                 return;
             }
 
@@ -287,7 +295,9 @@ namespace TheraEngine.Files
         public async Task ExportAsync(
             string directory,
             string fileName,
-            ESerializeFlags flags = ESerializeFlags.Default)
+            ESerializeFlags flags, 
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
             string ext = null;
             FileExt fileExt = FileExtension;
@@ -308,7 +318,7 @@ namespace TheraEngine.Files
             if (ext != null)
             {
                 EFileFormat format = GetFormat(ext, out string ext2);
-                await ExportAsync(directory, fileName, format, ext, flags);
+                await ExportAsync(directory, fileName, format, ext, flags, progress, cancel);
             }
             else
                 Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
@@ -318,19 +328,21 @@ namespace TheraEngine.Files
             string directory,
             string fileName,
             EFileFormat format,
-            string thirdPartyExt = null,
-            ESerializeFlags flags = ESerializeFlags.Default)
+            string thirdPartyExt,
+            ESerializeFlags flags, 
+            IProgress<float> progress, 
+            CancellationToken cancel)
         {
             switch (format)
             {
                 case EFileFormat.ThirdParty:
-                    await To3rdPartyAsync(directory, fileName, thirdPartyExt);
+                    await To3rdPartyAsync(directory, fileName, thirdPartyExt, progress, cancel);
                     break;
                 case EFileFormat.XML:
-                    await ToXMLAsync(directory, fileName, flags);
+                    await ToXMLAsync(directory, fileName, flags, progress, cancel);
                     break;
                 case EFileFormat.Binary:
-                    await ToBinaryAsync(directory, fileName, flags);
+                    await ToBinaryAsync(directory, fileName, flags, progress, cancel);
                     break;
                 default:
                     throw new InvalidOperationException("Not a valid file format.");
@@ -374,19 +386,21 @@ namespace TheraEngine.Files
                     stream.Position = 0;
 
                     writer.WriteStartDocument();
-                    WriteAsync(writer, flags);
+                    WriteXMLAsync(writer, flags, null, CancellationToken.None).RunSynchronously();
                     writer.WriteEndDocument();
                 }
             }
             else
-                new CustomXmlSerializer().Serialize(this, FilePath, flags);
+                new CustomXmlSerializer().SerializeAsync(this, FilePath, flags);
 
             Engine.PrintLine("Saved XML file to {0}", FilePath);
         }
         internal async Task ToXMLAsync(
             string directory,
             string fileName,
-            ESerializeFlags flags = ESerializeFlags.Default)
+            ESerializeFlags flags, 
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
             if (string.IsNullOrWhiteSpace(directory))
             {
@@ -426,12 +440,15 @@ namespace TheraEngine.Files
                     stream.Position = 0;
 
                     await writer.WriteStartDocumentAsync();
-                    await WriteAsync(writer, flags);
+                    await WriteXMLAsync(writer, flags, progress, cancel);
                     await writer.WriteEndDocumentAsync();
                 }
             }
             else
-                new CustomXmlSerializer().Serialize(this, FilePath, flags);
+            {
+                CustomXmlSerializer serializer = new CustomXmlSerializer();
+                await serializer.SerializeAsync(this, FilePath, flags, progress, cancel);
+            }
 
             Engine.PrintLine("Saved XML file to {0}", FilePath);
         }
@@ -440,14 +457,14 @@ namespace TheraEngine.Files
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="writer">The xml writer to write the file with.</param>
-        internal protected virtual async Task WriteAsync(XmlWriter writer, ESerializeFlags flags)
+        internal protected virtual async Task WriteAsync(TSerializer.AbstractWriter writer)
             => throw new NotImplementedException("Override of \"internal protected virtual async Task Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from an xml file using the given xml reader.
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="reader">The xml reader to read the file with.</param>
-        internal protected virtual async Task ReadAsync(XMLReader reader)
+        internal protected virtual async Task ReadAsync(TDeserializer.AbstractReader reader)
             => throw new NotImplementedException("Override of \"internal protected virtual async Task Read(XMLReader reader)\" required when using ManualXmlSerialize in FileClass attribute.");
 
         #endregion

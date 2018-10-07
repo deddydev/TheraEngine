@@ -3,7 +3,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheraEngine.Animation;
 using TheraEngine.Components.Logic.Animation;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms

@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;

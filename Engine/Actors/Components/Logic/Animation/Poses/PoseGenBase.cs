@@ -1,5 +1,5 @@
 ﻿using TheraEngine.Animation;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Components.Logic.Animation
 {

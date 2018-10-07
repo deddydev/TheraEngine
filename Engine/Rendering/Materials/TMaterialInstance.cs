@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using TheraEngine.Files;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

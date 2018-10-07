@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using TheraEngine.Core.Memory;
 
-namespace TheraEngine.Files.Serialization
+namespace TheraEngine.Core.Files.Serialization
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct FileCommonHeader

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
-namespace TheraEngine.Files.Serialization
+namespace TheraEngine.Core.Files.Serialization
 {
     public partial class CustomXmlSerializer
     {

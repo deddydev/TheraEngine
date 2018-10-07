@@ -9,15 +9,16 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using TheraEngine.Core.Tools;
+using TheraEngine.Core.Files;
 
-namespace TheraEngine.Files.Serialization
+namespace TheraEngine.Core.Files.Serialization
 {
-    internal enum InterfaceType
+    public enum InterfaceType
     {
         None,
         IList,
     }
-    internal class MemberTreeNode
+    public class MemberTreeNode
     {
         public MemberTreeNode(object root)
             : this(root, root == null ? null : new VarInfo(root.GetType(), null)) { }

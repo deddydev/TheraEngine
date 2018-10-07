@@ -391,7 +391,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         private static bool TryWriteInterface(MemberTreeNode node, ref VoidPtr address, StringTable table)
         {
-            if (node.Interface == InterfaceType.IList)
+            if (node.InterfaceType == InterfaceType.IList)
             {
                 WriteIList(node, ref address, table);
                 return true;
@@ -400,7 +400,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private static bool TryGetSizeInterface(MemberTreeNode node, StringTable table, out int size)
         {
-            if (node.Interface == InterfaceType.IList)
+            if (node.InterfaceType == InterfaceType.IList)
             {
                 size = GetSizeIList(node, table);
                 return true;

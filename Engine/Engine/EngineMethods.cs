@@ -1,16 +1,16 @@
-﻿using System;
+﻿using mscoree;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Actors;
-using TheraEngine.Core;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
@@ -771,6 +771,37 @@ namespace TheraEngine
                 }
                 else
                     LocalPlayers[device.Index].Input.UpdateDevices();
+            }
+        }
+
+        public static IEnumerable<AppDomain> EnumAppDomains()
+        {
+            IntPtr enumHandle = IntPtr.Zero;
+            ICorRuntimeHost host = null;
+
+            try
+            {
+                host = new CorRuntimeHost();
+                host.EnumDomains(out enumHandle);
+
+                host.NextDomain(enumHandle, out object domain);
+                while (domain != null)
+                {
+                    yield return (AppDomain)domain;
+                    host.NextDomain(enumHandle, out domain);
+                }
+            }
+            finally
+            {
+                if (host != null)
+                {
+                    if (enumHandle != IntPtr.Zero)
+                    {
+                        host.CloseEnum(enumHandle);
+                    }
+
+                    Marshal.ReleaseComObject(host);
+                }
             }
         }
     }

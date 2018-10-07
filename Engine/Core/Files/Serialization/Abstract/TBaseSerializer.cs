@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -12,11 +13,22 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public abstract class TBaseAbstractReaderWriter
         {
-            public string FilePath { get; private set; }
-            public IProgress<float> Progress { get; private set; }
-            public CancellationToken Cancel { get; private set; }
-            public TFileObject RootFileObject { get; private set; }
-            public Dictionary<Guid, TObject> SharedObjects { get; private set; }
+            public string FilePath { get; internal set; }
+            public string FileDirectory { get; internal set; }
+            public IProgress<float> Progress { get; internal set; }
+            public CancellationToken Cancel { get; internal set; }
+            public TFileObject RootFileObject { get; internal set; }
+            public Dictionary<Guid, TObject> SharedObjects { get; internal set; }
+            
+            public TBaseAbstractReaderWriter(TFileObject rootFileObject, string filePath, IProgress<float> progress, CancellationToken cancel)
+            {
+                RootFileObject = rootFileObject;
+                FilePath = filePath;
+                Progress = progress;
+                Cancel = cancel;
+                SharedObjects = new Dictionary<Guid, TObject>();
+                FileDirectory = Path.GetDirectoryName(FilePath);
+            }
 
             public abstract Task Start();
             public abstract Task Finish();
@@ -27,7 +39,7 @@ namespace TheraEngine.Core.Files.Serialization
             /// </summary>
             /// <returns>True if the caller wants to cancel the operation;
             /// false if the operation should continue.</returns>
-            public void ReportProgress()
+            public bool ReportProgress()
             {
                 OnReportProgress();
                 return Cancel.IsCancellationRequested;

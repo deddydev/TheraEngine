@@ -8,60 +8,68 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class TSerializer
+    public partial class TDeserializer
     {
-        public AbstractWriter Writer { get; private set; }
+        public AbstractReader Reader { get; private set; }
 
-        /// <summary>
-        /// Reports progress back to the serialization caller 
-        /// and returns true if the caller wants to cancel the operation.
-        /// </summary>
-        /// <returns>True if the caller wants to cancel the operation;
-        /// false if the operation should continue.</returns>
-        private bool ReportProgress()
+        public TFileObject Deserialize(string filePath)
         {
-            Writer.ReportProgress();
-            return Cancel.IsCancellationRequested;
-        }
-        
-        public async Task<TFileObject> SerializeAsync(
-            TFileObject obj,
-            string dirPath,
-            string name,
-            EProprietaryFileFormat format,
-            ESerializeFlags flags,
-            IProgress<float> progress,
-            CancellationToken cancel)
-        {
-            RootFileObject = obj;
-            Flags = flags;
-            DestinationFilePath = TFileObject.GetFilePath(dirPath, name, format, obj.GetType());
-            switch (format)
+            EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
+            switch (fmt)
             {
                 default:
-                case EProprietaryFileFormat.XML:
-                    Writer = new WriterXML(this);
+                case EFileFormat.ThirdParty:
+                    //throw new InvalidOperationException("This type of file is not a proprietary file format.");
+                    var task = TFileObject.Read3rdPartyAsync(null, filePath, null, CancellationToken.None);
+                    task.Wait();
+                    return task.Result;
+                case EFileFormat.XML:
+                    _reader = new ReaderXML();
                     break;
-                case EProprietaryFileFormat.Binary:
-                    Writer = new WriterBinary(this);
+                case EFileFormat.Binary:
+                    _reader = new ReaderBinary();
                     break;
             }
+            return Deserialize2(filePath);
         }
-        private void Serialize()
+        /// <summary>
+        /// Reads a file from the stream as xml.
+        /// </summary>
+        public unsafe TFileObject Deserialize2(string filePath)
         {
-            //Create serialization tree, as it will be accessed in two passes:
-            //Getting the size of the tree, allocating the space, and then writing the tree's data
-            MemberTreeNode root = new MemberTreeNode(RootFileObject);
-            Writer.Start();
+            _rootFileObject = null;
+            _rootFilePath = filePath;
+            TFileObject obj = null;
+            using (FileMap map = FileMap.FromFile(filePath))
+            {
+                if (_reader.BeginElement() &&
+                    _reader.ReadAttribute() &&
+                    _reader.Name.Equals(SerializationCommon.TypeIdent, StringComparison.InvariantCulture))
+                {
+                    string value = _reader.Value.ToString();
+                    Type t = Type.GetType(value,
+                        (name) =>
+                        {
+                            return AppDomain.CurrentDomain.GetAssemblies().
+                            Where(z => z.FullName == name.FullName).FirstOrDefault();
+                        },
+                        null,
+                        false);
+                    //Type t = Type.GetType(_reader.Value.ToString(), false, false);
+                    obj = ReadObject(t) as TFileObject;
+                    _reader.EndElement();
 
-            Writer.Finish();
+                    if (obj is TFileObject o)
+                        o.FilePath = filePath;
+                }
+            }
+            return obj;
         }
         private object ReadObject(Type objType)
         {
@@ -99,11 +107,11 @@ namespace TheraEngine.Core.Files.Serialization
             object obj = SerializationCommon.CreateObject(objType);
             if (obj is TFileObject tobj)
             {
-                if (RootFileObject == null)
-                    RootFileObject = tobj;
+                if (_rootFileObject == null)
+                    _rootFileObject = tobj;
                 else
-                    tobj.RootFile = RootFileObject;
-                tobj.FilePath = DestinationFilePath;
+                    tobj.RootFile = _rootFileObject;
+                tobj.FilePath = _rootFilePath;
             }
 
             #region Methods
@@ -315,7 +323,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 case SerializationCommon.ValueType.Manual:
                     TFileObject o = (TFileObject)Activator.CreateInstance(memberType);
-                    _reader.ManualRead(o);
+                    _reader.ManualReadAsync(o);
                     return o;
                 case SerializationCommon.ValueType.Array:
                     return ReadArray(memberType);

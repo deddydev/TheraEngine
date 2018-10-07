@@ -10,6 +10,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using TheraEngine.Core.Tools;
 using TheraEngine.Core.Files;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -17,25 +19,63 @@ namespace TheraEngine.Core.Files.Serialization
     {
         None,
         IList,
+        IDictionary,
     }
     public class MemberTreeNode
     {
-        public MemberTreeNode(object root)
-            : this(root, root == null ? null : new VarInfo(root.GetType(), null)) { }
-        public MemberTreeNode(object obj, VarInfo info)
+        public TSerializer.AbstractWriter Writer;
+        public object Object;
+        public VarInfo Info;
+
+        public int CalculatedSize;
+        public int FlagSize;
+
+        public List<MemberTreeNode> Members;
+        public List<IGrouping<string, MemberTreeNode>> CategorizedMembers;
+
+        public InterfaceType InterfaceType;
+        public MemberTreeNode[] IListMembers;
+        public KeyValuePair<MemberTreeNode, MemberTreeNode>[] IDictionaryPairs;
+        
+        public MemberTreeNode(object root, TSerializer.AbstractWriter writer)
+            : this(root, root == null ? null : new VarInfo(root.GetType(), null), writer) { }
+        public MemberTreeNode(object obj, VarInfo info, TSerializer.AbstractWriter writer)
         {
             Object = obj;
             Info = info;
-            Interface = InterfaceType.None;
+            Writer = writer;
+            DetermineInterface();
+        }
+        private void DetermineInterface()
+        {
+            if (Object is IList array)
+            {
+                InterfaceType = InterfaceType.IList;
+                IListMembers = new MemberTreeNode[array.Count];
+                for (int i = 0; i < array.Count; ++i)
+                    IListMembers[i] = new MemberTreeNode(array[i], Writer);
+            }
+            else if (Object is IDictionary dic)
+            {
+                InterfaceType = InterfaceType.IDictionary;
+                IDictionaryPairs = new KeyValuePair<MemberTreeNode, MemberTreeNode>[dic.Count];
 
-            if (info == null)
+            }
+            else
+                InterfaceType = InterfaceType.None;
+        }
+        public async Task GenerateChildTree()
+        {
+            if (Info == null)
                 return;
 
-            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(info.VariableType);
+            await FileObjectCheck();
+
+            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(Info.VariableType);
 
             Members = members.
                 Where(x => (x.Attrib == null || x.Attrib.Condition == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.Condition, obj)).
-                Select(x => new MemberTreeNode(obj == null ? null : x.GetValue(obj), x)).
+                Select(x => new MemberTreeNode(Object == null ? null : x.GetValue(Object), x, Writer)).
                 ToList();
 
             CategorizedMembers = Members.Where(x => x.Info.Category != null).GroupBy(x => SerializationCommon.FixElementName(x.Info.Category)).ToList();
@@ -43,23 +83,95 @@ namespace TheraEngine.Core.Files.Serialization
                 foreach (MemberTreeNode p in grouping)
                     Members.Remove(p);
 
-            if (Object is IList array)
+        }
+        /// <summary>
+        /// Performs special processing for classes that implement <see cref="IFileObject"/> and <see cref="IFileRef"/>.
+        /// </summary>
+        private async Task FileObjectCheck()
+        {
+            //Update the object's file path
+            if (Object is IFileObject fobj)
             {
-                Interface = InterfaceType.IList;
-                IListMembers = new MemberTreeNode[array.Count];
-                for (int i = 0; i < array.Count; ++i)
-                    IListMembers[i] = new MemberTreeNode(array[i]);
+                fobj.FilePath = Writer.FilePath;
+                if (fobj is IFileRef fref && !fref.StoredInternally)
+                {
+                    //Make some last minute adjustments to external file refs
+                    //First, update file relative paths using the new file location
+                    if (fref.PathType == EPathType.FileRelative)
+                    {
+                        string root = Path.GetPathRoot(fref.ReferencePathAbsolute);
+                        int colonIndex = root.IndexOf(":");
+                        if (colonIndex > 0)
+                            root = root.Substring(0, colonIndex);
+                        else
+                            root = string.Empty;
+
+                        string root2 = Path.GetPathRoot(Writer.FileDirectory);
+                        colonIndex = root2.IndexOf(":");
+                        if (colonIndex > 0)
+                            root2 = root2.Substring(0, colonIndex);
+                        else
+                            root2 = string.Empty;
+
+                        if (!string.Equals(root, root2))
+                        {
+                            //Totally different drives, cannot be relative in any way
+                            fref.PathType = EPathType.Absolute;
+                        }
+                    }
+                    if (fref.IsLoaded)
+                    {
+                        string path = fref.ReferencePathAbsolute;
+                        bool fileExists =
+                            !string.IsNullOrWhiteSpace(path) &&
+                            path.IsExistingDirectoryPath() == false &&
+                            File.Exists(path);
+
+                        //TODO: export even if the file exists,
+                        //however only if the file has changed
+                        if (!fileExists)
+                        {
+                            if (fref is IGlobalFileRef && !Writer.Flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
+                                return;
+                            if (fref is ILocalFileRef && !Writer.Flags.HasFlag(ESerializeFlags.ExportLocalRefs))
+                                return;
+
+                            string absPath;
+                            if (fref.PathType == EPathType.FileRelative)
+                            {
+                                string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(Writer.FileDirectory);
+                                absPath = Path.GetFullPath(Path.Combine(Writer.FileDirectory, rel));
+                                //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
+                            }
+                            else
+                                absPath = fref.ReferencePathAbsolute;
+
+                            string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
+
+                            IFileObject file = fref.File;
+                            if (file.FileExtension != null)
+                            {
+                                string fileName = SerializationCommon.ResolveFileName(
+                                    Writer.FileDirectory, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
+                                await file.ExportAsync(dir, fileName, EFileFormat.XML, null, Writer.Flags, null, CancellationToken.None);
+                            }
+                            else
+                            {
+                                var f = file.File3rdPartyExtensions;
+                                if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
+                                {
+                                    string ext = f.ExportableExtensions[0];
+                                    string fileName = SerializationCommon.ResolveFileName(Writer.FileDirectory, file.Name, ext);
+                                    await file.ExportAsync(dir, fileName, EFileFormat.ThirdParty, ext, Writer.Flags, null, CancellationToken.None);
+                                }
+                                else
+                                    Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
+                            }
+                        }
+                    }
+                }
             }
         }
-        
-        public object Object;
-        public VarInfo Info;
-        public int CalculatedSize;
-        public int FlagSize;
-        public List<MemberTreeNode> Members;
-        public List<IGrouping<string, MemberTreeNode>> CategorizedMembers;
-        public InterfaceType Interface;
-        public MemberTreeNode[] IListMembers;
 
         public override string ToString() => Info.Name;
     }
@@ -451,6 +563,55 @@ namespace TheraEngine.Core.Files.Serialization
             while (files.Any(x => string.Equals(Path.GetFileName(x), name + number + ext)))
                 number = (i++).ToString();
             return name + number;
+        }
+
+        public unsafe static Type DetermineType(string filePath)
+        {
+            EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
+            Type t = null;
+            try
+            {
+                switch (fmt)
+                {
+                    default:
+                    case EFileFormat.ThirdParty:
+                        throw new InvalidOperationException("This type of file is not a proprietary file format.");
+                    case EFileFormat.XML:
+                        using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
+                        {
+                            XMLReader reader = new XMLReader(map.Address, map.Length, true);
+                            if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
+                            {
+                                string value = reader.Value.ToString();
+                                t = Type.GetType(value,
+                                    (name) =>
+                                    {
+                                        var assemblies =
+                                        //AppDomain.CurrentDomain.GetAssemblies();
+                                        Engine.EnumAppDomains().SelectMany(x => x.GetAssemblies());
+
+                                        return assemblies.FirstOrDefault(z => z.FullName == name.FullName);
+                                    },
+                                    null,
+                                    false);
+                            }
+                        }
+                        break;
+                    case EFileFormat.Binary:
+                        using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
+                        {
+                            FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
+                            //if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                            //    t = Type.GetType(reader.Value, false, false);
+                        }
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Engine.PrintLine(e.ToString());
+            }
+            return t;
         }
     }
 }

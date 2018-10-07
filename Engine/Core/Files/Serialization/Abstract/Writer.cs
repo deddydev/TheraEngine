@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
 
@@ -12,13 +13,16 @@ namespace TheraEngine.Core.Files.Serialization
         public abstract class AbstractWriter : TBaseAbstractReaderWriter
         {
             public TSerializer Owner { get; }
-            public MemberTreeNode RootNode { get; private set; }
-            public MemberTreeNode CurrentNode { get; private set; }
+            public MemberTreeNode RootNode { get; internal set; }
+            public MemberTreeNode CurrentNode { get; protected set; }
+            public ESerializeFlags Flags { get; internal set; }
 
-            protected AbstractWriter(TSerializer owner, MemberTreeNode rootNode)
+            protected AbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+                : base(rootFileObject, filePath, progress, cancel)
             {
                 Owner = owner;
-                RootNode = rootNode;
+                RootNode = new MemberTreeNode(rootFileObject, this);
+                CurrentNode = null;
             }
 
             public abstract Task WriteStartElementAsync(string name);

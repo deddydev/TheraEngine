@@ -109,10 +109,8 @@ namespace TheraEngine.Core.Files
 
         [Browsable(false)]
         public FileDef FileDefinition => GetFileDefinition(GetType());
-
         [Browsable(false)]
         public FileExt FileExtension => GetFileExtension(GetType());
-
         [Browsable(false)]
         public File3rdParty File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
         

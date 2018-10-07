@@ -217,6 +217,10 @@
     <Reference Include="FreeImageNET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\FreeImageNET.dll</HintPath>
     </Reference>
+    <Reference Include="Interop.mscoree">
+      <HintPath>..\Forms Editor\obj\x64\Debug\Interop.mscoree.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="IronPython, Version=2.7.8.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\IronPython.2.7.8.1\lib\net45\IronPython.dll</HintPath>
     </Reference>
@@ -415,8 +419,8 @@
     <Compile Include="Core\Files\Serialization\Abstract\Writer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\XML\ReaderXML.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\XML\WriterXML.cs" />
-    <Compile Include="Core\Files\Serialization\TSerializer.cs" />
-    <Compile Include="Core\Files\Serialization\TDeserializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\TSerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\TDeserializer.cs" />
     <Compile Include="Core\Maths\Half.cs" />
     <Compile Include="Core\Maths\MachineLearning\NeuronSet.cs" />
     <Compile Include="Core\Maths\MachineLearning\Network.cs" />

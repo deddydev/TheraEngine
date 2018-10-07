@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using TheraEngine.Core.Files;
@@ -26,7 +27,15 @@ namespace TheraEngine.Core.Files.Serialization
                 Async = true,
             };
 
-            public WriterXML(TSerializer owner, MemberTreeNode rootNode, XmlWriterSettings settings) : base(owner, rootNode)
+            public WriterXML(
+                TSerializer owner,
+                TFileObject rootFileObject,
+                string filePath,
+                ESerializeFlags flags,
+                IProgress<float> progress, 
+                CancellationToken cancel, 
+                XmlWriterSettings settings)
+                : base(owner, rootFileObject, filePath, flags, progress, cancel)
             {
                 if (settings != null)
                     _settings = settings;
@@ -68,7 +77,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             protected override async Task WriteAsync(MemberTreeNode node)
             {
-                await _writer.WriteEndElementAsync();
+                
             }
         }
     }

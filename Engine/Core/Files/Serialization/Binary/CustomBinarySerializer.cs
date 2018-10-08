@@ -10,38 +10,38 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct FileCommonHeader
-    {
-        public const int Size = 0x30;
+    //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+    //public unsafe struct FileCommonHeader
+    //{
+    //    public const int Size = 0x30;
 
-        public byte _encrypted;
-        public byte _compressed;
-        public bushort _endian;
-        public bint _stringTableLength;
-        public bint _fileLength;
-        public bint _typeNameStringOffset;
-        public fixed byte _hash[0x20];
+    //    public byte _encrypted;
+    //    public byte _compressed;
+    //    public bushort _endian;
+    //    public bint _stringTableLength;
+    //    public bint _fileLength;
+    //    public bint _typeNameStringOffset;
+    //    public fixed byte _hash[0x20];
 
-        public bool Encrypted
-        {
-            get => _encrypted != 0;
-            set => _encrypted = (byte)(value ? 1 : 0);
-        }
-        public bool Compressed
-        {
-            get => _compressed != 0;
-            set => _compressed = (byte)(value ? 1 : 0);
-        }
-        public Endian.EOrder Endian
-        {
-            get => (Endian.EOrder)(ushort)_endian;
-            set => _endian = (ushort)value;
-        }
-        public VoidPtr Strings => Address + Size;
-        public VoidPtr Data => Strings + _stringTableLength;
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-    }
+    //    public bool Encrypted
+    //    {
+    //        get => _encrypted != 0;
+    //        set => _encrypted = (byte)(value ? 1 : 0);
+    //    }
+    //    public bool Compressed
+    //    {
+    //        get => _compressed != 0;
+    //        set => _compressed = (byte)(value ? 1 : 0);
+    //    }
+    //    public Endian.EOrder Endian
+    //    {
+    //        get => (Endian.EOrder)(ushort)_endian;
+    //        set => _endian = (ushort)value;
+    //    }
+    //    public VoidPtr Strings => Address + Size;
+    //    public VoidPtr Data => Strings + _stringTableLength;
+    //    public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+    //}
     public static unsafe partial class CustomBinarySerializer
     {
         public static bool SerializeRaw(
@@ -128,7 +128,7 @@ namespace TheraEngine.Core.Files.Serialization
                 //Getting the size of the tree, allocating the space, and then writing the tree's data
                 MemberTreeNode root = new MemberTreeNode(obj);
 
-                StringTable table = new StringTable();
+                BinaryStringTable table = new BinaryStringTable();
                 int dataSize = GetSizeObject(root, table);
                 int stringSize = table.GetTotalSize();
                 int totalSize = FileCommonHeader.Size + dataSize + stringSize;
@@ -210,57 +210,57 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
             }
         }
-        private static void MakeKeyAndIV(
-            string password, 
-            byte[] salt,
-            int keySizeBits,
-            int blockSizeBits,
-            out byte[] key,
-            out byte[] iv)
-        {
-            Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, salt, 1000);
+        //private static void MakeKeyAndIV(
+        //    string password, 
+        //    byte[] salt,
+        //    int keySizeBits,
+        //    int blockSizeBits,
+        //    out byte[] key,
+        //    out byte[] iv)
+        //{
+        //    Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, salt, 1000);
 
-            key = deriveBytes.GetBytes(keySizeBits / 8);
-            iv = deriveBytes.GetBytes(blockSizeBits / 8);
-        }
-        private static int GetSizeObject(MemberTreeNode node, StringTable table)
-        {
-            if (node.Object == null)
-                return 0;
+        //    key = deriveBytes.GetBytes(keySizeBits / 8);
+        //    iv = deriveBytes.GetBytes(blockSizeBits / 8);
+        //}
+        //private static int GetSizeObject(MemberTreeNode node, BinaryStringTable table)
+        //{
+        //    if (node.Object == null)
+        //        return 0;
 
-            int size = 0;
-            int flagCount = 0;
+        //    int size = 0;
+        //    int flagCount = 0;
 
-            MethodInfo[] customMethods = node.Info.VariableType.GetMethods(
-                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
-                Where(x => x.GetCustomAttribute<CustomBinarySerializeSizeMethod>() != null).ToArray();
+        //    MethodInfo[] customMethods = node.Info.VariableType.GetMethods(
+        //        BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
+        //        Where(x => x.GetCustomAttribute<CustomBinarySerializeSizeMethod>() != null).ToArray();
 
-            foreach (MemberTreeNode p in node.Members)
-            {
-                MethodInfo customMethod = customMethods.FirstOrDefault(
-                    x => string.Equals(p.Info.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
-                if (customMethod != null)
-                    size += (int)customMethod.Invoke(node.Object, new object[] { table });
-                else
-                    size += GetSizeMember(p, table, ref flagCount);
-            }
-            foreach (var grouping in node.CategorizedMembers)
-            {
-                foreach (MemberTreeNode p in grouping)
-                {
-                    MethodInfo customMethod = customMethods.FirstOrDefault(
-                        x => string.Equals(p.Info.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
-                    if (customMethod != null)
-                        size += (int)customMethod.Invoke(node.Object, new object[] { table });
-                    else
-                        size += GetSizeMember(p, table, ref flagCount);
-                }
-            }
+        //    foreach (MemberTreeNode p in node.Members)
+        //    {
+        //        MethodInfo customMethod = customMethods.FirstOrDefault(
+        //            x => string.Equals(p.Info.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
+        //        if (customMethod != null)
+        //            size += (int)customMethod.Invoke(node.Object, new object[] { table });
+        //        else
+        //            size += GetSizeMember(p, table, ref flagCount);
+        //    }
+        //    foreach (var grouping in node.CategorizedMembers)
+        //    {
+        //        foreach (MemberTreeNode p in grouping)
+        //        {
+        //            MethodInfo customMethod = customMethods.FirstOrDefault(
+        //                x => string.Equals(p.Info.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
+        //            if (customMethod != null)
+        //                size += (int)customMethod.Invoke(node.Object, new object[] { table });
+        //            else
+        //                size += GetSizeMember(p, table, ref flagCount);
+        //        }
+        //    }
             
-            size += (node.FlagSize = flagCount.Align(8) / 8);
-            return node.CalculatedSize = size.Align(4);
-        }
-        private static void WriteObject(MemberTreeNode node, ref VoidPtr address, StringTable table)
+        //    size += (node.FlagSize = flagCount.Align(8) / 8);
+        //    return node.CalculatedSize = size.Align(4);
+        //}
+        private static void WriteObject(MemberTreeNode node, ref VoidPtr address, BinaryStringTable table)
         {
             if (node.Object == null)
                 return;
@@ -299,7 +299,7 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (byte b in flagBytes)
                 *flagData++ = b;
         }
-        private static int GetSizeMember(MemberTreeNode node, StringTable table, ref int flagCount)
+        private static int GetSizeMember(MemberTreeNode node, BinaryStringTable table, ref int flagCount)
         {
             object value = node.Object;
 
@@ -336,7 +336,7 @@ namespace TheraEngine.Core.Files.Serialization
         private static void WriteMember(
             MemberTreeNode node,
             ref VoidPtr address,
-            StringTable table,
+            BinaryStringTable table,
             byte[] flagBytes,
             ref int flagIndex)
         {
@@ -389,7 +389,7 @@ namespace TheraEngine.Core.Files.Serialization
                 WriteObject(node, ref address, table);
         }
 
-        private static bool TryWriteInterface(MemberTreeNode node, ref VoidPtr address, StringTable table)
+        private static bool TryWriteInterface(MemberTreeNode node, ref VoidPtr address, BinaryStringTable table)
         {
             if (node.InterfaceType == InterfaceType.IList)
             {
@@ -398,7 +398,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return false;
         }
-        private static bool TryGetSizeInterface(MemberTreeNode node, StringTable table, out int size)
+        private static bool TryGetSizeInterface(MemberTreeNode node, BinaryStringTable table, out int size)
         {
             if (node.InterfaceType == InterfaceType.IList)
             {
@@ -408,7 +408,7 @@ namespace TheraEngine.Core.Files.Serialization
             size = 0;
             return false;
         }
-        private static int GetSizeIList(MemberTreeNode node, StringTable table)
+        private static int GetSizeIList(MemberTreeNode node, BinaryStringTable table)
         {
             MemberTreeNode[] array = node.IListMembers;
             if (array.Length > 0)
@@ -442,7 +442,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return 4;
         }
-        private static void WriteIList(MemberTreeNode node, ref VoidPtr address, StringTable table)
+        private static void WriteIList(MemberTreeNode node, ref VoidPtr address, BinaryStringTable table)
         {
             MemberTreeNode[] array = node.IListMembers;
             address.Int = array.Length;

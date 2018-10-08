@@ -497,7 +497,7 @@ namespace TheraEngine.Core.Files
                     8,
                     FileOptions.RandomAccess))
                 {
-                    StringTable table = new StringTable();
+                    BinaryStringTable table = new BinaryStringTable();
                     int dataSize = CalculateSize(table, flags).Align(4);
                     int stringSize = table.GetTotalSize();
                     int totalSize = dataSize + stringSize;
@@ -536,7 +536,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         /// <param name="table">The string table to populate with strings.</param>
         /// <returns>The size of the object, in bytes.</returns>
-        internal int CalculateSize(StringTable table, ESerializeFlags flags)
+        internal int CalculateSize(BinaryStringTable table, ESerializeFlags flags)
         {
             CalculatedSize = OnCalculateSize(table, flags);
             return CalculatedSize;
@@ -547,7 +547,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         /// <param name="table">The string table. Add strings to this as you wish, and use their addresses when writing later.</param>
         /// <returns>The size of the object, in bytes.</returns>
-        protected virtual int OnCalculateSize(StringTable table, ESerializeFlags flags)
+        protected virtual int OnCalculateSize(BinaryStringTable table, ESerializeFlags flags)
             => throw new NotImplementedException("Override of \"protected virtual int OnCalculateSize(StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Writes this object to the given address.
@@ -556,7 +556,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         /// <param name="address">The address to write to.</param>
         /// <param name="table">The table of all strings added in OnCalculateSize.</param>
-        internal protected virtual void Write(VoidPtr address, StringTable table, ESerializeFlags flags)
+        internal protected virtual void Write(VoidPtr address, BinaryStringTable table, ESerializeFlags flags)
             => throw new NotImplementedException("Override of \"internal protected virtual void Write(VoidPtr address, StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
         /// <summary>
         /// Reads this object from the given address.

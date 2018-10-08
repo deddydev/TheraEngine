@@ -13,7 +13,7 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TSerializer
     {
-        private class WriterXML : AbstractWriter
+        public class WriterXML : AbstractWriter
         {
             private FileStream _stream;
             private XmlWriter _writer;

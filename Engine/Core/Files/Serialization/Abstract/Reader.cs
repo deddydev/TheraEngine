@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -13,7 +14,11 @@ namespace TheraEngine.Core.Files.Serialization
             protected readonly TDeserializer _owner;
             private List<Attribute> _attributes;
 
-            protected AbstractReader(TDeserializer owner) { _owner = owner; }
+            protected AbstractReader(TDeserializer owner, TFileObject rootFileObject, string filePath, IProgress<float> progress, CancellationToken cancel)
+                : base(rootFileObject, filePath, progress, cancel)
+            {
+                _owner = owner;
+            }
 
             public class Attribute
             {

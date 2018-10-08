@@ -1,5 +1,4 @@
-﻿using mscoree;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -116,10 +115,14 @@ namespace TheraEngine
         /// <returns>All types that match the predicate.</returns>
         public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, bool includeEngineAssembly, params Assembly[] assemblies)
         {
-            if ((assemblies == null || assemblies.Length == 0) && !includeEngineAssembly)
-                return Enumerable.Empty<Type>();
+            IEnumerable<Assembly> search;
 
-            var search = assemblies.Where(x => !x.IsDynamic);
+            if (assemblies == null || assemblies.Length == 0)
+                search = EnumAppDomains().SelectMany(x => x.GetAssemblies());
+            else
+                search = assemblies;
+
+            search = search.Where(x => !x.IsDynamic);
 
             if (includeEngineAssembly)
                 search = search.Append(Assembly.GetExecutingAssembly());

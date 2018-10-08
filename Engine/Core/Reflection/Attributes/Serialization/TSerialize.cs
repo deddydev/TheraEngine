@@ -50,7 +50,7 @@
         /// <summary>
         /// Groups a set of fields together in one tag under this name.
         /// </summary>
-        public string OverrideXmlCategory { get; set; } = null;
+        public string OverrideCategory { get; set; } = null;
 
         /// <summary>
         /// Determines if the field should be serialized using a boolean expression utilizing information from other fields and properties.

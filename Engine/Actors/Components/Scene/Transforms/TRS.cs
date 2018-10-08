@@ -28,7 +28,7 @@ namespace TheraEngine.Components.Scene.Transforms
             RecalcLocalTransform();
         }
 
-        [TSerialize(nameof(Scale), UseCategory = true, OverrideXmlCategory = "Transform")]
+        [TSerialize(nameof(Scale), UseCategory = true, OverrideCategory = "Transform")]
         protected EventVec3 _scale;
 
         [Category("Transform")]

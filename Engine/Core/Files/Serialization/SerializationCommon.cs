@@ -15,256 +15,6 @@ using System.Threading;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public enum InterfaceType
-    {
-        None,
-        IList,
-        IDictionary,
-    }
-    public class MemberTreeNode
-    {
-        public TSerializer.AbstractWriter Writer;
-        public object Object;
-        public VarInfo Info;
-
-        public int CalculatedSize;
-        public int FlagSize;
-
-        public List<MemberTreeNode> Members;
-        public List<IGrouping<string, MemberTreeNode>> CategorizedMembers;
-
-        public InterfaceType InterfaceType;
-        public MemberTreeNode[] IListMembers;
-        public KeyValuePair<MemberTreeNode, MemberTreeNode>[] IDictionaryPairs;
-        
-        public MemberTreeNode(object root, TSerializer.AbstractWriter writer)
-            : this(root, root == null ? null : new VarInfo(root.GetType(), null), writer) { }
-        public MemberTreeNode(object obj, VarInfo info, TSerializer.AbstractWriter writer)
-        {
-            Object = obj;
-            Info = info;
-            Writer = writer;
-            DetermineInterface();
-        }
-        private void DetermineInterface()
-        {
-            if (Object is IList array)
-            {
-                InterfaceType = InterfaceType.IList;
-                IListMembers = new MemberTreeNode[array.Count];
-                for (int i = 0; i < array.Count; ++i)
-                    IListMembers[i] = new MemberTreeNode(array[i], Writer);
-            }
-            else if (Object is IDictionary dic)
-            {
-                InterfaceType = InterfaceType.IDictionary;
-                IDictionaryPairs = new KeyValuePair<MemberTreeNode, MemberTreeNode>[dic.Count];
-
-            }
-            else
-                InterfaceType = InterfaceType.None;
-        }
-        public async Task GenerateChildTree()
-        {
-            if (Info == null)
-                return;
-
-            await FileObjectCheck();
-
-            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(Info.VariableType);
-
-            Members = members.
-                Where(x => (x.Attrib == null || x.Attrib.Condition == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.Condition, obj)).
-                Select(x => new MemberTreeNode(Object == null ? null : x.GetValue(Object), x, Writer)).
-                ToList();
-
-            CategorizedMembers = Members.Where(x => x.Info.Category != null).GroupBy(x => SerializationCommon.FixElementName(x.Info.Category)).ToList();
-            foreach (var grouping in CategorizedMembers)
-                foreach (MemberTreeNode p in grouping)
-                    Members.Remove(p);
-
-        }
-        /// <summary>
-        /// Performs special processing for classes that implement <see cref="IFileObject"/> and <see cref="IFileRef"/>.
-        /// </summary>
-        private async Task FileObjectCheck()
-        {
-            //Update the object's file path
-            if (Object is IFileObject fobj)
-            {
-                fobj.FilePath = Writer.FilePath;
-                if (fobj is IFileRef fref && !fref.StoredInternally)
-                {
-                    //Make some last minute adjustments to external file refs
-                    //First, update file relative paths using the new file location
-                    if (fref.PathType == EPathType.FileRelative)
-                    {
-                        string root = Path.GetPathRoot(fref.ReferencePathAbsolute);
-                        int colonIndex = root.IndexOf(":");
-                        if (colonIndex > 0)
-                            root = root.Substring(0, colonIndex);
-                        else
-                            root = string.Empty;
-
-                        string root2 = Path.GetPathRoot(Writer.FileDirectory);
-                        colonIndex = root2.IndexOf(":");
-                        if (colonIndex > 0)
-                            root2 = root2.Substring(0, colonIndex);
-                        else
-                            root2 = string.Empty;
-
-                        if (!string.Equals(root, root2))
-                        {
-                            //Totally different drives, cannot be relative in any way
-                            fref.PathType = EPathType.Absolute;
-                        }
-                    }
-                    if (fref.IsLoaded)
-                    {
-                        string path = fref.ReferencePathAbsolute;
-                        bool fileExists =
-                            !string.IsNullOrWhiteSpace(path) &&
-                            path.IsExistingDirectoryPath() == false &&
-                            File.Exists(path);
-
-                        //TODO: export even if the file exists,
-                        //however only if the file has changed
-                        if (!fileExists)
-                        {
-                            if (fref is IGlobalFileRef && !Writer.Flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
-                                return;
-                            if (fref is ILocalFileRef && !Writer.Flags.HasFlag(ESerializeFlags.ExportLocalRefs))
-                                return;
-
-                            string absPath;
-                            if (fref.PathType == EPathType.FileRelative)
-                            {
-                                string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(Writer.FileDirectory);
-                                absPath = Path.GetFullPath(Path.Combine(Writer.FileDirectory, rel));
-                                //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
-                            }
-                            else
-                                absPath = fref.ReferencePathAbsolute;
-
-                            string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
-
-                            IFileObject file = fref.File;
-                            if (file.FileExtension != null)
-                            {
-                                string fileName = SerializationCommon.ResolveFileName(
-                                    Writer.FileDirectory, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
-                                await file.ExportAsync(dir, fileName, EFileFormat.XML, null, Writer.Flags, null, CancellationToken.None);
-                            }
-                            else
-                            {
-                                var f = file.File3rdPartyExtensions;
-                                if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
-                                {
-                                    string ext = f.ExportableExtensions[0];
-                                    string fileName = SerializationCommon.ResolveFileName(Writer.FileDirectory, file.Name, ext);
-                                    await file.ExportAsync(dir, fileName, EFileFormat.ThirdParty, ext, Writer.Flags, null, CancellationToken.None);
-                                }
-                                else
-                                    Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public override string ToString() => Info.Name;
-    }
-    /// <summary>
-    /// Stores a field/property's information.
-    /// </summary>
-    public class VarInfo
-    {
-        private MemberInfo _info;
-
-        public Type OwningType { get; }
-        public Type VariableType { get; }
-        public string Name { get; }
-        public string Category { get; } = null;
-        public TSerialize Attrib { get; }
-
-        public void SetValue(object obj, object value)
-        {
-            if (_info.MemberType.HasFlag(MemberTypes.Field))
-                ((FieldInfo)_info).SetValue(obj, value);
-            else if (_info.MemberType.HasFlag(MemberTypes.Property))
-            {
-                PropertyInfo p = (PropertyInfo)_info;
-                if (p.CanWrite)
-                    p.SetValue(obj, value);
-                else
-                    Engine.LogWarning("Can't set property '" + p.Name + "' in " + p.DeclaringType.GetFriendlyName());
-            }
-        }
-        public object GetValue(object obj)
-        {
-            if (obj is null)
-                return null;
-            if (_info.MemberType.HasFlag(MemberTypes.Field))
-                return ((FieldInfo)_info).GetValue(obj);
-            if (_info.MemberType.HasFlag(MemberTypes.Property))
-            {
-                PropertyInfo p = (PropertyInfo)_info;
-                if (p.CanRead)
-                    return p.GetValue(obj);
-                else
-                    Engine.LogWarning("Can't read property '" + p.Name + "' in " + p.DeclaringType.GetFriendlyName());
-            }
-            return null;
-        }
-        public VarInfo(Type type, Type owningType, string name) : this(type, owningType)
-        {
-            Name = new string(name.Where(x => !char.IsWhiteSpace(x)).ToArray());
-        }
-        public VarInfo(Type type, Type owningType)
-        {
-            _info = null;
-            Attrib = null;
-            VariableType = type;
-            OwningType = owningType;
-            Name = null;
-            Category = null;
-        }
-        public VarInfo(MemberInfo info)
-        {
-            _info = info;
-            Attrib = _info.GetCustomAttribute<TSerialize>();
-            if (_info.MemberType.HasFlag(MemberTypes.Field))
-                VariableType = ((FieldInfo)_info).FieldType;
-            else if (_info.MemberType.HasFlag(MemberTypes.Property))
-                VariableType = ((PropertyInfo)_info).PropertyType;
-            OwningType = _info.DeclaringType;
-            if (Attrib.NameOverride != null)
-                Name = Attrib.NameOverride;
-            else
-            {
-                //Don't want to use display name, usually includes spaces or specialized formatting
-                //DisplayNameAttribute nameAttrib = _info.GetCustomAttribute<DisplayNameAttribute>();
-                //if (nameAttrib != null)
-                //    Name = nameAttrib.DisplayName;
-                //else
-                    Name = _info.Name;
-            }
-            Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
-            if (Attrib.UseCategory)
-            {
-                if (Attrib.OverrideXmlCategory != null)
-                    Category = Attrib.OverrideXmlCategory;
-                else
-                {
-                    CategoryAttribute categoryAttrib = _info.GetCustomAttribute<CategoryAttribute>();
-                    if (categoryAttrib != null)
-                        Category = categoryAttrib.Category;
-                }
-            }
-        }
-        public override string ToString() => Name;
-    }
     public static class SerializationCommon
     {
         public const string TypeIdent = "AssemblyType";
@@ -539,9 +289,21 @@ namespace TheraEngine.Core.Files.Serialization
             //- can contain letters, digits, hyphens, underscores, and periods
             //- cannot contain spaces
 
+            string validStartChars = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            string validChars = validStartChars + "-.1234567890";
             name = name.Replace(" ", "");
             if (name.ToLowerInvariant().StartsWith("xml"))
                 name = name.Substring(3);
+            if (string.IsNullOrWhiteSpace(name))
+                name = "NoName";
+            else if (validStartChars.IndexOf(name[0]) < 0)
+                name = "_" + name;
+            for (int i = 0; i < name.Length; ++i)
+                if (!validChars.Contains(name[i]))
+                {
+                    name = name.Substring(0, i) + name.Substring(i + 1);
+                    --i;
+                }
 
             return name;
         }

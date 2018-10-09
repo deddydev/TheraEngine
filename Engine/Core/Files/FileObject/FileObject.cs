@@ -11,6 +11,7 @@ using TheraEngine.Core.Memory;
 using System.Threading.Tasks;
 using System.Threading;
 using TheraEngine.Core.Files.Serialization;
+using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
 
 namespace TheraEngine.Core.Files
 {
@@ -487,46 +488,18 @@ namespace TheraEngine.Core.Files
             FileExt ext = FileExtension;
 
             FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.Binary);
-
-            if (ext.ManualBinConfigSerialize)
-            {
-                using (FileStream stream = new FileStream(FilePath,
-                    FileMode.OpenOrCreate,
-                    FileAccess.ReadWrite,
-                    FileShare.ReadWrite,
-                    8,
-                    FileOptions.RandomAccess))
-                {
-                    BinaryStringTable table = new BinaryStringTable();
-                    int dataSize = CalculateSize(table, flags).Align(4);
-                    int stringSize = table.GetTotalSize();
-                    int totalSize = dataSize + stringSize;
-                    stream.SetLength(totalSize);
-                    using (FileMap map = FileMap.FromStream(stream))
-                    {
-                        FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
-                        table.WriteTable(hdr);
-                        hdr->_fileLength = totalSize;
-                        hdr->_stringTableLength = stringSize;
-                        hdr->_endian = (byte)Engine.ComputerInfo.Endian;
-                        Write(hdr->Data, table, flags);
-                    }
-                }
-            }
-            else
-            {
-                CustomBinarySerializer.Serialize(
-                    this,
-                    FilePath,
-                    Endian.EOrder.Big,
-                    true,
-                    true,
-                    "test",
-                    out byte[] encryptionSalt,
-                    out byte[] integrityHash,
-                    null,
-                    flags);
-            }
+            
+            CustomBinarySerializer.Serialize(
+                this,
+                FilePath,
+                Endian.EOrder.Big,
+                true,
+                true,
+                "test",
+                out byte[] encryptionSalt,
+                out byte[] integrityHash,
+                null,
+                flags);
 
             Engine.PrintLine("Saved binary file to {0}", FilePath);
         }

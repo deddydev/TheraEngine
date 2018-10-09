@@ -19,8 +19,6 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public class WriterBinary : AbstractWriter
         {
-            public byte[] EncryptionSalt { get; private set; }
-            public byte[] IntegrityHash { get; private set; }
             Endian.EOrder Order { get; }
             bool Encrypted { get; }
             bool Compressed { get; }
@@ -41,8 +39,11 @@ namespace TheraEngine.Core.Files.Serialization
                 ICodeProgress compressionProgress)
                 : base(owner, rootFileObject, filePath, flags, progress, cancel)
             {
-                EncryptionSalt = new byte[8];
-                Endian.Order = Order = order;
+                Order = order;
+                Encrypted = encrypted;
+                Compressed = compressed;
+                EncryptionPassword = encryptionPassword;
+                CompressionProgress = compressionProgress;
             }
 
             public static void MakeKeyAndIV(
@@ -60,6 +61,8 @@ namespace TheraEngine.Core.Files.Serialization
 
             public override unsafe async Task Start()
             {
+                Endian.Order = Order;
+
                 BinaryStringTable table = new BinaryStringTable();
                 int dataSize = RootNode.GetSize(table);
                 int stringSize = table.GetTotalSize();
@@ -84,12 +87,13 @@ namespace TheraEngine.Core.Files.Serialization
                     RootNode.ObjectWriter.Write(ref addr, table);
 
                     SHA256Managed SHhash = new SHA256Managed();
-                    IntegrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
+                    byte[] integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
                     for (int i = 0; i < 0x20; ++i)
-                        hdr->_hash[i] = IntegrityHash[i];
+                        hdr->_hash[i] = integrityHash[i];
                     uncompMap.BaseStream.Position = 0;
 
                     FileStream outStream;
+
                     if (Compressed)
                     {
                         outStream = new FileStream(FilePath,
@@ -112,9 +116,10 @@ namespace TheraEngine.Core.Files.Serialization
                         SymmetricAlgorithm crypto = new RijndaelManaged();
 
                         Random r = new Random();
-                        r.NextBytes(EncryptionSalt);
+                        byte[] salt = new byte[8];
+                        r.NextBytes(salt);
 
-                        MakeKeyAndIV(EncryptionPassword, EncryptionSalt, crypto.KeySize, crypto.BlockSize, out byte[] key, out byte[] iv);
+                        MakeKeyAndIV(EncryptionPassword, salt, crypto.KeySize, crypto.BlockSize, out byte[] key, out byte[] iv);
 
                         outStream.Position = 0;
                         int blockSize = 0x1000;

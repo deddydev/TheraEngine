@@ -29,10 +29,7 @@ namespace TheraEngine.Core.Files.Serialization
                 SharedObjects = new Dictionary<Guid, TObject>();
                 FileDirectory = Path.GetDirectoryName(FilePath);
             }
-
-            public abstract Task Start();
-            public abstract Task Finish();
-
+            
             /// <summary>
             /// Reports progress back to the deserialization caller 
             /// and returns true if the caller wants to cancel the operation.

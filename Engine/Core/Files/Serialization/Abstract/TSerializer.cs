@@ -17,10 +17,11 @@ using SevenZip;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class TSerializer
+    public partial class TSerializer : TBaseSerializer
     {
         public AbstractWriter Writer { get; private set; }
-        
+        public MemberTreeNode RootNode { get; internal set; }
+
         public async Task SerializeXMLAsync(
             TFileObject obj,
             string dirPath,
@@ -52,9 +53,25 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private async Task Serialize()
         {
-            await Writer.RootNode.GenerateChildTree();
-            await Writer.Start();
-            await Writer.Finish();
+            RootNode = new MemberTreeNode(Writer.RootFileObject, Writer);
+            await RootNode.GenerateTree();
+            await Writer.WriteTree(RootNode);
+        }
+        public void StartElement(string name)
+        {
+
+        }
+        public void EndElement()
+        {
+
+        }
+        public void WriteAttributeString(string name, string value)
+        {
+
+        }
+        public void WriteElementString(string name, string value)
+        {
+
         }
     }
 }

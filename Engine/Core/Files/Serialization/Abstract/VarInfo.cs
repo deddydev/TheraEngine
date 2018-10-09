@@ -94,12 +94,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (Attrib.UseCategory)
             {
                 if (Attrib.OverrideCategory != null)
-                    Category = Attrib.OverrideCategory;
+                    Category = SerializationCommon.FixElementName(Attrib.OverrideCategory);
                 else
                 {
                     CategoryAttribute categoryAttrib = _info.GetCustomAttribute<CategoryAttribute>();
                     if (categoryAttrib != null)
-                        Category = categoryAttrib.Category;
+                        Category = SerializationCommon.FixElementName(categoryAttrib.Category);
                 }
             }
         }

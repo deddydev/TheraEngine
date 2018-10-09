@@ -21,12 +21,15 @@ namespace TheraEngine.Core.Files.Serialization
         public TSerializer.AbstractWriter Writer { get; }
         public object Object { get; }
         public VarInfo Info { get; }
+        public Type ObjectType { get; }
+        public bool WriteAssemblyType { get; }
 
         public int CalculatedSize { get; internal set; }
         public int FlagSize { get; internal set; }
         
         public BaseObjectWriter ObjectWriter { get; private set; }
-        
+        public string ElementName { get; internal set; }
+
         public MemberTreeNode(object root, TSerializer.AbstractWriter writer)
             : this(root, root == null ? null : new VarInfo(root.GetType(), null), writer) { }
         public MemberTreeNode(object obj, VarInfo info, TSerializer.AbstractWriter writer)
@@ -34,6 +37,8 @@ namespace TheraEngine.Core.Files.Serialization
             Object = obj;
             Info = info;
             Writer = writer;
+            ObjectType = Object?.GetType();
+            WriteAssemblyType = ObjectType != Info.VariableType;
             DetermineInterface();
         }
         private void DetermineInterface()
@@ -51,13 +56,49 @@ namespace TheraEngine.Core.Files.Serialization
                 writer.Initialize();
             }
         }
-        public async Task GenerateChildTree()
+        public async Task GenerateTree()
         {
             if (Info == null)
                 return;
 
             await FileObjectCheck();
-            await ObjectWriter.GenerateChildTree();
+            await ObjectWriter.GenerateTree();
+
+            Type objType = Object.GetType();
+
+            //Get custom serialize methods
+            var customMethods = objType.GetMethods(
+                BindingFlags.NonPublic |
+                BindingFlags.Instance |
+                BindingFlags.Public |
+                BindingFlags.FlattenHierarchy).
+                Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null);
+            
+            if (string.IsNullOrEmpty(name))
+                name = SerializationCommon.GetTypeName(objType);
+
+            //Write the element for this object
+            await _writer.WriteStartElementAsync(null, name, null);
+            {
+                if (objType != Info.VariableType)
+                    await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, objType.AssemblyQualifiedName);
+
+                //Attributes are already sorted to come first, then elements
+                await WriteMembers(obj, members, categorized.Count, customMethods);
+
+                //Write categorized elements
+                foreach (var grouping in categorized)
+                {
+                    //Write category element
+                    await _writer.WriteStartElementAsync(null, grouping.Key, null);
+                    {
+                        //Write members for this category
+                        WriteMembers(obj, grouping.OrderBy(x => !x.Attrib.IsXmlAttribute).ToList(), 0, customMethods);
+                    }
+                    await _writer.WriteEndElementAsync();
+                }
+            }
+            await _writer.WriteEndElementAsync();
         }
         /// <summary>
         /// Performs special processing for classes that implement <see cref="IFileObject"/> and <see cref="IFileRef"/>.

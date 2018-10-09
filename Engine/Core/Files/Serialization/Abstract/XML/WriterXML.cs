@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -32,52 +27,42 @@ namespace TheraEngine.Core.Files.Serialization
                 TFileObject rootFileObject,
                 string filePath,
                 ESerializeFlags flags,
-                IProgress<float> progress, 
-                CancellationToken cancel, 
+                IProgress<float> progress,
+                CancellationToken cancel,
                 XmlWriterSettings settings)
                 : base(owner, rootFileObject, filePath, flags, progress, cancel)
             {
                 if (settings != null)
                     _settings = settings;
             }
-            
-            public override async Task Start()
+            protected internal override async Task WriteTree(MemberTreeNode root)
             {
                 _stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan);
                 _writer = XmlWriter.Create(_stream, _settings);
-                _writer.Flush();
+                await _writer.FlushAsync();
                 _stream.Position = 0;
                 await _writer.WriteStartDocumentAsync();
-            }
-            public override async Task Finish()
-            {
+                await WriteElement(root);
                 await _writer.WriteEndDocumentAsync();
                 _writer.Dispose();
                 _stream.Dispose();
             }
+            private async Task WriteElement(MemberTreeNode node)
+            {
+                await _writer.WriteStartElementAsync(null, node.ElementName, null);
+                {
+                    if (node.WriteAssemblyType)
+                        await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, node.ObjectType.AssemblyQualifiedName);
+                    
+                    (string, object)[] attributes = node.ObjectWriter.Attributes;
+                    MemberTreeNode[] childElements = node.ObjectWriter.ChildElements;
+                    object serializableChildData = node.ObjectWriter.SingleSerializableChildData;
+                }
+                await _writer.WriteEndElementAsync();
+            }
             protected override void OnReportProgress()
             {
                 Progress.Report((float)_stream.Position / _stream.Length);
-            }
-            public override async Task WriteStartElementAsync(string name)
-            {
-                await _writer.WriteStartElementAsync(null, name, null);
-            }
-            public override async Task WriteEndElementAsync()
-            {
-                await _writer.WriteEndElementAsync();
-            }
-            public override async Task WriteAttributeStringAsync(string name, string value)
-            {
-                await _writer.WriteAttributeStringAsync(null, name, null, value);
-            }
-            public override async Task WriteElementStringAsync(string name, string value)
-            {
-                await _writer.WriteElementStringAsync(null, name, null, value);
-            }
-            protected override async Task WriteAsync(MemberTreeNode node)
-            {
-                
             }
         }
     }

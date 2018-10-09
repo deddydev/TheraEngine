@@ -23,11 +23,11 @@ namespace TheraEngine.Core.Files.Serialization
             for (int i = 0; i < List.Count; ++i)
                 Members[i] = new MemberTreeNode(List[i], new VarInfo(List[i]?.GetType() ?? listType, objType), Writer);
         }
-        public override async Task GenerateChildTree()
+        public override async Task GenerateTree()
         {
             foreach (MemberTreeNode t in Members)
             {
-                await t.GenerateChildTree();
+                await t.GenerateTree();
             }
         }
     }

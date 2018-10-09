@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using TheraEngine.Core.Memory;
 using TheraEngine.Core.Tools;
 using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
 
@@ -14,7 +15,7 @@ namespace TheraEngine.Core.Files.Serialization
     public class CommonWriter : BaseObjectWriter
     {
         public List<MemberTreeNode> Members { get; private set; }
-        public List<IGrouping<string, MemberTreeNode>> CategorizedMembers { get; private set; }
+        public Dictionary<string, MemberTreeNode[]> CategorizedMembers { get; private set; }
 
         public override void Initialize()
         {
@@ -25,17 +26,27 @@ namespace TheraEngine.Core.Files.Serialization
                 Select(x => new MemberTreeNode(Object == null ? null : x.GetValue(Object), x, Writer)).
                 ToList();
 
-            CategorizedMembers = Members.Where(x => x.Info.Category != null).GroupBy(x => SerializationCommon.FixElementName(x.Info.Category)).ToList();
+            CategorizedMembers = Members.
+                Where(x => x.Info.Category != null).
+                GroupBy(x => x.Info.Category).
+                ToDictionary(grp => grp.Key, grp => grp.ToArray());
+
             foreach (var grouping in CategorizedMembers)
-                foreach (MemberTreeNode p in grouping)
+                foreach (MemberTreeNode p in grouping.Value)
                     Members.Remove(p);
         }
-        public override async Task GenerateChildTree()
+        public override async Task GenerateTree()
         {
             foreach (MemberTreeNode t in Members)
             {
-                await t.GenerateChildTree();
+                await t.GenerateTree();
             }
+
+            foreach (var group in CategorizedMembers)
+                foreach (MemberTreeNode t in group.Value)
+                {
+                    await t.GenerateTree();
+                }
         }
         public override int GetSize(MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
         {
@@ -92,6 +103,10 @@ namespace TheraEngine.Core.Files.Serialization
                 size += node.GetSize(table);
 
             return size;
+        }
+        public override bool Write(ref VoidPtr address, BinaryStringTable table)
+        {
+            throw new NotImplementedException();
         }
     }
 }

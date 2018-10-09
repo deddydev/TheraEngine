@@ -29,7 +29,7 @@ namespace TheraEngine.Core.Files.Serialization
                     _settings = settings;
             }
             
-            public override async Task Start()
+            public override async Task WriteTree()
             {
 
             }

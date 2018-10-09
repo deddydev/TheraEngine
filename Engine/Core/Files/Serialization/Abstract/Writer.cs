@@ -13,17 +13,15 @@ namespace TheraEngine.Core.Files.Serialization
         public abstract class AbstractWriter : TBaseAbstractReaderWriter
         {
             public TSerializer Owner { get; }
-            public MemberTreeNode RootNode { get; internal set; }
-            public MemberTreeNode CurrentNode { get; protected set; }
             public ESerializeFlags Flags { get; internal set; }
 
             protected AbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
                 : base(rootFileObject, filePath, progress, cancel)
             {
                 Owner = owner;
-                RootNode = new MemberTreeNode(rootFileObject, this);
-                CurrentNode = null;
             }
+
+            internal protected abstract Task WriteTree(MemberTreeNode root);
 
             public abstract Task WriteStartElementAsync(string name);
             public abstract Task WriteEndElementAsync();

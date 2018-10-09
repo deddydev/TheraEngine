@@ -32,15 +32,15 @@ namespace TheraEngine.Core.Files.Serialization
             Keys = keys.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? keyType, objType), Writer)).ToArray();
             Values = vals.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? valType, objType), Writer)).ToArray();
         }
-        public override async Task GenerateChildTree()
+        public override async Task GenerateTree()
         {
             foreach (var key in Keys)
             {
-                await key.GenerateChildTree();
+                await key.GenerateTree();
             }
             foreach (var val in Values)
             {
-                await val.GenerateChildTree();
+                await val.GenerateTree();
             }
         }
     }

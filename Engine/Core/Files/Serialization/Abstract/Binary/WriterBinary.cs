@@ -59,7 +59,7 @@ namespace TheraEngine.Core.Files.Serialization
                 iv = deriveBytes.GetBytes(blockSizeBits / 8);
             }
 
-            public override unsafe async Task Start()
+            public override unsafe async Task WriteTree()
             {
                 Endian.Order = Order;
 

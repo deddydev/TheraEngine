@@ -172,6 +172,74 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 throw new NotImplementedException();
             }
+            public override int GetSize(MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
+            {
+                Type t = Info.VariableType;
+                if (t.IsValueType)
+                    return Marshal.SizeOf(t);
+
+                int size = 0;
+
+                foreach (MemberTreeNode p in Children)
+                    size += GetSizeMember(p, customMethods, ref flagCount, table);
+
+                foreach (var grouping in CategorizedChildren)
+                    foreach (MemberTreeNode p in grouping)
+                        size += GetSizeMember(p, customMethods, ref flagCount, table);
+
+                return size;
+            }
+            public override int GetSizeMember(MemberTreeNode node, MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
+            {
+                object value = node.Object;
+
+                MethodInfo customMethod = customMethods.FirstOrDefault(x => string.Equals(node.MemberInfo.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
+
+                if (customMethod != null)
+                    return (int)customMethod.Invoke(value, new object[] { table });
+
+                if (TryGetSize(node, table, out int size))
+                    return size;
+
+                Type t = node.MemberInfo.VariableType;
+
+                if (t == typeof(bool))
+                    ++flagCount;
+                else if (t == typeof(string))
+                {
+                    if (value != null)
+                        table.Add(value.ToString());
+                    size += 4;
+                }
+                else if (t.IsEnum)
+                {
+                    //table.Add(value.ToString());
+                    size += 4;
+                }
+                else if (t.IsValueType)
+                {
+                    if (node.Members.Count > 0)
+                        size += node.GetSize(table);
+                    else
+                        size += Marshal.SizeOf(value);
+                }
+                else
+                    size += node.GetSize(table);
+
+                return size;
+            }
+            public override bool Write(ref VoidPtr address, BinaryStringTable table)
+            {
+                throw new NotImplementedException();
+            }
+            internal protected override MemberTreeNode CreateNode(object obj, VarInfo memberInfo)
+            {
+                return new BinaryMemberTreeNode(obj, memberInfo, this);
+            }
+            internal protected override MemberTreeNode CreateNode(object rootObject)
+            {
+                return new BinaryMemberTreeNode(rootObject, this);
+            }
             public unsafe class BinaryStringTable
             {
                 SortedList<string, int> _table = new SortedList<string, int>(StringComparer.Ordinal);

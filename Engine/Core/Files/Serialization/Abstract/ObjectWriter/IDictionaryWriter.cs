@@ -29,8 +29,8 @@ namespace TheraEngine.Core.Files.Serialization
             Dictionary.Keys.CopyTo(keys, 0);
             Dictionary.Values.CopyTo(vals, 0);
 
-            Keys = keys.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? keyType, objType), TreeNode.Writer)).ToArray();
-            Values = vals.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? valType, objType), TreeNode.Writer)).ToArray();
+            Keys = keys.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? keyType, objType), TreeNode.FormatWriter)).ToArray();
+            Values = vals.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? valType, objType), TreeNode.FormatWriter)).ToArray();
 
             foreach (var key in Keys)
             {

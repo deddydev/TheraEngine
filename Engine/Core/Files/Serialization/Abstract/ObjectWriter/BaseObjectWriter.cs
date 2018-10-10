@@ -19,11 +19,6 @@ namespace TheraEngine.Core.Files.Serialization
     public abstract class BaseObjectWriter
     {
         public MemberTreeNode TreeNode { get; internal set; }
-
-        public List<(string, object)> Attributes { get; internal set; }
-        public List<MemberTreeNode> ChildElements { get; internal set; }
-        public object SingleSerializableChildData { get; internal set; }
-        
         public abstract Task GenerateTree();
     }
 }

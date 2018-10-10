@@ -21,15 +21,18 @@ namespace TheraEngine.Core.Files.Serialization
                 Owner = owner;
             }
 
+            //public abstract Task WriteStartElementAsync(string name);
+            //public abstract Task WriteEndElementAsync();
+            //public abstract Task WriteAttributeStringAsync(string name, string value);
+            //public abstract Task WriteElementStringAsync(string name, string value);
+
+            //protected async Task ManualWriteAsync(TFileObject o) => await o?.WriteAsync(this);
+            //protected abstract Task WriteAsync(MemberTreeNode node);
+
             internal protected abstract Task WriteTree(MemberTreeNode root);
-
-            public abstract Task WriteStartElementAsync(string name);
-            public abstract Task WriteEndElementAsync();
-            public abstract Task WriteAttributeStringAsync(string name, string value);
-            public abstract Task WriteElementStringAsync(string name, string value);
-
-            protected async Task ManualWriteAsync(TFileObject o) => await o?.WriteAsync(this);
-            protected abstract Task WriteAsync(MemberTreeNode node);
+            internal protected abstract bool ParseElementObject(MemberTreeNode member, out object result);
+            internal protected abstract MemberTreeNode CreateNode(object rootObject);
+            internal protected abstract MemberTreeNode CreateNode(object obj, VarInfo memberInfo);
         }
     }
 }

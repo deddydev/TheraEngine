@@ -23,7 +23,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             object[] vals = new object[Array.Length];
             Array.CopyTo(vals, 0);
-            Values = vals.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? elemType, objType), TreeNode.Writer)).ToArray();
+            Values = vals.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? elemType, objType), TreeNode.FormatWriter)).ToArray();
             
             foreach (var val in Values)
             {

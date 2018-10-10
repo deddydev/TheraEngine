@@ -24,7 +24,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             Children = members.
                 Where(x => (x.Attrib == null || x.Attrib.Condition == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.Condition, TreeNode.Object)).
-                Select(x => new MemberTreeNode(TreeNode.Object == null ? null : x.GetValue(TreeNode.Object), x, TreeNode.Writer)).
+                Select(x => new MemberTreeNode(TreeNode.Object == null ? null : x.GetValue(TreeNode.Object), x, TreeNode.FormatWriter)).
                 ToList();
             
             var categorizedChildren = Children.
@@ -35,7 +35,7 @@ namespace TheraEngine.Core.Files.Serialization
                 foreach (MemberTreeNode p in grouping.Value)
                     Children.Remove(p);
             foreach (var cat in categorizedChildren)
-                Children.Add(new MemberTreeNode(TreeNode.Object, TreeNode.MemberInfo, TreeNode.Writer));
+                Children.Add(new MemberTreeNode(TreeNode.Object, TreeNode.MemberInfo, TreeNode.FormatWriter));
             
             int childElementCount = Children.Where(x => !x.MemberInfo.Attrib.IsXmlAttribute && x.Object != null).Count();
             NonAttributeCount = childElementCount + categorizedChildren.Count;
@@ -51,102 +51,48 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private async Task CollectMember(MemberTreeNode member)
         {
-            if (member.MemberInfo.Attrib.State && !TreeNode.Writer.Flags.HasFlag(ESerializeFlags.SerializeState))
+            if (member.Object == null)
                 return;
-            if (member.MemberInfo.Attrib.Config && !TreeNode.Writer.Flags.HasFlag(ESerializeFlags.SerializeConfig))
+            if (member.MemberInfo.Attrib.State && !TreeNode.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState))
+                return;
+            if (member.MemberInfo.Attrib.Config && !TreeNode.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig))
                 return;
 
-            MethodInfo customMethod = TreeNode.CustomMethods.FirstOrDefault(
-                x => string.Equals(member.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
-            if (customMethod != null)
-                customMethod.Invoke(TreeNode.Object, new object[] { _writer, _flags });
-            else if (member.Object == null)
-                return;
-            
             Type valueType = member.ObjectType;
-            if (member.MemberInfo.Attrib.IsXmlElementString)
+            if (member?.MemberInfo?.Attrib != null)
             {
-                if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
+                MethodInfo customMethod = TreeNode.CustomMethods.FirstOrDefault(
+                    x => string.Equals(member.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+
+                if (customMethod != null)
                 {
-                    if (NonAttributeCount == 1)
-                        SingleSerializableChildData = result;
-                    else
-                        Attributes
-                        await _writer.WriteAttributeStringAsync(null, member.MemberInfo.Name, null, result);
+                    await (Task)customMethod.Invoke(TreeNode.Object, new object[] { _writer, _flags });
+                    return;
                 }
-                else
-                    await member.GenerateTree();
+
+                if (member.MemberInfo.Attrib.IsXmlElementString)
+                {
+                    if (TreeNode.FormatWriter.ParseElementObject(member, out object result))
+                    {
+                        if (NonAttributeCount == 1)
+                            SingleSerializableChildData = result;
+                        else
+                            Attributes.Add((member.MemberInfo.Name, result));
+                        return;
+                    }
+                }
+                else if (member.MemberInfo.Attrib.IsXmlAttribute)
+                {
+                    if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
+                    {
+                        Attributes.Add((member.MemberInfo.Name, result));
+                        return;
+                    }
+                }
             }
-            else if (member.MemberInfo.Attrib.IsXmlAttribute)
-            {
-                if (SerializationCommon.GetString(member.Object, member.VariableType, out string result))
-                    _writer.WriteAttributeString(member.Name, result);
-                else
-                    await member.GenerateTree();
-            }
-            else
-                await member.GenerateTree();
-            
-        }
-        public override int GetSize(MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
-        {
-            Type t = Info.VariableType;
-            if (t.IsValueType)
-                return Marshal.SizeOf(t);
 
-            int size = 0;
-            
-            foreach (MemberTreeNode p in Children)
-                size += GetSizeMember(p, customMethods, ref flagCount, table);
-            
-            foreach (var grouping in CategorizedChildren)
-                foreach (MemberTreeNode p in grouping)
-                    size += GetSizeMember(p, customMethods, ref flagCount, table);
-
-            return size;
-        }
-        public override int GetSizeMember(MemberTreeNode node, MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
-        {
-            object value = node.Object;
-
-            MethodInfo customMethod = customMethods.FirstOrDefault(x => string.Equals(node.MemberInfo.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
-
-            if (customMethod != null)
-                return (int)customMethod.Invoke(value, new object[] { table });
-            
-            if (TryGetSize(node, table, out int size))
-                return size;
-
-            Type t = node.MemberInfo.VariableType;
-
-            if (t == typeof(bool))
-                ++flagCount;
-            else if (t == typeof(string))
-            {
-                if (value != null)
-                    table.Add(value.ToString());
-                size += 4;
-            }
-            else if (t.IsEnum)
-            {
-                //table.Add(value.ToString());
-                size += 4;
-            }
-            else if (t.IsValueType)
-            {
-                if (node.Members.Count > 0)
-                    size += node.GetSize(table);
-                else
-                    size += Marshal.SizeOf(value);
-            }
-            else
-                size += node.GetSize(table);
-
-            return size;
-        }
-        public override bool Write(ref VoidPtr address, BinaryStringTable table)
-        {
-            throw new NotImplementedException();
+            ChildElements.Add(member);
+            await member.GenerateTree();
         }
     }
 }

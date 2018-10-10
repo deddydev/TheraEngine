@@ -415,6 +415,7 @@
     <Compile Include="Core\Files\Serialization\Abstract\Binary\ReaderBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Binary\WriterBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\CommonWriter.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\ArrayWriter.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\IDictionaryWriter.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\IListWriter.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\BaseObjectWriter.cs" />

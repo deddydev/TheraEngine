@@ -474,7 +474,7 @@ namespace TheraEngine.Physics.Bullet
             OnTransformChanged(worldTransform);
         }
 
-        [CustomXMLSerializeMethod(nameof(Body))]
+        [CustomSerializeMethod(nameof(Body))]
         internal bool SerializeBody(XmlWriter writer, ESerializeFlags flags)
         {
             writer.WriteStartElement(nameof(Body));

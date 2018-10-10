@@ -42,14 +42,14 @@ namespace TheraEngine.Core.Files.Serialization
                 await _writer.FlushAsync();
                 _stream.Position = 0;
                 await _writer.WriteStartDocumentAsync();
-                await WriteElement(root);
+                await WriteElement(root, null);
                 await _writer.WriteEndDocumentAsync();
                 _writer.Dispose();
                 _stream.Dispose();
             }
-            private async Task WriteElement(MemberTreeNode node)
+            private async Task WriteElement(MemberTreeNode node, string elementName)
             {
-                await _writer.WriteStartElementAsync(null, node.ElementName, null);
+                await _writer.WriteStartElementAsync(null, elementName ?? node.ElementName, null);
                 {
                     if (node.WriteAssemblyType)
                         await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, node.ObjectType.AssemblyQualifiedName);
@@ -57,6 +57,22 @@ namespace TheraEngine.Core.Files.Serialization
                     (string, object)[] attributes = node.ObjectWriter.Attributes;
                     MemberTreeNode[] childElements = node.ObjectWriter.ChildElements;
                     object serializableChildData = node.ObjectWriter.SingleSerializableChildData;
+
+                    foreach (var attr in attributes)
+                    {
+
+                    }
+                    if (serializableChildData != null)
+                    {
+
+                    }
+                    else
+                    {
+                        foreach (MemberTreeNode childNode in childElements)
+                        {
+
+                        }
+                    }
                 }
                 await _writer.WriteEndElementAsync();
             }

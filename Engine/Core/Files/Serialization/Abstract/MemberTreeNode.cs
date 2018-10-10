@@ -20,7 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public TSerializer.AbstractWriter Writer { get; }
         public object Object { get; }
-        public VarInfo Info { get; }
+        public VarInfo MemberInfo { get; }
         public Type ObjectType { get; }
         public bool WriteAssemblyType { get; }
 
@@ -29,76 +29,50 @@ namespace TheraEngine.Core.Files.Serialization
         
         public BaseObjectWriter ObjectWriter { get; private set; }
         public string ElementName { get; internal set; }
+        public IEnumerable<MethodInfo> CustomMethods { get; }
 
         public MemberTreeNode(object root, TSerializer.AbstractWriter writer)
             : this(root, root == null ? null : new VarInfo(root.GetType(), null), writer) { }
-        public MemberTreeNode(object obj, VarInfo info, TSerializer.AbstractWriter writer)
+        public MemberTreeNode(object obj, VarInfo memberInfo, TSerializer.AbstractWriter writer)
         {
             Object = obj;
-            Info = info;
+            MemberInfo = memberInfo;
             Writer = writer;
             ObjectType = Object?.GetType();
-            WriteAssemblyType = ObjectType != Info.VariableType;
-            DetermineInterface();
-        }
-        private void DetermineInterface()
-        {
-            Type t = typeof(BaseObjectWriter);
-            var types = Engine.FindTypes(x => t.IsAssignableFrom(x) && x.GetCustomAttributeExt<ObjectWriterKind>() != null, true, null).ToArray();
-            if (types.Length > 0)
-            {
-                t = types[0];
-                BaseObjectWriter writer = (BaseObjectWriter)Activator.CreateInstance(t);
-                writer.Object = Object;
-                writer.Writer = Writer;
-                writer.Info = Info;
-                ObjectWriter = writer;
-                writer.Initialize();
-            }
-        }
-        public async Task GenerateTree()
-        {
-            if (Info == null)
-                return;
-
-            await FileObjectCheck();
-            await ObjectWriter.GenerateTree();
-
-            Type objType = Object.GetType();
-
-            //Get custom serialize methods
-            var customMethods = objType.GetMethods(
+            WriteAssemblyType = ObjectType != MemberInfo.VariableType;
+            ElementName = SerializationCommon.GetTypeName(MemberInfo.VariableType);
+            CustomMethods = ObjectType?.GetMethods(
                 BindingFlags.NonPublic |
                 BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy).
-                Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null);
+                Where(x => x.GetCustomAttribute<CustomSerializeMethod>() != null);
+            DetermineObjectWriter();
+        }
+        private void DetermineObjectWriter()
+        {
+            Type t = typeof(BaseObjectWriter);
+            var types = Engine.FindTypes(x => 
+                t.IsAssignableFrom(x) && 
+                x.GetCustomAttributeExt<ObjectWriterKind>() != null,
+            true, null).ToArray();
+
+            BaseObjectWriter writer;
+            if (types.Length > 0)
+                writer = (BaseObjectWriter)Activator.CreateInstance(types[0]);
+            else
+                writer = new CommonWriter();
             
-            if (string.IsNullOrEmpty(name))
-                name = SerializationCommon.GetTypeName(objType);
+            writer.TreeNode = this;
+            ObjectWriter = writer;
+        }
+        public async Task GenerateTree()
+        {
+            if (MemberInfo == null)
+                return;
 
-            //Write the element for this object
-            await _writer.WriteStartElementAsync(null, name, null);
-            {
-                if (objType != Info.VariableType)
-                    await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, objType.AssemblyQualifiedName);
-
-                //Attributes are already sorted to come first, then elements
-                await WriteMembers(obj, members, categorized.Count, customMethods);
-
-                //Write categorized elements
-                foreach (var grouping in categorized)
-                {
-                    //Write category element
-                    await _writer.WriteStartElementAsync(null, grouping.Key, null);
-                    {
-                        //Write members for this category
-                        WriteMembers(obj, grouping.OrderBy(x => !x.Attrib.IsXmlAttribute).ToList(), 0, customMethods);
-                    }
-                    await _writer.WriteEndElementAsync();
-                }
-            }
-            await _writer.WriteEndElementAsync();
+            await FileObjectCheck();
+            await ObjectWriter.GenerateTree();
         }
         /// <summary>
         /// Performs special processing for classes that implement <see cref="IFileObject"/> and <see cref="IFileRef"/>.
@@ -195,12 +169,12 @@ namespace TheraEngine.Core.Files.Serialization
 
             int size = 0;
 
-            Type t = Info.VariableType;
+            Type t = MemberInfo.VariableType;
             if (t.IsValueType)
                 size += Marshal.SizeOf(t);
             else
             {
-                MethodInfo[] customMethods = Info.VariableType.GetMethods(
+                MethodInfo[] customMethods = MemberInfo.VariableType.GetMethods(
                     BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
                     Where(x => x.GetCustomAttribute<CustomBinarySerializeSizeMethod>() != null).ToArray();
 
@@ -211,6 +185,6 @@ namespace TheraEngine.Core.Files.Serialization
 
             return CalculatedSize = size.Align(4);
         }
-        public override string ToString() => Info.Name;
+        public override string ToString() => MemberInfo.Name;
     }
 }

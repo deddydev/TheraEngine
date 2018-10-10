@@ -269,14 +269,14 @@ namespace TheraEngine.Core.Files.Serialization
             int flagIndex = 0;
             byte[] flagBytes = new byte[node.FlagSize];
 
-            MethodInfo[] customMethods = node.Info.VariableType.GetMethods(
+            MethodInfo[] customMethods = node.MemberInfo.VariableType.GetMethods(
                 BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
                 Where(x => x.GetCustomAttribute<CustomBinarySerializeMethod>() != null).ToArray();
             
             foreach (MemberTreeNode p in node.Members)
             {
                 MethodInfo customMethod = customMethods.FirstOrDefault(
-                    x => string.Equals(p.Info.Name, x.GetCustomAttribute<CustomBinarySerializeMethod>().Name));
+                    x => string.Equals(p.MemberInfo.Name, x.GetCustomAttribute<CustomBinarySerializeMethod>().Name));
                 if (customMethod != null)
                     customMethod.Invoke(node.Object, new object[] { address, table });
                 else
@@ -287,7 +287,7 @@ namespace TheraEngine.Core.Files.Serialization
                 foreach (MemberTreeNode p in grouping)
                 {
                     MethodInfo customMethod = customMethods.FirstOrDefault(
-                        x => string.Equals(p.Info.Name, x.GetCustomAttribute<CustomBinarySerializeMethod>().Name));
+                        x => string.Equals(p.MemberInfo.Name, x.GetCustomAttribute<CustomBinarySerializeMethod>().Name));
                     if (customMethod != null)
                         customMethod.Invoke(node.Object, new object[] { address, table });
                     else
@@ -306,7 +306,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (TryGetSizeInterface(node, table, out int size))
                 return size;
 
-            Type t = node.Info.VariableType;
+            Type t = node.MemberInfo.VariableType;
             
             if (t == typeof(bool))
                 ++flagCount;
@@ -342,7 +342,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             object value = node.Object;
 
-            Type t = node.Info.VariableType;
+            Type t = node.MemberInfo.VariableType;
 
             if (TryWriteInterface(node, ref address, table))
                 return;

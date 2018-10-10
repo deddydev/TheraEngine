@@ -18,19 +18,12 @@ namespace TheraEngine.Core.Files.Serialization
     }
     public abstract class BaseObjectWriter
     {
-        public object Object { get; set; }
-        public TSerializer.AbstractWriter Writer { get; set; }
-        public VarInfo Info { get; set; }
+        public MemberTreeNode TreeNode { get; internal set; }
 
-        public (string, object)[] Attributes { get; internal set; }
-        public MemberTreeNode[] ChildElements { get; internal set; }
+        public List<(string, object)> Attributes { get; internal set; }
+        public List<MemberTreeNode> ChildElements { get; internal set; }
         public object SingleSerializableChildData { get; internal set; }
-
-        public abstract void Initialize();
+        
         public abstract Task GenerateTree();
-
-        public abstract int GetSize(MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table);
-        public abstract int GetSizeMember(MemberTreeNode node, MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table);
-        public abstract bool Write(ref VoidPtr address, BinaryStringTable table);
     }
 }

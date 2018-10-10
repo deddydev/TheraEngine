@@ -47,7 +47,7 @@ namespace TheraEngine.Core.Shapes
         [TSerialize("UseBoundingSphere", XmlNodeType = EXmlNodeType.Attribute)]
         private Sphere _boundingSphere;
 
-        [CustomXMLSerializeMethod("UseBoundingSphere")]
+        [CustomSerializeMethod("UseBoundingSphere")]
         private void SerializeBoundingSphere(XmlWriter writer, ESerializeFlags flags)
         {
             writer.WriteAttributeString("UseBoundingSphere", UseBoundingSphere.ToString());

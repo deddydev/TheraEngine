@@ -319,21 +319,21 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private object ReadMemberElement(Type memberType)
         {
-            switch (SerializationCommon.GetValueType(memberType))
+            switch (SerializationCommon.GetSerializeType(memberType))
             {
-                case SerializationCommon.ValueType.Manual:
+                case SerializationCommon.SerializeType.Manual:
                     TFileObject o = (TFileObject)Activator.CreateInstance(memberType);
                     _reader.ManualReadAsync(o);
                     return o;
-                case SerializationCommon.ValueType.Array:
+                case SerializationCommon.SerializeType.Array:
                     return ReadArray(memberType);
-                case SerializationCommon.ValueType.Dictionary:
+                case SerializationCommon.SerializeType.Dictionary:
                     return ReadDictionary(memberType);
-                case SerializationCommon.ValueType.Enum:
-                case SerializationCommon.ValueType.String:
-                case SerializationCommon.ValueType.Parsable:
+                case SerializationCommon.SerializeType.Enum:
+                case SerializationCommon.SerializeType.String:
+                case SerializationCommon.SerializeType.Parsable:
                     return SerializationCommon.ParseString(_reader.ReadElementString(), memberType);
-                case SerializationCommon.ValueType.Struct:
+                case SerializationCommon.SerializeType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(memberType);
                     if (structFields.Count > 0)
                         return ReadObject(memberType, structFields);
@@ -355,7 +355,7 @@ namespace TheraEngine.Core.Files.Serialization
                             return ReadStruct(memberType, members);
                         }
                     }
-                case SerializationCommon.ValueType.Pointer:
+                case SerializationCommon.SerializeType.Pointer:
                     return ReadObject(memberType);
             }
             return null;
@@ -414,23 +414,23 @@ namespace TheraEngine.Core.Files.Serialization
             if (num > 0)
             {
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
-                SerializationCommon.ValueType type = SerializationCommon.GetValueType(elementType);
+                SerializationCommon.SerializeType type = SerializationCommon.GetSerializeType(elementType);
                 switch (type)
                 {
-                    case SerializationCommon.ValueType.Array:
+                    case SerializationCommon.SerializeType.Array:
                         ReadArrayArray(list, num, elementType);
                         break;
-                    case SerializationCommon.ValueType.Enum:
-                    case SerializationCommon.ValueType.String:
+                    case SerializationCommon.SerializeType.Enum:
+                    case SerializationCommon.SerializeType.String:
                         ReadStringArray(list, num, elementType, false);
                         break;
-                    case SerializationCommon.ValueType.Parsable:
+                    case SerializationCommon.SerializeType.Parsable:
                         ReadStringArray(list, num, elementType, true);
                         break;
-                    case SerializationCommon.ValueType.Struct:
+                    case SerializationCommon.SerializeType.Struct:
                         ReadStructArray(list, num, elementType);
                         break;
-                    case SerializationCommon.ValueType.Pointer:
+                    case SerializationCommon.SerializeType.Pointer:
                         ReadObjectArray(list, num, elementType);
                         break;
                 }

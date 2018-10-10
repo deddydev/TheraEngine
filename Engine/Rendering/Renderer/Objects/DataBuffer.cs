@@ -125,7 +125,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("Data", IsXmlElementString = true)]
         internal DataSource _data;
 
-        [CustomXMLSerializeMethod("Data")]
+        [CustomSerializeMethod("Data")]
         private unsafe bool CustomDataSerialize(XmlWriter writer, ESerializeFlags flags)
         {
             int count = _elementCount * _componentCount;

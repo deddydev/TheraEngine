@@ -15,25 +15,23 @@ namespace TheraEngine.Core.Files.Serialization
         public MemberTreeNode[] Keys { get; private set; }
         public MemberTreeNode[] Values { get; private set; }
         
-        public override void Initialize()
+        public override async Task GenerateTree()
         {
-            Dictionary = Object as IDictionary;
+            Dictionary = TreeNode.Object as IDictionary;
 
             object[] keys = new object[Dictionary.Keys.Count];
             object[] vals = new object[Dictionary.Values.Count];
 
             Type keyType = Dictionary.DetermineKeyType();
             Type valType = Dictionary.DetermineValueType();
-            Type objType = Object.GetType();
+            Type objType = TreeNode.ObjectType;
 
             Dictionary.Keys.CopyTo(keys, 0);
             Dictionary.Values.CopyTo(vals, 0);
 
-            Keys = keys.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? keyType, objType), Writer)).ToArray();
-            Values = vals.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? valType, objType), Writer)).ToArray();
-        }
-        public override async Task GenerateTree()
-        {
+            Keys = keys.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? keyType, objType), TreeNode.Writer)).ToArray();
+            Values = vals.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? valType, objType), TreeNode.Writer)).ToArray();
+
             foreach (var key in Keys)
             {
                 await key.GenerateTree();

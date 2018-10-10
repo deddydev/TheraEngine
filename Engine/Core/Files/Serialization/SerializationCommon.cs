@@ -209,7 +209,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return o;
         }
-        public enum ValueType
+        public enum SerializeType
         {
             Array,
             Dictionary,
@@ -220,39 +220,39 @@ namespace TheraEngine.Core.Files.Serialization
             Pointer,
             Manual,
         }
-        public static ValueType GetValueType(Type t)
+        public static SerializeType GetSerializeType(Type t)
         {
             if (t.IsSubclassOf(typeof(TFileObject)) && (TFileObject.GetFileExtension(t)?.ManualXmlConfigSerialize == true))
             {
-                return ValueType.Manual;
+                return SerializeType.Manual;
             }
-            else if (t.GetInterface("IParsable") != null)
+            else if (t.GetInterface(nameof(IParsable)) != null)
             {
-                return ValueType.Parsable;
+                return SerializeType.Parsable;
             }
-            else if (t.GetInterface("IList") != null)
+            else if (t.GetInterface(nameof(IList)) != null)
             {
-                return ValueType.Array;
+                return SerializeType.Array;
             }
-            else if (t.GetInterface("IDictionary") != null)
+            else if (t.GetInterface(nameof(IDictionary)) != null)
             {
-                return ValueType.Dictionary;
+                return SerializeType.Dictionary;
             }
             else if (t.IsEnum)
             {
-                return ValueType.Enum;
+                return SerializeType.Enum;
             }
             else if (t == typeof(string))
             {
-                return ValueType.String;
+                return SerializeType.String;
             }
             else if (t.IsValueType)
             {
-                return ValueType.Struct;
+                return SerializeType.Struct;
             }
             else
             {
-                return ValueType.Pointer;
+                return SerializeType.Pointer;
             }
         }
         public static bool IsEnum(Type t)

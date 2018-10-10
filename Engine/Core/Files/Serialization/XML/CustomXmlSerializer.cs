@@ -175,7 +175,7 @@ namespace TheraEngine.Core.Files.Serialization
                 BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy).
-                Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null);
+                Where(x => x.GetCustomAttribute<CustomSerializeMethod>() != null);
             
             //Get members categorized together
             var categorized = members.
@@ -227,7 +227,7 @@ namespace TheraEngine.Core.Files.Serialization
                     continue;
                 
                 MethodInfo customMethod = customMethods.FirstOrDefault(
-                    x => string.Equals(member.Name, x.GetCustomAttribute<CustomXMLSerializeMethod>().Name));
+                    x => string.Equals(member.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
                 if (customMethod != null)
                     customMethod.Invoke(obj, new object[] { _writer, _flags });
                 else
@@ -281,25 +281,25 @@ namespace TheraEngine.Core.Files.Serialization
             VarInfo member,
             bool writeTypeDefinition = false)
         {
-            switch (SerializationCommon.GetValueType(member.VariableType))
+            switch (SerializationCommon.GetSerializeType(member.VariableType))
             {
-                case SerializationCommon.ValueType.Manual:
+                case SerializationCommon.SerializeType.Manual:
                     ((TFileObject)value).WriteAsync(_writer, _flags);
                     break;
-                case SerializationCommon.ValueType.Parsable:
+                case SerializationCommon.SerializeType.Parsable:
                     _writer.WriteElementString(member.Name, ((IParsable)value).WriteToString());
                     break;
-                case SerializationCommon.ValueType.Array:
+                case SerializationCommon.SerializeType.Array:
                     WriteArray(value as IList, member.Name, member.VariableType);
                     break;
-                case SerializationCommon.ValueType.Dictionary:
+                case SerializationCommon.SerializeType.Dictionary:
                     WriteDictionary(value as IDictionary, member);
                     break;
-                case SerializationCommon.ValueType.Enum:
-                case SerializationCommon.ValueType.String:
+                case SerializationCommon.SerializeType.Enum:
+                case SerializationCommon.SerializeType.String:
                     _writer.WriteElementString(member.Name, value.ToString());
                     break;
-                case SerializationCommon.ValueType.Struct:
+                case SerializationCommon.SerializeType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(member.VariableType);
                     if (structFields.Count > 0)
                         WriteObjectAsync(value, structFields, member.Name, writeTypeDefinition);
@@ -322,7 +322,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                     break;
-                case SerializationCommon.ValueType.Pointer:
+                case SerializationCommon.SerializeType.Pointer:
                     WriteObjectAsync(value, member.Name, writeTypeDefinition);
                     break;
             }
@@ -366,25 +366,25 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
                 string elementName = SerializationCommon.GetTypeName(elementType);//elementType.GetFriendlyName("[", "]");
-                switch (SerializationCommon.GetValueType(elementType))
+                switch (SerializationCommon.GetSerializeType(elementType))
                 {
-                    case SerializationCommon.ValueType.Parsable:
+                    case SerializationCommon.SerializeType.Parsable:
                         WriteStringArray(array, true, false);
                         break;
-                    case SerializationCommon.ValueType.Array:
+                    case SerializationCommon.SerializeType.Array:
                         for (int i = 0; i < array.Count; ++i)
                             WriteArray(array[i] as IList, "Item", elementType);
                         break;
-                    case SerializationCommon.ValueType.Enum:
+                    case SerializationCommon.SerializeType.Enum:
                         WriteStringArray(array, false, true);
                         break;
-                    case SerializationCommon.ValueType.String:
+                    case SerializationCommon.SerializeType.String:
                         WriteStringArray(array, false, false);
                         break;
-                    case SerializationCommon.ValueType.Struct:
+                    case SerializationCommon.SerializeType.Struct:
                         WriteStructArray(array, elementType);
                         break;
-                    case SerializationCommon.ValueType.Pointer:
+                    case SerializationCommon.SerializeType.Pointer:
                         foreach (object o in array)
                             WriteObjectAsync(o, elementName, o?.GetType() != elementType);
                         break;

@@ -9,21 +9,21 @@ namespace TheraEngine.Rendering.Models
 {
     public partial class PrimitiveData : TFileObject, IDisposable
     {
-        [CustomXMLSerializeMethod(nameof(Triangles))]
+        [CustomSerializeMethod(nameof(Triangles))]
         private void SerializeTriangles(XmlWriter writer, ESerializeFlags flags)
         {
             if (_triangles == null) return;
             string str = string.Join(" ", _triangles.SelectMany(x => x.Points.Select(y => y.VertexIndex.ToString())));
             writer.WriteElementString(nameof(Triangles), str);
         }
-        [CustomXMLSerializeMethod(nameof(Lines))]
+        [CustomSerializeMethod(nameof(Lines))]
         private void SerializeLines(XmlWriter writer, ESerializeFlags flags)
         {
             if (_lines == null) return;
             string str = string.Join(" ", _lines.SelectMany(x => new string[] { x.Point0.VertexIndex.ToString(), x.Point1.VertexIndex.ToString() }));
             writer.WriteElementString(nameof(Lines), str);
         }
-        [CustomXMLSerializeMethod(nameof(Points))]
+        [CustomSerializeMethod(nameof(Points))]
         private void SerializePoints(XmlWriter writer, ESerializeFlags flags)
         {
             if (_points == null) return;
@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.Models
             string str = reader.ReadElementString();
             _points = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => new IndexPoint(int.Parse(x))).ToList();
         }
-        [CustomXMLSerializeMethod(nameof(FacePoints))]
+        [CustomSerializeMethod(nameof(FacePoints))]
         private bool SerializeFacePoints(XmlWriter writer, ESerializeFlags flags)
         {
             writer.WriteStartElement(nameof(FacePoints));
@@ -97,7 +97,7 @@ namespace TheraEngine.Rendering.Models
             }
             return true;
         }
-        [CustomXMLSerializeMethod(nameof(Influences))]
+        [CustomSerializeMethod(nameof(Influences))]
         private bool CustomInfluencesSerialize(XmlWriter writer, ESerializeFlags flags)
         {
             if (_influences != null)

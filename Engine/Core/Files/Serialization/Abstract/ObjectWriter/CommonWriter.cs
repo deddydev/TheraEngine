@@ -14,39 +14,79 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public class CommonWriter : BaseObjectWriter
     {
-        public List<MemberTreeNode> Members { get; private set; }
-        public Dictionary<string, MemberTreeNode[]> CategorizedMembers { get; private set; }
-
-        public override void Initialize()
-        {
-            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(Info.VariableType);
-
-            Members = members.
-                Where(x => (x.Attrib == null || x.Attrib.Condition == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.Condition, Object)).
-                Select(x => new MemberTreeNode(Object == null ? null : x.GetValue(Object), x, Writer)).
-                ToList();
-
-            CategorizedMembers = Members.
-                Where(x => x.Info.Category != null).
-                GroupBy(x => x.Info.Category).
-                ToDictionary(grp => grp.Key, grp => grp.ToArray());
-
-            foreach (var grouping in CategorizedMembers)
-                foreach (MemberTreeNode p in grouping.Value)
-                    Members.Remove(p);
-        }
+        public List<MemberTreeNode> Children { get; private set; }
+        //public Dictionary<string, MemberTreeNode[]> CategorizedChildren { get; private set; }
+        private int NonAttributeCount { get; set; }
+        
         public override async Task GenerateTree()
         {
-            foreach (MemberTreeNode t in Members)
-            {
-                await t.GenerateTree();
-            }
+            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
 
-            foreach (var group in CategorizedMembers)
-                foreach (MemberTreeNode t in group.Value)
+            Children = members.
+                Where(x => (x.Attrib == null || x.Attrib.Condition == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.Condition, TreeNode.Object)).
+                Select(x => new MemberTreeNode(TreeNode.Object == null ? null : x.GetValue(TreeNode.Object), x, TreeNode.Writer)).
+                ToList();
+            
+            var categorizedChildren = Children.
+                Where(x => x.MemberInfo.Category != null).
+                GroupBy(x => x.MemberInfo.Category).
+                ToDictionary(grp => grp.Key, grp => grp.ToArray());
+            foreach (var grouping in categorizedChildren)
+                foreach (MemberTreeNode p in grouping.Value)
+                    Children.Remove(p);
+            foreach (var cat in categorizedChildren)
+                Children.Add(new MemberTreeNode(TreeNode.Object, TreeNode.MemberInfo, TreeNode.Writer));
+            
+            int childElementCount = Children.Where(x => !x.MemberInfo.Attrib.IsXmlAttribute && x.Object != null).Count();
+            NonAttributeCount = childElementCount + categorizedChildren.Count;
+            Attributes = new List<(string, object)>();
+            ChildElements = new List<MemberTreeNode>();
+            
+            foreach (MemberTreeNode member in Children)
+                await CollectMember(member);
+
+            //foreach (var group in CategorizedChildren)
+            //    foreach (MemberTreeNode member in group.Value)
+            //        await CollectMember(member);
+        }
+        private async Task CollectMember(MemberTreeNode member)
+        {
+            if (member.MemberInfo.Attrib.State && !TreeNode.Writer.Flags.HasFlag(ESerializeFlags.SerializeState))
+                return;
+            if (member.MemberInfo.Attrib.Config && !TreeNode.Writer.Flags.HasFlag(ESerializeFlags.SerializeConfig))
+                return;
+
+            MethodInfo customMethod = TreeNode.CustomMethods.FirstOrDefault(
+                x => string.Equals(member.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+            if (customMethod != null)
+                customMethod.Invoke(TreeNode.Object, new object[] { _writer, _flags });
+            else if (member.Object == null)
+                return;
+            
+            Type valueType = member.ObjectType;
+            if (member.MemberInfo.Attrib.IsXmlElementString)
+            {
+                if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
                 {
-                    await t.GenerateTree();
+                    if (NonAttributeCount == 1)
+                        SingleSerializableChildData = result;
+                    else
+                        Attributes
+                        await _writer.WriteAttributeStringAsync(null, member.MemberInfo.Name, null, result);
                 }
+                else
+                    await member.GenerateTree();
+            }
+            else if (member.MemberInfo.Attrib.IsXmlAttribute)
+            {
+                if (SerializationCommon.GetString(member.Object, member.VariableType, out string result))
+                    _writer.WriteAttributeString(member.Name, result);
+                else
+                    await member.GenerateTree();
+            }
+            else
+                await member.GenerateTree();
+            
         }
         public override int GetSize(MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
         {
@@ -56,10 +96,10 @@ namespace TheraEngine.Core.Files.Serialization
 
             int size = 0;
             
-            foreach (MemberTreeNode p in Members)
+            foreach (MemberTreeNode p in Children)
                 size += GetSizeMember(p, customMethods, ref flagCount, table);
             
-            foreach (var grouping in CategorizedMembers)
+            foreach (var grouping in CategorizedChildren)
                 foreach (MemberTreeNode p in grouping)
                     size += GetSizeMember(p, customMethods, ref flagCount, table);
 
@@ -69,7 +109,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             object value = node.Object;
 
-            MethodInfo customMethod = customMethods.FirstOrDefault(x => string.Equals(node.Info.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
+            MethodInfo customMethod = customMethods.FirstOrDefault(x => string.Equals(node.MemberInfo.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
 
             if (customMethod != null)
                 return (int)customMethod.Invoke(value, new object[] { table });
@@ -77,7 +117,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (TryGetSize(node, table, out int size))
                 return size;
 
-            Type t = node.Info.VariableType;
+            Type t = node.MemberInfo.VariableType;
 
             if (t == typeof(bool))
                 ++flagCount;

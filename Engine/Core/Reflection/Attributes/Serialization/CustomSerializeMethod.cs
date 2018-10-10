@@ -24,10 +24,10 @@
     /// <para>Method syntax is 'bool Serialize(XmlWriter writer, ESerializeFlags flags)'</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class CustomXMLSerializeMethod : Attribute
+    public class CustomSerializeMethod : Attribute
     {
         public string Name { get; set; }
-        public CustomXMLSerializeMethod(string name) => Name = name;
+        public CustomSerializeMethod(string name) => Name = name;
     }
     /// <summary>
     /// Use this to deserialize data in a manner that is more efficient or that the

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             internal protected abstract Task WriteTree(MemberTreeNode root);
             internal protected abstract MemberTreeNode CreateNode(object rootObject);
-            internal protected abstract MemberTreeNode CreateNode(object obj, VarInfo memberInfo);
+            internal protected abstract MemberTreeNode CreateNode(MemberInfo memberInfo);
         }
     }
 }

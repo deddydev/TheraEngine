@@ -32,6 +32,14 @@ namespace TheraEngine.Core.Files.Serialization
             Keys = keys.Select(x => TreeNode.FormatWriter.CreateNode(x, new VarInfo(x?.GetType() ?? keyType, objType))).ToArray();
             Values = vals.Select(x => TreeNode.FormatWriter.CreateNode(x, new VarInfo(x?.GetType() ?? valType, objType))).ToArray();
 
+            Members = new List<MemberTreeNode>(Keys.Length);
+            for (int i = 0; i < Keys.Length; ++i)
+            {
+                MemberTreeNode pairNode = TreeNode.FormatWriter.CreateNode();
+                Members.Add();
+
+            }
+
             foreach (var key in Keys)
             {
                 await key.CollectSerializedMembers();

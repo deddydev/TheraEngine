@@ -8,7 +8,7 @@ using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [ObjectWriterKind(typeof(Array))]
+    //[ObjectWriterKind(typeof(Array))]
     public class ArrayWriter : BaseObjectWriter
     {
         public Array Array { get; private set; }
@@ -26,9 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
             Values = vals.Select(obj => TreeNode.FormatWriter.CreateNode(obj, new VarInfo(obj?.GetType() ?? elemType, objType))).ToArray();
             
             foreach (var val in Values)
-            {
                 await val.CollectSerializedMembers();
-            }
         }
     }
 }

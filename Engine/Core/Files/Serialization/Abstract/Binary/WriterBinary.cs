@@ -8,9 +8,6 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -63,8 +60,13 @@ namespace TheraEngine.Core.Files.Serialization
                 int stringSize = table.GetTotalSize();
                 int totalSize = FileCommonHeader.Size + stringSize + dataSize;
 
-                using (FileMap uncompMap = Compressed ? FileMap.FromTempFile(totalSize) :
-                    FileMap.FromFile(FilePath, FileMapProtect.ReadWrite, 0, totalSize))
+                FileMap uncompMap;
+                if (Compressed)
+                    uncompMap = FileMap.FromTempFile(totalSize);
+                else
+                    uncompMap = FileMap.FromFile(FilePath, FileMapProtect.ReadWrite, 0, totalSize);
+
+                using (uncompMap)
                 {
                     FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
                     hdr->_stringTableLength = stringSize;
@@ -88,6 +90,9 @@ namespace TheraEngine.Core.Files.Serialization
 
                     FileStream outStream;
 
+                    //Compres first, then encrypt
+                    //This is because compression works best on the original patterned data
+
                     if (Compressed)
                     {
                         outStream = new FileStream(FilePath,
@@ -110,7 +115,7 @@ namespace TheraEngine.Core.Files.Serialization
                         SymmetricAlgorithm crypto = new RijndaelManaged();
                         byte[] key = EncryptionDeriveBytes.GetBytes(crypto.KeySize / 8);
                         byte[] iv = EncryptionDeriveBytes.GetBytes(crypto.BlockSize / 8);
-                        
+
                         outStream.Position = 0;
                         int blockSize = 0x1000;
                         int bytesRead = 0;
@@ -190,8 +195,8 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 throw new NotImplementedException();
             }
-            internal protected override MemberTreeNode CreateNode(object obj, VarInfo memberInfo)
-                => new BinaryMemberTreeNode(obj, memberInfo, this);
+            internal protected override MemberTreeNode CreateNode(MemberInfo memberInfo)
+                => new BinaryMemberTreeNode(memberInfo, this);
             internal protected override MemberTreeNode CreateNode(object rootObject)
                 => new BinaryMemberTreeNode(rootObject, this);
 
@@ -203,6 +208,12 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 throw new NotImplementedException();
             }
+
+            protected override void OnReportProgress()
+            {
+                throw new NotImplementedException();
+            }
+
             public unsafe class BinaryStringTable
             {
                 SortedList<string, int> _table = new SortedList<string, int>(StringComparer.Ordinal);

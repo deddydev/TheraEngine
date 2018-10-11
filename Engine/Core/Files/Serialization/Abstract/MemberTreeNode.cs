@@ -23,27 +23,162 @@ namespace TheraEngine.Core.Files.Serialization
 
         public int CalculatedSize { get; internal set; }
         public int FlagSize { get; internal set; }
-        public List<MemberTreeNode> ChildElements { get; internal set; }
+        public List<MemberTreeNode> ChildMembers { get; internal set; }
+
+        public int GetSize(BinaryStringTable table)
+        {
+            if (Object == null)
+                return 0;
+
+            int size = 0;
+            
+            if (ObjectType.IsValueType)
+                size += Marshal.SizeOf(ObjectType);
+            else
+            {
+                MethodInfo[] customMethods = ObjectType.GetMethods(
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
+                    Where(x => x.GetCustomAttribute<CustomBinarySerializeSizeMethod>() != null).ToArray();
+
+                int flagCount = 0;
+                size += ObjectWriter.GetSize(customMethods, ref flagCount, table);
+                size += (FlagSize = flagCount.Align(8) / 8); //Align to nearest byte
+            }
+
+            return CalculatedSize = size.Align(4);
+        }
+
+        protected internal override async Task CollectMemberInfo(MemberTreeNode member)
+        {
+            MethodInfo customMethod = CustomMethods.FirstOrDefault(
+                x => string.Equals(member.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+            
+            ChildMembers = new List<MemberTreeNode>();
+
+            if (customMethod != null)
+            {
+                var parameters = customMethod.GetParameters();
+                if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
+                {
+                    if (customMethod.ReturnType == typeof(Task))
+                        await (Task)customMethod.Invoke(Object, new object[] { this });
+                    else
+                        customMethod.Invoke(Object, new object[] { this });
+                    return;
+                }
+            }
+
+            if (member.MemberInfo.Attrib.IsXmlElementString)
+            {
+                if (FormatWriter.ParseElementObject(member, out object result))
+                {
+                    if (NonAttributeCount == 1)
+                        SingleSerializableChildData = result;
+                    else
+                        Attributes.Add((member.MemberInfo.Name, result));
+                    return;
+                }
+            }
+            else if (member.MemberInfo.Attrib.IsXmlAttribute)
+            {
+                if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
+                {
+                    Attributes.Add((member.MemberInfo.Name, result));
+                    return;
+                }
+            }
+            ChildMembers.Add(member);
+            await member.CollectSerializedMembers();
+        }
     }
     public class XMLMemberTreeNode : MemberTreeNode
     {
         public XMLMemberTreeNode(object root, TSerializer.AbstractWriter writer) : base(root, writer) { }
         public XMLMemberTreeNode(object obj, VarInfo memberInfo, TSerializer.AbstractWriter writer) : base(obj, memberInfo, writer) { }
 
-        public List<(string, object)> Attributes { get; internal set; }
+        public string ElementName { get; set; }
+        public List<(string Name, string Value)> Attributes { get; internal set; }
         public List<MemberTreeNode> ChildElements { get; internal set; }
         public object SingleSerializableChildData { get; internal set; }
-    }
-    public class MemberTreeNode
-    {
-        public TSerializer.AbstractWriter FormatWriter { get; }
-        public object Object { get; }
-        public VarInfo MemberInfo { get; }
-        public Type ObjectType { get; }
-        public bool WriteAssemblyType { get; }
 
+        protected internal override async Task CollectMemberInfo(MemberTreeNode member)
+        {
+            MethodInfo customMethod = CustomMethods.FirstOrDefault(
+                x => string.Equals(member.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+
+            ElementName = SerializationCommon.GetTypeName(MemberInfo.VariableType);
+            Attributes = new List<(string Name, string Value)>();
+            ChildElements = new List<MemberTreeNode>();
+            SingleSerializableChildData = null;
+
+            if (customMethod != null)
+            {
+                var parameters = customMethod.GetParameters();
+                if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
+                {
+                    if (customMethod.ReturnType == typeof(Task))
+                        await (Task)customMethod.Invoke(Object, new object[] { this });
+                    else
+                        customMethod.Invoke(Object, new object[] { this });
+                    return;
+                }
+            }
+
+            if (member.MemberInfo.Attrib.IsXmlElementString)
+            {
+                if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
+                {
+                    if (NonAttributeCount == 1)
+                        SingleSerializableChildData = result;
+                    else
+                        Attributes.Add((member.MemberInfo.Name, result));
+                    return;
+                }
+            }
+            else if (member.MemberInfo.Attrib.IsXmlAttribute)
+            {
+                if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
+                {
+                    Attributes.Add((member.MemberInfo.Name, result));
+                    return;
+                }
+            }
+            ChildElements.Add(member);
+            await member.CollectSerializedMembers();
+        }
+    }
+    public abstract class MemberTreeNode
+    {
+        /// <summary>
+        /// The writer that handles what format this information is being written in,
+        /// such as binary, XML, or JSON.
+        /// </summary>
+        public TSerializer.AbstractWriter FormatWriter { get; }
+        /// <summary>
+        /// All information pertaining to the definition of this member.
+        /// </summary>
+        public VarInfo MemberInfo { get; }
+        /// <summary>
+        /// The value assigned to this member.
+        /// </summary>
+        public object Object { get; }
+        /// <summary>
+        /// The type of the object assigned to this member.
+        /// For the member's type, see MemberInfo.VariableType.
+        /// </summary>
+        public Type ObjectType { get; }
+        /// <summary>
+        /// <see langword="true"/> if the object's type inherits from the member's type instead of matching it exactly.
+        /// </summary>
+        public bool IsDerivedType { get; }
+        /// <summary>
+        /// The class handling how to collect all members of any given object.
+        /// Most classes will use <see cref="CommonWriter"/>.
+        /// </summary>
         public BaseObjectWriter ObjectWriter { get; private set; }
-        public string ElementName { get; internal set; }
+        /// <summary>
+        /// Methods for serializing data in a specific manner.
+        /// </summary>
         public IEnumerable<MethodInfo> CustomMethods { get; }
 
         public MemberTreeNode(object root, TSerializer.AbstractWriter writer)
@@ -54,8 +189,7 @@ namespace TheraEngine.Core.Files.Serialization
             MemberInfo = memberInfo;
             FormatWriter = writer;
             ObjectType = Object?.GetType();
-            WriteAssemblyType = ObjectType != MemberInfo.VariableType;
-            ElementName = SerializationCommon.GetTypeName(MemberInfo.VariableType);
+            IsDerivedType = ObjectType != MemberInfo.VariableType;
             CustomMethods = ObjectType?.GetMethods(
                 BindingFlags.NonPublic |
                 BindingFlags.Instance |
@@ -65,6 +199,8 @@ namespace TheraEngine.Core.Files.Serialization
             DetermineObjectWriter();
         }
 
+        internal protected abstract Task CollectMemberInfo(MemberTreeNode member);
+        
         private void DetermineObjectWriter()
         {
             Type t = typeof(BaseObjectWriter);
@@ -82,13 +218,13 @@ namespace TheraEngine.Core.Files.Serialization
             writer.TreeNode = this;
             ObjectWriter = writer;
         }
-        public async Task GenerateTree()
+        public async Task CollectSerializedMembers()
         {
             if (MemberInfo == null)
                 return;
 
             await FileObjectCheck();
-            await ObjectWriter.GenerateTree();
+            await ObjectWriter.CollectSerializedMembers();
         }
         /// <summary>
         /// Performs special processing for classes that implement <see cref="IFileObject"/> and <see cref="IFileRef"/>.
@@ -177,29 +313,6 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
             }
-        }
-        public int GetSize(BinaryStringTable table)
-        {
-            if (Object == null)
-                return 0;
-
-            int size = 0;
-
-            Type t = MemberInfo.VariableType;
-            if (t.IsValueType)
-                size += Marshal.SizeOf(t);
-            else
-            {
-                MethodInfo[] customMethods = MemberInfo.VariableType.GetMethods(
-                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
-                    Where(x => x.GetCustomAttribute<CustomBinarySerializeSizeMethod>() != null).ToArray();
-
-                int flagCount = 0;
-                size += ObjectWriter.GetSize(customMethods, ref flagCount, table);
-                size += (FlagSize = flagCount.Align(8) / 8);
-            }
-
-            return CalculatedSize = size.Align(4);
         }
         public override string ToString() => MemberInfo.Name;
     }

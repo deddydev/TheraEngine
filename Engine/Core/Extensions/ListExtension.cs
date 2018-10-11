@@ -5,10 +5,10 @@
         public static Type DetermineElementType(this IList list)
         {
             Type listType = list.GetType();
-            Type returnedType = listType.GetElementType();
-            if (returnedType != null)
-                return returnedType;
-            if (listType.IsGenericType)
+            Type elementType = listType.GetElementType();
+            if (elementType != null)
+                return elementType;
+            if (listType.IsGenericType && listType.GenericTypeArguments.Length == 1)
                 return listType.GenericTypeArguments[0];
             return null;
         }

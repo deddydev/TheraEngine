@@ -14,7 +14,7 @@ namespace TheraEngine.Core.Files.Serialization
         public Array Array { get; private set; }
         public MemberTreeNode[] Values { get; private set; }
         
-        public override async Task GenerateTree()
+        public override async Task CollectSerializedMembers()
         {
             Array = TreeNode.Object as Array;
             
@@ -23,11 +23,11 @@ namespace TheraEngine.Core.Files.Serialization
 
             object[] vals = new object[Array.Length];
             Array.CopyTo(vals, 0);
-            Values = vals.Select(x => new MemberTreeNode(x, new VarInfo(x?.GetType() ?? elemType, objType), TreeNode.FormatWriter)).ToArray();
+            Values = vals.Select(obj => TreeNode.FormatWriter.CreateNode(obj, new VarInfo(obj?.GetType() ?? elemType, objType))).ToArray();
             
             foreach (var val in Values)
             {
-                await val.GenerateTree();
+                await val.CollectSerializedMembers();
             }
         }
     }

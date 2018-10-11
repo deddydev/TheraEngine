@@ -19,11 +19,11 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public class WriterBinary : AbstractWriter
         {
-            Endian.EOrder Order { get; }
+            Endian.EOrder Endian { get; }
             bool Encrypted { get; }
             bool Compressed { get; }
-            string EncryptionPassword { get; }
             ICodeProgress CompressionProgress { get; }
+            Rfc2898DeriveBytes EncryptionDeriveBytes { get; }
 
             public WriterBinary(
                 TSerializer owner,
@@ -32,39 +32,34 @@ namespace TheraEngine.Core.Files.Serialization
                 ESerializeFlags flags,
                 IProgress<float> progress,
                 CancellationToken cancel,
-                Endian.EOrder order,
+                Endian.EOrder endian,
                 bool encrypted,
                 bool compressed,
                 string encryptionPassword,
                 ICodeProgress compressionProgress)
                 : base(owner, rootFileObject, filePath, flags, progress, cancel)
             {
-                Order = order;
+                Endian = endian;
                 Encrypted = encrypted;
                 Compressed = compressed;
-                EncryptionPassword = encryptionPassword;
                 CompressionProgress = compressionProgress;
-            }
 
-            public static void MakeKeyAndIV(
-                string password,
-                byte[] salt,
-                int keySizeBits,
-                int blockSizeBits,
-                out byte[] key,
-                out byte[] iv)
-            {
-                Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, salt, 1000);
-                key = deriveBytes.GetBytes(keySizeBits / 8);
-                iv = deriveBytes.GetBytes(blockSizeBits / 8);
+                if (Encrypted)
+                {
+                    Random r = new Random();
+                    byte[] salt = new byte[8];
+                    r.NextBytes(salt);
+                    EncryptionDeriveBytes = new Rfc2898DeriveBytes(encryptionPassword, salt, 1000);
+                }
             }
-
-            public override unsafe async Task WriteTree()
+            
+            protected internal override unsafe async Task WriteTree(MemberTreeNode rootNode)
             {
-                Endian.Order = Order;
+                Memory.Endian.Order = Endian;
+                BinaryMemberTreeNode binaryRootNode = (BinaryMemberTreeNode)rootNode;
 
                 BinaryStringTable table = new BinaryStringTable();
-                int dataSize = RootNode.GetSize(table);
+                int dataSize = binaryRootNode.GetSize(table);
                 int stringSize = table.GetTotalSize();
                 int totalSize = FileCommonHeader.Size + stringSize + dataSize;
 
@@ -74,7 +69,7 @@ namespace TheraEngine.Core.Files.Serialization
                     FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
                     hdr->_fileLength = totalSize;
                     hdr->_stringTableLength = stringSize;
-                    hdr->Endian = Order;
+                    hdr->Endian = Endian;
                     hdr->Encrypted = Encrypted;
                     hdr->Compressed = Compressed;
 
@@ -84,7 +79,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                     //Write the root node to the main address.
                     //This will write all child nodes within this node as well.
-                    RootNode.ObjectWriter.Write(ref addr, table);
+                    binaryRootNode.ObjectWriter.Write(ref addr, table);
 
                     SHA256Managed SHhash = new SHA256Managed();
                     byte[] integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
@@ -114,13 +109,9 @@ namespace TheraEngine.Core.Files.Serialization
                     if (Encrypted)
                     {
                         SymmetricAlgorithm crypto = new RijndaelManaged();
-
-                        Random r = new Random();
-                        byte[] salt = new byte[8];
-                        r.NextBytes(salt);
-
-                        MakeKeyAndIV(EncryptionPassword, salt, crypto.KeySize, crypto.BlockSize, out byte[] key, out byte[] iv);
-
+                        byte[] key = EncryptionDeriveBytes.GetBytes(crypto.KeySize / 8);
+                        byte[] iv = EncryptionDeriveBytes.GetBytes(crypto.BlockSize / 8);
+                        
                         outStream.Position = 0;
                         int blockSize = 0x1000;
                         int bytesRead = 0;
@@ -233,12 +224,17 @@ namespace TheraEngine.Core.Files.Serialization
                 throw new NotImplementedException();
             }
             internal protected override MemberTreeNode CreateNode(object obj, VarInfo memberInfo)
-            {
-                return new BinaryMemberTreeNode(obj, memberInfo, this);
-            }
+                => new BinaryMemberTreeNode(obj, memberInfo, this);
             internal protected override MemberTreeNode CreateNode(object rootObject)
+                => new BinaryMemberTreeNode(rootObject, this);
+
+            protected internal override Task WriteTree(MemberTreeNode root)
             {
-                return new BinaryMemberTreeNode(rootObject, this);
+                throw new NotImplementedException();
+            }
+            protected internal override bool ParseElementObject(MemberTreeNode member, out object result)
+            {
+                throw new NotImplementedException();
             }
             public unsafe class BinaryStringTable
             {

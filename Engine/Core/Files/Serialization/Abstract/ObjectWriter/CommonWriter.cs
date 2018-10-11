@@ -18,13 +18,13 @@ namespace TheraEngine.Core.Files.Serialization
         //public Dictionary<string, MemberTreeNode[]> CategorizedChildren { get; private set; }
         private int NonAttributeCount { get; set; }
         
-        public override async Task GenerateTree()
+        public override async Task CollectSerializedMembers()
         {
             List<VarInfo> members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
 
             Children = members.
-                Where(x => (x.Attrib == null || x.Attrib.Condition == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.Condition, TreeNode.Object)).
-                Select(x => new MemberTreeNode(TreeNode.Object == null ? null : x.GetValue(TreeNode.Object), x, TreeNode.FormatWriter)).
+                Where(info => (info?.Attrib?.Condition == null) ? true : ExpressionParser.Evaluate<bool>(info.Attrib.Condition, TreeNode.Object)).
+                Select(info => TreeNode.FormatWriter.CreateNode(TreeNode.Object == null ? null : info.GetValue(TreeNode.Object), info)).
                 ToList();
             
             var categorizedChildren = Children.
@@ -35,21 +35,19 @@ namespace TheraEngine.Core.Files.Serialization
                 foreach (MemberTreeNode p in grouping.Value)
                     Children.Remove(p);
             foreach (var cat in categorizedChildren)
-                Children.Add(new MemberTreeNode(TreeNode.Object, TreeNode.MemberInfo, TreeNode.FormatWriter));
-            
-            int childElementCount = Children.Where(x => !x.MemberInfo.Attrib.IsXmlAttribute && x.Object != null).Count();
-            NonAttributeCount = childElementCount + categorizedChildren.Count;
-            Attributes = new List<(string, object)>();
-            ChildElements = new List<MemberTreeNode>();
+            {
+                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(TreeNode.Object, TreeNode.MemberInfo);
+                Children.Add(node);
+            }
             
             foreach (MemberTreeNode member in Children)
-                await CollectMember(member);
+                await CollectMemberInfo(member);
 
             //foreach (var group in CategorizedChildren)
             //    foreach (MemberTreeNode member in group.Value)
             //        await CollectMember(member);
         }
-        private async Task CollectMember(MemberTreeNode member)
+        private async Task CollectMemberInfo(MemberTreeNode member)
         {
             if (member.Object == null)
                 return;
@@ -57,42 +55,8 @@ namespace TheraEngine.Core.Files.Serialization
                 return;
             if (member.MemberInfo.Attrib.Config && !TreeNode.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig))
                 return;
-
-            Type valueType = member.ObjectType;
             if (member?.MemberInfo?.Attrib != null)
-            {
-                MethodInfo customMethod = TreeNode.CustomMethods.FirstOrDefault(
-                    x => string.Equals(member.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
-
-                if (customMethod != null)
-                {
-                    await (Task)customMethod.Invoke(TreeNode.Object, new object[] { _writer, _flags });
-                    return;
-                }
-
-                if (member.MemberInfo.Attrib.IsXmlElementString)
-                {
-                    if (TreeNode.FormatWriter.ParseElementObject(member, out object result))
-                    {
-                        if (NonAttributeCount == 1)
-                            SingleSerializableChildData = result;
-                        else
-                            Attributes.Add((member.MemberInfo.Name, result));
-                        return;
-                    }
-                }
-                else if (member.MemberInfo.Attrib.IsXmlAttribute)
-                {
-                    if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
-                    {
-                        Attributes.Add((member.MemberInfo.Name, result));
-                        return;
-                    }
-                }
-            }
-
-            ChildElements.Add(member);
-            await member.GenerateTree();
+                await TreeNode.CollectMemberInfo(member);
         }
     }
 }

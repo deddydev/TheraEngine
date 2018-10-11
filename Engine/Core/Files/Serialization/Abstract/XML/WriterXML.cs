@@ -37,30 +37,31 @@ namespace TheraEngine.Core.Files.Serialization
             }
             protected internal override async Task WriteTree(MemberTreeNode root)
             {
+                XMLMemberTreeNode xmlRootNode = (XMLMemberTreeNode)root;
                 _stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan);
                 _writer = XmlWriter.Create(_stream, _settings);
                 await _writer.FlushAsync();
                 _stream.Position = 0;
                 await _writer.WriteStartDocumentAsync();
-                await WriteElement(root, null);
+                await WriteElement(xmlRootNode, null);
                 await _writer.WriteEndDocumentAsync();
                 _writer.Dispose();
                 _stream.Dispose();
             }
-            private async Task WriteElement(MemberTreeNode node, string elementName)
+            private async Task WriteElement(XMLMemberTreeNode node, string elementName)
             {
                 await _writer.WriteStartElementAsync(null, elementName ?? node.ElementName, null);
                 {
-                    if (node.WriteAssemblyType)
+                    if (node.IsDerivedType)
                         await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, node.ObjectType.AssemblyQualifiedName);
                     
-                    var attributes = node.ObjectWriter.Attributes;
-                    var childElements = node.ObjectWriter.ChildElements;
-                    object serializableChildData = node.ObjectWriter.SingleSerializableChildData;
+                    var attributes = node.Attributes;
+                    var childElements = node.ChildElements;
+                    object serializableChildData = node.SingleSerializableChildData;
 
                     foreach (var attr in attributes)
                     {
-
+                        _writer.WriteAttributeStringAsync(null, attr.Item1, null, attr.Item2);
                     }
                     if (serializableChildData != null)
                     {

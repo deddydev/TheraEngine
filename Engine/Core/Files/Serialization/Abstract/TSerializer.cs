@@ -53,8 +53,8 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private async Task Serialize()
         {
-            RootNode = Writer.CreateNode(Writer.RootFileObject, Writer);
-            await RootNode.GenerateTree();
+            RootNode = Writer.CreateNode(Writer.RootFileObject);
+            await RootNode.CollectSerializedMembers();
             await Writer.WriteTree(RootNode);
         }
         public void StartElement(string name)

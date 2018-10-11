@@ -12,9 +12,8 @@ namespace TheraEngine.Core.Files.Serialization
     public class IListWriter : BaseObjectWriter
     {
         public IList List { get; private set; }
-        public MemberTreeNode[] Members { get; private set; } = null;
         
-        public override async Task GenerateTree()
+        public override async Task CollectSerializedMembers()
         {
             List = TreeNode.Object as IList;
             Members = new MemberTreeNode[List.Count];
@@ -23,11 +22,11 @@ namespace TheraEngine.Core.Files.Serialization
             Type objType = TreeNode.ObjectType;
 
             for (int i = 0; i < List.Count; ++i)
-                Members[i] = new MemberTreeNode(List[i], new VarInfo(List[i]?.GetType() ?? listType, objType), Writer);
+                Members[i] = TreeNode.FormatWriter.CreateNode(List[i], new VarInfo(List[i]?.GetType() ?? listType, objType));
 
             foreach (MemberTreeNode t in Members)
             {
-                await t.GenerateTree();
+                await t.CollectSerializedMembers();
             }
         }
     }

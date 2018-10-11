@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using TheraEngine.Core.Memory;
-using TheraEngine.Core.Tools;
-using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -18,7 +10,8 @@ namespace TheraEngine.Core.Files.Serialization
     }
     public abstract class BaseObjectWriter
     {
-        public MemberTreeNode TreeNode { get; internal set; }
-        public abstract Task GenerateTree();
+        public MemberTreeNode TreeNode { get; internal set; } = null;
+        public MemberTreeNode[] Members { get; protected set; } = null;
+        public abstract Task CollectSerializedMembers();
     }
 }

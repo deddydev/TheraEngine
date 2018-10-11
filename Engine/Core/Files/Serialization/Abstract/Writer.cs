@@ -16,18 +16,7 @@ namespace TheraEngine.Core.Files.Serialization
             public ESerializeFlags Flags { get; internal set; }
 
             protected AbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
-                : base(rootFileObject, filePath, progress, cancel)
-            {
-                Owner = owner;
-            }
-
-            //public abstract Task WriteStartElementAsync(string name);
-            //public abstract Task WriteEndElementAsync();
-            //public abstract Task WriteAttributeStringAsync(string name, string value);
-            //public abstract Task WriteElementStringAsync(string name, string value);
-
-            //protected async Task ManualWriteAsync(TFileObject o) => await o?.WriteAsync(this);
-            //protected abstract Task WriteAsync(MemberTreeNode node);
+                : base(rootFileObject, filePath, progress, cancel) => Owner = owner;
 
             internal protected abstract Task WriteTree(MemberTreeNode root);
             internal protected abstract bool ParseElementObject(MemberTreeNode member, out object result);

@@ -302,7 +302,7 @@ namespace TheraEngine.Core.Files.Serialization
                 case SerializationCommon.SerializeType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(member.VariableType);
                     if (structFields.Count > 0)
-                        WriteObjectAsync(value, structFields, member.Name, writeTypeDefinition);
+                        await WriteObjectAsync(value, structFields, member.Name, writeTypeDefinition);
                     else
                     {
                         if (SerializationCommon.IsPrimitiveType(member.VariableType))

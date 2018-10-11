@@ -67,7 +67,6 @@ namespace TheraEngine.Core.Files.Serialization
                     FileMap.FromFile(FilePath, FileMapProtect.ReadWrite, 0, totalSize))
                 {
                     FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
-                    hdr->_fileLength = totalSize;
                     hdr->_stringTableLength = stringSize;
                     hdr->Endian = Endian;
                     hdr->Encrypted = Encrypted;
@@ -135,34 +134,6 @@ namespace TheraEngine.Core.Files.Serialization
                         outStream.Dispose();
                 }
             }
-            public override Task Finish()
-            {
-                throw new NotImplementedException();
-            }
-            public override Task WriteAttributeStringAsync(string name, string value)
-            {
-                throw new NotImplementedException();
-            }
-            public override Task WriteElementStringAsync(string name, string value)
-            {
-                throw new NotImplementedException();
-            }
-            public override Task WriteEndElementAsync()
-            {
-                throw new NotImplementedException();
-            }
-            public override Task WriteStartElementAsync(string name)
-            {
-                throw new NotImplementedException();
-            }
-            protected override void OnReportProgress()
-            {
-                throw new NotImplementedException();
-            }
-            protected override Task WriteAsync(MemberTreeNode node)
-            {
-                throw new NotImplementedException();
-            }
             public override int GetSize(MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
             {
                 Type t = Info.VariableType;
@@ -173,11 +144,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 foreach (MemberTreeNode p in Children)
                     size += GetSizeMember(p, customMethods, ref flagCount, table);
-
-                foreach (var grouping in CategorizedChildren)
-                    foreach (MemberTreeNode p in grouping)
-                        size += GetSizeMember(p, customMethods, ref flagCount, table);
-
+                
                 return size;
             }
             public override int GetSizeMember(MemberTreeNode node, MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
@@ -288,8 +255,8 @@ namespace TheraEngine.Core.Files.Serialization
                 public byte _compressed;
                 public bushort _endian;
                 public bint _stringTableLength;
-                public bint _fileLength;
                 public bint _typeNameStringOffset;
+                public bint _padding;
                 public fixed byte _hash[0x20];
 
                 public bool Encrypted

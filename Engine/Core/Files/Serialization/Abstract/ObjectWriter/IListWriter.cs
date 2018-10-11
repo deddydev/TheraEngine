@@ -16,13 +16,12 @@ namespace TheraEngine.Core.Files.Serialization
         public override async Task CollectSerializedMembers()
         {
             List = TreeNode.Object as IList;
-            Members = new MemberTreeNode[List.Count];
 
             Type listType = List.DetermineElementType();
             Type objType = TreeNode.ObjectType;
 
             for (int i = 0; i < List.Count; ++i)
-                Members[i] = TreeNode.FormatWriter.CreateNode(List[i], new VarInfo(List[i]?.GetType() ?? listType, objType));
+                Members.Add(TreeNode.FormatWriter.CreateNode(List[i], new VarInfo(List[i]?.GetType() ?? listType, objType)));
 
             foreach (MemberTreeNode t in Members)
             {

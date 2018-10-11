@@ -50,6 +50,18 @@ namespace TheraEngine.Core.Files.Serialization
 
         protected internal override async Task CollectMemberInfo(MemberTreeNode member)
         {
+            if (member.Object == null)
+                return;
+
+            TSerialize attrib = member?.MemberInfo?.Attrib;
+            if (attrib != null)
+            {
+                if (attrib.State && !member.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState))
+                    return;
+                if (attrib.Config && !member.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig))
+                    return;
+            }
+
             MethodInfo customMethod = CustomMethods.FirstOrDefault(
                 x => string.Equals(member.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
             
@@ -68,48 +80,50 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
 
-            if (member.MemberInfo.Attrib.IsXmlElementString)
-            {
-                if (FormatWriter.ParseElementObject(member, out object result))
-                {
-                    if (NonAttributeCount == 1)
-                        SingleSerializableChildData = result;
-                    else
-                        Attributes.Add((member.MemberInfo.Name, result));
-                    return;
-                }
-            }
-            else if (member.MemberInfo.Attrib.IsXmlAttribute)
-            {
-                if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
-                {
-                    Attributes.Add((member.MemberInfo.Name, result));
-                    return;
-                }
-            }
             ChildMembers.Add(member);
             await member.CollectSerializedMembers();
         }
     }
     public class XMLMemberTreeNode : MemberTreeNode
     {
-        public XMLMemberTreeNode(object root, TSerializer.AbstractWriter writer) : base(root, writer) { }
-        public XMLMemberTreeNode(object obj, VarInfo memberInfo, TSerializer.AbstractWriter writer) : base(obj, memberInfo, writer) { }
+        public XMLMemberTreeNode(object root, TSerializer.AbstractWriter writer) 
+            : base(root, writer)
+        {
+
+        }
+        public XMLMemberTreeNode(object obj, VarInfo memberInfo, TSerializer.AbstractWriter writer)
+            : base(obj, memberInfo, writer)
+        {
+
+        }
 
         public string ElementName { get; set; }
         public List<(string Name, string Value)> Attributes { get; internal set; }
         public List<MemberTreeNode> ChildElements { get; internal set; }
-        public object SingleSerializableChildData { get; internal set; }
+        public string ChildStringData { get; internal set; }
+        public int NonAttributeCount { get; private set; }
 
-        protected internal override async Task CollectMemberInfo(MemberTreeNode member)
+        protected internal override async Task CollectMemberInfo(MemberTreeNode childMember)
         {
+            if (childMember.Object == null)
+                return;
+
+            TSerialize attrib = childMember?.MemberInfo?.Attrib;
+            if (attrib != null)
+            {
+                if (attrib.State && !childMember.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState))
+                    return;
+                if (attrib.Config && !childMember.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig))
+                    return;
+            }
+
             MethodInfo customMethod = CustomMethods.FirstOrDefault(
-                x => string.Equals(member.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+                x => string.Equals(childMember.MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
 
             ElementName = SerializationCommon.GetTypeName(MemberInfo.VariableType);
             Attributes = new List<(string Name, string Value)>();
             ChildElements = new List<MemberTreeNode>();
-            SingleSerializableChildData = null;
+            ChildStringData = null;
 
             if (customMethod != null)
             {
@@ -122,29 +136,41 @@ namespace TheraEngine.Core.Files.Serialization
                         customMethod.Invoke(Object, new object[] { this });
                     return;
                 }
+                else
+                {
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a CustomSerializeMethod attribute, but the arguments are not correct. There must be one argument of type MemberTreeNode.");
+                }
             }
 
-            if (member.MemberInfo.Attrib.IsXmlElementString)
+            if (attrib != null)
             {
-                if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
+                if (attrib.IsXmlElementString)
                 {
-                    if (NonAttributeCount == 1)
-                        SingleSerializableChildData = result;
+                    if (SerializationCommon.GetString(childMember.Object, childMember.MemberInfo.VariableType, out string result))
+                    {
+                        if (NonAttributeCount == 1)
+                            ChildStringData = result;
+                        else
+                            Attributes.Add((childMember.MemberInfo.Name, result));
+                        return;
+                    }
                     else
-                        Attributes.Add((member.MemberInfo.Name, result));
-                    return;
+                        Engine.LogWarning(ObjectType.Name + " cannot be written as a string.");
                 }
-            }
-            else if (member.MemberInfo.Attrib.IsXmlAttribute)
-            {
-                if (SerializationCommon.GetString(member.Object, member.MemberInfo.VariableType, out string result))
+                else if (attrib.IsXmlAttribute)
                 {
-                    Attributes.Add((member.MemberInfo.Name, result));
-                    return;
+                    if (SerializationCommon.GetString(childMember.Object, ObjectType, out string result))
+                    {
+                        Attributes.Add((childMember.MemberInfo.Name, result));
+                        return;
+                    }
+                    else
+                        Engine.LogWarning(ObjectType.Name + " cannot be written as a string.");
                 }
             }
-            ChildElements.Add(member);
-            await member.CollectSerializedMembers();
+
+            ChildElements.Add(childMember);
+            await childMember.CollectSerializedMembers();
         }
     }
     public abstract class MemberTreeNode
@@ -173,9 +199,9 @@ namespace TheraEngine.Core.Files.Serialization
         public bool IsDerivedType { get; }
         /// <summary>
         /// The class handling how to collect all members of any given object.
-        /// Most classes will use <see cref="CommonWriter"/>.
+        /// Most classes will use <see cref="CommonObjectWriter"/>.
         /// </summary>
-        public BaseObjectWriter ObjectWriter { get; private set; }
+        public BaseObjectWriter ObjectWriter { get; internal set; }
         /// <summary>
         /// Methods for serializing data in a specific manner.
         /// </summary>
@@ -203,17 +229,17 @@ namespace TheraEngine.Core.Files.Serialization
         
         private void DetermineObjectWriter()
         {
-            Type t = typeof(BaseObjectWriter);
-            var types = Engine.FindTypes(x => 
-                t.IsAssignableFrom(x) && 
-                x.GetCustomAttributeExt<ObjectWriterKind>() != null,
+            Type baseObjWriterType = typeof(BaseObjectWriter);
+            var types = Engine.FindTypes(type => 
+                baseObjWriterType.IsAssignableFrom(type) && 
+                type.GetCustomAttributeExt<ObjectWriterKind>() != null,
             true, null).ToArray();
 
             BaseObjectWriter writer;
             if (types.Length > 0)
                 writer = (BaseObjectWriter)Activator.CreateInstance(types[0]);
             else
-                writer = new CommonWriter();
+                writer = new CommonObjectWriter();
             
             writer.TreeNode = this;
             ObjectWriter = writer;

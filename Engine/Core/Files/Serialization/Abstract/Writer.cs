@@ -19,7 +19,6 @@ namespace TheraEngine.Core.Files.Serialization
                 : base(rootFileObject, filePath, progress, cancel) => Owner = owner;
 
             internal protected abstract Task WriteTree(MemberTreeNode root);
-            internal protected abstract bool ParseElementObject(MemberTreeNode member, out object result);
             internal protected abstract MemberTreeNode CreateNode(object rootObject);
             internal protected abstract MemberTreeNode CreateNode(object obj, VarInfo memberInfo);
         }

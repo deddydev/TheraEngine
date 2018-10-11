@@ -56,7 +56,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             else if (IsEnum(t))
             {
-                result = value.ToString().Replace(", ", "|");
+                result = value.ToString().Replace(",", "|").ReplaceWhitespace("");
                 return true;
             }
             else if (t.IsValueType)
@@ -66,7 +66,6 @@ namespace TheraEngine.Core.Files.Serialization
             }
             result = null;
             return false;
-            //throw new InvalidOperationException(t.Name + " cannot be written as a string.");
         }
         public static object ParseString(string value, Type t)
         {
@@ -84,24 +83,24 @@ namespace TheraEngine.Core.Files.Serialization
             switch (t.Name)
             {
                 case "Boolean": return Boolean.Parse(value);
-                case "SByte": return SByte.Parse(value);
-                case "Byte": return Byte.Parse(value);
-                case "Char": return Char.Parse(value);
-                case "Int16": return Int16.Parse(value);
-                case "UInt16": return UInt16.Parse(value);
-                case "Int32": return Int32.Parse(value);
-                case "UInt32": return UInt32.Parse(value);
-                case "Int64": return Int64.Parse(value);
-                case "UInt64": return UInt64.Parse(value);
-                case "Single": return Single.Parse(value);
-                case "Double": return Double.Parse(value);
+                case "SByte":   return SByte.Parse(value);
+                case "Byte":    return Byte.Parse(value);
+                case "Char":    return Char.Parse(value);
+                case "Int16":   return Int16.Parse(value);
+                case "UInt16":  return UInt16.Parse(value);
+                case "Int32":   return Int32.Parse(value);
+                case "UInt32":  return UInt32.Parse(value);
+                case "Int64":   return Int64.Parse(value);
+                case "UInt64":  return UInt64.Parse(value);
+                case "Single":  return Single.Parse(value);
+                case "Double":  return Double.Parse(value);
                 case "Decimal": return Decimal.Parse(value);
-                case "String": return value;
+                case "String":  return value;
             }
+
             if (t.IsValueType)
-            {
                 return ParseStructBytesString(t, value);
-            }
+            
             throw new InvalidOperationException(t.ToString() + " is not parsable");
         }
         public static string GetStructAsBytesString(object structObj)

@@ -312,14 +312,96 @@ namespace TheraEngine.Core.Files.Serialization
                 (type.GetCustomAttributeExt<ObjectWriterKind>()?.ObjectType?.IsAssignableFrom(ObjectType) ?? false),
             true, null).ToArray();
 
-            BaseObjectWriter writer;
+            BaseObjectWriter writer = null;
             if (types.Length > 0)
                 writer = (BaseObjectWriter)Activator.CreateInstance(types[0]);
             else
-                writer = new CommonObjectWriter();
+            {
+                Type objType = ObjectType;
+                ESerializeType serType = GetSerializeType(objType);
+                switch (serType)
+                {
+                    default:
+                    case ESerializeType.Class:
+                        writer = new CommonObjectWriter();
+                        break;
+                    case ESerializeType.String:
+
+                        break;
+                    case ESerializeType.Struct:
+                        if (SerializationCommon.IsPrimitiveType(objType))
+                        {
+                            writer = new CommonObjectWriter();
+                        }
+                        else
+                        {
+                            writer = new CommonObjectWriter();
+                        }
+                        break;
+                    case ESerializeType.Parsable:
+
+                        break;
+                    case ESerializeType.Manual:
+
+                        break;
+                    case ESerializeType.Enum:
+
+                        break;
+                }
+            }
             
             writer.TreeNode = this;
             ObjectWriter = writer;
+        }
+        public ESerializeType GetSerializeType(Type type)
+        {
+            EProprietaryFileFormat format = FormatWriter.Owner.Format;
+            bool serializeConfig = FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig);
+            bool serializeState = FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState);
+
+            if (type.GetInterface(nameof(IParsable)) != null)
+            {
+                return ESerializeType.Parsable;
+            }
+            else if (type.IsEnum)
+            {
+                return ESerializeType.Enum;
+            }
+            else if (type == typeof(string))
+            {
+                return ESerializeType.String;
+            }
+            else if (type.IsValueType)
+            {
+                return ESerializeType.Struct;
+            }
+            else
+            {
+                if (type.IsSubclassOf(typeof(TFileObject)))
+                {
+                    FileExt ext = TFileObject.GetFileExtension(type);
+                    if (ext != null)
+                    {
+                        switch (format)
+                        {
+                            case EProprietaryFileFormat.Binary:
+                                if (serializeConfig && ext.ManualBinConfigSerialize)
+                                    return ESerializeType.Manual;
+                                if (serializeState && ext.ManualBinStateSerialize)
+                                    return ESerializeType.Manual;
+                                break;
+                            case EProprietaryFileFormat.XML:
+                                if (serializeConfig && ext.ManualXmlConfigSerialize)
+                                    return ESerializeType.Manual;
+                                if (serializeState && ext.ManualXmlStateSerialize)
+                                    return ESerializeType.Manual;
+                                break;
+                        }
+                    }
+
+                }
+                return ESerializeType.Class;
+            }
         }
         public async Task CollectSerializedMembers()
         {

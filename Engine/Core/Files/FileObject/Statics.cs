@@ -103,19 +103,7 @@ namespace TheraEngine.Core.Files
         public static File3rdParty GetFile3rdPartyExtensions(Type classType)
             => Attribute.GetCustomAttribute(classType, typeof(File3rdParty), true) as File3rdParty;
         public static Type DetermineType(string path)
-        {
-            EFileFormat f = GetFormat(path, out string ext);
-            switch (f)
-            {
-                case EFileFormat.XML:
-                    return CustomXmlSerializer.DetermineType(path);
-                case EFileFormat.Binary:
-                    return CustomBinarySerializer.DetermineType(path);
-                default:
-                    Type[] types = DetermineThirdPartyTypes(ext);
-                    return types.Length > 0 ? types[0] : null;
-            }
-        }
+            => SerializationCommon.DetermineType(path);
         public static Type[] DetermineThirdPartyTypes(string ext)
             => Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false), true, Assembly.GetEntryAssembly()).ToArray();
         public static EFileFormat GetFormat(string path, out string ext)
@@ -435,15 +423,11 @@ namespace TheraEngine.Core.Files
                     return method.Invoke(filePath);
                 else if (loader is Del3rdPartyImportFileMethodAsync methodAsync)
                     return await methodAsync.Invoke(filePath, progress, cancel);
-                else
-                    return null;
             }
-            else
-            {
-                TFileObject obj = Activator.CreateInstance(classType) as TFileObject;
-                obj.Read3rdParty(filePath);
-                return obj;
-            }
+
+            TFileObject obj = Activator.CreateInstance(classType) as TFileObject;
+            obj?.Read3rdParty(filePath);
+            return obj;
         }
         private static Dictionary<string, Dictionary<Type, Delegate>> _3rdPartyLoaders;
         private static Dictionary<string, Dictionary<Type, Delegate>> _3rdPartyExporters;

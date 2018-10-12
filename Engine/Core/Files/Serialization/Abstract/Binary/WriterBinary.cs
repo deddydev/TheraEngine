@@ -21,7 +21,7 @@ namespace TheraEngine.Core.Files.Serialization
             bool Compressed { get; }
             ICodeProgress CompressionProgress { get; }
             Rfc2898DeriveBytes EncryptionDeriveBytes { get; }
-            BinaryStringTable StringTable { get; private set; }
+            BinaryStringTable StringTable { get; set; }
 
             public WriterBinary(
                 TSerializer owner,
@@ -196,13 +196,10 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 throw new NotImplementedException();
             }
-
-            protected override void OnReportProgress()
-                => Progress.Report((float)_stream.Position / _stream.Length);
-
-            protected internal override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
+            
+            public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
                 => new BinaryMemberTreeNode(parent, memberInfo, this);
-            protected internal override MemberTreeNode CreateNode(object root)
+            public override MemberTreeNode CreateNode(object root)
                 => new BinaryMemberTreeNode(root, this);
 
             public unsafe class BinaryStringTable

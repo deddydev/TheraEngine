@@ -105,11 +105,11 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 await _writer.WriteEndElementAsync();
             }
-            protected override void OnReportProgress()
-                => Progress.Report((float)_stream.Position / _stream.Length);
-            protected internal override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, MemberInfo memberInfo)
+            //protected override void OnReportProgress()
+            //    => Progress.Report((float)_stream.Position / _stream.Length);
+            public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, MemberInfo memberInfo)
                 => new XMLMemberTreeNode(parent, memberInfo, this);
-            protected internal override MemberTreeNode CreateNode(object root)
+            public override MemberTreeNode CreateNode(object root)
             => new XMLMemberTreeNode(root, this);
         }
     }

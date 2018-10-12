@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,28 +10,15 @@ namespace TheraEngine.Core.Files.Serialization
         public abstract class AbstractReader : TBaseAbstractReaderWriter
         {
             protected readonly TDeserializer _owner;
-            private List<Attribute> _attributes;
+            private List<(string Name, object Value)> _attributes;
 
             protected AbstractReader(TDeserializer owner, TFileObject rootFileObject, string filePath, IProgress<float> progress, CancellationToken cancel)
                 : base(rootFileObject, filePath, progress, cancel)
             {
                 _owner = owner;
             }
-
-            public class Attribute
-            {
-                public string Name { get; set; }
-                public string Value { get; set; }
-
-                public Attribute() { }
-                public Attribute(string name, string value)
-                {
-                    Name = name;
-                    Value = value;
-                }
-            }
-
-            public IReadOnlyList<Attribute> Attributes => _attributes;
+            
+            public IReadOnlyList<(string Name, object Value)> Attributes => _attributes;
             public string ElementName { get; protected set; }
             public string ElementValue { get; protected set; }
             public string AttributeName { get; protected set; }
@@ -56,7 +41,7 @@ namespace TheraEngine.Core.Files.Serialization
                 bool exists = await OnBeginElementAsync();
                 if (exists)
                 {
-                    _attributes = new List<Attribute>();
+                    _attributes = new List<(string, object)>();
                     ReportProgress();
                 }
                 return exists;
@@ -75,7 +60,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 bool exists = false;
                 while (exists = await ReadAttributeAsync())
-                    _attributes.Add(new Attribute(AttributeName, AttributeValue));
+                    _attributes.Add((AttributeName, AttributeValue));
 
             }
             protected abstract Task<bool> OnEndElementAsync();

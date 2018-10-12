@@ -18,7 +18,9 @@ namespace TheraEngine.Core.Files.Serialization
             public IProgress<float> Progress { get; internal set; }
             public CancellationToken Cancel { get; internal set; }
             public TFileObject RootFileObject { get; internal set; }
+            public MemberTreeNode RootNode { get; protected set; }
             public Dictionary<Guid, TObject> SharedObjects { get; internal set; }
+            internal int CurrentCount { get; set; }
             
             public TBaseAbstractReaderWriter(TFileObject rootFileObject, string filePath, IProgress<float> progress, CancellationToken cancel)
             {
@@ -38,10 +40,10 @@ namespace TheraEngine.Core.Files.Serialization
             /// false if the operation should continue.</returns>
             public bool ReportProgress()
             {
-                OnReportProgress();
+                float progress = (float)(++CurrentCount) / RootNode.ProgressionCount;
+                Progress?.Report(progress);
                 return Cancel.IsCancellationRequested;
             }
-            protected abstract void OnReportProgress();
         }
     }
 }

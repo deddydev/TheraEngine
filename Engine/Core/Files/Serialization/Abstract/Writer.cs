@@ -11,7 +11,6 @@ namespace TheraEngine.Core.Files.Serialization
         {
             public TSerializer Owner { get; }
             public ESerializeFlags Flags { get; internal set; }
-            public MemberTreeNode RootNode { get; protected set; }
 
             protected BaseAbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
                 : base(rootFileObject, filePath, progress, cancel)

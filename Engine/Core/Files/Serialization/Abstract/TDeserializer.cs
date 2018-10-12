@@ -17,23 +17,25 @@ namespace TheraEngine.Core.Files.Serialization
     public partial class TDeserializer
     {
         public AbstractReader Reader { get; private set; }
+        public MemberTreeNode RootNode { get; internal set; }
+        public EFileFormat Format { get; private set; }
 
-        public TFileObject Deserialize(string filePath)
+        public async Task<TFileObject> Deserialize(
+            string filePath,
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
-            EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
-            switch (fmt)
+            Format = TFileObject.GetFormat(filePath, out string ext);
+            switch (Format)
             {
                 default:
                 case EFileFormat.ThirdParty:
-                    //throw new InvalidOperationException("This type of file is not a proprietary file format.");
-                    var task = TFileObject.Read3rdPartyAsync(null, filePath, null, CancellationToken.None);
-                    task.Wait();
-                    return task.Result;
+                    return await TFileObject.Read3rdPartyAsync(null, filePath, progress, cancel);
                 case EFileFormat.XML:
-                    _reader = new ReaderXML();
+                    Reader = new ReaderXML();
                     break;
                 case EFileFormat.Binary:
-                    _reader = new ReaderBinary();
+                    Reader = new ReaderBinary();
                     break;
             }
             return Deserialize2(filePath);

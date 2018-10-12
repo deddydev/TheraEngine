@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -22,8 +20,8 @@ namespace TheraEngine.Core.Files.Serialization
                 BindingFlags.NonPublic |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy;
-
-            MemberInfo[] members = TreeNode.ObjectType.GetMembersExt(retrieveFlags);
+            
+            MemberInfo[] members = TreeNode.ObjectType?.GetMembersExt(retrieveFlags) ?? new MemberInfo[0];
             Members = new List<MemberTreeNode>(members.Length);
 
             foreach (MemberInfo info in members)

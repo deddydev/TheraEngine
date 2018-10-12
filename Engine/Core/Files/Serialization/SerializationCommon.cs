@@ -15,6 +15,15 @@ using System.Threading;
 
 namespace TheraEngine.Core.Files.Serialization
 {
+    public enum ESerializeType
+    {
+        Parsable,
+        Enum,
+        String,
+        Struct,
+        Class,
+        Manual,
+    }
     public static class SerializationCommon
     {
         public const string TypeIdent = "AssemblyType";
@@ -208,15 +217,6 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return o;
         }
-        public enum ESerializeType
-        {
-            Parsable,
-            Enum,
-            String,
-            Struct,
-            Class,
-            Manual,
-        }
         public static ESerializeType GetSerializeType(Type t)
         {
             if (t.IsSubclassOf(typeof(TFileObject)) && (TFileObject.GetFileExtension(t)?.ManualXmlConfigSerialize == true))
@@ -334,7 +334,11 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     default:
                     case EFileFormat.ThirdParty:
-                        throw new InvalidOperationException("This type of file is not a proprietary file format.");
+                        Type[] types = TFileObject.DetermineThirdPartyTypes(ext);
+                        Type type = types.Length > 0 ? types[0] : null;
+                        if (type == null)
+                            Engine.LogWarning("This type of file is not supported: " + filePath);
+                        return type;
                     case EFileFormat.XML:
                         using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
                         {

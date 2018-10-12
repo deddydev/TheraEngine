@@ -30,8 +30,9 @@ namespace TheraEngine.Core.Files.Serialization
             Dictionary.Keys.CopyTo(keys, 0);
             Dictionary.Values.CopyTo(vals, 0);
 
-            GetSerializeType(keyType);
-            
+            ESerializeType keySerType = TreeNode.GetSerializeType(keyType);
+            ESerializeType valSerType = TreeNode.GetSerializeType(valType);
+
             Keys = keys.Select(obj =>
             {
                 MemberTreeNode node = TreeNode.FormatWriter.CreateNode(obj);

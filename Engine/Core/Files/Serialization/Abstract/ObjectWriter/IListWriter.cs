@@ -2,9 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -21,6 +19,8 @@ namespace TheraEngine.Core.Files.Serialization
             Type elemType = List.DetermineElementType();
             Type objType = TreeNode.ObjectType;
 
+            ESerializeType elemSerType = TreeNode.GetSerializeType(elemType);
+
             object[] vals = new object[List.Count];
             List.CopyTo(vals, 0);
             Values = vals.Select(obj => 
@@ -29,6 +29,7 @@ namespace TheraEngine.Core.Files.Serialization
                 node.MemberType = elemType;
                 node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
                 node.Parent = TreeNode;
+                node.NodeType = System.ComponentModel.ENodeType.ChildElement;
                 return node;
             }).ToArray();
 

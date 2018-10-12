@@ -1,25 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using SevenZip;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
-using SevenZip;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TSerializer : TBaseSerializer
     {
-        public AbstractWriter Writer { get; private set; }
+        public BaseAbstractWriter Writer { get; private set; }
         public MemberTreeNode RootNode { get; internal set; }
 
         public async Task SerializeXMLAsync(
@@ -56,22 +45,6 @@ namespace TheraEngine.Core.Files.Serialization
             RootNode = Writer.CreateNode(Writer.RootFileObject);
             await RootNode.CollectSerializedMembers();
             await Writer.WriteTree(RootNode);
-        }
-        public void StartElement(string name)
-        {
-
-        }
-        public void EndElement()
-        {
-
-        }
-        public void WriteAttributeString(string name, string value)
-        {
-
-        }
-        public void WriteElementString(string name, string value)
-        {
-
         }
     }
 }

@@ -125,7 +125,7 @@ namespace TheraEngine
         [Description("Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).")]
         [Category("Frames Per Second")]
         [DisplayName("Capped")]
-        [TSerialize("Capped", OverrideCategory = "FramesPerSecond", UseCategory = true, XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Capped", OverrideCategory = "FramesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute)]
         public bool CapFPS { get; set; }
         /// <summary>
         /// How many frames are expected to be rendered per second.
@@ -133,7 +133,7 @@ namespace TheraEngine
         [Description("How many frames are expected to be rendered per second.")]
         [Category("Frames Per Second")]
         [DisplayName("Target")]
-        [TSerialize("Target", OverrideCategory = "FramesPerSecond", UseCategory = true, XmlNodeType = EXmlNodeType.Attribute, Condition = "CapFPS")]
+        [TSerialize("Target", OverrideCategory = "FramesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute, Condition = "CapFPS")]
         public float TargetFPS { get; set; }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace TheraEngine
         [Description("Determines if the update rate should be capped at a specific frequency. If not, will run as fast as possible.")]
         [Category("Updates Per Second")]
         [DisplayName("Capped")]
-        [TSerialize("Capped", OverrideCategory = "UpdatesPerSecond", UseCategory = true, XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Capped", OverrideCategory = "UpdatesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute)]
         public bool CapUPS { get; set; }
         /// <summary>
         /// How many internal engine tick update calls are expected to be made per second. This is not the same as the render frequency.
@@ -150,7 +150,7 @@ namespace TheraEngine
         [Description("How many internal engine tick update calls are made per second. This is not the same as the render frequency.")]
         [Category("Updates Per Second")]
         [DisplayName("Target")]
-        [TSerialize("Target", OverrideCategory = "UpdatesPerSecond", UseCategory = true, XmlNodeType = EXmlNodeType.Attribute, Condition = "CapUPS")]
+        [TSerialize("Target", OverrideCategory = "UpdatesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute, Condition = "CapUPS")]
         public float TargetUPS { get; set; }
 
         /// <summary>

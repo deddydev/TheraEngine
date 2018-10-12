@@ -70,7 +70,7 @@ namespace TheraEngine.Animation
             Value = value;
         }
         
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool Value { get; set; }
 
         [Browsable(false)]

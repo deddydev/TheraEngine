@@ -577,7 +577,7 @@ namespace TheraEngine.Animation
     }
     public abstract class Keyframe : IParsable
     {
-        [TSerialize(nameof(Second), XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(nameof(Second), NodeType = ENodeType.Attribute)]
         private float _second;
         
         protected Keyframe _next;

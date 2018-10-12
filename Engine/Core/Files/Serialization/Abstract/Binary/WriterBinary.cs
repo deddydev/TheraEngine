@@ -14,13 +14,14 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TSerializer
     {
-        public class WriterBinary : AbstractWriter
+        public class WriterBinary : AbstractWriter<BinaryMemberTreeNode>
         {
             Endian.EOrder Endian { get; }
             bool Encrypted { get; }
             bool Compressed { get; }
             ICodeProgress CompressionProgress { get; }
             Rfc2898DeriveBytes EncryptionDeriveBytes { get; }
+            BinaryStringTable StringTable { get; private set; }
 
             public WriterBinary(
                 TSerializer owner,
@@ -50,14 +51,13 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
             
-            protected internal override unsafe async Task WriteTree(MemberTreeNode rootNode)
+            protected internal override unsafe async Task WriteTree(BinaryMemberTreeNode rootNode)
             {
                 Memory.Endian.Order = Endian;
-                BinaryMemberTreeNode binaryRootNode = (BinaryMemberTreeNode)rootNode;
 
-                BinaryStringTable table = new BinaryStringTable();
-                int dataSize = binaryRootNode.GetSize(table);
-                int stringSize = table.GetTotalSize();
+                StringTable = new BinaryStringTable();
+                int dataSize = GetSize(rootNode);
+                int stringSize = StringTable.GetTotalSize();
                 int totalSize = FileCommonHeader.Size + stringSize + dataSize;
 
                 FileMap uncompMap;
@@ -74,13 +74,13 @@ namespace TheraEngine.Core.Files.Serialization
                     hdr->Encrypted = Encrypted;
                     hdr->Compressed = Compressed;
 
-                    table.WriteTable(hdr);
+                    StringTable.WriteTable(hdr);
 
                     VoidPtr addr = hdr->Data;
 
                     //Write the root node to the main address.
                     //This will write all child nodes within this node as well.
-                    binaryRootNode.ObjectWriter.Write(ref addr, table);
+                    Write(rootNode, ref addr);
 
                     SHA256Managed SHhash = new SHA256Managed();
                     byte[] integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
@@ -139,20 +139,21 @@ namespace TheraEngine.Core.Files.Serialization
                         outStream.Dispose();
                 }
             }
-            public override int GetSize(MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
+            public int GetSize(BinaryMemberTreeNode node)
             {
-                Type t = Info.VariableType;
-                if (t.IsValueType)
-                    return Marshal.SizeOf(t);
+                Type nodeType = node.ObjectType;
+
+                if (nodeType.IsValueType)
+                    return Marshal.SizeOf(nodeType);
 
                 int size = 0;
 
-                foreach (MemberTreeNode p in Children)
-                    size += GetSizeMember(p, customMethods, ref flagCount, table);
-                
+                foreach (MemberTreeNode p in node.ChildMembers)
+                    size += GetSizeMember(p, customMethods, ref flagCount);
+
                 return size;
             }
-            public override int GetSizeMember(MemberTreeNode node, MethodInfo[] customMethods, ref int flagCount, BinaryStringTable table)
+            public int GetSizeMember(MemberTreeNode node, MethodInfo[] customMethods, ref int flagCount)
             {
                 object value = node.Object;
 
@@ -164,14 +165,14 @@ namespace TheraEngine.Core.Files.Serialization
                 if (TryGetSize(node, table, out int size))
                     return size;
 
-                Type t = node.MemberInfo.VariableType;
+                Type t = node.ObjectType;
 
                 if (t == typeof(bool))
                     ++flagCount;
                 else if (t == typeof(string))
                 {
                     if (value != null)
-                        table.Add(value.ToString());
+                        StringTable.Add(value.ToString());
                     size += 4;
                 }
                 else if (t.IsEnum)
@@ -182,37 +183,27 @@ namespace TheraEngine.Core.Files.Serialization
                 else if (t.IsValueType)
                 {
                     if (node.Members.Count > 0)
-                        size += node.GetSize(table);
+                        size += node.GetSize(StringTable);
                     else
                         size += Marshal.SizeOf(value);
                 }
                 else
-                    size += node.GetSize(table);
+                    size += node.GetSize(StringTable);
 
                 return size;
             }
-            public override bool Write(ref VoidPtr address, BinaryStringTable table)
-            {
-                throw new NotImplementedException();
-            }
-            internal protected override MemberTreeNode CreateNode(MemberInfo memberInfo)
-                => new BinaryMemberTreeNode(memberInfo, this);
-            internal protected override MemberTreeNode CreateNode(object rootObject)
-                => new BinaryMemberTreeNode(rootObject, this);
-
-            protected internal override Task WriteTree(MemberTreeNode root)
-            {
-                throw new NotImplementedException();
-            }
-            protected internal override bool ParseElementObject(MemberTreeNode member, out object result)
+            public bool Write(BinaryMemberTreeNode node, ref VoidPtr address)
             {
                 throw new NotImplementedException();
             }
 
             protected override void OnReportProgress()
-            {
-                throw new NotImplementedException();
-            }
+                => Progress.Report((float)_stream.Position / _stream.Length);
+
+            protected internal override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
+                => new BinaryMemberTreeNode(parent, memberInfo, this);
+            protected internal override MemberTreeNode CreateNode(object root)
+                => new BinaryMemberTreeNode(root, this);
 
             public unsafe class BinaryStringTable
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,26 +29,36 @@ namespace TheraEngine.Core.Files.Serialization
 
             Dictionary.Keys.CopyTo(keys, 0);
             Dictionary.Values.CopyTo(vals, 0);
+
+            GetSerializeType(keyType);
             
-            Keys = keys.Select(x => TreeNode.FormatWriter.CreateNode(x, new VarInfo(x?.GetType() ?? keyType, objType))).ToArray();
-            Values = vals.Select(x => TreeNode.FormatWriter.CreateNode(x, new VarInfo(x?.GetType() ?? valType, objType))).ToArray();
+            Keys = keys.Select(obj =>
+            {
+                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(obj);
+                node.MemberType = keyType;
+                node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
+                node.NodeType = ENodeType.ChildElement;
+                return node;
+            }).ToArray();
+
+            Values = vals.Select(obj =>
+            {
+                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(obj);
+                node.MemberType = valType;
+                node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
+                node.NodeType = ENodeType.ChildElement;
+                return node;
+            }).ToArray();
 
             Members = new List<MemberTreeNode>(Keys.Length);
             for (int i = 0; i < Keys.Length; ++i)
             {
-                MemberTreeNode pairNode = TreeNode.FormatWriter.CreateNode();
-                Members.Add();
-
+                MemberTreeNode pairNode = TreeNode.FormatWriter.CreateNode(TreeNode, null);
+                await pairNode.AddChildren(0, 2, 0, new List<MemberTreeNode>(2) { Keys[i], Values[i] });
+                Members.Add(pairNode);
             }
 
-            foreach (var key in Keys)
-            {
-                await key.CollectSerializedMembers();
-            }
-            foreach (var val in Values)
-            {
-                await val.CollectSerializedMembers();
-            }
+            await TreeNode.AddChildren(0, Members.Count, 0, Members);
         }
     }
 }

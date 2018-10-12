@@ -103,9 +103,9 @@ namespace TheraEngine.Rendering.Models
         public void LinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Add(m);
         public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Remove(m);
 
-        [TSerialize(nameof(BillboardType), XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(nameof(BillboardType), NodeType = ENodeType.Attribute)]
         private BillboardType _billboardType = BillboardType.None;
-        [TSerialize(nameof(ScaleByDistance), XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(nameof(ScaleByDistance), NodeType = ENodeType.Attribute)]
         private bool _scaleByDistance = false;
         internal int _index;
         internal Dictionary<int, Tuple<IPrimitiveManager, ThreadSafeList<int>>> _influencedVertices = new Dictionary<int, Tuple<IPrimitiveManager, ThreadSafeList<int>>>();

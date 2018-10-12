@@ -59,23 +59,23 @@ namespace TheraEngine.Rendering.Models.Materials
             //}
         }
 
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public EUniformRequirements Requirements { get; set; } = EUniformRequirements.None;
 
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool WriteRed { get; set; } = true;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool WriteGreen { get; set; } = true;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool WriteBlue { get; set; } = true;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool WriteAlpha { get; set; } = true;
 
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public ECulling CullMode { get; set; } = ECulling.Back;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public float PointSize { get; set; } = AbstractRenderer.DefaultPointSize;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public float LineWidth { get; set; } = AbstractRenderer.DefaultLineSize;
 
         //[TSerialize]
@@ -144,19 +144,19 @@ namespace TheraEngine.Rendering.Models.Materials
     //}
     public class StencilTestFace
     {
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public EStencilOp BothFailOp { get; set; } = EStencilOp.Keep;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public EStencilOp StencilPassDepthFailOp { get; set; } = EStencilOp.Keep;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public EStencilOp BothPassOp { get; set; } = EStencilOp.Keep;
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public EComparison Func { get; set; }
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public int Ref { get; set; }
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public int ReadMask { get; set; }
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public int WriteMask { get; set; }
 
         public override string ToString()
@@ -177,7 +177,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public bool IsUnchanged => Enabled == ERenderParamUsage.Unchanged;
         
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Disabled;
         [TSerialize(Condition = nameof(IsEnabled))]
         public StencilTestFace FrontFace { get => _frontFace; set => _frontFace = value ?? new StencilTestFace(); }
@@ -204,19 +204,19 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <summary>
         /// Determines if this material will test against the previously written depth value to determine if color fragments should be written or not.
         /// </summary>
-        [TSerialize(Order = 0, XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(Order = 0, NodeType = ENodeType.Attribute)]
         [Description("Determines if this material will test against the previously written depth value to determine if color fragments should be written or not.")]
         public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Enabled;
         /// <summary>
         /// Determines if the material will update the depth value upon writing a new color fragment.
         /// </summary>
-        [TSerialize(Order = 1, XmlNodeType = EXmlNodeType.Attribute, Condition = nameof(IsEnabled))]
+        [TSerialize(Order = 1, NodeType = ENodeType.Attribute, Condition = nameof(IsEnabled))]
         [Description("Determines if the material will update the depth value upon writing a new color fragment.")]
         public bool UpdateDepth { get; set; } = true;
         /// <summary>
         /// Determines the pass condition to write a new color fragment. Usually less or lequal, meaning closer to the camera than the previous depth means a success.
         /// </summary>
-        [TSerialize(Order = 2, XmlNodeType = EXmlNodeType.Attribute, Condition = nameof(IsEnabled))]
+        [TSerialize(Order = 2, NodeType = ENodeType.Attribute, Condition = nameof(IsEnabled))]
         [Description("Determines the pass condition to write a new color fragment. Usually less or lequal, meaning closer to the camera than the previous depth means a success.")]
         public EComparison Function { get; set; } = EComparison.Lequal;
 
@@ -237,7 +237,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public bool IsUnchanged => Enabled == ERenderParamUsage.Unchanged;
         
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public ERenderParamUsage Enabled { get; set; } = ERenderParamUsage.Disabled;
         [TSerialize(Condition = nameof(IsEnabled))]
         public EBlendEquationMode RgbEquation { get; set; } = EBlendEquationMode.FuncAdd;

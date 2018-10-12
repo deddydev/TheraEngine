@@ -7,11 +7,11 @@ namespace TheraEngine.Rendering.Models
     {
         public static float ComparisonTolerance = 0.00001f;
 
-        [TSerialize("Bone", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Bone", NodeType = ENodeType.Attribute)]
         private string _bone;
-        [TSerialize("Weight", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Weight", NodeType = ENodeType.Attribute)]
         private float _weight;
-        [TSerialize("Locked", XmlNodeType = EXmlNodeType.Attribute, Config = false)]
+        [TSerialize("Locked", NodeType = ENodeType.Attribute, Config = false)]
         private bool _locked;
 
         /// <summary>

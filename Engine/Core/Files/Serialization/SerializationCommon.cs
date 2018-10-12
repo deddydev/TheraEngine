@@ -142,20 +142,20 @@ namespace TheraEngine.Core.Files.Serialization
             List<VarInfo> fields = members.
                 Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).
                 Select(x => new VarInfo(x)).
-                OrderBy(x => (int)x.Attrib.XmlNodeType).ToList();
+                OrderBy(x => (int)x.Attrib.NodeType).ToList();
 
             int attribCount = 0, elementCount = 0, elementStringCount = 0;
             foreach (VarInfo info in fields)
             {
-                switch (info.Attrib.XmlNodeType)
+                switch (info.Attrib.NodeType)
                 {
-                    case EXmlNodeType.Attribute:
+                    case ENodeType.Attribute:
                         ++attribCount;
                         break;
-                    case EXmlNodeType.ChildElement:
+                    case ENodeType.ChildElement:
                         ++elementCount;
                         break;
-                    case EXmlNodeType.ElementString:
+                    case ENodeType.ElementString:
                         ++elementStringCount;
                         break;
                 }
@@ -208,50 +208,48 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return o;
         }
-        public enum SerializeType
+        public enum ESerializeType
         {
-            Array,
-            Dictionary,
             Parsable,
             Enum,
             String,
             Struct,
-            Pointer,
+            Class,
             Manual,
         }
-        public static SerializeType GetSerializeType(Type t)
+        public static ESerializeType GetSerializeType(Type t)
         {
             if (t.IsSubclassOf(typeof(TFileObject)) && (TFileObject.GetFileExtension(t)?.ManualXmlConfigSerialize == true))
             {
-                return SerializeType.Manual;
+                return ESerializeType.Manual;
             }
             else if (t.GetInterface(nameof(IParsable)) != null)
             {
-                return SerializeType.Parsable;
+                return ESerializeType.Parsable;
             }
             else if (t.GetInterface(nameof(IList)) != null)
             {
-                return SerializeType.Array;
+                return ESerializeType.Array;
             }
             else if (t.GetInterface(nameof(IDictionary)) != null)
             {
-                return SerializeType.Dictionary;
+                return ESerializeType.Dictionary;
             }
             else if (t.IsEnum)
             {
-                return SerializeType.Enum;
+                return ESerializeType.Enum;
             }
             else if (t == typeof(string))
             {
-                return SerializeType.String;
+                return ESerializeType.String;
             }
             else if (t.IsValueType)
             {
-                return SerializeType.Struct;
+                return ESerializeType.Struct;
             }
             else
             {
-                return SerializeType.Pointer;
+                return ESerializeType.Class;
             }
         }
         public static bool IsEnum(Type t)

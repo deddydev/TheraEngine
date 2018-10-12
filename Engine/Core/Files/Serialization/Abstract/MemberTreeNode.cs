@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using TheraEngine.Core.Tools;
-using TheraEngine.Core.Files;
 using System.Threading.Tasks;
 using System.Threading;
 using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
@@ -18,8 +13,10 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public class BinaryMemberTreeNode : MemberTreeNode
     {
-        public BinaryMemberTreeNode(object root, TSerializer.AbstractWriter writer) : base(root, writer) { }
-        public BinaryMemberTreeNode(MemberInfo memberInfo, TSerializer.AbstractWriter writer) : base(memberInfo, writer) { }
+        public BinaryMemberTreeNode(object root, TSerializer.AbstractWriter<BinaryMemberTreeNode> writer)
+            : base(root, writer) { }
+        public BinaryMemberTreeNode(BinaryMemberTreeNode parent, MemberInfo memberInfo, TSerializer.AbstractWriter<BinaryMemberTreeNode> writer)
+            : base(parent, memberInfo, writer) { }
 
         public int CalculatedSize { get; internal set; }
         public int FlagSize { get; internal set; }
@@ -48,65 +45,13 @@ namespace TheraEngine.Core.Files.Serialization
             return CalculatedSize = size.Align(4);
         }
 
-        protected internal override async Task CollectMemberInfo(MemberTreeNode member)
+        protected internal override async Task AddChild(MemberTreeNode childMember)
         {
-            if (member?.Object == null)
-                return;
+            childMember.Parent = this;
 
-            TSerialize attrib = member.Attrib;
-            if (attrib != null)
-            {
-                if (attrib.State && !member.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState))
-                    return;
-                if (attrib.Config && !member.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig))
-                    return;
-            }
-
-            MethodInfo customMethod = CustomMethods.FirstOrDefault(
-                x => string.Equals(member.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
-            
-            ChildMembers = new List<MemberTreeNode>();
-
-            if (customMethod != null)
-            {
-                var parameters = customMethod.GetParameters();
-                if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
-                {
-                    if (customMethod.ReturnType == typeof(Task))
-                        await (Task)customMethod.Invoke(Object, new object[] { this });
-                    else
-                        customMethod.Invoke(Object, new object[] { this });
-                    return;
-                }
-            }
-
-            ChildMembers.Add(member);
-            await member.CollectSerializedMembers();
-        }
-    }
-    public class XMLMemberTreeNode : MemberTreeNode
-    {
-        public XMLMemberTreeNode(object root, TSerializer.AbstractWriter writer)
-            : base(root, writer)
-        {
-             
-        }
-        public XMLMemberTreeNode(XMLMemberTreeNode parent, VarInfo memberInfo, TSerializer.AbstractWriter writer)
-            : base(parent, writer)
-        {
-
-        }
-
-        public List<(string Name, string Value)> Attributes { get; internal set; }
-        public List<MemberTreeNode> ChildElements { get; internal set; }
-        public string ChildStringData { get; internal set; }
-        public int NonAttributeCount { get; private set; }
-
-        protected internal override async Task CollectMemberInfo(MemberTreeNode childMember)
-        {
             if (childMember?.Object == null)
                 return;
-            
+
             TSerialize attrib = childMember.Attrib;
             if (attrib != null)
             {
@@ -118,7 +63,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             MethodInfo customMethod = CustomMethods.FirstOrDefault(
                 x => string.Equals(childMember.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
-
+            
             if (customMethod != null)
             {
                 var parameters = customMethod.GetParameters();
@@ -130,58 +75,119 @@ namespace TheraEngine.Core.Files.Serialization
                         customMethod.Invoke(Object, new object[] { this });
                     return;
                 }
+            }
+
+            ChildMembers.Add(childMember);
+            await childMember.CollectSerializedMembers();
+        }
+        protected internal override async Task AddChildren(int attribCount, int elementCount, int elementStringCount, List<MemberTreeNode> members)
+        {
+            ChildMembers = new List<MemberTreeNode>(members.Count);
+            foreach (MemberTreeNode member in members)
+                await AddChild(member);
+        }
+    }
+    public class XMLMemberTreeNode : MemberTreeNode
+    {
+        public XMLMemberTreeNode(object root, TSerializer.AbstractWriter<XMLMemberTreeNode> writer)
+            : base(root, writer) { }
+        public XMLMemberTreeNode(XMLMemberTreeNode parent, MemberInfo memberInfo, TSerializer.AbstractWriter<XMLMemberTreeNode> writer)
+            : base(parent, memberInfo, writer) { }
+
+        public List<(string Name, string Value)> Attributes { get; internal set; }
+        public List<MemberTreeNode> ChildElements { get; internal set; }
+        public string ChildStringData { get; internal set; }
+        public int NonAttributeCount { get; private set; }
+
+        protected internal override async Task AddChild(MemberTreeNode childMember)
+        {
+            childMember.Parent = this;
+
+            if (childMember?.Object == null)
+                return;
+            
+            TSerialize attrib = childMember.Attrib;
+            if (attrib != null)
+            {
+                if (attrib.State && !childMember.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState))
+                    return;
+                if (attrib.Config && !childMember.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig))
+                    return;
+            }
+            
+            var customMethods = CustomMethods.Where(
+                x => string.Equals(childMember.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+
+            foreach (var customMethod in customMethods)
+            {
+                if (customMethod == null)
+                    continue;
+                
+                var parameters = customMethod.GetParameters();
+                if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
+                {
+                    if (customMethod.ReturnType == typeof(Task))
+                        await (Task)customMethod.Invoke(Object, new object[] { this });
+                    else
+                        customMethod.Invoke(Object, new object[] { this });
+                    return;
+                }
                 else
                 {
-                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a CustomSerializeMethod attribute, but the arguments are not correct. There must be one argument of type MemberTreeNode.");
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a CustomSerializeMethod attribute, but the arguments are not correct. There must be one argument of type {nameof(MemberTreeNode)} or {nameof(XMLMemberTreeNode)}.");
                 }
             }
             
-            Attributes = new List<(string Name, string Value)>();
-            ChildElements = new List<MemberTreeNode>();
-            ChildStringData = null;
-
             if (childMember != null)
             {
-                if (childMember.XmlNodeType == EXmlNodeType.ElementString)
+                if (childMember.NodeType == ENodeType.ChildElement)
                 {
-                    if (SerializationCommon.GetString(childMember.Object, childMember.VariableType, out string result))
+                    ChildElements.Add(childMember);
+                    await childMember.CollectSerializedMembers();
+                }
+                else
+                {
+                    if (SerializationCommon.GetString(childMember.Object, childMember.MemberType, out string result))
                     {
-                        if (NonAttributeCount == 1)
+                        if (childMember.NodeType == ENodeType.ElementString && NonAttributeCount == 1)
                             ChildStringData = result;
                         else
                             Attributes.Add((childMember.Name, result));
-                        return;
-                    }
-                    else
-                        Engine.LogWarning(ObjectType.Name + " cannot be written as a string.");
-                }
-                else if (childMember.XmlNodeType == EXmlNodeType.Attribute)
-                {
-                    if (SerializationCommon.GetString(childMember.Object, ObjectType, out string result))
-                    {
-                        Attributes.Add((childMember.Name, result));
-                        return;
                     }
                     else
                         Engine.LogWarning(ObjectType.Name + " cannot be written as a string.");
                 }
             }
+        }
 
-            ChildElements.Add(childMember);
-            await childMember.CollectSerializedMembers();
+        protected internal override async Task AddChildren(int attribCount, int elementCount, int elementStringCount, List<MemberTreeNode> members)
+        {
+            NonAttributeCount = elementCount + elementStringCount;
+            Attributes = new List<(string Name, string Value)>(attribCount);
+            ChildElements = new List<MemberTreeNode>(elementCount);
+            ChildStringData = null;
+            ProgressionCount = 1 + attribCount + elementCount + elementStringCount;
+            if (IsDerivedType)
+                ++ProgressionCount;
+            foreach (MemberTreeNode member in members)
+            {
+                await AddChild(member);
+                ProgressionCount += member.ProgressionCount;
+            }
         }
     }
     public abstract class MemberTreeNode
     {
+        public int ProgressionCount { get; set; }
         public string ElementName { get; set; }
         /// <summary>
         /// The writer that handles what format this information is being written in,
         /// such as binary, XML, or JSON.
         /// </summary>
-        public TSerializer.AbstractWriter FormatWriter { get; }
-        public Type VariableType { get; }
-        public string Name { get; }
-        public string Category { get; } = null;
+        public TSerializer.BaseAbstractWriter FormatWriter { get; }
+        public Type MemberType { get; set; }
+        public string Name { get; set; }
+        public string Category { get; set; } = null;
         public TSerialize Attrib { get; set; }
         /// <summary>
         /// The value assigned to this member.
@@ -192,8 +198,6 @@ namespace TheraEngine.Core.Files.Serialization
             set
             {
                 _object = value;
-                ObjectType = _object?.GetType();
-                IsDerivedType = ObjectType != VariableType;
                 CustomMethods = ObjectType?.GetMethods(
                     BindingFlags.NonPublic |
                     BindingFlags.Instance |
@@ -208,11 +212,11 @@ namespace TheraEngine.Core.Files.Serialization
         /// The type of the object assigned to this member.
         /// For the member's type, see MemberInfo.VariableType.
         /// </summary>
-        public Type ObjectType { get; private set; }
+        public Type ObjectType => _object?.GetType() ?? MemberType;
         /// <summary>
         /// <see langword="true"/> if the object's type inherits from the member's type instead of matching it exactly.
         /// </summary>
-        public bool IsDerivedType { get; private set; }
+        public bool IsDerivedType => ObjectType?.IsSubclassOf(MemberType) ?? false;
         /// <summary>
         /// The class handling how to collect all members of any given object.
         /// Most classes will use <see cref="CommonObjectWriter"/>.
@@ -225,70 +229,80 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// 
         /// </summary>
-        public EXmlNodeType XmlNodeType { get; set; }
+        public ENodeType NodeType { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        MemberTreeNode Parent { get; }
-        
-        public MemberTreeNode(object root, TSerializer.AbstractWriter writer)
-        {
+        public MemberTreeNode Parent { get; internal set; }
 
+        public MemberTreeNode(object root, TSerializer.BaseAbstractWriter writer)
+        {
+            Parent = null;
+            FormatWriter = writer;
+            Attrib = null;
+            Name = null;
+            Category = null;
+            MemberType = root?.GetType();
+            ElementName = SerializationCommon.GetTypeName(MemberType);
+            Object = root;
         }
-        public MemberTreeNode(MemberTreeNode parent, MemberInfo memberInfo, TSerializer.AbstractWriter writer)
+        public MemberTreeNode(MemberTreeNode parent, MemberInfo memberInfo, TSerializer.BaseAbstractWriter writer)
         {
             Parent = parent;
             FormatWriter = writer;
 
-            Attrib = memberInfo.GetCustomAttribute<TSerialize>();
-            if (Attrib != null)
+            if (memberInfo != null)
             {
-                if (Attrib.NameOverride != null)
-                    Name = Attrib.NameOverride;
-                else
-                    Name = memberInfo.Name;
-
-                if (Attrib.UseCategory)
+                Attrib = memberInfo.GetCustomAttribute<TSerialize>();
+                if (Attrib != null)
                 {
-                    if (Attrib.OverrideCategory != null)
-                        Category = SerializationCommon.FixElementName(Attrib.OverrideCategory);
+                    if (Attrib.NameOverride != null)
+                        Name = Attrib.NameOverride;
                     else
+                        Name = memberInfo.Name;
+
+                    if (Attrib.UseCategory)
                     {
-                        CategoryAttribute categoryAttrib = memberInfo.GetCustomAttribute<CategoryAttribute>();
-                        if (categoryAttrib != null)
-                            Category = SerializationCommon.FixElementName(categoryAttrib.Category);
+                        if (Attrib.OverrideCategory != null)
+                            Category = SerializationCommon.FixElementName(Attrib.OverrideCategory);
                         else
-                            Category = null;
+                        {
+                            CategoryAttribute categoryAttrib = memberInfo.GetCustomAttribute<CategoryAttribute>();
+                            if (categoryAttrib != null)
+                                Category = SerializationCommon.FixElementName(categoryAttrib.Category);
+                            else
+                                Category = null;
+                        }
                     }
+                    else
+                        Category = null;
                 }
                 else
+                {
+                    Name = memberInfo.Name;
                     Category = null;
-            }
-            else
-            {
-                Name = memberInfo.Name;
-                Category = null;
-            }
+                }
 
-            Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
+                Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
 
-            if (memberInfo.MemberType.HasFlag(MemberTypes.Field))
-            {
-                FieldInfo info = (FieldInfo)memberInfo;
-                VariableType = info.FieldType;
+                if (memberInfo.MemberType.HasFlag(MemberTypes.Field))
+                {
+                    FieldInfo info = (FieldInfo)memberInfo;
+                    MemberType = info.FieldType;
+                }
+                else if (memberInfo.MemberType.HasFlag(MemberTypes.Property))
+                {
+                    PropertyInfo info = (PropertyInfo)memberInfo;
+                    MemberType = info.PropertyType;
+                }
+
+                ElementName = SerializationCommon.GetTypeName(MemberType);
+
+                GetObject(memberInfo);
             }
-            else if (memberInfo.MemberType.HasFlag(MemberTypes.Property))
-            {
-                PropertyInfo info = (PropertyInfo)memberInfo;
-                VariableType = info.PropertyType;
-            }
-
-            ElementName = SerializationCommon.GetTypeName(VariableType);
-
-            GetObject(memberInfo);
         }
 
-        internal protected abstract Task CollectMemberInfo(MemberTreeNode member);
+        internal protected abstract Task AddChild(MemberTreeNode member);
         
         private void DetermineObjectWriter()
         {
@@ -431,5 +445,6 @@ namespace TheraEngine.Core.Files.Serialization
             }
         }
         public override string ToString() => Name;
+        protected internal abstract Task AddChildren(int attribCount, int elementCount, int elementStringCount, List<MemberTreeNode> members);
     }
 }

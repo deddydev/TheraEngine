@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -8,7 +9,7 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TSerializer
     {
-        public class WriterXML : AbstractWriter
+        public class WriterXML : AbstractWriter<XMLMemberTreeNode>
         {
             private FileStream _stream;
             private XmlWriter _writer;
@@ -35,15 +36,15 @@ namespace TheraEngine.Core.Files.Serialization
                 if (settings != null)
                     _settings = settings;
             }
-            protected internal override async Task WriteTree(MemberTreeNode root)
+            protected internal override async Task WriteTree(XMLMemberTreeNode root)
             {
-                XMLMemberTreeNode xmlRootNode = (XMLMemberTreeNode)root;
+                RootNode = root;
                 _stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.RandomAccess);
                 _writer = XmlWriter.Create(_stream, _settings);
                 await _writer.FlushAsync();
                 _stream.Position = 0;
                 await _writer.WriteStartDocumentAsync();
-                await WriteElement(xmlRootNode);
+                await WriteElement(root);
                 await _writer.WriteEndDocumentAsync();
                 _writer.Dispose();
                 _stream.Dispose();
@@ -93,17 +94,23 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                     else
                         foreach (XMLMemberTreeNode childNode in childElements)
+                        {
                             await WriteElement(childNode);
+                            if (ReportProgress())
+                            {
+                                await _writer.WriteEndElementAsync();
+                                return;
+                            }
+                        }
                 }
                 await _writer.WriteEndElementAsync();
-                ReportProgress();
             }
             protected override void OnReportProgress()
                 => Progress.Report((float)_stream.Position / _stream.Length);
-            internal protected override MemberTreeNode CreateNode(object obj, VarInfo memberInfo)
-                => new XMLMemberTreeNode(obj, memberInfo, this);
-            internal protected override MemberTreeNode CreateNode(object rootObject)
-                => new XMLMemberTreeNode(rootObject, this);
+            protected internal override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, MemberInfo memberInfo)
+                => new XMLMemberTreeNode(parent, memberInfo, this);
+            protected internal override MemberTreeNode CreateNode(object root)
+            => new XMLMemberTreeNode(root, this);
         }
     }
 }

@@ -283,23 +283,23 @@ namespace TheraEngine.Core.Files.Serialization
         {
             switch (SerializationCommon.GetSerializeType(member.VariableType))
             {
-                case SerializationCommon.SerializeType.Manual:
+                case SerializationCommon.ESerializeType.Manual:
                     ((TFileObject)value).WriteAsync(_writer, _flags);
                     break;
-                case SerializationCommon.SerializeType.Parsable:
+                case SerializationCommon.ESerializeType.Parsable:
                     _writer.WriteElementString(member.Name, ((IParsable)value).WriteToString());
                     break;
-                case SerializationCommon.SerializeType.Array:
+                case SerializationCommon.ESerializeType.Array:
                     WriteArray(value as IList, member.Name, member.VariableType);
                     break;
-                case SerializationCommon.SerializeType.Dictionary:
+                case SerializationCommon.ESerializeType.Dictionary:
                     WriteDictionary(value as IDictionary, member);
                     break;
-                case SerializationCommon.SerializeType.Enum:
-                case SerializationCommon.SerializeType.String:
+                case SerializationCommon.ESerializeType.Enum:
+                case SerializationCommon.ESerializeType.String:
                     _writer.WriteElementString(member.Name, value.ToString());
                     break;
-                case SerializationCommon.SerializeType.Struct:
+                case SerializationCommon.ESerializeType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(member.VariableType);
                     if (structFields.Count > 0)
                         await WriteObjectAsync(value, structFields, member.Name, writeTypeDefinition);
@@ -322,7 +322,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                     break;
-                case SerializationCommon.SerializeType.Pointer:
+                case SerializationCommon.ESerializeType.Class:
                     WriteObjectAsync(value, member.Name, writeTypeDefinition);
                     break;
             }
@@ -368,23 +368,23 @@ namespace TheraEngine.Core.Files.Serialization
                 string elementName = SerializationCommon.GetTypeName(elementType);//elementType.GetFriendlyName("[", "]");
                 switch (SerializationCommon.GetSerializeType(elementType))
                 {
-                    case SerializationCommon.SerializeType.Parsable:
+                    case SerializationCommon.ESerializeType.Parsable:
                         WriteStringArray(array, true, false);
                         break;
-                    case SerializationCommon.SerializeType.Array:
+                    case SerializationCommon.ESerializeType.Array:
                         for (int i = 0; i < array.Count; ++i)
                             WriteArray(array[i] as IList, "Item", elementType);
                         break;
-                    case SerializationCommon.SerializeType.Enum:
+                    case SerializationCommon.ESerializeType.Enum:
                         WriteStringArray(array, false, true);
                         break;
-                    case SerializationCommon.SerializeType.String:
+                    case SerializationCommon.ESerializeType.String:
                         WriteStringArray(array, false, false);
                         break;
-                    case SerializationCommon.SerializeType.Struct:
+                    case SerializationCommon.ESerializeType.Struct:
                         WriteStructArray(array, elementType);
                         break;
-                    case SerializationCommon.SerializeType.Pointer:
+                    case SerializationCommon.ESerializeType.Class:
                         foreach (object o in array)
                             WriteObjectAsync(o, elementName, o?.GetType() != elementType);
                         break;

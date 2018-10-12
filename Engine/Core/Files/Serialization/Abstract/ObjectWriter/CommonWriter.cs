@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,8 +13,9 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public override async Task CollectSerializedMembers()
         {
-            //Collect all members that need to be written
-            //List<VarInfo> members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
+            int attribCount = 0,
+                elementCount = 0,
+                elementStringCount = 0;
 
             BindingFlags retrieveFlags =
                 BindingFlags.Instance |
@@ -22,32 +24,40 @@ namespace TheraEngine.Core.Files.Serialization
                 BindingFlags.FlattenHierarchy;
 
             MemberInfo[] members = TreeNode.ObjectType.GetMembersExt(retrieveFlags);
-            List<MemberTreeNode> fields = members.
-                Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).
-                Select(x => TreeNode.FormatWriter.CreateNode(x)).
-                OrderBy(x => (int)x.Attrib.XmlNodeType).ToList();
+            Members = new List<MemberTreeNode>(members.Length);
 
-            int attribCount = 0, elementCount = 0, elementStringCount = 0;
-            foreach (MemberTreeNode info in fields)
+            foreach (MemberInfo info in members)
             {
-                switch (info.Attrib.XmlNodeType)
+                if (info is FieldInfo || info is PropertyInfo)
                 {
-                    case EXmlNodeType.Attribute:
-                        ++attribCount;
-                        break;
-                    case EXmlNodeType.ChildElement:
-                        ++elementCount;
-                        break;
-                    case EXmlNodeType.ElementString:
-                        ++elementStringCount;
-                        break;
+                    if (Attribute.IsDefined(info, typeof(TSerialize)))
+                    {
+                        TSerialize attrib = info.GetCustomAttribute<TSerialize>();
+                        if (attrib.AllowSerialize(TreeNode.Object))
+                        {
+                            MemberTreeNode child = TreeNode.FormatWriter.CreateNode(TreeNode, info);
+                            switch (attrib.NodeType)
+                            {
+                                case ENodeType.Attribute:
+                                    ++attribCount;
+                                    break;
+                                case ENodeType.ChildElement:
+                                    ++elementCount;
+                                    break;
+                                case ENodeType.ElementString:
+                                    ++elementStringCount;
+                                    break;
+                            }
+                            Members.Add(child);
+                        }
+                    }
                 }
             }
-
-            for (int i = 0; i < fields.Count; ++i)
+            
+            for (int i = 0; i < Members.Count; ++i)
             {
-                MemberTreeNode info = fields[i];
-                TSerialize s = info.Attrib;
+                MemberTreeNode node = Members[i];
+                TSerialize s = node.Attrib;
                 if (s.Order >= 0)
                 {
                     int index = s.Order;
@@ -59,36 +69,33 @@ namespace TheraEngine.Core.Files.Serialization
 
                     if (index == i)
                         continue;
-                    fields.RemoveAt(i--);
-                    if (index == fields.Count)
-                        fields.Add(info);
+
+                    Members.RemoveAt(i--);
+
+                    if (index == Members.Count)
+                        Members.Add(node);
                     else
-                        fields.Insert(index, info);
+                        Members.Insert(index, node);
                 }
             }
-
-            Members = members.
-                Where(info => (info?.Attrib?.Condition == null) ? true : ExpressionParser.Evaluate<bool>(info.Attrib.Condition, TreeNode.Object)).
-                Select(info => TreeNode.FormatWriter.CreateNode(TreeNode.Object == null ? null : info.GetValue(TreeNode.Object), info)).
-                ToList();
             
             //Group children by category if set
             var categorizedChildren = Members.
-                Where(x => x.MemberInfo.Category != null).
-                GroupBy(x => x.MemberInfo.Category).
+                Where(x => x.Category != null).
+                GroupBy(x => x.Category).
                 ToDictionary(grp => grp.Key, grp => grp.ToArray());
 
             //Remove grouped members from original list
             foreach (var grouping in categorizedChildren)
                 foreach (MemberTreeNode p in grouping.Value)
                     Members.Remove(p);
-
+            
             //Add a member node for each category
             foreach (var cat in categorizedChildren)
             {
-                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(TreeNode.Object, TreeNode.MemberInfo);
-                node.IsXmlAttribute = false;
-                node.IsXmlElementString = false;
+                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(TreeNode.Object);
+                node.Parent = TreeNode;
+                node.NodeType = ENodeType.ChildElement;
                 node.ElementName = cat.Key;
 
                 CommonObjectWriter objWriter = new CommonObjectWriter { TreeNode = node };
@@ -100,9 +107,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Members.Add(node);
             }
 
-            NonAttributeCount = Members.Where(x => !x.IsXmlAttribute && x.GetValue(TreeNode.Object) != null).Count();
-            foreach (MemberTreeNode member in Members)
-                await TreeNode.CollectMemberInfo(member);
+            await TreeNode.AddChildren(attribCount, elementCount, elementStringCount, Members);
         }
     }
 }

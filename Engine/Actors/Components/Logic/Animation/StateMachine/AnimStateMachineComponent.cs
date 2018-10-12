@@ -13,11 +13,11 @@ namespace TheraEngine.Components.Logic.Animation
     [FileDef("Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent, IGlobalFilesContext<SkeletalAnimation>
     {
-        [TSerialize(XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         internal int InitialStateIndex { get; set; } = -1;
-        [TSerialize("Skeleton", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Skeleton", NodeType = ENodeType.Attribute)]
         public LocalFileRef<Skeleton> Skeleton { get; set; }
-        [TSerialize("States", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("States", NodeType = ENodeType.Attribute)]
         public EventList<AnimState> States
         {
             get => _states;

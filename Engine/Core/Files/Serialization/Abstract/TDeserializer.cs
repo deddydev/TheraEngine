@@ -186,15 +186,15 @@ namespace TheraEngine.Core.Files.Serialization
 
             foreach (VarInfo info in members)
             {
-                switch (info.Attrib.XmlNodeType)
+                switch (info.Attrib.NodeType)
                 {
-                    case EXmlNodeType.Attribute:
+                    case ENodeType.Attribute:
                         attribs.Add(info);
                         break;
-                    case EXmlNodeType.ChildElement:
+                    case ENodeType.ChildElement:
                         elements.Add(info);
                         break;
-                    case EXmlNodeType.ElementString:
+                    case ENodeType.ElementString:
                         elementStrings.Add(info);
                         break;
                 }
@@ -321,19 +321,19 @@ namespace TheraEngine.Core.Files.Serialization
         {
             switch (SerializationCommon.GetSerializeType(memberType))
             {
-                case SerializationCommon.SerializeType.Manual:
+                case SerializationCommon.ESerializeType.Manual:
                     TFileObject o = (TFileObject)Activator.CreateInstance(memberType);
                     _reader.ManualReadAsync(o);
                     return o;
-                case SerializationCommon.SerializeType.Array:
+                case SerializationCommon.ESerializeType.Array:
                     return ReadArray(memberType);
-                case SerializationCommon.SerializeType.Dictionary:
+                case SerializationCommon.ESerializeType.Dictionary:
                     return ReadDictionary(memberType);
-                case SerializationCommon.SerializeType.Enum:
-                case SerializationCommon.SerializeType.String:
-                case SerializationCommon.SerializeType.Parsable:
+                case SerializationCommon.ESerializeType.Enum:
+                case SerializationCommon.ESerializeType.String:
+                case SerializationCommon.ESerializeType.Parsable:
                     return SerializationCommon.ParseString(_reader.ReadElementString(), memberType);
-                case SerializationCommon.SerializeType.Struct:
+                case SerializationCommon.ESerializeType.Struct:
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(memberType);
                     if (structFields.Count > 0)
                         return ReadObject(memberType, structFields);
@@ -355,7 +355,7 @@ namespace TheraEngine.Core.Files.Serialization
                             return ReadStruct(memberType, members);
                         }
                     }
-                case SerializationCommon.SerializeType.Pointer:
+                case SerializationCommon.ESerializeType.Class:
                     return ReadObject(memberType);
             }
             return null;
@@ -414,23 +414,23 @@ namespace TheraEngine.Core.Files.Serialization
             if (num > 0)
             {
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
-                SerializationCommon.SerializeType type = SerializationCommon.GetSerializeType(elementType);
+                SerializationCommon.ESerializeType type = SerializationCommon.GetSerializeType(elementType);
                 switch (type)
                 {
-                    case SerializationCommon.SerializeType.Array:
+                    case SerializationCommon.ESerializeType.Array:
                         ReadArrayArray(list, num, elementType);
                         break;
-                    case SerializationCommon.SerializeType.Enum:
-                    case SerializationCommon.SerializeType.String:
+                    case SerializationCommon.ESerializeType.Enum:
+                    case SerializationCommon.ESerializeType.String:
                         ReadStringArray(list, num, elementType, false);
                         break;
-                    case SerializationCommon.SerializeType.Parsable:
+                    case SerializationCommon.ESerializeType.Parsable:
                         ReadStringArray(list, num, elementType, true);
                         break;
-                    case SerializationCommon.SerializeType.Struct:
+                    case SerializationCommon.ESerializeType.Struct:
                         ReadStructArray(list, num, elementType);
                         break;
-                    case SerializationCommon.SerializeType.Pointer:
+                    case SerializationCommon.ESerializeType.Class:
                         ReadObjectArray(list, num, elementType);
                         break;
                 }

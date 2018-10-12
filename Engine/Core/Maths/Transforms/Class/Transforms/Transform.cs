@@ -112,7 +112,7 @@ namespace TheraEngine.Core.Maths.Transforms
         private EventVec3 _translation;
         [TSerialize("Scale")]
         private EventVec3 _scale;
-        [TSerialize("Order", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Order", NodeType = ENodeType.Attribute)]
         private TransformOrder _transformOrder = TransformOrder.TRS;
         private bool _matrixChanged = false;
 

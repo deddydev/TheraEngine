@@ -1,4 +1,6 @@
-﻿namespace System.ComponentModel
+﻿using TheraEngine.Core.Tools;
+
+namespace System.ComponentModel
 {
     public enum ESerializeFormat
     {
@@ -17,7 +19,7 @@
         //Text    = 0b1000,
         All = 0b1111,
     }
-    public enum EXmlNodeType
+    public enum ENodeType
     {
         Attribute,
         ChildElement,
@@ -45,7 +47,7 @@
         /// <summary>
         /// Determines if this object should be serialized as an attribute or element.
         /// </summary>
-        public EXmlNodeType XmlNodeType { get; set; } = EXmlNodeType.ChildElement;
+        public ENodeType NodeType { get; set; } = ENodeType.ChildElement;
 
         /// <summary>
         /// Groups a set of fields together in one tag under this name.
@@ -71,18 +73,18 @@
         public bool IgnoreIfDefault { get; set; } = true;
         public bool IsXmlAttribute
         {
-            get => XmlNodeType == EXmlNodeType.Attribute;
-            set => XmlNodeType = value ? EXmlNodeType.Attribute : EXmlNodeType.ChildElement;
+            get => NodeType == ENodeType.Attribute;
+            set => NodeType = value ? ENodeType.Attribute : ENodeType.ChildElement;
         }
         public bool IsXmlChildElement
         {
-            get => XmlNodeType == EXmlNodeType.ChildElement;
-            set => XmlNodeType = value ? EXmlNodeType.ChildElement : EXmlNodeType.Attribute;
+            get => NodeType == ENodeType.ChildElement;
+            set => NodeType = value ? ENodeType.ChildElement : ENodeType.Attribute;
         }
         public bool IsXmlElementString
         {
-            get => XmlNodeType == EXmlNodeType.ElementString;
-            set => XmlNodeType = value ? EXmlNodeType.ElementString : EXmlNodeType.ChildElement;
+            get => NodeType == ENodeType.ElementString;
+            set => NodeType = value ? ENodeType.ElementString : ENodeType.ChildElement;
         }
         public bool Config { get; set; } = true;
         public bool State { get; set; } = false;
@@ -109,5 +111,8 @@
             Order = order;
             NameOverride = nameOverride;
         }
+
+        public bool AllowSerialize(object obj)
+            => Condition == null ? true : ExpressionParser.Evaluate<bool>(Condition, obj);
     }
 }

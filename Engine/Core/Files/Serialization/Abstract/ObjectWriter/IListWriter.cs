@@ -23,14 +23,20 @@ namespace TheraEngine.Core.Files.Serialization
 
             object[] vals = new object[List.Count];
             List.CopyTo(vals, 0);
-            Values = vals.Select(obj => TreeNode.FormatWriter.CreateNode(obj, new VarInfo(obj?.GetType() ?? elemType, objType))).ToArray();
+            Values = vals.Select(obj => 
+            {
+                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(obj);
+                node.MemberType = elemType;
+                node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
+                node.Parent = TreeNode;
+                return node;
+            }).ToArray();
 
             //Values = new MemberTreeNode[List.Count];
             //for (int i = 0; i < List.Count; ++i)
             //    Values[i] = TreeNode.FormatWriter.CreateNode(List[i], new VarInfo(List[i]?.GetType() ?? listType, objType));
 
-            foreach (MemberTreeNode t in Values)
-                await t.CollectSerializedMembers();
+            await TreeNode.AddChildren(0, Members.Count, 0, Members);
         }
     }
 }

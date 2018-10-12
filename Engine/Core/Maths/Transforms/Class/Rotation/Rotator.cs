@@ -70,15 +70,15 @@ namespace TheraEngine.Core.Maths.Transforms
             }
         }
 
-        [TSerialize("PitchYawRoll", XmlNodeType = EXmlNodeType.ElementString)]
+        [TSerialize("PitchYawRoll", NodeType = ENodeType.ElementString)]
         private Vec3 _pyr;
-        [TSerialize("Order", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("Order", NodeType = ENodeType.Attribute)]
         private RotationOrder _rotationOrder = RotationOrder.YPR;
-        [TSerialize("LockYaw", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("LockYaw", NodeType = ENodeType.Attribute)]
         private bool _lockYaw = false;
-        [TSerialize("LockPitch", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("LockPitch", NodeType = ENodeType.Attribute)]
         private bool _lockPitch = false;
-        [TSerialize("LockRoll", XmlNodeType = EXmlNodeType.Attribute)]
+        [TSerialize("LockRoll", NodeType = ENodeType.Attribute)]
         private bool _lockRoll = false;
 
         [Category("Rotator")]

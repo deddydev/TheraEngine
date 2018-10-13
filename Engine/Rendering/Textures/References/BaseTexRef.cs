@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public BaseRenderTexture RenderTextureGeneric => GetRenderTextureGeneric(true);
 
-        [TSerialize(IsXmlAttribute = true)]
+        [TSerialize(IsAttribute = true)]
         [Category("Texture Reference")]
         public string SamplerName { get; set; } = null;
 

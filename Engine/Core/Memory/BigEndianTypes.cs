@@ -6,10 +6,10 @@ namespace TheraEngine.Core.Memory
 {
     public static class Endian
     {
-        public enum EOrder : ushort
+        public enum EOrder : byte
         {
-            Big = 0x0001,
-            Little = 0x0100,
+            Big = 0b01,
+            Little = 0b10,
         }
         public static EOrder Order = EOrder.Big;
         public static bool Big => Order == EOrder.Big;
@@ -241,23 +241,33 @@ namespace TheraEngine.Core.Memory
 
         public int Value
         {
-            get { return (_dat0 << 16) | (_dat1 << 8) | _dat2; }
+            get => Endian.Big ? 
+                ((_dat0) | (_dat1 << 8) | _dat2 << 16) :
+                ((_dat0 << 16) | (_dat1 << 8) | _dat2);
             set
             {
-                _dat2 = (byte)((value) & 0xFF);
-                _dat1 = (byte)((value >> 8) & 0xFF);
-                _dat0 = (byte)((value >> 16) & 0xFF);
+                if (Endian.Big)
+                {
+                    _dat0 = (byte)((value) & 0xFF);
+                    _dat1 = (byte)((value >> 8) & 0xFF);
+                    _dat2 = (byte)((value >> 16) & 0xFF);
+                }
+                else
+                {
+                    _dat2 = (byte)((value) & 0xFF);
+                    _dat1 = (byte)((value >> 8) & 0xFF);
+                    _dat0 = (byte)((value >> 16) & 0xFF);
+                }
             }
         }
-
-        public static implicit operator int(BInt24 val) { return val.Value; }
-        public static implicit operator BInt24(int val) { return new BInt24(val); }
+        
+        public static implicit operator int(BInt24 val) => val.Value;
+        public static implicit operator BInt24(int val) => new BInt24(val);
         
         public BInt24(int value)
         {
-            _dat2 = (byte)((value) & 0xFF);
-            _dat1 = (byte)((value >> 8) & 0xFF);
-            _dat0 = (byte)((value >> 16) & 0xFF);
+            _dat2 = _dat1 = _dat0 = 0;
+            Value = value;
         }
 
         public BInt24(byte v0, byte v1, byte v2)

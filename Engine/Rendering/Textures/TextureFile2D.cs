@@ -28,13 +28,13 @@ namespace TheraEngine.Rendering.Textures
         public TextureFile2D() : this(1, 1) { }
         public TextureFile2D(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb)
             => Bitmaps = new Bitmap[] { new Bitmap(width, height, format) };
-        public TextureFile2D(string path) => Read3rdParty(path);
+        public TextureFile2D(string path) => ManualRead3rdParty(path);
         public TextureFile2D(string path, Action<TextureFile2D> onFinishedAsync)
         {
             //Engine.PrintLine("Loading texture async from " + path);
             Task.Run(() => TextureConverter.Decode(path)).ContinueWith(t => { Bitmaps = t.Result; onFinishedAsync?.Invoke(this); });
         }
-        public override void Read3rdParty(string filePath)
+        public override void ManualRead3rdParty(string filePath)
         {
             //Engine.PrintLine("Loading texture from " + filePath);
             Bitmaps = TextureConverter.Decode(filePath);

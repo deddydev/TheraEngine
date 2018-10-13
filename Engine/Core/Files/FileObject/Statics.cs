@@ -425,8 +425,10 @@ namespace TheraEngine.Core.Files
                     return await methodAsync.Invoke(filePath, progress, cancel);
             }
 
+            //No third party loader defined, create instance directly and call method to do it
+
             TFileObject obj = Activator.CreateInstance(classType) as TFileObject;
-            obj?.Read3rdParty(filePath);
+            obj?.ManualRead3rdParty(filePath);
             return obj;
         }
         private static Dictionary<string, Dictionary<Type, Delegate>> _3rdPartyLoaders;

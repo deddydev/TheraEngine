@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Collections;
+﻿using EnumsNET;
 using System;
-using TheraEngine.Core.Files;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Core.Maths.Transforms;
-using System.IO;
-using System.Xml;
-using System.Linq;
-using EnumsNET;
-using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Animation
@@ -106,7 +101,7 @@ namespace TheraEngine.Animation
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
     }
-    [FileExt("kf", ManualXmlConfigSerialize = true)]
+    [FileExt("kf", ManualXmlConfigSerialize = true, ManualBinConfigSerialize = true)]
     [FileDef("Keyframe Track")]
     public class KeyframeTrack<T> : BaseKeyframeTrack, IList, IList<T>, IEnumerable<T> where T : Keyframe, new()
     {
@@ -441,6 +436,7 @@ namespace TheraEngine.Animation
         }
 
         #region Reading / Writing
+
         protected internal override async Task ReadAsync(TDeserializer.AbstractReader reader)
         {
             if (!string.Equals(reader.ElementName, "KeyframeTrack", StringComparison.InvariantCulture))
@@ -507,7 +503,7 @@ namespace TheraEngine.Animation
                 Add(kf);
             }
         }
-        protected internal override async Task WriteAsync(TSerializer.AbstractWriter writer)
+        protected internal override WriteAsync(TSerializer.AbstractWriter writer)
         {
             await writer.WriteStartElementAsync("KeyframeTrack");
             {

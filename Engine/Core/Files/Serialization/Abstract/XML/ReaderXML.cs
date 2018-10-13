@@ -11,7 +11,7 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TDeserializer
     {
-        private class ReaderXML : AbstractReader
+        private class ReaderXML : AbstractReader<XMLMemberTreeNode>
         {
             private FileStream _stream;
             private XmlReader _reader;

@@ -58,7 +58,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 cboEnumNames.Visible = !flags;
                 if (flags)
                 {
-                    Type valueType = Enum.GetUnderlyingType(DataType);
+                    //Type valueType = Enum.GetUnderlyingType(DataType);
                     TypeCode t = e.GetTypeCode();
                     DelContainsBit contains = _containsBit[t];
                     object totalValue = Convert.ChangeType(e, t);

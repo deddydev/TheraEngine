@@ -6,6 +6,16 @@ namespace TheraEngine.Core.Extensions
     public static class GenericExtensions
     {
         /// <summary>
+        /// Clamps the value between min and max values.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static T Clamp<T>(this T value, T min, T max) where T : IComparable
+            => value.CompareTo(min) < 0 ? min : value.CompareTo(max) > 0 ? max : value;
+        /// <summary>
         /// Converts an unmanaged structure to an array of bytes.
         /// </summary>
         public static unsafe byte[] ToByteArray<T>(this T data) where T : unmanaged

@@ -17,7 +17,7 @@ namespace TheraEngine
     [FileExt("set")]
     public abstract class TSettings : TFileObject
     {
-        public override void Read3rdParty(string filePath)
+        public override void ManualRead3rdParty(string filePath)
         {
             string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
             if (ext == "txt")
@@ -60,7 +60,7 @@ namespace TheraEngine
                 }
             }
         }
-        public override void Write3rdParty(string filePath)
+        public override void ManualWrite3rdParty(string filePath)
         {
             string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
             if (ext == "txt")

@@ -79,6 +79,20 @@ namespace TheraEngine.Core.Memory
         }
         public double GetDouble() => Double;
         public void GetDouble(double i) => Double = i;
+        public BInt24 Int24
+        {
+            get => *(BInt24*)_address;
+            set => *(BInt24*)_address = value;
+        }
+        public BInt24 GetInt24() => Int24;
+        public void SetInt24(BInt24 i) => Int24 = i;
+        public BUInt24 UInt24
+        {
+            get => *(BUInt24*)_address;
+            set => *(BUInt24*)_address = value;
+        }
+        public BUInt24 GetUInt24() => UInt24;
+        public void SetUInt24(BUInt24 i) => UInt24 = i;
         #endregion
 
         #region Operators

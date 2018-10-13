@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class CommonObjectWriter : BaseObjectWriter
+    //[ObjectWriterKind(typeof(object))]
+    public class CommonWriter : BaseObjectWriter
     {
         public override async Task CollectSerializedMembers()
         {
@@ -55,11 +56,9 @@ namespace TheraEngine.Core.Files.Serialization
             for (int i = 0; i < Members.Count; ++i)
             {
                 MemberTreeNode node = Members[i];
-                TSerialize s = node.Attrib;
-                if (s.Order >= 0)
+                int index = node.Order;
+                if (index >= 0)
                 {
-                    int index = s.Order;
-
                     if (i < attribCount)
                         index = index.Clamp(0, attribCount - 1);
                     else
@@ -96,7 +95,7 @@ namespace TheraEngine.Core.Files.Serialization
                 node.NodeType = ENodeType.ChildElement;
                 node.ElementName = cat.Key;
 
-                CommonObjectWriter objWriter = new CommonObjectWriter { TreeNode = node };
+                CommonWriter objWriter = new CommonWriter { TreeNode = node };
                 node.ObjectWriter = objWriter;
 
                 foreach (MemberTreeNode catChild in cat.Value)

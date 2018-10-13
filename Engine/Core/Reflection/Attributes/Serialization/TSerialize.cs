@@ -66,27 +66,31 @@ namespace System.ComponentModel
         public bool UseCategory { get; set; } = false;
 
         /// <summary>
-        /// Determines if this field should not be written if it is null.
+        /// Determines if this field should not be written if it is null or default.
         /// </summary>
-        public bool IgnoreIfNull { get; set; } = true;
-        public bool External { get; set; } = false;
         public bool IgnoreIfDefault { get; set; } = true;
-        public bool IsXmlAttribute
+        public bool IsAttribute
         {
             get => NodeType == ENodeType.Attribute;
             set => NodeType = value ? ENodeType.Attribute : ENodeType.ChildElement;
         }
-        public bool IsXmlChildElement
+        public bool IsChildElement
         {
             get => NodeType == ENodeType.ChildElement;
             set => NodeType = value ? ENodeType.ChildElement : ENodeType.Attribute;
         }
-        public bool IsXmlElementString
+        public bool IsElementString
         {
             get => NodeType == ENodeType.ElementString;
             set => NodeType = value ? ENodeType.ElementString : ENodeType.ChildElement;
         }
+        /// <summary>
+        /// Determines if this is the kind of value that is read from a main file on disk.
+        /// </summary>
         public bool Config { get; set; } = true;
+        /// <summary>
+        /// Determines if this is the kind of value that is used at runtime.
+        /// </summary>
         public bool State { get; set; } = false;
 
         /// <summary>

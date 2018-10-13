@@ -1,16 +1,13 @@
-﻿using TheraEngine.Core.Files.Serialization;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Xml;
 using System.IO;
-using System;
 using System.Linq;
-using System.Reflection;
-using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Core.Memory;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection.Attributes;
 using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
 
 namespace TheraEngine.Core.Files
@@ -66,12 +63,12 @@ namespace TheraEngine.Core.Files
         
         string GetFilePath(string dir, string name, EProprietaryFileFormat format);
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
-        void Read3rdParty(string path);
+        void ManualRead3rdParty(string path);
 
-        void Export(ESerializeFlags flags = ESerializeFlags.Default);
-        void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
-        void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
-        void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.Default);
+        //void Export(ESerializeFlags flags = ESerializeFlags.Default);
+        //void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
+        //void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
+        //void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.Default);
 
         Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
         Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
@@ -133,8 +130,6 @@ namespace TheraEngine.Core.Files
         [Browsable(false)]
         public string DirectoryPath => !string.IsNullOrEmpty(FilePath) && FilePath.IsValidExistingPath() ? Path.GetDirectoryName(FilePath) : string.Empty;
         [Browsable(false)]
-        public int CalculatedSize { get; private set; }
-        [Browsable(false)]
         public List<IFileRef> References { get; set; } = new List<IFileRef>();
         [Browsable(false)]
         public TFileObject RootFile { get; internal set; }
@@ -167,94 +162,94 @@ namespace TheraEngine.Core.Files
         /// Does nothing if this file has no FilePath set.
         /// </summary>
         /// <param name="flags"></param>
-        public void Export(ESerializeFlags flags = ESerializeFlags.Default)
-            => Export(FilePath, flags);
-        //[GridCallable("Save")]
-        public void Export(string path, ESerializeFlags flags = ESerializeFlags.Default)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                Engine.LogWarning("File was not exported; file path is not valid.");
-                return;
-            }
+        //public void Export(ESerializeFlags flags = ESerializeFlags.Default)
+        //    => Export(FilePath, flags);
+        ////[GridCallable("Save")]
+        //public void Export(string path, ESerializeFlags flags = ESerializeFlags.Default)
+        //{
+        //    if (string.IsNullOrEmpty(path))
+        //    {
+        //        Engine.LogWarning("File was not exported; file path is not valid.");
+        //        return;
+        //    }
 
-            Type type = GetType();
-            FileExt extAttrib = FileExtension;
-            File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
-            GetDirNameFmt(path, out string dir, out string name, out EFileFormat pathFormat, out string ext);
+        //    Type type = GetType();
+        //    FileExt extAttrib = FileExtension;
+        //    File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
+        //    GetDirNameFmt(path, out string dir, out string name, out EFileFormat pathFormat, out string ext);
             
-            if (extAttrib != null && pathFormat != EFileFormat.ThirdParty)
-            {
-                ext = extAttrib.GetProperExtension((EProprietaryFileFormat)(int)pathFormat);
-                Export(dir, name, pathFormat, ext, flags);
-                return;
-            }
-            else if (tpAttrib != null)
-            {
-                bool hasWildcard = tpAttrib.ExportableExtensions.Contains("*");
-                bool hasExt = tpAttrib.ExportableExtensions.Contains(ext.ToLowerInvariant());
-                if (!hasWildcard && !hasExt && tpAttrib.ExportableExtensions.Length > 0)
-                    ext = tpAttrib.ExportableExtensions[0];
+        //    if (extAttrib != null && pathFormat != EFileFormat.ThirdParty)
+        //    {
+        //        ext = extAttrib.GetProperExtension((EProprietaryFileFormat)(int)pathFormat);
+        //        Export(dir, name, pathFormat, ext, flags);
+        //        return;
+        //    }
+        //    else if (tpAttrib != null)
+        //    {
+        //        bool hasWildcard = tpAttrib.ExportableExtensions.Contains("*");
+        //        bool hasExt = tpAttrib.ExportableExtensions.Contains(ext.ToLowerInvariant());
+        //        if (!hasWildcard && !hasExt && tpAttrib.ExportableExtensions.Length > 0)
+        //            ext = tpAttrib.ExportableExtensions[0];
 
-                Export(dir, name, EFileFormat.ThirdParty, ext, flags);
-                return;
-            }
+        //        Export(dir, name, EFileFormat.ThirdParty, ext, flags);
+        //        return;
+        //    }
 
-            Engine.LogWarning("{0} cannot be exported with extension '{1}'.", type.GetFriendlyName(), ext);
-        }
-        //[GridCallable("Save")]
-        public void Export(
-            string directory,
-            string fileName,
-            ESerializeFlags flags = ESerializeFlags.Default)
-        {
-            string ext = null;
-            FileExt fileExt = FileExtension;
-            if (fileExt != null)
-            {
-                ext = fileExt.GetProperExtension((EProprietaryFileFormat)fileExt.PreferredFormat);
-            }
-            else
-            {
-                File3rdParty tp = File3rdPartyExtensions;
-                if (tp != null && 
-                    tp.ExportableExtensions != null && 
-                    tp.ExportableExtensions.Length > 0)
-                {
-                    ext = tp.ExportableExtensions[0];
-                }
-            }
-            if (ext != null)
-            {
-                EFileFormat format = GetFormat(ext, out string ext2);
-                Export(directory, fileName, format, ext, flags);
-            }
-            else
-                Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
-        }
-        //[GridCallable("Save")]
-        public void Export(
-            string directory,
-            string fileName,
-            EFileFormat format,
-            string thirdPartyExt = null,
-            ESerializeFlags flags = ESerializeFlags.Default)
-        {
-            switch (format)
-            {
-                case EFileFormat.ThirdParty:
-                    To3rdParty(directory, fileName, thirdPartyExt);
-                    break;
-                case EFileFormat.XML:
-                    ToXML(directory, fileName, flags);
-                    break;
-                case EFileFormat.Binary:
-                    ToBinary(directory, fileName, flags);
-                    break;
-                default:
-                    throw new InvalidOperationException("Not a valid file format.");
-            }
-        }
+        //    Engine.LogWarning("{0} cannot be exported with extension '{1}'.", type.GetFriendlyName(), ext);
+        //}
+        ////[GridCallable("Save")]
+        //public void Export(
+        //    string directory,
+        //    string fileName,
+        //    ESerializeFlags flags = ESerializeFlags.Default)
+        //{
+        //    string ext = null;
+        //    FileExt fileExt = FileExtension;
+        //    if (fileExt != null)
+        //    {
+        //        ext = fileExt.GetProperExtension((EProprietaryFileFormat)fileExt.PreferredFormat);
+        //    }
+        //    else
+        //    {
+        //        File3rdParty tp = File3rdPartyExtensions;
+        //        if (tp != null && 
+        //            tp.ExportableExtensions != null && 
+        //            tp.ExportableExtensions.Length > 0)
+        //        {
+        //            ext = tp.ExportableExtensions[0];
+        //        }
+        //    }
+        //    if (ext != null)
+        //    {
+        //        EFileFormat format = GetFormat(ext, out string ext2);
+        //        Export(directory, fileName, format, ext, flags);
+        //    }
+        //    else
+        //        Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
+        //}
+        ////[GridCallable("Save")]
+        //public void Export(
+        //    string directory,
+        //    string fileName,
+        //    EFileFormat format,
+        //    string thirdPartyExt = null,
+        //    ESerializeFlags flags = ESerializeFlags.Default)
+        //{
+        //    switch (format)
+        //    {
+        //        case EFileFormat.ThirdParty:
+        //            To3rdParty(directory, fileName, thirdPartyExt);
+        //            break;
+        //        case EFileFormat.XML:
+        //            ToXML(directory, fileName, flags);
+        //            break;
+        //        case EFileFormat.Binary:
+        //            ToBinary(directory, fileName, flags);
+        //            break;
+        //        default:
+        //            throw new InvalidOperationException("Not a valid file format.");
+        //    }
+        //}
         public async Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
             => await ExportAsync(FilePath, flags, progress, cancel);
         //[GridCallable("Save")]
@@ -335,13 +330,13 @@ namespace TheraEngine.Core.Files
             switch (format)
             {
                 case EFileFormat.ThirdParty:
-                    await To3rdPartyAsync(directory, fileName, thirdPartyExt, progress, cancel);
+                    await Write3rdPartyAsync(directory, fileName, thirdPartyExt, progress, cancel);
                     break;
                 case EFileFormat.XML:
-                    await ToXMLAsync(directory, fileName, flags, progress, cancel);
+                    await ExportXMLAsync(directory, fileName, flags, progress, cancel);
                     break;
                 case EFileFormat.Binary:
-                    await ToBinaryAsync(directory, fileName, flags, progress, cancel);
+                    await ExportBinaryAsync(directory, fileName, flags, progress, cancel);
                     break;
                 default:
                     throw new InvalidOperationException("Not a valid file format.");
@@ -350,51 +345,37 @@ namespace TheraEngine.Core.Files
         #endregion
 
         #region XML
-        internal void ToXML(
-            string directory,
-            string fileName,
-            ESerializeFlags flags = ESerializeFlags.Default)
-        {
-            if (string.IsNullOrWhiteSpace(directory))
-            {
-                Engine.LogWarning("Cannot export file to XML; directory is null.");
-                return;
-            }
+        //internal void ToXML(
+        //    string directory,
+        //    string fileName,
+        //    ESerializeFlags flags = ESerializeFlags.Default)
+        //{
+        //    if (string.IsNullOrWhiteSpace(directory))
+        //    {
+        //        Engine.LogWarning("Cannot export file to XML; directory is null.");
+        //        return;
+        //    }
 
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
+        //    if (!Directory.Exists(directory))
+        //        Directory.CreateDirectory(directory);
 
-            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+        //    fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
 
-            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                directory += Path.DirectorySeparatorChar;
+        //    if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+        //        directory += Path.DirectorySeparatorChar;
 
-            FileExt ext = FileExtension;
+        //    FileExt ext = FileExtension;
 
-            if (ext == null)
-                throw new Exception("No FileExt attribute specified for " + GetType().GetFriendlyName());
+        //    if (ext == null)
+        //        throw new Exception("No FileExt attribute specified for " + GetType().GetFriendlyName());
 
-            FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.XML);
+        //    FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.XML);
 
-            if (ext.ManualXmlConfigSerialize)
-            {
-                using (FileStream stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 0x1000, FileOptions.SequentialScan))
-                using (XmlWriter writer = XmlWriter.Create(stream, DefaultWriterSettings))
-                {
-                    writer.Flush();
-                    stream.Position = 0;
+        //    TSerializer ser = new TSerializer();
 
-                    writer.WriteStartDocument();
-                    WriteXMLAsync(writer, flags, null, CancellationToken.None).RunSynchronously();
-                    writer.WriteEndDocument();
-                }
-            }
-            else
-                new CustomXmlSerializer().SerializeAsync(this, FilePath, flags);
-
-            Engine.PrintLine("Saved XML file to {0}", FilePath);
-        }
-        internal async Task ToXMLAsync(
+        //    Engine.PrintLine("Saved XML file to {0}", FilePath);
+        //}
+        internal async Task ExportXMLAsync(
             string directory,
             string fileName,
             ESerializeFlags flags, 
@@ -421,59 +402,51 @@ namespace TheraEngine.Core.Files
                 throw new Exception("No FileExt attribute specified for " + GetType().GetFriendlyName());
 
             FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.XML);
-
-            if (ext.ManualXmlConfigSerialize)
-            {
-                XmlWriterSettings settings = new XmlWriterSettings()
-                {
-                    Indent = true,
-                    IndentChars = "\t",
-                    NewLineChars = Environment.NewLine,
-                    NewLineHandling = NewLineHandling.Replace,
-                    Async = true,
-                };
-                using (FileStream stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 0x1000, FileOptions.SequentialScan))
-                using (XmlWriter writer = XmlWriter.Create(stream, settings))
-                {
-                    await writer.FlushAsync();
-                    stream.Position = 0;
-
-                    await writer.WriteStartDocumentAsync();
-                    await WriteXMLAsync(writer, flags, progress, cancel);
-                    await writer.WriteEndDocumentAsync();
-                }
-            }
-            else
-            {
-                CustomXmlSerializer serializer = new CustomXmlSerializer();
-                await serializer.SerializeAsync(this, FilePath, flags, progress, cancel);
-            }
+            
+            TSerializer serializer = new TSerializer();
+            await serializer.SerializeXMLAsync(this, FilePath, flags, progress, cancel);
 
             Engine.PrintLine("Saved XML file to {0}", FilePath);
         }
+
         /// <summary>
-        /// Writes this object to an xml file using the given xml writer.
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
-        /// <param name="writer">The xml writer to write the file with.</param>
-        internal protected virtual async Task WriteAsync(TSerializer.AbstractWriter writer)
-            => throw new NotImplementedException("Override of \"internal protected virtual async Task Write(XmlWriter writer)\" required when using ManualXmlSerialize in FileClass attribute.");
+        /// <param name="node">The tree node containing information for this object.</param>
+        internal protected virtual void ManualWrite(MemberTreeNode node)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
-        /// Reads this object from an xml file using the given xml reader.
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
-        /// <param name="reader">The xml reader to read the file with.</param>
-        internal protected virtual async Task ReadAsync(TDeserializer.AbstractReader reader)
-            => throw new NotImplementedException("Override of \"internal protected virtual async Task Read(XMLReader reader)\" required when using ManualXmlSerialize in FileClass attribute.");
+        /// <param name="node">The tree node containing information for this object.</param>
+        internal protected virtual void ManualRead(MemberTreeNode node)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
+
+        /// <summary>
+        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
+        /// </summary>
+        /// <param name="address">Address to write to.</param>
+        /// <param name="length">Length of the memory allocated for this object.</param>
+        internal protected virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTable stringTable, ESerializeFlags flags)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTable stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
+        /// <summary>
+        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
+        /// </summary>
+        /// <param name="address">Address to read from.</param>
+        /// <param name="length">Length of the memory allocated for this object.</param>
+        internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTable stringTable, ESerializeFlags flags)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTable stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
 
         #endregion
 
         #region Binary
 
-        internal unsafe void ToBinary(
+        internal async Task ExportBinaryAsync(
             string directory,
             string fileName,
-            ESerializeFlags flags = ESerializeFlags.Default)
+            ESerializeFlags flags,
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
             Type t = GetType();
 
@@ -488,80 +461,102 @@ namespace TheraEngine.Core.Files
             FileExt ext = FileExtension;
 
             FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.Binary);
-            
-            CustomBinarySerializer.Serialize(
-                this,
-                FilePath,
-                Endian.EOrder.Big,
-                true,
-                true,
-                "test",
-                out byte[] encryptionSalt,
-                out byte[] integrityHash,
-                null,
-                flags);
 
+            TSerializer serializer = new TSerializer();
+            await serializer.SerializeBinaryAsync(
+                this, FilePath, flags, progress, cancel,
+                Endian.EOrder.Big, false, false, null, null);
+            
             Engine.PrintLine("Saved binary file to {0}", FilePath);
         }
-
-        /// <summary>
-        /// Calculates the size of this object, in bytes.
-        /// </summary>
-        /// <param name="table">The string table to populate with strings.</param>
-        /// <returns>The size of the object, in bytes.</returns>
-        internal int CalculateSize(BinaryStringTable table, ESerializeFlags flags)
-        {
-            CalculatedSize = OnCalculateSize(table, flags);
-            return CalculatedSize;
-        }
+        
         /// <summary>
         /// Calculates the size of this object, in bytes.
         /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
         /// </summary>
         /// <param name="table">The string table. Add strings to this as you wish, and use their addresses when writing later.</param>
         /// <returns>The size of the object, in bytes.</returns>
-        protected virtual int OnCalculateSize(BinaryStringTable table, ESerializeFlags flags)
+        protected virtual int CalculateSize(BinaryStringTable table, ESerializeFlags flags)
             => throw new NotImplementedException("Override of \"protected virtual int OnCalculateSize(StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
-        /// <summary>
-        /// Writes this object to the given address.
-        /// The size of this object is CalculatedSize.
-        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
-        /// </summary>
-        /// <param name="address">The address to write to.</param>
-        /// <param name="table">The table of all strings added in OnCalculateSize.</param>
-        internal protected virtual void Write(VoidPtr address, BinaryStringTable table, ESerializeFlags flags)
-            => throw new NotImplementedException("Override of \"internal protected virtual void Write(VoidPtr address, StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
-        /// <summary>
-        /// Reads this object from the given address.
-        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
-        /// </summary>
-        /// <param name="address">The address to read from.</param>
-        /// <param name="strings">The string table to get strings from.</param>
-        internal protected virtual void Read(VoidPtr address, VoidPtr strings)
-            => throw new NotImplementedException("Override of \"internal protected virtual void Read(VoidPtr address, VoidPtr strings)\" required when using ManualBinarySerialize in FileClass attribute.");
         #endregion
 
         #region 3rd Party
-        private void To3rdParty(string directory, string fileName, string thirdPartyExt)
+        public async Task Write3rdPartyAsync(
+            string directory,
+            string fileName,
+            string thirdPartyExt,
+            IProgress<float> progress,
+            CancellationToken cancel)
         {
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                Engine.LogWarning($"Cannot export file as {thirdPartyExt}; directory is null.");
+                return;
+            }
+
+            if (thirdPartyExt.StartsWith("."))
+                thirdPartyExt = thirdPartyExt.Substring(1);
+            thirdPartyExt = thirdPartyExt.ToLowerInvariant();
+
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            FilePath = GetFilePath(directory, fileName, thirdPartyExt);
-            Write3rdParty(FilePath);
-            Engine.PrintLine("Saved third party file to {0}", FilePath);
+
+            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+
+            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                directory += Path.DirectorySeparatorChar;
+
+            File3rdParty ext = File3rdPartyExtensions;
+
+            if (ext == null)
+            {
+                Engine.LogWarning("No File3rdParty attribute specified for " + GetType().GetFriendlyName());
+                return;
+            }
+            if (!ext.ExportableExtensions.Contains(thirdPartyExt))
+            {
+                Engine.LogWarning($"{GetType().GetFriendlyName()} cannot be exported as {thirdPartyExt}.");
+                return;
+            }
+
+            FilePath = directory + fileName + "." + thirdPartyExt;
+
+            Delegate exporter = Get3rdPartyExporter(GetType(), thirdPartyExt);
+            if (exporter != null)
+            {
+                if (exporter is Del3rdPartyExportFileMethod method)
+                    method.Invoke(this, FilePath);
+                else if (exporter is Del3rdPartyExportFileMethodAsync methodAsync)
+                    await methodAsync.Invoke(this, FilePath, progress, cancel);
+                else
+                {
+                    if (ext.AsyncManualWrite)
+                        await Write3rdPartyAsync(FilePath);
+                    else
+                        ManualWrite3rdParty(FilePath);
+                }
+            }
+            else
+            {
+                if (ext.AsyncManualWrite)
+                    await Write3rdPartyAsync(FilePath);
+                else
+                    ManualWrite3rdParty(FilePath);
+            }
+            Engine.PrintLine($"Saved {thirdPartyExt} file to {0}", FilePath);
         }
         /// <summary>
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to write the object to a path.
         /// </summary>
         /// <param name="filePath">The path of the file to write.</param>
-        public virtual void Write3rdParty(string filePath)
-            => throw new NotImplementedException("Override of \"internal protected virtual void WriteThirdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
+        public virtual void ManualWrite3rdParty(string filePath)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite3rdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
         /// <summary>
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to read the object from a path.
         /// </summary>
         /// <param name="filePath">The path of the file to read.</param>
-        public virtual void Read3rdParty(string filePath)
-            => throw new NotImplementedException("Override of \"internal protected virtual void ReadThirdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
+        public virtual void ManualRead3rdParty(string filePath)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead3rdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
         #endregion
     }
 }

@@ -35,7 +35,7 @@ namespace TheraEngine.Rendering.Models
         [Category("LOD")]
         public GlobalFileRef<PrimitiveData> PrimitivesRef => _primitives;
         [Category("LOD")]
-        [TSerialize(IsXmlAttribute = true)]
+        [TSerialize(IsAttribute = true)]
         public float VisibleDistance
         {
             get => _visibleDistance;
@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering.Models
             }
         }
         [Category("LOD")]
-        [TSerialize(IsXmlAttribute = true)]
+        [TSerialize(IsAttribute = true)]
         public EBillboardMode BillboardMode
         {
             get => _billboardMode;

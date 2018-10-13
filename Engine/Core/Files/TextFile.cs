@@ -16,7 +16,7 @@ namespace TheraEngine.Core.Files
 
         private string _text = null;
         [TString(true, false, false, true)]
-        [TSerialize(IsXmlElementString = true)]
+        [TSerialize(IsElementString = true)]
         public string Text
         {
             get => _text ?? LoadText();
@@ -48,12 +48,12 @@ namespace TheraEngine.Core.Files
         public static implicit operator TextFile(string text)
             => FromText(text);
 
-        public override void Read3rdParty(string filePath)
+        public override void ManualRead3rdParty(string filePath)
         {
             FilePath = filePath;
             Text = LoadText();
         }
-        public override void Write3rdParty(string filePath)
+        public override void ManualWrite3rdParty(string filePath)
         {
             File.WriteAllText(filePath, Text);
         }

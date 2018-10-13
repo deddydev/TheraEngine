@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private bool _value;
 
         public ShaderBool() : this(false, NoName) { }
@@ -50,7 +50,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private float _value;
 
         public ShaderFloat() : this(0.0f, NoName) { }
@@ -79,7 +79,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private double _value;
 
         public ShaderDouble() : this(0.0, NoName) { }
@@ -108,7 +108,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private int _value;
 
         public ShaderInt() : this(0, NoName) { }
@@ -137,7 +137,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private uint _value;
         
         public ShaderUInt() : this(0u, NoName) { }

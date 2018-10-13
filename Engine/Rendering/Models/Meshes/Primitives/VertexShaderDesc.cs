@@ -13,19 +13,19 @@ namespace TheraEngine.Rendering.Models
 
         public event Action Changed;
 
-        [TSerialize("MorphCount", IsXmlAttribute = true)]
+        [TSerialize("MorphCount", IsAttribute = true)]
         public int _morphCount = 0;
-        [TSerialize("TexCoordCount", IsXmlAttribute = true)]
+        [TSerialize("TexCoordCount", IsAttribute = true)]
         public int _texcoordCount = 0;
-        [TSerialize("ColorCount", IsXmlAttribute = true)]
+        [TSerialize("ColorCount", IsAttribute = true)]
         public int _colorCount = 0;
-        [TSerialize("BoneCount", IsXmlAttribute = true)]
+        [TSerialize("BoneCount", IsAttribute = true)]
         public int _boneCount = 0;
-        [TSerialize("HasNormals", IsXmlAttribute = true)]
+        [TSerialize("HasNormals", IsAttribute = true)]
         public bool _hasNormals = false;
-        [TSerialize("HasBinormals", IsXmlAttribute = true)]
+        [TSerialize("HasBinormals", IsAttribute = true)]
         public bool _hasBinormals = false;
-        [TSerialize("HasTangents", IsXmlAttribute = true)]
+        [TSerialize("HasTangents", IsAttribute = true)]
         public bool _hasTangents = false;
 
         //Note: if there's only one bone, we can just multiply the model matrix by the bone's frame matrix. No need for weighting.

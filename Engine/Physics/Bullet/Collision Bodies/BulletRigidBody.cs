@@ -585,7 +585,7 @@ namespace TheraEngine.Physics.Bullet
             writer.WriteEndElement();
             return true;
         }
-        [CustomXMLDeserializeMethod(nameof(Body))]
+        [CustomDeserializeMethod(nameof(Body))]
         internal unsafe bool DeserializeBody(XMLReader reader)
         {
             if (reader.Name != nameof(Body))

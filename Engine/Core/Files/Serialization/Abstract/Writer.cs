@@ -17,12 +17,13 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Owner = owner;
                 Flags = flags;
+                RootNode = CreateNode(rootFileObject);
             }
 
             public abstract MemberTreeNode CreateNode(object root);
             public abstract MemberTreeNode CreateNode(MemberTreeNode parent, MemberInfo memberInfo);
 
-            internal protected abstract Task WriteTree(MemberTreeNode rootNode);
+            internal protected abstract Task WriteTree();
         }
         public abstract class AbstractWriter<T> : BaseAbstractWriter where T : MemberTreeNode
         {
@@ -31,9 +32,6 @@ namespace TheraEngine.Core.Files.Serialization
 
             public override MemberTreeNode CreateNode(MemberTreeNode parent, MemberInfo memberInfo) => CreateNode(parent as T, memberInfo);
             public abstract T CreateNode(T parent, MemberInfo memberInfo);
-
-            internal protected override Task WriteTree(MemberTreeNode root) => WriteTree(root as T);
-            internal protected abstract Task WriteTree(T root);
         }
     }
 }

@@ -124,7 +124,7 @@ namespace TheraEngine.Core.Files.Serialization
                 BindingFlags.Instance |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy).
-                Where(x => x.GetCustomAttribute<CustomXMLDeserializeMethod>() != null);
+                Where(x => x.GetCustomAttribute<CustomDeserializeMethod>() != null);
 
             //Get pre and post deserialize methods
             MethodInfo[] methods = objType.GetMethods(
@@ -282,7 +282,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (SerializationCommon.CanParseAsString(elemStr.VariableType))
                 {
                     MethodInfo customMethod = customMethods.FirstOrDefault(
-                        x => string.Equals(elemStr.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
+                        x => string.Equals(elemStr.Name, x.GetCustomAttribute<CustomDeserializeMethod>().Name));
 
                     if (customMethod != null)
                     {
@@ -302,7 +302,7 @@ namespace TheraEngine.Core.Files.Serialization
         private void ReadMember(object obj, VarInfo member, IEnumerable<MethodInfo> customMethods, bool isAttribute)
         {
             MethodInfo customMethod = customMethods.FirstOrDefault(
-                x => string.Equals(member.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
+                x => string.Equals(member.Name, x.GetCustomAttribute<CustomDeserializeMethod>().Name));
 
             //Engine.PrintLine("Reading {0} [{1}]", member.Name, member.VariableType.GetFriendlyName());
 

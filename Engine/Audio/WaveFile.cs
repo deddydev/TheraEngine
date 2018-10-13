@@ -6,14 +6,14 @@ namespace TheraEngine.Audio
 {
     public class WaveFile : IDisposable
     {
-        [TSerialize(nameof(Channels), IsXmlAttribute = true)]
+        [TSerialize(nameof(Channels), IsAttribute = true)]
         private int _channels;
-        [TSerialize(nameof(BitsPerSample), IsXmlAttribute = true)]
+        [TSerialize(nameof(BitsPerSample), IsAttribute = true)]
         private int _bps;
-        [TSerialize(nameof(SampleRate), IsXmlAttribute = true)]
+        [TSerialize(nameof(SampleRate), IsAttribute = true)]
         private int _sampleRate;
 
-        [TSerialize(IsXmlElementString = true)]
+        [TSerialize(IsElementString = true)]
         public byte[] SoundData { get; private set; }
 
         public int Channels => _channels;

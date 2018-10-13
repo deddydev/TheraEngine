@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private BoolVec3 _value;
 
         public ShaderBVec3() : this(new BoolVec3(), NoName) { }
@@ -50,7 +50,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private Vec3 _value;
 
         public ShaderVec3() : this(new Vec3(), NoName) { }
@@ -92,7 +92,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private DVec3 _value;
 
         public ShaderDVec3() : this(new DVec3(), NoName) { }
@@ -123,7 +123,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private IVec3 _value;
 
         public ShaderIVec3() : this(new IVec3(), NoName) { }
@@ -154,7 +154,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private UVec3 _value;
 
         public ShaderUVec3() : this(new UVec3(), NoName) { }

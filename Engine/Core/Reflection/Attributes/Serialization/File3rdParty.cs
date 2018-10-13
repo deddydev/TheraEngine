@@ -18,6 +18,8 @@ namespace System.ComponentModel
         
         public string[] ImportableExtensions { get; private set; }
         public string[] ExportableExtensions { get; private set; }
+        public bool AsyncManualRead { get; set; } = false;
+        public bool AsyncManualWrite { get; set; } = false;
 
         public bool HasAnyExtensions => ImportableExtensions.Length + ExportableExtensions.Length > 0;
 

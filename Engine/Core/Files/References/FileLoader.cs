@@ -397,7 +397,7 @@ namespace TheraEngine.Core.Files
                 {
                     T file = Activator.CreateInstance<T>();
                     file.FilePath = absolutePath;
-                    file.Read3rdParty(absolutePath);
+                    file.ManualRead3rdParty(absolutePath);
                     OnFileLoaded(file);
                     Loaded?.Invoke(file);
                     return file;

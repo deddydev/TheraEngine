@@ -30,19 +30,19 @@ namespace TheraEngine.Rendering.Models
             string str = string.Join(" ", _points.Select(x => x.VertexIndex.ToString()));
             writer.WriteElementString(nameof(Points), str);
         }
-        [CustomXMLDeserializeMethod(nameof(Triangles))]
+        [CustomDeserializeMethod(nameof(Triangles))]
         private void DeserializeTriangles(XMLReader reader)
         {
             string str = reader.ReadElementString();
             _triangles = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).SelectEvery(3, x => new IndexTriangle(int.Parse(x[0]), int.Parse(x[1]), int.Parse(x[2]))).ToList();
         }
-        [CustomXMLDeserializeMethod(nameof(Lines))]
+        [CustomDeserializeMethod(nameof(Lines))]
         private void DeserializeLines(XMLReader reader)
         {
             string str = reader.ReadElementString();
             _lines = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).SelectEvery(2, x => new IndexLine(int.Parse(x[0]), int.Parse(x[1]))).ToList();
         }
-        [CustomXMLDeserializeMethod(nameof(Points))]
+        [CustomDeserializeMethod(nameof(Points))]
         private void DeserializePoints(XMLReader reader)
         {
             string str = reader.ReadElementString();
@@ -66,7 +66,7 @@ namespace TheraEngine.Rendering.Models
             writer.WriteEndElement();
             return true;
         }
-        [CustomXMLDeserializeMethod(nameof(FacePoints))]
+        [CustomDeserializeMethod(nameof(FacePoints))]
         private bool DeserializeFacePoints(XMLReader reader)
         {
             int count = 0;
@@ -135,7 +135,7 @@ namespace TheraEngine.Rendering.Models
             }
             return true;
         }
-        [CustomXMLDeserializeMethod(nameof(Influences))]
+        [CustomDeserializeMethod(nameof(Influences))]
         private bool CustomInfluencesDeserialize(XMLReader reader)
         {
             while (reader.ReadAttribute())

@@ -122,7 +122,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("Type", NodeType = ENodeType.Attribute)]
         internal EBufferType _type = EBufferType.Other;
 
-        [TSerialize("Data", IsXmlElementString = true)]
+        [TSerialize("Data", IsElementString = true)]
         internal DataSource _data;
 
         [CustomSerializeMethod("Data")]
@@ -174,7 +174,7 @@ namespace TheraEngine.Rendering.Models
             }
             return true;
         }
-        [CustomXMLDeserializeMethod("Data")]
+        [CustomDeserializeMethod("Data")]
         private unsafe bool CustomDataDeserialize(XMLReader reader)
         {
             int count = _elementCount * _componentCount;

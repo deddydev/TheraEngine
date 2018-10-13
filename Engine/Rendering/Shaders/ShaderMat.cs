@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private Matrix4 _value;
 
         public ShaderMat4() : this(Matrix4.Identity, NoName) { }
@@ -44,7 +44,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public override object GenericValue => Value;
 
-        [TSerialize(ValueName, IsXmlElementString = true)]
+        [TSerialize(ValueName, IsElementString = true)]
         private Matrix3 _value;
 
         public ShaderMat3() : this(Matrix3.Identity, NoName) { }

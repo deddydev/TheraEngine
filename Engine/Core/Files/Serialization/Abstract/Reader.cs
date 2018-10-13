@@ -7,7 +7,7 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TDeserializer : TBaseSerializer
     {
-        public abstract class AbstractReader : TBaseAbstractReaderWriter
+        public abstract class AbstractReader<T> : TBaseAbstractReaderWriter where T : MemberTreeNode
         {
             protected readonly TDeserializer _owner;
             private List<(string Name, object Value)> _attributes;

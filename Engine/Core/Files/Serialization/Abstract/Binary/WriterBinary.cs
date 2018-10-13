@@ -1,6 +1,7 @@
 ﻿using SevenZip;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,12 +17,13 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public class WriterBinary : AbstractWriter<BinaryMemberTreeNode>
         {
-            Endian.EOrder Endian { get; }
-            bool Encrypted { get; }
-            bool Compressed { get; }
+            public Endian.EOrder Endian { get; }
+            public bool Encrypted { get; }
+            public bool Compressed { get; }
             ICodeProgress CompressionProgress { get; }
             Rfc2898DeriveBytes EncryptionDeriveBytes { get; }
             BinaryStringTable StringTable { get; set; }
+            public int StringOffsetSize { get; private set; }
 
             public WriterBinary(
                 TSerializer owner,
@@ -41,6 +43,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Encrypted = encrypted;
                 Compressed = compressed;
                 CompressionProgress = compressionProgress;
+                StringTable = new BinaryStringTable();
 
                 if (Encrypted)
                 {
@@ -51,13 +54,16 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
             
-            protected internal override unsafe async Task WriteTree(BinaryMemberTreeNode rootNode)
+            protected internal override async Task WriteTree()
             {
+                await RootNode.CollectSerializedMembers();
+                BinaryMemberTreeNode rootNode = (BinaryMemberTreeNode)RootNode;
+
                 Memory.Endian.Order = Endian;
 
-                StringTable = new BinaryStringTable();
-                int dataSize = GetSize(rootNode);
-                int stringSize = StringTable.GetTotalSize();
+                int dataSize = rootNode.CalculatedSize;
+                int stringSize = (int)StringTable.TotalLength.Align(4);
+                StringOffsetSize = StringTable.GetOffsetSize();
                 int totalSize = FileCommonHeader.Size + stringSize + dataSize;
 
                 FileMap uncompMap;
@@ -68,24 +74,27 @@ namespace TheraEngine.Core.Files.Serialization
 
                 using (uncompMap)
                 {
-                    FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
-                    hdr->_stringTableLength = stringSize;
-                    hdr->Endian = Endian;
-                    hdr->Encrypted = Encrypted;
-                    hdr->Compressed = Compressed;
+                    unsafe
+                    {
+                        FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
+                        hdr->_stringTableLength = stringSize;
+                        hdr->Endian = Endian;
+                        hdr->Encrypted = Encrypted;
+                        hdr->Compressed = Compressed;
 
-                    StringTable.WriteTable(hdr);
+                        //SHA256Managed SHhash = new SHA256Managed();
+                        //byte[] integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
+                        //hdr->WriteHash(integrityHash);
 
-                    VoidPtr addr = hdr->Data;
+                        StringTable.WriteTable(hdr->Strings);
 
-                    //Write the root node to the main address.
-                    //This will write all child nodes within this node as well.
-                    Write(rootNode, ref addr);
+                        VoidPtr addr = hdr->Data;
 
-                    SHA256Managed SHhash = new SHA256Managed();
-                    byte[] integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
-                    for (int i = 0; i < 0x20; ++i)
-                        hdr->_hash[i] = integrityHash[i];
+                        //Write the root node to the main address.
+                        //This will write all child nodes within this node as well.
+                        WriteObject(rootNode, ref addr);
+                    }
+
                     uncompMap.BaseStream.Position = 0;
 
                     FileStream outStream;
@@ -139,31 +148,179 @@ namespace TheraEngine.Core.Files.Serialization
                         outStream.Dispose();
                 }
             }
-            public int GetSize(BinaryMemberTreeNode node)
+            private unsafe void WriteObject(BinaryMemberTreeNode node, ref VoidPtr address)
             {
-                Type nodeType = node.ObjectType;
+                if (node.Object == null)
+                    return;
 
-                if (nodeType.IsValueType)
-                    return Marshal.SizeOf(nodeType);
+                if (node.Object is TFileObject fobj)
+                {
+                    FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
+                    bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
+                    bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
+                    if (serConfig || serState)
+                    {
+                        int size = node.CalculatedSize;
+                        fobj.ManualWriteBinary(address, size, StringTable, Flags);
+                        address += size;
+                        return;
+                    }
+                }
 
-                int size = 0;
-
-                foreach (MemberTreeNode p in node.ChildMembers)
-                    size += GetSizeMember(p, customMethods, ref flagCount);
-
-                return size;
+                //Write flags at the start of the object data block
+                int flagIndex = 0;
+                byte[] flagBytes = new byte[node.FlagSize];
+                
+                foreach (BinaryMemberTreeNode childNode in node.ChildMembers)
+                    WriteMember(childNode, ref address, flagBytes, ref flagIndex);
+                
+                byte* flagData = (byte*)address;
+                foreach (byte b in flagBytes)
+                    *flagData++ = b;
             }
-            public int GetSizeMember(MemberTreeNode node, MethodInfo[] customMethods, ref int flagCount)
+            private void WriteMember(
+                BinaryMemberTreeNode node,
+                ref VoidPtr address,
+                byte[] flagBytes,
+                ref int flagIndex)
             {
                 object value = node.Object;
+                Type objType = node.ObjectType;
+                switch (objType.Name)
+                {
+                    case "Boolean":
+                        WriteBoolean((bool)value, flagBytes, ref flagIndex);
+                        break;
+                    case "SByte":
+                        break;
+                    case "Byte":
+                        break;
+                    case "Char":
+                        break;
+                    case "Int16":
+                        break;
+                    case "UInt16":
+                        break;
+                    case "Int32":
+                        break;
+                    case "UInt32":
+                        break;
+                    case "Int64":
+                        break;
+                    case "UInt64":
+                        break;
+                    case "Single":
+                        break;
+                    case "Double":
+                        break;
+                    case "Decimal":
+                        break;
+                    case "String":
+                        WriteString(value.ToString(), ref address);
+                        break;
+                    default:
+                        if (objType.IsEnum)
+                            WriteEnum(value, ref address);
+                        else if (objType.IsValueType)
+                        {
+                            if (node.ChildMembers.Count > 0)
+                                WriteObject(node, ref address);
+                            else
+                            {
+                                int size = Marshal.SizeOf(value);
+                                Marshal.StructureToPtr(value, address, true);
+                                address += size;
+                            }
+                        }
+                        else
+                            WriteObject(node, ref address);
+                        break;
+                }
+            }
 
-                MethodInfo customMethod = customMethods.FirstOrDefault(x => string.Equals(node.MemberInfo.Name, x.GetCustomAttribute<CustomBinarySerializeSizeMethod>().Name));
+            private void WriteString(string value, ref VoidPtr address)
+            {
+                int offset = StringTable[value] + 1;
+                switch (StringOffsetSize)
+                {
+                    case 1:
+                        address.Byte = (byte)offset;
+                        break;
+                    case 2:
+                        address.UShort = (ushort)offset;
+                        break;
+                    case 3:
+                        address.UInt24 = (uint)offset;
+                        break;
+                    default:
+                    case 4:
+                        address.Int = offset;
+                        break;
+                }
+                address += StringOffsetSize;
+            }
 
-                if (customMethod != null)
-                    return (int)customMethod.Invoke(value, new object[] { table });
+            private void WriteEnum(object value, ref VoidPtr address)
+            {
+                Enum enumValue = (Enum)value;
+                TypeCode typeCode = enumValue.GetTypeCode();
+                switch (typeCode)
+                {
+                    case TypeCode.SByte:
+                        address.SByte = (sbyte)value;
+                        address += 1;
+                        break;
+                    case TypeCode.Byte:
+                        address.Byte = (byte)value;
+                        address += 1;
+                        break;
+                    case TypeCode.Int16:
+                        address.Short = (short)value;
+                        address += 2;
+                        break;
+                    case TypeCode.UInt16:
+                        address.UShort = (ushort)value;
+                        address += 2;
+                        break;
+                    case TypeCode.Int32:
+                        address.Int = (int)value;
+                        address += 4;
+                        break;
+                    case TypeCode.UInt32:
+                        address.UInt = (uint)value;
+                        address += 4;
+                        break;
+                    case TypeCode.Int64:
+                        address.Long = (long)value;
+                        address += 8;
+                        break;
+                    case TypeCode.UInt64:
+                        address.ULong = (ulong)value;
+                        address += 8;
+                        break;
+                }
+            }
 
-                if (TryGetSize(node, table, out int size))
-                    return size;
+            private void WriteBoolean(bool value, byte[] flagBytes, ref int flagIndex)
+            {
+                int bitIndex = flagIndex & 7;
+                int byteIndex = flagIndex >> 3;
+
+                if (bitIndex == 0)
+                    flagBytes[byteIndex] = 0;
+
+                int data = 1 << (7 - bitIndex);
+                if (value)
+                    flagBytes[byteIndex] |= (byte)data;
+                else
+                    flagBytes[byteIndex] &= (byte)~data;
+
+                ++flagIndex;
+            }
+
+            private int GetSizeMember(MemberTreeNode node, ref int flagCount)
+            {
+                object value = node.Object;
 
                 Type t = node.ObjectType;
 
@@ -183,20 +340,16 @@ namespace TheraEngine.Core.Files.Serialization
                 else if (t.IsValueType)
                 {
                     if (node.Members.Count > 0)
-                        size += node.GetSize(StringTable);
+                        size += GetSizeObject(node, table);
                     else
                         size += Marshal.SizeOf(value);
                 }
                 else
-                    size += node.GetSize(StringTable);
+                    size += GetSizeObject(node, table);
 
                 return size;
             }
-            public bool Write(BinaryMemberTreeNode node, ref VoidPtr address)
-            {
-                throw new NotImplementedException();
-            }
-            
+
             public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
                 => new BinaryMemberTreeNode(parent, memberInfo, this);
             public override MemberTreeNode CreateNode(object root)
@@ -204,74 +357,110 @@ namespace TheraEngine.Core.Files.Serialization
 
             public unsafe class BinaryStringTable
             {
-                SortedList<string, int> _table = new SortedList<string, int>(StringComparer.Ordinal);
+                private SortedList<string, int> _table = new SortedList<string, int>(StringComparer.Ordinal);
+
+                public int TotalLength { get; private set; } = 0;
 
                 public void Add(string s)
                 {
                     if ((!string.IsNullOrEmpty(s)) && (!_table.ContainsKey(s)))
+                    {
                         _table.Add(s, 0);
+                        TotalLength += s.Length + 1;
+                    }
                 }
                 public void AddRange(IEnumerable<string> values)
                 {
                     foreach (string s in values)
                         Add(s);
                 }
-                public int GetTotalSize()
+                //public int GetTotalSize()
+                //{
+                //    int len = 0;
+                //    foreach (string s in _table.Keys)
+                //        len += s.Length + 1;
+                //    return len.Align(4);
+                //}
+                public void Clear()
                 {
-                    int len = 0;
-                    foreach (string s in _table.Keys)
-                        len += s.Length + 1;
-                    return len.Align(4);
+                    _table.Clear();
+                    TotalLength = 0;
                 }
-                public void Clear() => _table.Clear();
                 public int this[string s]
                 {
                     get
                     {
                         if ((!string.IsNullOrEmpty(s)) && (_table.ContainsKey(s)))
                             return _table[s];
-                        return _table.Values[0];
+                        return -1;
                     }
                 }
-                public void WriteTable(FileCommonHeader* address)
+                public void WriteTable(VoidPtr baseAddress)
                 {
-                    VoidPtr baseAddress = address->Strings;
                     VoidPtr currentAddress = baseAddress;
                     for (int i = 0; i < _table.Count; i++)
                     {
                         string s = _table.Keys[i];
                         _table[s] = currentAddress - baseAddress;
-                        s.Write(ref currentAddress);
+                        s.Write(ref currentAddress, true);
                     }
+                }
+                public int GetOffsetSize()
+                {
+                    int len = TotalLength.Align(4);
+                    if (len < 0xFF)
+                        return 1;
+                    if (len < 0xFF_FF)
+                        return 2;
+                    if (len < 0xFF_FF_FF)
+                        return 3;
+                    //if (len < int.MaxValue)
+                        return 4;
+                    //if (len < 0xFF_FF_FF_FF_FFul)
+                    //    return 5;
+                    //if (len < 0xFF_FF_FF_FF_FF_FFul)
+                    //    return 6;
+                    //if (len < 0xFF_FF_FF_FF_FF_FF_FFul)
+                    //    return 7;
+                    ////if (len < 0xFF_FF_FF_FF_FF_FF_FF_FFul)
+                    //return 8;
                 }
             }
             [StructLayout(LayoutKind.Sequential, Pack = 1)]
             public unsafe struct FileCommonHeader
             {
-                public const int Size = 0x30;
+                public const int Size = 0x10;
+                public const string Magic = "THRA";
 
-                public byte _encrypted;
-                public byte _compressed;
-                public bushort _endian;
+                public bint _magic;
+                public Bin8 _flags;
+                public byte _pad1;
+                public bushort _pad2;
                 public bint _stringTableLength;
                 public bint _typeNameStringOffset;
-                public bint _padding;
-                public fixed byte _hash[0x20];
+                //public fixed byte _hash[0x20];
+
+                public void WriteMagic() => Magic.Write(_magic.Address, false);
+                //public void WriteHash(byte[] integrityHash)
+                //{
+                //    for (int i = 0; i < 0x20; ++i)
+                //        _hash[i] = integrityHash[i];
+                //}
 
                 public bool Encrypted
                 {
-                    get => _encrypted != 0;
-                    set => _encrypted = (byte)(value ? 1 : 0);
+                    get => _flags[0];
+                    set => _flags[0] = value;
                 }
                 public bool Compressed
                 {
-                    get => _compressed != 0;
-                    set => _compressed = (byte)(value ? 1 : 0);
+                    get => _flags[1];
+                    set => _flags[1] = value;
                 }
                 public Endian.EOrder Endian
                 {
-                    get => (Endian.EOrder)(ushort)_endian;
-                    set => _endian = (ushort)value;
+                    get => (Endian.EOrder)_flags[2, 2];
+                    set => _flags[2, 2] = (byte)value;
                 }
                 public VoidPtr Strings => Address + Size;
                 public VoidPtr Data => Strings + _stringTableLength;

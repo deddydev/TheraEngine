@@ -37,9 +37,9 @@ namespace TheraEngine.Rendering.Models.Materials
             Type = type;
             Text = source;
         }
-        public override void Read3rdParty(string filePath)
+        public override void ManualRead3rdParty(string filePath)
         {
-            base.Read3rdParty(filePath);
+            base.ManualRead3rdParty(filePath);
             string ext = Path.GetExtension(filePath).ToLowerInvariant();
             if (ext.StartsWith("."))
                 ext = ext.Substring(1);

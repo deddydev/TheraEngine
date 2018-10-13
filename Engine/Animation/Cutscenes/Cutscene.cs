@@ -195,9 +195,9 @@ namespace TheraEngine.Cutscenes
     {
         [TSerialize]
         public LocalFileRef<T> Animation { get; set; }
-        [TSerialize(IsXmlAttribute = true)]
+        [TSerialize(IsAttribute = true)]
         public float StartSecond { get; set; }
-        [TSerialize(IsXmlAttribute = true)]
+        [TSerialize(IsAttribute = true)]
         public float EndSecond { get; set; }
     }
 }

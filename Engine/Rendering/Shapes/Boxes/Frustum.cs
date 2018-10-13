@@ -52,7 +52,7 @@ namespace TheraEngine.Core.Shapes
         {
             writer.WriteAttributeString("UseBoundingSphere", UseBoundingSphere.ToString());
         }
-        [CustomXMLDeserializeMethod("BoundingSphere")]
+        [CustomDeserializeMethod("BoundingSphere")]
         private void DeserializeBoundingSphere(XMLReader reader)
         {
             if (bool.TryParse(reader.Value, out bool result))

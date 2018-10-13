@@ -51,7 +51,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             private async Task WriteElement(XMLMemberTreeNode node)
             {
-                await _writer.WriteStartElementAsync(null, node.ElementName, null);
+                await _writer.WriteStartElementAsync(null, SerializationCommon.FixElementName(node.ElementName), null);
                 {
                     if (ReportProgress())
                     {

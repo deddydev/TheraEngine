@@ -25,7 +25,7 @@ namespace TheraEngine.Components.Logic.Animation
             /// <summary>
             /// How long the blend lasts in seconds.
             /// </summary>
-            [TSerialize(IsXmlAttribute = true)]
+            [TSerialize(IsAttribute = true)]
             public float Duration
             {
                 get => _invDuration == 0.0f ? 0.0f : 1.0f / _invDuration;

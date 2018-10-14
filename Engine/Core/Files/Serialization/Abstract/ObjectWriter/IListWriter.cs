@@ -19,7 +19,7 @@ namespace TheraEngine.Core.Files.Serialization
             Type elemType = List.DetermineElementType();
             Type objType = TreeNode.ObjectType;
 
-            ESerializeType elemSerType = TreeNode.GetSerializeType(elemType);
+            //ESerializeType elemSerType = TreeNode.GetSerializeType(elemType);
 
             object[] vals = new object[List.Count];
             List.CopyTo(vals, 0);

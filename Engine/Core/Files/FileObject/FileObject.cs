@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SevenZip;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -330,7 +331,7 @@ namespace TheraEngine.Core.Files
             switch (format)
             {
                 case EFileFormat.ThirdParty:
-                    await Write3rdPartyAsync(directory, fileName, thirdPartyExt, progress, cancel);
+                    await Export3rdPartyAsync(directory, fileName, thirdPartyExt, progress, cancel);
                     break;
                 case EFileFormat.XML:
                     await ExportXMLAsync(directory, fileName, flags, progress, cancel);
@@ -343,38 +344,7 @@ namespace TheraEngine.Core.Files
             }
         }
         #endregion
-
-        #region XML
-        //internal void ToXML(
-        //    string directory,
-        //    string fileName,
-        //    ESerializeFlags flags = ESerializeFlags.Default)
-        //{
-        //    if (string.IsNullOrWhiteSpace(directory))
-        //    {
-        //        Engine.LogWarning("Cannot export file to XML; directory is null.");
-        //        return;
-        //    }
-
-        //    if (!Directory.Exists(directory))
-        //        Directory.CreateDirectory(directory);
-
-        //    fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-
-        //    if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
-        //        directory += Path.DirectorySeparatorChar;
-
-        //    FileExt ext = FileExtension;
-
-        //    if (ext == null)
-        //        throw new Exception("No FileExt attribute specified for " + GetType().GetFriendlyName());
-
-        //    FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.XML);
-
-        //    TSerializer ser = new TSerializer();
-
-        //    Engine.PrintLine("Saved XML file to {0}", FilePath);
-        //}
+        
         internal async Task ExportXMLAsync(
             string directory,
             string fileName,
@@ -382,115 +352,44 @@ namespace TheraEngine.Core.Files
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            if (string.IsNullOrWhiteSpace(directory))
+            if (PreExport(directory, fileName, EProprietaryFileFormat.XML))
             {
-                Engine.LogWarning("Cannot export file to XML; directory is null.");
-                return;
+                TSerializer serializer = new TSerializer();
+                await serializer.SerializeXMLAsync(this, FilePath, flags, progress, cancel);
             }
-
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-
-            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                directory += Path.DirectorySeparatorChar;
-
-            FileExt ext = FileExtension;
-
-            if (ext == null)
-                throw new Exception("No FileExt attribute specified for " + GetType().GetFriendlyName());
-
-            FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.XML);
-            
-            TSerializer serializer = new TSerializer();
-            await serializer.SerializeXMLAsync(this, FilePath, flags, progress, cancel);
-
-            Engine.PrintLine("Saved XML file to {0}", FilePath);
         }
-
-        /// <summary>
-        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
-        /// </summary>
-        /// <param name="node">The tree node containing information for this object.</param>
-        internal protected virtual void ManualWrite(MemberTreeNode node)
-            => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
-        /// <summary>
-        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
-        /// </summary>
-        /// <param name="node">The tree node containing information for this object.</param>
-        internal protected virtual void ManualRead(MemberTreeNode node)
-            => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
-
-        /// <summary>
-        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
-        /// </summary>
-        /// <param name="address">Address to write to.</param>
-        /// <param name="length">Length of the memory allocated for this object.</param>
-        internal protected virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTable stringTable, ESerializeFlags flags)
-            => throw new NotImplementedException("Override of \"internal protected virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTable stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
-        /// <summary>
-        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
-        /// </summary>
-        /// <param name="address">Address to read from.</param>
-        /// <param name="length">Length of the memory allocated for this object.</param>
-        internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTable stringTable, ESerializeFlags flags)
-            => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTable stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
-
-        #endregion
-
-        #region Binary
-
         internal async Task ExportBinaryAsync(
             string directory,
             string fileName,
             ESerializeFlags flags,
             IProgress<float> progress,
-            CancellationToken cancel)
+            CancellationToken cancel,
+            Endian.EOrder endian = Endian.EOrder.Big,
+            bool encrypted = false,
+            bool compressed = false,
+            string encryptionPassword = null,
+            ICodeProgress compressionProgress = null)
         {
-            Type t = GetType();
-
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-
-            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                directory += Path.DirectorySeparatorChar;
-
-            FileExt ext = FileExtension;
-
-            FilePath = directory + fileName + "." + ext.GetProperExtension(EProprietaryFileFormat.Binary);
-
-            TSerializer serializer = new TSerializer();
-            await serializer.SerializeBinaryAsync(
-                this, FilePath, flags, progress, cancel,
-                Endian.EOrder.Big, false, false, null, null);
-            
-            Engine.PrintLine("Saved binary file to {0}", FilePath);
+            if (PreExport(directory, fileName, EProprietaryFileFormat.Binary))
+            {
+                TSerializer serializer = new TSerializer();
+                await serializer.SerializeBinaryAsync(
+                    this, FilePath, flags, progress, cancel,
+                    endian, encrypted, compressed, encryptionPassword, compressionProgress);
+            }
         }
-        
-        /// <summary>
-        /// Calculates the size of this object, in bytes.
-        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
-        /// </summary>
-        /// <param name="table">The string table. Add strings to this as you wish, and use their addresses when writing later.</param>
-        /// <returns>The size of the object, in bytes.</returns>
-        protected virtual int CalculateSize(BinaryStringTable table, ESerializeFlags flags)
-            => throw new NotImplementedException("Override of \"protected virtual int OnCalculateSize(StringTable table)\" required when using ManualBinarySerialize in FileClass attribute.");
-        #endregion
 
         #region 3rd Party
-        public async Task Write3rdPartyAsync(
+        public async Task Export3rdPartyAsync(
             string directory,
             string fileName,
             string thirdPartyExt,
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            if (string.IsNullOrWhiteSpace(directory))
+            if (string.IsNullOrWhiteSpace(directory) || directory.IsExistingDirectoryPath() != true)
             {
-                Engine.LogWarning($"Cannot export file as {thirdPartyExt}; directory is null.");
+                Engine.LogWarning($"Cannot export {fileName}.{thirdPartyExt}; directory is null.");
                 return;
             }
 
@@ -545,6 +444,43 @@ namespace TheraEngine.Core.Files
             }
             Engine.PrintLine($"Saved {thirdPartyExt} file to {0}", FilePath);
         }
+        #endregion
+
+        private bool PreExport(string directory, string fileName, EProprietaryFileFormat format)
+        {
+            FileExt extAttrib = FileExtension;
+            if (extAttrib == null)
+            {
+                Engine.LogWarning($"No {nameof(FileExt)} attribute specified for {GetType().GetFriendlyName()}.");
+                return false;
+            }
+
+            string ext = extAttrib.GetProperExtension(format);
+            if (string.IsNullOrWhiteSpace(directory))
+            {
+                Engine.LogWarning($"Cannot export {fileName}.{ext}; no valid specified directory.");
+                return false;
+            }
+
+            try
+            {
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+            }
+            catch
+            {
+                Engine.LogWarning($"Cannot export to directory at {directory}.");
+                return false;
+            }
+
+            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+
+            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                directory += Path.DirectorySeparatorChar;
+
+            FilePath = directory + fileName + "." + ext;
+            return true;
+        }
         /// <summary>
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to write the object to a path.
         /// </summary>
@@ -557,6 +493,43 @@ namespace TheraEngine.Core.Files
         /// <param name="filePath">The path of the file to read.</param>
         public virtual void ManualRead3rdParty(string filePath)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead3rdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
-        #endregion
+        /// <summary>
+        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
+        /// </summary>
+        /// <param name="node">The tree node containing information for this object.</param>
+        internal protected virtual void ManualWrite(MemberTreeNode node)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
+        /// <summary>
+        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
+        /// </summary>
+        /// <param name="node">The tree node containing information for this object.</param>
+        internal protected virtual void ManualRead(MemberTreeNode node)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
+        /// <summary>
+        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
+        /// </summary>
+        /// <param name="stringTable">The string table to add any strings to.</param>
+        /// <param name="flags">The serialization flags for this export.</param>
+        /// <returns>The size of this object in bytes.</returns>
+        internal protected virtual int ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
+        /// <summary>
+        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
+        /// </summary>
+        /// <param name="address">Address to write to.</param>
+        /// <param name="length">Length of the memory allocated for this object.</param>
+        /// <param name="stringTable">The string table to retrieve string offsets from.</param>
+        /// <param name="flags">The serialization flags for this export.</param>
+        internal protected virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
+        /// <summary>
+        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
+        /// </summary>
+        /// <param name="address">Address to read from.</param>
+        /// <param name="length">Length of the memory allocated for this object.</param>
+        /// <param name="stringTable">The string table to retrieve strings from using offsets.</param>
+        /// <param name="flags">The serialization flags for this export.</param>
+        internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable, ESerializeFlags flags)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
     }
 }

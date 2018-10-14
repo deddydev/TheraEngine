@@ -8,8 +8,8 @@ namespace TheraEngine.Core.Memory
     {
         public enum EOrder : byte
         {
-            Big = 0b01,
-            Little = 0b10,
+            Little = 0,
+            Big = 1,
         }
         public static EOrder Order = EOrder.Big;
         public static bool Big => Order == EOrder.Big;
@@ -205,12 +205,23 @@ namespace TheraEngine.Core.Memory
 
         public uint Value
         {
-            get { return ((uint)_dat0 << 16) | ((uint)_dat1 << 8) | _dat2; }
+            get => Endian.Big ?
+                ((_dat0) | ((uint)_dat1 << 8) | (uint)_dat2 << 16) :
+                (((uint)_dat0 << 16) | ((uint)_dat1 << 8) | _dat2);
             set
             {
-                _dat2 = (byte)((value) & 0xFF);
-                _dat1 = (byte)((value >> 8) & 0xFF);
-                _dat0 = (byte)((value >> 16) & 0xFF);
+                if (Endian.Big)
+                {
+                    _dat0 = (byte)((value) & 0xFF);
+                    _dat1 = (byte)((value >> 8) & 0xFF);
+                    _dat2 = (byte)((value >> 16) & 0xFF);
+                }
+                else
+                {
+                    _dat2 = (byte)((value) & 0xFF);
+                    _dat1 = (byte)((value >> 8) & 0xFF);
+                    _dat0 = (byte)((value >> 16) & 0xFF);
+                }
             }
         }
         
@@ -220,9 +231,8 @@ namespace TheraEngine.Core.Memory
 
         public BUInt24(uint value)
         {
-            _dat2 = (byte)((value) & 0xFF);
-            _dat1 = (byte)((value >> 8) & 0xFF);
-            _dat0 = (byte)((value >> 16) & 0xFF);
+            _dat2 = _dat1 = _dat0 = 0;
+            Value = value;
         }
 
         public BUInt24(byte v0, byte v1, byte v2)

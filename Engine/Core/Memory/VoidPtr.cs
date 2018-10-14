@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace TheraEngine.Core.Memory
 {
@@ -93,6 +94,20 @@ namespace TheraEngine.Core.Memory
         }
         public BUInt24 GetUInt24() => UInt24;
         public void SetUInt24(BUInt24 i) => UInt24 = i;
+        public char Char
+        {
+            get => *(char*)_address;
+            set => *(char*)_address = value;
+        }
+        public char GetChar() => Char;
+        public void SetChar(char i) => Char = i;
+        public decimal Decimal
+        {
+            get => *(decimal*)_address;
+            set => *(decimal*)_address = value;
+        }
+        public decimal GetDecimal() => Decimal;
+        public void SetDecimal(decimal i) => Decimal = i;
         #endregion
 
         #region Operators
@@ -214,7 +229,11 @@ namespace TheraEngine.Core.Memory
         #endregion
 
         public VoidPtr this[int count, int stride] => this + (count * stride);
-        public string GetString(int offset = 0) => new string((sbyte*)this + offset);
+
+        public string GetANSIString(int offset = 0) => new string((sbyte*)this + offset);
+        public string GetUnicodeString(int offset = 0) => new string((char*)this + offset);
+        public string GetString(int offset, int length, Encoding enc) => enc.GetString((byte*)this + offset, length);
+
         public void MovePointer(int byteCount = 1) => _address = (byte*)_address + byteCount;
 
         public static void Swap(float* p1, float* p2) { float f = *p1; *p1 = *p2; *p2 = f; }

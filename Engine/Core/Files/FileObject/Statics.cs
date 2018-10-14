@@ -370,41 +370,19 @@ namespace TheraEngine.Core.Files
         internal static async Task<TFileObject> FromBinaryAsync(
             Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            return await Task.Run(() =>
+            Type fileType = TDeserializer.DetermineType(filePath);
+            if (type.IsAssignableFrom(fileType))
             {
-                if (!File.Exists(filePath))
-                    return null;
-
-                TFileObject file = null;
-                FileExt ext = GetFileExtension(type);
-                if (ext?.ManualBinConfigSerialize ?? false)
-                {
-                    file = SerializationCommon.CreateObject(type) as TFileObject;
-                    if (file != null)
-                    {
-                        unsafe
-                        {
-                            file.FilePath = filePath;
-                            FileMap map = FileMap.FromFile(filePath);
-                            FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
-                            file.Read(hdr->Data, hdr->Strings);
-                        }
-                    }
-                }
-                else
-                {
-                    Type fileType = CustomBinarySerializer.DetermineType(filePath);
-                    if (type.IsAssignableFrom(fileType))
-                        file = CustomBinarySerializer.Deserialize(filePath, type) as TFileObject;
-                    else
-                        Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
-                }
-
-                if (file != null)
-                    file.FilePath = filePath;
-
+                TDeserializer deserializer = new TDeserializer();
+                TFileObject file = await deserializer.Deserialize(filePath, type) as TFileObject;
                 return file;
-            });
+            }
+            else
+            {
+                Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
+                return null;
+            }
+            
         }
         #endregion
 

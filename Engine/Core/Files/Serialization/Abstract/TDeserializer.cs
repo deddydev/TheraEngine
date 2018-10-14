@@ -16,10 +16,10 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TDeserializer
     {
-        public AbstractReader Reader { get; private set; }
+        public BaseAbstractReader Reader { get; private set; }
         public MemberTreeNode RootNode { get; internal set; }
         public EFileFormat Format { get; private set; }
-
+        
         public async Task<TFileObject> Deserialize(
             string filePath,
             IProgress<float> progress,

@@ -227,14 +227,14 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 return ESerializeType.Parsable;
             }
-            else if (t.GetInterface(nameof(IList)) != null)
-            {
-                return ESerializeType.Array;
-            }
-            else if (t.GetInterface(nameof(IDictionary)) != null)
-            {
-                return ESerializeType.Dictionary;
-            }
+            //else if (t.GetInterface(nameof(IList)) != null)
+            //{
+            //    return ESerializeType.Array;
+            //}
+            //else if (t.GetInterface(nameof(IDictionary)) != null)
+            //{
+            //    return ESerializeType.Dictionary;
+            //}
             else if (t.IsEnum)
             {
                 return ESerializeType.Enum;

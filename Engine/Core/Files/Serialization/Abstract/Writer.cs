@@ -7,6 +7,9 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TSerializer : TBaseSerializer
     {
+        public BaseAbstractWriter Writer { get; private set; }
+        public EProprietaryFileFormat Format { get; private set; }
+
         public abstract class BaseAbstractWriter : TBaseAbstractReaderWriter
         {
             public TSerializer Owner { get; }

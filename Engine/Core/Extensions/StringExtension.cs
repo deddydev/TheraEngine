@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using TheraEngine;
 using TheraEngine.Core.Memory;
@@ -187,14 +188,45 @@ namespace System
             if (nullTerminate)
                 *addr++ = 0;
         }
-        public static void Write(this string s, ref sbyte* addr, int maxLength)
+        public static void Write(this string s, ref sbyte* addr, int maxLength, bool nullTerminate)
         {
             for (int i = 0; i < Math.Max(s.Length, maxLength); ++i)
                 *addr++ = (sbyte)s[i];
             if (nullTerminate)
                 *addr++ = 0;
         }
-
+        public static void Write(this string s, ref byte* addr, Encoding encoding)
+        {
+            byte[] bytes = encoding.GetBytes(s);
+            foreach (byte b in bytes)
+                *addr++ = b;
+        }
+        public static int Write(this string s, byte* addr, Encoding encoding)
+        {
+            byte[] bytes = encoding.GetBytes(s);
+            foreach (byte b in bytes)
+                *addr++ = b;
+            return bytes.Length;
+        }
+        public static void Write(this string s, ref VoidPtr addr, Encoding encoding)
+        {
+            byte[] bytes = encoding.GetBytes(s);
+            foreach (byte b in bytes)
+            {
+                addr.Byte = b;
+                addr += 1;
+            }
+        }
+        public static int Write(this string s, VoidPtr addr, Encoding encoding)
+        {
+            byte[] bytes = encoding.GetBytes(s);
+            foreach (byte b in bytes)
+            {
+                addr.Byte = b;
+                addr += 1;
+            }
+            return bytes.Length;
+        }
         /// <summary>
         /// Finds the first instance that is not the character passed.
         /// </summary>

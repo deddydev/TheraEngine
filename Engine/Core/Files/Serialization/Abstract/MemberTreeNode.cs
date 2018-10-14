@@ -20,7 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         public int CalculatedSize { get; internal set; }
         public int FlagSize { get; internal set; }
-        public List<MemberTreeNode> ChildMembers { get; internal set; }
+        public List<MemberTreeNode> Children { get; internal set; }
 
         public void GetSize()
         {
@@ -36,7 +36,7 @@ namespace TheraEngine.Core.Files.Serialization
             else
             {
                 int flagCount = 0;
-                foreach (MemberTreeNode member in ChildMembers)
+                foreach (MemberTreeNode member in Children)
                 {
                     object value = member.Object;
 
@@ -84,7 +84,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             BinaryMemberTreeNode binaryChildMember = (BinaryMemberTreeNode)childMember;
 
-            ChildMembers.Add(childMember);
+            Children.Add(childMember);
             await childMember.CollectSerializedMembers();
 
             CalculatedSize += binaryChildMember.CalculatedSize;
@@ -93,7 +93,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             CalculatedSize = 0;
             FlagSize = 0;
-            ChildMembers = new List<MemberTreeNode>(members.Count);
+            Children = new List<MemberTreeNode>(members.Count);
             foreach (MemberTreeNode member in members)
                 await AddChild(member);
         }
@@ -200,6 +200,7 @@ namespace TheraEngine.Core.Files.Serialization
                     BindingFlags.FlattenHierarchy).
                     Where(x => x.GetCustomAttribute<CustomSerializeMethod>() != null);
                 DetermineObjectWriter();
+                //DefaultConstructedObject = SerializationCommon.CreateObject(ObjectType);
             }
         }
         private object _object;
@@ -230,7 +231,8 @@ namespace TheraEngine.Core.Files.Serialization
         public MemberTreeNode Parent { get; internal set; }
         public bool ConfigMember { get; set; }
         public bool StateMember { get; set; }
-        
+        public object DefaultConstructedObject { get; private set; }
+
         public MemberTreeNode(object root, TSerializer.BaseAbstractWriter writer)
         {
             Parent = null;
@@ -239,6 +241,7 @@ namespace TheraEngine.Core.Files.Serialization
             Name = SerializationCommon.GetTypeName(MemberType);
             Category = null;
             Object = root;
+            DefaultConstructedObject = SerializationCommon.CreateObject(ObjectType);
         }
         public MemberTreeNode(MemberTreeNode parent, MemberInfo memberInfo, TSerializer.BaseAbstractWriter writer)
         {
@@ -444,18 +447,28 @@ namespace TheraEngine.Core.Files.Serialization
         //            Engine.LogWarning("Can't set property '" + p.Name + "' in " + p.DeclaringType.GetFriendlyName());
         //    }
         //}
-        private void GetObject(MemberInfo memberInfo)
+        public void GetObject(MemberInfo memberInfo)
         {
+            DefaultConstructedObject = null;
             if (Parent.Object is null)
                 return;
 
             if (memberInfo.MemberType.HasFlag(MemberTypes.Field))
-                Object = ((FieldInfo)memberInfo).GetValue(Parent.Object);
+            {
+                FieldInfo f = (FieldInfo)memberInfo;
+                Object = f.GetValue(Parent.Object);
+                if (!(Parent.DefaultConstructedObject is null))
+                    DefaultConstructedObject = f.GetValue(Parent.DefaultConstructedObject);
+            }
             else if (memberInfo.MemberType.HasFlag(MemberTypes.Property))
             {
                 PropertyInfo p = (PropertyInfo)memberInfo;
                 if (p.CanRead)
+                {
                     Object = p.GetValue(Parent.Object);
+                    if (!(Parent.DefaultConstructedObject is null))
+                        DefaultConstructedObject = p.GetValue(Parent.DefaultConstructedObject);
+                }
                 else
                     Engine.LogWarning("Can't read property '" + p.Name + "' in " + p.DeclaringType.GetFriendlyName());
             }

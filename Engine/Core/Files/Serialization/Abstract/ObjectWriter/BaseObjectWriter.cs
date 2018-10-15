@@ -18,8 +18,8 @@ namespace TheraEngine.Core.Files.Serialization
     /// </summary>
     public abstract class BaseObjectWriter
     {
-        public MemberTreeNode TreeNode { get; internal set; } = null;
-        public List<MemberTreeNode> Members { get; set; }
+        public IMemberTreeNode TreeNode { get; internal set; } = null;
+        public List<IMemberTreeNode> Members { get; set; }
         public abstract Task CollectSerializedMembers();
     }
 }

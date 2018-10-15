@@ -512,7 +512,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
                 => new BinaryMemberTreeNode(parent, memberInfo, this);
-            public override MemberTreeNode CreateNode(object root)
+            public override IMemberTreeNode CreateNode(object root)
                 => new BinaryMemberTreeNode(root, this);
 
             public unsafe sealed class BinaryStringTableReader

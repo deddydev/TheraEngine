@@ -503,6 +503,60 @@ namespace TheraEngine.Animation
                 Add(kf);
             }
         }
+        protected internal override void ManualWrite(IMemberTreeNode node)
+        {
+            if (!(node is XMLMemberTreeNode xmlNode))
+                return;
+
+            xmlNode.ElementName = "KeyframeTrack";
+            xmlNode.Attributes.Add((nameof(LengthInSeconds), LengthInSeconds.ToString()));
+            xmlNode.Attributes.Add((nameof(Count), Count.ToString()));
+            if (Count > 0)
+            {
+                Type t = typeof(T);
+                if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
+                {
+                    string
+                        seconds = "",
+                        inValues = "",
+                        outValues = "",
+                        inTans = "",
+                        outTans = "",
+                        interpTypes = "";
+
+                    bool first = true;
+                    foreach (IPlanarKeyframe kf in this)
+                    {
+                        if (first)
+                            first = false;
+                        else
+                        {
+                            seconds += ",";
+                            inValues += ",";
+                            outValues += ",";
+                            inTans += ",";
+                            outTans += ",";
+                            interpTypes += ",";
+                        }
+
+                        kf.WritePlanar(out string tempInVal, out string tempOutVal, out string tempInTan, out string tempOutTan);
+                        seconds += kf.Second;
+                        interpTypes += kf.InterpolationType;
+                        inValues += tempInVal;
+                        outValues += tempOutVal;
+                        inTans += tempInTan;
+                        outTans += tempOutTan;
+                    }
+                    xmlNode.AddChild("Seconds", seconds, ENodeType.ElementString);
+                    await writer.WriteElementStringAsync("Seconds", seconds);
+                    await writer.WriteElementStringAsync("InValues", inValues);
+                    await writer.WriteElementStringAsync("OutValues", outValues);
+                    await writer.WriteElementStringAsync("InTangents", inTans);
+                    await writer.WriteElementStringAsync("OutTangents", outTans);
+                    await writer.WriteElementStringAsync("InterpTypes", interpTypes);
+                }
+            }
+        }
         protected internal override WriteAsync(TSerializer.AbstractWriter writer)
         {
             await writer.WriteStartElementAsync("KeyframeTrack");

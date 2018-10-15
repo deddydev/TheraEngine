@@ -430,7 +430,7 @@ namespace TheraEngine.Core.Files
                 else
                 {
                     if (ext.AsyncManualWrite)
-                        await Write3rdPartyAsync(FilePath);
+                        await ManualWrite3rdPartyAsync(FilePath);
                     else
                         ManualWrite3rdParty(FilePath);
                 }
@@ -438,7 +438,7 @@ namespace TheraEngine.Core.Files
             else
             {
                 if (ext.AsyncManualWrite)
-                    await Write3rdPartyAsync(FilePath);
+                    await ManualWrite3rdPartyAsync(FilePath);
                 else
                     ManualWrite3rdParty(FilePath);
             }
@@ -485,6 +485,18 @@ namespace TheraEngine.Core.Files
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to write the object to a path.
         /// </summary>
         /// <param name="filePath">The path of the file to write.</param>
+        public virtual Task ManualWrite3rdPartyAsync(string filePath)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite3rdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
+        /// <summary>
+        /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to read the object from a path.
+        /// </summary>
+        /// <param name="filePath">The path of the file to read.</param>
+        public virtual Task ManualRead3rdPartyAsync(string filePath)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead3rdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
+        /// <summary>
+        /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to write the object to a path.
+        /// </summary>
+        /// <param name="filePath">The path of the file to write.</param>
         public virtual void ManualWrite3rdParty(string filePath)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite3rdParty(string filePath)\" required when 'IsThirdParty' is true in FileClass attribute.");
         /// <summary>
@@ -497,13 +509,13 @@ namespace TheraEngine.Core.Files
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="node">The tree node containing information for this object.</param>
-        internal protected virtual void ManualWrite(MemberTreeNode node)
+        internal protected virtual void ManualWrite(IMemberTreeNode node)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="node">The tree node containing information for this object.</param>
-        internal protected virtual void ManualRead(MemberTreeNode node)
+        internal protected virtual void ManualRead(IMemberTreeNode node)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualBinSerialize.

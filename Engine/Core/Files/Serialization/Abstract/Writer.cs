@@ -23,17 +23,17 @@ namespace TheraEngine.Core.Files.Serialization
                 RootNode = CreateNode(rootFileObject);
             }
 
-            public abstract MemberTreeNode CreateNode(object root);
-            public abstract MemberTreeNode CreateNode(MemberTreeNode parent, MemberInfo memberInfo);
+            public abstract IMemberTreeNode CreateNode(object obj);
+            public abstract IMemberTreeNode CreateNode(IMemberTreeNode parent, MemberInfo memberInfo);
 
             internal protected abstract Task WriteTree();
         }
-        public abstract class AbstractWriter<T> : BaseAbstractWriter where T : MemberTreeNode
+        public abstract class AbstractWriter<T> : BaseAbstractWriter where T : class, IMemberTreeNode
         {
             protected AbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
                 : base(owner, rootFileObject, filePath, flags, progress, cancel) { }
 
-            public override MemberTreeNode CreateNode(MemberTreeNode parent, MemberInfo memberInfo) => CreateNode(parent as T, memberInfo);
+            public override IMemberTreeNode CreateNode(IMemberTreeNode parent, MemberInfo memberInfo) => CreateNode(parent as T, memberInfo);
             public abstract T CreateNode(T parent, MemberInfo memberInfo);
         }
     }

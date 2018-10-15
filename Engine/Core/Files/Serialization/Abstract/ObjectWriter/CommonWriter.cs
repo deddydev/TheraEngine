@@ -23,7 +23,7 @@ namespace TheraEngine.Core.Files.Serialization
                 BindingFlags.FlattenHierarchy;
             
             MemberInfo[] members = TreeNode.ObjectType?.GetMembersExt(retrieveFlags) ?? new MemberInfo[0];
-            Members = new List<MemberTreeNode>(members.Length);
+            Members = new List<IMemberTreeNode>(members.Length);
 
             foreach (MemberInfo info in members)
             {
@@ -34,7 +34,7 @@ namespace TheraEngine.Core.Files.Serialization
                         TSerialize attrib = info.GetCustomAttribute<TSerialize>();
                         if (attrib.AllowSerialize(TreeNode.Object))
                         {
-                            MemberTreeNode child = TreeNode.FormatWriter.CreateNode(TreeNode, info);
+                            IMemberTreeNode child = TreeNode.FormatWriter.CreateNode(TreeNode, info);
                             switch (attrib.NodeType)
                             {
                                 case ENodeType.Attribute:
@@ -55,7 +55,7 @@ namespace TheraEngine.Core.Files.Serialization
             
             for (int i = 0; i < Members.Count; ++i)
             {
-                MemberTreeNode node = Members[i];
+                IMemberTreeNode node = Members[i];
                 int index = node.Order;
                 if (index >= 0)
                 {
@@ -84,13 +84,13 @@ namespace TheraEngine.Core.Files.Serialization
 
             //Remove grouped members from original list
             foreach (var grouping in categorizedChildren)
-                foreach (MemberTreeNode p in grouping.Value)
+                foreach (IMemberTreeNode p in grouping.Value)
                     Members.Remove(p);
             
             //Add a member node for each category
             foreach (var cat in categorizedChildren)
             {
-                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(TreeNode.Object);
+                IMemberTreeNode node = TreeNode.FormatWriter.CreateNode(TreeNode.Object);
                 node.Parent = TreeNode;
                 node.NodeType = ENodeType.ChildElement;
                 node.ElementName = cat.Key;
@@ -98,7 +98,7 @@ namespace TheraEngine.Core.Files.Serialization
                 CommonWriter objWriter = new CommonWriter { TreeNode = node };
                 node.ObjectWriter = objWriter;
 
-                foreach (MemberTreeNode catChild in cat.Value)
+                foreach (IMemberTreeNode catChild in cat.Value)
                     objWriter.Members.Add(catChild);
 
                 Members.Add(node);

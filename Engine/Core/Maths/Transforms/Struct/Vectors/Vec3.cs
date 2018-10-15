@@ -20,7 +20,7 @@ namespace TheraEngine.Core.Maths.Transforms
     [Serializable]
     //[TypeConverter(typeof(Vec3StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable, IParsable, IByteColor
+    public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable, IStringParsable, IByteColor
     {
         public static readonly int Size = sizeof(Vec3);
 

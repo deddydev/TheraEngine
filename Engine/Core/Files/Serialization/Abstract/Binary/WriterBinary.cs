@@ -122,11 +122,10 @@ namespace TheraEngine.Core.Files.Serialization
             protected internal override async Task WriteTree()
             {
                 await RootNode.CollectSerializedMembers();
-                BinaryMemberTreeNode rootNode = (BinaryMemberTreeNode)RootNode;
 
                 Memory.Endian.Order = Endian;
 
-                int dataSize = rootNode.CalculatedSize;
+                int dataSize = RootNode.CalculatedSize;
                 int stringSize = StringTable.TotalLength.Align(4);
                 StringOffsetSize = StringTable.GetSmallestRepSize(stringSize);
                 int totalSize = FileCommonHeader.Size + stringSize + dataSize;
@@ -154,7 +153,7 @@ namespace TheraEngine.Core.Files.Serialization
                         StringTable.WriteTable(hdr->Strings);
 
                         VoidPtr addr = hdr->Data;
-                        WriteObject(rootNode, ref addr);
+                        WriteObject(RootNode, ref addr);
                     }
 
                     uncompMap.BaseStream.Position = 0;
@@ -216,11 +215,6 @@ namespace TheraEngine.Core.Files.Serialization
                 Type objType = node.ObjectType;
                 object defaultValue = node.DefaultConstructedObject;
                 
-                //Write flags at the start of the object data block
-                //TODO: this needs to be for CHILDREN, not THIS node
-                int flagIndex = 0;
-                byte[] flagBytes = new byte[node.FlagSize];
-
                 Type nulledType = Nullable.GetUnderlyingType(objType);
                 bool nullable = nulledType != null;
                 if (nullable)
@@ -236,20 +230,27 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     address.Byte = 1;
                     address += 1;
+
+                    //TODO: generate assembly list and namespace folder tree in another section to save space
+                    //This will do for now
+                    if (node.IsDerivedType)
+                        WriteString(node.ObjectType.AssemblyQualifiedName, ref address);
                 }
                 
+                //First, handle built-in primitive types
                 switch (objType.Name)
                 {
                     case "Boolean":
-                        WriteBoolean((bool)value, flagBytes, ref flagIndex); // wrong
+                        address.Byte = (byte)((bool)value ? 1 : 0);
+                        address += 1;
                         break;
                     case "SByte":
                         address.SByte = (sbyte)value;
-                        address += sizeof(sbyte);
+                        address += 1;
                         break;
                     case "Byte":
                         address.Byte = (byte)value;
-                        address += sizeof(byte);
+                        address += 1;
                         break;
                     case "Char":
                         address.Char = (char)value;
@@ -294,7 +295,7 @@ namespace TheraEngine.Core.Files.Serialization
                     case "String":
                         WriteString(value?.ToString(), ref address);
                         break;
-                    default:
+                    default: //Now do more specific work
                         //Write manually?
                         if (value is TFileObject fobj)
                         {
@@ -317,20 +318,29 @@ namespace TheraEngine.Core.Files.Serialization
                             Marshal.StructureToPtr(value, address, true);
                             address += size;
                         }
+                        else if (objType.GetInterface(nameof(IByteArrayParsable)) != null)
+                        {
+                            byte[] bytes = node.ParsableBytes;
+                            address.Int = bytes.Length;
+                            address += sizeof(int);
+                            if (bytes != null)
+                                foreach (byte b in bytes)
+                                {
+                                    address.Byte = b;
+                                    address += 1;
+                                }
+                        }
+                        else if (objType.GetInterface(nameof(IStringParsable)) != null)
+                            WriteString(node.ParsableString, ref address);
                         else
                             foreach (BinaryMemberTreeNode childNode in node.Children)
                                 WriteObject(childNode, ref address);
                         break;
                 }
-                
-                byte* flagData = (byte*)address;
-                foreach (byte b in flagBytes)
-                    *flagData++ = b;
             }
-            private unsafe int GetSizeObject(BinaryMemberTreeNode node)
+            internal int GetSizeObject(BinaryMemberTreeNode node)
             {
                 int size = 0;
-                int flagCount = 0;
                 object value = node.Object;
                 Type objType = node.ObjectType;
                 object defaultValue = node.DefaultConstructedObject;
@@ -343,17 +353,22 @@ namespace TheraEngine.Core.Files.Serialization
                 ++size;
                 if (value == defaultValue)
                     return size;
+                else if (node.IsDerivedType)
+                {
+                    StringTable.Add(node.ObjectType.AssemblyQualifiedName);
+                    size += StringOffsetSize;
+                }
                 
                 switch (objType.Name)
                 {
                     case "Boolean":
-                        ++flagCount;
-                        break;
+                        //size += 1;
+                        //break;
                     case "SByte":
-                        size += sizeof(sbyte);
-                        break;
+                        //size += 1;
+                        //break;
                     case "Byte":
-                        size += sizeof(byte);
+                        size += 1;
                         break;
                     case "Char":
                         size += sizeof(char);
@@ -398,7 +413,8 @@ namespace TheraEngine.Core.Files.Serialization
                             bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
                             if (serConfig || serState)
                             {
-                                size += node.CalculatedSize;
+                                int manualSize = fobj.ManualGetSizeBinary(StringTable, Flags);
+                                size += manualSize;
                                 return size;
                             }
                         }
@@ -406,6 +422,20 @@ namespace TheraEngine.Core.Files.Serialization
                             size += GetSizeEnum(value);
                         else if (objType.IsValueType && node.Children.Count == 0)
                             size += Marshal.SizeOf(value);
+                        else if (objType.GetInterface(nameof(IByteArrayParsable)) != null)
+                        {
+                            byte[] bytes = node.ParsableBytes;
+                            size += 4;
+                            if (bytes != null)
+                                size += bytes.Length;
+                        }
+                        else if (objType.GetInterface(nameof(IStringParsable)) != null)
+                        {
+                            string str = ((IStringParsable)value).WriteToString();
+                            node.ParsableString = str;
+                            StringTable.Add(str);
+                            size += StringOffsetSize;
+                        }
                         else
                             foreach (BinaryMemberTreeNode childNode in node.Children)
                                 size += GetSizeObject(childNode);
@@ -493,22 +523,22 @@ namespace TheraEngine.Core.Files.Serialization
                     case TypeCode.UInt64: return sizeof(ulong);
                 }
             }
-            private void WriteBoolean(bool value, byte[] flagBytes, ref int flagIndex)
-            {
-                int bitIndex = flagIndex & 7;
-                int byteIndex = flagIndex >> 3;
+            //private void WriteBoolean(bool value, byte[] flagBytes, ref int flagIndex)
+            //{
+            //    int bitIndex = flagIndex & 7;
+            //    int byteIndex = flagIndex >> 3;
 
-                if (bitIndex == 0)
-                    flagBytes[byteIndex] = 0;
+            //    if (bitIndex == 0)
+            //        flagBytes[byteIndex] = 0;
 
-                int data = 1 << (7 - bitIndex);
-                if (value)
-                    flagBytes[byteIndex] |= (byte)data;
-                else
-                    flagBytes[byteIndex] &= (byte)~data;
+            //    int data = 1 << (7 - bitIndex);
+            //    if (value)
+            //        flagBytes[byteIndex] |= (byte)data;
+            //    else
+            //        flagBytes[byteIndex] &= (byte)~data;
 
-                ++flagIndex;
-            }
+            //    ++flagIndex;
+            //}
 
             public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
                 => new BinaryMemberTreeNode(parent, memberInfo, this);

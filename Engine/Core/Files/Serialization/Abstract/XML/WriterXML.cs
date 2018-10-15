@@ -114,7 +114,7 @@ namespace TheraEngine.Core.Files.Serialization
                     
                     var attributes = node.Attributes;
                     var childElements = node.ChildElements;
-                    string childStringData = node.ChildStringData;
+                    string childStringData = node.ElementString;
 
                     foreach (var (Name, Value) in attributes)
                     {

@@ -437,44 +437,46 @@ namespace TheraEngine.Animation
 
         #region Reading / Writing
 
-        protected internal override async Task ReadAsync(TDeserializer.AbstractReader reader)
+        protected internal override void ManualRead(IMemberTreeNode node)
         {
-            if (!string.Equals(reader.ElementName, "KeyframeTrack", StringComparison.InvariantCulture))
+            if (!(node is XMLMemberTreeNode xmlNode))
+                return;
+
+            if (!string.Equals(xmlNode.ElementName, "KeyframeTrack", StringComparison.InvariantCulture))
             {
                 LengthInSeconds = 0.0f;
                 return;
             }
-            
-            bool read = await reader.ExpectAttribute(nameof(LengthInSeconds));
-            if (read && float.TryParse(reader.AttributeValue, out float length))
+
+            var attrib = xmlNode.GetAttribute(nameof(LengthInSeconds));
+            if (attrib != null && float.TryParse(attrib.Value, out float length))
                 LengthInSeconds = length;
             else
                 LengthInSeconds = 0.0f;
 
             Clear();
 
-            read = await reader.ExpectAttribute(nameof(Count));
-            if (!read || !int.TryParse(reader.AttributeValue, out int keyCount))
+            attrib = xmlNode.GetAttribute(nameof(Count));
+            if (attrib == null || !int.TryParse(attrib.Value, out int keyCount))
                 return;
-            
+
             Type t = typeof(T);
             if (!typeof(IPlanarKeyframe).IsAssignableFrom(t))
                 return;
-            
-            string[] 
-                seconds = null, 
-                inValues = null, 
-                outValues = null, 
-                inTans = null, 
-                outTans = null, 
+
+            string[]
+                seconds = null,
+                inValues = null,
+                outValues = null,
+                inTans = null,
+                outTans = null,
                 interpolation = null;
 
             //Read all keyframe information, split into separate element arrays
-            while (await reader.BeginElementAsync())
+            foreach (XMLMemberTreeNode element in xmlNode.ChildElements)
             {
-                string elemStr = await reader.ReadElementStringAsync();
-                string[] str = elemStr.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                switch (reader.ElementName)
+                string[] str = element.ElementString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                switch (element.ElementName)
                 {
                     case "Seconds": seconds = str; break;
                     case "InValues": inValues = str; break;
@@ -483,7 +485,6 @@ namespace TheraEngine.Animation
                     case "OutTangents": outTans = str; break;
                     case "InterpTypes": interpolation = str; break;
                 }
-                await reader.EndElementAsync();
             }
 
             for (int i = 0; i < keyCount; ++i)
@@ -509,8 +510,8 @@ namespace TheraEngine.Animation
                 return;
 
             xmlNode.ElementName = "KeyframeTrack";
-            xmlNode.Attributes.Add((nameof(LengthInSeconds), LengthInSeconds.ToString()));
-            xmlNode.Attributes.Add((nameof(Count), Count.ToString()));
+            xmlNode.AddAttribute(nameof(LengthInSeconds), LengthInSeconds.ToString());
+            xmlNode.AddAttribute(nameof(Count), Count.ToString());
             if (Count > 0)
             {
                 Type t = typeof(T);
@@ -547,68 +548,15 @@ namespace TheraEngine.Animation
                         inTans += tempInTan;
                         outTans += tempOutTan;
                     }
-                    xmlNode.AddChild("Seconds", seconds, ENodeType.ElementString);
-                    await writer.WriteElementStringAsync("Seconds", seconds);
-                    await writer.WriteElementStringAsync("InValues", inValues);
-                    await writer.WriteElementStringAsync("OutValues", outValues);
-                    await writer.WriteElementStringAsync("InTangents", inTans);
-                    await writer.WriteElementStringAsync("OutTangents", outTans);
-                    await writer.WriteElementStringAsync("InterpTypes", interpTypes);
+                    xmlNode.AddChildElementString("Seconds", seconds);
+                    xmlNode.AddChildElementString("Seconds", seconds);
+                    xmlNode.AddChildElementString("InValues", inValues);
+                    xmlNode.AddChildElementString("OutValues", outValues);
+                    xmlNode.AddChildElementString("InTangents", inTans);
+                    xmlNode.AddChildElementString("OutTangents", outTans);
+                    xmlNode.AddChildElementString("InterpTypes", interpTypes);
                 }
             }
-        }
-        protected internal override WriteAsync(TSerializer.AbstractWriter writer)
-        {
-            await writer.WriteStartElementAsync("KeyframeTrack");
-            {
-                await writer.WriteAttributeStringAsync(nameof(LengthInSeconds), LengthInSeconds.ToString());
-                await writer.WriteAttributeStringAsync(nameof(Count), Count.ToString());
-                if (Count > 0)
-                {
-                    Type t = typeof(T);
-                    if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
-                    {
-                        string
-                            seconds = "",
-                            inValues = "",
-                            outValues = "",
-                            inTans = "",
-                            outTans = "",
-                            interpTypes = "";
-
-                        bool first = true;
-                        foreach (IPlanarKeyframe kf in this)
-                        {
-                            if (first)
-                                first = false;
-                            else
-                            {
-                                seconds += ",";
-                                inValues += ",";
-                                outValues += ",";
-                                inTans += ",";
-                                outTans += ",";
-                                interpTypes += ",";
-                            }
-
-                            kf.WritePlanar(out string tempInVal, out string tempOutVal, out string tempInTan, out string tempOutTan);
-                            seconds += kf.Second;
-                            interpTypes += kf.InterpolationType;
-                            inValues += tempInVal;
-                            outValues += tempOutVal;
-                            inTans += tempInTan;
-                            outTans += tempOutTan;
-                        }
-                        await writer.WriteElementStringAsync("Seconds", seconds);
-                        await writer.WriteElementStringAsync("InValues", inValues);
-                        await writer.WriteElementStringAsync("OutValues", outValues);
-                        await writer.WriteElementStringAsync("InTangents", inTans);
-                        await writer.WriteElementStringAsync("OutTangents", outTans);
-                        await writer.WriteElementStringAsync("InterpTypes", interpTypes);
-                    }
-                }
-            }
-            await writer.WriteEndElementAsync();
         }
         #endregion
     }
@@ -625,7 +573,7 @@ namespace TheraEngine.Animation
         CubicHermite,
         CubicBezier
     }
-    public abstract class Keyframe : IParsable
+    public abstract class Keyframe : IStringParsable
     {
         [TSerialize(nameof(Second), NodeType = ENodeType.Attribute)]
         private float _second;

@@ -4,10 +4,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Threading;
-using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -19,67 +17,10 @@ namespace TheraEngine.Core.Files.Serialization
             : base(parent, memberInfo, writer) { }
 
         public int CalculatedSize { get; internal set; }
-        public int FlagSize { get; internal set; }
         public List<BinaryMemberTreeNode> Children { get; internal set; }
-
-        public void GetSize()
-        {
-            CalculatedSize = 0;
-
-            if (Object == null)
-                return;
-
-            int size = 0;
-            
-            if (ObjectType.IsValueType)
-                size += Marshal.SizeOf(ObjectType);
-            else
-            {
-                int flagCount = 0;
-                foreach (MemberTreeNode member in Children)
-                {
-                    object value = member.Object;
-
-                }
-                size += (FlagSize = flagCount.Align(8) / 8); //Align to nearest byte
-            }
-
-            CalculatedSize = size.Align(4);
-        }
-        public int GetSizeMember(BinaryMemberTreeNode node)
-        {
-            object value = node.Object;
-
-            if (TryGetSize(node, table, out int size))
-                return size;
-
-            Type t = node.ObjectType;
-
-            if (t == typeof(bool))
-                ++flagCount;
-            else if (t == typeof(string))
-            {
-                if (value != null)
-                    StringTable.Add(value.ToString());
-                size += 4;
-            }
-            else if (t.IsEnum)
-            {
-                //table.Add(value.ToString());
-                size += 4;
-            }
-            else if (t.IsValueType)
-            {
-                if (node.Members.Count > 0)
-                    size += node.GetSize(StringTable);
-                else
-                    size += Marshal.SizeOf(value);
-            }
-            else
-                size += node.GetSize(StringTable);
-
-            return size;
-        }
+        public byte[] ParsableBytes { get; internal set; } = null;
+        public string ParsableString { get; internal set; } = null;
+        
         protected override async Task OnAddChild(BinaryMemberTreeNode childMember)
         {
             Children.Add(childMember);
@@ -89,12 +30,19 @@ namespace TheraEngine.Core.Files.Serialization
         }
         protected internal override async Task AddChildren(int attribCount, int elementCount, int elementStringCount, List<BinaryMemberTreeNode> members)
         {
-            CalculatedSize = 0;
-            FlagSize = 0;
+            CalculatedSize = ((TSerializer.WriterBinary)FormatWriter).GetSizeObject(this);
             Children = new List<BinaryMemberTreeNode>(members.Count);
             foreach (BinaryMemberTreeNode member in members)
                 await AddChild(member);
         }
+    }
+    public class XMLAttribute
+    {
+        public XMLAttribute() { }
+        public XMLAttribute(string name, string value) { Name = name; Value = value; }
+
+        public string Name { get; set; }
+        public string Value { get; set; }
     }
     public class XMLMemberTreeNode : MemberTreeNode<XMLMemberTreeNode>
     {
@@ -106,7 +54,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// 
         /// </summary>
-        public List<(string Name, string Value)> Attributes { get; internal set; }
+        public List<XMLAttribute> Attributes { get; internal set; }
         /// <summary>
         /// 
         /// </summary>
@@ -116,7 +64,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// this string is written between the open and close tags. If ChildElements has entries,
         /// then this string is written as a child element as well.
         /// </summary>
-        public string ChildStringData { get; internal set; }
+        public string ElementString { get; internal set; }
         public int NonAttributeCount { get; private set; }
 
         protected override async Task OnAddChild(XMLMemberTreeNode childMember)
@@ -130,12 +78,12 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    if (SerializationCommon.GetString(childMember.Object, childMember.MemberType, out string result))
+                    if (SerializationCommon.GetString(childMember.Object, childMember.ObjectType, out string result))
                     {
                         if (childMember.NodeType == ENodeType.ElementString && NonAttributeCount == 1)
-                            ChildStringData = result;
+                            ElementString = result;
                         else
-                            Attributes.Add((childMember.Name, result));
+                            Attributes.Add(new XMLAttribute(childMember.Name, result));
                     }
                     else
                         Engine.LogWarning(ObjectType.Name + " cannot be written as a string.");
@@ -146,9 +94,9 @@ namespace TheraEngine.Core.Files.Serialization
         protected internal override async Task AddChildren(int attribCount, int elementCount, int elementStringCount, List<XMLMemberTreeNode> members)
         {
             NonAttributeCount = elementCount + elementStringCount;
-            Attributes = new List<(string Name, string Value)>(attribCount);
+            Attributes = new List<XMLAttribute>(attribCount);
             ChildElements = new List<XMLMemberTreeNode>(elementCount);
-            ChildStringData = null;
+            ElementString = null;
             ProgressionCount = 1 + attribCount + elementCount + elementStringCount;
             if (IsDerivedType)
                 ++ProgressionCount;
@@ -157,6 +105,26 @@ namespace TheraEngine.Core.Files.Serialization
                 await AddChild(member);
                 ProgressionCount += member.ProgressionCount;
             }
+        }
+        public void AddChildElementString(string elementName, string value)
+        {
+            XMLMemberTreeNode element = new XMLMemberTreeNode(null, FormatWriter);
+            element.ElementName = elementName;
+            element.NodeType = ENodeType.ChildElement;
+            element.ElementString = value;
+        }
+
+        public XMLAttribute GetAttribute(string name)
+        {
+            return Attributes.Find(x => x.Name == name);
+        }
+        public XMLMemberTreeNode GetChildElement(string elementName)
+        {
+            return ChildElements.Find(x => x.ElementName == elementName);
+        }
+        public void AddAttribute(string name, string value)
+        {
+            Attributes.Add(new XMLAttribute(name, value));
         }
     }
     public interface IMemberTreeNode
@@ -249,7 +217,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// The class handling how to collect all members of any given object.
         /// Most classes will use <see cref="CommonWriter"/>.
         /// </summary>
-        public BaseObjectWriter ObjectWriter { get; internal set; }
+        public BaseObjectWriter ObjectWriter { get; set; }
         /// <summary>
         /// Methods for serializing data in a specific manner.
         /// </summary>
@@ -424,7 +392,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public ESerializeType GetSerializeType(Type type)
         {
-            if (type.GetInterface(nameof(IParsable)) != null)
+            if (type.GetInterface(nameof(IStringParsable)) != null)
                 return ESerializeType.Parsable;
             else if (type.IsEnum)
                 return ESerializeType.Enum;
@@ -484,27 +452,34 @@ namespace TheraEngine.Core.Files.Serialization
         public void GetObject(MemberInfo memberInfo)
         {
             DefaultConstructedObject = null;
-            if (Parent.Object is null)
+            if (Parent.Object is null || memberInfo is null)
+            {
+                Object = null;
                 return;
+            }
 
             if (memberInfo.MemberType.HasFlag(MemberTypes.Field))
             {
-                FieldInfo f = (FieldInfo)memberInfo;
-                Object = f.GetValue(Parent.Object);
+                FieldInfo info = (FieldInfo)memberInfo;
+                Object = info.GetValue(Parent.Object);
                 if (!(Parent.DefaultConstructedObject is null))
-                    DefaultConstructedObject = f.GetValue(Parent.DefaultConstructedObject);
+                    DefaultConstructedObject = info.GetValue(Parent.DefaultConstructedObject);
             }
             else if (memberInfo.MemberType.HasFlag(MemberTypes.Property))
             {
-                PropertyInfo p = (PropertyInfo)memberInfo;
-                if (p.CanRead)
+                PropertyInfo info = (PropertyInfo)memberInfo;
+                if (info.CanRead)
                 {
-                    Object = p.GetValue(Parent.Object);
+                    Object = info.GetValue(Parent.Object);
                     if (!(Parent.DefaultConstructedObject is null))
-                        DefaultConstructedObject = p.GetValue(Parent.DefaultConstructedObject);
+                        DefaultConstructedObject = info.GetValue(Parent.DefaultConstructedObject);
                 }
                 else
-                    Engine.LogWarning("Can't read property '" + p.Name + "' in " + p.DeclaringType.GetFriendlyName());
+                    Engine.LogWarning("Can't read property '" + info.Name + "' in " + info.DeclaringType.GetFriendlyName());
+            }
+            else
+            {
+                Engine.LogWarning($"Member {memberInfo.Name} is not a field or property.");
             }
         }
         /// <summary>

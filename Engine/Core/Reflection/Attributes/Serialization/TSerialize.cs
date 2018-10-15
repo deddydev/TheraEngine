@@ -21,8 +21,17 @@ namespace System.ComponentModel
     }
     public enum ENodeType
     {
+        /// <summary>
+        /// This is an attribute for the parent tree node. Object must be a string value.
+        /// </summary>
         Attribute,
+        /// <summary>
+        /// This is a child element. The Object value is irrelevant if there is no member info.
+        /// </summary>
         ChildElement,
+        /// <summary>
+        /// This is a string value that resides between the open and close tags. Object must be a string value and there must be no child elements.
+        /// </summary>
         ElementString,
     }
     /// <summary>

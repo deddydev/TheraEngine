@@ -1,12 +1,11 @@
-﻿using TheraEngine.Core.Files;
-using TheraEngine.Rendering.Models;
-using System;
-using TheraEngine.Rendering;
-using System.ComponentModel;
-using TheraEngine.Core.Shapes;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine
 {
@@ -14,10 +13,15 @@ namespace TheraEngine
     {
         string Text { get; set; }
     }
-    public interface IParsable
+    public interface IStringParsable
     {
         string WriteToString();
         void ReadFromString(string str);
+    }
+    public interface IByteArrayParsable
+    {
+        byte[] WriteToBytes();
+        void ReadFromBytes(byte[] bytes);
     }
     public interface IModelFile
     {

@@ -853,7 +853,7 @@ namespace TheraEngine.Core.Files.XML
     #endregion
 
     #region String Elements
-    public abstract class BaseElementString : IParsable
+    public abstract class BaseElementString : IStringParsable
     {
         public abstract void ReadFromString(string str);
         public abstract string WriteToString();
@@ -866,7 +866,7 @@ namespace TheraEngine.Core.Files.XML
         public override string WriteToString()
             => Value.ToString();
     }
-    public class StringParsable<T> : BaseElementString where T : IParsable
+    public class StringParsable<T> : BaseElementString where T : IStringParsable
     {
         //This has to be a field so that ReadFromString works properly
         private T _value = default;

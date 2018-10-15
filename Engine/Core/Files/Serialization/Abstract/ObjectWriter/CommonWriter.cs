@@ -26,33 +26,28 @@ namespace TheraEngine.Core.Files.Serialization
             Members = new List<IMemberTreeNode>(members.Length);
 
             foreach (MemberInfo info in members)
-            {
-                if (info is FieldInfo || info is PropertyInfo)
+                if ((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize)))
                 {
-                    if (Attribute.IsDefined(info, typeof(TSerialize)))
+                    TSerialize attrib = info.GetCustomAttribute<TSerialize>();
+                    if (attrib.AllowSerialize(TreeNode.Object))
                     {
-                        TSerialize attrib = info.GetCustomAttribute<TSerialize>();
-                        if (attrib.AllowSerialize(TreeNode.Object))
+                        IMemberTreeNode child = TreeNode.FormatWriter.CreateNode(TreeNode, info);
+                        switch (attrib.NodeType)
                         {
-                            IMemberTreeNode child = TreeNode.FormatWriter.CreateNode(TreeNode, info);
-                            switch (attrib.NodeType)
-                            {
-                                case ENodeType.Attribute:
-                                    ++attribCount;
-                                    break;
-                                case ENodeType.ChildElement:
-                                    ++elementCount;
-                                    break;
-                                case ENodeType.ElementString:
-                                    ++elementStringCount;
-                                    break;
-                            }
-                            Members.Add(child);
+                            case ENodeType.Attribute:
+                                ++attribCount;
+                                break;
+                            case ENodeType.ChildElement:
+                                ++elementCount;
+                                break;
+                            case ENodeType.ElementString:
+                                ++elementStringCount;
+                                break;
                         }
+                        Members.Add(child);
                     }
                 }
-            }
-            
+                
             for (int i = 0; i < Members.Count; ++i)
             {
                 IMemberTreeNode node = Members[i];

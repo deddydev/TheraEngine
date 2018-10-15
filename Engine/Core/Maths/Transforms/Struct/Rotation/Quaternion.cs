@@ -9,7 +9,7 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Quat : IEquatable<Quat>, IParsable
+    public unsafe struct Quat : IEquatable<Quat>, IStringParsable
     {
         public static readonly Quat Identity = new Quat(0.0f, 0.0f, 0.0f, 1.0f);
 

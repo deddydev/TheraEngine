@@ -414,6 +414,11 @@
     <Compile Include="Core\Files\References\GlobalFileRef.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Binary\ReaderBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Binary\WriterBinary.cs" />
+    <None Include="Core\Files\Serialization\Abstract\ObjectReader\ArrayWriter.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectReader\BaseObjectReader.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectReader\CommonWriter.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectReader\IDictionaryWriter.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectReader\IListWriter.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\CommonWriter.cs" />
     <None Include="Core\Files\Serialization\Abstract\ObjectWriter\ArrayWriter.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\IDictionaryWriter.cs" />

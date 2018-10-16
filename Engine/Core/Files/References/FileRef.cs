@@ -15,8 +15,8 @@ namespace TheraEngine.Core.Files
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         void UnloadReference();
-        void ExportReference(ESerializeFlags flags = ESerializeFlags.Default);
-        void ExportReference(string dir, string name, EFileFormat format, string thirdPartyExt = null, bool setPath = true, ESerializeFlags flags = ESerializeFlags.Default);
+        Task ExportReference(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportReference(string dir, string name, EFileFormat format, string thirdPartyExt, bool setPath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
@@ -29,13 +29,13 @@ namespace TheraEngine.Core.Files
         public FileRef(Type type) : base(type) { }
         public FileRef(string filePath) : base(filePath) { }
         public FileRef(string filePath, Type type) : base(filePath, type) { }
-        public FileRef(string filePath, T file, bool exportNow) : this(filePath)
+        public FileRef(string filePath, T file) : this(filePath)
         {
             if (file != null)
                 file.FilePath = ReferencePathAbsolute;
             File = file;
-            if (exportNow && File != null)
-                ExportReference();
+            //if (exportNow && File != null)
+            //    ExportReference();
         }
         /// <summary>
         /// 
@@ -181,12 +181,22 @@ namespace TheraEngine.Core.Files
                 Unloaded -= unloaded;
         }
 
-        public void ExportReference(ESerializeFlags flags = ESerializeFlags.Default) => _file?.Export(ReferencePathAbsolute, flags);
-        public void ExportReference(string dir, string name, EFileFormat format, string thirdPartyExt = null, bool setPath = true, ESerializeFlags flags = ESerializeFlags.Default)
+        public async Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+            => await _file?.ExportAsync(ReferencePathAbsolute, flags, progress, cancel);
+        public async Task ExportReferenceAsync(
+            string dir,
+            string name, 
+            EFileFormat format,
+            string thirdPartyExt, 
+            bool setPath,
+            ESerializeFlags flags,
+            IProgress<float> progress, 
+            CancellationToken cancel)
         {
             if (_file == null)
                 return;
-            _file.Export(dir, name, format, thirdPartyExt);
+            
+            await _file.ExportAsync(dir, name, format, thirdPartyExt, flags, progress, cancel);
             if (setPath)
                 ReferencePathAbsolute = _file.FilePath;
         }

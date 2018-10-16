@@ -15,6 +15,7 @@ using TheraEngine.Core.Files;
 using TheraEngine.ThirdParty;
 using static TheraEngine.ThirdParty.MSBuild;
 using static TheraEngine.ThirdParty.MSBuild.Project;
+using TheraEditor.Windows.Forms;
 
 namespace TheraEditor
 {
@@ -37,6 +38,9 @@ namespace TheraEditor
 
         public Guid Guid => _guid;
         public Guid ProjectGuid => _projectGuid;
+
+        [Browsable(false)]
+        public string SolutionPath => Path.Combine(DirectoryPath, Name + ".sln");
 
         [TString(false, true, false, true)]
         [TSerialize]
@@ -76,6 +80,7 @@ namespace TheraEditor
             get => ProjectStateRef.File;
             set => ProjectStateRef.File = value;
         }
+
         [TSerialize]
         [Browsable(false)]
         public GlobalFileRef<ProjectState> ProjectStateRef { get; set; }
@@ -200,10 +205,8 @@ namespace TheraEditor
             }
             RecursiveCollect(SourceDirectory, ref codeFiles, ref contentFiles, ref references);
         }
-
-        public void GenerateSolution() =>
-            GenerateSolution(DirectoryPath/*Path.Combine(SourceDirectory, "Solution")*/);
-        public async void GenerateSolution(string slnDir)
+        
+        public async void GenerateSolution()
         {
             Process[] devenv = Process.GetProcessesByName("DevEnv");
             FileVersionInfo info = null;
@@ -309,7 +312,8 @@ namespace TheraEditor
                 afterBuild);
 
             var def = new XMLSchemeDefinition<MSBuild.Project>();
-            await def.ExportAsync(Path.Combine(slnDir, Name + ".csproj"), p);
+            int op = Editor.Instance.ReportOperation("", )
+            await def.ExportAsync(Path.Combine(DirectoryPath, Name + ".csproj"), p, );
             #endregion
 
             #region sln
@@ -343,7 +347,7 @@ namespace TheraEditor
             string slnTmpl = File.ReadAllText(Path.Combine(Engine.Settings.EngineDataFolder, "SolutionTemplate.sln"));
             string sln = string.Format(slnTmpl, projects, preSol, postSol, solutionGuid, majorVer.ToString(), ver);
 
-            File.WriteAllText(Path.Combine(slnDir, Name + ".sln"), sln);
+            File.WriteAllText(SolutionPath, sln);
             #endregion
 
             //EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
@@ -377,6 +381,38 @@ namespace TheraEditor
 
             //File.WriteAllText(projPath, @"");
             return null;
+        }
+
+        public void Compile(string buildConfiguration, string buildPlatform)
+        {
+            ProjectCollection pc = new ProjectCollection();
+            Dictionary<string, string> globalProperties = new Dictionary<string, string>
+            {
+                { "Configuration", buildConfiguration },
+                { "Platform", buildPlatform },
+                //{ "OutputPath", BinariesDirectory },
+            };
+            BuildRequestData request = new BuildRequestData(SolutionPath, globalProperties, null, new string[] { "Build" }, null);
+            BuildParameters bp = new BuildParameters(pc) { Loggers = new ILogger[] { new EngineLogger() } };
+            BuildResult result = BuildManager.DefaultBuildManager.Build(bp, request);
+            if (result.OverallResult == BuildResultCode.Success)
+            {
+                Engine.PrintLine(SolutionPath + " : Build succeeded.");
+            }
+            else
+            {
+                Engine.PrintLine(SolutionPath + " : Build failed.");
+                foreach (var target in result.ResultsByTarget)
+                {
+                    if (target.Value.ResultCode == TargetResultCode.Failure)
+                    {
+                        Engine.PrintLine(target.Key + " : Build failed.");
+                        if (target.Value.Exception != null)
+                            Engine.PrintLine("Exception:\n" + target.Value.Exception.ToString());
+                    }
+                }
+            }
+            pc.UnregisterAllLoggers();
         }
 
         private class EngineLogger : ILogger

@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Models
 {
     public static class OBJ
     {
-        public static StaticModel Import(string path, ModelImportOptions options)
+        public static StaticModel Import(string path, ColladaImportOptions options)
         {
             StaticModel m = new StaticModel();
             LoadResult result = new ObjLoaderFactory().Create().Load(path);

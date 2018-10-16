@@ -62,7 +62,7 @@ namespace TheraEngine.Tests
         protected override void PreConstruct()
         {
             //string desktop = Engine.StartupPath;
-            ModelImportOptions options = new ModelImportOptions()
+            ColladaImportOptions options = new ColladaImportOptions()
             {
                 IgnoreFlags =
                 Collada.EIgnoreFlags.Extra |

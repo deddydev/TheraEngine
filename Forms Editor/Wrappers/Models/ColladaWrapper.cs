@@ -66,77 +66,96 @@ namespace TheraEditor.Wrappers
             TFileObject actor = await Actor.LoadDAEAsync(FilePath);
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
-            actor.Export(dir, name, EFileFormat.XML);
+
+            int cancelId = Editor.Instance.ReportOperation("Saving model...", out progress, out cancel);
+            await actor.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel);
         }
-        private void ImportAsSkeleton()
+        private async void ImportAsSkeleton()
         {
-            //TFileObject actor = Skeleton.LoadDAE(FilePath);
-            //string dir = Path.GetDirectoryName(FilePath);
-            //string name = Path.GetFileNameWithoutExtension(FilePath);
-            //actor.Export(dir, name, FileFormat.XML);
-        }
-        private void ImportAsStaticMesh()
-        {
-            Progress<float> p = new Progress<float>();
-            CancellationTokenSource token = new CancellationTokenSource();
-            int index = Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as static model...", p, token);
-            ModelImportOptions o = new ModelImportOptions()
+            ColladaImportOptions o = new ColladaImportOptions()
             {
                 IgnoreFlags =
-                   Collada.EIgnoreFlags.Extra |
-                   Collada.EIgnoreFlags.Controllers |
-                   Collada.EIgnoreFlags.Cameras |
-                   Collada.EIgnoreFlags.Lights
+                    Collada.EIgnoreFlags.Extra |
+                    Collada.EIgnoreFlags.Controllers |
+                    Collada.EIgnoreFlags.Cameras |
+                    Collada.EIgnoreFlags.Lights
             };
 
-            Collada.ImportAsync(FilePath, o, p, token.Token).ContinueWith(t =>
-            {
-                var data = t.Result;
-                if (data == null || data.Models.Count == 0)
-                    return;
+            int cancelId = Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as skeleton...", out Progress<float> progress, out CancellationToken cancel);
+            var data = await Collada.ImportAsync(FilePath, o, progress, cancel);
+            Editor.Instance.EndOperation(cancelId);
 
-                TFileObject staticModel = data.Models[0].StaticModel;
-                if (staticModel == null)
-                    return;
+            if (data == null || data.Models.Count == 0)
+                return;
 
-                //TFileObject staticModel = await StaticModel.LoadDAEAsync(FilePath);
-                string dir = Path.GetDirectoryName(FilePath);
-                string name = Path.GetFileNameWithoutExtension(FilePath);
-                staticModel.Export(dir, name, EFileFormat.XML);
+            TFileObject skeleton = data.Models[0].Skeleton;
+            if (skeleton == null)
+                return;
 
-                Editor.Instance.EndOperation(index);
-            });
+            string dir = Path.GetDirectoryName(FilePath);
+            string name = Path.GetFileNameWithoutExtension(FilePath);
+
+            cancelId = Editor.Instance.ReportOperation("Saving skeleton...", out progress, out cancel);
+            await skeleton.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel);
+            Editor.Instance.EndOperation(cancelId);
         }
-        private void ImportAsSkeletalMesh()
+        private async void ImportAsStaticMesh()
         {
-            Progress<float> p = new Progress<float>();
-            CancellationTokenSource token = new CancellationTokenSource();
-            int index = Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as skeletal model...", p, token);
-            ModelImportOptions o = new ModelImportOptions()
+            ColladaImportOptions o = new ColladaImportOptions()
             {
                 IgnoreFlags =
-                   Collada.EIgnoreFlags.Extra |
-                   Collada.EIgnoreFlags.Cameras |
-                   Collada.EIgnoreFlags.Lights
+                    Collada.EIgnoreFlags.Extra |
+                    Collada.EIgnoreFlags.Controllers |
+                    Collada.EIgnoreFlags.Cameras |
+                    Collada.EIgnoreFlags.Lights
             };
 
-            Collada.ImportAsync(FilePath, o, p, token.Token).ContinueWith(t =>
+            int cancelId = Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as static model...", out Progress<float> progress, out CancellationToken cancel);
+            var data = await Collada.ImportAsync(FilePath, o, progress, cancel);
+            Editor.Instance.EndOperation(cancelId);
+
+            if (data == null || data.Models.Count == 0)
+                return;
+
+            TFileObject staticModel = data.Models[0].StaticModel;
+            if (staticModel == null)
+                return;
+            
+            string dir = Path.GetDirectoryName(FilePath);
+            string name = Path.GetFileNameWithoutExtension(FilePath);
+
+            cancelId = Editor.Instance.ReportOperation("Saving model...", out progress, out cancel);
+            await staticModel.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel);
+            Editor.Instance.EndOperation(cancelId);
+
+        }
+        private async void ImportAsSkeletalMesh()
+        {
+            ColladaImportOptions o = new ColladaImportOptions()
             {
-                var data = t.Result;
-                if (data == null || data.Models.Count == 0)
-                    return;
+                IgnoreFlags =
+                    Collada.EIgnoreFlags.Extra |
+                    Collada.EIgnoreFlags.Cameras |
+                    Collada.EIgnoreFlags.Lights
+            };
+
+            int cancelId = Editor.Instance.ReportOperation($"Importing {Path.GetFileName(FilePath)} as skeletal model...", out Progress<float> progress, out CancellationToken cancel);
+            var data = await Collada.ImportAsync(FilePath, o, progress, cancel);
+            Editor.Instance.EndOperation(cancelId);
+            
+            if (data == null || data.Models.Count == 0)
+                return;
                 
-                TFileObject skeletalModel = data.Models[0].SkeletalModel;
-                if (skeletalModel == null)
-                    return;
+            TFileObject skeletalModel = data.Models[0].SkeletalModel;
+            if (skeletalModel == null)
+                return;
+            
+            string dir = Path.GetDirectoryName(FilePath);
+            string name = Path.GetFileNameWithoutExtension(FilePath);
 
-                //TFileObject staticModel = await StaticModel.LoadDAEAsync(FilePath);
-                string dir = Path.GetDirectoryName(FilePath);
-                string name = Path.GetFileNameWithoutExtension(FilePath);
-                skeletalModel.Export(dir, name, EFileFormat.XML);
-
-                Editor.Instance.EndOperation(index);
-            });
+            cancelId = Editor.Instance.ReportOperation("Saving model...", out progress, out cancel);
+            await skeletalModel.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel);
+            Editor.Instance.EndOperation(cancelId);
         }
     }
 }

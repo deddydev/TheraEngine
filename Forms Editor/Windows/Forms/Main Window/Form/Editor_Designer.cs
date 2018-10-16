@@ -1,7 +1,4 @@
-﻿using Microsoft.Build.Evaluation;
-using Microsoft.Build.Execution;
-using mscoree;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -97,35 +94,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         public string BuildConfiguration { get; internal set; } = "Debug";
-        public string BuildPlatform { get; internal set; } = "Any CPU";
-        public void Compile(string filePath)
-        {
-            ProjectCollection pc = new ProjectCollection();
-            Dictionary<string, string> globalProperties = new Dictionary<string, string>
-            {
-                { "Configuration", BuildConfiguration },
-                { "Platform", BuildPlatform },
-            };
-            BuildRequestData request = new BuildRequestData(filePath, globalProperties, null, new string[] { "Build" }, null);
-            BuildResult result = BuildManager.DefaultBuildManager.Build(new BuildParameters(pc), request);
-            if (result.OverallResult == BuildResultCode.Success)
-            {
-                Engine.PrintLine(filePath + " : Build succeeded.");
-            }
-            else
-            {
-                Engine.PrintLine(filePath + " : Build failed.");
-                foreach (var target in result.ResultsByTarget)
-                {
-                    if (target.Value.ResultCode == TargetResultCode.Failure)
-                    {
-                        Engine.PrintLine(target.Key + " : Build failed.");
-                        if (target.Value.Exception != null)
-                            Engine.PrintLine("Exception:\n" + target.Value.Exception.ToString());
-                    }
-                }
-            }
-        }
+        public string BuildPlatform { get; internal set; } = "x86";
 
         private class OperationInfo
         {
@@ -168,7 +137,7 @@ namespace TheraEditor.Windows.Forms
         }
         private List<OperationInfo> _operations = new List<OperationInfo>();
 
-        public int ReportOperation(string statusBarMessage, Progress<float> progress, CancellationTokenSource token)
+        public int ReportOperation(string statusBarMessage, out Progress<float> progress, out CancellationToken cancel, TimeSpan? maxOperationTime = null)
         {
             if (_operations.Count == 0)
             {
@@ -176,7 +145,12 @@ namespace TheraEditor.Windows.Forms
             }
 
             int index = _operations.Count;
-            _operations.Add(new OperationInfo(progress, token, Info_Updated, index));
+
+            progress = new Progress<float>();
+            CancellationTokenSource cancelSource = maxOperationTime == null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
+
+            _operations.Add(new OperationInfo(progress, cancelSource, Info_Updated, index));
+            cancel = cancelSource.Token;
             
             btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
             toolStripProgressBar1.Visible = true;
@@ -466,7 +440,7 @@ namespace TheraEditor.Windows.Forms
                 if (r == DialogResult.Cancel)
                     return;
                 else if (r == DialogResult.Yes)
-                    Engine.World.Export();
+                    Engine.World.ExportAsync();
                 Engine.World.EditorState = null;
             }
 

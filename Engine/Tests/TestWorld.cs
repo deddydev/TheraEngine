@@ -148,7 +148,7 @@ namespace TheraEngine.Tests
             actor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
             actors.Add(actor);
 
-            ModelImportOptions objOptions = new ModelImportOptions()
+            ColladaImportOptions objOptions = new ColladaImportOptions()
             {
                 UseForwardShaders = Engine.Settings.ShadingStyle3D == ShadingStyle.Forward,
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
@@ -156,7 +156,7 @@ namespace TheraEngine.Tests
             };
             //StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main1\\landtable.obj"*/"X:\\Repositories\\TheraEngine\\Build\\test\\test.obj", objOptions);
 
-            ModelImportOptions options = new ModelImportOptions()
+            ColladaImportOptions options = new ColladaImportOptions()
             {
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };

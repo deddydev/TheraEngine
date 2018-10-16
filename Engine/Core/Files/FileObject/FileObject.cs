@@ -178,7 +178,7 @@ namespace TheraEngine.Core.Files
         //    FileExt extAttrib = FileExtension;
         //    File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
         //    GetDirNameFmt(path, out string dir, out string name, out EFileFormat pathFormat, out string ext);
-            
+
         //    if (extAttrib != null && pathFormat != EFileFormat.ThirdParty)
         //    {
         //        ext = extAttrib.GetProperExtension((EProprietaryFileFormat)(int)pathFormat);
@@ -251,6 +251,8 @@ namespace TheraEngine.Core.Files
         //            throw new InvalidOperationException("Not a valid file format.");
         //    }
         //}
+        public async Task ExportAsync(ESerializeFlags flags = ESerializeFlags.Default)
+            => await ExportAsync(FilePath, flags, null, CancellationToken.None);
         public async Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
             => await ExportAsync(FilePath, flags, progress, cancel);
         //[GridCallable("Save")]

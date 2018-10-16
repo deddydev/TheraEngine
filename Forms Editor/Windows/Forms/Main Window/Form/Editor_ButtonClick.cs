@@ -85,8 +85,7 @@ namespace TheraEditor.Windows.Forms
 
         private void btnCompile_Click(object sender, EventArgs e)
         {
-
-            //Project.Compile("Debug", "x86");
+            Project.Compile("Debug", "x86");
         }
 
         private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)

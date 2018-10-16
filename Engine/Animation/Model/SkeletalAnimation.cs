@@ -20,7 +20,7 @@ namespace TheraEngine.Animation
         [ThirdPartyLoader("dae", true)]
         public static async Task<TFileObject> LoadDAEAsync(string path)
         {
-            ModelImportOptions o = new ModelImportOptions()
+            ColladaImportOptions o = new ColladaImportOptions()
             {
                 IgnoreFlags =
                 Collada.EIgnoreFlags.Extra |

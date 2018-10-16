@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering.Models
         [ThirdPartyLoader("dae", true)]
         public static async Task<TFileObject> LoadDAEAsync(string path)
         {
-            ModelImportOptions o = new ModelImportOptions()
+            ColladaImportOptions o = new ColladaImportOptions()
             {
                 IgnoreFlags =
                 Collada.EIgnoreFlags.Extra |
@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering.Models
         [ThirdPartyLoader("obj")]
         public static TFileObject LoadOBJ(string path)
         {
-            ModelImportOptions o = new ModelImportOptions()
+            ColladaImportOptions o = new ColladaImportOptions()
             {
                 
             };

@@ -32,12 +32,12 @@ namespace TheraEngine.Rendering.Models
 
         public static Task<Data> ImportAsync(
             string filePath,
-            ModelImportOptions options)
+            ColladaImportOptions options)
             => ImportAsync(filePath, options, null, CancellationToken.None);
 
         public static async Task<Data> ImportAsync(
             string filePath,
-            ModelImportOptions options,
+            ColladaImportOptions options,
             Progress<float> progress,
             CancellationToken cancel)
         {

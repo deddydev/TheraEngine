@@ -1,15 +1,13 @@
-﻿using TheraEngine.Core.Files.Serialization;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Xml;
 using System.IO;
-using System;
 using System.Linq;
 using System.Reflection;
-using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Core.Memory;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Files
 {
@@ -22,22 +20,23 @@ namespace TheraEngine.Core.Files
             try
             {
                 var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract, true, Assembly.GetEntryAssembly()).ToArray();
-                foreach (Type t in types)
+                foreach (Type type in types)
                 {
-                    File3rdParty attrib = GetFile3rdPartyExtensions(t);
+                    File3rdParty attrib = GetFile3rdPartyExtensions(type);
                     if (attrib == null)
                         continue;
+
                     foreach (string ext3rd in attrib.ImportableExtensions)
                     {
                         string extLower = ext3rd.ToLowerInvariant();
-                        Dictionary<Type, Delegate> d;
+                        Dictionary<Type, Delegate> extensionLoaders;
                         if (_3rdPartyLoaders.ContainsKey(extLower))
-                            d = _3rdPartyLoaders[extLower];
+                            extensionLoaders = _3rdPartyLoaders[extLower];
                         else
-                            _3rdPartyLoaders.Add(extLower, d = new Dictionary<Type, Delegate>());
-                        if (!d.ContainsKey(t))
+                            _3rdPartyLoaders.Add(extLower, extensionLoaders = new Dictionary<Type, Delegate>());
+                        if (!extensionLoaders.ContainsKey(type))
                         {
-                            var methods = t.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                                 .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
                                 .ToArray();
                             if (methods.Length > 0)
@@ -47,30 +46,30 @@ namespace TheraEngine.Core.Files
                                 if (async)
                                 {
                                     if (Delegate.CreateDelegate(typeof(Del3rdPartyImportFileMethodAsync), m) is Del3rdPartyImportFileMethodAsync result)
-                                        d.Add(t, result);
+                                        extensionLoaders.Add(type, result);
                                 }
                                 else
                                 {
                                     if (Delegate.CreateDelegate(typeof(Del3rdPartyImportFileMethod), m) is Del3rdPartyImportFileMethod result)
-                                        d.Add(t, result);
+                                        extensionLoaders.Add(type, result);
                                 }
                             }
                         }
                         else
-                            throw new Exception(t.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
+                            throw new Exception(type.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
                     }
 
                     foreach (string ext3rd in attrib.ExportableExtensions)
                     {
                         string extLower = ext3rd.ToLowerInvariant();
-                        Dictionary<Type, Delegate> d;
+                        Dictionary<Type, Delegate> extensionExporters;
                         if (_3rdPartyExporters.ContainsKey(extLower))
-                            d = _3rdPartyExporters[extLower];
+                            extensionExporters = _3rdPartyExporters[extLower];
                         else
-                            _3rdPartyExporters.Add(extLower, d = new Dictionary<Type, Delegate>());
-                        if (!d.ContainsKey(t))
+                            _3rdPartyExporters.Add(extLower, extensionExporters = new Dictionary<Type, Delegate>());
+                        if (!extensionExporters.ContainsKey(type))
                         {
-                            var methods = t.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                                 .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyExporter>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
                                 .ToArray();
                             if (methods.Length > 0)
@@ -80,17 +79,17 @@ namespace TheraEngine.Core.Files
                                 if (async)
                                 {
                                     if (Delegate.CreateDelegate(typeof(Del3rdPartyExportFileMethodAsync), m) is Del3rdPartyExportFileMethodAsync result)
-                                        d.Add(t, result);
+                                        extensionExporters.Add(type, result);
                                 }
                                 else
                                 {
                                     if (Delegate.CreateDelegate(typeof(Del3rdPartyExportFileMethod), m) is Del3rdPartyExportFileMethod result)
-                                        d.Add(t, result);
+                                        extensionExporters.Add(type, result);
                                 }
                             }
                         }
                         else
-                            throw new Exception(t.GetFriendlyName() + " has already been added to the third party exporter list for " + extLower);
+                            throw new Exception(type.GetFriendlyName() + " has already been added to the third party exporter list for " + extLower);
                     }
                 }
             }
@@ -404,9 +403,18 @@ namespace TheraEngine.Core.Files
             }
 
             //No third party loader defined, create instance directly and call method to do it
-
-            TFileObject obj = Activator.CreateInstance(classType) as TFileObject;
-            obj?.ManualRead3rdParty(filePath);
+            TFileObject obj = SerializationCommon.CreateObject(classType) as TFileObject;
+            if (obj != null)
+            {
+                File3rdParty f = GetFile3rdPartyExtensions(classType);
+                if (f != null)
+                {
+                    if (f.AsyncManualRead)
+                        await obj.ManualRead3rdPartyAsync(filePath);
+                    else
+                        obj.ManualRead3rdParty(filePath);
+                }
+            }
             return obj;
         }
         private static Dictionary<string, Dictionary<Type, Delegate>> _3rdPartyLoaders;

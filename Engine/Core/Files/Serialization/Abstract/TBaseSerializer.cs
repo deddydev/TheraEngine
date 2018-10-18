@@ -1,24 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
-using TheraEngine.Core.Files;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     public class TBaseSerializer
     {
-        public abstract class TBaseAbstractReaderWriter
+        public interface IBaseAbstractReaderWriter
+        {
+            string FilePath { get; }
+            string FileDirectory { get; }
+            IProgress<float> Progress { get; }
+            CancellationToken Cancel { get; }
+            TFileObject RootFileObject { get; }
+            IMemberTreeNode RootNode { get; }
+            Dictionary<Guid, TObject> SharedObjects { get; }
+
+            IMemberTreeNode CreateNode(object obj);
+            IMemberTreeNode CreateNode(IMemberTreeNode parent, MemberInfo memberInfo);
+            bool ReportProgress();
+        }
+        public abstract class TBaseAbstractReaderWriter<T> : IBaseAbstractReaderWriter where T : class, IMemberTreeNode
         {
             public string FilePath { get; internal set; }
             public string FileDirectory { get; internal set; }
             public IProgress<float> Progress { get; internal set; }
             public CancellationToken Cancel { get; internal set; }
             public TFileObject RootFileObject { get; internal set; }
-            public MemberTreeNode RootNode { get; protected set; }
+            public T RootNode { get; protected set; }
+            IMemberTreeNode IBaseAbstractReaderWriter.RootNode => RootNode;
             public Dictionary<Guid, TObject> SharedObjects { get; internal set; }
             internal int CurrentCount { get; set; }
             
@@ -31,7 +43,15 @@ namespace TheraEngine.Core.Files.Serialization
                 SharedObjects = new Dictionary<Guid, TObject>();
                 FileDirectory = Path.GetDirectoryName(FilePath);
             }
-            
+
+            IMemberTreeNode IBaseAbstractReaderWriter.CreateNode(object obj)
+                => CreateNode(obj);
+            IMemberTreeNode IBaseAbstractReaderWriter.CreateNode(IMemberTreeNode parent, MemberInfo memberInfo)
+                => CreateNode(parent as T, memberInfo);
+
+            public abstract T CreateNode(T parent, MemberInfo memberInfo);
+            public abstract T CreateNode(object obj);
+
             /// <summary>
             /// Reports progress back to the deserialization caller 
             /// and returns true if the caller wants to cancel the operation.

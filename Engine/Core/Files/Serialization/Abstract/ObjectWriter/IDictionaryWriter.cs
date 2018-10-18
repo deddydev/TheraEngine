@@ -13,8 +13,8 @@ namespace TheraEngine.Core.Files.Serialization
     public class IDictionaryWriter : BaseObjectWriter
     {
         public IDictionary Dictionary { get; private set; }
-        public MemberTreeNode[] Keys { get; private set; }
-        public MemberTreeNode[] Values { get; private set; }
+        public IMemberTreeNode[] Keys { get; private set; }
+        public IMemberTreeNode[] Values { get; private set; }
         
         public override async Task CollectSerializedMembers()
         {
@@ -35,7 +35,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             Keys = keys.Select(obj =>
             {
-                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(obj);
+                IMemberTreeNode node = TreeNode.Owner.CreateNodeGeneric(obj);
                 node.MemberType = keyType;
                 node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
                 node.NodeType = ENodeType.ChildElement;
@@ -44,18 +44,18 @@ namespace TheraEngine.Core.Files.Serialization
 
             Values = vals.Select(obj =>
             {
-                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(obj);
+                IMemberTreeNode node = TreeNode.Owner.CreateNodeGeneric(obj);
                 node.MemberType = valType;
                 node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
                 node.NodeType = ENodeType.ChildElement;
                 return node;
             }).ToArray();
 
-            Members = new List<MemberTreeNode>(Keys.Length);
+            Members = new List<IMemberTreeNode>(Keys.Length);
             for (int i = 0; i < Keys.Length; ++i)
             {
-                MemberTreeNode pairNode = TreeNode.FormatWriter.CreateNode(TreeNode, null);
-                await pairNode.AddChildren(0, 2, 0, new List<MemberTreeNode>(2) { Keys[i], Values[i] });
+                IMemberTreeNode pairNode = TreeNode.Owner.CreateNodeGeneric(TreeNode, null);
+                await pairNode.AddChildren(0, 2, 0, new List<IMemberTreeNode>(2) { Keys[i], Values[i] });
                 Members.Add(pairNode);
             }
 

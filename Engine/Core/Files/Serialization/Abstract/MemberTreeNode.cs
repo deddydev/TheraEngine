@@ -6,15 +6,16 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     public class BinaryMemberTreeNode : MemberTreeNode<BinaryMemberTreeNode>
     {
-        public BinaryMemberTreeNode(object root, TSerializer.AbstractWriter<BinaryMemberTreeNode> writer)
-            : base(root, writer) { }
-        public BinaryMemberTreeNode(BinaryMemberTreeNode parent, MemberInfo memberInfo, TSerializer.AbstractWriter<BinaryMemberTreeNode> writer)
-            : base(parent, memberInfo, writer) { }
+        public BinaryMemberTreeNode(object obj)
+            : base(obj) { }
+        public BinaryMemberTreeNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
+            : base(parent, memberInfo) { }
 
         public int CalculatedSize { get; internal set; }
         public List<BinaryMemberTreeNode> Children { get; internal set; }
@@ -25,12 +26,9 @@ namespace TheraEngine.Core.Files.Serialization
         {
             Children.Add(childMember);
             await childMember.CollectSerializedMembers();
-
-            CalculatedSize += childMember.CalculatedSize;
         }
         protected internal override async Task AddChildren(int attribCount, int elementCount, int elementStringCount, List<BinaryMemberTreeNode> members)
         {
-            CalculatedSize = ((TSerializer.WriterBinary)FormatWriter).GetSizeObject(this);
             Children = new List<BinaryMemberTreeNode>(members.Count);
             foreach (BinaryMemberTreeNode member in members)
                 await AddChild(member);
@@ -46,10 +44,10 @@ namespace TheraEngine.Core.Files.Serialization
     }
     public class XMLMemberTreeNode : MemberTreeNode<XMLMemberTreeNode>
     {
-        public XMLMemberTreeNode(object obj, TSerializer.AbstractWriter<XMLMemberTreeNode> writer)
-            : base(obj, writer) { }
-        public XMLMemberTreeNode(XMLMemberTreeNode parent, MemberInfo memberInfo, TSerializer.AbstractWriter<XMLMemberTreeNode> writer)
-            : base(parent, memberInfo, writer) { }
+        public XMLMemberTreeNode(object obj)
+            : base(obj) { }
+        public XMLMemberTreeNode(XMLMemberTreeNode parent, MemberInfo memberInfo)
+            : base(parent, memberInfo) { }
 
         /// <summary>
         /// 
@@ -108,10 +106,12 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public void AddChildElementString(string elementName, string value)
         {
-            XMLMemberTreeNode element = new XMLMemberTreeNode(null, FormatWriter);
-            element.ElementName = elementName;
-            element.NodeType = ENodeType.ChildElement;
-            element.ElementString = value;
+            XMLMemberTreeNode element = new XMLMemberTreeNode(null)
+            {
+                ElementName = elementName,
+                NodeType = ENodeType.ChildElement,
+                ElementString = value
+            };
         }
 
         public XMLAttribute GetAttribute(string name)
@@ -133,20 +133,21 @@ namespace TheraEngine.Core.Files.Serialization
         int Order { get; set; }
         int ProgressionCount { get; }
         string ElementName { get; set; }
-        TSerializer.BaseAbstractWriter FormatWriter { get; }
         Type MemberType { get; set; }
         string Name { get; set; }
         string Category { get; set; }
         object Object { get; set; }
         Type ObjectType { get; }
         bool IsDerivedType { get; }
-        BaseObjectWriter ObjectWriter { get; set; }
         IEnumerable<MethodInfo> CustomMethods { get; }
         ENodeType NodeType { get; set; }
         IMemberTreeNode Parent { get; set; }
         bool ConfigMember { get; set; }
         bool StateMember { get; set; }
         object DefaultConstructedObject { get; }
+        TBaseSerializer.IBaseAbstractReaderWriter Owner { get; }
+        BaseObjectWriter ObjectWriter { get; set; }
+        BaseObjectReader ObjectReader { get; set; }
 
         Task AddChildren(int attribCount, int elementCount, int elementStringCount, List<IMemberTreeNode> members);
     }
@@ -167,12 +168,9 @@ namespace TheraEngine.Core.Files.Serialization
             set => _elementName = value;
         }
         private string _elementName = null;
-        /// <summary>
-        /// The writer that handles what format this information is being written in,
-        /// such as binary, XML, or JSON.
-        /// </summary>
-        public TSerializer.AbstractWriter<T> FormatWriter { get; }
-        TSerializer.BaseAbstractWriter IMemberTreeNode.FormatWriter => FormatWriter;
+
+        public TBaseSerializer.IBaseAbstractReaderWriter Owner { get; internal set; }
+
         /// <summary>
         /// The type that the class defines this member as.
         /// </summary>
@@ -219,6 +217,11 @@ namespace TheraEngine.Core.Files.Serialization
         /// </summary>
         public BaseObjectWriter ObjectWriter { get; set; }
         /// <summary>
+        /// The class handling how to collect all members of any given object.
+        /// Most classes will use <see cref="CommonReader"/>.
+        /// </summary>
+        public BaseObjectReader ObjectReader { get; set; }
+        /// <summary>
         /// Methods for serializing data in a specific manner.
         /// </summary>
         public IEnumerable<MethodInfo> CustomMethods { get; private set; }
@@ -235,20 +238,18 @@ namespace TheraEngine.Core.Files.Serialization
         public bool StateMember { get; set; }
         public object DefaultConstructedObject { get; private set; }
 
-        public MemberTreeNode(object root, TSerializer.AbstractWriter<T> writer)
+        public MemberTreeNode(object root)
         {
             Parent = null;
-            FormatWriter = writer;
             MemberType = root?.GetType();
             Name = SerializationCommon.GetTypeName(MemberType);
             Category = null;
             Object = root;
             DefaultConstructedObject = SerializationCommon.CreateObject(ObjectType);
         }
-        public MemberTreeNode(T parent, MemberInfo memberInfo, TSerializer.AbstractWriter<T> writer)
+        public MemberTreeNode(T parent, MemberInfo memberInfo)
         {
             Parent = parent;
-            FormatWriter = writer;
 
             if (memberInfo != null)
             {
@@ -309,10 +310,13 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (childMember?.Object == null)
                 return;
-            if (childMember.StateMember && !childMember.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState))
-                return;
-            if (childMember.ConfigMember && !childMember.FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig))
-                return;
+            if (childMember.Owner is TSerializer.IAbstractWriter writer)
+            {
+                if (childMember.StateMember && !writer.Flags.HasFlag(ESerializeFlags.SerializeState))
+                    return;
+                if (childMember.ConfigMember && !writer.Flags.HasFlag(ESerializeFlags.SerializeConfig))
+                    return;
+            }
 
             var customMethods = CustomMethods.Where(
                 x => string.Equals(childMember.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
@@ -344,91 +348,60 @@ namespace TheraEngine.Core.Files.Serialization
         {
             Type objType = ObjectType;
             BaseObjectWriter writer = null;
-            SerializeType = GetSerializeType(objType);
-            switch (SerializeType)
-            {
-                default:
-                case ESerializeType.Class:
-                    {
-                        Type baseObjWriterType = typeof(BaseObjectWriter);
-                        var types = Engine.FindTypes(type =>
-                            baseObjWriterType.IsAssignableFrom(type) &&
-                            (type.GetCustomAttributeExt<ObjectWriterKind>()?.ObjectType?.IsAssignableFrom(objType) ?? false),
-                        true, null).ToArray();
 
-                        if (types.Length > 0)
-                            writer = (BaseObjectWriter)Activator.CreateInstance(types[0]);
-                        else
-                            writer = new CommonWriter();
-                    }
-                    break;
-                case ESerializeType.String:
+            Type baseObjWriterType = typeof(BaseObjectWriter);
+            var types = Engine.FindTypes(type =>
+                baseObjWriterType.IsAssignableFrom(type) &&
+                (type.GetCustomAttributeExt<ObjectWriterKind>()?.ObjectType?.IsAssignableFrom(objType) ?? false),
+            true, null).ToArray();
 
-                    break;
-                case ESerializeType.Struct:
-                    if (SerializationCommon.IsPrimitiveType(objType))
-                    {
+            if (types.Length > 0)
+                writer = (BaseObjectWriter)Activator.CreateInstance(types[0]);
+            else
+                writer = new CommonWriter();
 
-                    }
-                    else
-                    {
-                        writer = new CommonWriter();
-                    }
-                    break;
-                case ESerializeType.Parsable:
-
-                    break;
-                case ESerializeType.Manual:
-
-                    break;
-                case ESerializeType.Enum:
-
-                    break;
-            }
-
-            if (writer != null)
-                writer.TreeNode = this;
+            writer.TreeNode = this;
             ObjectWriter = writer;
         }
-        public ESerializeType GetSerializeType(Type type)
-        {
-            if (type.GetInterface(nameof(IStringParsable)) != null)
-                return ESerializeType.Parsable;
-            else if (type.IsEnum)
-                return ESerializeType.Enum;
-            else if (type == typeof(string))
-                return ESerializeType.String;
-            else if (type.IsValueType)
-                return ESerializeType.Struct;
-            else
-            {
-                FileExt ext = TFileObject.GetFileExtension(type);
-                if (ext != null)
-                {
-                    EProprietaryFileFormat format = FormatWriter.Owner.Format;
-                    bool serializeConfig = FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig);
-                    bool serializeState = FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState);
+        //public ESerializeType GetSerializeType(Type type)
+        //{
+        //    if (type.GetInterface(nameof(IStringParsable)) != null)
+        //        return ESerializeType.Parsable;
+        //    else if (type.IsEnum)
+        //        return ESerializeType.Enum;
+        //    else if (type == typeof(string))
+        //        return ESerializeType.String;
+        //    else if (type.IsValueType)
+        //        return ESerializeType.Struct;
+        //    else
+        //    {
+        //        FileExt ext = TFileObject.GetFileExtension(type);
+        //        if (ext != null)
+        //        {
+        //            EProprietaryFileFormat format = FormatWriter.Owner.Format;
+        //            bool serializeConfig = FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeConfig);
+        //            bool serializeState = FormatWriter.Flags.HasFlag(ESerializeFlags.SerializeState);
 
-                    switch (format)
-                    {
-                        case EProprietaryFileFormat.Binary:
-                            if (serializeConfig && ext.ManualBinConfigSerialize)
-                                return ESerializeType.Manual;
-                            if (serializeState && ext.ManualBinStateSerialize)
-                                return ESerializeType.Manual;
-                            break;
-                        case EProprietaryFileFormat.XML:
-                            if (serializeConfig && ext.ManualXmlConfigSerialize)
-                                return ESerializeType.Manual;
-                            if (serializeState && ext.ManualXmlStateSerialize)
-                                return ESerializeType.Manual;
-                            break;
-                    }
-                }
+        //            switch (format)
+        //            {
+        //                case EProprietaryFileFormat.Binary:
+        //                    if (serializeConfig && ext.ManualBinConfigSerialize)
+        //                        return ESerializeType.Manual;
+        //                    if (serializeState && ext.ManualBinStateSerialize)
+        //                        return ESerializeType.Manual;
+        //                    break;
+        //                case EProprietaryFileFormat.XML:
+        //                    if (serializeConfig && ext.ManualXmlConfigSerialize)
+        //                        return ESerializeType.Manual;
+        //                    if (serializeState && ext.ManualXmlStateSerialize)
+        //                        return ESerializeType.Manual;
+        //                    break;
+        //            }
+        //        }
                 
-                return ESerializeType.Class;
-            }
-        }
+        //        return ESerializeType.Class;
+        //    }
+        //}
         public async Task CollectSerializedMembers()
         {
             await FileObjectCheck();
@@ -490,7 +463,7 @@ namespace TheraEngine.Core.Files.Serialization
             //Update the object's file path
             if (Object is IFileObject fobj)
             {
-                fobj.FilePath = FormatWriter.FilePath;
+                fobj.FilePath = Owner.FilePath;
                 if (fobj is IFileRef fref && !fref.StoredInternally)
                 {
                     //Make some last minute adjustments to external file refs
@@ -504,7 +477,7 @@ namespace TheraEngine.Core.Files.Serialization
                         else
                             root = string.Empty;
 
-                        string root2 = Path.GetPathRoot(FormatWriter.FileDirectory);
+                        string root2 = Path.GetPathRoot(Owner.FileDirectory);
                         colonIndex = root2.IndexOf(":");
                         if (colonIndex > 0)
                             root2 = root2.Substring(0, colonIndex);
@@ -537,8 +510,8 @@ namespace TheraEngine.Core.Files.Serialization
                             string absPath;
                             if (fref.PathType == EPathType.FileRelative)
                             {
-                                string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(FormatWriter.FileDirectory);
-                                absPath = Path.GetFullPath(Path.Combine(FormatWriter.FileDirectory, rel));
+                                string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(Owner.FileDirectory);
+                                absPath = Path.GetFullPath(Path.Combine(Owner.FileDirectory, rel));
                                 //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
                             }
                             else
@@ -550,8 +523,8 @@ namespace TheraEngine.Core.Files.Serialization
                             if (file.FileExtension != null)
                             {
                                 string fileName = SerializationCommon.ResolveFileName(
-                                    FormatWriter.FileDirectory, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
-                                await file.ExportAsync(dir, fileName, EFileFormat.XML, null, FormatWriter.Flags, null, CancellationToken.None);
+                                    Owner.FileDirectory, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
+                                await file.ExportAsync(dir, fileName, EFileFormat.XML, null, Owner.Flags, null, CancellationToken.None);
                             }
                             else
                             {
@@ -559,8 +532,8 @@ namespace TheraEngine.Core.Files.Serialization
                                 if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
                                 {
                                     string ext = f.ExportableExtensions[0];
-                                    string fileName = SerializationCommon.ResolveFileName(FormatWriter.FileDirectory, file.Name, ext);
-                                    await file.ExportAsync(dir, fileName, EFileFormat.ThirdParty, ext, FormatWriter.Flags, null, CancellationToken.None);
+                                    string fileName = SerializationCommon.ResolveFileName(Owner.FileDirectory, file.Name, ext);
+                                    await file.ExportAsync(dir, fileName, EFileFormat.ThirdParty, ext, Owner.Flags, null, CancellationToken.None);
                                 }
                                 else
                                     Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());

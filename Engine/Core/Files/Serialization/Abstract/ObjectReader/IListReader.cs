@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [ObjectWriterKind(typeof(IList))]
-    public class IListWriter : BaseObjectWriter
+    [ObjectReaderKind(typeof(IList))]
+    public class IListReader : BaseObjectReader
     {
         public IList List { get; private set; }
-        public MemberTreeNode[] Values { get; private set; }
+        public IMemberTreeNode[] Values { get; private set; }
         
         public override async Task CollectSerializedMembers()
         {
@@ -25,7 +25,7 @@ namespace TheraEngine.Core.Files.Serialization
             List.CopyTo(vals, 0);
             Values = vals.Select(obj => 
             {
-                MemberTreeNode node = TreeNode.FormatWriter.CreateNode(obj);
+                IMemberTreeNode node = TreeNode.Owner.CreateNodeGeneric(obj);
                 node.MemberType = elemType;
                 node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
                 node.Parent = TreeNode;

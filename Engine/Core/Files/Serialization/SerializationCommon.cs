@@ -327,7 +327,7 @@ namespace TheraEngine.Core.Files.Serialization
         public unsafe static Type DetermineType(string filePath)
         {
             EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
-            Type t = null;
+            Type fileType = null;
             try
             {
                 switch (fmt)
@@ -346,7 +346,7 @@ namespace TheraEngine.Core.Files.Serialization
                             if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
                             {
                                 string value = reader.Value.ToString();
-                                t = Type.GetType(value,
+                                fileType = Type.GetType(value,
                                     (name) =>
                                     {
                                         var assemblies =
@@ -374,7 +374,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Engine.PrintLine(e.ToString());
             }
-            return t;
+            return fileType;
         }
     }
 }

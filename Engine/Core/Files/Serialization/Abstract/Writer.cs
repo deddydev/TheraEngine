@@ -7,34 +7,31 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TSerializer : TBaseSerializer
     {
-        public BaseAbstractWriter Writer { get; private set; }
+        public IAbstractWriter Writer { get; private set; }
         public EProprietaryFileFormat Format { get; private set; }
 
-        public abstract class BaseAbstractWriter : TBaseAbstractReaderWriter
+        public interface IAbstractWriter : IBaseAbstractReaderWriter
+        {
+            TSerializer Owner { get; }
+            ESerializeFlags Flags { get; }
+            
+            Task WriteTree();
+        }
+        public abstract class AbstractWriter<T> : TBaseAbstractReaderWriter<T>, IAbstractWriter where T : class, IMemberTreeNode
         {
             public TSerializer Owner { get; }
             public ESerializeFlags Flags { get; internal set; }
-
-            protected BaseAbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+            
+            protected AbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
                 : base(rootFileObject, filePath, progress, cancel)
             {
-                Owner = owner;
                 Flags = flags;
+                Owner = owner;
                 RootNode = CreateNode(rootFileObject);
             }
-
-            public abstract IMemberTreeNode CreateNode(object obj);
-            public abstract IMemberTreeNode CreateNode(IMemberTreeNode parent, MemberInfo memberInfo);
-
+            
             internal protected abstract Task WriteTree();
-        }
-        public abstract class AbstractWriter<T> : BaseAbstractWriter where T : class, IMemberTreeNode
-        {
-            protected AbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
-                : base(owner, rootFileObject, filePath, flags, progress, cancel) { }
-
-            public override IMemberTreeNode CreateNode(IMemberTreeNode parent, MemberInfo memberInfo) => CreateNode(parent as T, memberInfo);
-            public abstract T CreateNode(T parent, MemberInfo memberInfo);
+            Task IAbstractWriter.WriteTree() => WriteTree();
         }
     }
 }

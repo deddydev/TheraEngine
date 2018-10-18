@@ -123,7 +123,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 await RootNode.CollectSerializedMembers();
 
-                Memory.Endian.Order = Endian;
+                Memory.Endian.SerializerOrder = Endian;
 
                 int dataSize = RootNode.CalculatedSize;
                 int stringSize = StringTable.TotalLength.Align(4);
@@ -141,11 +141,12 @@ namespace TheraEngine.Core.Files.Serialization
                     unsafe
                     {
                         FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
+                        hdr->WriteMagic();
                         hdr->_stringTableLength = stringSize;
                         hdr->Endian = Endian;
                         hdr->Encrypted = Encrypted;
                         hdr->Compressed = Compressed;
-
+                        
                         //SHA256Managed SHhash = new SHA256Managed();
                         //byte[] integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
                         //hdr->WriteHash(integrityHash);
@@ -222,77 +223,82 @@ namespace TheraEngine.Core.Files.Serialization
 
                 if (value == defaultValue)
                 {
-                    address.Byte = 0;
+                    address.Byte = (byte)EBinaryObjectFlags.IsDefault;
                     address += 1;
                     return;
                 }
                 else
                 {
-                    address.Byte = 1;
-                    address += 1;
+                    EBinaryObjectFlags flags = EBinaryObjectFlags.IsNotDefault;
 
                     //TODO: generate assembly list and namespace folder tree in another section to save space
                     //This will do for now
                     if (node.IsDerivedType)
+                    {
+                        flags |= EBinaryObjectFlags.IsDerived;
                         WriteString(node.ObjectType.AssemblyQualifiedName, ref address);
+                    }
+
+                    address.Byte = (byte)flags;
+                    address += 1;
                 }
                 
                 //First, handle built-in primitive types
                 switch (objType.Name)
                 {
-                    case "Boolean":
+                    case nameof(Boolean):
                         address.Byte = (byte)((bool)value ? 1 : 0);
                         address += 1;
                         break;
-                    case "SByte":
+                    case nameof(SByte):
                         address.SByte = (sbyte)value;
                         address += 1;
                         break;
-                    case "Byte":
+                    case nameof(Byte):
                         address.Byte = (byte)value;
                         address += 1;
                         break;
-                    case "Char":
+                    case nameof(Char):
                         address.Char = (char)value;
                         address += sizeof(char);
                         break;
-                    case "Int16":
+                    case nameof(Int16):
                         address.Short = (short)value;
                         address += sizeof(short);
                         break;
-                    case "UInt16":
+                    case nameof(UInt16):
                         address.UShort = (ushort)value;
                         address += sizeof(ushort);
                         break;
-                    case "Int32":
+                    case nameof(Int32):
                         address.Int = (int)value;
                         address += sizeof(int);
                         break;
-                    case "UInt32":
+                    case nameof(UInt32):
                         address.UInt = (uint)value;
                         address += sizeof(uint);
                         break;
-                    case "Int64":
+                    case nameof(Int64):
                         address.Long = (long)value;
                         address += sizeof(long);
                         break;
-                    case "UInt64":
+                    case nameof(UInt64):
                         address.ULong = (ulong)value;
                         address += sizeof(ulong);
                         break;
-                    case "Single":
+                    case nameof(Single):
                         address.Float = (float)value;
                         address += sizeof(float);
                         break;
-                    case "Double":
+                    case nameof(Double):
                         address.Double = (double)value;
                         address += sizeof(double);
                         break;
-                    case "Decimal":
+                    case nameof(Decimal):
                         address.Decimal = (decimal)value;
                         address += sizeof(decimal);
                         break;
-                    case "String":
+                    case nameof(String):
                         WriteString(value?.ToString(), ref address);
                         break;
                     default: //Now do more specific work
@@ -361,53 +367,27 @@ namespace TheraEngine.Core.Files.Serialization
                 
                 switch (objType.Name)
                 {
-                    case "Boolean":
-                        //size += 1;
-                        //break;
-                    case "SByte":
-                        //size += 1;
-                        //break;
-                    case "Byte":
-                        size += 1;
-                        break;
-                    case "Char":
-                        size += sizeof(char);
-                        break;
-                    case "Int16":
-                        size += sizeof(short);
-                        break;
-                    case "UInt16":
-                        size += sizeof(ushort);
-                        break;
-                    case "Int32":
-                        size += sizeof(int);
-                        break;
-                    case "UInt32":
-                        size += sizeof(uint);
-                        break;
-                    case "Int64":
-                        size += sizeof(long);
-                        break;
-                    case "UInt64":
-                        size += sizeof(ulong);
-                        break;
-                    case "Single":
-                        size += sizeof(float);
-                        break;
-                    case "Double":
-                        size += sizeof(double);
-                        break;
-                    case "Decimal":
-                        size += sizeof(decimal);
-                        break;
-                    case "String":
+                    case nameof(Boolean):
+                    case nameof(SByte):
+                    case nameof(Byte): size += 1; break;
+                    case nameof(Char): size += sizeof(char); break;
+                    case nameof(Int16): size += sizeof(short); break;
+                    case nameof(UInt16): size += sizeof(ushort); break;
+                    case nameof(Int32): size += sizeof(int); break;
+                    case nameof(UInt32): size += sizeof(uint); break;
+                    case nameof(Int64): size += sizeof(long); break;
+                    case nameof(UInt64): size += sizeof(ulong); break;
+                    case nameof(Single): size += sizeof(float); break;
+                    case nameof(Double): size += sizeof(double); break;
+                    case nameof(Decimal): size += sizeof(decimal); break;
+                    case nameof(String):
                         StringTable.Add((string)value);
                         size += StringOffsetSize;
                         break;
                     default:
-                        //Write manually?
                         if (value is TFileObject fobj)
                         {
+                            //Write manually?
                             FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
                             bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
                             bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
@@ -424,8 +404,9 @@ namespace TheraEngine.Core.Files.Serialization
                             size += Marshal.SizeOf(value);
                         else if (objType.GetInterface(nameof(IByteArrayParsable)) != null)
                         {
-                            byte[] bytes = node.ParsableBytes;
-                            size += 4;
+                            byte[] bytes = ((IByteArrayParsable)value).WriteToBytes();
+                            node.ParsableBytes = bytes;
+                            size += 4; //Length
                             if (bytes != null)
                                 size += bytes.Length;
                         }
@@ -542,41 +523,9 @@ namespace TheraEngine.Core.Files.Serialization
 
             public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
                 => new BinaryMemberTreeNode(parent, memberInfo, this);
-            public override IMemberTreeNode CreateNode(object root)
+            public override BinaryMemberTreeNode CreateNode(object root)
                 => new BinaryMemberTreeNode(root, this);
 
-            public unsafe sealed class BinaryStringTableReader
-            {
-                public BinaryStringTableReader(VoidPtr startAddress, int count, int length, int encodingCodePage, int stringLengthSize)
-                {
-                    TotalLength = length;
-                    Encoding = Encoding.GetEncoding(encodingCodePage);
-                    _table = new Dictionary<int, string>();
-
-                    int i = 0, offset = 0;
-                    while (i++ < count && offset < length)
-                    {
-                        string s = startAddress.GetString(offset, length, Encoding);
-                        _table.Add(offset + 1, s);
-                        offset += s.Length + 1;
-                    }
-                }
-
-                private Dictionary<int, string> _table;
-                
-                public int TotalLength { get; private set; } = 0;
-                public Encoding Encoding { get; }
-
-                public string this[int offset]
-                {
-                    get
-                    {
-                        if (offset >= 0 && offset < TotalLength)
-                            return _table[offset];
-                        return null;
-                    }
-                }
-            }
             public unsafe sealed class BinaryStringTableWriter
             {
                 public BinaryStringTableWriter()
@@ -637,12 +586,12 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 public void AddingFinished()
                 {
-                    TotalLength += StringTableHeader.Size + StringLengthSize * _table.Count;
+                    TotalLength += FileCommonHeader.StringTableHeader.Size + StringLengthSize * _table.Count;
                 }
                 public void WriteTable(VoidPtr baseAddress)
                 {
-                    StringTableHeader* hdr = (StringTableHeader*)baseAddress;
-                    baseAddress += StringTableHeader.Size;
+                    FileCommonHeader.StringTableHeader* hdr = (FileCommonHeader.StringTableHeader*)baseAddress;
+                    baseAddress += FileCommonHeader.StringTableHeader.Size;
                     VoidPtr currentAddress = baseAddress;
                     for (int i = 0; i < _table.Count; i++)
                     {
@@ -687,60 +636,6 @@ namespace TheraEngine.Core.Files.Serialization
                     ////if (len < 0xFF_FF_FF_FF_FF_FF_FF_FFul)
                     //return 8;
                 }
-            }
-            [StructLayout(LayoutKind.Sequential, Pack = 1)]
-            public struct StringTableHeader
-            {
-                public const int Size = 0x8;
-                public bint _encodingCodePage;
-                public Bin8 _flags; //Use for localization information?
-                public BUInt24 _stringCount;
-
-                public int StringLengthSize
-                {
-                    get => _flags[0, 2] + 1;
-                    set => _flags[0, 2] = (byte)(value.Clamp(1, 4) - 1);
-                }
-            }
-            [StructLayout(LayoutKind.Sequential, Pack = 1)]
-            public unsafe struct FileCommonHeader
-            {
-                public const int Size = 0x10;
-                public const string Magic = "THRA";
-
-                public bint _magic;
-                public Bin8 _flags;
-                public byte _pad1; //Use for localization information?
-                public bushort _pad2; //Use for localization information?
-                public bint _stringTableLength;
-                public bint _typeNameStringOffset;
-                //public fixed byte _hash[0x20];
-
-                public void WriteMagic() => Magic.Write(_magic.Address, false);
-                //public void WriteHash(byte[] integrityHash)
-                //{
-                //    for (int i = 0; i < 0x20; ++i)
-                //        _hash[i] = integrityHash[i];
-                //}
-
-                public bool Encrypted
-                {
-                    get => _flags[0];
-                    set => _flags[0] = value;
-                }
-                public bool Compressed
-                {
-                    get => _flags[1];
-                    set => _flags[1] = value;
-                }
-                public Endian.EOrder Endian
-                {
-                    get => _flags[2] ? Memory.Endian.EOrder.Big : Memory.Endian.EOrder.Little;
-                    set => _flags[2] = (int)value > 0;
-                }
-                public StringTableHeader* Strings => (StringTableHeader*)(Address + Size);
-                public VoidPtr Data => Strings + _stringTableLength;
-                public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
             }
         }
     }

@@ -3,15 +3,15 @@
 namespace TheraEngine.Core.Memory
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct UInt24
+    public unsafe struct Int24
     {
-        public static readonly uint MaxValue = 0x00FFFFFF;
+        public static readonly int MaxValue = 0x00FFFFFF;
 
         public byte _dat2, _dat1, _dat0;
 
-        public uint Value
+        public int Value
         {
-            get { return ((uint)_dat0 << 16) | ((uint)_dat1 << 8) | ((uint)_dat2); }
+            get { return ((int)_dat0 << 16) | ((int)_dat1 << 8) | ((int)_dat2); }
             set
             {
                 _dat2 = (byte)((value) & 0xFF);
@@ -25,14 +25,14 @@ namespace TheraEngine.Core.Memory
         public static implicit operator uint(UInt24 val) { return (uint)val.Value; }
         public static implicit operator UInt24(uint val) { return new UInt24(val); }
 
-        public UInt24(uint value)
+        public Int24(int value)
         {
             _dat2 = (byte)((value) & 0xFF);
             _dat1 = (byte)((value >> 8) & 0xFF);
             _dat0 = (byte)((value >> 16) & 0xFF);
         }
 
-        public UInt24(byte v0, byte v1, byte v2)
+        public Int24(byte v0, byte v1, byte v2)
         {
             _dat2 = v2;
             _dat1 = v1;

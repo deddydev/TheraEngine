@@ -31,7 +31,7 @@ namespace TheraEngine.Core.Files.Serialization
                     TSerialize attrib = info.GetCustomAttribute<TSerialize>();
                     if (attrib.AllowSerialize(TreeNode.Object))
                     {
-                        IMemberTreeNode child = TreeNode.FormatWriter.CreateNode(TreeNode, info);
+                        IMemberTreeNode child = TreeNode.Owner.CreateNode(TreeNode, info);
                         switch (attrib.NodeType)
                         {
                             case ENodeType.Attribute:
@@ -85,7 +85,7 @@ namespace TheraEngine.Core.Files.Serialization
             //Add a member node for each category
             foreach (var cat in categorizedChildren)
             {
-                IMemberTreeNode node = TreeNode.FormatWriter.CreateNode(TreeNode.Object);
+                IMemberTreeNode node = TreeNode.Owner.CreateNode(TreeNode.Object);
                 node.Parent = TreeNode;
                 node.NodeType = ENodeType.ChildElement;
                 node.ElementName = cat.Key;

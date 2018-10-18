@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,23 +8,32 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TDeserializer : TBaseSerializer
     {
-        public abstract class AbstractReader<T> : TBaseAbstractReaderWriter where T : class, IMemberTreeNode
+        public IAbstractReader Reader { get; private set; }
+        public EProprietaryFileFormat Format { get; private set; }
+
+        public interface IAbstractReader : IBaseAbstractReaderWriter
         {
-            protected readonly TDeserializer _owner;
+            TDeserializer Owner { get; }
+
+            Task ReadTree();
+        }
+        public abstract class AbstractReader<T> : TBaseAbstractReaderWriter<T>, IAbstractReader where T : class, IMemberTreeNode
+        {
+            public TDeserializer Owner { get; }
 
             protected AbstractReader(TDeserializer owner, TFileObject rootFileObject, string filePath, IProgress<float> progress, CancellationToken cancel)
-                : base(rootFileObject, filePath, progress, cancel)
-            {
-                _owner = owner;
-            }
+                : base(rootFileObject, filePath, progress, cancel) { Owner = owner; }
             
+            internal protected abstract Task ReadTree();
+            Task IAbstractReader.ReadTree() => ReadTree();
+
             //public IReadOnlyList<(string Name, object Value)> Attributes => _attributes;
             //public string ElementName { get; protected set; }
             //public string ElementValue { get; protected set; }
             //public string AttributeName { get; protected set; }
             //public string AttributeValue { get; protected set; }
             //public int ElementsDeep { get; private set; } = 0;
-            
+
             //public abstract void MoveBackToElementClose();
 
             //protected abstract Task<string> OnReadElementStringAsync();

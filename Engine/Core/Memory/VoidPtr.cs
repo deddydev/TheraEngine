@@ -85,9 +85,9 @@ namespace TheraEngine.Core.Memory
             get => *(BInt24*)_address;
             set => *(BInt24*)_address = value;
         }
-        public BInt24 GetInt24() => Int24;
-        public void SetInt24(BInt24 i) => Int24 = i;
-        public BUInt24 UInt24
+        public Int24 GetInt24() => Int24;
+        public void SetInt24(Int24 i) => Int24 = i;
+        public UInt24 UInt24
         {
             get => *(BUInt24*)_address;
             set => *(BUInt24*)_address = value;
@@ -225,6 +225,86 @@ namespace TheraEngine.Core.Memory
             Double = value;
             if (incrementPointer)
                 _address = (bdouble*)_address + 1;
+        }
+        #endregion
+
+        #region Incremental Reading Methods
+        public byte ReadByte(bool incrementPointer = true)
+        {
+            byte value = Byte;
+            if (incrementPointer)
+                _address = (byte*)_address + 1;
+            return value;
+        }
+        public sbyte ReadSByte(bool incrementPointer = true)
+        {
+            sbyte value = SByte;
+            if (incrementPointer)
+                _address = (sbyte*)_address + 1;
+            return value;
+        }
+        public short ReadShort(bool incrementPointer = true)
+        {
+            short value = Short;
+            if (incrementPointer)
+                _address = (bshort*)_address + 1;
+            return value;
+        }
+        public ushort ReadUShort(bool incrementPointer = true)
+        {
+            ushort value = UShort;
+            if (incrementPointer)
+                _address = (bushort*)_address + 1;
+            return value;
+        }
+        public int ReadInt(bool incrementPointer = true)
+        {
+            int value = Int;
+            if (incrementPointer)
+                _address = (bint*)_address + 1;
+            return value;
+        }
+        public uint ReadUInt(bool incrementPointer = true)
+        {
+            uint value = UInt;
+            if (incrementPointer)
+                _address = (buint*)_address + 1;
+            return value;
+        }
+        public long ReadLong(bool incrementPointer = true)
+        {
+            long value = Long;
+            if (incrementPointer)
+                _address = (blong*)_address + 1;
+            return value;
+        }
+        public ulong ReadULong(bool incrementPointer = true)
+        {
+            ulong value = ULong;
+            if (incrementPointer)
+                _address = (bulong*)_address + 1;
+            return value;
+        }
+        public float ReadFloat(bool incrementPointer = true)
+        {
+            float value = Float;
+            if (incrementPointer)
+                _address = (bfloat*)_address + 1;
+            return value;
+        }
+        public double ReadDouble(bool incrementPointer = true)
+        {
+            double value = Double;
+            if (incrementPointer)
+                _address = (bdouble*)_address + 1;
+            return value;
+        }
+        public UInt24 ReadUInt24(bool incrementPointer = true)
+        {
+            UInt24 value = UInt24;
+            if (incrementPointer)
+                _address = (BUInt24*)_address + 1;
+            return value;
         }
         #endregion
 

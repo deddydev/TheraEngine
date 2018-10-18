@@ -11,6 +11,7 @@ using TheraEngine.Components.Scene.Transforms;
 using System.Threading.Tasks;
 using TheraEngine.Rendering;
 using TheraEngine.Core.Maths.Transforms;
+using System.Threading;
 
 namespace TheraEngine.Actors
 {
@@ -62,13 +63,13 @@ namespace TheraEngine.Actors
         }
 
         [ThirdPartyLoader("dae", true)]
-        public static async Task<TFileObject> LoadDAEAsync(string path)
+        public static async Task<TFileObject> LoadDAEAsync(string path, IProgress<float> progress, CancellationToken cancel)
         {
             ColladaImportOptions o = new ColladaImportOptions()
             {
                 IgnoreFlags = Collada.EIgnoreFlags.Extra
             };
-            Collada.Data data = await Collada.ImportAsync(path, o);
+            Collada.Data data = await Collada.ImportAsync(path, o, progress, cancel);
             if (data != null)
             {
             }

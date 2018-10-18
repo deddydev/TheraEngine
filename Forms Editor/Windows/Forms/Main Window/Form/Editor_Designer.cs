@@ -137,7 +137,7 @@ namespace TheraEditor.Windows.Forms
         }
         private List<OperationInfo> _operations = new List<OperationInfo>();
 
-        public int ReportOperation(string statusBarMessage, out Progress<float> progress, out CancellationToken cancel, TimeSpan? maxOperationTime = null)
+        public int BeginOperation(string statusBarMessage, out Progress<float> progress, out CancellationToken cancel, TimeSpan? maxOperationTime = null)
         {
             if (_operations.Count == 0)
             {

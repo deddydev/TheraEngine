@@ -38,7 +38,7 @@ namespace TheraEngine.Rendering.Models
         public static async Task<Data> ImportAsync(
             string filePath,
             ColladaImportOptions options,
-            Progress<float> progress,
+            IProgress<float> progress,
             CancellationToken cancel)
         {
             if (!File.Exists(filePath))

@@ -25,7 +25,7 @@ namespace TheraEngine.Core.Files.Serialization
             List.CopyTo(vals, 0);
             Values = vals.Select(obj => 
             {
-                IMemberTreeNode node = TreeNode.Owner.CreateNodeGeneric(obj);
+                IMemberTreeNode node = TreeNode.Owner.CreateNode(obj);
                 node.MemberType = elemType;
                 node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
                 node.Parent = TreeNode;

@@ -20,6 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
         public List<BinaryMemberTreeNode> Children { get; internal set; }
 
         internal int CalculatedSize { get; set; }
+        internal int ManuallyCalculatedSize { get; set; }
         internal byte[] ParsableBytes { get; set; } = null;
         internal string ParsableString { get; set; } = null;
         internal int ParsablePointerSize { get; set; } = 0;
@@ -339,7 +340,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a CustomSerializeMethod attribute, but the arguments are not correct. There must be one argument of type {nameof(IMemberTreeNode)} or {nameof(XMLMemberTreeNode)}.");
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a CustomSerializeMethod attribute, but the arguments are not correct. There must be one argument of type {nameof(IMemberTreeNode)}.");
                 }
             }
 
@@ -504,9 +505,9 @@ namespace TheraEngine.Core.Files.Serialization
                         //however only if the file has changed
                         if (!fileExists)
                         {
-                            if (fref is IGlobalFileRef && !FormatWriter.Flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
+                            if (fref is IGlobalFileRef && !Owner.Flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
                                 return;
-                            if (fref is ILocalFileRef && !FormatWriter.Flags.HasFlag(ESerializeFlags.ExportLocalRefs))
+                            if (fref is ILocalFileRef && !Owner.Flags.HasFlag(ESerializeFlags.ExportLocalRefs))
                                 return;
 
                             string absPath;

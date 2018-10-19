@@ -35,7 +35,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             Keys = keys.Select(obj =>
             {
-                IMemberTreeNode node = TreeNode.Owner.CreateNodeGeneric(obj);
+                IMemberTreeNode node = TreeNode.Owner.CreateNode(obj);
                 node.MemberType = keyType;
                 node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
                 node.NodeType = ENodeType.ChildElement;
@@ -44,7 +44,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             Values = vals.Select(obj =>
             {
-                IMemberTreeNode node = TreeNode.Owner.CreateNodeGeneric(obj);
+                IMemberTreeNode node = TreeNode.Owner.CreateNode(obj);
                 node.MemberType = valType;
                 node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
                 node.NodeType = ENodeType.ChildElement;
@@ -54,7 +54,7 @@ namespace TheraEngine.Core.Files.Serialization
             Members = new List<IMemberTreeNode>(Keys.Length);
             for (int i = 0; i < Keys.Length; ++i)
             {
-                IMemberTreeNode pairNode = TreeNode.Owner.CreateNodeGeneric(TreeNode, null);
+                IMemberTreeNode pairNode = TreeNode.Owner.CreateNode(TreeNode, null);
                 await pairNode.AddChildren(0, 2, 0, new List<IMemberTreeNode>(2) { Keys[i], Values[i] });
                 Members.Add(pairNode);
             }

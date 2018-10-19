@@ -19,6 +19,7 @@ namespace TheraEngine.Core.Files.Serialization
         IsNotDefault    = 0b0000_0001,
         IsDerived       = 0b0000_0010,
         IsNull          = 0b0000_0100,
+        IsSharedObject  = 0b0000_1000,
         BooleanValue    = 0b1000_0000,
     }
     public partial class TDeserializer : TBaseSerializer
@@ -95,8 +96,7 @@ namespace TheraEngine.Core.Files.Serialization
                         Compressed = hdr->Compressed;
 
                         VoidPtr addr = hdr->Data;
-                        ReadObject(ref addr, null, out BinaryMemberTreeNode rootNode);
-                        RootNode = rootNode;
+                        RootNode = ReadObject(ref addr, null);
                     }
 
                     //uncompMap.BaseStream.Position = 0;
@@ -154,12 +154,13 @@ namespace TheraEngine.Core.Files.Serialization
             }
             private unsafe BinaryMemberTreeNode ReadObject(ref VoidPtr address, Type memberType)
             {
-                object obj;
-                Type objectType = memberType;
+                object obj = null;
+                Type objType = memberType;
+
                 EBinaryObjectFlags flags = (EBinaryObjectFlags)address.ReadByte();
                 if ((flags & EBinaryObjectFlags.IsDefault) != 0)
                 {
-                    obj = objectType.GetDefaultValue();
+                    obj = objType.GetDefaultValue();
                 }
                 else if ((flags & EBinaryObjectFlags.IsNull) != 0)
                 {
@@ -171,85 +172,139 @@ namespace TheraEngine.Core.Files.Serialization
                     if (derived)
                     {
                         string assemblyTypeName = ReadString(ref address);
-                        objectType = Type.GetType(assemblyTypeName, false, false) ?? memberType;
+                        objType = Type.GetType(assemblyTypeName, false, false) ?? memberType;
                     }
 
-                    Type nulledType = Nullable.GetUnderlyingType(objectType);
+                    Type nulledType = Nullable.GetUnderlyingType(objType);
                     bool nullable = nulledType != null;
                     if (nullable)
-                        objectType = nulledType;
+                        objType = nulledType;
                     
                     //First, handle built-in primitive types
-                    switch (objectType.Name)
+                    switch (objType.Name)
                     {
                         case nameof(Boolean):   /*obj = address.ReadByte() != 0;*/  break;
-                        case nameof(SByte): obj = address.ReadSByte(); break;
-                        case nameof(Byte): obj = address.ReadByte(); break;
-                        case nameof(Char): obj = address.ReadChar(); break;
-                        case nameof(Int16): obj = address.ReadShort(); break;
-                        case nameof(UInt16): obj = address.ReadUShort(); break;
-                        case nameof(Int32): obj = address.ReadInt(); break;
-                        case nameof(UInt32): obj = address.ReadUInt(); break;
-                        case nameof(Int64): obj = address.ReadLong(); break;
-                        case nameof(UInt64): obj = address.ReadULong(); break;
-                        case nameof(Single): obj = address.ReadFloat(); break;
-                        case nameof(Double): obj = address.ReadDouble(); break;
-                        case nameof(Decimal): obj = address.ReadDecimal(); break;
-                        case nameof(String): obj = ReadString(ref address); break;
+                        case nameof(SByte):     obj = address.ReadSByte();          break;
+                        case nameof(Byte):      obj = address.ReadByte();           break;
+                        case nameof(Char):      obj = address.ReadChar();           break;
+                        case nameof(Int16):     obj = address.ReadShort();          break;
+                        case nameof(UInt16):    obj = address.ReadUShort();         break;
+                        case nameof(Int32):     obj = address.ReadInt();            break;
+                        case nameof(UInt32):    obj = address.ReadUInt();           break;
+                        case nameof(Int64):     obj = address.ReadLong();           break;
+                        case nameof(UInt64):    obj = address.ReadULong();          break;
+                        case nameof(Single):    obj = address.ReadFloat();          break;
+                        case nameof(Double):    obj = address.ReadDouble();         break;
+                        case nameof(Decimal):   obj = address.ReadDecimal();        break;
+                        case nameof(String):    obj = ReadString(ref address);      break;
                         default:
-                            if (objectType.IsEnum)
-                                obj = ReadEnum(objectType, ref address);
-                            else if (objectType.GetInterface(nameof(ISerializableString)) != null)
-                                obj = ReadString(ref address);
+                            if (objType.IsEnum)
+                            {
+                                obj = ReadEnum(objType, ref address);
+                            }
+                            else if (objType.IsArray)
+                            {
+                                obj = ReadArray(objType, ref address);
+                            }
+                            else if (objType.GetInterface(nameof(ISerializablePointer)) != null)
+                            {
+                                obj = ReadSerializablePointer(objType, ref address);
+                            }
+                            else if (objType.GetInterface(nameof(ISerializableByteArray)) != null)
+                            {
+                                obj = ReadSerializableByteArray(objType, ref address);
+                            }
+                            else if (objType.GetInterface(nameof(ISerializableString)) != null)
+                            {
+                                obj = ReadSerializableString(objType, ref address);
+                            }
+                            else if (objType.IsValueType)
+                            {
+                                obj = ReadStruct(objType, ref address);
+                            }
+                            else if (typeof(TFileObject).IsAssignableFrom(objType) && ShouldReadFileObjectManually(objType))
+                            {
+                                obj = ReadFileObjectManually(objType, ref address);
+                            }
                             else
                             {
-                                int size = address.ReadInt();
-                                obj = SerializationCommon.CreateObject(objectType);
-
-                                if (objectType.GetInterface(nameof(ISerializablePointer)) != null)
-                                {
-                                    ISerializablePointer parsableObj = (ISerializablePointer)obj;
-                                    parsableObj.ReadFromPointer(address, size);
-                                    address += size;
-                                }
-                                else if (objectType.GetInterface(nameof(ISerializableByteArray)) != null)
-                                {
-                                    byte[] bytes = new byte[size];
-                                    for (int i = 0; i < size; ++i)
-                                        bytes[i] = address.ReadByte();
-                                    ISerializableByteArray parsableObj = (ISerializableByteArray)obj;
-                                    parsableObj.ReadFromBytes(bytes);
-                                }
-                                else if (typeof(TFileObject).IsAssignableFrom(objectType))
-                                {
-                                    FileExt ext = TFileObject.GetFileExtension(objectType);
-
-                                    bool serConfig = ext.ManualBinConfigSerialize &&
-                                        Flags.HasFlag(ESerializeFlags.SerializeConfig);
-                                    bool serState = ext.ManualBinStateSerialize &&
-                                        Flags.HasFlag(ESerializeFlags.SerializeState);
-
-                                    TFileObject fileObj = (TFileObject)obj;
-                                    fileObj.ManualReadBinary(address, size, StringTable);
-                                }
-                                else if (objectType.IsValueType && node.Children.Count == 0)
-                                {
-                                    Marshal.PtrToStructure(address, obj);
-                                    address += size;
-                                }
-                                else
-                                {
-
-                                }
-
-                                address += size;
+                                obj = null;
                             }
+
                             break;
                     }
                 }
 
                 return new BinaryMemberTreeNode(obj) { MemberType = memberType, };
             }
+
+            private bool ShouldReadFileObjectManually(Type objType)
+            {
+                FileExt ext = TFileObject.GetFileExtension(objType);
+                if (ext == null)
+                    return false;
+
+                bool serConfig = ext.ManualBinConfigSerialize;
+                bool serState = ext.ManualBinStateSerialize;
+
+                return serConfig || serState;
+            }
+            private object ReadFileObjectManually(Type objType, ref VoidPtr address)
+            {
+                int size = address.ReadInt();
+                object obj = SerializationCommon.CreateObject(objType);
+
+                TFileObject fileObj = (TFileObject)obj;
+                fileObj.ManualReadBinary(address, size, StringTable);
+
+                address += size;
+
+                return obj;
+            }
+            private object ReadStruct(Type objType, ref VoidPtr address)
+            {
+                int size = address.ReadInt();
+                object obj = SerializationCommon.CreateObject(objType);
+
+                Marshal.PtrToStructure(address, obj);
+
+                address += size;
+
+                return obj;
+            }
+            private object ReadSerializableByteArray(Type objType, ref VoidPtr address)
+            {
+                int size = address.ReadInt();
+                ISerializableByteArray serBytes = (ISerializableByteArray)SerializationCommon.CreateObject(objType);
+
+                byte[] bytes = new byte[size];
+                for (int i = 0; i < size; ++i)
+                    bytes[i] = address.ReadByte();
+                serBytes.ReadFromBytes(bytes);
+
+                return serBytes;
+            }
+            private object ReadSerializablePointer(Type objType, ref VoidPtr address)
+            {
+                int size = address.ReadInt();
+
+                ISerializablePointer serPtr = (ISerializablePointer)SerializationCommon.CreateObject(objType);
+                serPtr.ReadFromPointer(address, size);
+
+                address += size;
+
+                return serPtr;
+            }
+            private object ReadSerializableString(Type objType, ref VoidPtr address)
+            {
+                ISerializableString serStr = (ISerializableString)SerializationCommon.CreateObject(objType);
+
+                string value = ReadString(ref address);
+                serStr.ReadFromString(value);
+
+                return serStr;
+            }
+
             private string ReadString(ref VoidPtr address)
             {
                 string value;
@@ -280,6 +335,11 @@ namespace TheraEngine.Core.Files.Serialization
                     case TypeCode.UInt64:   return Enum.ToObject(enumType, address.ReadULong());
                 }
             }
+            private object ReadArray(Type type, ref VoidPtr address)
+            {
+                return null;
+            }
+
             //private void WriteBoolean(bool value, byte[] flagBytes, ref int flagIndex)
             //{
             //    int bitIndex = flagIndex & 7;

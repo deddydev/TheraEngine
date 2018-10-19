@@ -286,7 +286,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                         if (objType.IsArray)
                         {
-                            WriteArray(value, ref address);
+                            WriteArray(value, objType.GetElementType(), ref address);
                         }
                         else if (value is ISerializablePointer serPtr)
                         {
@@ -300,24 +300,15 @@ namespace TheraEngine.Core.Files.Serialization
                         {
                             WriteSerializableString(ref address, serStr, node);
                         }
-                        else if (value is TFileObject fobj)
-                        {
-                            FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
-                            bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
-                            bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
-                            if (serConfig || serState)
-                            {
-                                int size = node.CalculatedSize;
-                                address.WriteInt(size);
-                                fobj.ManualWriteBinary(address, size, StringTable, Flags);
-                                address += size;
-                            }
-                        }
                         else if (objType.IsValueType)
                         {
                             int size = Marshal.SizeOf(value);
                             Marshal.StructureToPtr(value, address, true);
                             address += size;
+                        }
+                        else if (value is TFileObject fobj && ShouldWriteFileObjectManually(objType))
+                        {
+                            WriteFileObjectManually(ref address, fobj, objType, node);
                         }
                         else
                             foreach (BinaryMemberTreeNode childNode in node.Children)
@@ -327,13 +318,29 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
 
-            private void WriteArray(object value, ref VoidPtr address)
+            private bool ShouldWriteFileObjectManually(Type objType)
             {
+                FileExt ext = TFileObject.GetFileExtension(objType);
+                if (ext == null)
+                    return false;
 
+                bool serConfig = ext.ManualBinConfigSerialize;
+                bool serState = ext.ManualBinStateSerialize;
+
+                return serConfig || serState;
             }
-
+            private void WriteFileObjectManually(ref VoidPtr address, TFileObject fobj, Type objType, BinaryMemberTreeNode node)
+            {
+                int size = node.ManuallyCalculatedSize;
+                address.WriteInt(size);
+                fobj.ManualWriteBinary(address, size, StringTable, Flags);
+                address += size;
+            }
             internal int GetSizeObject(BinaryMemberTreeNode node)
             {
+                if (node.Object is TObject tobj && SharedObjects.ContainsKey(tobj.Guid))
+                    return 5; //flags byte + object index
+
                 int size = 0;
                 object value = node.Object;
                 Type objType = node.ObjectType;
@@ -378,6 +385,10 @@ namespace TheraEngine.Core.Files.Serialization
                         {
                             size += GetSizeEnum(value);
                         }
+                        else if (objType.IsArray)
+                        {
+                            size += GetSizeArray(value, objType.GetElementType());
+                        }
                         else if (value is ISerializablePointer serPtr)
                         {
                             size += GetSizeSerializablePointer(serPtr, node);
@@ -394,26 +405,52 @@ namespace TheraEngine.Core.Files.Serialization
                         {
                             size += Marshal.SizeOf(value);
                         }
-                        else if (value is TFileObject fobj)
+                        else if (value is TFileObject fobj && ShouldWriteFileObjectManually(objType))
                         {
-                            FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
-
-                            bool serConfig = ext.ManualBinConfigSerialize &&
-                                Flags.HasFlag(ESerializeFlags.SerializeConfig);
-                            bool serState = ext.ManualBinStateSerialize &&
-                                Flags.HasFlag(ESerializeFlags.SerializeState);
-
-                            if (serConfig || serState)
-                                size += (node.CalculatedSize = fobj.ManualGetSizeBinary(StringTable, Flags));
+                            size += GetSizeFileObjectManually(fobj, objType, node);
                         }
                         else
-                        {
-
-                        }
+                            foreach (BinaryMemberTreeNode childNode in node.Children)
+                                size += GetSizeObject(childNode);
                         break;
                 }
 
                 return size;
+            }
+
+            private int GetSizeFileObjectManually(TFileObject fobj, Type objectType, BinaryMemberTreeNode node)
+            {
+                int size = sizeof(int); //length
+                node.ManuallyCalculatedSize = fobj.ManualGetSizeBinary(StringTable, Flags);
+                size += node.ManuallyCalculatedSize;
+                return size;
+            }
+            private int GetSizeArray(object value, Type elementType)
+            {
+                Array array = value as Array;
+                return 0;
+            }
+            private void WriteArray(object value, Type elementType, ref VoidPtr address)
+            {
+                Array array = value as Array;
+
+                Bin8 flags = new Bin8(0);
+                flags[0, 5] = (byte)(array.Rank - 1);
+                //flags[5] = false;
+                //flags[6] = false;
+                //flags[7] = false;
+                address.WriteByte(flags);
+
+                for (int i = 0; i < array.Rank; ++i)
+                    address.WriteInt(array.GetLength(i));
+
+                //for (int i = 0; i < array.Rank; ++i)
+                //{
+                //    for (int x = 0; x < array.GetLength(i); ++x)
+                //    {
+                //        address.WriteInt(array.GetValue(i));
+                //    }
+                //}
             }
 
             private int GetSizeSerializablePointer(ISerializablePointer value, BinaryMemberTreeNode node)
@@ -493,15 +530,15 @@ namespace TheraEngine.Core.Files.Serialization
                 TypeCode typeCode = enumValue.GetTypeCode();
                 switch (typeCode)
                 {
-                    case TypeCode.SByte: return sizeof(sbyte);
-                    case TypeCode.Byte: return sizeof(byte);
-                    case TypeCode.Int16: return sizeof(short);
-                    case TypeCode.UInt16: return sizeof(ushort);
+                    case TypeCode.SByte:    return sizeof(sbyte);
+                    case TypeCode.Byte:     return sizeof(byte);
+                    case TypeCode.Int16:    return sizeof(short);
+                    case TypeCode.UInt16:   return sizeof(ushort);
                     default:
-                    case TypeCode.Int32: return sizeof(int);
-                    case TypeCode.UInt32: return sizeof(uint);
-                    case TypeCode.Int64: return sizeof(long);
-                    case TypeCode.UInt64: return sizeof(ulong);
+                    case TypeCode.Int32:    return sizeof(int);
+                    case TypeCode.UInt32:   return sizeof(uint);
+                    case TypeCode.Int64:    return sizeof(long);
+                    case TypeCode.UInt64:   return sizeof(ulong);
                 }
             }
 

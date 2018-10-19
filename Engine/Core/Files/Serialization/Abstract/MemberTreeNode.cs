@@ -17,11 +17,13 @@ namespace TheraEngine.Core.Files.Serialization
         public BinaryMemberTreeNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
             : base(parent, memberInfo) { }
 
-        public int CalculatedSize { get; internal set; }
         public List<BinaryMemberTreeNode> Children { get; internal set; }
-        public byte[] ParsableBytes { get; internal set; } = null;
-        public string ParsableString { get; internal set; } = null;
-        
+
+        internal int CalculatedSize { get; set; }
+        internal byte[] ParsableBytes { get; set; } = null;
+        internal string ParsableString { get; set; } = null;
+        internal int ParsablePointerSize { get; set; } = 0;
+
         protected override async Task OnAddChild(BinaryMemberTreeNode childMember)
         {
             Children.Add(childMember);
@@ -210,7 +212,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// <see langword="true"/> if the object's type inherits from the member's type instead of matching it exactly.
         /// </summary>
-        public bool IsDerivedType => ObjectType?.IsSubclassOf(MemberType) ?? false;
+        public bool IsDerivedType => Parent == null || (ObjectType?.IsSubclassOf(MemberType) ?? false);
         /// <summary>
         /// The class handling how to collect all members of any given object.
         /// Most classes will use <see cref="CommonWriter"/>.

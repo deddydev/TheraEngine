@@ -13,17 +13,26 @@ namespace TheraEngine
     {
         string Text { get; set; }
     }
-    public interface IParsableString
+    /// <summary>
+    /// This object can be serialized as a string.
+    /// </summary>
+    public interface ISerializableString
     {
         string WriteToString();
         void ReadFromString(string str);
     }
-    public interface IParsableByteArray
+    /// <summary>
+    /// This object can be serialized as a byte array.
+    /// </summary>
+    public interface ISerializableByteArray
     {
         byte[] WriteToBytes();
         void ReadFromBytes(byte[] bytes);
     }
-    public interface IParsablePointer
+    /// <summary>
+    /// This object can be serialized to/from a pointer.
+    /// </summary>
+    public interface ISerializablePointer
     {
         int GetSize();
         void WriteToPointer(VoidPtr address);

@@ -32,7 +32,7 @@ namespace TheraEngine.Core.Files.Serialization
             public TFileObject RootFileObject { get; internal set; }
             public T RootNode { get; protected set; }
             IMemberTreeNode IBaseAbstractReaderWriter.RootNode => RootNode;
-            public Dictionary<Guid, TObject> SharedObjects { get; internal set; }
+            public Dictionary<Guid, T> SharedObjects { get; internal set; }
             internal int CurrentCount { get; set; }
             public ESerializeFlags Flags { get; internal set; }
 
@@ -42,7 +42,7 @@ namespace TheraEngine.Core.Files.Serialization
                 FilePath = filePath;
                 Progress = progress;
                 Cancel = cancel;
-                SharedObjects = new Dictionary<Guid, TObject>();
+                SharedObjects = new Dictionary<Guid, T>();
                 FileDirectory = Path.GetDirectoryName(FilePath);
             }
 

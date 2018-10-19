@@ -10,7 +10,7 @@ using TheraEngine.Core.Memory;
 namespace System
 {
     [Serializable]
-    public unsafe class EventVec2 : IEquatable<EventVec2>, IUniformable2Float, IBufferable, IParsableString
+    public unsafe class EventVec2 : IEquatable<EventVec2>, IUniformable2Float, IBufferable, ISerializableString
     {
         //private int _updating = 0;
         private float _oldX, _oldY;

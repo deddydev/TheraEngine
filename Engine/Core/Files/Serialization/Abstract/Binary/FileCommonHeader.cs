@@ -13,10 +13,10 @@ namespace TheraEngine.Core.Files.Serialization
 
         public bint _magic;
         public Bin8 _flags;
-        public byte _pad1; //Use for localization information?
-        public bushort _pad2; //Use for localization information?
+        public byte _languages;
+        public bushort _pad2;
         public bint _stringTableLength;
-        public bint _typeNameStringOffset;
+        public bint _sharedObjectsCount;
         //public fixed byte _hash[0x20];
 
         public void WriteMagic() => Magic.Write(_magic.Address, false);

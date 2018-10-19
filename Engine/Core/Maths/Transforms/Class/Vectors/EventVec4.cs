@@ -11,7 +11,7 @@ namespace System
 {
     [Serializable]
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public unsafe class EventVec4 : IEquatable<EventVec4>, IUniformable4Float, IBufferable, IParsableString
+    public unsafe class EventVec4 : IEquatable<EventVec4>, IUniformable4Float, IBufferable, ISerializableString
     {
         public event Action XChanged;
         public event Action YChanged;

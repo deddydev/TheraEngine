@@ -28,7 +28,7 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public const string TypeIdent = "AssemblyType";
         public static bool CanParseAsString(Type t)
-            => t.GetInterface(nameof(IParsableString)) != null || IsPrimitiveType(t) || IsEnum(t);
+            => t.GetInterface(nameof(ISerializableString)) != null || IsPrimitiveType(t) || IsEnum(t);
         internal static string GetTypeName(Type t)
         {
             if (t == null || t.IsInterface)
@@ -53,9 +53,9 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public static bool GetString(object value, Type t, out string result)
         {
-            if (t.GetInterface(nameof(IParsableString)) != null)
+            if (t.GetInterface(nameof(ISerializableString)) != null)
             {
-                result = ((IParsableString)value).WriteToString();
+                result = ((ISerializableString)value).WriteToString();
                 return true;
             }
             else if (IsPrimitiveType(t))
@@ -78,9 +78,9 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public static object ParseString(string value, Type t)
         {
-            if (t.GetInterface(nameof(IParsableString)) != null)
+            if (t.GetInterface(nameof(ISerializableString)) != null)
             {
-                IParsableString o = (IParsableString)Activator.CreateInstance(t);
+                ISerializableString o = (ISerializableString)Activator.CreateInstance(t);
                 o.ReadFromString(value);
                 return o;
             }
@@ -223,7 +223,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 return ESerializeType.Manual;
             }
-            else if (t.GetInterface(nameof(IParsableString)) != null)
+            else if (t.GetInterface(nameof(ISerializableString)) != null)
             {
                 return ESerializeType.Parsable;
             }

@@ -132,9 +132,9 @@ namespace System
                 else
                     return value.ParseAs(t.GetGenericArguments()[0]);
             }
-            if (t.GetInterface(nameof(IParsableString)) != null)
+            if (t.GetInterface(nameof(ISerializableString)) != null)
             {
-                IParsableString o = (IParsableString)Activator.CreateInstance(t);
+                ISerializableString o = (ISerializableString)Activator.CreateInstance(t);
                 o.ReadFromString(value);
                 return o;
             }

@@ -11,7 +11,7 @@ namespace System
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Matrix3 : IEquatable<Matrix3>, IUniformable, IStringParsable
+    public unsafe struct Matrix3 : IEquatable<Matrix3>, IUniformable, IParsableString
     {
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
 

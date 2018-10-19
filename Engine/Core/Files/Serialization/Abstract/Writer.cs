@@ -20,7 +20,6 @@ namespace TheraEngine.Core.Files.Serialization
         public abstract class AbstractWriter<T> : TBaseAbstractReaderWriter<T>, IAbstractWriter where T : class, IMemberTreeNode
         {
             public TSerializer Owner { get; }
-            public ESerializeFlags Flags { get; internal set; }
             
             protected AbstractWriter(TSerializer owner, TFileObject rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
                 : base(rootFileObject, filePath, progress, cancel)

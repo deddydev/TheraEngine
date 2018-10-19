@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -44,10 +45,10 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public class ReaderBinary : AbstractReader<BinaryMemberTreeNode>
         {
-            public Endian.EOrder Endian { get; }
-            public bool Encrypted { get; }
-            public bool Compressed { get; }
-            Rfc2898DeriveBytes EncryptionDeriveBytes { get; }
+            public Endian.EOrder Endian { get; private set; }
+            public bool Encrypted { get; private set; }
+            public bool Compressed { get; private set; }
+            Rfc2898DeriveBytes EncryptionDeriveBytes { get; set; }
             BinaryStringTableReader StringTable { get; set; }
             public int StringOffsetSize { get; private set; }
 
@@ -71,283 +72,215 @@ namespace TheraEngine.Core.Files.Serialization
 
             protected internal override async Task ReadTree()
             {
-                await RootNode.CollectSerializedMembers();
+                //await RootNode.CollectSerializedMembers();
 
-                Memory.Endian.SerializerOrder = Endian;
+                //Memory.Endian.SerializeOrder = Endian;
 
-                StringTable = new BinaryStringTableReader();
+                //StringTable = new BinaryStringTableReader();
 
-                int dataSize = RootNode.CalculatedSize;
-                int stringSize = StringTable.TotalLength.Align(4);
-                StringOffsetSize = StringTable.GetSmallestRepSize(stringSize);
-                int totalSize = FileCommonHeader.Size + stringSize + dataSize;
-
-                FileMap uncompMap = FileMap.FromFile(FilePath, FileMapProtect.Read);
-                using (uncompMap)
+                //int dataSize = RootNode.CalculatedSize;
+                //int stringSize = StringTable.TotalLength.Align(4);
+                //StringOffsetSize = StringTable.GetSmallestRepSize(stringSize);
+                //int totalSize = FileCommonHeader.Size + stringSize + dataSize;
+                
+                using (FileMap uncompMap = FileMap.FromFile(FilePath, FileMapProtect.Read))
                 {
                     unsafe
                     {
                         FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
-                        hdr->_stringTableLength = stringSize;
-                        hdr->Endian = Endian;
-                        hdr->Encrypted = Encrypted;
-                        hdr->Compressed = Compressed;
+                        Endian = hdr->Endian;
+                        Encrypted = hdr->Encrypted;
+                        Compressed = hdr->Compressed;
+                        int stringSize = hdr->_stringTableLength;
+                        int typeNameOffset = hdr->_typeNameStringOffset;
 
-                        //SHA256Managed SHhash = new SHA256Managed();
-                        //byte[] integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
-                        //hdr->WriteHash(integrityHash);
-
-                        StringTable = new BinaryStringTableReader(hdr->Strings);
+                        StringTable = new BinaryStringTableReader();
+                        StringTable.ReadStrings(hdr->Strings);
+                        string typeName = StringTable[typeNameOffset];
+                        Type type = Type.GetType(typeName);
 
                         VoidPtr addr = hdr->Data;
-                        WriteObject(RootNode, ref addr);
+                        ReadObject(ref addr, type, out BinaryMemberTreeNode rootNode);
+                        RootNode = rootNode;
                     }
 
-                    uncompMap.BaseStream.Position = 0;
+                    //uncompMap.BaseStream.Position = 0;
 
-                    FileStream outStream;
+                    //FileStream outStream;
 
-                    //Compres first, then encrypt
-                    //This is because compression works best on the original patterned data
+                    ////Compres first, then encrypt
+                    ////This is because compression works best on the original patterned data
 
-                    if (Compressed)
-                    {
-                        outStream = new FileStream(FilePath,
-                            FileMode.OpenOrCreate,
-                            FileAccess.ReadWrite,
-                            FileShare.ReadWrite,
-                            8,
-                            FileOptions.RandomAccess);
-                        outStream.SetLength(totalSize);
-                        outStream.Position = 0;
-                        SevenZip.Compression.LZMA.Encoder e = new SevenZip.Compression.LZMA.Encoder();
-                        e.Code(uncompMap.BaseStream, outStream, totalSize, totalSize, CompressionProgress);
-                        outStream.SetLength(outStream.Position);
-                    }
-                    else
-                        outStream = uncompMap.BaseStream;
+                    //if (Compressed)
+                    //{
+                    //    outStream = new FileStream(FilePath,
+                    //        FileMode.OpenOrCreate,
+                    //        FileAccess.ReadWrite,
+                    //        FileShare.ReadWrite,
+                    //        8,
+                    //        FileOptions.RandomAccess);
+                    //    outStream.SetLength(totalSize);
+                    //    outStream.Position = 0;
+                    //    SevenZip.Compression.LZMA.Encoder e = new SevenZip.Compression.LZMA.Encoder();
+                    //    e.Code(uncompMap.BaseStream, outStream, totalSize, totalSize, CompressionProgress);
+                    //    outStream.SetLength(outStream.Position);
+                    //}
+                    //else
+                    //    outStream = uncompMap.BaseStream;
 
-                    if (Encrypted)
-                    {
-                        SymmetricAlgorithm crypto = new RijndaelManaged();
-                        byte[] key = EncryptionDeriveBytes.GetBytes(crypto.KeySize / 8);
-                        byte[] iv = EncryptionDeriveBytes.GetBytes(crypto.BlockSize / 8);
+                    //if (Encrypted)
+                    //{
+                    //    SymmetricAlgorithm crypto = new RijndaelManaged();
+                    //    byte[] key = EncryptionDeriveBytes.GetBytes(crypto.KeySize / 8);
+                    //    byte[] iv = EncryptionDeriveBytes.GetBytes(crypto.BlockSize / 8);
 
-                        outStream.Position = 0;
-                        int blockSize = 0x1000;
-                        int bytesRead = 0;
-                        long tempPos;
-                        byte[] buffer = new byte[blockSize];
-                        using (CryptoStream cryptoStream = new CryptoStream(outStream, crypto.CreateDecryptor(key, iv), CryptoStreamMode.Write))
-                        {
-                            while (true)
-                            {
-                                tempPos = outStream.Position;
-                                bytesRead = outStream.Read(buffer, 0, blockSize);
-                                if (bytesRead <= 0)
-                                    break;
-                                outStream.Position = tempPos;
-                                cryptoStream.Write(buffer, 0, bytesRead);
-                            }
-                        }
-                    }
+                    //    outStream.Position = 0;
+                    //    int blockSize = 0x1000;
+                    //    int bytesRead = 0;
+                    //    long tempPos;
+                    //    byte[] buffer = new byte[blockSize];
+                    //    using (CryptoStream cryptoStream = new CryptoStream(outStream, crypto.CreateDecryptor(key, iv), CryptoStreamMode.Write))
+                    //    {
+                    //        while (true)
+                    //        {
+                    //            tempPos = outStream.Position;
+                    //            bytesRead = outStream.Read(buffer, 0, blockSize);
+                    //            if (bytesRead <= 0)
+                    //                break;
+                    //            outStream.Position = tempPos;
+                    //            cryptoStream.Write(buffer, 0, bytesRead);
+                    //        }
+                    //    }
+                    //}
 
-                    if (Compressed)
-                        outStream.Dispose();
+                    //if (Compressed)
+                    //    outStream.Dispose();
                 }
             }
             private unsafe bool ReadObject(ref VoidPtr address, Type memberType, out BinaryMemberTreeNode node)
             {
-                node = null;
-
-                //object value = node.Object;
-                //Type objType = node.ObjectType;
-                //object defaultValue = node.DefaultConstructedObject;
-                
+                Type objectType = memberType;
                 EBinaryObjectFlags flags = (EBinaryObjectFlags)address.ReadByte();
                 if ((flags & EBinaryObjectFlags.IsDefault) != 0)
+                {
+                    node = null;
                     return false;
+                }
                 else
                 {
                     bool derived = (flags & EBinaryObjectFlags.IsDerived) != 0;
                     if (derived)
                     {
                         string assemblyTypeName = ReadString(ref address);
-                        Type objType = Type.GetType(assemblyTypeName, false, false);
-                        if (objType != null)
-                            memberType = objType;
+                        objectType = Type.GetType(assemblyTypeName, false, false) ?? memberType;
                     }
                 }
 
-                Type nulledType = Nullable.GetUnderlyingType(memberType);
+                Type nulledType = Nullable.GetUnderlyingType(objectType);
                 bool nullable = nulledType != null;
                 if (nullable)
-                    memberType = nulledType;
+                    objectType = nulledType;
+
+                object obj = objectType.GetDefaultValue();
 
                 //First, handle built-in primitive types
-                switch (objType.Name)
+                switch (objectType.Name)
                 {
-                    case nameof(Boolean):
-                        address.Byte = (byte)((bool)value ? 1 : 0);
-                        address += 1;
-                        break;
-                    case nameof(SByte):
-                        address.SByte = (sbyte)value;
-                        address += 1;
-                        break;
-                    case nameof(Byte):
-                        address.Byte = (byte)value;
-                        address += 1;
-                        break;
-                    case nameof(Char):
-                        address.Char = (char)value;
-                        address += sizeof(char);
-                        break;
-                    case nameof(Int16):
-                        address.Short = (short)value;
-                        address += sizeof(short);
-                        break;
-                    case nameof(UInt16):
-                        address.UShort = (ushort)value;
-                        address += sizeof(ushort);
-                        break;
-                    case nameof(Int32):
-                        address.Int = (int)value;
-                        address += sizeof(int);
-                        break;
-                    case nameof(UInt32):
-                        address.UInt = (uint)value;
-                        address += sizeof(uint);
-                        break;
-                    case nameof(Int64):
-                        address.Long = (long)value;
-                        address += sizeof(long);
-                        break;
-                    case nameof(UInt64):
-                        address.ULong = (ulong)value;
-                        address += sizeof(ulong);
-                        break;
-                    case nameof(Single):
-                        address.Float = (float)value;
-                        address += sizeof(float);
-                        break;
-                    case nameof(Double):
-                        address.Double = (double)value;
-                        address += sizeof(double);
-                        break;
-                    case nameof(Decimal):
-                        address.Decimal = (decimal)value;
-                        address += sizeof(decimal);
-                        break;
-                    case nameof(String):
-                        WriteString(value?.ToString(), ref address);
-                        break;
-                    default: //Now do more specific work
-                        //Write manually?
-                        if (value is TFileObject fobj)
+                    case nameof(Boolean):   obj = address.ReadByte() != 0;  break;
+                    case nameof(SByte):     obj = address.ReadSByte();      break;
+                    case nameof(Byte):      obj = address.ReadByte();       break;
+                    case nameof(Char):      obj = address.ReadChar();       break;
+                    case nameof(Int16):     obj = address.ReadShort();      break;
+                    case nameof(UInt16):    obj = address.ReadUShort();     break;
+                    case nameof(Int32):     obj = address.ReadInt();        break;
+                    case nameof(UInt32):    obj = address.ReadUInt();       break;
+                    case nameof(Int64):     obj = address.ReadLong();       break;
+                    case nameof(UInt64):    obj = address.ReadULong();      break;
+                    case nameof(Single):    obj = address.ReadFloat();      break;
+                    case nameof(Double):    obj = address.ReadDouble();     break;
+                    case nameof(Decimal):   obj = address.ReadDecimal();    break;
+                    case nameof(String):    obj = ReadString(ref address);  break;
+                    default:
+                        if (objectType.IsEnum)
+                            obj = ReadEnum(objectType, ref address);
+                        else if (objectType.GetInterface(nameof(IParsableString)) != null)
+                            obj = ReadString(ref address);
+                        else
                         {
-                            FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
-                            bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
-                            bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
-                            if (serConfig || serState)
+                            int size = address.ReadInt();
+                            obj = SerializationCommon.CreateObject(objectType);
+
+                            if (objectType.GetInterface(nameof(IParsablePointer)) != null)
                             {
-                                int size = node.CalculatedSize;
-                                fobj.ManualWriteBinary(address, size, StringTable, Flags);
+                                IParsablePointer parsableObj = (IParsablePointer)obj;
+                                parsableObj.ReadFromPointer(address, size);
                                 address += size;
-                                return;
                             }
-                        }
-                        else if (objType.IsEnum)
-                            WriteEnum(value, ref address);
-                        else if (objType.IsValueType && node.Children.Count == 0)
-                        {
-                            int size = Marshal.SizeOf(value);
-                            Marshal.StructureToPtr(value, address, true);
+                            else if (objectType.GetInterface(nameof(IParsableByteArray)) != null)
+                            {
+                                byte[] bytes = new byte[size];
+                                for (int i = 0; i < size; ++i)
+                                    bytes[i] = address.ReadByte();
+                                IParsableByteArray parsableObj = (IParsableByteArray)obj;
+                                parsableObj.ReadFromBytes(bytes);
+                            }
+                            else if (typeof(TFileObject).IsAssignableFrom(objectType))
+                            {
+                                FileExt ext = TFileObject.GetFileExtension(objectType);
+                                bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
+                                bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
+
+                                TFileObject fileObj = (TFileObject)obj;
+                                fileObj.ManualReadBinary(address, size, StringTable);
+                            }
+                            else if (objectType.IsValueType && node.Children.Count == 0)
+                            {
+                                Marshal.PtrToStructure(address, obj);
+                                address += size;
+                            }
+                            else
+                            {
+
+                            }
+
                             address += size;
                         }
-                        else if (objType.GetInterface(nameof(IByteArrayParsable)) != null)
-                        {
-                            byte[] bytes = node.ParsableBytes;
-                            address.Int = bytes.Length;
-                            address += sizeof(int);
-                            if (bytes != null)
-                                foreach (byte b in bytes)
-                                {
-                                    address.Byte = b;
-                                    address += 1;
-                                }
-                        }
-                        else if (objType.GetInterface(nameof(IStringParsable)) != null)
-                            node.ParsableString = ReadString(ref address);
-                        else
-                            foreach (BinaryMemberTreeNode childNode in node.Children)
-                                ReadObject(childNode, ref address);
                         break;
                 }
+
+
+                node = new BinaryMemberTreeNode(obj) { MemberType = memberType, };
+                return true;
             }
             private string ReadString(ref VoidPtr address)
             {
                 string value;
                 switch (StringOffsetSize)
                 {
-                    case 1:
-                        value = StringTable[address.Byte - 1];
-                        break;
-                    case 2:
-                        value = StringTable[address.UShort - 1];
-                        break;
-                    case 3:
-                        value = StringTable[address.UInt24 - 1];
-                        break;
+                    case 1: value = StringTable[address.Byte   - 1]; break;
+                    case 2: value = StringTable[address.UShort - 1]; break;
+                    case 3: value = StringTable[address.UInt24 - 1]; break;
                     default:
-                    case 4:
-                        value = StringTable[address.Int - 1];
-                        break;
+                    case 4: value = StringTable[address.Int    - 1]; break;
                 }
-                address += StringOffsetSize;
+                address.Offset(StringOffsetSize);
                 return value;
             }
             private object ReadEnum(Type enumType, ref VoidPtr address)
             {
-                object enumValue;
                 TypeCode typeCode = Type.GetTypeCode(enumType);
                 switch (typeCode)
                 {
-                    case TypeCode.SByte:
-                        enumValue = Enum.ToObject(enumType, address.SByte);
-                        address += sizeof(sbyte);
-                        break;
-                    case TypeCode.Byte:
-                        enumValue = Enum.ToObject(enumType, address.Byte);
-                        address += sizeof(byte);
-                        break;
-                    case TypeCode.Int16:
-                        enumValue = Enum.ToObject(enumType, address.Short);
-                        address += sizeof(short);
-                        break;
-                    case TypeCode.UInt16:
-                        enumValue = Enum.ToObject(enumType, address.UShort);
-                        address += sizeof(ushort);
-                        break;
+                    case TypeCode.SByte:    return Enum.ToObject(enumType, address.ReadSByte());
+                    case TypeCode.Byte:     return Enum.ToObject(enumType, address.ReadByte());
+                    case TypeCode.Int16:    return Enum.ToObject(enumType, address.ReadShort());
+                    case TypeCode.UInt16:   return Enum.ToObject(enumType, address.ReadUShort());
                     default:
-                    case TypeCode.Int32:
-                        enumValue = Enum.ToObject(enumType, address.Int);
-                        address += sizeof(int);
-                        break;
-                    case TypeCode.UInt32:
-                        enumValue = Enum.ToObject(enumType, address.UInt);
-                        address += sizeof(uint);
-                        break;
-                    case TypeCode.Int64:
-                        enumValue = Enum.ToObject(enumType, address.Long);
-                        address += sizeof(long);
-                        break;
-                    case TypeCode.UInt64:
-                        enumValue = Enum.ToObject(enumType, address.ULong);
-                        address += sizeof(ulong);
-                        break;
+                    case TypeCode.Int32:    return Enum.ToObject(enumType, address.ReadInt());
+                    case TypeCode.UInt32:   return Enum.ToObject(enumType, address.ReadUInt());
+                    case TypeCode.Int64:    return Enum.ToObject(enumType, address.ReadLong());
+                    case TypeCode.UInt64:   return Enum.ToObject(enumType, address.ReadULong());
                 }
-                return enumValue;
             }
             //private void WriteBoolean(bool value, byte[] flagBytes, ref int flagIndex)
             //{
@@ -385,8 +318,7 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     int encodingCodePage = strings->_encodingCodePage;
                     Encoding = Encoding.GetEncoding(encodingCodePage);
-
-                    StringCount = strings->_stringCount;
+                    StringCount = (int)strings->_stringCount;
                     StringLengthSize = strings->StringLengthSize;
 
                     _table = new Dictionary<int, string>();
@@ -394,14 +326,14 @@ namespace TheraEngine.Core.Files.Serialization
                     int i = 0, offset = 0;
                     VoidPtr stringAddr = strings->Address;
                     int length = 0;
-                    while (i++ < StringCount)
+                    while (i++ < StringCount/* && offset.Align(4) < dataLength*/)
                     {
                         switch (StringLengthSize)
                         {
-                            case 1: length = stringAddr.Byte; break;
+                            case 1: length = stringAddr.Byte;   break;
                             case 2: length = stringAddr.UShort; break;
                             case 3: length = stringAddr.UInt24; break;
-                            case 4: length = stringAddr.Int; break;
+                            case 4: length = stringAddr.Int;    break;
                         }
                         stringAddr += StringLengthSize;
                         string s = stringAddr.GetString(0, length, Encoding);

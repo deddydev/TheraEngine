@@ -465,12 +465,12 @@ namespace TheraEngine.Animation
                 return;
 
             string[]
-                seconds = null,
-                inValues = null,
-                outValues = null,
-                inTans = null,
-                outTans = null,
-                interpolation = null;
+                seconds         = null,
+                inValues        = null,
+                outValues       = null,
+                inTans          = null,
+                outTans         = null,
+                interpolation   = null;
 
             //Read all keyframe information, split into separate element arrays
             foreach (XMLMemberTreeNode element in xmlNode.ChildElements)
@@ -478,25 +478,26 @@ namespace TheraEngine.Animation
                 string[] str = element.ElementString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 switch (element.ElementName)
                 {
-                    case "Seconds": seconds = str; break;
-                    case "InValues": inValues = str; break;
-                    case "OutValues": outValues = str; break;
-                    case "InTangents": inTans = str; break;
-                    case "OutTangents": outTans = str; break;
-                    case "InterpTypes": interpolation = str; break;
+                    case "Seconds":     seconds         = str; break;
+                    case "InValues":    inValues        = str; break;
+                    case "OutValues":   outValues       = str; break;
+                    case "InTangents":  inTans          = str; break;
+                    case "OutTangents": outTans         = str; break;
+                    case "InterpTypes": interpolation   = str; break;
                 }
             }
 
             for (int i = 0; i < keyCount; ++i)
             {
-                float sec = seconds == null || !seconds.IndexInArrayRange(i) ? 0.0f : float.Parse(seconds[i]);
-                EPlanarInterpType interp = interpolation == null || !interpolation.IndexInArrayRange(i) ? EPlanarInterpType.Step : Enums.Parse<EPlanarInterpType>(interpolation[i]);
-                string inVal = inValues == null || !inValues.IndexInArrayRange(i) ? string.Empty : inValues[i];
-                string outVal = outValues == null || !outValues.IndexInArrayRange(i) ? string.Empty : outValues[i];
-                string inTan = inTans == null || !inTans.IndexInArrayRange(i) ? string.Empty : inTans[i];
-                string outTan = outTans == null || !outTans.IndexInArrayRange(i) ? string.Empty : outTans[i];
+                float sec                   = seconds       == null || !seconds.IndexInArrayRange(i)        ? 0.0f                      : float.Parse(seconds[i]);
+                EPlanarInterpType interp    = interpolation == null || !interpolation.IndexInArrayRange(i)  ? EPlanarInterpType.Step    : Enums.Parse<EPlanarInterpType>(interpolation[i]);
+                string inVal                = inValues      == null || !inValues.IndexInArrayRange(i)       ? string.Empty              : inValues[i];
+                string outVal               = outValues     == null || !outValues.IndexInArrayRange(i)      ? string.Empty              : outValues[i];
+                string inTan                = inTans        == null || !inTans.IndexInArrayRange(i)         ? string.Empty              : inTans[i];
+                string outTan               = outTans       == null || !outTans.IndexInArrayRange(i)        ? string.Empty              : outTans[i];
 
                 T kf = new T { Second = sec };
+
                 IPlanarKeyframe kfp = (IPlanarKeyframe)kf;
                 kfp.InterpolationType = interp;
                 kfp.ParsePlanar(inVal, outVal, inTan, outTan);
@@ -512,51 +513,53 @@ namespace TheraEngine.Animation
             xmlNode.ElementName = "KeyframeTrack";
             xmlNode.AddAttribute(nameof(LengthInSeconds), LengthInSeconds.ToString());
             xmlNode.AddAttribute(nameof(Count), Count.ToString());
-            if (Count > 0)
+
+            if (Count <= 0)
+                return;
+            
+            Type t = typeof(T);
+            if (!typeof(IPlanarKeyframe).IsAssignableFrom(t))
+                return;
+            
+            string
+                seconds     = "",
+                inValues    = "",
+                outValues   = "",
+                inTans      = "",
+                outTans     = "",
+                interpTypes = "";
+
+            bool first = true;
+            foreach (IPlanarKeyframe kf in this)
             {
-                Type t = typeof(T);
-                if (typeof(IPlanarKeyframe).IsAssignableFrom(t))
+                if (first)
+                    first = false;
+                else
                 {
-                    string
-                        seconds = "",
-                        inValues = "",
-                        outValues = "",
-                        inTans = "",
-                        outTans = "",
-                        interpTypes = "";
-
-                    bool first = true;
-                    foreach (IPlanarKeyframe kf in this)
-                    {
-                        if (first)
-                            first = false;
-                        else
-                        {
-                            seconds += ",";
-                            inValues += ",";
-                            outValues += ",";
-                            inTans += ",";
-                            outTans += ",";
-                            interpTypes += ",";
-                        }
-
-                        kf.WritePlanar(out string tempInVal, out string tempOutVal, out string tempInTan, out string tempOutTan);
-                        seconds += kf.Second;
-                        interpTypes += kf.InterpolationType;
-                        inValues += tempInVal;
-                        outValues += tempOutVal;
-                        inTans += tempInTan;
-                        outTans += tempOutTan;
-                    }
-                    xmlNode.AddChildElementString("Seconds", seconds);
-                    xmlNode.AddChildElementString("Seconds", seconds);
-                    xmlNode.AddChildElementString("InValues", inValues);
-                    xmlNode.AddChildElementString("OutValues", outValues);
-                    xmlNode.AddChildElementString("InTangents", inTans);
-                    xmlNode.AddChildElementString("OutTangents", outTans);
-                    xmlNode.AddChildElementString("InterpTypes", interpTypes);
+                    seconds     += ",";
+                    inValues    += ",";
+                    outValues   += ",";
+                    inTans      += ",";
+                    outTans     += ",";
+                    interpTypes += ",";
                 }
+
+                kf.WritePlanar(out string tempInVal, out string tempOutVal, out string tempInTan, out string tempOutTan);
+
+                seconds     += kf.Second;
+                interpTypes += kf.InterpolationType;
+                inValues    += tempInVal;
+                outValues   += tempOutVal;
+                inTans      += tempInTan;
+                outTans     += tempOutTan;
             }
+
+            xmlNode.AddChildElementString("Seconds",        seconds);
+            xmlNode.AddChildElementString("InValues",       inValues);
+            xmlNode.AddChildElementString("OutValues",      outValues);
+            xmlNode.AddChildElementString("InTangents",     inTans);
+            xmlNode.AddChildElementString("OutTangents",    outTans);
+            xmlNode.AddChildElementString("InterpTypes",    interpTypes);
         }
         #endregion
     }
@@ -573,7 +576,7 @@ namespace TheraEngine.Animation
         CubicHermite,
         CubicBezier
     }
-    public abstract class Keyframe : IStringParsable
+    public abstract class Keyframe : IParsableString
     {
         [TSerialize(nameof(Second), NodeType = ENodeType.Attribute)]
         private float _second;

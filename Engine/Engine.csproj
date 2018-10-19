@@ -435,6 +435,7 @@
     <Compile Include="Core\Maths\MachineLearning\NeuronSet.cs" />
     <Compile Include="Core\Maths\MachineLearning\Network.cs" />
     <Compile Include="Core\Maths\MachineLearning\Neuron.cs" />
+    <Compile Include="Core\Memory\Int24.cs" />
     <Compile Include="Core\Platform\Native.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\FileExtension.cs" />

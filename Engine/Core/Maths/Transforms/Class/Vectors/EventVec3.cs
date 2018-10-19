@@ -17,7 +17,7 @@ namespace TheraEngine.Core.Maths.Transforms
     /// A wrapper class for <see cref="Vec3"/> that supports events and synchronization when its values change.
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public unsafe class EventVec3 : TObject, IEquatable<EventVec3>, IUniformable3Float, IBufferable, IStringParsable, IPoolable
+    public unsafe class EventVec3 : TObject, IEquatable<EventVec3>, IUniformable3Float, IBufferable, IParsableString, IPoolable
     {
         public event Action XChanged;
         public event Action YChanged;

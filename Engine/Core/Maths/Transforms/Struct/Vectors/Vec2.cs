@@ -20,7 +20,7 @@ namespace System
     [Serializable]
     //[TypeConverter(typeof(Vec2StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable, IStringParsable
+    public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable, IParsableString
     {
         public static readonly int Size = sizeof(Vec2);
 

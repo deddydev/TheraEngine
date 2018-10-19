@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -87,7 +88,7 @@ namespace TheraEngine.Core.Files.Serialization
                 await _writer.FlushAsync();
                 _stream.Position = 0;
                 await _writer.WriteStartDocumentAsync();
-                await WriteElement((XMLMemberTreeNode)RootNode);
+                await WriteElement(RootNode);
                 await _writer.WriteEndDocumentAsync();
                 _writer.Dispose();
                 _stream.Dispose();
@@ -112,13 +113,13 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                     
-                    var attributes = node.Attributes;
-                    var childElements = node.ChildElements;
+                    List<XMLAttribute> attributes = node.Attributes;
+                    List<XMLMemberTreeNode> childElements = node.ChildElements;
                     string childStringData = node.ElementString;
 
-                    foreach (var (Name, Value) in attributes)
+                    foreach (XMLAttribute attribute in attributes)
                     {
-                        await _writer.WriteAttributeStringAsync(null, Name, null, Value);
+                        await _writer.WriteAttributeStringAsync(null, attribute.Name, null, attribute.Value);
                         if (ReportProgress())
                         {
                             await _writer.WriteEndElementAsync();
@@ -148,12 +149,11 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 await _writer.WriteEndElementAsync();
             }
-            //protected override void OnReportProgress()
-            //    => Progress.Report((float)_stream.Position / _stream.Length);
+            
             public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, MemberInfo memberInfo)
-                => new XMLMemberTreeNode(parent, memberInfo, this);
-            public override MemberTreeNode CreateNode(object root)
-            => new XMLMemberTreeNode(root, this);
+                => new XMLMemberTreeNode(parent, memberInfo);
+            public override XMLMemberTreeNode CreateNode(object root)
+                => new XMLMemberTreeNode(root);
         }
     }
 }

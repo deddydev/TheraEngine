@@ -80,7 +80,7 @@ namespace TheraEngine.Core.Memory
         }
         public double GetDouble() => Double;
         public void GetDouble(double i) => Double = i;
-        public BInt24 Int24
+        public Int24 Int24
         {
             get => *(BInt24*)_address;
             set => *(BInt24*)_address = value;
@@ -226,6 +226,30 @@ namespace TheraEngine.Core.Memory
             if (incrementPointer)
                 _address = (bdouble*)_address + 1;
         }
+        public void WriteDecimal(decimal value, bool incrementPointer = true)
+        {
+            Decimal = value;
+            if (incrementPointer)
+                _address = (decimal*)_address + 1;
+        }
+        public void WriteUInt24(uint value, bool incrementPointer = true)
+        {
+            UInt24 = value;
+            if (incrementPointer)
+                _address = (BUInt24*)_address + 1;
+        }
+        public void WriteInt24(int value, bool incrementPointer = true)
+        {
+            Int24 = value;
+            if (incrementPointer)
+                _address = (BInt24*)_address + 1;
+        }
+        public void WriteChar(char value, bool incrementPointer = true)
+        {
+            Char = value;
+            if (incrementPointer)
+                _address = (char*)_address + 1;
+        }
         #endregion
 
         #region Incremental Reading Methods
@@ -299,11 +323,32 @@ namespace TheraEngine.Core.Memory
                 _address = (bdouble*)_address + 1;
             return value;
         }
-        public UInt24 ReadUInt24(bool incrementPointer = true)
+        public decimal ReadDecimal(bool incrementPointer = true)
         {
-            UInt24 value = UInt24;
+            decimal value = Decimal;
+            if (incrementPointer)
+                _address = (decimal*)_address + 1;
+            return value;
+        }
+        public uint ReadUInt24(bool incrementPointer = true)
+        {
+            uint value = UInt24;
             if (incrementPointer)
                 _address = (BUInt24*)_address + 1;
+            return value;
+        }
+        public int ReadInt24(bool incrementPointer = true)
+        {
+            int value = Int24;
+            if (incrementPointer)
+                _address = (BInt24*)_address + 1;
+            return value;
+        }
+        public char ReadChar(bool incrementPointer = true)
+        {
+            char value = Char;
+            if (incrementPointer)
+                _address = (char*)_address + 1;
             return value;
         }
         #endregion
@@ -314,7 +359,7 @@ namespace TheraEngine.Core.Memory
         public string GetUnicodeString(int offset = 0) => new string((char*)this + offset);
         public string GetString(int offset, int length, Encoding enc) => enc.GetString((byte*)this + offset, length);
 
-        public void MovePointer(int byteCount = 1) => _address = (byte*)_address + byteCount;
+        public void Offset(int offset) => _address = (byte*)_address + offset;
 
         public static void Swap(float* p1, float* p2) { float f = *p1; *p1 = *p2; *p2 = f; }
         public static void Swap(int* p1, int* p2) { int f = *p1; *p1 = *p2; *p2 = f; }

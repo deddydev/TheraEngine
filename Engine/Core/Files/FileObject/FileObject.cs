@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection.Attributes;
+using static TheraEngine.Core.Files.Serialization.TDeserializer.ReaderBinary;
 using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
 
 namespace TheraEngine.Core.Files
@@ -543,7 +544,7 @@ namespace TheraEngine.Core.Files
         /// <param name="length">Length of the memory allocated for this object.</param>
         /// <param name="stringTable">The string table to retrieve strings from using offsets.</param>
         /// <param name="flags">The serialization flags for this export.</param>
-        internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable, ESerializeFlags flags)
-            => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
+        internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)
+            => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)\" required when using ManualBinSerialize in FileClass attribute.");
     }
 }

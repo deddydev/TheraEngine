@@ -9,7 +9,7 @@ using TheraEngine.Core.Maths.Transforms;
 namespace TheraEngine.Rendering.Models.Materials
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct ColorF3 : IUniformable3Float, IBufferable, IByteColor, IStringParsable
+    public unsafe struct ColorF3 : IUniformable3Float, IBufferable, IByteColor, IParsableString
     {
         public float R, G, B;
         

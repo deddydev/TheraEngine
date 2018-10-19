@@ -95,7 +95,7 @@ namespace TheraEngine.Rendering.Models
         /// Internal example: url="#whateverId"
         /// External example: url="file:///some_place/doc.dae#complex_building"
         /// </summary>
-        public class ColladaURI : IStringParsable
+        public class ColladaURI : IParsableString
         {
             public string URI { get; set; }
             bool IsLocal => URI.StartsWith("#");
@@ -139,7 +139,7 @@ namespace TheraEngine.Rendering.Models
 
             public string TargetID => IsLocal ? URI.Substring(1) : URI;
         }
-        public class SidRef : IStringParsable
+        public class SidRef : IParsableString
         {
             public string Path { get; set; }
             public void ReadFromString(string str) => Path = str;
@@ -2041,7 +2041,7 @@ namespace TheraEngine.Rendering.Models
                 {
                     Matrix4 GetMatrix();
                 }
-                public abstract class Transformation<T> : BaseColladaStringElement<Node, StringParsable<T>>, ISID, ITransformation where T : IStringParsable
+                public abstract class Transformation<T> : BaseColladaStringElement<Node, StringParsable<T>>, ISID, ITransformation where T : IParsableString
                 {
                     [Attr("sid", false)]
                     public string SID { get; set; } = null;

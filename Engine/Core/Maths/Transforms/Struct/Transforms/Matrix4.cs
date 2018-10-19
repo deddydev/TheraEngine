@@ -16,7 +16,7 @@ namespace System
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Matrix4 : IEquatable<Matrix4>, IUniformable, IStringParsable, IBufferable
+    public unsafe struct Matrix4 : IEquatable<Matrix4>, IUniformable, IParsableString, IBufferable
     {
         public static readonly int Size = sizeof(Matrix4);
 

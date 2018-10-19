@@ -17,6 +17,7 @@ namespace TheraEngine.Core.Files.Serialization
             TFileObject RootFileObject { get; }
             IMemberTreeNode RootNode { get; }
             Dictionary<Guid, TObject> SharedObjects { get; }
+            ESerializeFlags Flags { get; }
 
             IMemberTreeNode CreateNode(object obj);
             IMemberTreeNode CreateNode(IMemberTreeNode parent, MemberInfo memberInfo);
@@ -33,7 +34,8 @@ namespace TheraEngine.Core.Files.Serialization
             IMemberTreeNode IBaseAbstractReaderWriter.RootNode => RootNode;
             public Dictionary<Guid, TObject> SharedObjects { get; internal set; }
             internal int CurrentCount { get; set; }
-            
+            public ESerializeFlags Flags { get; internal set; }
+
             public TBaseAbstractReaderWriter(TFileObject rootFileObject, string filePath, IProgress<float> progress, CancellationToken cancel)
             {
                 RootFileObject = rootFileObject;

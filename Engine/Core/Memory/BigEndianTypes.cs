@@ -12,9 +12,9 @@ namespace TheraEngine.Core.Memory
             Big = 1,
         }
 
-        public static EOrder SerializerOrder = EOrder.Big;
-        public static bool SerializerBig => SerializerOrder == EOrder.Big;
-        public static bool SerializerLittle => SerializerOrder == EOrder.Little;
+        public static EOrder SerializeOrder = EOrder.Big;
+        public static bool SerializeBig => SerializeOrder == EOrder.Big;
+        public static bool SerializeLittle => SerializeOrder == EOrder.Little;
 
         public static readonly EOrder SystemOrder;
         public static bool SystemBig => SystemOrder == EOrder.Big;
@@ -32,9 +32,9 @@ namespace TheraEngine.Core.Memory
         public short _data;
 
         public static implicit operator short(bshort val)
-            => Endian.SerializerBig ? val._data.Reverse() : val._data;
+            => Endian.SerializeBig ? val._data.Reverse() : val._data;
         public static implicit operator bshort(short val)
-            => new bshort { _data = Endian.SerializerBig ? val.Reverse() : val };
+            => new bshort { _data = Endian.SerializeBig ? val.Reverse() : val };
 
         public short Value
         {
@@ -52,9 +52,9 @@ namespace TheraEngine.Core.Memory
         public ushort _data;
 
         public static implicit operator ushort(bushort val)
-            => Endian.SerializerBig ? val._data.Reverse() : val._data;
+            => Endian.SerializeBig ? val._data.Reverse() : val._data;
         public static implicit operator bushort(ushort val)
-            => new bushort { _data = Endian.SerializerBig ? val.Reverse() : val };
+            => new bushort { _data = Endian.SerializeBig ? val.Reverse() : val };
 
         public ushort Value
         {
@@ -72,9 +72,9 @@ namespace TheraEngine.Core.Memory
         public int _data;
 
         public static implicit operator int(bint val)
-            => Endian.SerializerBig ? val._data.Reverse() : val._data;
+            => Endian.SerializeBig ? val._data.Reverse() : val._data;
         public static implicit operator bint(int val)
-            => new bint { _data = Endian.SerializerBig ? val.Reverse() : val };
+            => new bint { _data = Endian.SerializeBig ? val.Reverse() : val };
 
         public int Value
         {
@@ -97,9 +97,9 @@ namespace TheraEngine.Core.Memory
         public uint _data;
 
         public static implicit operator uint(buint val)
-            => Endian.SerializerBig ? val._data.Reverse() : val._data;
+            => Endian.SerializeBig ? val._data.Reverse() : val._data;
         public static implicit operator buint(uint val)
-            => new buint { _data = Endian.SerializerBig ? val.Reverse() : val };
+            => new buint { _data = Endian.SerializeBig ? val.Reverse() : val };
 
         public uint Value
         {
@@ -122,9 +122,9 @@ namespace TheraEngine.Core.Memory
         public float _data;
 
         public static implicit operator float(bfloat val)
-            => Endian.SerializerBig ? val._data.Reverse() : val._data;
+            => Endian.SerializeBig ? val._data.Reverse() : val._data;
         public static implicit operator bfloat(float val)
-            => new bfloat { _data = Endian.SerializerBig ? val.Reverse() : val };
+            => new bfloat { _data = Endian.SerializeBig ? val.Reverse() : val };
 
         public float Value
         {
@@ -142,9 +142,9 @@ namespace TheraEngine.Core.Memory
         public double _data;
 
         public static implicit operator double(bdouble val)
-            => Endian.SerializerBig ? val._data.Reverse() : val._data;
+            => Endian.SerializeBig ? val._data.Reverse() : val._data;
         public static implicit operator bdouble(double val)
-            => new bdouble { _data = Endian.SerializerBig ? val.Reverse() : val };
+            => new bdouble { _data = Endian.SerializeBig ? val.Reverse() : val };
 
         public double Value
         {
@@ -162,9 +162,9 @@ namespace TheraEngine.Core.Memory
         public long _data;
 
         public static implicit operator long(blong val)
-            => Endian.SerializerBig ? val._data.Reverse() : val._data;
+            => Endian.SerializeBig ? val._data.Reverse() : val._data;
         public static implicit operator blong(long val)
-            => new blong { _data = Endian.SerializerBig ? val.Reverse() : val };
+            => new blong { _data = Endian.SerializeBig ? val.Reverse() : val };
 
         public long Value
         {
@@ -189,9 +189,9 @@ namespace TheraEngine.Core.Memory
         public ulong _data;
 
         public static implicit operator ulong(bulong val)
-            => Endian.SerializerBig ? val._data.Reverse() : val._data;
+            => Endian.SerializeBig ? val._data.Reverse() : val._data;
         public static implicit operator bulong(ulong val)
-            => new bulong { _data = Endian.SerializerBig ? val.Reverse() : val };
+            => new bulong { _data = Endian.SerializeBig ? val.Reverse() : val };
 
         public ulong Value
         {
@@ -216,12 +216,12 @@ namespace TheraEngine.Core.Memory
 
         public uint Value
         {
-            get => Endian.SerializerBig ?
+            get => Endian.SerializeBig ?
                 ((_dat0) | ((uint)_dat1 << 8) | (uint)_dat2 << 16) :
                 (((uint)_dat0 << 16) | ((uint)_dat1 << 8) | _dat2);
             set
             {
-                if (Endian.SerializerBig)
+                if (Endian.SerializeBig)
                 {
                     _dat0 = (byte)((value) & 0xFF);
                     _dat1 = (byte)((value >> 8) & 0xFF);
@@ -267,12 +267,12 @@ namespace TheraEngine.Core.Memory
 
         public int Value
         {
-            get => Endian.SerializerBig ? 
+            get => Endian.SerializeBig ? 
                 ((_dat0) | (_dat1 << 8) | _dat2 << 16) :
                 ((_dat0 << 16) | (_dat1 << 8) | _dat2);
             set
             {
-                if (Endian.SerializerBig)
+                if (Endian.SerializeBig)
                 {
                     _dat0 = (byte)((value) & 0xFF);
                     _dat1 = (byte)((value >> 8) & 0xFF);
@@ -289,7 +289,10 @@ namespace TheraEngine.Core.Memory
         
         public static implicit operator int(BInt24 val) => val.Value;
         public static implicit operator BInt24(int val) => new BInt24(val);
-        
+
+        public static implicit operator Int24(BInt24 val) => val.Value;
+        public static implicit operator BInt24(Int24 val) => new BInt24(val);
+
         public BInt24(int value)
         {
             _dat2 = _dat1 = _dat0 = 0;

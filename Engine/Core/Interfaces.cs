@@ -13,15 +13,21 @@ namespace TheraEngine
     {
         string Text { get; set; }
     }
-    public interface IStringParsable
+    public interface IParsableString
     {
         string WriteToString();
         void ReadFromString(string str);
     }
-    public interface IByteArrayParsable
+    public interface IParsableByteArray
     {
         byte[] WriteToBytes();
         void ReadFromBytes(byte[] bytes);
+    }
+    public interface IParsablePointer
+    {
+        int GetSize();
+        void WriteToPointer(VoidPtr address);
+        void ReadFromPointer(VoidPtr address, int size);
     }
     public interface IModelFile
     {

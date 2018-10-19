@@ -123,7 +123,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 await RootNode.CollectSerializedMembers();
 
-                Memory.Endian.SerializerOrder = Endian;
+                Memory.Endian.SerializeOrder = Endian;
 
                 int dataSize = RootNode.CalculatedSize;
                 int stringSize = StringTable.TotalLength.Align(4);
@@ -223,8 +223,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 if (value == defaultValue)
                 {
-                    address.Byte = (byte)EBinaryObjectFlags.IsDefault;
-                    address += 1;
+                    address.WriteByte((byte)EBinaryObjectFlags.IsDefault);
                     return;
                 }
                 else
@@ -239,108 +238,70 @@ namespace TheraEngine.Core.Files.Serialization
                         WriteString(node.ObjectType.AssemblyQualifiedName, ref address);
                     }
 
-                    address.Byte = (byte)flags;
-                    address += 1;
+                    address.WriteByte((byte)flags);
                 }
                 
                 //First, handle built-in primitive types
                 switch (objType.Name)
                 {
-                    case nameof(Boolean):
-                        address.Byte = (byte)((bool)value ? 1 : 0);
-                        address += 1;
-                        break;
-                    case nameof(SByte):
-                        address.SByte = (sbyte)value;
-                        address += 1;
-                        break;
-                    case nameof(Byte):
-                        address.Byte = (byte)value;
-                        address += 1;
-                        break;
-                    case nameof(Char):
-                        address.Char = (char)value;
-                        address += sizeof(char);
-                        break;
-                    case nameof(Int16):
-                        address.Short = (short)value;
-                        address += sizeof(short);
-                        break;
-                    case nameof(UInt16):
-                        address.UShort = (ushort)value;
-                        address += sizeof(ushort);
-                        break;
-                    case nameof(Int32):
-                        address.Int = (int)value;
-                        address += sizeof(int);
-                        break;
-                    case nameof(UInt32):
-                        address.UInt = (uint)value;
-                        address += sizeof(uint);
-                        break;
-                    case nameof(Int64):
-                        address.Long = (long)value;
-                        address += sizeof(long);
-                        break;
-                    case nameof(UInt64):
-                        address.ULong = (ulong)value;
-                        address += sizeof(ulong);
-                        break;
-                    case nameof(Single):
-                        address.Float = (float)value;
-                        address += sizeof(float);
-                        break;
-                    case nameof(Double):
-                        address.Double = (double)value;
-                        address += sizeof(double);
-                        break;
-                    case nameof(Decimal):
-                        address.Decimal = (decimal)value;
-                        address += sizeof(decimal);
-                        break;
-                    case nameof(String):
-                        WriteString(value?.ToString(), ref address);
-                        break;
-                    default: //Now do more specific work
-                        //Write manually?
-                        if (value is TFileObject fobj)
-                        {
-                            FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
-                            bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
-                            bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
-                            if (serConfig || serState)
-                            {
-                                int size = node.CalculatedSize;
-                                fobj.ManualWriteBinary(address, size, StringTable, Flags);
-                                address += size;
-                                return;
-                            }
-                        }
-                        else if (objType.IsEnum)
+                    case nameof(Boolean):   address.WriteByte((byte)((bool)value ? 1 : 0)); break;
+                    case nameof(SByte):     address.WriteSByte((sbyte)value);               break;
+                    case nameof(Byte):      address.WriteByte((byte)value);                 break;
+                    case nameof(Char):      address.WriteChar((char)value);                 break;
+                    case nameof(Int16):     address.WriteShort((short)value);               break;
+                    case nameof(UInt16):    address.WriteUShort((ushort)value);             break;
+                    case nameof(Int32):     address.WriteInt((int)value);                   break;
+                    case nameof(UInt32):    address.WriteUInt((uint)value);                 break;
+                    case nameof(Int64):     address.WriteLong((long)value);                 break;
+                    case nameof(UInt64):    address.WriteULong((ulong)value);               break;
+                    case nameof(Single):    address.WriteFloat((float)value);               break;
+                    case nameof(Double):    address.WriteDouble((double)value);             break;
+                    case nameof(Decimal):   address.WriteDecimal((decimal)value);           break;
+                    case nameof(String):    WriteString(value?.ToString(), ref address);    break;
+                    default:
+                        if (objType.IsEnum)
                             WriteEnum(value, ref address);
-                        else if (objType.IsValueType && node.Children.Count == 0)
-                        {
-                            int size = Marshal.SizeOf(value);
-                            Marshal.StructureToPtr(value, address, true);
-                            address += size;
-                        }
-                        else if (objType.GetInterface(nameof(IByteArrayParsable)) != null)
-                        {
-                            byte[] bytes = node.ParsableBytes;
-                            address.Int = bytes.Length;
-                            address += sizeof(int);
-                            if (bytes != null)
-                                foreach (byte b in bytes)
-                                {
-                                    address.Byte = b;
-                                    address += 1;
-                                }
-                        }
-                        else if (objType.GetInterface(nameof(IStringParsable)) != null)
+                        else if (objType.GetInterface(nameof(IParsableString)) != null)
                             WriteString(node.ParsableString, ref address);
                         else
-                            foreach (BinaryMemberTreeNode childNode in node.Children)
-                                WriteObject(childNode, ref address);
+                        {
+                            if (objType.GetInterface(nameof(IParsablePointer)) != null)
+                            {
+                                IParsablePointer parsableObj = (IParsablePointer)obj;
+                                parsableObj.ReadFromPointer(address, size);
+                                address += size;
+                            }
+                            else if (objType.GetInterface(nameof(IParsableByteArray)) != null)
+                            {
+                                byte[] bytes = node.ParsableBytes;
+                                address.WriteInt(bytes.Length);
+                                if (bytes != null)
+                                    foreach (byte b in bytes)
+                                        address.WriteByte(b);
+                            }
+                            else if (value is TFileObject fobj)
+                            {
+                                FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
+                                bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
+                                bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
+                                if (serConfig || serState)
+                                {
+                                    int size = node.CalculatedSize;
+                                    address.WriteInt(size);
+                                    fobj.ManualWriteBinary(address, size, StringTable, Flags);
+                                    address += size;
+                                }
+                            }
+                            else if (objType.IsValueType && node.Children.Count == 0)
+                            {
+                                int size = Marshal.SizeOf(value);
+                                Marshal.StructureToPtr(value, address, true);
+                                address += size;
+                            }
+                            else
+                                foreach (BinaryMemberTreeNode childNode in node.Children)
+                                    WriteObject(childNode, ref address);
+                        }
                         break;
                 }
             }
@@ -369,57 +330,68 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     case nameof(Boolean):
                     case nameof(SByte):
-                    case nameof(Byte): size += 1; break;
-                    case nameof(Char): size += sizeof(char); break;
-                    case nameof(Int16): size += sizeof(short); break;
-                    case nameof(UInt16): size += sizeof(ushort); break;
-                    case nameof(Int32): size += sizeof(int); break;
-                    case nameof(UInt32): size += sizeof(uint); break;
-                    case nameof(Int64): size += sizeof(long); break;
-                    case nameof(UInt64): size += sizeof(ulong); break;
-                    case nameof(Single): size += sizeof(float); break;
-                    case nameof(Double): size += sizeof(double); break;
-                    case nameof(Decimal): size += sizeof(decimal); break;
+                    case nameof(Byte):      size += 1;                  break;
+                    case nameof(Char):      size += sizeof(char);       break;
+                    case nameof(Int16):     size += sizeof(short);      break;
+                    case nameof(UInt16):    size += sizeof(ushort);     break;
+                    case nameof(Int32):     size += sizeof(int);        break;
+                    case nameof(UInt32):    size += sizeof(uint);       break;
+                    case nameof(Int64):     size += sizeof(long);       break;
+                    case nameof(UInt64):    size += sizeof(ulong);      break;
+                    case nameof(Single):    size += sizeof(float);      break;
+                    case nameof(Double):    size += sizeof(double);     break;
+                    case nameof(Decimal):   size += sizeof(decimal);    break;
                     case nameof(String):
                         StringTable.Add((string)value);
                         size += StringOffsetSize;
                         break;
                     default:
-                        if (value is TFileObject fobj)
-                        {
-                            //Write manually?
-                            FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
-                            bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
-                            bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
-                            if (serConfig || serState)
-                            {
-                                int manualSize = fobj.ManualGetSizeBinary(StringTable, Flags);
-                                size += manualSize;
-                                return size;
-                            }
-                        }
-                        else if (objType.IsEnum)
+                        if (objType.IsEnum)
                             size += GetSizeEnum(value);
-                        else if (objType.IsValueType && node.Children.Count == 0)
-                            size += Marshal.SizeOf(value);
-                        else if (objType.GetInterface(nameof(IByteArrayParsable)) != null)
+                        else if (objType.GetInterface(nameof(IParsableString)) != null)
                         {
-                            byte[] bytes = ((IByteArrayParsable)value).WriteToBytes();
-                            node.ParsableBytes = bytes;
-                            size += 4; //Length
-                            if (bytes != null)
-                                size += bytes.Length;
-                        }
-                        else if (objType.GetInterface(nameof(IStringParsable)) != null)
-                        {
-                            string str = ((IStringParsable)value).WriteToString();
+                            string str = ((IParsableString)value).WriteToString();
                             node.ParsableString = str;
                             StringTable.Add(str);
                             size += StringOffsetSize;
                         }
                         else
-                            foreach (BinaryMemberTreeNode childNode in node.Children)
-                                size += GetSizeObject(childNode);
+                        {
+                            if (objType.GetInterface(nameof(IParsablePointer)) != null)
+                            {
+                                size += sizeof(int); //Length
+
+                                size += ((IParsablePointer)value).GetSize();
+                            }
+                            else if (objType.GetInterface(nameof(IParsableByteArray)) != null)
+                            {
+                                size += sizeof(int); //Length
+
+                                byte[] bytes = ((IParsableByteArray)value).WriteToBytes();
+
+                                //We need to save this array instance for later
+                                //in case the value changes between now and writing
+                                node.ParsableBytes = bytes;
+
+                                if (bytes != null)
+                                    size += bytes.Length;
+                            }
+                            else if (objType.IsValueType)
+                                size += Marshal.SizeOf(value);
+                            else if (value is TFileObject fobj)
+                            {
+                                FileExt ext = TFileObject.GetFileExtension(node.ObjectType);
+
+                                bool serConfig = ext.ManualBinConfigSerialize && Flags.HasFlag(ESerializeFlags.SerializeConfig);
+                                bool serState = ext.ManualBinStateSerialize && Flags.HasFlag(ESerializeFlags.SerializeState);
+
+                                if (serConfig || serState)
+                                    size += (node.CalculatedSize = fobj.ManualGetSizeBinary(StringTable, Flags));
+                            }
+                            else
+                                foreach (BinaryMemberTreeNode childNode in node.Children)
+                                    size += GetSizeObject(childNode);
+                        }
                         break;
                 }
 
@@ -427,22 +399,14 @@ namespace TheraEngine.Core.Files.Serialization
             }
             private void WriteString(string value, ref VoidPtr address)
             {
-                int offset = StringTable[value] + 1;
+                int offset = value == null ? 0 : StringTable[value] + 1;
                 switch (StringOffsetSize)
                 {
-                    case 1:
-                        address.Byte = (byte)offset;
-                        break;
-                    case 2:
-                        address.UShort = (ushort)offset;
-                        break;
-                    case 3:
-                        address.UInt24 = (uint)offset;
-                        break;
+                    case 1: address.Byte = (byte)offset; break;
+                    case 2: address.UShort = (ushort)offset; break;
+                    case 3: address.UInt24 = (uint)offset; break;
                     default:
-                    case 4:
-                        address.Int = offset;
-                        break;
+                    case 4: address.Int = offset; break;
                 }
                 address += StringOffsetSize;
             }
@@ -452,39 +416,15 @@ namespace TheraEngine.Core.Files.Serialization
                 TypeCode typeCode = enumValue.GetTypeCode();
                 switch (typeCode)
                 {
-                    case TypeCode.SByte:
-                        address.SByte = (sbyte)value;
-                        address += sizeof(sbyte);
-                        break;
-                    case TypeCode.Byte:
-                        address.Byte = (byte)value;
-                        address += sizeof(byte);
-                        break;
-                    case TypeCode.Int16:
-                        address.Short = (short)value;
-                        address += sizeof(short);
-                        break;
-                    case TypeCode.UInt16:
-                        address.UShort = (ushort)value;
-                        address += sizeof(ushort);
-                        break;
+                    case TypeCode.SByte:    address.WriteSByte((sbyte)value);   break;
+                    case TypeCode.Byte:     address.WriteByte((byte)value);     break;
+                    case TypeCode.Int16:    address.WriteShort((short)value);   break;
+                    case TypeCode.UInt16:   address.WriteUShort((ushort)value); break;
                     default:
-                    case TypeCode.Int32:
-                        address.Int = (int)value;
-                        address += sizeof(int);
-                        break;
-                    case TypeCode.UInt32:
-                        address.UInt = (uint)value;
-                        address += sizeof(uint);
-                        break;
-                    case TypeCode.Int64:
-                        address.Long = (long)value;
-                        address += sizeof(long);
-                        break;
-                    case TypeCode.UInt64:
-                        address.ULong = (ulong)value;
-                        address += sizeof(ulong);
-                        break;
+                    case TypeCode.Int32:    address.WriteInt((int)value);       break;
+                    case TypeCode.UInt32:   address.WriteUInt((uint)value);     break;
+                    case TypeCode.Int64:    address.WriteLong((long)value);     break;
+                    case TypeCode.UInt64:   address.WriteULong((ulong)value);   break;
                 }
             }
             private int GetSizeEnum(object value)
@@ -522,9 +462,9 @@ namespace TheraEngine.Core.Files.Serialization
             //}
 
             public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
-                => new BinaryMemberTreeNode(parent, memberInfo, this);
+                => new BinaryMemberTreeNode(parent, memberInfo);
             public override BinaryMemberTreeNode CreateNode(object root)
-                => new BinaryMemberTreeNode(root, this);
+                => new BinaryMemberTreeNode(root);
 
             public unsafe sealed class BinaryStringTableWriter
             {

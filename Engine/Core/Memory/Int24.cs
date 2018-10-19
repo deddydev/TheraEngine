@@ -20,10 +20,11 @@ namespace TheraEngine.Core.Memory
             }
         }
 
-        public static implicit operator int(UInt24 val) { return (int)val.Value; }
-        public static implicit operator UInt24(int val) { return new UInt24((uint)val); }
-        public static implicit operator uint(UInt24 val) { return (uint)val.Value; }
-        public static implicit operator UInt24(uint val) { return new UInt24(val); }
+        public static implicit operator int(Int24 val) => val.Value;
+        public static implicit operator Int24(int val) => new Int24(val);
+
+        public static implicit operator uint(Int24 val) { return (uint)val.Value; }
+        public static implicit operator Int24(uint val) { return new Int24((int)val); }
 
         public Int24(int value)
         {

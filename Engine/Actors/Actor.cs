@@ -72,6 +72,7 @@ namespace TheraEngine.Actors
             Collada.Data data = await Collada.ImportAsync(path, o, progress, cancel);
             if (data != null)
             {
+                return data.Actor;
             }
             return null;
         }

@@ -83,15 +83,16 @@ namespace TheraEngine.Core.Files.Serialization
             }
             protected internal override async Task WriteTree()
             {
-                _stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.RandomAccess);
-                _writer = XmlWriter.Create(_stream, _settings);
-                await _writer.FlushAsync();
-                _stream.Position = 0;
-                await _writer.WriteStartDocumentAsync();
-                await WriteElement(RootNode);
-                await _writer.WriteEndDocumentAsync();
-                _writer.Dispose();
-                _stream.Dispose();
+                using (_stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.RandomAccess))
+                using (_writer = XmlWriter.Create(_stream, _settings))
+                {
+                    await _writer.FlushAsync();
+                    _stream.Position = 0;
+
+                    await _writer.WriteStartDocumentAsync();
+                    await WriteElement(RootNode);
+                    await _writer.WriteEndDocumentAsync();
+                }
             }
             private async Task WriteElement(XMLMemberTreeNode node)
             {

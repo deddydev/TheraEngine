@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Actors;
 using TheraEngine.Animation;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Physics;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using static TheraEngine.Rendering.Models.Collada.COLLADA;
@@ -28,6 +27,7 @@ namespace TheraEngine.Rendering.Models
         {
             public List<ModelScene> Models { get; set; }
             public List<BasePropAnim> PropertyAnimations { get; set; }
+            public IActor Actor { get; set; }
         }
 
         public static Task<Data> ImportAsync(

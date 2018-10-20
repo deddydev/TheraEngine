@@ -63,13 +63,16 @@ namespace TheraEditor.Wrappers
 
         private async void ImportAsActor()
         {
-            int cancelId = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as skeleton...", out Progress<float> progress, out CancellationToken cancel);
-            TFileObject actor = await Actor.LoadDAEAsync(FilePath);
+            int op = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as skeleton...", out Progress<float> progress, out CancellationToken cancel);
+            TFileObject actor = await Actor.LoadDAEAsync(FilePath, progress, cancel);
+            Editor.Instance.EndOperation(op);
+
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
-            int cancelId = Editor.Instance.BeginOperation("Saving model...", out progress, out cancel);
+            op = Editor.Instance.BeginOperation("Saving model...", out progress, out cancel);
             await actor.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel);
+            Editor.Instance.EndOperation(op);
         }
         private async void ImportAsSkeleton()
         {
@@ -82,9 +85,9 @@ namespace TheraEditor.Wrappers
                     Collada.EIgnoreFlags.Lights
             };
 
-            int cancelId = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as skeleton...", out Progress<float> progress, out CancellationToken cancel);
+            int op = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as skeleton...", out Progress<float> progress, out CancellationToken cancel);
             var data = await Collada.ImportAsync(FilePath, o, progress, cancel);
-            Editor.Instance.EndOperation(cancelId);
+            Editor.Instance.EndOperation(op);
 
             if (data == null || data.Models.Count == 0)
                 return;
@@ -96,9 +99,9 @@ namespace TheraEditor.Wrappers
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
-            cancelId = Editor.Instance.BeginOperation("Saving skeleton...", out progress, out cancel);
+            op = Editor.Instance.BeginOperation("Saving skeleton...", out progress, out cancel);
             await skeleton.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel);
-            Editor.Instance.EndOperation(cancelId);
+            Editor.Instance.EndOperation(op);
         }
         private async void ImportAsStaticMesh()
         {
@@ -111,9 +114,9 @@ namespace TheraEditor.Wrappers
                     Collada.EIgnoreFlags.Lights
             };
 
-            int cancelId = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as static model...", out Progress<float> progress, out CancellationToken cancel);
+            int op = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as static model...", out Progress<float> progress, out CancellationToken cancel);
             var data = await Collada.ImportAsync(FilePath, o, progress, cancel);
-            Editor.Instance.EndOperation(cancelId);
+            Editor.Instance.EndOperation(op);
 
             if (data == null || data.Models.Count == 0)
                 return;
@@ -125,9 +128,9 @@ namespace TheraEditor.Wrappers
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
-            cancelId = Editor.Instance.BeginOperation("Saving model...", out progress, out cancel);
+            op = Editor.Instance.BeginOperation("Saving model...", out progress, out cancel);
             await staticModel.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel);
-            Editor.Instance.EndOperation(cancelId);
+            Editor.Instance.EndOperation(op);
 
         }
         private async void ImportAsSkeletalMesh()
@@ -140,9 +143,9 @@ namespace TheraEditor.Wrappers
                     Collada.EIgnoreFlags.Lights
             };
 
-            int cancelId = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as skeletal model...", out Progress<float> progress, out CancellationToken cancel);
+            int op = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as skeletal model...", out Progress<float> progress, out CancellationToken cancel);
             var data = await Collada.ImportAsync(FilePath, o, progress, cancel);
-            Editor.Instance.EndOperation(cancelId);
+            Editor.Instance.EndOperation(op);
             
             if (data == null || data.Models.Count == 0)
                 return;
@@ -154,9 +157,9 @@ namespace TheraEditor.Wrappers
             string dir = Path.GetDirectoryName(FilePath);
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
-            cancelId = Editor.Instance.BeginOperation("Saving model...", out progress, out cancel);
+            op = Editor.Instance.BeginOperation("Saving model...", out progress, out cancel);
             await skeletalModel.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel);
-            Editor.Instance.EndOperation(cancelId);
+            Editor.Instance.EndOperation(op);
         }
     }
 }

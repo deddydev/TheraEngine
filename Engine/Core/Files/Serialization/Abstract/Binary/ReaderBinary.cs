@@ -78,17 +78,6 @@ namespace TheraEngine.Core.Files.Serialization
 
             protected internal override async Task ReadTree()
             {
-                //await RootNode.CollectSerializedMembers();
-
-                //Memory.Endian.SerializeOrder = Endian;
-
-                //StringTable = new BinaryStringTableReader();
-
-                //int dataSize = RootNode.CalculatedSize;
-                //int stringSize = StringTable.TotalLength.Align(4);
-                //StringOffsetSize = StringTable.GetSmallestRepSize(stringSize);
-                //int totalSize = FileCommonHeader.Size + stringSize + dataSize;
-                
                 using (FileMap uncompMap = FileMap.FromFile(FilePath, FileMapProtect.Read))
                 {
                     unsafe
@@ -102,58 +91,6 @@ namespace TheraEngine.Core.Files.Serialization
 
                         RootNode = ReadObject(ref addr, null);
                     }
-
-                    //uncompMap.BaseStream.Position = 0;
-
-                    //FileStream outStream;
-
-                    ////Compres first, then encrypt
-                    ////This is because compression works best on the original patterned data
-
-                    //if (Compressed)
-                    //{
-                    //    outStream = new FileStream(FilePath,
-                    //        FileMode.OpenOrCreate,
-                    //        FileAccess.ReadWrite,
-                    //        FileShare.ReadWrite,
-                    //        8,
-                    //        FileOptions.RandomAccess);
-                    //    outStream.SetLength(totalSize);
-                    //    outStream.Position = 0;
-                    //    SevenZip.Compression.LZMA.Encoder e = new SevenZip.Compression.LZMA.Encoder();
-                    //    e.Code(uncompMap.BaseStream, outStream, totalSize, totalSize, CompressionProgress);
-                    //    outStream.SetLength(outStream.Position);
-                    //}
-                    //else
-                    //    outStream = uncompMap.BaseStream;
-
-                    //if (Encrypted)
-                    //{
-                    //    SymmetricAlgorithm crypto = new RijndaelManaged();
-                    //    byte[] key = EncryptionDeriveBytes.GetBytes(crypto.KeySize / 8);
-                    //    byte[] iv = EncryptionDeriveBytes.GetBytes(crypto.BlockSize / 8);
-
-                    //    outStream.Position = 0;
-                    //    int blockSize = 0x1000;
-                    //    int bytesRead = 0;
-                    //    long tempPos;
-                    //    byte[] buffer = new byte[blockSize];
-                    //    using (CryptoStream cryptoStream = new CryptoStream(outStream, crypto.CreateDecryptor(key, iv), CryptoStreamMode.Write))
-                    //    {
-                    //        while (true)
-                    //        {
-                    //            tempPos = outStream.Position;
-                    //            bytesRead = outStream.Read(buffer, 0, blockSize);
-                    //            if (bytesRead <= 0)
-                    //                break;
-                    //            outStream.Position = tempPos;
-                    //            cryptoStream.Write(buffer, 0, bytesRead);
-                    //        }
-                    //    }
-                    //}
-
-                    //if (Compressed)
-                    //    outStream.Dispose();
                 }
             }
             private unsafe BinaryMemberTreeNode ReadObject(ref VoidPtr address, Type memberType)

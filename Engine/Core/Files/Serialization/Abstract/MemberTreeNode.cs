@@ -156,6 +156,7 @@ namespace TheraEngine.Core.Files.Serialization
     }
     public abstract class MemberTreeNode<T> : IMemberTreeNode where T : class, IMemberTreeNode
     {
+        public bool IsGroupingNode { get; set; } = true;
         public ESerializeType SerializeType { get; private set; }
         public int Order { get; set; }
         /// <summary>
@@ -241,14 +242,15 @@ namespace TheraEngine.Core.Files.Serialization
         public bool StateMember { get; set; }
         public object DefaultConstructedObject { get; private set; }
 
-        public MemberTreeNode(object root)
+        public MemberTreeNode(object obj)
         {
             Parent = null;
-            MemberType = root?.GetType();
+            MemberType = obj?.GetType();
             Name = SerializationCommon.GetTypeName(MemberType);
             Category = null;
-            Object = root;
+            Object = obj;
             DefaultConstructedObject = SerializationCommon.CreateObject(ObjectType);
+            IsGroupingNode = obj == null;
         }
         public MemberTreeNode(T parent, MemberInfo memberInfo)
         {
@@ -431,8 +433,11 @@ namespace TheraEngine.Core.Files.Serialization
             if (Parent.Object is null || memberInfo is null)
             {
                 Object = null;
+                IsGroupingNode = true;
                 return;
             }
+
+            IsGroupingNode = false;
 
             if (memberInfo.MemberType.HasFlag(MemberTypes.Field))
             {
@@ -451,7 +456,9 @@ namespace TheraEngine.Core.Files.Serialization
                         DefaultConstructedObject = info.GetValue(Parent.DefaultConstructedObject);
                 }
                 else
+                {
                     Engine.LogWarning("Can't read property '" + info.Name + "' in " + info.DeclaringType.GetFriendlyName());
+                }
             }
             else
             {

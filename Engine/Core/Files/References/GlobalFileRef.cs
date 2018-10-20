@@ -38,8 +38,8 @@ namespace TheraEngine.Core.Files
             : base(filePath) { }
         public GlobalFileRef(string filePath, Type type) 
             : base(filePath, type) { }
-        public GlobalFileRef(string filePath, T file, bool exportNow) 
-            : base(filePath, file, exportNow) { }
+        public GlobalFileRef(string filePath, T file) 
+            : base(filePath, file) { }
         public GlobalFileRef(string filePath, Func<T> createIfNotFound)
             : base(filePath, createIfNotFound) { }
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format) 

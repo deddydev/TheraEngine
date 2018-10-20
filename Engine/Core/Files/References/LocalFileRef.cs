@@ -28,8 +28,8 @@ namespace TheraEngine.Core.Files
             : base(filePath) { }
         public LocalFileRef(string filePath, Type type)
             : base(filePath, type) { }
-        public LocalFileRef(string filePath, T file, bool exportNow)
-            : base(filePath, file, exportNow) { }
+        public LocalFileRef(string filePath, T file)
+            : base(filePath, file) { }
         public LocalFileRef(string filePath, Func<T> createIfNotFound)
             : base(filePath, createIfNotFound) { }
         public LocalFileRef(string dir, string name, EProprietaryFileFormat format)

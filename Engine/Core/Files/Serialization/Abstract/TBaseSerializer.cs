@@ -16,7 +16,6 @@ namespace TheraEngine.Core.Files.Serialization
             CancellationToken Cancel { get; }
             TFileObject RootFileObject { get; }
             IMemberTreeNode RootNode { get; }
-            Dictionary<Guid, TObject> SharedObjects { get; }
             ESerializeFlags Flags { get; }
 
             IMemberTreeNode CreateNode(object obj);
@@ -33,6 +32,7 @@ namespace TheraEngine.Core.Files.Serialization
             public T RootNode { get; protected set; }
             IMemberTreeNode IBaseAbstractReaderWriter.RootNode => RootNode;
             public Dictionary<Guid, T> SharedObjects { get; internal set; }
+            public Dictionary<Guid, int> SharedObjectIndices { get; set; }
             internal int CurrentCount { get; set; }
             public ESerializeFlags Flags { get; internal set; }
 

@@ -361,6 +361,14 @@ namespace TheraEngine.Core.Files.Serialization
                     size += StringOffsetSize;
                 }
                 
+                if (node.Children.Count > 0)
+                {
+                    foreach (BinaryMemberTreeNode childNode in node.Children)
+                        size += GetSizeObject(childNode);
+
+                    return size;
+                }
+
                 switch (objType.Name)
                 {
                     case nameof(Boolean):   break; //Written to flags, no size
@@ -410,8 +418,9 @@ namespace TheraEngine.Core.Files.Serialization
                             size += GetSizeFileObjectManually(fobj, objType, node);
                         }
                         else
-                            foreach (BinaryMemberTreeNode childNode in node.Children)
-                                size += GetSizeObject(childNode);
+                        {
+
+                        }
                         break;
                 }
 

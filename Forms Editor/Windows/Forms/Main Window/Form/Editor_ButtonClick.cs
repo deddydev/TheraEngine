@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
@@ -42,7 +43,7 @@ namespace TheraEditor.Windows.Forms
         {
             OpenWorld();
         }
-        private void BtnSaveWorld_Click(object sender, EventArgs e)
+        private async void BtnSaveWorld_Click(object sender, EventArgs e)
         {
             if (CurrentWorld == null)
                 return;
@@ -53,11 +54,13 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
             ContentTree.WatchProjectDirectory = false;
-            CurrentWorld.Export();
+            int op = BeginOperation("Saving current world...", out Progress<float> progress, out CancellationToken cancel);
+            await CurrentWorld.ExportAsync();
+            EndOperation(op);
             ContentTree.WatchProjectDirectory = true;
         }
 
-        private void saveAsToolStripMenuItem1_Click(object sender, EventArgs e)
+        private async void saveAsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (CurrentWorld == null)
                 return;
@@ -70,7 +73,9 @@ namespace TheraEditor.Windows.Forms
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                 {
                     ContentTree.WatchProjectDirectory = false;
-                    CurrentWorld.Export(sfd.FileName);
+                    int op = BeginOperation("Saving current world...", out Progress<float> progress, out CancellationToken cancel);
+                    await CurrentWorld.ExportAsync(sfd.FileName, ESerializeFlags.Default, progress, cancel);
+                    EndOperation(op);
                     ContentTree.WatchProjectDirectory = true;
                 }
             }

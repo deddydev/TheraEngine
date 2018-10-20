@@ -16,6 +16,7 @@ using TheraEngine.ThirdParty;
 using static TheraEngine.ThirdParty.MSBuild;
 using static TheraEngine.ThirdParty.MSBuild.Project;
 using TheraEditor.Windows.Forms;
+using System.Threading;
 
 namespace TheraEditor
 {
@@ -32,11 +33,11 @@ namespace TheraEditor
         public const string CSharpProjectGuid = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
 
         //[TSerialize(nameof(Guid))]
-        protected Guid _guid;
+        //protected Guid _guid;
         //[TSerialize(nameof(ProjectGuid))]
         protected Guid _projectGuid;
 
-        public Guid Guid => _guid;
+        //public Guid Guid => _guid;
         public Guid ProjectGuid => _projectGuid;
 
         [Browsable(false)]
@@ -135,7 +136,7 @@ namespace TheraEditor
 
             Project p = new Project()
             {
-                _guid = Guid.NewGuid(),
+                //_guid = Guid.NewGuid(),
                 _projectGuid = Guid.NewGuid(),
                 Name = name,
                 FilePath = GetFilePath<Project>(directory, name, EProprietaryFileFormat.XML),
@@ -150,7 +151,7 @@ namespace TheraEditor
                 LocalTempDirectory = tmp,
             };
 
-            p.Export();
+            p.ExportAsync().ContinueWith(x => { });
 
             return p;
         }
@@ -312,8 +313,9 @@ namespace TheraEditor
                 afterBuild);
 
             var def = new XMLSchemeDefinition<MSBuild.Project>();
-            int op = Editor.Instance.ReportOperation("", )
-            await def.ExportAsync(Path.Combine(DirectoryPath, Name + ".csproj"), p, );
+            //int op = Editor.Instance.BeginOperation("Exporting csproj...", out Progress<float> progress, out CancellationToken cancel);
+            await def.ExportAsync(Path.Combine(DirectoryPath, Name + ".csproj"), p);
+            //Editor.Instance.EndOperation(op);
             #endregion
 
             #region sln

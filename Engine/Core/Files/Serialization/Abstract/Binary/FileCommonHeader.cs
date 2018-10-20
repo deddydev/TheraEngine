@@ -39,10 +39,10 @@ namespace TheraEngine.Core.Files.Serialization
         public Endian.EOrder Endian
         {
             get => _flags[2] ? Memory.Endian.EOrder.Big : Memory.Endian.EOrder.Little;
-            set => _flags[2] = (int)value > 0;
+            set => _flags[2] = (int)value != 0;
         }
         public StringTableHeader* Strings => (StringTableHeader*)(Address + Size);
-        public VoidPtr Data => Strings + _stringTableLength;
+        public VoidPtr Data => (VoidPtr)Strings + _stringTableLength;
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

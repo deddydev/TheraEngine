@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.Models.Materials
     [FileDef("Shader")]
     public class GLSLShaderFile : TextFile
     {
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public EShaderMode Type { get; set; }
 
         #region Constructors

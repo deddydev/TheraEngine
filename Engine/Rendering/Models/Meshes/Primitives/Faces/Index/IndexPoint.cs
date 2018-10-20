@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering.Models
         public override string ToString()
             => _vertexIndex.ToString();
 
-        [TSerialize("Index", NodeType = ENodeType.Attribute)]
+        [TSerialize("Index", NodeType = ENodeType.SetParentAttribute)]
         private int _vertexIndex;
         private List<IndexLine> _connectedEdges = new List<IndexLine>();
 

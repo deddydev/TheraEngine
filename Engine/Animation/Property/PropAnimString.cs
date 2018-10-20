@@ -66,7 +66,7 @@ namespace TheraEngine.Animation
     public class StringKeyframe : Keyframe, IStepKeyframe
     {
         [TString(true, false, false, true)]
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public string Value { get; set; }
 
         [Browsable(false)]

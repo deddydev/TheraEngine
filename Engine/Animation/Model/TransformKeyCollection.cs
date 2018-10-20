@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Animation
@@ -351,65 +352,57 @@ namespace TheraEngine.Animation
                 track.SetLength(LengthInSeconds, false);
             }
         }
-
-        protected internal override void ReadAsync(XMLReader reader)
+        private static string[] TrackNames { get; } = new string[]
         {
-            string[] names =
+            "TranslationX",
+            "TranslationY",
+            "TranslationZ",
+            "RotationX",
+            "RotationY",
+            "RotationZ",
+            "ScaleX",
+            "ScaleY",
+            "ScaleZ",
+        };
+        protected internal override void ManualRead(IMemberTreeNode node)
+        {
+            if (string.Equals(node.Name, nameof(TransformKeyCollection), StringComparison.InvariantCulture))
             {
-                "TranslationX",
-                "TranslationY",
-                "TranslationZ",
-                "RotationX",
-                "RotationY",
-                "RotationZ",
-                "ScaleX",
-                "ScaleY",
-                "ScaleZ",
-            };
-            if (string.Equals(reader.Name, nameof(TransformKeyCollection), StringComparison.InvariantCulture))
-            {
-                if (reader.ReadAttribute() && string.Equals(reader.Name, nameof(LengthInSeconds), StringComparison.InvariantCulture))
-                    LengthInSeconds = float.TryParse(reader.Value, out float length) ? length : 0.0f;
-
-                ResetKeys();
-
-                while (reader.BeginElement())
+                if (node is XMLMemberTreeNode xmlNode)
                 {
-                    int trackIndex = names.IndexOf(reader.Name.ToString());
-                    if (_tracks.IndexInRange(trackIndex))
+                    XMLAttribute attrib = xmlNode.GetAttribute(nameof(LengthInSeconds));
+                    if (attrib != null)
+                        LengthInSeconds = float.TryParse(attrib.Value, out float length) ? length : 0.0f;
+
+                    ResetKeys();
+
+                    foreach (XMLMemberTreeNode targetTrackElement in xmlNode.ChildElements)
                     {
+                        int trackIndex = TrackNames.IndexOf(targetTrackElement.Name.ToString());
+                        if (!_tracks.IndexInRange(trackIndex))
+                            continue;
+                        
                         PropAnimFloat track = _tracks[trackIndex];
-                        bool read = reader.ReadAttribute();
-                        if (read &&
-                            string.Equals(reader.Name, "Count", StringComparison.InvariantCulture) &&
-                            int.TryParse(reader.Value, out int keyCount))
+                        attrib = xmlNode.GetAttribute("Count");
+                        if (attrib != null && int.TryParse(attrib.Value, out int keyCount))
                         {
                             string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
-                            while (reader.BeginElement())
+                            string[] values;
+
+                            foreach (XMLMemberTreeNode keyframePartElement in targetTrackElement.ChildElements)
                             {
-                                switch (reader.Name)
+                                values = keyframePartElement.ElementString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                switch (keyframePartElement.Name)
                                 {
-                                    case "Second":
-                                        seconds = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                        break;
-                                    case "InValues":
-                                        inValues = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                        break;
-                                    case "OutValues":
-                                        outValues = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                        break;
-                                    case "InTangents":
-                                        inTans = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                        break;
-                                    case "OutTangents":
-                                        outTans = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                        break;
-                                    case "Interpolation":
-                                        interpolation = reader.ReadElementString().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                        break;
+                                    case "Second": seconds = values; break;
+                                    case "InValues": inValues = values; break;
+                                    case "OutValues": outValues = values; break;
+                                    case "InTangents": inTans = values; break;
+                                    case "OutTangents": outTans = values; break;
+                                    case "Interpolation": interpolation = values; break;
                                 }
-                                reader.EndElement();
                             }
+
                             for (int i = 0; i < keyCount; ++i)
                             {
                                 FloatKeyframe kf = new FloatKeyframe(
@@ -424,7 +417,6 @@ namespace TheraEngine.Animation
                         }
                         _tracks[trackIndex] = track;
                     }
-                    reader.EndElement();
                 }
             }
             else
@@ -433,44 +425,29 @@ namespace TheraEngine.Animation
                 ResetKeys();
             }
         }
-
-        protected internal override void WriteAsync(XmlWriter writer, ESerializeFlags flags)
+        protected internal override async void ManualWrite(IMemberTreeNode node)
         {
-            string[] names = 
+            node.Name = nameof(TransformKeyCollection);
+            
+            if (node is XMLMemberTreeNode xmlNode)
             {
-                "TranslationX",
-                "TranslationY",
-                "TranslationZ",
-                "RotationX",
-                "RotationY",
-                "RotationZ",
-                "ScaleX",
-                "ScaleY",
-                "ScaleZ",
-            };
-            writer.WriteStartElement(nameof(TransformKeyCollection));
-            {
-                writer.WriteAttributeString(nameof(LengthInSeconds), LengthInSeconds.ToString());
+                xmlNode.AddAttribute(nameof(LengthInSeconds), LengthInSeconds.ToString());
                 for (int i = 0; i < 9; ++i)
                 {
                     var track = _tracks[i];
                     if (track.Keyframes.Count > 0)
                     {
-                        writer.WriteStartElement(names[i]);
-                        {
-                            writer.WriteAttributeString("Count", track.Keyframes.Count.ToString());
-                            writer.WriteElementString("Second", string.Join(",", track.Select(x => x.Second)));
-                            writer.WriteElementString("InValues", string.Join(",", track.Select(x => x.InValue)));
-                            writer.WriteElementString("OutValues", string.Join(",", track.Select(x => x.OutValue)));
-                            writer.WriteElementString("InTangents", string.Join(",", track.Select(x => x.InTangent)));
-                            writer.WriteElementString("OutTangents", string.Join(",", track.Select(x => x.OutTangent)));
-                            writer.WriteElementString("Interpolation", string.Join(",", track.Select(x => x.InterpolationType)));
-                        }
-                        writer.WriteEndElement();
+                        XMLMemberTreeNode trackElement = new XMLMemberTreeNode(TrackNames[i], new XMLAttribute("Count", track.Keyframes.Count.ToString()));
+                        trackElement.AddChildElementString("Second", string.Join(",", track.Select(x => x.Second)));
+                        trackElement.AddChildElementString("InValues", string.Join(",", track.Select(x => x.InValue)));
+                        trackElement.AddChildElementString("OutValues", string.Join(",", track.Select(x => x.OutValue)));
+                        trackElement.AddChildElementString("InTangents", string.Join(",", track.Select(x => x.InTangent)));
+                        trackElement.AddChildElementString("OutTangents", string.Join(",", track.Select(x => x.OutTangent)));
+                        trackElement.AddChildElementString("Interpolation", string.Join(",", track.Select(x => x.InterpolationType)));
+                        await xmlNode.AddChildAsync(trackElement);
                     }
                 }
             }
-            writer.WriteEndElement();
         }
 
         public IEnumerator<PropAnimFloat> GetEnumerator()

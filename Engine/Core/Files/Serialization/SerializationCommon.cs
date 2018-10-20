@@ -139,61 +139,61 @@ namespace TheraEngine.Core.Files.Serialization
         /// Collects and returns all public and non public properties that the type and all derived types define as serialized.
         /// Also sorts by attribute first and by the defined order in the attribute.
         /// </summary>
-        public static List<VarInfo> CollectSerializedMembers(Type t)
-        {
-            BindingFlags retrieveFlags =
-                BindingFlags.Instance |
-                BindingFlags.NonPublic | 
-                BindingFlags.Public | 
-                BindingFlags.FlattenHierarchy;
+        //public static List<VarInfo> CollectSerializedMembers(Type t)
+        //{
+        //    BindingFlags retrieveFlags =
+        //        BindingFlags.Instance |
+        //        BindingFlags.NonPublic | 
+        //        BindingFlags.Public | 
+        //        BindingFlags.FlattenHierarchy;
 
-            var members = t.GetMembersExt(retrieveFlags);
-            List<VarInfo> fields = members.
-                Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).
-                Select(x => new VarInfo(x)).
-                OrderBy(x => (int)x.Attrib.NodeType).ToList();
+        //    var members = t.GetMembersExt(retrieveFlags);
+        //    List<VarInfo> fields = members.
+        //        Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(TSerialize))).
+        //        Select(x => new VarInfo(x)).
+        //        OrderBy(x => (int)x.Attrib.NodeType).ToList();
 
-            int attribCount = 0, elementCount = 0, elementStringCount = 0;
-            foreach (VarInfo info in fields)
-            {
-                switch (info.Attrib.NodeType)
-                {
-                    case ENodeType.Attribute:
-                        ++attribCount;
-                        break;
-                    case ENodeType.ChildElement:
-                        ++elementCount;
-                        break;
-                    case ENodeType.ElementString:
-                        ++elementStringCount;
-                        break;
-                }
-            }
+        //    int attribCount = 0, elementCount = 0, elementStringCount = 0;
+        //    foreach (VarInfo info in fields)
+        //    {
+        //        switch (info.Attrib.NodeType)
+        //        {
+        //            case ENodeType.SetParentAttribute:
+        //                ++attribCount;
+        //                break;
+        //            case ENodeType.ChildElement:
+        //                ++elementCount;
+        //                break;
+        //            case ENodeType.SetParentElementString:
+        //                ++elementStringCount;
+        //                break;
+        //        }
+        //    }
 
-            for (int i = 0; i < fields.Count; ++i)
-            {
-                VarInfo info = fields[i];
-                TSerialize s = info.Attrib;
-                if (s.Order >= 0)
-                {
-                    int index = s.Order;
+        //    for (int i = 0; i < fields.Count; ++i)
+        //    {
+        //        VarInfo info = fields[i];
+        //        TSerialize s = info.Attrib;
+        //        if (s.Order >= 0)
+        //        {
+        //            int index = s.Order;
 
-                    if (i < attribCount)
-                        index = index.Clamp(0, attribCount - 1);
-                    else
-                        index = index.Clamp(0, elementCount - 1) + attribCount;
+        //            if (i < attribCount)
+        //                index = index.Clamp(0, attribCount - 1);
+        //            else
+        //                index = index.Clamp(0, elementCount - 1) + attribCount;
 
-                    if (index == i)
-                        continue;
-                    fields.RemoveAt(i--);
-                    if (index == fields.Count)
-                        fields.Add(info);
-                    else
-                        fields.Insert(index, info);
-                }
-            }
-            return fields;
-        }
+        //            if (index == i)
+        //                continue;
+        //            fields.RemoveAt(i--);
+        //            if (index == fields.Count)
+        //                fields.Add(info);
+        //            else
+        //                fields.Insert(index, info);
+        //        }
+        //    }
+        //    return fields;
+        //}
         
         /// <summary>
         /// Creates an object of the given type.

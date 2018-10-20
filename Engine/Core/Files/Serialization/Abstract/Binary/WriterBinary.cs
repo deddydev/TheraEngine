@@ -121,7 +121,7 @@ namespace TheraEngine.Core.Files.Serialization
             
             protected internal override async Task WriteTree()
             {
-                await RootNode.CollectSerializedMembers();
+                await RootNode.CollectSerializedMembersAsync();
 
                 Memory.Endian.SerializeOrder = Endian;
 

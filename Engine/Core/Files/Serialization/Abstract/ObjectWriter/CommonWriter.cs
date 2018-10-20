@@ -34,13 +34,13 @@ namespace TheraEngine.Core.Files.Serialization
                         IMemberTreeNode child = TreeNode.Owner.CreateNode(TreeNode, info);
                         switch (attrib.NodeType)
                         {
-                            case ENodeType.Attribute:
+                            case ENodeType.SetParentAttribute:
                                 ++attribCount;
                                 break;
                             case ENodeType.ChildElement:
                                 ++elementCount;
                                 break;
-                            case ENodeType.ElementString:
+                            case ENodeType.SetParentElementString:
                                 ++elementStringCount;
                                 break;
                         }
@@ -99,7 +99,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Members.Add(node);
             }
 
-            await TreeNode.AddChildren(attribCount, elementCount, elementStringCount, Members);
+            await TreeNode.AddChildrenAsync(attribCount, elementCount, elementStringCount, Members);
         }
     }
 }

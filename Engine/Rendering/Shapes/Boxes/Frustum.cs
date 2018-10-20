@@ -44,7 +44,7 @@ namespace TheraEngine.Core.Shapes
         private Vec3[] _points = new Vec3[8];
 
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
-        [TSerialize("UseBoundingSphere", NodeType = ENodeType.Attribute)]
+        [TSerialize("UseBoundingSphere", NodeType = ENodeType.SetParentAttribute)]
         private Sphere _boundingSphere;
 
         [CustomSerializeMethod("UseBoundingSphere")]

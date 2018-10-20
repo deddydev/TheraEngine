@@ -28,9 +28,9 @@ namespace TheraEngine.Rendering.Cameras
             _transformedFrustumShadowMatrices = new Matrix4[slices];
         }
 
-        [TSerialize("Width", NodeType = ENodeType.Attribute, Order = 0)]
+        [TSerialize("Width", NodeType = ENodeType.SetParentAttribute, Order = 0)]
         private float _width;
-        [TSerialize("Height", NodeType = ENodeType.Attribute, Order = 1)]
+        [TSerialize("Height", NodeType = ENodeType.SetParentAttribute, Order = 1)]
         private float _height;
 
         private Frustum[] _transformedFrustumCascade;
@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         [Category("Perspective Camera")]
-        [TSerialize("FovX", NodeType = ENodeType.Attribute, Order = 2)]
+        [TSerialize("FovX", NodeType = ENodeType.SetParentAttribute, Order = 2)]
         public float HorizontalFieldOfView
         {
             get => _fovX;

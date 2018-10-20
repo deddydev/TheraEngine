@@ -29,7 +29,7 @@ namespace TheraEngine.Core.Maths.Transforms
 
         //private int _updating = 0;
         private float _oldX, _oldY, _oldZ;
-        [TSerialize("XYZ", NodeType = ENodeType.Attribute)]
+        [TSerialize("XYZ", NodeType = ENodeType.SetParentAttribute)]
         private Vec3 _data;
         private EventVec3 _syncX, _syncY, _syncZ, _syncAll;
         private DelGetVec3Value _setTick = null;

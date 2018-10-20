@@ -20,6 +20,9 @@ namespace TheraEngine.Core.Files.Serialization
         IsDerived       = 0b0000_0010,
         IsNull          = 0b0000_0100,
         IsSharedObject  = 0b0000_1000,
+        Unused1         = 0b0001_0000,
+        Unused2         = 0b0010_0000,
+        Unused3         = 0b0100_0000,
         BooleanValue    = 0b1000_0000,
     }
     public partial class TDeserializer : TBaseSerializer
@@ -96,6 +99,7 @@ namespace TheraEngine.Core.Files.Serialization
                         Compressed = hdr->Compressed;
 
                         VoidPtr addr = hdr->Data;
+
                         RootNode = ReadObject(ref addr, null);
                     }
 

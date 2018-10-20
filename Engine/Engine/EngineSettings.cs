@@ -19,58 +19,58 @@ namespace TheraEngine
     {
         public override void ManualRead3rdParty(string filePath)
         {
-            string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
-            if (ext == "txt")
-            {
-                List<VarInfo> props = SerializationCommon.CollectSerializedMembers(GetType());
-                string[] lines = File.ReadAllLines(filePath);
-                string modLine;
-                foreach (string line in lines)
-                {
-                    modLine = line.Trim();
-                    if (modLine.StartsWith("[") && modLine.EndsWith("]"))
-                    {
-                        //Category; ignore
-                    }
-                    else
-                    {
-                        string[] parts = modLine.Split('=');
-                        if (parts.Length == 2)
-                        {
-                            string name = parts[0].TrimEnd();
-                            string value = parts[1].TrimStart();
-                            int propIndex = props.FindIndex(x => string.Equals(name, x.Name));
-                            if (props.IndexInRange(propIndex))
-                            {
-                                VarInfo prop = props[propIndex];
-                                if (SerializationCommon.CanParseAsString(prop.VariableType))
-                                {
-                                    prop.SetValue(this, SerializationCommon.ParseString(value, prop.VariableType));
-                                    props.RemoveAt(propIndex);
-                                }
-                                else
-                                    Engine.LogWarning("Problem reading line: " + line);
-                            }
-                            else
-                                Engine.LogWarning("Problem reading line: " + line);
-                        }
-                        else
-                            Engine.LogWarning("Problem reading line: " + line);
-                    }
-                }
-            }
+            //string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
+            //if (ext == "txt")
+            //{
+            //    List<VarInfo> props = SerializationCommon.CollectSerializedMembers(GetType());
+            //    string[] lines = File.ReadAllLines(filePath);
+            //    string modLine;
+            //    foreach (string line in lines)
+            //    {
+            //        modLine = line.Trim();
+            //        if (modLine.StartsWith("[") && modLine.EndsWith("]"))
+            //        {
+            //            //Category; ignore
+            //        }
+            //        else
+            //        {
+            //            string[] parts = modLine.Split('=');
+            //            if (parts.Length == 2)
+            //            {
+            //                string name = parts[0].TrimEnd();
+            //                string value = parts[1].TrimStart();
+            //                int propIndex = props.FindIndex(x => string.Equals(name, x.Name));
+            //                if (props.IndexInRange(propIndex))
+            //                {
+            //                    VarInfo prop = props[propIndex];
+            //                    if (SerializationCommon.CanParseAsString(prop.VariableType))
+            //                    {
+            //                        prop.SetValue(this, SerializationCommon.ParseString(value, prop.VariableType));
+            //                        props.RemoveAt(propIndex);
+            //                    }
+            //                    else
+            //                        Engine.LogWarning("Problem reading line: " + line);
+            //                }
+            //                else
+            //                    Engine.LogWarning("Problem reading line: " + line);
+            //            }
+            //            else
+            //                Engine.LogWarning("Problem reading line: " + line);
+            //        }
+            //    }
+            //}
         }
         public override void ManualWrite3rdParty(string filePath)
         {
-            string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
-            if (ext == "txt")
-            {
-                PropertyInfo[] properties = GetType().
-                  GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
-                  Where(x => x.GetCustomAttributes<TSerialize>() != null).
-                  OrderBy(x => x.GetCustomAttribute<TSerialize>().Order).
-                  ToArray();
-            }
+            //string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
+            //if (ext == "txt")
+            //{
+            //    PropertyInfo[] properties = GetType().
+            //      GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+            //      Where(x => x.GetCustomAttributes<TSerialize>() != null).
+            //      OrderBy(x => x.GetCustomAttribute<TSerialize>().Order).
+            //      ToArray();
+            //}
         }
     }
     public enum ShadingStyle
@@ -125,7 +125,7 @@ namespace TheraEngine
         [Description("Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).")]
         [Category("Frames Per Second")]
         [DisplayName("Capped")]
-        [TSerialize("Capped", OverrideCategory = "FramesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute)]
+        [TSerialize("Capped", OverrideCategory = "FramesPerSecond", UseCategory = true, NodeType = ENodeType.SetParentAttribute)]
         public bool CapFPS { get; set; }
         /// <summary>
         /// How many frames are expected to be rendered per second.
@@ -133,7 +133,7 @@ namespace TheraEngine
         [Description("How many frames are expected to be rendered per second.")]
         [Category("Frames Per Second")]
         [DisplayName("Target")]
-        [TSerialize("Target", OverrideCategory = "FramesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute, Condition = "CapFPS")]
+        [TSerialize("Target", OverrideCategory = "FramesPerSecond", UseCategory = true, NodeType = ENodeType.SetParentAttribute, Condition = "CapFPS")]
         public float TargetFPS { get; set; }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace TheraEngine
         [Description("Determines if the update rate should be capped at a specific frequency. If not, will run as fast as possible.")]
         [Category("Updates Per Second")]
         [DisplayName("Capped")]
-        [TSerialize("Capped", OverrideCategory = "UpdatesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute)]
+        [TSerialize("Capped", OverrideCategory = "UpdatesPerSecond", UseCategory = true, NodeType = ENodeType.SetParentAttribute)]
         public bool CapUPS { get; set; }
         /// <summary>
         /// How many internal engine tick update calls are expected to be made per second. This is not the same as the render frequency.
@@ -150,7 +150,7 @@ namespace TheraEngine
         [Description("How many internal engine tick update calls are made per second. This is not the same as the render frequency.")]
         [Category("Updates Per Second")]
         [DisplayName("Target")]
-        [TSerialize("Target", OverrideCategory = "UpdatesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute, Condition = "CapUPS")]
+        [TSerialize("Target", OverrideCategory = "UpdatesPerSecond", UseCategory = true, NodeType = ENodeType.SetParentAttribute, Condition = "CapUPS")]
         public float TargetUPS { get; set; }
 
         /// <summary>

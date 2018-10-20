@@ -167,14 +167,14 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolateAcceleration;
         protected EPlanarInterpType _interpolationType;
         
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public int InValue { get; set; }
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public int OutValue { get; set; }
 
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public float InTangent { get; set; }
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public float OutTangent { get; set; }
 
         [Browsable(false)]
@@ -190,7 +190,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public EPlanarInterpType InterpolationType
         {
             get => _interpolationType;

@@ -70,7 +70,7 @@ namespace TheraEngine.Animation
             Value = value;
         }
         
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public bool Value { get; set; }
 
         [Browsable(false)]

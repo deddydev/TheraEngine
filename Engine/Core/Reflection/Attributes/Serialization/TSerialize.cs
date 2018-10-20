@@ -24,7 +24,7 @@ namespace System.ComponentModel
         /// <summary>
         /// This is an attribute for the parent tree node. Object must be a string value.
         /// </summary>
-        Attribute,
+        SetParentAttribute,
         /// <summary>
         /// This is a child element. The Object value is irrelevant if there is no member info.
         /// </summary>
@@ -32,7 +32,7 @@ namespace System.ComponentModel
         /// <summary>
         /// This is a string value that resides between the open and close tags. Object must be a string value and there must be no child elements.
         /// </summary>
-        ElementString,
+        SetParentElementString,
     }
     /// <summary>
     /// This attribute means the field should be serialized upon saving.
@@ -80,18 +80,18 @@ namespace System.ComponentModel
         public bool IgnoreIfDefault { get; set; } = true;
         public bool IsAttribute
         {
-            get => NodeType == ENodeType.Attribute;
-            set => NodeType = value ? ENodeType.Attribute : ENodeType.ChildElement;
+            get => NodeType == ENodeType.SetParentAttribute;
+            set => NodeType = value ? ENodeType.SetParentAttribute : ENodeType.ChildElement;
         }
         public bool IsChildElement
         {
             get => NodeType == ENodeType.ChildElement;
-            set => NodeType = value ? ENodeType.ChildElement : ENodeType.Attribute;
+            set => NodeType = value ? ENodeType.ChildElement : ENodeType.SetParentAttribute;
         }
         public bool IsElementString
         {
-            get => NodeType == ENodeType.ElementString;
-            set => NodeType = value ? ENodeType.ElementString : ENodeType.ChildElement;
+            get => NodeType == ENodeType.SetParentElementString;
+            set => NodeType = value ? ENodeType.SetParentElementString : ENodeType.ChildElement;
         }
         /// <summary>
         /// Determines if this is the kind of value that is read from a main file on disk.

@@ -55,11 +55,11 @@ namespace TheraEngine.Core.Files.Serialization
             for (int i = 0; i < Keys.Length; ++i)
             {
                 IMemberTreeNode pairNode = TreeNode.Owner.CreateNode(TreeNode, null);
-                await pairNode.AddChildren(0, 2, 0, new List<IMemberTreeNode>(2) { Keys[i], Values[i] });
+                await pairNode.AddChildrenAsync(0, 2, 0, new List<IMemberTreeNode>(2) { Keys[i], Values[i] });
                 Members.Add(pairNode);
             }
 
-            await TreeNode.AddChildren(0, Members.Count, 0, Members);
+            await TreeNode.AddChildrenAsync(0, Members.Count, 0, Members);
         }
     }
 }

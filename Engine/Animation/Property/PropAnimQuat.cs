@@ -80,14 +80,14 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate = CubicBezier;
         protected ERadialInterpType _interpolationType;
 
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public Quat InValue { get; set; }
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public Quat OutValue { get; set; }
 
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public Quat InTangent { get; set; }
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public Quat OutTangent { get; set; }
 
         [Browsable(false)]
@@ -103,7 +103,7 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public ERadialInterpType InterpolationType
         {
             get => _interpolationType;

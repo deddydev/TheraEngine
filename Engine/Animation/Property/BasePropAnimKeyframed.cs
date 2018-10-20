@@ -60,7 +60,7 @@ namespace TheraEngine.Animation
         /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
         /// Baked takes up more memory but requires no calculations. However, the animation cannot be sped up at all, nor slowed down without artifacts.
         /// </summary>
-        [Category("Animation"), TSerialize(NodeType = ENodeType.Attribute, Order = 2)]
+        [Category("Animation"), TSerialize(NodeType = ENodeType.SetParentAttribute, Order = 2)]
         public bool IsBaked
         {
             get => _isBaked;

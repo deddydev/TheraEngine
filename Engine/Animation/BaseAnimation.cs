@@ -125,7 +125,7 @@ namespace TheraEngine.Animation
         /// If false, <see cref="Progress(float)"/> must be called to progress the animation.
         /// </summary>
         [Browsable(false)]
-        [Category("Animation"), TSerialize(NodeType = ENodeType.Attribute)]
+        [Category("Animation"), TSerialize(NodeType = ENodeType.SetParentAttribute)]
         public bool TickSelf
         {
             get => _tickSelf;

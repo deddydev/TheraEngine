@@ -66,7 +66,7 @@ namespace TheraEngine
 
         public bool ConstructedProgrammatically { get; internal set; } = true;
         
-        internal Guid Guid { get; } = Guid.NewGuid();
+        public Guid Guid { get; } = Guid.NewGuid();
         
         [TSerialize]
         //[BrowsableIf("_userData != null")]

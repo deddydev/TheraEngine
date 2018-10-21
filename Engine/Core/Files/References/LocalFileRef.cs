@@ -34,8 +34,8 @@ namespace TheraEngine.Core.Files
             : base(filePath, createIfNotFound) { }
         public LocalFileRef(string dir, string name, EProprietaryFileFormat format)
             : base(dir, name, format) { }
-        public LocalFileRef(string dir, string name, EProprietaryFileFormat format, T file, bool exportNow)
-            : base(dir, name, format, file, exportNow) { }
+        public LocalFileRef(string dir, string name, EProprietaryFileFormat format, T file)
+            : base(dir, name, format, file) { }
         public LocalFileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound)
             : base(dir, name, format, createIfNotFound) { }
 

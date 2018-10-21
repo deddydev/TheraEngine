@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Animation;
 using TheraEngine.Components.Logic.Animation;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models;
 
@@ -55,7 +56,7 @@ namespace TheraEngine.Tests
                 //if (scene.ModelAnimations != null && scene.ModelAnimations.Count > 0)
                 {
                     _animationStateMachine.Skeleton = _meshComp.SkeletonOverride;
-                    _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/new Files.GlobalFileRef<SkelAnimPoseGenBase>(new SkelAnimDirectPose(m)));
+                    _animationStateMachine.InitialState = new AnimState(/*scene.ModelAnimations[0]*/new GlobalFileRef<SkelAnimPoseGenBase>(new SkelAnimDirectPose(m)));
                 }
             }
         }

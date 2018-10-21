@@ -33,14 +33,17 @@ namespace TheraEngine.ThirdParty.PMX
                 {
                     VoidPtr baseAddr = map.Address;
                     Header* pmx = (Header*)baseAddr;
+
                     string magic = "PMX ";
-                    magic.Write(pmx->_magic);
+                    magic.Write(pmx->_magic, false);
+
                     pmx->_version = 2.1f;
                     pmx->_globalsCount = 8;
                     pmx->StringEncoding = EStringEncoding.UTF16LE; //TODO: determine encoding from all strings
                     pmx->ExtraVec4Count = 0;
                     pmx->RigidBodyIndexSize = 0;
                     pmx->MorphIndexSize = 0;
+
                     //Collect all relevant texture names
                     HashSet<string> texNames = new HashSet<string>();
 

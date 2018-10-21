@@ -432,7 +432,7 @@ namespace TheraEditor.Windows.Forms
             get => Engine.World;
             set => SetWorld(value);
         }
-        private void SetWorld(World world)
+        private async void SetWorld(World world)
         {
             if (Engine.World?.EditorState?.HasChanges ?? false)
             {
@@ -440,7 +440,7 @@ namespace TheraEditor.Windows.Forms
                 if (r == DialogResult.Cancel)
                     return;
                 else if (r == DialogResult.Yes)
-                    Engine.World.ExportAsync();
+                    await Engine.World.ExportAsync();
                 Engine.World.EditorState = null;
             }
 
@@ -646,7 +646,7 @@ namespace TheraEditor.Windows.Forms
                     if (r == DialogResult.Cancel)
                         return false;
                     else if (r == DialogResult.Yes)
-                        _project.Export();
+                        SaveProject();
                 }
 
                 string configFile = _project.EditorSettings?.GetFullDockConfigPath();
@@ -660,11 +660,19 @@ namespace TheraEditor.Windows.Forms
             }
             return true;
         }
+
+        public async void SaveProject()
+        {
+            int op = BeginOperation("Saving project...", out Progress<float> progress, out CancellationToken cancel);
+            await _project.ExportAsync(ESerializeFlags.Default, progress, cancel);
+            EndOperation(op);
+        }
+
         /// <summary>
         /// Asks the user to select a folder to create a new project in, creates it there, and then loads it for editing.
         /// Closes the currently opened project if there is one.
         /// </summary>
-        public void CreateNewProject()
+        public async void CreateNewProject()
         {
             if (!CloseProject())
                 return;
@@ -676,7 +684,7 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (fbd.ShowDialog(this) == DialogResult.OK)
-                    Project = Project.Create(fbd.SelectedPath, "NewProject");
+                    Project = await Project.CreateAsync(fbd.SelectedPath, "NewProject");
             }
         }
         public async void OpenProject()

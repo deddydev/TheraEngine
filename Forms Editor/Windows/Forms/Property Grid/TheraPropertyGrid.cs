@@ -655,7 +655,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _selectedSceneComp = e.Node;
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        private async void btnSave_Click(object sender, EventArgs e)
         {
             IFileObject file = TargetFileObject.RootFile ?? TargetFileObject;
 
@@ -665,7 +665,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (!string.IsNullOrWhiteSpace(file.FilePath))
             {
                 Editor.Instance.ContentTree.WatchProjectDirectory = false;
-                file.Export();
+                await file.ExportAsync();
                 Editor.Instance.ContentTree.WatchProjectDirectory = true;
             }
             else

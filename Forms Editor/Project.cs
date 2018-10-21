@@ -17,6 +17,7 @@ using static TheraEngine.ThirdParty.MSBuild;
 using static TheraEngine.ThirdParty.MSBuild.Project;
 using TheraEditor.Windows.Forms;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TheraEditor
 {
@@ -31,13 +32,10 @@ namespace TheraEditor
         /// This is the global GUID for a C# project.
         /// </summary>
         public const string CSharpProjectGuid = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
-
-        //[TSerialize(nameof(Guid))]
-        //protected Guid _guid;
-        //[TSerialize(nameof(ProjectGuid))]
-        protected Guid _projectGuid;
-
-        //public Guid Guid => _guid;
+        
+        [TSerialize(nameof(ProjectGuid))]
+        protected Guid _projectGuid = Guid.NewGuid();
+        
         public Guid ProjectGuid => _projectGuid;
 
         [Browsable(false)]
@@ -106,7 +104,7 @@ namespace TheraEditor
             EngineSettingsRef.ReferencePathAbsolute = GetFilePath<EngineSettings>(ConfigDirectory, Name, EProprietaryFileFormat.XML);
             EditorSettingsRef.ReferencePathAbsolute = GetFilePath<EditorSettings>(ConfigDirectory, Name, EProprietaryFileFormat.XML);
         }
-        public static Project Create(string directory, string name)
+        public static async Task<Project> CreateAsync(string directory, string name)
         {
             if (!directory.EndsWithDirectorySeparator())
                 directory += Path.DirectorySeparatorChar;
@@ -134,16 +132,19 @@ namespace TheraEditor
             EngineSettings engineSettings = new EngineSettings();
             EditorSettings editorSettings = new EditorSettings();
 
-            Project p = new Project()
+            await state.ExportAsync();
+            await userSettings.ExportAsync();
+            await engineSettings.ExportAsync();
+            await editorSettings.ExportAsync();
+
+            Project project = new Project()
             {
-                //_guid = Guid.NewGuid(),
-                _projectGuid = Guid.NewGuid(),
                 Name = name,
                 FilePath = GetFilePath<Project>(directory, name, EProprietaryFileFormat.XML),
-                ProjectStateRef = new GlobalFileRef<ProjectState>(directory, "ProjectState", EProprietaryFileFormat.XML, state, true),
-                UserSettingsRef = new GlobalFileRef<UserSettings>(cfgDir, "UserSettings", EProprietaryFileFormat.XML, userSettings, true),
-                EngineSettingsRef = new GlobalFileRef<EngineSettings>(cfgDir, "EngineSettings", EProprietaryFileFormat.XML, engineSettings, true),
-                EditorSettingsRef = new GlobalFileRef<EditorSettings>(cfgDir, "EditorSettings", EProprietaryFileFormat.XML, editorSettings, true),
+                ProjectStateRef = new GlobalFileRef<ProjectState>(directory, "ProjectState", EProprietaryFileFormat.XML, state),
+                UserSettingsRef = new GlobalFileRef<UserSettings>(cfgDir, "UserSettings", EProprietaryFileFormat.XML, userSettings),
+                EngineSettingsRef = new GlobalFileRef<EngineSettings>(cfgDir, "EngineSettings", EProprietaryFileFormat.XML, engineSettings),
+                EditorSettingsRef = new GlobalFileRef<EditorSettings>(cfgDir, "EditorSettings", EProprietaryFileFormat.XML, editorSettings),
                 LocalBinariesDirectory = bin,
                 LocalConfigDirectory = cfg,
                 LocalSourceDirectory = src,
@@ -151,9 +152,9 @@ namespace TheraEditor
                 LocalTempDirectory = tmp,
             };
 
-            p.ExportAsync().ContinueWith(x => { });
+            await project.ExportAsync();
 
-            return p;
+            return project;
         }
         
         public void CollectFiles(
@@ -220,7 +221,7 @@ namespace TheraEditor
             string ver = info?.ProductVersion ?? "15.7";
             int majorVer = info?.FileMajorPart ?? 15;
             int minorVer = info?.FileMinorPart ?? 7;
-            string solutionGuid = _guid.ToString("B").ToUpperInvariant();
+            string solutionGuid = Guid.ToString("B").ToUpperInvariant();
             string projectGuid = _projectGuid.ToString("B").ToUpperInvariant();
 
             #region csproj

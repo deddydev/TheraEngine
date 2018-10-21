@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
@@ -39,11 +40,11 @@ namespace TheraEditor.Wrappers
             m.Saved += M_Saved;
         }
 
-        private void M_Saved(DockableTextEditor obj)
+        private async void M_Saved(DockableTextEditor obj)
         {
             ResourceRef.File.Text = obj.GetText();
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            ResourceRef.ExportReference();
+            await ResourceRef.ExportReferenceAsync(TheraEngine.Core.Files.ESerializeFlags.Default, null, CancellationToken.None);
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
     }

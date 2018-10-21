@@ -1,4 +1,5 @@
-﻿using System;
+﻿using mscoree;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -807,5 +808,11 @@ namespace TheraEngine
                 }
             }
         }
+
+        public static DelBeginOperation BeginOperation;
+        public static DelEndOperation EndOperation;
+
+        public delegate int DelBeginOperation(string operationMessage, out Progress<float> progress, out CancellationToken cancel);
+        public delegate void DelEndOperation(int operationId);
     }
 }

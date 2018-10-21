@@ -15,8 +15,8 @@ namespace TheraEngine.Core.Files
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         void UnloadReference();
-        Task ExportReference(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        Task ExportReference(string dir, string name, EFileFormat format, string thirdPartyExt, bool setPath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportReferenceAsync(string dir, string name, EFileFormat format, string thirdPartyExt, bool setPath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
@@ -50,18 +50,18 @@ namespace TheraEngine.Core.Files
                 if (file != null)
                     file.FilePath = ReferencePathAbsolute;
                 File = file;
-                if (File != null)
-                    ExportReference();
+                //if (File != null)
+                //    ExportReferenceAsync();
             }
         }
         public FileRef(string dir, string name, EProprietaryFileFormat format) : base(dir, name, format) { }
-        public FileRef(string dir, string name, EProprietaryFileFormat format, T file, bool exportNow) : this(dir, name, format)
+        public FileRef(string dir, string name, EProprietaryFileFormat format, T file) : this(dir, name, format)
         {
             if (file != null)
                 file.FilePath = ReferencePathAbsolute;
             File = file;
-            if (exportNow && File != null)
-                ExportReference();
+            //if (exportNow && File != null)
+            //    ExportReference();
         }
         public FileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
         {
@@ -71,8 +71,8 @@ namespace TheraEngine.Core.Files
                 if (file != null)
                     file.FilePath = ReferencePathAbsolute;
                 File = file;
-                if (File != null)
-                    ExportReference();
+                //if (File != null)
+                //    ExportReference();
             }
         }
         public FileRef(T file) : this(file?.FilePath)

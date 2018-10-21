@@ -67,11 +67,15 @@ namespace TheraEngine.Core.Files
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
         void ManualRead3rdParty(string path);
 
-        //void Export(ESerializeFlags flags = ESerializeFlags.Default);
-        //void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
-        //void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
-        //void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt = null, ESerializeFlags flags = ESerializeFlags.Default);
+        void Export();
+        void Export(ESerializeFlags flags);
+        void Export(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void Export(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void Export(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
 
+        Task ExportAsync();
+        Task ExportAsync(ESerializeFlags flags);
         Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
         Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
         Task ExportAsync(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
@@ -116,6 +120,7 @@ namespace TheraEngine.Core.Files
         
         public delegate TFileObject Del3rdPartyImportFileMethod(string path);
         public delegate Task<TFileObject> Del3rdPartyImportFileMethodAsync(string path, IProgress<float> progress, CancellationToken cancel);
+
         public delegate void Del3rdPartyExportFileMethod(object obj, string path);
         public delegate Task Del3rdPartyExportFileMethodAsync(object obj, string path, IProgress<float> progress, CancellationToken cancel);
         
@@ -158,105 +163,43 @@ namespace TheraEngine.Core.Files
             => GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
 
         #region Import/Export
-        //[GridCallable("Save")]
-        /// <summary>
-        /// Writes this file at its FilePath.
-        /// Does nothing if this file has no FilePath set.
-        /// </summary>
-        /// <param name="flags"></param>
-        //public void Export(ESerializeFlags flags = ESerializeFlags.Default)
-        //    => Export(FilePath, flags);
-        ////[GridCallable("Save")]
-        //public void Export(string path, ESerializeFlags flags = ESerializeFlags.Default)
-        //{
-        //    if (string.IsNullOrEmpty(path))
-        //    {
-        //        Engine.LogWarning("File was not exported; file path is not valid.");
-        //        return;
-        //    }
 
-        //    Type type = GetType();
-        //    FileExt extAttrib = FileExtension;
-        //    File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
-        //    GetDirNameFmt(path, out string dir, out string name, out EFileFormat pathFormat, out string ext);
+        public async void Export()
+            => await ExportAsync(ESerializeFlags.Default);
+        public async void Export(ESerializeFlags flags) 
+            => await ExportAsync(flags);
+        public async void Export(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+            => await ExportAsync(flags, progress, cancel);
+        public async void Export(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+               => await ExportAsync(FilePath, flags, progress, cancel);
+        public async void Export(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+            => await ExportAsync(directory, fileName, flags, progress, cancel);
+        public async void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+            => await ExportAsync(directory, fileName, format, thirdPartyExt, flags, progress, cancel);
 
-        //    if (extAttrib != null && pathFormat != EFileFormat.ThirdParty)
-        //    {
-        //        ext = extAttrib.GetProperExtension((EProprietaryFileFormat)(int)pathFormat);
-        //        Export(dir, name, pathFormat, ext, flags);
-        //        return;
-        //    }
-        //    else if (tpAttrib != null)
-        //    {
-        //        bool hasWildcard = tpAttrib.ExportableExtensions.Contains("*");
-        //        bool hasExt = tpAttrib.ExportableExtensions.Contains(ext.ToLowerInvariant());
-        //        if (!hasWildcard && !hasExt && tpAttrib.ExportableExtensions.Length > 0)
-        //            ext = tpAttrib.ExportableExtensions[0];
-
-        //        Export(dir, name, EFileFormat.ThirdParty, ext, flags);
-        //        return;
-        //    }
-
-        //    Engine.LogWarning("{0} cannot be exported with extension '{1}'.", type.GetFriendlyName(), ext);
-        //}
-        ////[GridCallable("Save")]
-        //public void Export(
-        //    string directory,
-        //    string fileName,
-        //    ESerializeFlags flags = ESerializeFlags.Default)
-        //{
-        //    string ext = null;
-        //    FileExt fileExt = FileExtension;
-        //    if (fileExt != null)
-        //    {
-        //        ext = fileExt.GetProperExtension((EProprietaryFileFormat)fileExt.PreferredFormat);
-        //    }
-        //    else
-        //    {
-        //        File3rdParty tp = File3rdPartyExtensions;
-        //        if (tp != null && 
-        //            tp.ExportableExtensions != null && 
-        //            tp.ExportableExtensions.Length > 0)
-        //        {
-        //            ext = tp.ExportableExtensions[0];
-        //        }
-        //    }
-        //    if (ext != null)
-        //    {
-        //        EFileFormat format = GetFormat(ext, out string ext2);
-        //        Export(directory, fileName, format, ext, flags);
-        //    }
-        //    else
-        //        Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
-        //}
-        ////[GridCallable("Save")]
-        //public void Export(
-        //    string directory,
-        //    string fileName,
-        //    EFileFormat format,
-        //    string thirdPartyExt = null,
-        //    ESerializeFlags flags = ESerializeFlags.Default)
-        //{
-        //    switch (format)
-        //    {
-        //        case EFileFormat.ThirdParty:
-        //            To3rdParty(directory, fileName, thirdPartyExt);
-        //            break;
-        //        case EFileFormat.XML:
-        //            ToXML(directory, fileName, flags);
-        //            break;
-        //        case EFileFormat.Binary:
-        //            ToBinary(directory, fileName, flags);
-        //            break;
-        //        default:
-        //            throw new InvalidOperationException("Not a valid file format.");
-        //    }
-        //}
-        public async Task ExportAsync(ESerializeFlags flags = ESerializeFlags.Default)
-            => await ExportAsync(FilePath, flags, null, CancellationToken.None);
+        public async Task ExportAsync()
+        {
+            await ExportAsync(ESerializeFlags.Default);
+        }
+        public async Task ExportAsync(ESerializeFlags flags)
+        {
+            if (Engine.BeginOperation != null)
+            {
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationToken cancel);
+                await ExportAsync(flags, progress, cancel);
+                if (Engine.EndOperation != null)
+                    Engine.EndOperation(op);
+                else
+                    ((IProgress<float>)progress).Report(1.0f);
+            }
+            else
+            {
+                await ExportAsync(flags, null, CancellationToken.None);
+            }
+        }
+        
         public async Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
             => await ExportAsync(FilePath, flags, progress, cancel);
-        //[GridCallable("Save")]
         public async Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
         {
             if (string.IsNullOrEmpty(path))
@@ -289,7 +232,6 @@ namespace TheraEngine.Core.Files
 
             Engine.LogWarning("{0} cannot be exported with extension '{1}'.", type.GetFriendlyName(), ext);
         }
-        //[GridCallable("Save")]
         public async Task ExportAsync(
             string directory,
             string fileName,
@@ -321,7 +263,6 @@ namespace TheraEngine.Core.Files
             else
                 Engine.LogWarning("File was not exported; cannot resolve extension for {0}.", GetType().GetFriendlyName());
         }
-        //[GridCallable("Save")]
         public async Task ExportAsync(
             string directory,
             string fileName,
@@ -348,7 +289,7 @@ namespace TheraEngine.Core.Files
         }
         #endregion
         
-        internal async Task ExportXMLAsync(
+        public async Task ExportXMLAsync(
             string directory,
             string fileName,
             ESerializeFlags flags, 
@@ -361,7 +302,8 @@ namespace TheraEngine.Core.Files
                 await serializer.SerializeXMLAsync(this, FilePath, flags, progress, cancel);
             }
         }
-        internal async Task ExportBinaryAsync(
+
+        public async Task ExportBinaryAsync(
             string directory,
             string fileName,
             ESerializeFlags flags,

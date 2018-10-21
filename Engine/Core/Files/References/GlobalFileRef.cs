@@ -44,8 +44,8 @@ namespace TheraEngine.Core.Files
             : base(filePath, createIfNotFound) { }
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format) 
             : base(dir, name, format) { }
-        public GlobalFileRef(string dir, string name, EProprietaryFileFormat format, T file, bool exportNow) 
-            : base(dir, name, format, file, exportNow) { }
+        public GlobalFileRef(string dir, string name, EProprietaryFileFormat format, T file) 
+            : base(dir, name, format, file) { }
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound)
             : base(dir, name, format, createIfNotFound) { }
 

@@ -306,52 +306,30 @@ namespace TheraEngine.Core.Files
         internal static async Task<TFileObject> FromXMLAsync(
             Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            return await Task.Run(() =>
+            try
             {
                 if (!File.Exists(filePath))
                     return null;
 
-                TFileObject file = null;
-                try
+                Type fileType = SerializationCommon.DetermineType(filePath);
+                if (type.IsAssignableFrom(fileType))
                 {
-                    Type fileType = CustomXmlSerializer.DetermineType(filePath);
-                    FileExt ext = GetFileExtension(fileType);
-                    if (ext?.ManualXmlConfigSerialize ?? false)
-                    {
-                        unsafe
-                        {
-                            using (FileMap map = FileMap.FromFile(filePath))
-                            {
-                                XMLReader reader = new XMLReader(map.Address, map.Length, true);
-                                file = SerializationCommon.CreateObject(fileType) as TFileObject;
-                                if (file != null && reader.BeginElement())
-                                {
-                                    file.FilePath = filePath;
-                                    //if (reader.Name.Equals(t.ToString(), true))
-                                    file.ReadAsync(reader);
-                                    //else
-                                    //    throw new Exception("File was not of expected type.");
-                                    reader.EndElement();
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (type.IsAssignableFrom(fileType))
-                            file = new CustomXmlSerializer().Deserialize(filePath);
-                        else
-                            Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
-                    }
+                    TDeserializer deser = new TDeserializer();
+                    TFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as TFileObject;
+                    return file;
                 }
-                catch (Exception ex)
+                else
                 {
-                    Engine.LogWarning($"Unable to load XML file at {filePath}.\n{ex.ToString()}");
+                    Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
+                    return null;
+
                 }
-                if (file != null)
-                    file.FilePath = filePath;
-                return file;
-            });
+            }
+            catch (Exception ex)
+            {
+                Engine.LogWarning($"Unable to deserialize XML file at {filePath}.\n{ex.ToString()}");
+            }
+            return null;
         }
         private static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings()
         {
@@ -369,19 +347,30 @@ namespace TheraEngine.Core.Files
         internal static async Task<TFileObject> FromBinaryAsync(
             Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            Type fileType = TDeserializer.DetermineType(filePath);
-            if (type.IsAssignableFrom(fileType))
+            try
             {
-                TDeserializer deserializer = new TDeserializer();
-                TFileObject file = await deserializer.Deserialize(filePath, type) as TFileObject;
-                return file;
+                if (!File.Exists(filePath))
+                    return null;
+
+                Type fileType = SerializationCommon.DetermineType(filePath);
+                if (type.IsAssignableFrom(fileType))
+                {
+                    TDeserializer deser = new TDeserializer();
+                    TFileObject file = await deser.DeserializeBinaryAsync(filePath, progress, cancel,  null) as TFileObject;
+                    return file;
+                }
+                else
+                {
+                    Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
+                    return null;
+
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
-                return null;
+                Engine.LogWarning($"Unable to deserialize binary file at {filePath}.\n{ex.ToString()}");
             }
-            
+            return null;
         }
         #endregion
 

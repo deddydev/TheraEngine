@@ -1,12 +1,9 @@
 ﻿using System.Collections.Generic;
-using TheraEngine.Core.Files;
 using System.ComponentModel;
-using System;
-using System.Xml;
-using TheraEngine.Physics;
-using TheraEngine.Core.Shapes;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Rendering.Models
 {

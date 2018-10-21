@@ -70,34 +70,25 @@ namespace TheraEngine.Core.Files.Serialization
                     _stream.Position = 0;
 
                     await _reader.MoveToContentAsync();
-                    await WriteElement(RootNode);
+                    RootNode = await ReadElement();
                 }
+            }
 
-                _objects = new Dictionary<Guid, TObject>();
-                _rootFileObject = null;
-                _rootFilePath = filePath;
-                TFileObject obj = null;
-                using (FileMap map = FileMap.FromFile(filePath))
+            private async Task<XMLMemberTreeNode> ReadElement()
+            {
+                while (await _reader.ReadAsync())
                 {
-                    _reader = new XMLReader(map.Address, map.Length, true);
-                    if (_reader.BeginElement() && _reader.ReadAttribute() && _reader.Name.Equals(SerializationCommon.TypeIdent, true))
+                    switch (_reader.NodeType)
                     {
-                        string value = _reader.Value.ToString();
+                        case XmlNodeType.Element:
 
-                        Assembly resolver(AssemblyName name) => AppDomain.CurrentDomain.GetAssemblies().Where(z => z.FullName == name.FullName).FirstOrDefault();
+                            break;
+                        case XmlNodeType.Attribute:
 
-                        Type t = Type.GetType(value, resolver, null, false);
-                        //Type t = Type.GetType(_reader.Value.ToString(), false, false);
-
-                        obj = ReadObject(t) as TFileObject;
-                        _reader.EndElement();
-
-                        if (obj is TFileObject o)
-                            o.FilePath = filePath;
+                            break;
                     }
                 }
-                _reader.Dispose();
-                _stream.Dispose();
+                return null;
             }
 
             public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, MemberInfo memberInfo)

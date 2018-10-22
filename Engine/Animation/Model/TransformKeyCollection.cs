@@ -364,7 +364,7 @@ namespace TheraEngine.Animation
             "ScaleY",
             "ScaleZ",
         };
-        protected internal override void ManualRead(IMemberTreeNode node)
+        public override void ManualRead(IMemberTreeNode node)
         {
             if (string.Equals(node.Name, nameof(TransformKeyCollection), StringComparison.InvariantCulture))
             {
@@ -425,7 +425,7 @@ namespace TheraEngine.Animation
                 ResetKeys();
             }
         }
-        protected internal override async void ManualWrite(IMemberTreeNode node)
+        public override async void ManualWrite(IMemberTreeNode node)
         {
             node.Name = nameof(TransformKeyCollection);
             

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
@@ -64,7 +65,9 @@ namespace TheraEditor.Wrappers
                 return;
             source.Text = obj.GetText();
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            ResourceRef.ExportReference();
+            int op = Editor.Instance.BeginOperation("Saving text...", out Progress<float> progress, out CancellationTokenSource cancel);
+            ResourceRef.File.ExportAsync(ResourceRef.ReferencePathAbsolute, ESerializeFlags.Default, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
     }

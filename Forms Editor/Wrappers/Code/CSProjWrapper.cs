@@ -48,7 +48,7 @@ namespace TheraEditor.Wrappers
 
         public void Compile()
         {
-            Editor.Instance.Compile(FilePath);
+            Editor.Instance.Project.Compile("Debug", "x86");
         }
         public override async void EditResource()
         {

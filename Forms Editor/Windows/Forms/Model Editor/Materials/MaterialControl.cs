@@ -255,12 +255,15 @@ namespace TheraEditor.Windows.Forms
             return (true, null);
         }
 
-        private void M_Saved(DockableTextEditor editor)
+        private async void M_Saved(DockableTextEditor editor)
         {
             GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
             fileRef.File.Text = editor.GetText();
+
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            fileRef.ExportReference();
+            int op = Editor.Instance.BeginOperation("Saving text...", out Progress<float> progress, out System.Threading.CancellationTokenSource cancel);
+            await fileRef.File.ExportAsync(fileRef.ReferencePathAbsolute, ESerializeFlags.Default, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
         public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)

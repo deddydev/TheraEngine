@@ -60,24 +60,40 @@ namespace TheraEngine.Core.Files
         FileDef FileDefinition { get; }
         FileExt FileExtension { get; }
         File3rdParty File3rdPartyExtensions { get; }
+        /// <summary>
+        /// Returns the file object that serves as the owner of this one.
+        /// </summary>
         TFileObject RootFile { get; }
         void Unload();
         
         string GetFilePath(string dir, string name, EProprietaryFileFormat format);
         string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
-        void ManualRead3rdParty(string path);
+
+        Task ManualWrite3rdPartyAsync(string filePath);
+        Task ManualRead3rdPartyAsync(string filePath);
+        void ManualWrite3rdParty(string filePath);
+        void ManualRead3rdParty(string filePath);
+        void ManualWrite(IMemberTreeNode node);
+        void ManualRead(IMemberTreeNode node);
+        int ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags);
+        void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags);
+        void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable);
 
         void Export();
         void Export(ESerializeFlags flags);
         void Export(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
         void Export(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
         void Export(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
         void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-
+        
         Task ExportAsync();
         Task ExportAsync(ESerializeFlags flags);
         Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportAsync(string path, ESerializeFlags flags = ESerializeFlags.Default);
         Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportAsync(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
         Task ExportAsync(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
         Task ExportAsync(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
     }
@@ -168,10 +184,14 @@ namespace TheraEngine.Core.Files
             => await ExportAsync(ESerializeFlags.Default);
         public async void Export(ESerializeFlags flags) 
             => await ExportAsync(flags);
+        public async void Export(string path, ESerializeFlags flags = ESerializeFlags.Default)
+            => await ExportAsync(path, flags);
+        public async void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default)
+            => await ExportAsync(directory, fileName, flags);
         public async void Export(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
             => await ExportAsync(flags, progress, cancel);
         public async void Export(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
-               => await ExportAsync(FilePath, flags, progress, cancel);
+            => await ExportAsync(FilePath, flags, progress, cancel);
         public async void Export(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
             => await ExportAsync(directory, fileName, flags, progress, cancel);
         public async void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
@@ -197,7 +217,44 @@ namespace TheraEngine.Core.Files
                 await ExportAsync(flags, null, CancellationToken.None);
             }
         }
-        
+        public async Task ExportAsync(
+            string directory,
+            string fileName,
+            ESerializeFlags flags = ESerializeFlags.Default)
+        {
+            if (Engine.BeginOperation != null)
+            {
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationToken cancel);
+                await ExportAsync(directory, fileName, flags, progress, cancel);
+                if (Engine.EndOperation != null)
+                    Engine.EndOperation(op);
+                else
+                    ((IProgress<float>)progress).Report(1.0f);
+            }
+            else
+            {
+                await ExportAsync(directory, fileName, flags, null, CancellationToken.None);
+            }
+        }
+        public async Task ExportAsync(
+            string path,
+            ESerializeFlags flags = ESerializeFlags.Default)
+        {
+            if (Engine.BeginOperation != null)
+            {
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationToken cancel);
+                await ExportAsync(path, flags, progress, cancel);
+                if (Engine.EndOperation != null)
+                    Engine.EndOperation(op);
+                else
+                    ((IProgress<float>)progress).Report(1.0f);
+            }
+            else
+            {
+                await ExportAsync(path, flags, null, CancellationToken.None);
+            }
+        }
+
         public async Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
             => await ExportAsync(FilePath, flags, progress, cancel);
         public async Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
@@ -454,13 +511,13 @@ namespace TheraEngine.Core.Files
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="node">The tree node containing information for this object.</param>
-        internal protected virtual void ManualWrite(IMemberTreeNode node)
+        public virtual void ManualWrite(IMemberTreeNode node)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="node">The tree node containing information for this object.</param>
-        internal protected virtual void ManualRead(IMemberTreeNode node)
+        public virtual void ManualRead(IMemberTreeNode node)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
@@ -468,7 +525,7 @@ namespace TheraEngine.Core.Files
         /// <param name="stringTable">The string table to add any strings to.</param>
         /// <param name="flags">The serialization flags for this export.</param>
         /// <returns>The size of this object in bytes.</returns>
-        internal protected virtual int ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags)
+        public virtual int ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
@@ -477,7 +534,7 @@ namespace TheraEngine.Core.Files
         /// <param name="length">Length of the memory allocated for this object.</param>
         /// <param name="stringTable">The string table to retrieve string offsets from.</param>
         /// <param name="flags">The serialization flags for this export.</param>
-        internal protected virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags)
+        public virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags)\" required when using ManualBinSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
@@ -486,7 +543,7 @@ namespace TheraEngine.Core.Files
         /// <param name="length">Length of the memory allocated for this object.</param>
         /// <param name="stringTable">The string table to retrieve strings from using offsets.</param>
         /// <param name="flags">The serialization flags for this export.</param>
-        internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)
+        public virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)\" required when using ManualBinSerialize in FileClass attribute.");
     }
 }

@@ -14,6 +14,7 @@ using TheraEditor.Core;
 using TheraEditor.Properties;
 using TheraEditor.Wrappers;
 using TheraEngine;
+using TheraEngine.Core.Files;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -545,7 +546,7 @@ namespace TheraEditor.Windows.Forms
                         b.FixPath(f.FilePath);
             }
         }
-        private void ContentWatcherUpdate(object sender, FileSystemEventArgs e)
+        private async void ContentWatcherUpdate(object sender, FileSystemEventArgs e)
         {
             if (InvokeRequired)
             {
@@ -602,7 +603,7 @@ namespace TheraEditor.Windows.Forms
                                         {
                                             if (sfd.ShowDialog(f) == DialogResult.OK)
                                             {
-                                                b.SingleInstance.Export(sfd.FileName);
+                                                await b.SingleInstance.ExportAsync(sfd.FileName, ESerializeFlags.Default);
                                             }
                                         }
                                     }

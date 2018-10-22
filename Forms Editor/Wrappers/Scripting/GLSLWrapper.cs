@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 using WeifenLuo.WinFormsUI.Docking;
@@ -89,11 +91,13 @@ namespace TheraEditor.Wrappers
             return (success, info);
         }
         
-        private void M_Saved(DockableTextEditor obj)
+        private async void M_Saved(DockableTextEditor obj)
         {
             ResourceRef.File.Text = obj.GetText();
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            ResourceRef.ExportReference();
+            int op = Editor.Instance.BeginOperation("Saving text...", out Progress<float> progress, out System.Threading.CancellationTokenSource cancel);
+            await ResourceRef.File.ExportAsync(ResourceRef.ReferencePathAbsolute, ESerializeFlags.Default, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
     }

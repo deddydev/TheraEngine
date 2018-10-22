@@ -259,42 +259,39 @@ namespace TheraEditor.Wrappers
                     DialogResult r = ofd.ShowDialog(button.Owner);
                     if (r == DialogResult.OK)
                     {
-                        CancellationTokenSource token = new CancellationTokenSource();
-                        Progress<float> progress = new Progress<float>();
-                        string msg = $"Importing '{ofd.FileName}'...";
-                        Editor.Instance.ReportOperation(msg, progress, token);
+                        int op = Editor.Instance.BeginOperation($"Importing '{ofd.FileName}'...", out Progress<float> progress, out CancellationTokenSource cancel);
+                        TFileObject file = await TFileObject.LoadAsync(fileType, ofd.FileName, progress, cancel.Token);
+                        Editor.Instance.EndOperation(op);
 
-                        TFileObject file = await TFileObject.LoadAsync(fileType, ofd.FileName, progress, token.Token);
                         if (file == null)
-                        {
-                            token.Cancel();
                             return;
-                        }
-
+                        
                         FolderWrapper folderNode = GetInstance<FolderWrapper>();
                         string dir = folderNode.FilePath as string;
 
                         //Node will automatically be added to the file tree
-                        file.Export(dir, file.Name, EFileFormat.XML);
+                        op = Editor.Instance.BeginOperation($"Saving...", out progress, out cancel);
+                        await file.ExportXMLAsync(dir, file.Name, ESerializeFlags.Default, progress, cancel.Token);
+                        Editor.Instance.EndOperation(op);
                     }
                 }
             }
         }
-        private static void OnNewClick(object sender, EventArgs e)
+        private static async void OnNewClick(object sender, EventArgs e)
         {
-            if (sender is ToolStripDropDownButton button)
-            {
-                Type fileType = button.Tag as Type;
+            if (!(sender is ToolStripDropDownButton button))
+                return;
+            
+            Type fileType = button.Tag as Type;
 
-                if (!(Editor.UserCreateInstanceOf(fileType, true, button.Owner) is TFileObject file))
-                    return;
+            if (!(Editor.UserCreateInstanceOf(fileType, true, button.Owner) is TFileObject file))
+                return;
 
-                FolderWrapper folderNode = GetInstance<FolderWrapper>();
-                string dir = folderNode.FilePath as string;
+            FolderWrapper folderNode = GetInstance<FolderWrapper>();
+            string dir = folderNode.FilePath as string;
                 
-                //Node will automatically be added to the file tree
-                file.Export(dir, file.Name);
-            }
+            //Node will automatically be added to the file tree
+            await file.ExportAsync(dir, file.Name, ESerializeFlags.Default);
         }
         #endregion
         

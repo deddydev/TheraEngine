@@ -15,8 +15,8 @@ namespace TheraEngine.Core.Files
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         void UnloadReference();
-        Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        Task ExportReferenceAsync(string dir, string name, EFileFormat format, string thirdPartyExt, bool setPath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        //Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        //Task ExportReferenceAsync(string dir, string name, EFileFormat format, string thirdPartyExt, bool setPath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
@@ -181,25 +181,25 @@ namespace TheraEngine.Core.Files
                 Unloaded -= unloaded;
         }
 
-        public async Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
-            => await _file?.ExportAsync(ReferencePathAbsolute, flags, progress, cancel);
-        public async Task ExportReferenceAsync(
-            string dir,
-            string name, 
-            EFileFormat format,
-            string thirdPartyExt, 
-            bool setPath,
-            ESerializeFlags flags,
-            IProgress<float> progress, 
-            CancellationToken cancel)
-        {
-            if (_file == null)
-                return;
+        //public async Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+        //    => await _file?.ExportAsync(ReferencePathAbsolute, flags, progress, cancel);
+        //public async Task ExportReferenceAsync(
+        //    string dir,
+        //    string name, 
+        //    EFileFormat format,
+        //    string thirdPartyExt, 
+        //    bool setPath,
+        //    ESerializeFlags flags,
+        //    IProgress<float> progress, 
+        //    CancellationToken cancel)
+        //{
+        //    if (_file == null)
+        //        return;
             
-            await _file.ExportAsync(dir, name, format, thirdPartyExt, flags, progress, cancel);
-            if (setPath)
-                ReferencePathAbsolute = _file.FilePath;
-        }
+        //    await _file.ExportAsync(dir, name, format, thirdPartyExt, flags, progress, cancel);
+        //    if (setPath)
+        //        ReferencePathAbsolute = _file.FilePath;
+        //}
 
         [Browsable(false)]
         public bool LoadAttempted { get; protected set; } = false;

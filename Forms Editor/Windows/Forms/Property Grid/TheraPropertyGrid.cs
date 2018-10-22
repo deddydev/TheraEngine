@@ -14,6 +14,7 @@ using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Files;
+using System.Threading;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -662,13 +663,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (file == null)
                 return;
 
-            if (!string.IsNullOrWhiteSpace(file.FilePath))
-            {
-                Editor.Instance.ContentTree.WatchProjectDirectory = false;
-                await file.ExportAsync();
-                Editor.Instance.ContentTree.WatchProjectDirectory = true;
-            }
-            else
+            Editor editor = Editor.Instance;
+            string path = file.FilePath;
+            if (string.IsNullOrWhiteSpace(path))
             {
                 using (SaveFileDialog sfd = new SaveFileDialog
                 {
@@ -676,10 +673,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 })
                 {
                     if (sfd.ShowDialog(this) == DialogResult.OK)
-                        file.Export(sfd.FileName);
+                        path = sfd.FileName;
+                    else
+                    {
+                        Engine.PrintLine("Save canceled.");
+                        return;
+                    }
                 }
             }
 
+            editor.ContentTree.WatchProjectDirectory = false;
+            int op = editor.BeginOperation($"Saving {file.FilePath}", out Progress<float> progress, out CancellationTokenSource cancel);
+            await file.ExportAsync(ESerializeFlags.Default, progress, cancel.Token);
+            editor.EndOperation(op);
+            editor.ContentTree.WatchProjectDirectory = true;
+        
             //if (TargetFileObject.References.Count == 1)
             //{
 

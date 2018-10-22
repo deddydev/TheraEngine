@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms
             }
             _project.Export();
         }
-        private void BtnSaveProjectAs_Click(object sender, EventArgs e)
+        private async void BtnSaveProjectAs_Click(object sender, EventArgs e)
         {
             using (SaveFileDialog sfd = new SaveFileDialog()
             {
@@ -32,7 +32,11 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)
-                    _project.Export(sfd.FileName);
+                {
+                    int op = BeginOperation("Saving current world...", out Progress<float> progress, out CancellationTokenSource cancel);
+                    await _project.ExportAsync(sfd.FileName, ESerializeFlags.Default, progress, cancel.Token);
+                    EndOperation(op);
+                }
             }
         }
         private void BtnNewWorld_Click(object sender, EventArgs e)
@@ -54,8 +58,8 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
             ContentTree.WatchProjectDirectory = false;
-            int op = BeginOperation("Saving current world...", out Progress<float> progress, out CancellationToken cancel);
-            await CurrentWorld.ExportAsync();
+            int op = BeginOperation("Saving current world...", out Progress<float> progress, out CancellationTokenSource cancel);
+            await CurrentWorld.ExportAsync(ESerializeFlags.Default, progress, cancel.Token);
             EndOperation(op);
             ContentTree.WatchProjectDirectory = true;
         }
@@ -73,8 +77,8 @@ namespace TheraEditor.Windows.Forms
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                 {
                     ContentTree.WatchProjectDirectory = false;
-                    int op = BeginOperation("Saving current world...", out Progress<float> progress, out CancellationToken cancel);
-                    await CurrentWorld.ExportAsync(sfd.FileName, ESerializeFlags.Default, progress, cancel);
+                    int op = BeginOperation("Saving current world...", out Progress<float> progress, out CancellationTokenSource cancel);
+                    await CurrentWorld.ExportAsync(sfd.FileName, ESerializeFlags.Default, progress, cancel.Token);
                     EndOperation(op);
                     ContentTree.WatchProjectDirectory = true;
                 }

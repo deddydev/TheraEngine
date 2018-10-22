@@ -437,7 +437,7 @@ namespace TheraEngine.Animation
 
         #region Reading / Writing
 
-        protected internal override void ManualRead(IMemberTreeNode node)
+        public override void ManualRead(IMemberTreeNode node)
         {
             if (!(node is XMLMemberTreeNode xmlNode))
                 return;
@@ -505,7 +505,7 @@ namespace TheraEngine.Animation
                 Add(kf);
             }
         }
-        protected internal override void ManualWrite(IMemberTreeNode node)
+        public override void ManualWrite(IMemberTreeNode node)
         {
             if (!(node is XMLMemberTreeNode xmlNode))
                 return;

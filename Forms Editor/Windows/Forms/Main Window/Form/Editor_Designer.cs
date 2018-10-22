@@ -48,6 +48,9 @@ namespace TheraEditor.Windows.Forms
     {
         #region Statics
         
+        /// <summary>
+        /// Returns the one and only instance of the editor for this session.
+        /// </summary>
         public static Editor Instance { get; private set; }
 
         public static IEditorControl ActiveRenderForm { get; private set; } = null;
@@ -137,7 +140,7 @@ namespace TheraEditor.Windows.Forms
         }
         private List<OperationInfo> _operations = new List<OperationInfo>();
 
-        public int BeginOperation(string statusBarMessage, out Progress<float> progress, out CancellationToken cancel, TimeSpan? maxOperationTime = null)
+        public int BeginOperation(string statusBarMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null)
         {
             if (_operations.Count == 0)
             {
@@ -150,7 +153,7 @@ namespace TheraEditor.Windows.Forms
             CancellationTokenSource cancelSource = maxOperationTime == null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
 
             _operations.Add(new OperationInfo(progress, cancelSource, Info_Updated, index));
-            cancel = cancelSource.Token;
+            cancel = cancelSource;
             
             btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
             toolStripProgressBar1.Visible = true;
@@ -663,8 +666,8 @@ namespace TheraEditor.Windows.Forms
 
         public async void SaveProject()
         {
-            int op = BeginOperation("Saving project...", out Progress<float> progress, out CancellationToken cancel);
-            await _project.ExportAsync(ESerializeFlags.Default, progress, cancel);
+            int op = BeginOperation("Saving project...", out Progress<float> progress, out CancellationTokenSource cancel);
+            await _project.ExportAsync(ESerializeFlags.Default, progress, cancel.Token);
             EndOperation(op);
         }
 

@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
+using TheraEngine.Core.Files;
 using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -43,8 +45,11 @@ namespace TheraEditor.Wrappers
         private async void M_Saved(DockableTextEditor obj)
         {
             ResourceRef.File.Text = obj.GetText();
+
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            await ResourceRef.ExportReferenceAsync(TheraEngine.Core.Files.ESerializeFlags.Default, null, CancellationToken.None);
+            int op = Editor.Instance.BeginOperation("Saving python script...", out Progress<float> progress, out CancellationTokenSource cancel);
+            await ResourceRef.File.ExportAsync(ResourceRef.ReferencePathAbsolute, ESerializeFlags.Default, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
     }

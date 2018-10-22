@@ -219,7 +219,7 @@ namespace TheraEditor.Windows.Forms
             GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
             fileRef.File.Text = editor.GetText();
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            fileRef.ExportReference();
+            //WfileRef.ExportReference();
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
         public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)

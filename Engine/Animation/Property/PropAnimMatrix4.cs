@@ -68,7 +68,7 @@ namespace TheraEngine.Animation
 
         protected delegate Matrix4 DelInterpolate(Matrix4Keyframe key1, Matrix4Keyframe key2, float time);
         
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public Matrix4 Value { get; set; }
 
         [Browsable(false)]

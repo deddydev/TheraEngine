@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -16,10 +17,13 @@ namespace TheraEngine.Core.Files.Serialization
     /// <summary>
     /// Tool to collect all members of an object into an array of children.
     /// </summary>
-    public abstract class BaseObjectWriter
+    public abstract class BaseObjectSerializer
     {
-        public IMemberTreeNode TreeNode { get; internal set; } = null;
+        public IMemberTreeNode TreeNode { get; internal protected set; } = null;
         public List<IMemberTreeNode> Members { get; set; }
-        public abstract Task CollectSerializedMembers();
+
+        public abstract void GenerateTreeFromBinary(ref VoidPtr address);
+        public abstract void GenerateObjectFromTree();
+        public abstract Task GenerateTreeFromObject();
     }
 }

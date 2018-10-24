@@ -25,9 +25,10 @@ namespace TheraEngine.Core.Files.Serialization
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            Format = EProprietaryFileFormat.XML;
             Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
-            await Writer.WriteTree();
+
+            await Writer.RootNode.CreateTreeFromObjectAsync();
+            await Writer.WriteTreeAsync();
 
             Engine.PrintLine("Serialized XML file to {0}", filePath);
         }
@@ -48,9 +49,11 @@ namespace TheraEngine.Core.Files.Serialization
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, Format = EProprietaryFileFormat.XML, fileObject.GetType());
+            string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, EProprietaryFileFormat.XML, fileObject.GetType());
             Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
-            await Writer.WriteTree();
+
+            await Writer.RootNode.CreateTreeFromObjectAsync();
+            await Writer.WriteTreeAsync();
 
             Engine.PrintLine("Serialized XML file to {0}", filePath);
         }
@@ -58,6 +61,8 @@ namespace TheraEngine.Core.Files.Serialization
         {
             private FileStream _stream;
             private XmlWriter _writer;
+
+            public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.XML;
 
             private readonly XmlWriterSettings _settings = new XmlWriterSettings()
             {

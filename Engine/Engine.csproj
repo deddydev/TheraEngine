@@ -411,14 +411,10 @@
     <Compile Include="Core\Files\Serialization\Abstract\Binary\FileCommonHeader.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Binary\ReaderBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Binary\WriterBinary.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectReader\BaseObjectReader.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectReader\CommonReader.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectReader\IDictionaryReader.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectReader\IListReader.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\CommonWriter.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\IDictionaryWriter.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\IListWriter.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectWriter\BaseObjectWriter.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\CommonSerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IDictionarySerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IListSerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\BaseObjectSerializer.cs" />
     <None Include="Core\Files\Serialization\VarInfo.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reader.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\TBaseSerializer.cs" />
@@ -427,6 +423,7 @@
     <Compile Include="Core\Files\Serialization\Abstract\XML\WriterXML.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\TDeserializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\MemberTreeNode.cs" />
+    <Compile Include="Core\LocalizedString.cs" />
     <Compile Include="Core\Maths\Half.cs" />
     <Compile Include="Core\Maths\MachineLearning\NeuronSet.cs" />
     <Compile Include="Core\Maths\MachineLearning\Network.cs" />
@@ -866,7 +863,7 @@
     <Compile Include="Core\Platform\Win32.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\CustomSerializeMethod.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\FileDefinition.cs" />
-    <Compile Include="Core\Reflection\Attributes\Serialization\PrePostDeserialize.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\PrePostSerialize.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TSerialize.cs" />
     <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="Core\Files\FileObject\FileObject.cs" />

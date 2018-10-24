@@ -21,8 +21,12 @@ namespace TheraEngine.Core.Files.Serialization
         {
             public TDeserializer Owner { get; }
 
-            protected AbstractReader(TDeserializer owner, TFileObject rootFileObject, string filePath, IProgress<float> progress, CancellationToken cancel)
-                : base(rootFileObject, filePath, progress, cancel) { Owner = owner; }
+            protected AbstractReader(TDeserializer owner, string filePath, IProgress<float> progress, CancellationToken cancel)
+                : base(null, filePath, progress, cancel)
+            {
+                Owner = owner;
+                //RootNode = CreateNode(rootFileObject);
+            }
             
             internal protected abstract Task ReadTree();
             Task IAbstractReader.ReadTree() => ReadTree();

@@ -2,29 +2,12 @@
 
 namespace System.ComponentModel
 {
-    public enum ESerializeFormat
-    {
-        Binary,
-        XML,
-        //JSON,
-        //Text
-    }
-    [Flags]
-    public enum ESerializeFormatFlag
-    {
-        None = 0b0000,
-        Binary = 0b0001,
-        XML = 0b0010,
-        //JSON    = 0b0100,
-        //Text    = 0b1000,
-        All = 0b1111,
-    }
     public enum ENodeType
     {
         /// <summary>
         /// This is an attribute for the parent tree node. Object must be a string value.
         /// </summary>
-        SetParentAttribute,
+        Attribute,
         /// <summary>
         /// This is a child element. The Object value is irrelevant if there is no member info.
         /// </summary>
@@ -32,7 +15,7 @@ namespace System.ComponentModel
         /// <summary>
         /// This is a string value that resides between the open and close tags. Object must be a string value and there must be no child elements.
         /// </summary>
-        SetParentElementString,
+        ElementString,
     }
     /// <summary>
     /// This attribute means the field should be serialized upon saving.
@@ -80,18 +63,18 @@ namespace System.ComponentModel
         public bool IgnoreIfDefault { get; set; } = true;
         public bool IsAttribute
         {
-            get => NodeType == ENodeType.SetParentAttribute;
-            set => NodeType = value ? ENodeType.SetParentAttribute : ENodeType.ChildElement;
+            get => NodeType == ENodeType.Attribute;
+            set => NodeType = value ? ENodeType.Attribute : ENodeType.ChildElement;
         }
         public bool IsChildElement
         {
             get => NodeType == ENodeType.ChildElement;
-            set => NodeType = value ? ENodeType.ChildElement : ENodeType.SetParentAttribute;
+            set => NodeType = value ? ENodeType.ChildElement : ENodeType.Attribute;
         }
         public bool IsElementString
         {
-            get => NodeType == ENodeType.SetParentElementString;
-            set => NodeType = value ? ENodeType.SetParentElementString : ENodeType.ChildElement;
+            get => NodeType == ENodeType.ElementString;
+            set => NodeType = value ? ENodeType.ElementString : ENodeType.ChildElement;
         }
         /// <summary>
         /// Determines if this is the kind of value that is read from a main file on disk.

@@ -8,14 +8,12 @@ namespace TheraEngine.Core.Files.Serialization
     public partial class TSerializer : TBaseSerializer
     {
         public IAbstractWriter Writer { get; private set; }
-        public EProprietaryFileFormat Format { get; private set; }
 
         public interface IAbstractWriter : IBaseAbstractReaderWriter
         {
             TSerializer Owner { get; }
-            ESerializeFlags Flags { get; }
             
-            Task WriteTree();
+            Task WriteTreeAsync();
         }
         public abstract class AbstractWriter<T> : TBaseAbstractReaderWriter<T>, IAbstractWriter where T : class, IMemberTreeNode
         {
@@ -30,7 +28,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             
             internal protected abstract Task WriteTree();
-            Task IAbstractWriter.WriteTree() => WriteTree();
+            Task IAbstractWriter.WriteTreeAsync() => WriteTree();
         }
     }
 }

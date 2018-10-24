@@ -138,9 +138,9 @@ namespace TheraEngine.GameModes
 
         private void CreateLocalPlayerControllers()
         {
-            InputDevice[] gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
-            InputDevice[] keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
-            InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
+            InputDevice[] gamepads = InputDevice.CurrentDevices[EInputDeviceType.Gamepad];
+            InputDevice[] keyboards = InputDevice.CurrentDevices[EInputDeviceType.Keyboard];
+            InputDevice[] mice = InputDevice.CurrentDevices[EInputDeviceType.Mouse];
 
             if (keyboards.Any(x => x != null) ||
                 mice.Any(x => x != null) ||

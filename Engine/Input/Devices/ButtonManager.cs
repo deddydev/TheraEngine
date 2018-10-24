@@ -27,8 +27,10 @@ namespace TheraEngine.Input.Devices
 
         public int Index { get; }
         public string Name { get; }
-
+        
         public bool IsPressed { get; protected set; }
+        public bool IsHeld { get; protected set; }
+        public bool IsDoublePressed { get; protected set; }
 
         protected List<DelButtonState>[] _onStateChanged = new List<DelButtonState>[3];
         protected List<Action>[] _actions;
@@ -40,7 +42,7 @@ namespace TheraEngine.Input.Devices
 
         #region Registration
         public virtual bool IsEmpty() => _usedActions.Count == 0 && _onStateChanged.All(x => x == null || x.Count == 0);
-        public void Register(Action func, ButtonInputType type, EInputPauseType pauseType, bool unregister)
+        public void Register(Action func, EButtonInputType type, EInputPauseType pauseType, bool unregister)
         {
             int index = (int)type * 3 + (int)pauseType;
             if (unregister)
@@ -64,6 +66,19 @@ namespace TheraEngine.Input.Devices
                 }
                 else
                     _actions[index].Add(func);
+            }
+        }
+        public bool GetState(EButtonInputType type)
+        {
+            switch (type)
+            {
+                case EButtonInputType.Pressed:       return IsPressed;
+                case EButtonInputType.Released:      return !IsPressed;
+                case EButtonInputType.Held:          return IsHeld;
+                case EButtonInputType.DoublePressed: return IsDoublePressed;
+                default:
+                    Engine.LogWarning($"Invalid {nameof(EButtonInputType)} {nameof(type)}.");
+                    return false;
             }
         }
         public void RegisterPressedState(DelButtonState func, EInputPauseType pauseType, bool unregister)
@@ -101,7 +116,7 @@ namespace TheraEngine.Input.Devices
         {
             if (IsPressed != isPressed)
             {
-                if (IsPressed = isPressed)
+                if (isPressed)
                 {
                     if (_timer <= _maxSecondsBetweenPresses)
                         OnDoublePressed();
@@ -124,21 +139,27 @@ namespace TheraEngine.Input.Devices
         }
         private void OnPressed()
         {
-            PerformAction(ButtonInputType.Pressed);
+            IsPressed = true;
+            PerformAction(EButtonInputType.Pressed);
             PerformStateAction(true);
         }
         private void OnReleased()
         {
-            PerformAction(ButtonInputType.Released);
+            IsPressed = false;
+            IsHeld = false;
+            IsDoublePressed = false;
+            PerformAction(EButtonInputType.Released);
             PerformStateAction(false);
         }
         private void OnHeld()
         {
-            PerformAction(ButtonInputType.Held);
+            IsHeld = true;
+            PerformAction(EButtonInputType.Held);
         }
         private void OnDoublePressed()
         {
-            PerformAction(ButtonInputType.DoublePressed);
+            IsDoublePressed = true;
+            PerformAction(EButtonInputType.DoublePressed);
         }
         protected void PerformStateAction(bool pressed)
         {
@@ -152,7 +173,7 @@ namespace TheraEngine.Input.Devices
 
             ExecutePressedStateList(index, pressed);
         }
-        protected void PerformAction(ButtonInputType type)
+        protected void PerformAction(EButtonInputType type)
         {
             int index = (int)type * 3;
 

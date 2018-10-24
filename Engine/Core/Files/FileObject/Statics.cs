@@ -251,7 +251,24 @@ namespace TheraEngine.Core.Files
 
         #region Import/Export
         public static async Task<T> LoadAsync<T>(string filePath) where T : TFileObject
-            => await LoadAsync(typeof(T), filePath, null, CancellationToken.None) as T;
+        {
+            T file;
+            if (Engine.BeginOperation != null)
+            {
+                int op = Engine.BeginOperation($"Loading file from {filePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
+                file = await LoadAsync(typeof(T), filePath, progress, cancel.Token) as T;
+                if (Engine.EndOperation != null)
+                    Engine.EndOperation(op);
+                else
+                    ((IProgress<float>)progress).Report(1.0f);
+            }
+            else
+            {
+                file = await LoadAsync(typeof(T), filePath, null, CancellationToken.None) as T;
+            }
+            
+            return file;
+        }
         /// <summary>
         /// Opens a new instance of the given file at the given file path.
         /// </summary>

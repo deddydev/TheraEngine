@@ -5,18 +5,27 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheraEngine.Core.Memory;
 using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectWriterKind(typeof(IDictionary))]
-    public class IDictionaryWriter : BaseObjectWriter
+    public class IDictionarySerializer : BaseObjectSerializer
     {
         public IDictionary Dictionary { get; private set; }
         public IMemberTreeNode[] Keys { get; private set; }
         public IMemberTreeNode[] Values { get; private set; }
-        
-        public override async Task CollectSerializedMembers()
+
+        public override void GenerateObjectFromTree()
+        {
+
+        }
+        public override void GenerateTreeFromBinary(ref VoidPtr address)
+        {
+
+        }
+        public override async Task GenerateTreeFromObject()
         {
             Dictionary = TreeNode.Object as IDictionary;
 

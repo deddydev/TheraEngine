@@ -437,7 +437,7 @@ namespace TheraEngine.Animation
                     var track = _tracks[i];
                     if (track.Keyframes.Count > 0)
                     {
-                        XMLMemberTreeNode trackElement = new XMLMemberTreeNode(TrackNames[i], new XMLAttribute("Count", track.Keyframes.Count.ToString()));
+                        XMLMemberTreeNode trackElement = new XMLMemberTreeNode(TrackNames[i], new XMLAttribute[] { new XMLAttribute("Count", track.Keyframes.Count.ToString()) });
                         trackElement.AddChildElementString("Second", string.Join(",", track.Select(x => x.Second)));
                         trackElement.AddChildElementString("InValues", string.Join(",", track.Select(x => x.InValue)));
                         trackElement.AddChildElementString("OutValues", string.Join(",", track.Select(x => x.OutValue)));

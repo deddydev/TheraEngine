@@ -12,54 +12,54 @@ namespace TheraEngine.Input.Devices.OpenTK
         {
             GamePad.SetVibration(_index, left, right);
         }
-        private bool ButtonExists(GamePadButton button, GamePadCapabilities c)
+        private bool ButtonExists(EGamePadButton button, GamePadCapabilities c)
         {
             switch (button)
             {
-                case GamePadButton.FaceDown: return c.HasAButton;
-                case GamePadButton.FaceRight: return c.HasBButton;
-                case GamePadButton.FaceLeft: return c.HasXButton;
-                case GamePadButton.FaceUp: return c.HasYButton;
-                case GamePadButton.DPadDown: return c.HasDPadDownButton;
-                case GamePadButton.DPadRight: return c.HasDPadRightButton;
-                case GamePadButton.DPadLeft: return c.HasDPadLeftButton;
-                case GamePadButton.DPadUp: return c.HasDPadUpButton;
-                case GamePadButton.LeftBumper: return c.HasLeftShoulderButton;
-                case GamePadButton.RightBumper: return c.HasRightShoulderButton;
-                case GamePadButton.LeftStick: return c.HasLeftStickButton;
-                case GamePadButton.RightStick: return c.HasRightStickButton;
-                case GamePadButton.SpecialLeft: return c.HasBackButton;
-                case GamePadButton.SpecialRight: return c.HasStartButton;
+                case EGamePadButton.FaceDown: return c.HasAButton;
+                case EGamePadButton.FaceRight: return c.HasBButton;
+                case EGamePadButton.FaceLeft: return c.HasXButton;
+                case EGamePadButton.FaceUp: return c.HasYButton;
+                case EGamePadButton.DPadDown: return c.HasDPadDownButton;
+                case EGamePadButton.DPadRight: return c.HasDPadRightButton;
+                case EGamePadButton.DPadLeft: return c.HasDPadLeftButton;
+                case EGamePadButton.DPadUp: return c.HasDPadUpButton;
+                case EGamePadButton.LeftBumper: return c.HasLeftShoulderButton;
+                case EGamePadButton.RightBumper: return c.HasRightShoulderButton;
+                case EGamePadButton.LeftStick: return c.HasLeftStickButton;
+                case EGamePadButton.RightStick: return c.HasRightStickButton;
+                case EGamePadButton.SpecialLeft: return c.HasBackButton;
+                case EGamePadButton.SpecialRight: return c.HasStartButton;
             }
             return false;
         }
-        protected override bool ButtonExists(GamePadButton button)
+        protected override bool ButtonExists(EGamePadButton button)
         {
             return ButtonExists(button, GamePad.GetCapabilities(_index));
         }
-        protected override List<bool> ButtonsExist(List<GamePadButton> buttons)
+        protected override List<bool> ButtonsExist(List<EGamePadButton> buttons)
         {
             GamePadCapabilities c = GamePad.GetCapabilities(_index);
             return buttons.Select(x => ButtonExists(x, c)).ToList();
         }
-        private bool AxistExists(GamePadAxis axis, GamePadCapabilities c)
+        private bool AxistExists(EGamePadAxis axis, GamePadCapabilities c)
         {
             switch (axis)
             {
-                case GamePadAxis.LeftTrigger: return c.HasLeftTrigger;
-                case GamePadAxis.RightTrigger: return c.HasRightTrigger;
-                case GamePadAxis.LeftThumbstickX: return c.HasLeftXThumbStick;
-                case GamePadAxis.LeftThumbstickY: return c.HasLeftYThumbStick;
-                case GamePadAxis.RightThumbstickX: return c.HasRightXThumbStick;
-                case GamePadAxis.RightThumbstickY: return c.HasRightYThumbStick;
+                case EGamePadAxis.LeftTrigger: return c.HasLeftTrigger;
+                case EGamePadAxis.RightTrigger: return c.HasRightTrigger;
+                case EGamePadAxis.LeftThumbstickX: return c.HasLeftXThumbStick;
+                case EGamePadAxis.LeftThumbstickY: return c.HasLeftYThumbStick;
+                case EGamePadAxis.RightThumbstickX: return c.HasRightXThumbStick;
+                case EGamePadAxis.RightThumbstickY: return c.HasRightYThumbStick;
             }
             return false;
         }
-        protected override bool AxistExists(GamePadAxis axis)
+        protected override bool AxistExists(EGamePadAxis axis)
         {
             return AxistExists(axis, GamePad.GetCapabilities(_index));
         }
-        protected override List<bool> AxesExist(List<GamePadAxis> axes)
+        protected override List<bool> AxesExist(List<EGamePadAxis> axes)
         {
             GamePadCapabilities c = GamePad.GetCapabilities(_index);
             return axes.Select(x => AxistExists(x, c)).ToList();

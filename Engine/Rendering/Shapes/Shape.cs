@@ -49,7 +49,7 @@ namespace TheraEngine.Core.Shapes
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
         
-        [TSerialize("RenderSolid", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("RenderSolid", NodeType = ENodeType.Attribute)]
         protected bool _renderSolid = false;
         [TSerialize("RenderColor")]
         protected ColorF3 _renderColor = ColorF3.Red;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.Xml.Serialization;
 using TheraEngine.Core.Memory;
 using TheraEngine.Rendering.Models;
@@ -29,7 +30,7 @@ namespace TheraEngine.Core.Maths.Transforms
 
         //private int _updating = 0;
         private float _oldX, _oldY, _oldZ;
-        [TSerialize("XYZ", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("XYZ", NodeType = ENodeType.Attribute)]
         private Vec3 _data;
         private EventVec3 _syncX, _syncY, _syncZ, _syncAll;
         private DelGetVec3Value _setTick = null;
@@ -639,24 +640,18 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public static bool operator ==(EventVec3 left, EventVec3 right)
         {
-            if (ReferenceEquals(left, null))
-                if (ReferenceEquals(right, null))
-                    return true;
-                else
-                    return false;
-            else if (ReferenceEquals(right, null))
+            if (left is null)
+                return (right is null);
+            else if (right is null)
                 return false;
 
             return left.Equals(right);
         }
         public static bool operator !=(EventVec3 left, EventVec3 right)
         {
-            if (ReferenceEquals(left, null))
-                if (ReferenceEquals(right, null))
-                    return false;
-                else
-                    return true;
-            else if (ReferenceEquals(right, null))
+            if (left is null)
+                return !(right is null);
+            else if (right is null)
                 return true;
 
             return !left.Equals(right);
@@ -675,11 +670,10 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public static implicit operator BulletSharp.Vector3(EventVec3 v) { return new BulletSharp.Vector3(v.X, v.Y, v.Z); }
         public static implicit operator EventVec3(BulletSharp.Vector3 v) { return new EventVec3(v.X, v.Y, v.Z); }
-
-        private static string listSeparator = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        
         public override string ToString()
         {
-            return String.Format("({0}{3} {1}{3} {2})", X, Y, Z, listSeparator);
+            return String.Format("({0}{3} {1}{3} {2})", X, Y, Z, CultureInfo.CurrentCulture.TextInfo.ListSeparator);
         }
         public override int GetHashCode()
         {

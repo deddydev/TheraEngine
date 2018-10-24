@@ -267,21 +267,21 @@ namespace TheraEditor.Windows.Forms
         public override void RegisterInput(InputInterface input)
         {
             //input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnMouseDown, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, OnMouseUp, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Pressed, OnMouseDown, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Released, OnMouseUp, EInputPauseType.TickAlways);
 
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EGamePadButton.FaceDown, EButtonInputType.Pressed, OnGamepadSelect, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EGamePadButton.FaceRight, EButtonInputType.Pressed, OnBackInput, EInputPauseType.TickAlways);
             
-            input.RegisterButtonEvent(EKey.Number1, ButtonInputType.Pressed, SetTranslationMode, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number2, ButtonInputType.Pressed, SetRotationMode, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number3, ButtonInputType.Pressed, SetScaleMode, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number4, ButtonInputType.Pressed, SetDragDropMode, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Number1, EButtonInputType.Pressed, SetTranslationMode, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Number2, EButtonInputType.Pressed, SetRotationMode, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Number3, EButtonInputType.Pressed, SetScaleMode, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Number4, EButtonInputType.Pressed, SetDragDropMode, EInputPauseType.TickAlways);
             
-            input.RegisterButtonEvent(EKey.Number5, ButtonInputType.Pressed, SetWorldSpace, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number6, ButtonInputType.Pressed, SetParentSpace, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number7, ButtonInputType.Pressed, SetLocalSpace, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Number8, ButtonInputType.Pressed, SetScreenSpace, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Number5, EButtonInputType.Pressed, SetWorldSpace, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Number6, EButtonInputType.Pressed, SetParentSpace, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Number7, EButtonInputType.Pressed, SetLocalSpace, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Number8, EButtonInputType.Pressed, SetScreenSpace, EInputPauseType.TickAlways);
 
             //void SetAlt(bool set) => _modifierKeys = _modifierKeys.SetBit(0, set);
             //void SetCtrl(bool set) => _modifierKeys = _modifierKeys.SetBit(1, set);

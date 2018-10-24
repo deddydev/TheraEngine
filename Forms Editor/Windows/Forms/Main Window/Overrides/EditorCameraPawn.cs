@@ -28,10 +28,10 @@ namespace TheraEditor.Actors.Types.Pawns
         {
             base.RegisterInput(input);
             input.RegisterButtonPressed(EMouseButton.LeftClick, OnLeftClick, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.AltLeft, OnAlt, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.AltRight, OnAlt, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.ShiftLeft, OnShift, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.ShiftRight, OnShift, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.AltLeft, OnAlt, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.AltRight, OnAlt, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ShiftLeft, OnShift, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ShiftRight, OnShift, EInputPauseType.TickAlways);
         }
 
         protected virtual void OnLeftClick(bool pressed)

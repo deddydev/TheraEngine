@@ -105,21 +105,21 @@ namespace TheraEngine.Rendering.Models
         public EBufferUsage Usage { get; set; } = EBufferUsage.StaticDraw;
         internal int _vaoId = 0;
 
-        [TSerialize("Index", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("Index", NodeType = ENodeType.Attribute)]
         internal int _bufferIndex;
-        [TSerialize("BindLocation", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("BindLocation", NodeType = ENodeType.Attribute)]
         internal int _location;
-        [TSerialize("ComponentType", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("ComponentType", NodeType = ENodeType.Attribute)]
         internal ComponentType _componentType;
-        [TSerialize("Normalize", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("Normalize", NodeType = ENodeType.Attribute)]
         internal bool _normalize;
-        [TSerialize("Integral", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("Integral", NodeType = ENodeType.Attribute)]
         internal bool _integral = false;
-        [TSerialize("ComponentCount", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("ComponentCount", NodeType = ENodeType.Attribute)]
         internal int _componentCount;
-        [TSerialize("ElementCount", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("ElementCount", NodeType = ENodeType.Attribute)]
         internal int _elementCount;
-        [TSerialize("Type", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("Type", NodeType = ENodeType.Attribute)]
         internal EBufferType _type = EBufferType.Other;
 
         [TSerialize("Data", IsElementString = true)]

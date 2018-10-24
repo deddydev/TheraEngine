@@ -41,9 +41,10 @@ namespace TheraEngine.Core.Files.Serialization
             string encryptionPassword,
             ICodeProgress compressionProgress)
         {
-            Format = EProprietaryFileFormat.Binary;
             Writer = new WriterBinary(this, fileObject, filePath, flags, progress, cancel, endian, encrypted, compressed, encryptionPassword, compressionProgress);
-            await Writer.WriteTree();
+
+            await Writer.RootNode.CreateTreeFromObjectAsync();
+            await Writer.WriteTreeAsync();
 
             Engine.PrintLine("Serialized binary file to {0}", filePath);
         }
@@ -74,9 +75,11 @@ namespace TheraEngine.Core.Files.Serialization
             string encryptionPassword,
             ICodeProgress compressionProgress)
         {
-            string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, Format = EProprietaryFileFormat.Binary, fileObject.GetType());
+            string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, EProprietaryFileFormat.Binary, fileObject.GetType());
             Writer = new WriterBinary(this, fileObject, filePath, flags, progress, cancel, endian, encrypted, compressed, encryptionPassword, compressionProgress);
-            await Writer.WriteTree();
+
+            await Writer.RootNode.CreateTreeFromObjectAsync();
+            await Writer.WriteTreeAsync();
 
             Engine.PrintLine("Serialized binary file to {0}", filePath);
         }
@@ -89,6 +92,7 @@ namespace TheraEngine.Core.Files.Serialization
             Rfc2898DeriveBytes EncryptionDeriveBytes { get; }
             BinaryStringTableWriter StringTable { get; set; }
             public int StringOffsetSize { get; private set; }
+            public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.Binary;
 
             public WriterBinary(
                 TSerializer owner,
@@ -121,8 +125,6 @@ namespace TheraEngine.Core.Files.Serialization
             
             protected internal override async Task WriteTree()
             {
-                await RootNode.CollectSerializedMembersAsync();
-
                 Memory.Endian.SerializeOrder = Endian;
 
                 int dataSize = RootNode.CalculatedSize;
@@ -157,8 +159,10 @@ namespace TheraEngine.Core.Files.Serialization
 
                         VoidPtr offsets = hdr->Data;
                         VoidPtr data = offsets + SharedObjects.Count * sizeof(int);
+                        int i = 0;
                         foreach (var pair in SharedObjects)
                         {
+                            SharedObjectIndices.Add(pair.Key, i++);
                             offsets.WriteInt(data - offsets);
                             WriteObject(pair.Value, ref data);
                         }
@@ -345,11 +349,14 @@ namespace TheraEngine.Core.Files.Serialization
                 object value = node.Object;
                 Type objType = node.ObjectType;
                 object defaultValue = node.DefaultConstructedObject;
-                
-                Type nulledType = Nullable.GetUnderlyingType(objType);
-                bool nullable = nulledType != null;
-                if (nullable)
-                    objType = nulledType;
+
+                if (objType != null)
+                {
+                    Type nulledType = Nullable.GetUnderlyingType(objType);
+                    bool nullable = nulledType != null;
+                    if (nullable)
+                        objType = nulledType;
+                }
 
                 ++size; //flags byte
 
@@ -585,6 +592,16 @@ namespace TheraEngine.Core.Files.Serialization
                 public int TotalLength { get; private set; } = 0;
                 public int StringLengthSize { get; private set; }
 
+                public void Add(LocalizedString s)
+                {
+                    //if ((!string.IsNullOrEmpty(s)) && (!_table.ContainsKey(s)))
+                    //{
+                    //    _table.Add(s, 0);
+                    //    int lengthSize = GetSmallestRepSize(s.Length);
+                    //    StringLengthSize = Math.Max(StringLengthSize, lengthSize);
+                    //    TotalLength += Encoding.GetMaxByteCount(s.Length);
+                    //}
+                }
                 public void Add(string s)
                 {
                     if ((!string.IsNullOrEmpty(s)) && (!_table.ContainsKey(s)))

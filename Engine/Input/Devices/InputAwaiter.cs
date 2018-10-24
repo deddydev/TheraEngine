@@ -24,19 +24,19 @@
         protected void OnFoundGamepad(int index)
         {
             InputDevice device = CreateGamepad(index);
-            InputDevice.CurrentDevices[InputDeviceType.Gamepad][index] = device;
+            InputDevice.CurrentDevices[EInputDeviceType.Gamepad][index] = device;
             FoundInput?.Invoke(device);
         }
         protected void OnFoundKeyboard(int index)
         {
             InputDevice device = CreateKeyboard(index);
-            InputDevice.CurrentDevices[InputDeviceType.Keyboard][index] = device;
+            InputDevice.CurrentDevices[EInputDeviceType.Keyboard][index] = device;
             FoundInput?.Invoke(device);
         }
         protected void OnFoundMouse(int index)
         {
             InputDevice device = CreateMouse(index);
-            InputDevice.CurrentDevices[InputDeviceType.Mouse][index] = device;
+            InputDevice.CurrentDevices[EInputDeviceType.Mouse][index] = device;
             FoundInput?.Invoke(device);
         }
 

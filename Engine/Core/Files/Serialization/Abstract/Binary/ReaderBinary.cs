@@ -20,7 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
         IsDerived       = 0b0000_0010,
         IsNull          = 0b0000_0100,
         IsSharedObject  = 0b0000_1000,
-        Unused1         = 0b0001_0000,
+        IsGrouping      = 0b0001_0000,
         Unused2         = 0b0010_0000,
         Unused3         = 0b0100_0000,
         BooleanValue    = 0b1000_0000,
@@ -57,6 +57,8 @@ namespace TheraEngine.Core.Files.Serialization
             Rfc2898DeriveBytes EncryptionDeriveBytes { get; set; }
             BinaryStringTableReader StringTable { get; set; }
             public int StringOffsetSize { get; private set; }
+
+            public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.Binary;
 
             public ReaderBinary(
                 TDeserializer owner,
@@ -97,6 +99,11 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 object obj = null;
                 Type objType = memberType;
+                if (memberType == null)
+                {
+                    Engine.LogWarning($"{nameof(memberType)} cannot be null.");
+                    return null;
+                }
 
                 EBinaryObjectFlags flags = (EBinaryObjectFlags)address.ReadByte();
                 if ((flags & EBinaryObjectFlags.IsDefault) != 0)

@@ -144,18 +144,18 @@ namespace TheraEngine.Actors.Types.Pawns
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, MoveRight, true);
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, MoveForward, true);
-            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickX, LookRight, true);
-            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, LookUp, true);
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, Jump);
+            input.RegisterAxisUpdate(EGamePadAxis.LeftThumbstickX, MoveRight, true);
+            input.RegisterAxisUpdate(EGamePadAxis.LeftThumbstickY, MoveForward, true);
+            input.RegisterAxisUpdate(EGamePadAxis.RightThumbstickX, LookRight, true);
+            input.RegisterAxisUpdate(EGamePadAxis.RightThumbstickY, LookUp, true);
+            input.RegisterButtonEvent(EGamePadButton.FaceDown, EButtonInputType.Pressed, Jump);
 
-            input.RegisterMouseMove(Look, MouseMoveType.Relative);
-            input.RegisterButtonPressed(EKey.W, MoveForward);
-            input.RegisterButtonPressed(EKey.A, MoveLeft);
-            input.RegisterButtonPressed(EKey.S, MoveBackward);
-            input.RegisterButtonPressed(EKey.D, MoveRight);
-            input.RegisterButtonEvent(EKey.Space, ButtonInputType.Pressed, Jump);
+            input.RegisterMouseMove(Look, EMouseMoveType.Relative);
+            input.RegisterKeyPressed(EKey.W, MoveForward);
+            input.RegisterKeyPressed(EKey.A, MoveLeft);
+            input.RegisterKeyPressed(EKey.S, MoveBackward);
+            input.RegisterKeyPressed(EKey.D, MoveRight);
+            input.RegisterKeyEvent(EKey.Space, EButtonInputType.Pressed, Jump);
         }
         
         private void MoveForward(bool pressed)

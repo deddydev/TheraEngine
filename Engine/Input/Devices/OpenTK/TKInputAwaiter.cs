@@ -14,9 +14,9 @@ namespace TheraEngine.Input.Devices.OpenTK
 
         protected override void Tick(float delta)
         {
-            var gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
-            var keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
-            var mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
+            var gamepads = InputDevice.CurrentDevices[EInputDeviceType.Gamepad];
+            var keyboards = InputDevice.CurrentDevices[EInputDeviceType.Keyboard];
+            var mice = InputDevice.CurrentDevices[EInputDeviceType.Mouse];
             for (int i = 0; i < MaxControllers; ++i)
                 if (gamepads[i] == null)
                 {

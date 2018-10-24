@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Input.Devices
 {
-    public enum ButtonInputType
+    public enum EButtonInputType
     {
         Pressed         = 0,
         Released        = 1,
         Held            = 2,
         DoublePressed   = 3,
     }
-    public enum InputDeviceType
+    public enum EInputDeviceType
     {
         Gamepad,
         Keyboard,
         Mouse,
     }
     public delegate void DelWantsInputsRegistered(InputInterface input);
-    public enum MouseMoveType
+    public enum EMouseMoveType
     {
         Relative,
         Absolute,
@@ -101,9 +101,9 @@ namespace TheraEngine.Input.Devices
         {
             AttachInterfaceToDevices(true);
 
-            InputDevice[] gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
-            InputDevice[] keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
-            InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
+            InputDevice[] gamepads = InputDevice.CurrentDevices[EInputDeviceType.Gamepad];
+            InputDevice[] keyboards = InputDevice.CurrentDevices[EInputDeviceType.Keyboard];
+            InputDevice[] mice = InputDevice.CurrentDevices[EInputDeviceType.Mouse];
 
             if (_playerIndex >= 0 && _playerIndex < gamepads.Length)
                 Gamepad = gamepads[_playerIndex] as BaseGamePad;
@@ -146,32 +146,79 @@ namespace TheraEngine.Input.Devices
         #region Mouse input registration
         public void RegisterButtonPressed(EMouseButton button, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Mouse?.RegisterButtonPressed(button, pauseType, func, _unregister);
-        public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+        public void RegisterButtonEvent(EMouseButton button, EButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Mouse?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
         public void RegisterMouseScroll(DelMouseScroll func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Mouse?.RegisterScroll(func, pauseType, _unregister);
-        public void RegisterMouseMove(DelCursorUpdate func, MouseMoveType type, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+        public void RegisterMouseMove(DelCursorUpdate func, EMouseMoveType type, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Mouse?.RegisterMouseMove(func, pauseType, type, _unregister);
         #endregion
 
         #region Keyboard input registration
-        public void RegisterButtonPressed(EKey button, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Keyboard?.RegisterButtonPressed(button, pauseType, func, _unregister);
-        public void RegisterButtonEvent(EKey button, ButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
-            => Keyboard?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
+        public void RegisterKeyPressed(EKey button, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+            => Keyboard?.RegisterKeyPressed(button, pauseType, func, _unregister);
+        public void RegisterKeyEvent(EKey button, EButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+            => Keyboard?.RegisterKeyEvent(button, type, pauseType, func, _unregister);
         #endregion
 
         #region Gamepad input registration
-        public void RegisterButtonPressed(GamePadAxis axis, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+        public void RegisterButtonPressed(EGamePadAxis axis, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Gamepad?.RegisterButtonState(axis, pauseType, func, _unregister);
-        public void RegisterButtonPressed(GamePadButton button, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+        public void RegisterButtonPressed(EGamePadButton button, DelButtonState func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Gamepad?.RegisterButtonState(button, pauseType, func, _unregister);
-        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+        public void RegisterButtonEvent(EGamePadButton button, EButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Gamepad?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
-        public void RegisterButtonEvent(GamePadAxis button, ButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+        public void RegisterButtonEvent(EGamePadAxis button, EButtonInputType type, Action func, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Gamepad?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
-        public void RegisterAxisUpdate(GamePadAxis axis, DelAxisValue func, bool continuousUpdate, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
+        public void RegisterAxisUpdate(EGamePadAxis axis, DelAxisValue func, bool continuousUpdate, EInputPauseType pauseType = EInputPauseType.TickOnlyWhenUnpaused)
             => Gamepad?.RegisterAxisUpdate(axis, pauseType, func, continuousUpdate, _unregister);
         #endregion
+        
+        /// <summary>
+        /// Retrieves the state of the requested mouse button: 
+        /// pressed, released, held, or double pressed.
+        /// </summary>
+        /// <param name="button">The button to read the state of.</param>
+        /// <param name="type">The type of state to observe.</param>
+        /// <returns>True if the state is current.</returns>
+        public bool GetMouseButtonState(EMouseButton button, EButtonInputType type)
+            => Mouse?.GetButtonState(button, type) ?? false;
+
+        /// <summary>
+        /// Retrieves the state of the requested keyboard key: 
+        /// pressed, released, held, or double pressed.
+        /// </summary>
+        /// <param name="key">The button to read the state of.</param>
+        /// <param name="type">The type of state to observe.</param>
+        /// <returns></returns>
+        public bool GetKeyState(EKey key, EButtonInputType type)
+            => Keyboard?.GetKeyState(key, type) ?? false;
+
+        /// <summary>
+        /// Retrieves the state of the requested gamepad button: 
+        /// pressed, released, held, or double pressed.
+        /// </summary>
+        /// <param name="button">The button to read the state of.</param>
+        /// <param name="type">The type of state to observe.</param>
+        /// <returns></returns>
+        public bool GetButtonState(EGamePadButton button, EButtonInputType type)
+            => Gamepad?.GetButtonState(button, type) ?? false;
+        /// <summary>
+        /// Retrieves the state of the requested axis button: 
+        /// pressed, released, held, or double pressed.
+        /// </summary>
+        /// <param name="axis">The axis button to read the state of.</param>
+        /// <param name="type">The type of state to observe.</param>
+        /// <returns></returns>
+        public bool GetAxisState(EGamePadAxis axis, EButtonInputType type)
+            => Gamepad?.GetAxisState(axis, type) ?? false;
+        /// <summary>
+        /// Retrieves the value of the requested axis in the range 0.0f to 1.0f 
+        /// or -1.0f to 1.0f for control sticks.
+        /// </summary>
+        /// <param name="axis">The axis to read the value of.</param>
+        /// <returns>The magnitude of the given axis.</returns>
+        public float GetAxisValue(EGamePadAxis axis)
+            => Gamepad?.GetAxisValue(axis) ?? 0.0f;
     }
 }

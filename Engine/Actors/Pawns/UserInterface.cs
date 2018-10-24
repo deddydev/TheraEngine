@@ -112,7 +112,7 @@ namespace TheraEngine.Actors.Types.Pawns
             RootComponent.RegisterInputs(input);
 
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickOnlyWhenPaused);
-            input.RegisterMouseMove(MouseMove, MouseMoveType.Absolute, EInputPauseType.TickOnlyWhenPaused);
+            input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickOnlyWhenPaused);
             //input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
 
             //input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, EInputPauseType.TickOnlyWhenPaused);

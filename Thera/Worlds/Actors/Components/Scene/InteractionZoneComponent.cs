@@ -1,7 +1,7 @@
-﻿using TheraEngine;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using TheraEngine;
 using TheraEngine.Components.Scene.Shapes;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace Thera.Worlds.Actors.Components.Scene
 {

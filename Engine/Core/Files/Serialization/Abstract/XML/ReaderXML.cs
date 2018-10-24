@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using TheraEngine.Core.Files;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -25,19 +22,23 @@ namespace TheraEngine.Core.Files.Serialization
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            Format = EProprietaryFileFormat.Binary;
+            Format = EProprietaryFileFormat.XML;
+
             Type fileType = SerializationCommon.DetermineType(filePath);
-            TFileObject rootFileObject = SerializationCommon.CreateObject(fileType) as TFileObject;
-            Reader = new ReaderXML(this, rootFileObject, filePath, progress, cancel, null);
+            Reader = new ReaderXML(this, filePath, progress, cancel, null);
+
             await Reader.ReadTree();
+            Reader.RootNode.GenerateObjectFromTree(fileType);
 
             Engine.PrintLine("Deserialized XML file at {0}", filePath);
-            return Reader.RootFileObject;
+            return Reader.RootNode.Object as TFileObject;
         }
         private class ReaderXML : AbstractReader<XMLMemberTreeNode>
         {
             private FileStream _stream;
             private XmlReader _reader;
+
+            public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.XML;
 
             private readonly XmlReaderSettings _settings = new XmlReaderSettings()
             {
@@ -48,12 +49,11 @@ namespace TheraEngine.Core.Files.Serialization
 
             public ReaderXML(
                 TDeserializer owner,
-                TFileObject rootFileObject,
                 string filePath,
                 IProgress<float> progress,
                 CancellationToken cancel,
                 XmlReaderSettings settings)
-                : base(owner, rootFileObject, filePath, progress, cancel)
+                : base(owner, filePath, progress, cancel)
             {
                 if (settings != null)
                 {
@@ -68,27 +68,48 @@ namespace TheraEngine.Core.Files.Serialization
                 using (_reader = XmlReader.Create(_stream, _settings))
                 {
                     _stream.Position = 0;
-
                     await _reader.MoveToContentAsync();
-                    RootNode = await ReadElement();
+                    RootNode = await ReadElementAsync();
                 }
             }
 
-            private async Task<XMLMemberTreeNode> ReadElement()
+            private async Task<XMLMemberTreeNode> ReadElementAsync()
             {
-                while (await _reader.ReadAsync())
+                XMLMemberTreeNode node = null;
+                string name, value;
+                while (_reader.NodeType != XmlNodeType.EndElement && !_reader.EOF)
                 {
                     switch (_reader.NodeType)
                     {
                         case XmlNodeType.Element:
-
+                            if (node != null)
+                                node.ChildElements.Add(await ReadElementAsync());
+                            else
+                            {
+                                node = new XMLMemberTreeNode(null)
+                                {
+                                    ElementName = _reader.Name,
+                                    ChildElements = new List<XMLMemberTreeNode>(),
+                                    Attributes = new List<XMLAttribute>(),
+                                };
+                            }
                             break;
                         case XmlNodeType.Attribute:
-
+                            name = _reader.Name;
+                            value = await _reader.GetValueAsync();
+                            node?.AddAttribute(name, value);
+                            break;
+                        case XmlNodeType.Text:
+                            value = await _reader.GetValueAsync();
+                            if (node != null)
+                                node.ElementString = value;
+                            break;
+                        default:
                             break;
                     }
+                    await _reader.ReadAsync();
                 }
-                return null;
+                return node;
             }
 
             public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, MemberInfo memberInfo)

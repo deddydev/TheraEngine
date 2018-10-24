@@ -565,7 +565,7 @@ namespace TheraEngine.Animation
         private bool _synchronizing = false;
         
         [Category("Keyframe")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool SyncInOutValues
         {
             get => _syncInOutValues;
@@ -582,7 +582,7 @@ namespace TheraEngine.Animation
             }
         }
         [Category("Keyframe")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool SyncInOutTangentDirections
         {
             get => _syncInOutTangentDirections;
@@ -599,7 +599,7 @@ namespace TheraEngine.Animation
             }
         }
         [Category("Keyframe")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool SyncInOutTangentMagnitudes
         {
             get => _syncInOutTangentMagnitudes;
@@ -616,7 +616,7 @@ namespace TheraEngine.Animation
             }
         }
         [Category("Keyframe")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public T InValue
         {
             get => _inValue;
@@ -633,7 +633,7 @@ namespace TheraEngine.Animation
             }
         }
         [Category("Keyframe")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public T OutValue
         {
             get => _outValue;
@@ -650,7 +650,7 @@ namespace TheraEngine.Animation
             }
         }
         [Category("Keyframe")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public T InTangent
         {
             get => _inTangent;
@@ -672,7 +672,7 @@ namespace TheraEngine.Animation
             }
         }
         [Category("Keyframe")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public T OutTangent
         {
             get => _outTangent;
@@ -710,7 +710,7 @@ namespace TheraEngine.Animation
         }
 
         [Category("Keyframe")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public EPlanarInterpType InterpolationType
         {
             get => _interpolationType;

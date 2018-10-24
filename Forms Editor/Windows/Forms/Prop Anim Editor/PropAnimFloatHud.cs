@@ -318,14 +318,14 @@ void main()
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterButtonPressed(EKey.AltLeft, b => _altDown = b, EInputPauseType.TickAlways);
-            input.RegisterButtonPressed(EKey.ControlLeft, b => _ctrlDown = b, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, LeftClickDown, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, LeftClickUp, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.RightClick, ButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.RightClick, ButtonInputType.Released, RightClickUp, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.AltLeft, b => _altDown = b, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ControlLeft, b => _ctrlDown = b, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Pressed, LeftClickDown, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Released, LeftClickUp, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Released, RightClickUp, EInputPauseType.TickAlways);
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
-            input.RegisterMouseMove(MouseMove, MouseMoveType.Absolute, EInputPauseType.TickAlways);
+            input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
         }
         private bool _altDown = false;
         private bool _ctrlDown = false;

@@ -92,7 +92,7 @@ namespace TheraEngine.Core.Files
         }
 
         [Category("File Reference")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public EPathType PathType
         {
             get => _pathType;
@@ -204,7 +204,7 @@ namespace TheraEngine.Core.Files
         }
         [TString(false, true, false)]
         [Category("File Reference")]
-        [TSerialize(NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public virtual string ReferencePath
         {
             get => _localRefPath;

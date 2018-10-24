@@ -152,7 +152,7 @@ namespace TheraEditor.Windows.Forms
             progress = new Progress<float>();
             CancellationTokenSource cancelSource = maxOperationTime == null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
 
-            _operations.Add(new OperationInfo(progress, cancelSource, Info_Updated, index));
+            _operations.Add(new OperationInfo(progress, cancelSource, OnOperationProgressUpdate, index));
             cancel = cancelSource;
             
             btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
@@ -160,12 +160,11 @@ namespace TheraEditor.Windows.Forms
             toolStripStatusLabel1.Text = statusBarMessage;
             return index;
         }
-        private void Info_Updated(int index)
+        private void OnOperationProgressUpdate(int operationIndex)
         {
-            int resolution = toolStripProgressBar1.Maximum;
+            int maxValue = toolStripProgressBar1.Maximum;
 
             float avgProgress = 0.0f;
-            int opCount = _operations.Count;
             for (int i = 0; i < _operations.Count; ++i)
             {
                 OperationInfo info = _operations[i];
@@ -173,19 +172,24 @@ namespace TheraEditor.Windows.Forms
                 if (info.IsComplete)
                 {
                     toolStripStatusLabel1.Text = $"Operation completed successfully in {Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero)} seconds.";
-                    _operations.RemoveAt(i--);
+                    EndOperation(i--);
                 }
             }
 
+            int opCount = _operations.Count;
             if (opCount == 0)
                 return;
 
             avgProgress /= opCount;
 
-            int value = (int)(avgProgress * (resolution + 0.5f));
+            int value = (int)(avgProgress * maxValue + 0.5f);
+            TargetOperationValue = value;
             toolStripProgressBar1.ProgressBar.Value = value;
-            if (value >= resolution)
-                EndOperation(index);
+        }
+        private int TargetOperationValue { get; set; }
+        private void TickOperationProgressBar(float delta)
+        {
+
         }
         public void EndOperation(int index)
         {
@@ -196,6 +200,7 @@ namespace TheraEditor.Windows.Forms
                 _operations.Clear();
                 btnCancelOp.Visible = false;
                 toolStripProgressBar1.Visible = false;
+                TargetOperationValue = 0;
             }
         }
         private void btnCancelOp_ButtonClick(object sender, EventArgs e)
@@ -215,10 +220,14 @@ namespace TheraEditor.Windows.Forms
         public static Color TextColor => Color.FromArgb(224, 224, 224);
 
         #endregion
-
+        static Editor()
+        {
+        }
         public Editor() : base()
         {
             Instance = this;
+            Engine.BeginOperation += BeginOperation;
+            Engine.EndOperation += EndOperation;
 
             _editorGameMode = new EditorGameMode();
             InitializeComponent();
@@ -521,7 +530,6 @@ namespace TheraEditor.Windows.Forms
             
             //TODO: read editor state file instead
             string lastOpened = Properties.Settings.Default.LastOpened;
-            //"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
             if (!string.IsNullOrEmpty(lastOpened))
                 Project = await TFileObject.LoadAsync<Project>(lastOpened);
             else
@@ -717,7 +725,7 @@ namespace TheraEditor.Windows.Forms
 
         private void RegisterInput(InputInterface input)
         {
-            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Escape, EButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
         }
 
         public enum EEditorGameplayState

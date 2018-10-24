@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.Models
         public int WeightCount { get { return _weightCount; } }
         public BoneWeight[] Weights { get { return _weights; } }
 
-        [TSerialize("Count", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("Count", NodeType = ENodeType.Attribute)]
         private int _weightCount = 0;
         [TSerialize("Weights")]
         private BoneWeight[] _weights = new BoneWeight[MaxWeightCount];

@@ -71,7 +71,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize(nameof(Triangles), Order = 8)]
         internal List<IndexTriangle> _triangles = null;
 
-        [TSerialize(nameof(Type), NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(nameof(Type), NodeType = ENodeType.Attribute)]
         internal EPrimitiveType _type = EPrimitiveType.Triangles;
     }
 }

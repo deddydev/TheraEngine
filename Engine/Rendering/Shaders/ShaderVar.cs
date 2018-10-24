@@ -318,7 +318,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public event Action<ShaderVar> ValueChanged;
 
-        [TSerialize("CanSwizzle", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("CanSwizzle", NodeType = ENodeType.Attribute)]
         protected bool _canSwizzle = true;
 
         protected IShaderVarOwner _owner;

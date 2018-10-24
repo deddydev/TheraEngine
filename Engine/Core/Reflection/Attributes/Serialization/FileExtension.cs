@@ -16,7 +16,7 @@ namespace System.ComponentModel
         private string _extension;
 
         /// <summary>
-        /// The extension for the file. Depending on the <see cref="ESerializeFormat"/>, x, b, etc will be appended to the front of the extension.
+        /// The extension for the file. Depending on the <see cref="EProprietaryFileFormat"/>, x, b, etc will be appended to the front of the extension.
         /// </summary>
         public string Extension
         {
@@ -41,9 +41,9 @@ namespace System.ComponentModel
         /// </summary>
         public bool ManualBinStateSerialize { get; set; } = false;
         
-        public ESerializeFormat PreferredFormat { get; set; }
+        public EProprietaryFileFormat PreferredFormat { get; set; }
 #if DEBUG
-            = ESerializeFormat.XML;
+            = EProprietaryFileFormat.XML;
 #else
             = SerializeFormat.Binary;
 #endif

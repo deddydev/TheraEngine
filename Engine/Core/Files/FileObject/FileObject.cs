@@ -43,8 +43,18 @@ namespace TheraEngine.Core.Files
     }
     public enum EProprietaryFileFormat
     {
-        Binary = 0,
-        XML = 1,
+        Binary  = 0,
+        XML     = 1,
+    }
+    [Flags]
+    public enum EProprietaryFileFormatFlag
+    {
+        None    = 0b0000,
+        Binary  = 0b0001,
+        XML     = 0b0010,
+        //JSON    = 0b0100,
+        //Text    = 0b1000,
+        All     = 0b1111,
     }
     public enum EFileFormat
     {
@@ -205,8 +215,8 @@ namespace TheraEngine.Core.Files
         {
             if (Engine.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationToken cancel);
-                await ExportAsync(flags, progress, cancel);
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
+                await ExportAsync(flags, progress, cancel.Token);
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);
                 else
@@ -224,8 +234,8 @@ namespace TheraEngine.Core.Files
         {
             if (Engine.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationToken cancel);
-                await ExportAsync(directory, fileName, flags, progress, cancel);
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
+                await ExportAsync(directory, fileName, flags, progress, cancel.Token);
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);
                 else
@@ -242,8 +252,8 @@ namespace TheraEngine.Core.Files
         {
             if (Engine.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationToken cancel);
-                await ExportAsync(path, flags, progress, cancel);
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
+                await ExportAsync(path, flags, progress, cancel.Token);
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);
                 else

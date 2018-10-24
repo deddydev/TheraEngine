@@ -6,7 +6,7 @@ using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices
 {
-    public enum GamePadButton : int
+    public enum EGamePadButton : int
     {
         DPadUp,
         DPadDown,
@@ -23,7 +23,7 @@ namespace TheraEngine.Input.Devices
         LeftBumper,
         RightBumper
     }
-    public enum GamePadAxis : int
+    public enum EGamePadAxis : int
     {
         LeftTrigger,
         RightTrigger,
@@ -54,12 +54,12 @@ namespace TheraEngine.Input.Devices
         protected override int GetAxisCount() => 6;
         public override EDeviceType DeviceType => EDeviceType.Gamepad;
 
-        protected abstract bool ButtonExists(GamePadButton button);
-        protected abstract List<bool> ButtonsExist(List<GamePadButton> buttons);
-        protected abstract bool AxistExists(GamePadAxis axis);
-        protected abstract List<bool> AxesExist(List<GamePadAxis> axes);
+        protected abstract bool ButtonExists(EGamePadButton button);
+        protected abstract List<bool> ButtonsExist(List<EGamePadButton> buttons);
+        protected abstract bool AxistExists(EGamePadAxis axis);
+        protected abstract List<bool> AxesExist(List<EGamePadAxis> axes);
 
-        private ButtonManager CacheButton(GamePadButton button)
+        private ButtonManager FindOrCacheButton(EGamePadButton button)
         {
             int index = (int)button;
             if (_buttonStates[index] == null && ButtonExists(button))
@@ -67,7 +67,7 @@ namespace TheraEngine.Input.Devices
             return _buttonStates[index];
         }
 
-        private AxisManager CacheAxis(GamePadAxis axis)
+        private AxisManager FindOrCacheAxis(EGamePadAxis axis)
         {
             int index = (int)axis;
             if (_axisStates[index] == null && AxistExists(axis))
@@ -75,34 +75,34 @@ namespace TheraEngine.Input.Devices
             return _axisStates[index];
         }
 
-        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
+        public void RegisterButtonEvent(EGamePadButton button, EButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
-            RegisterButtonEvent(unregister ? _buttonStates[(int)button] : CacheButton(button), type, pauseType, func, unregister);
+            RegisterButtonEvent(unregister ? _buttonStates[(int)button] : FindOrCacheButton(button), type, pauseType, func, unregister);
         }
-        public void RegisterButtonEvent(GamePadAxis axis, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
+        public void RegisterButtonEvent(EGamePadAxis axis, EButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
-            RegisterButtonEvent(unregister ? _axisStates[(int)axis] : CacheAxis(axis), type, pauseType, func, unregister);
+            RegisterButtonEvent(unregister ? _axisStates[(int)axis] : FindOrCacheAxis(axis), type, pauseType, func, unregister);
         }
-        public void RegisterButtonState(GamePadButton button, EInputPauseType pauseType, DelButtonState func, bool unregister)
+        public void RegisterButtonState(EGamePadButton button, EInputPauseType pauseType, DelButtonState func, bool unregister)
         {
             if (unregister)
                 _buttonStates[(int)button]?.RegisterPressedState(func, pauseType, true);
             else
-                CacheButton(button)?.RegisterPressedState(func, pauseType, false);
+                FindOrCacheButton(button)?.RegisterPressedState(func, pauseType, false);
         }
-        public void RegisterButtonState(GamePadAxis axis, EInputPauseType pauseType, DelButtonState func, bool unregister)
+        public void RegisterButtonState(EGamePadAxis axis, EInputPauseType pauseType, DelButtonState func, bool unregister)
         {
             if (unregister)
                 _axisStates[(int)axis]?.RegisterPressedState(func, pauseType, true);
             else
-                CacheAxis(axis)?.RegisterPressedState(func, pauseType, false);
+                FindOrCacheAxis(axis)?.RegisterPressedState(func, pauseType, false);
         }
-        public void RegisterAxisUpdate(GamePadAxis axis, EInputPauseType pauseType, DelAxisValue func, bool continuousUpdate, bool unregister)
+        public void RegisterAxisUpdate(EGamePadAxis axis, EInputPauseType pauseType, DelAxisValue func, bool continuousUpdate, bool unregister)
         {
             if (unregister)
                 _axisStates[(int)axis]?.RegisterAxis(func, pauseType, continuousUpdate, true);
             else
-                CacheAxis(axis)?.RegisterAxis(func, pauseType, continuousUpdate, false);
+                FindOrCacheAxis(axis)?.RegisterAxis(func, pauseType, continuousUpdate, false);
         }
 
         /// <summary>
@@ -114,29 +114,36 @@ namespace TheraEngine.Input.Devices
         public abstract void Vibrate(float lowFreq, float highFreq);
         public void ClearVibration() => Vibrate(0.0f, 0.0f);
 
-        public ButtonManager DPadUp         => _buttonStates[(int)GamePadButton.DPadUp];
-        public ButtonManager DPadDown       => _buttonStates[(int)GamePadButton.DPadDown];
-        public ButtonManager DPadLeft       => _buttonStates[(int)GamePadButton.DPadLeft];
-        public ButtonManager DPadRight      => _buttonStates[(int)GamePadButton.DPadRight];
+        public ButtonManager DPadUp         => _buttonStates[(int)EGamePadButton.DPadUp];
+        public ButtonManager DPadDown       => _buttonStates[(int)EGamePadButton.DPadDown];
+        public ButtonManager DPadLeft       => _buttonStates[(int)EGamePadButton.DPadLeft];
+        public ButtonManager DPadRight      => _buttonStates[(int)EGamePadButton.DPadRight];
 
-        public ButtonManager FaceUp         => _buttonStates[(int)GamePadButton.FaceUp];
-        public ButtonManager FaceDown       => _buttonStates[(int)GamePadButton.FaceDown];
-        public ButtonManager FaceLeft       => _buttonStates[(int)GamePadButton.FaceLeft];
-        public ButtonManager FaceRight      => _buttonStates[(int)GamePadButton.FaceRight];
+        public ButtonManager FaceUp         => _buttonStates[(int)EGamePadButton.FaceUp];
+        public ButtonManager FaceDown       => _buttonStates[(int)EGamePadButton.FaceDown];
+        public ButtonManager FaceLeft       => _buttonStates[(int)EGamePadButton.FaceLeft];
+        public ButtonManager FaceRight      => _buttonStates[(int)EGamePadButton.FaceRight];
 
-        public ButtonManager LeftStick      => _buttonStates[(int)GamePadButton.LeftStick];
-        public ButtonManager RightStick     => _buttonStates[(int)GamePadButton.RightStick];
-        public ButtonManager LeftBumper     => _buttonStates[(int)GamePadButton.LeftBumper];
-        public ButtonManager RightBumper    => _buttonStates[(int)GamePadButton.RightBumper];
+        public ButtonManager LeftStick      => _buttonStates[(int)EGamePadButton.LeftStick];
+        public ButtonManager RightStick     => _buttonStates[(int)EGamePadButton.RightStick];
+        public ButtonManager LeftBumper     => _buttonStates[(int)EGamePadButton.LeftBumper];
+        public ButtonManager RightBumper    => _buttonStates[(int)EGamePadButton.RightBumper];
 
-        public ButtonManager SpecialLeft    => _buttonStates[(int)GamePadButton.SpecialLeft];
-        public ButtonManager SpecialRight   => _buttonStates[(int)GamePadButton.SpecialRight];
+        public ButtonManager SpecialLeft    => _buttonStates[(int)EGamePadButton.SpecialLeft];
+        public ButtonManager SpecialRight   => _buttonStates[(int)EGamePadButton.SpecialRight];
 
-        public AxisManager LeftTrigger      => _axisStates[(int)GamePadAxis.LeftTrigger];
-        public AxisManager RightTrigger     => _axisStates[(int)GamePadAxis.RightTrigger];
-        public AxisManager LeftThumbstickY  => _axisStates[(int)GamePadAxis.LeftThumbstickY];
-        public AxisManager LeftThumbstickX  => _axisStates[(int)GamePadAxis.LeftThumbstickX];
-        public AxisManager RightThumbstickY => _axisStates[(int)GamePadAxis.RightThumbstickY];
-        public AxisManager RightThumbstickX => _axisStates[(int)GamePadAxis.RightThumbstickX];
+        public AxisManager LeftTrigger      => _axisStates[(int)EGamePadAxis.LeftTrigger];
+        public AxisManager RightTrigger     => _axisStates[(int)EGamePadAxis.RightTrigger];
+        public AxisManager LeftThumbstickY  => _axisStates[(int)EGamePadAxis.LeftThumbstickY];
+        public AxisManager LeftThumbstickX  => _axisStates[(int)EGamePadAxis.LeftThumbstickX];
+        public AxisManager RightThumbstickY => _axisStates[(int)EGamePadAxis.RightThumbstickY];
+        public AxisManager RightThumbstickX => _axisStates[(int)EGamePadAxis.RightThumbstickX];
+
+        public bool GetButtonState(EGamePadButton button, EButtonInputType type)
+            => FindOrCacheButton(button).GetState(type);
+        public bool GetAxisState(EGamePadAxis axis, EButtonInputType type)
+            => FindOrCacheAxis(axis).GetState(type);
+        public float GetAxisValue(EGamePadAxis axis)
+            => FindOrCacheAxis(axis).Value;
     }
 }

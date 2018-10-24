@@ -22,7 +22,7 @@ namespace TheraEngine.Input.Devices
         protected override int GetButtonCount() => 3;
         public override EDeviceType DeviceType => EDeviceType.Mouse;
 
-        private ButtonManager CacheButton(EMouseButton button)
+        private ButtonManager FindOrCacheButton(EMouseButton button)
         {
             int index = (int)button;
             if (_buttonStates[index] == null)
@@ -34,18 +34,21 @@ namespace TheraEngine.Input.Devices
             if (unregister)
                 _buttonStates[(int)button]?.RegisterPressedState(func, pauseType, true);
             else
-                CacheButton(button)?.RegisterPressedState(func, pauseType, false);
+                FindOrCacheButton(button)?.RegisterPressedState(func, pauseType, false);
         }
-        public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
-            => RegisterButtonEvent(unregister ? _buttonStates[(int)button] : CacheButton(button), type, pauseType, func, unregister);
+        public void RegisterButtonEvent(EMouseButton button, EButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
+            => RegisterButtonEvent(unregister ? _buttonStates[(int)button] : FindOrCacheButton(button), type, pauseType, func, unregister);
         public void RegisterScroll(DelMouseScroll func, EInputPauseType pauseType, bool unregister)
             => _wheel.Register(func, pauseType, unregister);
-        public void RegisterMouseMove(DelCursorUpdate func, EInputPauseType pauseType, MouseMoveType type, bool unregister)
+        public void RegisterMouseMove(DelCursorUpdate func, EInputPauseType pauseType, EMouseMoveType type, bool unregister)
             => _cursor.Register(func, pauseType, type, unregister);
 
         public ButtonManager LeftClick => _buttonStates[(int)EMouseButton.LeftClick];
         public ButtonManager RightClick => _buttonStates[(int)EMouseButton.RightClick];
         public ButtonManager MiddleClick => _buttonStates[(int)EMouseButton.MiddleClick];
+
+        public bool GetButtonState(EMouseButton button, EButtonInputType type)
+            => FindOrCacheButton(button).GetState(type);
     }
     public delegate void DelMouseScroll(bool down);
     public delegate void DelCursorUpdate(float x, float y);
@@ -129,7 +132,7 @@ namespace TheraEngine.Input.Devices
             OnAbsolute(xPos, yPos);
         }
         
-        public void Register(DelCursorUpdate func, EInputPauseType pauseType, MouseMoveType type, bool unregister)
+        public void Register(DelCursorUpdate func, EInputPauseType pauseType, EMouseMoveType type, bool unregister)
         {
             int index = ((int)type * 3) + (int)pauseType;
             if (unregister)
@@ -150,12 +153,12 @@ namespace TheraEngine.Input.Devices
             }
         }
         private void OnAbsolute(float x, float y)
-            => PerformAction(MouseMoveType.Absolute, x, y);
+            => PerformAction(EMouseMoveType.Absolute, x, y);
         private void OnRelative(float x, float y)
-            => PerformAction(MouseMoveType.Relative, x, y);
+            => PerformAction(EMouseMoveType.Relative, x, y);
         private void OnUnbounded(float x, float y)
-            => PerformAction(MouseMoveType.Unbounded, x, y);
-        protected void PerformAction(MouseMoveType type, float x, float y)
+            => PerformAction(EMouseMoveType.Unbounded, x, y);
+        protected void PerformAction(EMouseMoveType type, float x, float y)
         {
             int index = (int)type * 3;
             List<DelCursorUpdate> list = _onCursorUpdate[index];

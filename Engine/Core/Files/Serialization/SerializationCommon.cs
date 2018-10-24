@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -8,13 +7,46 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using TheraEngine.Core.Tools;
-using TheraEngine.Core.Files;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace TheraEngine.Core.Files.Serialization
 {
+    public class TSerializeMemberInfo
+    {
+        public TSerialize Attribute { get; }
+        public MemberInfo Member { get; }
+        public Type MemberType { get; }
+        public string Name { get; }
+        public string Category { get; }
+
+        public TSerializeMemberInfo(MemberInfo member)
+        {
+            Member = member;
+            Attribute = member?.GetCustomAttribute<TSerialize>();
+
+            MemberType =
+                Member is PropertyInfo propMember ? propMember.PropertyType :
+                Member is FieldInfo fieldMember ? fieldMember.FieldType :
+                null;
+
+            Name = Attribute.NameOverride ?? Member.Name;
+            if (Name != null)
+                Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
+            else
+                Name = "null";
+
+            if (Attribute.UseCategory)
+            {
+                if (Attribute.OverrideCategory != null)
+                    Category = SerializationCommon.FixElementName(Attribute.OverrideCategory);
+                else
+                {
+                    CategoryAttribute categoryAttrib = Member.GetCustomAttribute<CategoryAttribute>();
+                    if (categoryAttrib != null)
+                        Category = SerializationCommon.FixElementName(categoryAttrib.Category);
+                }
+            }
+        }
+    }
     public enum ESerializeType
     {
         Parsable,
@@ -194,7 +226,23 @@ namespace TheraEngine.Core.Files.Serialization
         //    }
         //    return fields;
         //}
-        
+        public static List<TSerializeMemberInfo> CollectSerializedMembers(Type type)
+        {
+            BindingFlags retrieveFlags =
+                BindingFlags.Instance |
+                BindingFlags.NonPublic |
+                BindingFlags.Public |
+                BindingFlags.FlattenHierarchy;
+
+            MemberInfo[] members = type?.GetMembersExt(retrieveFlags) ?? new MemberInfo[0];
+            List<TSerializeMemberInfo> serMembers = new List<TSerializeMemberInfo>(members.Length);
+
+            foreach (MemberInfo info in members)
+                if ((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize)))
+                    serMembers.Add(new TSerializeMemberInfo(info));
+
+            return serMembers;
+        }
         /// <summary>
         /// Creates an object of the given type.
         /// </summary>
@@ -375,6 +423,35 @@ namespace TheraEngine.Core.Files.Serialization
                 Engine.PrintLine(e.ToString());
             }
             return fileType;
+        }
+
+        /// <summary>
+        /// Finds the class to use to read and write the given type.
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public static BaseObjectSerializer DetermineObjectSerializer(Type objectType, IMemberTreeNode node)
+        {
+            BaseObjectSerializer serializer = null;
+            Type[] types = null;
+
+            if (objectType != null)
+            {
+                Type baseObjSerType = typeof(BaseObjectSerializer);
+                types = Engine.FindTypes(type =>
+                    baseObjSerType.IsAssignableFrom(type) &&
+                    (type.GetCustomAttributeExt<ObjectWriterKind>()?.ObjectType?.IsAssignableFrom(objectType) ?? false),
+                true, null).ToArray();
+            }
+
+            if (types != null && types.Length > 0)
+                serializer = (BaseObjectSerializer)Activator.CreateInstance(types[0]);
+            else
+                serializer = new CommonSerializer();
+
+            serializer.TreeNode = node;
+            return serializer;
         }
     }
 }

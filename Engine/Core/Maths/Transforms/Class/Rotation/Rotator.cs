@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using System.ComponentModel;
 using System;
+using System.Globalization;
 
 namespace TheraEngine.Core.Maths.Transforms
 {
@@ -70,15 +71,15 @@ namespace TheraEngine.Core.Maths.Transforms
             }
         }
 
-        [TSerialize("PitchYawRoll", NodeType = ENodeType.SetParentElementString)]
+        [TSerialize("PitchYawRoll", NodeType = ENodeType.ElementString)]
         private Vec3 _pyr;
-        [TSerialize("Order", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("Order", NodeType = ENodeType.Attribute)]
         private RotationOrder _rotationOrder = RotationOrder.YPR;
-        [TSerialize("LockYaw", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("LockYaw", NodeType = ENodeType.Attribute)]
         private bool _lockYaw = false;
-        [TSerialize("LockPitch", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("LockPitch", NodeType = ENodeType.Attribute)]
         private bool _lockPitch = false;
-        [TSerialize("LockRoll", NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize("LockRoll", NodeType = ENodeType.Attribute)]
         private bool _lockRoll = false;
 
         [Category("Rotator")]
@@ -714,14 +715,14 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public static bool operator ==(Rotator left, Rotator right)
         {
-            if (ReferenceEquals(left, null))
-                return ReferenceEquals(right, null);
+            if (left is null)
+                return right is null;
             return left.Equals(right);
         }
         public static bool operator !=(Rotator left, Rotator right)
         {
-            if (ReferenceEquals(left, null))
-                return !ReferenceEquals(right, null);
+            if (left is null)
+                return !(right is null);
             return !left.Equals(right);
         }
         
@@ -729,9 +730,7 @@ namespace TheraEngine.Core.Maths.Transforms
             => new Vec3(v.Yaw, v.Pitch, v.Roll);
         public static explicit operator Rotator(Vec3 v)
             => new Rotator(v.X, v.Y, v.Z, RotationOrder.PYR);
-
-        private static string listSeparator = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-
+        
         public static Rotator GetZero(RotationOrder order = RotationOrder.YPR)
         {
            return new Rotator(0.0f, 0.0f, 0.0f, order);
@@ -747,7 +746,7 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public override string ToString()
         {
-            return String.Format("({0}{3} {1}{3} {2}{3} {4})", Pitch, Yaw, Roll, listSeparator, _rotationOrder);
+            return string.Format("({0}{3} {1}{3} {2}{3} {4})", Pitch, Yaw, Roll, CultureInfo.CurrentCulture.TextInfo.ListSeparator, _rotationOrder);
         }
         public override int GetHashCode()
         {
@@ -768,7 +767,7 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public bool Equals(Rotator other)
         {
-            if (ReferenceEquals(other, null))
+            if (other is null)
                 return false;
             return
                 Yaw == other.Yaw &&
@@ -777,7 +776,7 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public bool Equals(Rotator other, float precision)
         {
-            if (ReferenceEquals(other, null))
+            if (other is null)
                 return false;
             return
                 Abs(Yaw - other.Yaw) < precision &&

@@ -61,7 +61,7 @@ namespace TheraEngine
         }
         
         [TString(false, false, false)]
-        [TSerialize(nameof(Name), NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
         protected string _name = null;
 
         public bool ConstructedProgrammatically { get; internal set; } = true;

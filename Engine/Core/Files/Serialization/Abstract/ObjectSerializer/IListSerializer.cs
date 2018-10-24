@@ -3,16 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectWriterKind(typeof(IList))]
-    public class IListWriter : BaseObjectWriter
+    public class IListSerializer : BaseObjectSerializer
     {
         public IList List { get; private set; }
         public IMemberTreeNode[] Values { get; private set; }
-        
-        public override async Task CollectSerializedMembers()
+
+        public override void GenerateObjectFromTree()
+        {
+
+        }
+        public override void GenerateTreeFromBinary(ref VoidPtr address)
+        {
+
+        }
+        public override async Task GenerateTreeFromObject()
         {
             List = TreeNode.Object as IList;
 

@@ -13,12 +13,12 @@ namespace TheraEngine.Input.Devices
     public abstract class InputDevice : TObject
     {
         //TODO: mouse and keyboard should just be their own global devices for ALL input from ANY mice or keyboards
-        public static Dictionary<InputDeviceType, InputDevice[]> CurrentDevices =
-            new Dictionary<InputDeviceType, InputDevice[]>()
+        public static Dictionary<EInputDeviceType, InputDevice[]> CurrentDevices =
+            new Dictionary<EInputDeviceType, InputDevice[]>()
         {
-            { InputDeviceType.Gamepad,  new InputDevice[4] },
-            { InputDeviceType.Keyboard, new InputDevice[4] },
-            { InputDeviceType.Mouse,    new InputDevice[4] },
+            { EInputDeviceType.Gamepad,  new InputDevice[4] },
+            { EInputDeviceType.Keyboard, new InputDevice[4] },
+            { EInputDeviceType.Mouse,    new InputDevice[4] },
         };
 
         protected ButtonManager[] _buttonStates;
@@ -62,7 +62,7 @@ namespace TheraEngine.Input.Devices
             //TODO: only tick inputs for local controllers that have registered input to the currently focused render panel
             return _isConnected && BaseRenderPanel.FocusedPanel != null;
         }
-        public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
+        public static void RegisterButtonEvent(ButtonManager m, EButtonInputType type, EInputPauseType pauseType, Action func, bool unregister)
         {
             m?.Register(func, type, pauseType, unregister);
         }

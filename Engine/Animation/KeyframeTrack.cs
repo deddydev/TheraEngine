@@ -578,7 +578,7 @@ namespace TheraEngine.Animation
     }
     public abstract class Keyframe : ISerializableString
     {
-        [TSerialize(nameof(Second), NodeType = ENodeType.SetParentAttribute)]
+        [TSerialize(nameof(Second), NodeType = ENodeType.Attribute)]
         private float _second;
         
         protected Keyframe _next;

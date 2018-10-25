@@ -127,9 +127,14 @@ namespace TheraEngine.Core.Files.Serialization
         }
         protected internal override List<IMemberTreeNode> RetrieveChildren(out int elementCount, out int attributeCount, out bool elementString)
         {
+            elementCount = 0;
+            attributeCount = 0;
+            elementString = false;
+
             List<IMemberTreeNode> nodes = new List<IMemberTreeNode>();
             foreach (var attrib in Attributes)
             {
+                ++attributeCount;
                 string name = attrib.Name;
                 string val = attrib.Value;
                 XMLMemberTreeNode attribNode = new XMLMemberTreeNode(null)
@@ -138,7 +143,32 @@ namespace TheraEngine.Core.Files.Serialization
                 };
                 nodes.Add(attribNode);
             }
-            //return nodes;
+            if (ChildElements != null)
+            {
+                foreach (XMLMemberTreeNode node in ChildElements)
+                {
+                    ++elementCount;
+                    node.NodeType = ENodeType.ChildElement;
+                    nodes.Add(node);
+                }
+            }
+            if (ElementString != null)
+            {
+                if (elementCount > 0)
+                {
+                    XMLMemberTreeNode attribNode = new XMLMemberTreeNode(null)
+                    {
+                        NodeType = ENodeType.Attribute,
+                    };
+                    ++elementCount;
+
+                }
+                else
+                {
+
+                }
+            }
+            return nodes;
         }
         public void AddChildElementString(string elementName, string value)
         {
@@ -200,7 +230,7 @@ namespace TheraEngine.Core.Files.Serialization
         Task AddChildrenAsync(int attribCount, int elementCount, int elementStringCount, List<IMemberTreeNode> members);
         List<IMemberTreeNode> RetrieveChildren(out int elementCount, out int attributeCount, out bool elementString);
 
-        void GenerateObjectFromTree(Type objectType);
+        Task GenerateObjectFromTreeAsync(Type objectType);
         Task CreateTreeFromObjectAsync();
     }
     public abstract class MemberTreeNode<T> : IMemberTreeNode where T : class, IMemberTreeNode
@@ -636,15 +666,20 @@ namespace TheraEngine.Core.Files.Serialization
             }
         }
         public override string ToString() => Name;
+
+        protected internal abstract Task AddChildrenAsync(int attribCount, int elementCount, int elementStringCount, List<T> members);
         Task IMemberTreeNode.AddChildrenAsync(int attribCount, int elementCount, int elementStringCount, List<IMemberTreeNode> members)
             => AddChildrenAsync(attribCount, elementCount, elementStringCount, members.Select(x => (T)x).ToList());
-        protected internal abstract Task AddChildrenAsync(int attribCount, int elementCount, int elementStringCount, List<T> members);
+
+        protected internal abstract List<IMemberTreeNode> RetrieveChildren(out int elementCount, out int attributeCount, out bool elementString);
         List<IMemberTreeNode> IMemberTreeNode.RetrieveChildren(out int elementCount, out int attributeCount, out bool elementString)
             => RetrieveChildren(out elementCount, out attributeCount, out elementString);
-        protected internal abstract List<IMemberTreeNode> RetrieveChildren(out int elementCount, out int attributeCount, out bool elementString);
-        public void GenerateObjectFromTree(Type objectType)
+
+        public async Task GenerateObjectFromTreeAsync(Type objectType)
         {
 
         }
+        async Task IMemberTreeNode.GenerateObjectFromTreeAsync(Type objectType) 
+            => await GenerateObjectFromTreeAsync(objectType);
     }
 }

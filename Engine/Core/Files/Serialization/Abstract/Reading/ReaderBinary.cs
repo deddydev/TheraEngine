@@ -12,19 +12,6 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [Flags]
-    public enum EBinaryObjectFlags : byte
-    {
-        IsDefault       = 0b0000_0000,
-        IsNotDefault    = 0b0000_0001,
-        IsDerived       = 0b0000_0010,
-        IsNull          = 0b0000_0100,
-        IsSharedObject  = 0b0000_1000,
-        IsGrouping      = 0b0001_0000,
-        Unused2         = 0b0010_0000,
-        Unused3         = 0b0100_0000,
-        BooleanValue    = 0b1000_0000,
-    }
     public partial class TDeserializer : TBaseSerializer
     {
         /// <summary>
@@ -34,20 +21,17 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="progress">Handler for progress updates.</param>
         /// <param name="cancel">Handler for the caller to cancel the operation.</param>
         /// <param name="encryptionPassword">If encrypted, this is the password to use to decrypt.</param>
-        public async Task<TFileObject> DeserializeBinaryAsync(
+        public async Task<object> DeserializeBinaryAsync(
             string filePath,
             IProgress<float> progress,
             CancellationToken cancel,
             string encryptionPassword)
         {
             Format = EProprietaryFileFormat.Binary;
-            Type fileType = SerializationCommon.DetermineType(filePath);
-            TFileObject rootFileObject = SerializationCommon.CreateObject(fileType) as TFileObject;
-            Reader = new ReaderBinary(this, rootFileObject, filePath, progress, cancel, encryptionPassword);
-            await Reader.ReadTree();
-
+            Reader = new ReaderBinary(this, filePath, progress, cancel, encryptionPassword);
+            await Reader.CreateObjectAsync();
             Engine.PrintLine("Deserialized binary file at {0}", filePath);
-            return Reader.RootFileObject;
+            return Reader.RootNode.Object;
         }
         public class ReaderBinary : AbstractReader<BinaryMemberTreeNode>
         {
@@ -62,12 +46,11 @@ namespace TheraEngine.Core.Files.Serialization
 
             public ReaderBinary(
                 TDeserializer owner,
-                TFileObject rootFileObject,
                 string filePath,
                 IProgress<float> progress,
                 CancellationToken cancel,
                 string encryptionPassword)
-                : base(owner, rootFileObject, filePath, progress, cancel)
+                : base(owner, filePath, progress, cancel)
             {
                 if (Encrypted)
                 {
@@ -78,7 +61,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
 
-            protected internal override async Task ReadTree()
+            protected override async Task ReadTreeAsync()
             {
                 using (FileMap uncompMap = FileMap.FromFile(FilePath, FileMapProtect.Read))
                 {
@@ -356,6 +339,50 @@ namespace TheraEngine.Core.Files.Serialization
                         return null;
                     }
                 }
+            }
+            [Flags]
+            public enum EBinaryObjectFlags : byte
+            {
+                /// <summary>
+                /// This object is what is set to when the main constructor is run.
+                /// </summary>
+                IsDefault = 0b0000_0000,
+                /// <summary>
+                /// This object is different from what it is set to when the main constructor is run.
+                /// </summary>
+                IsNotDefault = 0b0000_0001,
+                /// <summary>
+                /// This object inherits from the type of the member it is assigned to.
+                /// This is always true if the member type is an interface.
+                /// Otherwise the object is exactly the same type or null.
+                /// </summary>
+                IsDerived = 0b0000_0010,
+                /// <summary>
+                /// This object is null.
+                /// Not used by value types.
+                /// </summary>
+                IsNull = 0b0000_0100,
+                /// <summary>
+                /// This object is a reference type that is referenced by multiple other objects in the same file.
+                /// </summary>
+                IsSharedObject = 0b0000_1000,
+                /// <summary>
+                /// This element contains other elements of the same category.
+                /// </summary>
+                IsGrouping = 0b0001_0000,
+                /// <summary>
+                /// Unused bit.
+                /// </summary>
+                Unused2 = 0b0010_0000,
+                /// <summary>
+                /// Unused bit.
+                /// </summary>
+                Unused3 = 0b0100_0000,
+                /// <summary>
+                /// If this object's type is boolean, its value is stored here.
+                /// Not used for non-boolean objects.
+                /// </summary>
+                BooleanValue = 0b1000_0000,
             }
         }
     }

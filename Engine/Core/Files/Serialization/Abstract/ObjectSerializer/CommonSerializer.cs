@@ -17,27 +17,7 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<PreDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
-            var members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
-            List<TSerializeMemberInfo> attribs = new List<TSerializeMemberInfo>(members.Count);
-            List<TSerializeMemberInfo> childElements = new List<TSerializeMemberInfo>(members.Count);
-            List<TSerializeMemberInfo> elementStrings = new List<TSerializeMemberInfo>(members.Count);
-            foreach (var member in members)
-            {
-                switch (member.Attribute.NodeType)
-                {
-                    case ENodeType.Attribute:
-                        attribs.Add(member);
-                        break;
-                    case ENodeType.ElementString:
-                        elementStrings.Add(member);
-                        break;
-                    case ENodeType.ChildElement:
-                        childElements.Add(member);
-                        break;
-                }
-            }
-
-            List<IMemberTreeNode> nodes = TreeNode.RetrieveChildren(out int elementCount, out int attributeCount, out bool elementString);
+            List<IMemberTreeNode> nodes = TreeNode.RetrieveChildren();
             foreach (IMemberTreeNode node in nodes)
             {
                 switch (node.NodeType)
@@ -72,15 +52,15 @@ namespace TheraEngine.Core.Files.Serialization
                 elementCount = 0,
                 elementStringCount = 0;
 
-            List<MemberInfo> members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
+            List<TSerializeMemberInfo> members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
             Members = new List<IMemberTreeNode>(members.Count);
 
-            foreach (MemberInfo info in members)
+            foreach (TSerializeMemberInfo info in members)
             {
-                TSerialize attrib = info.GetCustomAttribute<TSerialize>();
+                TSerialize attrib = info.Attribute;
                 if (attrib.AllowSerialize(TreeNode.Object))
                 {
-                    IMemberTreeNode child = TreeNode.Owner.CreateNode(TreeNode, info);
+                    IMemberTreeNode child = TreeNode.Owner.CreateNode(TreeNode, info.Member);
                     switch (attrib.NodeType)
                     {
                         case ENodeType.Attribute:
@@ -134,6 +114,8 @@ namespace TheraEngine.Core.Files.Serialization
             //Add a member node for each category
             foreach (var cat in categorizedChildren)
             {
+                //TODO: handle category tree nodes better
+
                 IMemberTreeNode node = TreeNode.Owner.CreateNode(TreeNode.Object);
                 node.Parent = TreeNode;
                 node.NodeType = ENodeType.ChildElement;

@@ -17,21 +17,16 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="progress">Handler for progress updates.</param>
         /// <param name="cancel">Handler for the caller to cancel the operation.</param>
         /// <param name="encryptionPassword">If encrypted, this is the password to use to decrypt.</param>
-        public async Task<TFileObject> DeserializeXMLAsync(
+        public async Task<object> DeserializeXMLAsync(
             string filePath,
             IProgress<float> progress,
             CancellationToken cancel)
         {
             Format = EProprietaryFileFormat.XML;
-
-            Type fileType = SerializationCommon.DetermineType(filePath);
             Reader = new ReaderXML(this, filePath, progress, cancel, null);
-
-            await Reader.ReadTree();
-            Reader.RootNode.GenerateObjectFromTree(fileType);
-
+            await Reader.CreateObjectAsync();
             Engine.PrintLine("Deserialized XML file at {0}", filePath);
-            return Reader.RootNode.Object as TFileObject;
+            return Reader.RootNode.Object;
         }
         private class ReaderXML : AbstractReader<XMLMemberTreeNode>
         {
@@ -62,7 +57,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
 
-            protected internal override async Task ReadTree()
+            protected override async Task ReadTreeAsync()
             {
                 using (_stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.RandomAccess))
                 using (_reader = XmlReader.Create(_stream, _settings))
@@ -72,7 +67,6 @@ namespace TheraEngine.Core.Files.Serialization
                     RootNode = await ReadElementAsync();
                 }
             }
-
             private async Task<XMLMemberTreeNode> ReadElementAsync()
             {
                 XMLMemberTreeNode node = null;

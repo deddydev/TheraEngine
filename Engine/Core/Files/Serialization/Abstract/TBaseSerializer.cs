@@ -14,7 +14,7 @@ namespace TheraEngine.Core.Files.Serialization
             string FileDirectory { get; }
             IProgress<float> Progress { get; }
             CancellationToken Cancel { get; }
-            TFileObject RootFileObject { get; }
+            object RootFileObject { get; }
             IMemberTreeNode RootNode { get; }
             ESerializeFlags Flags { get; }
             EProprietaryFileFormatFlag Format { get; }
@@ -29,7 +29,7 @@ namespace TheraEngine.Core.Files.Serialization
             public string FileDirectory { get; internal set; }
             public IProgress<float> Progress { get; internal set; }
             public CancellationToken Cancel { get; internal set; }
-            public TFileObject RootFileObject { get; internal set; }
+            public object RootFileObject => RootNode?.Object;
             public T RootNode { get; protected set; }
             IMemberTreeNode IBaseAbstractReaderWriter.RootNode => RootNode;
             public Dictionary<Guid, T> SharedObjects { get; internal set; }
@@ -38,9 +38,8 @@ namespace TheraEngine.Core.Files.Serialization
             public ESerializeFlags Flags { get; internal set; }
             public abstract EProprietaryFileFormatFlag Format { get; }
 
-            public TBaseAbstractReaderWriter(TFileObject rootFileObject, string filePath, IProgress<float> progress, CancellationToken cancel)
+            public TBaseAbstractReaderWriter(string filePath, IProgress<float> progress, CancellationToken cancel)
             {
-                RootFileObject = rootFileObject;
                 FilePath = filePath;
                 Progress = progress;
                 Cancel = cancel;

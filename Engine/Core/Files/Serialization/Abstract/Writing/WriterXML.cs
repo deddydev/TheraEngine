@@ -19,7 +19,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="progress">Handler for progress updates.</param>
         /// <param name="cancel">Handler for the caller to cancel the operation.</param>
         public async Task SerializeXMLAsync(
-            TFileObject fileObject,
+            object fileObject,
             string filePath,
             ESerializeFlags flags,
             IProgress<float> progress,
@@ -27,7 +27,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
 
-            await Writer.RootNode.CreateTreeFromObjectAsync();
+            await Writer.CreateTreeAsync();
             await Writer.WriteTreeAsync();
 
             Engine.PrintLine("Serialized XML file to {0}", filePath);
@@ -42,7 +42,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="progress">Handler for progress updates.</param>
         /// <param name="cancel">Handler for the caller to cancel the operation.</param>
         public async Task SerializeXMLAsync(
-            TFileObject fileObject,
+            object fileObject,
             string targetDirectoryPath,
             string fileName,
             ESerializeFlags flags,
@@ -52,7 +52,7 @@ namespace TheraEngine.Core.Files.Serialization
             string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, EProprietaryFileFormat.XML, fileObject.GetType());
             Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
 
-            await Writer.RootNode.CreateTreeFromObjectAsync();
+            await Writer.CreateTreeAsync();
             await Writer.WriteTreeAsync();
 
             Engine.PrintLine("Serialized XML file to {0}", filePath);
@@ -75,7 +75,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             public WriterXML(
                 TSerializer owner,
-                TFileObject rootFileObject,
+                object rootFileObject,
                 string filePath,
                 ESerializeFlags flags,
                 IProgress<float> progress,
@@ -86,7 +86,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (settings != null)
                     _settings = settings;
             }
-            protected internal override async Task WriteTree()
+            protected internal override async Task WriteTreeAsync()
             {
                 using (_stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.RandomAccess))
                 using (_writer = XmlWriter.Create(_stream, _settings))
@@ -95,11 +95,11 @@ namespace TheraEngine.Core.Files.Serialization
                     _stream.Position = 0;
 
                     await _writer.WriteStartDocumentAsync();
-                    await WriteElement(RootNode);
+                    await WriteElementAsync(RootNode);
                     await _writer.WriteEndDocumentAsync();
                 }
             }
-            private async Task WriteElement(XMLMemberTreeNode node)
+            private async Task WriteElementAsync(XMLMemberTreeNode node)
             {
                 await _writer.WriteStartElementAsync(null, SerializationCommon.FixElementName(node.ElementName), null);
                 {
@@ -145,7 +145,7 @@ namespace TheraEngine.Core.Files.Serialization
                     else
                         foreach (XMLMemberTreeNode childNode in childElements)
                         {
-                            await WriteElement(childNode);
+                            await WriteElementAsync(childNode);
                             if (ReportProgress())
                             {
                                 await _writer.WriteEndElementAsync();

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,7 +7,6 @@ namespace TheraEngine.Core.Files.Serialization
     public partial class TDeserializer : TBaseSerializer
     {
         public IAbstractReader Reader { get; private set; }
-        public EProprietaryFileFormat Format { get; private set; }
 
         public interface IAbstractReader : IBaseAbstractReaderWriter
         {

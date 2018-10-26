@@ -475,7 +475,7 @@ namespace TheraEngine.Animation
             //Read all keyframe information, split into separate element arrays
             foreach (XMLMemberTreeNode element in xmlNode.ChildElements)
             {
-                string[] str = element.ElementString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] str = element.ElementObject.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 switch (element.MemberInfo.Name)
                 {
                     case "Seconds":     seconds         = str; break;

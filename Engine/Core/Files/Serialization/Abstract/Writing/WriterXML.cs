@@ -113,11 +113,11 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                     
-                    List<XMLAttribute> attributes = node.Attributes;
+                    List<SerializeAttribute> attributes = node.Attributes;
                     List<XMLMemberTreeNode> childElements = node.ChildElements;
-                    string childStringData = node.ElementString;
+                    string childStringData = node.ElementObject;
 
-                    foreach (XMLAttribute attribute in attributes)
+                    foreach (SerializeAttribute attribute in attributes)
                     {
                         await _writer.WriteAttributeStringAsync(null, attribute.Name, null, attribute.Value);
                         if (ReportProgress())

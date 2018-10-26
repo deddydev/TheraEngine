@@ -7,55 +7,61 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     public class TSerializeMemberInfo
     {
-        public TSerialize Attribute { get; }
-        public MemberInfo Member { get; }
-        public Type MemberType { get; }
-        public string Name { get; }
-        public string Category { get; }
+        public MemberInfo Member { get; set; }
+        public Type MemberType { get; set; }
+        public string Name { get; set; }
+        public string Category { get; set; }
+        public bool State { get; set; }
+        public bool Config { get; set; }
+        public ENodeType NodeType { get; set; }
+        public int Order { get; set; }
+        public string Condition { get; set; }
 
-        public TSerializeMemberInfo(string name, string category, Type memberType, TSerialize attrib)
+        public TSerializeMemberInfo(string name, string category, Type memberType, bool state, bool config, ENodeType nodeType, int order, string condition)
         {
             Member = null;
-            Attribute = attrib;
             MemberType = memberType;
+            State = state;
+            Config = config;
+            NodeType = nodeType;
+            Order = order;
+            Condition = condition;
 
-            Name = Attribute?.NameOverride ?? name;
-            if (Name != null)
-                Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
-            else
-                Name = "null";
+            Name = name ?? "null";
+            Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
 
             Category = category;
-            if (Attribute != null && Attribute.UseCategory && Attribute.OverrideCategory != null)
-                Category = Attribute.OverrideCategory;
             if (Category != null)
                 Category = SerializationCommon.FixElementName(Category);
         }
         public TSerializeMemberInfo(MemberInfo member)
         {
             Member = member;
-            Attribute = member?.GetCustomAttribute<TSerialize>();
+            TSerialize attrib = member?.GetCustomAttribute<TSerialize>();
+            Config = attrib.Config;
+            State = attrib.State;
+            NodeType = attrib.NodeType;
+            Order = attrib.Order;
+            Condition = attrib.Condition;
 
             MemberType =
                 Member is PropertyInfo propMember ? propMember.PropertyType :
                 Member is FieldInfo fieldMember ? fieldMember.FieldType :
                 null;
 
-            Name = Attribute?.NameOverride ?? Member?.Name;
-            if (Name != null)
-                Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
-            else
-                Name = "null";
+            Name = attrib?.NameOverride ?? Member?.Name ?? "null";
+            Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
 
-            if (Attribute.UseCategory)
+            if (attrib.UseCategory)
             {
-                if (Attribute.OverrideCategory != null)
-                    Category = SerializationCommon.FixElementName(Attribute.OverrideCategory);
+                if (attrib.OverrideCategory != null)
+                    Category = SerializationCommon.FixElementName(attrib.OverrideCategory);
                 else
                 {
                     CategoryAttribute categoryAttrib = Member.GetCustomAttribute<CategoryAttribute>();
@@ -64,6 +70,8 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
         }
+        public bool AllowSerialize(object obj)
+            => Condition == null ? true : ExpressionParser.Evaluate<bool>(Condition, obj);
     }
     public enum ESerializeType
     {
@@ -401,10 +409,8 @@ namespace TheraEngine.Core.Files.Serialization
                     default:
                     case EFileFormat.ThirdParty:
                         Type[] types = TFileObject.DetermineThirdPartyTypes(ext);
-                        Type type = types.Length > 0 ? types[0] : null;
-                        if (type == null)
-                            Engine.LogWarning("This type of file is not supported: " + filePath);
-                        return type;
+                        fileType = types.Length > 0 ? types[0] : null;
+                        break;
                     case EFileFormat.XML:
                         using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
                         {
@@ -430,6 +436,7 @@ namespace TheraEngine.Core.Files.Serialization
                         using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
                         {
                             FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
+                            //hdr->Strings->
                             //if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(SerializationCommon.TypeIdent, true))
                             //    t = Type.GetType(reader.Value, false, false);
                         }
@@ -440,6 +447,8 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Engine.PrintLine(e.ToString());
             }
+            if (fileType == null)
+                Engine.LogWarning("Cannot determine the type of file at " + filePath + ".");
             return fileType;
         }
 

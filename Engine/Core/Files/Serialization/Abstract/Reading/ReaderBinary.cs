@@ -288,7 +288,7 @@ namespace TheraEngine.Core.Files.Serialization
             //    ++flagIndex;
             //}
 
-            public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
+            public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, TSerializeMemberInfo memberInfo)
                 => new BinaryMemberTreeNode(parent, memberInfo);
             public override BinaryMemberTreeNode CreateNode(object root)
                 => new BinaryMemberTreeNode(root);

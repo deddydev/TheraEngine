@@ -9,14 +9,21 @@ namespace System.Collections.Generic
     public class EventList<T> : ThreadSafeList<T>, IList, INotifyCollectionChanged
     {
         public delegate void SingleHandler(T item);
+        public delegate bool SingleCancelableHandler(T item);
+
         public delegate void MultiHandler(IEnumerable<T> items);
+        public delegate bool MultiCancelableHandler(IEnumerable<T> items);
+
         public delegate void SingleInsertHandler(T item, int index);
+        public delegate bool SingleCancelableInsertHandler(T item, int index);
+        
         public delegate void MultiInsertHandler(IEnumerable<T> items, int index);
+        public delegate bool MultiCancelableInsertHandler(IEnumerable<T> items, int index);
 
         /// <summary>
         /// Event called for every individual item just before being added to the list.
         /// </summary>
-        public event SingleHandler PreAnythingAdded;
+        public event SingleCancelableHandler PreAnythingAdded;
         /// <summary>
         /// Event called for every individual item after being added to the list.
         /// </summary>
@@ -24,7 +31,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Event called for every individual item just before being removed from the list.
         /// </summary>
-        public event SingleHandler PreAnythingRemoved;
+        public event SingleCancelableHandler PreAnythingRemoved;
         /// <summary>
         /// Event called for every individual item after being removed from the list.
         /// </summary>
@@ -32,7 +39,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Event called before an item is added using the Add method.
         /// </summary>
-        public event SingleHandler PreAdded;
+        public event SingleCancelableHandler PreAdded;
         /// <summary>
         /// Event called after an item is added using the Add method.
         /// </summary>
@@ -40,7 +47,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Event called before an item is added using the AddRange method.
         /// </summary>
-        public event MultiHandler PreAddedRange;
+        public event MultiCancelableHandler PreAddedRange;
         /// <summary>
         /// Event called after an item is added using the AddRange method.
         /// </summary>
@@ -48,7 +55,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Event called before an item is removed using the Remove method.
         /// </summary>
-        public event SingleHandler PreRemoved;
+        public event SingleCancelableHandler PreRemoved;
         /// <summary>
         /// Event called after an item is removed using the Remove method.
         /// </summary>
@@ -56,7 +63,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Event called before an item is removed using the RemoveRange method.
         /// </summary>
-        public event MultiHandler PreRemovedRange;
+        public event MultiCancelableHandler PreRemovedRange;
         /// <summary>
         /// Event called after an item is removed using the RemoveRange method.
         /// </summary>
@@ -64,7 +71,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Event called before an item is inserted using the Insert method.
         /// </summary>
-        public event SingleInsertHandler PreInserted;
+        public event SingleCancelableInsertHandler PreInserted;
         /// <summary>
         /// Event called after an item is removed using the Insert method.
         /// </summary>
@@ -72,7 +79,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Event called before an item is inserted using the InsertRange method.
         /// </summary>
-        public event MultiInsertHandler PreInsertedRange;
+        public event MultiCancelableInsertHandler PreInsertedRange;
         /// <summary>
         /// Event called after an item is inserted using the InsertRange method.
         /// </summary>
@@ -80,7 +87,7 @@ namespace System.Collections.Generic
         /// <summary>
         /// Event called before this list is modified in any way at all.
         /// </summary>
-        public event Action PreModified;
+        public event Func<bool> PreModified;
         /// <summary>
         /// Event called after this list is modified in any way at all.
         /// </summary>
@@ -128,11 +135,17 @@ namespace System.Collections.Generic
             {
                 if (reportAdded)
                 {
-                    PreAdded?.Invoke(item);
-                    PreAnythingAdded?.Invoke(item);
+                    if (!(PreAdded?.Invoke(item) ?? true))
+                        return false;
+
+                    if (!(PreAnythingAdded?.Invoke(item) ?? true))
+                        return false;
                 }
                 if (reportModified)
-                    PreModified?.Invoke();
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return false;
+                }
             }
 
             base.Add(item);
@@ -166,15 +179,21 @@ namespace System.Collections.Generic
 
             if (!_updating)
             {
+                if (reportModified)
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return;
+                }
                 if (reportAddedRange)
                 {
-                    PreAddedRange?.Invoke(collection);
+                    if (!(PreAddedRange?.Invoke(collection) ?? true))
+                        return;
+
                     if (PreAnythingAdded != null)
                         foreach (T item in collection)
-                            PreAnythingAdded(item);
+                            if (!PreAnythingAdded(item))
+                                collection = collection.Where(x => !ReferenceEquals(x, item));
                 }
-                if (reportModified)
-                    PreModified?.Invoke();
             }
 
             base.AddRange(collection);
@@ -200,13 +219,19 @@ namespace System.Collections.Generic
         {
             if (!_updating)
             {
+                if (reportModified)
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return false;
+                }
                 if (reportRemoved)
                 {
-                    PreRemoved?.Invoke(item);
-                    PreAnythingRemoved?.Invoke(item);
+                    if (!(PreRemoved?.Invoke(item) ?? true))
+                        return false;
+
+                    if (!(PreAnythingRemoved?.Invoke(item) ?? true))
+                        return false;
                 }
-                if (reportModified)
-                    PreModified?.Invoke();
             }
 
             if (base.Remove(item))
@@ -238,15 +263,21 @@ namespace System.Collections.Generic
 
             if (!_updating)
             {
+                if (reportModified)
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return;
+                }
                 if (reportRemovedRange)
                 {
-                    PreRemovedRange?.Invoke(range);
+                    if (!(PreRemovedRange?.Invoke(range) ?? true))
+                        return;
+
                     if (PreAnythingRemoved != null)
                         foreach (T item in range)
-                            PreAnythingRemoved(item);
+                            if (!PreAnythingRemoved(item))
+                                range = range.Where(x => !ReferenceEquals(x, item));
                 }
-                if (reportModified)
-                    PreModified?.Invoke();
             }
 
             base.RemoveRange(index, count);
@@ -275,13 +306,19 @@ namespace System.Collections.Generic
 
             if (!_updating)
             {
+                if (reportModified)
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return;
+                }
                 if (reportRemoved)
                 {
-                    PreRemoved?.Invoke(item);
-                    PreAnythingRemoved?.Invoke(item);
+                    if (!(PreRemoved?.Invoke(item) ?? true))
+                        return;
+
+                    if (!(PreAnythingRemoved?.Invoke(item) ?? true))
+                        return;
                 }
-                if (reportModified)
-                    PreModified?.Invoke();
             }
 
             base.RemoveAt(index);
@@ -310,15 +347,21 @@ namespace System.Collections.Generic
 
             if (!_updating)
             {
+                if (reportModified)
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return;
+                }
                 if (reportRemovedRange)
                 {
-                    PreRemovedRange?.Invoke(range);
+                    if (!(PreRemovedRange?.Invoke(range) ?? true))
+                        return;
+
                     if (PreAnythingRemoved != null)
                         foreach (T item in range)
-                            PreAnythingRemoved(item);
+                            if (!PreAnythingRemoved(item))
+                                range = range.Where(x => !ReferenceEquals(x, item));
                 }
-                if (reportModified)
-                    PreModified?.Invoke();
             }
 
             base.Clear();
@@ -351,15 +394,21 @@ namespace System.Collections.Generic
 
                 if (!_updating)
                 {
+                    if (reportModified)
+                    {
+                        if (!(PreModified?.Invoke() ?? true))
+                            return;
+                    }
                     if (reportRemovedRange)
                     {
-                        PreRemovedRange?.Invoke(matches);
+                        if (!(PreRemovedRange?.Invoke(matches) ?? true))
+                            return;
+
                         if (PreAnythingRemoved != null)
                             foreach (T item in matches)
-                                PreAnythingRemoved(item);
+                                if (!PreAnythingRemoved(item))
+                                    matches = matches.Where(x => !ReferenceEquals(x, item));
                     }
-                    if (reportModified)
-                        PreModified?.Invoke();
                 }
 
                 base.RemoveAll(match);
@@ -391,13 +440,19 @@ namespace System.Collections.Generic
 
             if (!_updating)
             {
+                if (reportModified)
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return;
+                }
                 if (reportInserted)
                 {
-                    PreInserted?.Invoke(item, index);
-                    PreAnythingRemoved?.Invoke(item);
+                    if (!(PreInserted?.Invoke(item, index) ?? true))
+                        return;
+
+                    if (!(PreAnythingAdded?.Invoke(item) ?? true))
+                        return;
                 }
-                if (reportModified)
-                    PreModified?.Invoke();
             }
 
             base.Insert(index, item);
@@ -429,15 +484,21 @@ namespace System.Collections.Generic
 
             if (!_updating)
             {
+                if (reportModified)
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return;
+                }
                 if (reportInsertedRange)
                 {
-                    PreInsertedRange?.Invoke(collection, index);
-                    if (PreAnythingRemoved != null)
+                    if (!(PreInsertedRange?.Invoke(collection, index) ?? true))
+                        return;
+
+                    if (PreAnythingAdded != null)
                         foreach (T item in collection)
-                            PreAnythingRemoved(item);
+                            if (!PreAnythingAdded(item))
+                                collection = collection.Where(x => !ReferenceEquals(x, item));
                 }
-                if (reportModified)
-                    PreModified?.Invoke();
             }
 
             base.InsertRange(index, collection);
@@ -447,9 +508,9 @@ namespace System.Collections.Generic
                 if (reportInsertedRange)
                 {
                     PostInsertedRange?.Invoke(collection, index);
-                    if (PostAnythingRemoved != null)
+                    if (PostAnythingAdded != null)
                         foreach (T item in collection)
-                            PostAnythingRemoved(item);
+                            PostAnythingAdded(item);
                 }
                 if (reportModified)
                 {
@@ -463,7 +524,10 @@ namespace System.Collections.Generic
         {
             bool report = reportModified && !_updating;
             if (report)
-                PreModified?.Invoke();
+            {
+                if (!(PreModified?.Invoke() ?? true))
+                    return;
+            }
             base.Reverse(index, count);
             if (report)
             {
@@ -476,7 +540,10 @@ namespace System.Collections.Generic
         {
             bool report = reportModified && !_updating;
             if (report)
-                PreModified?.Invoke();
+            {
+                if (!(PreModified?.Invoke() ?? true))
+                    return;
+            }
             base.Reverse();
             if (report)
             {
@@ -489,7 +556,10 @@ namespace System.Collections.Generic
         {
             bool report = reportModified && !_updating;
             if (report)
-                PreModified?.Invoke();
+            {
+                if (!(PreModified?.Invoke() ?? true))
+                    return;
+            }
             base.Sort(index, count, comparer);
             if (report)
             {
@@ -502,7 +572,10 @@ namespace System.Collections.Generic
         {
             bool report = reportModified && !_updating;
             if (report)
-                PreModified?.Invoke();
+            {
+                if (!(PreModified?.Invoke() ?? true))
+                    return;
+            }
             base.Sort();
             if (report)
             {
@@ -515,7 +588,10 @@ namespace System.Collections.Generic
         {
             bool report = reportModified && !_updating;
             if (report)
-                PreModified?.Invoke();
+            {
+                if (!(PreModified?.Invoke() ?? true))
+                    return;
+            }
             base.Sort(comparer);
             if (report)
             {
@@ -532,10 +608,17 @@ namespace System.Collections.Generic
                     return;
                 if (!_allowDuplicates && Contains(value))
                     return;
-                PreModified?.Invoke();
+                if (!_updating)
+                {
+                    if (!(PreModified?.Invoke() ?? true))
+                        return;
+                }
                 base[index] = value;
-                PostModified?.Invoke();
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace));
+                if (!_updating)
+                {
+                    PostModified?.Invoke();
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace));
+                }
             }
         }
         object IList.this[int index]

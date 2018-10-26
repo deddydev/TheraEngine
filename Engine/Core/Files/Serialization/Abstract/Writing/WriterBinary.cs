@@ -385,9 +385,9 @@ namespace TheraEngine.Core.Files.Serialization
                     size += StringOffsetSize;
                 }
                 
-                if (node.Children.Count > 0)
+                if (node.ChildElements.Count > 0)
                 {
-                    foreach (BinaryMemberTreeNode childNode in node.Children)
+                    foreach (BinaryMemberTreeNode childNode in node.ChildElements)
                         size += GetSizeObject(childNode);
 
                     return size;
@@ -575,7 +575,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
 
-            public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, MemberInfo memberInfo)
+            public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, TSerializeMemberInfo memberInfo)
                 => new BinaryMemberTreeNode(parent, memberInfo);
             public override BinaryMemberTreeNode CreateNode(object root)
                 => new BinaryMemberTreeNode(root);

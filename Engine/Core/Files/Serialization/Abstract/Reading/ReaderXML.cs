@@ -83,8 +83,6 @@ namespace TheraEngine.Core.Files.Serialization
                                 node = new XMLMemberTreeNode(null)
                                 {
                                     Name = _reader.Name,
-                                    ChildElements = new List<XMLMemberTreeNode>(),
-                                    Attributes = new List<XMLAttribute>(),
                                 };
                             }
                             break;
@@ -96,7 +94,7 @@ namespace TheraEngine.Core.Files.Serialization
                         case XmlNodeType.Text:
                             value = await _reader.GetValueAsync();
                             if (node != null)
-                                node.ElementString = value;
+                                node.ElementObject = value;
                             break;
                         default:
                             break;

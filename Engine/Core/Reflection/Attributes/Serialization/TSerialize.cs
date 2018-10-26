@@ -60,7 +60,7 @@ namespace System.ComponentModel
         /// <summary>
         /// Determines if this field should not be written if it is null or default.
         /// </summary>
-        public bool IgnoreIfDefault { get; set; } = true;
+        //public bool IgnoreIfDefault { get; set; } = true;
         public bool IsAttribute
         {
             get => NodeType == ENodeType.Attribute;

@@ -57,11 +57,10 @@ namespace TheraEngine.Core.Files.Serialization
 
             foreach (TSerializeMemberInfo info in members)
             {
-                TSerialize attrib = info.Attribute;
-                if (attrib.AllowSerialize(TreeNode.Object))
+                if (info.AllowSerialize(TreeNode.Object))
                 {
                     IMemberTreeNode child = TreeNode.Owner.CreateNode(TreeNode, info);
-                    switch (attrib.NodeType)
+                    switch (info.NodeType)
                     {
                         case ENodeType.Attribute:
                             ++attribCount;
@@ -80,7 +79,7 @@ namespace TheraEngine.Core.Files.Serialization
             for (int i = 0; i < Members.Count; ++i)
             {
                 IMemberTreeNode node = Members[i];
-                int index = node.Order;
+                int index = node.MemberInfo.Order;
                 if (index >= 0)
                 {
                     if (i < attribCount)
@@ -102,8 +101,8 @@ namespace TheraEngine.Core.Files.Serialization
             
             //Group children by category if set
             var categorizedChildren = Members.
-                Where(x => x.Category != null).
-                GroupBy(x => x.Category).
+                Where(node => node.MemberInfo.Category != null).
+                GroupBy(node => node.MemberInfo.Category).
                 ToDictionary(grp => grp.Key, grp => grp.ToArray());
 
             //Remove grouped members from original list
@@ -119,7 +118,7 @@ namespace TheraEngine.Core.Files.Serialization
                 IMemberTreeNode node = TreeNode.Owner.CreateNode(TreeNode.Object);
                 node.Parent = TreeNode;
                 node.NodeType = ENodeType.ChildElement;
-                node.ElementName = cat.Key;
+                node.Name = cat.Key;
 
                 CommonSerializer objWriter = new CommonSerializer { TreeNode = node };
                 node.ObjectSerializer = objWriter;

@@ -8,6 +8,7 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public class TBaseSerializer
     {
+        public EProprietaryFileFormat Format { get; protected set; }
         public interface IBaseAbstractReaderWriter
         {
             string FilePath { get; }

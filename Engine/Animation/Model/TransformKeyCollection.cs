@@ -370,7 +370,7 @@ namespace TheraEngine.Animation
             {
                 if (node is XMLMemberTreeNode xmlNode)
                 {
-                    XMLAttribute attrib = xmlNode.GetAttribute(nameof(LengthInSeconds));
+                    SerializeAttribute attrib = xmlNode.GetAttribute(nameof(LengthInSeconds));
                     if (attrib != null)
                         LengthInSeconds = float.TryParse(attrib.Value, out float length) ? length : 0.0f;
 
@@ -391,7 +391,7 @@ namespace TheraEngine.Animation
 
                             foreach (XMLMemberTreeNode keyframePartElement in targetTrackElement.ChildElements)
                             {
-                                values = keyframePartElement.ElementString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                values = keyframePartElement.ElementObject.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                                 switch (keyframePartElement.Name)
                                 {
                                     case "Second": seconds = values; break;
@@ -437,14 +437,14 @@ namespace TheraEngine.Animation
                     var track = _tracks[i];
                     if (track.Keyframes.Count > 0)
                     {
-                        XMLMemberTreeNode trackElement = new XMLMemberTreeNode(TrackNames[i], new XMLAttribute[] { new XMLAttribute("Count", track.Keyframes.Count.ToString()) });
+                        XMLMemberTreeNode trackElement = new XMLMemberTreeNode(TrackNames[i], new SerializeAttribute[] { new SerializeAttribute("Count", track.Keyframes.Count.ToString()) });
                         trackElement.AddChildElementString("Second", string.Join(",", track.Select(x => x.Second)));
                         trackElement.AddChildElementString("InValues", string.Join(",", track.Select(x => x.InValue)));
                         trackElement.AddChildElementString("OutValues", string.Join(",", track.Select(x => x.OutValue)));
                         trackElement.AddChildElementString("InTangents", string.Join(",", track.Select(x => x.InTangent)));
                         trackElement.AddChildElementString("OutTangents", string.Join(",", track.Select(x => x.OutTangent)));
                         trackElement.AddChildElementString("Interpolation", string.Join(",", track.Select(x => x.InterpolationType)));
-                        await xmlNode.AddChildAsync(trackElement);
+                        await xmlNode.AddChildElementAsync(trackElement);
                     }
                 }
             }

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
+using static TheraEngine.Core.Files.Serialization.TDeserializer.ReaderBinary;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -41,11 +42,19 @@ namespace TheraEngine.Core.Files.Serialization
             string encryptionPassword,
             ICodeProgress compressionProgress)
         {
-            Writer = new WriterBinary(this, fileObject, filePath, flags, progress, cancel, endian, encrypted, compressed, encryptionPassword, compressionProgress);
-
-            await Writer.CreateTreeAsync();
-            await Writer.WriteTreeAsync();
-
+            Writer = new WriterBinary(
+                this,
+                fileObject,
+                filePath,
+                flags,
+                progress,
+                cancel,
+                endian,
+                encrypted,
+                compressed,
+                encryptionPassword,
+                compressionProgress);
+            await Writer.WriteObjectAsync();
             Engine.PrintLine("Serialized binary file to {0}", filePath);
         }
         /// <summary>
@@ -76,11 +85,19 @@ namespace TheraEngine.Core.Files.Serialization
             ICodeProgress compressionProgress)
         {
             string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, EProprietaryFileFormat.Binary, fileObject.GetType());
-            Writer = new WriterBinary(this, fileObject, filePath, flags, progress, cancel, endian, encrypted, compressed, encryptionPassword, compressionProgress);
-
-            await Writer.CreateTreeAsync();
-            await Writer.WriteTreeAsync();
-
+            Writer = new WriterBinary(
+                this,
+                fileObject,
+                filePath, 
+                flags,
+                progress,
+                cancel,
+                endian,
+                encrypted,
+                compressed,
+                encryptionPassword,
+                compressionProgress);
+            await Writer.WriteObjectAsync();
             Engine.PrintLine("Serialized binary file to {0}", filePath);
         }
         public class WriterBinary : AbstractWriter<BinaryMemberTreeNode>
@@ -123,7 +140,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
             
-            protected internal override async Task WriteTreeAsync()
+            protected override async Task WriteTreeAsync()
             {
                 Memory.Endian.SerializeOrder = Endian;
 
@@ -226,7 +243,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 object value = node.Object;
                 Type objType = node.ObjectType;
-                object defaultValue = node.DefaultConstructedObject;
+                object defaultValue = node.DefaultObject;
                 
                 Type nulledType = Nullable.GetUnderlyingType(objType);
                 bool nullable = nulledType != null;
@@ -348,7 +365,7 @@ namespace TheraEngine.Core.Files.Serialization
                 int size = 0;
                 object value = node.Object;
                 Type objType = node.ObjectType;
-                object defaultValue = node.DefaultConstructedObject;
+                object defaultValue = node.DefaultObject;
 
                 if (objType != null)
                 {

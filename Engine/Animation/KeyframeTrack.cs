@@ -442,7 +442,7 @@ namespace TheraEngine.Animation
             if (!(node is XMLMemberTreeNode xmlNode))
                 return;
 
-            if (!string.Equals(xmlNode.ElementName, "KeyframeTrack", StringComparison.InvariantCulture))
+            if (!string.Equals(xmlNode.MemberInfo.Name, "KeyframeTrack", StringComparison.InvariantCulture))
             {
                 LengthInSeconds = 0.0f;
                 return;
@@ -476,7 +476,7 @@ namespace TheraEngine.Animation
             foreach (XMLMemberTreeNode element in xmlNode.ChildElements)
             {
                 string[] str = element.ElementString.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                switch (element.ElementName)
+                switch (element.MemberInfo.Name)
                 {
                     case "Seconds":     seconds         = str; break;
                     case "InValues":    inValues        = str; break;
@@ -510,7 +510,7 @@ namespace TheraEngine.Animation
             if (!(node is XMLMemberTreeNode xmlNode))
                 return;
 
-            xmlNode.ElementName = "KeyframeTrack";
+            xmlNode.MemberInfo.Name = "KeyframeTrack";
             xmlNode.AddAttribute(nameof(LengthInSeconds), LengthInSeconds.ToString());
             xmlNode.AddAttribute(nameof(Count), Count.ToString());
 

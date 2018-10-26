@@ -82,7 +82,7 @@ namespace TheraEngine.Core.Files.Serialization
                             {
                                 node = new XMLMemberTreeNode(null)
                                 {
-                                    ElementName = _reader.Name,
+                                    Name = _reader.Name,
                                     ChildElements = new List<XMLMemberTreeNode>(),
                                     Attributes = new List<XMLAttribute>(),
                                 };
@@ -106,7 +106,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return node;
             }
 
-            public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, MemberInfo memberInfo)
+            public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, TSerializeMemberInfo memberInfo)
                 => new XMLMemberTreeNode(parent, memberInfo);
             public override XMLMemberTreeNode CreateNode(object root)
                 => new XMLMemberTreeNode(root);

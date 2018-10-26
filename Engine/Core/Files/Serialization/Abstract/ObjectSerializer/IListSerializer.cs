@@ -46,7 +46,7 @@ namespace TheraEngine.Core.Files.Serialization
             //for (int i = 0; i < List.Count; ++i)
             //    Values[i] = TreeNode.FormatWriter.CreateNode(List[i], new VarInfo(List[i]?.GetType() ?? listType, objType));
 
-            await TreeNode.AddChildrenAsync(0, Members.Count, 0, Members);
+            await TreeNode.AddChildNodesAsync(0, Members.Count, 0, Members);
         }
     }
 }

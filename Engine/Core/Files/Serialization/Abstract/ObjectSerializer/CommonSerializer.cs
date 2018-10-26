@@ -17,7 +17,7 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<PreDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
-            List<IMemberTreeNode> nodes = TreeNode.RetrieveChildren();
+            List<IMemberTreeNode> nodes = TreeNode.GetChildNodes();
             foreach (IMemberTreeNode node in nodes)
             {
                 switch (node.NodeType)
@@ -60,7 +60,7 @@ namespace TheraEngine.Core.Files.Serialization
                 TSerialize attrib = info.Attribute;
                 if (attrib.AllowSerialize(TreeNode.Object))
                 {
-                    IMemberTreeNode child = TreeNode.Owner.CreateNode(TreeNode, info.Member);
+                    IMemberTreeNode child = TreeNode.Owner.CreateNode(TreeNode, info);
                     switch (attrib.NodeType)
                     {
                         case ENodeType.Attribute:
@@ -130,7 +130,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Members.Add(node);
             }
 
-            await TreeNode.AddChildrenAsync(attribCount, elementCount, elementStringCount, Members);
+            await TreeNode.AddChildNodesAsync(attribCount, elementCount, elementStringCount, Members);
         }
     }
 }

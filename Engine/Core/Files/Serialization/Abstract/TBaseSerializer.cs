@@ -20,7 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
             EProprietaryFileFormatFlag Format { get; }
 
             IMemberTreeNode CreateNode(object obj);
-            IMemberTreeNode CreateNode(IMemberTreeNode parent, MemberInfo memberInfo);
+            IMemberTreeNode CreateNode(IMemberTreeNode parent, TSerializeMemberInfo memberInfo);
             bool ReportProgress();
         }
         public abstract class TBaseAbstractReaderWriter<T> : IBaseAbstractReaderWriter where T : class, IMemberTreeNode
@@ -49,10 +49,10 @@ namespace TheraEngine.Core.Files.Serialization
 
             IMemberTreeNode IBaseAbstractReaderWriter.CreateNode(object obj)
                 => CreateNode(obj);
-            IMemberTreeNode IBaseAbstractReaderWriter.CreateNode(IMemberTreeNode parent, MemberInfo memberInfo)
+            IMemberTreeNode IBaseAbstractReaderWriter.CreateNode(IMemberTreeNode parent, TSerializeMemberInfo memberInfo)
                 => CreateNode(parent as T, memberInfo);
 
-            public abstract T CreateNode(T parent, MemberInfo memberInfo);
+            public abstract T CreateNode(T parent, TSerializeMemberInfo memberInfo);
             public abstract T CreateNode(object obj);
 
             /// <summary>

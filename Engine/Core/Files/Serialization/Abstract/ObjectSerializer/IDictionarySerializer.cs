@@ -46,7 +46,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 IMemberTreeNode node = TreeNode.Owner.CreateNode(obj);
                 node.MemberType = keyType;
-                node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
+                node.Name = SerializationCommon.GetTypeName(node.MemberType);
                 node.NodeType = ENodeType.ChildElement;
                 return node;
             }).ToArray();
@@ -55,7 +55,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 IMemberTreeNode node = TreeNode.Owner.CreateNode(obj);
                 node.MemberType = valType;
-                node.ElementName = SerializationCommon.GetTypeName(node.MemberType);
+                node.Name = SerializationCommon.GetTypeName(node.MemberType);
                 node.NodeType = ENodeType.ChildElement;
                 return node;
             }).ToArray();
@@ -64,11 +64,11 @@ namespace TheraEngine.Core.Files.Serialization
             for (int i = 0; i < Keys.Length; ++i)
             {
                 IMemberTreeNode pairNode = TreeNode.Owner.CreateNode(TreeNode, null);
-                await pairNode.AddChildrenAsync(0, 2, 0, new List<IMemberTreeNode>(2) { Keys[i], Values[i] });
+                await pairNode.AddChildNodesAsync(0, 2, 0, new List<IMemberTreeNode>(2) { Keys[i], Values[i] });
                 Members.Add(pairNode);
             }
 
-            await TreeNode.AddChildrenAsync(0, Members.Count, 0, Members);
+            await TreeNode.AddChildNodesAsync(0, Members.Count, 0, Members);
         }
     }
 }

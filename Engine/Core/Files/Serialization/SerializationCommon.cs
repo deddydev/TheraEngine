@@ -18,6 +18,24 @@ namespace TheraEngine.Core.Files.Serialization
         public string Name { get; }
         public string Category { get; }
 
+        public TSerializeMemberInfo(string name, string category, Type memberType, TSerialize attrib)
+        {
+            Member = null;
+            Attribute = attrib;
+            MemberType = memberType;
+
+            Name = Attribute?.NameOverride ?? name;
+            if (Name != null)
+                Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
+            else
+                Name = "null";
+
+            Category = category;
+            if (Attribute != null && Attribute.UseCategory && Attribute.OverrideCategory != null)
+                Category = Attribute.OverrideCategory;
+            if (Category != null)
+                Category = SerializationCommon.FixElementName(Category);
+        }
         public TSerializeMemberInfo(MemberInfo member)
         {
             Member = member;
@@ -28,7 +46,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Member is FieldInfo fieldMember ? fieldMember.FieldType :
                 null;
 
-            Name = Attribute.NameOverride ?? Member.Name;
+            Name = Attribute?.NameOverride ?? Member?.Name;
             if (Name != null)
                 Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
             else

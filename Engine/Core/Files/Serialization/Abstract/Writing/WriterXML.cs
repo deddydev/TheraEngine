@@ -26,10 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
             CancellationToken cancel)
         {
             Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
-
-            await Writer.CreateTreeAsync();
-            await Writer.WriteTreeAsync();
-
+            await Writer.WriteObjectAsync();
             Engine.PrintLine("Serialized XML file to {0}", filePath);
         }
         /// <summary>
@@ -51,10 +48,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, EProprietaryFileFormat.XML, fileObject.GetType());
             Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
-
-            await Writer.CreateTreeAsync();
-            await Writer.WriteTreeAsync();
-
+            await Writer.WriteObjectAsync();
             Engine.PrintLine("Serialized XML file to {0}", filePath);
         }
         public class WriterXML : AbstractWriter<XMLMemberTreeNode>
@@ -86,7 +80,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (settings != null)
                     _settings = settings;
             }
-            protected internal override async Task WriteTreeAsync()
+            protected override async Task WriteTreeAsync()
             {
                 using (_stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.RandomAccess))
                 using (_writer = XmlWriter.Create(_stream, _settings))
@@ -101,7 +95,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             private async Task WriteElementAsync(XMLMemberTreeNode node)
             {
-                await _writer.WriteStartElementAsync(null, SerializationCommon.FixElementName(node.ElementName), null);
+                await _writer.WriteStartElementAsync(null, SerializationCommon.FixElementName(node.Name), null);
                 {
                     if (ReportProgress())
                     {
@@ -156,7 +150,7 @@ namespace TheraEngine.Core.Files.Serialization
                 await _writer.WriteEndElementAsync();
             }
             
-            public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, MemberInfo memberInfo)
+            public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, TSerializeMemberInfo memberInfo)
                 => new XMLMemberTreeNode(parent, memberInfo);
             public override XMLMemberTreeNode CreateNode(object root)
                 => new XMLMemberTreeNode(root);

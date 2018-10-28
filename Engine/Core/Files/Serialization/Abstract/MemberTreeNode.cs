@@ -12,32 +12,32 @@ namespace TheraEngine.Core.Files.Serialization
     public class SerializeAttribute
     {
         public SerializeAttribute() { }
-        public SerializeAttribute(string name, object value) { Name = name; Value = value; }
+        public SerializeAttribute(string name, object value) { Name = name; _value = value; }
 
         private object _value;
         private string _stringValue;
 
         public string Name { get; set; }
-        public object Value
+
+        public void SetValueAsObject(object o)
         {
-            get => _value;
-            set
-            {
-                _value = value;
-                Type t = _value?.GetType();
-                IsNonStringObject = _value != null ? !SerializationCommon.GetString(Value, t, out _stringValue) : false;
-                IsUnparsedString = false;
-            }
+            _value = o;
+            Type t = _value?.GetType();
+            IsNonStringObject = _value != null ? !SerializationCommon.GetString(_value, t, out _stringValue) : false;
+            IsUnparsedString = false;
         }
-        public string ValueAsString
+        public void SetValueAsString(string o)
         {
-            get => _stringValue;
-            set
-            {
-                _stringValue = value;
-                IsUnparsedString = true;
-                IsNonStringObject = false;
-            }
+            _stringValue = o;
+            IsUnparsedString = true;
+            IsNonStringObject = false;
+        }
+        public bool SetValueAsString(string o, Type type)
+        {
+            _stringValue = o;
+            IsUnparsedString = true;
+            IsNonStringObject = false;
+            return ParseStringToObject(type);
         }
 
         public bool IsNonStringObject { get; private set; } = false;
@@ -48,35 +48,57 @@ namespace TheraEngine.Core.Files.Serialization
             bool canParse = SerializationCommon.CanParseAsString(type);
             if (canParse)
                 _value = SerializationCommon.ParseString(_stringValue, type);
+            IsUnparsedString = !canParse;
+            IsNonStringObject = false;
             return canParse;
         }
-        public bool GetValue<T>(out T value)
+        public bool GetObject<T>(out T value)
         {
-            bool success = IsUnparsedString ? ParseStringToObject(typeof(T)) : Value is T;
+            bool success = IsUnparsedString ? ParseStringToObject(typeof(T)) : _value is T;
             if (success)
-                value = (T)Value;
+                value = (T)_value;
             else
                 value = default;
             return success;
         }
+        public bool GetString(out string value)
+        {
+            if (IsNonStringObject)
+            {
+                value = null;
+                return false;
+            }
+            value = _stringValue;
+            return true;
+        }
 
         public static SerializeAttribute FromString(string name, string value)
         {
-            SerializeAttribute attrib = new SerializeAttribute(name, null)
-            {
-                ValueAsString = value
-            };
+            SerializeAttribute attrib = new SerializeAttribute(name, null);
+            attrib.SetValueAsString(value);
+            return attrib;
+        }
+        public static SerializeAttribute FromString(string name, string value, Type objectType, out bool parseSucceeded)
+        {
+            SerializeAttribute attrib = new SerializeAttribute(name, null);
+            parseSucceeded = attrib.SetValueAsString(value, objectType);
             return attrib;
         }
     }
     public sealed class MemberTreeNode
     {
-        public List<SerializeAttribute> Attributes { get; set; } = new List<SerializeAttribute>();
-        public EventList<MemberTreeNode> ChildElements { get; set; }
-        public object ElementObject { get; set; }
+        public List<SerializeAttribute> ChildAttributeMembers { get; set; } = new List<SerializeAttribute>();
+        public EventList<MemberTreeNode> ChildElementMembers { get; set; }
+        public object ChildElementObjectMember { get; set; }
+
+        public bool GetChildElementObjectMemberAsString(out string value)
+        {
+            value = null;
+            return ChildElementObjectMember == null || SerializationCommon.GetString(ChildElementObjectMember, ChildElementObjectMember.GetType(), out value);
+        }
 
         public bool ElementObjectAsString(out string result)
-            => SerializationCommon.GetString(ElementObject, ElementObject.GetType(), out result);
+            => SerializationCommon.GetString(ChildElementObjectMember, ChildElementObjectMember.GetType(), out result);
         
         public MemberTreeNode Parent { get; internal set; }
         public TBaseSerializer.TBaseAbstractReaderWriter Owner { get; internal set; }
@@ -111,7 +133,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// How many checkpoints need to be hit for this node and all child nodes to advance the progression handler.
         /// </summary>
-        public int ProgressionCount => 1 + Attributes.Count + ChildElements.Count + (ElementObject != null ? 1 : 0) + (IsDerivedType ? 1 : 0);
+        public int ProgressionCount => 1 + ChildAttributeMembers.Count + ChildElementMembers.Count + (ChildElementObjectMember != null ? 1 : 0) + (IsDerivedType ? 1 : 0);
         /// <summary>
         /// The type of the object assigned to this member.
         /// </summary>
@@ -151,9 +173,9 @@ namespace TheraEngine.Core.Files.Serialization
             MemberInfo = null;
             Object = null;
             DefaultObject = null;
-            ChildElements = new EventList<MemberTreeNode>();
-            ChildElements.PostAnythingAdded += ChildElements_PostAnythingAdded;
-            ChildElements.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
+            ChildElementMembers = new EventList<MemberTreeNode>();
+            ChildElementMembers.PostAnythingAdded += ChildElements_PostAnythingAdded;
+            ChildElementMembers.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
         }
 
         private void ChildElements_PostAnythingRemoved(MemberTreeNode item)
@@ -164,7 +186,7 @@ namespace TheraEngine.Core.Files.Serialization
         private void ChildElements_PostAnythingAdded(MemberTreeNode item)
         {
             if (item.Parent != null)
-                item.Parent.ChildElements.Remove(item);
+                item.Parent.ChildElementMembers.Remove(item);
             item.Parent = this;
         }
         
@@ -438,22 +460,32 @@ namespace TheraEngine.Core.Files.Serialization
             }
         }
 
-        public void AddChildElementString(string elementName, string elementValue)
-            => ChildElements.Add(new MemberTreeNode(this, ));
+        public void AddChildElementObject(string elementName, object elementObject)
+            => ChildElementMembers.Add(new MemberTreeNode(null, new TSerializeMemberInfo(typeof(string), elementName)) { ChildElementObjectMember = elementObject });
         public void AddAttribute(string name, object value)
-            => Attributes.Add(new SerializeAttribute(name, value));
+            => ChildAttributeMembers.Add(new SerializeAttribute(name, value));
         public SerializeAttribute GetAttribute(string name) 
-            => Attributes.FirstOrDefault(x => string.Equals(x.Name, name));
+            => ChildAttributeMembers.FirstOrDefault(x => string.Equals(x.Name, name));
+        public SerializeAttribute GetAttribute(int index)
+            => ChildAttributeMembers.IndexInRange(index) ? ChildAttributeMembers[index] : null;
         public bool GetAttributeValue<T>(string name, out T value)
         {
             SerializeAttribute attrib = GetAttribute(name);
             if (attrib != null)
-                return attrib.GetValue(out value);
+                return attrib.GetObject(out value);
+            value = default;
+            return false;
+        }
+        public bool GetAttributeValue<T>(int index, out T value)
+        {
+            SerializeAttribute attrib = GetAttribute(index);
+            if (attrib != null)
+                return attrib.GetObject(out value);
             value = default;
             return false;
         }
         public MemberTreeNode GetChildElement(string name)
-            => ChildElements.FirstOrDefault(x => string.Equals(x.MemberInfo.Name, name));
+            => ChildElementMembers.FirstOrDefault(x => string.Equals(x.MemberInfo.Name, name));
         public override string ToString() => MemberInfo.Name;
     }
 }

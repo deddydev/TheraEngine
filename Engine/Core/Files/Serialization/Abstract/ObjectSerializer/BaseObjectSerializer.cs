@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 
@@ -20,10 +18,10 @@ namespace TheraEngine.Core.Files.Serialization
     public abstract class BaseObjectSerializer
     {
         public MemberTreeNode TreeNode { get; internal protected set; } = null;
-        public List<MemberTreeNode> Members { get; set; }
 
         public abstract void GenerateTreeFromBinary(ref VoidPtr address);
-        public abstract Task ReadObjectMembersFromTreeAsync();
-        public abstract Task GenerateTreeFromObject();
+        public abstract void WriteTreeToBinary(ref VoidPtr address);
+        public abstract void ReadObjectMembersFromTree();
+        public abstract void GenerateTreeFromObject();
     }
 }

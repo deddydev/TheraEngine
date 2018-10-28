@@ -553,6 +553,7 @@ namespace TheraEngine.Animation
         protected DelInterpolate _interpolateVelocity;
         protected DelInterpolate _interpolateAcceleration;
 
+        Type IPlanarKeyframe.ValueType => typeof(T);
         object IPlanarKeyframe.InValue { get => InValue; set => InValue = (T)value; }
         object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (T)value; }
         object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (T)value; }

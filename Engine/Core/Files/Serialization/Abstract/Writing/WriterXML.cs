@@ -113,13 +113,13 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                     
-                    List<SerializeAttribute> attributes = node.Attributes;
-                    List<MemberTreeNode> childElements = node.ChildElements;
-                    string childStringData = node.ElementObject;
+                    List<SerializeAttribute> attributes = node.ChildAttributeMembers;
+                    List<MemberTreeNode> childElements = node.ChildElementMembers;
+                    bool hasChildStringData = node.GetChildElementObjectMemberAsString(out string childStringData);
 
                     foreach (SerializeAttribute attribute in attributes)
                     {
-                        if (attribute.ToString(out string value))
+                        if (attribute.GetString(out string value))
                         {
                             await _writer.WriteAttributeStringAsync(null, attribute.Name, null, value);
                             if (ReportProgress())
@@ -130,11 +130,11 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                         else
                         {
-
+                            Engine.LogWarning($"Cannot write attribute as string.");
                         }
                     }
 
-                    if (childStringData != null)
+                    if (hasChildStringData)
                     {
                         await _writer.WriteStringAsync(childStringData);
                         if (ReportProgress())

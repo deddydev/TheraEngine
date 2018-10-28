@@ -19,7 +19,9 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Flags = flags;
                 Owner = owner;
-                RootNode = new MemberTreeNode(rootFileObject);
+
+                Type t = rootFileObject.GetType();
+                RootNode = new MemberTreeNode(rootFileObject, new TSerializeMemberInfo(t, SerializationCommon.FixElementName(t.Name)));
             }
             
             /// <summary>

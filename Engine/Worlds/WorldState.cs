@@ -53,9 +53,10 @@ namespace TheraEngine.Worlds
             else
                 _actorTypeMap[t].Add(index);
         }
-        private void _spawnedActors_AddedRange(IEnumerable<IActor> items)
+        private bool _spawnedActors_AddedRange(IEnumerable<IActor> items)
         {
             _spawnedActors_InsertedRange(items, _spawnedActors.Count);
+            return true;
         }
         private void _spawnedActors_InsertedRange(IEnumerable<IActor> items, int index)
         {

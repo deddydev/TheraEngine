@@ -33,7 +33,7 @@ namespace TheraEngine.Core.Files.Serialization
             Engine.PrintLine("Deserialized binary file at {0}", filePath);
             return Reader.RootNode.Object;
         }
-        public class ReaderBinary : AbstractReader<BinaryMemberTreeNode>
+        public class ReaderBinary : AbstractReader
         {
             public Endian.EOrder Endian { get; private set; }
             public bool Encrypted { get; private set; }
@@ -78,7 +78,7 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
             }
-            private unsafe BinaryMemberTreeNode ReadObject(ref VoidPtr address, Type memberType)
+            private unsafe MemberTreeNode ReadObject(ref VoidPtr address, Type memberType)
             {
                 object obj = null;
                 Type objType = memberType;
@@ -166,7 +166,7 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
 
-                return new BinaryMemberTreeNode(obj) { MemberType = memberType, };
+                return new MemberTreeNode(obj, new TSerializeMemberInfo(memberType, null));
             }
 
             private bool ShouldReadFileObjectManually(Type objType)
@@ -287,12 +287,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             //    ++flagIndex;
             //}
-
-            public override BinaryMemberTreeNode CreateNode(BinaryMemberTreeNode parent, TSerializeMemberInfo memberInfo)
-                => new BinaryMemberTreeNode(parent, memberInfo);
-            public override BinaryMemberTreeNode CreateNode(object root)
-                => new BinaryMemberTreeNode(root);
-
+            
             public unsafe sealed class BinaryStringTableReader
             {
                 private Dictionary<int, string> _table;

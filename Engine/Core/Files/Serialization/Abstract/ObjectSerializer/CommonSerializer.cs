@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
@@ -12,7 +10,7 @@ namespace TheraEngine.Core.Files.Serialization
     //[ObjectWriterKind(typeof(object))]
     public class CommonSerializer : BaseObjectSerializer
     {
-        public override async Task ReadObjectMembersFromTreeAsync()
+        public override async void ReadObjectMembersFromTree()
         {
             bool custom = await TreeNode.TryInvokeCustomDeserializeAsync();
             if (custom)
@@ -50,17 +48,13 @@ namespace TheraEngine.Core.Files.Serialization
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<PostDeserialize>().Arguments);
 
         }
-        public override void GenerateTreeFromBinary(ref VoidPtr address)
-        {
-
-        }
-        public override async Task GenerateTreeFromObject()
+        public override void GenerateTreeFromObject()
         {
             TSerializeMemberInfo[] members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType, TreeNode.Object);
-            Members = members.Select(x => new MemberTreeNode(TreeNode, x)).ToList();
+            List<MemberTreeNode> memberNodes = members.Select(x => new MemberTreeNode(TreeNode, x)).ToList();
             
             //Group children by category if set
-            var categorizedChildren = Members.
+            var categorizedChildren = memberNodes.
                 Where(node => node.MemberInfo.Category != null).
                 GroupBy(node => node.MemberInfo.Category).
                 ToDictionary(grp => grp.Key, grp => grp.ToArray());
@@ -68,24 +62,28 @@ namespace TheraEngine.Core.Files.Serialization
             //Remove grouped members from original list
             foreach (var grouping in categorizedChildren)
                 foreach (MemberTreeNode p in grouping.Value)
-                    Members.Remove(p);
+                    memberNodes.Remove(p);
             
             //Add a member node for each category
             foreach (var cat in categorizedChildren)
             {
-                //TODO: handle category tree nodes better
-
-                MemberTreeNode node = new MemberTreeNode(TreeNode, new TSerializeMemberInfo(null, cat.Key));
-
-                CommonSerializer objWriter = new CommonSerializer { TreeNode = node };
-                node.ObjectSerializer = objWriter;
-
+                MemberTreeNode catNode = new MemberTreeNode(null, new TSerializeMemberInfo(null, cat.Key));
+                
                 foreach (MemberTreeNode catChild in cat.Value)
-                    objWriter.Members.Add(catChild);
+                    catNode.ChildElementMembers.Add(catChild);
 
-                Members.Add(node);
+                memberNodes.Add(catNode);
             }
-            TreeNode.ChildElements = Members;
+
+            TreeNode.ChildElementMembers = new EventList<MemberTreeNode>(memberNodes);
+        }
+        public override void GenerateTreeFromBinary(ref VoidPtr address)
+        {
+
+        }
+        public override void WriteTreeToBinary(ref VoidPtr address)
+        {
+
         }
     }
 }

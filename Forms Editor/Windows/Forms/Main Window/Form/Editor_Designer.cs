@@ -220,8 +220,10 @@ namespace TheraEditor.Windows.Forms
         public static Color TextColor => Color.FromArgb(224, 224, 224);
 
         #endregion
+
         static Editor()
         {
+
         }
         public Editor() : base()
         {

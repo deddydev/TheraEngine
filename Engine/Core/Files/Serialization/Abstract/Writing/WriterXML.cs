@@ -51,7 +51,7 @@ namespace TheraEngine.Core.Files.Serialization
             await Writer.WriteObjectAsync();
             Engine.PrintLine("Serialized XML file to {0}", filePath);
         }
-        public class WriterXML : AbstractWriter<XMLMemberTreeNode>
+        public class WriterXML : AbstractWriter
         {
             private FileStream _stream;
             private XmlWriter _writer;
@@ -93,7 +93,7 @@ namespace TheraEngine.Core.Files.Serialization
                     await _writer.WriteEndDocumentAsync();
                 }
             }
-            private async Task WriteElementAsync(XMLMemberTreeNode node)
+            private async Task WriteElementAsync(MemberTreeNode node)
             {
                 await _writer.WriteStartElementAsync(null, SerializationCommon.FixElementName(node.Name), null);
                 {
@@ -114,16 +114,23 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                     
                     List<SerializeAttribute> attributes = node.Attributes;
-                    List<XMLMemberTreeNode> childElements = node.ChildElements;
+                    List<MemberTreeNode> childElements = node.ChildElements;
                     string childStringData = node.ElementObject;
 
                     foreach (SerializeAttribute attribute in attributes)
                     {
-                        await _writer.WriteAttributeStringAsync(null, attribute.Name, null, attribute.Value);
-                        if (ReportProgress())
+                        if (attribute.ToString(out string value))
                         {
-                            await _writer.WriteEndElementAsync();
-                            return;
+                            await _writer.WriteAttributeStringAsync(null, attribute.Name, null, value);
+                            if (ReportProgress())
+                            {
+                                await _writer.WriteEndElementAsync();
+                                return;
+                            }
+                        }
+                        else
+                        {
+
                         }
                     }
 
@@ -137,7 +144,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                     else
-                        foreach (XMLMemberTreeNode childNode in childElements)
+                        foreach (MemberTreeNode childNode in childElements)
                         {
                             await WriteElementAsync(childNode);
                             if (ReportProgress())
@@ -149,11 +156,6 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 await _writer.WriteEndElementAsync();
             }
-            
-            public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, TSerializeMemberInfo memberInfo)
-                => new XMLMemberTreeNode(parent, memberInfo);
-            public override XMLMemberTreeNode CreateNode(object root)
-                => new XMLMemberTreeNode(root);
         }
     }
 }

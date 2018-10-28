@@ -6,19 +6,8 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TDeserializer : TBaseSerializer
     {
-        public IAbstractReader Reader { get; private set; }
-
-        public interface IAbstractReader : IBaseAbstractReaderWriter
-        {
-            /// <summary>
-            /// The deserializer that is using this reader.
-            /// </summary>
-            TDeserializer Owner { get; }
-            Type RootFileType { get; }
-            
-            Task CreateObjectAsync();
-        }
-        public abstract class AbstractReader<T> : TBaseAbstractReaderWriter<T>, IAbstractReader where T : class, IMemberTreeNode
+        public AbstractReader Reader { get; private set; }
+        public abstract class AbstractReader : TBaseAbstractReaderWriter
         {
             /// <summary>
             /// The deserializer that is using this reader.

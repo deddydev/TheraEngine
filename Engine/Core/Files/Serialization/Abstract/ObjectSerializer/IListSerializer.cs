@@ -13,7 +13,7 @@ namespace TheraEngine.Core.Files.Serialization
         public IList List { get; private set; }
         public IMemberTreeNode[] Values { get; private set; }
 
-        public override void GenerateObjectFromTree()
+        public override void ReadObjectMembersFromTree()
         {
 
         }

@@ -19,11 +19,11 @@ namespace TheraEngine.Core.Files.Serialization
     /// </summary>
     public abstract class BaseObjectSerializer
     {
-        public IMemberTreeNode TreeNode { get; internal protected set; } = null;
-        public List<IMemberTreeNode> Members { get; set; }
+        public MemberTreeNode TreeNode { get; internal protected set; } = null;
+        public List<MemberTreeNode> Members { get; set; }
 
         public abstract void GenerateTreeFromBinary(ref VoidPtr address);
-        public abstract void GenerateObjectFromTree();
+        public abstract Task ReadObjectMembersFromTreeAsync();
         public abstract Task GenerateTreeFromObject();
     }
 }

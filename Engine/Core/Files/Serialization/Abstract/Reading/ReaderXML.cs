@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,11 +29,8 @@ namespace TheraEngine.Core.Files.Serialization
             Engine.PrintLine("Deserialized XML file at {0}", filePath);
             return Reader.RootNode.Object;
         }
-        private class ReaderXML : AbstractReader<XMLMemberTreeNode>
+        private class ReaderXML : AbstractReader
         {
-            private FileStream _stream;
-            private XmlReader _reader;
-
             public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.XML;
 
             private readonly XmlReaderSettings _settings = new XmlReaderSettings()
@@ -41,6 +39,9 @@ namespace TheraEngine.Core.Files.Serialization
                 IgnoreWhitespace = true,
                 Async = true,
             };
+
+            private FileStream _stream;
+            private XmlReader _reader;
 
             public ReaderXML(
                 TDeserializer owner,
@@ -56,7 +57,6 @@ namespace TheraEngine.Core.Files.Serialization
                     _settings = settings;
                 }
             }
-
             protected override async Task ReadTreeAsync()
             {
                 using (_stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.RandomAccess))
@@ -64,32 +64,31 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     _stream.Position = 0;
                     await _reader.MoveToContentAsync();
-                    RootNode = await ReadElementAsync();
+                    RootNode = await ReadElementAsync(null);
                 }
             }
-            private async Task<XMLMemberTreeNode> ReadElementAsync()
+            private async Task<MemberTreeNode> ReadElementAsync(MemberTreeNode parent)
             {
-                XMLMemberTreeNode node = null;
+                //var members = memberType == null ? null : SerializationCommon.CollectSerializedMembers(memberType);
+                //TSerializeMemberInfo info = members.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCulture));
+
+                MemberTreeNode node = null;
                 string name, value;
                 while (_reader.NodeType != XmlNodeType.EndElement && !_reader.EOF)
                 {
                     switch (_reader.NodeType)
                     {
                         case XmlNodeType.Element:
+                            name = _reader.Name;
                             if (node != null)
-                                node.ChildElements.Add(await ReadElementAsync());
+                                node.ChildElements.Add(await ReadElementAsync(node));
                             else
-                            {
-                                node = new XMLMemberTreeNode(null)
-                                {
-                                    Name = _reader.Name,
-                                };
-                            }
+                                node = new MemberTreeNode(parent, new TSerializeMemberInfo(null, name));
                             break;
                         case XmlNodeType.Attribute:
                             name = _reader.Name;
                             value = await _reader.GetValueAsync();
-                            node?.AddAttribute(name, value);
+                            node?.Attributes?.Add(SerializeAttribute.FromString(name, value));
                             break;
                         case XmlNodeType.Text:
                             value = await _reader.GetValueAsync();
@@ -103,11 +102,6 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 return node;
             }
-
-            public override XMLMemberTreeNode CreateNode(XMLMemberTreeNode parent, TSerializeMemberInfo memberInfo)
-                => new XMLMemberTreeNode(parent, memberInfo);
-            public override XMLMemberTreeNode CreateNode(object root)
-                => new XMLMemberTreeNode(root);
         }
     }
 }

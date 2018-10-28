@@ -437,27 +437,22 @@ namespace TheraEngine.Animation
 
         #region Reading / Writing
 
-        public override void ManualRead(IMemberTreeNode node)
+        public override void ManualRead(MemberTreeNode node)
         {
-            if (!(node is XMLMemberTreeNode xmlNode))
-                return;
-
-            if (!string.Equals(xmlNode.MemberInfo.Name, "KeyframeTrack", StringComparison.InvariantCulture))
+            if (!string.Equals(node.MemberInfo.Name, "KeyframeTrack", StringComparison.InvariantCulture))
             {
                 LengthInSeconds = 0.0f;
                 return;
             }
 
-            var attrib = xmlNode.GetAttribute(nameof(LengthInSeconds));
-            if (attrib != null && float.TryParse(attrib.Value, out float length))
+            if (node.GetAttributeValue(nameof(LengthInSeconds), out float length))
                 LengthInSeconds = length;
             else
                 LengthInSeconds = 0.0f;
 
             Clear();
-
-            attrib = xmlNode.GetAttribute(nameof(Count));
-            if (attrib == null || !int.TryParse(attrib.Value, out int keyCount))
+            
+            if (!node.GetAttributeValue(nameof(Count), out int keyCount))
                 return;
 
             Type t = typeof(T);
@@ -473,7 +468,7 @@ namespace TheraEngine.Animation
                 interpolation   = null;
 
             //Read all keyframe information, split into separate element arrays
-            foreach (XMLMemberTreeNode element in xmlNode.ChildElements)
+            foreach (MemberTreeNode element in node.ChildElements)
             {
                 string[] str = element.ElementObject.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 switch (element.MemberInfo.Name)
@@ -505,14 +500,11 @@ namespace TheraEngine.Animation
                 Add(kf);
             }
         }
-        public override void ManualWrite(IMemberTreeNode node)
+        public override void ManualWrite(MemberTreeNode node)
         {
-            if (!(node is XMLMemberTreeNode xmlNode))
-                return;
-
-            xmlNode.MemberInfo.Name = "KeyframeTrack";
-            xmlNode.AddAttribute(nameof(LengthInSeconds), LengthInSeconds.ToString());
-            xmlNode.AddAttribute(nameof(Count), Count.ToString());
+            node.MemberInfo.Name = "KeyframeTrack";
+            node.AddAttribute(nameof(LengthInSeconds), LengthInSeconds);
+            node.AddAttribute(nameof(Count), Count);
 
             if (Count <= 0)
                 return;
@@ -554,12 +546,12 @@ namespace TheraEngine.Animation
                 outTans     += tempOutTan;
             }
 
-            xmlNode.AddChildElementString("Seconds",        seconds);
-            xmlNode.AddChildElementString("InValues",       inValues);
-            xmlNode.AddChildElementString("OutValues",      outValues);
-            xmlNode.AddChildElementString("InTangents",     inTans);
-            xmlNode.AddChildElementString("OutTangents",    outTans);
-            xmlNode.AddChildElementString("InterpTypes",    interpTypes);
+            node.AddChildElementString("Seconds",        seconds);
+            node.AddChildElementString("InValues",       inValues);
+            node.AddChildElementString("OutValues",      outValues);
+            node.AddChildElementString("InTangents",     inTans);
+            node.AddChildElementString("OutTangents",    outTans);
+            node.AddChildElementString("InterpTypes",    interpTypes);
         }
         #endregion
     }

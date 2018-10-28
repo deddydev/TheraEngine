@@ -23,7 +23,7 @@ namespace TheraEngine.Core.Files.Serialization
         public int Order { get; set; }
         public string Condition { get; set; }
 
-        public TSerializeMemberInfo(string name, string category, Type memberType, bool state, bool config, ENodeType nodeType, int order, string condition)
+        public TSerializeMemberInfo(Type memberType, string name, string category = null, bool state = true, bool config = true, ENodeType nodeType = ENodeType.ChildElement, int order = 0, string condition = null)
         {
             Member = null;
             MemberType = memberType;
@@ -32,8 +32,8 @@ namespace TheraEngine.Core.Files.Serialization
             NodeType = nodeType;
             Order = order;
             Condition = condition;
-
-            Name = name ?? "null";
+            
+            Name = name ?? SerializationCommon.GetTypeName(MemberType) ?? "null";
             Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
 
             Category = category;
@@ -86,7 +86,7 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public const string TypeIdent = "AssemblyType";
         public static bool CanParseAsString(Type t)
-            => t.GetInterface(nameof(ISerializableString)) != null || IsPrimitiveType(t) || IsEnum(t);
+            => t != null && (t.GetInterface(nameof(ISerializableString)) != null || IsPrimitiveType(t) || IsEnum(t));
         internal static string GetTypeName(Type t)
         {
             if (t == null || t.IsInterface)
@@ -252,7 +252,7 @@ namespace TheraEngine.Core.Files.Serialization
         //    }
         //    return fields;
         //}
-        public static List<TSerializeMemberInfo> CollectSerializedMembers(Type type)
+        public static TSerializeMemberInfo[] CollectSerializedMembers(Type type, object obj)
         {
             BindingFlags retrieveFlags =
                 BindingFlags.Instance |
@@ -263,11 +263,71 @@ namespace TheraEngine.Core.Files.Serialization
             MemberInfo[] members = type?.GetMembersExt(retrieveFlags) ?? new MemberInfo[0];
             List<TSerializeMemberInfo> serMembers = new List<TSerializeMemberInfo>(members.Length);
 
+            int attribCount = 0;
+            int elementCount = 0;
+            int elementStringCount = 0;
+
             foreach (MemberInfo info in members)
                 if ((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize)))
-                    serMembers.Add(new TSerializeMemberInfo(info));
+                {
+                    TSerializeMemberInfo serMem = new TSerializeMemberInfo(info);
+                    if (serMem.AllowSerialize(obj))
+                    {
+                        serMembers.Add(serMem);
+                        switch (serMem.NodeType)
+                        {
+                            case ENodeType.Attribute:
+                                ++attribCount;
+                                break;
+                            case ENodeType.ChildElement:
+                                ++elementCount;
+                                break;
+                            case ENodeType.ElementString:
+                                ++elementStringCount;
+                                break;
+                        }
+                    }
+                }
 
-            return serMembers;
+            bool ignoreElementStrings = elementCount > 0 || elementStringCount > 1;
+            if (ignoreElementStrings)
+            {
+                elementCount += elementStringCount;
+                elementStringCount = 0;
+            }
+
+            TSerializeMemberInfo[] orderedMembers = new TSerializeMemberInfo[attribCount + elementCount + elementStringCount];
+            for (int i = 0; i < serMembers.Count; ++i)
+            {
+                TSerializeMemberInfo serMem = serMembers[i];
+                int index = serMem.Order;
+                if (index >= 0)
+                {
+                    switch (serMem.NodeType)
+                    {
+                        case ENodeType.Attribute:
+                            index = index.Clamp(0, attribCount - 1);
+                            orderedMembers[index] = serMem;
+                            break;
+                        case ENodeType.ChildElement:
+                            index = index.Clamp(0, elementCount - 1) + attribCount;
+                            orderedMembers[index] = serMem;
+                            break;
+                        case ENodeType.ElementString:
+                            if (ignoreElementStrings)
+                            {
+                                serMem.NodeType = ENodeType.ChildElement;
+                                index = index.Clamp(0, elementCount - 1) + attribCount;
+                            }
+                            else
+                                index = attribCount;
+                            orderedMembers[index] = serMem;
+                            break;
+                    }
+                }
+            }
+
+            return orderedMembers;
         }
         /// <summary>
         /// Creates an object of the given type.
@@ -458,7 +518,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="objectType"></param>
         /// <param name="node"></param>
         /// <returns></returns>
-        public static BaseObjectSerializer DetermineObjectSerializer(Type objectType, IMemberTreeNode node)
+        public static BaseObjectSerializer DetermineObjectSerializer(Type objectType, MemberTreeNode node)
         {
             BaseObjectSerializer serializer = null;
             Type[] types = null;

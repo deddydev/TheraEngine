@@ -364,60 +364,70 @@ namespace TheraEngine.Animation
             "ScaleY",
             "ScaleZ",
         };
-        public override void ManualRead(IMemberTreeNode node)
+        public override void ManualRead(MemberTreeNode node)
         {
-            if (string.Equals(node.Name, nameof(TransformKeyCollection), StringComparison.InvariantCulture))
+            if (string.Equals(node.MemberInfo.Name, nameof(TransformKeyCollection), StringComparison.InvariantCulture))
             {
-                if (node is XMLMemberTreeNode xmlNode)
+                if (node.GetAttributeValue(nameof(LengthInSeconds), out float length))
+                    LengthInSeconds = length;
+                else
+                    LengthInSeconds = 0.0f;
+
+                ResetKeys();
+
+                foreach (MemberTreeNode targetTrackElement in node.ChildElements)
                 {
-                    SerializeAttribute attrib = xmlNode.GetAttribute(nameof(LengthInSeconds));
-                    if (attrib != null)
-                        LengthInSeconds = float.TryParse(attrib.Value, out float length) ? length : 0.0f;
-
-                    ResetKeys();
-
-                    foreach (XMLMemberTreeNode targetTrackElement in xmlNode.ChildElements)
-                    {
-                        int trackIndex = TrackNames.IndexOf(targetTrackElement.Name.ToString());
-                        if (!_tracks.IndexInRange(trackIndex))
-                            continue;
+                    int trackIndex = TrackNames.IndexOf(targetTrackElement.Name.ToString());
+                    if (!_tracks.IndexInRange(trackIndex))
+                        continue;
                         
-                        PropAnimFloat track = _tracks[trackIndex];
-                        attrib = xmlNode.GetAttribute("Count");
-                        if (attrib != null && int.TryParse(attrib.Value, out int keyCount))
-                        {
-                            string[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null, interpolation = null;
-                            string[] values;
+                    PropAnimFloat track = _tracks[trackIndex];
+                    if (node.GetAttributeValue("Count", out int keyCount))
+                    {
+                        float[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null;
+                        EPlanarInterpType[] interpolation = null;
+                        string[] values;
 
-                            foreach (XMLMemberTreeNode keyframePartElement in targetTrackElement.ChildElements)
+                        foreach (MemberTreeNode keyframePartElement in targetTrackElement.ChildElements)
+                        {
+                            object o = keyframePartElement.ElementObject;
+                            if (o is string str)
                             {
-                                values = keyframePartElement.ElementObject.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                switch (keyframePartElement.Name)
+                                values = str.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                if (keyframePartElement.MemberInfo.Name == "Interpolation")
                                 {
-                                    case "Second": seconds = values; break;
-                                    case "InValues": inValues = values; break;
-                                    case "OutValues": outValues = values; break;
-                                    case "InTangents": inTans = values; break;
-                                    case "OutTangents": outTans = values; break;
-                                    case "Interpolation": interpolation = values; break;
+                                    interpolation = values.Select(x => Enums.Parse<EPlanarInterpType>(x)).ToArray();
+                                }
+                                else
+                                {
+                                    float[] floatValues = values.Select(x => float.Parse(x)).ToArray();
+                                    switch (keyframePartElement.MemberInfo.Name)
+                                    {
+                                        case "Second": seconds = floatValues; break;
+                                        case "InValues": inValues = floatValues; break;
+                                        case "OutValues": outValues = floatValues; break;
+                                        case "InTangents": inTans = floatValues; break;
+                                        case "OutTangents": outTans = floatValues; break;
+                                    }
                                 }
                             }
-
-                            for (int i = 0; i < keyCount; ++i)
-                            {
-                                FloatKeyframe kf = new FloatKeyframe(
-                                    float.Parse(seconds[i]),
-                                    float.Parse(inValues[i]),
-                                    float.Parse(outValues[i]),
-                                    float.Parse(inTans[i]),
-                                    float.Parse(outTans[i]),
-                                    Enums.Parse<EPlanarInterpType>(interpolation[i]));
-                                track.Keyframes.Add(kf);
-                            }
                         }
-                        _tracks[trackIndex] = track;
+
+                        for (int i = 0; i < keyCount; ++i)
+                        {
+                            FloatKeyframe kf = new FloatKeyframe(
+                                float.Parse(seconds[i]),
+                                float.Parse(inValues[i]),
+                                float.Parse(outValues[i]),
+                                float.Parse(inTans[i]),
+                                float.Parse(outTans[i]),
+                                Enums.Parse<EPlanarInterpType>(interpolation[i]));
+                            track.Keyframes.Add(kf);
+                        }
                     }
+                    _tracks[trackIndex] = track;
                 }
+                
             }
             else
             {
@@ -425,7 +435,7 @@ namespace TheraEngine.Animation
                 ResetKeys();
             }
         }
-        public override async void ManualWrite(IMemberTreeNode node)
+        public override async void ManualWrite(MemberTreeNode node)
         {
             node.Name = nameof(TransformKeyCollection);
             

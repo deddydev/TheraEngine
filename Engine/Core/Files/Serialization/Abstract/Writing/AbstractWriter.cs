@@ -6,18 +6,8 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public partial class TSerializer : TBaseSerializer
     {
-        public IAbstractWriter Writer { get; private set; }
-
-        public interface IAbstractWriter : IBaseAbstractReaderWriter
-        {
-            /// <summary>
-            /// The serializer that is using this writer.
-            /// </summary>
-            TSerializer Owner { get; }
-            
-            Task WriteObjectAsync();
-        }
-        public abstract class AbstractWriter<T> : TBaseAbstractReaderWriter<T>, IAbstractWriter where T : class, IMemberTreeNode
+        public AbstractWriter Writer { get; private set; }
+        public abstract class AbstractWriter : TBaseAbstractReaderWriter
         {
             /// <summary>
             /// The serializer that is using this writer.
@@ -29,7 +19,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Flags = flags;
                 Owner = owner;
-                RootNode = CreateNode(rootFileObject);
+                RootNode = new MemberTreeNode(rootFileObject);
             }
             
             /// <summary>

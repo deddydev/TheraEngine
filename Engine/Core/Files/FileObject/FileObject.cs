@@ -83,8 +83,8 @@ namespace TheraEngine.Core.Files
         Task ManualRead3rdPartyAsync(string filePath);
         void ManualWrite3rdParty(string filePath);
         void ManualRead3rdParty(string filePath);
-        void ManualWrite(IMemberTreeNode node);
-        void ManualRead(IMemberTreeNode node);
+        void ManualWrite(MemberTreeNode node);
+        void ManualRead(MemberTreeNode node);
         int ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags);
         void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags);
         void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable);
@@ -521,13 +521,13 @@ namespace TheraEngine.Core.Files
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="node">The tree node containing information for this object.</param>
-        public virtual void ManualWrite(IMemberTreeNode node)
+        public virtual void ManualWrite(MemberTreeNode node)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="node">The tree node containing information for this object.</param>
-        public virtual void ManualRead(IMemberTreeNode node)
+        public virtual void ManualRead(MemberTreeNode node)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualBinSerialize.

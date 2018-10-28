@@ -256,16 +256,15 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return false;
         }
-        public async Task GenerateObjectFromTreeAsync(Type objectType)
+        public void GenerateObjectFromTree(Type objectType)
         {
             Object = SerializationCommon.CreateObject(objectType);
-            await ObjectSerializer.ReadObjectMembersFromTreeAsync();
+            ObjectSerializer.ReadObjectMembersFromTree();
         }
-        public async Task CreateTreeFromObjectAsync()
+        public async void CreateTreeFromObject()
         {
             await FileObjectCheckAsync();
-            if (ObjectSerializer != null)
-                await ObjectSerializer.GenerateTreeFromObject();
+            ObjectSerializer?.GenerateTreeFromObject();
         }
         private void ObjectChanged()
         {

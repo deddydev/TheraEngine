@@ -16,7 +16,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
 
         }
-        public override async Task GenerateTreeFromObject()
+        public override void GenerateTreeFromObject()
         {
             List = TreeNode.Object as IList;
 
@@ -26,9 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
                 TreeNode.ChildElementMembers.Add(new MemberTreeNode(o, new TSerializeMemberInfo(elemType, null)));
         }
 
-        public override Task ReadObjectMembersFromTreeAsync()
-        {
-            throw new NotImplementedException();
-        }
+        public override void ReadObjectMembersFromTree() => throw new NotImplementedException();
+        public override void WriteTreeToBinary(ref VoidPtr address) => throw new NotImplementedException();
     }
 }

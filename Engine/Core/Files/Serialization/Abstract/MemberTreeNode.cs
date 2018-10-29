@@ -52,6 +52,15 @@ namespace TheraEngine.Core.Files.Serialization
             IsNonStringObject = false;
             return canParse;
         }
+        public bool GetObject(Type type, out object value)
+        {
+            bool success = IsUnparsedString ? ParseStringToObject(type) : type.IsAssignableFrom(_value.GetType());
+            if (success)
+                value = _value;
+            else
+                value = default;
+            return success;
+        }
         public bool GetObject<T>(out T value)
         {
             bool success = IsUnparsedString ? ParseStringToObject(typeof(T)) : _value is T;
@@ -90,15 +99,30 @@ namespace TheraEngine.Core.Files.Serialization
         public List<SerializeAttribute> ChildAttributeMembers { get; set; } = new List<SerializeAttribute>();
         public EventList<MemberTreeNode> ChildElementMembers { get; set; }
         public object ChildElementObjectMember { get; set; }
+        internal string ChildElementObjectMemberAsString { get; set; }
 
         public bool GetChildElementObjectMemberAsString(out string value)
         {
             value = null;
-            return ChildElementObjectMember == null || SerializationCommon.GetString(ChildElementObjectMember, ChildElementObjectMember.GetType(), out value);
+            bool success = ChildElementObjectMember == null || SerializationCommon.GetString(ChildElementObjectMember, ChildElementObjectMember.GetType(), out value);
+            ChildElementObjectMemberAsString = value;
+            return success;
         }
+        public bool ParseChildElementObjectMemberToObject(Type type)
+        {
+            if (ChildElementObjectMemberAsString == null)
+            {
+                ChildElementObjectMember = null;
+                return true;
+            }
 
-        public bool ElementObjectAsString(out string result)
-            => SerializationCommon.GetString(ChildElementObjectMember, ChildElementObjectMember.GetType(), out result);
+            if (SerializationCommon.CanParseAsString(type))
+            {
+                ChildElementObjectMember = SerializationCommon.ParseString(ChildElementObjectMemberAsString, type);
+                return true;
+            }
+            return false;
+        }
         
         public MemberTreeNode Parent { get; internal set; }
         public TBaseSerializer.TBaseAbstractReaderWriter Owner { get; internal set; }
@@ -196,6 +220,9 @@ namespace TheraEngine.Core.Files.Serialization
             Parent = null;
             MemberInfo = memberInfo;
             DefaultObject = ObjectType == null ? null : SerializationCommon.CreateObject(ObjectType);
+            ChildElementMembers = new EventList<MemberTreeNode>();
+            ChildElementMembers.PostAnythingAdded += ChildElements_PostAnythingAdded;
+            ChildElementMembers.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
         }
 
         public async Task<bool> TryInvokeCustomDeserializeAsync()
@@ -256,15 +283,28 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return false;
         }
-        public void GenerateObjectFromTree(Type objectType)
+        public async void GenerateObjectFromTree()
         {
-            Object = SerializationCommon.CreateObject(objectType);
-            ObjectSerializer.ReadObjectMembersFromTree();
+            Type objType = MemberInfo.MemberType;
+            if (GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration))
+                objType = SerializationCommon.CreateType(typeDeclaration);
+
+            Object = SerializationCommon.CreateObject(objType);
+
+            bool custom = await TryInvokeCustomDeserializeAsync();
+            if (!custom)
+                ObjectSerializer.ReadObjectMembersFromTree();
         }
         public async void CreateTreeFromObject()
         {
             await FileObjectCheckAsync();
-            ObjectSerializer?.GenerateTreeFromObject();
+
+            if (ObjectType.IsSubclassOf(MemberInfo.MemberType))
+                AddAttribute(SerializationCommon.TypeIdent, ObjectType.AssemblyQualifiedName);
+
+            bool custom = await TryInvokeCustomSerializeAsync();
+            if (!custom)
+                ObjectSerializer?.GenerateTreeFromObject();
         }
         private void ObjectChanged()
         {
@@ -324,16 +364,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public void ApplyObjectToParent()
         {
-            if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Field))
-                ((FieldInfo)MemberInfo.Member).SetValue(Parent.Object, _object);
-            else if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Property))
-            {
-                PropertyInfo p = (PropertyInfo)MemberInfo.Member;
-                if (p.CanWrite)
-                    p.SetValue(Parent.Object, _object);
-                else
-                    Engine.LogWarning($"Can't set property {p.Name} in {p.DeclaringType.GetFriendlyName()}.");
-            }
+            MemberInfo.SetObject(Parent.Object, _object);
         }
         public void RetrieveObjectFromParent()
         {
@@ -465,8 +496,20 @@ namespace TheraEngine.Core.Files.Serialization
             => ChildAttributeMembers.Add(new SerializeAttribute(name, value));
         public SerializeAttribute GetAttribute(string name) 
             => ChildAttributeMembers.FirstOrDefault(x => string.Equals(x.Name, name));
+        /// <summary>
+        /// Retrieves the attribute at the given index.
+        /// </summary>
+        /// <param name="index">The index of the attribute to retrieve.</param>
+        /// <returns>The attribute at the specified index. If the index is out of range, returns null.</returns>
         public SerializeAttribute GetAttribute(int index)
             => ChildAttributeMembers.IndexInRange(index) ? ChildAttributeMembers[index] : null;
+        /// <summary>
+        /// Retrieves the value of an attribute for this node.
+        /// </summary>
+        /// <typeparam name="T">The value's expected type.</typeparam>
+        /// <param name="name">The name of the attribute.</param>
+        /// <param name="value">The returned value of the attribute, if succeeded.</param>
+        /// <returns>True if the attribute was found and could be converted to the expected type.</returns>
         public bool GetAttributeValue<T>(string name, out T value)
         {
             SerializeAttribute attrib = GetAttribute(name);

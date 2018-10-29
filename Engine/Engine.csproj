@@ -409,6 +409,7 @@
     <Compile Include="Core\Files\References\LocalFileRef.cs" />
     <Compile Include="Core\Files\References\GlobalFileRef.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\FileCommonHeader.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\StringSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\CommonSerializer.cs" />

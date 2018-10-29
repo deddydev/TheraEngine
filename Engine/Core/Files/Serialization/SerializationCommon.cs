@@ -72,6 +72,69 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public bool AllowSerialize(object obj)
             => Condition == null ? true : ExpressionParser.Evaluate<bool>(Condition, obj);
+
+        public void SetObject(object parentObject, object memberObject)
+        {
+            if (Member.MemberType.HasFlag(MemberTypes.Field))
+                ((FieldInfo)Member).SetValue(parentObject, memberObject);
+            else if (Member.MemberType.HasFlag(MemberTypes.Property))
+            {
+                PropertyInfo p = (PropertyInfo)Member;
+                if (p.CanWrite)
+                    p.SetValue(parentObject, memberObject);
+                else
+                    Engine.LogWarning($"Can't set property {p.Name} in {p.DeclaringType.GetFriendlyName()}.");
+            }
+        }
+        public object GetObject(object parentObject)
+        {
+            if (parentObject is null)
+            {
+                Engine.LogWarning($"{parentObject} cannot be null.");
+                return null;
+            }
+            if (Member is null)
+            {
+                Engine.LogWarning($"{Member} cannot be null.");
+                return null;
+            }
+            if (Member.MemberType.HasFlag(MemberTypes.Field))
+            {
+                FieldInfo info = (FieldInfo)Member;
+                return info.GetValue(parentObject);
+            }
+            else if (Member.MemberType.HasFlag(MemberTypes.Property))
+            {
+                PropertyInfo info = (PropertyInfo)Member;
+                if (info.CanRead)
+                {
+                    return info.GetValue(parentObject);
+                }
+                else
+                {
+                    Engine.LogWarning($"Can't read property {info.Name} in {info.DeclaringType.GetFriendlyName()}.");
+                }
+            }
+            else
+            {
+                Engine.LogWarning($"Member {Name} is not a field or property.");
+            }
+            return null;
+        }
+
+        public override string ToString()
+        {
+            switch (NodeType)
+            {
+                default:
+                case ENodeType.ChildElement:
+                    return $"<{Name} />";
+                case ENodeType.Attribute:
+                    return $"<Element {Name}=\"\" />";
+                case ENodeType.ElementString:
+                    return "Element String: " + Name;
+            }
+        }
     }
     public enum ESerializeType
     {
@@ -262,10 +325,9 @@ namespace TheraEngine.Core.Files.Serialization
 
             MemberInfo[] members = type?.GetMembersExt(retrieveFlags) ?? new MemberInfo[0];
             List<TSerializeMemberInfo> serMembers = new List<TSerializeMemberInfo>(members.Length);
-
-            int attribCount = 0;
-            int elementCount = 0;
+            
             int elementStringCount = 0;
+            int firstElementStringIndex = -1;
 
             foreach (MemberInfo info in members)
                 if ((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize)))
@@ -274,60 +336,28 @@ namespace TheraEngine.Core.Files.Serialization
                     if (serMem.AllowSerialize(obj))
                     {
                         serMembers.Add(serMem);
-                        switch (serMem.NodeType)
+                        if (serMem.NodeType == ENodeType.ElementString)
                         {
-                            case ENodeType.Attribute:
-                                ++attribCount;
-                                break;
-                            case ENodeType.ChildElement:
-                                ++elementCount;
-                                break;
-                            case ENodeType.ElementString:
-                                ++elementStringCount;
-                                break;
+                            ++elementStringCount;
+                            if (elementStringCount == 1)
+                            {
+                                firstElementStringIndex = serMembers.Count - 1;
+                            }
+                            else if (firstElementStringIndex >= 0)
+                            {
+                                serMembers[firstElementStringIndex].NodeType = ENodeType.ChildElement;
+                                serMem.NodeType = ENodeType.ChildElement;
+                                firstElementStringIndex = -1;
+                            }
+                            else
+                            {
+                                serMem.NodeType = ENodeType.ChildElement;
+                            }
                         }
                     }
                 }
-
-            bool ignoreElementStrings = elementCount > 0 || elementStringCount > 1;
-            if (ignoreElementStrings)
-            {
-                elementCount += elementStringCount;
-                elementStringCount = 0;
-            }
-
-            TSerializeMemberInfo[] orderedMembers = new TSerializeMemberInfo[attribCount + elementCount + elementStringCount];
-            for (int i = 0; i < serMembers.Count; ++i)
-            {
-                TSerializeMemberInfo serMem = serMembers[i];
-                int index = serMem.Order;
-                if (index >= 0)
-                {
-                    switch (serMem.NodeType)
-                    {
-                        case ENodeType.Attribute:
-                            index = index.Clamp(0, attribCount - 1);
-                            orderedMembers[index] = serMem;
-                            break;
-                        case ENodeType.ChildElement:
-                            index = index.Clamp(0, elementCount - 1) + attribCount;
-                            orderedMembers[index] = serMem;
-                            break;
-                        case ENodeType.ElementString:
-                            if (ignoreElementStrings)
-                            {
-                                serMem.NodeType = ENodeType.ChildElement;
-                                index = index.Clamp(0, elementCount - 1) + attribCount;
-                            }
-                            else
-                                index = attribCount;
-                            orderedMembers[index] = serMem;
-                            break;
-                    }
-                }
-            }
-
-            return orderedMembers;
+            
+            return serMembers.OrderBy(x => x.Order).ToArray();
         }
         /// <summary>
         /// Creates an object of the given type.
@@ -337,7 +367,10 @@ namespace TheraEngine.Core.Files.Serialization
             object o = null;
             try
             {
-                o = Activator.CreateInstance(t);
+                if (t == typeof(string))
+                    o = string.Empty;
+                else
+                    o = Activator.CreateInstance(t);
             }
             catch (Exception ex)
             {
@@ -351,41 +384,41 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return o;
         }
-        public static ESerializeType GetSerializeType(Type t)
-        {
-            if (t.IsSubclassOf(typeof(TFileObject)) && (TFileObject.GetFileExtension(t)?.ManualXmlConfigSerialize == true))
-            {
-                return ESerializeType.Manual;
-            }
-            else if (t.GetInterface(nameof(ISerializableString)) != null)
-            {
-                return ESerializeType.Parsable;
-            }
-            //else if (t.GetInterface(nameof(IList)) != null)
-            //{
-            //    return ESerializeType.Array;
-            //}
-            //else if (t.GetInterface(nameof(IDictionary)) != null)
-            //{
-            //    return ESerializeType.Dictionary;
-            //}
-            else if (t.IsEnum)
-            {
-                return ESerializeType.Enum;
-            }
-            else if (t == typeof(string))
-            {
-                return ESerializeType.String;
-            }
-            else if (t.IsValueType)
-            {
-                return ESerializeType.Struct;
-            }
-            else
-            {
-                return ESerializeType.Class;
-            }
-        }
+        //public static ESerializeType GetSerializeType(Type t)
+        //{
+        //    if (t.IsSubclassOf(typeof(TFileObject)) && (TFileObject.GetFileExtension(t)?.ManualXmlConfigSerialize == true))
+        //    {
+        //        return ESerializeType.Manual;
+        //    }
+        //    else if (t.GetInterface(nameof(ISerializableString)) != null)
+        //    {
+        //        return ESerializeType.Parsable;
+        //    }
+        //    //else if (t.GetInterface(nameof(IList)) != null)
+        //    //{
+        //    //    return ESerializeType.Array;
+        //    //}
+        //    //else if (t.GetInterface(nameof(IDictionary)) != null)
+        //    //{
+        //    //    return ESerializeType.Dictionary;
+        //    //}
+        //    else if (t.IsEnum)
+        //    {
+        //        return ESerializeType.Enum;
+        //    }
+        //    else if (t == typeof(string))
+        //    {
+        //        return ESerializeType.String;
+        //    }
+        //    else if (t.IsValueType)
+        //    {
+        //        return ESerializeType.Struct;
+        //    }
+        //    else
+        //    {
+        //        return ESerializeType.Class;
+        //    }
+        //}
         public static bool IsEnum(Type t)
             => string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture);
         public static bool IsPrimitiveType(Type t)
@@ -457,7 +490,18 @@ namespace TheraEngine.Core.Files.Serialization
                 number = (i++).ToString();
             return name + number;
         }
-
+        public static Type CreateType(string typeDeclaration)
+        {
+            return Type.GetType(typeDeclaration,
+                name =>
+                {
+                    var assemblies = //AppDomain.CurrentDomain.GetAssemblies();
+                    Engine.EnumAppDomains().SelectMany(x => x.GetAssemblies());
+                    return assemblies.FirstOrDefault(z => z.FullName == name.FullName);
+                },
+                null,
+                false);
+        }
         public unsafe static Type DetermineType(string filePath)
         {
             EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
@@ -478,17 +522,7 @@ namespace TheraEngine.Core.Files.Serialization
                             if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
                             {
                                 string value = reader.Value.ToString();
-                                fileType = Type.GetType(value,
-                                    (name) =>
-                                    {
-                                        var assemblies =
-                                        //AppDomain.CurrentDomain.GetAssemblies();
-                                        Engine.EnumAppDomains().SelectMany(x => x.GetAssemblies());
-
-                                        return assemblies.FirstOrDefault(z => z.FullName == name.FullName);
-                                    },
-                                    null,
-                                    false);
+                                fileType = CreateType(value);
                             }
                         }
                         break;

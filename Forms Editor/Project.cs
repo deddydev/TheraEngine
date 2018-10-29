@@ -86,7 +86,7 @@ namespace TheraEditor
         [Browsable(false)]
         public EditorSettings EditorSettings
         {
-            get => EditorSettingsRef.File;
+            get => EditorSettingsRef?.File;
             set => EditorSettingsRef.File = value;
         }
         [TSerialize]

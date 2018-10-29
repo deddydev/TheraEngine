@@ -10,12 +10,8 @@ namespace TheraEngine.Core.Files.Serialization
     //[ObjectWriterKind(typeof(object))]
     public class CommonSerializer : BaseObjectSerializer
     {
-        public override async void ReadObjectMembersFromTree()
+        public override void ReadObjectMembersFromTree()
         {
-            bool custom = await TreeNode.TryInvokeCustomDeserializeAsync();
-            if (custom)
-                return;
-
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<PreDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
@@ -25,21 +21,26 @@ namespace TheraEngine.Core.Files.Serialization
                 MemberTreeNode node = TreeNode.GetChildElement(member.Name);
                 if (node != null)
                 {
-
+                    node.MemberInfo = member;
+                    node.GenerateObjectFromTree();
                 }
                 else
                 {
                     var attrib = TreeNode.GetAttribute(member.Name);
                     if (attrib != null)
                     {
-                        if (attrib.IsUnparsedString && !attrib.ParseStringToObject(member.MemberType))
+                        if (attrib.GetObject(member.MemberType, out object value))
+                        {
+                            member.SetObject(TreeNode.Object, value);
+                        }
+                        else
                         {
                             Engine.LogWarning("Unable to parse attribute " + attrib.Name + " as " + member.MemberType.GetFriendlyName());
                         }
                     }
                     else
                     {
-
+                        //Engine.PrintLine("Did not parse " + member.Name);
                     }
                 }
             }

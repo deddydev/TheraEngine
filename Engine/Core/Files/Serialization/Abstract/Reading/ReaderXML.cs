@@ -69,11 +69,9 @@ namespace TheraEngine.Core.Files.Serialization
             }
             private async Task<MemberTreeNode> ReadElementAsync(MemberTreeNode parent)
             {
-                //var members = memberType == null ? null : SerializationCommon.CollectSerializedMembers(memberType);
-                //TSerializeMemberInfo info = members.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCulture));
-
                 MemberTreeNode node = null;
                 string name, value;
+
                 while (_reader.NodeType != XmlNodeType.EndElement && !_reader.EOF)
                 {
                     switch (_reader.NodeType)
@@ -83,7 +81,7 @@ namespace TheraEngine.Core.Files.Serialization
                             if (node != null)
                                 node.ChildElementMembers.Add(await ReadElementAsync(node));
                             else
-                                node = new MemberTreeNode(parent, new TSerializeMemberInfo(null, name));
+                                node = new MemberTreeNode(null, new TSerializeMemberInfo(null, name));
                             break;
                         case XmlNodeType.Attribute:
                             name = _reader.Name;
@@ -93,7 +91,7 @@ namespace TheraEngine.Core.Files.Serialization
                         case XmlNodeType.Text:
                             value = await _reader.GetValueAsync();
                             if (node != null)
-                                node.ChildElementObjectMember = value;
+                                node.ChildElementObjectMemberAsString = value;
                             break;
                         default:
                             break;

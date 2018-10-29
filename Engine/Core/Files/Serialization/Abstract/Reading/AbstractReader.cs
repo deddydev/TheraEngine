@@ -26,7 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
             public async Task CreateObjectAsync()
             {
                 await ReadTreeAsync();
-                RootNode.GenerateObjectFromTree(RootFileType);
+                RootNode.GenerateObjectFromTree();
             }
         }
     }

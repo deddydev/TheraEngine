@@ -389,7 +389,7 @@ namespace TheraEngine.Animation
 
                         foreach (MemberTreeNode keyframePartElement in targetTrackElement.ChildElementMembers)
                         {
-                            object o = keyframePartElement.ChildElementObjectMember;
+                            object o = keyframePartElement.ElementContent;
                             if (o is EPlanarInterpType[] array1 && keyframePartElement.MemberInfo.Name == "Interpolation")
                             {
                                 interpolation = array1;

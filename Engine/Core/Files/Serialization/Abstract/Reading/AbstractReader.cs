@@ -23,10 +23,14 @@ namespace TheraEngine.Core.Files.Serialization
             }
                         
             protected abstract Task ReadTreeAsync();
-            public async Task CreateObjectAsync()
+            public async Task<object> CreateObjectAsync()
             {
                 await ReadTreeAsync();
-                RootNode.GenerateObjectFromTree();
+                RootNode.TreeToObject();
+                object obj = RootNode.Object;
+                if (obj is TFileObject tobj)
+                    tobj.FilePath = FilePath;
+                return obj;
             }
         }
     }

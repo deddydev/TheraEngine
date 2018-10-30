@@ -10,11 +10,11 @@ namespace TheraEngine.Core.Files.Serialization
     [ObjectWriterKind(typeof(IList))]
     public class IListSerializer : BaseObjectSerializer
     {
-        public override void GenerateTreeFromBinary(ref VoidPtr address)
+        public override void TreeFromBinary(ref VoidPtr address)
         {
 
         }
-        public override void GenerateTreeFromObject()
+        public override void TreeFromObject()
         {
             IList list = TreeNode.Object as IList;
 
@@ -24,10 +24,10 @@ namespace TheraEngine.Core.Files.Serialization
                 TreeNode.ChildElementMembers.Add(new MemberTreeNode(o, new TSerializeMemberInfo(elemType, null)));
         }
 
-        public override void ReadObjectMembersFromTree()
+        public override void TreeToObject()
         {
 
         }
-        public override void WriteTreeToBinary(ref VoidPtr address) => throw new NotImplementedException();
+        public override void TreeToBinary(ref VoidPtr address) => throw new NotImplementedException();
     }
 }

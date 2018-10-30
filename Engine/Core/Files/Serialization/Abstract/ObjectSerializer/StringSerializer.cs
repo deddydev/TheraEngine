@@ -1,29 +1,36 @@
-﻿using TheraEngine.Core.Memory;
+﻿using System;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectWriterKind(typeof(string))]
     public class StringSerializer : BaseObjectSerializer
     {
-        public override void GenerateTreeFromBinary(ref VoidPtr address)
+        public override void TreeFromBinary(ref VoidPtr address)
         {
 
         }
-        public override void GenerateTreeFromObject()
+        public override void TreeFromObject()
         {
-
+            TreeNode.ElementContent = TreeNode.Object as string;
         }
-        public override void ReadObjectMembersFromTree()
+        public override void TreeToObject()
         {
             if (TreeNode.ParseChildElementObjectMemberToObject(TreeNode.ObjectType))
             {
-                TreeNode.Object = TreeNode.ChildElementObjectMember;
+                TreeNode.Object = TreeNode.ElementContent;
                 TreeNode.ApplyObjectToParent();
             }
+            else
+                TreeNode.Object = null;
         }
-        public override void WriteTreeToBinary(ref VoidPtr address)
+        public override void TreeToBinary(ref VoidPtr address)
         {
 
+        }
+        public override int OnGetTreeSize()
+        {
+            var binWriter = GetBinaryWriter();
         }
     }
 }

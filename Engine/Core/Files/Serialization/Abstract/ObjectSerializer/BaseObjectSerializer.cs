@@ -18,10 +18,18 @@ namespace TheraEngine.Core.Files.Serialization
     public abstract class BaseObjectSerializer
     {
         public MemberTreeNode TreeNode { get; internal protected set; } = null;
+        public int TreeSize { get; private set; }
 
-        public abstract void GenerateTreeFromBinary(ref VoidPtr address);
-        public abstract void WriteTreeToBinary(ref VoidPtr address);
-        public abstract void ReadObjectMembersFromTree();
-        public abstract void GenerateTreeFromObject();
+        private TSerializer.WriterBinary GetBinaryWriter() => TreeNode.Owner as TSerializer.WriterBinary;
+        private TSerializer.WriterXML GetXMLWriter() => TreeNode.Owner as TSerializer.WriterXML;
+        private TDeserializer.ReaderBinary GetBinaryReader() => TreeNode.Owner as TDeserializer.ReaderBinary;
+        private TDeserializer.ReaderXML GetXMLReader() => TreeNode.Owner as TDeserializer.ReaderXML;
+
+        public int GetTreeSize() => TreeSize = OnGetTreeSize();
+        public abstract int OnGetTreeSize();
+        public abstract void TreeFromBinary(ref VoidPtr address);
+        public abstract void TreeToBinary(ref VoidPtr address);
+        public abstract void TreeToObject();
+        public abstract void TreeFromObject();
     }
 }

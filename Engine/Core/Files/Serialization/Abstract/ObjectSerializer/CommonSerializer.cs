@@ -10,8 +10,10 @@ namespace TheraEngine.Core.Files.Serialization
     //[ObjectWriterKind(typeof(object))]
     public class CommonSerializer : BaseObjectSerializer
     {
-        public override void ReadObjectMembersFromTree()
+        public override void TreeToObject()
         {
+            TreeNode.Object = SerializationCommon.CreateObject(TreeNode.ObjectType);
+
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<PreDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
@@ -22,7 +24,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (node != null)
                 {
                     node.MemberInfo = member;
-                    node.GenerateObjectFromTree();
+                    node.TreeToObject();
                 }
                 else
                 {
@@ -49,7 +51,7 @@ namespace TheraEngine.Core.Files.Serialization
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<PostDeserialize>().Arguments);
 
         }
-        public override void GenerateTreeFromObject()
+        public override void TreeFromObject()
         {
             TSerializeMemberInfo[] members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType, TreeNode.Object);
             List<MemberTreeNode> memberNodes = members.Select(x => new MemberTreeNode(TreeNode, x)).ToList();
@@ -78,11 +80,15 @@ namespace TheraEngine.Core.Files.Serialization
 
             TreeNode.ChildElementMembers = new EventList<MemberTreeNode>(memberNodes);
         }
-        public override void GenerateTreeFromBinary(ref VoidPtr address)
+        public override void TreeFromBinary(ref VoidPtr address)
         {
 
         }
-        public override void WriteTreeToBinary(ref VoidPtr address)
+        public override void TreeToBinary(ref VoidPtr address)
+        {
+
+        }
+        public override int OnGetTreeSize()
         {
 
         }

@@ -98,13 +98,13 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public List<SerializeAttribute> ChildAttributeMembers { get; set; } = new List<SerializeAttribute>();
         public EventList<MemberTreeNode> ChildElementMembers { get; set; }
-        public object ChildElementObjectMember { get; set; }
+        public object ElementContent { get; set; }
         internal string ChildElementObjectMemberAsString { get; set; }
 
         public bool GetChildElementObjectMemberAsString(out string value)
         {
             value = null;
-            bool success = ChildElementObjectMember == null || SerializationCommon.GetString(ChildElementObjectMember, ChildElementObjectMember.GetType(), out value);
+            bool success = ElementContent == null || SerializationCommon.GetString(ElementContent, ElementContent.GetType(), out value);
             ChildElementObjectMemberAsString = value;
             return success;
         }
@@ -112,13 +112,13 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (ChildElementObjectMemberAsString == null)
             {
-                ChildElementObjectMember = null;
+                ElementContent = null;
                 return true;
             }
 
             if (SerializationCommon.CanParseAsString(type))
             {
-                ChildElementObjectMember = SerializationCommon.ParseString(ChildElementObjectMemberAsString, type);
+                ElementContent = SerializationCommon.ParseString(ChildElementObjectMemberAsString, type);
                 return true;
             }
             return false;
@@ -135,6 +135,7 @@ namespace TheraEngine.Core.Files.Serialization
         internal int ParsablePointerSize { get; set; } = 0;
 
         public object DefaultObject { get; private set; }
+        public Type DesiredDerivedObjectType { get; private set; }
 
         /// <summary>
         /// The value assigned to this member.
@@ -157,11 +158,11 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// How many checkpoints need to be hit for this node and all child nodes to advance the progression handler.
         /// </summary>
-        public int ProgressionCount => 1 + ChildAttributeMembers.Count + ChildElementMembers.Count + (ChildElementObjectMember != null ? 1 : 0) + (IsDerivedType ? 1 : 0);
+        public int ProgressionCount => 1 + ChildAttributeMembers.Count + ChildElementMembers.Count + (ElementContent != null ? 1 : 0) + (IsDerivedType ? 1 : 0);
         /// <summary>
         /// The type of the object assigned to this member.
         /// </summary>
-        public Type ObjectType => _object?.GetType() ?? MemberInfo?.MemberType;
+        public Type ObjectType => _object?.GetType() ?? DesiredDerivedObjectType ?? MemberInfo?.MemberType;
         /// <summary>
         /// <see langword="true"/> if the object's type inherits from the member's type instead of matching it exactly.
         /// </summary>
@@ -283,19 +284,19 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return false;
         }
-        public async void GenerateObjectFromTree()
+        public async void TreeToObject()
         {
             Type objType = MemberInfo.MemberType;
             if (GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration))
                 objType = SerializationCommon.CreateType(typeDeclaration);
 
-            Object = SerializationCommon.CreateObject(objType);
+            DesiredDerivedObjectType = objType;
 
             bool custom = await TryInvokeCustomDeserializeAsync();
             if (!custom)
-                ObjectSerializer.ReadObjectMembersFromTree();
+                ObjectSerializer.TreeToObject();
         }
-        public async void CreateTreeFromObject()
+        public async void TreeFromObject()
         {
             await FileObjectCheckAsync();
 
@@ -304,7 +305,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             bool custom = await TryInvokeCustomSerializeAsync();
             if (!custom)
-                ObjectSerializer?.GenerateTreeFromObject();
+                ObjectSerializer?.TreeFromObject();
         }
         private void ObjectChanged()
         {
@@ -491,7 +492,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
 
         public void AddChildElementObject(string elementName, object elementObject)
-            => ChildElementMembers.Add(new MemberTreeNode(null, new TSerializeMemberInfo(typeof(string), elementName)) { ChildElementObjectMember = elementObject });
+            => ChildElementMembers.Add(new MemberTreeNode(null, new TSerializeMemberInfo(typeof(string), elementName)) { ElementContent = elementObject });
         public void AddAttribute(string name, object value)
             => ChildAttributeMembers.Add(new SerializeAttribute(name, value));
         public SerializeAttribute GetAttribute(string name) 

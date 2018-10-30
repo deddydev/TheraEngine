@@ -14,11 +14,11 @@ namespace TheraEngine.Core.Files.Serialization
         public MemberTreeNode[] Keys { get; private set; }
         public MemberTreeNode[] Values { get; private set; }
         
-        public override void GenerateTreeFromBinary(ref VoidPtr address)
+        public override void TreeFromBinary(ref VoidPtr address)
         {
 
         }
-        public override void GenerateTreeFromObject()
+        public override void TreeFromObject()
         {
             Dictionary = TreeNode.Object as IDictionary;
 
@@ -47,7 +47,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
         }
 
-        public override void ReadObjectMembersFromTree() => throw new NotImplementedException();
-        public override void WriteTreeToBinary(ref VoidPtr address) => throw new NotImplementedException();
+        public override void TreeToObject() => throw new NotImplementedException();
+        public override void TreeToBinary(ref VoidPtr address) => throw new NotImplementedException();
     }
 }

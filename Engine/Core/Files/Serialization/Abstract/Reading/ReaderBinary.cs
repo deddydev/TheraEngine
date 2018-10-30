@@ -82,18 +82,15 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 object obj = null;
                 Type objType = memberType;
-                if (memberType == null)
-                {
-                    Engine.LogWarning($"{nameof(memberType)} cannot be null.");
-                    return null;
-                }
+                //if (objType == null)
+                //{
+                //    Engine.LogWarning($"{nameof(objType)} cannot be null.");
+                //    return null;
+                //}
 
                 EBinaryObjectFlags flags = (EBinaryObjectFlags)address.ReadByte();
-                if ((flags & EBinaryObjectFlags.IsDefault) != 0)
-                {
-                    obj = objType.GetDefaultValue();
-                }
-                else if ((flags & EBinaryObjectFlags.IsNull) != 0)
+                
+                if ((flags & EBinaryObjectFlags.IsNull) != 0)
                 {
                     obj = null;
                 }
@@ -110,59 +107,68 @@ namespace TheraEngine.Core.Files.Serialization
                     bool nullable = nulledType != null;
                     if (nullable)
                         objType = nulledType;
-                    
-                    //First, handle built-in primitive types
-                    switch (objType.Name)
-                    {
-                        case nameof(Boolean):   /*obj = address.ReadByte() != 0;*/  break;
-                        case nameof(SByte):     obj = address.ReadSByte();          break;
-                        case nameof(Byte):      obj = address.ReadByte();           break;
-                        case nameof(Char):      obj = address.ReadChar();           break;
-                        case nameof(Int16):     obj = address.ReadShort();          break;
-                        case nameof(UInt16):    obj = address.ReadUShort();         break;
-                        case nameof(Int32):     obj = address.ReadInt();            break;
-                        case nameof(UInt32):    obj = address.ReadUInt();           break;
-                        case nameof(Int64):     obj = address.ReadLong();           break;
-                        case nameof(UInt64):    obj = address.ReadULong();          break;
-                        case nameof(Single):    obj = address.ReadFloat();          break;
-                        case nameof(Double):    obj = address.ReadDouble();         break;
-                        case nameof(Decimal):   obj = address.ReadDecimal();        break;
-                        case nameof(String):    obj = ReadString(ref address);      break;
-                        default:
-                            if (objType.IsEnum)
-                            {
-                                obj = ReadEnum(objType, ref address);
-                            }
-                            else if (objType.IsArray)
-                            {
-                                obj = ReadArray(objType, ref address);
-                            }
-                            else if (objType.GetInterface(nameof(ISerializablePointer)) != null)
-                            {
-                                obj = ReadSerializablePointer(objType, ref address);
-                            }
-                            else if (objType.GetInterface(nameof(ISerializableByteArray)) != null)
-                            {
-                                obj = ReadSerializableByteArray(objType, ref address);
-                            }
-                            else if (objType.GetInterface(nameof(ISerializableString)) != null)
-                            {
-                                obj = ReadSerializableString(objType, ref address);
-                            }
-                            else if (objType.IsValueType)
-                            {
-                                obj = ReadStruct(objType, ref address);
-                            }
-                            else if (typeof(TFileObject).IsAssignableFrom(objType) && ShouldReadFileObjectManually(objType))
-                            {
-                                obj = ReadFileObjectManually(objType, ref address);
-                            }
-                            else
-                            {
-                                obj = null;
-                            }
 
-                            break;
+                    if ((flags & EBinaryObjectFlags.IsDefault) != 0)
+                    {
+                        obj = objType.GetDefaultValue();
+                    }
+                    else
+                    {
+                        //First, handle built-in primitive types
+                        switch (objType.Name)
+                        {
+                            case nameof(Boolean):   /*obj = address.ReadByte() != 0;*/  break;
+                            case nameof(SByte): obj = address.ReadSByte(); break;
+                            case nameof(Byte): obj = address.ReadByte(); break;
+                            case nameof(Char): obj = address.ReadChar(); break;
+                            case nameof(Int16): obj = address.ReadShort(); break;
+                            case nameof(UInt16): obj = address.ReadUShort(); break;
+                            case nameof(Int32): obj = address.ReadInt(); break;
+                            case nameof(UInt32): obj = address.ReadUInt(); break;
+                            case nameof(Int64): obj = address.ReadLong(); break;
+                            case nameof(UInt64): obj = address.ReadULong(); break;
+                            case nameof(Single): obj = address.ReadFloat(); break;
+                            case nameof(Double): obj = address.ReadDouble(); break;
+                            case nameof(Decimal): obj = address.ReadDecimal(); break;
+                            case nameof(String): obj = ReadString(ref address); break;
+                            default:
+                                if (objType.IsEnum)
+                                {
+                                    obj = ReadEnum(objType, ref address);
+                                }
+                                else if (objType.IsArray)
+                                {
+                                    obj = ReadArray(objType, ref address);
+                                }
+                                else if (objType.GetInterface(nameof(ISerializablePointer)) != null)
+                                {
+                                    obj = ReadSerializablePointer(objType, ref address);
+                                }
+                                else if (objType.GetInterface(nameof(ISerializableByteArray)) != null)
+                                {
+                                    obj = ReadSerializableByteArray(objType, ref address);
+                                }
+                                else if (objType.GetInterface(nameof(ISerializableString)) != null)
+                                {
+                                    obj = ReadSerializableString(objType, ref address);
+                                }
+                                else if (objType.IsValueType)
+                                {
+                                    obj = ReadStruct(objType, ref address);
+                                }
+                                else if (typeof(TFileObject).IsAssignableFrom(objType) && ShouldReadFileObjectManually(objType))
+                                {
+                                    obj = ReadFileObjectManually(objType, ref address);
+                                }
+                                else
+                                {
+                                    var ObjectSerializer = SerializationCommon.DetermineObjectSerializer(objType, null);
+                                    ObjectSerializer.TreeFromBinary(ref address);
+                                    obj = null;
+                                }
+
+                                break;
+                        }
                     }
                 }
 

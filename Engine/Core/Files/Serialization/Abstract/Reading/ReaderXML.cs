@@ -25,11 +25,11 @@ namespace TheraEngine.Core.Files.Serialization
         {
             Format = EProprietaryFileFormat.XML;
             Reader = new ReaderXML(this, filePath, progress, cancel, null);
-            await Reader.CreateObjectAsync();
+            object file = await Reader.CreateObjectAsync();
             Engine.PrintLine("Deserialized XML file at {0}", filePath);
-            return Reader.RootNode.Object;
+            return file;
         }
-        private class ReaderXML : AbstractReader
+        public class ReaderXML : AbstractReader
         {
             public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.XML;
 

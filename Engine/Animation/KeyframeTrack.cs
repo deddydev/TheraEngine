@@ -470,7 +470,7 @@ namespace TheraEngine.Animation
             //Read all keyframe information, split into separate element arrays
             foreach (MemberTreeNode element in node.ChildElementMembers)
             {
-                object o = element.ChildElementObjectMember;
+                object o = element.ElementContent;
                 switch (element.Name)
                 {
                     case "Seconds":     seconds         = o as float[]; break;

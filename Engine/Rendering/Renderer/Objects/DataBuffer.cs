@@ -86,7 +86,7 @@ namespace TheraEngine.Rendering.Models
         DynamicRead = 9,
         DynamicCopy = 10
     }
-    public class DataBuffer : BaseRenderObject, IDisposable
+    public class DataBuffer : BaseRenderObject, IDisposable, ISerializablePointer
     {
         public enum ComponentType
         {
@@ -524,5 +524,18 @@ namespace TheraEngine.Rendering.Models
 
         public static implicit operator VoidPtr(DataBuffer b) => b.Address;
         public override string ToString() => _name;
+
+        public int GetSize()
+        {
+            return DataLength;
+        }
+        public void WriteToPointer(VoidPtr address)
+        {
+
+        }
+        public void ReadFromPointer(VoidPtr address, int size)
+        {
+
+        }
     }
 }

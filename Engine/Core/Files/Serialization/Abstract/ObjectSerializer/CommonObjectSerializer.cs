@@ -8,7 +8,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 namespace TheraEngine.Core.Files.Serialization
 {
     //[ObjectWriterKind(typeof(object))]
-    public class CommonSerializer : BaseObjectSerializer
+    public class CommonObjectSerializer : BaseObjectSerializer
     {
         public override void TreeToObject()
         {
@@ -80,17 +80,17 @@ namespace TheraEngine.Core.Files.Serialization
 
             TreeNode.ChildElementMembers = new EventList<MemberTreeNode>(memberNodes);
         }
-        public override void TreeFromBinary(ref VoidPtr address)
+        public override void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binWriter)
         {
 
         }
-        public override void TreeToBinary(ref VoidPtr address)
+        public override void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
         {
 
         }
-        public override int OnGetTreeSize()
+        public override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
         {
-
+            return 0;
         }
     }
 }

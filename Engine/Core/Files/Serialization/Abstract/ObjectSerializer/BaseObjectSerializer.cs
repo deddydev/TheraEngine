@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -20,15 +19,15 @@ namespace TheraEngine.Core.Files.Serialization
         public MemberTreeNode TreeNode { get; internal protected set; } = null;
         public int TreeSize { get; private set; }
 
-        private TSerializer.WriterBinary GetBinaryWriter() => TreeNode.Owner as TSerializer.WriterBinary;
-        private TSerializer.WriterXML GetXMLWriter() => TreeNode.Owner as TSerializer.WriterXML;
-        private TDeserializer.ReaderBinary GetBinaryReader() => TreeNode.Owner as TDeserializer.ReaderBinary;
-        private TDeserializer.ReaderXML GetXMLReader() => TreeNode.Owner as TDeserializer.ReaderXML;
+        //protected TSerializer.WriterBinary      GetBinaryWriter()   => TreeNode.Owner as TSerializer.WriterBinary;
+        //protected TSerializer.WriterXML         GetXMLWriter()      => TreeNode.Owner as TSerializer.WriterXML;
+        //protected TDeserializer.ReaderBinary    GetBinaryReader()   => TreeNode.Owner as TDeserializer.ReaderBinary;
+        //protected TDeserializer.ReaderXML       GetXMLReader()      => TreeNode.Owner as TDeserializer.ReaderXML;
 
-        public int GetTreeSize() => TreeSize = OnGetTreeSize();
-        public abstract int OnGetTreeSize();
-        public abstract void TreeFromBinary(ref VoidPtr address);
-        public abstract void TreeToBinary(ref VoidPtr address);
+        public int GetTreeSize(TSerializer.WriterBinary binWriter) => TreeSize = OnGetTreeSize(binWriter);
+        public abstract int OnGetTreeSize(TSerializer.WriterBinary binWriter);
+        public abstract void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader);
+        public abstract void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter);
         public abstract void TreeToObject();
         public abstract void TreeFromObject();
     }

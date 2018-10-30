@@ -64,12 +64,12 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     _stream.Position = 0;
                     await _reader.MoveToContentAsync();
-                    RootNode = await ReadElementAsync(null);
+                    RootNode = await ReadElementAsync();
                 }
             }
-            private async Task<MemberTreeNode> ReadElementAsync(MemberTreeNode parent)
+            private async Task<MemberTreeNode> ReadElementAsync()
             {
-                MemberTreeNode node = null;
+                MemberTreeNode node = null, childNode;
                 string name, value;
 
                 while (_reader.NodeType != XmlNodeType.EndElement && !_reader.EOF)
@@ -79,14 +79,28 @@ namespace TheraEngine.Core.Files.Serialization
                         case XmlNodeType.Element:
                             name = _reader.Name;
                             if (node != null)
-                                node.ChildElementMembers.Add(await ReadElementAsync(node));
+                            {
+                                childNode = await ReadElementAsync();
+                                node.ChildElementMembers.Add(childNode);
+                            }
                             else
+                            {
                                 node = new MemberTreeNode(null, new TSerializeMemberInfo(null, name));
-                            break;
-                        case XmlNodeType.Attribute:
-                            name = _reader.Name;
-                            value = await _reader.GetValueAsync();
-                            node?.ChildAttributeMembers?.Add(SerializeAttribute.FromString(name, value));
+                                if (_reader.HasAttributes)
+                                {
+                                    while (_reader.MoveToNextAttribute())
+                                    {
+                                        name = _reader.Name;
+                                        value = await _reader.GetValueAsync();
+                                        node?.ChildAttributeMembers?.Add(SerializeAttribute.FromString(name, value));
+                                    }
+                                }
+                                if (_reader.IsEmptyElement)
+                                {
+                                    await _reader.ReadAsync();
+                                    return node;
+                                }
+                            }
                             break;
                         case XmlNodeType.Text:
                             value = await _reader.GetValueAsync();

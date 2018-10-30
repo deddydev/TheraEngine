@@ -6,10 +6,6 @@ namespace TheraEngine.Core.Files.Serialization
     [ObjectWriterKind(typeof(string))]
     public class StringSerializer : BaseObjectSerializer
     {
-        public override void TreeFromBinary(ref VoidPtr address)
-        {
-
-        }
         public override void TreeFromObject()
         {
             TreeNode.ElementContent = TreeNode.Object as string;
@@ -24,13 +20,17 @@ namespace TheraEngine.Core.Files.Serialization
             else
                 TreeNode.Object = null;
         }
-        public override void TreeToBinary(ref VoidPtr address)
+        public override void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
         {
 
         }
-        public override int OnGetTreeSize()
+        public override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
         {
-            var binWriter = GetBinaryWriter();
+            throw new NotImplementedException();
+        }
+        public override void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -412,7 +412,7 @@
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\StringSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterBinary.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\CommonSerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\CommonObjectSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IDictionarySerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IListSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\BaseObjectSerializer.cs" />

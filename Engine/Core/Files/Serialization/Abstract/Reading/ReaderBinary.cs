@@ -162,8 +162,8 @@ namespace TheraEngine.Core.Files.Serialization
                                 }
                                 else
                                 {
-                                    var ObjectSerializer = SerializationCommon.DetermineObjectSerializer(objType, null);
-                                    ObjectSerializer.TreeFromBinary(ref address);
+                                    var objSer = SerializationCommon.DetermineObjectSerializer(objType, null);
+                                    objSer.TreeFromBinary(ref address, this);
                                     obj = null;
                                 }
 

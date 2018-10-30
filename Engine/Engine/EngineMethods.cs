@@ -126,7 +126,11 @@ namespace TheraEngine
             search = search.Where(x => !x.IsDynamic);
 
             if (includeEngineAssembly)
-                search = search.Append(Assembly.GetExecutingAssembly());
+            {
+                Assembly engine = Assembly.GetExecutingAssembly();
+                if (!search.Contains(engine))
+                    search = search.Append(engine);
+            }
 
             var allTypes = search.SelectMany(x => x.GetExportedTypes());
 

@@ -9,93 +9,13 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class SerializeAttribute
-    {
-        public SerializeAttribute() { }
-        public SerializeAttribute(string name, object value) { Name = name; _value = value; }
-
-        private object _value;
-        private string _stringValue;
-
-        public string Name { get; set; }
-
-        public void SetValueAsObject(object o)
-        {
-            _value = o;
-            Type t = _value?.GetType();
-            IsNonStringObject = _value != null ? !SerializationCommon.GetString(_value, t, out _stringValue) : false;
-            IsUnparsedString = false;
-        }
-        public void SetValueAsString(string o)
-        {
-            _stringValue = o;
-            IsUnparsedString = true;
-            IsNonStringObject = false;
-        }
-        public bool SetValueAsString(string o, Type type)
-        {
-            _stringValue = o;
-            IsUnparsedString = true;
-            IsNonStringObject = false;
-            return ParseStringToObject(type);
-        }
-
-        public bool IsNonStringObject { get; private set; } = false;
-        public bool IsUnparsedString { get; private set; } = false;
-
-        public bool ParseStringToObject(Type type)
-        {
-            bool canParse = SerializationCommon.CanParseAsString(type);
-            if (canParse)
-                _value = SerializationCommon.ParseString(_stringValue, type);
-            IsUnparsedString = !canParse;
-            IsNonStringObject = false;
-            return canParse;
-        }
-        public bool GetObject(Type type, out object value)
-        {
-            bool success = IsUnparsedString ? ParseStringToObject(type) : type.IsAssignableFrom(_value.GetType());
-            if (success)
-                value = _value;
-            else
-                value = default;
-            return success;
-        }
-        public bool GetObject<T>(out T value)
-        {
-            bool success = IsUnparsedString ? ParseStringToObject(typeof(T)) : _value is T;
-            if (success)
-                value = (T)_value;
-            else
-                value = default;
-            return success;
-        }
-        public bool GetString(out string value)
-        {
-            if (IsNonStringObject)
-            {
-                value = null;
-                return false;
-            }
-            value = _stringValue;
-            return true;
-        }
-
-        public static SerializeAttribute FromString(string name, string value)
-        {
-            SerializeAttribute attrib = new SerializeAttribute(name, null);
-            attrib.SetValueAsString(value);
-            return attrib;
-        }
-        public static SerializeAttribute FromString(string name, string value, Type objectType, out bool parseSucceeded)
-        {
-            SerializeAttribute attrib = new SerializeAttribute(name, null);
-            parseSucceeded = attrib.SetValueAsString(value, objectType);
-            return attrib;
-        }
-    }
     public sealed class MemberTreeNode
     {
+        private TBaseSerializer.TBaseAbstractReaderWriter _owner;
+        private object _object;
+        private Type _desiredDerivedObjectType;
+        private TSerializeMemberInfo _memberInfo;
+
         public List<SerializeAttribute> ChildAttributeMembers { get; set; } = new List<SerializeAttribute>();
         public EventList<MemberTreeNode> ChildElementMembers { get; set; }
         public object ElementContent { get; set; }
@@ -125,8 +45,38 @@ namespace TheraEngine.Core.Files.Serialization
         }
         
         public MemberTreeNode Parent { get; internal set; }
-        public TBaseSerializer.TBaseAbstractReaderWriter Owner { get; internal set; }
-        public TSerializeMemberInfo MemberInfo { get; set; }
+        public TBaseSerializer.TBaseAbstractReaderWriter Owner
+        {
+            get => _owner;
+            internal set
+            {
+                if (_owner != value)
+                {
+                    _owner = value;
+                    ObjectTypeChanged();
+                }
+            }
+        }
+        public TSerializeMemberInfo MemberInfo
+        {
+            get => _memberInfo;
+            set
+            {
+                Type t = ObjectType;
+                if (_memberInfo != null)
+                    _memberInfo.MemberTypeChanged -= _memberInfo_MemberTypeChanged;
+                _memberInfo = value;
+                if (_memberInfo != null)
+                    _memberInfo.MemberTypeChanged += _memberInfo_MemberTypeChanged;
+                if (ObjectType != t)
+                    ObjectTypeChanged();
+            }
+        }
+
+        private void _memberInfo_MemberTypeChanged()
+        {
+            ObjectTypeChanged();
+        }
 
         internal int CalculatedSize { get; set; }
         internal int ManuallyCalculatedSize { get; set; }
@@ -135,7 +85,17 @@ namespace TheraEngine.Core.Files.Serialization
         internal int ParsablePointerSize { get; set; } = 0;
 
         public object DefaultObject { get; private set; }
-        public Type DesiredDerivedObjectType { get; private set; }
+        public Type DesiredDerivedObjectType
+        {
+            get => _desiredDerivedObjectType;
+            private set
+            {
+                Type t = ObjectType;
+                _desiredDerivedObjectType = value;
+                if (ObjectType != t)
+                    ObjectTypeChanged();
+            }
+        }
 
         /// <summary>
         /// The value assigned to this member.
@@ -145,11 +105,12 @@ namespace TheraEngine.Core.Files.Serialization
             get => _object;
             set
             {
+                Type t = ObjectType;
                 _object = value;
-                ObjectChanged();
+                if (ObjectType != t)
+                    ObjectTypeChanged();
             }
         }
-        private object _object;
 
         /// <summary>
         /// True if this node is just for categorization of the child nodes.
@@ -170,7 +131,7 @@ namespace TheraEngine.Core.Files.Serialization
         
         /// <summary>
         /// The class handling how to read and write all members of any given object.
-        /// Most classes will use <see cref="CommonSerializer"/>.
+        /// Most classes will use <see cref="CommonObjectSerializer"/>.
         /// </summary>
         public BaseObjectSerializer ObjectSerializer { get; set; }
         /// <summary>
@@ -286,11 +247,10 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public async void TreeToObject()
         {
-            Type objType = MemberInfo.MemberType;
             if (GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration))
-                objType = SerializationCommon.CreateType(typeDeclaration);
-
-            DesiredDerivedObjectType = objType;
+                DesiredDerivedObjectType = SerializationCommon.CreateType(typeDeclaration);
+            else
+                DesiredDerivedObjectType = null;
 
             bool custom = await TryInvokeCustomDeserializeAsync();
             if (!custom)
@@ -307,7 +267,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (!custom)
                 ObjectSerializer?.TreeFromObject();
         }
-        private void ObjectChanged()
+        private void ObjectTypeChanged()
         {
             PreSerializeMethods = new List<MethodInfo>();
             PostSerializeMethods = new List<MethodInfo>();
@@ -318,6 +278,8 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (ObjectType != null)
             {
+                ObjectSerializer = SerializationCommon.DetermineObjectSerializer(ObjectType, this);
+
                 IEnumerable<MethodInfo> methods = ObjectType?.GetMethods(
                     BindingFlags.NonPublic |
                     BindingFlags.Instance |
@@ -329,7 +291,7 @@ namespace TheraEngine.Core.Files.Serialization
                     foreach (var attrib in attribs)
                     {
                         if (attrib is SerializationAttribute serAttrib &&
-                            serAttrib.RunForFormats.HasFlag(Owner.Format))
+                            (Owner != null ? serAttrib.RunForFormats.HasFlag(Owner.Format) : true))
                         {
                             switch (attrib.GetType().Name)
                             {
@@ -355,13 +317,9 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                 }
-                
-                ObjectSerializer = SerializationCommon.DetermineObjectSerializer(ObjectType, this);
             }
             else
-            {
                 ObjectSerializer = null;
-            }
         }
         public void ApplyObjectToParent()
         {
@@ -530,5 +488,90 @@ namespace TheraEngine.Core.Files.Serialization
         public MemberTreeNode GetChildElement(string name)
             => ChildElementMembers.FirstOrDefault(x => string.Equals(x.MemberInfo.Name, name));
         public override string ToString() => MemberInfo.Name;
+    }
+    public class SerializeAttribute
+    {
+        public SerializeAttribute() { }
+        public SerializeAttribute(string name, object value) { Name = name; _value = value; }
+
+        private object _value;
+        private string _stringValue;
+
+        public string Name { get; set; }
+
+        public void SetValueAsObject(object o)
+        {
+            _value = o;
+            Type t = _value?.GetType();
+            IsNonStringObject = _value != null ? !SerializationCommon.GetString(_value, t, out _stringValue) : false;
+            IsUnparsedString = false;
+        }
+        public void SetValueAsString(string o)
+        {
+            _stringValue = o;
+            IsUnparsedString = true;
+            IsNonStringObject = false;
+        }
+        public bool SetValueAsString(string o, Type type)
+        {
+            _stringValue = o;
+            IsUnparsedString = true;
+            IsNonStringObject = false;
+            return ParseStringToObject(type);
+        }
+
+        public bool IsNonStringObject { get; private set; } = false;
+        public bool IsUnparsedString { get; private set; } = false;
+
+        public bool ParseStringToObject(Type type)
+        {
+            bool canParse = SerializationCommon.CanParseAsString(type);
+            if (canParse)
+                _value = SerializationCommon.ParseString(_stringValue, type);
+            IsUnparsedString = !canParse;
+            IsNonStringObject = false;
+            return canParse;
+        }
+        public bool GetObject(Type type, out object value)
+        {
+            bool success = IsUnparsedString ? ParseStringToObject(type) : type.IsAssignableFrom(_value.GetType());
+            if (success)
+                value = _value;
+            else
+                value = default;
+            return success;
+        }
+        public bool GetObject<T>(out T value)
+        {
+            bool success = IsUnparsedString ? ParseStringToObject(typeof(T)) : _value is T;
+            if (success)
+                value = (T)_value;
+            else
+                value = default;
+            return success;
+        }
+        public bool GetString(out string value)
+        {
+            if (IsNonStringObject)
+            {
+                value = null;
+                return false;
+            }
+            value = _stringValue;
+            return true;
+        }
+
+        public static SerializeAttribute FromString(string name, string value)
+        {
+            SerializeAttribute attrib = new SerializeAttribute(name, null);
+            attrib.SetValueAsString(value);
+            return attrib;
+        }
+        public static SerializeAttribute FromString(string name, string value, Type objectType, out bool parseSucceeded)
+        {
+            SerializeAttribute attrib = new SerializeAttribute(name, null);
+            parseSucceeded = attrib.SetValueAsString(value, objectType);
+            return attrib;
+        }
     }
 }

@@ -11,7 +11,10 @@ namespace TheraEngine.Components.Scene.Shapes
         [TSerialize("Capsule")]
         private BaseCapsule _capsule;
 
-        public CapsuleYComponent() { }
+        public CapsuleYComponent()
+        {
+            _capsule = new CapsuleY(Vec3.Zero, Rotator.GetZero(), Vec3.One, 1.0f, 1.0f);
+        }
         public CapsuleYComponent(float radius, float halfHeight, TRigidBodyConstructionInfo info) : base()
         {
             _capsule = new CapsuleY(Vec3.Zero, Rotator.GetZero(), Vec3.One, radius, halfHeight);

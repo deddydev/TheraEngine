@@ -10,44 +10,50 @@ namespace TheraEngine.Core.Files.Serialization
     [ObjectWriterKind(typeof(IDictionary))]
     public class IDictionarySerializer : BaseObjectSerializer
     {
-        public IDictionary Dictionary { get; private set; }
-        public MemberTreeNode[] Keys { get; private set; }
-        public MemberTreeNode[] Values { get; private set; }
-        
-        public override void TreeFromBinary(ref VoidPtr address)
+        public override void TreeToObject()
         {
 
         }
         public override void TreeFromObject()
         {
-            Dictionary = TreeNode.Object as IDictionary;
+            IDictionary dic = TreeNode.Object as IDictionary;
 
-            object[] keys = new object[Dictionary.Keys.Count];
-            object[] vals = new object[Dictionary.Values.Count];
+            object[] keys = new object[dic.Keys.Count];
+            object[] vals = new object[dic.Values.Count];
 
-            Type keyType = Dictionary.DetermineKeyType();
-            Type valType = Dictionary.DetermineValueType();
+            Type keyType = dic.DetermineKeyType();
+            Type valType = dic.DetermineValueType();
             Type objType = TreeNode.ObjectType;
 
-            Dictionary.Keys.CopyTo(keys, 0);
-            Dictionary.Values.CopyTo(vals, 0);
-            
-            Keys   = keys.Select(obj => new MemberTreeNode(obj, new TSerializeMemberInfo(keyType, SerializationCommon.GetTypeName(keyType)))).ToArray();
-            Values = vals.Select(obj => new MemberTreeNode(obj, new TSerializeMemberInfo(valType, SerializationCommon.GetTypeName(valType)))).ToArray();
+            dic.Keys.CopyTo(keys, 0);
+            dic.Values.CopyTo(vals, 0);
 
-            TreeNode.ChildElementMembers = new EventList<MemberTreeNode>(Keys.Length);
-            for (int i = 0; i < Keys.Length; ++i)
+            MemberTreeNode[] keyNodes = keys.Select(obj => new MemberTreeNode(obj, new TSerializeMemberInfo(keyType, SerializationCommon.GetTypeName(keyType)))).ToArray();
+            MemberTreeNode[] valNodes = vals.Select(obj => new MemberTreeNode(obj, new TSerializeMemberInfo(valType, SerializationCommon.GetTypeName(valType)))).ToArray();
+
+            TreeNode.ChildElementMembers = new EventList<MemberTreeNode>(keyNodes.Length);
+            for (int i = 0; i < keyNodes.Length; ++i)
             {
                 MemberTreeNode pairNode = new MemberTreeNode(null, null);
 
-                pairNode.ChildElementMembers.Add(Keys[i]);
-                pairNode.ChildElementMembers.Add(Values[i]);
+                pairNode.ChildElementMembers.Add(keyNodes[i]);
+                pairNode.ChildElementMembers.Add(valNodes[i]);
 
                 TreeNode.ChildElementMembers.Add(pairNode);
             }
         }
 
-        public override void TreeToObject() => throw new NotImplementedException();
-        public override void TreeToBinary(ref VoidPtr address) => throw new NotImplementedException();
+        public override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
+        {
+            throw new NotImplementedException();
+        }
+        public override void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader)
+        {
+            throw new NotImplementedException();
+        }
+        public override void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

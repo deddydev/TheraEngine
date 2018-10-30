@@ -13,8 +13,20 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public class TSerializeMemberInfo
     {
+        public event Action MemberTypeChanged;
+
+        private Type _memberType;
+
         public MemberInfo Member { get; set; }
-        public Type MemberType { get; set; }
+        public Type MemberType
+        {
+            get => _memberType;
+            set
+            {
+                _memberType = value;
+                MemberTypeChanged?.Invoke();
+            }
+        }
         public string Name { get; set; }
         public string Category { get; set; }
         public bool State { get; set; }
@@ -565,12 +577,32 @@ namespace TheraEngine.Core.Files.Serialization
                     (type.GetCustomAttributeExt<ObjectWriterKind>()?.ObjectType?.IsAssignableFrom(objectType) ?? false),
                 true, null).ToArray();
             }
-
-            if (types != null && types.Length > 0)
-                serializer = (BaseObjectSerializer)Activator.CreateInstance(types[0]);
             else
-                serializer = new CommonSerializer();
+            {
+                Engine.LogWarning("Unable to create object serializer for null type.");
+                return null;
+            }
 
+            Type t;
+            if (types != null && types.Length > 0)
+            {
+                if (types.Length == 1)
+                    t = types[0];
+                else
+                {
+                    var counts = types.Select(serType => types.Count(v => serType.IsAssignableFrom(v))).ToArray();
+                    int min = counts.Min();
+                    int[] mins = counts.FindAllMatchIndices(x => x == min);
+                    string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
+                    msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
+                    Engine.PrintLine(msg);
+                    t = types[mins[0]];
+                }
+            }
+            else
+                t = typeof(CommonObjectSerializer);
+            
+            serializer = (BaseObjectSerializer)Activator.CreateInstance(t);
             serializer.TreeNode = node;
             return serializer;
         }

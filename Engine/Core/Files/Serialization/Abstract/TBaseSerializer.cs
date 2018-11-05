@@ -37,7 +37,7 @@ namespace TheraEngine.Core.Files.Serialization
             /// </summary>
             /// <returns>True if the caller wants to cancel the operation;
             /// false if the operation should continue.</returns>
-            public bool ReportProgress()
+            public virtual bool ReportProgress()
             {
                 float progress = (float)(++CurrentCount) / RootNode.ProgressionCount;
                 Progress?.Report(progress);

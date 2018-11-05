@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -28,25 +29,24 @@ namespace TheraEngine.Rendering.Cameras
             _transformedFrustumShadowMatrices = new Matrix4[slices];
         }
 
-        [TSerialize("Width", NodeType = ENodeType.Attribute, Order = 0)]
+        [TSerialize("Width", NodeType = ENodeType.Attribute)]
         private float _width;
-        [TSerialize("Height", NodeType = ENodeType.Attribute, Order = 1)]
+        [TSerialize("Height", NodeType = ENodeType.Attribute)]
         private float _height;
 
         private Frustum[] _transformedFrustumCascade;
         private Matrix4[] _transformedFrustumProjMatrices;
         private Matrix4[] _transformedFrustumShadowMatrices;
 
+        [TSerialize("OverrideAspect", NodeType = ENodeType.Attribute)]
         private bool _overrideAspect = false;
-
-        [TSerialize("Aspect", Order = 4, Condition = "_overrideAspect")]
+        [TSerialize("Aspect", NodeType = ENodeType.Attribute)]
         private float _aspect;
-
         private float _fovX = 90.0f;
+        [TSerialize("FovY", NodeType = ENodeType.Attribute)]
         private float _fovY = 78.0f;
 
         [Category("Perspective Camera")]
-        [TSerialize(Order = 3)]
         public bool OverrideAspect
         {
             get => _overrideAspect;
@@ -88,7 +88,6 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         [Category("Perspective Camera")]
-        //[Serialize("FovY", XmlNodeType = EXmlNodeType.Attribute, Order = 2)]
         public float VerticalFieldOfView
         {
             get => _fovY;
@@ -100,7 +99,6 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         [Category("Perspective Camera")]
-        [TSerialize("FovX", NodeType = ENodeType.Attribute, Order = 2)]
         public float HorizontalFieldOfView
         {
             get => _fovX;
@@ -111,7 +109,12 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
-
+        [PostDeserialize]
+        private void PostDeserialize()
+        {
+            PositionChanged();
+            CalculateProjection();
+        }
         protected unsafe override void CalculateProjection()
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);

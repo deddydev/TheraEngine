@@ -70,6 +70,7 @@ namespace TheraEngine.Animation
         
         [TSerialize(NodeType = ENodeType.Attribute)]
         public Matrix4 Value { get; set; }
+        public override Type ValueType => typeof(Matrix4);
 
         [Browsable(false)]
         public new Matrix4Keyframe Next

@@ -11,6 +11,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -48,15 +49,15 @@ namespace TheraEngine.Core.Shapes
         private Sphere _boundingSphere;
 
         [CustomSerializeMethod("UseBoundingSphere")]
-        private void SerializeBoundingSphere(XmlWriter writer, ESerializeFlags flags)
+        private void SerializeBoundingSphere(MemberTreeNode node)
         {
-            writer.WriteAttributeString("UseBoundingSphere", UseBoundingSphere.ToString());
+            node.AddAttribute("UseBoundingSphere", UseBoundingSphere);
         }
         [CustomDeserializeMethod("BoundingSphere")]
-        private void DeserializeBoundingSphere(XMLReader reader)
+        private void DeserializeBoundingSphere(MemberTreeNode node)
         {
-            if (bool.TryParse(reader.Value, out bool result))
-                _boundingSphere = result ? new Sphere() : null;
+            if (node.GetAttributeValue("UseBoundingSphere", out bool result) && result)
+                _boundingSphere = new Sphere();
             else
                 _boundingSphere = null;
         }

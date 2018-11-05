@@ -14,10 +14,11 @@ namespace TheraEngine.Core.Files.Serialization
             Type arrayType = TreeNode.ObjectType;
 
             IList list;
-            if (arrayType.BaseType == typeof(Array))
+            if (arrayType.IsArray)
                 list = Activator.CreateInstance(arrayType, count) as IList;
             else
                 list = Activator.CreateInstance(arrayType) as IList;
+            TreeNode.Object = list;
 
             if (count > 0)
             {
@@ -34,8 +35,6 @@ namespace TheraEngine.Core.Files.Serialization
                         list.Add(node.Object);
                 }
             }
-
-            TreeNode.Object = list;
         }
         public override void TreeFromObject()
         {
@@ -46,7 +45,6 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (object o in list)
                 TreeNode.ChildElementMembers.Add(new MemberTreeNode(o, new TSerializeMemberInfo(elemType, null)));
         }
-
         public override void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();

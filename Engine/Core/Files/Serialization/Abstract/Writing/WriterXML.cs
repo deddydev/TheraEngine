@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -115,7 +114,7 @@ namespace TheraEngine.Core.Files.Serialization
                     
                     List<SerializeAttribute> attributes = node.ChildAttributeMembers;
                     List<MemberTreeNode> childElements = node.ChildElementMembers;
-                    bool hasChildStringData = node.GetChildElementObjectMemberAsString(out string childStringData);
+                    bool hasChildStringData = node.GetElementContentAsString(out string childStringData);
 
                     foreach (SerializeAttribute attribute in attributes)
                     {

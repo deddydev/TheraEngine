@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -87,6 +88,8 @@ namespace TheraEngine.Core.Files.Serialization
 
         public void SetObject(object parentObject, object memberObject)
         {
+            if (Member == null)
+                return;
             if (Member.MemberType.HasFlag(MemberTypes.Field))
                 ((FieldInfo)Member).SetValue(parentObject, memberObject);
             else if (Member.MemberType.HasFlag(MemberTypes.Property))
@@ -160,8 +163,7 @@ namespace TheraEngine.Core.Files.Serialization
     public static class SerializationCommon
     {
         public const string TypeIdent = "AssemblyType";
-        public static bool CanParseAsString(Type t)
-            => t != null && (t.GetInterface(nameof(ISerializableString)) != null || IsPrimitiveType(t) || IsEnum(t));
+
         internal static string GetTypeName(Type t)
         {
             if (t == null || t.IsInterface)
@@ -184,6 +186,15 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return t.Name;
         }
+
+        public static bool CanParseAsString(Type t)
+            => t != null &&
+            (t.GetInterface(nameof(ISerializableString)) != null ||
+            IsPrimitiveType(t) ||
+            IsEnum(t) ||
+            t.IsValueType ||
+            (t.GetInterface(nameof(IList)) != null && CanParseAsString(t.DetermineElementType())));
+
         public static bool GetString(object value, Type t, out string result)
         {
             if (t.GetInterface(nameof(ISerializableString)) != null)
@@ -206,6 +217,22 @@ namespace TheraEngine.Core.Files.Serialization
                 result = GetStructAsBytesString(value);
                 return true;
             }
+            else if (t.GetInterface(nameof(IList)) != null)
+            {
+                Type elementType = t.DetermineElementType();
+                if (CanParseAsString(elementType))
+                {
+                    IList list = value as IList;
+                    string MakeString(object o)
+                    {
+                        GetString(o, elementType, out string str);
+                        return str;
+                    }
+                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(",", ",", MakeString);
+                    return true;
+                }
+            }
+
             result = null;
             return false;
         }
@@ -242,7 +269,37 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (t.IsValueType)
                 return ParseStructBytesString(t, value);
-            
+            else if (t.GetInterface(nameof(IList)) != null)
+            {
+                Type elementType = t.DetermineElementType();
+                if (CanParseAsString(elementType))
+                {
+                    //int split = value.FindFirst(0, ':');
+                    //string assemblyType = value.Substring(0, split).Trim();
+                    string[] values = value//.Substring(split + 1)
+                        .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    //Type listType = CreateType(assemblyType);
+
+                    IList list;
+                    if (t.IsArray)
+                        list = Activator.CreateInstance(t, values.Length) as IList;
+                    else
+                        list = Activator.CreateInstance(t) as IList;
+                    
+                    for (int i = 0; i < values.Length; ++i)
+                    {
+                        object o = ParseString(values[i], elementType);
+                        if (list.IsFixedSize)
+                            list[i] = o;
+                        else
+                            list.Add(o);
+                    }
+
+                    return list;
+                }
+            }
+
             throw new InvalidOperationException(t.ToString() + " is not parsable");
         }
         public static string GetStructAsBytesString(object structObj)
@@ -327,7 +384,7 @@ namespace TheraEngine.Core.Files.Serialization
         //    }
         //    return fields;
         //}
-        public static TSerializeMemberInfo[] CollectSerializedMembers(Type type, object obj)
+        public static TSerializeMemberInfo[] CollectSerializedMembers(Type type)
         {
             BindingFlags retrieveFlags =
                 BindingFlags.Instance |
@@ -345,26 +402,23 @@ namespace TheraEngine.Core.Files.Serialization
                 if ((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize)))
                 {
                     TSerializeMemberInfo serMem = new TSerializeMemberInfo(info);
-                    if (serMem.AllowSerialize(obj))
+                    serMembers.Add(serMem);
+                    if (serMem.NodeType == ENodeType.ElementString)
                     {
-                        serMembers.Add(serMem);
-                        if (serMem.NodeType == ENodeType.ElementString)
+                        ++elementStringCount;
+                        if (elementStringCount == 1)
                         {
-                            ++elementStringCount;
-                            if (elementStringCount == 1)
-                            {
-                                firstElementStringIndex = serMembers.Count - 1;
-                            }
-                            else if (firstElementStringIndex >= 0)
-                            {
-                                serMembers[firstElementStringIndex].NodeType = ENodeType.ChildElement;
-                                serMem.NodeType = ENodeType.ChildElement;
-                                firstElementStringIndex = -1;
-                            }
-                            else
-                            {
-                                serMem.NodeType = ENodeType.ChildElement;
-                            }
+                            firstElementStringIndex = serMembers.Count - 1;
+                        }
+                        else if (firstElementStringIndex >= 0)
+                        {
+                            serMembers[firstElementStringIndex].NodeType = ENodeType.ChildElement;
+                            serMem.NodeType = ENodeType.ChildElement;
+                            firstElementStringIndex = -1;
+                        }
+                        else
+                        {
+                            serMem.NodeType = ENodeType.ChildElement;
                         }
                     }
                 }
@@ -432,7 +486,7 @@ namespace TheraEngine.Core.Files.Serialization
         //    }
         //}
         public static bool IsEnum(Type t)
-            => string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture);
+            => t?.BaseType != null && string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture);
         public static bool IsPrimitiveType(Type t)
         {
             switch (t.Name)

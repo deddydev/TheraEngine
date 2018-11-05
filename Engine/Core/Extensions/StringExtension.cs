@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -10,6 +11,124 @@ namespace System
 {
     public static unsafe class StringExtension
     {
+        /// <summary>
+        /// Converts the elements of an array into a well-formatted list.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array.</typeparam>
+        /// <param name="a">The array to format into a list.</param>
+        /// <param name="separator">The separator to use to separate items in the list.</param>
+        /// <param name="lastSeparator">The separator to use in the list between the last two elements.</param>
+        /// <param name="elementToString">The method for converting individual array elements to strings.</param>
+        /// <returns>A list of the elements in the array as a string.</returns>
+        public static string ToStringList(this IList a, string separator, string lastSeparator, Func<object, string> elementToString)
+        {
+            //if (a.Length == 0)
+            //    return string.Empty;
+
+            //if (a.Length == 1)
+            //    return elementToString(a[0]);
+
+            //if (a.Length == 2)
+            //    return elementToString(a[0]) + separator + elementToString(a[1]);
+
+            string str = string.Empty;
+            string sep = separator;
+            for (int i = 0; i < a.Count; ++i)
+            {
+                if (i == a.Count - 2)
+                    sep = lastSeparator;
+                else if (i == a.Count - 1)
+                    sep = string.Empty;
+                str += elementToString(a[i]) + sep;
+            }
+
+            return str;
+        }
+        /// <summary>
+        /// Converts the elements of an array into a well-formatted list.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array.</typeparam>
+        /// <param name="a">The array to format into a list.</param>
+        /// <param name="separator">The separator to use to separate items in the list.</param>
+        /// <param name="lastSeparator">The separator to use in the list between the last two elements.</param>
+        /// <returns>A list of the elements in the array as a string.</returns>
+        public static string ToStringList(this IList a, string separator, string lastSeparator)
+        {
+            if (a.Count == 0)
+                return string.Empty;
+
+            if (a.Count == 1)
+                return a[0].ToString();
+
+            if (a.Count == 2)
+                return a[0].ToString() + separator + a[1].ToString();
+
+            string str = "";
+            string sep = separator;
+            for (int i = 0; i < a.Count; ++i)
+            {
+                if (i == a.Count - 2)
+                    sep = lastSeparator;
+                else if (i == a.Count - 1)
+                    sep = string.Empty;
+                str += a[i].ToString() + sep;
+            }
+
+            return str;
+        }
+        /// <summary>
+        /// Converts the elements of an array into a well-formatted list.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array.</typeparam>
+        /// <param name="a">The array to format into a list.</param>
+        /// <param name="separator">The separator to use to separate items in the list.</param>
+        /// <param name="elementToString">The method for converting individual array elements to strings.</param>
+        /// <returns>A list of the elements in the array as a string.</returns>
+        public static string ToStringList(this IList a, string separator, Func<object, string> elementToString)
+        {
+            if (a.Count == 0)
+                return string.Empty;
+
+            if (a.Count == 1)
+                return elementToString(a[0]);
+
+            string str = "";
+            string sep = separator;
+            for (int i = 0; i < a.Count; ++i)
+            {
+                if (i == a.Count - 1)
+                    sep = string.Empty;
+                str += elementToString(a[i]) + sep;
+            }
+
+            return str;
+        }
+        /// <summary>
+        /// Converts the elements of an array into a well-formatted list.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array.</typeparam>
+        /// <param name="a">The array to format into a list.</param>
+        /// <param name="separator">The separator to use to separate items in the list.</param>
+        /// <returns>A list of the elements in the array as a string.</returns>
+        public static string ToStringList(this IList a, string separator)
+        {
+            if (a.Count == 0)
+                return string.Empty;
+
+            if (a.Count == 1)
+                return a[0].ToString();
+
+            string str = "";
+            string sep = separator;
+            for (int i = 0; i < a.Count; ++i)
+            {
+                if (i == a.Count - 1)
+                    sep = string.Empty;
+                str += a[i].ToString() + sep;
+            }
+
+            return str;
+        }
         public static bool StartsWithDirectorySeparator(this string str)
             => !string.IsNullOrEmpty(str) && str[0] == Path.DirectorySeparatorChar;
         public static bool EndsWithDirectorySeparator(this string str)

@@ -9,7 +9,15 @@ namespace TheraEngine.Core.Files.Serialization
         /// The type this writer will be collecting members for.
         /// </summary>
         public Type ObjectType { get; }
-        public ObjectWriterKind(Type objectType) => ObjectType = objectType;
+        /// <summary>
+        /// If this object needs specific handling in binary format.
+        /// </summary>
+        public bool ManualBinarySerialize { get; }
+        public ObjectWriterKind(Type objectType, bool manualBinarySerialize = false)
+        {
+            ObjectType = objectType;
+            ManualBinarySerialize = manualBinarySerialize;
+        }
     }
     /// <summary>
     /// Tool to collect all members of an object into an array of children.

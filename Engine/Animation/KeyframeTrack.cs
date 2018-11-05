@@ -1,9 +1,7 @@
-﻿using EnumsNET;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 
@@ -11,11 +9,11 @@ namespace TheraEngine.Animation
 {
     public interface IKeyframe
     {
+        Type ValueType { get; }
         float Second { get; set; }
     }
     public interface IPlanarKeyframe : IKeyframe
     {
-        Type ValueType { get; }
         object InValue { get; set; }
         object OutValue { get; set; }
         object InTangent { get; set; }
@@ -102,7 +100,7 @@ namespace TheraEngine.Animation
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
     }
-    [FileExt("kf", ManualXmlConfigSerialize = true, ManualBinConfigSerialize = true)]
+    [FileExt("kf", ManualXmlConfigSerialize = true, ManualXmlStateSerialize = true, ManualBinConfigSerialize = true, ManualBinStateSerialize = true)]
     [FileDef("Keyframe Track")]
     public class KeyframeTrack<T> : BaseKeyframeTrack, IList, IList<T>, IEnumerable<T> where T : Keyframe, new()
     {
@@ -460,38 +458,42 @@ namespace TheraEngine.Animation
             if (!typeof(IPlanarKeyframe).IsAssignableFrom(t))
                 return;
 
+            T kf = new T();
+            Type valueType = kf.ValueType;
+            Array array = Array.CreateInstance(valueType, keyCount);
+            Type arrayType = array.GetType();
+
             float[] seconds = new float[keyCount];
-            object[] inValues = new object[keyCount];
-            object[] outValues = new object[keyCount];
-            object[] inTans = new object[keyCount];
-            object[] outTans = new object[keyCount];
+            object inValues = null;
+            object outValues = null;
+            object inTans = null;
+            object outTans = null;
             EPlanarInterpType[] interpTypes = new EPlanarInterpType[keyCount];
             
             //Read all keyframe information, split into separate element arrays
             foreach (MemberTreeNode element in node.ChildElementMembers)
             {
-                object o = element.ElementContent;
                 switch (element.Name)
                 {
-                    case "Seconds":     seconds         = o as float[]; break;
-                    case "InValues":    inValues        = o as object[]; break;
-                    case "OutValues":   outValues       = o as object[]; break;
-                    case "InTangents":  inTans          = o as object[]; break;
-                    case "OutTangents": outTans         = o as object[]; break;
-                    case "InterpTypes": interpTypes     = o as EPlanarInterpType[]; break;
+                    case "Seconds": element.GetElementContentAs(out seconds); break;
+                    case "InValues": element.GetElementContent(arrayType, out inValues); break;
+                    case "OutValues": element.GetElementContent(arrayType, out outValues); break;
+                    case "InTangents": element.GetElementContent(arrayType, out inTans); break;
+                    case "OutTangents": element.GetElementContent(arrayType, out outTans); break;
+                    case "InterpTypes": element.GetElementContentAs(out interpTypes); break;
                 }
             }
 
             for (int i = 0; i < keyCount; ++i)
             {
-                float sec                   = seconds       == null || !seconds.IndexInArrayRange(i)        ? 0.0f                      : seconds[i];
-                EPlanarInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)    ? EPlanarInterpType.Step    : interpTypes[i];
-                object inVal                = inValues      == null || !inValues.IndexInArrayRange(i)       ? null                      : inValues[i];
-                object outVal               = outValues     == null || !outValues.IndexInArrayRange(i)      ? null                      : outValues[i];
-                object inTan                = inTans        == null || !inTans.IndexInArrayRange(i)         ? null                      : inTans[i];
-                object outTan               = outTans       == null || !outTans.IndexInArrayRange(i)        ? null                      : outTans[i];
+                float sec                   = seconds       == null || !seconds.IndexInArrayRange(i)                ? 0.0f                      : seconds[i];
+                EPlanarInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)            ? EPlanarInterpType.Step    : interpTypes[i];
+                object inVal                = inValues      == null || !((Array)inValues).IndexInArrayRange(i)       ? null                     : ((Array)inValues).GetValue(i);
+                object outVal               = outValues     == null || !((Array)outValues).IndexInArrayRange(i)      ? null                     : ((Array)outValues).GetValue(i);
+                object inTan                = inTans        == null || !((Array)inTans).IndexInArrayRange(i)         ? null                     : ((Array)inTans).GetValue(i);
+                object outTan               = outTans       == null || !((Array)outTans).IndexInArrayRange(i)        ? null                     : ((Array)outTans).GetValue(i); ;
 
-                T kf = new T();
+                kf = new T();
 
                 IPlanarKeyframe kfp = (IPlanarKeyframe)kf;
                 kfp.InterpolationType = interp;
@@ -558,7 +560,7 @@ namespace TheraEngine.Animation
         CubicHermite,
         CubicBezier
     }
-    public abstract class Keyframe : ISerializableString
+    public abstract class Keyframe : IKeyframe, ISerializableString
     {
         [TSerialize(nameof(Second), NodeType = ENodeType.Attribute)]
         private float _second;
@@ -610,6 +612,9 @@ namespace TheraEngine.Animation
                     Prev.OwningTrack = _owningTrack;
             }
         }
+
+        public abstract Type ValueType { get; }
+
         private BaseKeyframeTrack _owningTrack = null;
         private void Relink(Keyframe key)
         {

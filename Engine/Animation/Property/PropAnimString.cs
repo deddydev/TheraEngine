@@ -68,7 +68,7 @@ namespace TheraEngine.Animation
         [TString(true, false, false, true)]
         [TSerialize(NodeType = ENodeType.Attribute)]
         public string Value { get; set; }
-
+        public override Type ValueType => typeof(string);
         [Browsable(false)]
         public new StringKeyframe Next
         {

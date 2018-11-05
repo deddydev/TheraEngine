@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -126,99 +127,158 @@ namespace TheraEngine.Rendering.Models
         internal DataSource _data;
 
         [CustomSerializeMethod("Data")]
-        private unsafe bool CustomDataSerialize(XmlWriter writer, ESerializeFlags flags)
+        private void CustomDataSerialize(MemberTreeNode node)
         {
             int count = _elementCount * _componentCount;
+            object array = null;
+            VoidPtr address = _data.Address;
             switch (_componentType)
             {
                 case ComponentType.SByte:
-                    sbyte* ptr1 = (sbyte*)_data.Address;
-                    for (int i = 0; i < count; ++i)
-                        writer.WriteString((*ptr1++).ToString() + " ");
+                    {
+                        sbyte[] values = new sbyte[count];
+                        for (int i = 0; i < count; ++i)
+                            values[i] = address.ReadSByte();
+                        array = values;
+                    }
                     break;
                 case ComponentType.Byte:
-                    byte* ptr2 = (byte*)_data.Address;
-                    for (int i = 0; i < count; ++i)
-                        writer.WriteString((*ptr2++).ToString() + " ");
+                    {
+                        byte[] values = new byte[count];
+                        for (int i = 0; i < count; ++i)
+                            values[i] = address.ReadByte();
+                        array = values;
+                    }
                     break;
                 case ComponentType.Short:
-                    short* ptr3 = (short*)_data.Address;
-                    for (int i = 0; i < count; ++i)
-                        writer.WriteString((*ptr3++).ToString() + " ");
+                    {
+                        short[] values = new short[count];
+                        for (int i = 0; i < count; ++i)
+                            values[i] = address.ReadShort();
+                        array = values;
+                    }
                     break;
                 case ComponentType.UShort:
-                    ushort* ptr4 = (ushort*)_data.Address;
-                    for (int i = 0; i < count; ++i)
-                        writer.WriteString((*ptr4++).ToString() + " ");
+                    {
+                        ushort[] values = new ushort[count];
+                        for (int i = 0; i < count; ++i)
+                            values[i] = address.ReadUShort();
+                        array = values;
+                    }
                     break;
                 case ComponentType.Int:
-                    int* ptr5 = (int*)_data.Address;
-                    for (int i = 0; i < count; ++i)
-                        writer.WriteString((*ptr5++).ToString() + " ");
+                    {
+                        int[] values = new int[count];
+                        for (int i = 0; i < count; ++i)
+                            values[i] = address.ReadInt();
+                        array = values;
+                    }
                     break;
                 case ComponentType.UInt:
-                    uint* ptr6 = (uint*)_data.Address;
-                    for (int i = 0; i < count; ++i)
-                        writer.WriteString((*ptr6++).ToString() + " ");
+                    {
+                        uint[] values = new uint[count];
+                        for (int i = 0; i < count; ++i)
+                            values[i] = address.ReadUInt();
+                        array = values;
+                    }
                     break;
                 case ComponentType.Float:
-                    float* ptr7 = (float*)_data.Address;
-                    for (int i = 0; i < count; ++i)
-                        writer.WriteString((*ptr7++).ToString() + " ");
+                    {
+                        float[] values = new float[count];
+                        for (int i = 0; i < count; ++i)
+                            values[i] = address.ReadFloat();
+                        array = values;
+                    }
                     break;
                 case ComponentType.Double:
-                    double* ptr8 = (double*)_data.Address;
-                    for (int i = 0; i < count; ++i)
-                        writer.WriteString((*ptr8++).ToString() + " ");
+                    {
+                        double[] values = new double[count];
+                        for (int i = 0; i < count; ++i)
+                            values[i] = address.ReadDouble();
+                        array = values;
+                    }
                     break;
             }
-            return true;
+            node.SetElementContent(array);
         }
         [CustomDeserializeMethod("Data")]
-        private unsafe bool CustomDataDeserialize(XMLReader reader)
+        private unsafe bool CustomDataDeserialize(MemberTreeNode node)
         {
             int count = _elementCount * _componentCount;
+            VoidPtr address;
             switch (_componentType)
             {
                 case ComponentType.SByte:
-                    _data = DataSource.Allocate(count * sizeof(sbyte));
-                    sbyte* ptr1 = (sbyte*)_data.Address;
-                    for (int k = 0; k < count && reader.ReadValue(ptr1++); ++k) ;
+                    {
+                        node.GetElementContentAs(out sbyte[] values);
+                        _data = DataSource.Allocate(count * sizeof(sbyte));
+                        address = _data.Address;
+                        for (int k = 0; k < count; ++k)
+                            address.WriteSByte(values[k]);
+                    }
                     break;
                 case ComponentType.Byte:
-                    _data = DataSource.Allocate(count * sizeof(byte));
-                    byte* ptr2 = (byte*)_data.Address;
-                    for (int k = 0; k < count && reader.ReadValue(ptr2++); ++k) ;
+                    {
+                        node.GetElementContentAs(out byte[] values);
+                        _data = DataSource.Allocate(count * sizeof(byte));
+                        address = _data.Address;
+                        for (int k = 0; k < count; ++k)
+                            address.WriteByte(values[k]);
+                    }
                     break;
                 case ComponentType.Short:
-                    _data = DataSource.Allocate(count * sizeof(short));
-                    short* ptr3 = (short*)_data.Address;
-                    for (int k = 0; k < count && reader.ReadValue(ptr3++); ++k) ;
+                    {
+                        node.GetElementContentAs(out short[] values);
+                        _data = DataSource.Allocate(count * sizeof(short));
+                        address = _data.Address;
+                        for (int k = 0; k < count; ++k)
+                            address.WriteShort(values[k]);
+                    }
                     break;
                 case ComponentType.UShort:
-                    _data = DataSource.Allocate(count * sizeof(ushort));
-                    ushort* ptr4 = (ushort*)_data.Address;
-                    for (int k = 0; k < count && reader.ReadValue(ptr4++); ++k) ;
+                    {
+                        node.GetElementContentAs(out ushort[] values);
+                        _data = DataSource.Allocate(count * sizeof(ushort));
+                        address = _data.Address;
+                        for (int k = 0; k < count; ++k)
+                            address.WriteUShort(values[k]);
+                    }
                     break;
                 case ComponentType.Int:
-                    _data = DataSource.Allocate(count * sizeof(int));
-                    int* ptr5 = (int*)_data.Address;
-                    for (int k = 0; k < count && reader.ReadValue(ptr5++); ++k) ;
+                    {
+                        node.GetElementContentAs(out int[] values);
+                        _data = DataSource.Allocate(count * sizeof(int));
+                        address = _data.Address;
+                        for (int k = 0; k < count; ++k)
+                            address.WriteInt(values[k]);
+                    }
                     break;
                 case ComponentType.UInt:
-                    _data = DataSource.Allocate(count * sizeof(uint));
-                    uint* ptr6 = (uint*)_data.Address;
-                    for (int k = 0; k < count && reader.ReadValue(ptr6++); ++k) ;
+                    {
+                        node.GetElementContentAs(out uint[] values);
+                        _data = DataSource.Allocate(count * sizeof(uint));
+                        address = _data.Address;
+                        for (int k = 0; k < count; ++k)
+                            address.WriteUInt(values[k]);
+                    }
                     break;
                 case ComponentType.Float:
-                    _data = DataSource.Allocate(count * sizeof(float));
-                    float* ptr7 = (float*)_data.Address;
-                    for (int k = 0; k < count && reader.ReadValue(ptr7++); ++k) ;
+                    {
+                        node.GetElementContentAs(out float[] values);
+                        _data = DataSource.Allocate(count * sizeof(float));
+                        address = _data.Address;
+                        for (int k = 0; k < count; ++k)
+                            address.WriteFloat(values[k]);
+                    }
                     break;
                 case ComponentType.Double:
-                    _data = DataSource.Allocate(count * sizeof(double));
-                    double* ptr8 = (double*)_data.Address;
-                    for (int k = 0; k < count && reader.ReadValue(ptr8++); ++k) ;
+                    {
+                        node.GetElementContentAs(out double[] values);
+                        _data = DataSource.Allocate(count * sizeof(double));
+                        address = _data.Address;
+                        for (int k = 0; k < count; ++k)
+                            address.WriteDouble(values[k]);
+                    }
                     break;
             }
             return true;

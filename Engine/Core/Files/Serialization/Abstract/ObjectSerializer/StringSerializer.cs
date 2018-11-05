@@ -8,15 +8,12 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public override void TreeFromObject()
         {
-            TreeNode.ElementContent = TreeNode.Object as string;
+            TreeNode.SetElementContent(TreeNode.Object as string);
         }
         public override void TreeToObject()
         {
-            if (TreeNode.ParseChildElementObjectMemberToObject(TreeNode.ObjectType))
-            {
-                TreeNode.Object = TreeNode.ElementContent;
-                TreeNode.ApplyObjectToParent();
-            }
+            if (TreeNode.GetElementContentAs(out string value))
+                TreeNode.Object = value;
             else
                 TreeNode.Object = null;
         }

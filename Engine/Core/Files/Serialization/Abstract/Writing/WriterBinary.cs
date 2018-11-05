@@ -139,7 +139,74 @@ namespace TheraEngine.Core.Files.Serialization
                     EncryptionDeriveBytes = new Rfc2898DeriveBytes(encryptionPassword, salt, 1000);
                 }
             }
-            
+            private unsafe void WriteElement(MemberTreeNode node, ref VoidPtr address)
+            {
+                WriteStartElement(SerializationCommon.FixElementName(node.Name), ref address);
+                int* attributeCount = (int*)address;
+                *attributeCount = 0;
+                address += 4;
+                
+                if (ReportProgress())
+                {
+                    WriteEndElement();
+                    return;
+                }
+
+                if (node.IsDerivedType)
+                {
+                    WriteAttribute(SerializationCommon.TypeIdent, node.ObjectType.AssemblyQualifiedName, attributeCount);
+                    if (ReportProgress())
+                    {
+                        WriteEndElement();
+                        return;
+                    }
+                }
+
+                List<SerializeAttribute> attributes = node.ChildAttributeMembers;
+                List<MemberTreeNode> childElements = node.ChildElementMembers;
+                bool hasElementContent = node.GetElementContent(null, out object elementContent);
+
+                foreach (SerializeAttribute attribute in attributes)
+                {
+                    if (attribute.GetObject(null, out object value))
+                    {
+                        WriteAttribute(attribute.Name, value, attributeCount);
+                        if (ReportProgress())
+                        {
+                            WriteEndElement();
+                            return;
+                        }
+                    }
+                }
+
+                if (hasElementContent)
+                {
+                    WriteObject(elementContent);
+                    if (ReportProgress())
+                    {
+                        WriteEndElement();
+                        return;
+                    }
+                }
+                else
+                    foreach (MemberTreeNode childNode in childElements)
+                    {
+                        WriteElement(childNode, ref address);
+                        if (ReportProgress())
+                        {
+                            WriteEndElement();
+                            return;
+                        }
+                    }
+
+                WriteEndElement();
+            }
+
+            private void WriteObject(object elementContent) => throw new NotImplementedException();
+            private void WriteStartElement(string v, ref VoidPtr address) => throw new NotImplementedException();
+            private unsafe void WriteAttribute(string name, object value, int* attributeCount) => throw new NotImplementedException();
+            private void WriteEndElement() => throw new NotImplementedException();
+
             protected override async Task WriteTreeAsync()
             {
                 Memory.Endian.SerializeOrder = Endian;

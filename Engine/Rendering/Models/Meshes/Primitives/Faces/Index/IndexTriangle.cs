@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class IndexTriangle : IndexPolygon
+    public class IndexTriangle : IndexPolygon, ISerializableString
     {
         public override FaceType Type => FaceType.Triangles;
 
@@ -38,10 +39,21 @@ namespace TheraEngine.Rendering.Models
 
         public override bool Equals(object obj)
         {
-            IndexTriangle t = obj as IndexTriangle;
-            return t == null ? false : t.Point0 == Point0 && t.Point1 == Point1 && t.Point2 == Point2;
+            return !(obj is IndexTriangle t) ? false :
+                t.Point0 == Point0 && t.Point1 == Point1 && t.Point2 == Point2;
         }
         public override int GetHashCode()
             => base.GetHashCode();
+
+        public string WriteToString()
+            => $"{Point0.WriteToString()} {Point1.WriteToString()} {Point2.WriteToString()}";
+        public void ReadFromString(string str)
+        {
+            string[] indices = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            _points = new List<IndexPoint>() { new IndexPoint(), new IndexPoint(), new IndexPoint() };
+            _points[0].ReadFromString(indices.IndexInRange(0) ? indices[0] : null);
+            _points[1].ReadFromString(indices.IndexInRange(1) ? indices[1] : null);
+            _points[2].ReadFromString(indices.IndexInRange(2) ? indices[2] : null);
+        }
     }
 }

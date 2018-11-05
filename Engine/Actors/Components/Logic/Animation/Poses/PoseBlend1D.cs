@@ -12,6 +12,7 @@ namespace TheraEngine.Components.Logic.Animation
     {
         private class SkelAnimKeyframe : Keyframe
         {
+            public override Type ValueType => throw new NotImplementedException();
             public override void ReadFromString(string str)
             {
                 throw new NotImplementedException();

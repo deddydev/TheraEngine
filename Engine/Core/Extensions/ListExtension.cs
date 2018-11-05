@@ -2,6 +2,15 @@
 {
     public static class ListExtension
     {
+        public static Type DetermineElementType(this Type listType)
+        {
+            Type elementType = listType.GetElementType();
+            if (elementType != null)
+                return elementType;
+            if (listType.IsGenericType && listType.GenericTypeArguments.Length == 1)
+                return listType.GenericTypeArguments[0];
+            return null;
+        }
         public static Type DetermineElementType(this IList list)
         {
             Type listType = list.GetType();

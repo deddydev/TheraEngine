@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -12,7 +11,34 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public override void TreeToObject()
         {
+            int keyValCount = TreeNode.ChildElementMembers.Count;
+            Type dicType = TreeNode.ObjectType;
 
+            IDictionary dic = Activator.CreateInstance(dicType) as IDictionary;
+            TreeNode.Object = dic;
+
+            if (keyValCount > 0)
+            {
+                var args = dicType.GetGenericArguments();
+                Type keyType = args[0];
+                Type valType = args[1];
+
+                for (int i = 0; i < keyValCount; ++i)
+                {
+                    var keyValNode = TreeNode.ChildElementMembers[i];
+
+                    var keyNode = keyValNode.ChildElementMembers[0];
+                    var valNode = keyValNode.ChildElementMembers[1];
+
+                    keyNode.MemberInfo.MemberType = keyType;
+                    keyNode.TreeToObject();
+
+                    valNode.MemberInfo.MemberType = valType;
+                    valNode.TreeToObject();
+
+                    dic.Add(keyNode.Object, valNode.Object);
+                }
+            }
         }
         public override void TreeFromObject()
         {
@@ -42,7 +68,6 @@ namespace TheraEngine.Core.Files.Serialization
                 TreeNode.ChildElementMembers.Add(pairNode);
             }
         }
-
         public override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();

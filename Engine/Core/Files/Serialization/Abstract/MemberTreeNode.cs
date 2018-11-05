@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,32 +19,27 @@ namespace TheraEngine.Core.Files.Serialization
 
         public List<SerializeAttribute> ChildAttributeMembers { get; set; } = new List<SerializeAttribute>();
         public EventList<MemberTreeNode> ChildElementMembers { get; set; }
-        public object ElementContent { get; set; }
-        internal string ChildElementObjectMemberAsString { get; set; }
+        private SerializeAttribute _elementContent = new SerializeAttribute();
 
-        public bool GetChildElementObjectMemberAsString(out string value)
-        {
-            value = null;
-            bool success = ElementContent == null || SerializationCommon.GetString(ElementContent, ElementContent.GetType(), out value);
-            ChildElementObjectMemberAsString = value;
-            return success;
-        }
-        public bool ParseChildElementObjectMemberToObject(Type type)
-        {
-            if (ChildElementObjectMemberAsString == null)
-            {
-                ElementContent = null;
-                return true;
-            }
+        public bool IsElementContentNonStringObject => _elementContent.IsNonStringObject;
+        public bool IsElementContentUnparsedString => _elementContent.IsUnparsedString;
 
-            if (SerializationCommon.CanParseAsString(type))
-            {
-                ElementContent = SerializationCommon.ParseString(ChildElementObjectMemberAsString, type);
-                return true;
-            }
-            return false;
-        }
-        
+        //public bool ParseElementContentStringToObject(Type type)
+        //    => _elementContent.ParseStringToObject(type);
+        public bool GetElementContent(Type expectedType, out object value)
+            => _elementContent.GetObject(expectedType, out value);
+        public bool GetElementContentAs<T>(out T value)
+            => _elementContent.GetObjectAs(out value);
+        public bool GetElementContentAsString(out string value)
+            => _elementContent.GetString(out value);
+        public void SetElementContent(object obj)
+            => _elementContent.SetValueAsObject(obj);
+        internal void SetElementContentAsString(string str)
+            => _elementContent.SetValueAsString(str);
+        internal bool SetElementContentAsString(string str, Type type)
+            => _elementContent.SetValueAsString(str, type);
+
+
         public MemberTreeNode Parent { get; internal set; }
         public TBaseSerializer.TBaseAbstractReaderWriter Owner
         {
@@ -119,7 +115,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// How many checkpoints need to be hit for this node and all child nodes to advance the progression handler.
         /// </summary>
-        public int ProgressionCount => 1 + ChildAttributeMembers.Count + ChildElementMembers.Count + (ElementContent != null ? 1 : 0) + (IsDerivedType ? 1 : 0);
+        public int ProgressionCount => 1 + ChildAttributeMembers.Count + ChildElementMembers.Count + (_elementContent.IsNotNull ? 1 : 0);
         /// <summary>
         /// The type of the object assigned to this member.
         /// </summary>
@@ -186,13 +182,16 @@ namespace TheraEngine.Core.Files.Serialization
             ChildElementMembers.PostAnythingAdded += ChildElements_PostAnythingAdded;
             ChildElementMembers.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
         }
-
-        public async Task<bool> TryInvokeCustomDeserializeAsync()
+        /// <summary>
+        /// Parent deserializes this node
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> TryInvokeManualParentDeserializeAsync()
         {
-            if (MemberInfo == null)
+            if (MemberInfo == null || Parent?.CustomDeserializeMethods == null)
                 return false;
 
-            var customMethods = CustomDeserializeMethods.Where(
+            var customMethods = Parent.CustomDeserializeMethods.Where(
                 x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomDeserializeMethod>().Name));
 
             foreach (var customMethod in customMethods)
@@ -204,9 +203,12 @@ namespace TheraEngine.Core.Files.Serialization
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
                 {
                     if (customMethod.ReturnType == typeof(Task))
-                        await (Task)customMethod.Invoke(Object, new object[] { this });
+                        await (Task)customMethod.Invoke(Parent.Object, new object[] { this });
                     else
-                        customMethod.Invoke(Object, new object[] { this });
+                        customMethod.Invoke(Parent.Object, new object[] { this });
+                    //This method will set a member of the parent object
+                    //Retrieve it here
+                    RetrieveObjectFromParent();
                     return true;
                 }
                 else
@@ -214,15 +216,46 @@ namespace TheraEngine.Core.Files.Serialization
                     Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(MemberTreeNode)}.");
                 }
             }
+
             return false;
         }
-        public async Task<bool> TryInvokeCustomSerializeAsync()
+        /// <summary>
+        /// This node deserializes itself
+        /// </summary>
+        /// <returns></returns>
+        public bool TryInvokeManualDeserializeAsync()
         {
-            if (MemberInfo == null)
+            if (ObjectType.IsSubclassOf(typeof(TFileObject)))
+            {
+                FileExt ext = TFileObject.GetFileExtension(ObjectType);
+                if (ext == null)
+                    return false;
+
+                bool serConfig = ext.ManualXmlConfigSerialize;
+                bool serState = ext.ManualXmlStateSerialize;
+
+                if (serConfig || serState)
+                {
+                    Object = SerializationCommon.CreateObject(ObjectType);
+                    ((TFileObject)Object).ManualRead(this);
+                    ApplyObjectToParent();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        /// <summary>
+        /// Parent serializes this node
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> TryInvokeManualParentSerializeAsync()
+        {
+            if (MemberInfo == null || Parent?.CustomSerializeMethods == null)
                 return false;
 
-            var customMethods = CustomSerializeMethods.Where(
-                   x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+            var customMethods = Parent.CustomSerializeMethods.Where(
+                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
 
             foreach (var customMethod in customMethods)
             {
@@ -233,9 +266,9 @@ namespace TheraEngine.Core.Files.Serialization
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
                 {
                     if (customMethod.ReturnType == typeof(Task))
-                        await (Task)customMethod.Invoke(Object, new object[] { this });
+                        await (Task)customMethod.Invoke(Parent.Object, new object[] { this });
                     else
-                        customMethod.Invoke(Object, new object[] { this });
+                        customMethod.Invoke(Parent.Object, new object[] { this });
                     return true;
                 }
                 else
@@ -243,6 +276,31 @@ namespace TheraEngine.Core.Files.Serialization
                     Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(MemberTreeNode)}.");
                 }
             }
+
+            return false;
+        }
+        /// <summary>
+        /// This node serializes itself
+        /// </summary>
+        /// <returns></returns>
+        public bool TryInvokeManualSerializeAsync()
+        {
+            if (Object is TFileObject tobj)
+            {
+                FileExt ext = TFileObject.GetFileExtension(ObjectType);
+                if (ext == null)
+                    return false;
+
+                bool serConfig = ext.ManualXmlConfigSerialize;
+                bool serState = ext.ManualXmlStateSerialize;
+
+                if (serConfig || serState)
+                {
+                    tobj.ManualWrite(this);
+                    return true;
+                }
+            }
+
             return false;
         }
         public async void TreeToObject()
@@ -252,9 +310,14 @@ namespace TheraEngine.Core.Files.Serialization
             else
                 DesiredDerivedObjectType = null;
 
-            bool custom = await TryInvokeCustomDeserializeAsync();
+            bool custom = await TryInvokeManualParentDeserializeAsync();
             if (!custom)
-                ObjectSerializer.TreeToObject();
+                custom = TryInvokeManualDeserializeAsync();
+            if (!custom)
+            {
+                ObjectSerializer?.TreeToObject();
+                ApplyObjectToParent();
+            }
         }
         public async void TreeFromObject()
         {
@@ -263,7 +326,9 @@ namespace TheraEngine.Core.Files.Serialization
             if (ObjectType.IsSubclassOf(MemberInfo.MemberType))
                 AddAttribute(SerializationCommon.TypeIdent, ObjectType.AssemblyQualifiedName);
 
-            bool custom = await TryInvokeCustomSerializeAsync();
+            bool custom = await TryInvokeManualParentSerializeAsync();
+            if (!custom)
+                custom = TryInvokeManualSerializeAsync();
             if (!custom)
                 ObjectSerializer?.TreeFromObject();
         }
@@ -323,7 +388,8 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public void ApplyObjectToParent()
         {
-            MemberInfo.SetObject(Parent.Object, _object);
+            if (Parent != null)
+                MemberInfo.SetObject(Parent.Object, _object);
         }
         public void RetrieveObjectFromParent()
         {
@@ -450,7 +516,11 @@ namespace TheraEngine.Core.Files.Serialization
         }
 
         public void AddChildElementObject(string elementName, object elementObject)
-            => ChildElementMembers.Add(new MemberTreeNode(null, new TSerializeMemberInfo(typeof(string), elementName)) { ElementContent = elementObject });
+        {
+            MemberTreeNode node = new MemberTreeNode(null, new TSerializeMemberInfo(typeof(string), elementName));
+            node.SetElementContent(elementObject);
+            ChildElementMembers.Add(node);
+        }
         public void AddAttribute(string name, object value)
             => ChildAttributeMembers.Add(new SerializeAttribute(name, value));
         public SerializeAttribute GetAttribute(string name) 
@@ -473,7 +543,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             SerializeAttribute attrib = GetAttribute(name);
             if (attrib != null)
-                return attrib.GetObject(out value);
+                return attrib.GetObjectAs(out value);
             value = default;
             return false;
         }
@@ -481,7 +551,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             SerializeAttribute attrib = GetAttribute(index);
             if (attrib != null)
-                return attrib.GetObject(out value);
+                return attrib.GetObjectAs(out value);
             value = default;
             return false;
         }
@@ -496,52 +566,67 @@ namespace TheraEngine.Core.Files.Serialization
 
         private object _value;
         private string _stringValue;
+        private Type _valueType;
 
         public string Name { get; set; }
 
+        public bool IsNotNull => _value != null || _stringValue != null;
         public void SetValueAsObject(object o)
         {
             _value = o;
-            Type t = _value?.GetType();
-            IsNonStringObject = _value != null ? !SerializationCommon.GetString(_value, t, out _stringValue) : false;
-            IsUnparsedString = false;
+            _valueType = _value?.GetType();
+            IsNonStringObject = _value != null ? !SerializationCommon.GetString(_value, _valueType, out _stringValue) : false;
         }
         public void SetValueAsString(string o)
         {
             _stringValue = o;
-            IsUnparsedString = true;
+            _valueType = null;
             IsNonStringObject = false;
         }
         public bool SetValueAsString(string o, Type type)
         {
             _stringValue = o;
-            IsUnparsedString = true;
+            _valueType = null;
             IsNonStringObject = false;
             return ParseStringToObject(type);
         }
 
         public bool IsNonStringObject { get; private set; } = false;
-        public bool IsUnparsedString { get; private set; } = false;
+        public bool IsUnparsedString => _valueType == null;
 
-        public bool ParseStringToObject(Type type)
+        private bool ParseStringToObject(Type type)
         {
             bool canParse = SerializationCommon.CanParseAsString(type);
             if (canParse)
+            {
                 _value = SerializationCommon.ParseString(_stringValue, type);
-            IsUnparsedString = !canParse;
+                _valueType = type;
+            }
+            else
+                _valueType = null;
             IsNonStringObject = false;
             return canParse;
         }
-        public bool GetObject(Type type, out object value)
+        public bool GetObject(Type expectedType, out object value)
         {
-            bool success = IsUnparsedString ? ParseStringToObject(type) : type.IsAssignableFrom(_value.GetType());
+            if (expectedType == null)
+            {
+                value = _value;
+                return _value != null && !IsUnparsedString;
+            }
+
+            bool success = IsUnparsedString ?
+                ParseStringToObject(expectedType) : 
+                (_value == null ? true : expectedType.IsAssignableFrom(_value.GetType()));
+
             if (success)
                 value = _value;
             else
                 value = default;
+
             return success;
         }
-        public bool GetObject<T>(out T value)
+        public bool GetObjectAs<T>(out T value)
         {
             bool success = IsUnparsedString ? ParseStringToObject(typeof(T)) : _value is T;
             if (success)

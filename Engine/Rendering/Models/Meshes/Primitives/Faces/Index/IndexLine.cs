@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class IndexLine : TObject
+    public class IndexLine : TObject, ISerializableString
     {
         public IndexLine() { }
         public IndexLine(IndexPoint point1, IndexPoint point2)
@@ -41,6 +42,19 @@ namespace TheraEngine.Rendering.Models
         {
             if (_connectedFaces.Contains(poly))
                 _connectedFaces.Remove(poly);
+        }
+
+        public string WriteToString()
+            => $"{Point0.WriteToString()} {Point1.WriteToString()}";
+        public void ReadFromString(string str)
+        {
+            string[] indices = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            _point0 = new IndexPoint();
+            _point0.ReadFromString(indices.IndexInRange(0) ? indices[0] : null);
+
+            _point1 = new IndexPoint();
+            _point1.ReadFromString(indices.IndexInRange(1) ? indices[1] : null);
         }
     }
 }

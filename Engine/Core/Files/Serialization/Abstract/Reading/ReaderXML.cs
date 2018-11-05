@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -71,8 +68,8 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 MemberTreeNode node = null, childNode;
                 string name, value;
-
-                while (_reader.NodeType != XmlNodeType.EndElement && !_reader.EOF)
+                
+                while (!_reader.EOF)
                 {
                     switch (_reader.NodeType)
                     {
@@ -94,23 +91,32 @@ namespace TheraEngine.Core.Files.Serialization
                                         value = await _reader.GetValueAsync();
                                         node?.ChildAttributeMembers?.Add(SerializeAttribute.FromString(name, value));
                                     }
+                                    await _reader.MoveToContentAsync();
                                 }
-                                if (_reader.IsEmptyElement)
-                                {
-                                    await _reader.ReadAsync();
+                                bool empty = _reader.IsEmptyElement;
+                                await _reader.ReadAsync();
+                                if (empty)
                                     return node;
-                                }
                             }
                             break;
                         case XmlNodeType.Text:
                             value = await _reader.GetValueAsync();
                             if (node != null)
-                                node.ChildElementObjectMemberAsString = value;
+                                node.SetElementContentAsString(value);
+                            await _reader.ReadAsync();
                             break;
+                        case XmlNodeType.EndElement:
+                            name = _reader.Name;
+                            await _reader.ReadAsync();
+                            if (node == null)
+                                Engine.LogWarning("No start element read for " + name);
+                            else if (!string.Equals(node.Name, name, StringComparison.InvariantCulture))
+                                Engine.LogWarning("End element / start element mismatch.");                            
+                            return node;
                         default:
+                            await _reader.ReadAsync();
                             break;
                     }
-                    await _reader.ReadAsync();
                 }
                 return node;
             }

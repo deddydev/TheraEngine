@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models
 {
-    public class IndexPoint : TObject
+    public class IndexPoint : TObject, ISerializableString, ISerializablePointer
     {
         public IndexPoint() { }
         public IndexPoint(int vertexIndex)
@@ -32,6 +33,18 @@ namespace TheraEngine.Rendering.Models
             if (_connectedEdges.Contains(edge))
                 _connectedEdges.Remove(edge);
         }
+
+        public string WriteToString() => _vertexIndex.ToString();
+        public void ReadFromString(string str)
+        {
+            if (!int.TryParse(str, out _vertexIndex))
+                _vertexIndex = 0;
+        }
+
+        public int GetSize() => sizeof(int);
+        public void WriteToPointer(VoidPtr address) => address.WriteInt(_vertexIndex, false);
+        public void ReadFromPointer(VoidPtr address, int size) => _vertexIndex = address.ReadInt(false);
+
         //public IndexLine LinkTo(IndexPoint otherPoint)
         //{
         //    foreach (IndexLine edge in _connectedEdges)

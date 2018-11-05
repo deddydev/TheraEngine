@@ -147,25 +147,28 @@ namespace TheraEditor.Wrappers
             }
             else
             {
-                string ext = Path.GetExtension(path).Substring(1).ToLowerInvariant();
-                if (NodeWrapperAttribute.ThirdPartyWrappers.ContainsKey(ext))
+                string ext = Path.GetExtension(path);
+                if (!string.IsNullOrWhiteSpace(ext))
                 {
-                    w = Activator.CreateInstance(NodeWrapperAttribute.ThirdPartyWrappers[ext]) as BaseWrapper;
+                    ext = ext.Substring(1).ToLowerInvariant();
+                    if (NodeWrapperAttribute.ThirdPartyWrappers.ContainsKey(ext))
+                    {
+                        w = Activator.CreateInstance(NodeWrapperAttribute.ThirdPartyWrappers[ext]) as BaseWrapper;
 
+                        w.Text = Path.GetFileName(path);
+                        w.FilePath = w.Name = path;
+                        return w;
+                    }
+                }
+
+                w = TryWrapType(TFileObject.DetermineType(path));
+                if (w != null)
+                {
                     w.Text = Path.GetFileName(path);
                     w.FilePath = w.Name = path;
                 }
                 else
-                {
-                    w = TryWrapType(TFileObject.DetermineType(path));
-                    if (w != null)
-                    {
-                        w.Text = Path.GetFileName(path);
-                        w.FilePath = w.Name = path;
-                    }
-                    else
-                        w = new GenericFileWrapper(path);
-                }
+                    w = new GenericFileWrapper(path);
             }
             return w;
         }

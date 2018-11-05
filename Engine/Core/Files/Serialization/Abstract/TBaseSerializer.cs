@@ -15,7 +15,17 @@ namespace TheraEngine.Core.Files.Serialization
             public IProgress<float> Progress { get; internal set; }
             public CancellationToken Cancel { get; internal set; }
             public object RootFileObject => RootNode?.Object;
-            public MemberTreeNode RootNode { get; protected set; }
+            private MemberTreeNode _rootNode;
+            public MemberTreeNode RootNode
+            {
+                get => _rootNode;
+                protected set
+                {
+                    _rootNode = value;
+                    if (_rootNode != null)
+                        _rootNode.Owner = this;
+                }
+            }
             public Dictionary<Guid, MemberTreeNode> SharedObjects { get; internal set; }
             public Dictionary<Guid, int> SharedObjectIndices { get; set; }
             internal int CurrentCount { get; set; }

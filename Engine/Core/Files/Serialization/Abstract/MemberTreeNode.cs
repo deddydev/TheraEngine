@@ -51,6 +51,8 @@ namespace TheraEngine.Core.Files.Serialization
                     _owner = value;
                     ObjectTypeChanged();
                 }
+                foreach (var child in ChildElementMembers)
+                    child.Owner = _owner;
             }
         }
         public TSerializeMemberInfo MemberInfo
@@ -170,6 +172,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (item.Parent != null)
                 item.Parent.ChildElementMembers.Remove(item);
             item.Parent = this;
+            item.Owner = Owner;
         }
         
         public MemberTreeNode(object obj, TSerializeMemberInfo memberInfo)

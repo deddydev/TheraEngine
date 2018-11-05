@@ -4,3 +4,9 @@ C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplate\obj\Debug\GameProjec
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplate\obj\Debug\CSharp\1033\GameProjectTemplate.zip
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.dll
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.pdb
+C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\bin\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate.zip
+C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.csprojAssemblyReference.cache
+C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.csproj.CoreCompileInputs.cache
+C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\CSharp\1033\GameProjectTemplate.zip
+C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.dll
+C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.pdb

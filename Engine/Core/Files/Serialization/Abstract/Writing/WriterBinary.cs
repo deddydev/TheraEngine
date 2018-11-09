@@ -139,7 +139,7 @@ namespace TheraEngine.Core.Files.Serialization
                     EncryptionDeriveBytes = new Rfc2898DeriveBytes(encryptionPassword, salt, 1000);
                 }
             }
-            private unsafe void WriteElement(MemberTreeNode node, ref VoidPtr address)
+            private unsafe void WriteElement(SerializeElement node, ref VoidPtr address)
             {
                 WriteStartElement(SerializationCommon.FixElementName(node.Name), ref address);
                 int* attributeCount = (int*)address;
@@ -162,8 +162,8 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
 
-                List<SerializeAttribute> attributes = node.ChildAttributeMembers;
-                List<MemberTreeNode> childElements = node.ChildElementMembers;
+                List<SerializeAttribute> attributes = node.Attributes;
+                List<SerializeElement> childElements = node.ChildElements;
                 bool hasElementContent = node.GetElementContent(null, out object elementContent);
 
                 foreach (SerializeAttribute attribute in attributes)
@@ -189,7 +189,7 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
                 else
-                    foreach (MemberTreeNode childNode in childElements)
+                    foreach (SerializeElement childNode in childElements)
                     {
                         WriteElement(childNode, ref address);
                         if (ReportProgress())
@@ -306,7 +306,7 @@ namespace TheraEngine.Core.Files.Serialization
                         outStream.Dispose();
                 }
             }
-            private unsafe void WriteObject(MemberTreeNode node, ref VoidPtr address)
+            private unsafe void WriteObject(SerializeElement node, ref VoidPtr address)
             {
                 object value = node.Object;
                 Type objType = node.ObjectType;
@@ -399,7 +399,7 @@ namespace TheraEngine.Core.Files.Serialization
                             WriteFileObjectManually(ref address, fobj, objType, node);
                         }
                         else
-                            foreach (MemberTreeNode childNode in node.ChildElementMembers)
+                            foreach (SerializeElement childNode in node.ChildElements)
                                 WriteObject(childNode, ref address);
                         
                         break;
@@ -417,14 +417,14 @@ namespace TheraEngine.Core.Files.Serialization
 
                 return serConfig || serState;
             }
-            private void WriteFileObjectManually(ref VoidPtr address, TFileObject fobj, Type objType, MemberTreeNode node)
+            private void WriteFileObjectManually(ref VoidPtr address, TFileObject fobj, Type objType, SerializeElement node)
             {
                 int size = node.ManuallyCalculatedSize;
                 address.WriteInt(size);
                 fobj.ManualWriteBinary(address, size, StringTable, Flags);
                 address += size;
             }
-            internal int GetSizeObject(MemberTreeNode node)
+            internal int GetSizeObject(SerializeElement node)
             {
                 if (node.Object is TObject tobj && SharedObjects.ContainsKey(tobj.Guid))
                     return 5; //flags byte + object index
@@ -452,9 +452,9 @@ namespace TheraEngine.Core.Files.Serialization
                     size += StringOffsetSize;
                 }
                 
-                if (node.ChildElementMembers.Count > 0)
+                if (node.ChildElements.Count > 0)
                 {
-                    foreach (MemberTreeNode childNode in node.ChildElementMembers)
+                    foreach (SerializeElement childNode in node.ChildElements)
                         size += GetSizeObject(childNode);
 
                     return size;
@@ -518,7 +518,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return size;
             }
 
-            private int GetSizeFileObjectManually(TFileObject fobj, Type objectType, MemberTreeNode node)
+            private int GetSizeFileObjectManually(TFileObject fobj, Type objectType, SerializeElement node)
             {
                 int size = sizeof(int); //length
                 node.ManuallyCalculatedSize = fobj.ManualGetSizeBinary(StringTable, Flags);
@@ -553,17 +553,17 @@ namespace TheraEngine.Core.Files.Serialization
                 //}
             }
 
-            private int GetSizeSerializablePointer(ISerializablePointer value, MemberTreeNode node)
+            private int GetSizeSerializablePointer(ISerializablePointer value, SerializeElement node)
             {
                 return sizeof(int) + (node.ParsablePointerSize = value.GetSize());
             }
-            private void WriteSerializablePointer(ref VoidPtr address, ISerializablePointer value, MemberTreeNode node)
+            private void WriteSerializablePointer(ref VoidPtr address, ISerializablePointer value, SerializeElement node)
             {
                 value.WriteToPointer(address);
                 address += node.ParsablePointerSize;
             }
 
-            private int GetSizeSerializableByteArray(ISerializableByteArray value, MemberTreeNode node)
+            private int GetSizeSerializableByteArray(ISerializableByteArray value, SerializeElement node)
             {
                 byte[] bytes = value.WriteToBytes();
 
@@ -573,7 +573,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 return sizeof(int) + (bytes?.Length ?? 0);
             }
-            private void WriteSerializableByteArray(ref VoidPtr address, ISerializableByteArray value, MemberTreeNode node)
+            private void WriteSerializableByteArray(ref VoidPtr address, ISerializableByteArray value, SerializeElement node)
             {
                 byte[] bytes = node.ParsableBytes;
                 address.WriteInt(bytes.Length);
@@ -582,14 +582,14 @@ namespace TheraEngine.Core.Files.Serialization
                         address.WriteByte(b);
             }
 
-            private int GetSizeSerializableString(ISerializableString value, MemberTreeNode node)
+            private int GetSizeSerializableString(ISerializableString value, SerializeElement node)
             {
                 string str = value.WriteToString();
                 node.ParsableString = str;
                 StringTable.Add(str);
                 return StringOffsetSize;
             }
-            private void WriteSerializableString(ref VoidPtr address, ISerializableString value, MemberTreeNode node)
+            private void WriteSerializableString(ref VoidPtr address, ISerializableString value, SerializeElement node)
             {
                 WriteString(node.ParsableString, ref address);
             }

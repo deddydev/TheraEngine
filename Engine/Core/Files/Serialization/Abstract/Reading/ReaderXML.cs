@@ -64,9 +64,9 @@ namespace TheraEngine.Core.Files.Serialization
                     RootNode = await ReadElementAsync();
                 }
             }
-            private async Task<MemberTreeNode> ReadElementAsync()
+            private async Task<SerializeElement> ReadElementAsync()
             {
-                MemberTreeNode node = null, childNode;
+                SerializeElement node = null, childNode;
                 string name, value;
                 
                 while (!_reader.EOF)
@@ -78,18 +78,18 @@ namespace TheraEngine.Core.Files.Serialization
                             if (node != null)
                             {
                                 childNode = await ReadElementAsync();
-                                node.ChildElementMembers.Add(childNode);
+                                node.ChildElements.Add(childNode);
                             }
                             else
                             {
-                                node = new MemberTreeNode(null, new TSerializeMemberInfo(null, name));
+                                node = new SerializeElement(null, new TSerializeMemberInfo(null, name));
                                 if (_reader.HasAttributes)
                                 {
                                     while (_reader.MoveToNextAttribute())
                                     {
                                         name = _reader.Name;
                                         value = await _reader.GetValueAsync();
-                                        node?.ChildAttributeMembers?.Add(SerializeAttribute.FromString(name, value));
+                                        node?.Attributes?.Add(SerializeAttribute.FromString(name, value));
                                     }
                                     await _reader.MoveToContentAsync();
                                 }

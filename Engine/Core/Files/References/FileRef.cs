@@ -44,7 +44,7 @@ namespace TheraEngine.Core.Files
         /// <param name="createIfNotFound"></param>
         public FileRef(string filePath, Func<T> createIfNotFound) : this(filePath)
         {
-            if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute) != typeof(T))
+            if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute, out EFileFormat format) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
                 if (file != null)
@@ -65,7 +65,7 @@ namespace TheraEngine.Core.Files
         }
         public FileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
         {
-            if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute) != typeof(T))
+            if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute, out EFileFormat format) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
                 if (file != null)

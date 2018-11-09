@@ -436,7 +436,7 @@ namespace TheraEngine.Animation
 
         #region Reading / Writing
 
-        public override void ManualRead(MemberTreeNode node)
+        public override void ManualRead(SerializeElement node)
         {
             if (!string.Equals(node.MemberInfo.Name, "KeyframeTrack", StringComparison.InvariantCulture))
             {
@@ -471,7 +471,7 @@ namespace TheraEngine.Animation
             EPlanarInterpType[] interpTypes = new EPlanarInterpType[keyCount];
             
             //Read all keyframe information, split into separate element arrays
-            foreach (MemberTreeNode element in node.ChildElementMembers)
+            foreach (SerializeElement element in node.ChildElements)
             {
                 switch (element.Name)
                 {
@@ -506,7 +506,7 @@ namespace TheraEngine.Animation
                 Add(kf);
             }
         }
-        public override void ManualWrite(MemberTreeNode node)
+        public override void ManualWrite(SerializeElement node)
         {
             node.MemberInfo.Name = "KeyframeTrack";
             node.AddAttribute(nameof(LengthInSeconds), LengthInSeconds);

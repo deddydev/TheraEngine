@@ -22,15 +22,24 @@ namespace TheraEditor.Windows.Forms
             if (comp?.Model == null)
                 return;
 
+            Tuple<StaticRigidSubMesh, StaticRenderableMesh> rigidMeshTag;
+            Tuple<StaticSoftSubMesh, StaticRenderableMesh> softMeshTag;
+
             var rigidMeshes = comp.Model.RigidChildren;
             if (!(splitContainer1.Panel1Collapsed = rigidMeshes.Count == 0))
                 for (int i = 0; i < rigidMeshes.Count; ++i)
-                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = (rigidMeshes[i], comp.Meshes[i]) });
+                {
+                    rigidMeshTag = new Tuple<StaticRigidSubMesh, StaticRenderableMesh>(rigidMeshes[i], comp.Meshes[i]);
+                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = rigidMeshTag });
+                }
 
             var softMeshes = comp.Model.SoftChildren;
             if (!(splitContainer1.Panel2Collapsed = softMeshes.Count == 0))
                 for (int i = 0; i < softMeshes.Count; ++i)
-                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = (softMeshes[i], comp.Meshes[i + rigidMeshes.Count]) });
+                {
+                    softMeshTag = new Tuple<StaticSoftSubMesh, StaticRenderableMesh>(softMeshes[i], comp.Meshes[i + rigidMeshes.Count]);
+                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = softMeshTag });
+                }
         }
         public void DisplayMeshes(SkeletalMeshComponent comp)
         {
@@ -40,15 +49,24 @@ namespace TheraEditor.Windows.Forms
             if (comp?.Model == null)
                 return;
 
+            Tuple<SkeletalRigidSubMesh, SkeletalRenderableMesh> rigidMeshTag;
+            Tuple<SkeletalSoftSubMesh, SkeletalRenderableMesh> softMeshTag;
+
             var rigidMeshes = comp.Model.RigidChildren;
             if (!(splitContainer1.Panel1Collapsed = rigidMeshes.Count == 0))
                 for (int i = 0; i < rigidMeshes.Count; ++i)
-                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = rigidMeshes[i] });
+                {
+                    rigidMeshTag = new Tuple<SkeletalRigidSubMesh, SkeletalRenderableMesh>(rigidMeshes[i], comp.Meshes[i]);
+                    lstRigid.Items.Add(new ListViewItem(rigidMeshes[i].Name) { Tag = rigidMeshTag });
+                }
 
             var softMeshes = comp.Model.SoftChildren;
             if (!(splitContainer1.Panel2Collapsed = softMeshes.Count == 0))
                 for (int i = 0; i < softMeshes.Count; ++i)
-                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = softMeshes[i] });
+                {
+                    softMeshTag = new Tuple<SkeletalSoftSubMesh, SkeletalRenderableMesh>(softMeshes[i], comp.Meshes[i + rigidMeshes.Count]);
+                    lstSoft.Items.Add(new ListViewItem(softMeshes[i].Name) { Tag = softMeshTag });
+                }
         }
 
         private void lstRigid_SelectedIndexChanged(object sender, EventArgs e)
@@ -60,10 +78,10 @@ namespace TheraEditor.Windows.Forms
             else
             {
                 object mesh = lstRigid.SelectedItems[0].Tag;
-                if (mesh is StaticRigidSubMesh staticMesh)
-                    f.MeshEditor.SetMesh(staticMesh);
-                else if (mesh is SkeletalRigidSubMesh skelMesh)
-                    f.MeshEditor.SetMesh(skelMesh);
+                if (mesh is Tuple<StaticRigidSubMesh, StaticRenderableMesh> staticMesh)
+                    f.MeshEditor.SetMesh(staticMesh.Item1, staticMesh.Item2);
+                else if (mesh is Tuple<SkeletalRigidSubMesh, SkeletalRenderableMesh> skelMesh)
+                    f.MeshEditor.SetMesh(skelMesh.Item1, skelMesh.Item2);
             }
         }
 
@@ -76,10 +94,10 @@ namespace TheraEditor.Windows.Forms
             else
             {
                 object mesh = lstRigid.SelectedItems[0].Tag;
-                if (mesh is StaticSoftSubMesh staticMesh)
-                    f.MeshEditor.SetMesh(staticMesh);
-                else if (mesh is SkeletalSoftSubMesh skelMesh)
-                    f.MeshEditor.SetMesh(skelMesh);
+                if (mesh is Tuple<StaticSoftSubMesh, StaticRenderableMesh> staticMesh)
+                    f.MeshEditor.SetMesh(staticMesh.Item1, staticMesh.Item2);
+                else if (mesh is Tuple<SkeletalSoftSubMesh, SkeletalRenderableMesh> skelMesh)
+                    f.MeshEditor.SetMesh(skelMesh.Item1, skelMesh.Item2);
             }
         }
     }

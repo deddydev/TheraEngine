@@ -14,99 +14,6 @@ using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
 
 namespace TheraEngine.Core.Files
 {
-    [Flags]
-    public enum ESerializeFlags
-    {
-        None = 0,
-        /// <summary>
-        /// If set, exports properties with TSerialize.Config set to true.
-        /// </summary>
-        SerializeConfig = 0x1,
-        /// <summary>
-        /// If set, exports properties with TSerialize.State set to true.
-        /// </summary>
-        SerializeState = 0x2,
-        /// <summary>
-        /// If set, exports local file refs if they point to an external path and are loaded.
-        /// </summary>
-        ExportLocalRefs = 0x4,
-        /// <summary>
-        /// If set, exports global file refs if they point to an external path and are loaded.
-        /// </summary>
-        ExportGlobalRefs = 0x8,
-        /// <summary>
-        /// If set, only exports members that have been changed from the value that was set when they were first deserialized or constructed.
-        /// </summary>
-        ChangedOnly = 0x10,
-        Default = SerializeConfig | ExportGlobalRefs | ExportLocalRefs | ChangedOnly,
-        All = 0xF,
-    }
-    public enum EProprietaryFileFormat
-    {
-        Binary  = 0,
-        XML     = 1,
-    }
-    [Flags]
-    public enum EProprietaryFileFormatFlag
-    {
-        None    = 0b0000,
-        Binary  = 0b0001,
-        XML     = 0b0010,
-        //JSON    = 0b0100,
-        //Text    = 0b1000,
-        All     = 0b1111,
-    }
-    public enum EFileFormat
-    {
-        Binary      = 0,
-        XML         = 1,
-        ThirdParty  = 2,
-        //Programatic = 3,
-    }
-    public interface IFileObject : IObject
-    {
-        string FilePath { get; set; }
-        //List<IFileRef> References { get; set; }
-        FileDef FileDefinition { get; }
-        FileExt FileExtension { get; }
-        File3rdParty File3rdPartyExtensions { get; }
-        /// <summary>
-        /// Returns the file object that serves as the owner of this one.
-        /// </summary>
-        TFileObject RootFile { get; }
-        void Unload();
-        
-        string GetFilePath(string dir, string name, EProprietaryFileFormat format);
-        string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
-
-        Task ManualWrite3rdPartyAsync(string filePath);
-        Task ManualRead3rdPartyAsync(string filePath);
-        void ManualWrite3rdParty(string filePath);
-        void ManualRead3rdParty(string filePath);
-        void ManualWrite(MemberTreeNode node);
-        void ManualRead(MemberTreeNode node);
-        int ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags);
-        void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags);
-        void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable);
-
-        void Export();
-        void Export(ESerializeFlags flags);
-        void Export(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
-        void Export(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
-        void Export(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        
-        Task ExportAsync();
-        Task ExportAsync(ESerializeFlags flags);
-        Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        Task ExportAsync(string path, ESerializeFlags flags = ESerializeFlags.Default);
-        Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        Task ExportAsync(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
-        Task ExportAsync(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-        Task ExportAsync(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
-    }
     /// <summary>
     /// Base class for classes that can be stored as files.
     /// </summary>
@@ -114,38 +21,15 @@ namespace TheraEngine.Core.Files
     //[FileDef("Thera Engine Asset")]
     public abstract partial class TFileObject : TObject, IFileObject
     {
-        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-        public class ThirdPartyLoader : Attribute
-        {
-            public string Extension { get; private set; }
-            public bool Async { get; private set; }
-            public ThirdPartyLoader(string extension, bool isAsync = false)
-            {
-                Extension = extension;
-                Async = isAsync;
-            }
-        }
-        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-        public class ThirdPartyExporter : Attribute
-        {
-            public string Extension { get; private set; }
-            public bool Async { get; private set; }
-            public ThirdPartyExporter(string extension, bool isAsync = false)
-            {
-                Extension = extension;
-                Async = isAsync;
-            }
-        }
-
         [Browsable(false)]
         public FileDef FileDefinition => GetFileDefinition(GetType());
         [Browsable(false)]
         public FileExt FileExtension => GetFileExtension(GetType());
         [Browsable(false)]
         public File3rdParty File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
-        
-        public delegate TFileObject Del3rdPartyImportFileMethod(string path);
-        public delegate Task<TFileObject> Del3rdPartyImportFileMethodAsync(string path, IProgress<float> progress, CancellationToken cancel);
+
+        public delegate T Del3rdPartyImportFileMethod<T>(string path) where T : IFileObject;
+        public delegate Task<T> Del3rdPartyImportFileMethodAsync<T>(string path, IProgress<float> progress, CancellationToken cancel) where T : IFileObject;
 
         public delegate void Del3rdPartyExportFileMethod(object obj, string path);
         public delegate Task Del3rdPartyExportFileMethodAsync(object obj, string path, IProgress<float> progress, CancellationToken cancel);
@@ -187,9 +71,7 @@ namespace TheraEngine.Core.Files
             => GetFilePath(dir, name, format, GetType());
         public string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false)
             => GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
-
-        #region Import/Export
-
+        
         public async void Export()
             => await ExportAsync(ESerializeFlags.Default);
         public async void Export(ESerializeFlags flags) 
@@ -207,10 +89,7 @@ namespace TheraEngine.Core.Files
         public async void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
             => await ExportAsync(directory, fileName, format, thirdPartyExt, flags, progress, cancel);
 
-        public async Task ExportAsync()
-        {
-            await ExportAsync(ESerializeFlags.Default);
-        }
+        public async Task ExportAsync() => await ExportAsync(ESerializeFlags.Default);
         public async Task ExportAsync(ESerializeFlags flags)
         {
             if (Engine.BeginOperation != null)
@@ -354,22 +233,15 @@ namespace TheraEngine.Core.Files
                     throw new InvalidOperationException("Not a valid file format.");
             }
         }
-        #endregion
-        
+
         public async Task ExportXMLAsync(
             string directory,
             string fileName,
             ESerializeFlags flags, 
             IProgress<float> progress,
             CancellationToken cancel)
-        {
-            if (PreExport(directory, fileName, EProprietaryFileFormat.XML))
-            {
-                TSerializer serializer = new TSerializer();
-                await serializer.SerializeXMLAsync(this, FilePath, flags, progress, cancel);
-            }
-        }
-
+            => await TSerializer.ExportXMLAsync(this, directory, fileName, flags, progress, cancel);
+        
         public async Task ExportBinaryAsync(
             string directory,
             string fileName,
@@ -381,17 +253,10 @@ namespace TheraEngine.Core.Files
             bool compressed = false,
             string encryptionPassword = null,
             ICodeProgress compressionProgress = null)
-        {
-            if (PreExport(directory, fileName, EProprietaryFileFormat.Binary))
-            {
-                TSerializer serializer = new TSerializer();
-                await serializer.SerializeBinaryAsync(
-                    this, FilePath, flags, progress, cancel,
-                    endian, encrypted, compressed, encryptionPassword, compressionProgress);
-            }
-        }
-
-        #region 3rd Party
+            => await TSerializer.ExportBinaryAsync(this,
+                directory, fileName, flags, progress, cancel,
+                endian, encrypted, compressed, encryptionPassword, compressionProgress);
+        
         public async Task Export3rdPartyAsync(
             string directory,
             string fileName,
@@ -456,43 +321,8 @@ namespace TheraEngine.Core.Files
             }
             Engine.PrintLine($"Saved {thirdPartyExt} file to {0}", FilePath);
         }
-        #endregion
 
-        private bool PreExport(string directory, string fileName, EProprietaryFileFormat format)
-        {
-            FileExt extAttrib = FileExtension;
-            if (extAttrib == null)
-            {
-                Engine.LogWarning($"No {nameof(FileExt)} attribute specified for {GetType().GetFriendlyName()}.");
-                return false;
-            }
-
-            string ext = extAttrib.GetProperExtension(format);
-            if (string.IsNullOrWhiteSpace(directory))
-            {
-                Engine.LogWarning($"Cannot export {fileName}.{ext}; no valid specified directory.");
-                return false;
-            }
-
-            try
-            {
-                if (!Directory.Exists(directory))
-                    Directory.CreateDirectory(directory);
-            }
-            catch
-            {
-                Engine.LogWarning($"Cannot export to directory at {directory}.");
-                return false;
-            }
-
-            fileName = string.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-
-            if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                directory += Path.DirectorySeparatorChar;
-
-            FilePath = directory + fileName + "." + ext;
-            return true;
-        }
+        #region Manual Read/Write
         /// <summary>
         /// When 'IsThirdParty' is true in the FileClass attribute, this method is called to write the object to a path.
         /// </summary>
@@ -521,13 +351,13 @@ namespace TheraEngine.Core.Files
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="node">The tree node containing information for this object.</param>
-        public virtual void ManualWrite(MemberTreeNode node)
+        public virtual void ManualWrite(SerializeElement node)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualWrite(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
         /// </summary>
         /// <param name="node">The tree node containing information for this object.</param>
-        public virtual void ManualRead(MemberTreeNode node)
+        public virtual void ManualRead(SerializeElement node)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualRead(MemberTreeNode node)\" required when using ManualXmlSerialize in FileClass attribute.");
         /// <summary>
         /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
@@ -555,5 +385,122 @@ namespace TheraEngine.Core.Files
         /// <param name="flags">The serialization flags for this export.</param>
         public virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)\" required when using ManualBinSerialize in FileClass attribute.");
+        #endregion
+
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+        public class ThirdPartyLoader : Attribute
+        {
+            public string Extension { get; private set; }
+            public bool Async { get; private set; }
+            public ThirdPartyLoader(string extension, bool isAsync = false)
+            {
+                Extension = extension;
+                Async = isAsync;
+            }
+        }
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+        public class ThirdPartyExporter : Attribute
+        {
+            public string Extension { get; private set; }
+            public bool Async { get; private set; }
+            public ThirdPartyExporter(string extension, bool isAsync = false)
+            {
+                Extension = extension;
+                Async = isAsync;
+            }
+        }
+    }
+    [Flags]
+    public enum ESerializeFlags
+    {
+        None = 0,
+        /// <summary>
+        /// If set, exports properties with TSerialize.Config set to true.
+        /// </summary>
+        SerializeConfig = 0x1,
+        /// <summary>
+        /// If set, exports properties with TSerialize.State set to true.
+        /// </summary>
+        SerializeState = 0x2,
+        /// <summary>
+        /// If set, exports local file refs if they point to an external path and are loaded.
+        /// </summary>
+        ExportLocalRefs = 0x4,
+        /// <summary>
+        /// If set, exports global file refs if they point to an external path and are loaded.
+        /// </summary>
+        ExportGlobalRefs = 0x8,
+        /// <summary>
+        /// If set, only exports members that have been changed from the value that was set when they were first deserialized or constructed.
+        /// </summary>
+        ChangedOnly = 0x10,
+        Default = SerializeConfig | ExportGlobalRefs | ExportLocalRefs | ChangedOnly,
+        All = 0xF,
+    }
+    public enum EProprietaryFileFormat
+    {
+        Binary = 0,
+        XML = 1,
+    }
+    [Flags]
+    public enum EProprietaryFileFormatFlag
+    {
+        None = 0b0000,
+        Binary = 0b0001,
+        XML = 0b0010,
+        //JSON    = 0b0100,
+        //Text    = 0b1000,
+        All = 0b1111,
+    }
+    public enum EFileFormat
+    {
+        Binary = 0,
+        XML = 1,
+        ThirdParty = 2,
+        //Programatic = 3,
+    }
+    public interface IFileObject : IObject
+    {
+        string FilePath { get; set; }
+        //List<IFileRef> References { get; set; }
+        FileDef FileDefinition { get; }
+        FileExt FileExtension { get; }
+        File3rdParty File3rdPartyExtensions { get; }
+        /// <summary>
+        /// Returns the file object that serves as the owner of this one.
+        /// </summary>
+        TFileObject RootFile { get; }
+        void Unload();
+
+        string GetFilePath(string dir, string name, EProprietaryFileFormat format);
+        string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
+
+        Task ManualWrite3rdPartyAsync(string filePath);
+        Task ManualRead3rdPartyAsync(string filePath);
+        void ManualWrite3rdParty(string filePath);
+        void ManualRead3rdParty(string filePath);
+        void ManualWrite(SerializeElement node);
+        void ManualRead(SerializeElement node);
+        int ManualGetSizeBinary(BinaryStringTableWriter stringTable, ESerializeFlags flags);
+        void ManualWriteBinary(VoidPtr address, int length, BinaryStringTableWriter stringTable, ESerializeFlags flags);
+        void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable);
+
+        void Export();
+        void Export(ESerializeFlags flags);
+        void Export(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void Export(string path, ESerializeFlags flags = ESerializeFlags.Default);
+        void Export(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void Export(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
+        void Export(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        void Export(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+
+        Task ExportAsync();
+        Task ExportAsync(ESerializeFlags flags);
+        Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportAsync(string path, ESerializeFlags flags = ESerializeFlags.Default);
+        Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportAsync(string directory, string fileName, ESerializeFlags flags = ESerializeFlags.Default);
+        Task ExportAsync(string directory, string fileName, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
+        Task ExportAsync(string directory, string fileName, EFileFormat format, string thirdPartyExt, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
     }
 }

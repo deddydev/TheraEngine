@@ -1,9 +1,12 @@
-﻿using System;
+﻿using SevenZip;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -92,7 +95,7 @@ namespace TheraEngine.Core.Files.Serialization
                     await _writer.WriteEndDocumentAsync();
                 }
             }
-            private async Task WriteElementAsync(MemberTreeNode node)
+            private async Task WriteElementAsync(SerializeElement node)
             {
                 await _writer.WriteStartElementAsync(null, SerializationCommon.FixElementName(node.Name), null);
                 {
@@ -112,8 +115,8 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                     
-                    List<SerializeAttribute> attributes = node.ChildAttributeMembers;
-                    List<MemberTreeNode> childElements = node.ChildElementMembers;
+                    List<SerializeAttribute> attributes = node.Attributes;
+                    List<SerializeElement> childElements = node.ChildElements;
                     bool hasChildStringData = node.GetElementContentAsString(out string childStringData);
 
                     foreach (SerializeAttribute attribute in attributes)
@@ -143,7 +146,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                     }
                     else
-                        foreach (MemberTreeNode childNode in childElements)
+                        foreach (SerializeElement childNode in childElements)
                         {
                             await WriteElementAsync(childNode);
                             if (ReportProgress())

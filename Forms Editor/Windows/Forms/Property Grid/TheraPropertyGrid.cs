@@ -81,8 +81,31 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
 
                 _subObject = value;
+                bool notNull = _subObject != null;
+                IObject obj = _subObject as IObject;
+                bool isObj = obj != null;
 
-                object mainTarget = _targetFileObject ?? _subObject;
+                treeViewSceneComps.Nodes.Clear();
+                lstLogicComps.DataSource = null;
+                btnSave.Visible = isObj && obj.EditorState.IsDirty;
+                pnlHeader.Visible = pnlProps2.Visible = notNull;
+                if (notNull)
+                {
+                    IActor actor = _subObject as IActor;
+                    tableLayoutPanel1.Visible = actor != null;
+                    PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
+                    PopulateLogicComponentList(actor?.LogicComponents);
+
+                    lblProperties.Visible = ShowPropertiesHeader;
+                    CalcSceneCompTreeHeight();
+                }
+                else
+                {
+                    lblProperties.Visible = false;
+                    tableLayoutPanel1.Visible = false;
+                }
+
+                object mainTarget = _subObject;
                 if (Enabled = mainTarget != null)
                 {
                     lblObjectName.Text = string.Format("{0} [{1}]",
@@ -104,7 +127,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     lblProperties.Text = "Properties";
                 }
                 
-                if (_subObject is TObject obj)
+                if (isObj)
                     obj.EditorState.Selected = true;
                 
                 //Load the properties of the object
@@ -112,6 +135,27 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
+        private bool _showObjectNameAndType = true;
+        private bool _showPropertiesHeader = true;
+
+        public bool ShowObjectNameAndType
+        {
+            get => _showObjectNameAndType;
+            set
+            {
+                _showObjectNameAndType = value;
+                lblObjectName.Visible = value;
+            }
+        }
+        public bool ShowPropertiesHeader
+        {
+            get => _showPropertiesHeader;
+            set
+            {
+                _showPropertiesHeader = value;
+                lblProperties.Visible = value;
+            }
+        }
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IFileObject TargetFileObject
         {
@@ -129,26 +173,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 
                 _targetFileObject = value;
 
-                _updating = true;
-                treeViewSceneComps.Nodes.Clear();
-                lstLogicComps.DataSource = null;
-                btnSave.Visible = _targetFileObject != null && _targetFileObject.EditorState.IsDirty;
-                bool notNull = _targetFileObject != null;
-                pnlHeader.Visible = pnlProps2.Visible = notNull;
-                if (notNull)
-                {
-                    IActor actor = _targetFileObject as IActor;
-                    tableLayoutPanel1.Visible = actor != null;
-                    PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
-                    PopulateLogicComponentList(actor?.LogicComponents);
-                    lblProperties.Visible = true;
-                    CalcSceneCompTreeHeight();
-                }
-                else
-                {
-                    tableLayoutPanel1.Visible = false;
-                }
-                _updating = false;
+                //_updating = true;
+                //treeViewSceneComps.Nodes.Clear();
+                //lstLogicComps.DataSource = null;
+                //btnSave.Visible = _targetFileObject != null && _targetFileObject.EditorState.IsDirty;
+                //bool notNull = _targetFileObject != null;
+                //pnlHeader.Visible = pnlProps2.Visible = notNull;
+                //if (notNull)
+                //{
+                //    IActor actor = _targetFileObject as IActor;
+                //    tableLayoutPanel1.Visible = actor != null;
+                //    PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
+                //    PopulateLogicComponentList(actor?.LogicComponents);
+                //    lblProperties.Visible = ShowPropertiesHeader;
+                //    CalcSceneCompTreeHeight();
+                //}
+                //else
+                //{
+                //    tableLayoutPanel1.Visible = false;
+                //}
+                //_updating = false;
 
                 TargetObject = value;
             }

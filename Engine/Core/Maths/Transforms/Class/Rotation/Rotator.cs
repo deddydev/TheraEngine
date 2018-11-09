@@ -71,7 +71,7 @@ namespace TheraEngine.Core.Maths.Transforms
             }
         }
 
-        [TSerialize("PitchYawRoll", NodeType = ENodeType.ElementString)]
+        [TSerialize("PitchYawRoll", NodeType = ENodeType.ElementContent)]
         private Vec3 _pyr;
         [TSerialize("Order", NodeType = ENodeType.Attribute)]
         private RotationOrder _rotationOrder = RotationOrder.YPR;

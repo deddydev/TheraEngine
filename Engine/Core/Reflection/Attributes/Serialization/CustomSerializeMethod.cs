@@ -1,4 +1,5 @@
 ﻿using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace System
 {
@@ -8,16 +9,11 @@ namespace System
     /// with the same name and this method will be called to serialize that field/property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class CustomSerializeMethod : Attribute
+    public class CustomSerializeMethod : SerializationAttribute
     {
         public string Name { get; set; }
-        public EProprietaryFileFormatFlag RunForFormats { get; set; }
-
         public CustomSerializeMethod(string name, EProprietaryFileFormatFlag runForFormats = EProprietaryFileFormatFlag.All)
-        {
-            Name = name;
-            RunForFormats = runForFormats;
-        }
+            : base(runForFormats) => Name = name;
     }
     /// <summary>
     /// Use this to deserialize data in a manner that is more efficient or that the
@@ -25,15 +21,11 @@ namespace System
     /// with the same name and this method will be called to deserialize that field/property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class CustomDeserializeMethod : Attribute
+    public class CustomDeserializeMethod : SerializationAttribute
     {
         public string Name { get; set; }
-        public EProprietaryFileFormatFlag RunForFormats { get; set; }
-        
         public CustomDeserializeMethod(string name, EProprietaryFileFormatFlag runForFormats = EProprietaryFileFormatFlag.All)
-        {
-            Name = name;
-            RunForFormats = runForFormats;
-        }
+            : base(runForFormats) => Name = name;
+        
     }
 }

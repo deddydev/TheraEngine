@@ -146,7 +146,7 @@ namespace TheraEngine.Core.Files.Serialization
                     return $"<{Name} />";
                 case ENodeType.Attribute:
                     return $"<Element {Name}=\"\" />";
-                case ENodeType.ElementString:
+                case ENodeType.ElementContent:
                     return "Element String: " + Name;
             }
         }
@@ -228,7 +228,7 @@ namespace TheraEngine.Core.Files.Serialization
                         GetString(o, elementType, out string str);
                         return str;
                     }
-                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(",", ",", MakeString);
+                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(" ", " ", MakeString);
                     return true;
                 }
             }
@@ -277,7 +277,7 @@ namespace TheraEngine.Core.Files.Serialization
                     //int split = value.FindFirst(0, ':');
                     //string assemblyType = value.Substring(0, split).Trim();
                     string[] values = value//.Substring(split + 1)
-                        .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        .Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                     //Type listType = CreateType(assemblyType);
 
@@ -403,7 +403,7 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     TSerializeMemberInfo serMem = new TSerializeMemberInfo(info);
                     serMembers.Add(serMem);
-                    if (serMem.NodeType == ENodeType.ElementString)
+                    if (serMem.NodeType == ENodeType.ElementContent)
                     {
                         ++elementStringCount;
                         if (elementStringCount == 1)
@@ -568,13 +568,13 @@ namespace TheraEngine.Core.Files.Serialization
                 null,
                 false);
         }
-        public unsafe static Type DetermineType(string filePath)
+        public unsafe static Type DetermineType(string filePath, out EFileFormat format)
         {
-            EFileFormat fmt = TFileObject.GetFormat(filePath, out string ext);
+            format = TFileObject.GetFormat(filePath, out string ext);
             Type fileType = null;
             try
             {
-                switch (fmt)
+                switch (format)
                 {
                     default:
                     case EFileFormat.ThirdParty:
@@ -618,7 +618,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="objectType"></param>
         /// <param name="node"></param>
         /// <returns></returns>
-        public static BaseObjectSerializer DetermineObjectSerializer(Type objectType, MemberTreeNode node)
+        public static BaseObjectSerializer DetermineObjectSerializer(Type objectType, SerializeElement node)
         {
             BaseObjectSerializer serializer = null;
             Type[] types = null;

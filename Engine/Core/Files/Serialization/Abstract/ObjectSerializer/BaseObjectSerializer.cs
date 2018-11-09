@@ -24,7 +24,7 @@ namespace TheraEngine.Core.Files.Serialization
     /// </summary>
     public abstract class BaseObjectSerializer
     {
-        public MemberTreeNode TreeNode { get; internal protected set; } = null;
+        public SerializeElement TreeNode { get; internal protected set; } = null;
         public int TreeSize { get; private set; }
 
         //protected TSerializer.WriterBinary      GetBinaryWriter()   => TreeNode.Owner as TSerializer.WriterBinary;

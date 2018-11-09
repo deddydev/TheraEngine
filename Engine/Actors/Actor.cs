@@ -17,6 +17,7 @@ namespace TheraEngine.Actors
 {
     public interface IActor : IFileObject
     {
+        bool AttachedToMap { get; set; }
         bool IsConstructing { get; }
         World OwningWorld { get; }
         bool IsSpawned { get; }
@@ -214,6 +215,12 @@ namespace TheraEngine.Actors
             }
         }
 
+        /// <summary>
+        /// Determines if this actor is loaded and unloaded with the map that owns it.
+        /// </summary>
+        [TSerialize]
+        [Category("Actor")]
+        public bool AttachedToMap { get; set; } = false;
         /// <summary>
         /// Logic components handle plug-n-play code for certain features.
         /// For example, a logic component could give any actor health and/or allow it to take damage.

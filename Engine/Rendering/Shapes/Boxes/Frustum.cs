@@ -49,12 +49,12 @@ namespace TheraEngine.Core.Shapes
         private Sphere _boundingSphere;
 
         [CustomSerializeMethod("UseBoundingSphere")]
-        private void SerializeBoundingSphere(MemberTreeNode node)
+        private void SerializeBoundingSphere(SerializeElement node)
         {
             node.AddAttribute("UseBoundingSphere", UseBoundingSphere);
         }
         [CustomDeserializeMethod("BoundingSphere")]
-        private void DeserializeBoundingSphere(MemberTreeNode node)
+        private void DeserializeBoundingSphere(SerializeElement node)
         {
             if (node.GetAttributeValue("UseBoundingSphere", out bool result) && result)
                 _boundingSphere = new Sphere();

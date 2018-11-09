@@ -11,7 +11,7 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public override void TreeToObject()
         {
-            int keyValCount = TreeNode.ChildElementMembers.Count;
+            int keyValCount = TreeNode.ChildElements.Count;
             Type dicType = TreeNode.ObjectType;
 
             IDictionary dic = Activator.CreateInstance(dicType) as IDictionary;
@@ -25,10 +25,10 @@ namespace TheraEngine.Core.Files.Serialization
 
                 for (int i = 0; i < keyValCount; ++i)
                 {
-                    var keyValNode = TreeNode.ChildElementMembers[i];
+                    var keyValNode = TreeNode.ChildElements[i];
 
-                    var keyNode = keyValNode.ChildElementMembers[0];
-                    var valNode = keyValNode.ChildElementMembers[1];
+                    var keyNode = keyValNode.ChildElements[0];
+                    var valNode = keyValNode.ChildElements[1];
 
                     keyNode.MemberInfo.MemberType = keyType;
                     keyNode.TreeToObject();
@@ -54,18 +54,18 @@ namespace TheraEngine.Core.Files.Serialization
             dic.Keys.CopyTo(keys, 0);
             dic.Values.CopyTo(vals, 0);
 
-            MemberTreeNode[] keyNodes = keys.Select(obj => new MemberTreeNode(obj, new TSerializeMemberInfo(keyType, SerializationCommon.GetTypeName(keyType)))).ToArray();
-            MemberTreeNode[] valNodes = vals.Select(obj => new MemberTreeNode(obj, new TSerializeMemberInfo(valType, SerializationCommon.GetTypeName(valType)))).ToArray();
+            SerializeElement[] keyNodes = keys.Select(obj => new SerializeElement(obj, new TSerializeMemberInfo(keyType, SerializationCommon.GetTypeName(keyType)))).ToArray();
+            SerializeElement[] valNodes = vals.Select(obj => new SerializeElement(obj, new TSerializeMemberInfo(valType, SerializationCommon.GetTypeName(valType)))).ToArray();
 
-            TreeNode.ChildElementMembers = new EventList<MemberTreeNode>(keyNodes.Length);
+            TreeNode.ChildElements = new EventList<SerializeElement>(keyNodes.Length);
             for (int i = 0; i < keyNodes.Length; ++i)
             {
-                MemberTreeNode pairNode = new MemberTreeNode(null, null);
+                SerializeElement pairNode = new SerializeElement(null, null);
 
-                pairNode.ChildElementMembers.Add(keyNodes[i]);
-                pairNode.ChildElementMembers.Add(valNodes[i]);
+                pairNode.ChildElements.Add(keyNodes[i]);
+                pairNode.ChildElements.Add(valNodes[i]);
 
-                TreeNode.ChildElementMembers.Add(pairNode);
+                TreeNode.ChildElements.Add(pairNode);
             }
         }
         public override int OnGetTreeSize(TSerializer.WriterBinary binWriter)

@@ -259,8 +259,10 @@ namespace TheraEditor.Wrappers
                     DialogResult r = ofd.ShowDialog(button.Owner);
                     if (r == DialogResult.OK)
                     {
+                        string name = Path.GetFileNameWithoutExtension(ofd.FileName);
+
                         int op = Editor.Instance.BeginOperation($"Importing '{ofd.FileName}'...", out Progress<float> progress, out CancellationTokenSource cancel);
-                        TFileObject file = await TFileObject.LoadAsync(fileType, ofd.FileName, progress, cancel.Token);
+                        object file = await TFileObject.LoadAsync(fileType, ofd.FileName, progress, cancel.Token);
                         Editor.Instance.EndOperation(op);
 
                         if (file == null)
@@ -271,7 +273,7 @@ namespace TheraEditor.Wrappers
 
                         //Node will automatically be added to the file tree
                         op = Editor.Instance.BeginOperation($"Saving...", out progress, out cancel);
-                        await file.ExportXMLAsync(dir, file.Name, ESerializeFlags.Default, progress, cancel.Token);
+                        await TFileObject.ExportXMLAsync(file, dir, name, ESerializeFlags.Default, progress, cancel.Token);
                         Editor.Instance.EndOperation(op);
                     }
                 }

@@ -15,8 +15,8 @@ namespace TheraEngine.Core.Files.Serialization
             public IProgress<float> Progress { get; internal set; }
             public CancellationToken Cancel { get; internal set; }
             public object RootFileObject => RootNode?.Object;
-            private MemberTreeNode _rootNode;
-            public MemberTreeNode RootNode
+            private SerializeElement _rootNode;
+            public SerializeElement RootNode
             {
                 get => _rootNode;
                 protected set
@@ -26,7 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
                         _rootNode.Owner = this;
                 }
             }
-            public Dictionary<Guid, MemberTreeNode> SharedObjects { get; internal set; }
+            public Dictionary<Guid, SerializeElement> SharedObjects { get; internal set; }
             public Dictionary<Guid, int> SharedObjectIndices { get; set; }
             internal int CurrentCount { get; set; }
             public ESerializeFlags Flags { get; internal set; }
@@ -37,7 +37,7 @@ namespace TheraEngine.Core.Files.Serialization
                 FilePath = filePath;
                 Progress = progress;
                 Cancel = cancel;
-                SharedObjects = new Dictionary<Guid, MemberTreeNode>();
+                SharedObjects = new Dictionary<Guid, SerializeElement>();
                 FileDirectory = Path.GetDirectoryName(FilePath);
             }
             

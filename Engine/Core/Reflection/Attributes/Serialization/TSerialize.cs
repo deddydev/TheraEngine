@@ -15,7 +15,7 @@ namespace System.ComponentModel
         /// <summary>
         /// This is a string value that resides between the open and close tags. Object must be a string value and there must be no child elements.
         /// </summary>
-        ElementString,
+        ElementContent,
     }
     /// <summary>
     /// This attribute means the field should be serialized upon saving.
@@ -73,8 +73,8 @@ namespace System.ComponentModel
         }
         public bool IsElementString
         {
-            get => NodeType == ENodeType.ElementString;
-            set => NodeType = value ? ENodeType.ElementString : ENodeType.ChildElement;
+            get => NodeType == ENodeType.ElementContent;
+            set => NodeType = value ? ENodeType.ElementContent : ENodeType.ChildElement;
         }
         /// <summary>
         /// Determines if this is the kind of value that is read from a main file on disk.

@@ -364,7 +364,7 @@ namespace TheraEngine.Animation
             "ScaleY",
             "ScaleZ",
         };
-        public override void ManualRead(MemberTreeNode node)
+        public override void ManualRead(SerializeElement node)
         {
             if (string.Equals(node.MemberInfo.Name, nameof(TransformKeyCollection), StringComparison.InvariantCulture))
             {
@@ -375,7 +375,7 @@ namespace TheraEngine.Animation
 
                 ResetKeys();
 
-                foreach (MemberTreeNode targetTrackElement in node.ChildElementMembers)
+                foreach (SerializeElement targetTrackElement in node.ChildElements)
                 {
                     int trackIndex = TrackNames.IndexOf(targetTrackElement.Name.ToString());
                     if (!_tracks.IndexInRange(trackIndex))
@@ -387,7 +387,7 @@ namespace TheraEngine.Animation
                         float[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null;
                         EPlanarInterpType[] interpolation = null;
 
-                        foreach (MemberTreeNode keyframePartElement in targetTrackElement.ChildElementMembers)
+                        foreach (SerializeElement keyframePartElement in targetTrackElement.ChildElements)
                         {
                             if (keyframePartElement.MemberInfo.Name == "Interpolation" && 
                                 keyframePartElement.GetElementContentAs(out EPlanarInterpType[] array1))
@@ -428,7 +428,7 @@ namespace TheraEngine.Animation
                 ResetKeys();
             }
         }
-        public override void ManualWrite(MemberTreeNode node)
+        public override void ManualWrite(SerializeElement node)
         {
             node.Name = nameof(TransformKeyCollection);
             node.AddAttribute(nameof(LengthInSeconds), LengthInSeconds);
@@ -437,7 +437,7 @@ namespace TheraEngine.Animation
                 var track = _tracks[i];
                 if (track.Keyframes.Count > 0)
                 {
-                    MemberTreeNode trackElement = new MemberTreeNode(null, new TSerializeMemberInfo(null, TrackNames[i]));
+                    SerializeElement trackElement = new SerializeElement(null, new TSerializeMemberInfo(null, TrackNames[i]));
                     trackElement.AddAttribute("Count", track.Keyframes.Count);
                     trackElement.AddChildElementObject("Second", track.Select(x => x.Second).ToArray());
                     trackElement.AddChildElementObject("InValues", track.Select(x => x.InValue).ToArray());
@@ -445,7 +445,7 @@ namespace TheraEngine.Animation
                     trackElement.AddChildElementObject("InTangents", track.Select(x => x.InTangent).ToArray());
                     trackElement.AddChildElementObject("OutTangents", track.Select(x => x.OutTangent).ToArray());
                     trackElement.AddChildElementObject("Interpolation", track.Select(x => x.InterpolationType).ToArray());
-                    node.ChildElementMembers.Add(trackElement);
+                    node.ChildElements.Add(trackElement);
                 }
             }
         }

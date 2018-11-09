@@ -10,16 +10,16 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public sealed class MemberTreeNode
+    public sealed class SerializeElement
     {
         private TBaseSerializer.TBaseAbstractReaderWriter _owner;
         private object _object;
         private Type _desiredDerivedObjectType;
         private TSerializeMemberInfo _memberInfo;
 
-        public List<SerializeAttribute> ChildAttributeMembers { get; set; } = new List<SerializeAttribute>();
-        public EventList<MemberTreeNode> ChildElementMembers { get; set; }
-        private SerializeAttribute _elementContent = new SerializeAttribute();
+        public List<SerializeAttribute> Attributes { get; set; } = new List<SerializeAttribute>();
+        public EventList<SerializeElement> ChildElements { get; set; }
+        internal SerializeElementContent _elementContent = new SerializeElementContent();
 
         public bool IsElementContentNonStringObject => _elementContent.IsNonStringObject;
         public bool IsElementContentUnparsedString => _elementContent.IsUnparsedString;
@@ -40,7 +40,7 @@ namespace TheraEngine.Core.Files.Serialization
             => _elementContent.SetValueAsString(str, type);
 
 
-        public MemberTreeNode Parent { get; internal set; }
+        public SerializeElement Parent { get; internal set; }
         public TBaseSerializer.TBaseAbstractReaderWriter Owner
         {
             get => _owner;
@@ -51,10 +51,13 @@ namespace TheraEngine.Core.Files.Serialization
                     _owner = value;
                     ObjectTypeChanged();
                 }
-                foreach (var child in ChildElementMembers)
+                foreach (var child in ChildElements)
                     child.Owner = _owner;
             }
         }
+        /// <summary>
+        /// Information for this object as a member of the parent.
+        /// </summary>
         public TSerializeMemberInfo MemberInfo
         {
             get => _memberInfo;
@@ -117,7 +120,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// How many checkpoints need to be hit for this node and all child nodes to advance the progression handler.
         /// </summary>
-        public int ProgressionCount => 1 + ChildAttributeMembers.Count + ChildElementMembers.Count + (_elementContent.IsNotNull ? 1 : 0);
+        public int ProgressionCount => 1 + Attributes.Count + ChildElements.Count + (_elementContent.IsNotNull ? 1 : 0);
         /// <summary>
         /// The type of the object assigned to this member.
         /// </summary>
@@ -150,40 +153,40 @@ namespace TheraEngine.Core.Files.Serialization
                     MemberInfo.Name = value;
             }
         }
-
-        public MemberTreeNode()
+        
+        public SerializeElement()
         {
             Parent = null;
             MemberInfo = null;
             Object = null;
             DefaultObject = null;
-            ChildElementMembers = new EventList<MemberTreeNode>();
-            ChildElementMembers.PostAnythingAdded += ChildElements_PostAnythingAdded;
-            ChildElementMembers.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
+            ChildElements = new EventList<SerializeElement>();
+            ChildElements.PostAnythingAdded += ChildElements_PostAnythingAdded;
+            ChildElements.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
         }
 
-        private void ChildElements_PostAnythingRemoved(MemberTreeNode item)
+        private void ChildElements_PostAnythingRemoved(SerializeElement item)
         {
             if (item.Parent == this)
                 item.Parent = null;
         }
-        private void ChildElements_PostAnythingAdded(MemberTreeNode item)
+        private void ChildElements_PostAnythingAdded(SerializeElement item)
         {
             if (item.Parent != null)
-                item.Parent.ChildElementMembers.Remove(item);
+                item.Parent.ChildElements.Remove(item);
             item.Parent = this;
             item.Owner = Owner;
         }
         
-        public MemberTreeNode(object obj, TSerializeMemberInfo memberInfo)
+        public SerializeElement(object obj, TSerializeMemberInfo memberInfo)
         {
             Object = obj;
             Parent = null;
             MemberInfo = memberInfo;
             DefaultObject = ObjectType == null ? null : SerializationCommon.CreateObject(ObjectType);
-            ChildElementMembers = new EventList<MemberTreeNode>();
-            ChildElementMembers.PostAnythingAdded += ChildElements_PostAnythingAdded;
-            ChildElementMembers.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
+            ChildElements = new EventList<SerializeElement>();
+            ChildElements.PostAnythingAdded += ChildElements_PostAnythingAdded;
+            ChildElements.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
         }
         /// <summary>
         /// Parent deserializes this node
@@ -216,7 +219,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(MemberTreeNode)}.");
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
                 }
             }
 
@@ -276,7 +279,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(MemberTreeNode)}.");
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
                 }
             }
 
@@ -312,6 +315,8 @@ namespace TheraEngine.Core.Files.Serialization
                 DesiredDerivedObjectType = SerializationCommon.CreateType(typeDeclaration);
             else
                 DesiredDerivedObjectType = null;
+
+            //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {MemberInfo.Name}");
 
             bool custom = await TryInvokeManualParentDeserializeAsync();
             if (!custom)
@@ -520,21 +525,21 @@ namespace TheraEngine.Core.Files.Serialization
 
         public void AddChildElementObject(string elementName, object elementObject)
         {
-            MemberTreeNode node = new MemberTreeNode(null, new TSerializeMemberInfo(typeof(string), elementName));
+            SerializeElement node = new SerializeElement(null, new TSerializeMemberInfo(null, elementName));
             node.SetElementContent(elementObject);
-            ChildElementMembers.Add(node);
+            ChildElements.Add(node);
         }
         public void AddAttribute(string name, object value)
-            => ChildAttributeMembers.Add(new SerializeAttribute(name, value));
+            => Attributes.Add(new SerializeAttribute(name, value));
         public SerializeAttribute GetAttribute(string name) 
-            => ChildAttributeMembers.FirstOrDefault(x => string.Equals(x.Name, name));
+            => Attributes.FirstOrDefault(x => string.Equals(x.Name, name));
         /// <summary>
         /// Retrieves the attribute at the given index.
         /// </summary>
         /// <param name="index">The index of the attribute to retrieve.</param>
         /// <returns>The attribute at the specified index. If the index is out of range, returns null.</returns>
         public SerializeAttribute GetAttribute(int index)
-            => ChildAttributeMembers.IndexInRange(index) ? ChildAttributeMembers[index] : null;
+            => Attributes.IndexInRange(index) ? Attributes[index] : null;
         /// <summary>
         /// Retrieves the value of an attribute for this node.
         /// </summary>
@@ -558,20 +563,48 @@ namespace TheraEngine.Core.Files.Serialization
             value = default;
             return false;
         }
-        public MemberTreeNode GetChildElement(string name)
-            => ChildElementMembers.FirstOrDefault(x => string.Equals(x.MemberInfo.Name, name));
+        public SerializeElement GetChildElement(string name)
+            => ChildElements.FirstOrDefault(x => string.Equals(x.MemberInfo.Name, name));
         public override string ToString() => MemberInfo.Name;
+        public bool GetChildElementObject<T>(string elementName, out T value)
+        {
+            SerializeElement node = GetChildElement(elementName);
+            if (node == null)
+            {
+                value = default;
+                return false;
+            }
+            return node.GetElementContentAs(out value);
+        }
     }
-    public class SerializeAttribute
+    public class SerializeAttribute : SerializeElementContent
     {
         public SerializeAttribute() { }
-        public SerializeAttribute(string name, object value) { Name = name; _value = value; }
+        public SerializeAttribute(string name, object value) : base(value) { Name = name; }
+
+        public string Name { get; set; }
+
+        public static SerializeAttribute FromString(string name, string value)
+        {
+            SerializeAttribute attrib = new SerializeAttribute(name, null);
+            attrib.SetValueAsString(value);
+            return attrib;
+        }
+        public static SerializeAttribute FromString(string name, string value, Type objectType, out bool parseSucceeded)
+        {
+            SerializeAttribute attrib = new SerializeAttribute(name, null);
+            parseSucceeded = attrib.SetValueAsString(value, objectType);
+            return attrib;
+        }
+    }
+    public class SerializeElementContent
+    {
+        public SerializeElementContent() { }
+        public SerializeElementContent(object value) { _value = value; }
 
         private object _value;
         private string _stringValue;
         private Type _valueType;
-
-        public string Name { get; set; }
 
         public bool IsNotNull => _value != null || _stringValue != null;
         public void SetValueAsObject(object o)
@@ -649,15 +682,15 @@ namespace TheraEngine.Core.Files.Serialization
             return true;
         }
 
-        public static SerializeAttribute FromString(string name, string value)
+        public static SerializeElementContent FromString(string value)
         {
-            SerializeAttribute attrib = new SerializeAttribute(name, null);
+            SerializeElementContent attrib = new SerializeElementContent(null);
             attrib.SetValueAsString(value);
             return attrib;
         }
-        public static SerializeAttribute FromString(string name, string value, Type objectType, out bool parseSucceeded)
+        public static SerializeElementContent FromString(string value, Type objectType, out bool parseSucceeded)
         {
-            SerializeAttribute attrib = new SerializeAttribute(name, null);
+            SerializeElementContent attrib = new SerializeElementContent(null);
             parseSucceeded = attrib.SetValueAsString(value, objectType);
             return attrib;
         }

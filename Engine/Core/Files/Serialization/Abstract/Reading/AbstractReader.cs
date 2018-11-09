@@ -19,7 +19,7 @@ namespace TheraEngine.Core.Files.Serialization
                 : base(filePath, progress, cancel)
             {
                 Owner = owner;
-                RootFileType = SerializationCommon.DetermineType(FilePath);
+                RootFileType = SerializationCommon.DetermineType(FilePath, out EFileFormat format);
             }
                         
             protected abstract Task ReadTreeAsync();

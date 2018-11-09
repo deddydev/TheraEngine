@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
@@ -38,7 +40,7 @@ namespace TheraEngine.Core.Files.Serialization
                 ReadMember(TreeNode, member, TreeNode.Object);
             foreach (var catMember in categorizedChildren)
             {
-                MemberTreeNode catNode = TreeNode.GetChildElement(catMember.Key);
+                SerializeElement catNode = TreeNode.GetChildElement(catMember.Key);
                 if (catNode != null)
                     foreach (var member in catMember.Value)
                         ReadMember(catNode, member, TreeNode.Object);
@@ -47,33 +49,84 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (MethodInfo m in TreeNode.PostDeserializeMethods.OrderBy(x => x.GetCustomAttribute<PostDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<PostDeserialize>().Arguments);
         }
-        private void ReadMember(MemberTreeNode parentNode, TSerializeMemberInfo member, object o)
+        private async void ReadMember(SerializeElement parentNode, TSerializeMemberInfo member, object o)
         {
-            MemberTreeNode node = TreeNode.GetChildElement(member.Name);
+            SerializeElement node = parentNode.GetChildElement(member.Name);
             if (node != null)
             {
                 node.MemberInfo = member;
-                node.TreeToObject();
+                bool customInvoked = await TryInvokeManualParentDeserializeAsync(member.Name, parentNode, node);
+                if (!customInvoked)
+                    node.TreeToObject();
             }
             else
             {
-                var attrib = TreeNode.GetAttribute(member.Name);
+                var attrib = parentNode.GetAttribute(member.Name);
                 if (attrib != null)
                 {
-                    if (attrib.GetObject(member.MemberType, out object value))
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member.Name, parentNode, attrib);
+                    if (!customInvoked)
                     {
-                        member.SetObject(o, value);
+                        if (attrib.GetObject(member.MemberType, out object value))
+                        {
+                            member.SetObject(o, value);
+                        }
+                        else
+                        {
+                            Engine.LogWarning("Unable to parse attribute " + attrib.Name + " as " + member.MemberType.GetFriendlyName());
+                        }
                     }
-                    else
+                }
+                else if (member.NodeType == ENodeType.ElementContent)
+                {
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member.Name, parentNode, parentNode._elementContent);
+                    if (!customInvoked)
                     {
-                        Engine.LogWarning("Unable to parse attribute " + attrib.Name + " as " + member.MemberType.GetFriendlyName());
+                        if (parentNode.GetElementContent(member.MemberType, out object value))
+                        {
+                            member.SetObject(o, value);
+                        }
+                        else
+                        {
+                            Engine.LogWarning("Unable to parse element content " + member.Name + " as " + member.MemberType.GetFriendlyName());
+                        }
                     }
                 }
                 else
                 {
-                    //Engine.PrintLine("Did not parse " + member.Name);
+                    //Engine.LogWarning("Unable to parse member " + member.Name + " as " + member.MemberType.GetFriendlyName());
                 }
             }
+        }
+        public async Task<bool> TryInvokeManualParentDeserializeAsync<T>(string memberName, SerializeElement parent, T data)
+        {
+            if (parent?.CustomDeserializeMethods == null)
+                return false;
+
+            var customMethods = parent.CustomDeserializeMethods.Where(
+                x => string.Equals(memberName, x.GetCustomAttribute<CustomDeserializeMethod>().Name));
+
+            foreach (var customMethod in customMethods)
+            {
+                if (customMethod == null)
+                    continue;
+
+                var parameters = customMethod.GetParameters();
+                if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(typeof(T)))
+                {
+                    if (customMethod.ReturnType == typeof(Task))
+                        await (Task)customMethod.Invoke(parent.Object, new object[] { data });
+                    else
+                        customMethod.Invoke(parent.Object, new object[] { data });
+                    return true;
+                }
+                else
+                {
+                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
+                }
+            }
+
+            return false;
         }
         public override void TreeFromObject()
         {
@@ -85,9 +138,9 @@ namespace TheraEngine.Core.Files.Serialization
                 return;
             }
 
-            List<MemberTreeNode> children = members.
+            List<SerializeElement> children = members.
                 Where(x => x.AllowSerialize(TreeNode.Object)).
-                Select(x => new MemberTreeNode(TreeNode, x)).
+                Select(x => new SerializeElement(TreeNode, x)).
                 ToList();
             
             //Group children by category if set
@@ -98,21 +151,21 @@ namespace TheraEngine.Core.Files.Serialization
 
             //Remove grouped members from original list
             foreach (var grouping in categorizedChildren)
-                foreach (MemberTreeNode p in grouping.Value)
+                foreach (SerializeElement p in grouping.Value)
                     children.Remove(p);
             
             //Add a member node for each category
             foreach (var cat in categorizedChildren)
             {
-                MemberTreeNode catNode = new MemberTreeNode(null, new TSerializeMemberInfo(null, cat.Key));
+                SerializeElement catNode = new SerializeElement(null, new TSerializeMemberInfo(null, cat.Key));
                 
-                foreach (MemberTreeNode catChild in cat.Value)
-                    catNode.ChildElementMembers.Add(catChild);
+                foreach (SerializeElement catChild in cat.Value)
+                    catNode.ChildElements.Add(catChild);
 
                 children.Add(catNode);
             }
 
-            TreeNode.ChildElementMembers = new EventList<MemberTreeNode>(children);
+            TreeNode.ChildElements = new EventList<SerializeElement>(children);
         }
         public override void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binWriter)
         {

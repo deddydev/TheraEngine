@@ -78,7 +78,7 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
             }
-            private unsafe MemberTreeNode ReadObject(ref VoidPtr address, Type memberType)
+            private unsafe SerializeElement ReadObject(ref VoidPtr address, Type memberType)
             {
                 object obj = null;
                 Type objType = memberType;
@@ -172,7 +172,7 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
 
-                return new MemberTreeNode(obj, new TSerializeMemberInfo(memberType, null));
+                return new SerializeElement(obj, new TSerializeMemberInfo(memberType, null));
             }
 
             private bool ShouldReadFileObjectManually(Type objType)

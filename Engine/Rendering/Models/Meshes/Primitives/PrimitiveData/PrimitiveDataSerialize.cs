@@ -51,7 +51,7 @@ namespace TheraEngine.Rendering.Models
         //    _points = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => new IndexPoint(int.Parse(x))).ToList();
         //}
         [CustomSerializeMethod(nameof(FacePoints))]
-        private void SerializeFacePoints(MemberTreeNode node)
+        public void SerializeFacePoints(SerializeElement node)
         {
             node.AddAttribute("Count", _facePoints.Count);
 
@@ -79,7 +79,7 @@ namespace TheraEngine.Rendering.Models
             node.SetElementContent(indices);
         }
         [CustomDeserializeMethod(nameof(FacePoints))]
-        private void DeserializeFacePoints(MemberTreeNode node)
+        private void DeserializeFacePoints(SerializeElement node)
         {
             if (!node.GetAttributeValue("Count", out int count))
                 count = 0;
@@ -106,7 +106,7 @@ namespace TheraEngine.Rendering.Models
             }
         }
         [CustomSerializeMethod(nameof(Influences))]
-        private void CustomInfluencesSerialize(MemberTreeNode node)
+        public void CustomInfluencesSerialize(SerializeElement node)
         {
             bool valid = string.IsNullOrEmpty(_singleBindBone) && _utilizedBones != null;
             node.AddAttribute("Count", valid ? _influences.Length : 0);
@@ -114,9 +114,9 @@ namespace TheraEngine.Rendering.Models
             if (!valid)
                 return;
 
-            MemberTreeNode countsNode = new MemberTreeNode();
-            MemberTreeNode indicesNode = new MemberTreeNode();
-            MemberTreeNode weightsNode = new MemberTreeNode();
+            SerializeElement countsNode = new SerializeElement();
+            SerializeElement indicesNode = new SerializeElement();
+            SerializeElement weightsNode = new SerializeElement();
 
             int[] counts = new int[_influences.Length];
             List<int> indices = new List<int>(_influences.Length * 4);
@@ -137,21 +137,21 @@ namespace TheraEngine.Rendering.Models
             indicesNode.SetElementContent(indices.ToArray());
             weightsNode.SetElementContent(weights.ToArray());
 
-            node.ChildElementMembers.Add(countsNode);
-            node.ChildElementMembers.Add(indicesNode);
-            node.ChildElementMembers.Add(weightsNode);
+            node.ChildElements.Add(countsNode);
+            node.ChildElements.Add(indicesNode);
+            node.ChildElements.Add(weightsNode);
         }
         [CustomDeserializeMethod(nameof(Influences))]
-        private bool CustomInfluencesDeserialize(MemberTreeNode node)
+        public bool CustomInfluencesDeserialize(SerializeElement node)
         {
             if (!node.GetAttributeValue("Count", out int count))
                 count = 0;
 
             _influences = new InfluenceDef[count];
 
-            MemberTreeNode countsNode = node.GetChildElement("Counts");
-            MemberTreeNode indicesNode = node.GetChildElement("Indices");
-            MemberTreeNode weightsNode = node.GetChildElement("Weights");
+            SerializeElement countsNode = node.GetChildElement("Counts");
+            SerializeElement indicesNode = node.GetChildElement("Indices");
+            SerializeElement weightsNode = node.GetChildElement("Weights");
 
             countsNode.GetElementContentAs(out int[] boneCounts);
             indicesNode.GetElementContentAs(out int[] indices);

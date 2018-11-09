@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Xml;
 using System.ComponentModel;
-using System.IO;
-using TheraEngine.Core.Memory;
-using TheraEngine.Core.Files;
+using System.Runtime.InteropServices;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -127,8 +124,10 @@ namespace TheraEngine.Rendering.Models
         internal DataSource _data;
 
         [CustomSerializeMethod("Data")]
-        private void CustomDataSerialize(MemberTreeNode node)
+        private void CustomDataSerialize(SerializeElementContent node)
         {
+            Endian.EOrder prevOrder = Endian.SerializeOrder;
+            Endian.SerializeOrder = Endian.EOrder.Little;
             int count = _elementCount * _componentCount;
             object array = null;
             VoidPtr address = _data.Address;
@@ -199,18 +198,21 @@ namespace TheraEngine.Rendering.Models
                     }
                     break;
             }
-            node.SetElementContent(array);
+            node.SetValueAsObject(array);
+            Endian.SerializeOrder = prevOrder;
         }
         [CustomDeserializeMethod("Data")]
-        private unsafe bool CustomDataDeserialize(MemberTreeNode node)
+        private void CustomDataDeserialize(SerializeElementContent node)
         {
+            Endian.EOrder prevOrder = Endian.SerializeOrder;
+            Endian.SerializeOrder = Endian.EOrder.Little;
             int count = _elementCount * _componentCount;
             VoidPtr address;
             switch (_componentType)
             {
                 case ComponentType.SByte:
                     {
-                        node.GetElementContentAs(out sbyte[] values);
+                        node.GetObjectAs(out sbyte[] values);
                         _data = DataSource.Allocate(count * sizeof(sbyte));
                         address = _data.Address;
                         for (int k = 0; k < count; ++k)
@@ -219,7 +221,7 @@ namespace TheraEngine.Rendering.Models
                     break;
                 case ComponentType.Byte:
                     {
-                        node.GetElementContentAs(out byte[] values);
+                        node.GetObjectAs(out byte[] values);
                         _data = DataSource.Allocate(count * sizeof(byte));
                         address = _data.Address;
                         for (int k = 0; k < count; ++k)
@@ -228,7 +230,7 @@ namespace TheraEngine.Rendering.Models
                     break;
                 case ComponentType.Short:
                     {
-                        node.GetElementContentAs(out short[] values);
+                        node.GetObjectAs(out short[] values);
                         _data = DataSource.Allocate(count * sizeof(short));
                         address = _data.Address;
                         for (int k = 0; k < count; ++k)
@@ -237,7 +239,7 @@ namespace TheraEngine.Rendering.Models
                     break;
                 case ComponentType.UShort:
                     {
-                        node.GetElementContentAs(out ushort[] values);
+                        node.GetObjectAs(out ushort[] values);
                         _data = DataSource.Allocate(count * sizeof(ushort));
                         address = _data.Address;
                         for (int k = 0; k < count; ++k)
@@ -246,7 +248,7 @@ namespace TheraEngine.Rendering.Models
                     break;
                 case ComponentType.Int:
                     {
-                        node.GetElementContentAs(out int[] values);
+                        node.GetObjectAs(out int[] values);
                         _data = DataSource.Allocate(count * sizeof(int));
                         address = _data.Address;
                         for (int k = 0; k < count; ++k)
@@ -255,7 +257,7 @@ namespace TheraEngine.Rendering.Models
                     break;
                 case ComponentType.UInt:
                     {
-                        node.GetElementContentAs(out uint[] values);
+                        node.GetObjectAs(out uint[] values);
                         _data = DataSource.Allocate(count * sizeof(uint));
                         address = _data.Address;
                         for (int k = 0; k < count; ++k)
@@ -264,7 +266,7 @@ namespace TheraEngine.Rendering.Models
                     break;
                 case ComponentType.Float:
                     {
-                        node.GetElementContentAs(out float[] values);
+                        node.GetObjectAs(out float[] values);
                         _data = DataSource.Allocate(count * sizeof(float));
                         address = _data.Address;
                         for (int k = 0; k < count; ++k)
@@ -273,7 +275,7 @@ namespace TheraEngine.Rendering.Models
                     break;
                 case ComponentType.Double:
                     {
-                        node.GetElementContentAs(out double[] values);
+                        node.GetObjectAs(out double[] values);
                         _data = DataSource.Allocate(count * sizeof(double));
                         address = _data.Address;
                         for (int k = 0; k < count; ++k)
@@ -281,7 +283,7 @@ namespace TheraEngine.Rendering.Models
                     }
                     break;
             }
-            return true;
+            Endian.SerializeOrder = prevOrder;
         }
 
         public bool Integral

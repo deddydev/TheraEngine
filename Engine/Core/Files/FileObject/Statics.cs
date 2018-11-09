@@ -42,17 +42,16 @@ namespace TheraEngine.Core.Files
                             if (methods.Length > 0)
                             {
                                 MethodInfo m = methods[0];
-                                bool async = m.GetCustomAttribute<ThirdPartyLoader>().Async;
+                                var loader = m.GetCustomAttribute<ThirdPartyLoader>();
+                                bool async = loader.Async;
+                                Type t;
                                 if (async)
-                                {
-                                    if (Delegate.CreateDelegate(typeof(Del3rdPartyImportFileMethodAsync), m) is Del3rdPartyImportFileMethodAsync result)
-                                        extensionLoaders.Add(type, result);
-                                }
+                                    t = typeof(Del3rdPartyImportFileMethodAsync<>);
                                 else
-                                {
-                                    if (Delegate.CreateDelegate(typeof(Del3rdPartyImportFileMethod), m) is Del3rdPartyImportFileMethod result)
-                                        extensionLoaders.Add(type, result);
-                                }
+                                    t = typeof(Del3rdPartyImportFileMethod<>);
+                                Type delType = t.MakeGenericType(m.DeclaringType);
+                                Delegate d = Delegate.CreateDelegate(delType, m);
+                                extensionLoaders.Add(type, d);
                             }
                         }
                         else
@@ -101,8 +100,8 @@ namespace TheraEngine.Core.Files
             => Attribute.GetCustomAttribute(classType, typeof(FileExt), true) as FileExt;
         public static File3rdParty GetFile3rdPartyExtensions(Type classType)
             => Attribute.GetCustomAttribute(classType, typeof(File3rdParty), true) as File3rdParty;
-        public static Type DetermineType(string path)
-            => SerializationCommon.DetermineType(path);
+        public static Type DetermineType(string path, out EFileFormat format)
+            => SerializationCommon.DetermineType(path, out format);
         public static Type[] DetermineThirdPartyTypes(string ext)
             => Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false), true, Assembly.GetEntryAssembly()).ToArray();
         public static EFileFormat GetFormat(string path, out string ext)
@@ -250,13 +249,13 @@ namespace TheraEngine.Core.Files
         }
 
         #region Import/Export
-        public static async Task<T> LoadAsync<T>(string filePath) where T : TFileObject
+        public static async Task<T> LoadAsync<T>(string filePath)
         {
             T file;
             if (Engine.BeginOperation != null)
             {
                 int op = Engine.BeginOperation($"Loading file from {filePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
-                file = await LoadAsync(typeof(T), filePath, progress, cancel.Token) as T;
+                file = (T)(await LoadAsync(typeof(T), filePath, progress, cancel.Token));
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);
                 else
@@ -264,7 +263,7 @@ namespace TheraEngine.Core.Files
             }
             else
             {
-                file = await LoadAsync(typeof(T), filePath, null, CancellationToken.None) as T;
+                file = (T)(await LoadAsync(typeof(T), filePath, null, CancellationToken.None));
             }
             
             return file;
@@ -276,20 +275,21 @@ namespace TheraEngine.Core.Files
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
         public static async Task<T> LoadAsync<T>(
-            string filePath, IProgress<float> progress, CancellationToken cancel) where T : TFileObject
-            => await LoadAsync(typeof(T), filePath, progress, cancel) as T;
+            string filePath, IProgress<float> progress, CancellationToken cancel)
+            => (T)(await LoadAsync(typeof(T), filePath, progress, cancel));
         /// <summary>
         /// Opens a new instance of the file object at the given file path.
         /// </summary>
         /// <param name="type">The type of the file object to load.</param>
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
-        public static async Task<TFileObject> LoadAsync(
+        public static async Task<object> LoadAsync(
             Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             FileExt extAttrib = GetFileExtension(type);
             File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
             EFileFormat fmt = GetFormat(filePath, out string ext);
+
             if (extAttrib != null && fmt != EFileFormat.ThirdParty)
             {
                 EProprietaryFileFormat pfmt = fmt == EFileFormat.Binary ?
@@ -328,7 +328,7 @@ namespace TheraEngine.Core.Files
                 if (!File.Exists(filePath))
                     return null;
 
-                Type fileType = SerializationCommon.DetermineType(filePath);
+                Type fileType = SerializationCommon.DetermineType(filePath, out EFileFormat format);
                 if (type.IsAssignableFrom(fileType))
                 {
                     TDeserializer deser = new TDeserializer();
@@ -369,7 +369,11 @@ namespace TheraEngine.Core.Files
                 if (!File.Exists(filePath))
                     return null;
 
-                Type fileType = SerializationCommon.DetermineType(filePath);
+                Type fileType = SerializationCommon.DetermineType(filePath, out EFileFormat format);
+                if (format != EFileFormat.Binary)
+                {
+                    Engine.LogWarning($"Specified to read in {(EFileFormat.Binary).ToString()} format, but file is {format.ToString()}. Reading anyway.");
+                }
                 if (type.IsAssignableFrom(fileType))
                 {
                     TDeserializer deser = new TDeserializer();
@@ -392,20 +396,28 @@ namespace TheraEngine.Core.Files
         #endregion
 
         #region 3rd Party
-        public static async Task<T> Read3rdPartyAsync<T>(string filePath) where T : TFileObject
-            => await Read3rdPartyAsync(typeof(T), filePath, null, CancellationToken.None) as T;
-        public static async Task<T> Read3rdPartyAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel) where T : TFileObject
-            => await Read3rdPartyAsync(typeof(T), filePath, progress, cancel) as T;
-        public static async Task<TFileObject> Read3rdPartyAsync(Type classType, string filePath, IProgress<float> progress, CancellationToken cancel)
+        public static async Task<T> Read3rdPartyAsync<T>(string filePath)
+            => (T)(await Read3rdPartyAsync(typeof(T), filePath, null, CancellationToken.None));
+        public static async Task<object> Read3rdPartyAsync(Type classType, string filePath)
+            => await Read3rdPartyAsync(classType, filePath, null, CancellationToken.None);
+        public static async Task<T> Read3rdPartyAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel)
+            => (T)(await Read3rdPartyAsync(typeof(T), filePath, progress, cancel));
+        public static async Task<object> Read3rdPartyAsync(Type classType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             string ext = Path.GetExtension(filePath).Substring(1);
             Delegate loader = Get3rdPartyLoader(classType, ext);
             if (loader != null)
             {
-                if (loader is Del3rdPartyImportFileMethod method)
-                    return method.Invoke(filePath);
-                else if (loader is Del3rdPartyImportFileMethodAsync methodAsync)
-                    return await methodAsync.Invoke(filePath, progress, cancel);
+                Type genericDef = loader.GetType().GetGenericTypeDefinition();
+                if (genericDef == typeof(Del3rdPartyImportFileMethod<>))
+                    return loader.DynamicInvoke(filePath);
+                else if (genericDef == typeof(Del3rdPartyImportFileMethodAsync<>))
+                {
+                    var task = (Task)loader.DynamicInvoke(filePath);
+                    await task.ConfigureAwait(false);
+                    var resultProperty = task.GetType().GetProperty("Result");
+                    return resultProperty.GetValue(task);
+                }
             }
 
             //No third party loader defined, create instance directly and call method to do it
@@ -426,39 +438,34 @@ namespace TheraEngine.Core.Files
         private static Dictionary<string, Dictionary<Type, Delegate>> _3rdPartyLoaders;
         private static Dictionary<string, Dictionary<Type, Delegate>> _3rdPartyExporters;
         public static Delegate Get3rdPartyLoader(Type fileType, string extension)
-        {
-            extension = extension.ToLowerInvariant();
-            if (_3rdPartyLoaders != null && _3rdPartyLoaders.ContainsKey(extension))
-            {
-                var t = _3rdPartyLoaders[extension];
-                if (t.ContainsKey(fileType))
-                    return t[fileType];
-            }
-            return null;
-        }
+            => Get3rdPartyMethod(_3rdPartyLoaders, fileType, extension);
         public static Delegate Get3rdPartyExporter(Type fileType, string extension)
+            => Get3rdPartyMethod(_3rdPartyExporters, fileType, extension);
+        private static Delegate Get3rdPartyMethod(Dictionary<string, Dictionary<Type, Delegate>> methodDic, Type fileType, string extension)
         {
             extension = extension.ToLowerInvariant();
-            if (_3rdPartyExporters != null && _3rdPartyExporters.ContainsKey(extension))
+            if (methodDic != null && methodDic.ContainsKey(extension))
             {
-                var t = _3rdPartyExporters[extension];
+                var t = methodDic[extension];
                 if (t.ContainsKey(fileType))
                     return t[fileType];
             }
             return null;
         }
-        public static void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethod loadMethod) where T : TFileObject
-        {
-            Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
-        }
-        public static void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethod exportMethod) where T : TFileObject
-        {
-            Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
-        }
+
+        public static void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethod<T> loadMethod) where T : TFileObject
+            => Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
+        public static void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethod<T> exportMethod) where T : TFileObject
+            => Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
+        public static void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethodAsync<T> loadMethod) where T : TFileObject
+            => Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
+        public static void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethodAsync<T> exportMethod) where T : TFileObject
+            => Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
+        
         private static void Register3rdParty<T>(
-            Dictionary<string, Dictionary<Type, Delegate>> methodDic, 
-            string extension, 
-            Del3rdPartyImportFileMethod method)
+            Dictionary<string, Dictionary<Type, Delegate>> methodDic,
+            string extension,
+            Delegate method)
             where T : TFileObject
         {
             extension = extension.ToLowerInvariant();
@@ -471,7 +478,7 @@ namespace TheraEngine.Core.Files
                 methodDic.Add(extension, typesforExt = new Dictionary<Type, Delegate>());
             else
                 typesforExt = methodDic[extension];
-            
+
             Type fileType = typeof(T);
             if (!typesforExt.ContainsKey(fileType))
                 typesforExt.Add(fileType, method);

@@ -10,40 +10,28 @@ namespace TheraEngine.Core.Memory
     {
         public event Action Modified;
 
-        private bool _external;
-        private int _length;
-        private VoidPtr _address;
-
         /// <summary>
         /// If true, this data source references memory that was allocated somewhere else.
         /// </summary>
-        public bool External => _external;
-        public int Length
-        {
-            get => _length;
-            set => _length = value;
-        }
-        public VoidPtr Address
-        {
-            get => _address;
-            set => _address = value;
-        }
+        public bool External { get; }
+        public int Length { get; set; }
+        public VoidPtr Address { get; set; }
 
         public DataSource(VoidPtr address, int length, bool copyInternal = false)
         {
             if (length < 0)
                 throw new Exception("Cannot have a source with a negative size.");
-            _length = length;
+            Length = length;
             if (copyInternal)
             {
-                _address = Marshal.AllocHGlobal(_length);
-                Memory.Move(_address, address, (uint)length);
-                _external = false;
+                Address = Marshal.AllocHGlobal(Length);
+                Memory.Move(Address, address, (uint)length);
+                External = false;
             }
             else
             {
-                _address = address;
-                _external = true;
+                Address = address;
+                External = true;
             }
         }
 
@@ -51,11 +39,11 @@ namespace TheraEngine.Core.Memory
         {
             if (length < 0)
                 throw new Exception("Cannot allocate a negative size.");
-            _length = length;
-            _address = Marshal.AllocHGlobal(_length);
+            Length = length;
+            Address = Marshal.AllocHGlobal(Length);
             if (zeroMemory)
-                Memory.Fill(_address, (uint)_length, 0);
-            _external = false;
+                Memory.Fill(Address, (uint)Length, 0);
+            External = false;
         }
 
         public static DataSource Allocate(int size, bool zeroMemory = false)
@@ -75,10 +63,10 @@ namespace TheraEngine.Core.Memory
             {
                 try
                 {
-                    if (!_external && _address != null)
+                    if (!External && Address != null)
                     {
-                        Marshal.FreeHGlobal(_address);
-                        _address = null;
+                        Marshal.FreeHGlobal(Address);
+                        Address = null;
                     }
                 }
                 catch (Exception e)

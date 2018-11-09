@@ -6,6 +6,7 @@ using System.Xml;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Files;
 using TheraEngine.Physics.Bullet.Shapes;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Physics.Bullet
 {
@@ -475,122 +476,118 @@ namespace TheraEngine.Physics.Bullet
         }
 
         [CustomSerializeMethod(nameof(Body))]
-        internal bool SerializeBody(XmlWriter writer, ESerializeFlags flags)
+        private void SerializeBody(SerializeElement node)
         {
-            writer.WriteStartElement(nameof(Body));
+            TBulletMotionState state = Body.MotionState as TBulletMotionState;
+            node.AddAttribute("Mass", Mass);
+            node.AddAttribute("UseMotionState", state != null);
+            node.AddAttribute("ShapeType", Body.CollisionShape?.ShapeType ?? BroadphaseNativeType.EmptyShape);
+
+            if (state != null)
             {
-                TBulletMotionState state = Body.MotionState as TBulletMotionState;
-                writer.WriteAttributeString("Mass", Mass.ToString());
-                writer.WriteAttributeString("UseMotionState", (state != null).ToString());
-                writer.WriteAttributeString("ShapeType", (Body.CollisionShape?.ShapeType ?? BroadphaseNativeType.EmptyShape).ToString());
-
-                if (state != null)
-                {
-                    Matrix4 mtx = state.WorldTransform;
-                    Matrix4 massOff = state.CenterOfMassOffset;
-                    writer.WriteAttributeString("WorldTransform", mtx.ToString(" ", "", "", " "));
-                    writer.WriteAttributeString("CenterOfMassOffset", massOff.ToString(" ", "", "", " "));
-                }
-                else
-                {
-                    Matrix4 mtx = Body.WorldTransform;
-                    writer.WriteAttributeString("WorldTransform", mtx.ToString(" ", "", "", " "));
-                }
-
-                CollisionShape shape = Body.CollisionShape;
-                if (shape != null)
-                {
-                    writer.WriteStartElement("Shape");
-                    {
-                        writer.WriteElementString("Margin", shape.Margin.ToString());
-                        writer.WriteElementString("LocalScaling", ((Vec3)shape.LocalScaling).ToString("", "", " "));
-
-                        switch (Body.CollisionShape.ShapeType)
-                        {
-                            case BroadphaseNativeType.BoxShape:
-                                BoxShape boxShape = Body.CollisionShape as BoxShape;
-                                Vec3 halfExtents1 = boxShape.HalfExtentsWithoutMargin;
-                                writer.WriteElementString("HalfExtents", halfExtents1.ToString("", "", " "));
-                                break;
-                            case BroadphaseNativeType.CapsuleShape:
-                                CapsuleShape capsuleShape = Body.CollisionShape as CapsuleShape;
-                                int upAxis1 = capsuleShape.UpAxis;
-                                writer.WriteElementString("UpAxis", upAxis1.ToString());
-                                writer.WriteElementString("Radius", capsuleShape.Radius.ToString());
-                                writer.WriteElementString("HalfHeight", capsuleShape.HalfHeight.ToString());
-                                break;
-                            case BroadphaseNativeType.ConeShape:
-                                ConeShape coneShape = Body.CollisionShape as ConeShape;
-                                int upAxis3 = coneShape.ConeUpIndex;
-                                writer.WriteElementString("UpAxis", upAxis3.ToString());
-                                writer.WriteElementString("Radius", coneShape.Radius.ToString());
-                                writer.WriteElementString("Height", coneShape.Height.ToString());
-                                break;
-                            case BroadphaseNativeType.SphereShape:
-                                SphereShape sphereShape = Body.CollisionShape as SphereShape;
-                                writer.WriteElementString("Radius", sphereShape.Radius.ToString());
-                                break;
-                            case BroadphaseNativeType.CylinderShape:
-                                CylinderShape cylinderShape = Body.CollisionShape as CylinderShape;
-                                int upAxis2 = cylinderShape.UpAxis;
-                                writer.WriteElementString("UpAxis", upAxis2.ToString());
-                                writer.WriteElementString("Radius", cylinderShape.Radius.ToString());
-                                Vec3 halfExtents2 = cylinderShape.HalfExtentsWithoutMargin;
-                                writer.WriteElementString("HalfExtents", halfExtents2.ToString("", "", " "));
-                                break;
-                            case BroadphaseNativeType.TerrainShape:
-                                HeightfieldTerrainShape terrainShape = Body.CollisionShape as HeightfieldTerrainShape;
-
-                                break;
-                        }
-                    }
-                    writer.WriteEndElement();
-                }
-
-                //RigidBody properties
-                writer.WriteStartElement("Construction");
-                {
-                    writer.WriteElementString("AngularDamping", AngularDamping.ToString());
-                    writer.WriteElementString("AngularSleepingThreshold", AngularSleepingThreshold.ToString());
-                    writer.WriteElementString("Friction", Friction.ToString());
-                    writer.WriteElementString("LinearDamping", LinearDamping.ToString());
-                    writer.WriteElementString("LocalInertia", LocalInertia.ToString("", "", " "));
-                    writer.WriteElementString("Restitution", Restitution.ToString());
-                    writer.WriteElementString("RollingFriction", RollingFriction.ToString());
-                    writer.WriteElementString("LinearSleepingThreshold", LinearSleepingThreshold.ToString());
-                }
-                writer.WriteEndElement();
-
-                //CollisionObject properties
-                writer.WriteStartElement("CollisionObject");
-                writer.WriteElementString("CollisionFlags", Body.CollisionFlags.ToString().Replace(", ", "|"));
-                writer.WriteElementString("ActivationState", ActivationState.ToString());
-                writer.WriteElementString("DeactivationTime", DeactivationTime.ToString());
-                writer.WriteElementString("ContactProcessingThreshold", ContactProcessingThreshold.ToString());
-                writer.WriteElementString("CcdMotionThreshold", CcdMotionThreshold.ToString());
-                writer.WriteElementString("CcdSweptSphereRadius", CcdSweptSphereRadius.ToString());
-                writer.WriteElementString("AnisotropicFriction", AnisotropicFriction.ToString("", "", " "));
-                writer.WriteElementString("CollidesWith", CollidesWith.ToString());
-                writer.WriteElementString("CollisionGroup", CollisionGroup.ToString());
-                //writer.WriteElementString("AabbMin", AabbMin.ToString("", "", " "));
-                //writer.WriteElementString("AabbMax", AabbMax.ToString("", "", " "));
-                writer.WriteEndElement();
-
-                //writer.WriteElementString("AdditionalDamping", AdditionalDamping.ToString());
-                //writer.WriteElementString("AdditionalDampingFactor", AdditionalDampingFactor.ToString());
-                //writer.WriteElementString("AdditionalLinearDampingThresholdSqr", AdditionalLinearDampingThresholdSqr.ToString());
-                //writer.WriteElementString("AdditionalAngularDampingFactor", AdditionalAngularDampingFactor.ToString());
-                //writer.WriteElementString("AdditionalAngularDampingThresholdSqr", AdditionalAngularDampingThresholdSqr.ToString());
+                node.AddAttribute("WorldTransform", state.WorldTransform);
+                node.AddAttribute("CenterOfMassOffset", state.CenterOfMassOffset);
             }
-            writer.WriteEndElement();
-            return true;
+            else
+            {
+                node.AddAttribute("WorldTransform", Body.WorldTransform);
+            }
+
+            CollisionShape shape = Body.CollisionShape;
+            if (shape != null)
+            {
+                SerializeElement shapeNode = new SerializeElement() { Name = "Shape" };
+
+                shapeNode.AddChildElementObject("Margin", shape.Margin);
+                shapeNode.AddChildElementObject("LocalScaling", (Vec3)shape.LocalScaling);
+
+                switch (Body.CollisionShape.ShapeType)
+                {
+                    case BroadphaseNativeType.BoxShape:
+                        {
+                            BoxShape boxShape = Body.CollisionShape as BoxShape;
+                            Vec3 halfExtents = boxShape.HalfExtentsWithoutMargin;
+                            shapeNode.AddChildElementObject("HalfExtents", halfExtents);
+                        }
+                        break;
+                    case BroadphaseNativeType.CapsuleShape:
+                        {
+                            CapsuleShape capsuleShape = Body.CollisionShape as CapsuleShape;
+                            int upAxis = capsuleShape.UpAxis;
+                            shapeNode.AddChildElementObject("UpAxis", upAxis);
+                            shapeNode.AddChildElementObject("Radius", capsuleShape.Radius);
+                            shapeNode.AddChildElementObject("HalfHeight", capsuleShape.HalfHeight);
+                        }
+                        break;
+                    case BroadphaseNativeType.ConeShape:
+                        {
+                            ConeShape coneShape = Body.CollisionShape as ConeShape;
+                            int upAxis = coneShape.ConeUpIndex;
+                            shapeNode.AddChildElementObject("UpAxis", upAxis);
+                            shapeNode.AddChildElementObject("Radius", coneShape.Radius);
+                            shapeNode.AddChildElementObject("Height", coneShape.Height);
+                        }
+                        break;
+                    case BroadphaseNativeType.SphereShape:
+                        {
+                            SphereShape sphereShape = Body.CollisionShape as SphereShape;
+                            shapeNode.AddChildElementObject("Radius", sphereShape.Radius);
+                        }
+                        break;
+                    case BroadphaseNativeType.CylinderShape:
+                        {
+                            CylinderShape cylinderShape = Body.CollisionShape as CylinderShape;
+                            Vec3 halfExtents = cylinderShape.HalfExtentsWithoutMargin;
+                            int upAxis = cylinderShape.UpAxis;
+                            shapeNode.AddChildElementObject("UpAxis", upAxis);
+                            shapeNode.AddChildElementObject("Radius", cylinderShape.Radius);
+                            shapeNode.AddChildElementObject("HalfExtents", halfExtents);
+                        }
+                        break;
+                    case BroadphaseNativeType.TerrainShape:
+                        HeightfieldTerrainShape terrainShape = Body.CollisionShape as HeightfieldTerrainShape;
+
+                        break;
+                }
+                node.ChildElements.Add(shapeNode);
+            }
+
+            //RigidBody properties
+            SerializeElement constrNode = new SerializeElement() { Name = "Construction" };
+            constrNode.AddChildElementObject("AngularDamping", AngularDamping);
+            constrNode.AddChildElementObject("AngularSleepingThreshold", AngularSleepingThreshold);
+            constrNode.AddChildElementObject("Friction", Friction);
+            constrNode.AddChildElementObject("LinearDamping", LinearDamping);
+            constrNode.AddChildElementObject("LocalInertia", LocalInertia);
+            constrNode.AddChildElementObject("Restitution", Restitution);
+            constrNode.AddChildElementObject("RollingFriction", RollingFriction);
+            constrNode.AddChildElementObject("LinearSleepingThreshold", LinearSleepingThreshold);
+            node.ChildElements.Add(constrNode);
+
+            //CollisionObject properties
+            SerializeElement collNode = new SerializeElement() { Name = "CollisionObject" };
+            collNode.AddChildElementObject("CollisionFlags", Body.CollisionFlags);
+            collNode.AddChildElementObject("ActivationState", ActivationState);
+            collNode.AddChildElementObject("DeactivationTime", DeactivationTime);
+            collNode.AddChildElementObject("ContactProcessingThreshold", ContactProcessingThreshold);
+            collNode.AddChildElementObject("CcdMotionThreshold", CcdMotionThreshold);
+            collNode.AddChildElementObject("CcdSweptSphereRadius", CcdSweptSphereRadius);
+            collNode.AddChildElementObject("AnisotropicFriction", AnisotropicFriction);
+            collNode.AddChildElementObject("CollidesWith", CollidesWith);
+            collNode.AddChildElementObject("CollisionGroup", CollisionGroup);
+            //collNode.AddChildElementObject("AabbMin", AabbMin);
+            //collNode.AddChildElementObject("AabbMax", AabbMax);
+            node.ChildElements.Add(collNode);
+
+            //writer.WriteElementString("AdditionalDamping", AdditionalDamping.ToString());
+            //writer.WriteElementString("AdditionalDampingFactor", AdditionalDampingFactor.ToString());
+            //writer.WriteElementString("AdditionalLinearDampingThresholdSqr", AdditionalLinearDampingThresholdSqr.ToString());
+            //writer.WriteElementString("AdditionalAngularDampingFactor", AdditionalAngularDampingFactor.ToString());
+            //writer.WriteElementString("AdditionalAngularDampingThresholdSqr", AdditionalAngularDampingThresholdSqr.ToString());
         }
         [CustomDeserializeMethod(nameof(Body))]
-        internal unsafe bool DeserializeBody(XMLReader reader)
+        private void DeserializeBody(SerializeElement node)
         {
-            if (reader.Name != nameof(Body))
-                return false;
-
             float mass = 0.0f;
             bool useMotionState = false;
             Matrix4 worldTransform = Matrix4.Identity;
@@ -598,32 +595,31 @@ namespace TheraEngine.Physics.Bullet
             TBulletMotionState motionState = null;
             CollisionShape shape = null;
             BroadphaseNativeType type = BroadphaseNativeType.BoxShape;
+            RigidBodyConstructionInfo rbc = null;
 
-            while (reader.ReadAttribute())
+            foreach (var attrib in node.Attributes)
             {
-                string attribName = reader.Name;
-                string attribValue = reader.Value;
-                switch (attribName)
+                switch (attrib.Name)
                 {
                     case "Mass":
-                        if (!float.TryParse(attribValue, out mass))
+                        if (!attrib.GetObjectAs(out mass))
                             mass = 0.0f;
                         break;
                     case "UseMotionState":
-                        if (!bool.TryParse(attribValue, out useMotionState))
+                        if (!attrib.GetObjectAs(out useMotionState))
                             useMotionState = false;
                         break;
                     case "ShapeType":
-                        if (!Enum.TryParse(attribValue, out type))
+                        if (!attrib.GetObjectAs(out type))
                             type = BroadphaseNativeType.BoxShape;
                         break;
                     case "WorldTransform":
-                        worldTransform = new Matrix4();
-                        worldTransform.ReadFromString(attribValue);
+                        if (!attrib.GetObjectAs(out worldTransform))
+                            worldTransform = Matrix4.Identity;
                         break;
                     case "CenterOfMassOffset":
-                        centerOfMassOffset = new Matrix4();
-                        centerOfMassOffset.ReadFromString(attribValue);
+                        if (!attrib.GetObjectAs(out centerOfMassOffset))
+                            centerOfMassOffset = Matrix4.Identity;
                         break;
                 }
             }
@@ -631,179 +627,175 @@ namespace TheraEngine.Physics.Bullet
             if (useMotionState)
                 motionState = new TBulletMotionState(worldTransform, centerOfMassOffset) { Body = this };
 
-            RigidBodyConstructionInfo rbc = null;
-            while (reader.BeginElement())
+            SerializeElement shapeNode = node.GetChildElement("Shape");
+            SerializeElement constrNode = node.GetChildElement("Construction");
+            SerializeElement collObjNode = node.GetChildElement("CollisionObject");
+
+            if (shapeNode != null)
+                shape = ParseShape(shapeNode, type);
+            if (constrNode != null)
+                rbc = ParseConstruction(constrNode, mass, motionState, shape);
+            if (collObjNode != null)
+                Body = ParseCollisionObject(collObjNode, rbc, useMotionState, worldTransform);
+        }
+
+        private RigidBody ParseCollisionObject(SerializeElement childTreeElement, RigidBodyConstructionInfo rbc, bool useMotionState, Matrix4 worldTransform)
+        {
+            bool hasValue;
+            float value;
+
+            Body = new RigidBody(rbc);
+            if (!useMotionState)
+                Body.WorldTransform = worldTransform;
+
+            foreach (var childElement in childTreeElement.ChildElements)
             {
-                switch (reader.Name)
+                switch (childElement.Name)
                 {
-                    case "Shape":
-
-                        reader.BeginElement();
-                        float margin;
-                        reader.ReadValue(&margin);
-                        reader.EndElement();
-
-                        reader.BeginElement();
-                        string localScalingStr = reader.ReadElementString();
-                        Vec3 localScaling = new Vec3(localScalingStr);
-                        reader.EndElement();
-
-                        switch (type)
-                        {
-                            case BroadphaseNativeType.SphereShape:
-                                {
-                                    reader.BeginElement();
-                                    {
-                                        string radiusStr = reader.ReadElementString();
-                                        float radius = float.Parse(radiusStr);
-                                        shape = new SphereShape(radius);
-                                    }
-                                    reader.EndElement();
-                                }
-                                break;
-                            case BroadphaseNativeType.BoxShape:
-                                {
-                                    reader.BeginElement();
-                                    {
-                                        string halfExtentsStr = reader.ReadElementString();
-                                        Vec3 halfExtents = new Vec3(halfExtentsStr);
-                                        shape = new BoxShape(halfExtents.X, halfExtents.Y, halfExtents.Z);
-                                    }
-                                    reader.EndElement();
-                                }
-                                break;
-                            case BroadphaseNativeType.CapsuleShape:
-                                {
-                                    int upAxis = 1;
-                                    float radius = 0.0f;
-                                    float height = 0.0f;
-                                    while (reader.BeginElement())
-                                    {
-                                        switch (reader.Name)
-                                        {
-                                            case "UpAxis":
-                                                reader.ReadValue(&upAxis);
-                                                break;
-                                            case "Radius":
-                                                reader.ReadValue(&radius);
-                                                break;
-                                            case "HalfHeight":
-                                                reader.ReadValue(&height);
-                                                height *= 2.0f;
-                                                break;
-                                        }
-                                        reader.EndElement();
-                                    }
-                                    switch (upAxis)
-                                    {
-                                        case 0:
-                                            shape = new CapsuleShapeX(radius, height);
-                                            break;
-                                        default:
-                                        case 1:
-                                            shape = new CapsuleShape(radius, height);
-                                            break;
-                                        case 2:
-                                            shape = new CapsuleShapeZ(radius, height);
-                                            break;
-                                    }
-                                }
-                                break;
-                        }
-                        if (shape != null)
-                        {
-                            shape.Margin = margin;
-                            shape.LocalScaling = localScaling;
-                        }
+                    case "CollisionFlags":
+                        hasValue = childElement.GetElementContentAs(out CollisionFlags collFlags);
+                        Body.CollisionFlags = hasValue ? collFlags : CollisionFlags.None;
                         break;
-
-                    case "Construction":
-
-                        rbc = new RigidBodyConstructionInfo(mass, motionState, shape);
-
-                        while (reader.BeginElement())
-                        {
-                            string name = reader.Name;
-                            string value = reader.ReadElementString();
-                            switch (name)
-                            {
-                                case "AngularDamping":
-                                    rbc.AngularDamping = float.Parse(value);
-                                    break;
-                                case "AngularSleepingThreshold":
-                                    rbc.AngularSleepingThreshold = float.Parse(value);
-                                    break;
-                                case "Friction":
-                                    rbc.Friction = float.Parse(value);
-                                    break;
-                                case "LinearDamping":
-                                    rbc.LinearDamping = float.Parse(value);
-                                    break;
-                                case "LocalInertia":
-                                    rbc.LocalInertia = new Vec3(value);
-                                    break;
-                                case "Restitution":
-                                    rbc.Restitution = float.Parse(value);
-                                    break;
-                                case "RollingFriction":
-                                    rbc.RollingFriction = float.Parse(value);
-                                    break;
-                                case "LinearSleepingThreshold":
-                                    rbc.LinearSleepingThreshold = float.Parse(value);
-                                    break;
-                            }
-                            reader.EndElement();
-                        }
+                    case "ActivationState":
+                        hasValue = childElement.GetElementContentAs(out EBodyActivationState activationState);
+                        ActivationState = hasValue ? activationState : EBodyActivationState.DisableSimulation;
                         break;
-
-                    case "CollisionObject":
-
-                        Body = new RigidBody(rbc);
-                        if (!useMotionState)
-                            Body.WorldTransform = worldTransform;
-
-                        while (reader.BeginElement())
-                        {
-                            string name = reader.Name;
-                            string value = reader.ReadElementString();
-                            switch (name)
-                            {
-                                case "CollisionFlags":
-                                    Body.CollisionFlags = value.Replace("|", ", ").AsEnum<CollisionFlags>();
-                                    break;
-                                case "ActivationState":
-                                    ActivationState = value.AsEnum<EBodyActivationState>();
-                                    break;
-                                case "DeactivationTime":
-                                    Body.DeactivationTime = float.Parse(value);
-                                    break;
-                                case "ContactProcessingThreshold":
-                                    Body.ContactProcessingThreshold = float.Parse(value);
-                                    break;
-                                case "CcdMotionThreshold":
-                                    Body.CcdMotionThreshold = float.Parse(value);
-                                    break;
-                                case "CcdSweptSphereRadius":
-                                    Body.CcdSweptSphereRadius = float.Parse(value);
-                                    break;
-                                case "AnisotropicFriction":
-                                    Body.AnisotropicFriction = new Vec3(value);
-                                    break;
-                                case "CollidesWith":
-                                    CollidesWith = ushort.Parse(value);
-                                    break;
-                                case "CollisionGroup":
-                                    CollisionGroup = ushort.Parse(value);
-                                    break;
-                            }
-                            reader.EndElement();
-                        }
+                    case "DeactivationTime":
+                        hasValue = childElement.GetElementContentAs(out value);
+                        Body.DeactivationTime = hasValue ? value : 0.0f;
+                        break;
+                    case "ContactProcessingThreshold":
+                        hasValue = childElement.GetElementContentAs(out value);
+                        Body.ContactProcessingThreshold = hasValue ? value : 0.0f;
+                        break;
+                    case "CcdMotionThreshold":
+                        hasValue = childElement.GetElementContentAs(out value);
+                        Body.CcdMotionThreshold = hasValue ? value : 0.0f;
+                        break;
+                    case "CcdSweptSphereRadius":
+                        hasValue = childElement.GetElementContentAs(out value);
+                        Body.CcdSweptSphereRadius = hasValue ? value : 0.0f;
+                        break;
+                    case "AnisotropicFriction":
+                        hasValue = childElement.GetElementContentAs(out Vec3 anisoFric);
+                        Body.AnisotropicFriction = hasValue ? anisoFric : Vec3.Zero;
+                        break;
+                    case "CollidesWith":
+                        hasValue = childElement.GetElementContentAs(out ushort collWith);
+                        CollidesWith = hasValue ? collWith : (ushort)0;
+                        break;
+                    case "CollisionGroup":
+                        hasValue = childElement.GetElementContentAs(out ushort collGrp);
+                        CollisionGroup = hasValue ? collGrp : (ushort)0;
                         break;
                 }
-                reader.EndElement();
             }
             Body?.Activate();
-            return true;
+            return Body;
+        }
+
+        private RigidBodyConstructionInfo ParseConstruction(SerializeElement childElement, float mass, MotionState motionState, CollisionShape shape)
+        {
+            RigidBodyConstructionInfo rbc = new RigidBodyConstructionInfo(mass, motionState, shape);
+            float value;
+            bool hasValue;
+
+            foreach (var childElement2 in childElement.ChildElements)
+            {
+                switch (childElement2.Name)
+                {
+                    case "AngularDamping":
+                        hasValue = childElement2.GetElementContentAs(out value);
+                        rbc.AngularDamping = hasValue ? value : 0.0f;
+                        break;
+                    case "AngularSleepingThreshold":
+                        hasValue = childElement2.GetElementContentAs(out value);
+                        rbc.AngularSleepingThreshold = hasValue ? value : 0.0f;
+                        break;
+                    case "Friction":
+                        hasValue = childElement2.GetElementContentAs(out value);
+                        rbc.Friction = hasValue ? value : 0.0f;
+                        break;
+                    case "LinearDamping":
+                        hasValue = childElement2.GetElementContentAs(out value);
+                        rbc.LinearDamping = hasValue ? value : 0.0f;
+                        break;
+                    case "LocalInertia":
+                        hasValue = childElement2.GetElementContentAs(out Vec3 vec3Value);
+                        rbc.LocalInertia = hasValue ? vec3Value : Vec3.Zero;
+                        break;
+                    case "Restitution":
+                        hasValue = childElement2.GetElementContentAs(out value);
+                        rbc.Restitution = hasValue ? value : 0.0f;
+                        break;
+                    case "RollingFriction":
+                        hasValue = childElement2.GetElementContentAs(out value);
+                        rbc.RollingFriction = hasValue ? value : 0.0f;
+                        break;
+                    case "LinearSleepingThreshold":
+                        hasValue = childElement2.GetElementContentAs(out value);
+                        rbc.LinearSleepingThreshold = hasValue ? value : 0.0f;
+                        break;
+                }
+            }
+            return rbc;
+        }
+
+        private CollisionShape ParseShape(SerializeElement childElement, BroadphaseNativeType type)
+        {
+            CollisionShape shape = null;
+
+            bool hasMargin = childElement.GetChildElementObject("Margin", out float margin);
+            bool hasLocalScaling = childElement.GetChildElementObject("LocalScaling", out Vec3 localScaling);
+
+            switch (type)
+            {
+                case BroadphaseNativeType.SphereShape:
+                    {
+                        bool hasRadius = childElement.GetChildElementObject("Radius", out float radius);
+                        shape = new SphereShape(radius);
+                    }
+                    break;
+                case BroadphaseNativeType.BoxShape:
+                    {
+                        bool hasHalfExtents = childElement.GetChildElementObject("HalfExtents", out Vec3 halfExtents);
+                        shape = new BoxShape(halfExtents.X, halfExtents.Y, halfExtents.Z);
+                    }
+                    break;
+                case BroadphaseNativeType.CapsuleShape:
+                    {
+                        bool hasUpAxis = childElement.GetChildElementObject("UpAxis", out int upAxis);
+                        bool hasRadius = childElement.GetChildElementObject("Radius", out float radius);
+                        bool hasHeight = childElement.GetChildElementObject("HalfHeight", out float height);
+
+                        if (!hasUpAxis)
+                            upAxis = 1;
+                        if (!hasHeight)
+                            height = 0.5f;
+                        height *= 2.0f;
+
+                        switch (upAxis)
+                        {
+                            case 0:
+                                shape = new CapsuleShapeX(radius, height);
+                                break;
+                            default:
+                            case 1:
+                                shape = new CapsuleShape(radius, height);
+                                break;
+                            case 2:
+                                shape = new CapsuleShapeZ(radius, height);
+                                break;
+                        }
+                    }
+                    break;
+            }
+            if (shape != null)
+            {
+                shape.Margin = margin;
+                shape.LocalScaling = localScaling;
+            }
+            return shape;
         }
     }
 }

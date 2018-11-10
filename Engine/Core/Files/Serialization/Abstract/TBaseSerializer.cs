@@ -21,9 +21,21 @@ namespace TheraEngine.Core.Files.Serialization
                 get => _rootNode;
                 protected set
                 {
+                    if (_rootNode != null)
+                    {
+                        _rootNode.Owner = null;
+                        _rootNode.IsRoot = false;
+                        if (_rootNode.Object is TFileObject tobj && !string.IsNullOrEmpty(tobj.FilePath))
+                            tobj.FilePath = null;
+                    }
                     _rootNode = value;
                     if (_rootNode != null)
+                    {
                         _rootNode.Owner = this;
+                        _rootNode.IsRoot = true;
+                        if (_rootNode.Object is TFileObject tobj && !string.IsNullOrEmpty(FilePath))
+                            tobj.FilePath = FilePath;
+                    }
                 }
             }
             public Dictionary<Guid, SerializeElement> SharedObjects { get; internal set; }
@@ -31,6 +43,7 @@ namespace TheraEngine.Core.Files.Serialization
             internal int CurrentCount { get; set; }
             public ESerializeFlags Flags { get; internal set; }
             public abstract EProprietaryFileFormatFlag Format { get; }
+            public bool IsBinary => Format == EProprietaryFileFormatFlag.Binary;
 
             public TBaseAbstractReaderWriter(string filePath, IProgress<float> progress, CancellationToken cancel)
             {

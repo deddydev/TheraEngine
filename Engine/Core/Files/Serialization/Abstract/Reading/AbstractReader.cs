@@ -26,7 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
             public async Task<object> CreateObjectAsync()
             {
                 await ReadTreeAsync();
-                RootNode.TreeToObject();
+                RootNode.DeserializeTreeToObject();
                 object obj = RootNode.Object;
                 if (obj is TFileObject tobj)
                     tobj.FilePath = FilePath;

@@ -36,7 +36,7 @@ namespace TheraEngine.Core.Files.Serialization
         public abstract int OnGetTreeSize(TSerializer.WriterBinary binWriter);
         public abstract void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader);
         public abstract void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter);
-        public abstract void TreeToObject();
-        public abstract void TreeFromObject();
+        public abstract void DeserializeTreeToObject();
+        public abstract void SerializeTreeFromObject();
     }
 }

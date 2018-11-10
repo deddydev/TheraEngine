@@ -1,12 +1,9 @@
-﻿using SevenZip;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -104,21 +101,11 @@ namespace TheraEngine.Core.Files.Serialization
                         await _writer.WriteEndElementAsync();
                         return;
                     }
-
-                    if (node.IsDerivedType)
-                    {
-                        await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, node.ObjectType.AssemblyQualifiedName);
-                        if (ReportProgress())
-                        {
-                            await _writer.WriteEndElementAsync();
-                            return;
-                        }
-                    }
                     
                     List<SerializeAttribute> attributes = node.Attributes;
                     List<SerializeElement> childElements = node.ChildElements;
                     bool hasChildStringData = node.GetElementContentAsString(out string childStringData);
-
+                    
                     foreach (SerializeAttribute attribute in attributes)
                     {
                         if (attribute.GetString(out string value))

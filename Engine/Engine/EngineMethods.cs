@@ -114,7 +114,7 @@ namespace TheraEngine
         /// <param name="matchPredicate">What determines if the type is a match or not.</param>
         /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
         /// <returns>All types that match the predicate.</returns>
-        public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, bool includeEngineAssembly, params Assembly[] assemblies)
+        public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, bool includeEngineAssembly = true, params Assembly[] assemblies)
         {
             IEnumerable<Assembly> search;
 

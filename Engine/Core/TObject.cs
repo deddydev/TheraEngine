@@ -63,9 +63,7 @@ namespace TheraEngine
         [TString(false, false, false)]
         [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
         protected string _name = null;
-
-        public bool ConstructedProgrammatically { get; internal set; } = true;
-        
+        [Browsable(false)]
         public Guid Guid { get; } = Guid.NewGuid();
         
         [TSerialize]

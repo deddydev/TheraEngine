@@ -48,6 +48,7 @@ namespace TheraEngine.Actors.Types
         public int _spawnIndex = -1;
         private TRSComponent _rootComponent;
         
+        public bool AttachedToMap { get; set; }
         [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0;
         [Browsable(false)]

@@ -21,6 +21,12 @@ namespace TheraEngine.Core.Files
     //[FileDef("Thera Engine Asset")]
     public abstract partial class TFileObject : TObject, IFileObject
     {
+        /// <summary>
+        /// If true, this object was originally constructed via code.
+        /// If false, this object was originally deserialized from a file.
+        /// </summary>
+        [Browsable(false)]
+        public bool ConstructedProgrammatically { get; internal set; } = true;
         [Browsable(false)]
         public FileDef FileDefinition => GetFileDefinition(GetType());
         [Browsable(false)]
@@ -36,10 +42,23 @@ namespace TheraEngine.Core.Files
         
         public TFileObject() { }
 
+        private TFileObject _rootFile = null;
+        private string _filePath;
+
         [Browsable(false)]
         [TString(false, true, false)]
         [Category("Object")]
-        public virtual string FilePath { get; set; }
+        public virtual string FilePath
+        {
+            get
+            {
+                if (_rootFile == null || _rootFile == this)
+                    return _filePath;
+
+                return _rootFile.FilePath;
+            }
+            set => _filePath = value;
+        }
         [Browsable(false)]
         [TString(false, true, false)]
         [Category("Object")]
@@ -48,8 +67,13 @@ namespace TheraEngine.Core.Files
         public string DirectoryPath => !string.IsNullOrEmpty(FilePath) && FilePath.IsValidExistingPath() ? Path.GetDirectoryName(FilePath) : string.Empty;
         [Browsable(false)]
         public List<IFileRef> References { get; set; } = new List<IFileRef>();
+
         [Browsable(false)]
-        public TFileObject RootFile { get; internal set; }
+        public TFileObject RootFile
+        {
+            get => _rootFile ?? this;
+            internal set => _rootFile = value;
+        }
 
         public void Unload()
         {

@@ -100,6 +100,8 @@ namespace TheraEngine.Core.Files
             => Attribute.GetCustomAttribute(classType, typeof(FileExt), true) as FileExt;
         public static File3rdParty GetFile3rdPartyExtensions(Type classType)
             => Attribute.GetCustomAttribute(classType, typeof(File3rdParty), true) as File3rdParty;
+        public static Type DetermineType(string path)
+            => DetermineType(path, out EFileFormat format);
         public static Type DetermineType(string path, out EFileFormat format)
             => SerializationCommon.DetermineType(path, out format);
         public static Type[] DetermineThirdPartyTypes(string ext)

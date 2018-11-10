@@ -438,11 +438,11 @@ namespace TheraEngine.Animation
 
         public override void ManualRead(SerializeElement node)
         {
-            if (!string.Equals(node.MemberInfo.Name, "KeyframeTrack", StringComparison.InvariantCulture))
-            {
-                LengthInSeconds = 0.0f;
-                return;
-            }
+            //if (!string.Equals(node.MemberInfo.Name, "KeyframeTrack", StringComparison.InvariantCulture))
+            //{
+            //    LengthInSeconds = 0.0f;
+            //    return;
+            //}
 
             if (node.GetAttributeValue(nameof(LengthInSeconds), out float length))
                 LengthInSeconds = length;
@@ -508,7 +508,7 @@ namespace TheraEngine.Animation
         }
         public override void ManualWrite(SerializeElement node)
         {
-            node.MemberInfo.Name = "KeyframeTrack";
+            //node.MemberInfo.Name = "KeyframeTrack";
             node.AddAttribute(nameof(LengthInSeconds), LengthInSeconds);
             node.AddAttribute(nameof(Count), Count);
 

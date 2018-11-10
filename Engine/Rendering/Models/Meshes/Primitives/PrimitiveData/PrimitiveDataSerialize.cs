@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 
@@ -10,46 +8,45 @@ namespace TheraEngine.Rendering.Models
 {
     public partial class PrimitiveData : TFileObject, IDisposable
     {
-        //[CustomSerializeMethod(nameof(Triangles))]
-        //private void SerializeTriangles(MemberTreeNode node)
-        //{
-        //    node.SetElementContent(_triangles?.SelectMany(x => x.Points.Select(y => y.VertexIndex))?.ToArray());
-        //}
-        //[CustomSerializeMethod(nameof(Lines))]
-        //private void SerializeLines(MemberTreeNode node)
-        //{
-        //    node.SetElementContent(_lines?.SelectMany(x => new int[] { x.Point0.VertexIndex, x.Point1.VertexIndex })?.ToArray());
-        //}
-        //[CustomSerializeMethod(nameof(Points))]
-        //private void SerializePoints(MemberTreeNode node)
-        //{
-        //    node.SetElementContent(_points?.Select(x => x.VertexIndex)?.ToArray());
-        //}
-        //[CustomDeserializeMethod(nameof(Triangles))]
-        //private void DeserializeTriangles(MemberTreeNode node)
-        //{
-        //    if (node.GetElementContentAs(out int[] value))
-        //        _triangles = value.SelectEvery(3, x => new IndexTriangle(x[0], x[1], x[2])).ToList();
-        //    else
-        //        _triangles = null;
-        //}
-        //[CustomDeserializeMethod(nameof(Lines))]
-        //private void DeserializeLines(MemberTreeNode node)
-        //{
-        //    if (node.GetElementContentAs(out int[] value))
-        //        _lines = value.SelectEvery(3, x => new IndexTriangle(x[0], x[1], x[2])).ToList();
-        //    else
-        //        _lines = null;
-
-        //    string str = reader.ReadElementString();
-        //    _lines = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).SelectEvery(2, x => new IndexLine(int.Parse(x[0]), int.Parse(x[1]))).ToList();
-        //}
-        //[CustomDeserializeMethod(nameof(Points))]
-        //private void DeserializePoints(XMLReader reader)
-        //{
-        //    string str = reader.ReadElementString();
-        //    _points = str.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => new IndexPoint(int.Parse(x))).ToList();
-        //}
+        [CustomSerializeMethod(nameof(Triangles))]
+        private void SerializeTriangles(SerializeElement node)
+        {
+            node.SetElementContent(_triangles?.SelectMany(x => x.Points.Select(y => y.VertexIndex))?.ToArray());
+        }
+        [CustomSerializeMethod(nameof(Lines))]
+        private void SerializeLines(SerializeElement node)
+        {
+            node.SetElementContent(_lines?.SelectMany(x => new int[] { x.Point0.VertexIndex, x.Point1.VertexIndex })?.ToArray());
+        }
+        [CustomSerializeMethod(nameof(Points))]
+        private void SerializePoints(SerializeElement node)
+        {
+            node.SetElementContent(_points?.Select(x => x.VertexIndex)?.ToArray());
+        }
+        [CustomDeserializeMethod(nameof(Triangles))]
+        private void DeserializeTriangles(SerializeElement node)
+        {
+            if (node.GetElementContentAs(out int[] value))
+                _triangles = value.SelectEvery(3, x => new IndexTriangle(x[0], x[1], x[2])).ToList();
+            else
+                _triangles = null;
+        }
+        [CustomDeserializeMethod(nameof(Lines))]
+        private void DeserializeLines(SerializeElement node)
+        {
+            if (node.GetElementContentAs(out int[] value))
+                _lines = value.SelectEvery(2, x => new IndexLine(x[0], x[1])).ToList();
+            else
+                _lines = null;
+        }
+        [CustomDeserializeMethod(nameof(Points))]
+        private void DeserializePoints(SerializeElement node)
+        {
+            if (node.GetElementContentAs(out int[] value))
+                _points = value.Select(x => new IndexPoint(x)).ToList();
+            else
+                _points = null;
+        }
         [CustomSerializeMethod(nameof(FacePoints))]
         public void SerializeFacePoints(SerializeElement node)
         {
@@ -142,21 +139,35 @@ namespace TheraEngine.Rendering.Models
             node.ChildElements.Add(weightsNode);
         }
         [CustomDeserializeMethod(nameof(Influences))]
-        public bool CustomInfluencesDeserialize(SerializeElement node)
+        public void CustomInfluencesDeserialize(SerializeElement node)
         {
             if (!node.GetAttributeValue("Count", out int count))
                 count = 0;
 
             _influences = new InfluenceDef[count];
+            int[] boneCounts;
+            int[] indices;
+            float[] weights;
 
             SerializeElement countsNode = node.GetChildElement("Counts");
             SerializeElement indicesNode = node.GetChildElement("Indices");
             SerializeElement weightsNode = node.GetChildElement("Weights");
 
-            countsNode.GetElementContentAs(out int[] boneCounts);
-            indicesNode.GetElementContentAs(out int[] indices);
-            weightsNode.GetElementContentAs(out float[] weights);
-            
+            if (countsNode != null)
+                countsNode.GetElementContentAs(out boneCounts);
+            else
+                return;
+
+            if (indicesNode != null)
+                indicesNode.GetElementContentAs(out indices);
+            else
+                return;
+
+            if (weightsNode != null)
+                weightsNode.GetElementContentAs(out weights);
+            else
+                return;
+
             int k = 0;
             for (int i = 0; i < _influences.Length; ++i)
             {
@@ -165,8 +176,6 @@ namespace TheraEngine.Rendering.Models
                     inf.AddWeight(new BoneWeight(_utilizedBones[indices[k]], weights[k]));
                 _influences[i] = inf;
             }
-            
-            return true;
         }
     }
 }

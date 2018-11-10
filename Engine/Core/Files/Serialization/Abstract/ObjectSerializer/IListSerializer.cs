@@ -8,42 +8,54 @@ namespace TheraEngine.Core.Files.Serialization
     [ObjectWriterKind(typeof(IList))]
     public class IListSerializer : BaseObjectSerializer
     {
-        public override void TreeToObject()
+        public override void DeserializeTreeToObject()
         {
-            int count = TreeNode.ChildElements.Count;
             Type arrayType = TreeNode.ObjectType;
+            Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
 
-            IList list;
-            if (arrayType.IsArray)
-                list = Activator.CreateInstance(arrayType, count) as IList;
-            else
-                list = Activator.CreateInstance(arrayType) as IList;
-            TreeNode.Object = list;
-
-            if (count > 0)
+            int count = 0;
+            if (!TreeNode.GetElementContent(arrayType, out object array))
             {
-                Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
-                for (int i = 0; i < count; ++i)
-                {
-                    SerializeElement node = TreeNode.ChildElements[i];
-                    node.MemberInfo.MemberType = elementType;
-                    node.TreeToObject();
+                count = TreeNode.ChildElements.Count;
 
-                    if (list.IsFixedSize)
-                        list[i] = node.Object;
-                    else
-                        list.Add(node.Object);
+                IList list;
+                if (arrayType.IsArray)
+                    list = Activator.CreateInstance(arrayType, count) as IList;
+                else
+                    list = Activator.CreateInstance(arrayType) as IList;
+
+                if (count > 0)
+                {
+                    for (int i = 0; i < count; ++i)
+                    {
+                        SerializeElement node = TreeNode.ChildElements[i];
+                        node.MemberInfo.MemberType = elementType;
+                        node.DeserializeTreeToObject();
+
+                        if (list.IsFixedSize)
+                            list[i] = node.Object;
+                        else
+                            list.Add(node.Object);
+                    }
                 }
+                array = list;
             }
+
+            TreeNode.Object = array;
         }
-        public override void TreeFromObject()
+        public override void SerializeTreeFromObject()
         {
-            IList list = TreeNode.Object as IList;
+            if (!(TreeNode.Object is IList list))
+                return;
 
             Type elemType = list.DetermineElementType();
-            
+
             foreach (object o in list)
-                TreeNode.ChildElements.Add(new SerializeElement(o, new TSerializeMemberInfo(elemType, null)));
+            {
+                SerializeElement element = new SerializeElement(o, new TSerializeMemberInfo(elemType, null));
+                TreeNode.ChildElements.Add(element);
+                element.SerializeTreeFromObject();
+            }
         }
         public override void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
         {

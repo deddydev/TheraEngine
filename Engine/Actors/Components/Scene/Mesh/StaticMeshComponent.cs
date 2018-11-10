@@ -159,6 +159,8 @@ namespace TheraEngine.Components.Scene.Mesh
 
         private void OnModelLoaded(StaticModel model)
         {
+            if (model == null)
+                return;
             Meshes = new StaticRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {

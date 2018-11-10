@@ -9,6 +9,7 @@ using TheraEditor.Windows.Forms;
 using System.Drawing;
 using System.Threading;
 using TheraEngine;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEditor.Wrappers
 {
@@ -273,7 +274,7 @@ namespace TheraEditor.Wrappers
 
                         //Node will automatically be added to the file tree
                         op = Editor.Instance.BeginOperation($"Saving...", out progress, out cancel);
-                        await TFileObject.ExportXMLAsync(file, dir, name, ESerializeFlags.Default, progress, cancel.Token);
+                        await TSerializer.ExportXMLAsync(file, dir, name, ESerializeFlags.Default, progress, cancel.Token);
                         Editor.Instance.EndOperation(op);
                     }
                 }

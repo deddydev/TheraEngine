@@ -111,8 +111,9 @@ namespace TheraEditor.Windows.Forms
             public float ProgressValue { get; private set; } = 0.0f;
             public bool IsComplete => ProgressValue >= 0.99f;
             public bool CanCancel => _token != null && _token.Token.CanBeCanceled;
+            public string StatusBarMessage { get; set; }
 
-            public OperationInfo(Progress<float> progress, CancellationTokenSource cancel, Action<int> updated, int index)
+            public OperationInfo(Progress<float> progress, CancellationTokenSource cancel, Action<int> updated, int index, string statusBarMessage)
             {
                 _updated = updated;
                 Progress = progress;
@@ -121,6 +122,7 @@ namespace TheraEditor.Windows.Forms
                 _token = cancel;
                 StartTime = DateTime.Now;
                 Index = index;
+                StatusBarMessage = statusBarMessage;
             }
             
             private void Progress_ProgressChanged(object sender, float progressValue)
@@ -152,7 +154,7 @@ namespace TheraEditor.Windows.Forms
             progress = new Progress<float>();
             CancellationTokenSource cancelSource = maxOperationTime == null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
 
-            _operations.Add(new OperationInfo(progress, cancelSource, OnOperationProgressUpdate, index));
+            _operations.Add(new OperationInfo(progress, cancelSource, OnOperationProgressUpdate, index, statusBarMessage));
             cancel = cancelSource;
             
             btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
@@ -170,10 +172,7 @@ namespace TheraEditor.Windows.Forms
                 OperationInfo info = _operations[i];
                 avgProgress += info.ProgressValue;
                 if (info.IsComplete)
-                {
-                    toolStripStatusLabel1.Text = $"Operation completed successfully in {Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero)} seconds.";
                     EndOperation(i--);
-                }
             }
 
             int opCount = _operations.Count;
@@ -194,13 +193,35 @@ namespace TheraEditor.Windows.Forms
         public void EndOperation(int index)
         {
             if (_operations.IndexInRange(index))
+            {
+                var info = _operations[index];
                 _operations[index] = null;
+                if (_operations.Count == 1)
+                {
+                    _operations.Clear();
+                    btnCancelOp.Visible = false;
+                    toolStripProgressBar1.Visible = false;
+                    TargetOperationValue = 0;
+                    toolStripStatusLabel1.Text = $"Operation completed successfully in {Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero)} seconds.";
+                    return;
+                }
+            }
+
             if (_operations.All(x => x == null))
             {
                 _operations.Clear();
                 btnCancelOp.Visible = false;
                 toolStripProgressBar1.Visible = false;
                 TargetOperationValue = 0;
+                toolStripStatusLabel1.Text = null;
+            }
+            else if (_operations.Count(x => x != null) > 1)
+            {
+                toolStripStatusLabel1.Text = "Waiting for multiple operations to finish...";
+            }
+            else
+            {
+                var op = _operations.FirstOrDefault(x => x != null);
             }
         }
         private void btnCancelOp_ButtonClick(object sender, EventArgs e)

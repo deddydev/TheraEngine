@@ -34,7 +34,7 @@ namespace TheraEngine.Core.Files.Serialization
             protected abstract Task WriteTreeAsync();
             public async Task WriteObjectAsync()
             {
-                RootNode.TreeFromObject();
+                RootNode.SerializeTreeFromObject();
                 await WriteTreeAsync();
             }
         }

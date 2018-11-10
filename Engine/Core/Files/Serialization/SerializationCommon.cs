@@ -143,11 +143,11 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 default:
                 case ENodeType.ChildElement:
-                    return $"<{Name} />";
+                    return $"[Element] {Name}";
                 case ENodeType.Attribute:
-                    return $"<Element {Name}=\"\" />";
+                    return $"[Attribute] {Name}";
                 case ENodeType.ElementContent:
-                    return "Element String: " + Name;
+                    return $"[Content] {Name}";
             }
         }
     }
@@ -190,7 +190,7 @@ namespace TheraEngine.Core.Files.Serialization
         public static bool CanParseAsString(Type t)
             => t != null &&
             (t.GetInterface(nameof(ISerializableString)) != null ||
-            IsPrimitiveType(t) ||
+            IsPrimitiveType(t, true, true, true) ||
             IsEnum(t) ||
             t.IsValueType ||
             (t.GetInterface(nameof(IList)) != null && CanParseAsString(t.DetermineElementType())));
@@ -202,14 +202,14 @@ namespace TheraEngine.Core.Files.Serialization
                 result = ((ISerializableString)value).WriteToString();
                 return true;
             }
-            else if (IsPrimitiveType(t))
-            {
-                result = value.ToString();
-                return true;
-            }
             else if (IsEnum(t))
             {
                 result = value.ToString().Replace(",", "|").ReplaceWhitespace("");
+                return true;
+            }
+            else if (IsPrimitiveType(t, false, true, true))
+            {
+                result = value.ToString();
                 return true;
             }
             else if (t.IsValueType)
@@ -222,13 +222,17 @@ namespace TheraEngine.Core.Files.Serialization
                 Type elementType = t.DetermineElementType();
                 if (CanParseAsString(elementType))
                 {
+                    string separator = " ";
+                    if (!IsPrimitiveType(elementType))
+                        separator = ",";
+
                     IList list = value as IList;
                     string MakeString(object o)
                     {
                         GetString(o, elementType, out string str);
                         return str;
                     }
-                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(" ", " ", MakeString);
+                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(separator, separator, MakeString);
                     return true;
                 }
             }
@@ -244,7 +248,7 @@ namespace TheraEngine.Core.Files.Serialization
                 o.ReadFromString(value);
                 return o;
             }
-            if (string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture))
+            if (IsEnum(t))
             {
                 value = value.ReplaceWhitespace("").Replace("|", ", ");
                 return Enum.Parse(t, value);
@@ -274,13 +278,12 @@ namespace TheraEngine.Core.Files.Serialization
                 Type elementType = t.DetermineElementType();
                 if (CanParseAsString(elementType))
                 {
-                    //int split = value.FindFirst(0, ':');
-                    //string assemblyType = value.Substring(0, split).Trim();
-                    string[] values = value//.Substring(split + 1)
-                        .Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-                    //Type listType = CreateType(assemblyType);
-
+                    char separator = ' ';
+                    if (!IsPrimitiveType(elementType))
+                        separator = ',';
+                    
+                    string[] values = value.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+                    
                     IList list;
                     if (t.IsArray)
                         list = Activator.CreateInstance(t, values.Length) as IList;
@@ -443,11 +446,6 @@ namespace TheraEngine.Core.Files.Serialization
                 Engine.PrintLine($"Problem constructing {t.GetFriendlyName()}.\n{ex.ToString()}");
                 o = FormatterServices.GetUninitializedObject(t);
             }
-            finally
-            {
-                if (o is TObject tobj)
-                    tobj.ConstructedProgrammatically = false;
-            }
             return o;
         }
         //public static ESerializeType GetSerializeType(Type t)
@@ -487,11 +485,16 @@ namespace TheraEngine.Core.Files.Serialization
         //}
         public static bool IsEnum(Type t)
             => t?.BaseType != null && string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture);
-        public static bool IsPrimitiveType(Type t)
+        public static bool IsPrimitiveType(Type t, bool includeEnums = true, bool includeStrings = true, bool includeBooleans = true)
         {
+            if (includeEnums && IsEnum(t))
+                return true;
+            if (includeStrings && t == typeof(string))
+                return true;
+            if (includeBooleans && t == typeof(bool))
+                return true;
             switch (t.Name)
             {
-                case "Boolean":
                 case "SByte":
                 case "Byte":
                 case "Char":
@@ -504,10 +507,10 @@ namespace TheraEngine.Core.Files.Serialization
                 case "Single":
                 case "Double":
                 case "Decimal":
-                case "String":
                     return true;
+                default:
+                    return false;
             }
-            return false;
         }
 
         public static string FixElementName(string name)
@@ -568,6 +571,7 @@ namespace TheraEngine.Core.Files.Serialization
                 null,
                 false);
         }
+        public static Type DetermineType(string filePath) => DetermineType(filePath, out EFileFormat format);
         public unsafe static Type DetermineType(string filePath, out EFileFormat format)
         {
             format = TFileObject.GetFormat(filePath, out string ext);
@@ -612,6 +616,8 @@ namespace TheraEngine.Core.Files.Serialization
             return fileType;
         }
 
+        private static Dictionary<ObjectWriterKind, Type> ObjectSerializers { get; set; } = null;
+
         /// <summary>
         /// Finds the class to use to read and write the given type.
         /// </summary>
@@ -626,10 +632,18 @@ namespace TheraEngine.Core.Files.Serialization
             if (objectType != null)
             {
                 Type baseObjSerType = typeof(BaseObjectSerializer);
-                types = Engine.FindTypes(type =>
-                    baseObjSerType.IsAssignableFrom(type) &&
-                    (type.GetCustomAttributeExt<ObjectWriterKind>()?.ObjectType?.IsAssignableFrom(objectType) ?? false),
-                true, null).ToArray();
+                if (ObjectSerializers == null)
+                {
+                    var typeList = Engine.FindTypes(type =>
+                        baseObjSerType.IsAssignableFrom(type) &&
+                        (type.GetCustomAttributeExt<ObjectWriterKind>() != null), true);
+
+                    ObjectSerializers = new Dictionary<ObjectWriterKind, Type>();
+                    foreach (var type in typeList)
+                        ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectWriterKind>(), type);
+                }
+
+                types = ObjectSerializers.Where(type => (type.Key.ObjectType?.IsAssignableFrom(objectType) ?? false)).Select(x => x.Value).ToArray();
             }
             else
             {

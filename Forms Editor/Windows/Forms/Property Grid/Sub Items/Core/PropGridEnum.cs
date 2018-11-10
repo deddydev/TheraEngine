@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -41,18 +43,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void comboBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void comboBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
         private string _value = string.Empty;
+        private FieldInfo[] _fields;
         protected override void UpdateDisplayInternal(object value)
         {
             bool editable = IsEditable();
             if (value is Enum e)
             {
+                _fields = DataType.GetFields(BindingFlags.Static | BindingFlags.Public);
+                
                 string temp = value.ToString();
                 //if (string.Equals(_value, temp, StringComparison.InvariantCulture))
                 //    return;
                 _value = temp;
                 
-                string[] names = Enum.GetNames(DataType);
-                Array values = Enum.GetValues(DataType);
                 bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
                 tblEnumFlags.Visible = flags;
                 cboEnumNames.Visible = !flags;
@@ -62,9 +65,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     TypeCode t = e.GetTypeCode();
                     DelContainsBit contains = _containsBit[t];
                     object totalValue = Convert.ChangeType(e, t);
-                    for (int i = 0; i < names.Length; ++i)
+                    object constValue;
+                    for (int i = 0; i < _fields.Length; ++i)
                     {
-                        object number = Convert.ChangeType(values.GetValue(i), t);
+                        constValue = _fields[i].GetRawConstantValue();
+                        object number = Convert.ChangeType(constValue, t);
                         ((CheckBox)tblEnumFlags.GetControlFromPosition(0, i)).Checked = contains(totalValue, number);
                     }
                     tblEnumFlags.Enabled = editable;
@@ -72,9 +77,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 else
                 {
                     int selectedIndex = -1;
-                    for (int i = 0; i < names.Length; ++i)
+                    for (int i = 0; i < _fields.Length; ++i)
                     {
-                        string name = names[i];
+                        string name = _fields[i].Name;
                         if (string.Equals(name, _value, StringComparison.InvariantCulture))
                             selectedIndex = i;
                     }
@@ -97,9 +102,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboEnumNames.SelectedItem == null)
+            if (cboEnumNames.SelectedIndex < 0)
                 return;
-            UpdateValue(Enum.Parse(DataType, (string)cboEnumNames.SelectedItem), true);
+            object value = _fields[cboEnumNames.SelectedIndex].GetRawConstantValue();
+            UpdateValue(value, true);
         }
         
         private bool UInt8ContainsBit(object total, object bits) 
@@ -165,9 +171,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 return;
             }
-            
-            string[] names = Enum.GetNames(enumType);
-            Array values = Enum.GetValues(enumType);
+
+            bool splitCamelCase = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase;
+            FieldInfo field;
+            FieldInfo[] fields = enumType.GetFields(BindingFlags.Static | BindingFlags.Public);
             bool flags = enumType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
             if (flags)
             {
@@ -175,14 +182,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 cboEnumNames.Visible = false;
                 tblEnumFlags.RowStyles.Clear();
                 tblEnumFlags.RowCount = 0;
-                for (int i = 0; i < names.Length; ++i)
+                object value;
+                for (int i = 0; i < fields.Length; ++i)
                 {
-                    string name = names[i];
+                    field = fields[i];
+                    string name = GetFieldName(field, splitCamelCase);
 
                     tblEnumFlags.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                     tblEnumFlags.RowCount++;
 
-                    object number = Convert.ChangeType(values.GetValue(i), Type.GetTypeCode(enumType));
+                    value = field.GetRawConstantValue();
+                    object number = Convert.ChangeType(value, Type.GetTypeCode(enumType));
 
                     CheckBox bitSet = new CheckBox()
                     {
@@ -224,9 +234,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 panel1.Visible = false;
                 cboEnumNames.Visible = true;
                 cboEnumNames.Items.Clear();
-                for (int i = 0; i < names.Length; ++i)
-                    cboEnumNames.Items.Add(names[i]);
+                for (int i = 0; i < fields.Length; ++i)
+                    cboEnumNames.Items.Add(GetFieldName(fields[i], splitCamelCase));
             }
+        }
+        private string GetFieldName(FieldInfo field, bool splitCamelCase)
+        {
+            DisplayNameAttribute attrib = field.GetCustomAttribute<DisplayNameAttribute>();
+            string name = attrib?.DisplayName ?? field.Name;
+            if (splitCamelCase)
+                name = name.SplitCamelCase();
+            return name;
         }
     }
 }

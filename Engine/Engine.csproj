@@ -426,6 +426,7 @@
     <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderXML.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterXML.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\SerializeElement.cs" />
+    <Compile Include="Core\Files\Serialization\AssemblyQualifiedName.cs" />
     <Compile Include="Core\LocalizedString.cs" />
     <Compile Include="Core\Maths\Half.cs" />
     <Compile Include="Core\Maths\MachineLearning\NeuronSet.cs" />

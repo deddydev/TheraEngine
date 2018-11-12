@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -561,6 +562,13 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public static Type CreateType(string typeDeclaration)
         {
+            //Fix version number
+            AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
+            Version version = Assembly.Load(asmQualName.GetAssemblyName()).GetName().Version;
+            asmQualName.VersionBuild = version.Build;
+            asmQualName.VersionRev = version.Revision;
+            typeDeclaration = asmQualName.ToString();
+
             return Type.GetType(typeDeclaration,
                 name =>
                 {

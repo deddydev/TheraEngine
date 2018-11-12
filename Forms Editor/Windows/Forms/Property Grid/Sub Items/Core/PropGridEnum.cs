@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
@@ -189,7 +190,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     tblEnumFlags.RowCount++;
 
                     value = field.GetRawConstantValue();
-                    object number = Convert.ChangeType(value, Type.GetTypeCode(enumType));
+                    TypeCode tc = Type.GetTypeCode(enumType);
+                    object number = Convert.ChangeType(value, tc);
 
                     CheckBox bitSet = new CheckBox()
                     {
@@ -201,16 +203,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         Dock = DockStyle.Left,
                     };
                     bitSet.CheckedChanged += BitSet_CheckedChanged;
-                    Label bitValue = new Label()
-                    {
-                        AutoSize = true,
-                        Text = number.ToString(),
-                        Tag = number,
-                        TextAlign = ContentAlignment.MiddleLeft,
-                        Margin = new Padding(0),
-                        Padding = new Padding(0),
-                        Dock = DockStyle.Left,
-                    };
                     Label bitName = new Label()
                     {
                         AutoSize = true,
@@ -220,10 +212,43 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         Padding = new Padding(0),
                         Dock = DockStyle.Fill,
                     };
+                    Label bitValueDec = new Label()
+                    {
+                        AutoSize = true,
+                        Text = number.ToString(),
+                        Tag = number,
+                        TextAlign = ContentAlignment.MiddleLeft,
+                        Margin = new Padding(0),
+                        Padding = new Padding(0),
+                        Dock = DockStyle.Left,
+                    };
+                    //Label bitValueHex = new Label()
+                    //{
+                    //    AutoSize = true,
+                    //    Text = ((IFormattable)number).ToString("X", CultureInfo.InvariantCulture),
+                    //    Tag = number,
+                    //    TextAlign = ContentAlignment.MiddleLeft,
+                    //    Margin = new Padding(0),
+                    //    Padding = new Padding(0),
+                    //    Dock = DockStyle.Left,
+                    //};
+                    //Label bitValueBin = new Label()
+                    //{
+                    //    AutoSize = true,
+                    //    Text = ((IFormattable)number).ToString("G", CultureInfo.InvariantCulture),
+                    //    Tag = number,
+                    //    TextAlign = ContentAlignment.MiddleLeft,
+                    //    Margin = new Padding(0),
+                    //    Padding = new Padding(0),
+                    //    Dock = DockStyle.Left,
+                    //};
 
-                    tblEnumFlags.Controls.Add(bitSet, 0, tblEnumFlags.RowCount - 1);
-                    tblEnumFlags.Controls.Add(bitValue, 2, tblEnumFlags.RowCount - 1);
-                    tblEnumFlags.Controls.Add(bitName, 1, tblEnumFlags.RowCount - 1);
+                    int r = tblEnumFlags.RowCount - 1;
+                    tblEnumFlags.Controls.Add(bitSet, 0, r);
+                    tblEnumFlags.Controls.Add(bitName, 1, r);
+                    tblEnumFlags.Controls.Add(bitValueDec, 2, r);
+                    //tblEnumFlags.Controls.Add(bitValueHex, 3, r);
+                    //tblEnumFlags.Controls.Add(bitValueBin, 4, r);
                 }
             }
             else

@@ -258,6 +258,8 @@ namespace TheraEditor.Windows.Forms
             FormTitle2.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
             TheraEngineText.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
             PaddingPanel.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
+            lblVersion.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
+
             FormTitle2.Text = Text;
 
             menuStrip1.Renderer = new TheraToolstripRenderer();
@@ -266,7 +268,6 @@ namespace TheraEditor.Windows.Forms
             DockPanel.Theme = new TheraEditorTheme();
             AutoScaleMode = AutoScaleMode.None;
             DoubleBuffered = false;
-            //menuStrip1.Padding = new Padding(0, (TitlePanel.Height - menuStrip1.Height) / 2, 0, 0);
 
             KeyPreview = true;
             MappableActions = new Dictionary<Keys, Func<bool>>()
@@ -279,6 +280,18 @@ namespace TheraEditor.Windows.Forms
 
             lblYourIpPort.Text = "Your IP: " + NetworkConnection.GetLocalIPAddressV4();
             CursorManager.WrapCursorWithinClip = false;
+
+            if (lblVersion != null)
+            {
+#if DEBUG
+                lblVersion.Visible = true;
+                Version version = Assembly.GetExecutingAssembly().GetName().Version;
+                DateTime buildDate = new DateTime(2000, 1, 1).AddDays(version.Build).AddSeconds(version.Revision * 2);
+                lblVersion.Text = $"Editor Debug Ver {version} --- Built {buildDate}";
+#else
+                lblVersion.Visible = false;
+#endif
+            }
         }
 
         public UndoManager UndoManager { get; } = new UndoManager();
@@ -441,6 +454,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (FormTitle2 != null)
                 FormTitle2.Text = Text;
+
             base.OnTextChanged(e);
         }
 

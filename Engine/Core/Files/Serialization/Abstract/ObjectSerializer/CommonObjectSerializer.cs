@@ -19,7 +19,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (members.Count == 0)
             {
-                Engine.PrintLine($"Deserializing {TreeNode.ObjectType.GetFriendlyName()} {TreeNode.Name} as {nameof(ENodeType.ElementContent)}.");
+                //Engine.PrintLine($"Deserializing {TreeNode.ObjectType.GetFriendlyName()} {TreeNode.Name} as {nameof(ENodeType.ElementContent)}.");
 
                 bool success = TreeNode.GetElementContent(TreeNode.ObjectType, out object obj);
                 TreeNode.Object = success ? obj : null;

@@ -476,8 +476,8 @@ namespace TheraEngine
             => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
         private static void LoadCustomFonts()
         {
-            if (DesignMode)
-                return;
+            //if (DesignMode)
+            //    return;
             string[] ttf = Directory.GetFiles(Settings.FontsFolder, "*.ttf");
             string[] otf = Directory.GetFiles(Settings.FontsFolder, "*.otf");
             foreach (string path in ttf) LoadCustomFont(path);

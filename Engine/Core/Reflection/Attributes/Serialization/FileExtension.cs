@@ -45,7 +45,7 @@ namespace System.ComponentModel
 #if DEBUG
             = EProprietaryFileFormat.XML;
 #else
-            = SerializeFormat.Binary;
+            = EProprietaryFileFormat.Binary;
 #endif
 
         /// <summary>

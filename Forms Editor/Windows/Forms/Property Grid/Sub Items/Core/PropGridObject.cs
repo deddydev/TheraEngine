@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
-using TheraEngine;
 using static System.Windows.Forms.Control;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -82,7 +79,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private async void LoadProperties(bool notNull)
         {
-            await TheraPropertyGrid.LoadPropertiesToPanel(pnlProps, _categories, notNull ? _object : null, notNull ? (Func<object>)(() => _object) : (() => null), DataChangeHandler, ReadOnly);
+            var propGridSettings = Editor.GetSettings().PropertyGrid;
+            await TheraPropertyGrid.LoadPropertiesToPanel(
+                pnlProps, _categories,
+                notNull ? _object : null,
+                notNull ? (Func<object>)(() => _object) : (() => null), 
+                DataChangeHandler, ReadOnly, 
+                true, propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
         }
         
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)

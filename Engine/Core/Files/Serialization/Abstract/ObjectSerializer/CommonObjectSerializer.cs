@@ -19,6 +19,8 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (members.Count == 0)
             {
+                Engine.PrintLine($"Deserializing {TreeNode.ObjectType.GetFriendlyName()} {TreeNode.Name} as {nameof(ENodeType.ElementContent)}.");
+
                 bool success = TreeNode.GetElementContent(TreeNode.ObjectType, out object obj);
                 TreeNode.Object = success ? obj : null;
                 return;
@@ -65,7 +67,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (node != null)
             {
                 node.MemberInfo = member;
-                bool customInvoked = await TryInvokeManualParentDeserializeAsync(member.Name, parentNode, node);
+                bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, node);
                 if (!customInvoked)
                     node.DeserializeTreeToObject();
             }
@@ -74,7 +76,7 @@ namespace TheraEngine.Core.Files.Serialization
                 var attrib = parentNode.GetAttribute(member.Name);
                 if (attrib != null)
                 {
-                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member.Name, parentNode, attrib);
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, attrib);
                     if (!customInvoked)
                     {
                         if (attrib.GetObject(member.MemberType, out object value))
@@ -89,7 +91,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else if (member.NodeType == ENodeType.ElementContent)
                 {
-                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member.Name, parentNode, parentNode._elementContent);
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, parentNode._elementContent);
                     if (!customInvoked)
                     {
                         if (parentNode.GetElementContent(member.MemberType, out object value))
@@ -108,13 +110,13 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
         }
-        public async Task<bool> TryInvokeManualParentDeserializeAsync<T>(string memberName, SerializeElement parent, T data)
+        public async Task<bool> TryInvokeManualParentDeserializeAsync<T>(TSerializeMemberInfo member, SerializeElement parent, T data)
         {
             if (parent?.CustomDeserializeMethods == null)
                 return false;
 
             var customMethods = parent.CustomDeserializeMethods.Where(
-                x => string.Equals(memberName, x.GetCustomAttribute<CustomDeserializeMethod>().Name));
+                x => string.Equals(member.Name, x.GetCustomAttribute<CustomDeserializeMethod>().Name));
 
             foreach (var customMethod in customMethods)
             {
@@ -124,10 +126,13 @@ namespace TheraEngine.Core.Files.Serialization
                 var parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(typeof(T)))
                 {
+                    Engine.PrintLine($"Deserializing {member.MemberType.GetFriendlyName()} {member.Name} manually as {member.NodeType.ToString()} via parent.");
+
                     if (customMethod.ReturnType == typeof(Task))
                         await (Task)customMethod.Invoke(parent.Object, new object[] { data });
                     else
                         customMethod.Invoke(parent.Object, new object[] { data });
+
                     return true;
                 }
                 else

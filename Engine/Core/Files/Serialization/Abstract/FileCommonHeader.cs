@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using TheraEngine.Core.Memory;
-using static TheraEngine.Core.Files.Serialization.TDeserializer.ReaderBinary;
 
 namespace TheraEngine.Core.Files.Serialization
 {

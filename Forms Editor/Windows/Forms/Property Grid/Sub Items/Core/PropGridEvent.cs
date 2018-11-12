@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Drawing;
-using System.Windows.Forms;
-using System.Collections;
 using System.Reflection;
+using System.Windows.Forms;
 using TheraEngine.Core.Extensions;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -45,7 +44,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Delegate del = Delegate.CreateDelegate(tDelegate, this, method);
             MethodInfo addHandler = Event.GetAddMethod();
             object[] addHandlerArgs = { del };
-            addHandler.Invoke(ParentInfo.Target, addHandlerArgs);
+            addHandler.Invoke(ParentInfo.MemberValue, addHandlerArgs);
         }
         public void RemoveMethod(MethodInfo method)
         {
@@ -53,7 +52,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Delegate del = Delegate.CreateDelegate(tDelegate, this, method);
             MethodInfo removeHandler = Event.GetRemoveMethod();
             object[] removeHandlerArgs = { del };
-            removeHandler.Invoke(ParentInfo.Target, removeHandlerArgs);
+            removeHandler.Invoke(ParentInfo.MemberValue, removeHandlerArgs);
         }
 
         protected override void UpdateDisplayInternal(object value)

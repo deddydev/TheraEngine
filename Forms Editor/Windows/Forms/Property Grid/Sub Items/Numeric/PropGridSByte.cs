@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using TheraEngine.Core.Attributes;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -55,6 +56,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void numericInputBox1_ValueChanged(NumericInputBoxBase<SByte> box, SByte? previous, SByte? current)
         {
             UpdateValue(current.Value, false);
+        }
+        protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        {
+            if (parentInfo is PropGridItemRefPropertyInfo propInfo)
+            {
+                object[] attribs = propInfo.Property.GetCustomAttributes(true);
+                foreach (object attrib in attribs)
+                {
+                    if (attrib is TNumericPrefixSuffixAttribute prefixSuffix)
+                    {
+                        numericInputBox1.NumberPrefix = prefixSuffix.Prefix;
+                        numericInputBox1.NumberSuffix = prefixSuffix.Suffix;
+                        break;
+                    }
+                }
+            }
+            base.SetReferenceHolder(parentInfo);
         }
     }
 }

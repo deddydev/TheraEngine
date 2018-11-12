@@ -6,9 +6,6 @@ namespace TheraEngine.Core.Attributes
     {
         public string Target { get; }
 
-        public TDropDownIndexSelectorAttribute(string target)
-        {
-            Target = target;
-        }
+        public TDropDownIndexSelectorAttribute(string target) => Target = target;
     }
 }

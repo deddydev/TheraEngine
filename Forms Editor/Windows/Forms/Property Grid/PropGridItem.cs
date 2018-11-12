@@ -102,7 +102,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             //try
             //{
-                return ParentInfo?.Target;
+                return ParentInfo?.MemberValue;
             //}
             //catch (Exception ex)
             //{
@@ -124,17 +124,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (submitStateChange)
             {
-                object oldValue = ParentInfo.Target;
+                object oldValue = ParentInfo.MemberValue;
 
-                ParentInfo.Target = newValue;
-                newValue = ParentInfo.Target;
+                ParentInfo.MemberValue = newValue;
+                newValue = ParentInfo.MemberValue;
 
                 SubmitStateChange(oldValue, newValue);
             }
             else
             {
-                ParentInfo.Target = newValue;
-                newValue = ParentInfo.Target;
+                ParentInfo.MemberValue = newValue;
+                newValue = ParentInfo.MemberValue;
             }
             if (_isEditing)
                 _newValue = newValue;

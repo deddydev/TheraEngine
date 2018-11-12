@@ -39,7 +39,6 @@ namespace TheraEngine.Core.Files.Serialization
             }
         }
 
-
         public static async Task ExportXMLAsync(
             object file,
             string directory,

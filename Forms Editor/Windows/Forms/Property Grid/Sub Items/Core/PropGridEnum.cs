@@ -72,6 +72,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         object number = Convert.ChangeType(constValue, t);
                         ((CheckBox)tblEnumFlags.GetControlFromPosition(0, i)).Checked = contains(totalValue, number);
                     }
+                    //panel1.Height = _fields.Length * 21;
                     tblEnumFlags.Enabled = editable;
                 }
                 else
@@ -165,13 +166,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void UpdateControls(Type enumType)
         {
-            bool enabled = enumType != null;
-
-            if (!enabled)
-            {
+            if (enumType == null)
                 return;
-            }
-
+            
             bool splitCamelCase = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase;
             FieldInfo field;
             FieldInfo[] fields = enumType.GetFields(BindingFlags.Static | BindingFlags.Public);

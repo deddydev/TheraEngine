@@ -392,6 +392,7 @@
     <Compile Include="Actors\Components\Scene\UI\Base UI Components\UIRotatableComponent.cs" />
     <Compile Include="Actors\Components\Scene\UI\UIViewportComponent.cs" />
     <Compile Include="Actors\Components\Scene\Volumes\Boost.cs" />
+    <Compile Include="Core\Attributes\TNumericPrefixSuffixAttribute.cs" />
     <Compile Include="Core\Controls\BasicRenderPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -411,6 +412,8 @@
     <Compile Include="Core\Files\Serialization\Abstract\FileCommonHeader.cs" />
     <None Include="Core\Files\Serialization\Abstract\ObjectSerializer\StringSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderBinary.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\SerializeElementContent.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\SerializeAttribute.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\CommonObjectSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IDictionarySerializer.cs" />
@@ -422,7 +425,7 @@
     <Compile Include="Core\Files\Serialization\Abstract\Writing\AbstractWriter.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderXML.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterXML.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\MemberTreeNode.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\SerializeElement.cs" />
     <Compile Include="Core\LocalizedString.cs" />
     <Compile Include="Core\Maths\Half.cs" />
     <Compile Include="Core\Maths\MachineLearning\NeuronSet.cs" />

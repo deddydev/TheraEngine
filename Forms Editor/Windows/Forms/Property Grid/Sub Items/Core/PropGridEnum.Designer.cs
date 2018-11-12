@@ -37,7 +37,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tableLayoutPanel1
+            // tblEnumFlags
             // 
             this.tblEnumFlags.AutoSize = true;
             this.tblEnumFlags.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -46,15 +46,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tblEnumFlags.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tblEnumFlags.Location = new System.Drawing.Point(3, 3);
+            this.tblEnumFlags.Location = new System.Drawing.Point(4, 4);
             this.tblEnumFlags.Margin = new System.Windows.Forms.Padding(0);
-            this.tblEnumFlags.Name = "tableLayoutPanel1";
+            this.tblEnumFlags.Name = "tblEnumFlags";
             this.tblEnumFlags.RowCount = 1;
             this.tblEnumFlags.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tblEnumFlags.Size = new System.Drawing.Size(0, 0);
             this.tblEnumFlags.TabIndex = 0;
             // 
-            // comboBox1
+            // cboEnumNames
             // 
             this.cboEnumNames.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.cboEnumNames.Dock = System.Windows.Forms.DockStyle.Top;
@@ -63,40 +63,44 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.cboEnumNames.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboEnumNames.ForeColor = System.Drawing.SystemColors.InactiveBorder;
             this.cboEnumNames.FormattingEnabled = true;
-            this.cboEnumNames.Location = new System.Drawing.Point(0, 57);
-            this.cboEnumNames.Margin = new System.Windows.Forms.Padding(2);
-            this.cboEnumNames.Name = "comboBox1";
-            this.cboEnumNames.Size = new System.Drawing.Size(0, 23);
+            this.cboEnumNames.Location = new System.Drawing.Point(0, 10);
+            this.cboEnumNames.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.cboEnumNames.Name = "cboEnumNames";
+            this.cboEnumNames.Size = new System.Drawing.Size(0, 28);
             this.cboEnumNames.TabIndex = 0;
             this.cboEnumNames.Visible = false;
             // 
             // panel1
             // 
             this.panel1.AutoScroll = true;
+            this.panel1.AutoSize = true;
+            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(46)))), ((int)(((byte)(55)))));
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.tblEnumFlags);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2);
+            this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(3);
-            this.panel1.Size = new System.Drawing.Size(0, 57);
+            this.panel1.Padding = new System.Windows.Forms.Padding(4);
+            this.panel1.Size = new System.Drawing.Size(0, 10);
             this.panel1.TabIndex = 0;
             this.panel1.Visible = false;
             // 
             // PropGridEnum
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = Color.Transparent;
+            this.BackColor = System.Drawing.Color.Transparent;
             this.Controls.Add(this.cboEnumNames);
             this.Controls.Add(this.panel1);
             this.Name = "PropGridEnum";
-            this.Size = new System.Drawing.Size(0, 80);
+            this.Size = new System.Drawing.Size(0, 38);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

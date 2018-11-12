@@ -302,6 +302,12 @@
       <DependentUpon>DockablePropAnimFloatGraph.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Prop Anim Editor\PropAnimFloatHud.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefEventInfo.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefIListInfo.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefIDictionaryInfo.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefMethodInfo.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefNullableInfo.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefPropertyInfo.cs" />
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -567,7 +573,7 @@
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDictionary.Designer.cs">
       <DependentUpon>PropGridDictionary.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridItemParentInfo.cs" />
+    <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefInfo.cs" />
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridMethod.cs">
       <SubType>UserControl</SubType>
     </Compile>

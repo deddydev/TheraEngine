@@ -68,6 +68,10 @@ namespace TheraEditor
             }
             [TSerialize]
             public bool ShowTypeNames { get; set; } = false;
+            [TSerialize]
+            public bool DisplayMethods { get; set; } = false;
+            [TSerialize]
+            public bool DisplayEvents { get; set; } = false;
 
             public PropertyGridSettings()
             {

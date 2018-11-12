@@ -56,5 +56,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             UpdateValue(current.Value, false);
         }
+
     }
 }

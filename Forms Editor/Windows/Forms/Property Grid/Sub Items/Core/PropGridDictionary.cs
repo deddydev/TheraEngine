@@ -11,6 +11,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridDictionary : PropGridItem, ICollapsible
     {
         public PropGridDictionary() => InitializeComponent();
+
         private IDictionary _dictionary = null;
         private Type _valueType, _keyType;
         protected override void UpdateDisplayInternal(object value)

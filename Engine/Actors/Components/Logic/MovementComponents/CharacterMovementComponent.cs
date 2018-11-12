@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Components.Scene.Shapes;
+using TheraEngine.Core.Attributes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
@@ -21,7 +22,15 @@ namespace TheraEngine.Components.Logic.Movement
         private TCollisionObject _currentWalkingSurface;
         private Vec3 _groundNormal;
         private Action<float, Vec3> _subUpdateTick;
-        private Vec3 _position, _prevPosition, _velocity, _prevVelocity, _acceleration;
+        private Vec3 
+            _position, _prevPosition,
+            _velocity, _prevVelocity,
+            _acceleration;
+
+        public Vec3 CurrentPosition => _position;
+        public Vec3 CurrentVelocity => _velocity;
+        public Vec3 CurrentAcceleration => _acceleration;
+
         private bool _postWalkAllowJump = false, _justJumped = false;
         private ShapeTraceClosest _closestTrace = new ShapeTraceClosest(
             null, Matrix4.Identity, Matrix4.Identity,
@@ -30,12 +39,17 @@ namespace TheraEngine.Components.Logic.Movement
         #endregion
 
         #region Properties
+        [TNumericPrefixSuffixAttribute("", "m")]
         public float VerticalStepUpHeight { get; set; } = 1.0f;
-        public bool IsCrouched { get; set; } = false;
+        [TNumericPrefixSuffixAttribute("", "°")]
         public float MaxWalkAngle { get; set; } = 50.0f;
+        [TNumericPrefixSuffixAttribute("", "m/s")]
         public float WalkingMovementSpeed { get; set; } = 0.17f;
+        [TNumericPrefixSuffixAttribute("", "m/s")]
         public float JumpSpeed { get; set; } = 8.0f;
+        [TNumericPrefixSuffixAttribute("", "m/s")]
         public float FallingMovementSpeed { get; set; } = 10.0f;
+        public bool IsCrouched { get; set; } = false;
         public Quat UpToGroundNormalRotation { get; set; } = Quat.Identity;
         public float AllowJumpTimeDelta { get; set; }
         public float AllowJumpExtraTime { get; set; } = 1.0f;
@@ -146,6 +160,9 @@ namespace TheraEngine.Components.Logic.Movement
         }
         protected virtual void TickWalking(float delta, Vec3 movementInput)
         {
+            if (OwningActor == null)
+                return;
+
             Matrix4 inputTransform;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             TCollisionShape shape = root.CullingVolume.GetCollisionShape();
@@ -275,13 +292,12 @@ namespace TheraEngine.Components.Logic.Movement
             _position = root.Translation;
             _velocity = (_position - _prevPosition) / delta;
             _acceleration = (_velocity - _prevVelocity) / delta;
-
-            //Engine.DebugPrint(_velocity.Xz.LengthFast);
-
-            //body.LinearVelocity = _velocity;
         }
         protected virtual void TickFalling(float delta, Vec3 movementInput)
         {
+            if (OwningActor == null)
+                return;
+
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             Vec3 v = root.RigidBodyCollision.LinearVelocity;
             //Engine.DebugPrint(v.Xz.LengthFast);
@@ -290,6 +306,9 @@ namespace TheraEngine.Components.Logic.Movement
         }
         public void Jump()
         {
+            if (OwningActor == null)
+                return;
+
             //Nothing to jump OFF of?
             if (_currentMovementMode != MovementMode.Walking && !_postWalkAllowJump)
                 return;

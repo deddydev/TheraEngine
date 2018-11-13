@@ -565,8 +565,9 @@ namespace TheraEngine.Core.Files.Serialization
             //Fix version number
             AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
             Version version = Assembly.Load(asmQualName.GetAssemblyName()).GetName().Version;
+            asmQualName.VersionMinor = version.Minor;
             asmQualName.VersionBuild = version.Build;
-            asmQualName.VersionRev = version.Revision;
+            asmQualName.VersionRevision = version.Revision;
             typeDeclaration = asmQualName.ToString();
 
             return Type.GetType(typeDeclaration,
@@ -598,10 +599,7 @@ namespace TheraEngine.Core.Files.Serialization
                         {
                             XMLReader reader = new XMLReader(map.Address, map.Length, true);
                             if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
-                            {
-                                string value = reader.Value.ToString();
-                                fileType = CreateType(value);
-                            }
+                                fileType = CreateType(reader.Value);
                         }
                         break;
                     case EFileFormat.Binary:

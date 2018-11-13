@@ -15,15 +15,15 @@ namespace TheraEngine.Core.Reflection
             {
                 _classPath = value;
                 string[] classPathParts = ClassPath.Split(new char[] { '.', '+', '\\' }, StringSplitOptions.RemoveEmptyEntries);
-                ClassName = classPathParts[classPathParts.Length - 1];
+                ClassName = classPathParts.Length == 0 ? null : classPathParts[classPathParts.Length - 1];
             }
         }
         public string ClassName { get; private set; }
         public string AssemblyName { get; set; }
-        public int VersionMax { get; set; }
-        public int VersionMin { get; set; }
+        public int VersionMajor { get; set; }
+        public int VersionMinor { get; set; }
         public int VersionBuild { get; set; }
-        public int VersionRev { get; set; }
+        public int VersionRevision { get; set; }
         public CultureInfo CultureInfo { get; set; }
         public byte[] PublicKeyToken { get; set; }
 
@@ -31,7 +31,7 @@ namespace TheraEngine.Core.Reflection
         {
             AssemblyName name = new AssemblyName(AssemblyName)
             {
-                Version = new Version(VersionMax, VersionMin, VersionBuild, VersionRev),
+                Version = new Version(VersionMajor, VersionMinor, VersionBuild, VersionRevision),
                 CultureInfo = CultureInfo
             };
             name.SetPublicKeyToken(PublicKeyToken);
@@ -42,7 +42,14 @@ namespace TheraEngine.Core.Reflection
         {
             string[] parts = value.Split(',');
 
-            ClassPath = parts[0].Trim();
+            ClassPath = "";
+            for (int i = 0; i < parts.Length - 4; ++i)
+            {
+                if (i != 0)
+                    ClassPath += ",";
+                ClassPath += parts[i];
+            }
+
             AssemblyName = parts[parts.Length - 4].Trim();
 
             string version = parts[parts.Length - 3].Substring(parts[parts.Length - 3].IndexOf('=') + 1);
@@ -50,10 +57,10 @@ namespace TheraEngine.Core.Reflection
             string publicKeyToken = parts[parts.Length - 1].Substring(parts[parts.Length - 1].IndexOf('=') + 1);
 
             string[] nums = version.Split('.');
-            VersionMax = int.Parse(nums[0]);
-            VersionMin = int.Parse(nums[1]);
+            VersionMajor = int.Parse(nums[0]);
+            VersionMinor = int.Parse(nums[1]);
             VersionBuild = int.Parse(nums[2]);
-            VersionRev = int.Parse(nums[3]);
+            VersionRevision = int.Parse(nums[3]);
 
             CultureInfo = culture == "neutral" ? null : new CultureInfo(culture);
             PublicKeyToken = publicKeyToken == "null" ? null : publicKeyToken.SelectEvery(2, x => byte.Parse(x[0].ToString() + x[1].ToString())).ToArray();
@@ -61,7 +68,7 @@ namespace TheraEngine.Core.Reflection
 
         public override string ToString()
         {
-            return $"{ClassPath}, {AssemblyName}, Version={VersionMax}.{VersionMin}.{VersionBuild}.{VersionRev}, Culture={CultureInfo?.ToString() ?? "neutral"}, PublicKeyToken={PublicKeyToken?.ToString() ?? "null"}";
+            return $"{ClassPath}, {AssemblyName}, Version={VersionMajor}.{VersionMinor}.{VersionBuild}.{VersionRevision}, Culture={CultureInfo?.ToString() ?? "neutral"}, PublicKeyToken={PublicKeyToken?.ToString() ?? "null"}";
         }
     }
 }

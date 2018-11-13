@@ -105,7 +105,7 @@ namespace TheraEngine.Core.Files
         public static Type DetermineType(string path, out EFileFormat format)
             => SerializationCommon.DetermineType(path, out format);
         public static Type[] DetermineThirdPartyTypes(string ext)
-            => Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false), true, Assembly.GetEntryAssembly()).ToArray();
+            => Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false), true).ToArray();
         public static EFileFormat GetFormat(string path, out string ext)
         {
             int index = path.LastIndexOf('.') + 1;

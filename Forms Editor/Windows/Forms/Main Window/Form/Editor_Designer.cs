@@ -287,7 +287,7 @@ namespace TheraEditor.Windows.Forms
                 lblVersion.Visible = true;
                 Version version = Assembly.GetExecutingAssembly().GetName().Version;
                 DateTime buildDate = new DateTime(2000, 1, 1).AddDays(version.Build).AddSeconds(version.Revision * 2);
-                lblVersion.Text = $"Editor Debug Ver {version} --- Built {buildDate}";
+                lblVersion.Text = $"Editor Debug Ver {version} --- Built {buildDate.ToUniversalTime()}";
 #else
                 lblVersion.Visible = false;
 #endif

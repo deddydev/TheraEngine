@@ -5,13 +5,14 @@ using TheraEngine;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Core.Maths;
 
 namespace System
 {
     /// <summary>
     /// Post-multiplying with column-major matrices produces the same result 
     /// as pre-multiplying with row-major matrices.
-    /// In the case of this row major matrix class, post multiply (it's reversed).
+    /// In the case of this row-major matrix class, post multiply (it's reversed for intuitivity).
     /// However in GLSL shaders, you need to pre-multiply as per usual.
     /// </summary>
     [Serializable]
@@ -317,17 +318,41 @@ namespace System
         {
             get
             {
-                if (rowIndex > 3 || columnIndex > 3)
-                    throw new IndexOutOfRangeException("Cannot access matrix at (" + rowIndex + ", " + columnIndex + ")");
+                if (rowIndex > 3 || rowIndex < 0 || columnIndex > 3 || columnIndex < 0)
+                    throw new IndexOutOfRangeException($"Cannot read {nameof(Matrix4)} at ({rowIndex}, {columnIndex})");
                 return Data[(columnIndex << 2) + rowIndex];
             }
             set
             {
-                if (rowIndex > 3 || columnIndex > 3)
-                    throw new IndexOutOfRangeException("Cannot access matrix at (" + rowIndex + ", " + columnIndex + ")");
+                if (rowIndex > 3 || rowIndex < 0 || columnIndex > 3 || columnIndex < 0)
+                    throw new IndexOutOfRangeException($"Cannot write {nameof(Matrix4)} at ({rowIndex}, {columnIndex})");
                 Data[(columnIndex << 2) + rowIndex] = value;
             }
         }
+        public float this[int index]
+        {
+            get
+            {
+                if (index > 15 || index < 0)
+                {
+                    int row = index & 3;
+                    int col = index >> 2;
+                    throw new IndexOutOfRangeException($"Cannot read {nameof(Matrix4)} at ({row}, {col})");
+                }
+                return Data[index];
+            }
+            set
+            {
+                if (index > 15 || index < 0)
+                {
+                    int row = index & 3;
+                    int col = index >> 2;
+                    throw new IndexOutOfRangeException($"Cannot write {nameof(Matrix4)} at ({row}, {col})");
+                }
+                Data[index] = value;
+            }
+        }
+
         public void Transpose() { this = Transposed(); }
         public Matrix4 Transposed()
         {
@@ -1008,16 +1033,20 @@ namespace System
         {
             X,Y,Z
         }
+        public static Matrix4 MatrixLerp(Matrix4 from, Matrix4 to, float time)
+        {
+            Matrix4 ret = new Matrix4();
+            for (int i = 0; i < 16; i++)
+                ret[i] = Interp.Lerp(from[i], to[i], time);
+            return ret;
+        }
         public Vec3 GetScaledAxis(Axis axis)
         {
 	        switch (axis)
 	        {
-	            case Axis.X:
-		            return new Vec3(M11, M12, M13);
-	            case Axis.Y:
-                    return new Vec3(M21, M22, M23);
-	            case Axis.Z:
-		            return new Vec3(M31, M32, M33);
+	            case Axis.X: return new Vec3(M11, M12, M13);
+	            case Axis.Y: return new Vec3(M21, M22, M23);
+	            case Axis.Z: return new Vec3(M31, M32, M33);
 	            default:
 		            return Vec3.Zero;
 	        }

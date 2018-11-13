@@ -484,14 +484,15 @@ namespace TheraEngine.Animation
                 }
             }
 
+            object defaultObj = valueType.GetDefaultValue();
             for (int i = 0; i < keyCount; ++i)
             {
-                float sec                   = seconds       == null || !seconds.IndexInArrayRange(i)                ? 0.0f                      : seconds[i];
-                EPlanarInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)            ? EPlanarInterpType.Step    : interpTypes[i];
-                object inVal                = inValues      == null || !((Array)inValues).IndexInArrayRange(i)       ? null                     : ((Array)inValues).GetValue(i);
-                object outVal               = outValues     == null || !((Array)outValues).IndexInArrayRange(i)      ? null                     : ((Array)outValues).GetValue(i);
-                object inTan                = inTans        == null || !((Array)inTans).IndexInArrayRange(i)         ? null                     : ((Array)inTans).GetValue(i);
-                object outTan               = outTans       == null || !((Array)outTans).IndexInArrayRange(i)        ? null                     : ((Array)outTans).GetValue(i); ;
+                float sec                   = seconds       == null || !seconds.IndexInArrayRange(i)            ? 0.0f                   : seconds[i];
+                EPlanarInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)        ? EPlanarInterpType.Step : interpTypes[i];
+                object inVal                = inValues      == null || !((Array)inValues).IndexInArrayRange(i)  ? defaultObj             : ((Array)inValues).GetValue(i);
+                object outVal               = outValues     == null || !((Array)outValues).IndexInArrayRange(i) ? defaultObj             : ((Array)outValues).GetValue(i);
+                object inTan                = inTans        == null || !((Array)inTans).IndexInArrayRange(i)    ? defaultObj             : ((Array)inTans).GetValue(i);
+                object outTan               = outTans       == null || !((Array)outTans).IndexInArrayRange(i)   ? defaultObj             : ((Array)outTans).GetValue(i);
 
                 kf = new T();
 
@@ -519,11 +520,11 @@ namespace TheraEngine.Animation
             if (!typeof(IPlanarKeyframe).IsAssignableFrom(t))
                 return;
 
-            float[] seconds = new float[Count];
-            object[] inValues = new object[Count];
-            object[] outValues = new object[Count];
-            object[] inTans = new object[Count];
-            object[] outTans = new object[Count];
+            float[] seconds     = new float[Count];
+            object[] inValues   = new object[Count];
+            object[] outValues  = new object[Count];
+            object[] inTans     = new object[Count];
+            object[] outTans    = new object[Count];
             EPlanarInterpType[] interpTypes = new EPlanarInterpType[Count];
 
             int i = 0;

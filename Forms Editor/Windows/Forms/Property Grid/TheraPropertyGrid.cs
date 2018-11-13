@@ -15,6 +15,8 @@ using TheraEngine.Components;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Files;
 using System.Threading;
+using TheraEditor.Core.Extensions;
+using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -25,6 +27,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             InitializeComponent();
             ctxSceneComps.RenderMode = ToolStripRenderMode.Professional;
             ctxSceneComps.Renderer = new TheraForm.TheraToolstripRenderer();
+            _lblObjectName_StartColor = lblObjectName.BackColor;
+            _lblObjectName_EndColor = Color.FromArgb(_lblObjectName_StartColor.R + 10, _lblObjectName_StartColor.G + 10, _lblObjectName_StartColor.B + 10);
         }
 
         private class PropertyData
@@ -650,15 +654,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             btnRemoveLogicComp.Visible = lstLogicComps.SelectedIndex >= 0 && lstLogicComps.SelectedIndex < lstLogicComps.Items.Count;
         }
 
+        private Color _lblObjectName_StartColor;
+        private Color _lblObjectName_EndColor;
+        private EventHandler<FrameEventArgs> lblObjectName_FadeMethod;
         private void lblObjectName_MouseEnter(object sender, EventArgs e)
-        {
-            lblObjectName.BackColor = Color.FromArgb(14, 18, 34);
-        }
-
+            => lblObjectName.FadeBackColor(_lblObjectName_EndColor, 0.5f, ref lblObjectName_FadeMethod);
         private void lblObjectName_MouseLeave(object sender, EventArgs e)
-        {
-            lblObjectName.BackColor = Color.FromArgb(55, 55, 60);
-        }
+            => lblObjectName.FadeBackColor(_lblObjectName_StartColor, 0.5f, ref lblObjectName_FadeMethod);
         
         private TreeNode _selectedSceneComp = null;
         private void treeViewSceneComps_MouseDown(object sender, MouseEventArgs e)

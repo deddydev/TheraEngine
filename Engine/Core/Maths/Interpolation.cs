@@ -2,6 +2,7 @@
 using static System.Math;
 using TheraEngine.Core.Maths.Transforms;
 using System;
+using System.Drawing;
 
 namespace TheraEngine.Core.Maths
 {
@@ -484,6 +485,31 @@ namespace TheraEngine.Core.Maths
         #endregion
 
         #endregion
+
+        private delegate byte ComponentSelector(Color color);
+        private static readonly ComponentSelector _redSelector = color => color.R;
+        private static readonly ComponentSelector _greenSelector = color => color.G;
+        private static readonly ComponentSelector _blueSelector = color => color.B;
+
+        public static Color Lerp(
+            Color startColor,
+            Color endColor,
+            float time)
+        {
+            time = time.Clamp(0.0f, 1.0f);
+            Color color = Color.FromArgb(
+                InterpColorComponent(startColor, endColor, time, _redSelector),
+                InterpColorComponent(startColor, endColor, time, _greenSelector),
+                InterpColorComponent(startColor, endColor, time, _blueSelector)
+            );
+            return color;
+        }
+        private static byte InterpColorComponent(
+            Color endPoint1,
+            Color endPoint2,
+            float time,
+            ComponentSelector selector)
+            => (byte)(selector(endPoint1) + (selector(endPoint2) - selector(endPoint1)) * time);
 
         public static float Lerp(float startValue, float endValue, float time)
         {

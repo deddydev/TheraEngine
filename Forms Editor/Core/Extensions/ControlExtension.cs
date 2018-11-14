@@ -10,6 +10,40 @@ namespace TheraEditor.Core.Extensions
 {
     public static class ControlExtension
     {
+        public static void LerpLocation(this Control control, Point point, float seconds, ref EventHandler<FrameEventArgs> fadeMethod, Func<float, float> timeModifier = null)
+        {
+            Point startPoint = control.Location;
+            float totalTime = 0.0f;
+            if (fadeMethod != null)
+            {
+                Engine.UnregisterTick(null, fadeMethod, null);
+                fadeMethod = null;
+            }
+            if (timeModifier != null)
+            {
+                void method(object sender, FrameEventArgs args)
+                {
+                    totalTime += args.Time;
+                    control.Location = Interp.Lerp(startPoint, point, timeModifier(totalTime / seconds));
+                    if (totalTime >= seconds)
+                        Engine.UnregisterTick(null, method, null);
+                }
+                fadeMethod = method;
+                Engine.RegisterTick(null, method, null);
+            }
+            else
+            {
+                void method(object sender, FrameEventArgs args)
+                {
+                    totalTime += args.Time;
+                    control.Location = Interp.Lerp(startPoint, point, totalTime / seconds);
+                    if (totalTime >= seconds)
+                        Engine.UnregisterTick(null, method, null);
+                }
+                fadeMethod = method;
+                Engine.RegisterTick(null, method, null);
+            }
+        }
         public static void FadeBackColor(this Control control, Color color, float seconds, ref EventHandler<FrameEventArgs> fadeMethod, Func<float, float> timeModifier = null)
         {
             Color startColor = control.BackColor;

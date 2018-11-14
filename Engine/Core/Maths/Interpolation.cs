@@ -486,10 +486,10 @@ namespace TheraEngine.Core.Maths
 
         #endregion
 
-        private delegate byte ComponentSelector(Color color);
-        private static readonly ComponentSelector _redSelector = color => color.R;
-        private static readonly ComponentSelector _greenSelector = color => color.G;
-        private static readonly ComponentSelector _blueSelector = color => color.B;
+        private delegate byte DelComponentSelector(Color color);
+        private static readonly DelComponentSelector _redSelector = color => color.R;
+        private static readonly DelComponentSelector _greenSelector = color => color.G;
+        private static readonly DelComponentSelector _blueSelector = color => color.B;
 
         public static Color Lerp(
             Color startColor,
@@ -498,18 +498,38 @@ namespace TheraEngine.Core.Maths
         {
             time = time.Clamp(0.0f, 1.0f);
             Color color = Color.FromArgb(
-                InterpColorComponent(startColor, endColor, time, _redSelector),
-                InterpColorComponent(startColor, endColor, time, _greenSelector),
-                InterpColorComponent(startColor, endColor, time, _blueSelector)
-            );
+                (byte)(startColor.R + (endColor.R - startColor.R) * time),
+                (byte)(startColor.G + (endColor.G - startColor.G) * time),
+                (byte)(startColor.B + (endColor.B - startColor.B) * time));
             return color;
         }
         private static byte InterpColorComponent(
-            Color endPoint1,
-            Color endPoint2,
+            Color start,
+            Color end,
             float time,
-            ComponentSelector selector)
-            => (byte)(selector(endPoint1) + (selector(endPoint2) - selector(endPoint1)) * time);
+            DelComponentSelector selector)
+            => (byte)(selector(start) + (selector(end) - selector(start)) * time);
+
+        public static Point Lerp(
+            Point start,
+            Point end,
+            float time)
+        {
+            time = time.Clamp(0.0f, 1.0f);
+            return new Point(
+                (int)(start.X + (end.X - start.X) * time),
+                (int)(start.Y + (end.Y - start.Y) * time));
+        }
+        public static PointF Lerp(
+            PointF start,
+            PointF end,
+            float time)
+        {
+            time = time.Clamp(0.0f, 1.0f);
+            return new PointF(
+                start.X + (end.X - start.X) * time,
+                start.Y + (end.Y - start.Y) * time);
+        }
 
         public static float Lerp(float startValue, float endValue, float time)
         {

@@ -161,6 +161,14 @@ namespace TheraEditor.Windows.Forms
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
             }
+            //Fill the rest in case of non-matching keyframe counts
+            while (i < kfCount)
+            {
+                keyframePositions[i] = p0 = Vec3.Zero;
+                tangentPositions[i] = p1 = Vec3.Zero;
+                keyframeLines[i] = new VertexLine(p0, p1);
+                ++i;
+            }
 
             VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 

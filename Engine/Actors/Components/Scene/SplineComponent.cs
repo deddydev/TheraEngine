@@ -175,6 +175,14 @@ namespace TheraEngine.Components.Scene
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
             }
+            //Fill the rest in case of non-matching keyframe counts
+            while (i < kfCount)
+            {
+                keyframePositions[i] = p0 = Vec3.Zero;
+                tangentPositions[i] = p1 = Vec3.Zero;
+                keyframeLines[i] = new VertexLine(p0, p1);
+                ++i;
+            }
 
             VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 
@@ -183,7 +191,7 @@ namespace TheraEngine.Components.Scene
                 out (float Time, float Value)[] max);
 
             Vec3[] extrema = new Vec3[6];
-            for (int x = 0; x < 3; ++x)
+            for (int x = 0, index = 0; x < 3; ++x)
             {
                 var (TimeMin, ValueMin) = min[x];
                 Vec3 minPos = _position.GetValue(TimeMin);
@@ -192,9 +200,9 @@ namespace TheraEngine.Components.Scene
                 var (TimeMax, ValueMax) = max[x];
                 Vec3 maxPos = _position.GetValue(TimeMax);
                 maxPos[x] = ValueMax;
-
-                extrema[x << 1] = minPos;
-                extrema[(x << 1) + 1] = maxPos;
+                
+                extrema[index++] = minPos;
+                extrema[index++] = maxPos;
             }
 
             TMath.ComponentMinMax(out Vec3 minVal, out Vec3 maxVal, extrema);

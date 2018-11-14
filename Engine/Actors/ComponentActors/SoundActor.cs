@@ -2,8 +2,5 @@
 
 namespace TheraEngine.Actors.Types.ComponentActors
 {
-    public class SoundActor : Actor<SoundComponent>
-    {
-
-    }
+    public class SoundActor : Actor<SoundComponent> { }
 }

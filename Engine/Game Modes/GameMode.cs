@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using TheraEngine.Input.Devices;
 using System.Linq;
+using System.ComponentModel;
 
 namespace TheraEngine.GameModes
 {
@@ -66,21 +67,43 @@ namespace TheraEngine.GameModes
             return value._value;
         }
     }
-    public struct SubClassOf<T> where T : class
+    public static class ClassCreator<T> where T : class
     {
-        public SubClassOf(Type t) { }
-
-        public T CreateNew(params object[] args)
+        public static T New(params object[] args)
         {
-            return (T)Activator.CreateInstance(typeof(T), args);
+            try
+            {
+                return (T)Activator.CreateInstance(typeof(T), args);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+            return default;
         }
-        public T2 CreateNew<T2>() where T2 : T, new()
+        public static T2 New<T2>() where T2 : T, new()
         {
-            return new T2();
+            try
+            {
+                return new T2();
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+            return default;
         }
-        public T2 CreateNew<T2>(params object[] args) where T2 : T
+        public static T2 New<T2>(params object[] args) where T2 : T
         {
-            return (T2)Activator.CreateInstance(typeof(T2), args);
+            try
+            {
+                return (T2)Activator.CreateInstance(typeof(T2), args);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+            return default;
         }
     }
     public interface IGameMode
@@ -160,20 +183,6 @@ namespace TheraEngine.GameModes
         where PawnType : class, IPawn, new()
         where ControllerType : LocalPlayerController
     {
-        protected SubClassOf<PawnType> _pawnClass;
-        protected SubClassOf<ControllerType> _controllerClass;
-        
-        public SubClassOf<PawnType> PawnClass
-        {
-            get => _pawnClass;
-            set => _pawnClass = value;
-        }
-        public SubClassOf<ControllerType> ControllerClass
-        {
-            get => _controllerClass;
-            set => _controllerClass = value;
-        }
-
         public int _numSpectators, _numPlayers, _numComputers;
         
         protected internal virtual void HandleLocalPlayerLeft(ControllerType item)
@@ -185,7 +194,7 @@ namespace TheraEngine.GameModes
         }
         protected internal virtual void HandleLocalPlayerJoined(ControllerType item)
         {
-            PawnType pawn = _pawnClass.CreateNew();
+            PawnType pawn = new PawnType();
 
             BaseRenderPanel.WorldPanel?.GetOrAddViewport(item.LocalPlayerIndex)?.RegisterController(item);
             
@@ -194,11 +203,11 @@ namespace TheraEngine.GameModes
         }
         protected internal override void CreateLocalController(LocalPlayerIndex index, Queue<IPawn> queue)
         {
-            InitController(ControllerClass.CreateNew(index, queue));
+            InitController(ClassCreator<ControllerType>.New(index, queue));
         }
         protected internal override void CreateLocalController(LocalPlayerIndex index)
         {
-            InitController(ControllerClass.CreateNew(index));
+            InitController(ClassCreator<ControllerType>.New(index));
         }
         private void InitController(ControllerType t)
         {

@@ -144,10 +144,7 @@ namespace TheraEditor.Windows.Forms
 
         public int BeginOperation(string statusBarMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null)
         {
-            if (_operations.Count == 0)
-            {
-                toolStripProgressBar1.Value = 0;
-            }
+            bool noOps = _operations.Count == 0;
 
             int index = _operations.Count;
 
@@ -156,14 +153,36 @@ namespace TheraEditor.Windows.Forms
 
             _operations.Add(new OperationInfo(progress, cancelSource, OnOperationProgressUpdate, index, statusBarMessage));
             cancel = cancelSource;
-            
-            btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
-            toolStripProgressBar1.Visible = true;
-            toolStripStatusLabel1.Text = statusBarMessage;
+
+            if (InvokeRequired)
+            {
+                Invoke((Action)(() =>
+                {
+                    if (noOps)
+                        toolStripProgressBar1.Value = 0;
+                    btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
+                    toolStripProgressBar1.Visible = true;
+                    toolStripStatusLabel1.Text = statusBarMessage;
+                }));
+            }
+            else
+            {
+                if (noOps)
+                    toolStripProgressBar1.Value = 0;
+                btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
+                toolStripProgressBar1.Visible = true;
+                toolStripStatusLabel1.Text = statusBarMessage;
+            }
             return index;
         }
         private void OnOperationProgressUpdate(int operationIndex)
         {
+            if (InvokeRequired)
+            {
+                Invoke((Action<int>)OnOperationProgressUpdate, operationIndex);
+                return;
+            }
+
             int maxValue = toolStripProgressBar1.Maximum;
 
             float avgProgress = 0.0f;
@@ -192,6 +211,12 @@ namespace TheraEditor.Windows.Forms
         }
         public void EndOperation(int index)
         {
+            if (InvokeRequired)
+            {
+                Invoke((Action<int>)EndOperation, index);
+                return;
+            }
+
             if (_operations.IndexInRange(index))
             {
                 var info = _operations[index];
@@ -287,7 +312,7 @@ namespace TheraEditor.Windows.Forms
                 lblVersion.Visible = true;
                 Version version = Assembly.GetExecutingAssembly().GetName().Version;
                 DateTime buildDate = new DateTime(2000, 1, 1).AddDays(version.Build).AddSeconds(version.Revision * 2);
-                lblVersion.Text = $"Editor Debug Ver {version} --- Built {buildDate.ToUniversalTime()}";
+                lblVersion.Text = $"Editor Debug Ver {version} --- Built {buildDate}";
 #else
                 lblVersion.Visible = false;
 #endif

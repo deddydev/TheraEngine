@@ -1147,8 +1147,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\OS\Win32\" />
-    <Folder Include="Windows\Forms\Animation Timeline Editor\" />
     <Folder Include="Windows\Forms\Cutscene Editor\" />
+    <Folder Include="Windows\Forms\Keyframe Timeline Editor\" />
     <Folder Include="Windows\Forms\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
   </ItemGroup>

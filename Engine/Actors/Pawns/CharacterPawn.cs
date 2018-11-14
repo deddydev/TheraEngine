@@ -1,18 +1,17 @@
 ﻿using System;
-using TheraEngine.GameModes;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Input.Devices;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Timers;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Components.Logic.Movement;
 using TheraEngine.Components.Logic.Animation;
-using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Components.Logic.Movement;
 using TheraEngine.Components.Scene;
-using TheraEngine.Physics;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Shapes;
-using TheraEngine.Worlds;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.GameModes;
+using TheraEngine.Input.Devices;
+using TheraEngine.Physics;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Timers;
 
 namespace TheraEngine.Actors.Types.Pawns
 {

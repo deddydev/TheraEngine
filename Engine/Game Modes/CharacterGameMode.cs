@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using TheraEngine.Actors;
-using TheraEngine.Input;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Input;
 
 namespace TheraEngine.GameModes
 {
@@ -11,18 +13,21 @@ namespace TheraEngine.GameModes
         bool FindSpawnPoint(PawnController c, out Matrix4 transform);
         void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer);
     }
-    public class CharacterGameMode<PawnType, ControllerType> : GameMode<PawnType, ControllerType>, ICharacterGameMode 
-        where PawnType : class, ICharacterPawn, new()
-        where ControllerType : LocalPlayerController
+    public class CharacterPlayerController : LocalPlayerController
     {
-        private float _respawnTime = 3;
+        public CharacterPlayerController(LocalPlayerIndex index)
+            : base(index) { }
+        public CharacterPlayerController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+            : base(index, possessionQueue) { }
 
-        public float RespawnTime
-        {
-            get => _respawnTime;
-            set => _respawnTime = value;
-        }
-
+        [TSerialize]
+        public float RespawnTime { get; set; } = 3;
+    }
+    public class CharacterGameMode<PawnType, ControllerType> 
+        : GameMode<PawnType, ControllerType>, ICharacterGameMode 
+        where PawnType : class, ICharacterPawn, new()
+        where ControllerType : CharacterPlayerController
+    {
         public CharacterGameMode() : base()
         {
 
@@ -30,7 +35,7 @@ namespace TheraEngine.GameModes
         
         protected internal override void HandleLocalPlayerJoined(ControllerType item)
         {
-            PawnType pawn = _pawnClass.CreateNew();
+            PawnType pawn = new PawnType();
 
             BaseRenderPanel.WorldPanel?.GetOrAddViewport(item.LocalPlayerIndex)?.RegisterController(item);
             

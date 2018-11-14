@@ -13,8 +13,17 @@ namespace TheraEngine.Editor
     public delegate void DelSelectedChange(bool isSelected);
     public class EditorState
     {
+        public EditorState(TObject obj) => Object = obj;
+
+        public static event DelPropertyChange PropertyChanged;
+        public static event DelHighlightingChange HighlightingChanged;
+        public static event DelSelectedChange SelectedChanged;
+
+        private Dictionary<string, List<object>> _changedProperties = new Dictionary<string, List<object>>();
+        private bool _highlighted = false;
+        private bool _selected = false;
+
         private static EditorState _selectedState, _highlightedState;
-        
         public static EditorState SelectedState
         {
             get => _selectedState;
@@ -35,31 +44,11 @@ namespace TheraEngine.Editor
                 _highlightedState?.OnHighlightedChanged(true);
             }
         }
-        
-        public static event DelPropertyChange PropertyChanged;
-        public static event DelHighlightingChange HighlightingChanged;
-        public static event DelSelectedChange SelectedChanged;
 
-        private void OnSelectedChanged(bool selected)
-        {
-            _selected = selected;
-            Object?.OnSelectedChanged(_selected);
-            SelectedChanged?.Invoke(_selected);
-        }
-        private void OnHighlightedChanged(bool highlighted)
-        {
-            _highlighted = highlighted;
-            Object?.OnHighlightChanged(_highlighted);
-            HighlightingChanged?.Invoke(highlighted);
-        }
-
-        public EditorState(TObject obj) => Object = obj;
+        //Contains information about the default value for each member.
+        public Dictionary<string, object> MemberDefaults { get; set; }
 
         public TObject Object { get; internal set; }
-        private Dictionary<string, List<object>> _changedProperties = new Dictionary<string, List<object>>();
-        private bool _highlighted = false;
-        private bool _selected = false;
-
         public bool HasChanges => _changedProperties.Count > 0;
         public bool Highlighted
         {
@@ -81,11 +70,23 @@ namespace TheraEngine.Editor
                 SelectedState = value ? this : null;
             }
         }
-
         public TreeNode TreeNode { get; set; }
-
         public bool IsDirty { get; set; }
         public List<LocalValueChange> ChangedValues { get; } = new List<LocalValueChange>();
+
+        private void OnSelectedChanged(bool selected)
+        {
+            _selected = selected;
+            Object?.OnSelectedChanged(_selected);
+            SelectedChanged?.Invoke(_selected);
+        }
+        private void OnHighlightedChanged(bool highlighted)
+        {
+            _highlighted = highlighted;
+            Object?.OnHighlightChanged(_highlighted);
+            HighlightingChanged?.Invoke(highlighted);
+        }
+
         public abstract class LocalValueChange
         {
             public GlobalValueChange GlobalChange { get; set; }

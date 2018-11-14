@@ -536,24 +536,46 @@ namespace TheraEngine.Core.Maths
             //return startValue * (1.0f - time) + endValue * time;
             return startValue + (endValue - startValue) * time;
         }
+
         public static float InterpQuadraticEaseEnd(float start, float end, float time, float speed = 1.0f, float power = 2.0f)
             => Lerp(start, end, 1.0f - (float)Pow(1.0f - (time * speed), power));
         public static float InterpQuadraticEaseStart(float start, float end, float time, float speed = 1.0f, float power = 2.0f)
             => Lerp(start, end, (float)Pow(time * speed, power));
+
+        /// <summary>
+        /// Maps a linear time value from 0.0f to 1.0f to a cosine time value that eases in and out.
+        /// </summary>
+        public static float CosineTimeModifier(float time)
+            => (1.0f - (float)Cos(time * PIf)) * 0.5f;
         /// <summary>
         /// Smoothed interpolation between two points. Eases in and out.
         /// A speed of 2 symbolizes the interpolation will occur in half a second
         /// if update/frame delta is used as time.
         /// </summary>
         public static float InterpCosineTo(float start, float end, float time, float speed = 1.0f)
-            => Lerp(start, end, (1.0f - (float)Cos(time * speed * PIf)) * 0.5f);
+            => Lerp(start, end, CosineTimeModifier(time * speed));
+        /// <summary>
+        /// Smoothed interpolation between two points. Eases in and out.
+        /// A speed of 2 symbolizes the interpolation will occur in half a second
+        /// if update/frame delta is used as time.
+        /// </summary>
+        public static Vec2 InterpCosineTo(Vec2 start, Vec2 end, float time, float speed = 1.0f)
+            => Vec2.Lerp(start, end, CosineTimeModifier(time * speed));
         /// <summary>
         /// Smoothed interpolation between two points. Eases in and out.
         /// A speed of 2 symbolizes the interpolation will occur in half a second
         /// if update/frame delta is used as time.
         /// </summary>
         public static Vec3 InterpCosineTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)
-            => Vec3.Lerp(start, end, (1.0f - (float)Cos(time * speed * PIf)) * 0.5f);
+            => Vec3.Lerp(start, end, CosineTimeModifier(time * speed));
+        /// <summary>
+        /// Smoothed interpolation between two points. Eases in and out.
+        /// A speed of 2 symbolizes the interpolation will occur in half a second
+        /// if update/frame delta is used as time.
+        /// </summary>
+        public static Vec4 InterpCosineTo(Vec4 start, Vec4 end, float time, float speed = 1.0f)
+            => Vec4.Lerp(start, end, CosineTimeModifier(time * speed));
+
         /// <summary>
         /// Constant interpolation directly from one point to another.
         /// A speed of 2 symbolizes the interpolation will occur in half a second
@@ -561,7 +583,6 @@ namespace TheraEngine.Core.Maths
         /// </summary>
         public static float InterpLinearTo(float start, float end, float time, float speed = 1.0f)
             => Lerp(start, end, time * speed);
-
         public static Vec2 InterpLinearTo(Vec2 start, Vec2 end, float time, float speed = 1.0f)
             => Vec2.Lerp(start, end, time * speed);
         public static Vec3 InterpLinearTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)

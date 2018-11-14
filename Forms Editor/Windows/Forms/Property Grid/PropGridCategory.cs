@@ -4,7 +4,10 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheraEditor.Core.Extensions;
 using TheraEngine;
+using TheraEngine.Core.Maths;
+using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -154,6 +157,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             return name;
         }
+        private class MemberLabelInfo
+        {
+            public string Description { get; set; }
+            public Point StartLocation { get; set; }
+            public Point EndLocation { get; set; }
+            public EventHandler<FrameEventArgs> LerpMethod;
+
+            public MemberLabelInfo(string description, Point startLocation, Point endLocation)
+            {
+                Description = description;
+                StartLocation = startLocation;
+                EndLocation = endLocation;
+            }
+        }
         public Label AddMember(List<PropGridItem> editors, object[] attributes, bool readOnly)
         {
             var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
@@ -168,7 +185,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Dock = DockStyle.Fill,
                 Padding = new Padding(3, 2, 3, 0),
                 Margin = new Padding(0),
-                Tag = desc,
             };
             label.MouseEnter += Label_MouseEnter;
             label.MouseLeave += Label_MouseLeave;
@@ -209,20 +225,34 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             tblProps.EndUpdate();
 
+            label.Tag = new MemberLabelInfo(desc, label.Location, new Point(label.Location.X + 10, label.Location.Y));
+
             return label;
         }
 
         private void Label_MouseLeave(object sender, EventArgs e)
         {
             Label label = sender as Label;
-            if (label.Tag != null)
+
+            if (!(label.Tag is MemberLabelInfo info))
+                return;
+
+            if (!string.IsNullOrWhiteSpace(info.Description))
                 toolTip1.Hide(label);
+
+            label.LerpLocation(info.StartLocation, 2.0f, ref info.LerpMethod, Interp.CosineTimeModifier);
         }
         private void Label_MouseEnter(object sender, EventArgs e)
         {
             Label label = sender as Label;
-            if (label.Tag != null)
-                toolTip1.Show(label.Tag.ToString(), label);
+
+            if (!(label.Tag is MemberLabelInfo info))
+                return;
+
+            if (!string.IsNullOrWhiteSpace(info.Description))
+                toolTip1.Show(info.Description, label);
+
+            label.LerpLocation(info.EndLocation, 2.0f, ref info.LerpMethod, Interp.CosineTimeModifier);
         }
         private void lblCategoryName_MouseEnter(object sender, EventArgs e)
         {

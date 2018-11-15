@@ -47,12 +47,13 @@ namespace TheraEngine.Physics
                 DebugDrawer = _physicsDebugDrawer = new BulletDebugDrawer()
                 {
                     DebugMode =
-                    DebugDrawModes.DrawNormals |
+                    //DebugDrawModes.DrawNormals |
                     DebugDrawModes.DrawAabb | 
                     DebugDrawModes.DrawConstraints |
-                    DebugDrawModes.DrawConstraintLimits |
-                    DebugDrawModes.DrawContactPoints |
-                    DebugDrawModes.DrawWireframe
+                    DebugDrawModes.DrawConstraintLimits 
+                    //|
+                    //DebugDrawModes.DrawContactPoints |
+                    //DebugDrawModes.DrawWireframe
                     //DebugDrawModes.FastWireframe
                     //DebugDrawModes.DrawFeaturesText
                 }

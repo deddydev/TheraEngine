@@ -359,39 +359,42 @@ namespace TheraEngine.Actors.Types
             switch (TransformSpace)
             {
                 case ESpace.Local:
-                    return _targetSocket.WorldMatrix.ClearScale();
-
-                case ESpace.Parent:
-
-                    if (_targetSocket.ParentSocket != null)
-                        return _targetSocket.ParentSocket.WorldMatrix.ClearScale();
-                    else
-                        return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
-
-                case ESpace.Screen:
-
-                    Vec3 point = _targetSocket.WorldMatrix.Translation;
-                    var localPlayers = Engine.LocalPlayers;
-                    if (localPlayers.Count > 0)
                     {
-                        Camera c = localPlayers[0].ViewportCamera;
-                        if (c != null)
-                        {
-                            //Rotator angles = (c.WorldPoint - point).LookatAngles();
-                            //Matrix4 angleMatrix = angles.GetMatrix();
-                            //return point.AsTranslationMatrix() * angleMatrix;
-                            Vec3 fwd = (c.WorldPoint - point).NormalizedFast();
-                            Vec3 up = c.UpVector;
-                            Vec3 right = up ^ fwd;
-                            return Matrix4.CreateSpacialTransform(point, right, up, fwd);
-                        }
+                        return _targetSocket.WorldMatrix.ClearScale();
                     }
+                case ESpace.Parent:
+                    {
+                        if (_targetSocket.ParentSocket != null)
+                            return _targetSocket.ParentSocket.WorldMatrix.ClearScale();
+                        else
+                            return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
+                    }
+                case ESpace.Screen:
+                    {
+                        Vec3 point = _targetSocket.WorldMatrix.Translation;
+                        var localPlayers = Engine.LocalPlayers;
+                        if (localPlayers.Count > 0)
+                        {
+                            Camera c = localPlayers[0].ViewportCamera;
+                            if (c != null)
+                            {
+                                //Rotator angles = (c.WorldPoint - point).LookatAngles();
+                                //Matrix4 angleMatrix = angles.GetMatrix();
+                                //return point.AsTranslationMatrix() * angleMatrix;
+                                Vec3 fwd = (c.WorldPoint - point).NormalizedFast();
+                                Vec3 up = c.UpVector;
+                                Vec3 right = up ^ fwd;
+                                return Matrix4.CreateSpacialTransform(point, right, up, fwd);
+                            }
+                        }
 
-                    return Matrix4.Identity;
-
+                        return Matrix4.Identity;
+                    }
                 case ESpace.World:
                 default:
-                    return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
+                    {
+                        return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
+                    }
             }
         }
         private Matrix4 GetInvWorldMatrix()
@@ -402,25 +405,28 @@ namespace TheraEngine.Actors.Types
             switch (TransformSpace)
             {
                 case ESpace.Local:
-                    return _targetSocket.InverseWorldMatrix.ClearScale();
-
+                    {
+                        return _targetSocket.InverseWorldMatrix.ClearScale();
+                    }
                 case ESpace.Parent:
-
-                    if (_targetSocket.ParentSocket != null)
-                        return _targetSocket.ParentSocket.InverseWorldMatrix.ClearScale();
-                    else
-                        return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
-
+                    {
+                        if (_targetSocket.ParentSocket != null)
+                            return _targetSocket.ParentSocket.InverseWorldMatrix.ClearScale();
+                        else
+                            return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
+                    }
                 case ESpace.Screen:
-
-                    Camera c = Engine.LocalPlayers[0].ViewportCamera;
-                    Matrix4 mtx = c.CameraToWorldSpaceMatrix;
-                    mtx.Translation = _targetSocket.InverseWorldMatrix.Translation;
-                    return mtx;
-
+                    {
+                        Camera c = Engine.LocalPlayers[0].ViewportCamera;
+                        Matrix4 mtx = c.CameraToWorldSpaceMatrix;
+                        mtx.Translation = _targetSocket.InverseWorldMatrix.Translation;
+                        return mtx;
+                    }
                 case ESpace.World:
                 default:
-                    return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
+                    {
+                        return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
+                    }
             }
         }
 

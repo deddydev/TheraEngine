@@ -55,7 +55,7 @@ namespace TheraEngine.GameModes
         }
         public virtual void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer)
         {
-            killed.QueueRespawn(RespawnTime);
+            killed.QueueRespawn(((CharacterPlayerController)killed.LocalPlayerController).RespawnTime);
         }
     }
 }

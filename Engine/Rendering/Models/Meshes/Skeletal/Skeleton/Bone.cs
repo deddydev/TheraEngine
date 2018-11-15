@@ -715,7 +715,6 @@ namespace TheraEngine.Rendering.Models
         }
 
         ISocket ISocket.ParentSocket => _parent;
-
         bool ISocket.IsTranslatable => true;
         bool ISocket.IsScalable => true;
         bool ISocket.IsRotatable => true;

@@ -64,7 +64,7 @@ namespace TheraEditor.Windows.Forms
         private float _hitDistance;
 
         //private Vec3 _lastHitPoint;
-        private HighlightPoint _highlightPoint;
+        private HighlightPoint _highlightPoint = new HighlightPoint();
         TRigidBody _pickedBody;
         TPointPointConstraint _currentConstraint;
         private float _toolSize = 1.2f;
@@ -257,12 +257,6 @@ namespace TheraEditor.Windows.Forms
             //dock.ChildComponents.Add(TextOverlay);
 
             return dock;
-        }
-        protected override void PreConstruct()
-        {
-            _highlightPoint = new HighlightPoint();
-            base.PreConstruct();
-            //RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
         }
         public override void RegisterInput(InputInterface input)
         {

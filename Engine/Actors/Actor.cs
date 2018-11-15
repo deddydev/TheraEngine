@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using TheraEngine.Core.Files;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Components;
-using TheraEngine.Worlds;
-using TheraEngine.Components.Scene.Transforms;
-using System.Threading.Tasks;
-using TheraEngine.Rendering;
-using TheraEngine.Core.Maths.Transforms;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using TheraEngine.Components;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Actors
 {
@@ -20,16 +19,21 @@ namespace TheraEngine.Actors
         bool AttachedToMap { get; set; }
         bool IsConstructing { get; }
         World OwningWorld { get; }
+
         bool IsSpawned { get; }
         void Spawned(World world);
         void Despawned();
-        ReadOnlyCollection<SceneComponent> SceneComponentCache { get; }
+
+        IReadOnlyCollection<SceneComponent> SceneComponentCache { get; }
         void GenerateSceneComponentCache();
         SceneComponent RootComponent { get; }
-        EventList<LogicComponent> LogicComponents { get; }
         void RebaseOrigin(Vec3 newOrigin);
-        T GetLogicComponent<T>() where T : LogicComponent;
-        T[] GetLogicComponents<T>() where T : LogicComponent;
+
+        EventList<LogicComponent> LogicComponents { get; }
+        T1 FindFirstLogicComponentOfType<T1>() where T1 : LogicComponent;
+        T1[] FindLogicComponentsOfType<T1>() where T1 : LogicComponent;
+        LogicComponent FindFirstLogicComponentOfType(Type type);
+        LogicComponent[] FindLogicComponentsOfType(Type type);
 #if EDITOR
         void OnHighlightChanged(bool highlighted);
         void OnSelectedChanged(bool selected);
@@ -38,17 +42,17 @@ namespace TheraEngine.Actors
 
     #region Generic Actor
     /// <summary>
-    /// An actor with a generic scene component as the root.
+    /// An actor with a TRS component as the root.
     /// Generally used for actors which manage their own world matrix or do not need one,
     /// but provide traits that affect the scene.
     /// </summary>
-    [Description("An actor with a generic scene component as the root. " +
+    [Description("An actor with a TRS component as the root. " +
         "Generally used for actors which manage their own world matrix or do not need one, " +
         "but provide traits that affect the scene.")]
-    public class Actor : Actor<OriginRebasableComponent>
+    public class Actor : Actor<TRSComponent>
     {
         public Actor() : base() { }
-        public Actor(OriginRebasableComponent root, params LogicComponent[] logicComponents)
+        public Actor(TRSComponent root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
     }
     #endregion
@@ -182,8 +186,9 @@ namespace TheraEngine.Actors
         [Browsable(false)]
         public Scene2D OwningScene2D => OwningScene as Scene2D;
 
+        private List<SceneComponent> _sceneComponentCache;
         [Browsable(false)]
-        public ReadOnlyCollection<SceneComponent> SceneComponentCache { get; private set; }
+        public IReadOnlyCollection<SceneComponent> SceneComponentCache => _sceneComponentCache;
 
         [Browsable(false)]
         SceneComponent IActor.RootComponent => RootComponent;
@@ -252,10 +257,14 @@ For example, a logic component could give any actor health and/or allow it to ta
         [Browsable(false)]
         public bool IsConstructing { get; private set; }
 
-        public T1 GetLogicComponent<T1>() where T1 : LogicComponent
+        public T1 FindFirstLogicComponentOfType<T1>() where T1 : LogicComponent
             => LogicComponents.FirstOrDefault(x => x is T1) as T1;
-        public T1[] GetLogicComponents<T1>() where T1 : LogicComponent
+        public T1[] FindLogicComponentsOfType<T1>() where T1 : LogicComponent
             => LogicComponents.Where(x => x is T1).Select(x => (T1)x).ToArray();
+        public LogicComponent FindFirstLogicComponentOfType(Type type)
+            => LogicComponents.FirstOrDefault(x => type.IsAssignableFrom(x.GetType()));
+        public LogicComponent[] FindLogicComponentsOfType(Type type)
+            => LogicComponents.Where(x => type.IsAssignableFrom(x.GetType())).ToArray();
 
         //[Browsable(false)]
         //public List<I3DRenderable> RenderableComponentCache => _renderableComponentCache;
@@ -267,7 +276,7 @@ For example, a logic component could give any actor health and/or allow it to ta
             if (!IsConstructing)
             {
                 //_renderableComponentCache = new List<I3DRenderable>();
-                SceneComponentCache = _rootComponent?.GenerateChildCache().AsReadOnly();
+                _sceneComponentCache = _rootComponent?.GenerateChildCache() ?? new List<SceneComponent>();
             }
         }
         public void RebaseOrigin(Vec3 newOrigin)

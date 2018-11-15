@@ -58,7 +58,6 @@ namespace TheraEngine.Actors
         private IUserInterface _hud = null;
         
         [Category("Pawn")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public PawnController Controller => _controller;
         [Browsable(false)]
         public PlayerController ServerPlayerController => Controller as PlayerController;

@@ -106,7 +106,7 @@ namespace TheraEditor.Windows.Forms
 
             public int Index { get; }
             public DateTime StartTime { get; }
-            public TimeSpan OperationDuration { get; private set; }
+            public TimeSpan OperationDuration => DateTime.Now - StartTime;
             public Progress<float> Progress { get; }
             public float ProgressValue { get; private set; } = 0.0f;
             public bool IsComplete => ProgressValue >= 0.99f;
@@ -128,7 +128,7 @@ namespace TheraEditor.Windows.Forms
             private void Progress_ProgressChanged(object sender, float progressValue)
             {
                 ProgressValue = progressValue;
-                OperationDuration = DateTime.Now - StartTime;
+                //OperationDuration = DateTime.Now - StartTime;
                 _updated(Index);
             }
 
@@ -156,7 +156,7 @@ namespace TheraEditor.Windows.Forms
 
             if (InvokeRequired)
             {
-                Invoke((Action)(() =>
+                BeginInvoke((Action)(() =>
                 {
                     if (noOps)
                         toolStripProgressBar1.Value = 0;
@@ -179,7 +179,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke((Action<int>)OnOperationProgressUpdate, operationIndex);
+                BeginInvoke((Action<int>)OnOperationProgressUpdate, operationIndex);
                 return;
             }
 
@@ -213,7 +213,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke((Action<int>)EndOperation, index);
+                BeginInvoke((Action<int>)EndOperation, index);
                 return;
             }
 
@@ -621,7 +621,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(GenerateInitialActorList));
+                BeginInvoke(new Action(GenerateInitialActorList));
                 return;
             }
             ActorTreeForm.ActorTree.Nodes.Clear();

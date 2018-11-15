@@ -163,6 +163,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             public Point StartLocation { get; set; }
             public Point EndLocation { get; set; }
             public EventHandler<FrameEventArgs> LerpMethod;
+            public PropGridItemRefInfo ParentInfo { get; set; }
 
             public MemberLabelInfo(string description, Point startLocation, Point endLocation)
             {
@@ -179,11 +180,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Label label = new Label()
             {
                 Text = name,
-                TextAlign = ContentAlignment.TopRight,
+                TextAlign = ContentAlignment.MiddleRight,
                 AutoSize = true,
                 ForeColor = Color.FromArgb(200, 200, 220),
                 Dock = DockStyle.Fill,
-                Padding = new Padding(3, 2, 3, 0),
+                Padding = new Padding(3, 2, 3, 4),
                 Margin = new Padding(0),
             };
             label.MouseEnter += Label_MouseEnter;
@@ -229,7 +230,70 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             return label;
         }
+        //public TextBox AddTextMember(List<PropGridItem> editors, object[] attributes, bool readOnly)
+        //{
+        //    //var parentInfo = editors[0].ParentInfo;
+        //    var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
+        //    string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
+        //    string name = ResolveMemberName(editors[0], attributes);
+        //    TextBox textBox = new TextBox()
+        //    {
+        //        Text = name,
+        //        TextAlign = HorizontalAlignment.Right,
+        //        AutoSize = true,
+        //        ForeColor = Color.FromArgb(200, 200, 220),
+        //        Dock = DockStyle.Fill,
+        //        Padding = new Padding(3, 2, 3, 4),
+        //        Margin = new Padding(0),
+        //    };
+        //    textBox.MouseEnter += Label_MouseEnter;
+        //    textBox.MouseLeave += Label_MouseLeave;
+        //    textBox.TextChanged += Label_TextChanged;
+        //    tblProps.BeginUpdate();
+        //    tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        //    tblProps.RowCount = tblProps.RowStyles.Count;
+        //    tblProps.Controls.Add(textBox, 0, tblProps.RowCount - 1);
+        //    if (editors.Count > 1)
+        //    {
+        //        Panel p = new Panel()
+        //        {
+        //            Dock = DockStyle.Fill,
+        //            Margin = new Padding(0),
+        //            Padding = new Padding(0),
+        //            AutoSize = true,
+        //            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+        //        };
+        //        foreach (PropGridItem item in editors)
+        //        {
+        //            //item.SetLabel(label);
+        //            item.Dock = DockStyle.Top;
+        //            item.Margin = new Padding(0);
+        //            item.Padding = new Padding(0);
+        //            item.ReadOnly = readOnly;
+        //            item.ParentCategory = this;
+        //            p.Controls.Add(item);
+        //        }
+        //        tblProps.Controls.Add(p, 1, tblProps.RowCount - 1);
+        //    }
+        //    else
+        //    {
+        //        PropGridItem item = editors[0];
+        //        //item.SetLabel(label);
+        //        item.Dock = DockStyle.Fill;
+        //        item.Margin = new Padding(0);
+        //        item.Padding = new Padding(0);
+        //        tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
+        //    }
+        //    tblProps.EndUpdate();
 
+        //    textBox.Tag = new MemberLabelInfo(desc, textBox.Location, new Point(textBox.Location.X + 10, textBox.Location.Y));
+
+        //    return textBox;
+        //}
+        private void Label_TextChanged(object sender, EventArgs e)
+        {
+
+        }
         private void Label_MouseLeave(object sender, EventArgs e)
         {
             Label label = sender as Label;

@@ -9,6 +9,8 @@ namespace TheraEngine.Components.Scene.Transforms
     /// </summary>
     public abstract class OriginRebasableComponent : SceneComponent
     {
+        public OriginRebasableComponent() : base() { }
+
         /// <summary>
         /// This is to handle translating the root component of an actor when the world's origin is changed.
         /// </summary>

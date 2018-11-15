@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Maths;
@@ -24,7 +23,7 @@ namespace TheraEditor.Core.Extensions
                 void method(object sender, FrameEventArgs args)
                 {
                     totalTime += args.Time;
-                    control.Location = Interp.Lerp(startPoint, point, timeModifier(totalTime / seconds));
+                    control.InvokeIfNecessary((Action)(() => control.Location = Interp.Lerp(startPoint, point, timeModifier(totalTime / seconds))), null);
                     if (totalTime >= seconds)
                         Engine.UnregisterTick(null, method, null);
                 }
@@ -136,7 +135,7 @@ namespace TheraEditor.Core.Extensions
         public static void InvokeIfNecessary(this Control control, Delegate del, params object[] args)
         {
             if (control.InvokeRequired)
-                control.Invoke(del, args);
+                control.BeginInvoke(del, args);
             else
                 del.DynamicInvoke(args);
         }

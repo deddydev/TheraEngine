@@ -324,17 +324,17 @@ namespace TheraEditor
             //The first GUID is the GUID of a C# project package
             string projTmpl = "Project(\"{2}\") = \"{0}\", \"{0}.csproj\", \"{1}\"\nEndProject\n";
             //TODO: allow multiple projects
-            string projects = string.Format(projTmpl, Name, _projectGuid, CSharpProjectGuid);
+            string projects = string.Format(projTmpl, Name, projectGuid, CSharpProjectGuid);
 
             //0 = config name, 1 = platform name
             string preSolTmpl = "\t{0}|{1} = {0}|{1}\n\t";
             string preSol = string.Empty;
             void AppendPreSol(string config, string platform) 
                 => preSol += string.Format(preSolTmpl, config, platform);
-            AppendPreSol("Debug", "x86");
             AppendPreSol("Debug", "x64");
-            AppendPreSol("Release", "x86");
+            AppendPreSol("Debug", "x86");
             AppendPreSol("Release", "x64");
+            AppendPreSol("Release", "x86");
 
             //0 = project GUID, 1 = config name, 2 = platform name
             string postSolTmpl = "\t{0}.{1}|{2}.ActiveCfg = {1}|{2}\n\t\t{0}.{1}|{2}.Build.0 = {1}|{2}\n\t";

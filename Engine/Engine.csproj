@@ -344,6 +344,7 @@
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimState.cs" />
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\BlendManager.cs" />
+    <Compile Include="Actors\Components\Scene\SubActorComponent.cs" />
     <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
     <Compile Include="Actors\Components\Logic\Common\HealthComponent.cs" />
     <Compile Include="Actors\Special\IBLProbeGridActor.cs" />

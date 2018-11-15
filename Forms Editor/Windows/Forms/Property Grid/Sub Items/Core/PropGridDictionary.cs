@@ -108,15 +108,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private void Label_MouseUp(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void Label_MouseDown(object sender, MouseEventArgs e)
-        {
-
-        }
+        private void Label_MouseUp(object sender, MouseEventArgs e) { }
+        private void Label_MouseDown(object sender, MouseEventArgs e) { }
 
         private Color _prevLabelColor;
         private void Label_MouseLeave(object sender, EventArgs e)
@@ -149,9 +142,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _dictionary.Add(key, value);
 
             var keys = TheraPropertyGrid.InstantiatePropertyEditors(
-                TheraPropertyGrid.GetControlTypes(key?.GetType()), new PropGridItemRefIDictionaryInfo(() => _dictionary, key, true), DataChangeHandler);
+                TheraPropertyGrid.GetControlTypes(key?.GetType()),
+                new PropGridItemRefIDictionaryInfo(() => _dictionary,
+                key, true), DataChangeHandler);
+
             var values = TheraPropertyGrid.InstantiatePropertyEditors(
-                TheraPropertyGrid.GetControlTypes(value?.GetType()), new PropGridItemRefIDictionaryInfo(() => _dictionary, key, false), DataChangeHandler);
+                TheraPropertyGrid.GetControlTypes(value?.GetType()),
+                new PropGridItemRefIDictionaryInfo(() => _dictionary,
+                key, false), DataChangeHandler);
 
             int count = keys.Count + values.Count;
             List<PropGridItem> interlaced = new List<PropGridItem>(count);

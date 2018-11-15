@@ -71,7 +71,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     {
                         constValue = _fields[i].GetRawConstantValue();
                         object number = Convert.ChangeType(constValue, t);
-                        ((CheckBox)tblEnumFlags.GetControlFromPosition(0, i)).Checked = contains(totalValue, number);
+                        if (tblEnumFlags.GetControlFromPosition(0, i) is CheckBox box)
+                            box.Checked = contains(totalValue, number);
                     }
                     //panel1.Height = _fields.Length * 21;
                     tblEnumFlags.Enabled = editable;

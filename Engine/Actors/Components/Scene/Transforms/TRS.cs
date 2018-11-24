@@ -4,7 +4,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    [FileDef("Translate-Rotate-Scale Component")]
+    [TFileDef("Translate-Rotate-Scale Component")]
     public class TRSComponent : TRComponent
     {
         public TRSComponent() : this(Vec3.Zero, Rotator.GetZero(), Vec3.One, true) { }

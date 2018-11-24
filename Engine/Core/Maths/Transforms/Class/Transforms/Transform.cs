@@ -14,8 +14,8 @@ namespace TheraEngine.Core.Maths.Transforms
         STR,
         SRT,
     }
-    [FileExt("transform")]
-    [FileDef("Transform")]
+    [TFileExt("transform")]
+    [TFileDef("Transform")]
     public class Transform : TFileObject
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
@@ -310,7 +310,7 @@ namespace TheraEngine.Core.Maths.Transforms
         //    ScaleChanged?.Invoke(oldScale);
         //}
 
-        [PostDeserialize]
+        [TPostDeserialize]
         public void CreateTransform()
         {
             Matrix4 oldMatrix = _transform;

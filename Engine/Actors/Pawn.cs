@@ -26,7 +26,7 @@ namespace TheraEngine.Actors
     public interface IPawn : IActor
     {
         PawnController Controller { get; }
-        PlayerController ServerPlayerController { get; }
+        ServerPlayerController ServerPlayerController { get; }
         AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
         CameraComponent CurrentCameraComponent { get; set; }
@@ -49,23 +49,50 @@ namespace TheraEngine.Actors
     /// <summary>
     /// A pawn is an actor that can be controlled by either a player or AI.
     /// </summary>
-    [FileExt("pawn")]
-    [FileDef("Pawn Actor")]
+    [TFileExt("pawn")]
+    [TFileDef("Pawn Actor")]
     public class Pawn<T> : Actor<T>, IPawn where T : OriginRebasableComponent
     {
-        private PawnController _controller;
+        public Pawn()
+            : this(false) { }
+        public Pawn(bool deferInitialization)
+            : base(deferInitialization) { }
+        public Pawn(bool deferInitialization, LocalPlayerIndex possessor)
+            : base(deferInitialization) { QueuePossession(possessor); }
+        public Pawn(T root, params LogicComponent[] logicComponents)
+            : base(root, logicComponents) { }
+        public Pawn(LocalPlayerIndex possessor, T root, params LogicComponent[] logicComponents)
+            : base(root, logicComponents) { QueuePossession(possessor); }
+
         private CameraComponent _currentCameraComponent;
         private IUserInterface _hud = null;
-        
+
+        /// <summary>
+        /// The interface that is managing and providing input to this pawn.
+        /// </summary>
         [Category("Pawn")]
-        public PawnController Controller => _controller;
+        public PawnController Controller { get; private set; }
+        /// <summary>
+        /// Casts the controller to a server player controller.
+        /// </summary>
         [Browsable(false)]
-        public PlayerController ServerPlayerController => Controller as PlayerController;
+        public ServerPlayerController ServerPlayerController => Controller as ServerPlayerController;
+        /// <summary>
+        /// Casts the controller to an AI controller.
+        /// </summary>
         [Browsable(false)]
         public AIController AIController => Controller as AIController;
+        /// <summary>
+        /// Casts the controller to a local player controller.
+        /// </summary>
         [Browsable(false)]
         public LocalPlayerController LocalPlayerController => Controller as LocalPlayerController;
-
+        /// <summary>
+        /// Casts the controller to a generic player controller.
+        /// </summary>
+        [Browsable(false)]
+        public PlayerController PlayerController => Controller as PlayerController;
+        
         [Browsable(false)]
         public Viewport Viewport => LocalPlayerController?.Viewport;
 
@@ -85,6 +112,9 @@ namespace TheraEngine.Actors
             }
         }
 
+        /// <summary>
+        /// The HUD for this pawn.
+        /// </summary>
         [Category("Pawn")]
         public IUserInterface HUD
         {
@@ -120,15 +150,6 @@ namespace TheraEngine.Actors
                 RootComponent.WorldTransformChanged -= QueueWorldRebase;
             HUD?.Despawned();
         }
-
-        public Pawn() : this(false) { }
-        public Pawn(bool deferInitialization) : base(deferInitialization) { }
-        public Pawn(bool deferInitialization, LocalPlayerIndex possessor) : base(deferInitialization) { QueuePossession(possessor); }
-        public Pawn(T root, params LogicComponent[] logicComponents)
-        : base(root, logicComponents) { }
-        public Pawn(LocalPlayerIndex possessor, T root, params LogicComponent[] logicComponents)
-        : base(root, logicComponents) { QueuePossession(possessor); }
-
         public void QueuePossession(LocalPlayerIndex possessor)
             => Engine.QueuePossession(this, possessor);
         
@@ -137,14 +158,14 @@ namespace TheraEngine.Actors
             if (possessor == null)
                 OnUnPossessed();
 
-            _controller = possessor;
+            Controller = possessor;
         }
         public virtual void OnUnPossessed()
         {
-            if (_controller == null)
+            if (Controller == null)
                 return;
 
-            _controller = null;
+            Controller = null;
         }
 
         public virtual void RegisterInput(InputInterface input) { }

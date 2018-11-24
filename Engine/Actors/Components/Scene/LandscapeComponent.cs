@@ -14,7 +14,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Actors.Types
 {
-    [FileDef("Landscape Component")]
+    [TFileDef("Landscape Component")]
     public class LandscapeComponent : ShapeComponent
     {
         private IVec2 _dimensions = new IVec2(100, 100);

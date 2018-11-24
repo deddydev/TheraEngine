@@ -9,8 +9,8 @@ using TheraEngine.Actors;
 
 namespace TheraEngine.Worlds
 {
-    [FileExt("wsta")]
-    [FileDef("World State")]
+    [TFileExt("wsta")]
+    [TFileDef("World State")]
     public class WorldState : TFileObject
     {
         public List<Map> SpawnedMaps => _spawnedMaps;
@@ -73,7 +73,7 @@ namespace TheraEngine.Worlds
         }
         #endregion
 
-        [PostDeserialize]
+        [TPostDeserialize]
         internal void CreateActorMap()
         {
             _actorTypeMap = new Dictionary<Type, HashSet<int>>();

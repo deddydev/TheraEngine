@@ -11,8 +11,8 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Cutscenes
 {
-    [FileExt("cut")]
-    [FileDef("Cutscene")]
+    [TFileExt("cut")]
+    [TFileDef("Cutscene")]
     public class Cutscene : BaseAnimation
     {
         public Cutscene() : base(0.0f, false)
@@ -36,7 +36,7 @@ namespace TheraEngine.Cutscenes
 
         public List<GlobalFileRef<IActor>> InvolvedActors { get; set; }
         private Camera CurrentCamera { get; set; }
-        public GlobalFileRef<World> WorldRef { get; set; }
+        public GlobalFileRef<TWorld> WorldRef { get; set; }
         public Cutscene CurrentScene { get; private set; }
         private int CurrentSceneIndex { get; set; } = -1;
 
@@ -189,8 +189,8 @@ namespace TheraEngine.Cutscenes
             }
         }
     }
-    [FileExt("clip")]
-    [FileDef("Cutscene Animation Clip")]
+    [TFileExt("clip")]
+    [TFileDef("Cutscene Animation Clip")]
     public class Clip<T> : TFileObject where T : BaseAnimation
     {
         [TSerialize]

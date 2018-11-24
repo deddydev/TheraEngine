@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    [FileDef("3D Screen Shake Component")]
+    [TFileDef("3D Screen Shake Component")]
     public class ScreenShake3DComponent : NoiseRotationComponent
     {
         private float _trauma = 0.0f;

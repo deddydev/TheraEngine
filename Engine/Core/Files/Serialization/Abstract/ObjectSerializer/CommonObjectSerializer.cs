@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KellermanSoftware.CompareNetObjects;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -36,8 +37,8 @@ namespace TheraEngine.Core.Files.Serialization
                     fobj.FilePath = TreeNode.Owner.FilePath;
             }
             
-            foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<PreDeserialize>().Order))
-                m.Invoke(TreeNode.Object, m.GetCustomAttribute<PreDeserialize>().Arguments);
+            foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<TPreDeserialize>().Order))
+                m.Invoke(TreeNode.Object, m.GetCustomAttribute<TPreDeserialize>().Arguments);
 
             var categorizedChildren = members.
                 Where(member => member.Category != null).
@@ -58,8 +59,8 @@ namespace TheraEngine.Core.Files.Serialization
                         ReadMember(catNode, member, TreeNode.Object);
             }
 
-            foreach (MethodInfo m in TreeNode.PostDeserializeMethods.OrderBy(x => x.GetCustomAttribute<PostDeserialize>().Order))
-                m.Invoke(TreeNode.Object, m.GetCustomAttribute<PostDeserialize>().Arguments);
+            foreach (MethodInfo m in TreeNode.PostDeserializeMethods.OrderBy(x => x.GetCustomAttribute<TPostDeserialize>().Order))
+                m.Invoke(TreeNode.Object, m.GetCustomAttribute<TPostDeserialize>().Arguments);
         }
         private async void ReadMember(SerializeElement parentNode, TSerializeMemberInfo member, object o)
         {
@@ -116,7 +117,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
 
             var customMethods = parent.CustomDeserializeMethods.Where(
-                x => string.Equals(member.Name, x.GetCustomAttribute<CustomDeserializeMethod>().Name));
+                x => string.Equals(member.Name, x.GetCustomAttribute<TCustomMemberDeserializeMethod>().Name));
 
             foreach (var customMethod in customMethods)
             {
@@ -137,7 +138,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
+                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(TCustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
                 }
             }
 
@@ -146,97 +147,108 @@ namespace TheraEngine.Core.Files.Serialization
         #endregion
 
         #region Writing
+        public bool IsObjectDefault(object obj, object defObj)
+        {
+            //Deep compare the current object with the default object
+            CompareLogic comp = new CompareLogic(new ComparisonConfig()
+            {
+                CompareChildren = true,
+                CompareFields = true,
+                CompareProperties = true,
+                ComparePrivateFields = true,
+                ComparePrivateProperties = true,
+                CompareStaticFields = false,
+                CompareStaticProperties = false,
+                CompareReadOnly = false,
+                ComparePredicate = x => x.GetCustomAttribute<TSerialize>() != null
+            });
+            ComparisonResult result = comp.Compare(defObj, obj);
+            //if (!result.AreEqual)
+            //    Engine.PrintLine(result.DifferencesString);
+            return result.AreEqual;
+        }
         public override async void SerializeTreeFromObject()
         {
             TSerializeMemberInfo[] members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
 
             if (members.Length == 0)
             {
-                TreeNode.SetElementContent(TreeNode.Object);
+                if (ShouldWriteDefaultMembers || !TreeNode.IsObjectDefault())
+                    TreeNode.SetElementContent(TreeNode.Object);
                 return;
             }
             
-            Dictionary<string, List<SerializeElement>> categories = new Dictionary<string, List<SerializeElement>>();
+            SerializeElement parent = TreeNode;
+            Dictionary<string, SerializeElement> categoryNodes = new Dictionary<string, SerializeElement>();
             foreach (TSerializeMemberInfo member in members)
             {
-                if (/*TreeNode.Object == TreeNode.DefaultObject || */TreeNode.Object == null || !member.AllowSerialize(TreeNode.Object))
+                if (!member.AllowSerialize(TreeNode.Object))
                     continue;
+                
+                if (!string.IsNullOrWhiteSpace(member.Category))
+                {
+                    if (!categoryNodes.ContainsKey(member.Category))
+                        categoryNodes.Add(member.Category, 
+                            parent = new SerializeElement(null, new TSerializeMemberInfo(null, member.Category)));
+                    else
+                        parent = categoryNodes[member.Category];
+                }
 
                 switch (member.NodeType)
                 {
                     case ENodeType.Attribute:
                         {
-                            (bool success, object value) = await TryInvokeManualParentSerializeAsync(member.Name, TreeNode);
+                            (bool manuallySerialized, object resultMemberValue) = await TryInvokeManualParentSerializeAsync(member.Name, TreeNode);
 
-                            object obj;
-                            if (success)
-                                obj = value;
-                            else
-                                obj = member.GetObject(TreeNode.Object);
+                            if (!manuallySerialized)
+                                resultMemberValue = member.GetObject(TreeNode.Object);
 
-                            if (obj != null)
+                            if (manuallySerialized ||
+                                ShouldWriteDefaultMembers ||
+                                !IsObjectDefault(resultMemberValue, TreeNode.DefaultObject == null ? null : member.GetObject(TreeNode.DefaultObject)))
                             {
                                 SerializeAttribute attribute = new SerializeAttribute { Name = member.Name };
-                                attribute.SetValueAsObject(obj);
-                                TreeNode.Attributes.Add(attribute);
+                                attribute.SetValueAsObject(resultMemberValue);
+                                parent.Attributes.Add(attribute);
                             }
                         }
                         break;
                     case ENodeType.ChildElement:
                         {
                             SerializeElement element = new SerializeElement(null, member);
-                            if (!string.IsNullOrWhiteSpace(member.Category))
+                            parent.ChildElements.Add(element);
+
+                            bool manuallySerialized = await TryInvokeManualParentSerializeAsync(element.Name, TreeNode, element);
+                            if (!manuallySerialized)
                             {
-                                if (!categories.ContainsKey(member.Category))
-                                    categories.Add(member.Category, new List<SerializeElement>() { element });
+                                element.Object = member.GetObject(TreeNode.Object);
+                                if (!ShouldWriteDefaultMembers && element.IsObjectDefault())
+                                    parent.ChildElements.RemoveAt(parent.ChildElements.Count - 1);
                                 else
-                                    categories[member.Category].Add(element);
+                                    element.SerializeTreeFromObject();
                             }
-                            else
-                            {
-                                TreeNode.ChildElements.Add(element);
-                            }
+                            //else if (!ShouldWriteDefaultMembers && element.ObjectIsDefault)
+                            //    parent.ChildElements.RemoveAt(parent.ChildElements.Count - 1);
                         }
                         break;
                     case ENodeType.ElementContent:
                         {
-                            object obj;
-                            (bool success, object value) = await TryInvokeManualParentSerializeAsync(member.Name, TreeNode);
-                            if (success)
-                                obj = value;
-                            else
-                                obj = member.GetObject(TreeNode.Object);
-                            if (obj != null)
-                                TreeNode.SetElementContent(obj);
+                            (bool manuallySerialized, object resultMemberValue) = await TryInvokeManualParentSerializeAsync(member.Name, TreeNode);
+
+                            if (!manuallySerialized)
+                                resultMemberValue = member.GetObject(TreeNode.Object);
+
+                            if (manuallySerialized ||
+                                ShouldWriteDefaultMembers ||
+                                !IsObjectDefault(resultMemberValue, TreeNode.DefaultObject == null ? null : member.GetObject(TreeNode.DefaultObject)))
+                            {
+                                if (!parent.SetElementContent(resultMemberValue))
+                                {
+                                    Engine.LogWarning("Unable to set element content.");
+                                }
+                            }
                         }
                         break;
-                }
-            }
-
-            foreach (var node in TreeNode.ChildElements)
-            {
-                bool manualSuccess = await TryInvokeManualParentSerializeAsync(node.Name, TreeNode, node);
-                if (!manualSuccess)
-                {
-                    node.RetrieveObjectFromParent();
-                    node.SerializeTreeFromObject();
-                }
-            }
-            foreach (var cat in categories)
-            {
-                SerializeElement catNode = new SerializeElement(null, new TSerializeMemberInfo(null, cat.Key));
-                TreeNode.ChildElements.Add(catNode);
-
-                foreach (SerializeElement catChild in cat.Value)
-                {
-                    catNode.ChildElements.Add(catChild);
-
-                    bool manualSuccess = await TryInvokeManualParentSerializeAsync(catChild.Name, TreeNode, catChild);
-                    if (!manualSuccess)
-                    {
-                        catNode.Object = catNode.MemberInfo.GetObject(TreeNode.Object);
-                        catNode.SerializeTreeFromObject();
-                    }
                 }
             }
         }
@@ -250,7 +262,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
 
             var customMethods = parent.CustomSerializeMethods.Where(
-                x => string.Equals(memberName, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+                x => string.Equals(memberName, x.GetCustomAttribute<TCustomMemberSerializeMethod>().Name));
 
             foreach (var customMethod in customMethods)
             {
@@ -268,7 +280,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(SerializeElement).GetFriendlyName()}.");
+                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(TCustomMemberSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(SerializeElement).GetFriendlyName()}.");
                 }
             }
 
@@ -284,7 +296,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return (false, null);
 
             var customMethods = parent.CustomSerializeMethods.Where(
-                x => string.Equals(memberName, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+                x => string.Equals(memberName, x.GetCustomAttribute<TCustomMemberSerializeMethod>().Name));
 
             foreach (var customMethod in customMethods)
             {
@@ -303,7 +315,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomSerializeMethod)} attribute, but the definition is not correct. There must be no arguments and the method should return an object.");
+                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(TCustomMemberSerializeMethod)} attribute, but the definition is not correct. There must be no arguments and the method should return an object.");
                 }
             }
             

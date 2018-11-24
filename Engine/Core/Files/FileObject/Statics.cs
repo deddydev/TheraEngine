@@ -22,7 +22,7 @@ namespace TheraEngine.Core.Files
                 var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract, true, Assembly.GetEntryAssembly()).ToArray();
                 foreach (Type type in types)
                 {
-                    File3rdParty attrib = GetFile3rdPartyExtensions(type);
+                    TFile3rdParty attrib = GetFile3rdPartyExtensions(type);
                     if (attrib == null)
                         continue;
 
@@ -49,9 +49,16 @@ namespace TheraEngine.Core.Files
                                     t = typeof(Del3rdPartyImportFileMethodAsync<>);
                                 else
                                     t = typeof(Del3rdPartyImportFileMethod<>);
-                                Type delType = t.MakeGenericType(m.DeclaringType);
-                                Delegate d = Delegate.CreateDelegate(delType, m);
-                                extensionLoaders.Add(type, d);
+                                try
+                                {
+                                    Type delType = t.MakeGenericType(m.DeclaringType);
+                                    Delegate d = Delegate.CreateDelegate(delType, m);
+                                    extensionLoaders.Add(type, d);
+                                }
+                                catch
+                                {
+                                    Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party loader for {m.DeclaringType.GetFriendlyName()}.");
+                                }
                             }
                         }
                         else
@@ -74,16 +81,22 @@ namespace TheraEngine.Core.Files
                             if (methods.Length > 0)
                             {
                                 MethodInfo m = methods[0];
-                                bool async = m.GetCustomAttribute<ThirdPartyExporter>().Async;
+                                var loader = m.GetCustomAttribute<ThirdPartyExporter>();
+                                bool async = loader.Async;
+                                Type t;
                                 if (async)
-                                {
-                                    if (Delegate.CreateDelegate(typeof(Del3rdPartyExportFileMethodAsync), m) is Del3rdPartyExportFileMethodAsync result)
-                                        extensionExporters.Add(type, result);
-                                }
+                                    t = typeof(Del3rdPartyExportFileMethodAsync<>);
                                 else
+                                    t = typeof(Del3rdPartyExportFileMethod<>);
+                                try
                                 {
-                                    if (Delegate.CreateDelegate(typeof(Del3rdPartyExportFileMethod), m) is Del3rdPartyExportFileMethod result)
-                                        extensionExporters.Add(type, result);
+                                    Type delType = t.MakeGenericType(m.DeclaringType);
+                                    Delegate d = Delegate.CreateDelegate(delType, m);
+                                    extensionExporters.Add(type, d);
+                                }
+                                catch
+                                {
+                                    Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party exporter for {m.DeclaringType.GetFriendlyName()}.");
                                 }
                             }
                         }
@@ -94,18 +107,27 @@ namespace TheraEngine.Core.Files
             }
             catch { }
         }
-        public static FileDef GetFileDefinition(Type classType)
-            => Attribute.GetCustomAttribute(classType, typeof(FileDef), true) as FileDef;
-        public static FileExt GetFileExtension(Type classType)
-            => Attribute.GetCustomAttribute(classType, typeof(FileExt), true) as FileExt;
-        public static File3rdParty GetFile3rdPartyExtensions(Type classType)
-            => Attribute.GetCustomAttribute(classType, typeof(File3rdParty), true) as File3rdParty;
+
+        public static TFileDef GetFileDefinition(Type classType)
+            => Attribute.GetCustomAttribute(classType, typeof(TFileDef), true) as TFileDef;
+        public static TFileExt GetFileExtension(Type classType)
+            => Attribute.GetCustomAttribute(classType, typeof(TFileExt), true) as TFileExt;
+        public static TFile3rdParty GetFile3rdPartyExtensions(Type classType)
+            => Attribute.GetCustomAttribute(classType, typeof(TFile3rdParty), true) as TFile3rdParty;
+
+        public static TFileDef GetFileDefinition<T>() 
+            => GetFileDefinition(typeof(T));
+        public static TFileExt GetFileExtension<T>()
+            => GetFileExtension(typeof(T));
+        public static TFile3rdParty GetFile3rdPartyExtensions<T>() 
+            => GetFile3rdPartyExtensions(typeof(T));
+
         public static Type DetermineType(string path)
             => DetermineType(path, out EFileFormat format);
         public static Type DetermineType(string path, out EFileFormat format)
             => SerializationCommon.DetermineType(path, out format);
         public static Type[] DetermineThirdPartyTypes(string ext)
-            => Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<File3rdParty>()?.HasExtension(ext) ?? false), true).ToArray();
+            => Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<TFile3rdParty>()?.HasExtension(ext) ?? false), true).ToArray();
         public static EFileFormat GetFormat(string path, out string ext)
         {
             int index = path.LastIndexOf('.') + 1;
@@ -114,7 +136,7 @@ namespace TheraEngine.Core.Files
             else
                 ext = path.ToLowerInvariant();
 
-            if (File3rdParty.Has3rdPartyExtension(ext))
+            if (TFile3rdParty.Has3rdPartyExtension(ext))
                 return EFileFormat.ThirdParty;
 
             //TODO: return raw format
@@ -152,9 +174,9 @@ namespace TheraEngine.Core.Files
         /// <param name="fileType">The type of file object.</param>
         /// <returns>An absolute path to the file.</returns>
         public static string GetFilePath(string dir, string name, EProprietaryFileFormat format, Type fileType)
-            => Path.Combine(dir, name + "." + GetFileExtension(fileType).GetProperExtension(format));
+            => Path.Combine(dir, name + "." + GetFileExtension(fileType).GetFullExtension(format));
         public static string GetFilePath<T>(string dir, string name, EProprietaryFileFormat format) where T : TFileObject
-            => Path.Combine(dir, name + "." + GetFileExtension(typeof(T)).GetProperExtension(format));
+            => Path.Combine(dir, name + "." + GetFileExtension(typeof(T)).GetFullExtension(format));
         public static string GetFilePath(string dir, string name, string thirdPartyExtension)
         {
             if (thirdPartyExtension[0] != '.')
@@ -176,10 +198,10 @@ namespace TheraEngine.Core.Files
             string allTypes = "";
             string eachType = "";
             bool first = true;
-            FileDef def = GetFileDefinition(classType);
+            TFileDef def = GetFileDefinition(classType);
             if (proprietary)
             {
-                FileExt ext = GetFileExtension(classType);
+                TFileExt ext = GetFileExtension(classType);
                 foreach (string type in Enum.GetNames(typeof(EProprietaryFileFormat)))
                 {
                     if (first)
@@ -196,7 +218,7 @@ namespace TheraEngine.Core.Files
             }
             if (import3rdParty || export3rdParty)
             {
-                File3rdParty ext = GetFile3rdPartyExtensions(classType);
+                TFile3rdParty ext = GetFile3rdPartyExtensions(classType);
                 if (import3rdParty)
                 {
                     foreach (string ext3rd in ext.ImportableExtensions)
@@ -210,8 +232,8 @@ namespace TheraEngine.Core.Files
                             eachType += "|";
                         }
                         string fmt = String.Format("*.{0}", extLower);
-                        if (File3rdParty.ExtensionNames3rdParty.ContainsKey(extLower))
-                            eachType += String.Format("{0} ({1})|{1}", File3rdParty.ExtensionNames3rdParty[extLower], fmt);
+                        if (TFile3rdParty.ExtensionNames3rdParty.ContainsKey(extLower))
+                            eachType += String.Format("{0} ({1})|{1}", TFile3rdParty.ExtensionNames3rdParty[extLower], fmt);
                         else
                             eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
                         allTypes += fmt;
@@ -237,8 +259,8 @@ namespace TheraEngine.Core.Files
                             eachType += "|";
                         }
                         string fmt = String.Format("*.{0}", extLower);
-                        if (File3rdParty.ExtensionNames3rdParty.ContainsKey(extLower))
-                            eachType += String.Format("{0} ({1})|{1}", File3rdParty.ExtensionNames3rdParty[extLower], fmt);
+                        if (TFile3rdParty.ExtensionNames3rdParty.ContainsKey(extLower))
+                            eachType += String.Format("{0} ({1})|{1}", TFile3rdParty.ExtensionNames3rdParty[extLower], fmt);
                         else
                             eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
                         allTypes += fmt;
@@ -288,8 +310,8 @@ namespace TheraEngine.Core.Files
         public static async Task<object> LoadAsync(
             Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            FileExt extAttrib = GetFileExtension(type);
-            File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
+            TFileExt extAttrib = GetFileExtension(type);
+            TFile3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
             EFileFormat fmt = GetFormat(filePath, out string ext);
 
             if (extAttrib != null && fmt != EFileFormat.ThirdParty)
@@ -298,7 +320,7 @@ namespace TheraEngine.Core.Files
                     EProprietaryFileFormat.Binary :
                     EProprietaryFileFormat.XML;
 
-                string fileExt = extAttrib.GetProperExtension(pfmt);
+                string fileExt = extAttrib.GetFullExtension(pfmt);
                 if (string.Equals(ext, fileExt))
                     return fmt == EFileFormat.XML ?
                         await FromXMLAsync(type, filePath, progress, cancel) :
@@ -403,10 +425,13 @@ namespace TheraEngine.Core.Files
         public static async Task<object> Read3rdPartyAsync(Type classType, string filePath)
             => await Read3rdPartyAsync(classType, filePath, null, CancellationToken.None);
         public static async Task<T> Read3rdPartyAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel)
-            => (T)(await Read3rdPartyAsync(typeof(T), filePath, progress, cancel));
+            => (T)await Read3rdPartyAsync(typeof(T), filePath, progress, cancel);
         public static async Task<object> Read3rdPartyAsync(Type classType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            string ext = Path.GetExtension(filePath).Substring(1);
+            string ext = Path.GetExtension(filePath);
+            if (ext != null && ext.StartsWith("."))
+                ext = ext.Substring(1);
+
             Delegate loader = Get3rdPartyLoader(classType, ext);
             if (loader != null)
             {
@@ -415,7 +440,7 @@ namespace TheraEngine.Core.Files
                     return loader.DynamicInvoke(filePath);
                 else if (genericDef == typeof(Del3rdPartyImportFileMethodAsync<>))
                 {
-                    var task = (Task)loader.DynamicInvoke(filePath);
+                    var task = (Task)loader.DynamicInvoke(filePath, progress, cancel);
                     await task.ConfigureAwait(false);
                     var resultProperty = task.GetType().GetProperty("Result");
                     return resultProperty.GetValue(task);
@@ -426,10 +451,10 @@ namespace TheraEngine.Core.Files
             TFileObject obj = SerializationCommon.CreateObject(classType) as TFileObject;
             if (obj != null)
             {
-                File3rdParty f = GetFile3rdPartyExtensions(classType);
-                if (f != null)
+                TFile3rdParty attrib = GetFile3rdPartyExtensions(classType);
+                if (attrib != null)
                 {
-                    if (f.AsyncManualRead)
+                    if (attrib.AsyncManualRead)
                         await obj.ManualRead3rdPartyAsync(filePath);
                     else
                         obj.ManualRead3rdParty(filePath);

@@ -10,7 +10,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// <summary>
     /// Contains a general translation.
     /// </summary>
-    [FileDef("Translation Component")]
+    [TFileDef("Translation Component")]
     public class TranslationLaggedComponent : OriginRebasableComponent
     {
         public TranslationLaggedComponent() : this(Vec3.Zero, true) { }
@@ -53,7 +53,7 @@ namespace TheraEngine.Components.Scene.Transforms
             set => _invTransInterpSec = value;
         }
 
-        [PostDeserialize]
+        [TPostDeserialize]
         protected internal virtual void OnDeserialized()
         {
             //_currentTranslation.Changed += RecalcLocalTransform;

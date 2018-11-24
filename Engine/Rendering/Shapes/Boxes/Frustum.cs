@@ -48,12 +48,12 @@ namespace TheraEngine.Core.Shapes
         [TSerialize("UseBoundingSphere", NodeType = ENodeType.Attribute)]
         private Sphere _boundingSphere;
 
-        [CustomSerializeMethod("UseBoundingSphere")]
+        [TCustomMemberSerializeMethod("UseBoundingSphere")]
         private void SerializeBoundingSphere(SerializeElement node)
         {
             node.AddAttribute("UseBoundingSphere", UseBoundingSphere);
         }
-        [CustomDeserializeMethod("BoundingSphere")]
+        [TCustomMemberDeserializeMethod("BoundingSphere")]
         private void DeserializeBoundingSphere(SerializeElement node)
         {
             if (node.GetAttributeValue("UseBoundingSphere", out bool result) && result)
@@ -280,7 +280,7 @@ namespace TheraEngine.Core.Shapes
             }
         }
 
-        [PostDeserialize]
+        [TPostDeserialize]
         internal void PostDeserialize()
         {
             UpdatePoints(FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight, NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);

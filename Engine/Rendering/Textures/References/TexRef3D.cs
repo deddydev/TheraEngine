@@ -6,8 +6,8 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileExt("tref3d")]
-    [FileDef("3D Texture Reference")]
+    [TFileExt("tref3d")]
+    [TFileDef("3D Texture Reference")]
     public class TexRef3D : BaseTexRef
     {
         public const string CategoryName = "Texture Reference 2D";

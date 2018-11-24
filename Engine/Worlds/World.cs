@@ -21,13 +21,13 @@ namespace TheraEngine.Worlds
     /// Manages all 3D scene data for a particular consistent instance.
     /// For example, multiple viewports can point to cameras in this world and see the same 3D scene from different viewpoints.
     /// </summary>
-    [FileExt("world")]
-    [FileDef("World")]
-    public class World : TFileObject, IEnumerable<IActor>, IDisposable
+    [TFileExt("world")]
+    [TFileDef("World")]
+    public class TWorld : TFileObject, IEnumerable<IActor>, IDisposable
     {
-        public World() : this(new WorldSettings(), new WorldState()) { }
-        public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
-        public World(GlobalFileRef<WorldSettings> settings, GlobalFileRef<WorldState> state)
+        public TWorld() : this(new WorldSettings(), new WorldState()) { }
+        public TWorld(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
+        public TWorld(GlobalFileRef<WorldSettings> settings, GlobalFileRef<WorldState> state)
         {
             StateRef = state;
             SettingsRef = settings;

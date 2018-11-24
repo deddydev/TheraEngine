@@ -4,7 +4,7 @@ using TheraEngine.Scripting;
 
 namespace TheraEngine.Components.Logic.Scripting
 {
-    [FileDef("Lua Script Component", "Logic component used to run a Lua script.")]
+    [TFileDef("Lua Script Component", "Logic component used to run a Lua script.")]
     public class LuaScriptComponent : LogicComponent
     {
         private GlobalFileRef<LuaScript> _scriptRef = new GlobalFileRef<LuaScript>();

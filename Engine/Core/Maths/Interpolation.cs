@@ -542,6 +542,10 @@ namespace TheraEngine.Core.Maths
         public static float InterpQuadraticEaseStart(float start, float end, float time, float speed = 1.0f, float power = 2.0f)
             => Lerp(start, end, (float)Pow(time * speed, power));
 
+        public static float BounceTimeModifier(float time, int bounces = 4, double bounceFalloff = 4.0)
+        {
+            return 1.0f - (float)(Pow(E, -bounceFalloff * time) * Abs(Cos(PI * (0.5 + bounces) * time)));
+        }
         /// <summary>
         /// Maps a linear time value from 0.0f to 1.0f to a cosine time value that eases in and out.
         /// </summary>

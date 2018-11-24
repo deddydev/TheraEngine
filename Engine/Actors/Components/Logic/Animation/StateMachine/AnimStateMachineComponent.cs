@@ -10,7 +10,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Logic.Animation
 {
-    [FileDef("Animation State Machine Component")]
+    [TFileDef("Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent, IGlobalFilesContext<SkeletalAnimation>
     {
         [TSerialize(NodeType = ENodeType.Attribute)]

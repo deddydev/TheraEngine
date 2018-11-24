@@ -3,7 +3,7 @@ using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    [FileDef("Translational & Rotational Noise Component")]
+    [TFileDef("Translational & Rotational Noise Component")]
     public class NoiseTRComponent : TRComponent
     {
         public override void OnSpawned()

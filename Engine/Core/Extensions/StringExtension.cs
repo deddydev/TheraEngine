@@ -1,9 +1,12 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TheraEngine;
 using TheraEngine.Core.Memory;
 
@@ -129,6 +132,17 @@ namespace System
 
             return str;
         }
+        public static string GetExtensionLowercase(this string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return string.Empty;
+
+            string ext = Path.GetExtension(path);
+            if (ext.StartsWith("."))
+                ext = ext.Substring(1);
+
+            return ext.ToLowerInvariant();
+        }
         public static bool StartsWithDirectorySeparator(this string str)
             => !string.IsNullOrEmpty(str) && str[0] == Path.DirectorySeparatorChar;
         public static bool EndsWithDirectorySeparator(this string str)
@@ -209,7 +223,7 @@ namespace System
         //{
         //    return string.IsNullOrEmpty(str);
         //}
-        public static string MakePathRelativeTo(this string mainPath, string otherPath)
+        public static string MakeAbsolutePathRelativeTo(this string mainPath, string otherPath)
         {
             string[] mainParts = Path.GetFullPath(mainPath).Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
             string[] otherParts = Path.GetFullPath(otherPath).Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
@@ -450,7 +464,33 @@ namespace System
             return -1;
         }
         /// <summary>
-        /// Finds the first instance that is the string passed, searching backward in the string.
+        /// Finds all indices of the chars passed.
+        /// </summary>
+        public static int[] FindAllOccurrences(this string str, int firstIndex, int lastIndex, bool parallelSearch, params char[] searchChars)
+        {
+            if (parallelSearch)
+            {
+                ConcurrentBag<int> bag = new ConcurrentBag<int>();
+                Parallel.For(firstIndex, lastIndex + 1, i =>
+                {
+                    if (searchChars.Any(x => x == str[i]))
+                        bag.Add(i);
+                });
+                int[] array = bag.ToArray();
+                Array.Sort(array);
+                return array;
+            }
+            else
+            {
+                List<int> o = new List<int>();
+                for (int i = firstIndex; i <= lastIndex; ++i)
+                    if (searchChars.Any(x => x == str[i]))
+                        o.Add(i);
+                return o.ToArray();
+            }
+        }
+        /// <summary>
+        /// Finds the first instance that is the string passed, searching forward in the string.
         /// </summary>
         public static int[] FindAllOccurrences(this string str, int begin, string searchStr)
         {

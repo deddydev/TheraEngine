@@ -4,12 +4,15 @@ using System.Threading.Tasks;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Files;
 using TheraEngine.ThirdParty.PMX;
+using System;
+using System.Threading;
+using System.IO;
 
 namespace TheraEngine.Rendering.Models
 {
-    [File3rdParty(new string[] { "dae", "obj" }, new string[] { "pmx" })]
-    [FileExt("skmdl")]
-    [FileDef("Skeletal Model")]
+    [TFile3rdParty(new string[] { "dae" }, new string[] { "pmx" })]
+    [TFileExt("skmdl")]
+    [TFileDef("Skeletal Model")]
     public class SkeletalModel : TFileObject, IModelFile
     {
         public SkeletalModel() : base() { }
@@ -49,7 +52,8 @@ namespace TheraEngine.Rendering.Models
         }
 
         [ThirdPartyLoader("dae", true)]
-        public static async Task<TFileObject> LoadDAEAsync(string path)
+        public static async Task<SkeletalModel> LoadDAEAsync(
+            string path, IProgress<float> progress, CancellationToken cancel)
         {
             ColladaImportOptions o = new ColladaImportOptions()
             {
@@ -58,7 +62,7 @@ namespace TheraEngine.Rendering.Models
                 Collada.EIgnoreFlags.Cameras |
                 Collada.EIgnoreFlags.Lights,
             };
-            Collada.Data data = await Collada.ImportAsync(path, o);
+            Collada.Data data = await Collada.ImportAsync(path, o, progress, cancel);
             if (data != null && data.Models != null && data.Models.Count > 0)
             {
                 ModelScene scene = data.Models[0];
@@ -66,21 +70,36 @@ namespace TheraEngine.Rendering.Models
             }
             return null;
         }
-        [ThirdPartyLoader("obj")]
-        public static TFileObject LoadOBJ(string path)
+        [ThirdPartyExporter("pmx", false)]
+        public static void ExportPMX(SkeletalModel model, string path)
         {
-            ColladaImportOptions o = new ColladaImportOptions()
-            {
-
-            };
-            return OBJ.Import(path, o);
-        }
-        [ThirdPartyExporter("pmx")]
-        public static void ExportPMX(object obj, string path)
-        {
-            SkeletalModel m = obj as SkeletalModel;
-            PMXExporter e = new PMXExporter(m);
+            PMXExporter e = new PMXExporter(model);
             e.Export(path);
+        }
+        public override void ManualWrite3rdParty(string filePath)
+        {
+            string ext = filePath.GetExtensionLowercase();
+            switch (ext)
+            {
+                case "pmx":
+                    ExportPMX(this, filePath);
+                    break;
+                default:
+                    Engine.LogWarning("Unable to resolve extension at path " + filePath);
+                    break;
+            }
+        }
+        public override void ManualRead3rdParty(string filePath)
+        {
+            base.ManualRead3rdParty(filePath);
+        }
+        public override async Task ManualRead3rdPartyAsync(string filePath)
+        {
+            await base.ManualRead3rdPartyAsync(filePath);
+        }
+        public override async Task ManualWrite3rdPartyAsync(string filePath)
+        {
+            await base.ManualWrite3rdPartyAsync(filePath);
         }
     }
 }

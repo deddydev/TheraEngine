@@ -8,7 +8,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// <summary>
     /// Contains a general translation.
     /// </summary>
-    [FileDef("Translation Component")]
+    [TFileDef("Translation Component")]
     public class TranslationComponent : OriginRebasableComponent
     {
         public TranslationComponent() : this(Vec3.Zero, true) { }
@@ -68,7 +68,7 @@ namespace TheraEngine.Components.Scene.Transforms
             _translation.SetRawNoUpdate(t);
         }
 
-        [PostDeserialize]
+        [TPostDeserialize]
         protected internal virtual void OnDeserialized()
         {
             if (_translation == null)

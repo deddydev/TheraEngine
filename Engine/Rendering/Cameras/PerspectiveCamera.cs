@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
-        [PostDeserialize]
+        [TPostDeserialize]
         private void PostDeserialize()
         {
             PositionChanged();

@@ -35,8 +35,8 @@ namespace TheraEngine.Actors.Types.Pawns
     /// <summary>
     /// Each viewport has a HUD that manages 2D user interface elements.
     /// </summary>
-    [FileExt("ui")]
-    [FileDef("User Interface")]
+    [TFileExt("ui")]
+    [TFileDef("User Interface")]
     public class UserInterface<T> : Pawn<T>, IUserInterface where T : UIDockableComponent, new()
     {
         public UserInterface() : base()

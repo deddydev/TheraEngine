@@ -123,7 +123,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("Data", IsElementString = true)]
         internal DataSource _data;
 
-        [CustomSerializeMethod("Data")]
+        [TCustomMemberSerializeMethod("Data")]
         private object CustomDataSerialize()
         {
             Endian.EOrder prevOrder = Endian.SerializeOrder;
@@ -201,7 +201,7 @@ namespace TheraEngine.Rendering.Models
             Endian.SerializeOrder = prevOrder;
             return array;
         }
-        [CustomDeserializeMethod("Data")]
+        [TCustomMemberDeserializeMethod("Data")]
         private void CustomDataDeserialize(SerializeElementContent node)
         {
             Endian.EOrder prevOrder = Endian.SerializeOrder;

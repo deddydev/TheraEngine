@@ -7,7 +7,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    [FileDef("Position Lag Component")]
+    [TFileDef("Position Lag Component")]
     public class PositionLagComponent : OriginRebasableComponent
     {
         public PositionLagComponent() : this(20.0f, 2.0f) { }

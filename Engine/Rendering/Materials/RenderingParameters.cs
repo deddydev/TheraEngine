@@ -25,8 +25,8 @@ namespace TheraEngine.Rendering.Models.Materials
     /// <summary>
     /// Contains parameters for rendering an object, such as blending and depth testing.
     /// </summary>
-    [FileExt("rendparams")]
-    [FileDef("Rendering Parameters", 
+    [TFileExt("rendparams")]
+    [TFileDef("Rendering Parameters", 
         "Contains parameters for rendering an object, such as blending and depth testing.")]
     public class RenderingParameters : TFileObject
     {

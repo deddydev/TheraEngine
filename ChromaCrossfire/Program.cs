@@ -10,9 +10,9 @@ namespace ChromaCrossfire
         [STAThread]
         static void Main()
         {
-            Game game = new Game()
+            TGame game = new TGame()
             {
-                OpeningWorldRef = new GlobalFileRef<World>(""),
+                OpeningWorldRef = new GlobalFileRef<TWorld>(""),
             };
             Engine.Run(game);
         }

@@ -74,18 +74,18 @@ namespace TheraEngine.Core.Files.Serialization
                     endian, encrypted, compressed, encryptionPassword, compressionProgress);
             }
         }
-        private static bool PreExport(object file, string directory, string fileName, EProprietaryFileFormat format, FileExt extOverride, out string filePath)
+        public static bool PreExport(object file, string directory, string fileName, EProprietaryFileFormat format, TFileExt extOverride, out string filePath)
         {
             Type fileType = file.GetType();
-            FileExt extAttrib = extOverride ?? TFileObject.GetFileExtension(fileType);
+            TFileExt extAttrib = extOverride ?? TFileObject.GetFileExtension(fileType);
             if (extAttrib == null)
             {
-                Engine.LogWarning($"No {nameof(FileExt)} attribute specified for {fileType.GetFriendlyName()}.");
+                Engine.LogWarning($"No {nameof(TFileExt)} attribute specified for {fileType.GetFriendlyName()}.");
                 filePath = null;
                 return false;
             }
 
-            string ext = extAttrib.GetProperExtension(format);
+            string ext = extAttrib.GetFullExtension(format);
             if (string.IsNullOrWhiteSpace(directory))
             {
                 Engine.LogWarning($"Cannot export {fileName}.{ext}; no valid specified directory.");
@@ -110,7 +110,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 directory += Path.DirectorySeparatorChar;
 
-            filePath = directory + fileName + "." + ext; ;
+            filePath = directory + fileName + "." + ext;
             if (fileType is IFileObject fobj)
                 fobj.FilePath = filePath;
 

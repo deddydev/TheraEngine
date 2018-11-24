@@ -8,8 +8,8 @@ using TheraEngine.Animation.Property;
 
 namespace TheraEngine.Animation
 {
-    [FileExt("animtree")]
-    [FileDef("Property Animation Tree")]
+    [TFileExt("animtree")]
+    [TFileDef("Property Animation Tree")]
     public class AnimationContainer : BaseAnimation
     {
         private int _totalAnimCount = 0;

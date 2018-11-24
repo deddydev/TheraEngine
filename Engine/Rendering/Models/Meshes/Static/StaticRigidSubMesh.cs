@@ -5,8 +5,8 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileExt("strmesh")]
-    [FileDef("Static Rigid Sub Mesh")]
+    [TFileExt("strmesh")]
+    [TFileDef("Static Rigid Sub Mesh")]
     public class StaticRigidSubMesh : BaseSubMesh, IStaticSubMesh
     {
         public StaticRigidSubMesh() : base() { _name = "StaticRigidSubMesh"; }

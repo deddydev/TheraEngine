@@ -5,8 +5,8 @@ using System.ComponentModel;
 
 namespace TheraEngine.Worlds
 {
-    [FileExt("map")]
-    [FileDef("Map")]
+    [TFileExt("map")]
+    [TFileDef("Map")]
     public class Map : TFileObject
     {
         public Map() :this(new MapSettings()) { }
@@ -15,7 +15,7 @@ namespace TheraEngine.Worlds
             _settings = settings;
         }
 
-        public World OwningWorld { get; private set; }
+        public TWorld OwningWorld { get; private set; }
 
         private MapSettings _settings;
 
@@ -32,7 +32,7 @@ namespace TheraEngine.Worlds
                 OwningWorld.DespawnActor(actor);
             OwningWorld = null;
         }
-        public virtual void BeginPlay(World world)
+        public virtual void BeginPlay(TWorld world)
         {
             OwningWorld = world;
             foreach (IActor actor in Settings.StaticActors)

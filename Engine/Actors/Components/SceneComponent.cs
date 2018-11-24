@@ -18,7 +18,7 @@ namespace TheraEngine.Components
         BaseScene OwningScene { get; set; }
         Scene3D OwningScene3D { get; }
         Scene2D OwningScene2D { get; }
-        World OwningWorld { get; }
+        TWorld OwningWorld { get; }
         IActor OwningActor { get; set; }
         Vec3 LocalRightDir { get; }
         Vec3 LocalUpDir { get; }
@@ -45,7 +45,7 @@ namespace TheraEngine.Components
     /// <summary>
     /// Scene components define how an <see cref="Actor"/> should appear in the scene.
     /// </summary>
-    [FileExt("scomp")]
+    [TFileExt("scomp")]
     public abstract class SceneComponent : Component, ISocket, ISceneComponent
     {
         public const string RenderingCategoryName = "Rendering";
@@ -234,7 +234,7 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public Scene2D OwningScene2D => OwningScene as Scene2D;
         [Browsable(false)]
-        public World OwningWorld => OwningActor?.OwningWorld;
+        public TWorld OwningWorld => OwningActor?.OwningWorld;
 
         [Browsable(false)]
         public override IActor OwningActor
@@ -447,7 +447,7 @@ namespace TheraEngine.Components
                 p.RigidBodyCollision?.Spawn(OwningWorld);
 
             if (this is IPreRendered r)
-                OwningScene.AddPreRenderedObject(r);
+                OwningScene?.AddPreRenderedObject(r);
 
             if (this is I3DRenderable r3d)
                 r3d.RenderInfo.LinkScene(r3d, OwningScene3D);
@@ -464,7 +464,7 @@ namespace TheraEngine.Components
                 p.RigidBodyCollision?.Despawn(OwningWorld);
 
             if (this is IPreRendered r)
-                OwningScene.RemovePreRenderedObject(r);
+                OwningScene?.RemovePreRenderedObject(r);
 
             if (this is I3DRenderable r3d)
                 r3d.RenderInfo.UnlinkScene(r3d, OwningScene3D);

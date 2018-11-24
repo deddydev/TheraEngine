@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KellermanSoftware.CompareNetObjects;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -32,14 +33,27 @@ namespace TheraEngine.Core.Files.Serialization
             => _elementContent.GetObjectAs(out value);
         public bool GetElementContentAsString(out string value)
             => _elementContent.GetString(out value);
-        public void SetElementContent(object obj)
+        /// <summary>
+        /// Attempts to set the element content as an object.
+        /// If unable to serialize the object as a string, returns false.
+        /// </summary>
+        public bool SetElementContent(object obj)
             => _elementContent.SetValueAsObject(obj);
         internal void SetElementContentAsString(string str)
             => _elementContent.SetValueAsString(str);
         internal bool SetElementContentAsString(string str, Type type)
             => _elementContent.SetValueAsString(str, type);
 
-        public SerializeElement Parent { get; internal set; }
+        private SerializeElement _parent;
+        public SerializeElement Parent
+        {
+            get => _parent;
+            internal set
+            {
+                _parent = value;
+                DetermineDefaultObject();
+            }
+        }
         public TBaseSerializer.TBaseAbstractReaderWriter Owner
         {
             get => _owner;
@@ -85,6 +99,7 @@ namespace TheraEngine.Core.Files.Serialization
         internal int ParsablePointerSize { get; set; } = 0;
 
         public object DefaultObject { get; private set; }
+
         public Type DesiredDerivedObjectType
         {
             get => _desiredDerivedObjectType;
@@ -150,22 +165,65 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 if (MemberInfo != null)
                     MemberInfo.Name = value;
+                else
+                    MemberInfo = new TSerializeMemberInfo(null, value);
             }
         }
 
-        public bool IsRoot { get; internal set; }
+        /// <summary>
+        /// Signifies that this element represents the object containing everything else.
+        /// </summary>
+        public bool IsRoot
+        {
+            get => _isRoot;
+            internal set
+            {
+                _isRoot = value;
+                DetermineDefaultObject();
+            }
+        }
+        private bool _isRoot = false;
+        
+        public bool IsObjectDefault()
+        {
+            //Deep compare the current object with the default object
+            CompareLogic comp = new CompareLogic(new ComparisonConfig()
+            {
+                CompareChildren = true,
+                CompareFields = true,
+                CompareProperties = true,
+                ComparePrivateFields = true,
+                ComparePrivateProperties = true,
+                CompareStaticFields = false,
+                CompareStaticProperties = false,
+                CompareReadOnly = false,
+                ComparePredicate = x => x.GetCustomAttribute<TSerialize>() != null
+            });
+            ComparisonResult result = comp.Compare(DefaultObject, Object);
+            //if (!result.AreEqual)
+            //    Engine.PrintLine(result.DifferencesString);
+            return result.AreEqual;
+        }
 
         public SerializeElement()
         {
             Parent = null;
             MemberInfo = null;
             Object = null;
-            DefaultObject = null;
             ChildElements = new EventList<SerializeElement>();
             ChildElements.PostAnythingAdded += ChildElements_PostAnythingAdded;
             ChildElements.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
         }
-
+        public SerializeElement(string name) : this(null, new TSerializeMemberInfo(null, name)) { }
+        public SerializeElement(object obj, TSerializeMemberInfo memberInfo)
+        {
+            Parent = null;
+            MemberInfo = memberInfo;
+            Object = obj;
+            ChildElements = new EventList<SerializeElement>();
+            ChildElements.PostAnythingAdded += ChildElements_PostAnythingAdded;
+            ChildElements.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
+        }
         private void ChildElements_PostAnythingRemoved(SerializeElement item)
         {
             if (item.Parent == this)
@@ -178,17 +236,6 @@ namespace TheraEngine.Core.Files.Serialization
             item.Parent = this;
             item.Owner = Owner;
         }
-        
-        public SerializeElement(object obj, TSerializeMemberInfo memberInfo)
-        {
-            Object = obj;
-            Parent = null;
-            MemberInfo = memberInfo;
-            DefaultObject = ObjectType.GetDefaultValue();//ObjectType == null ? null : SerializationCommon.CreateObject(ObjectType);
-            ChildElements = new EventList<SerializeElement>();
-            ChildElements.PostAnythingAdded += ChildElements_PostAnythingAdded;
-            ChildElements.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
-        }
         /// <summary>
         /// Parent deserializes this node
         /// </summary>
@@ -199,7 +246,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
 
             var customMethods = Parent.CustomDeserializeMethods.Where(
-                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomDeserializeMethod>().Name));
+                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<TCustomMemberDeserializeMethod>().Name));
 
             foreach (var customMethod in customMethods)
             {
@@ -223,7 +270,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(TCustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
                 }
             }
 
@@ -237,7 +284,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (ObjectType.IsSubclassOf(typeof(TFileObject)))
             {
-                FileExt ext = TFileObject.GetFileExtension(ObjectType);
+                TFileExt ext = TFileObject.GetFileExtension(ObjectType);
                 if (ext == null)
                     return false;
 
@@ -266,7 +313,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
 
             var customMethods = Parent.CustomSerializeMethods.Where(
-                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<TCustomMemberSerializeMethod>().Name));
 
             foreach (var customMethod in customMethods)
             {
@@ -285,7 +332,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(TCustomMemberSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
                 }
             }
 
@@ -299,7 +346,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (Object is TFileObject tobj)
             {
-                FileExt ext = TFileObject.GetFileExtension(ObjectType);
+                TFileExt ext = TFileObject.GetFileExtension(ObjectType);
                 if (ext == null)
                     return false;
 
@@ -315,6 +362,12 @@ namespace TheraEngine.Core.Files.Serialization
 
             return false;
         }
+        /// <summary>
+        /// Creates this object for this element 
+        /// using this node's element content, attributes and child elements.
+        /// If this node's MemberInfo is set, 
+        /// this method also applies the deserialized object to the parent.
+        /// </summary>
         public async void DeserializeTreeToObject()
         {
             if (GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration))
@@ -336,9 +389,14 @@ namespace TheraEngine.Core.Files.Serialization
         {
             await FileObjectCheckAsync();
 
-            if (ObjectType.IsSubclassOf(MemberInfo.MemberType))
+            if (ObjectType != MemberInfo.MemberType || IsRoot)
                 AddAttribute(SerializationCommon.TypeIdent, ObjectType.AssemblyQualifiedName);
+            else if (ObjectType.IsAbstract || ObjectType.IsInterface)
+                throw new Exception();
 
+            if (Object == null || IsObjectDefault())
+                return;
+            
             bool custom = await TryInvokeManualParentSerializeAsync();
             if (!custom)
                 custom = TryInvokeManualSerializeAsync();
@@ -373,22 +431,22 @@ namespace TheraEngine.Core.Files.Serialization
                         {
                             switch (attrib.GetType().Name)
                             {
-                                case nameof(PreDeserialize):
+                                case nameof(TPreDeserialize):
                                     PreDeserializeMethods.Add(m);
                                     break;
-                                case nameof(PostDeserialize):
+                                case nameof(TPostDeserialize):
                                     PostDeserializeMethods.Add(m);
                                     break;
-                                case nameof(PreSerialize):
+                                case nameof(TPreSerialize):
                                     PreSerializeMethods.Add(m);
                                     break;
-                                case nameof(PostSerialize):
+                                case nameof(TPostSerialize):
                                     PostSerializeMethods.Add(m);
                                     break;
-                                case nameof(CustomSerializeMethod):
+                                case nameof(TCustomMemberSerializeMethod):
                                     CustomSerializeMethods.Add(m);
                                     break;
-                                case nameof(CustomDeserializeMethod):
+                                case nameof(TCustomMemberDeserializeMethod):
                                     CustomDeserializeMethods.Add(m);
                                     break;
                             }
@@ -398,18 +456,48 @@ namespace TheraEngine.Core.Files.Serialization
             }
             else
                 ObjectSerializer = null;
+
+            DetermineDefaultObject();
         }
         public void ApplyObjectToParent()
         {
             if (Parent?.Object != null)
                 MemberInfo.SetObject(Parent.Object, _object);
         }
+        public void DetermineDefaultObject()
+        {
+            if (IsRoot)
+            {
+                if (ObjectType != null)
+                    DefaultObject = SerializationCommon.CreateObject(ObjectType);
+                else
+                    DefaultObject = null;
+                return;
+            }
+
+            DefaultObject = ObjectType?.GetDefaultValue() ?? null;
+            if (Parent is null || MemberInfo?.Member is null)
+                return;
+
+            if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Field))
+            {
+                FieldInfo info = (FieldInfo)MemberInfo.Member;
+                if (!(Parent.DefaultObject is null))
+                    DefaultObject = info.GetValue(Parent.DefaultObject);
+            }
+            else if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Property))
+            {
+                PropertyInfo info = (PropertyInfo)MemberInfo.Member;
+                if (info.CanRead && !(Parent.DefaultObject is null))
+                    DefaultObject = info.GetValue(Parent.DefaultObject);
+            }
+        }
         public void RetrieveObjectFromParent()
         {
-            DefaultObject = null;
             if (Parent?.Object is null || MemberInfo?.Member is null)
             {
                 Object = null;
+                DetermineDefaultObject();
                 return;
             }
             
@@ -417,27 +505,19 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 FieldInfo info = (FieldInfo)MemberInfo.Member;
                 Object = info.GetValue(Parent.Object);
-                if (!(Parent.DefaultObject is null))
-                    DefaultObject = info.GetValue(Parent.DefaultObject);
             }
             else if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Property))
             {
                 PropertyInfo info = (PropertyInfo)MemberInfo.Member;
                 if (info.CanRead)
-                {
                     Object = info.GetValue(Parent.Object);
-                    if (!(Parent.DefaultObject is null))
-                        DefaultObject = info.GetValue(Parent.DefaultObject);
-                }
                 else
-                {
                     Engine.LogWarning($"Can't read property {info.Name} in {info.DeclaringType.GetFriendlyName()}.");
-                }
             }
             else
-            {
                 Engine.LogWarning($"Member {MemberInfo.Name} is not a field or property.");
-            }
+
+            ObjectTypeChanged();
         }
         /// <summary>
         /// Performs special processing for classes that implement <see cref="IFileObject"/> and <see cref="IFileRef"/>.
@@ -494,7 +574,7 @@ namespace TheraEngine.Core.Files.Serialization
                             string absPath;
                             if (fref.PathType == EPathType.FileRelative)
                             {
-                                string rel = fref.ReferencePathAbsolute.MakePathRelativeTo(Owner.FileDirectory);
+                                string rel = fref.ReferencePathAbsolute.MakeAbsolutePathRelativeTo(Owner.FileDirectory);
                                 absPath = Path.GetFullPath(Path.Combine(Owner.FileDirectory, rel));
                                 //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
                             }
@@ -507,7 +587,7 @@ namespace TheraEngine.Core.Files.Serialization
                             if (file.FileExtension != null)
                             {
                                 string fileName = SerializationCommon.ResolveFileName(
-                                    Owner.FileDirectory, file.Name, file.FileExtension.GetProperExtension(EProprietaryFileFormat.XML));
+                                    Owner.FileDirectory, file.Name, file.FileExtension.GetFullExtension(EProprietaryFileFormat.XML));
                                 await file.ExportAsync(dir, fileName, EFileFormat.XML, null, Owner.Flags, null, CancellationToken.None);
                             }
                             else

@@ -8,7 +8,8 @@ namespace TheraEngine.Rendering.Text
     {
         [TSerialize]
         private Dictionary<string, string> _table = new Dictionary<string, string>();
-        public string this[string id]
+
+        public string this[string id, string nameSpace]
         {
             get
             {

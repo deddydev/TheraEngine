@@ -32,7 +32,7 @@ namespace TheraEngine.Core.Shapes
         ConeZ,
         ConeComplex,
     }
-    [FileExt("shape")]
+    [TFileExt("shape")]
     public abstract class Shape : TFileObject, I3DRenderable, IVolume
     {
         public Shape()

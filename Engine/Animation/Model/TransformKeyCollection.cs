@@ -12,8 +12,8 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Animation
 {
-    [FileExt("tkc", ManualXmlConfigSerialize = true)]
-    [FileDef("Transform Key Collection")]
+    [TFileExt("tkc", ManualXmlConfigSerialize = true)]
+    [TFileDef("Transform Key Collection")]
     public class TransformKeyCollection : TFileObject, IEnumerable<PropAnimFloat>
     {
         public TransformKeyCollection() { }

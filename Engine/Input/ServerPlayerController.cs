@@ -14,37 +14,31 @@ namespace TheraEngine.Input
         
         public ServerPlayerController(int serverPlayerIndex, Queue<IPawn> possessionQueue = null) : base()
         {
-            //_serverPlayerIndex = serverPlayerIndex;
-            int i = (int)serverPlayerIndex;
-
-            _input = new InputInterface(i);
+            _input = new InputInterface(serverPlayerIndex);
             _input.WantsInputsRegistered += RegisterInput;
 
             _possessionQueue = possessionQueue;
             if (_possessionQueue.Count != 0 && ControlledPawn == null)
                 ControlledPawn = _possessionQueue.Dequeue();
 
-            if (CameraPossessionQueue.ContainsKey(i))
+            if (CameraPossessionQueue.ContainsKey(serverPlayerIndex))
             {
                 Camera camera;
-                while (!CameraPossessionQueue[i].TryDequeue(out camera)) ;
+                while (!CameraPossessionQueue[serverPlayerIndex].TryDequeue(out camera)) ;
                 ViewportCamera = camera;
             }
         }
         public ServerPlayerController(int serverPlayerIndex) : base()
         {
-            //_serverPlayerIndex = serverPlayerIndex;
-            int i = (int)serverPlayerIndex;
-
-            _input = new InputInterface(i);
+            _input = new InputInterface(serverPlayerIndex);
             _input.WantsInputsRegistered += RegisterInput;
 
             _possessionQueue = new Queue<IPawn>();
 
-            if (CameraPossessionQueue.ContainsKey(i))
+            if (CameraPossessionQueue.ContainsKey(serverPlayerIndex))
             {
                 Camera camera;
-                while (!CameraPossessionQueue[i].TryDequeue(out camera)) ;
+                while (!CameraPossessionQueue[serverPlayerIndex].TryDequeue(out camera)) ;
                 ViewportCamera = camera;
             }
         }

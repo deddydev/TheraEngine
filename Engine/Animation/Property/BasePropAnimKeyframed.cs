@@ -3,8 +3,8 @@ using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    [FileExt("kpanm")]
-    [FileDef("Keyframed Property Animation")]
+    [TFileExt("kpanm")]
+    [TFileDef("Keyframed Property Animation")]
     public abstract class BasePropAnimKeyframed : BasePropAnimBakeable
     {
         public BasePropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false)

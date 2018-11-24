@@ -6,8 +6,8 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileExt("bmp3d")]
-    [FileDef("3D Bitmap")]
+    [TFileExt("bmp3d")]
+    [TFileDef("3D Bitmap")]
     public class TBitmap3D : TFileObject, IDisposable
     {
         public TBitmap3D() : this(1, 1, 1) { }

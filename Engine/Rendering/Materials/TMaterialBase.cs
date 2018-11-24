@@ -57,162 +57,163 @@ namespace TheraEngine.Rendering.Models.Materials
         private void _program_Generated()
         {
             _secondsLive = 0.0f;
-            return;
-            if (Program.IsValid)
-            {
-                const string uniform = "uniform";
-                const string sampler = "sampler";
-                const string layout = "layout";
-                const string binding = "binding";
 
-                List<ShaderVar> vars = new List<ShaderVar>();
-                List<BaseTexRef> tex = new List<BaseTexRef>();
+            //return;
+            //if (Program.IsValid)
+            //{
+            //    const string uniform = "uniform";
+            //    const string sampler = "sampler";
+            //    const string layout = "layout";
+            //    const string binding = "binding";
 
-                foreach (RenderShader shader in Program)
-                {
-                    string text = shader.SourceText;
-                    int mainIndex = text.IndexOf("main(");
-                    if (mainIndex > 0)
-                        text = text.Substring(0, mainIndex);
+            //    List<ShaderVar> vars = new List<ShaderVar>();
+            //    List<BaseTexRef> tex = new List<BaseTexRef>();
 
-                    int prevSemicolonIndex = -1;
-                    int[] uniformIndices = text.FindAllOccurrences(0, uniform);
-                    foreach (int unifIndex in uniformIndices)
-                    {
-                        int startIndex = unifIndex + uniform.Length;
-                        int semicolonIndex = text.FindFirst(startIndex, ';');
+            //    foreach (RenderShader shader in Program)
+            //    {
+            //        string text = shader.SourceText;
+            //        int mainIndex = text.IndexOf("main(");
+            //        if (mainIndex > 0)
+            //            text = text.Substring(0, mainIndex);
 
-                        prevSemicolonIndex = semicolonIndex;
+            //        int prevSemicolonIndex = -1;
+            //        int[] uniformIndices = text.FindAllOccurrences(0, uniform);
+            //        foreach (int unifIndex in uniformIndices)
+            //        {
+            //            int startIndex = unifIndex + uniform.Length;
+            //            int semicolonIndex = text.FindFirst(startIndex, ';');
 
-                        string uniformLineText = text.Substring(startIndex, semicolonIndex - startIndex).Trim().ReplaceWhitespace(" ");
+            //            prevSemicolonIndex = semicolonIndex;
 
-                        string[] parts = uniformLineText.Split(' ');
-                        string type = parts[0];
-                        string name = parts[1];
+            //            string uniformLineText = text.Substring(startIndex, semicolonIndex - startIndex).Trim().ReplaceWhitespace(" ");
 
-                        int samplerIndex = type.IndexOf(sampler);
-                        if (samplerIndex >= 0)
-                        {
-                            //This is a texture uniform
+            //            string[] parts = uniformLineText.Split(' ');
+            //            string type = parts[0];
+            //            string name = parts[1];
 
-                            //int layoutIndex = prevSemicolonIndex < 0 ?
-                            //    text.FindFirstReverse(layout) :
-                            //    text.Substring(prevSemicolonIndex + 1, unifIndex).FindFirstReverse(layout);
+            //            int samplerIndex = type.IndexOf(sampler);
+            //            if (samplerIndex >= 0)
+            //            {
+            //                //This is a texture uniform
 
-                            //int bindingIndex = -1;
-                            //if (layoutIndex >= 0)
-                            //{
-                            //    int open = text.FindFirst(layoutIndex + layout.Length, '(') + 1;
-                            //    int close = text.FindFirst(open, ')');
-                            //    string layoutSection = text.Substring(open, close - open);
-                            //    int bindingStrIndex = layoutSection.IndexOf(binding);
-                            //    int start = layoutSection.FindFirst(bindingStrIndex + binding.Length, '=') + 1;
-                            //    int commaIndex = layoutSection.FindFirst(start, ',');
-                            //    int end = commaIndex < 0 ? close : commaIndex;
-                            //    string bindingValue = layoutSection.Substring(start, end - start);
-                            //    bindingIndex = int.Parse(bindingValue.Trim());
-                            //}
-                            //else
-                            //{
-                            //    bindingIndex = 
-                            //}
+            //                //int layoutIndex = prevSemicolonIndex < 0 ?
+            //                //    text.FindFirstReverse(layout) :
+            //                //    text.Substring(prevSemicolonIndex + 1, unifIndex).FindFirstReverse(layout);
+
+            //                //int bindingIndex = -1;
+            //                //if (layoutIndex >= 0)
+            //                //{
+            //                //    int open = text.FindFirst(layoutIndex + layout.Length, '(') + 1;
+            //                //    int close = text.FindFirst(open, ')');
+            //                //    string layoutSection = text.Substring(open, close - open);
+            //                //    int bindingStrIndex = layoutSection.IndexOf(binding);
+            //                //    int start = layoutSection.FindFirst(bindingStrIndex + binding.Length, '=') + 1;
+            //                //    int commaIndex = layoutSection.FindFirst(start, ',');
+            //                //    int end = commaIndex < 0 ? close : commaIndex;
+            //                //    string bindingValue = layoutSection.Substring(start, end - start);
+            //                //    bindingIndex = int.Parse(bindingValue.Trim());
+            //                //}
+            //                //else
+            //                //{
+            //                //    bindingIndex = 
+            //                //}
                             
-                            string type2 = type.Substring(samplerIndex + 7);
-                            switch (type2)
-                            {
-                                case "1D":
+            //                string type2 = type.Substring(samplerIndex + 7);
+            //                switch (type2)
+            //                {
+            //                    case "1D":
 
-                                    break;
-                                case "2D":
+            //                        break;
+            //                    case "2D":
 
-                                    break;
-                                case "3D":
+            //                        break;
+            //                    case "3D":
 
-                                    break;
-                                case "Cube":
+            //                        break;
+            //                    case "Cube":
 
-                                    break;
-                                case "2DRect":
+            //                        break;
+            //                    case "2DRect":
 
-                                    break;
-                                case "1DArray":
+            //                        break;
+            //                    case "1DArray":
 
-                                    break;
-                                case "2DArray":
+            //                        break;
+            //                    case "2DArray":
 
-                                    break;
-                                case "CubeArray":
+            //                        break;
+            //                    case "CubeArray":
 
-                                    break;
-                                case "Buffer":
+            //                        break;
+            //                    case "Buffer":
 
-                                    break;
-                                case "2DMS":
+            //                        break;
+            //                    case "2DMS":
 
-                                    break;
-                                case "2DMSArray":
+            //                        break;
+            //                    case "2DMSArray":
 
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            int equalIndex = uniformLineText.FindFirst(0, '=');
-                            if (equalIndex >= 0)
-                            {
+            //                        break;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                int equalIndex = uniformLineText.FindFirst(0, '=');
+            //                if (equalIndex >= 0)
+            //                {
 
-                            }
+            //                }
 
-                            if (Enum.TryParse("_" + type, out EShaderVarType result))
-                            {
-                                Type shaderType = ShaderVar.ShaderTypeAssociations[result];
-                                ShaderVar match = Parameters.FirstOrDefault(x =>
-                                    String.Equals(x.Name, name, StringComparison.InvariantCulture) &&
-                                    x.TypeName == result);
+            //                if (Enum.TryParse("_" + type, out EShaderVarType result))
+            //                {
+            //                    Type shaderType = ShaderVar.ShaderTypeAssociations[result];
+            //                    ShaderVar match = Parameters.FirstOrDefault(x =>
+            //                        String.Equals(x.Name, name, StringComparison.InvariantCulture) &&
+            //                        x.TypeName == result);
 
-                                if (match != null && match.GetType() == shaderType)
-                                {
-                                    vars.Add(match);
-                                }
-                                else
-                                {
-                                    object value;
-                                    int arrayIndexStart = name.IndexOf("[");
-                                    if (arrayIndexStart > 0)
-                                    {
-                                        int arrayIndexEnd = name.IndexOf("]");
-                                        int arrayCount = int.Parse(name.Substring(arrayIndexStart + 1, arrayIndexEnd - arrayIndexStart - 1));
+            //                    if (match != null && match.GetType() == shaderType)
+            //                    {
+            //                        vars.Add(match);
+            //                    }
+            //                    else
+            //                    {
+            //                        object value;
+            //                        int arrayIndexStart = name.IndexOf("[");
+            //                        if (arrayIndexStart > 0)
+            //                        {
+            //                            int arrayIndexEnd = name.IndexOf("]");
+            //                            int arrayCount = int.Parse(name.Substring(arrayIndexStart + 1, arrayIndexEnd - arrayIndexStart - 1));
 
-                                        Type genericVarType = typeof(ShaderArray<>);
-                                        Type genericValType = typeof(ShaderArrayValueHandler<>);
+            //                            Type genericVarType = typeof(ShaderArray<>);
+            //                            Type genericValType = typeof(ShaderArrayValueHandler<>);
 
-                                        Type valueType = genericValType.MakeGenericType(shaderType);
-                                        shaderType = genericVarType.MakeGenericType(shaderType);
+            //                            Type valueType = genericValType.MakeGenericType(shaderType);
+            //                            shaderType = genericVarType.MakeGenericType(shaderType);
 
-                                        value = Activator.CreateInstance(valueType, arrayCount);
-                                        name = name.Substring(0, arrayIndexStart);
+            //                            value = Activator.CreateInstance(valueType, arrayCount);
+            //                            name = name.Substring(0, arrayIndexStart);
 
-                                        if (match == null)
-                                            value = shaderType.GetDefaultValue();
-                                        else
-                                            value = match.GenericValue;
-                                    }
-                                    else if (match == null)
-                                        value = shaderType.GetDefaultValue();
-                                    else
-                                        value = match.GenericValue;
+            //                            if (match == null)
+            //                                value = shaderType.GetDefaultValue();
+            //                            else
+            //                                value = match.GenericValue;
+            //                        }
+            //                        else if (match == null)
+            //                            value = shaderType.GetDefaultValue();
+            //                        else
+            //                            value = match.GenericValue;
 
-                                    //int defaultValue, string name, IShaderVarOwner owner
-                                    ShaderVar var = (ShaderVar)Activator.CreateInstance(shaderType, value, name, null);
-                                    vars.Add(var);
-                                }
-                            }
-                        }
-                    }
-                }
-                //Textures = tex.ToArray();
-                //Parameters = vars.ToArray();
-            }
+            //                        //int defaultValue, string name, IShaderVarOwner owner
+            //                        ShaderVar var = (ShaderVar)Activator.CreateInstance(shaderType, value, name, null);
+            //                        vars.Add(var);
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //    //Textures = tex.ToArray();
+            //    //Parameters = vars.ToArray();
+            //}
         }
 
         [TSerialize]

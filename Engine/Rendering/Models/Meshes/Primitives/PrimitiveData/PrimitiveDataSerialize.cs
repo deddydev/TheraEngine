@@ -8,22 +8,22 @@ namespace TheraEngine.Rendering.Models
 {
     public partial class PrimitiveData : TFileObject, IDisposable
     {
-        [CustomSerializeMethod(nameof(Triangles))]
+        [TCustomMemberSerializeMethod(nameof(Triangles))]
         private void SerializeTriangles(SerializeElement node)
         {
             node.SetElementContent(_triangles?.SelectMany(x => x.Points.Select(y => y.VertexIndex))?.ToArray());
         }
-        [CustomSerializeMethod(nameof(Lines))]
+        [TCustomMemberSerializeMethod(nameof(Lines))]
         private void SerializeLines(SerializeElement node)
         {
             node.SetElementContent(_lines?.SelectMany(x => new int[] { x.Point0.VertexIndex, x.Point1.VertexIndex })?.ToArray());
         }
-        [CustomSerializeMethod(nameof(Points))]
+        [TCustomMemberSerializeMethod(nameof(Points))]
         private void SerializePoints(SerializeElement node)
         {
             node.SetElementContent(_points?.Select(x => x.VertexIndex)?.ToArray());
         }
-        [CustomDeserializeMethod(nameof(Triangles))]
+        [TCustomMemberDeserializeMethod(nameof(Triangles))]
         private void DeserializeTriangles(SerializeElement node)
         {
             if (node.GetElementContentAs(out int[] value))
@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering.Models
             else
                 _triangles = null;
         }
-        [CustomDeserializeMethod(nameof(Lines))]
+        [TCustomMemberDeserializeMethod(nameof(Lines))]
         private void DeserializeLines(SerializeElement node)
         {
             if (node.GetElementContentAs(out int[] value))
@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Models
             else
                 _lines = null;
         }
-        [CustomDeserializeMethod(nameof(Points))]
+        [TCustomMemberDeserializeMethod(nameof(Points))]
         private void DeserializePoints(SerializeElement node)
         {
             if (node.GetElementContentAs(out int[] value))
@@ -47,7 +47,7 @@ namespace TheraEngine.Rendering.Models
             else
                 _points = null;
         }
-        [CustomSerializeMethod(nameof(FacePoints))]
+        [TCustomMemberSerializeMethod(nameof(FacePoints))]
         public void SerializeFacePoints(SerializeElement node)
         {
             node.AddAttribute("Count", _facePoints.Count);
@@ -75,7 +75,7 @@ namespace TheraEngine.Rendering.Models
             
             node.SetElementContent(indices);
         }
-        [CustomDeserializeMethod(nameof(FacePoints))]
+        [TCustomMemberDeserializeMethod(nameof(FacePoints))]
         private void DeserializeFacePoints(SerializeElement node)
         {
             if (!node.GetAttributeValue("Count", out int count))
@@ -102,7 +102,7 @@ namespace TheraEngine.Rendering.Models
                 }
             }
         }
-        [CustomSerializeMethod(nameof(Influences))]
+        [TCustomMemberSerializeMethod(nameof(Influences))]
         public void CustomInfluencesSerialize(SerializeElement node)
         {
             bool valid = string.IsNullOrEmpty(_singleBindBone) && _utilizedBones != null;
@@ -111,9 +111,9 @@ namespace TheraEngine.Rendering.Models
             if (!valid)
                 return;
 
-            SerializeElement countsNode = new SerializeElement();
-            SerializeElement indicesNode = new SerializeElement();
-            SerializeElement weightsNode = new SerializeElement();
+            SerializeElement countsNode = new SerializeElement("Counts");
+            SerializeElement indicesNode = new SerializeElement("Indices");
+            SerializeElement weightsNode = new SerializeElement("Weights");
 
             int[] counts = new int[_influences.Length];
             List<int> indices = new List<int>(_influences.Length * 4);
@@ -138,7 +138,7 @@ namespace TheraEngine.Rendering.Models
             node.ChildElements.Add(indicesNode);
             node.ChildElements.Add(weightsNode);
         }
-        [CustomDeserializeMethod(nameof(Influences))]
+        [TCustomMemberDeserializeMethod(nameof(Influences))]
         public void CustomInfluencesDeserialize(SerializeElement node)
         {
             if (!node.GetAttributeValue("Count", out int count))

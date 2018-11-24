@@ -37,7 +37,6 @@ namespace TheraEngine.Core.Files.Serialization
                 Async = true,
             };
 
-            private FileStream _stream;
             private XmlReader _reader;
 
             public ReaderXML(
@@ -56,10 +55,20 @@ namespace TheraEngine.Core.Files.Serialization
             }
             protected override async Task ReadTreeAsync()
             {
-                using (_stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 0x1000, FileOptions.RandomAccess))
+                long currentBytes = 0L;
+                using (_stream = new ProgressStream(new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read), null, null))
                 using (_reader = XmlReader.Create(_stream, _settings))
                 {
-                    _stream.Position = 0;
+                    if (Progress != null)
+                    {
+                        float length = _stream.Length;
+                        _stream.SetReadProgress(new BasicProgress<int>(i =>
+                        {
+                            currentBytes += i;
+                            Progress.Report(currentBytes / length);
+                        }));
+                    }
+
                     await _reader.MoveToContentAsync();
                     RootNode = await ReadElementAsync();
                 }

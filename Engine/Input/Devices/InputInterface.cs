@@ -32,7 +32,7 @@ namespace TheraEngine.Input.Devices
         /// Global registration methods found here are called to register input for any and all controllers,
         /// regardless of the pawn they control or the type of controller they are.
         /// </summary>
-        public static List<DelWantsInputsRegistered> GlobalRegisters = new List<DelWantsInputsRegistered>();
+        public static List<DelWantsInputsRegistered> GlobalRegisters { get; } = new List<DelWantsInputsRegistered>();
 
         public event DelWantsInputsRegistered WantsInputsRegistered;
 

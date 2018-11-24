@@ -188,13 +188,13 @@ namespace TheraEngine.Core.Files.Serialization
             return t.Name;
         }
 
-        public static bool CanParseAsString(Type t)
+        public static bool IsSerializableAsString(Type t)
             => t != null &&
             (t.GetInterface(nameof(ISerializableString)) != null ||
             IsPrimitiveType(t, true, true, true) ||
             IsEnum(t) ||
             t.IsValueType ||
-            (t.GetInterface(nameof(IList)) != null && CanParseAsString(t.DetermineElementType())));
+            (t.GetInterface(nameof(IList)) != null && IsSerializableAsString(t.DetermineElementType())));
 
         public static bool GetString(object value, Type t, out string result)
         {
@@ -221,7 +221,7 @@ namespace TheraEngine.Core.Files.Serialization
             else if (t.GetInterface(nameof(IList)) != null)
             {
                 Type elementType = t.DetermineElementType();
-                if (CanParseAsString(elementType))
+                if (IsSerializableAsString(elementType))
                 {
                     string separator = " ";
                     if (!IsPrimitiveType(elementType))
@@ -277,7 +277,7 @@ namespace TheraEngine.Core.Files.Serialization
             else if (t.GetInterface(nameof(IList)) != null)
             {
                 Type elementType = t.DetermineElementType();
-                if (CanParseAsString(elementType))
+                if (IsSerializableAsString(elementType))
                 {
                     char separator = ' ';
                     if (!IsPrimitiveType(elementType))
@@ -525,6 +525,8 @@ namespace TheraEngine.Core.Files.Serialization
 
             string validStartChars = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
             string validChars = validStartChars + "-.1234567890";
+            if (name == null)
+                throw new Exception("Element name cannot be null.");
             name = name.Replace(" ", "");
             if (name.ToLowerInvariant().StartsWith("xml"))
                 name = name.Substring(3);
@@ -545,40 +547,64 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Finds a file name that does not exist within the given directory.
         /// </summary>
-        public static string ResolveFileName(string fileDir, string name, string ext)
+        public static string ResolveFileName(string dir, string name, string ext)
         {
-            if (!Directory.Exists(fileDir))
+            if (!Directory.Exists(dir))
                 return name;
             if (!ext.StartsWith("."))
                 ext = "." + ext;
             if (string.IsNullOrWhiteSpace(name))
                 name = "UnnamedFile";
-            string[] files = Directory.GetFiles(fileDir);
+            string[] files = Directory.GetFiles(dir);
             string number = "";
             int i = 0;
             while (files.Any(x => string.Equals(Path.GetFileName(x), name + number + ext)))
+                number = (i++).ToString();
+            return name + number + ext;
+        }
+        /// <summary>
+        /// Finds a file name that does not exist within the given directory.
+        /// </summary>
+        public static string ResolveDirectoryName(string dir, string name)
+        {
+            if (!Directory.Exists(dir))
+                return name;
+            if (string.IsNullOrWhiteSpace(name))
+                name = "UnnamedFolder";
+            string[] dirs = Directory.GetDirectories(dir);
+            string number = "";
+            int i = 0;
+            while (dirs.Any(x => string.Equals(Path.GetFileName(x), name + number)))
                 number = (i++).ToString();
             return name + number;
         }
         public static Type CreateType(string typeDeclaration)
         {
-            //Fix version number
-            AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
-            Version version = Assembly.Load(asmQualName.GetAssemblyName()).GetName().Version;
-            asmQualName.VersionMinor = version.Minor;
-            asmQualName.VersionBuild = version.Build;
-            asmQualName.VersionRevision = version.Revision;
-            typeDeclaration = asmQualName.ToString();
+            try
+            {
+                //Fix version number
+                AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
+                Version version = Assembly.Load(asmQualName.GetAssemblyName()).GetName().Version;
+                asmQualName.VersionMinor = version.Minor;
+                asmQualName.VersionBuild = version.Build;
+                asmQualName.VersionRevision = version.Revision;
+                typeDeclaration = asmQualName.ToString();
 
-            return Type.GetType(typeDeclaration,
-                name =>
-                {
-                    var assemblies = //AppDomain.CurrentDomain.GetAssemblies();
-                    Engine.EnumAppDomains().SelectMany(x => x.GetAssemblies());
-                    return assemblies.FirstOrDefault(z => z.FullName == name.FullName);
-                },
-                null,
-                false);
+                return Type.GetType(typeDeclaration,
+                    name =>
+                    {
+                        var assemblies = //AppDomain.CurrentDomain.GetAssemblies();
+                        Engine.EnumAppDomains().SelectMany(x => x.GetAssemblies());
+                        return assemblies.FirstOrDefault(z => z.FullName == name.FullName);
+                    },
+                    null,
+                    true);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+            return null;
         }
         public static Type DetermineType(string filePath) => DetermineType(filePath, out EFileFormat format);
         public unsafe static Type DetermineType(string filePath, out EFileFormat format)
@@ -617,12 +643,12 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Engine.PrintLine(e.ToString());
             }
-            if (fileType == null)
-                Engine.LogWarning("Cannot determine the type of file at " + filePath + ".");
+            //if (fileType == null)
+            //    Engine.LogWarning("Cannot determine the type of file at " + filePath + ".");
             return fileType;
         }
 
-        private static Dictionary<ObjectWriterKind, Type> ObjectSerializers { get; set; } = null;
+        private static Dictionary<ObjectSerializerFor, Type> ObjectSerializers { get; set; } = null;
 
         /// <summary>
         /// Finds the class to use to read and write the given type.
@@ -642,11 +668,11 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     var typeList = Engine.FindTypes(type =>
                         baseObjSerType.IsAssignableFrom(type) &&
-                        (type.GetCustomAttributeExt<ObjectWriterKind>() != null), true);
+                        (type.GetCustomAttributeExt<ObjectSerializerFor>() != null), true);
 
-                    ObjectSerializers = new Dictionary<ObjectWriterKind, Type>();
+                    ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
                     foreach (var type in typeList)
-                        ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectWriterKind>(), type);
+                        ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectSerializerFor>(), type);
                 }
 
                 types = ObjectSerializers.Where(type => (type.Key.ObjectType?.IsAssignableFrom(objectType) ?? false)).Select(x => x.Value).ToArray();

@@ -2,8 +2,8 @@
 
 namespace TheraEngine.Worlds.Maps
 {
-    [FileExt("msta")]
-    [FileDef("Map State")]
+    [TFileExt("msta")]
+    [TFileDef("Map State")]
     public class MapState
     {
         public bool Visible { get; set; }

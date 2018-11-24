@@ -6,8 +6,8 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileExt("lod")]
-    [FileDef("Level Of Detail Mesh Spec")]
+    [TFileExt("lod")]
+    [TFileDef("Level Of Detail Mesh Spec")]
     public class LOD : TFileObject
     {
         public event Action BillboardModeChanged;

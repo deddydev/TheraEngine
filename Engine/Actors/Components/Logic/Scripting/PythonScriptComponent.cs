@@ -4,7 +4,7 @@ using TheraEngine.Scripting;
 
 namespace TheraEngine.Components.Logic.Scripting
 {
-    [FileDef("Python Script Component", "Logic component used to run a Python script.")]
+    [TFileDef("Python Script Component", "Logic component used to run a Python script.")]
     public class PythonScriptComponent : LogicComponent
     {
         private GlobalFileRef<PythonScript> _scriptRef = new GlobalFileRef<PythonScript>();

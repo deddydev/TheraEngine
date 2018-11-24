@@ -7,7 +7,7 @@ namespace TheraEngine
 {
     public partial class RenderForm : Form
     {
-        public RenderForm(Game game)
+        public RenderForm(TGame game)
         {
             Engine.SetGame(game);
             InitializeComponent();
@@ -15,8 +15,9 @@ namespace TheraEngine
             Engine.Initialize();
 
             Text = game.Name;
-            if (!string.IsNullOrEmpty(game.IconPath) && File.Exists(game.IconPath))
-                Icon = new Icon(game.IconPath);
+            Icon icon = game.GetIcon();
+            if (icon != null)
+                Icon = icon;
             
             switch (game.UserSettingsRef.File.WindowBorderStyle)
             {
@@ -31,24 +32,28 @@ namespace TheraEngine
                     break;
             }
 
-            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
-
             if (game.UserSettingsRef.File.FullScreen)
                 WindowState = FormWindowState.Maximized;
 
+#if !DEBUG
+            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
             Cursor.Hide();
+#endif
 
             Application.ApplicationExit += Application_ApplicationExit;
         }
         private void Application_ApplicationExit(object sender, EventArgs e)
         {
+            Engine.Stop();
             Engine.ShutDown();
         }
+#if !DEBUG
         protected override void OnSizeChanged(EventArgs e)
         {
             Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
             base.OnSizeChanged(e);
         }
+#endif
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);

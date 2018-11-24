@@ -4,7 +4,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Physics
 {
-    [FileDef("Rigid Body Construction Info")]
+    [TFileDef("Rigid Body Construction Info")]
     public class TRigidBodyConstructionInfo : TSettings
     {
         public TRigidBodyConstructionInfo() { }

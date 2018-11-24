@@ -8,7 +8,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileDef("Box")]
+    [TFileDef("Box")]
     public class Box : Shape
     {
         public EventVec3 _halfExtents;

@@ -13,7 +13,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileDef("Sphere")]
+    [TFileDef("Sphere")]
     public class Sphere : Shape
     {
         [TSerialize("Radius")]

@@ -13,7 +13,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Components.Scene
 {
-    [FileDef("Camera Component")]
+    [TFileDef("Camera Component")]
     public class CameraComponent : OriginRebasableComponent, ICameraTransformable, I3DRenderable
     {
         #region Constructors

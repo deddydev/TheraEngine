@@ -100,8 +100,8 @@ namespace TheraEngine.Animation
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
     }
-    [FileExt("kf", ManualXmlConfigSerialize = true, ManualXmlStateSerialize = true, ManualBinConfigSerialize = true, ManualBinStateSerialize = true)]
-    [FileDef("Keyframe Track")]
+    [TFileExt("kf", ManualXmlConfigSerialize = true, ManualXmlStateSerialize = true, ManualBinConfigSerialize = true, ManualBinStateSerialize = true)]
+    [TFileDef("Keyframe Track")]
     public class KeyframeTrack<T> : BaseKeyframeTrack, IList, IList<T>, IEnumerable<T> where T : Keyframe, new()
     {
         private T _first = null;

@@ -194,7 +194,6 @@ namespace System
         /// 
         /// </summary>
         /// <param name="order"></param>
-        /// <param name="intrinsic">True if the rotation coordinates follows the rotated body. If false, stays static.</param>
         /// <returns></returns>
         public Quat GetResult(RotOrder order)
         {

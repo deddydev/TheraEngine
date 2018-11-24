@@ -6,8 +6,8 @@ namespace TheraEngine.Animation
     /// <summary>
     /// Base class for animations that animate properties such as Vec3, bool and float.
     /// </summary>
-    [FileExt("propanim")]
-    [FileDef("Property Animation")]
+    [TFileExt("propanim")]
+    [TFileDef("Property Animation")]
     public abstract class BasePropAnim : BaseAnimation
     {
         public const string PropAnimCategory = "Property Animation";

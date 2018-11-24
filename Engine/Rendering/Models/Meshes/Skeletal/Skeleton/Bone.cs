@@ -21,8 +21,8 @@ namespace TheraEngine.Rendering.Models
         RotationXYZ,
         PerspectiveXYZ,
     }
-    [FileExt("bone")]
-    [FileDef("Bone")]
+    [TFileExt("bone")]
+    [TFileDef("Bone")]
     public class Bone : TFileObject, IRigidBodyCollidable, ISocket
     {
         public Bone(Skeleton owner) : this()
@@ -134,7 +134,7 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        [PostDeserialize]
+        [TPostDeserialize]
         internal void PostDeserialize()
         {
             foreach (Bone b in _childBones)

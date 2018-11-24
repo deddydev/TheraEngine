@@ -1,21 +1,16 @@
-﻿using TheraEngine;
-using TheraEngine.Tests;
-using System;
+﻿using System;
+using TheraEngine;
+using TheraEngine.Core.Files;
 
 namespace Thera
 {
     static class Program
     {
         [STAThread]
-        static void Main()
+        static async void Main()
         {
-            Game g = new Game()
-            {
-                OpeningWorldRef = typeof(TestWorld),
-            };
-            //g.UserSettings.FullScreen = true;
-            //g.UserSettings.WindowBorderStyle = WindowBorderStyle.None;
-            Engine.Run(g);
+            TGame game = await TFileObject.LoadAsync<TGame>("Thera.xtgame");
+            Engine.Run(game);
         }
     }
 }

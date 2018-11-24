@@ -6,7 +6,7 @@ using TheraEngine.ThirdParty;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    [FileDef("Rotational Noise Component")]
+    [TFileDef("Rotational Noise Component")]
     public class NoiseRotationComponent : SceneComponent
     {
         public NoiseRotationComponent() { }

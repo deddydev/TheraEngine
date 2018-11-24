@@ -34,7 +34,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// <summary>
     /// Translates first, then rotates.
     /// </summary>
-    [FileDef("Translate-Rotate Component")]
+    [TFileDef("Translate-Rotate Component")]
     public class TRComponent : TranslationComponent, ICameraTransformable
     {
         public TRComponent() : this(Vec3.Zero, Rotator.GetZero(), true) { }

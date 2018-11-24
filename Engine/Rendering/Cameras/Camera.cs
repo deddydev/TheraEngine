@@ -476,7 +476,7 @@ namespace TheraEngine.Rendering.Cameras
             //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraRight),                 GetRightVector());
         }
 
-        [PostDeserialize]
+        [TPostDeserialize]
         protected virtual void CalculateProjection()
         {
             _projectionRange = new Vec3(Dimensions, 1.0f);

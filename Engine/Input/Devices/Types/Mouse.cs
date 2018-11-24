@@ -54,6 +54,9 @@ namespace TheraEngine.Input.Devices
     public delegate void DelCursorUpdate(float x, float y);
     public class CursorManager
     {
+        /// <summary>
+        /// Determines if the mouse will jump to the other side of the Cursor.Clip rectangle.
+        /// </summary>
         public static bool WrapCursorWithinClip { get; set; } = true;
 
         private float _lastX, _lastY;

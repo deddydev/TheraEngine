@@ -13,8 +13,8 @@ namespace TheraEngine.Rendering.Cameras
 
         //public bool Enabled { get => _enabled; set => _enabled = value; }
     }
-    [FileExt("campost")]
-    [FileDef("Camera Post-Processing Settings")]
+    [TFileExt("campost")]
+    [TFileDef("Camera Post-Processing Settings")]
     public class PostProcessSettings : TFileObject
     {
         public PostProcessSettings()
@@ -270,6 +270,9 @@ uniform ColorGradeStruct ColorGrade;";
         public unsafe void UpdateExposure(TexRef2D hdrSceneTexture)
         {
             if (!AutoExposure && Exposure >= MinExposure && Exposure <= MaxExposure)
+                return;
+
+            if (Engine.CurrentFramesPerSecond < 30.0f)
                 return;
 
             //Calculate average color value using 1x1 mipmap of scene

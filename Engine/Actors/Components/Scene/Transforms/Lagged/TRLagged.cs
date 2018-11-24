@@ -8,7 +8,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// <summary>
     /// Translates first, then rotates. Lags behind by a specified amount for smooth movement.
     /// </summary>
-    [FileDef("Lagging Translate-Rotate Component")]
+    [TFileDef("Lagging Translate-Rotate Component")]
     public class TRLaggedComponent : TranslationLaggedComponent
     {
         public TRLaggedComponent() : this(Vec3.Zero, Rotator.GetZero(), true) { }

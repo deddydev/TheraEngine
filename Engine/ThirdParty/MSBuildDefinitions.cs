@@ -50,6 +50,14 @@ namespace TheraEngine.ThirdParty
             [Browsable(false)]
             public UsingTask[] UsingTaskElements => GetChildren<UsingTask>();
 
+            //The schema must appear before all other attributes
+            /// <summary>
+            /// Optional attribute.
+            /// When specified, the xmlns attribute must have the value of "http://schemas.microsoft.com/developer/msbuild/2003".
+            /// </summary>
+            [Attr("xmlns", false)]
+            [DefaultValue("http://schemas.microsoft.com/developer/msbuild/2003")]
+            public string Schema { get; set; }
             /// <summary>
             /// Optional attribute.
             /// The default target or targets to be the entry point of the build if no target has been specified. 
@@ -98,13 +106,6 @@ namespace TheraEngine.ThirdParty
             /// </summary>
             [Attr("TreatAsLocalProperty", false)]
             public string TreatAsLocalProperty { get; set; }
-            /// <summary>
-            /// Optional attribute.
-            /// When specified, the xmlns attribute must have the value of "http://schemas.microsoft.com/developer/msbuild/2003".
-            /// </summary>
-            [Attr("xmlns", false)]
-            [DefaultValue("http://schemas.microsoft.com/developer/msbuild/2003")]
-            public string Schema { get; set; }
 
             public override string ToString()
             {
@@ -342,6 +343,8 @@ namespace TheraEngine.ThirdParty
                 public override string ToString()
                 {
                     string s = ElementName;
+                    if (StringContent?.Value != null)
+                        s += " : " + StringContent.Value;
                     if (Condition != null)
                         s += $" [{nameof(Condition)}: {Condition}]";
                     return s;
@@ -475,6 +478,8 @@ namespace TheraEngine.ThirdParty
                 public override string ToString()
                 {
                     string s = ElementName;
+                    if (StringContent?.Value != null)
+                        s += " : " + StringContent.Value;
                     if (Condition != null)
                         s += $" [{nameof(Condition)}: {Condition}]";
                     return s;

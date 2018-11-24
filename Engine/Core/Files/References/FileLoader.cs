@@ -26,8 +26,8 @@ namespace TheraEngine.Core.Files
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
-    [FileExt("ldr")]
-    [FileDef("File Loader")]
+    [TFileExt("ldr")]
+    [TFileDef("File Loader")]
     public class FileLoader<T> : TFileObject, IFileLoader where T : class, IFileObject
     {
         public event DelPathChange AbsoluteRefPathChanged;
@@ -86,7 +86,7 @@ namespace TheraEngine.Core.Files
                         !string.IsNullOrWhiteSpace(_absoluteRefPath) &&
                         _absoluteRefPath.IsValidExistingPath())
                     {
-                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(RootFile.DirectoryPath);
+                        _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
                     }
                 }
             }
@@ -105,11 +105,11 @@ namespace TheraEngine.Core.Files
                 else if (!string.IsNullOrWhiteSpace(_absoluteRefPath) && _absoluteRefPath.IsValidExistingPath())
                 {
                     if (PathType == EPathType.EngineRelative)
-                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(Application.StartupPath);
+                        _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(Application.StartupPath);
                     else
                     {
                         if (!string.IsNullOrEmpty(RootFile.DirectoryPath))
-                            _localRefPath = _absoluteRefPath.MakePathRelativeTo(RootFile.DirectoryPath);
+                            _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
                         else
                             _localRefPath = Path.GetFileName(_absoluteRefPath);
                     }
@@ -161,7 +161,7 @@ namespace TheraEngine.Core.Files
                                     _localRefPath = _absoluteRefPath;
                                 }
                                 else
-                                    _localRefPath = _absoluteRefPath.MakePathRelativeTo(Application.StartupPath);
+                                    _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(Application.StartupPath);
                             }
                             else
                             {
@@ -179,7 +179,7 @@ namespace TheraEngine.Core.Files
                                         _localRefPath = _absoluteRefPath;
                                     }
                                     else
-                                        _localRefPath = _absoluteRefPath.MakePathRelativeTo(RootFile.DirectoryPath);
+                                        _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
                                 }
                                 else
                                     _localRefPath = null;
@@ -244,7 +244,7 @@ namespace TheraEngine.Core.Files
                         }
                         else
                         {
-                            string relPath = _localRefPath.MakePathRelativeTo(Application.StartupPath);
+                            string relPath = _localRefPath.MakeAbsolutePathRelativeTo(Application.StartupPath);
                             string combinedPath = Path.Combine(Application.StartupPath, _localRefPath);
                             _absoluteRefPath = Path.GetFullPath(combinedPath);
                         }
@@ -517,12 +517,12 @@ namespace TheraEngine.Core.Files
         /// </summary>
         private bool IsThirdPartyImportableExt(string ext)
         {
-            File3rdParty header = GetFile3rdPartyExtensions(_subType);
+            TFile3rdParty header = GetFile3rdPartyExtensions(_subType);
             return header?.ImportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
         private bool IsThirdPartyExportableExt(string ext)
         {
-            File3rdParty header = GetFile3rdPartyExtensions(_subType);
+            TFile3rdParty header = GetFile3rdPartyExtensions(_subType);
             return header?.ExportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
         public override string ToString() => ReferencePathAbsolute;

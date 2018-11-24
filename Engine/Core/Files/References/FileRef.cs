@@ -1,11 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml;
-using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Core.Files
 {
@@ -21,7 +17,7 @@ namespace TheraEngine.Core.Files
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
-    [FileExt("ref")]
+    [TFileExt("ref")]
     public abstract class FileRef<T> : FileLoader<T>, IFileRef where T : class, IFileObject
     {
         #region Constructors
@@ -108,7 +104,7 @@ namespace TheraEngine.Core.Files
         /// If true, the referenced file will be written within the parent file's data
         /// and loaded with the parent file instead of being loaded on demand from the external file.
         /// </summary>
-        [Browsable(false)]
+        //[Browsable(false)]
         [Category("File Reference")]
         public bool StoredInternally => string.IsNullOrWhiteSpace(ReferencePathAbsolute);
 
@@ -118,7 +114,7 @@ namespace TheraEngine.Core.Files
         IFileObject IFileRef.File => File;
         
         [Category("File Reference")]
-        [BrowsableIf("_file != null")]
+        //[BrowsableIf("_file != null")]
         public T File
         {
             get => GetInstance();

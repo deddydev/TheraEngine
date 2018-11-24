@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene.Transforms
 {
     public delegate void DelBoomLengthChange(float newLength);
 
-    [FileDef("Boom Component")]
+    [TFileDef("Boom Component")]
     public class BoomComponent : RTComponent, I3DRenderable
     {
         public event DelBoomLengthChange CurrentDistanceChanged;

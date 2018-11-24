@@ -7,7 +7,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
-    [FileDef("Box Component")]
+    [TFileDef("Box Component")]
     public class BoxComponent : ShapeComponent
     {
         protected Box _box;

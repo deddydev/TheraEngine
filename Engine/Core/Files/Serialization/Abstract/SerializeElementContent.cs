@@ -12,11 +12,12 @@ namespace TheraEngine.Core.Files.Serialization
         private Type _valueType;
 
         public bool IsNotNull => _value != null || _stringValue != null;
-        public void SetValueAsObject(object o)
+        public bool SetValueAsObject(object o)
         {
             _value = o;
             _valueType = _value?.GetType();
             IsNonStringObject = _value != null ? !SerializationCommon.GetString(_value, _valueType, out _stringValue) : false;
+            return !IsNonStringObject;
         }
         public void SetValueAsString(string o)
         {
@@ -37,7 +38,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         private bool ParseStringToObject(Type type)
         {
-            bool canParse = SerializationCommon.CanParseAsString(type);
+            bool canParse = SerializationCommon.IsSerializableAsString(type);
             if (canParse)
             {
                 _value = SerializationCommon.ParseString(_stringValue, type);

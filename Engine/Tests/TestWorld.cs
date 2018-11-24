@@ -18,7 +18,7 @@ using System.IO;
 
 namespace TheraEngine.Tests
 {
-    public unsafe class TestWorld : World
+    public unsafe class TestWorld : TWorld
     {
         public unsafe override void BeginPlay()
         {

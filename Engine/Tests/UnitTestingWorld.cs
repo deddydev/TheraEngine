@@ -27,7 +27,7 @@ using TheraEngine.Worlds.Maps;
 
 namespace TheraEngine.Tests
 {
-    public class UnitTestingWorld : World
+    public class UnitTestingWorld : TWorld
     {
         private Random _rand = new Random();
         private void RigidBodyCollision_Collided1(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)

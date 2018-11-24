@@ -7,8 +7,8 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileExt("primdata")]
-    [FileDef("Mesh Primitive Data")]
+    [TFileExt("primdata")]
+    [TFileDef("Mesh Primitive Data")]
     public partial class PrimitiveData : TFileObject, IDisposable
     {
         static PrimitiveData()

@@ -10,6 +10,8 @@ namespace TheraEngine.Core.Files.Serialization
         public EProprietaryFileFormat Format { get; protected set; }
         public abstract class TBaseAbstractReaderWriter
         {
+            protected ProgressStream _stream;
+
             public string FilePath { get; internal set; }
             public string FileDirectory { get; internal set; }
             public IProgress<float> Progress { get; internal set; }

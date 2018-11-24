@@ -323,7 +323,7 @@ namespace TheraEngine.Rendering
                 viewport.LightCombineFBO.RenderFullscreen();
 
                 Engine.Renderer.EnableDepthTest(true);
-                viewport.RenderingCamera.OwningComponent?.OwningWorld?.PhysicsWorld?.DrawDebugWorld();
+                //viewport.RenderingCamera.OwningComponent?.OwningWorld?.PhysicsWorld?.DrawDebugWorld();
                 //RenderTree.DebugRender(viewport.RenderingCamera.Frustum, true);
 
                 renderingPasses.Render(ERenderPass.OpaqueForward);

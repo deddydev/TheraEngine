@@ -10,22 +10,28 @@ namespace TheraEngine.Core.Files
     {
 
     }
-
+    /// <summary>
+    /// Add this interface to a class to use that class as the handler for global instances.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IGlobalFilesContext<T> where T : class, IFileObject
     {
         ConcurrentDictionary<string, GlobalFileRef<T>> GlobalFileInstances { get; }
     }
-    public interface IGlobalFilesContext
-    {
-        ConcurrentDictionary<string, IGlobalFileRef> GlobalFileInstances { get; }
-    }
+    /// <summary>
+    /// 
+    /// </summary>
+    //public interface IGlobalFilesContext
+    //{
+    //    ConcurrentDictionary<string, IGlobalFileRef> GlobalFileInstances { get; }
+    //}
 
     /// <summary>
     /// Allows only one loaded instance of this file throughout the program.
     /// File can be loaded on-demand or preloaded.
     /// </summary>
-    [FileExt("gref")]
-    [FileDef("Global File Reference")]
+    [TFileExt("gref")]
+    [TFileDef("Global File Reference")]
     public class GlobalFileRef<T> : FileRef<T>, IGlobalFileRef where T : class, IFileObject
     {
         public GlobalFileRef()
@@ -86,6 +92,10 @@ namespace TheraEngine.Core.Files
             }
         }
 
+        /// <summary>
+        /// This is the context used to determine if the file is loaded or not.
+        /// If null, uses the engine itself as a global context.
+        /// </summary>
         [Browsable(false)]
         public IGlobalFilesContext<T> Context { get; set; } = null;
 

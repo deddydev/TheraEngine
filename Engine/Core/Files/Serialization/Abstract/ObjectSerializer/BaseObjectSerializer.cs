@@ -3,7 +3,8 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class ObjectWriterKind : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public class ObjectSerializerFor : Attribute
     {
         /// <summary>
         /// The type this writer will be collecting members for.
@@ -13,7 +14,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// If this object needs specific handling in binary format.
         /// </summary>
         public bool ManualBinarySerialize { get; }
-        public ObjectWriterKind(Type objectType, bool manualBinarySerialize = false)
+        public ObjectSerializerFor(Type objectType, bool manualBinarySerialize = false)
         {
             ObjectType = objectType;
             ManualBinarySerialize = manualBinarySerialize;
@@ -24,6 +25,11 @@ namespace TheraEngine.Core.Files.Serialization
     /// </summary>
     public abstract class BaseObjectSerializer
     {
+        public bool ShouldWriteDefaultMembers
+            => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteDefaultMembers) ?? false;
+        public bool WriteChangedMembersOnly
+            => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteChangedMembersOnly) ?? false;
+        
         public SerializeElement TreeNode { get; internal protected set; } = null;
         public int TreeSize { get; private set; }
 

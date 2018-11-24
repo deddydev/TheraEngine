@@ -6,7 +6,7 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [ObjectWriterKind(typeof(IDictionary))]
+    [ObjectSerializerFor(typeof(IDictionary))]
     public class IDictionarySerializer : BaseObjectSerializer
     {
         public override void DeserializeTreeToObject()

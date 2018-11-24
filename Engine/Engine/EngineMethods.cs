@@ -19,6 +19,7 @@ using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Text;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
@@ -28,6 +29,9 @@ namespace TheraEngine
 {
     public static partial class Engine
     {
+        public static float CurrentFramesPerSecond => _timer.RenderFrequency;
+        public static float CurrentUpdatesPerSecond => _timer.UpdateFrequency;
+
         public static ColorF4 InvalidColor { get; } = Color.Magenta;
 
         #region Startup/Shutdown
@@ -52,7 +56,7 @@ namespace TheraEngine
         /// Will create a render form,  initialize the engine, and start the game, so no other methods are needed.
         /// </summary>
         /// <param name="game">The game to play.</param>
-        public static void Run(Game game)
+        public static void Run(TGame game)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -61,8 +65,8 @@ namespace TheraEngine
 
         public static string EngineWorldsPath(string fileName)
             => Path.Combine(Settings.WorldsFolder ?? string.Empty, fileName);
-        public static async Task<World> LoadEngineWorldAsync(string fileName)
-            => await TFileObject.LoadAsync<World>(EngineWorldsPath(fileName));
+        public static async Task<TWorld> LoadEngineWorldAsync(string fileName)
+            => await TFileObject.LoadAsync<TWorld>(EngineWorldsPath(fileName));
 
         public static string EngineShadersPath(string fileName)
             => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
@@ -94,7 +98,7 @@ namespace TheraEngine
         /// Sets the game information for all code to grab preferences from.
         /// Call this BEFORE ANYTHING ELSE!
         /// </summary>
-        public static void SetGame(Game game)
+        public static void SetGame(TGame game)
         {
             MainThreadID = Thread.CurrentThread.ManagedThreadId;
             if (Game != null)
@@ -149,18 +153,40 @@ namespace TheraEngine
         /// </summary>
         public static void Initialize(bool loadOpeningWorldGameMode = true)
         {
-            TargetFramesPerSecond = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
-            TargetUpdatesPerSecond = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
+            var userSet = UserSettings;
+            var engineSet = Settings;
+
+            if (engineSet != null)
+            {
+                TargetFramesPerSecond = engineSet.CapFPS ? engineSet.TargetFPS.ClampMin(1.0f) : 0.0f;
+                TargetUpdatesPerSecond = engineSet.CapUPS ? engineSet.TargetUPS.ClampMin(1.0f) : 0.0f;
+            }
+            else
+            {
+                TargetFramesPerSecond = 0.0f;
+                TargetUpdatesPerSecond = 0.0f;
+            }
 
             if (Game != null)
             {
-                RenderLibrary = Game.UserSettingsRef.File?.RenderLibrary ?? DefaultRenderLibrary;
-                AudioLibrary = Game.UserSettingsRef.File?.AudioLibrary ?? DefaultAudioLibrary;
-                InputLibrary = Game.UserSettingsRef.File?.InputLibrary ?? DefaultInputLibrary;
-                PhysicsLibrary = Game.UserSettingsRef.File?.PhysicsLibrary ?? DefaultPhysicsLibrary;
+                if (userSet != null)
+                {
+                    RenderLibrary = userSet.RenderLibrary;
+                    AudioLibrary = userSet.AudioLibrary;
+                    InputLibrary = userSet.InputLibrary;
+                    PhysicsLibrary = userSet.PhysicsLibrary;
+                }
+                else
+                {
+                    RenderLibrary = DefaultRenderLibrary;
+                    AudioLibrary = DefaultAudioLibrary;
+                    InputLibrary = DefaultInputLibrary;
+                    PhysicsLibrary = DefaultPhysicsLibrary;
+                }
 
                 //Set initial world (this would generally be a world for opening videos or the main menu)
-                SetCurrentWorld(Game.OpeningWorldRef, true, loadOpeningWorldGameMode);
+                if (Game.OpeningWorldRef?.FileExists ?? false)
+                    SetCurrentWorld(Game.OpeningWorldRef.File, true, loadOpeningWorldGameMode);
 
                 //Preload transition world now
                 //await Game.TransitionWorldRef.LoadNewInstanceAsync();
@@ -183,6 +209,11 @@ namespace TheraEngine
             //}
 
             //InitializeVR();
+
+            //VariableStringTable table = new VariableStringTable();
+            //string result = table.AnalyzeString("Wow this is really cool at <currentTime:hh:mm:ss tt> for <localPlayerName:0>!", out (int index, int length, bool redraw)[] varLocs);
+            //string result2 = table.SolveAnalyzedString(result, varLocs.Select(x => (x.index, x.length)).ToArray());
+            //PrintLine(result2);
         }
 
         public static EVRInitError InitializeVR()
@@ -225,7 +256,7 @@ namespace TheraEngine
             ShuttingDown = true;
 
             //SteamAPI.Shutdown();
-            Stop();
+            //Stop();
             SetCurrentWorld(null, true, true);
 
             IEnumerable<IFileObject>
@@ -575,7 +606,7 @@ namespace TheraEngine
         /// Retrieves the current world's overridden game mode or the game's game mode if not overriden.
         /// </summary>
         public static BaseGameMode GetGameMode()
-            => World?.Settings?.GameModeOverrideRef?.File ?? Game.DefaultGameMode;
+            => World?.Settings?.GameModeOverrideRef?.File ?? Game.DefaultGameModeRef;
         public static void SetActiveGameMode(BaseGameMode mode, bool beginGameplay = true)
         {
             if (Game != null)
@@ -702,7 +733,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="world">The world to play in.</param>
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool loadWorldGameMode = true)
+        public static void SetCurrentWorld(TWorld world, bool unloadPrevious = true, bool loadWorldGameMode = true)
         {
             if (World == world)
                 return;
@@ -710,7 +741,7 @@ namespace TheraEngine
             PreWorldChanged?.Invoke();
 
             //bool wasRunning = _timer.IsRunning;
-            World previous = World;
+            TWorld previous = World;
 
             ActiveGameMode?.EndGameplay();
             World?.EndPlay();
@@ -818,5 +849,53 @@ namespace TheraEngine
 
         public delegate int DelBeginOperation(string operationMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null);
         public delegate void DelEndOperation(int operationId);
+
+        /// <summary>
+        /// Interface for accessing inputs.
+        /// </summary>
+        public static class Input
+        {
+            public static InputInterface Get(int localPlayerIndex)
+                => LocalPlayers.IndexInRange(localPlayerIndex) ? LocalPlayers[localPlayerIndex]?.Input : null;
+
+            public static bool Key(int localPlayerIndex, EKey key, EButtonInputType type)
+                => Get(localPlayerIndex)?.GetKeyState(key, type) ?? false;
+            public static bool Button(int localPlayerIndex, EGamePadButton button, EButtonInputType type)
+               => Get(localPlayerIndex)?.GetButtonState(button, type) ?? false;
+            public static bool MouseButton(int localPlayerIndex, EMouseButton button, EButtonInputType type)
+              => Get(localPlayerIndex)?.GetMouseButtonState(button, type) ?? false;
+            public static bool AxisButton(int localPlayerIndex, EGamePadAxis axis, EButtonInputType type)
+               => Get(localPlayerIndex)?.GetAxisState(axis, type) ?? false;
+
+            public static float Axis(int localPlayerIndex, EGamePadAxis axis)
+              => Get(localPlayerIndex)?.GetAxisValue(axis) ?? 0.0f;
+            
+            public static bool KeyReleased(int localPlayerIndex, EKey key)
+                => Key(localPlayerIndex, key, EButtonInputType.Released);
+            public static bool KeyPressed(int localPlayerIndex, EKey key)
+                => Key(localPlayerIndex, key, EButtonInputType.Pressed);
+            public static bool KeyHeld(int localPlayerIndex, EKey key)
+                => Key(localPlayerIndex, key, EButtonInputType.Held);
+            public static bool KeyDoublePressed(int localPlayerIndex, EKey key)
+                => Key(localPlayerIndex, key, EButtonInputType.DoublePressed);
+
+            public static bool ButtonReleased(int localPlayerIndex, EGamePadButton button)
+                => Button(localPlayerIndex, button, EButtonInputType.Released);
+            public static bool ButtonPressed(int localPlayerIndex, EGamePadButton button)
+                => Button(localPlayerIndex, button, EButtonInputType.Pressed);
+            public static bool ButtonHeld(int localPlayerIndex, EGamePadButton button)
+                => Button(localPlayerIndex, button, EButtonInputType.Held);
+            public static bool ButtonDoublePressed(int localPlayerIndex, EGamePadButton button)
+                => Button(localPlayerIndex, button, EButtonInputType.DoublePressed);
+            
+            public static bool MouseButtonReleased(int localPlayerIndex, EMouseButton button)
+                => MouseButton(localPlayerIndex, button, EButtonInputType.Released);
+            public static bool MouseButtonPressed(int localPlayerIndex, EMouseButton button)
+                => MouseButton(localPlayerIndex, button, EButtonInputType.Pressed);
+            public static bool MouseButtonHeld(int localPlayerIndex, EMouseButton button)
+                => MouseButton(localPlayerIndex, button, EButtonInputType.Held);
+            public static bool MouseButtonDoublePressed(int localPlayerIndex, EMouseButton button)
+                => MouseButton(localPlayerIndex, button, EButtonInputType.DoublePressed);
+        }
     }
 }

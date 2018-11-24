@@ -9,8 +9,8 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds.Maps
 {
-    [FileExt("mset")]
-    [FileDef("Map Settings")]
+    [TFileExt("mset")]
+    [TFileDef("Map Settings")]
     public class MapSettings : TFileObject
     {
         protected bool _visibleByDefault;

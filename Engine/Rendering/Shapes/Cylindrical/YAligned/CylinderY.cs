@@ -6,7 +6,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileDef("Y-Aligned Cylinder")]
+    [TFileDef("Y-Aligned Cylinder")]
     public class CylinderY : BaseCylinder
     {
         public CylinderY()

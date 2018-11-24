@@ -16,7 +16,7 @@ namespace TheraEngine.Components
     /// Components are plugged into actors to define customizable functionality.
     /// There are two types of components: <see cref="SceneComponent"/> and <see cref="LogicComponent"/>.
     /// </summary>
-    [FileExt("comp")]
+    [TFileExt("comp")]
     public abstract class Component : TFileObject
     {
         private IActor _owner;

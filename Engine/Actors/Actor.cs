@@ -18,10 +18,10 @@ namespace TheraEngine.Actors
     {
         bool AttachedToMap { get; set; }
         bool IsConstructing { get; }
-        World OwningWorld { get; }
+        TWorld OwningWorld { get; }
 
         bool IsSpawned { get; }
-        void Spawned(World world);
+        void Spawned(TWorld world);
         void Despawned();
 
         IReadOnlyCollection<SceneComponent> SceneComponentCache { get; }
@@ -57,9 +57,9 @@ namespace TheraEngine.Actors
     }
     #endregion
 
-    [File3rdParty(new string[] { "dae" }, null)]
-    [FileExt("actor")]
-    [FileDef("Actor")]
+    //[File3rdParty(new string[] { "dae" }, null)]
+    [TFileExt("actor")]
+    [TFileDef("Actor")]
     public class Actor<T> : TFileObject, IActor where T : OriginRebasableComponent
     {
         static Actor()
@@ -67,20 +67,20 @@ namespace TheraEngine.Actors
             //Register3rdPartyLoader<Actor<T>>("dae", LoadDAE);
         }
 
-        [ThirdPartyLoader("dae", true)]
-        public static async Task<TFileObject> LoadDAEAsync(string path, IProgress<float> progress, CancellationToken cancel)
-        {
-            ColladaImportOptions o = new ColladaImportOptions()
-            {
-                IgnoreFlags = Collada.EIgnoreFlags.Extra
-            };
-            Collada.Data data = await Collada.ImportAsync(path, o, progress, cancel);
-            if (data != null)
-            {
-                return (TFileObject)data.Actor;
-            }
-            return null;
-        }
+        //[ThirdPartyLoader("dae", true)]
+        //public static async Task<Actor<T2>> LoadDAEAsync<T2>(string path, IProgress<float> progress, CancellationToken cancel) where T2 : T
+        //{
+        //    ColladaImportOptions o = new ColladaImportOptions()
+        //    {
+        //        IgnoreFlags = Collada.EIgnoreFlags.Extra
+        //    };
+        //    Collada.Data data = await Collada.ImportAsync(path, o, progress, cancel);
+        //    if (data != null)
+        //    {
+        //        return (Actor<T2>)data.Actor;
+        //    }
+        //    return null;
+        //}
         public Actor() : this(false) { }
         public Actor(string name) : this(name, false) { }
         public Actor(bool deferInitialization) : this(null, deferInitialization) { }
@@ -178,7 +178,7 @@ namespace TheraEngine.Actors
         [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0;
         [Browsable(false)]
-        public World OwningWorld { get; private set; } = null;
+        public TWorld OwningWorld { get; private set; } = null;
         [Browsable(false)]
         public BaseScene OwningScene => OwningWorld?.Scene;
         [Browsable(false)]
@@ -292,7 +292,7 @@ For example, a logic component could give any actor health and/or allow it to ta
                 OwningWorld.DespawnActor(this);
         }
 
-        public void Spawned(World world)
+        public void Spawned(TWorld world)
         {
             if (IsSpawned)
                 return;

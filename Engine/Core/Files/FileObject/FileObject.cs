@@ -28,18 +28,18 @@ namespace TheraEngine.Core.Files
         [Browsable(false)]
         public bool ConstructedProgrammatically { get; internal set; } = true;
         [Browsable(false)]
-        public FileDef FileDefinition => GetFileDefinition(GetType());
+        public TFileDef FileDefinition => GetFileDefinition(GetType());
         [Browsable(false)]
-        public FileExt FileExtension => GetFileExtension(GetType());
+        public TFileExt FileExtension => GetFileExtension(GetType());
         [Browsable(false)]
-        public File3rdParty File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
+        public TFile3rdParty File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
 
         public delegate T Del3rdPartyImportFileMethod<T>(string path) where T : IFileObject;
         public delegate Task<T> Del3rdPartyImportFileMethodAsync<T>(string path, IProgress<float> progress, CancellationToken cancel) where T : IFileObject;
 
-        public delegate void Del3rdPartyExportFileMethod(object obj, string path);
-        public delegate Task Del3rdPartyExportFileMethodAsync(object obj, string path, IProgress<float> progress, CancellationToken cancel);
-        
+        public delegate void Del3rdPartyExportFileMethod<T>(T obj, string path) where T : IFileObject;
+        public delegate Task Del3rdPartyExportFileMethodAsync<T>(T obj, string path, IProgress<float> progress, CancellationToken cancel) where T : IFileObject;
+
         public TFileObject() { }
 
         private TFileObject _rootFile = null;
@@ -179,13 +179,13 @@ namespace TheraEngine.Core.Files
             }
 
             Type type = GetType();
-            FileExt extAttrib = FileExtension;
-            File3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
+            TFileExt extAttrib = FileExtension;
+            TFile3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
             GetDirNameFmt(path, out string dir, out string name, out EFileFormat pathFormat, out string ext);
 
             if (extAttrib != null && pathFormat != EFileFormat.ThirdParty)
             {
-                ext = extAttrib.GetProperExtension((EProprietaryFileFormat)(int)pathFormat);
+                ext = extAttrib.GetFullExtension((EProprietaryFileFormat)(int)pathFormat);
                 await ExportAsync(dir, name, pathFormat, ext, flags, progress, cancel);
                 return;
             }
@@ -210,14 +210,14 @@ namespace TheraEngine.Core.Files
             CancellationToken cancel)
         {
             string ext = null;
-            FileExt fileExt = FileExtension;
+            TFileExt fileExt = FileExtension;
             if (fileExt != null)
             {
-                ext = fileExt.GetProperExtension((EProprietaryFileFormat)fileExt.PreferredFormat);
+                ext = fileExt.GetFullExtension(fileExt.PreferredFormat);
             }
             else
             {
-                File3rdParty tp = File3rdPartyExtensions;
+                TFile3rdParty tp = File3rdPartyExtensions;
                 if (tp != null &&
                     tp.ExportableExtensions != null &&
                     tp.ExportableExtensions.Length > 0)
@@ -288,9 +288,10 @@ namespace TheraEngine.Core.Files
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            if (string.IsNullOrWhiteSpace(directory) || directory.IsExistingDirectoryPath() != true)
+            if (string.IsNullOrWhiteSpace(directory) ||
+                directory.IsExistingDirectoryPath() != true)
             {
-                Engine.LogWarning($"Cannot export {fileName}.{thirdPartyExt}; directory is null.");
+                Engine.LogWarning($"Cannot export {fileName}.{thirdPartyExt}; directory is not valid.");
                 return;
             }
 
@@ -306,11 +307,11 @@ namespace TheraEngine.Core.Files
             if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 directory += Path.DirectorySeparatorChar;
 
-            File3rdParty ext = File3rdPartyExtensions;
+            TFile3rdParty ext = File3rdPartyExtensions;
 
             if (ext == null)
             {
-                Engine.LogWarning("No File3rdParty attribute specified for " + GetType().GetFriendlyName());
+                Engine.LogWarning($"No {nameof(TFile3rdParty)} attribute specified for {GetType().GetFriendlyName()}.");
                 return;
             }
             if (!ext.ExportableExtensions.Contains(thirdPartyExt))
@@ -324,10 +325,11 @@ namespace TheraEngine.Core.Files
             Delegate exporter = Get3rdPartyExporter(GetType(), thirdPartyExt);
             if (exporter != null)
             {
-                if (exporter is Del3rdPartyExportFileMethod method)
-                    method.Invoke(this, FilePath);
-                else if (exporter is Del3rdPartyExportFileMethodAsync methodAsync)
-                    await methodAsync.Invoke(this, FilePath, progress, cancel);
+                Type genericDef = exporter.GetType().GetGenericTypeDefinition();
+                if (genericDef == typeof(Del3rdPartyExportFileMethod<>))
+                    exporter.DynamicInvoke(this, FilePath);
+                else if (genericDef == typeof(Del3rdPartyExportFileMethodAsync<>))
+                    await (Task)exporter.DynamicInvoke(this, FilePath, progress, cancel);
                 else
                 {
                     if (ext.AsyncManualWrite)
@@ -411,23 +413,57 @@ namespace TheraEngine.Core.Files
             => throw new NotImplementedException("Override of \"internal protected virtual void ManualReadBinary(VoidPtr address, int length, BinaryStringTableReader stringTable)\" required when using ManualBinSerialize in FileClass attribute.");
         #endregion
 
+        /// <summary>
+        /// Method declaration if not async:
+        /// static ClassName Load(string path)
+        /// <para>&nbsp;</para>
+        /// Method declaration if async:
+        /// static async Task<ClassName> LoadAsync(string path, IProgress<float> progress, CancellationToken cancel)
+        /// </summary>
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
         public class ThirdPartyLoader : Attribute
         {
             public string Extension { get; private set; }
             public bool Async { get; private set; }
-            public ThirdPartyLoader(string extension, bool isAsync = false)
+
+            /// <summary>
+            /// Method declaration if not async:
+            /// static ClassName Load(string path)
+            /// <para>&nbsp;</para>
+            /// Method declaration if async:
+            /// static async Task<ClassName> LoadAsync(string path, IProgress<float> progress, CancellationToken cancel)
+            /// </summary>
+            /// <param name="extension">The extension this method will handle.</param>
+            /// <param name="isAsync">If the method is declared as async or not.</param>
+            public ThirdPartyLoader(string extension, bool isAsync)
             {
                 Extension = extension;
                 Async = isAsync;
             }
         }
+        /// <summary>
+        /// Method declaration if not async:
+        /// static void Export(ClassName obj, string path)
+        /// <para>&nbsp;</para>
+        /// Method declaration if async:
+        /// static async Task ExportAsync(ClassName obj, string path, IProgress<float> progress, CancellationToken cancel)
+        /// </summary>
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
         public class ThirdPartyExporter : Attribute
         {
             public string Extension { get; private set; }
             public bool Async { get; private set; }
-            public ThirdPartyExporter(string extension, bool isAsync = false)
+
+            /// <summary>
+            /// Method declaration if not async:
+            /// static void Export(ClassName obj, string path)
+            /// <para>&nbsp;</para>
+            /// Method declaration if async:
+            /// static async Task ExportAsync(ClassName obj, string path, IProgress<float> progress, CancellationToken cancel)
+            /// </summary>
+            /// <param name="extension">The extension this method will handle.</param>
+            /// <param name="isAsync">If the method is declared as async or not.</param>
+            public ThirdPartyExporter(string extension, bool isAsync)
             {
                 Extension = extension;
                 Async = isAsync;
@@ -457,9 +493,15 @@ namespace TheraEngine.Core.Files
         /// <summary>
         /// If set, only exports members that have been changed from the value that was set when they were first deserialized or constructed.
         /// </summary>
-        ChangedOnly = 0x10,
-        Default = SerializeConfig | ExportGlobalRefs | ExportLocalRefs | ChangedOnly,
-        All = 0xF,
+        WriteChangedMembersOnly = 0x10,
+        /// <summary>
+        /// If set, writes null members as empty elements.
+        /// </summary>
+        WriteDefaultMembers = 0x20,
+
+        Default = SerializeConfig | SerializeState | ExportGlobalRefs | ExportLocalRefs | WriteChangedMembersOnly,
+
+        All = -1,
     }
     public enum EProprietaryFileFormat
     {
@@ -487,9 +529,9 @@ namespace TheraEngine.Core.Files
     {
         string FilePath { get; set; }
         //List<IFileRef> References { get; set; }
-        FileDef FileDefinition { get; }
-        FileExt FileExtension { get; }
-        File3rdParty File3rdPartyExtensions { get; }
+        TFileDef FileDefinition { get; }
+        TFileExt FileExtension { get; }
+        TFile3rdParty File3rdPartyExtensions { get; }
         /// <summary>
         /// Returns the file object that serves as the owner of this one.
         /// </summary>

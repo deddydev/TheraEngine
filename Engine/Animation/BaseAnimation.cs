@@ -25,8 +25,8 @@ namespace TheraEngine.Animation
         /// </summary>
         Playing,
     }
-    [FileExt("anim")]
-    [FileDef("Animation")]
+    [TFileExt("anim")]
+    [TFileDef("Animation")]
     public abstract class BaseAnimation : TFileObject
     {
         public event Action<BaseAnimation> AnimationStarted;
@@ -222,7 +222,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        [PostDeserialize]
+        [TPostDeserialize]
         internal virtual void PostDeserialize()
         {
             if (_state == EAnimationState.Playing)

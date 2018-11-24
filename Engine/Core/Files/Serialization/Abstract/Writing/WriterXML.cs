@@ -52,7 +52,6 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public class WriterXML : AbstractWriter
         {
-            private FileStream _stream;
             private XmlWriter _writer;
 
             public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.XML;
@@ -81,12 +80,20 @@ namespace TheraEngine.Core.Files.Serialization
             }
             protected override async Task WriteTreeAsync()
             {
-                using (_stream = new FileStream(FilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.RandomAccess))
+                long currentBytes = 0L;
+                using (_stream = new ProgressStream(new FileStream(FilePath, FileMode.Create, FileAccess.Write, FileShare.None), null, null))
                 using (_writer = XmlWriter.Create(_stream, _settings))
                 {
-                    await _writer.FlushAsync();
-                    _stream.Position = 0;
-
+                    if (Progress != null)
+                    {
+                        float length = _stream.Length;
+                        _stream.SetWriteProgress(new BasicProgress<int>(i =>
+                        {
+                            currentBytes += i;
+                            Progress.Report(currentBytes / length);
+                        }));
+                    }
+                    
                     await _writer.WriteStartDocumentAsync();
                     await WriteElementAsync(RootNode);
                     await _writer.WriteEndDocumentAsync();

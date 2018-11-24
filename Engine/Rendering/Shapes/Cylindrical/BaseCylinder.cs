@@ -5,7 +5,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileExt("cylinder")]
+    [TFileExt("cylinder")]
     public abstract class BaseCylinder : Shape
     {
         public BaseCylinder(Vec3 center, Rotator rotation, Vec3 scale, Vec3 upAxis, float radius, float halfHeight)

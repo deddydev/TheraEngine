@@ -10,7 +10,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene.Lights
 {
-    [FileDef("Spot Light Component")]
+    [TFileDef("Spot Light Component")]
     public class SpotLightComponent : LightComponent
     {
         private float _outerCutoff, _innerCutoff, _distance;

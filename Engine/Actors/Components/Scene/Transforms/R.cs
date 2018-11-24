@@ -5,7 +5,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    [FileDef("Rotation Component")]
+    [TFileDef("Rotation Component")]
     public class RotationComponent : SceneComponent
     {
         public RotationComponent() : this(Rotator.GetZero(), true) { }
@@ -38,7 +38,7 @@ namespace TheraEngine.Components.Scene.Transforms
             }
         }
 
-        [PostDeserialize]
+        [TPostDeserialize]
         protected internal virtual void OnDeserialized()
         {
             _rotation.Changed += RecalcLocalTransform;

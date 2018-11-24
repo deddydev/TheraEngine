@@ -9,7 +9,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Scene.Lights
 {
-    [FileDef("Point Light Component")]
+    [TFileDef("Point Light Component")]
     public class PointLightComponent : LightComponent
     {
         [Category("Point Light Component")]

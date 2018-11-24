@@ -45,7 +45,7 @@ namespace TheraEngine
         Fixed,
         Sizable,
     }
-    [FileDef("User Settings")]
+    [TFileDef("User Settings")]
     public class UserSettings : TSettings
     {
         private WindowBorderStyle _windowBorderStyle = WindowBorderStyle.Sizable;

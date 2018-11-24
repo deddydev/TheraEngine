@@ -11,8 +11,8 @@ using static TheraEngine.Rendering.Models.Collada.COLLADA.LibraryEffects.Effect.
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileExt("mat")]
-    [FileDef("Material")]
+    [TFileExt("mat")]
+    [TFileDef("Material")]
     public class TMaterial : TMaterialBase
     {
         //TODO: load a material from the engine directory
@@ -79,7 +79,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _shaders.AddRange(shaders.Select(x => new GlobalFileRef<GLSLShaderFile>(x)));
         }
 
-        [PostDeserialize]
+        [TPostDeserialize]
         internal void ShadersChanged()
         {
             FragmentShaders.Clear();

@@ -3,7 +3,7 @@ using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
-    [FileDef("2D Screen Shake Component")]
+    [TFileDef("2D Screen Shake Component")]
     public class ScreenShake2DComponent : NoiseTRComponent
     {
         public override void OnSpawned()

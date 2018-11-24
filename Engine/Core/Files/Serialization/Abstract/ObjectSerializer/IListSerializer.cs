@@ -2,21 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using TheraEngine.Core.Memory;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [ObjectWriterKind(typeof(IList))]
+    [ObjectSerializerFor(typeof(IList))]
     public class IListSerializer : BaseObjectSerializer
     {
         public override void DeserializeTreeToObject()
         {
             Type arrayType = TreeNode.ObjectType;
-            Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
 
-            int count = 0;
             if (!TreeNode.GetElementContent(arrayType, out object array))
             {
-                count = TreeNode.ChildElements.Count;
+                int count = TreeNode.ChildElements.Count;
 
                 IList list;
                 if (arrayType.IsArray)
@@ -24,20 +23,19 @@ namespace TheraEngine.Core.Files.Serialization
                 else
                     list = Activator.CreateInstance(arrayType) as IList;
 
-                if (count > 0)
+                Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
+                for (int i = 0; i < count; ++i)
                 {
-                    for (int i = 0; i < count; ++i)
-                    {
-                        SerializeElement node = TreeNode.ChildElements[i];
-                        node.MemberInfo.MemberType = elementType;
-                        node.DeserializeTreeToObject();
+                    SerializeElement node = TreeNode.ChildElements[i];
+                    node.MemberInfo.MemberType = elementType;
+                    node.DeserializeTreeToObject();
 
-                        if (list.IsFixedSize)
-                            list[i] = node.Object;
-                        else
-                            list.Add(node.Object);
-                    }
+                    if (list.IsFixedSize)
+                        list[i] = node.Object;
+                    else
+                        list.Add(node.Object);
                 }
+                
                 array = list;
             }
 
@@ -48,13 +46,18 @@ namespace TheraEngine.Core.Files.Serialization
             if (!(TreeNode.Object is IList list))
                 return;
 
-            Type elemType = list.DetermineElementType();
-
-            foreach (object o in list)
+            if (!TreeNode.SetElementContent(list))
             {
-                SerializeElement element = new SerializeElement(o, new TSerializeMemberInfo(elemType, null));
-                TreeNode.ChildElements.Add(element);
-                element.SerializeTreeFromObject();
+                Type elemType = list.DetermineElementType();
+                foreach (object o in list)
+                {
+                    SerializeElement element = new SerializeElement(o, new TSerializeMemberInfo(elemType, null));
+                    if (ShouldWriteDefaultMembers || !element.IsObjectDefault())
+                    {
+                        TreeNode.ChildElements.Add(element);
+                        element.SerializeTreeFromObject();
+                    }
+                }
             }
         }
         public override void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)

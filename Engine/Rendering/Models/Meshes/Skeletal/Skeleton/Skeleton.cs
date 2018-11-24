@@ -12,8 +12,8 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileExt("skel")]
-    [FileDef("Model Skeleton")]
+    [TFileExt("skel")]
+    [TFileDef("Model Skeleton")]
     public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering.Models
         public IReadOnlyCollection<Bone> GetCameraRelativeBones() => _cameraBones;
         public IReadOnlyCollection<Bone> GetPhysicsDrivableBones() => _physicsDrivableBones;
 
-        [PostDeserialize]
+        [TPostDeserialize]
         internal void PostDeserialize()
         {
             //TriggerChildFrameMatrixUpdate();

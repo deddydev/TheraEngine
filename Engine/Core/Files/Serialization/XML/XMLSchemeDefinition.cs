@@ -122,15 +122,25 @@ namespace TheraEngine.Core.Files.XML
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            using (FileStream f = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            long currentBytes = 0L;
+            using (ProgressStream f = new ProgressStream(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), null, null))
             using (XmlReader r = XmlReader.Create(f, settings))
-                return await ImportAsync(r, ignoreFlags, f, progress, cancel);
+            {
+                if (progress != null)
+                {
+                    float length = f.Length;
+                    f.SetReadProgress(new BasicProgress<int>(i =>
+                    {
+                        currentBytes += i;
+                        progress.Report(currentBytes / length);
+                    }));
+                }
+                return await ImportAsync(r, ignoreFlags, cancel);
+            }
         }
         private async Task<T> ImportAsync(
             XmlReader reader,
             ulong ignoreFlags,
-            FileStream stream,
-            IProgress<float> progress,
             CancellationToken cancel)
         {
             string previousTree = "";
@@ -148,12 +158,10 @@ namespace TheraEngine.Core.Files.XML
 
             if (found)
             {
-                IElement e = await ParseElementAsync(t, null, reader, null, ignoreFlags, previousTree, 0, stream, progress, cancel);
-                progress?.Report(1.0f);
+                IElement e = await ParseElementAsync(t, null, reader, null, ignoreFlags, previousTree, 0, cancel);
                 return e as T;
             }
-
-            progress?.Report(1.0f);
+            
             return null;
         }
         private async Task<IElement> ParseElementAsync(
@@ -164,11 +172,9 @@ namespace TheraEngine.Core.Files.XML
             ulong ignoreFlags,
             string parentTree,
             int elementIndex,
-            FileStream stream,
-            IProgress<float> progress,
             CancellationToken cancel)
             => await ParseElementAsync(Activator.CreateInstance(elementType) as IElement, 
-                parent, reader, version, ignoreFlags, parentTree, elementIndex, stream, progress, cancel);
+                parent, reader, version, ignoreFlags, parentTree, elementIndex, cancel);
         private async Task<IElement> ParseElementAsync(
             IElement entry,
             IElement parent,
@@ -177,14 +183,10 @@ namespace TheraEngine.Core.Files.XML
             ulong ignoreFlags,
             string parentTree,
             int elementIndex,
-            FileStream stream,
-            IProgress<float> progress,
             CancellationToken cancel)
         {
             if (cancel.IsCancellationRequested)
                 return null;
-            else
-                progress?.Report((float)stream.Position / stream.Length);
 
             //DateTime startTime = DateTime.Now;
 
@@ -219,7 +221,6 @@ namespace TheraEngine.Core.Files.XML
             {
                 await reader.SkipAsync();
                 entry.PostRead();
-                progress?.Report((float)stream.Position / stream.Length);
                 return entry;
             }
             
@@ -230,8 +231,6 @@ namespace TheraEngine.Core.Files.XML
                 {
                     if (cancel.IsCancellationRequested)
                         return null;
-                    else
-                        progress?.Report((float)stream.Position / stream.Length);
 
                     string name = reader.Name;
                     string value = reader.Value;
@@ -266,8 +265,6 @@ namespace TheraEngine.Core.Files.XML
 
             if (cancel.IsCancellationRequested)
                 return null;
-            else
-                progress?.Report((float)stream.Position / stream.Length);
 
             reader.MoveToElement();
             if (entry is IStringElement stringEntry)
@@ -295,8 +292,6 @@ namespace TheraEngine.Core.Files.XML
                     {
                         if (cancel.IsCancellationRequested)
                             return null;
-                        else
-                            progress?.Report((float)stream.Position / stream.Length);
 
                         if (reader.NodeType != XmlNodeType.Element)
                         {
@@ -317,7 +312,7 @@ namespace TheraEngine.Core.Files.XML
                                 await reader.SkipAsync();
                             }
                             else
-                                await ParseElementAsync(e, entry, reader, version, ignoreFlags, parentTree, childIndex, stream, progress, cancel);
+                                await ParseElementAsync(e, entry, reader, version, ignoreFlags, parentTree, childIndex, cancel);
                         }
                         else
                         {
@@ -338,8 +333,6 @@ namespace TheraEngine.Core.Files.XML
                                 {
                                     if (cancel.IsCancellationRequested)
                                         return null;
-                                    else
-                                        progress?.Report((float)stream.Position / stream.Length);
 
                                     typeIndex = Array.FindIndex(child.ElementNames, name => name.Matches(elementName, version));
 
@@ -353,7 +346,7 @@ namespace TheraEngine.Core.Files.XML
                                         if (++child.Occurrences > child.Data.MaxCount && child.Data.MaxCount >= 0)
                                             Engine.PrintLine("Element '{0}' has occurred more times than expected.", parentTree);
 
-                                        IElement elem = await ParseElementAsync(child.Types[typeIndex], entry, reader, version, ignoreFlags, parentTree, childIndex, stream, progress, cancel);
+                                        IElement elem = await ParseElementAsync(child.Types[typeIndex], entry, reader, version, ignoreFlags, parentTree, childIndex, cancel);
                                         elem.ElementName = elementName;
                                         break;
                                     }
@@ -362,8 +355,6 @@ namespace TheraEngine.Core.Files.XML
                                 {
                                     if (cancel.IsCancellationRequested)
                                         return null;
-                                    else
-                                        progress?.Report((float)stream.Position / stream.Length);
 
                                     int i = 0;
                                     MultiChildInfo info = multiChildElements.FirstOrDefault(c =>
@@ -387,7 +378,7 @@ namespace TheraEngine.Core.Files.XML
                                     }
                                     else
                                     {
-                                        IElement elem = await ParseElementAsync(info.Data.Types[i], entry, reader, version, ignoreFlags, parentTree, childIndex, stream, progress, cancel);
+                                        IElement elem = await ParseElementAsync(info.Data.Types[i], entry, reader, version, ignoreFlags, parentTree, childIndex, cancel);
                                         elem.ElementName = elementName;
                                     }
                                 }
@@ -418,8 +409,6 @@ namespace TheraEngine.Core.Files.XML
             #endregion
          
             entry.PostRead();
-
-            progress?.Report((float)stream.Position / stream.Length);
 
             //TimeSpan elapsed = DateTime.Now - startTime;
             //if (elapsed.TotalSeconds > 1.0f)
@@ -460,27 +449,52 @@ namespace TheraEngine.Core.Files.XML
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            using (FileStream f = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            long currentBytes = 0L;
+            using (ProgressStream f = new ProgressStream(new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None), null, null))
             using (XmlWriter r = XmlWriter.Create(f, settings))
-                await ExportAsync(file, r, f, progress, cancel);
+            {
+                if (progress != null)
+                {
+                    float length = f.Length;
+                    f.SetWriteProgress(new BasicProgress<int>(i =>
+                    {
+                        currentBytes += i;
+                        progress.Report(currentBytes / length);
+                    }));
+                }
+                await ExportAsync(file, r, cancel);
+            }
         }
-        private async Task ExportAsync(T file, XmlWriter writer, FileStream stream, IProgress<float> progress, CancellationToken cancel)
+        private async Task ExportAsync(T file, XmlWriter writer, CancellationToken cancel)
         {
             await writer.WriteStartDocumentAsync();
-            await WriteElement(file, writer, stream, progress, cancel);
+            await WriteElement(file, writer, cancel);
             await writer.WriteEndDocumentAsync();
         }
-        private async Task WriteElement(IElement element, XmlWriter writer, FileStream stream, IProgress<float> progress, CancellationToken cancel)
+        private async Task WriteElement(
+            IElement element, 
+            XmlWriter writer,
+            CancellationToken cancel)
         {
             if (cancel.IsCancellationRequested)
                 return;
-            else
-                progress?.Report((float)stream.Position / stream.Length);
 
             Type elementType = element.GetType();
+            List<MemberInfo> members = elementType.GetMembers(
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(x => x.GetCustomAttribute<Attr>() != null).ToList();
 
-            await writer.WriteStartElementAsync(null, element.ElementName, null);
-            MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Where(x => x.GetCustomAttribute<Attr>() != null).ToArray();
+            int xmlnsIndex = members.FindIndex(x => x.GetCustomAttribute<Attr>().AttributeName == "xmlns");
+            if (xmlnsIndex >= 0)
+            {
+                MemberInfo member = members[xmlnsIndex];
+                object value = member is PropertyInfo prop ? prop.GetValue(element) : (member is FieldInfo field ? field.GetValue(element) : null);
+                members.RemoveAt(xmlnsIndex);
+                await writer.WriteStartElementAsync(null, element.ElementName, value.ToString());
+            }
+            else
+                await writer.WriteStartElementAsync(null, element.ElementName, null);
+            
             foreach (MemberInfo member in members)
             {
                 Attr attr = member.GetCustomAttribute<Attr>();
@@ -492,8 +506,6 @@ namespace TheraEngine.Core.Files.XML
 
                 if (cancel.IsCancellationRequested)
                     return;
-                else
-                    progress?.Report((float)stream.Position / stream.Length);
             }
             if (element is IStringElement stringEntry)
             {
@@ -505,7 +517,7 @@ namespace TheraEngine.Core.Files.XML
                 var orderedChildren = element.ChildElements.Values.SelectMany(x => x).OrderBy(x => x.ElementIndex);
                 foreach (IElement child in orderedChildren)
                 {
-                    await WriteElement(child, writer, stream, progress, cancel);
+                    await WriteElement(child, writer, cancel);
                 }
             }
             await writer.WriteEndElementAsync();

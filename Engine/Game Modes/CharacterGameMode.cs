@@ -28,10 +28,7 @@ namespace TheraEngine.GameModes
         where PawnType : class, ICharacterPawn, new()
         where ControllerType : CharacterPlayerController
     {
-        public CharacterGameMode() : base()
-        {
-
-        }
+        public CharacterGameMode() : base() { }
         
         protected internal override void HandleLocalPlayerJoined(ControllerType item)
         {

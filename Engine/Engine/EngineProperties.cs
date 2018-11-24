@@ -105,7 +105,7 @@ namespace TheraEngine
         /// <summary>
         /// Information necessary to run a game.
         /// </summary>
-        public static Game Game { get; private set; }
+        public static TGame Game { get; private set; }
         /// <summary>
         /// The settings for the engine, specified by the game.
         /// </summary>
@@ -117,16 +117,16 @@ namespace TheraEngine
         /// <summary>
         /// The settings for the engine, specified by the user.
         /// </summary>
-        public static UserSettings UserSettings => Game?.UserSettingsRef;
+        public static UserSettings UserSettings => Game?.UserSettingsRef?.File;
         
         /// <summary>
         /// The index of the currently ticking list of functions (group + order + pause)
         /// </summary>
         private static int _currentTickList = -1;
 
-        private static ConcurrentDictionary<World, Vec3> RebaseWorldsQueue1 = new ConcurrentDictionary<World, Vec3>();
-        private static ConcurrentDictionary<World, Vec3> RebaseWorldsQueue2 = new ConcurrentDictionary<World, Vec3>();
-        public static void QueueRebaseOrigin(World world, Vec3 point)
+        private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsQueue1 = new ConcurrentDictionary<TWorld, Vec3>();
+        private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsQueue2 = new ConcurrentDictionary<TWorld, Vec3>();
+        public static void QueueRebaseOrigin(TWorld world, Vec3 point)
         {
             RebaseWorldsQueue2.AddOrUpdate(world, t => point, (t, t2) => point);
         }
@@ -172,7 +172,7 @@ namespace TheraEngine
         /// <summary>
         /// The world that is currently being rendered and played in.
         /// </summary>
-        public static World World { get; private set; } = null;
+        public static TWorld World { get; private set; } = null;
         public static bool IsPaused { get; private set; } = false;
 
         /// <summary>

@@ -5,8 +5,8 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileExt("sksmesh")]
-    [FileDef("Skeletal Soft Sub Mesh")]
+    [TFileExt("sksmesh")]
+    [TFileDef("Skeletal Soft Sub Mesh")]
     public class SkeletalSoftSubMesh : BaseSubMesh, ISkeletalSubMesh
     {
         public SkeletalSoftSubMesh() : base() { _name = "SkeletalSoftSubMesh"; }

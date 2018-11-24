@@ -5,7 +5,7 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileDef("Y-Aligned Cone")]
+    [TFileDef("Y-Aligned Cone")]
     public class ConeY : BaseCone
     {
         public ConeY(float radius, float height) 

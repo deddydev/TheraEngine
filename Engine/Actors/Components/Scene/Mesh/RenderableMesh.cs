@@ -50,9 +50,12 @@ namespace TheraEngine.Components.Scene.Mesh
         
         protected SceneComponent _component;
         protected LinkedListNode<RenderableLOD> _currentLOD;
+
         [Browsable(false)]
         public RenderableLOD CurrentLOD => _currentLOD.Value;
-
+        
+        [Browsable(false)]
+        [DisplayName("Levels Of Detail")]
         public LinkedList<RenderableLOD> LODs { get; private set; }
         public RenderInfo3D RenderInfo { get; protected set; }
 

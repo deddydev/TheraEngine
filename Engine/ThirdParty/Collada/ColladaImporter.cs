@@ -47,133 +47,130 @@ namespace TheraEngine.Rendering.Models
             Engine.PrintLine("Importing Collada scene on thread " + Thread.CurrentThread.ManagedThreadId + ".");
 
             Data data = new Data();
-            //using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read))
-            //using (XMLReader reader = new XMLReader(map.Address, map.Length, true))
+            var schemeReader = new XMLSchemeDefinition<COLLADA>();
+            var root = await schemeReader.ImportAsync(filePath, (ulong)options.IgnoreFlags, progress, cancel);
+            if (root == null)
+                return data;
+            
+            Matrix4 baseTransform = options.InitialTransform.Matrix;
+            var asset = root.AssetElement;
+            if (asset != null)
             {
-                var schemeReader = new XMLSchemeDefinition<COLLADA>();
-                var root = await schemeReader.ImportAsync(filePath, (ulong)options.IgnoreFlags, progress, cancel);
-                if (root != null)
-                {
-                    Matrix4 baseTransform = options.InitialTransform.Matrix;
-                    var asset = root.AssetElement;
-                    if (asset != null)
-                    {
-                        var unit = asset.UnitElement;
-                        var coord = asset.UpAxisElement;
+                var unit = asset.UnitElement;
+                var coord = asset.UpAxisElement;
 
-                        if (unit != null)
-                        {
-                            Engine.PrintLine("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
-                            baseTransform = baseTransform * Matrix4.CreateScale(unit.Meter);
-                        }
-                        if (coord != null)
-                        {
-                            Engine.PrintLine("Up axis: " + coord.StringContent.Value.ToString());
-                            switch (coord.StringContent.Value)
-                            {
-                                case Asset.EUpAxis.X_UP:
-                                    baseTransform = Matrix4.XupToYup * baseTransform;
-                                    break;
-                                case Asset.EUpAxis.Y_UP:
-                                    break;
-                                case Asset.EUpAxis.Z_UP:
-                                    baseTransform = Matrix4.ZupToYup * baseTransform;
-                                    break;
-                            }
-                        }
+                if (unit != null)
+                {
+                    Engine.PrintLine("Units: {0} (to meters: {1})", unit.Name, unit.Meter.ToString());
+                    baseTransform = baseTransform * Matrix4.CreateScale(unit.Meter);
+                }
+                if (coord != null)
+                {
+                    Engine.PrintLine("Up axis: " + coord.StringContent.Value.ToString());
+                    switch (coord.StringContent.Value)
+                    {
+                        case Asset.EUpAxis.X_UP:
+                            baseTransform = Matrix4.XupToYup * baseTransform;
+                            break;
+                        case Asset.EUpAxis.Y_UP:
+                            break;
+                        case Asset.EUpAxis.Z_UP:
+                            baseTransform = Matrix4.ZupToYup * baseTransform;
+                            break;
+                    }
+                }
+            }
+
+            Scene scene = root.GetChild<Scene>();
+            if (scene == null)
+                return data;
+            
+            data.Models = new List<ModelScene>();
+            var visualScenes = scene.GetChildren<Scene.InstanceVisualScene>();
+            foreach (var visualSceneRef in visualScenes)
+            {
+                var visualScene = visualSceneRef.GetUrlInstance();
+                if (visualScene != null)
+                {
+                    ModelScene modelScene = new ModelScene();
+
+                    var nodes = visualScene.NodeElements;
+
+                    //Collect information for objects and root bones
+                    List<Bone> rootBones = new List<Bone>();
+                    List<ObjectInfo> objects = new List<ObjectInfo>();
+                    List<Camera> cameras = new List<Camera>();
+                    List<LightComponent> lights = new List<LightComponent>();
+
+                    foreach (var node in nodes)
+                    {
+                        Bone b = EnumNode(null, node, nodes, objects, baseTransform, Matrix4.Identity, lights, cameras, options.IgnoreFlags);
+                        if (b != null)
+                            rootBones.Add(b);
                     }
 
-                    Scene scene = root.GetChild<Scene>();
-                    if (scene != null)
+                    //Create meshes after all bones have been created
+                    if (rootBones.Count == 0)
                     {
-                        data.Models = new List<ModelScene>();
-                        var visualScenes = scene.GetChildren<Scene.InstanceVisualScene>();
-                        foreach (var visualSceneRef in visualScenes)
+                        modelScene.StaticModel = new StaticModel()
                         {
-                            var visualScene = visualSceneRef.GetUrlInstance();
-                            if (visualScene != null)
+                            Name = Path.GetFileNameWithoutExtension(filePath)
+                        };
+                        modelScene.SkeletalModel = null;
+                        modelScene.Skeleton = null;
+                        foreach (ObjectInfo obj in objects)
+                            if (!obj.UsesController)
+                                obj.Initialize(modelScene.StaticModel, visualScene);
+                            else
+                                Engine.LogWarning("Object " + obj._node.Name + " needs bones, but no bones were found.");
+
+                        //modelScene.StaticModel.CollisionShape = ConvexDecomposition.Calculate(
+                        //    modelScene.StaticModel.RigidChildren.Select(x => x.LODs[0].PrimitivesRef.File));
+                    }
+                    else
+                    {
+                        modelScene.StaticModel = null;
+                        modelScene.Skeleton = new Skeleton(rootBones.ToArray());
+                        modelScene.SkeletalModel = new SkeletalModel()
+                        {
+                            Name = Path.GetFileNameWithoutExtension(filePath),
+                        };
+                        modelScene.SkeletalModel.SkeletonRef.File = modelScene.Skeleton;
+                        foreach (ObjectInfo obj in objects)
+                            obj.Initialize(modelScene.SkeletalModel, visualScene);
+                    }
+
+                    data.Models.Add(modelScene);
+
+                    if (!options.IgnoreFlags.HasFlag(EIgnoreFlags.Animations))
+                    {
+                        SkeletalAnimation anim = null;
+                        float animationLength = 0.0f;
+                        foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
+                            foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
                             {
-                                ModelScene modelScene = new ModelScene();
-
-                                var nodes = visualScene.NodeElements;
-
-                                //Collect information for objects and root bones
-                                List<Bone> rootBones = new List<Bone>();
-                                List<ObjectInfo> objects = new List<ObjectInfo>();
-                                List<Camera> cameras = new List<Camera>();
-                                List<LightComponent> lights = new List<LightComponent>();
-
-                                foreach (var node in nodes)
+                                if (anim == null)
                                 {
-                                    Bone b = EnumNode(null, node, nodes, objects, baseTransform, Matrix4.Identity, lights, cameras, options.IgnoreFlags);
-                                    if (b != null)
-                                        rootBones.Add(b);
-                                }
-
-                                //Create meshes after all bones have been created
-                                if (rootBones.Count == 0)
-                                {
-                                    modelScene.StaticModel = new StaticModel()
-                                    {
-                                        Name = Path.GetFileNameWithoutExtension(filePath)
-                                    };
-                                    modelScene.SkeletalModel = null;
-                                    modelScene.Skeleton = null;
-                                    foreach (ObjectInfo obj in objects)
-                                        if (!obj.UsesController)
-                                            obj.Initialize(modelScene.StaticModel, visualScene);
-                                        else
-                                            Engine.LogWarning("Object " + obj._node.Name + " needs bones, but no bones were found.");
-
-                                    //modelScene.StaticModel.CollisionShape = ConvexDecomposition.Calculate(
-                                    //    modelScene.StaticModel.RigidChildren.Select(x => x.LODs[0].PrimitivesRef.File));
-                                }
-                                else
-                                {
-                                    modelScene.StaticModel = null;
-                                    modelScene.Skeleton = new Skeleton(rootBones.ToArray());
-                                    modelScene.SkeletalModel = new SkeletalModel()
+                                    data.PropertyAnimations = new List<BasePropAnim>();
+                                    anim = new SkeletalAnimation()
                                     {
                                         Name = Path.GetFileNameWithoutExtension(filePath),
+                                        Looped = true,
                                     };
-                                    modelScene.SkeletalModel.SkeletonRef.File = modelScene.Skeleton;
-                                    foreach (ObjectInfo obj in objects)
-                                        obj.Initialize(modelScene.SkeletalModel, visualScene);
                                 }
-
-                                data.Models.Add(modelScene);
-
-                                if (!options.IgnoreFlags.HasFlag(EIgnoreFlags.Animations))
-                                {
-                                    SkeletalAnimation anim = null;
-                                    float animationLength = 0.0f;
-                                    foreach (LibraryAnimations lib in root.GetLibraries<LibraryAnimations>())
-                                        foreach (LibraryAnimations.Animation animElem in lib.AnimationElements)
-                                        {
-                                            if (anim == null)
-                                            {
-                                                data.PropertyAnimations = new List<BasePropAnim>();
-                                                anim = new SkeletalAnimation()
-                                                {
-                                                    Name = Path.GetFileNameWithoutExtension(filePath),
-                                                    Looped = true,
-                                                };
-                                            }
-                                            ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations, ref animationLength);
-                                        }
-
-                                    if (anim != null && animationLength > 0.0f)
-                                    {
-                                        anim.SetLength(animationLength, false);
-                                        Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
-                                        data.Models[0].Animation = anim;
-                                    }
-                                }
+                                ParseAnimation(animElem, anim, visualScene, data.PropertyAnimations, ref animationLength);
                             }
+
+                        if (anim != null && animationLength > 0.0f)
+                        {
+                            anim.SetLength(animationLength, false);
+                            Engine.PrintLine("Model animation imported: " + animationLength.ToString() + " seconds / " + Math.Ceiling(animationLength * 60.0f).ToString() + " frames long at 60fps.");
+                            data.Models[0].Animation = anim;
                         }
                     }
                 }
             }
+            
             return data;
         }
         private enum InterpType

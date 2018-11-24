@@ -4,8 +4,8 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Scripting
 {
-    [File3rdParty("lua")]
-    [FileDef("Lua Script")]
+    [TFile3rdParty("lua")]
+    [TFileDef("Lua Script")]
     public class LuaScript : TextFile
     {
         public LuaScript() : base() { }

@@ -408,7 +408,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             private bool ShouldWriteFileObjectManually(Type objType)
             {
-                FileExt ext = TFileObject.GetFileExtension(objType);
+                TFileExt ext = TFileObject.GetFileExtension(objType);
                 if (ext == null)
                     return false;
 

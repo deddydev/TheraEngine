@@ -5,8 +5,8 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Core
 {
-    [FileDef("Computer Information")]
-    [FileExt("compi")]
+    [TFileDef("Computer Information")]
+    [TFileExt("compi")]
     public class ComputerInfo : TFileObject
     {
         [TSerialize]

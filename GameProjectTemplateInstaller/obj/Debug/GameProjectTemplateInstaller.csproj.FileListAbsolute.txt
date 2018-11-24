@@ -20,3 +20,12 @@ C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplateInstaller\o
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\Class1.cs
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\GameProjectTemplate.vstemplate
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplateInstaller\obj\Debug\templateFiles.json
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\GameProjectTemplateInstaller.csprojAssemblyReference.cache
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\files.json
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\TemplateManifests\templateManifest0.1033.vstman
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\GameProjectTemplate.ico
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\ProjectTemplate.csproj
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\AssemblyInfo.cs
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\Class1.cs
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\GameProjectTemplate.vstemplate
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\templateFiles.json

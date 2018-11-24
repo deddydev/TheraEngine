@@ -4,7 +4,7 @@ using TheraEngine.Scripting;
 
 namespace TheraEngine.Components.Logic.Scripting
 {
-    [FileDef("C# Script Component", "Logic component used to run a C# script.")]
+    [TFileDef("C# Script Component", "Logic component used to run a C# script.")]
     public class CSharpScriptComponent : LogicComponent
     {
         private GlobalFileRef<CSharpScript> _scriptRef = new GlobalFileRef<CSharpScript>();

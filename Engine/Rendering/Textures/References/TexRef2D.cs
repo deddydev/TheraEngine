@@ -17,8 +17,8 @@ namespace TheraEngine.Rendering.Models.Materials
         Depth,
         Stencil,
     }
-    [FileExt("tref2d")]
-    [FileDef("2D Texture Reference")]
+    [TFileExt("tref2d")]
+    [TFileDef("2D Texture Reference")]
     public class TexRef2D : BaseTexRef
     {
         public const string CategoryName = "Texture Reference 2D";

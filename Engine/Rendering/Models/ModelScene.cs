@@ -7,7 +7,7 @@ using static TheraEngine.Rendering.Models.Collada;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileDef("Model Importing Options")]
+    [TFileDef("Model Importing Options")]
     public class ColladaImportOptions : TSettings
     {
         [TSerialize(UseCategory = true)]

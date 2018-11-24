@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Linq;
 using TheraEngine.Core.Files.Serialization;
 using System.Collections.Generic;
+using System;
 
 namespace TheraEngine
 {
@@ -13,8 +14,8 @@ namespace TheraEngine
     /// Base class for a class that only defines primitive properties; no classes or structs.
     /// Allows reading and writing all defined properties
     /// </summary>
-    [File3rdParty("txt")]
-    [FileExt("set")]
+    [TFile3rdParty("txt")]
+    [TFileExt("set")]
     public abstract class TSettings : TFileObject
     {
         public override void ManualRead3rdParty(string filePath)
@@ -78,7 +79,7 @@ namespace TheraEngine
         Forward = 0,
         Deferred = 1,
     }
-    [FileDef("Engine Settings")]
+    [TFileDef("Engine Settings")]
     public class EngineSettings : TSettings
     {
         [Category("Performance")]
@@ -252,7 +253,27 @@ namespace TheraEngine
             CapUPS = false;
             TargetUPS = 30.0f;
 
-            EngineDataFolder = Application.StartupPath + string.Format("{0}..{0}..{0}..{0}Engine{0}", Path.DirectorySeparatorChar);
+            string startupPath = Application.StartupPath;
+            if (Engine.DesignMode)
+            {
+                //var dte = (EnvDTE80.DTE2)GetService(typeof(EnvDTE.DTE));
+                //if (dte != null)
+                //{
+                //    var solution = dte.Solution;
+                //    if (solution != null)
+                //    {
+                //        string baseDir = Path.GetDirectoryName(solution.FullName);
+                //        MessageBox.Show(baseDir);
+                //    }
+                //}
+                //string filePath = new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath;
+                //startupPath = Path.GetDirectoryName(filePath);
+                //if (string.Equals(Path.GetDirectoryName(startupPath), "IDE", System.StringComparison.InvariantCultureIgnoreCase))
+                EngineDataFolder = string.Format("C:{0}Users{0}dnedd{0}source{0}repos{0}TheraEngine{0}Build{0}Engine{0}", Path.DirectorySeparatorChar);
+            }
+            else
+                EngineDataFolder = startupPath + string.Format("{0}..{0}..{0}..{0}Engine{0}", Path.DirectorySeparatorChar);
+
             ShadersFolder = EngineDataFolder + "Shaders" + Path.DirectorySeparatorChar;
             TexturesFolder = EngineDataFolder + "Textures" + Path.DirectorySeparatorChar;
             ScriptsFolder = EngineDataFolder + "Scripts" + Path.DirectorySeparatorChar;

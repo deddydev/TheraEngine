@@ -1,24 +1,24 @@
-﻿using TheraEngine.Rendering.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Components.Logic.Animation;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
-using TheraEngine.Core.Files;
+using TheraEngine.Components.Logic.Animation;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Animation
 {
-    [File3rdParty(new string[] { "dae" }, null)]
-    [FileExt("skelanim")]
-    [FileDef("Skeletal Animation")]
+    [TFile3rdParty(new string[] { "dae" }, null)]
+    [TFileExt("skelanim")]
+    [TFileDef("Skeletal Animation")]
     public class SkeletalAnimation : BaseAnimation
     {
         [ThirdPartyLoader("dae", true)]
-        public static async Task<TFileObject> LoadDAEAsync(string path)
+        public static async Task<SkeletalAnimation> LoadDAEAsync(
+            string path, IProgress<float> progress, CancellationToken cancel)
         {
             ColladaImportOptions o = new ColladaImportOptions()
             {
@@ -29,7 +29,7 @@ namespace TheraEngine.Animation
                 Collada.EIgnoreFlags.Cameras |
                 Collada.EIgnoreFlags.Lights
             };
-            return (await Collada.ImportAsync(path, o))?.Models[0].Animation;
+            return (await Collada.ImportAsync(path, o, progress, cancel))?.Models[0].Animation;
         }
         
         public SkeletalAnimation() : base(0.0f, false) { }
@@ -41,7 +41,7 @@ namespace TheraEngine.Animation
         [TSerialize("BoneAnimations")]
         private Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
 
-        //[PostDeserialize]
+        [TPostDeserialize]
         internal override void PostDeserialize()
         {
             foreach (BoneAnimation b in _boneAnimations.Values)

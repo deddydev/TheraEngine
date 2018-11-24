@@ -8,8 +8,8 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Core.Files
 {
-    [File3rdParty("txt", "rtf", "*")]
-    [FileDef("Text File")]
+    [TFile3rdParty("txt", "rtf", "*")]
+    [TFileDef("Text File")]
     public class TextFile : TFileObject, ITextSource
     {
         public event Action TextChanged;

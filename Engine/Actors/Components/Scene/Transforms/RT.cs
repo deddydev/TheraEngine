@@ -7,7 +7,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// <summary>
     /// Rotates first, then translates.
     /// </summary>
-    [FileDef("Rotation-Translation Component")]
+    [TFileDef("Rotation-Translation Component")]
     public class RTComponent : RotationComponent
     {
         public RTComponent() : this(Rotator.GetZero(), Vec3.Zero, true) { }

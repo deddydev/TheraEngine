@@ -4,8 +4,8 @@ using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    [FileExt("trefv2d")]
-    [FileDef("2D Texture Reference View")]
+    [TFileExt("trefv2d")]
+    [TFileDef("2D Texture Reference View")]
     public class TexRefView2D : TexRef2D
     {
         private TexRef2D _viewedTexture;

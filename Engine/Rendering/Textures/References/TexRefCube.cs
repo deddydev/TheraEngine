@@ -87,8 +87,8 @@ namespace TheraEngine.Rendering.Models.Materials
         }
     }
 
-    [FileExt("trefcube")]
-    [FileDef("Cubemap Texture Reference")]
+    [TFileExt("trefcube")]
+    [TFileDef("Cubemap Texture Reference")]
     public class TexRefCube : BaseTexRef
     {
         #region Constructors

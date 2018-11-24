@@ -5,7 +5,7 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
-    [FileDef("Y-Aligned Capsule")]
+    [TFileDef("Y-Aligned Capsule")]
     public class CapsuleY : BaseCapsule
     {
         public CapsuleY() : base(Vec3.Zero, Rotator.GetZero(), Vec3.One, Vec3.Up, 1.0f, 1.0f)

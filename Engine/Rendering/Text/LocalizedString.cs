@@ -9,13 +9,12 @@ namespace TheraEngine.Rendering.Text
         public bool _global;
 
         public string GetLocalizedString()
-        {
-            return Engine.Game.LocalizedStringTable[_id];
-        }
+            => Engine.Game.LocalizedStringTable[_id, _namespace];
+        
         public override string ToString()
-        {
-            return GetLocalizedString();
-        }
-        public static implicit operator String(LString str) => str.GetLocalizedString();
+            => GetLocalizedString();
+
+        public static implicit operator string(LString str) 
+            => str.GetLocalizedString();
     }
 }

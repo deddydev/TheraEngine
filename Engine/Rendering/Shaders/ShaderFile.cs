@@ -16,10 +16,10 @@ namespace TheraEngine.Rendering.Models.Materials
     /// <summary>
     /// A shader script file.
     /// </summary>
-    [File3rdParty(
+    [TFile3rdParty(
         "fs",   "vs",   "gs",   "tcs",  "tes",  "cs",
         "frag", "vert", "geom", "tesc", "tese", "comp")]
-    [FileDef("Shader")]
+    [TFileDef("Shader")]
     public class GLSLShaderFile : TextFile
     {
         [TSerialize(NodeType = ENodeType.Attribute)]

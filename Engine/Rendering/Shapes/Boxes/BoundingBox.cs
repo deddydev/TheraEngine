@@ -12,7 +12,7 @@ namespace TheraEngine.Core.Shapes
     /// <summary>
     /// Axis-Aligned Bounding Box (AABB)
     /// </summary>
-    [FileDef("Axis-Aligned Bounding Box")]
+    [TFileDef("Axis-Aligned Bounding Box")]
     public class BoundingBox : Shape
     {
         //public static List<BoundingBox> Active = new List<BoundingBox>();

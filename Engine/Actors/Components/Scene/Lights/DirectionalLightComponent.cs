@@ -8,7 +8,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene.Lights
 {
-    [FileDef("Directional Light Component")]
+    [TFileDef("Directional Light Component")]
     public class DirectionalLightComponent : LightComponent
     {
         private Vec3 _scale;

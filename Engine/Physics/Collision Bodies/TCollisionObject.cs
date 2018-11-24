@@ -36,8 +36,8 @@ namespace TheraEngine.Physics
     }
     public delegate void DelMatrixUpdate(Matrix4 transform);
     public delegate void DelCollision(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA);
-    [FileExt("coll")]
-    [FileDef("Collision Object", "Defines a collision object used by the physics engine for collision simulation.")]
+    [TFileExt("coll")]
+    [TFileDef("Collision Object", "Defines a collision object used by the physics engine for collision simulation.")]
     public abstract class TCollisionObject : TFileObject
     {
         public event DelMatrixUpdate TransformChanged;
@@ -126,9 +126,9 @@ namespace TheraEngine.Physics
         [PhysicsSupport(PhysicsLibrary.Bullet)]
         public abstract Vec3 AabbMax { get; set; }
 
-        public void Spawn(World world)
+        public void Spawn(TWorld world)
             => world.PhysicsWorld.AddCollisionObject(this);
-        public void Despawn(World world)
+        public void Despawn(TWorld world)
             => world.PhysicsWorld.RemoveCollisionObject(this);
         
         public abstract void Activate();

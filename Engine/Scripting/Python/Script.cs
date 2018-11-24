@@ -12,8 +12,8 @@ namespace TheraEngine.Scripting
         [TSerialize]
         public object[] Arguments { get; set; }
     }
-    [File3rdParty("py")]
-    [FileDef("Python Script")]
+    [TFile3rdParty("py")]
+    [TFileDef("Python Script")]
     public class PythonScript : TextFile
     {
         public PythonScript() : base() { }

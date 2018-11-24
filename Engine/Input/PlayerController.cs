@@ -6,15 +6,9 @@ namespace TheraEngine.Input
 {
     public class PlayerController : PawnController
     {
-        PlayerInfo _playerInfo;
-
         public int ServerPlayerIndex => PlayerInfo != null ? PlayerInfo.ServerIndex : -1;
 
-        public PlayerInfo PlayerInfo
-        {
-            get => _playerInfo;
-            set => _playerInfo = value;
-        }
+        public PlayerInfo PlayerInfo { get; set; }
 
         public PlayerController(Queue<IPawn> possessionQueue) : base(possessionQueue)
         {

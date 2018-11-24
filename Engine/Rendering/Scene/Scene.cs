@@ -205,9 +205,19 @@ namespace TheraEngine.Rendering
         }
         
         public abstract void RegenerateTree();
+        /// <summary>
+        /// Occurs before any individual viewport processing.
+        /// </summary>
         public abstract void GlobalPreRender();
+        /// <summary>
+        /// Occurs before any individual viewport processing.
+        /// </summary>
         public abstract void GlobalUpdate();
+        /// <summary>
+        /// Occurs before any individual viewport processing.
+        /// </summary>
         public abstract void GlobalSwap();
+
         public abstract void Add(IRenderable obj);
         public abstract void Remove(IRenderable obj);
     }

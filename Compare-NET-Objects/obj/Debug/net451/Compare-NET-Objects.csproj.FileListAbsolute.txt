@@ -1,0 +1,11 @@
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\bin\Debug\net451\KellermanSoftware.Compare-NET-Objects.dll.config
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\bin\Debug\net451\KellermanSoftware.Compare-NET-Objects.dll
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\bin\Debug\net451\KellermanSoftware.Compare-NET-Objects.pdb
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\bin\Debug\net451\KellermanSoftware.Compare-NET-Objects.xml
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\obj\Debug\net451\Compare-NET-Objects.csprojAssemblyReference.cache
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\obj\Debug\net451\Compare-NET-Objects.csproj.CoreCompileInputs.cache
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\obj\Debug\net451\Compare-NET-Objects.AssemblyInfo.cs
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\obj\Debug\net451\KellermanSoftware.Compare-NET-Objects.dll
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\obj\Debug\net451\KellermanSoftware.Compare-NET-Objects.xml
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\obj\Debug\net451\KellermanSoftware.Compare-NET-Objects.pdb
+C:\Users\dnedd\source\repos\Compare-Net-Objects\Compare-NET-Objects\obj\Debug\net451\Compare-NET-Objects.AssemblyInfoInputs.cache

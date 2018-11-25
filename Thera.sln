@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameProjectTemplate", "Game
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameProjectTemplateInstaller", "GameProjectTemplateInstaller\GameProjectTemplateInstaller.csproj", "{0A38B131-72DD-498E-A496-8B435DDA956B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Compare-NET-Objects", "..\Compare-Net-Objects\Compare-NET-Objects\Compare-NET-Objects.csproj", "{F76C2816-647C-4069-9DC1-0E458F8E15F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Compare-NET-Objects", "Compare-NET-Objects\Compare-NET-Objects.csproj", "{F76C2816-647C-4069-9DC1-0E458F8E15F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

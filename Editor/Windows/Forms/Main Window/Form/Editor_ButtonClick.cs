@@ -130,7 +130,7 @@ namespace TheraEditor.Windows.Forms
         private void BtnProjectSettings_Click(object sender, EventArgs e)
             => PropertyGridForm.PropertyGrid.TargetFileObject = Project;
         private void BtnEngineSettings_Click(object sender, EventArgs e) 
-            => PropertyGridForm.PropertyGrid.TargetFileObject = Project?.EngineSettingsRef;
+            => PropertyGridForm.PropertyGrid.TargetFileObject = Project?.EngineSettingsOverrideRef;
         private void BtnEditorSettings_Click(object sender, EventArgs e)
             => PropertyGridForm.PropertyGrid.TargetFileObject = DefaultSettingsRef;
         private void BtnUserSettings_Click(object sender, EventArgs e) 

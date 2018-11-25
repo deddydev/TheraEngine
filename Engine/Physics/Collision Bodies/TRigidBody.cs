@@ -31,41 +31,41 @@ namespace TheraEngine.Physics
         public static TRigidBody New(TRigidBodyConstructionInfo info)
             => Engine.Physics.NewRigidBody(info);
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 TotalForce { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 TotalTorque { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Quat Orientation { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 LocalInertia { get; }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract int ConstraintCount { get; }
 
         protected Vec3 _previousLinearFactor = Vec3.One;
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 LinearFactor { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 LinearVelocity { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float LinearSleepingThreshold { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float LinearDamping { get; }
 
         protected Vec3 _previousAngularFactor = Vec3.One;
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AngularFactor { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AngularVelocity { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float AngularSleepingThreshold { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float AngularDamping { get; }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract bool IsInWorld { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract bool WantsSleeping { get; }
 
         protected ushort _previousCollidesWith = 0xFFFF;
@@ -139,24 +139,24 @@ namespace TheraEngine.Physics
             }
         }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 Gravity { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float Mass { get; }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Matrix4 InvInertiaTensorWorld { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 InvInertiaDiagLocal { get; set; }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract int FrictionSolverType { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract int ContactSolverType { get; set; }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Matrix4 CenterOfMassTransform { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 CenterOfMassPosition { get; }
 
         public Vec3 Weight => Mass * Gravity;

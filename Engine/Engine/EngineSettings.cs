@@ -1,12 +1,7 @@
-﻿using TheraEngine.Core.Files;
-using System.ComponentModel;
-using System.Windows.Forms;
+﻿using System.ComponentModel;
 using System.IO;
-using System.Reflection;
-using System.Linq;
-using TheraEngine.Core.Files.Serialization;
-using System.Collections.Generic;
-using System;
+using System.Windows.Forms;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine
 {
@@ -74,17 +69,9 @@ namespace TheraEngine
             //}
         }
     }
-    public enum ShadingStyle
-    {
-        Forward = 0,
-        Deferred = 1,
-    }
     [TFileDef("Engine Settings")]
     public class EngineSettings : TSettings
     {
-        [Category("Performance")]
-        [TSerialize]
-        public ShadingStyle ShadingStyle3D { get; set; }
         [Category("Performance")]
         [TSerialize]
         public bool SkinOnGPU { get; set; }
@@ -94,6 +81,9 @@ namespace TheraEngine
         [Category("Performance")]
         [TSerialize]
         public bool AllowShaderPipelines { get; set; }
+        [Category("Performance")]
+        [TSerialize]
+        public bool EnableDeferredPass { get; set; }
 
         //[Category("Debug")]
         //[TSerialize]
@@ -227,7 +217,6 @@ namespace TheraEngine
 
         public EngineSettings()
         {
-            ShadingStyle3D = ShadingStyle.Deferred;
             SkinOnGPU = true;
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;

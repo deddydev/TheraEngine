@@ -707,10 +707,10 @@ namespace TheraEngine
         //}
         internal static bool AddGlobalFileInstance<T>(GlobalFileRef<T> gref) where T : class, IFileObject
         {
-            if (string.IsNullOrEmpty(gref.ReferencePathAbsolute) || !gref.IsLoaded)
+            if (string.IsNullOrEmpty(gref.Path.Absolute) || !gref.IsLoaded)
                 return false;
 
-            GlobalFileInstances.AddOrUpdate(gref.ReferencePathAbsolute, gref, (key, oldValue) => gref);
+            GlobalFileInstances.AddOrUpdate(gref.Path.Absolute, gref, (key, oldValue) => gref);
             
             return true;
         }

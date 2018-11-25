@@ -150,7 +150,7 @@ namespace TheraEngine.Tests
 
             ColladaImportOptions objOptions = new ColladaImportOptions()
             {
-                UseForwardShaders = Engine.Settings.ShadingStyle3D == ShadingStyle.Forward,
+                //UseForwardShaders = Engine.Settings.ShadingStyle3D == ShadingStyle.Forward,
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };

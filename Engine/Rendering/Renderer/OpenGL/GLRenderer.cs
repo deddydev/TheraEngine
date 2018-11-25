@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.OpenGL
 
         // https://www.opengl.org/wiki/Rendering_Pipeline_Overview
 
-        public override RenderLibrary RenderLibrary => RenderLibrary.OpenGL;
+        public override ERenderLibrary RenderLibrary => ERenderLibrary.OpenGL;
 
         public GLRenderer() { }
 

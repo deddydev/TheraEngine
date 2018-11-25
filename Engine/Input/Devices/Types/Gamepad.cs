@@ -44,8 +44,8 @@ namespace TheraEngine.Input.Devices
         {
             switch (Engine.InputLibrary)
             {
-                case InputLibrary.OpenTK: return new TKGamepad(index);
-                case InputLibrary.XInput: return new DXGamepad(index);
+                case EInputLibrary.OpenTK: return new TKGamepad(index);
+                case EInputLibrary.XInput: return new DXGamepad(index);
             }
             return null;
         }

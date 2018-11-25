@@ -12,16 +12,16 @@ namespace TheraEngine.Physics
 
         public override TConstraintType ConstraintType => TConstraintType.PointPoint;
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 PivotInB { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 PivotInA { get; set; }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float Tau { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float ImpulseClamp { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float Damping { get; set; }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace TheraEngine.Physics
         ///However, setting ERP = 1 is not recommended, as the joint error will not be completely fixed due to various internal approximations.
         ///A value of ERP = 0.1 to 0.8 is recommended(0.2 is the default).
         /// </summary>
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract bool HasErrorReductionParameter { get; }
         /// <summary>
         /// <para>If CFM is set to zero, the constraint will be hard. 
@@ -43,7 +43,7 @@ namespace TheraEngine.Physics
         ///  <para>What is actually happening here is that the constraint is allowed to be violated by an amount proportional to CFM times the restoring force that is needed to enforce the constraint. 
         /// Note that setting CFM to a negative value can have undesirable bad effects, such as instability. Don't do it.</para>
         /// </summary>
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract bool HasConstraintForceMixing { get; }
     }
 }

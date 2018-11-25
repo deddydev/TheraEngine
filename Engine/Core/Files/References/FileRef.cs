@@ -28,7 +28,7 @@ namespace TheraEngine.Core.Files
         public FileRef(string filePath, T file) : this(filePath)
         {
             if (file != null)
-                file.FilePath = ReferencePathAbsolute;
+                file.FilePath = Path.Absolute;
             File = file;
             //if (exportNow && File != null)
             //    ExportReference();
@@ -40,11 +40,12 @@ namespace TheraEngine.Core.Files
         /// <param name="createIfNotFound"></param>
         public FileRef(string filePath, Func<T> createIfNotFound) : this(filePath)
         {
-            if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute, out EFileFormat format) != typeof(T))
+            string absPath = Path.Absolute;
+            if (!System.IO.File.Exists(absPath) || DetermineType(Path.Absolute, out EFileFormat format) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
                 if (file != null)
-                    file.FilePath = ReferencePathAbsolute;
+                    file.FilePath = absPath;
                 File = file;
                 //if (File != null)
                 //    ExportReferenceAsync();
@@ -54,18 +55,19 @@ namespace TheraEngine.Core.Files
         public FileRef(string dir, string name, EProprietaryFileFormat format, T file) : this(dir, name, format)
         {
             if (file != null)
-                file.FilePath = ReferencePathAbsolute;
+                file.FilePath = Path.Absolute;
             File = file;
             //if (exportNow && File != null)
             //    ExportReference();
         }
         public FileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
         {
-            if (!System.IO.File.Exists(ReferencePathAbsolute) || DetermineType(ReferencePathAbsolute) != typeof(T))
+            string absPath = Path.Absolute;
+            if (!System.IO.File.Exists(absPath) || DetermineType(absPath) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
                 if (file != null)
-                    file.FilePath = ReferencePathAbsolute;
+                    file.FilePath = absPath;
                 File = file;
                 //if (File != null)
                 //    ExportReference();
@@ -106,7 +108,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         //[Browsable(false)]
         [Category("File Reference")]
-        public bool StoredInternally => string.IsNullOrWhiteSpace(ReferencePathAbsolute);
+        public bool StoredInternally => string.IsNullOrWhiteSpace(Path.Absolute);
 
         [Browsable(false)]
         public override bool FileExists => File != null || base.FileExists;
@@ -136,12 +138,12 @@ namespace TheraEngine.Core.Files
                     string path = _file.FilePath;
                     if (!string.IsNullOrEmpty(path) && path.IsExistingDirectoryPath() == false)
                     {
-                        ReferencePathAbsolute = path;
+                        Path.Absolute = path;
                         RegisterInstance();
                     }
                     else
                     {
-                        ReferencePathAbsolute = null;// Path.DirectorySeparatorChar.ToString();
+                        Path.Absolute = null;// Path.DirectorySeparatorChar.ToString();
                     }
                     //if (!_file.References.Contains(this))
                     //    _file.References.Add(this);
@@ -149,7 +151,7 @@ namespace TheraEngine.Core.Files
                 }
                 else
                 {
-                    ReferencePathAbsolute = null;
+                    Path.Absolute = null;
                 }
             }
         }
@@ -199,20 +201,22 @@ namespace TheraEngine.Core.Files
 
         [Browsable(false)]
         public bool LoadAttempted { get; protected set; } = false;
-        protected override void OnAbsoluteRefPathChanged(string oldAbsRefPath)
+        protected override void OnAbsoluteRefPathChanged(string oldPath, string newPath)
         {
             LoadAttempted = false;
-            base.OnAbsoluteRefPathChanged(oldAbsRefPath);
+            base.OnAbsoluteRefPathChanged(oldPath, newPath);
         }
         public T GetInstance()
         {
             if (_file != null || LoadAttempted)
                 return _file;
 
-            Func<Task<T>> func = GetInstanceAsync;
-            return func.RunSync();
+            bool funcEnded = false;
+            GetInstanceAsync().ContinueWith(task => funcEnded = true);
+            while (!funcEnded) ;
+            return _file;
         }
-        
+
         public async Task<T> GetInstanceAsync() => await GetInstanceAsync(null, CancellationToken.None);
         public abstract Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
 

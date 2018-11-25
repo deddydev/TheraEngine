@@ -98,6 +98,17 @@ namespace TheraEditor.Windows.Forms
         private TProject _project;
         private EditorGameMode _editorGameMode;
         private DeserializeDockContent _deserializeDockContent;
+        private AppDomain _gameDomain;
+
+        private void UnloadGameAssembly()
+        {
+
+        }
+        private void LoadGameAssembly()
+        {
+            _gameDomain = AppDomain.CreateDomain(Name);
+            //_gameDomain.Load();
+        }
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances

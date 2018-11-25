@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering
         /// Set this to force every mesh to render with this material.
         /// </summary>
         public TMaterial MaterialOverride { get; set; }
-        public abstract RenderLibrary RenderLibrary { get; }
+        public abstract ERenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext => RenderContext.Captured;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 

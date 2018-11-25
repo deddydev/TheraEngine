@@ -43,10 +43,10 @@ namespace TheraEngine
     }
     public static partial class Engine
     {
-        public const RenderLibrary DefaultRenderLibrary = RenderLibrary.OpenGL;
-        public const AudioLibrary DefaultAudioLibrary = AudioLibrary.OpenAL;
-        public const InputLibrary DefaultInputLibrary = InputLibrary.OpenTK;
-        public const PhysicsLibrary DefaultPhysicsLibrary = PhysicsLibrary.Bullet;
+        public const ERenderLibrary DefaultRenderLibrary = ERenderLibrary.OpenGL;
+        public const EAudioLibrary DefaultAudioLibrary = EAudioLibrary.OpenAL;
+        public const EInputLibrary DefaultInputLibrary = EInputLibrary.OpenTK;
+        public const EPhysicsLibrary DefaultPhysicsLibrary = EPhysicsLibrary.Bullet;
 
         public static string StartupPath = Application.StartupPath + Path.DirectorySeparatorChar;
         public static string ContentFolderAbs = StartupPath + ContentFolderRel;
@@ -96,7 +96,8 @@ namespace TheraEngine
         
         public static List<AIController> ActiveAI = new List<AIController>();
 
-        public static Lazy<EngineSettings> DefaultEngineSettings { get; set; } = new Lazy<EngineSettings>(() => new EngineSettings());
+        public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
+            = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset"));
 
         /// <summary>
         /// The scene containing actors of the world the engine is currently hosting.
@@ -106,10 +107,15 @@ namespace TheraEngine
         /// Information necessary to run a game.
         /// </summary>
         public static TGame Game { get; private set; }
+
+        private static Lazy<EngineSettings> _engineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
         /// <summary>
         /// The settings for the engine, specified by the game.
         /// </summary>
-        public static EngineSettings Settings => Game?.EngineSettingsRef?.File ?? DefaultEngineSettings.Value;
+        public static EngineSettings Settings =>
+            Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
+            DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
+            _engineSettings.Value; //Fall back to truly default engine settings
 
         internal static int RenderThreadId;
         public static bool IsInRenderThread() => Thread.CurrentThread.ManagedThreadId == RenderThreadId;
@@ -127,10 +133,8 @@ namespace TheraEngine
         private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsQueue1 = new ConcurrentDictionary<TWorld, Vec3>();
         private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsQueue2 = new ConcurrentDictionary<TWorld, Vec3>();
         public static void QueueRebaseOrigin(TWorld world, Vec3 point)
-        {
-            RebaseWorldsQueue2.AddOrUpdate(world, t => point, (t, t2) => point);
-        }
-
+            => RebaseWorldsQueue2.AddOrUpdate(world, t => point, (t, t2) => point);
+        
         public static bool Assert(bool condition, string message, bool throwException = true)
         {
             if (!condition)
@@ -149,10 +153,10 @@ namespace TheraEngine
         /// </summary>
         private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
         public static List<DelTick>[] _tickLists;
-        private static RenderLibrary _renderLibrary = DefaultRenderLibrary;
-        private static AudioLibrary _audioLibrary = DefaultAudioLibrary;
-        private static InputLibrary _inputLibrary = DefaultInputLibrary;
-        private static PhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
+        private static ERenderLibrary _renderLibrary = DefaultRenderLibrary;
+        private static EAudioLibrary _audioLibrary = DefaultAudioLibrary;
+        private static EInputLibrary _inputLibrary = DefaultInputLibrary;
+        private static EPhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
         private static EngineTimer _timer = new EngineTimer();
         private static List<DateTime> _debugTimers = new List<DateTime>();
 
@@ -231,7 +235,7 @@ namespace TheraEngine
         /// <summary>
         /// The library to render with.
         /// </summary>
-        public static RenderLibrary RenderLibrary
+        public static ERenderLibrary RenderLibrary
         {
             get => _renderLibrary;
             set
@@ -245,7 +249,7 @@ namespace TheraEngine
         /// <summary>
         /// The library to play audio with.
         /// </summary>
-        public static AudioLibrary AudioLibrary
+        public static EAudioLibrary AudioLibrary
         {
             get => _audioLibrary;
             set
@@ -253,7 +257,7 @@ namespace TheraEngine
                 _audioLibrary = value;
                 switch (_audioLibrary)
                 {
-                    case AudioLibrary.OpenAL:
+                    case EAudioLibrary.OpenAL:
                         _audioManager = new ALAudioManager();
                         break;
                 }
@@ -262,7 +266,7 @@ namespace TheraEngine
         /// <summary>
         /// The library to play audio with.
         /// </summary>
-        public static PhysicsLibrary PhysicsLibrary
+        public static EPhysicsLibrary PhysicsLibrary
         {
             get => _physicsLibrary;
             set
@@ -270,10 +274,10 @@ namespace TheraEngine
                 _physicsLibrary = value;
                 switch (_physicsLibrary)
                 {
-                    case PhysicsLibrary.Bullet:
+                    case EPhysicsLibrary.Bullet:
                         _physicsInterface = new BulletPhysicsInterface();
                         break;
-                    case PhysicsLibrary.Jitter:
+                    case EPhysicsLibrary.Jitter:
                         _physicsInterface = new JitterPhysicsInterface();
                         break;
                 }
@@ -282,7 +286,7 @@ namespace TheraEngine
         /// <summary>
         /// The library to read input with.
         /// </summary>
-        public static InputLibrary InputLibrary
+        public static EInputLibrary InputLibrary
         {
             get => _inputLibrary;
             set
@@ -291,10 +295,10 @@ namespace TheraEngine
                 _inputAwaiter?.Dispose();
                 switch (_inputLibrary)
                 {
-                    case InputLibrary.OpenTK:
+                    case EInputLibrary.OpenTK:
                         _inputAwaiter = new TKInputAwaiter(FoundInput);
                         break;
-                    case InputLibrary.XInput:
+                    case EInputLibrary.XInput:
                         _inputAwaiter = new DXInputAwaiter(FoundInput);
                         break;
                 }

@@ -41,7 +41,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         string path = paths[0];
                         if (path.IsExistingDirectoryPath() == false && !string.IsNullOrWhiteSpace(path))
                         {
-                            r.ReferencePathAbsolute = path;
+                            r.Path.Absolute = path;
                             r.IsLoaded = false;
                             if (_wasNull)
                                 UpdateValue(_object, false);
@@ -62,7 +62,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         {
                             if (file.FileType == null || (file.FileType != null && file.FileType.IsAssignableFrom(r.ReferencedType)))
                             {
-                                r.ReferencePathAbsolute = file.FilePath;
+                                r.Path.Absolute = file.FilePath;
                                 if (r is IGlobalFileRef)
                                     r.IsLoaded = file.IsLoaded;
                                 else

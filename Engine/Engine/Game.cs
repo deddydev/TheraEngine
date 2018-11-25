@@ -36,7 +36,7 @@ namespace TheraEngine
         [TSerialize(nameof(UserSettingsRef))]
         protected GlobalFileRef<UserSettings> _userSettingsRef;
 
-        [TSerialize(nameof(EngineSettingsRef))]
+        [TSerialize(nameof(EngineSettingsOverrideRef))]
         protected GlobalFileRef<EngineSettings> _engineSettingsRef;
 
         [TSerialize(nameof(DefaultGameModeRef))]
@@ -73,7 +73,7 @@ namespace TheraEngine
             set => _userSettingsRef = value;
         }
         [Category("Engine")]
-        public GlobalFileRef<EngineSettings> EngineSettingsRef
+        public GlobalFileRef<EngineSettings> EngineSettingsOverrideRef
         {
             get => _engineSettingsRef;
             set => _engineSettingsRef = value;

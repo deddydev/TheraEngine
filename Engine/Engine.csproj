@@ -351,6 +351,7 @@
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\BlendManager.cs" />
     <Compile Include="Actors\Components\Scene\SubActorComponent.cs" />
+    <Compile Include="Core\Attributes\TDeprecatedName.cs" />
     <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
     <Compile Include="Actors\Components\Logic\Common\HealthComponent.cs" />
     <Compile Include="Actors\Special\IBLProbeGridActor.cs" />
@@ -412,6 +413,7 @@
     <Compile Include="Core\Extensions\EventInfoExtension.cs" />
     <Compile Include="Core\Extensions\GenericExtensions.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
+    <Compile Include="Core\Files\References\PathReference.cs" />
     <Compile Include="Core\Files\Serialization\AssemblyQualifiedName.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
     <Compile Include="Core\Files\FileObject\Statics.cs" />

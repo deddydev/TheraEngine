@@ -10,23 +10,23 @@ namespace TheraEngine
         High,
         Highest
     }
-    public enum RenderLibrary
+    public enum ERenderLibrary
     {
         OpenGL,
         Direct3D11,
     }
-    public enum AudioLibrary
+    public enum EAudioLibrary
     {
         OpenAL,
         //DirectSound,
     }
-    public enum InputLibrary
+    public enum EInputLibrary
     {
         OpenTK,
         XInput,
         Windows,
     }
-    public enum PhysicsLibrary
+    public enum EPhysicsLibrary
     {
         Bullet,
         //PhysX,
@@ -56,10 +56,10 @@ namespace TheraEngine
         private EngineQuality _soundQuality = EngineQuality.Highest;
 
         //Preferred libraries - will use whichever is available if the preferred one is not.
-        private RenderLibrary _renderLibrary = RenderLibrary.OpenGL;
-        private AudioLibrary _audioLibrary = AudioLibrary.OpenAL;
-        private InputLibrary _inputLibrary = InputLibrary.OpenTK;
-        private PhysicsLibrary _physicsLibrary = PhysicsLibrary.Bullet;
+        private ERenderLibrary _renderLibrary = ERenderLibrary.OpenGL;
+        private EAudioLibrary _audioLibrary = EAudioLibrary.OpenAL;
+        private EInputLibrary _inputLibrary = EInputLibrary.OpenTK;
+        private EPhysicsLibrary _physicsLibrary = EPhysicsLibrary.Bullet;
 
         [TSerialize]
         public VSyncMode VSync { get => _vSyncMode; set => _vSyncMode = value; }
@@ -70,13 +70,13 @@ namespace TheraEngine
         [TSerialize]
         public EngineQuality SoundQuality { get => _soundQuality; set => _soundQuality = value; }
         [TSerialize]
-        public RenderLibrary RenderLibrary { get => _renderLibrary; set => _renderLibrary = value; }
+        public ERenderLibrary RenderLibrary { get => _renderLibrary; set => _renderLibrary = value; }
         [TSerialize]
-        public AudioLibrary AudioLibrary { get => _audioLibrary; set => _audioLibrary = value; }
+        public EAudioLibrary AudioLibrary { get => _audioLibrary; set => _audioLibrary = value; }
         [TSerialize]
-        public InputLibrary InputLibrary { get => _inputLibrary; set => _inputLibrary = value; }
+        public EInputLibrary InputLibrary { get => _inputLibrary; set => _inputLibrary = value; }
         [TSerialize]
-        public PhysicsLibrary PhysicsLibrary { get => _physicsLibrary; set => _physicsLibrary = value; }
+        public EPhysicsLibrary PhysicsLibrary { get => _physicsLibrary; set => _physicsLibrary = value; }
         [TSerialize]
         public WindowBorderStyle WindowBorderStyle { get => _windowBorderStyle; set => _windowBorderStyle = value; }
         [TSerialize]

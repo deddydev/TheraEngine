@@ -32,10 +32,10 @@ namespace TheraEditor.Wrappers
         public override bool IsLoaded => ResourceRef.IsLoaded;
         public override string FilePath
         {
-            get => ResourceRef.ReferencePathAbsolute;
+            get => ResourceRef.Path.Absolute;
             set
             {
-                ResourceRef.ReferencePathAbsolute = value;
+                ResourceRef.Path.Absolute = value;
                 Name = value;
             }
         }
@@ -66,7 +66,7 @@ namespace TheraEditor.Wrappers
 
             source.Text = obj.GetText();
 
-            string path = ResourceRef.ReferencePathAbsolute;
+            string path = ResourceRef.Path.Absolute;
 
             Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving text...", out Progress<float> progress, out CancellationTokenSource cancel);
             await ResourceRef.File.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);

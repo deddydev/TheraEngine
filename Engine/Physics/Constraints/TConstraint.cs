@@ -19,50 +19,50 @@ namespace TheraEngine.Physics
     }
     public abstract class TConstraint : TObject
     {
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract int UniqueID { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract bool IsEnabled { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract TRigidBody RigidBodyB { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract TRigidBody RigidBodyA { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract int OverrideNumSolverIterations { get; set; }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract bool NeedsFeedback { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AppliedTorqueBodyB { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AppliedTorqueBodyA { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AppliedForceBodyB { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AppliedForceBodyA { get; set; }
 
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float DebugDrawSize { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract TConstraintType ConstraintType { get; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float BreakingImpulseThreshold { get; set; }
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float AppliedImpulse { get; }
         
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract void EnableFeedback(bool needsFeedback);
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract void GetInfo1(TConstraintInfo1 info);
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract void GetInfo2(TConstraintInfo2 info);
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float GetParam(TConstraintParam num, int axis);
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract float GetParam(TConstraintParam num);
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract void SetParam(TConstraintParam num, float value, int axis);
-        [PhysicsSupport(PhysicsLibrary.Bullet)]
+        [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract void SetParam(TConstraintParam num, float value);
     }
     public enum TConstraintParam

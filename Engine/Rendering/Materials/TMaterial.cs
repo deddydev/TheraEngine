@@ -135,9 +135,9 @@ namespace TheraEngine.Rendering.Models.Materials
             return new TMaterial("UnlitTextureMaterial",
                 ShaderHelpers.UnlitTextureFragForward());
         }
-        public static TMaterial CreateLitTextureMaterial() 
-            => CreateLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial CreateLitTextureMaterial(bool deferred)
+        //public static TMaterial CreateLitTextureMaterial() 
+        //    => CreateLitTextureMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial CreateLitTextureMaterial(bool deferred = true)
         {
             RenderingParameters param = new RenderingParameters()
             {
@@ -146,9 +146,9 @@ namespace TheraEngine.Rendering.Models.Materials
             GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", param, frag);
         }
-        public static TMaterial CreateLitTextureMaterial(TexRef2D texture)
-            => CreateLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial CreateLitTextureMaterial(TexRef2D texture, bool deferred)
+        //public static TMaterial CreateLitTextureMaterial(TexRef2D texture)
+        //    => CreateLitTextureMaterial(texture, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial CreateLitTextureMaterial(TexRef2D texture, bool deferred = true)
         {
             RenderingParameters param = new RenderingParameters()
             {
@@ -167,13 +167,13 @@ namespace TheraEngine.Rendering.Models.Materials
             };
             return new TMaterial("UnlitColorMaterial", parameters, ShaderHelpers.UnlitColorFragForward());
         }
-        public static TMaterial CreateLitColorMaterial() 
-            => CreateLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial CreateLitColorMaterial(bool deferred) 
+        //public static TMaterial CreateLitColorMaterial() 
+        //    => CreateLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial CreateLitColorMaterial(bool deferred = true) 
             => CreateLitColorMaterial(Color.DarkTurquoise, deferred);
-        public static TMaterial CreateLitColorMaterial(ColorF4 color)
-            => CreateLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial CreateLitColorMaterial(ColorF4 color, bool deferred)
+        //public static TMaterial CreateLitColorMaterial(ColorF4 color)
+        //    => CreateLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
+        public static TMaterial CreateLitColorMaterial(ColorF4 color, bool deferred = true)
         {
             ShaderVar[] parameters;
             GLSLShaderFile frag;

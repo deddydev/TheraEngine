@@ -27,7 +27,7 @@ namespace TheraEngine.Rendering.DirectX
         public DepthStencilState DepthStencilState => DxCtx.DepthStencilState;
         public DepthStencilView DepthStencilView => DxCtx.DepthStencilView;
 
-        public override RenderLibrary RenderLibrary => RenderLibrary.Direct3D11;
+        public override ERenderLibrary RenderLibrary => ERenderLibrary.Direct3D11;
         
         public override void Clear(EFBOTextureType clearBufferMask)
         {

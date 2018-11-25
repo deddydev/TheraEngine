@@ -56,8 +56,8 @@ namespace TheraEditor.Windows.Forms
                 Engine.PrintLine("Set active render form: " + ActiveRenderForm.ToString());
             }
         }
-        public static GlobalFileRef<EditorSettings> GetSettingsRef() => Instance.Project?.EditorSettingsRef ?? DefaultSettingsRef;
-        public static EditorSettings GetSettings() => Instance.Project?.EditorSettingsRef?.File ?? DefaultSettingsRef?.File;
+        public static GlobalFileRef<EditorSettings> GetSettingsRef() => Instance.Project?.EditorSettingsOverrideRef ?? DefaultSettingsRef;
+        public static EditorSettings GetSettings() => Instance.Project?.EditorSettingsOverrideRef?.File ?? DefaultSettingsRef?.File;
         
         /// <summary>
         /// Creates an instance of T using user-chosen derived type, constructor and parameters.

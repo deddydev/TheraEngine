@@ -12,17 +12,10 @@ namespace TheraEngine.Core.Files
 {
     public interface IFileLoader : IFileObject
     {
-        EPathType PathType { get; set; }
-        string ReferencePath { get; set; }
-        string ReferencePathAbsolute { get; set; }
+        PathReference Path { get; set; }
         Type ReferencedType { get; }
     }
-    public enum EPathType
-    {
-        Absolute,
-        EngineRelative,
-        FileRelative,
-    }
+    
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
@@ -31,7 +24,7 @@ namespace TheraEngine.Core.Files
     public class FileLoader<T> : TFileObject, IFileLoader where T : class, IFileObject
     {
         public event DelPathChange AbsoluteRefPathChanged;
-        public event DelPathChange LocalRefPathChanged;
+        public event DelPathChange RelativeRefPathChanged;
 
         public delegate void DelPathChange(string oldPath, string newPath);
 
@@ -49,7 +42,7 @@ namespace TheraEngine.Core.Files
             _subType = typeof(T);
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
-            ReferencePathAbsolute = filePath;
+            Path.Absolute = filePath;
         }
         public FileLoader(string filePath, Type type)
         {
@@ -59,17 +52,34 @@ namespace TheraEngine.Core.Files
                 throw new Exception(type.ToString() + " is not assignable to " + typeof(T).ToString());
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
-            ReferencePathAbsolute = filePath;
+            Path.Absolute = filePath;
         }
         public FileLoader(string dir, string name, EProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
-        protected string _localRefPath;
-        protected string _absoluteRefPath;
         protected Type _subType = null;
-        [TSerialize(nameof(PathType), Order = 0, NodeType = ENodeType.Attribute)]
-        protected EPathType _pathType = EPathType.FileRelative;
         protected bool _updating;
+        private PathReference _path = new PathReference();
+
+        [DisplayName("Reference Path")]
+        [TSerialize]
+        public PathReference Path
+        {
+            get => _path;
+            set
+            {
+                if (_path != null)
+                {
+                    _path.RelativePathChanged -= OnRelativeRefPathChanged;
+                    _path.AbsolutePathChanged -= OnAbsoluteRefPathChanged;
+                }
+
+                _path = value ?? new PathReference();
+
+                _path.RelativePathChanged += OnRelativeRefPathChanged;
+                _path.AbsolutePathChanged += OnAbsoluteRefPathChanged;
+            }
+        }
 
         [Browsable(false)]
         [TString(false, true, false)]
@@ -80,186 +90,18 @@ namespace TheraEngine.Core.Files
             set
             {
                 base.FilePath = value;
-                if (_pathType == EPathType.FileRelative)
+                if (Path.Type == EPathType.FileRelative)
                 {
                     if (!string.IsNullOrWhiteSpace(RootFile.DirectoryPath) && 
-                        !string.IsNullOrWhiteSpace(_absoluteRefPath) &&
-                        _absoluteRefPath.IsValidExistingPath())
+                        !string.IsNullOrWhiteSpace(Path.Absolute) &&
+                        Path.Absolute.IsValidExistingPath())
                     {
-                        _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
+                        Path.Relative = Path.Absolute.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
                     }
                 }
             }
         }
-
-        [Category("File Reference")]
-        public EPathType PathType
-        {
-            get => _pathType;
-            set
-            {
-                _pathType = value;
-                string oldPath = _localRefPath;
-                if (_pathType == EPathType.Absolute)
-                    _localRefPath = _absoluteRefPath;
-                else if (!string.IsNullOrWhiteSpace(_absoluteRefPath) && _absoluteRefPath.IsValidExistingPath())
-                {
-                    if (PathType == EPathType.EngineRelative)
-                        _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(Application.StartupPath);
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(RootFile.DirectoryPath))
-                            _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
-                        else
-                            _localRefPath = Path.GetFileName(_absoluteRefPath);
-                    }
-                }
-                else
-                    _localRefPath = null;
-                OnLocalRefPathChanged(oldPath);
-            }
-        }
-
-        [TString(false, true, false)]
-        [Category("File Reference")]
-        public virtual string ReferencePathAbsolute
-        {
-            get => _absoluteRefPath;
-            set
-            {
-                _updating = true;
-                string oldAbsPath = _absoluteRefPath;
-                string oldLocalPath = _localRefPath;
-                if (value != null)
-                {
-                    bool validPath = value.IsExistingDirectoryPath() == false;
-                    if (validPath)
-                    {
-                        _absoluteRefPath = Path.GetFullPath(value);
-                        if (PathType == EPathType.Absolute)
-                            _localRefPath = _absoluteRefPath;
-                        else
-                        {
-                            string root = Path.GetPathRoot(value);
-                            int colonIndex = root.IndexOf(":");
-                            if (colonIndex > 0)
-                                root = root.Substring(0, colonIndex);
-                            else
-                                root = string.Empty;
-
-                            if (PathType == EPathType.EngineRelative)
-                            {
-                                string root2 = Path.GetPathRoot(Application.StartupPath);
-                                colonIndex = root2.IndexOf(":");
-                                if (colonIndex > 0)
-                                    root2 = root2.Substring(0, colonIndex);
-                                else
-                                    root2 = string.Empty;
-                                if (!string.Equals(root, root2))
-                                {
-                                    PathType = EPathType.Absolute;
-                                    _localRefPath = _absoluteRefPath;
-                                }
-                                else
-                                    _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(Application.StartupPath);
-                            }
-                            else
-                            {
-                                if (!string.IsNullOrEmpty(RootFile.DirectoryPath))
-                                {
-                                    string root2 = Path.GetPathRoot(RootFile.DirectoryPath);
-                                    colonIndex = root2.IndexOf(":");
-                                    if (colonIndex > 0)
-                                        root2 = root2.Substring(0, colonIndex);
-                                    else
-                                        root2 = string.Empty;
-                                    if (!string.Equals(root, root2))
-                                    {
-                                        PathType = EPathType.Absolute;
-                                        _localRefPath = _absoluteRefPath;
-                                    }
-                                    else
-                                        _localRefPath = _absoluteRefPath.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
-                                }
-                                else
-                                    _localRefPath = null;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        _absoluteRefPath = value;
-                        _localRefPath = value;
-                    }
-                }
-                else
-                {
-                    _localRefPath = null;
-                    _absoluteRefPath = null;
-                }
-                _updating = false;
-                OnLocalRefPathChanged(oldLocalPath);
-                OnAbsoluteRefPathChanged(oldAbsPath);
-            }
-        }
-        [TString(false, true, false)]
-        [Category("File Reference")]
-        [TSerialize(Order = 1, NodeType = ENodeType.Attribute)]
-        public virtual string ReferencePath
-        {
-            get => _localRefPath;
-            set
-            {
-                _updating = true;
-                string oldAbsPath = _absoluteRefPath;
-                string oldLocalPath = _localRefPath;
-                if (value != null)
-                {
-                    _localRefPath = value;
-                    bool isAbsolute = _localRefPath.Contains(":");
-
-                    if (!isAbsolute && !_localRefPath.StartsWith("\\"))
-                        _localRefPath = "\\" + _localRefPath;
-                    else
-                        _pathType = EPathType.Absolute;
-                    
-                    if (PathType == EPathType.Absolute)
-                    {
-                        _absoluteRefPath = Path.GetFullPath(_localRefPath);
-                    }
-                    else
-                    {
-                        bool fileRelative = PathType == EPathType.FileRelative;
-                        if (fileRelative)
-                        {
-                            if (string.IsNullOrWhiteSpace(RootFile.DirectoryPath))
-                            {
-                                _absoluteRefPath = Path.GetFileName(_localRefPath);
-                            }
-                            else
-                            {
-                                string combinedPath = RootFile.DirectoryPath + _localRefPath;
-                                _absoluteRefPath = Path.GetFullPath(combinedPath);
-                            }
-                        }
-                        else
-                        {
-                            string relPath = _localRefPath.MakeAbsolutePathRelativeTo(Application.StartupPath);
-                            string combinedPath = Path.Combine(Application.StartupPath, _localRefPath);
-                            _absoluteRefPath = Path.GetFullPath(combinedPath);
-                        }
-                    }
-                }
-                else
-                {
-                    _localRefPath = null;
-                    _absoluteRefPath = null;
-                }
-                _updating = false;
-                OnLocalRefPathChanged(oldLocalPath);
-                OnAbsoluteRefPathChanged(oldAbsPath);
-            }
-        }
+        
         /// <summary>
         /// Returns true if a file exists at the path that this reference points to.
         /// </summary>
@@ -268,13 +110,13 @@ namespace TheraEngine.Core.Files
         {
             get
             {
-                if (string.IsNullOrWhiteSpace(ReferencePathAbsolute))
+                if (!Path.FileExists)
                     return false;
-                if (!File.Exists(ReferencePathAbsolute))
-                    return false;
-                Type fileType = DetermineType(ReferencePathAbsolute);
+
+                Type fileType = DetermineType(Path.Absolute);
                 if (fileType == null)
                     return false;
+
                 return _subType.IsAssignableFrom(fileType);
             }
         }
@@ -300,15 +142,15 @@ namespace TheraEngine.Core.Files
             Loaded -= onLoaded;
         }
 
-        protected virtual void OnAbsoluteRefPathChanged(string oldAbsRefPath)
+        protected virtual void OnAbsoluteRefPathChanged(string oldPath, string newPath)
         {
             if (!_updating)
-                AbsoluteRefPathChanged?.Invoke(oldAbsRefPath, _absoluteRefPath);
+                AbsoluteRefPathChanged?.Invoke(oldPath, newPath);
         }
-        protected virtual void OnLocalRefPathChanged(string oldLocalRefPath)
+        protected virtual void OnRelativeRefPathChanged(string oldPath, string newPath)
         {
             if (!_updating)
-                LocalRefPathChanged?.Invoke(oldLocalRefPath, _localRefPath);
+                RelativeRefPathChanged?.Invoke(oldPath, newPath);
         }
 
         /// <summary>
@@ -373,7 +215,7 @@ namespace TheraEngine.Core.Files
             IProgress<float> progress,
             CancellationToken cancel)
         {
-            string absolutePath = ReferencePathAbsolute;
+            string absolutePath = Path.Absolute;
 
             if (string.IsNullOrWhiteSpace(absolutePath))
             {
@@ -399,7 +241,7 @@ namespace TheraEngine.Core.Files
 
             try
             {
-                if (IsThirdPartyImportableExt(Path.GetExtension(absolutePath).Substring(1)))
+                if (IsThirdPartyImportableExt(System.IO.Path.GetExtension(absolutePath).Substring(1)))
                 {
                     T file = Activator.CreateInstance<T>();
                     file.FilePath = absolutePath;
@@ -448,8 +290,8 @@ namespace TheraEngine.Core.Files
         /// Retrieves the extension from the reference path.
         /// Returns lowercase WITHOUT a period as the first char.
         /// </summary>
-        public string Extension() => ReferencePathAbsolute == null ? null :
-            Path.GetExtension(ReferencePathAbsolute).ToLowerInvariant().Substring(1);
+        public string Extension() => Path.Absolute == null ? null :
+            System.IO.Path.GetExtension(Path.Absolute).ToLowerInvariant().Substring(1);
 
         /// <summary>
         /// Retrieves the proprietary file format type from the extension.
@@ -525,7 +367,7 @@ namespace TheraEngine.Core.Files
             TFile3rdParty header = GetFile3rdPartyExtensions(_subType);
             return header?.ExportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
         }
-        public override string ToString() => ReferencePathAbsolute;
+        public override string ToString() => Path.Absolute;
 
         public static implicit operator Task<T>(FileLoader<T> fileRef) => fileRef?.LoadNewInstanceAsync();
         public static implicit operator FileLoader<T>(string filePath) => new FileLoader<T>(filePath);

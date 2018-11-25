@@ -532,9 +532,9 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     //Make some last minute adjustments to external file refs
                     //First, update file relative paths using the new file location
-                    if (fref.PathType == EPathType.FileRelative)
+                    if (fref.Path.Type == EPathType.FileRelative)
                     {
-                        string root = Path.GetPathRoot(fref.ReferencePathAbsolute);
+                        string root = Path.GetPathRoot(fref.Path.Absolute);
                         int colonIndex = root.IndexOf(":");
                         if (colonIndex > 0)
                             root = root.Substring(0, colonIndex);
@@ -551,12 +551,12 @@ namespace TheraEngine.Core.Files.Serialization
                         if (!string.Equals(root, root2))
                         {
                             //Totally different drives, cannot be relative in any way
-                            fref.PathType = EPathType.Absolute;
+                            fref.Path.Type = EPathType.Absolute;
                         }
                     }
                     if (fref.IsLoaded)
                     {
-                        string path = fref.ReferencePathAbsolute;
+                        string path = fref.Path.Absolute;
                         bool fileExists =
                             !string.IsNullOrWhiteSpace(path) &&
                             path.IsExistingDirectoryPath() == false &&
@@ -572,14 +572,14 @@ namespace TheraEngine.Core.Files.Serialization
                                 return;
 
                             string absPath;
-                            if (fref.PathType == EPathType.FileRelative)
+                            if (fref.Path.Type == EPathType.FileRelative)
                             {
-                                string rel = fref.ReferencePathAbsolute.MakeAbsolutePathRelativeTo(Owner.FileDirectory);
+                                string rel = fref.Path.Absolute.MakeAbsolutePathRelativeTo(Owner.FileDirectory);
                                 absPath = Path.GetFullPath(Path.Combine(Owner.FileDirectory, rel));
                                 //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
                             }
                             else
-                                absPath = fref.ReferencePathAbsolute;
+                                absPath = fref.Path.Absolute;
 
                             string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
 

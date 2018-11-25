@@ -396,7 +396,7 @@ namespace TheraEngine
 
             switch (Engine.RenderLibrary)
             {
-                case RenderLibrary.OpenGL:
+                case ERenderLibrary.OpenGL:
                     if (_context is GLWindowContext)
                         return;
 
@@ -404,7 +404,7 @@ namespace TheraEngine
                     _context = new GLWindowContext(this);
 
                     break;
-                case RenderLibrary.Direct3D11:
+                case ERenderLibrary.Direct3D11:
                     if (_context is DXWindowContext)
                         return;
 

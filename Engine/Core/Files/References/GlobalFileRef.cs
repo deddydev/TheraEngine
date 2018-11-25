@@ -59,10 +59,10 @@ namespace TheraEngine.Core.Files
         {
             if (Context != null)
             {
-                if (string.IsNullOrEmpty(ReferencePathAbsolute) || IsLoaded)
+                if (string.IsNullOrEmpty(Path.Absolute) || IsLoaded)
                     return false;
 
-                Context.GlobalFileInstances.AddOrUpdate(ReferencePathAbsolute, this, (key, oldValue) => this);
+                Context.GlobalFileInstances.AddOrUpdate(Path.Absolute, this, (key, oldValue) => this);
 
                 return true;
             }
@@ -70,24 +70,24 @@ namespace TheraEngine.Core.Files
                 return Engine.AddGlobalFileInstance(this);
         }
 
-        protected override void OnAbsoluteRefPathChanged(string oldAbsRefPath)
+        protected override void OnAbsoluteRefPathChanged(string oldPath, string newPath)
         {
-            base.OnAbsoluteRefPathChanged(oldAbsRefPath);
+            base.OnAbsoluteRefPathChanged(oldPath, newPath);
             if (IsLoaded)
             {
                 if (Context != null)
                 {
-                    if (!string.IsNullOrEmpty(oldAbsRefPath))
-                        Context.GlobalFileInstances.TryRemove(oldAbsRefPath, out GlobalFileRef<T> value);
-                    if (!string.IsNullOrEmpty(ReferencePathAbsolute))
-                        Context.GlobalFileInstances.AddOrUpdate(ReferencePathAbsolute, this, (key, oldValue) => this);
+                    if (!string.IsNullOrEmpty(oldPath))
+                        Context.GlobalFileInstances.TryRemove(oldPath, out GlobalFileRef<T> value);
+                    if (!string.IsNullOrEmpty(newPath))
+                        Context.GlobalFileInstances.AddOrUpdate(newPath, this, (key, oldValue) => this);
                 }
             }
             else
             {
-                if (!string.IsNullOrEmpty(oldAbsRefPath))
-                    Engine.RemoveGlobalFileInstance(oldAbsRefPath);
-                if (!string.IsNullOrEmpty(ReferencePathAbsolute))
+                if (!string.IsNullOrEmpty(oldPath))
+                    Engine.RemoveGlobalFileInstance(oldPath);
+                if (!string.IsNullOrEmpty(newPath))
                     Engine.AddGlobalFileInstance(this);
             }
         }
@@ -105,7 +105,7 @@ namespace TheraEngine.Core.Files
                 return _file;
 
             LoadAttempted = true;
-            string absolutePath = ReferencePathAbsolute;
+            string absolutePath = Path.Absolute;
             if (absolutePath != null)
             {
                 if (Context == null)
@@ -141,7 +141,7 @@ namespace TheraEngine.Core.Files
 
         public override string ToString()
         {
-            return $"Global File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(ReferencePathAbsolute) ? "<null path>" : ReferencePathAbsolute)}";
+            return $"Global File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(Path.Absolute) ? "<null path>" : Path.Absolute)}";
         }
     }
 }

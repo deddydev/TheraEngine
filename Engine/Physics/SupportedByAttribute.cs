@@ -4,9 +4,9 @@ namespace TheraEngine.Physics
 {
     public class PhysicsSupportAttribute : Attribute
     {
-        public PhysicsLibrary[] PhysicsLibraries { get; }
+        public EPhysicsLibrary[] PhysicsLibraries { get; }
 
-        public PhysicsSupportAttribute(params PhysicsLibrary[] libraries)
+        public PhysicsSupportAttribute(params EPhysicsLibrary[] libraries)
         {
             PhysicsLibraries = libraries;
         }

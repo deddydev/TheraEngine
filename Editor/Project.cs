@@ -45,7 +45,7 @@ namespace TheraEditor
         public string TargetBuildConfiguration { get; set; } = "Debug";
         [TSerialize(State = true)]
         [Category("Code")]
-        public string TargetBuildPlatform { get; set; } = "x86";
+        public string TargetBuildPlatform { get; set; } = "x64";
 
         public string RootNamespace { get; set; } = null;
         public override string Name
@@ -183,7 +183,7 @@ namespace TheraEditor
 
         [TSerialize(nameof(ProjectStateRef), State = true, Config = false)]
         private GlobalFileRef<ProjectState> _projectStateRef;
-        [TSerialize(nameof(EditorSettingsRef))]
+        [TSerialize(nameof(EditorSettingsOverrideRef))]
         private GlobalFileRef<EditorSettings> _editorSettingsRef;
 
         [Category("Project")]
@@ -193,7 +193,7 @@ namespace TheraEditor
             set => _projectStateRef = value;
         }
         [Category("Project")]
-        public GlobalFileRef<EditorSettings> EditorSettingsRef
+        public GlobalFileRef<EditorSettings> EditorSettingsOverrideRef
         {
             get => _editorSettingsRef;
             set => _editorSettingsRef = value;
@@ -214,13 +214,13 @@ namespace TheraEditor
         [Browsable(false)]
         public EditorSettings EditorSettings
         {
-            get => EditorSettingsRef?.File;
+            get => EditorSettingsOverrideRef?.File;
             set
             {
-                if (EditorSettingsRef != null)
-                    EditorSettingsRef.File = value;
+                if (EditorSettingsOverrideRef != null)
+                    EditorSettingsOverrideRef.File = value;
                 else
-                    EditorSettingsRef = value;
+                    EditorSettingsOverrideRef = value;
             }
         }
         
@@ -257,15 +257,15 @@ namespace TheraEditor
                 }
                 else
                 {
-                    gref.ReferencePathAbsolute = GetFilePath<T>(
+                    gref.Path.Absolute = GetFilePath<T>(
                         directory, gref.File?.Name ?? defaultName, EProprietaryFileFormat.XML);
                 }
             }
 
-            Update(ref _projectStateRef, "ProjectState");
-            Update(ref _userSettingsRef, "UserSettings");
-            Update(ref _engineSettingsRef, "EngineSettings");
-            Update(ref _editorSettingsRef, "EditorSettings");
+            Update(ref _projectStateRef, nameof(ProjectState));
+            Update(ref _userSettingsRef, nameof(UserSettings));
+            Update(ref _engineSettingsRef, nameof(EngineSettings));
+            Update(ref _editorSettingsRef, nameof(EditorSettings));
             
             LocalBinariesDirectory  = bin;
             LocalConfigDirectory    = cfg;
@@ -305,17 +305,33 @@ namespace TheraEditor
 
             TProject project = new TProject()
             {
-                Name                    = name,
-                FilePath                = GetFilePath<TProject>(directory, name, EProprietaryFileFormat.XML),
-                ProjectStateRef         = new GlobalFileRef<ProjectState>(directory, "ProjectState", EProprietaryFileFormat.XML, state),
-                UserSettingsRef         = new GlobalFileRef<UserSettings>(cfgDir, "UserSettings", EProprietaryFileFormat.XML, userSettings),
-                EngineSettingsRef       = new GlobalFileRef<EngineSettings>(cfgDir, "EngineSettings", EProprietaryFileFormat.XML, engineSettings),
-                EditorSettingsRef       = new GlobalFileRef<EditorSettings>(cfgDir, "EditorSettings", EProprietaryFileFormat.XML, editorSettings),
+                Name = name,
+
                 LocalBinariesDirectory  = bin,
                 LocalConfigDirectory    = cfg,
                 LocalSourceDirectory    = src,
                 LocalContentDirectory   = ctt,
                 LocalTempDirectory      = tmp,
+
+                FilePath
+                    = GetFilePath<TProject>(directory, name,
+                    EProprietaryFileFormat.XML),
+
+                ProjectStateRef
+                    = new GlobalFileRef<ProjectState>(directory, nameof(ProjectState),
+                    EProprietaryFileFormat.XML, state),
+
+                UserSettingsRef
+                    = new GlobalFileRef<UserSettings>(cfgDir, nameof(UserSettings),
+                    EProprietaryFileFormat.XML, userSettings),
+
+                EngineSettingsOverrideRef
+                    = new GlobalFileRef<EngineSettings>(cfgDir, nameof(EngineSettings),
+                    EProprietaryFileFormat.XML, engineSettings),
+
+                EditorSettingsOverrideRef
+                    = new GlobalFileRef<EditorSettings>(cfgDir, nameof(EditorSettings),
+                    EProprietaryFileFormat.XML, editorSettings),
             };
 
             await state.ExportAsync();
@@ -388,17 +404,20 @@ namespace TheraEditor
                 "$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props",
                 "Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')");
             
-            const string netVer = "v4.7.2";
+            const string targetNetVersion = "v4.7.2";
+            const string defaultConfig = "Debug";
+            const string defaultPlatform = "x64";
+            const string appPropertiesFolder = "Properties"; //Relative to the csproj
 
             var mainInfo = PropertyGroup.Create(null,
-                ("Configuration", "Debug", " '$(Configuration)' == '' "),
-                ("Platform", "x64", " '$(Configuration)' == '' "),
+                ("Configuration", defaultConfig, " '$(Configuration)' == '' "),
+                ("Platform", defaultPlatform, " '$(Configuration)' == '' "),
                 ("ProjectGuid", Guid.ToString("B").ToUpperInvariant(), null),
                 ("OutputType", "WinExe", null),
-                ("AppDesignerFolder", "Properties", null),
+                ("AppDesignerFolder", appPropertiesFolder, null),
                 ("RootNamespace", RootNamespace, null),
                 ("AssemblyName", Name, null),
-                ("TargetFrameworkVersion", netVer, null),
+                ("TargetFrameworkVersion", targetNetVersion, null),
                 ("FileAlignment", "512", null),
                 ("AutoGenerateBindingRedirects", "true", null),
                 ("TargetFrameworkProfile", null, null));
@@ -431,34 +450,37 @@ namespace TheraEditor
                 out List<string> contentFiles,
                 out HashSet<string> references);
 
-            ItemGroup refGrp = new ItemGroup();
-            refGrp.AddElements(references.OrderBy(x => x).Select(x => new Item("Reference") { Include = x }).ToArray());
-
-            Assembly engineAssembly = typeof(Engine).Assembly;
-            Item theraEngineRef = new Item("Reference")
-            {
-                Include = engineAssembly.GetName().ToString()
-            };
-            ItemMetadata specificVersion = new ItemMetadata
-            {
-                ElementName = "SpecificVersion"
-            };
-            specificVersion.StringContent = new ElementString("False");
-            ItemMetadata hintPath = new ItemMetadata
-            {
-                ElementName = "HintPath"
-            };
-
             //TODO: copy the thera engine dll to the game exe directory first
+            Assembly engineAssembly = typeof(Engine).Assembly;
             string engineDLLPath = engineAssembly.CodeBase;
             if (engineDLLPath.StartsWith("file:///"))
                 engineDLLPath = engineDLLPath.Substring(8);
             engineDLLPath = engineDLLPath.MakeAbsolutePathRelativeTo(csprojPath);
             if (engineDLLPath.StartsWith("\\"))
                 engineDLLPath = engineDLLPath.Substring(1);
-            hintPath.StringContent = new ElementString(engineDLLPath);
-            theraEngineRef.AddElements(specificVersion, hintPath);
-            refGrp.AddElements(theraEngineRef);
+
+            ItemGroup refGrp = new ItemGroup();
+            {
+                Item theraEngineRef = new Item("Reference")
+                {
+                    Include = engineAssembly.GetName().ToString()
+                };
+                {
+                    ItemMetadata specificVersion = new ItemMetadata
+                    {
+                        ElementName = "SpecificVersion",
+                        StringContent = new ElementString("False"),
+                    };
+                    ItemMetadata hintPath = new ItemMetadata
+                    {
+                        ElementName = "HintPath",
+                        StringContent = new ElementString(engineDLLPath),
+                    };
+                    theraEngineRef.AddElements(specificVersion, hintPath);
+                }
+                refGrp.AddElements(theraEngineRef);
+            }
+            refGrp.AddElements(references.OrderBy(x => x).Select(x => new Item("Reference") { Include = x }).ToArray());
 
             ItemGroup compileGrp = new ItemGroup();
             compileGrp.AddElements(codeFiles.OrderBy(x => x).Select(x => new Item("Compile") { Include = x }).ToArray());
@@ -548,7 +570,6 @@ namespace TheraEditor
             //sln.SaveAs(Path.Combine(slnDir, Name + ".sln"));
             //VisualStudioManager.VSInstanceClosed();
         }
-
         public void Compile() => Compile(TargetBuildConfiguration, TargetBuildPlatform);
         public void Compile(string buildConfiguration, string buildPlatform)
         {
@@ -557,7 +578,6 @@ namespace TheraEditor
             {
                 { "Configuration", buildConfiguration },
                 { "Platform", buildPlatform },
-                //{ "OutputPath", BinariesDirectory },
             };
             BuildRequestData request = new BuildRequestData(SolutionPath, globalProperties, null, new string[] { "Build" }, null);
             BuildParameters bp = new BuildParameters(pc)

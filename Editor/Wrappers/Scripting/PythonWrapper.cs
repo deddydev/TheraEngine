@@ -38,7 +38,7 @@ namespace TheraEditor.Wrappers
         {
             DockableTextEditor m = new DockableTextEditor();
             m.Show(Editor.Instance.DockPanel, DockState.Document);
-            m.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.ReferencePathAbsolute), ETextEditorMode.Python);
+            m.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.Path.Absolute), ETextEditorMode.Python);
             m.Saved += M_Saved;
         }
 
@@ -48,7 +48,7 @@ namespace TheraEditor.Wrappers
 
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
             int op = Editor.Instance.BeginOperation("Saving python script...", out Progress<float> progress, out CancellationTokenSource cancel);
-            await ResourceRef.File.ExportAsync(ResourceRef.ReferencePathAbsolute, ESerializeFlags.Default, progress, cancel.Token);
+            await ResourceRef.File.ExportAsync(ResourceRef.Path.Absolute, ESerializeFlags.Default, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }

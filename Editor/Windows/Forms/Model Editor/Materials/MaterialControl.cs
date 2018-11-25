@@ -109,8 +109,8 @@ namespace TheraEditor.Windows.Forms
                     foreach (var shaderRef in _material.Shaders)
                     {
                         string text = string.Empty;
-                        if (!string.IsNullOrWhiteSpace(shaderRef.ReferencePathAbsolute))
-                            text = Path.GetFileNameWithoutExtension(shaderRef.ReferencePathAbsolute) + " ";
+                        if (!string.IsNullOrWhiteSpace(shaderRef.Path.Absolute))
+                            text = Path.GetFileNameWithoutExtension(shaderRef.Path.Absolute) + " ";
                         else if (!string.IsNullOrWhiteSpace(shaderRef.File?.Name))
                             text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
 
@@ -230,7 +230,7 @@ namespace TheraEditor.Windows.Forms
                     Tag = fileRef
                 };
                 textEditor.Show(p, DockState.DockLeft);
-                textEditor.InitText(fileRef.File.Text, Path.GetFileName(fileRef.ReferencePathAbsolute), ETextEditorMode.GLSL);
+                textEditor.InitText(fileRef.File.Text, Path.GetFileName(fileRef.Path.Absolute), ETextEditorMode.GLSL);
                 textEditor.Saved += M_Saved;
                 textEditor.CompileGLSL = M_CompileGLSL;
                 textEditor.FormClosed += TextEditor_FormClosed;
@@ -262,7 +262,7 @@ namespace TheraEditor.Windows.Forms
 
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
             int op = Editor.Instance.BeginOperation("Saving text...", out Progress<float> progress, out System.Threading.CancellationTokenSource cancel);
-            await fileRef.File.ExportAsync(fileRef.ReferencePathAbsolute, ESerializeFlags.Default, progress, cancel.Token);
+            await fileRef.File.ExportAsync(fileRef.Path.Absolute, ESerializeFlags.Default, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }
@@ -315,8 +315,8 @@ namespace TheraEditor.Windows.Forms
             GlobalFileRef<GLSLShaderFile> shaderRef = f;
 
             string text = string.Empty;
-            if (!string.IsNullOrWhiteSpace(shaderRef.ReferencePathAbsolute))
-                text = Path.GetFileNameWithoutExtension(shaderRef.ReferencePathAbsolute) + " ";
+            if (!string.IsNullOrWhiteSpace(shaderRef.Path.Absolute))
+                text = Path.GetFileNameWithoutExtension(shaderRef.Path.Absolute) + " ";
             else if (!string.IsNullOrWhiteSpace(shaderRef.File?.Name))
                 text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
             text += "[" + shaderRef.File.Type.ToString() + "]";

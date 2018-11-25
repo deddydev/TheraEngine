@@ -37,7 +37,7 @@ namespace TheraEditor.Wrappers
                 Editor.Instance.DockPanel,
                 DockState.Document, 
                 Resource.Text, 
-                Path.GetFileName(ResourceRef.ReferencePathAbsolute),
+                Path.GetFileName(ResourceRef.Path.Absolute),
                 ETextEditorMode.Python,
                 DefaultSaveText);
         }

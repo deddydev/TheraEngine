@@ -109,16 +109,26 @@ namespace TheraEditor
         {
             //Check to see if the user is online and that github is up and running.
             Engine.PrintLine("Checking connection to Github...");
-            using (Ping s = new Ping())
+            try
             {
-                PingReply reply = s.Send(GithubUrl);
-                if (reply.Status != IPStatus.Success)
+                using (Ping s = new Ping())
                 {
-                    Engine.LogWarning($"Could not connect to {GithubUrl}: {reply.Status}");
-                    client = null;
-                    return false;
+                    PingReply reply = s.Send(GithubUrl);
+                    if (reply.Status != IPStatus.Success)
+                    {
+                        Engine.LogWarning($"Could not connect to {GithubUrl}: {reply.Status}");
+                        client = null;
+                        return false;
+                    }
                 }
             }
+            catch
+            {
+                Engine.PrintLine("Unable to connect.");
+                client = null;
+                return false;
+            }
+
             Engine.PrintLine("Connected successfully.");
             client = new GitHubClient(new Octokit.ProductHeaderValue(RepoName))
             {

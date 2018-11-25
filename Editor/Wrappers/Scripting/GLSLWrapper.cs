@@ -42,7 +42,7 @@ namespace TheraEditor.Wrappers
             textEditor.Show(Editor.Instance.DockPanel, DockState.Document);
             _shader = new RenderShader(ResourceRef.File);
             _shader.Generate();
-            textEditor.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.ReferencePathAbsolute), ETextEditorMode.GLSL);
+            textEditor.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.Path.Absolute), ETextEditorMode.GLSL);
             textEditor.Saved += M_Saved;
             textEditor.CompileGLSL = M_CompileGLSL;
             textEditor.FormClosed += TextEditor_FormClosed;
@@ -56,7 +56,7 @@ namespace TheraEditor.Wrappers
 
         private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)
         {
-            string ext = Path.GetExtension(ResourceRef.ReferencePathAbsolute).Substring(1);
+            string ext = Path.GetExtension(ResourceRef.Path.Absolute).Substring(1);
             EShaderMode mode = EShaderMode.Fragment;
             switch (ext)
             {
@@ -96,7 +96,7 @@ namespace TheraEditor.Wrappers
             ResourceRef.File.Text = obj.GetText();
             Editor.Instance.ContentTree.WatchProjectDirectory = false;
             int op = Editor.Instance.BeginOperation("Saving text...", out Progress<float> progress, out System.Threading.CancellationTokenSource cancel);
-            await ResourceRef.File.ExportAsync(ResourceRef.ReferencePathAbsolute, ESerializeFlags.Default, progress, cancel.Token);
+            await ResourceRef.File.ExportAsync(ResourceRef.Path.Absolute, ESerializeFlags.Default, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
             Editor.Instance.ContentTree.WatchProjectDirectory = true;
         }

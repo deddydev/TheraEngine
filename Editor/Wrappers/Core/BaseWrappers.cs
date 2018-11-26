@@ -158,7 +158,8 @@ namespace TheraEditor.Wrappers
                     }
                 }
 
-                w = TryWrapType(TFileObject.DetermineType(path, out EFileFormat format));
+                Type t = TFileObject.DetermineType(path, out EFileFormat format);
+                w = TryWrapType(t);
                 if (w != null)
                 {
                     w.Text = Path.GetFileName(path);

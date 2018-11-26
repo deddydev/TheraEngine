@@ -10,9 +10,8 @@ using System.IO;
 
 namespace TheraEngine.Rendering.Models
 {
-    [TFile3rdParty(new string[] { "dae" }, new string[] { "pmx" })]
-    [TFileExt("skmdl")]
     [TFileDef("Skeletal Model")]
+    [TFileExt("skmdl", new string[] { "dae" }, new string[] { "pmx" })]
     public class SkeletalModel : TFileObject, IModelFile
     {
         public SkeletalModel() : base() { }

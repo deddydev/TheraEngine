@@ -168,7 +168,7 @@ namespace TheraEngine.Core.Files
         }
         [TString(false, true, false)]
         [Category("File Reference")]
-        [TSerialize(Order = 1, NodeType = ENodeType.Attribute)]
+        [TSerialize("Path", Order = 1, NodeType = ENodeType.Attribute)]
         public virtual string Relative
         {
             get => _relative;

@@ -9,9 +9,8 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Rendering.Models
 {
-    [TFile3rdParty(new string[] { "dae", "obj" }, null)]
-    [TFileExt("stmdl")]
     [TFileDef("Static Model")]
+    [TFileExt("stmdl", new string[] { "dae", "obj" }, null)]
     public class StaticModel : TFileObject, IModelFile
     {
         public StaticModel() : base()

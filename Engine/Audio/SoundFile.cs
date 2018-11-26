@@ -5,8 +5,7 @@ using System.Collections.Generic;
 namespace TheraEngine.Audio
 {
     [TFileDef("Sound File")]
-    [TFile3rdParty("wav", "mp3", "ogg", "flac")]
-    [TFileExt("snd")]
+    [TFileExt("snd", new string[] { "wav", "mp3", "ogg", "flac" }, null)]
     public class SoundFile : TFileObject
     {
         private string _path;

@@ -8,9 +8,17 @@ namespace System.ComponentModel
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class TFileExt : Attribute
     {
-        public TFileExt(string extension)
+        public TFileExt(string proprietaryExtension, params string[] importExportExtensions)
         {
-            Extension = extension;
+            Extension = proprietaryExtension;
+            ImportableExtensions = importExportExtensions ?? new string[0];
+            ExportableExtensions = importExportExtensions ?? new string[0];
+        }
+        public TFileExt(string proprietaryExtension, string[] importableExtensions, string[] exportableExtensions)
+        {
+            Extension = proprietaryExtension;
+            ImportableExtensions = importableExtensions ?? new string[0];
+            ExportableExtensions = exportableExtensions ?? new string[0];
         }
 
         private string _extension;
@@ -53,5 +61,16 @@ namespace System.ComponentModel
         /// </summary>
         public string GetFullExtension(EProprietaryFileFormat format)
             => format.ToString().ToLowerInvariant()[0] + Extension;
+        
+        public string[] ImportableExtensions { get; private set; }
+        public string[] ExportableExtensions { get; private set; }
+        
+        public bool HasAnyImportableExportableExtensions => ImportableExtensions.Length + ExportableExtensions.Length > 0;
+        public bool HasAnyImportableExtensions => ImportableExtensions.Length > 0;
+        public bool HasAnyExportableExtensions => ExportableExtensions.Length > 0;
+        public bool HasImportableExtension(string ext)
+            => ImportableExtensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase);
+        public bool HasExportableExtension(string ext)
+            => ExportableExtensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase);
     }
 }

@@ -61,6 +61,7 @@ namespace TheraEngine.Core.Files
         protected bool _updating;
         private PathReference _path = new PathReference();
 
+        [Category("File Reference")]
         [DisplayName("Reference Path")]
         [TSerialize]
         public PathReference Path

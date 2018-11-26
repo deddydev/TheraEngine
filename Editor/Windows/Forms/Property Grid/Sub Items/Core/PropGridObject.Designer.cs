@@ -57,7 +57,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.lblObjectTypeName.AutoEllipsis = true;
             this.lblObjectTypeName.BackColor = System.Drawing.Color.Transparent;
             this.lblObjectTypeName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblObjectTypeName.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblObjectTypeName.Font = new System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblObjectTypeName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.lblObjectTypeName.Location = new System.Drawing.Point(0, 0);
             this.lblObjectTypeName.Margin = new System.Windows.Forms.Padding(0);
@@ -75,7 +75,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.chkNull.AutoSize = true;
             this.chkNull.BackColor = System.Drawing.Color.Transparent;
             this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
-            this.chkNull.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.chkNull.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.chkNull.Location = new System.Drawing.Point(-60, 0);
             this.chkNull.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkNull.Name = "chkNull";

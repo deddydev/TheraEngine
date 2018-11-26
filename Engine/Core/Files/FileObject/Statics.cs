@@ -136,7 +136,7 @@ namespace TheraEngine.Core.Files
             else
                 ext = path.ToLowerInvariant();
 
-            if (TFile3rdParty.Has3rdPartyExtension(ext))
+            if (TFile3rdParty.Is3rdPartyExtension(ext))
                 return EFileFormat.ThirdParty;
 
             //TODO: return raw format

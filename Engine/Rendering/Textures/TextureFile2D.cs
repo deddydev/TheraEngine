@@ -15,8 +15,7 @@ namespace TheraEngine.Rendering.Textures
     /// <summary>
     /// Wrapper class for a set of bitmaps, optionally (usually) stored in an external texture file such as a PNG or DDS.
     /// </summary>
-    [TFile3rdParty("png", "jpg", "jpeg", "tiff", "gif", "dds", "tga")]
-    [TFileExt("tex2d")]
+    [TFileExt("tex2d", "png", "jpg", "jpeg", "tiff", "gif", "dds", "tga")]
     [TFileDef("Texture File 2D")]
     public class TextureFile2D : TFileObject, ITextureFile
     {

@@ -99,6 +99,7 @@ namespace TheraEngine.Core.Files.Serialization
         internal int ParsablePointerSize { get; set; } = 0;
 
         public object DefaultObject { get; private set; }
+        public object DefaultMemberObject { get; private set; }
 
         public Type DesiredDerivedObjectType
         {
@@ -199,7 +200,7 @@ namespace TheraEngine.Core.Files.Serialization
                 CompareReadOnly = false,
                 ComparePredicate = x => x.GetCustomAttribute<TSerialize>() != null
             });
-            ComparisonResult result = comp.Compare(DefaultObject, Object);
+            ComparisonResult result = comp.Compare(DefaultMemberObject, Object);
             //if (!result.AreEqual)
             //    Engine.PrintLine(result.DifferencesString);
             return result.AreEqual;
@@ -466,31 +467,36 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public void DetermineDefaultObject()
         {
-            if (IsRoot)
-            {
-                if (ObjectType != null)
+            //if (IsRoot)
+            //{
+                if (ObjectType != null && !(ObjectType.IsAbstract || ObjectType.IsInterface) && ObjectType.GetConstructors().Any(x => x.GetParameters().Length == 0))
                     DefaultObject = SerializationCommon.CreateObject(ObjectType);
                 else
                     DefaultObject = null;
+            //    return;
+            //}
+
+            //DefaultObject = ObjectType?.GetDefaultValue() ?? null;
+            if (Parent is null || MemberInfo?.Member is null)
+            {
+                DefaultMemberObject = ObjectType?.GetDefaultValue() ?? null;
                 return;
             }
-
-            DefaultObject = ObjectType?.GetDefaultValue() ?? null;
-            if (Parent is null || MemberInfo?.Member is null)
-                return;
 
             if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Field))
             {
                 FieldInfo info = (FieldInfo)MemberInfo.Member;
                 if (!(Parent.DefaultObject is null))
-                    DefaultObject = info.GetValue(Parent.DefaultObject);
+                    DefaultMemberObject = info.GetValue(Parent.DefaultObject);
             }
             else if (MemberInfo.Member.MemberType.HasFlag(MemberTypes.Property))
             {
                 PropertyInfo info = (PropertyInfo)MemberInfo.Member;
                 if (info.CanRead && !(Parent.DefaultObject is null))
-                    DefaultObject = info.GetValue(Parent.DefaultObject);
+                    DefaultMemberObject = info.GetValue(Parent.DefaultObject);
             }
+            else
+                DefaultMemberObject = ObjectType?.GetDefaultValue() ?? null;
         }
         public void RetrieveObjectFromParent()
         {

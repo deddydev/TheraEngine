@@ -11,9 +11,8 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Animation
 {
-    [TFile3rdParty(new string[] { "dae" }, null)]
-    [TFileExt("skelanim")]
     [TFileDef("Skeletal Animation")]
+    [TFileExt("skelanim", new string[] { "dae" }, null)]
     public class SkeletalAnimation : BaseAnimation
     {
         [ThirdPartyLoader("dae", true)]

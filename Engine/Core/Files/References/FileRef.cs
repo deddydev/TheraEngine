@@ -210,10 +210,9 @@ namespace TheraEngine.Core.Files
         {
             if (_file != null || LoadAttempted)
                 return _file;
-
-            bool funcEnded = false;
-            GetInstanceAsync().ContinueWith(task => funcEnded = true);
-            while (!funcEnded) ;
+            
+            GetInstanceAsync().ContinueWith(task => LoadAttempted = true);
+            while (!LoadAttempted) ;
             return _file;
         }
 

@@ -72,19 +72,24 @@ namespace TheraEditor.Windows.Forms
             int maxValue = toolStripProgressBar1.Maximum;
 
             float avgProgress = 0.0f;
+            int valid = 0;
             for (int i = 0; i < _operations.Count; ++i)
             {
                 OperationInfo info = _operations[i];
-                avgProgress += info.ProgressValue;
-                if (info.IsComplete)
-                    EndOperation(i--);
+                if (info != null)
+                {
+                    avgProgress += info.ProgressValue;
+                    if (info.IsComplete)
+                        EndOperation(i--);
+                    else
+                        ++valid;
+                }
             }
-
-            int opCount = _operations.Count;
-            if (opCount == 0)
+            
+            if (valid == 0)
                 return;
 
-            avgProgress /= opCount;
+            avgProgress /= valid;
 
             int value = (int)(avgProgress * maxValue + 0.5f);
             TargetOperationValue = value;

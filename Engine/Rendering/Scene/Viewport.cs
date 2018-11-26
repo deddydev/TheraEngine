@@ -806,7 +806,7 @@ namespace TheraEngine.Rendering
 
             //If forward, we can render directly to the post process FBO.
             //If deferred, we have to render to a quad first, then render that to post process
-            if (Engine.Settings.EnableDeferredPass)
+            //if (Engine.Settings.EnableDeferredPass)
             {
                 #region SSAO Noise
                 SSAONoise = new TexRef2D("SSAONoise",

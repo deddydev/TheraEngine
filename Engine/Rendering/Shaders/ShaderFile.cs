@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering.Models.Materials
     /// A shader script file.
     /// </summary>
     [TFile3rdParty(
-        "fs",   "vs",   "gs",   "tcs",  "tes",  "cs",
+        "fs",   "vs",   "gs",   "tcs",  "tes",  //"cs", //C# file extension...
         "frag", "vert", "geom", "tesc", "tese", "comp")]
     [TFileDef("Shader")]
     public class GLSLShaderFile : TextFile

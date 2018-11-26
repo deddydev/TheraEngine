@@ -196,6 +196,43 @@ namespace TheraEngine.Core.Files.Serialization
             t.IsValueType ||
             (t.GetInterface(nameof(IList)) != null && IsSerializableAsString(t.DetermineElementType())));
 
+        public static Func<object, string> GetToStringFunc(Type t)
+        {
+            if (t.GetInterface(nameof(ISerializableString)) != null)
+            {
+                return new Func<object, string>(value => ((ISerializableString)value).WriteToString());
+            }
+            else if (IsEnum(t))
+            {
+                return new Func<object, string>(value => value.ToString().Replace(",", "|").ReplaceWhitespace(""));
+            }
+            else if (IsPrimitiveType(t, false, true, true))
+            {
+                return new Func<object, string>(value => value.ToString());
+            }
+            else if (t.IsValueType)
+            {
+                return new Func<object, string>(value => GetStructAsBytesString(value));
+            }
+            else if (t.GetInterface(nameof(IList)) != null)
+            {
+                Type elementType = t.DetermineElementType();
+                if (IsSerializableAsString(elementType))
+                {
+                    string separator = " ";
+                    if (!IsPrimitiveType(elementType))
+                        separator = ",";
+
+                    return new Func<object, string>(value =>
+                    {
+                        IList list = value as IList;
+                        var func = GetToStringFunc(elementType);
+                        return list.ToStringList(separator, separator, func);
+                    });
+                }
+            }
+            return null;
+        }
         public static bool GetString(object value, Type t, out string result)
         {
             if (t.GetInterface(nameof(ISerializableString)) != null)
@@ -228,18 +265,90 @@ namespace TheraEngine.Core.Files.Serialization
                         separator = ",";
 
                     IList list = value as IList;
-                    string MakeString(object o)
-                    {
-                        GetString(o, elementType, out string str);
-                        return str;
-                    }
-                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(separator, separator, MakeString);
+                    var func = GetToStringFunc(elementType);
+                    result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(separator, separator, func);
                     return true;
                 }
             }
 
             result = null;
             return false;
+        }
+        public static Func<string, object> GetFromStringFunc(Type t)
+        {
+            if (t.GetInterface(nameof(ISerializableString)) != null)
+            {
+                return new Func<string, object>(value =>
+                {
+                    ISerializableString o = (ISerializableString)Activator.CreateInstance(t);
+                    o.ReadFromString(value);
+                    return o;
+                });
+            }
+            if (IsEnum(t))
+            {
+                return new Func<string, object>(value =>
+                {
+                    value = value.ReplaceWhitespace("").Replace("|", ", ");
+                    return Enum.Parse(t, value);
+                });
+            }
+            switch (t.Name)
+            {
+                case "Boolean": return new Func<string, object>(value => Boolean.Parse(value));
+                case "SByte": return new Func<string, object>(value => SByte.Parse(value));
+                case "Byte": return new Func<string, object>(value => Byte.Parse(value));
+                case "Char": return new Func<string, object>(value => Char.Parse(value));
+                case "Int16":return new Func<string, object>(value => Int16.Parse(value));
+                case "UInt16": return new Func<string, object>(value => UInt16.Parse(value));
+                case "Int32": return new Func<string, object>(value => Int32.Parse(value));
+                case "UInt32": return new Func<string, object>(value => UInt32.Parse(value));
+                case "Int64": return new Func<string, object>(value => Int64.Parse(value));
+                case "UInt64": return new Func<string, object>(value => UInt64.Parse(value));
+                case "Single": return new Func<string, object>(value => Single.Parse(value));
+                case "Double": return new Func<string, object>(value => Double.Parse(value));
+                case "Decimal": return new Func<string, object>(value => Decimal.Parse(value));
+                case "String": return new Func<string, object>(value => value);
+            }
+            if (t.IsValueType)
+            {
+                return new Func<string, object>(value => ParseStructBytesString(t, value));
+            }
+            if (t.GetInterface(nameof(IList)) != null)
+            {
+                Type elementType = t.DetermineElementType();
+                if (IsSerializableAsString(elementType))
+                {
+                    char separator = ' ';
+                    if (!IsPrimitiveType(elementType))
+                        separator = ',';
+
+                    return new Func<string, object>(value =>
+                    {
+                        string[] values = value.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+
+                        IList list;
+                        if (t.IsArray)
+                            list = Activator.CreateInstance(t, values.Length) as IList;
+                        else
+                            list = Activator.CreateInstance(t) as IList;
+
+                        var func = GetFromStringFunc(elementType);
+                        if (list.IsFixedSize)
+                        {
+                            for (int i = 0; i < values.Length; ++i)
+                                list[i] = func(values[i]);
+                        }
+                        else
+                        {
+                            for (int i = 0; i < values.Length; ++i)
+                                list.Add(func(values[i]));
+                        }
+                        return list;
+                    });
+                }
+            }
+            return null;
         }
         public static object ParseString(string value, Type t)
         {
@@ -271,10 +380,9 @@ namespace TheraEngine.Core.Files.Serialization
                 case "Decimal": return Decimal.Parse(value);
                 case "String":  return value;
             }
-
             if (t.IsValueType)
                 return ParseStructBytesString(t, value);
-            else if (t.GetInterface(nameof(IList)) != null)
+            if (t.GetInterface(nameof(IList)) != null)
             {
                 Type elementType = t.DetermineElementType();
                 if (IsSerializableAsString(elementType))
@@ -290,14 +398,17 @@ namespace TheraEngine.Core.Files.Serialization
                         list = Activator.CreateInstance(t, values.Length) as IList;
                     else
                         list = Activator.CreateInstance(t) as IList;
-                    
-                    for (int i = 0; i < values.Length; ++i)
+
+                    var func = GetFromStringFunc(elementType);
+                    if (list.IsFixedSize)
                     {
-                        object o = ParseString(values[i], elementType);
-                        if (list.IsFixedSize)
-                            list[i] = o;
-                        else
-                            list.Add(o);
+                        for (int i = 0; i < values.Length; ++i)
+                            list[i] = func(values[i]);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < values.Length; ++i)
+                            list.Add(func(values[i]));
                     }
 
                     return list;
@@ -617,8 +728,14 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     default:
                     case EFileFormat.ThirdParty:
+
                         Type[] types = TFileObject.DetermineThirdPartyTypes(ext);
+
+                        if (types.Length > 1)
+                            Engine.LogWarning($"Multiple possible file types found for 3rd party extension '{ext}': {types.ToStringList(", ")}. Assuming the first.");
+
                         fileType = types.Length > 0 ? types[0] : null;
+
                         break;
                     case EFileFormat.XML:
                         using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))

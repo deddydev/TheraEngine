@@ -9,8 +9,7 @@ namespace TheraEngine
     /// Base class for a class that only defines primitive properties; no classes or structs.
     /// Allows reading and writing all defined properties
     /// </summary>
-    [TFile3rdParty("txt")]
-    [TFileExt("set")]
+    [TFileExt("set", "txt")]
     public abstract class TSettings : TFileObject
     {
         public override void ManualRead3rdParty(string filePath)
@@ -217,6 +216,7 @@ namespace TheraEngine
 
         public EngineSettings()
         {
+            EnableDeferredPass = true;
             SkinOnGPU = true;
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;

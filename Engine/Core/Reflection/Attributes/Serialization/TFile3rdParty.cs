@@ -6,24 +6,15 @@ namespace System.ComponentModel
     public class TFile3rdParty : Attribute
     {
         public TFile3rdParty(params string[] extensions)
-        {
-            ImportableExtensions = extensions ?? new string[0];
-            ExportableExtensions = extensions ?? new string[0];
-        }
-        public TFile3rdParty(string[] importableExtensions, string[] exportableExtensions)
-        {
-            ImportableExtensions = importableExtensions ?? new string[0];
-            ExportableExtensions = exportableExtensions ?? new string[0];
-        }
+            => Extensions = extensions ?? new string[0];
         
-        public string[] ImportableExtensions { get; private set; }
-        public string[] ExportableExtensions { get; private set; }
+        public string[] Extensions { get; private set; }
         public bool AsyncManualRead { get; set; } = false;
         public bool AsyncManualWrite { get; set; } = false;
 
-        public bool HasAnyExtensions => ImportableExtensions.Length + ExportableExtensions.Length > 0;
+        public bool HasAnyExtensions => Extensions.Length > 0;
 
-        public static bool Has3rdPartyExtension(string ext)
+        public static bool Is3rdPartyExtension(string ext)
         {
             if (string.IsNullOrWhiteSpace(ext))
                 return false;
@@ -31,6 +22,15 @@ namespace System.ComponentModel
             if (ext[0] == '.')
                 ext = ext.Substring(0);
             return ExtensionNames3rdParty.ContainsKey(ext);
+        }
+        public bool HasExtension(string ext)
+        { 
+            if (string.IsNullOrWhiteSpace(ext))
+                return false;
+            //ext = ext.ToLowerInvariant();
+            if (ext[0] == '.')
+                ext = ext.Substring(0);
+            return Extensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public static Dictionary<string, string> ExtensionNames3rdParty = new Dictionary<string, string>()
@@ -58,13 +58,6 @@ namespace System.ComponentModel
                 ExtensionNames3rdParty.Add(extension, userFriendlyName);
             else
                 ExtensionNames3rdParty[extension] = userFriendlyName;
-        }
-
-        public bool HasExtension(string ext)
-        {
-            return 
-                ExportableExtensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ||
-                ImportableExtensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

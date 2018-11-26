@@ -8,7 +8,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Core.Files
 {
-    [TFile3rdParty("txt", "rtf", "*")]
+    [TFile3rdParty("txt", "rtf")]
     [TFileDef("Text File")]
     public class TextFile : TFileObject, ITextSource
     {

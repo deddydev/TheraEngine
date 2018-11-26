@@ -842,11 +842,10 @@
   },
   "libraries": {
     "Microsoft.CSharp/4.5.0": {
-      "sha512": "fcyI3xN2vZV2FTGmxxMjV2LmQykV4PknROKrXrBG4lrTFJqlJJx5d1bOwTTJ/Y9XzpWBHGYsTSBnA0q3bWgGjg==",
+      "sha512": "EGoBmf3Na2ppbhPePDE9PlX81r1HuOZH5twBrq7couJZiPTjUnD3648balerQJO6EJ8Sj+43+XuRwQ7r+3tE3w==",
       "type": "package",
       "path": "microsoft.csharp/4.5.0",
       "files": [
-        ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE.TXT",
         "THIRD-PARTY-NOTICES.TXT",
@@ -910,11 +909,11 @@
       ]
     },
     "Microsoft.NETCore.Platforms/1.0.1": {
-      "sha512": "2G6OjjJzwBfNOO8myRV/nFrbTw5iA+DEm0N+qUqhrOmaVtn4pC77h38I1jsXGw5VH55+dPfQsqHD0We9sCl9FQ==",
+      "sha512": "oq9B289GvIVAo9xfJFNBuuLiE55OopBcS3oZlSYyispEcCigEcs6X6CJM4lfQVXegTkx+o2Z6Xx9EYcpHPKGfA==",
       "type": "package",
       "path": "microsoft.netcore.platforms/1.0.1",
       "files": [
-        ".nupkg.metadata",
+        ".signature.p7s",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/netstandard1.0/_._",
@@ -2161,11 +2160,11 @@
       ]
     },
     "System.Net.Http/4.1.0": {
-      "sha512": "ULq9g3SOPVuupt+Y3U+A37coXzdNisB1neFCSKzBwo182u0RDddKJF8I5+HfyXqK6OhJPgeoAwWXrbiUXuRDsg==",
+      "sha512": "QxY0x5iEkwaZqjPJC1EoWrjWnDPEcu7nf69tnfOx32BNb3V5cLvHwDOZDC0Vbx6MGGVOpnSHUtP0UY0lvtCvSg==",
       "type": "package",
       "path": "system.net.http/4.1.0",
       "files": [
-        ".nupkg.metadata",
+        ".signature.p7s",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
         "lib/Xamarinmac20/_._",
@@ -3852,24 +3851,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\dnedd\\.nuget\\packages\\": {},
+    "C:\\Users\\David\\.nuget\\packages\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "4.57.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects.csproj",
+      "projectUniqueName": "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects.csproj",
       "projectName": "CompareNETObjects",
-      "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects.csproj",
-      "packagesPath": "C:\\Users\\dnedd\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Compare-NET-Objects\\obj\\",
+      "projectPath": "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\Compare-NET-Objects.csproj",
+      "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
+      "outputPath": "X:\\Repositories\\TheraEngine\\Compare-NET-Objects\\obj\\",
       "projectStyle": "PackageReference",
       "crossTargeting": true,
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\dnedd\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [

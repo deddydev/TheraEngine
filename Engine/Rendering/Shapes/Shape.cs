@@ -40,6 +40,25 @@ namespace TheraEngine.Core.Shapes
             _rc = new RenderCommandMethod3D(Render);
         }
 
+        [TSerialize]
+        [Category("Shape")]
+        public Transform Transform
+        {
+            get => _transform;
+            set
+            {
+                if (_transform != null)
+                    _transform.MatrixChanged -= _transform_MatrixChanged;
+                _transform = value ?? Transform.GetIdentity();
+                _transform.MatrixChanged += _transform_MatrixChanged;
+            }
+        }
+
+        private void _transform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix) 
+            => OctreeNode?.ItemMoved(this);
+
+        protected Transform _transform = Transform.GetIdentity();
+
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
 
         public Action VisibilityChanged;
@@ -71,8 +90,8 @@ namespace TheraEngine.Core.Shapes
         public abstract EContainment Contains(Box box);
         public abstract EContainment Contains(Sphere sphere);
         public abstract EContainment Contains(BaseCone cone);
-        public abstract EContainment Contains(BaseCylinder cylinder);
-        public abstract EContainment Contains(BaseCapsule capsule);
+        public abstract EContainment Contains(Cylinder cylinder);
+        public abstract EContainment Contains(Capsule capsule);
         public EContainment Contains(Shape shape)
         {
             if (shape != null)
@@ -85,9 +104,9 @@ namespace TheraEngine.Core.Shapes
                     return Contains(sphere);
                 else if (shape is BaseCone cone)
                     return Contains(cone);
-                else if (shape is BaseCylinder cylinder)
+                else if (shape is Cylinder cylinder)
                     return Contains(cylinder);
-                else if (shape is BaseCapsule capsule)
+                else if (shape is Capsule capsule)
                     return Contains(capsule);
             }
             return EContainment.Contains;
@@ -99,23 +118,31 @@ namespace TheraEngine.Core.Shapes
         public EContainment ContainedWithin(Shape shape) => shape?.Contains(this) ?? EContainment.Contains;
         
         /// <summary>
-        /// Sets the given matrix transform to this shape.
+        /// Returns a hard copy of this shape, transformed by the given transform.
         /// </summary>
-        public virtual void SetRenderTransform(Matrix4 worldMatrix)
+        /// <param name="matrix"></param>
+        /// <returns></returns>
+        public Shape PostTransformedBy(Matrix4 matrix)
         {
-            OctreeNode?.ItemMoved(this);
+            var obj = HardCopy();
+            obj.Transform.Matrix = Transform.Matrix * matrix;
+            return obj;
         }
         /// <summary>
         /// Returns a hard copy of this shape, transformed by the given transform.
         /// </summary>
-        /// <param name="worldMatrix"></param>
+        /// <param name="matrix"></param>
         /// <returns></returns>
-        public abstract Shape TransformedBy(Matrix4 worldMatrix);
+        public Shape PreTransformedBy(Matrix4 matrix)
+        {
+            var obj = HardCopy();
+            obj.Transform.Matrix = matrix * Transform.Matrix;
+            return obj;
+        }
         /// <summary>
         /// Returns a completely unique copy of this shape (nothing shares the same memory location).
         /// </summary>
         public abstract Shape HardCopy();
-        public abstract Matrix4 GetTransformMatrix();
         public abstract void Render();
 
         private readonly RenderCommandMethod3D _rc;

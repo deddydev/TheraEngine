@@ -1189,10 +1189,6 @@
     <None Include="Resources\ClosedFolder.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Compare-NET-Objects\Compare-NET-Objects.csproj">
-      <Project>{f76c2816-647c-4069-9dc1-0e458f8e15f2}</Project>
-      <Name>Compare-NET-Objects</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{3ba74071-a8fb-473a-9388-0c8f75872f41}</Project>
       <Name>Engine</Name>

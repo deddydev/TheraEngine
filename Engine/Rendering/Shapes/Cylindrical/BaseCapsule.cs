@@ -9,10 +9,13 @@ namespace TheraEngine.Core.Shapes
 {
     [TFileExt("capsule")]
     [TFileDef("Capsule")]
-    public abstract class BaseCapsule : BaseCylinder
+    public abstract class Capsule : Cylinder
     {
-        public BaseCapsule(Vec3 center, Rotator rotation, Vec3 scale, Vec3 upAxis, float radius, float halfHeight) 
-            : base(center, rotation, scale, upAxis, radius, halfHeight) { }
+        public Capsule(Vec3 upAxis, float radius, float halfHeight)
+            : this(Transform.GetIdentity(), upAxis, radius, halfHeight) { }
+
+        public Capsule(Transform transform, Vec3 upAxis, float radius, float halfHeight) 
+            : base(transform, upAxis, radius, halfHeight) { }
 
         public Sphere GetTopSphere()
             => new Sphere(Radius, GetTopCenterPoint());
@@ -21,7 +24,7 @@ namespace TheraEngine.Core.Shapes
 
         public override void Render()
         {
-            Engine.Renderer.RenderCapsule(_state.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Red);
+            Engine.Renderer.RenderCapsule(_transform.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Red);
         }
         public override bool Contains(Vec3 point)
             => Segment.ShortestDistanceToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point) <= _radius;
@@ -56,7 +59,7 @@ namespace TheraEngine.Core.Shapes
             else
                 return EContainment.Intersects;
         }
-        public override EContainment Contains(BaseCapsule capsule)
+        public override EContainment Contains(Capsule capsule)
         {
             //TODO
             return EContainment.Contains;
@@ -66,7 +69,7 @@ namespace TheraEngine.Core.Shapes
             //TODO
             return EContainment.Contains;
         }
-        public override EContainment Contains(BaseCylinder cylinder)
+        public override EContainment Contains(Cylinder cylinder)
         {
             //TODO
             return EContainment.Contains;

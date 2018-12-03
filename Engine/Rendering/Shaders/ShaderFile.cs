@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models.Materials
     /// <summary>
     /// A shader script file.
     /// </summary>
-    [TFile3rdParty(
+    [TFile3rdPartyExt(
         "fs",   "vs",   "gs",   "tcs",  "tes",  //"cs", //C# file extension...
         "frag", "vert", "geom", "tesc", "tese", "comp")]
     [TFileDef("Shader")]

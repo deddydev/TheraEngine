@@ -4,7 +4,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Scripting
 {
-    [TFile3rdParty("cs")]
+    [TFile3rdPartyExt("cs")]
     [TFileDef("C# Script")]
     public class CSharpScript : TextFile
     {

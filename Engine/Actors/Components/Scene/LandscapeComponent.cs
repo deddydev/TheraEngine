@@ -15,8 +15,13 @@ using TheraEngine.Rendering.Models.Materials;
 namespace TheraEngine.Actors.Types
 {
     [TFileDef("Landscape Component")]
-    public class LandscapeComponent : ShapeComponent
+    public class LandscapeComponent : CollidableShape3DComponent
     {
+        public LandscapeComponent()
+        {
+            RenderInfo = new RenderInfo3D(ERenderPass.OpaqueDeferredLit) { CastsShadows = true, ReceivesShadows = true };
+        }
+
         private IVec2 _dimensions = new IVec2(100, 100);
         private Vec2 _minMaxHeight = new Vec2(0.0f, 1.0f);
         private TCollisionHeightField _heightFieldShape;
@@ -35,11 +40,14 @@ namespace TheraEngine.Actors.Types
             }
         }
 
-        public LandscapeComponent()
-        {
-            RenderInfo = new RenderInfo3D(ERenderPass.OpaqueDeferredLit) { CastsShadows = true, ReceivesShadows = true };
-        }
+        public Box Bounds { get; private set; }
+        public override Shape CullingVolume => Bounds;
 
+        protected override void OnWorldTransformChanged()
+        {
+            Bounds.SetRenderTransform(WorldMatrix);
+            base.OnWorldTransformChanged();
+        }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Matrix4
@@ -77,8 +85,11 @@ namespace TheraEngine.Actors.Types
             _heightData = heightData;
             UnmanagedMemoryStream stream = _heightData.AsStream();
 
+            float heightScale = 1.0f;
             _heightFieldShape = TCollisionHeightField.New(
-                _dimensions.X, _dimensions.Y, stream, 1.0f, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
+                _dimensions.X, _dimensions.Y, stream, heightScale, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
+            Bounds = new Box(_dimensions.X * 0.5f, (_minMaxHeight.Y - _minMaxHeight.X) * heightScale, _dimensions.Y * 0.5f);
+            Bounds.SetRenderTransform(WorldMatrix);
 
             //BoundingBox box = _heightFieldShape.GetAabb(Matrix4.Identity);
             //float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
@@ -92,7 +103,7 @@ namespace TheraEngine.Actors.Types
                 bodyInfo.CollisionShape = _heightFieldShape;
                 bodyInfo.UseMotionState = false;
                 bodyInfo.SleepingEnabled = false;
-                InitPhysicsShape(bodyInfo);
+                GenerateRigidBody(bodyInfo);
             }
         }
         public unsafe float GetHeight(int x, int y)
@@ -233,9 +244,6 @@ namespace TheraEngine.Actors.Types
             _rc.Mesh = new PrimitiveManager(data, material);
         }
         
-        public override Shape CullingVolume => null;
-        protected override TCollisionShape GetCollisionShape() => _heightFieldShape;
-
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             base.OnHighlightChanged(highlighted);
@@ -243,17 +251,14 @@ namespace TheraEngine.Actors.Types
             Editor.EditorState.RegisterHighlightedMaterial(_rc.Mesh.Material, highlighted, OwningScene);
         }
 
+        public override TCollisionShape GetCollisionShape() => _heightFieldShape;
+
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
-        public override void AddRenderables(RenderPasses passes, Camera camera)
+        protected override RenderCommand3D GetRenderCommand()
         {
             _rc.WorldMatrix = WorldMatrix;
             _rc.NormalMatrix = WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
-            passes.Add(_rc, RenderInfo.RenderPass);
-        }
-
-        public override void Render()
-        {
-            throw new NotImplementedException();
+            return _rc;
         }
     }
 }

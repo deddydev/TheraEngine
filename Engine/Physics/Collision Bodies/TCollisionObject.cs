@@ -36,6 +36,7 @@ namespace TheraEngine.Physics
     }
     public delegate void DelMatrixUpdate(Matrix4 transform);
     public delegate void DelCollision(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA);
+
     [TFileExt("coll")]
     [TFileDef("Collision Object", "Defines a collision object used by the physics engine for collision simulation.")]
     public abstract class TCollisionObject : TFileObject

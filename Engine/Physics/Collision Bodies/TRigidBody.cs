@@ -28,6 +28,11 @@ namespace TheraEngine.Physics
             }
         }
 
+        /// <summary>
+        /// Creates a new rigid body using the specified physics library.
+        /// </summary>
+        /// <param name="info">Construction information.</param>
+        /// <returns>A new rigid body.</returns>
         public static TRigidBody New(TRigidBodyConstructionInfo info)
             => Engine.Physics.NewRigidBody(info);
 

@@ -26,6 +26,7 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine
 {
+
     public delegate void DelTick(float delta);
     public enum ETickGroup
     {
@@ -157,7 +158,8 @@ namespace TheraEngine
         private static EAudioLibrary _audioLibrary = DefaultAudioLibrary;
         private static EInputLibrary _inputLibrary = DefaultInputLibrary;
         private static EPhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
-        private static EngineTimer _timer = new EngineTimer();
+
+        internal static EngineTimer _timer = new EngineTimer();
         private static List<DateTime> _debugTimers = new List<DateTime>();
 
         //Continually scans for and processes new input devices.

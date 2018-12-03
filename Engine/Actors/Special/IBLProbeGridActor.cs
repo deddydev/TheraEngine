@@ -223,24 +223,24 @@ namespace TheraEngine.Actors
         }
         private void Render()
         {
-            if (_cells == null)
-                return;
+            //if (_cells == null)
+            //    return;
 
-            foreach (var cell in _cells.Cells)
-                for (int i = 0; i < 4; ++i)
-                    for (int x = 0; x < 4; ++x)
-                    {
-                        if (i == x)
-                            continue;
+            //foreach (var cell in _cells.Cells)
+            //    for (int i = 0; i < 4; ++i)
+            //        for (int x = 0; x < 4; ++x)
+            //        {
+            //            if (i == x)
+            //                continue;
 
-                        var p = cell.Vertices[i].Position;
-                        Vec3 pos1 = new Vec3((float)p[0], (float)p[1], (float)p[2]);
+            //            var p = cell.Vertices[i].Position;
+            //            Vec3 pos1 = new Vec3((float)p[0], (float)p[1], (float)p[2]);
 
-                        var p2 = cell.Vertices[x].Position;
-                        Vec3 pos2 = new Vec3((float)p2[0], (float)p2[1], (float)p2[2]);
+            //            var p2 = cell.Vertices[x].Position;
+            //            Vec3 pos2 = new Vec3((float)p2[0], (float)p2[1], (float)p2[2]);
 
-                        Engine.Renderer.RenderLine(pos1, pos2, Color.Black, false, 1.0f);
-                    }
+            //            Engine.Renderer.RenderLine(pos1, pos2, Color.Black, false, 1.0f);
+            //        }
         }
     }
 }

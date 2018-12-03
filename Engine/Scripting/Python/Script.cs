@@ -12,7 +12,7 @@ namespace TheraEngine.Scripting
         [TSerialize]
         public object[] Arguments { get; set; }
     }
-    [TFile3rdParty("py")]
+    [TFile3rdPartyExt("py")]
     [TFileDef("Python Script")]
     public class PythonScript : TextFile
     {

@@ -302,7 +302,7 @@ namespace TheraEngine.Rendering
                 mBot = _debugPrimitives[botStr];
             if (mCyl == null || mTop == null || mBot == null)
             {
-                BaseCapsule.WireframeMeshParts(
+                Capsule.WireframeMeshParts(
                     Vec3.Zero, Vec3.Up, 1.0f, 1.0f, 30, 
                     out PrimitiveData cylData, out PrimitiveData topData, out PrimitiveData botData);
                 if (mCyl == null)

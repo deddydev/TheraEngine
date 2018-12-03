@@ -360,14 +360,14 @@ namespace TheraEngine.Core.Files
         /// </summary>
         private bool IsThirdPartyImportableExt(string ext)
         {
-            TFile3rdParty header = GetFile3rdPartyExtensions(_subType);
-            return header?.ImportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
+            var header = GetFile3rdPartyExtensions(_subType);
+            return header?.HasExtension(ext) ?? false;
         }
-        private bool IsThirdPartyExportableExt(string ext)
-        {
-            TFile3rdParty header = GetFile3rdPartyExtensions(_subType);
-            return header?.ExportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
-        }
+        //private bool IsThirdPartyExportableExt(string ext)
+        //{
+        //    var header = GetFileExtension(_subType);
+        //    return header?.ExportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
+        //}
         public override string ToString() => Path.Absolute;
 
         public static implicit operator Task<T>(FileLoader<T> fileRef) => fileRef?.LoadNewInstanceAsync();

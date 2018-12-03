@@ -38,23 +38,22 @@ namespace TheraEngine.Components.Scene.Mesh
             _owner = owner;
             _owningActor = actor;
             _transform = transform;
-            _childComponents = new EventList<SceneComponent>();
-            _childComponents.PostAdded += _children_Added;
-            _childComponents.PostAddedRange += _children_AddedRange;
-            _childComponents.PostInserted += _children_Inserted;
-            _childComponents.PostInsertedRange += _children_InsertedRange;
-            _childComponents.PostRemoved += _children_Removed;
-            _childComponents.PostRemovedRange += _children_RemovedRange;
+            ChildComponents = new EventList<SceneComponent>();
+            ChildComponents.PostAdded += _children_Added;
+            ChildComponents.PostAddedRange += _children_AddedRange;
+            ChildComponents.PostInserted += _children_Inserted;
+            ChildComponents.PostInsertedRange += _children_InsertedRange;
+            ChildComponents.PostRemoved += _children_Removed;
+            ChildComponents.PostRemovedRange += _children_RemovedRange;
         }
 
         private IMeshSocketOwner _owner;
         private IActor _owningActor;
         private Transform _transform = Transform.GetIdentity();
-        private EventList<SceneComponent> _childComponents;
 
         public Matrix4 WorldMatrix { get=> _transform.Matrix; set => _transform.Matrix = value; }
         public Matrix4 InverseWorldMatrix { get => _transform.InverseMatrix; set => _transform.InverseMatrix = value; }
-        public EventList<SceneComponent> ChildComponents => _childComponents;
+        public EventList<SceneComponent> ChildComponents { get; }
 
         private void _children_RemovedRange(IEnumerable<SceneComponent> items)
         {

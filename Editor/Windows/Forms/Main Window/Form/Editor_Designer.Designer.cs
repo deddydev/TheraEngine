@@ -100,6 +100,7 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.btnCancelOp = new System.Windows.Forms.ToolStripSplitButton();
+            this.btnViewChangeLog = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -114,18 +115,18 @@
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
             this.BodyPanel.Controls.Add(this.panel1);
-            this.BodyPanel.Size = new System.Drawing.Size(947, 626);
+            this.BodyPanel.Size = new System.Drawing.Size(965, 673);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(947, 666);
+            this.MainPanel.Size = new System.Drawing.Size(965, 713);
             // 
             // TitlePanel
             // 
             this.TitlePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(23)))), ((int)(((byte)(20)))));
             this.TitlePanel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("TitlePanel.BackgroundImage")));
             this.TitlePanel.Controls.Add(this.PaddingPanel);
-            this.TitlePanel.Size = new System.Drawing.Size(947, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(965, 40);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             this.TitlePanel.Controls.SetChildIndex(this.PaddingPanel, 0);
             // 
@@ -133,13 +134,13 @@
             // 
             this.FormTitle.Margin = new System.Windows.Forms.Padding(0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(0);
-            this.FormTitle.Size = new System.Drawing.Size(776, 40);
+            this.FormTitle.Size = new System.Drawing.Size(794, 40);
             this.FormTitle.Text = "Title Text";
             this.FormTitle.TextAlign = System.Drawing.ContentAlignment.TopLeft;
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(947, 674);
+            this.MiddlePanel.Size = new System.Drawing.Size(965, 721);
             // 
             // menuStrip1
             // 
@@ -160,7 +161,7 @@
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(0);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(465, 40);
+            this.menuStrip1.Size = new System.Drawing.Size(315, 40);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -565,21 +566,21 @@
             // extensionsToolStripMenuItem
             // 
             this.extensionsToolStripMenuItem.Name = "extensionsToolStripMenuItem";
-            this.extensionsToolStripMenuItem.Size = new System.Drawing.Size(227, 26);
+            this.extensionsToolStripMenuItem.Size = new System.Drawing.Size(222, 26);
             this.extensionsToolStripMenuItem.Text = "Manage Extensions";
             this.extensionsToolStripMenuItem.Click += new System.EventHandler(this.extensionsToolStripMenuItem_Click);
             // 
             // cubeMapEditorToolStripMenuItem
             // 
             this.cubeMapEditorToolStripMenuItem.Name = "cubeMapEditorToolStripMenuItem";
-            this.cubeMapEditorToolStripMenuItem.Size = new System.Drawing.Size(227, 26);
+            this.cubeMapEditorToolStripMenuItem.Size = new System.Drawing.Size(222, 26);
             this.cubeMapEditorToolStripMenuItem.Text = "Cube Map Editor";
             this.cubeMapEditorToolStripMenuItem.Click += new System.EventHandler(this.cubeMapEditorToolStripMenuItem_Click);
             // 
             // textureGeneratorToolStripMenuItem
             // 
             this.textureGeneratorToolStripMenuItem.Name = "textureGeneratorToolStripMenuItem";
-            this.textureGeneratorToolStripMenuItem.Size = new System.Drawing.Size(227, 26);
+            this.textureGeneratorToolStripMenuItem.Size = new System.Drawing.Size(222, 26);
             this.textureGeneratorToolStripMenuItem.Text = "Texture Generator";
             this.textureGeneratorToolStripMenuItem.Click += new System.EventHandler(this.textureGeneratorToolStripMenuItem_Click);
             // 
@@ -597,6 +598,7 @@
             this.btnDocumentation,
             this.languageToolStripMenuItem,
             this.btnCheckForUpdates,
+            this.btnViewChangeLog,
             this.btnAbout});
             this.btnHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnHelp.Name = "btnHelp";
@@ -606,35 +608,35 @@
             // btnContact
             // 
             this.btnContact.Name = "btnContact";
-            this.btnContact.Size = new System.Drawing.Size(207, 26);
+            this.btnContact.Size = new System.Drawing.Size(216, 26);
             this.btnContact.Text = "Contact";
             this.btnContact.Click += new System.EventHandler(this.btnContact_Click);
             // 
             // btnDocumentation
             // 
             this.btnDocumentation.Name = "btnDocumentation";
-            this.btnDocumentation.Size = new System.Drawing.Size(207, 26);
+            this.btnDocumentation.Size = new System.Drawing.Size(216, 26);
             this.btnDocumentation.Text = "Documentation";
             this.btnDocumentation.Click += new System.EventHandler(this.btnDocumentation_Click);
             // 
             // languageToolStripMenuItem
             // 
             this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
-            this.languageToolStripMenuItem.Size = new System.Drawing.Size(207, 26);
+            this.languageToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
             this.languageToolStripMenuItem.Text = "Language";
             this.languageToolStripMenuItem.Click += new System.EventHandler(this.languageToolStripMenuItem_Click);
             // 
             // btnCheckForUpdates
             // 
             this.btnCheckForUpdates.Name = "btnCheckForUpdates";
-            this.btnCheckForUpdates.Size = new System.Drawing.Size(207, 26);
+            this.btnCheckForUpdates.Size = new System.Drawing.Size(216, 26);
             this.btnCheckForUpdates.Text = "Check For Updates";
             this.btnCheckForUpdates.Click += new System.EventHandler(this.btnCheckForUpdates_Click);
             // 
             // btnAbout
             // 
             this.btnAbout.Name = "btnAbout";
-            this.btnAbout.Size = new System.Drawing.Size(207, 26);
+            this.btnAbout.Size = new System.Drawing.Size(216, 26);
             this.btnAbout.Text = "About";
             this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
             // 
@@ -666,7 +668,7 @@
             this.DockPanel.Margin = new System.Windows.Forms.Padding(2);
             this.DockPanel.Name = "DockPanel";
             this.DockPanel.ShowDocumentIcon = true;
-            this.DockPanel.Size = new System.Drawing.Size(947, 593);
+            this.DockPanel.Size = new System.Drawing.Size(965, 640);
             this.DockPanel.SupportDeeplyNestedContent = true;
             this.DockPanel.TabIndex = 7;
             // 
@@ -680,7 +682,7 @@
             this.PaddingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PaddingPanel.Location = new System.Drawing.Point(44, 0);
             this.PaddingPanel.Name = "PaddingPanel";
-            this.PaddingPanel.Size = new System.Drawing.Size(776, 40);
+            this.PaddingPanel.Size = new System.Drawing.Size(794, 40);
             this.PaddingPanel.TabIndex = 9;
             // 
             // FormTitle2
@@ -689,7 +691,7 @@
             this.FormTitle2.Dock = System.Windows.Forms.DockStyle.Left;
             this.FormTitle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormTitle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.FormTitle2.Location = new System.Drawing.Point(601, 0);
+            this.FormTitle2.Location = new System.Drawing.Point(451, 0);
             this.FormTitle2.MinimumSize = new System.Drawing.Size(0, 40);
             this.FormTitle2.Name = "FormTitle2";
             this.FormTitle2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
@@ -704,7 +706,7 @@
             this.lblVersion.Dock = System.Windows.Forms.DockStyle.Right;
             this.lblVersion.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblVersion.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(104)))), ((int)(((byte)(104)))), ((int)(((byte)(104)))));
-            this.lblVersion.Location = new System.Drawing.Point(713, 0);
+            this.lblVersion.Location = new System.Drawing.Point(731, 0);
             this.lblVersion.MinimumSize = new System.Drawing.Size(0, 40);
             this.lblVersion.Name = "lblVersion";
             this.lblVersion.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
@@ -717,9 +719,9 @@
             // 
             this.panel1.Controls.Add(this.statusStrip1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 593);
+            this.panel1.Location = new System.Drawing.Point(0, 640);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(947, 33);
+            this.panel1.Size = new System.Drawing.Size(965, 33);
             this.panel1.TabIndex = 8;
             // 
             // statusStrip1
@@ -733,7 +735,7 @@
             this.btnCancelOp});
             this.statusStrip1.Location = new System.Drawing.Point(0, 0);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(947, 33);
+            this.statusStrip1.Size = new System.Drawing.Size(965, 33);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -742,7 +744,7 @@
             this.toolStripStatusLabel1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripStatusLabel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(932, 28);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(950, 28);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Welcome";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -770,11 +772,17 @@
             this.btnCancelOp.Visible = false;
             this.btnCancelOp.ButtonClick += new System.EventHandler(this.btnCancelOp_ButtonClick);
             // 
+            // btnViewChangeLog
+            // 
+            this.btnViewChangeLog.Name = "btnViewChangeLog";
+            this.btnViewChangeLog.Size = new System.Drawing.Size(216, 26);
+            this.btnViewChangeLog.Text = "Change Log";
+            // 
             // Editor
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.ClientSize = new System.Drawing.Size(955, 674);
+            this.ClientSize = new System.Drawing.Size(973, 721);
             this.Location = new System.Drawing.Point(0, 0);
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(0, 0);
@@ -867,6 +875,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnCloseProject;
         private System.Windows.Forms.ToolStripMenuItem btnCloseWorld;
         private System.Windows.Forms.ToolStripMenuItem btnPackageNewRelease;
+        private System.Windows.Forms.ToolStripMenuItem btnViewChangeLog;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

@@ -64,7 +64,7 @@ namespace TheraEngine.Rendering.Models
         private Bone[] _utilizedBones;
         private bool _remake = false;
         private Dictionary<int, int> _boneRemap;
-        
+        private bool _allowRender = true;
         private CPUSkinInfo _cpuSkinInfo; //Only used in CPU skinning mode
         //private bool _processingSkinning = false;
 
@@ -156,6 +156,10 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
+        public DataBuffer IndexBuffer { get; private set; }
+        public EDrawElementType ElementType { get; private set; }
+        public RenderProgram VertexFragProgram { get; private set; }
+
         /// <summary>
         /// All vertices that have changed and are ready for render.
         /// Only used by CPU skinning.
@@ -190,11 +194,6 @@ namespace TheraEngine.Rendering.Models
             _modifiedVertexIndicesUpdating.Clear();
         }
 
-        public DataBuffer IndexBuffer { get; private set; }
-        public EDrawElementType ElementType { get; private set; }
-        public RenderProgram VertexFragProgram { get; private set; }
-
-        private bool _allowRender = true;
         private void UpdateBoneInfo(bool set)
         {
             _allowRender = set;

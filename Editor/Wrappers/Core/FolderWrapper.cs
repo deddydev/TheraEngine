@@ -224,7 +224,7 @@ namespace TheraEditor.Wrappers
             if (!IsFileObject(t))
                 return false;
 
-            string[] ext = TFileObject.GetFile3rdPartyExtensions(t)?.ImportableExtensions;
+            string[] ext = TFileObject.GetFileExtension(t)?.ImportableExtensions;
             return ext != null && ext.Length > 0;
         }
 

@@ -16,17 +16,17 @@ namespace TheraEngine.Core.Files
         static TFileObject()
         {
             _3rdPartyLoaders = new Dictionary<string, Dictionary<Type, Delegate>>();
-            _3rdPartyExporters = new Dictionary<string, Dictionary<Type, Delegate>>();
+            //_3rdPartyExporters = new Dictionary<string, Dictionary<Type, Delegate>>();
             try
             {
                 var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract, true, Assembly.GetEntryAssembly()).ToArray();
                 foreach (Type type in types)
                 {
-                    TFile3rdParty attrib = GetFile3rdPartyExtensions(type);
+                    TFile3rdPartyExt attrib = GetFile3rdPartyExtensions(type);
                     if (attrib == null)
                         continue;
 
-                    foreach (string ext3rd in attrib.ImportableExtensions)
+                    foreach (string ext3rd in attrib.Extensions)
                     {
                         string extLower = ext3rd.ToLowerInvariant();
                         Dictionary<Type, Delegate> extensionLoaders;
@@ -64,45 +64,46 @@ namespace TheraEngine.Core.Files
                         else
                             throw new Exception(type.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
                     }
+                    _3rdPartyExporters = _3rdPartyLoaders;
 
-                    foreach (string ext3rd in attrib.ExportableExtensions)
-                    {
-                        string extLower = ext3rd.ToLowerInvariant();
-                        Dictionary<Type, Delegate> extensionExporters;
-                        if (_3rdPartyExporters.ContainsKey(extLower))
-                            extensionExporters = _3rdPartyExporters[extLower];
-                        else
-                            _3rdPartyExporters.Add(extLower, extensionExporters = new Dictionary<Type, Delegate>());
-                        if (!extensionExporters.ContainsKey(type))
-                        {
-                            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                                .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyExporter>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
-                                .ToArray();
-                            if (methods.Length > 0)
-                            {
-                                MethodInfo m = methods[0];
-                                var loader = m.GetCustomAttribute<ThirdPartyExporter>();
-                                bool async = loader.Async;
-                                Type t;
-                                if (async)
-                                    t = typeof(Del3rdPartyExportFileMethodAsync<>);
-                                else
-                                    t = typeof(Del3rdPartyExportFileMethod<>);
-                                try
-                                {
-                                    Type delType = t.MakeGenericType(m.DeclaringType);
-                                    Delegate d = Delegate.CreateDelegate(delType, m);
-                                    extensionExporters.Add(type, d);
-                                }
-                                catch
-                                {
-                                    Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party exporter for {m.DeclaringType.GetFriendlyName()}.");
-                                }
-                            }
-                        }
-                        else
-                            throw new Exception(type.GetFriendlyName() + " has already been added to the third party exporter list for " + extLower);
-                    }
+                    //foreach (string ext3rd in attrib.ExportableExtensions)
+                    //{
+                    //    string extLower = ext3rd.ToLowerInvariant();
+                    //    Dictionary<Type, Delegate> extensionExporters;
+                    //    if (_3rdPartyExporters.ContainsKey(extLower))
+                    //        extensionExporters = _3rdPartyExporters[extLower];
+                    //    else
+                    //        _3rdPartyExporters.Add(extLower, extensionExporters = new Dictionary<Type, Delegate>());
+                    //    if (!extensionExporters.ContainsKey(type))
+                    //    {
+                    //        var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                    //            .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyExporter>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
+                    //            .ToArray();
+                    //        if (methods.Length > 0)
+                    //        {
+                    //            MethodInfo m = methods[0];
+                    //            var loader = m.GetCustomAttribute<ThirdPartyExporter>();
+                    //            bool async = loader.Async;
+                    //            Type t;
+                    //            if (async)
+                    //                t = typeof(Del3rdPartyExportFileMethodAsync<>);
+                    //            else
+                    //                t = typeof(Del3rdPartyExportFileMethod<>);
+                    //            try
+                    //            {
+                    //                Type delType = t.MakeGenericType(m.DeclaringType);
+                    //                Delegate d = Delegate.CreateDelegate(delType, m);
+                    //                extensionExporters.Add(type, d);
+                    //            }
+                    //            catch
+                    //            {
+                    //                Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party exporter for {m.DeclaringType.GetFriendlyName()}.");
+                    //            }
+                    //        }
+                    //    }
+                    //    else
+                    //        throw new Exception(type.GetFriendlyName() + " has already been added to the third party exporter list for " + extLower);
+                    //}
                 }
             }
             catch { }
@@ -112,14 +113,14 @@ namespace TheraEngine.Core.Files
             => Attribute.GetCustomAttribute(classType, typeof(TFileDef), true) as TFileDef;
         public static TFileExt GetFileExtension(Type classType)
             => Attribute.GetCustomAttribute(classType, typeof(TFileExt), true) as TFileExt;
-        public static TFile3rdParty GetFile3rdPartyExtensions(Type classType)
-            => Attribute.GetCustomAttribute(classType, typeof(TFile3rdParty), true) as TFile3rdParty;
+        public static TFile3rdPartyExt GetFile3rdPartyExtensions(Type classType)
+            => Attribute.GetCustomAttribute(classType, typeof(TFile3rdPartyExt), true) as TFile3rdPartyExt;
 
         public static TFileDef GetFileDefinition<T>() 
             => GetFileDefinition(typeof(T));
         public static TFileExt GetFileExtension<T>()
             => GetFileExtension(typeof(T));
-        public static TFile3rdParty GetFile3rdPartyExtensions<T>() 
+        public static TFile3rdPartyExt GetFile3rdPartyExtensions<T>() 
             => GetFile3rdPartyExtensions(typeof(T));
 
         public static Type DetermineType(string path)
@@ -127,7 +128,7 @@ namespace TheraEngine.Core.Files
         public static Type DetermineType(string path, out EFileFormat format)
             => SerializationCommon.DetermineType(path, out format);
         public static Type[] DetermineThirdPartyTypes(string ext)
-            => Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<TFile3rdParty>()?.HasExtension(ext) ?? false), true).ToArray();
+            => Engine.FindTypes(t => typeof(TFileObject).IsAssignableFrom(t) && (t.GetCustomAttribute<TFile3rdPartyExt>()?.HasExtension(ext) ?? false), true).ToArray();
         public static EFileFormat GetFormat(string path, out string ext)
         {
             int index = path.LastIndexOf('.') + 1;
@@ -136,7 +137,7 @@ namespace TheraEngine.Core.Files
             else
                 ext = path.ToLowerInvariant();
 
-            if (TFile3rdParty.Is3rdPartyExtension(ext))
+            if (TFile3rdPartyExt.Is3rdPartyExtension(ext))
                 return EFileFormat.ThirdParty;
 
             //TODO: return raw format
@@ -199,9 +200,9 @@ namespace TheraEngine.Core.Files
             string eachType = "";
             bool first = true;
             TFileDef def = GetFileDefinition(classType);
+            TFileExt ext = GetFileExtension(classType);
             if (proprietary)
             {
-                TFileExt ext = GetFileExtension(classType);
                 foreach (string type in Enum.GetNames(typeof(EProprietaryFileFormat)))
                 {
                     if (first)
@@ -218,7 +219,7 @@ namespace TheraEngine.Core.Files
             }
             if (import3rdParty || export3rdParty)
             {
-                TFile3rdParty ext = GetFile3rdPartyExtensions(classType);
+                //TFile3rdParty ext = GetFile3rdPartyExtensions(classType);
                 if (import3rdParty)
                 {
                     foreach (string ext3rd in ext.ImportableExtensions)
@@ -232,8 +233,8 @@ namespace TheraEngine.Core.Files
                             eachType += "|";
                         }
                         string fmt = String.Format("*.{0}", extLower);
-                        if (TFile3rdParty.ExtensionNames3rdParty.ContainsKey(extLower))
-                            eachType += String.Format("{0} ({1})|{1}", TFile3rdParty.ExtensionNames3rdParty[extLower], fmt);
+                        if (TFile3rdPartyExt.ExtensionNames3rdParty.ContainsKey(extLower))
+                            eachType += String.Format("{0} ({1})|{1}", TFile3rdPartyExt.ExtensionNames3rdParty[extLower], fmt);
                         else
                             eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
                         allTypes += fmt;
@@ -259,8 +260,8 @@ namespace TheraEngine.Core.Files
                             eachType += "|";
                         }
                         string fmt = String.Format("*.{0}", extLower);
-                        if (TFile3rdParty.ExtensionNames3rdParty.ContainsKey(extLower))
-                            eachType += String.Format("{0} ({1})|{1}", TFile3rdParty.ExtensionNames3rdParty[extLower], fmt);
+                        if (TFile3rdPartyExt.ExtensionNames3rdParty.ContainsKey(extLower))
+                            eachType += String.Format("{0} ({1})|{1}", TFile3rdPartyExt.ExtensionNames3rdParty[extLower], fmt);
                         else
                             eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
                         allTypes += fmt;
@@ -311,7 +312,7 @@ namespace TheraEngine.Core.Files
             Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             TFileExt extAttrib = GetFileExtension(type);
-            TFile3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
+            TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(type);
             EFileFormat fmt = GetFormat(filePath, out string ext);
 
             if (extAttrib != null && fmt != EFileFormat.ThirdParty)
@@ -328,8 +329,8 @@ namespace TheraEngine.Core.Files
             }
             else if (tpAttrib != null)
             {
-                bool hasWildcard = tpAttrib.ImportableExtensions.Contains("*");
-                bool hasExt = tpAttrib.ImportableExtensions.Contains(ext.ToLowerInvariant());
+                bool hasWildcard = tpAttrib.HasExtension("*");
+                bool hasExt = tpAttrib.HasExtension(ext);
                 if (hasWildcard || hasExt)
                     return await Read3rdPartyAsync(type, filePath, progress, cancel);
             }
@@ -451,7 +452,7 @@ namespace TheraEngine.Core.Files
             TFileObject obj = SerializationCommon.CreateObject(classType) as TFileObject;
             if (obj != null)
             {
-                TFile3rdParty attrib = GetFile3rdPartyExtensions(classType);
+                TFile3rdPartyExt attrib = GetFile3rdPartyExtensions(classType);
                 if (attrib != null)
                 {
                     if (attrib.AsyncManualRead)

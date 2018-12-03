@@ -465,7 +465,7 @@ namespace TheraEngine.Core.Shapes
                 return EContainment.Disjoint;
             return EContainment.Intersects;
         }
-        public override EContainment Contains(BaseCylinder cylinder)
+        public override EContainment Contains(Cylinder cylinder)
         {
             bool top = Contains(cylinder.GetTopCenterPoint());
             bool bot = Contains(cylinder.GetBottomCenterPoint());
@@ -475,7 +475,7 @@ namespace TheraEngine.Core.Shapes
                 return EContainment.Disjoint;
             return EContainment.Intersects;
         }
-        public override EContainment Contains(BaseCapsule capsule)
+        public override EContainment Contains(Capsule capsule)
         {
             Vec3 top = capsule.GetTopCenterPoint();
             Vec3 bot = capsule.GetBottomCenterPoint();

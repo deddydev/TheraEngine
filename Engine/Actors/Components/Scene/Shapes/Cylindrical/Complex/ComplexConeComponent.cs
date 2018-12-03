@@ -2,7 +2,7 @@
 
 namespace TheraEngine.Components.Scene.Shapes
 {
-    public class ComplexConeComponent : ShapeComponent
+    public class ComplexConeComponent : BaseShapeComponent
     {
         private float _tipRadius, _baseRadius;
         private Vec3 _tipPosition, _basePosition;

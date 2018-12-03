@@ -7,25 +7,21 @@ using TheraEngine.Core.Maths.Transforms;
 namespace TheraEngine.Core.Shapes
 {
     [TFileDef("Y-Aligned Cylinder")]
-    public class CylinderY : BaseCylinder
+    public class CylinderY : Cylinder
     {
-        public CylinderY()
-               : base(Vec3.Zero, Rotator.GetZero(), Vec3.One, Vec3.UnitY, 1.0f, 1.0f)
-        {
+        public CylinderY() 
+            : this(1.0f, 1.0f) { }
 
-        }
-        public CylinderY(Vec3 center, float radius, float halfHeight) 
-            : base(center, Rotator.GetZero(), Vec3.One, Vec3.UnitY, radius, halfHeight)
-        {
+        public CylinderY(float radius, float halfHeight) 
+            : this(Transform.GetIdentity(), radius, halfHeight) { }
 
-        }
+        public CylinderY(Transform transform, float radius, float halfHeight)
+            : base(transform, Vec3.UnitY, radius, halfHeight) { }
+
         public override TCollisionShape GetCollisionShape()
-        {
-            return TCollisionCylinderY.New(Radius, HalfHeight * 2.0f);
-        }
+            => TCollisionCylinderY.New(Radius, HalfHeight * 2.0f);
+
         public override Shape HardCopy()
-        {
-            throw new NotImplementedException();
-        }
+            => new CylinderY(Transform, Radius, HalfHeight);
     }
 }

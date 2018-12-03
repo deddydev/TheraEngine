@@ -494,10 +494,10 @@ namespace TheraEngine.Core.Shapes
                     return Contains(shape as Sphere);
                 case nameof(BaseCone):
                     return Contains(shape as BaseCone);
-                case nameof(BaseCapsule):
-                    return Contains(shape as BaseCapsule);
-                case nameof(BaseCylinder):
-                    return Contains(shape as BaseCylinder);
+                case nameof(Capsule):
+                    return Contains(shape as Capsule);
+                case nameof(Cylinder):
+                    return Contains(shape as Cylinder);
             }
             return EContainment.Contains;
         }
@@ -507,7 +507,7 @@ namespace TheraEngine.Core.Shapes
             => Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum);
         public EContainment Contains(Sphere sphere) 
             => Collision.FrustumContainsSphere(this, sphere.Center, sphere.Radius);
-        public EContainment Contains(BaseCylinder cylinder)
+        public EContainment Contains(Cylinder cylinder)
         {
             return EContainment.Contains;
         }
@@ -521,7 +521,7 @@ namespace TheraEngine.Core.Shapes
                 return EContainment.Disjoint;
             return EContainment.Intersects;
         }
-        public EContainment Contains(BaseCapsule capsule)
+        public EContainment Contains(Capsule capsule)
         {
             if (capsule.ContainedWithin(BoundingSphere) == EContainment.Disjoint)
                 return EContainment.Disjoint;

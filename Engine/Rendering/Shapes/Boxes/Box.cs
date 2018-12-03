@@ -228,12 +228,12 @@ namespace TheraEngine.Core.Shapes
             throw new NotImplementedException();
         }
 
-        public override EContainment Contains(BaseCylinder cylinder)
+        public override EContainment Contains(Cylinder cylinder)
         {
             throw new NotImplementedException();
         }
 
-        public override EContainment Contains(BaseCapsule capsule)
+        public override EContainment Contains(Capsule capsule)
         {
             Vec3 top = capsule.GetTopCenterPoint();
             Vec3 bot = capsule.GetBottomCenterPoint();

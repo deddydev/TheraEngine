@@ -32,7 +32,7 @@ namespace TheraEngine.Core.Files
         [Browsable(false)]
         public TFileExt FileExtension => GetFileExtension(GetType());
         [Browsable(false)]
-        public TFile3rdParty File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
+        public TFile3rdPartyExt File3rdPartyExtensions => GetFile3rdPartyExtensions(GetType());
 
         public delegate T Del3rdPartyImportFileMethod<T>(string path) where T : IFileObject;
         public delegate Task<T> Del3rdPartyImportFileMethodAsync<T>(string path, IProgress<float> progress, CancellationToken cancel) where T : IFileObject;
@@ -180,7 +180,8 @@ namespace TheraEngine.Core.Files
 
             Type type = GetType();
             TFileExt extAttrib = FileExtension;
-            TFile3rdParty tpAttrib = GetFile3rdPartyExtensions(type);
+            TFile3rdPartyExt tpAttrib;
+
             GetDirNameFmt(path, out string dir, out string name, out EFileFormat pathFormat, out string ext);
 
             if (extAttrib != null && pathFormat != EFileFormat.ThirdParty)
@@ -189,15 +190,26 @@ namespace TheraEngine.Core.Files
                 await ExportAsync(dir, name, pathFormat, ext, flags, progress, cancel);
                 return;
             }
-            else if (tpAttrib != null)
+            else if ((tpAttrib = GetFile3rdPartyExtensions(type)) != null)
             {
-                bool hasWildcard = tpAttrib.ExportableExtensions.Contains("*");
-                bool hasExt = tpAttrib.ExportableExtensions.Contains(ext.ToLowerInvariant());
-                if (!hasWildcard && !hasExt && tpAttrib.ExportableExtensions.Length > 0)
-                    ext = tpAttrib.ExportableExtensions[0];
+                bool hasWildcard = tpAttrib.HasExtension("*");
+                bool hasExt = tpAttrib.HasExtension(ext);
+                if (!hasWildcard && !hasExt)
+                {
+                    //if (tpAttrib.Extensions.Length > 0)
+                    //{
+                    //    ext = tpAttrib.Extensions[0];
+                    //}
+                    //else
+                    //{
 
-                await ExportAsync(dir, name, EFileFormat.ThirdParty, ext, flags, progress, cancel);
-                return;
+                    //}
+                }
+                else
+                {
+                    await ExportAsync(dir, name, EFileFormat.ThirdParty, ext, flags, progress, cancel);
+                    return;
+                }
             }
 
             Engine.LogWarning("{0} cannot be exported with extension '{1}'.", type.GetFriendlyName(), ext);
@@ -217,12 +229,10 @@ namespace TheraEngine.Core.Files
             }
             else
             {
-                TFile3rdParty tp = File3rdPartyExtensions;
-                if (tp != null &&
-                    tp.ExportableExtensions != null &&
-                    tp.ExportableExtensions.Length > 0)
+                TFile3rdPartyExt tp = File3rdPartyExtensions;
+                if (tp?.HasAnyExtensions ?? false)
                 {
-                    ext = tp.ExportableExtensions[0];
+                    ext = tp.Extensions[0];
                 }
             }
             if (ext != null)
@@ -307,14 +317,14 @@ namespace TheraEngine.Core.Files
             if (!directory.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 directory += Path.DirectorySeparatorChar;
 
-            TFile3rdParty ext = File3rdPartyExtensions;
+            TFile3rdPartyExt ext = File3rdPartyExtensions;
 
             if (ext == null)
             {
-                Engine.LogWarning($"No {nameof(TFile3rdParty)} attribute specified for {GetType().GetFriendlyName()}.");
+                Engine.LogWarning($"No {nameof(TFile3rdPartyExt)} attribute specified for {GetType().GetFriendlyName()}.");
                 return;
             }
-            if (!ext.ExportableExtensions.Contains(thirdPartyExt))
+            if (!ext.HasExtension(thirdPartyExt))
             {
                 Engine.LogWarning($"{GetType().GetFriendlyName()} cannot be exported as {thirdPartyExt}.");
                 return;
@@ -531,7 +541,7 @@ namespace TheraEngine.Core.Files
         //List<IFileRef> References { get; set; }
         TFileDef FileDefinition { get; }
         TFileExt FileExtension { get; }
-        TFile3rdParty File3rdPartyExtensions { get; }
+        TFile3rdPartyExt File3rdPartyExtensions { get; }
         /// <summary>
         /// Returns the file object that serves as the owner of this one.
         /// </summary>

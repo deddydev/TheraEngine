@@ -24,19 +24,19 @@ namespace TheraEngine.Components.Scene
         [TSerialize]
         [Category("Decal")]
         public bool RenderIntersectionWireframe { get; set; } = false;
-        [TSerialize]
-        [Category("Decal")]
-        public override Vec3 HalfExtents
-        {
-            get => base.HalfExtents;
-            set
-            {
-                base.HalfExtents = value;
-                //Vec3 halfExtents = Box.HalfExtents.Raw * UniformScale;
-                //DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
-                //InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
-            }
-        }
+        //[TSerialize]
+        //[Category("Decal")]
+        //public override Vec3 HalfExtents
+        //{
+        //    get => base.HalfExtents;
+        //    set
+        //    {
+        //        base.HalfExtents = value;
+        //        //Vec3 halfExtents = Box.HalfExtents.Raw * UniformScale;
+        //        //DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
+        //        //InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
+        //    }
+        //}
 
         public DecalComponent() : base() { RenderInfo.RenderPass = ERenderPass.DeferredDecals; RenderInfo.VisibleByDefault = true; }
         public DecalComponent(Vec3 halfExtents) : base(halfExtents, null) { RenderInfo.RenderPass = ERenderPass.DeferredDecals; RenderInfo.VisibleByDefault = true; }
@@ -56,7 +56,7 @@ namespace TheraEngine.Components.Scene
                 var bmp = texture.GetLargestBitmap();
                 if (bmp != null)
                 {
-                    HalfExtents = new Vec3(bmp.Width * 0.5f, height, bmp.Height * 0.5f);
+                    _shape.HalfExtents = new Vec3(bmp.Width * 0.5f, height, bmp.Height * 0.5f);
                     Material = CreateDefaultMaterial(texture);
                 }
             }
@@ -64,7 +64,7 @@ namespace TheraEngine.Components.Scene
         
         protected override void OnWorldTransformChanged()
         {
-            Vec3 halfExtents = Box.HalfExtents.Raw;
+            Vec3 halfExtents = _shape.HalfExtents.Raw;
             DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
             InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
             base.OnWorldTransformChanged();
@@ -113,14 +113,14 @@ namespace TheraEngine.Components.Scene
             materialProgram.Sampler("Texture3", v.DepthViewTexture.RenderTextureGeneric, 3);
             materialProgram.Uniform("BoxWorldMatrix", WorldMatrix);
             materialProgram.Uniform("InvBoxWorldMatrix", InverseWorldMatrix);
-            materialProgram.Uniform("BoxHalfScale", Box.HalfExtents.Raw);
+            materialProgram.Uniform("BoxHalfScale", _shape.HalfExtents.Raw);
         }
         public override void OnSpawned()
         {
             Initialize();
             base.OnSpawned();
         }
-        public override void Render()
+        protected override void Render()
         {
             DecalManager?.Render(DecalRenderMatrix);
             if (RenderIntersectionWireframe)

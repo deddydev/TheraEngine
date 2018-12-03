@@ -3,9 +3,9 @@
 namespace System.ComponentModel
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class TFile3rdParty : Attribute
+    public class TFile3rdPartyExt : Attribute
     {
-        public TFile3rdParty(params string[] extensions)
+        public TFile3rdPartyExt(params string[] extensions)
             => Extensions = extensions ?? new string[0];
         
         public string[] Extensions { get; private set; }

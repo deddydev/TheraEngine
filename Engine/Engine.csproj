@@ -350,6 +350,11 @@
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimState.cs" />
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Actors\Components\Logic\Animation\StateMachine\BlendManager.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\Cylindrical\XAligned\CapsuleXComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\Shape3DComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\Cylindrical\XAligned\ConeXComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\Cylindrical\ZAligned\ConeZComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\CollidableShape3DComponent.cs" />
     <Compile Include="Actors\Components\Scene\SubActorComponent.cs" />
     <Compile Include="Core\Attributes\TDeprecatedName.cs" />
     <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
@@ -945,15 +950,15 @@
     <Compile Include="Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
     <Compile Include="Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="Actors\Components\SceneComponent.cs" />
-    <Compile Include="Actors\Components\Scene\Shapes\Cylindrical\YAligned\BasicConeYComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\Cylindrical\YAligned\ConeYComponent.cs" />
     <None Include="Actors\Components\Scene\Shapes\Cylindrical\Complex\ComplexConeComponent.cs" />
-    <Compile Include="Actors\Components\Scene\Shapes\SphereComponent.cs" />
-    <Compile Include="Actors\Components\Scene\Shapes\ShapeComponent.cs" />
-    <Compile Include="Actors\Components\Scene\Shapes\BoxComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\Misc\SphereComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\CommonShape3DComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\Misc\BoxComponent.cs" />
     <Compile Include="Actors\Components\Scene\Mesh\StaticMeshComponent.cs" />
     <Compile Include="Actors\Components\Scene\Volumes\Gravity.cs" />
     <Compile Include="Actors\Components\Scene\Volumes\Trigger.cs" />
-    <Compile Include="Actors\Components\Scene\Shapes\Cylindrical\CapsuleComponent.cs" />
+    <Compile Include="Actors\Components\Scene\Shapes\Cylindrical\YAligned\CapsuleYComponent.cs" />
     <Compile Include="Engine\EngineProperties.cs" />
     <Compile Include="Game Modes\GameMode.cs" />
     <Compile Include="Animation\Property\AnimationContainer.cs" />
@@ -1075,8 +1080,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Actors\Components\Logic\AI\" />
-    <Folder Include="Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />
-    <Folder Include="Actors\Components\Scene\Shapes\Cylindrical\ZAligned\" />
     <Folder Include="AI\" />
     <Folder Include="Physics\Jitter\Collision Bodies\" />
     <Folder Include="Physics\Jitter\Constraints\" />

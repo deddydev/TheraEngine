@@ -322,13 +322,13 @@ namespace TheraEngine.Tests
             DecalActor decal = new DecalActor();
             decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);
             int maxDim = Math.Max(bmp.Width, bmp.Height) / 2;
-            decal.RootComponent.HalfExtents = new Vec3(bmp.Width * 0.5f / maxDim, 1.0f, bmp.Height * 0.5f / maxDim);
+            decal.RootComponent.Shape.HalfExtents = new Vec3(bmp.Width * 0.5f / maxDim, 1.0f, bmp.Height * 0.5f / maxDim);
             actors.Add(decal);
 
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
             //iblProbes.RootComponent.Translation.Y += 3.0f;
             Random random = new Random();
-            for (int i = 0; i < 25; ++i)
+            for (int i = 0; i < 1; ++i)
             {
                 iblProbes.AddProbe(new Vec3(
                     ((float)random.NextDouble() - 0.5f) * 200.0f,

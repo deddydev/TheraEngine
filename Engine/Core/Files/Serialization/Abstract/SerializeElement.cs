@@ -598,7 +598,7 @@ namespace TheraEngine.Core.Files.Serialization
                             }
                             else
                             {
-                                var f = file.File3rdPartyExtensions;
+                                var f = file.FileExtension;
                                 if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
                                 {
                                     string ext = f.ExportableExtensions[0];

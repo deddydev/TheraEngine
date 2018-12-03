@@ -6,9 +6,9 @@ namespace TheraEngine.Components.Scene.Shapes
 {
     public abstract class CollidableShape3DComponent : Shape3DComponent, IRigidBodyCollidable
     {
-        public CollidableShape3DComponent() : this(null) { }
-        public CollidableShape3DComponent(TRigidBodyConstructionInfo info) : base() 
-            => GenerateRigidBody(info);
+        public CollidableShape3DComponent() : base() { }
+        //public CollidableShape3DComponent(TRigidBodyConstructionInfo info) : base() 
+        //    => GenerateRigidBody(info);
         
         protected TRigidBody _rigidBodyCollision;
 
@@ -47,14 +47,23 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public void GenerateRigidBody(TRigidBodyConstructionInfo info)
         {
-            if (info != null)
+            if (info == null)
             {
-                info.CollisionShape = GetCollisionShape();
-                info.InitialWorldTransform = WorldMatrix;
-                RigidBodyCollision = TRigidBody.New(info);
-            }
-            else
+                Engine.LogWarning("A rigid body could not be generated for collidable shape component; construction info is null.");
                 RigidBodyCollision = null;
+                return;
+            }
+
+            info.CollisionShape = GetCollisionShape();
+            info.InitialWorldTransform = WorldMatrix;
+
+            if (info.CollisionShape != null)
+                RigidBodyCollision = TRigidBody.New(info);
+            else
+            {
+                Engine.LogWarning("A rigid body could not be generated for collidable shape component; collision shape is null.");
+                RigidBodyCollision = null;
+            }
         }
 
         private void BodyMoved(Matrix4 transform)

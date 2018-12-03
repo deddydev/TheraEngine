@@ -26,6 +26,37 @@ namespace TheraEngine.Core.Shapes
         {
             Engine.Renderer.RenderCapsule(_transform.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Red);
         }
+
+        /// <summary>
+        /// Returns the closest point on this shape to the given point.
+        /// </summary>
+        /// <param name="point">The point determine closeness with.</param>
+        public override Vec3 ClosestPoint(Vec3 point)
+            => ClosestPoint(point, false);
+        /// <summary>
+        /// Returns the closest point on this shape to the given point.
+        /// </summary>
+        /// <param name="point">The point determine closeness with.</param>
+        /// <param name="clampIfInside">If true, finds closest edge point even if the given point is inside the capsule. Otherwise, just returns the given point if it is inside.</param>
+        public Vec3 ClosestPoint(Vec3 point, bool clampIfInside)
+        {
+            Vec3 colinearPoint = Segment.ClosestColinearPointToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point);
+            if (!clampIfInside && colinearPoint.DistanceToFast(point) < _radius)
+                return point;
+            return Ray.PointAtLineDistance(colinearPoint, point, _radius);
+        }
+
+        public override BoundingBox GetAABB()
+        {
+            Vec3 top = GetTopCenterPoint();
+            Vec3 bot = GetBottomCenterPoint();
+            float radius = Radius;
+            Vec3 min = Vec3.ComponentMin(top, bot) - radius;
+            Vec3 max = Vec3.ComponentMax(top, bot) + radius;
+            return BoundingBox.FromMinMax(min, max);
+        }
+
+        #region Containment
         public override bool Contains(Vec3 point)
             => Segment.ShortestDistanceToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point) <= _radius;
         public Vec3 ClosestPointTo(Vec3 point)
@@ -64,7 +95,7 @@ namespace TheraEngine.Core.Shapes
             //TODO
             return EContainment.Contains;
         }
-        public override EContainment Contains(BaseCone cone)
+        public override EContainment Contains(Cone cone)
         {
             //TODO
             return EContainment.Contains;
@@ -84,25 +115,9 @@ namespace TheraEngine.Core.Shapes
             //TODO
             return EContainment.Contains;
         }
-        /// <summary>
-        /// Returns the closest point on this shape to the given point.
-        /// </summary>
-        /// <param name="point">The point determine closeness with.</param>
-        public override Vec3 ClosestPoint(Vec3 point)
-            => ClosestPoint(point, false);
-        /// <summary>
-        /// Returns the closest point on this shape to the given point.
-        /// </summary>
-        /// <param name="point">The point determine closeness with.</param>
-        /// <param name="clampIfInside">If true, finds closest edge point even if the given point is inside the capsule. Otherwise, just returns the given point if it is inside.</param>
-        public Vec3 ClosestPoint(Vec3 point, bool clampIfInside)
-        {
-            Vec3 colinearPoint = Segment.ClosestColinearPointToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point);
-            if (!clampIfInside && colinearPoint.DistanceToFast(point) < _radius)
-                return point;
-            return Ray.PointAtLineDistance(colinearPoint, point, _radius);
-        }
+        #endregion
 
+        #region Mesh
         public static PrimitiveData WireframeMesh(Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle)
         {
             upAxis.Normalize();
@@ -262,14 +277,6 @@ namespace TheraEngine.Core.Shapes
             bottomSphereHalf = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
                 bottomHalfCircleAway, bottomHalfCircleRight);
         }
-        public override BoundingBox GetAABB()
-        {
-            Vec3 top = GetTopCenterPoint();
-            Vec3 bot = GetBottomCenterPoint();
-            float radius = Radius;
-            Vec3 min = Vec3.ComponentMin(top, bot) - radius;
-            Vec3 max = Vec3.ComponentMax(top, bot) + radius;
-            return BoundingBox.FromMinMax(min, max);
-        }
+        #endregion
     }
 }

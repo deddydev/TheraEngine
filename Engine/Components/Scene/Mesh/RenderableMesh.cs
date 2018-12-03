@@ -123,7 +123,7 @@ namespace TheraEngine.Components.Scene.Mesh
             _cullingVolume = shape?.HardCopy();
             if (_cullingVolume != null)
             {
-                _initialCullingVolumeMatrix = _cullingVolume.GetTransformMatrix();
+                _initialCullingVolumeMatrix = _cullingVolume.Transform.Matrix;
                 _component.WorldTransformChanged += _component_WorldTransformChanged;
                 //_cullingVolume.VisibilityChanged += () => 
                 //{
@@ -152,7 +152,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         private void _component_WorldTransformChanged()
         {
-            _cullingVolume.SetRenderTransform(_component.WorldMatrix * _initialCullingVolumeMatrix);
+            _cullingVolume.Transform.Matrix = _component.WorldMatrix * _initialCullingVolumeMatrix;
             OctreeNode?.ItemMoved(this);
         }
         public override string ToString() => Mesh.Name;

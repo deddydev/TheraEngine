@@ -178,7 +178,7 @@ namespace TheraEngine.Core.Maths.Transforms
             }
             set
             {
-                _translation = value;
+                _translation = value ?? new EventVec3();
                 _translation.Changed += CreateTransform;
             }
         }
@@ -225,7 +225,7 @@ namespace TheraEngine.Core.Maths.Transforms
             }
             set
             {
-                _scale = value;
+                _scale = value ?? new EventVec3(1.0f);
                 _scale.Changed += CreateTransform;
             }
         }
@@ -254,7 +254,7 @@ namespace TheraEngine.Core.Maths.Transforms
             }
             set
             {
-                _rotation = value;
+                _rotation = value ?? new Rotator();
                 _rotation.Changed += CreateTransform;
             }
         }

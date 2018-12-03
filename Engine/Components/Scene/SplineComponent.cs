@@ -311,8 +311,10 @@ void main()
             _rcKeyframeTangents.WorldMatrix = mtx;
             _rcExtrema.WorldMatrix = mtx;
             _rcCurrentPoint.WorldMatrix = WorldMatrix;
+
             if (CullingVolume != null)
-                CullingVolume.SetRenderTransform(mtx * Matrix4.CreateTranslation(_cullingVolumeTranslation.Raw));
+                CullingVolume.Transform.Matrix = mtx * Matrix4.CreateTranslation(_cullingVolumeTranslation.Raw);
+
             base.OnWorldTransformChanged();
         }
         

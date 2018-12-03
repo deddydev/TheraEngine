@@ -183,7 +183,7 @@ namespace TheraEngine.Rendering
                 case DebugPrimitiveType.SolidQuad:
                     return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
                 case DebugPrimitiveType.WireCone:
-                    return BaseCone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
+                    return Cone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
             }
             return null;
         }

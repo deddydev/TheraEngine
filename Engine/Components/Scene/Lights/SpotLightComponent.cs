@@ -40,11 +40,11 @@ namespace TheraEngine.Components.Scene.Lights
 
                 Vec3 translation = _translation + _direction * (_distance / 2.0f);
 
-                OuterCone.State.Translation.Raw = translation;
+                OuterCone.Transform.Translation.Raw = translation;
                 OuterCone.Height = _distance;
                 OuterCone.Radius = (float)Math.Tan(TMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
 
-                InnerCone.State.Translation.Raw = translation;
+                InnerCone.Transform.Translation.Raw = translation;
                 InnerCone.Height = _distance;
                 InnerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
 
@@ -190,13 +190,13 @@ namespace TheraEngine.Components.Scene.Lights
 
             if (OuterCone != null)
             {
-                OuterCone.State.Rotation.SetDirection(_direction);
-                OuterCone.State.Translation.Raw = coneOrigin;
+                OuterCone.Transform.Rotation.SetDirection(_direction);
+                OuterCone.Transform.Translation.Raw = coneOrigin;
             }
             if (InnerCone != null)
             {
-                InnerCone.State.Rotation.SetDirection(_direction);
-                InnerCone.State.Translation.Raw = coneOrigin;
+                InnerCone.Transform.Rotation.SetDirection(_direction);
+                InnerCone.Transform.Translation.Raw = coneOrigin;
             }
             if (ShadowCamera != null)
             {

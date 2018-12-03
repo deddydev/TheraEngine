@@ -186,12 +186,6 @@ namespace TheraEngine.Core.Shapes
         {
             return Collision.BoxContainsSphere(HalfExtents, WorldMatrix, sphere.Center, sphere.Radius);
         }
-        public override void SetRenderTransform(Matrix4 worldMatrix)
-        {
-            _transform.Matrix = worldMatrix;
-            //_transform = worldMatrix;
-            base.SetRenderTransform(worldMatrix);
-        }
         public override TCollisionShape GetCollisionShape()
         {
             return TCollisionBox.New(_halfExtents);
@@ -200,13 +194,6 @@ namespace TheraEngine.Core.Shapes
         {
             return new Box(_halfExtents, _transform);
         }
-        public override Shape TransformedBy(Matrix4 worldMatrix)
-        {
-            return new Box(_halfExtents, _transform);
-        }
-
-        public override Matrix4 GetTransformMatrix()
-            => _transform.Matrix;
 
         public override Vec3 ClosestPoint(Vec3 point)
         {
@@ -223,7 +210,7 @@ namespace TheraEngine.Core.Shapes
             return BoundingBox.FromMinMax(min, max);
         }
 
-        public override EContainment Contains(BaseCone cone)
+        public override EContainment Contains(Cone cone)
         {
             throw new NotImplementedException();
         }

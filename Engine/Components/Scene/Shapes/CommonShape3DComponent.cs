@@ -7,7 +7,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
-    public abstract class CommonShape3DComponent<T> : CollidableShape3DComponent where T : Shape
+    public abstract class CommonShape3DComponent<T> : CollidableShape3DComponent where T : Shape, new()
     {
         public CommonShape3DComponent()
             : this(null, null) { }
@@ -16,10 +16,11 @@ namespace TheraEngine.Components.Scene.Shapes
             : this(shape, null) { }
 
         public CommonShape3DComponent(T shape, TRigidBodyConstructionInfo info)
-            : base(info)
+            : base()
         {
-            _shape = shape;
+            Shape = shape;
             _renderCommand = new RenderCommandMethod3D(Render);
+            GenerateRigidBody(info);
         }
 
         private readonly RenderCommandMethod3D _renderCommand;
@@ -30,8 +31,9 @@ namespace TheraEngine.Components.Scene.Shapes
         public T Shape
         {
             get => _shape;
-            set => _shape = value;
+            set => _shape = value ?? new T();
         }
+
         [Browsable(false)]
         public override Shape CullingVolume => _shape;
 
@@ -40,7 +42,9 @@ namespace TheraEngine.Components.Scene.Shapes
 
         protected override void OnWorldTransformChanged()
         {
-            _shape.SetRenderTransform(WorldMatrix);
+            if (_shape != null)
+                _shape.Transform.Matrix = WorldMatrix;
+
             base.OnWorldTransformChanged();
         }
 

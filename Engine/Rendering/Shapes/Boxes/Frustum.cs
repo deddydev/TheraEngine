@@ -30,7 +30,7 @@ namespace TheraEngine.Core.Shapes
         EContainment Contains(BoundingBox box);
         EContainment Contains(Sphere sphere);
         EContainment Contains(Shape shape);
-        EContainment Contains(BaseCone cone);
+        EContainment Contains(Cone cone);
         //Vec3 ClosestPoint(Vec3 point);
         bool Contains(Vec3 point);
     }
@@ -492,8 +492,8 @@ namespace TheraEngine.Core.Shapes
                     return Contains(shape as BoundingBox);
                 case nameof(Sphere):
                     return Contains(shape as Sphere);
-                case nameof(BaseCone):
-                    return Contains(shape as BaseCone);
+                case nameof(Cone):
+                    return Contains(shape as Cone);
                 case nameof(Capsule):
                     return Contains(shape as Capsule);
                 case nameof(Cylinder):
@@ -511,7 +511,7 @@ namespace TheraEngine.Core.Shapes
         {
             return EContainment.Contains;
         }
-        public EContainment Contains(BaseCone cone)
+        public EContainment Contains(Cone cone)
         {
             bool top = Contains(cone.GetTopPoint());
             bool bot = Contains(cone.GetBottomCenterPoint());

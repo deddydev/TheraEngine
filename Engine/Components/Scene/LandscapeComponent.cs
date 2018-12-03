@@ -45,7 +45,9 @@ namespace TheraEngine.Actors.Types
 
         protected override void OnWorldTransformChanged()
         {
-            Bounds.SetRenderTransform(WorldMatrix);
+            Bounds.Transform.Matrix = WorldMatrix;
+            _rc.WorldMatrix = WorldMatrix;
+            _rc.NormalMatrix = WorldMatrix.GetRotationMatrix3(); //WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
             base.OnWorldTransformChanged();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
@@ -89,7 +91,7 @@ namespace TheraEngine.Actors.Types
             _heightFieldShape = TCollisionHeightField.New(
                 _dimensions.X, _dimensions.Y, stream, heightScale, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
             Bounds = new Box(_dimensions.X * 0.5f, (_minMaxHeight.Y - _minMaxHeight.X) * heightScale, _dimensions.Y * 0.5f);
-            Bounds.SetRenderTransform(WorldMatrix);
+            Bounds.Transform.Matrix = WorldMatrix;
 
             //BoundingBox box = _heightFieldShape.GetAabb(Matrix4.Identity);
             //float offset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
@@ -254,11 +256,6 @@ namespace TheraEngine.Actors.Types
         public override TCollisionShape GetCollisionShape() => _heightFieldShape;
 
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
-        protected override RenderCommand3D GetRenderCommand()
-        {
-            _rc.WorldMatrix = WorldMatrix;
-            _rc.NormalMatrix = WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
-            return _rc;
-        }
+        protected override RenderCommand3D GetRenderCommand() => _rc;
     }
 }

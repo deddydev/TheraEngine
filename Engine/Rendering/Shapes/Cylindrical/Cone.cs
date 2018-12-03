@@ -3,14 +3,15 @@ using TheraEngine.Rendering.Models;
 using System.Collections.Generic;
 using System;
 using TheraEngine.Core.Maths.Transforms;
+using System.ComponentModel;
 
 namespace TheraEngine.Core.Shapes
 {
-    public abstract class BaseCone : Shape
+    public abstract class Cone : Shape
     {
         public override Shape CullingVolume => null;
 
-        public BaseCone(Vec3 center, Rotator rotation, Vec3 scale, Vec3 upAxis, float radius, float height)
+        public Cone(Transform transform, Vec3 upAxis, float radius, float height)
         {
             _radius = Math.Abs(radius);
             _height = Math.Abs(height);
@@ -18,57 +19,44 @@ namespace TheraEngine.Core.Shapes
             _localUpAxis = upAxis;
             _localUpAxis.Normalize();
 
-            _state.Translation.SetRawNoUpdate(center);
-            _state.Rotation.SetRotationsNoUpdate(rotation);
-            _state.Scale.SetRawNoUpdate(scale);
-            _state.CreateTransform();
+            Transform = _transform;
         }
-
-        public Transform State
-        {
-            get => _state;
-            set => _state = value;
-        }
-
-        protected Transform _state = Transform.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
         
         protected Vec3 _localUpAxis = Vec3.Up;
         protected float _radius = 0.5f, _height = 1.0f;
         
         public Vec3 GetTopPoint()
-            => Vec3.TransformPosition(_localUpAxis * (_height / 2.0f), _state.Matrix);
+            => Vec3.TransformPosition(_localUpAxis * (_height / 2.0f), _transform.Matrix);
         public Vec3 GetBottomCenterPoint()
-            => Vec3.TransformPosition(_localUpAxis * (_height / -2.0f), _state.Matrix);
+            => Vec3.TransformPosition(_localUpAxis * (_height / -2.0f), _transform.Matrix);
         public Circle3D GetBottomCircle(bool normalFacingIn = false)
             => new Circle3D(_radius, GetBottomCenterPoint(), normalFacingIn ? WorldUpAxis : -WorldUpAxis);
         
+        [Category("Cone")]
         public Vec3 Center
         {
-            get => _state.Translation.Raw;
-            set => _state.Translation.Raw = value;
+            get => _transform.Translation.Raw;
+            set => _transform.Translation.Raw = value;
         }
+        [Category("Cone")]
         public float Radius
         {
             get => _radius;
             set => _radius = value;
         }
+        [Category("Cone")]
         public float Height
         {
             get => _height;
             set => _height = value;
         }
-
+        [Browsable(false)]
         public Vec3 LocalUpAxis => _localUpAxis;
-        public Vec3 WorldUpAxis => _localUpAxis * _state.Matrix.GetRotationMatrix4();
-
-        public override void SetRenderTransform(Matrix4 worldMatrix)
-        {
-            _state.Matrix = worldMatrix;
-            base.SetRenderTransform(worldMatrix);
-        }
-
+        [Browsable(false)]
+        public Vec3 WorldUpAxis => _localUpAxis * _transform.Matrix.GetRotationMatrix4();
+        
         public override void Render()
-            => Engine.Renderer.RenderCone(_state.Matrix, _localUpAxis, _radius, _height, _renderSolid, Color.Magenta);
+            => Engine.Renderer.RenderCone(_transform.Matrix, _localUpAxis, _radius, _height, _renderSolid, Color.Magenta);
 
         public static PrimitiveData WireMesh(Vec3 center, Vec3 up, float height, float radius, int sides)
         {
@@ -167,21 +155,9 @@ namespace TheraEngine.Core.Shapes
         {
             throw new NotImplementedException();
         }
-        public override EContainment Contains(BaseCone cone)
+        public override EContainment Contains(Cone cone)
         {
             throw new NotImplementedException();
-        }
-        public override Shape HardCopy()
-        {
-            return this;
-        }
-        public override Shape TransformedBy(Matrix4 worldMatrix)
-        {
-            throw new NotImplementedException();
-        }
-        public override Matrix4 GetTransformMatrix()
-        {
-            return State.Matrix;
         }
         public override Vec3 ClosestPoint(Vec3 point)
         {

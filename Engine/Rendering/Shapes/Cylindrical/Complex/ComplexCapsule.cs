@@ -87,24 +87,9 @@ namespace TheraEngine.Core.Shapes
         {
             throw new NotImplementedException();
         }
-        public override void SetRenderTransform(Matrix4 worldMatrix)
-        {
-            throw new NotImplementedException();
-        }
-
         public override Shape HardCopy()
             => new ComplexCapsule(Center, UpAxis, TopRadius, BottomRadius, TopHeight, BottomHeight);
-
-        public override Shape TransformedBy(Matrix4 worldMatrix)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Matrix4 GetTransformMatrix()
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override Vec3 ClosestPoint(Vec3 point)
         {
             throw new NotImplementedException();
@@ -115,7 +100,7 @@ namespace TheraEngine.Core.Shapes
             throw new NotImplementedException();
         }
 
-        public override EContainment Contains(BaseCone cone)
+        public override EContainment Contains(Cone cone)
         {
             throw new NotImplementedException();
         }

@@ -19,26 +19,18 @@ namespace TheraEngine.Core.Shapes
         public static BoundingBox ExpandableBox() => FromMinMax(float.MaxValue, float.MinValue);
 
         #region Fields
-        [TSerialize("HalfExtents")]
-        protected EventVec3 _halfExtents = Vec3.Half;
-        [TSerialize("Translation")]
-        protected EventVec3 _translation = Vec3.Zero;
 
         [Category("Bounding Box")]
         public EventVec3 HalfExtents
         {
-            get => _halfExtents;
-            set => _halfExtents = value ?? Vec3.Half;
+            get => Transform.Scale;
+            set => Transform.Scale = value ?? Vec3.Half;
         }
         [Category("Bounding Box")]
         public EventVec3 Translation
         {
-            get => _translation;
-            set
-            {
-                _translation = value ?? Vec3.Zero;
-                base.SetRenderTransform(Matrix4.Identity);
-            }
+            get => Transform.Translation;
+            set => Transform.Translation = value ?? Vec3.Zero;
         }
 
         #endregion
@@ -50,11 +42,11 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         public Vec3 Minimum
         {
-            get => _translation - _halfExtents;
+            get => Translation.Raw - HalfExtents.Raw;
             set
             {
-                _translation.Raw = (Maximum + value) / 2.0f;
-                _halfExtents.Raw = (Maximum - value) / 2.0f;
+                Translation.Raw = (Maximum + value) / 2.0f;
+                HalfExtents.Raw = (Maximum - value) / 2.0f;
             }
         }
         public Box AsBox() => new Box(this);
@@ -64,11 +56,11 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         public Vec3 Maximum
         {
-            get => _translation + _halfExtents;
+            get => Translation + HalfExtents;
             set
             {
-                _translation.Raw = (value + Minimum) / 2.0f;
-                _halfExtents.Raw = (value - Minimum) / 2.0f;
+                Translation.Raw = (value + Minimum) / 2.0f;
+                HalfExtents.Raw = (value - Minimum) / 2.0f;
             }
         }
         #endregion
@@ -91,14 +83,14 @@ namespace TheraEngine.Core.Shapes
         public BoundingBox(Vec3 halfExtents, Vec3 translation) 
             : this()
         {
-            _halfExtents = halfExtents;
-            _translation = translation;
+            HalfExtents = halfExtents;
+            Translation = translation;
         }
         public BoundingBox(EventVec3 halfExtents, EventVec3 translation)
             : this()
         {
-            _halfExtents = halfExtents;
-            _translation = translation;
+            HalfExtents = halfExtents;
+            Translation = translation;
         }
         public BoundingBox()
         {
@@ -185,7 +177,7 @@ namespace TheraEngine.Core.Shapes
             out Vec3 BBR,
             out Vec3 BFL,
             out Vec3 BFR)
-            => GetCorners(_halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            => GetCorners(HalfExtents.Raw, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
 
         /// <summary>
         /// Returns the corners of a box with the given half extents and transformed by the given matrix.
@@ -365,7 +357,7 @@ namespace TheraEngine.Core.Shapes
             if (includeTranslation)
                 return SolidMesh(Minimum, Maximum);
             else
-                return SolidMesh(-_halfExtents, _halfExtents);
+                return SolidMesh(-HalfExtents.Raw, HalfExtents.Raw);
         }
         #endregion
 
@@ -394,17 +386,17 @@ namespace TheraEngine.Core.Shapes
         /// <summary>
         /// Converts this bounding box to a frustum, transformed by the given matrix.
         /// </summary>
-        public Frustum AsFrustum(Matrix4 transform) => GetFrustum(_halfExtents, transform);
+        public Frustum AsFrustum(Matrix4 transform) => GetFrustum(HalfExtents.Raw, transform);
         #endregion
 
         //Half extents is one of 8 octants that make up the box, so multiply half extent volume by 8
         public float GetVolume() =>
-            _halfExtents.X * _halfExtents.Y * _halfExtents.Z * 8.0f;
+            HalfExtents.X * HalfExtents.Y * HalfExtents.Z * 8.0f;
         //Each half extent side is one of 4 quadrants on both sides of the box, so multiply each side area by 8
         public float GetSurfaceArea() =>
-            _halfExtents.X * _halfExtents.Y * 8.0f +
-            _halfExtents.Y * _halfExtents.Z * 8.0f +
-            _halfExtents.Z * _halfExtents.X * 8.0f;
+            HalfExtents.X * HalfExtents.Y * 8.0f +
+            HalfExtents.Y * HalfExtents.Z * 8.0f +
+            HalfExtents.Z * HalfExtents.X * 8.0f;
 
         /// <summary>
         /// Expands this bounding box to include the given point.
@@ -413,15 +405,15 @@ namespace TheraEngine.Core.Shapes
         {
             Vec3 min = Vec3.ComponentMin(point, Minimum);
             Vec3 max = Vec3.ComponentMax(point, Maximum);
-            _translation.Raw = (max + min) / 2.0f;
-            _halfExtents.Raw = (max - min) / 2.0f;
+            Translation.Raw = (max + min) / 2.0f;
+            HalfExtents.Raw = (max - min) / 2.0f;
         }
         public void Expand(BoundingBox box)
         {
             Vec3 min = Vec3.ComponentMin(box.Minimum, box.Maximum, Minimum);
             Vec3 max = Vec3.ComponentMax(box.Minimum, box.Maximum, Maximum);
-            _translation.Raw = (max + min) / 2.0f;
-            _halfExtents.Raw = (max - min) / 2.0f;
+            Translation.Raw = (max + min) / 2.0f;
+            HalfExtents.Raw = (max - min) / 2.0f;
         }
 
         #region Collision
@@ -455,7 +447,7 @@ namespace TheraEngine.Core.Shapes
             => Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.WorldMatrix);
         public override EContainment Contains(Sphere sphere)
             => Collision.AABBContainsSphere(Minimum, Maximum, sphere.Center, sphere.Radius);
-        public override EContainment Contains(BaseCone cone)
+        public override EContainment Contains(Cone cone)
         {
             bool top = Contains(cone.GetTopPoint());
             bool bot = Contains(cone.GetBottomCenterPoint());
@@ -558,23 +550,10 @@ namespace TheraEngine.Core.Shapes
                 return (Minimum.GetHashCode() * 397) ^ Maximum.GetHashCode();
             }
         }
-        public override void SetRenderTransform(Matrix4 worldMatrix)
-        {
-            _translation.Raw = worldMatrix.Translation;
-            base.SetRenderTransform(worldMatrix);
-        }
         public override Shape HardCopy()
         {
-            return FromHalfExtentsTranslation(_halfExtents, _translation);
+            return FromHalfExtentsTranslation(HalfExtents.Raw, Translation.Raw);
         }
-        public override Shape TransformedBy(Matrix4 worldMatrix)
-        {
-            BoundingBox newBox = FromHalfExtentsTranslation(_halfExtents, _translation);
-            newBox.SetRenderTransform(worldMatrix);
-            return newBox;
-        }
-        public override Matrix4 GetTransformMatrix()
-            => _translation.Raw.AsTranslationMatrix();
         public override Vec3 ClosestPoint(Vec3 point)
             => Collision.ClosestPointAABBPoint(Minimum, Maximum, point);
         public override TCollisionShape GetCollisionShape()

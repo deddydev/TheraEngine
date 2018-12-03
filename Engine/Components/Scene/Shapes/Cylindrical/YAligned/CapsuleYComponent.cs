@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Drawing;
-using TheraEngine.Core.Maths.Transforms;
+﻿using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 
@@ -18,12 +16,18 @@ namespace TheraEngine.Components.Scene.Shapes
             : this(Transform.GetIdentity(), radius, halfHeight, info) { }
 
         public CapsuleYComponent(Transform transform)
-            : base(new CapsuleY(transform, 1.0f, 1.0f)) { }
+            : this(new CapsuleY(transform, 1.0f, 1.0f)) { }
 
         public CapsuleYComponent(Transform transform, float radius, float halfHeight)
-            : base(new CapsuleY(transform, radius, halfHeight)) { }
+            : this(new CapsuleY(transform, radius, halfHeight)) { }
 
         public CapsuleYComponent(Transform transform, float radius, float halfHeight, TRigidBodyConstructionInfo info)
-            : base(new CapsuleY(transform, radius, halfHeight), info) { }
+            : this(new CapsuleY(transform, radius, halfHeight), info) { }
+
+        public CapsuleYComponent(CapsuleY capsule)
+            : base(capsule) { }
+
+        public CapsuleYComponent(CapsuleY capsule, TRigidBodyConstructionInfo info)
+            : base(capsule, info) { }
     }
 }

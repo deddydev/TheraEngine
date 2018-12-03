@@ -1,11 +1,11 @@
-﻿using TheraEngine.Core.Files;
+﻿using System;
 using System.ComponentModel;
-using TheraEngine.Rendering;
-using System;
-using TheraEngine.Physics;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Cameras;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Physics;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -40,6 +40,8 @@ namespace TheraEngine.Core.Shapes
             _rc = new RenderCommandMethod3D(Render);
         }
 
+        public Action VisibilityChanged;
+
         [TSerialize]
         [Category("Shape")]
         public Transform Transform
@@ -48,48 +50,49 @@ namespace TheraEngine.Core.Shapes
             set
             {
                 if (_transform != null)
-                    _transform.MatrixChanged -= _transform_MatrixChanged;
+                    _transform.MatrixChanged -= TransformChanged;
                 _transform = value ?? Transform.GetIdentity();
-                _transform.MatrixChanged += _transform_MatrixChanged;
+                _transform.MatrixChanged += TransformChanged;
             }
         }
 
-        private void _transform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix) 
-            => OctreeNode?.ItemMoved(this);
+        [TSerialize("RenderSolid", NodeType = ENodeType.Attribute)]
+        protected bool _renderSolid = false;
+        [TSerialize("RenderColor")]
+        protected ColorF3 _renderColor = ColorF3.Red;
 
         protected Transform _transform = Transform.GetIdentity();
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
-
-        public Action VisibilityChanged;
-
+        [Browsable(false)]
+        public Scene3D OwningScene3D { get; set; }
         [Browsable(false)]
         public virtual Shape CullingVolume => this;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
         
-        [TSerialize("RenderSolid", NodeType = ENodeType.Attribute)]
-        protected bool _renderSolid = false;
-        [TSerialize("RenderColor")]
-        protected ColorF3 _renderColor = ColorF3.Red;
-        
+        [Category("Rendering")]
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        [Category("Rendering")]
         public bool RenderSolid
         {
             get => _renderSolid;
             set => _renderSolid = value;
         }
 
-        public Scene3D OwningScene3D { get; set; }
+        private void TransformChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+            => OctreeNode?.ItemMoved(this);
 
         public abstract TCollisionShape GetCollisionShape();
         public abstract BoundingBox GetAABB();
 
         public abstract Vec3 ClosestPoint(Vec3 point);
+
+        #region Containment
         public abstract bool Contains(Vec3 point);
         public abstract EContainment Contains(BoundingBox box);
         public abstract EContainment Contains(Box box);
         public abstract EContainment Contains(Sphere sphere);
-        public abstract EContainment Contains(BaseCone cone);
+        public abstract EContainment Contains(Cone cone);
         public abstract EContainment Contains(Cylinder cylinder);
         public abstract EContainment Contains(Capsule capsule);
         public EContainment Contains(Shape shape)
@@ -102,7 +105,7 @@ namespace TheraEngine.Core.Shapes
                     return Contains(box);
                 else if (shape is Sphere sphere)
                     return Contains(sphere);
-                else if (shape is BaseCone cone)
+                else if (shape is Cone cone)
                     return Contains(cone);
                 else if (shape is Cylinder cylinder)
                     return Contains(cylinder);
@@ -116,7 +119,8 @@ namespace TheraEngine.Core.Shapes
         public EContainment ContainedWithin(Sphere sphere) => sphere?.Contains(this) ?? EContainment.Contains;
         public EContainment ContainedWithin(Frustum frustum) => frustum?.Contains(this) ?? EContainment.Contains;
         public EContainment ContainedWithin(Shape shape) => shape?.Contains(this) ?? EContainment.Contains;
-        
+        #endregion
+
         /// <summary>
         /// Returns a hard copy of this shape, transformed by the given transform.
         /// </summary>
@@ -146,9 +150,7 @@ namespace TheraEngine.Core.Shapes
         public abstract void Render();
 
         private readonly RenderCommandMethod3D _rc;
-        public void AddRenderables(RenderPasses passes, Camera camera)
-        {
-            passes.Add(_rc, RenderInfo.RenderPass);
-        }
+        public void AddRenderables(RenderPasses passes, Camera camera) 
+            => passes.Add(_rc, RenderInfo.RenderPass);
     }
 }

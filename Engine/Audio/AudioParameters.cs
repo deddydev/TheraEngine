@@ -125,39 +125,28 @@ namespace TheraEngine.Audio
     {
         public UsableValue(T value, T defaultValue, bool use = false)
         {
-            _defaultValue = defaultValue;
+            DefaultValue = defaultValue;
             _value = value;
-            _use = use;
+            Use = use;
         }
 
-        private T _value, _defaultValue;
-        private bool _use;
-        
-        public T ActualValue => _use ? _value : _defaultValue;
-        public T DefaultValue => _defaultValue;
+        private T _value;
+
+        public bool Use { get; set; }
+        public T ActualValue => Use ? _value : DefaultValue;
+        public T DefaultValue { get; }
         public T Value
         {
             get => _value;
             set
             {
                 _value = value;
-                _use = _value.Equals(_defaultValue);
+                Use = _value.Equals(DefaultValue);
             }
         }
-        public bool Use
-        {
-            get => _use;
-            set => _use = value;
-        }
 
-        public static implicit operator UsableValue<T>(T value)
-        {
-            return new UsableValue<T>(value, value);
-        }
-        public static implicit operator UsableValue<T>(bool use)
-        {
-            return new UsableValue<T>(default(T), default(T), use);
-        }
+        public static implicit operator UsableValue<T>(T value) => new UsableValue<T>(value, value);
+        public static implicit operator UsableValue<T>(bool use) => new UsableValue<T>(default, default, use);
         public static implicit operator T(UsableValue<T> value)
         {
             if (!value.Use)

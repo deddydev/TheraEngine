@@ -79,7 +79,7 @@ namespace TheraEngine.Core.Shapes
         {
             throw new NotImplementedException();
         }
-        public override EContainment Contains(BaseCone cone)
+        public override EContainment Contains(Cone cone)
         {
             throw new NotImplementedException();
         }

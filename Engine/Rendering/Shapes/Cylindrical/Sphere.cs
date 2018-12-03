@@ -18,39 +18,43 @@ namespace TheraEngine.Core.Shapes
     {
         [TSerialize("Radius")]
         private float _radius = 1.0f;
-        [TSerialize("Center")]
-        private Vec3 _center = Vec3.Zero;
 
+        [Category("Sphere")]
         public float Radius
         {
             get => _radius;
             set => _radius = Abs(value);
         }
+        [Category("Sphere")]
         public Vec3 Center
         {
-            get => _center;
-            set => _center = value;
+            get => Transform.Translation.Raw;
+            set => Transform.Translation.Raw = value;
         }
 
-        public Sphere() : this(0.0f, Vec3.Zero) { }
+        public Sphere() 
+            : this(0.0f, Vec3.Zero) { }
+
         public Sphere(Vec3 center)
             : this(0.0f, center) { }
+
         public Sphere(float radius)
             : this(radius, Vec3.Zero) { }
+
         public Sphere(float radius, Vec3 center) 
         {
             _radius = Abs(radius);
-            _center = center;
+            Center = center;
         }
         public Sphere(Vec3 point1, Vec3 point2)
         {
-            _center = (point1 + point2) / 2.0f;
-            _radius = _center.DistanceToFast(point2);
+            Center = (point1 + point2) / 2.0f;
+            _radius = Center.DistanceToFast(point2);
         }
         public Sphere(params Vec3[] points)
         {
             Miniball ball = new Miniball(PointSetArray.FromVectors(points));
-            _center = new Vec3(ball.Center[0], ball.Center[1], ball.Center[2]);
+            Center = new Vec3(ball.Center[0], ball.Center[1], ball.Center[2]);
             _radius = ball.Radius;
         }
 
@@ -157,7 +161,7 @@ namespace TheraEngine.Core.Shapes
             => Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.InverseWorldMatrix);
         public override EContainment Contains(Sphere sphere)
             => Collision.SphereContainsSphere(Center, Radius, sphere.Center, sphere.Radius);
-        public override EContainment Contains(BaseCone cone)
+        public override EContainment Contains(Cone cone)
         {
             //TODO
             return EContainment.Contains;
@@ -192,19 +196,9 @@ namespace TheraEngine.Core.Shapes
         public override Shape HardCopy()
             => new Sphere(Radius, Center);
         
-        public override Shape TransformedBy(Matrix4 worldMatrix)
-        {
-            Sphere s = new Sphere(Radius, Center);
-            s.SetRenderTransform(worldMatrix);
-            return s;
-        }
-
-        public override Matrix4 GetTransformMatrix()
-            => _center.AsTranslationMatrix();
-
         public override Vec3 ClosestPoint(Vec3 point)
         {
-            Vec3 dir = point - _center;
+            Vec3 dir = point - Center;
             float lenSq = dir.LengthSquared;
             if (lenSq > _radius * _radius)
                 return dir * TMath.InverseSqrtFast(lenSq) * _radius;
@@ -212,14 +206,8 @@ namespace TheraEngine.Core.Shapes
         }
 
         public override BoundingBox GetAABB()
-            => new BoundingBox(_radius, _center);
-
-        public override void SetRenderTransform(Matrix4 worldMatrix)
-        {
-            _center = worldMatrix.Translation;
-            base.SetRenderTransform(worldMatrix);
-        }
-
+            => new BoundingBox(Radius, Center);
+        
         public override void Render()
             => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);
     }

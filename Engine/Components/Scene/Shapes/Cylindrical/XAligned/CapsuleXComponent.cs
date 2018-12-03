@@ -1,4 +1,5 @@
 ﻿using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 
 namespace TheraEngine.Components.Scene.Shapes
@@ -22,5 +23,11 @@ namespace TheraEngine.Components.Scene.Shapes
         
         public CapsuleXComponent(Transform transform, float radius, float halfHeight, TRigidBodyConstructionInfo info)
             : base(new CapsuleX(transform, radius, halfHeight), info) { }
+
+        public CapsuleXComponent(CapsuleX capsule)
+            : base(capsule) { }
+
+        public CapsuleXComponent(CapsuleX capsule, TRigidBodyConstructionInfo info)
+            : base(capsule, info) { }
     }
 }

@@ -130,7 +130,7 @@ namespace TheraEngine.Core.Files
                 }
             }
 
-            T value = await LoadNewInstanceAsync(false, null, progress, cancel);
+            T value = await LoadNewInstanceAsync(progress, cancel);
             File = value;
             return value;
         }

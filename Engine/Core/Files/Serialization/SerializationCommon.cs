@@ -693,20 +693,24 @@ namespace TheraEngine.Core.Files.Serialization
         {
             try
             {
-                //Fix version number
                 AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
-                Version version = Assembly.Load(asmQualName.GetAssemblyName()).GetName().Version;
-                asmQualName.VersionMinor = version.Minor;
-                asmQualName.VersionBuild = version.Build;
-                asmQualName.VersionRevision = version.Revision;
-                typeDeclaration = asmQualName.ToString();
+                
+                //Assembly asm = Assembly.Load(asmQualName.AssemblyName);
+                //Version version = asm.GetName().Version;
+                //asmQualName.VersionMinor = version.Minor;
+                //asmQualName.VersionBuild = version.Build;
+                //asmQualName.VersionRevision = version.Revision;
+
+                //AssemblyName asmName = asmQualName.GetAssemblyName();
+
+                //typeDeclaration = asmQualName.ToString();
 
                 return Type.GetType(typeDeclaration,
                     name =>
                     {
                         var assemblies = //AppDomain.CurrentDomain.GetAssemblies();
                         Engine.EnumAppDomains().SelectMany(x => x.GetAssemblies());
-                        return assemblies.FirstOrDefault(z => z.FullName == name.FullName);
+                        return assemblies.FirstOrDefault(z => string.Equals(z.GetName().Name, asmQualName.AssemblyName, StringComparison.InvariantCultureIgnoreCase));
                     },
                     null,
                     true);

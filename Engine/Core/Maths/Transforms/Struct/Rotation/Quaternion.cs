@@ -4,6 +4,7 @@ using static System.TMath;
 using System.Collections.Generic;
 using TheraEngine;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core;
 
 namespace System
 {
@@ -69,18 +70,38 @@ namespace System
             get => Data[index];
             set => Data[index] = value;
         }
-
+        /// <summary>
+        /// Compresses the quaternion into 12 bytes.
+        /// </summary>
+        /// <param name="q"></param>
+        /// <returns></returns>
         public static Vec3 CompressCayley(Quat q)
         {
             float s = 1.0f / (1.0f + q.W);
             return s * new Vec3(q.X, q.Y, q.Z);
         }
+        /// <summary>
+        /// Decompresses a quaternion from 12 bytes.
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
         public static Quat DecompressCayley(Vec3 v)
         {
             float s = 2.0f / (1.0f + v.LengthSquared);
             return new Quat(s * v, 1.0f - s);
         }
-        public static int CompressSmallest3(Quat q, out bool one)
+        /// <summary>
+        /// Compresses the value into 4 bytes.
+        /// If "one" is true, returns the index of the component that is set to 1.0f (all others are 0.0f),
+        /// meaning that the entire quaternion can be written in two bits (0 - 3 for the index fits in 2 bits).
+        /// Otherwise the entire 4 bytes will be used.
+        /// The two msb's are used for the index of the greatest value.
+        /// The 3 other sets of 10 bits are used for the other values from left to right (XYZW), not including the greatest value.
+        /// </summary>
+        /// <param name="q"></param>
+        /// <param name="one"></param>
+        /// <returns></returns>
+        public static int CompressSmallest3(Quat q, out bool one, float maxValueEpsilon = 0.0001f)
         {
             int greatestIndex = 0;
             float maxValue = float.MinValue, currentValue;
@@ -96,7 +117,7 @@ namespace System
                 abs[i] = currentValue;
             }
 
-            if (one = maxValue.EqualTo(1.0f, 0.001f))
+            if (one = maxValue.EqualTo(1.0f, maxValueEpsilon))
                 return greatestIndex;
             
             int sign = (q[greatestIndex] < 0) ? -1 : 1;
@@ -105,8 +126,10 @@ namespace System
             float value;
             for (int i = 0, x = 0; i < 4; ++i)
             {
+                //Don't write the greatest value
                 if (i == greatestIndex)
                     continue;
+
                 shift = (2 - x++) * 10;
 
                 //1024 = 2^10 = 10 bits unsigned possible numbers
@@ -123,20 +146,26 @@ namespace System
 
         //}
 
-        public void ToAxisAngle(out Vec3 axis, out float angle)
+        public void ToAxisAngleDeg(out Vec3 axis, out float angle)
         {
-            Vec4 result = ToAxisAngle();
+            Vec4 result = ToAxisAngleRad();
             axis = result.Xyz;
             angle = RadToDeg(result.W);
         }
-        public Vec4 ToAxisAngle()
+        public void ToAxisAngleRad(out Vec3 axis, out float angle)
+        {
+            Vec4 result = ToAxisAngleRad();
+            axis = result.Xyz;
+            angle = result.W;
+        }
+        private Vec4 ToAxisAngleRad()
         {
             Quat q = this;
             q.Normalize();
-
             float den = (float)Sqrt(1.0f - q.W * q.W);
             return new Vec4(den > 0.0001f ? q.Xyz / den : Vec3.Right, 2.0f * (float)Acos(q.W));
         }
+
         /// <summary>
         /// Returns a euler rotation in the order of yaw, pitch, roll.
         /// </summary>
@@ -176,29 +205,55 @@ namespace System
             }
             return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), RotationOrder.YPR);
         }
-        public Quat Normalized()
+        public void Normalize(ENormalizeOption normalizeMethod)
+        {
+            switch (normalizeMethod)
+            {
+                case ENormalizeOption.None:
+                    break;
+                case ENormalizeOption.Safe:
+                    Normalize(true);
+                    break;
+                case ENormalizeOption.Unsafe:
+                    Normalize(false);
+                    break;
+                case ENormalizeOption.FastSafe:
+                    NormalizeFast(true);
+                    break;
+                case ENormalizeOption.FastUnsafe:
+                    NormalizeFast(false);
+                    break;
+            }
+        }
+        public void Normalize(bool safe = true)
+        {
+            float lengthSq = LengthSquared;
+            if (safe && lengthSq.IsZero()) return;
+            Xyzw *= 1.0f / (float)Sqrt(lengthSq);
+        }
+        public void NormalizeFast(bool safe = true)
+        {
+            float lengthSq = LengthSquared;
+            if (safe && lengthSq.IsZero()) return;
+            Xyzw *= InverseSqrtFast(lengthSq);
+        }
+        public Quat Normalized(ENormalizeOption normalizeMethod)
         {
             Quat q = this;
-            q.Normalize();
+            q.Normalize(normalizeMethod);
             return q;
         }
-        public Quat NormalizedFast()
+        public Quat Normalized(bool safe = true)
         {
             Quat q = this;
-            q.NormalizeFast();
+            q.Normalize(safe);
             return q;
         }
-        public void Normalize()
+        public Quat NormalizedFast(bool safe = true)
         {
-            float len = Length;
-            if (len > 0.0f)
-                Xyzw /= len;
-        }
-        public void NormalizeFast()
-        {
-            float invLen = InverseSqrtFast(LengthSquared);
-            if (invLen > 0.0f)
-                Xyzw *= invLen;
+            Quat q = this;
+            q.NormalizeFast(safe);
+            return q;
         }
         public void Invert() { W = -W; }
         public Quat Inverted()
@@ -207,10 +262,10 @@ namespace System
             q.Invert();
             return q;
         }
-        public static Quat Invert(Quat q)
+        public static Quat Invert(Quat q, bool safe = true)
         {
             float lengthSq = q.LengthSquared;
-            if (lengthSq != 0.0)
+            if (!safe || !lengthSq.IsZero())
                 return new Quat(q.Xyz / -lengthSq, q.W / lengthSq);
             else
                 return q;

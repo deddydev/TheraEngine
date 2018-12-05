@@ -520,7 +520,7 @@ namespace System
         }
         public static Matrix4 CreateFromQuaternion(Quat q)
         {
-            q.ToAxisAngle(out Vec3 axis, out float angle);
+            q.ToAxisAngleDeg(out Vec3 axis, out float angle);
             return CreateFromAxisAngle(axis, angle);
         }
         /// <summary>

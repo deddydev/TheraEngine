@@ -452,7 +452,7 @@ namespace System
         {
             Vec3 axis;
             float angle;
-            q.ToAxisAngle(out axis, out angle);
+            q.ToAxisAngleDeg(out axis, out angle);
             return CreateFromAxisAngle(axis, angle);
         }
 

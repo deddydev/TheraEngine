@@ -315,17 +315,25 @@ namespace TheraEngine.Core.Files
             TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(type);
             EFileFormat fmt = GetFormat(filePath, out string ext);
 
-            if (extAttrib != null && fmt != EFileFormat.ThirdParty)
+            if (extAttrib != null)
             {
-                EProprietaryFileFormat pfmt = fmt == EFileFormat.Binary ?
-                    EProprietaryFileFormat.Binary :
-                    EProprietaryFileFormat.XML;
+                if (fmt == EFileFormat.ThirdParty)
+                {
+                    bool hasWildcard = extAttrib.HasImportableExtension("*");
+                    bool hasExt = extAttrib.HasImportableExtension(ext);
+                    if (hasWildcard || hasExt)
+                        return await Read3rdPartyAsync(type, filePath, progress, cancel);
+                }
+                else
+                {
+                    EProprietaryFileFormat pfmt = (EProprietaryFileFormat)(int)fmt;
 
-                string fileExt = extAttrib.GetFullExtension(pfmt);
-                if (string.Equals(ext, fileExt))
-                    return fmt == EFileFormat.XML ?
-                        await FromXMLAsync(type, filePath, progress, cancel) :
-                        await FromBinaryAsync(type, filePath, progress, cancel);
+                    string fileExt = extAttrib.GetFullExtension(pfmt);
+                    if (string.Equals(ext, fileExt))
+                        return fmt == EFileFormat.XML ?
+                            await FromXMLAsync(type, filePath, progress, cancel) :
+                            await FromBinaryAsync(type, filePath, progress, cancel);
+                }
             }
             else if (tpAttrib != null)
             {

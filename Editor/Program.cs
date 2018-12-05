@@ -105,26 +105,22 @@ namespace TheraEditor
         {
             public NamespaceNode(string name)
             {
-                _name = name;
-                _children = new Dictionary<string, NamespaceNode>();
-                Button = new ToolStripDropDownButton(_name)
+                Name = name;
+                Children = new Dictionary<string, NamespaceNode>();
+                Button = new ToolStripDropDownButton(Name)
                 {
                     AutoSize = false,
                     ShowDropDownArrow = true,
                     TextAlign = ContentAlignment.MiddleLeft,
                 };
-                Size s = TextRenderer.MeasureText(_name, Button.Font);
+                Size s = TextRenderer.MeasureText(Name, Button.Font);
                 Button.Width = s.Width + 10;
                 Button.Height = s.Height + 10;
             }
 
-            string _name;
-            Dictionary<string, NamespaceNode> _children;
-            ToolStripDropDownButton _button;
-
-            public string Name { get => _name; set => _name = value; }
-            private Dictionary<string, NamespaceNode> Children { get => _children; set => _children = value; }
-            public ToolStripDropDownButton Button { get => _button; set => _button = value; }
+            public string Name { get; set; }
+            private Dictionary<string, NamespaceNode> Children { get; set; }
+            public ToolStripDropDownButton Button { get; set; }
 
             public void Add(string path, Type t, EventHandler onClick)
             {
@@ -144,18 +140,18 @@ namespace TheraEditor
                     btn.Width = s.Width;
                     btn.Height = s.Height + 10;
                     btn.Click += onClick;
-                    _button.DropDownItems.Add(btn);
+                    Button.DropDownItems.Add(btn);
                     return;
                 }
                 int dotIndex = path.IndexOf(".");
                 string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
                 NamespaceNode node;
-                if (_children.ContainsKey(name))
-                    node = _children[name];
+                if (Children.ContainsKey(name))
+                    node = Children[name];
                 else
                 {
                     node = new NamespaceNode(name);
-                    _children.Add(name, node);
+                    Children.Add(name, node);
                     Button.DropDownItems.Add(node.Button);
                 }
                 node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);

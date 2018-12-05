@@ -62,6 +62,17 @@ namespace TheraEngine.Core.Files
         private PathReference _path = new PathReference();
 
         [Category("File Reference")]
+        [TSerialize]
+        public (Type Type, object Value)[] DefaultConstructionArguments { get; set; } = null;
+
+        [Category("File Reference")]
+        [TSerialize]
+        public bool CreateFileIfNonExistant { get; set; } = false;
+        [Category("File Reference")]
+        [TSerialize]
+        public bool AllowDynamicConstruction { get; set; } = false;
+
+        [Category("File Reference")]
         [DisplayName("Reference Path")]
         [TSerialize]
         public PathReference Path
@@ -154,89 +165,69 @@ namespace TheraEngine.Core.Files
                 RelativeRefPathChanged?.Invoke(oldPath, newPath);
         }
 
-        /// <summary>
-        /// Loads a new instance synchronously and allows dynamic construction when the ReferencePathAbsolute is invalid, assuming there is a constructor with no arguments.
-        /// </summary>
-        public T LoadNewInstance()
-            => LoadNewInstance(true, null);
+        ///// <summary>
+        ///// Loads a new instance synchronously and allows dynamic construction when the ReferencePathAbsolute is invalid, assuming there is a constructor with no arguments.
+        ///// </summary>
+        //public T LoadNewInstance()
+        //    => LoadNewInstance(null);
 
         /// <summary>
         /// Loads a new instance synchronously.
         /// </summary>
         /// <param name="allowConstruct"></param>
         /// <param name="constructionArgs"></param>
-        public T LoadNewInstance(bool allowConstruct, (Type Type, object Value)[] constructionArgs)
+        public T LoadNewInstance()
         {
-            Func<Task<T>> func = async () => { return await LoadNewInstanceAsync(allowConstruct, constructionArgs); };
+            Func<Task<T>> func = async () => { return await LoadNewInstanceAsync(); };
             return func.RunSync();
         }
-
-        public void LoadNewInstanceAsync(Action<T> onLoaded)
-            => LoadNewInstanceAsync(true, null).ContinueWith(t => onLoaded?.Invoke(t.Result));
-
+        
         public void LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel, Action<T> onLoaded)
-            => LoadNewInstanceAsync(true, null, progress, cancel).ContinueWith(t => onLoaded?.Invoke(t.Result));
-
-        public void LoadNewInstanceAsync(bool allowConstruct, (Type Type, object Value)[] constructionArgs, IProgress<float> progress, CancellationToken cancel, Action<T> onLoaded)
-            => LoadNewInstanceAsync(allowConstruct, constructionArgs, progress, cancel).ContinueWith(t => onLoaded?.Invoke(t.Result));
-
+            => LoadNewInstanceAsync(progress, cancel).ContinueWith(t => onLoaded?.Invoke(t.Result));
+        
         /// <summary>
         /// Loads a new instance asynchronously.
         /// </summary>
         /// <param name="allowConstruct"></param>
         /// <param name="constructionArgs"></param>
         /// <param name="onLoaded"></param>
-        public void LoadNewInstanceAsync(bool allowConstruct, (Type Type, object Value)[] constructionArgs, Action<T> onLoaded)
-            => LoadNewInstanceAsync(allowConstruct, constructionArgs).ContinueWith(t => onLoaded?.Invoke(t.Result));
+        public void LoadNewInstanceAsync(Action<T> onLoaded)
+            => LoadNewInstanceAsync().ContinueWith(t => onLoaded?.Invoke(t.Result));
 
         public async Task<T> LoadNewInstanceAsync()
-            => await LoadNewInstanceAsync(true, null, null, CancellationToken.None);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="allowConstruct"></param>
-        /// <param name="constructionArgs"></param>
-        /// <returns></returns>
-        public async Task<T> LoadNewInstanceAsync(bool allowConstruct, (Type Type, object Value)[] constructionArgs)
-            => await LoadNewInstanceAsync(allowConstruct, constructionArgs, null, CancellationToken.None);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="progress"></param>
-        /// <param name="cancel"></param>
-        /// <returns></returns>
-        public async Task<T> LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel)
-            => await LoadNewInstanceAsync(true, null, progress, cancel);
-
-        public virtual async Task<T> LoadNewInstanceAsync(
-            bool allowConstruct,
-            (Type Type, object Value)[] constructionArgs,
-            IProgress<float> progress,
-            CancellationToken cancel)
+            => await LoadNewInstanceAsync(null, CancellationToken.None);
+        
+        public virtual async Task<T> LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
             string absolutePath = Path.Absolute;
 
             if (string.IsNullOrWhiteSpace(absolutePath))
             {
-                if (allowConstruct)
-                {
-                    T file = DynamicConstructNewInstance_Internal(false, constructionArgs);
-                    if (file != null)
-                    {
-                        file.FilePath = absolutePath;
-                        OnFileLoaded(file);
-                        Loaded?.Invoke(file);
-                    }
-                    return file;
-                }
+                if (AllowDynamicConstruction)
+                    return DynamicConstruct(DefaultConstructionArguments, absolutePath);
+                
                 return null;
             }
 
             if (!File.Exists(absolutePath))
             {
-                Engine.LogWarning(string.Format("No file exists at \"{0}\".", absolutePath));
+                if (CreateFileIfNonExistant)
+                {
+                    if (AllowDynamicConstruction)
+                    {
+                        T file = DynamicConstruct(DefaultConstructionArguments, absolutePath);
+                        await file.ExportAsync(absolutePath, ESerializeFlags.Default, progress, cancel);
+                        return file;
+                    }
+                    else
+                    {
+                        Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(CreateFileIfNonExistant)}' property is enabled, but '{nameof(AllowDynamicConstruction)}' is not.");
+                    }
+                }
+                else
+                {
+                    Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(CreateFileIfNonExistant)}' property is not enabled.");
+                }
                 return null;
             }
 
@@ -312,13 +303,27 @@ namespace TheraEngine.Core.Files
             return EFileFormat.Binary;
         }
 
+        private T DynamicConstruct(
+            (Type Type, object Value)[] constructionArgs,
+            string absolutePath)
+        {
+            T file = ConstructNewInstance_Internal(false, constructionArgs);
+            if (file != null)
+            {
+                file.FilePath = absolutePath;
+                OnFileLoaded(file);
+                Loaded?.Invoke(file);
+            }
+            return file;
+        }
+
         /// <summary>
         /// Constructs a new instance of the referenced type using the constructor with the given parameters, if it exists.
         /// If it does not exist, or the type is abstract or an interface, returns null.
         /// Does NOT load from the reference path.
         /// </summary>
-        public T DynamicConstructNewInstance(params (Type Type, object Value)[] args) => DynamicConstructNewInstance_Internal(true, args);
-        protected T DynamicConstructNewInstance_Internal(bool callLoadedEvent, (Type Type, object Value)[] args)
+        public T ConstructNewInstance(params (Type Type, object Value)[] args) => ConstructNewInstance_Internal(true, args);
+        protected T ConstructNewInstance_Internal(bool callLoadedEvent, (Type Type, object Value)[] args)
         {
             if (_subType.IsAbstract)
             {

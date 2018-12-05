@@ -51,7 +51,7 @@ namespace TheraEngine.Core.Files
                 return _file;
 
             LoadAttempted = true;
-            T value = await LoadNewInstanceAsync(false, null, progress, cancel);
+            T value = await LoadNewInstanceAsync(progress, cancel);
             File = value;
             return value;
         }

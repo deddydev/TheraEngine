@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace System
 {
@@ -24,7 +25,7 @@ namespace System
             //if (a.Length == 2)
             //    return elementToString(a[0]) + separator + elementToString(a[1]);
 
-            string str = string.Empty;
+            StringBuilder builder = new StringBuilder();
             string sep = separator;
             for (int i = 0; i < a.Length; ++i)
             {
@@ -32,10 +33,10 @@ namespace System
                     sep = lastSeparator;
                 else if (i == a.Length - 1)
                     sep = string.Empty;
-                str += elementToString(a[i]) + sep;
+                builder.Append(elementToString(a[i]) + sep);
             }
 
-            return str;
+            return builder.ToString();
         }
         /// <summary>
         /// Converts the elements of an array into a well-formatted list.
@@ -56,7 +57,7 @@ namespace System
             if (a.Length == 2)
                 return a[0].ToString() + separator + a[1].ToString();
 
-            string str = "";
+            StringBuilder builder = new StringBuilder();
             string sep = separator;
             for (int i = 0; i < a.Length; ++i)
             {
@@ -64,10 +65,10 @@ namespace System
                     sep = lastSeparator;
                 else if (i == a.Length - 1)
                     sep = string.Empty;
-                str += a[i].ToString() + sep;
+                builder.Append(a[i].ToString() + sep);
             }
 
-            return str;
+            return builder.ToString();
         }
         /// <summary>
         /// Converts the elements of an array into a well-formatted list.
@@ -84,17 +85,17 @@ namespace System
 
             if (a.Length == 1)
                 return elementToString(a[0]);
-            
-            string str = "";
+
+            StringBuilder builder = new StringBuilder();
             string sep = separator;
             for (int i = 0; i < a.Length; ++i)
             {
                 if (i == a.Length - 1)
                     sep = string.Empty;
-                str += elementToString(a[i]) + sep;
+                builder.Append(elementToString(a[i]) + sep);
             }
 
-            return str;
+            return builder.ToString();
         }
         /// <summary>
         /// Converts the elements of an array into a well-formatted list.
@@ -110,17 +111,8 @@ namespace System
 
             if (a.Length == 1)
                 return a[0].ToString();
-
-            string str = "";
-            string sep = separator;
-            for (int i = 0; i < a.Length; ++i)
-            {
-                if (i == a.Length - 1)
-                    sep = string.Empty;
-                str += a[i].ToString() + sep;
-            }
-
-            return str;
+            
+            return string.Join(separator, a);
         }
         /// <summary>
         /// Returns true if index >= 0 && index is less than length.

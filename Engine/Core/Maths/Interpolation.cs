@@ -598,7 +598,7 @@ namespace TheraEngine.Core.Maths
         {
             Quat deltaQuat = Quat.BetweenVectors(current, target);
 
-            deltaQuat.ToAxisAngle(out Vec3 deltaAxis, out float deltaAngle);
+            deltaQuat.ToAxisAngleDeg(out Vec3 deltaAxis, out float deltaAngle);
 
             float rotStepRads = DegToRad(rotationSpeedDegrees) * delta;
 

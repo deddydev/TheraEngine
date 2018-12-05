@@ -122,9 +122,10 @@ namespace TheraEditor
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 Engine.PrintLine("Unable to connect.");
+                Engine.LogException(ex);
                 client = null;
                 return false;
             }

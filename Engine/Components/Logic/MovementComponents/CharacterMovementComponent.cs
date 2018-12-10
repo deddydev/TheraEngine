@@ -300,7 +300,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             Vec3 v = root.RigidBodyCollision.LinearVelocity;
-            //Engine.DebugPrint(v.Xz.LengthFast);
+
             if (v.Xz.LengthFast < 8.667842f)
                 root.RigidBodyCollision.ApplyCentralForce((root.RigidBodyCollision.Mass * FallingMovementSpeed) * movementInput);
         }
@@ -333,7 +333,7 @@ namespace TheraEngine.Components.Logic.Movement
                 AllowJumpTimeDelta = 0.0f;
                 _velocity.Y = 0.0f;
             }
-            //root.PhysicsDriver.Kinematic = false;
+
             root.RigidBodyCollision.SimulatingPhysics = true;
             _subUpdateTick = TickFalling;
 

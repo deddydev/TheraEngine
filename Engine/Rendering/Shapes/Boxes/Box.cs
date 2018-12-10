@@ -12,15 +12,7 @@ namespace TheraEngine.Core.Shapes
     public class Box : Shape
     {
         public EventVec3 _halfExtents;
-        public Transform _transform;
 
-        [Category("Box")]
-        [TSerialize]
-        public Transform Transform
-        {
-            get => _transform;
-            set => _transform = value;
-        }
         [Category("Box")]
         [TSerialize]
         public EventVec3 HalfExtents

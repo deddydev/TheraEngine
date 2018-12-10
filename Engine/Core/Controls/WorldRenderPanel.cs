@@ -8,10 +8,10 @@ namespace TheraEngine
     public class WorldRenderPanel : RenderPanel<BaseScene>
     {
         protected override BaseScene GetScene(Viewport v) => Engine.Scene;
-        protected override void PreRender()
+        protected override void GlobalPreRender()
         {
             Engine.Scene?.GlobalPreRender();
-            base.PreRender();
+            base.GlobalPreRender();
         }
     }
 }

@@ -19,7 +19,6 @@ using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Text;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;

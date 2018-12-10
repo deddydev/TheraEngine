@@ -45,7 +45,8 @@ namespace TheraEngine.Actors.Types
 
         protected override void OnWorldTransformChanged()
         {
-            Bounds.Transform.Matrix = WorldMatrix;
+            if (Bounds != null)
+                Bounds.Transform.Matrix = WorldMatrix;
             _rc.WorldMatrix = WorldMatrix;
             _rc.NormalMatrix = WorldMatrix.GetRotationMatrix3(); //WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
             base.OnWorldTransformChanged();

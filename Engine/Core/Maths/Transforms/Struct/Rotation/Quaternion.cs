@@ -163,7 +163,7 @@ namespace System
             Quat q = this;
             q.Normalize();
             float den = (float)Sqrt(1.0f - q.W * q.W);
-            return new Vec4(den > 0.0001f ? q.Xyz / den : Vec3.Right, 2.0f * (float)Acos(q.W));
+            return new Vec4(den > TMath.Epsilon ? q.Xyz / den : Vec3.Right, 2.0f * (float)Acos(q.W));
         }
 
         /// <summary>
@@ -291,9 +291,7 @@ namespace System
         /// Returns a quat that rotates from the first quat to the second quat: from * returned = to
         /// </summary>
         public static Quat DeltaRotation(Quat from, Quat to)
-        {
-            return from.Inverted() * to;
-        }
+            => from.Inverted() * to;
         /// <summary>
         /// Returns a quaternion containing the rotation from one vector direction to another.
         /// </summary>
@@ -463,7 +461,10 @@ namespace System
                 blendB = blend;
             }
 
-            Quat result = new Quat(blendA * q1.Xyz + blendB * q2.Xyz, blendA * q1.W + blendB * q2.W);
+            Quat result = new Quat(
+                blendA * q1.Xyz + blendB * q2.Xyz, 
+                blendA * q1.W + blendB * q2.W);
+
             if (result.LengthSquared > 0.0f)
                 return result.Normalized();
             else

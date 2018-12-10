@@ -32,10 +32,17 @@ namespace TheraEngine
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The frustum to cull the scene with.</returns>
         protected virtual Frustum GetFrustum(Viewport v) => GetCamera(v)?.Frustum;
-        protected virtual void PreRender() { OnPreRender(); }
+        /// <summary>
+        /// Called before any viewports are rendered.
+        /// </summary>
+        protected virtual void GlobalPreRender() { OnPreRender(); }
         protected void OnPreRender() => PreRendered?.Invoke();
-        protected virtual void PostRender() { OnPostRender(); }
+        /// <summary>
+        /// Called after all viewports have been rendered.
+        /// </summary>
+        protected virtual void GlobalPostRender() { OnPostRender(); }
         protected void OnPostRender() => PostRendered?.Invoke();
+
         protected override void OnUpdate()
         {
             foreach (Viewport v in _viewports)
@@ -51,19 +58,20 @@ namespace TheraEngine
         }
         protected override void OnRender()
         {
-            Camera c;
-            BaseScene s;
+            Camera camera;
+            BaseScene scene;
 
-            PreRender();
-            foreach (Viewport v in _viewports)
+            GlobalPreRender();
+            foreach (Viewport viewport in _viewports)
             {
-                c = GetCamera(v);
-                s = GetScene(v);
-                v.HUD?.UIScene?.PreRender(v, v.HUD.Camera);
-                s?.PreRender(v, c);
-                v.Render(s, c, null);
+                camera = GetCamera(viewport);
+                scene = GetScene(viewport);
+
+                viewport.HUD?.UIScene?.PreRender(viewport, viewport.HUD.Camera);
+                scene?.PreRender(viewport, camera);
+                viewport.Render(scene, camera, null);
             }
-            PostRender();
+            GlobalPostRender();
         }
     }
 }

@@ -49,7 +49,7 @@ namespace TheraEngine.Components.Scene.Shapes
         {
             if (info == null)
             {
-                Engine.LogWarning("A rigid body could not be generated for collidable shape component; construction info is null.");
+                //Engine.LogWarning("A rigid body could not be generated for collidable shape component; construction info is null.");
                 RigidBodyCollision = null;
                 return;
             }

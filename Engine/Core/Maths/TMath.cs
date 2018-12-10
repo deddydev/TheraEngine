@@ -11,7 +11,11 @@ namespace System
     /// <para>Easily call utilize this class by implementing 'using static System.TMath;' at the top of code files.</para>
     /// </summary>
     public unsafe static class TMath
-    {        
+    {
+        /// <summary>
+        /// A small number.
+        /// </summary>
+        public const float Epsilon = 0.00001f;
         /// <summary>
         /// 2 * PI represented as a float value.
         /// </summary>
@@ -23,11 +27,11 @@ namespace System
         /// <summary>
         /// PI represented as a float value.
         /// </summary>
-        public static readonly float PIf = (float)PI;        
+        public const float PIf = 3.1415926535897931f;
         /// <summary>
         /// e represented as a float value.
         /// </summary>
-        public static readonly float Ef = (float)E;
+        public const float Ef = 2.7182818284590451f;
         /// <summary>
         /// Multiply this constant by a degree value to convert to radians.
         /// </summary>
@@ -96,7 +100,7 @@ namespace System
                 while (n < abs)
                     n *= 10.0f;
 
-                return (float)((int)(sig * n * 0.1f));
+                return (int)Floor(sig * n * 0.1f);
             }
             else // n <= 1
             {
@@ -124,6 +128,16 @@ namespace System
             return x;
         }
 
+        public static void CartesianToPolarDeg(Vec2 coordinate, out float angle, out float radius)
+        {
+            radius = coordinate.Length;
+            angle = Atan2df(coordinate.Y, coordinate.X);
+        }
+        public static void CartesianToPolarRad(Vec2 coordinate, out float angle, out float radius)
+        {
+            radius = coordinate.Length;
+            angle = Atan2f(coordinate.Y, coordinate.X);
+        }
         public static Vec2 PolarToCartesianDeg(float degree, float radius)
         {
             SinCosdf(degree, out float sin, out float cos);
@@ -146,10 +160,18 @@ namespace System
         /// <param name="cameraRightDir">The direction representing the right side of a camera. This is the reference axis rotated around (at the focusPoint) using the pitch value.</param>
         /// <returns></returns>
         public static Vec3 ArcballTranslation(float pitch, float yaw, Vec3 focusPoint, Vec3 cameraPoint, Vec3 cameraRightDir)
-        {
-            return focusPoint + Vec3.TransformVector(cameraPoint - focusPoint, Matrix4.CreateRotationY(yaw) * Matrix4.CreateFromAxisAngle(cameraRightDir, pitch));
-        }
-
+            => ArcballTranslation(Quat.FromAxisAngle(Vec3.Up, yaw) * Quat.FromAxisAngle(cameraRightDir, pitch), focusPoint, cameraPoint);
+        /// <summary>
+        /// Returns a translation value representing a rotation of the cameraPoint around the focusPoint.
+        /// Assumes the Y axis is up. Yaw is performed before pitch.
+        /// </summary>
+        /// <param name="rotation">Rotation about the X axis, after yaw.</param>
+        /// <param name="focusPoint">The point to rotate around.</param>
+        /// <param name="cameraPoint">The point to move.</param>
+        /// <returns></returns>
+        public static Vec3 ArcballTranslation(Quat rotation, Vec3 focusPoint, Vec3 cameraPoint)
+            => focusPoint + rotation * (cameraPoint - focusPoint);
+        
         /// <summary>
         /// Returns the sine and cosine of a radian angle simultaneously as doubles.
         /// </summary>
@@ -182,12 +204,25 @@ namespace System
             sin = Sindf(deg);
             cos = Cosdf(deg);
         }
+
         public static float Cosf(float rad) => (float)Cos(rad);
         public static float Sinf(float rad) => (float)Sin(rad);
         public static float Tanf(float rad) => (float)Tan(rad);
+
         public static float Cosdf(float deg) => Cosf(deg * DegToRadMultf);
         public static float Sindf(float deg) => Sinf(deg * DegToRadMultf);
         public static float Tandf(float deg) => Tanf(deg * DegToRadMultf);
+
+        public static float Acosf(float cos) => (float)Acos(cos);
+        public static float Asinf(float sin) => (float)Asin(sin);
+        public static float Atanf(float tan) => (float)Atan(tan);
+        public static float Atan2f(float tanY, float tanX) => (float)Atan2(tanY, tanX);
+        
+        public static float Acosdf(float cos) => Acosf(cos) * RadToDegMultf;
+        public static float Asindf(float sin) => Asinf(sin) * RadToDegMultf;
+        public static float Atandf(float tan) => Atanf(tan) * RadToDegMultf;
+        public static float Atan2df(float tanY, float tanX) => Atan2f(tanY, tanX) * RadToDegMultf;
+        
         public static double Cosd(double deg) => Cos(deg * DegToRadMult);
         public static double Sind(double deg) => Sin(deg * DegToRadMult);
         public static double Tand(double deg) => Tan(deg * DegToRadMult);

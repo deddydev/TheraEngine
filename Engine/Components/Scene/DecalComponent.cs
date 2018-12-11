@@ -38,16 +38,28 @@ namespace TheraEngine.Components.Scene
         //    }
         //}
 
-        public DecalComponent() : base() { RenderInfo.RenderPass = ERenderPass.DeferredDecals; RenderInfo.VisibleByDefault = true; }
-        public DecalComponent(Vec3 halfExtents) : base(halfExtents, null) { RenderInfo.RenderPass = ERenderPass.DeferredDecals; RenderInfo.VisibleByDefault = true; }
-        public DecalComponent(Vec3 halfExtents, TextureFile2D texture) : base(halfExtents, null)
+        public DecalComponent() 
+            : base()
+        {
+            RenderInfo.RenderPass = ERenderPass.DeferredDecals;
+            RenderInfo.VisibleByDefault = true;
+        }
+        public DecalComponent(Vec3 halfExtents) 
+            : base(halfExtents, null)
+        {
+            RenderInfo.RenderPass = ERenderPass.DeferredDecals;
+            RenderInfo.VisibleByDefault = true;
+        }
+        public DecalComponent(Vec3 halfExtents, TextureFile2D texture)
+            : base(halfExtents, null)
         {
             RenderInfo.RenderPass = ERenderPass.DeferredDecals;
             RenderInfo.VisibleByDefault = true;
             if (texture != null)
                 Material = CreateDefaultMaterial(texture);
         }
-        public DecalComponent(float height, TextureFile2D texture) : base(new Vec3(1.0f, height, 1.0f), null)
+        public DecalComponent(float height, TextureFile2D texture)
+            : base(new Vec3(1.0f, height, 1.0f), null)
         {
             RenderInfo.RenderPass = ERenderPass.DeferredDecals;
             RenderInfo.VisibleByDefault = true;

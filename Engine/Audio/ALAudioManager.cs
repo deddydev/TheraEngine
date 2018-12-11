@@ -52,7 +52,7 @@ namespace TheraEngine.Audio
         {
             float value = param.ActualValue;
             AL.GetSource(soundId, dest, out float currentValue);
-            bool changed = value != currentValue;
+            bool changed = !value.EqualTo(currentValue);
             if (changed || initialPlay)
                 AL.Source(soundId, dest, param.Value);
         }
@@ -60,46 +60,85 @@ namespace TheraEngine.Audio
         {
             Vec3 value = param.ActualValue;
             AL.GetSource(soundId, dest, out Vector3 currentValue);
-            bool changed = 
-                value.X != currentValue.X || 
-                value.Y != currentValue.Y || 
-                value.Z != currentValue.Z;
-            if (changed || initialPlay)
+            if (initialPlay || (value | currentValue) < 1.0f)
                 AL.Source(soundId, dest, param.Value.X, param.Value.Y, param.Value.Z);
         }
 
-        private void ApplyParameters(int soundId, AudioSourceParameters param, bool initialPlay)
+        private void ApplyParameters(int soundId, AudioParameters param, bool initialPlay)
         {
-            ApplyParam(soundId, param.SourceRelative, ALSourceb.SourceRelative, initialPlay);
-            ApplyParam(soundId, param.Loop, ALSourceb.Looping, initialPlay);
-            ApplyParam(soundId, param.EfxDirectFilterGainHighFrequencyAuto, ALSourceb.EfxDirectFilterGainHighFrequencyAuto, initialPlay);
-            ApplyParam(soundId, param.EfxAuxiliarySendFilterGainAuto, ALSourceb.EfxAuxiliarySendFilterGainAuto, initialPlay);
-            ApplyParam(soundId, param.EfxAuxiliarySendFilterGainHighFrequencyAuto, ALSourceb.EfxAuxiliarySendFilterGainHighFrequencyAuto, initialPlay);
-            ApplyParam(soundId, param.ConeInnerAngle, ALSourcef.ConeInnerAngle, initialPlay);
-            ApplyParam(soundId, param.ConeOuterAngle, ALSourcef.ConeOuterAngle, initialPlay);
-            ApplyParam(soundId, param.Pitch, ALSourcef.Pitch, initialPlay);
-            ApplyParam(soundId, param.Gain, ALSourcef.Gain, initialPlay);
-            ApplyParam(soundId, param.MinGain, ALSourcef.MinGain, initialPlay);
-            ApplyParam(soundId, param.MaxGain, ALSourcef.MaxGain, initialPlay);
-            ApplyParam(soundId, param.ReferenceDistance, ALSourcef.ReferenceDistance, initialPlay);
-            ApplyParam(soundId, param.RolloffFactor, ALSourcef.RolloffFactor, initialPlay);
-            ApplyParam(soundId, param.ConeOuterGain, ALSourcef.ConeOuterGain, initialPlay);
-            ApplyParam(soundId, param.MaxDistance, ALSourcef.MaxDistance, initialPlay);
-            ApplyParam(soundId, param.SecOffset, ALSourcef.SecOffset, initialPlay);
-            ApplyParam(soundId, param.EfxAirAbsorptionFactor, ALSourcef.EfxAirAbsorptionFactor, initialPlay);
-            ApplyParam(soundId, param.EfxRoomRolloffFactor, ALSourcef.EfxRoomRolloffFactor, initialPlay);
-            ApplyParam(soundId, param.EfxConeOuterGainHighFrequency, ALSourcef.EfxConeOuterGainHighFrequency, initialPlay);
-            ApplyParam(soundId, param.Position, ALSource3f.Position, initialPlay);
-            ApplyParam(soundId, param.Direction, ALSource3f.Direction, initialPlay);
-            ApplyParam(soundId, param.Velocity, ALSource3f.Velocity, initialPlay);
+            ApplyParam(soundId, param.SourceRelative, 
+                ALSourceb.SourceRelative, initialPlay);
+
+            ApplyParam(soundId, param.Loop,
+                ALSourceb.Looping, initialPlay);
+
+            ApplyParam(soundId, param.EfxDirectFilterGainHighFrequencyAuto,
+                ALSourceb.EfxDirectFilterGainHighFrequencyAuto, initialPlay);
+
+            ApplyParam(soundId, param.EfxAuxiliarySendFilterGainAuto, 
+                ALSourceb.EfxAuxiliarySendFilterGainAuto, initialPlay);
+
+            ApplyParam(soundId, param.EfxAuxiliarySendFilterGainHighFrequencyAuto,
+                ALSourceb.EfxAuxiliarySendFilterGainHighFrequencyAuto, initialPlay);
+
+            ApplyParam(soundId, param.ConeInnerAngle,
+                ALSourcef.ConeInnerAngle, initialPlay);
+
+            ApplyParam(soundId, param.ConeOuterAngle, 
+                ALSourcef.ConeOuterAngle, initialPlay);
+
+            ApplyParam(soundId, param.Pitch,
+                ALSourcef.Pitch, initialPlay);
+
+            ApplyParam(soundId, param.Gain,
+                ALSourcef.Gain, initialPlay);
+
+            ApplyParam(soundId, param.MinGain,
+                ALSourcef.MinGain, initialPlay);
+
+            ApplyParam(soundId, param.MaxGain,
+                ALSourcef.MaxGain, initialPlay);
+
+            ApplyParam(soundId, param.ReferenceDistance, 
+                ALSourcef.ReferenceDistance, initialPlay);
+
+            ApplyParam(soundId, param.RolloffFactor,
+                ALSourcef.RolloffFactor, initialPlay);
+
+            ApplyParam(soundId, param.ConeOuterGain,
+                ALSourcef.ConeOuterGain, initialPlay);
+
+            ApplyParam(soundId, param.MaxDistance,
+                ALSourcef.MaxDistance, initialPlay);
+
+            ApplyParam(soundId, param.SecOffset, 
+                ALSourcef.SecOffset, initialPlay);
+
+            ApplyParam(soundId, param.EfxAirAbsorptionFactor, 
+                ALSourcef.EfxAirAbsorptionFactor, initialPlay);
+
+            ApplyParam(soundId, param.EfxRoomRolloffFactor, 
+                ALSourcef.EfxRoomRolloffFactor, initialPlay);
+
+            ApplyParam(soundId, param.EfxConeOuterGainHighFrequency,
+                ALSourcef.EfxConeOuterGainHighFrequency, initialPlay);
+
+            ApplyParam(soundId, param.Position, 
+                ALSource3f.Position, initialPlay);
+
+            ApplyParam(soundId, param.Direction,
+                ALSource3f.Direction, initialPlay);
+
+            ApplyParam(soundId, param.Velocity, 
+                ALSource3f.Velocity, initialPlay);
         }
         
-        public override void Update(int soundId, AudioSourceParameters param)
+        public override void Update(int soundId, AudioParameters param)
             => ApplyParameters(soundId, param, false);
-        public override int Play(SoundFile sound) => Play(sound, null);
-        public override int Play(SoundFile sound, AudioSourceParameters param)
+        public override int Play(AudioFile sound) => Play(sound, null);
+        public override int Play(AudioFile sound, IAudioSource source, AudioParameters param)
         {
-            byte[] data = sound.WaveFile.SoundData;
+            byte[] data = sound?.Samples;
             if (data == null)
                 return -1;
             
@@ -107,8 +146,8 @@ namespace TheraEngine.Audio
             {
                 sound.BufferId = AL.GenBuffer();
                 AL.BufferData(sound.BufferId,
-                    GetSoundFormat(sound.WaveFile.Channels, sound.WaveFile.BitsPerSample),
-                    data, data.Length, sound.WaveFile.SampleRate);
+                    GetSoundFormat(sound.Channels, sound.BitsPerSample),
+                    data, data.Length, sound.SampleRate);
             }
 
             int soundId = AL.GenSource();
@@ -127,44 +166,51 @@ namespace TheraEngine.Audio
             //}
             //while ((ALSourceState)state == ALSourceState.Playing);
         }
+
         public override bool Stop(int soundId)
         {
             AL.SourceStop(soundId);
             AL.DeleteSource(soundId);
             return GetState(soundId) == AudioState.Stopped;
         }
+
         public override AudioState GetState(int soundId)
+            => AudioState.Initial + ((int)AL.GetSourceState(soundId) - (int)ALSourceState.Initial);
+        
+        public override void UpdateListener(
+            Vec3 position,
+            Vec3 forward,
+            Vec3 up,
+            Vec3 velocity,
+            float gain, 
+            float efxMetersPerUnit = 1.0f)
         {
-            return AudioState.Initial + ((int)AL.GetSourceState(soundId) - (int)ALSourceState.Initial);
-        }
-        public override void UpdateListener(Vec3 position, Vec3 forward, Vec3 up, Vec3 velocity, float gain, float efxMetersPerUnit = 1.0f)
-        {
-            AL.GetListener(ALListenerf.EfxMetersPerUnit, out float f);
-            if (f != efxMetersPerUnit)
+            AL.GetListener(ALListenerf.EfxMetersPerUnit, out float tempFlt);
+            if (!tempFlt.EqualTo(efxMetersPerUnit))
                 AL.Listener(ALListenerf.EfxMetersPerUnit, efxMetersPerUnit);
 
-            AL.GetListener(ALListenerf.Gain, out f);
-            if (f != gain)
+            AL.GetListener(ALListenerf.Gain, out tempFlt);
+            if (!tempFlt.EqualTo(gain))
                 AL.Listener(ALListenerf.Gain, gain);
 
-            AL.GetListener(ALListener3f.Position, out Vector3 v);
-            if (v.X != position.X || v.Y != position.Y || v.Z != position.Z)
+            AL.GetListener(ALListener3f.Position, out Vector3 tempVec);
+            if ((tempVec | position) < 1.0f)
                 AL.Listener(ALListener3f.Position, position.X, position.Y, position.Z);
 
-            AL.GetListener(ALListener3f.Position, out v);
-            if (v.X != velocity.X || v.Y != velocity.Y || v.Z != velocity.Z)
+            AL.GetListener(ALListener3f.Position, out tempVec);
+            if ((tempVec | velocity) < 1.0f)
                 AL.Listener(ALListener3f.Velocity, velocity.X, velocity.Y, velocity.Z);
             
-            AL.GetListener(ALListenerfv.Orientation, out Vector3 fv, out Vector3 uv);
-            if (fv.X != forward.X || fv.Y != forward.Y || fv.Z != forward.Z ||
-                uv.X != up.X || uv.Y != up.Y || uv.Z != up.Z)
+            AL.GetListener(ALListenerfv.Orientation, out Vector3 forwardVec, out Vector3 upVec);
+            //Check if the desired forward or up vectors have changed
+            if ((forward | forwardVec) < 1.0f || (up | upVec) < 1.0f)
             {
-                float[] o = new float[]
+                float[] values = new float[]
                 {
                     forward.X, forward.Y, forward.Z,
                     up.X, up.Y, up.Z
                 };
-                AL.Listener(ALListenerfv.Orientation, ref o);
+                AL.Listener(ALListenerfv.Orientation, ref values);
             }
         }
 

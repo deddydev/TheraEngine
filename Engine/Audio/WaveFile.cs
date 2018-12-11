@@ -1,89 +1,104 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
+using System.Runtime.InteropServices;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Audio
 {
-    public class WaveFile : IDisposable
+    /// <summary>
+    /// <see langword="static"/> helper class to read .wav audio files.
+    /// </summary>
+    public static class WaveFile
     {
-        [TSerialize(nameof(Channels), IsAttribute = true)]
-        private int _channels;
-        [TSerialize(nameof(BitsPerSample), IsAttribute = true)]
-        private int _bps;
-        [TSerialize(nameof(SampleRate), IsAttribute = true)]
-        private int _sampleRate;
-
-        [TSerialize(IsElementString = true)]
-        public byte[] SoundData { get; private set; }
-
-        public int Channels => _channels;
-        public int BitsPerSample => _bps;
-        public int SampleRate => _sampleRate;
-
-        public WaveFile() { }
-        public WaveFile(string filename)
-            => SoundData = LoadWave(filename, out _channels, out _bps, out _sampleRate);
-
-        public static byte[] LoadWave(string filename, out int channels, out int bitsPerSample, out int sampleRate)
+        public static byte[] ReadSamples(
+            string filePath,
+            out int channels,
+            out int bitsPerSample,
+            out int sampleRate)
         {
-            if (!File.Exists(filename))
+            if (!File.Exists(filePath))
             {
-                channels = 0;
-                bitsPerSample = 0;
-                sampleRate = 0;
+                channels        = 0;
+                bitsPerSample   = 0;
+                sampleRate      = 0;
+
                 return null;
             }
 
-            return LoadWave(File.Open(filename, FileMode.Open), out channels, out bitsPerSample, out sampleRate);
+            using (FileStream stream = File.Open(filePath, FileMode.Open))
+                return ReadSamples(stream, out channels, out bitsPerSample, out sampleRate);
         }
-        public static byte[] LoadWave(Stream stream, out int channels, out int bitsPerSample, out int sampleRate)
+        public enum EWaveFormat
         {
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
+            PCM = 1,
+            Float = 3,
+            ALaw = 6,
+            MULaw = 7,
+            Extensible = 0xFFFE,
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct RIFFHeader
+        {
+            public static readonly string RIFFMagic = "RIFF";
+            public static readonly string WAVEMagic = "WAVE";
+            public static readonly string fmtMagic = "fmt ";
 
-            using (BinaryReader reader = new BinaryReader(stream))
+            public fixed byte _riffMagic[4];
+            public bint _chunkSize;
+            public fixed byte _waveMagic[4];
+        }
+        public static byte[] ReadSamples(
+            Stream waveFileStream,
+            out int channels,
+            out int bitsPerSample,
+            out int sampleRate)
+        {
+            if (waveFileStream == null)
+                throw new ArgumentNullException(nameof(waveFileStream));
+
+            using (BinaryReader reader = new BinaryReader(waveFileStream))
             {
+                RIFFHeader riff = reader.Read<RIFFHeader>();
+
                 // RIFF header
-                string signature = new string(reader.ReadChars(4));
-                if (signature != "RIFF")
+                string riffMagic = new string(reader.ReadChars(4));
+                if (riffMagic != "RIFF")
                     throw new NotSupportedException("Specified stream is not a wave file.");
 
-                int riff_chunk_size = reader.ReadInt32();
+                int chunkSize = reader.ReadInt32();
 
-                string format = new string(reader.ReadChars(4));
-                if (format != "WAVE")
+                string waveMagic = new string(reader.ReadChars(4));
+                if (waveMagic != "WAVE")
                     throw new NotSupportedException("Specified stream is not a wave file.");
 
                 // WAVE header
-                string format_signature = new string(reader.ReadChars(4));
-                if (format_signature != "fmt ")
+                string fmtMagic = new string(reader.ReadChars(4));
+                if (fmtMagic != "fmt ")
                     throw new NotSupportedException("Specified wave file is not supported.");
 
-                int format_chunk_size = reader.ReadInt32();
-                int audio_format = reader.ReadInt16();
-                int num_channels = reader.ReadInt16();
-                int sample_rate = reader.ReadInt32();
-                int byte_rate = reader.ReadInt32();
-                int block_align = reader.ReadInt16();
-                int bits_per_sample = reader.ReadInt16();
+                int formatChunkSize = reader.ReadInt32(); //Chunk size: 16, 18 or 40
 
-                string data_signature = new string(reader.ReadChars(4));
-                if (data_signature != "data")
+                int audioFormat     = reader.ReadInt16(); //Format code
+//0x0001  WAVE_FORMAT_PCM PCM
+//0x0003  WAVE_FORMAT_IEEE_FLOAT IEEE float
+//0x0006  WAVE_FORMAT_ALAW    8 - bit ITU - T G.711 A - law
+//0x0007  WAVE_FORMAT_MULAW   8 - bit ITU - T G.711 µ - law
+//0xFFFE  WAVE_FORMAT_EXTENSIBLE Determined by SubFormat
+
+                channels            = reader.ReadInt16();
+                sampleRate          = reader.ReadInt32();
+                int byteRate        = reader.ReadInt32();
+                int blockAlign      = reader.ReadInt16();
+                bitsPerSample       = reader.ReadInt16();
+
+                string dataMagic = new string(reader.ReadChars(4));
+                if (dataMagic != "data")
                     throw new NotSupportedException("Specified wave file is not supported.");
 
-                int data_chunk_size = reader.ReadInt32();
-
-                channels = num_channels;
-                bitsPerSample = bits_per_sample;
-                sampleRate = sample_rate;
-
-                return reader.ReadBytes(data_chunk_size);
+                int dataSize = reader.ReadInt32();
+                
+                return reader.ReadBytes(dataSize);
             }
-        }
-
-        public void Dispose()
-        {
-            SoundData = null;
         }
     }
 }

@@ -104,10 +104,10 @@ namespace TheraEngine.Worlds
         private List<LocalFileRef<Map>> _maps = new List<LocalFileRef<Map>>();
 
         [TSerialize(nameof(AmbientSound))]
-        private SoundFile _ambientSound;
+        private AudioFile _ambientSound;
 
         [TSerialize(nameof(AmbientParams))]
-        private AudioSourceParameters _ambientParams = new AudioSourceParameters()
+        private AudioParameters _ambientParams = new AudioParameters()
         {
             SourceRelative = new UsableValue<bool>(true, false, true),
             Gain = new UsableValue<float>(0.6f, 1.0f, true),
@@ -154,7 +154,7 @@ namespace TheraEngine.Worlds
             }
         }
         [Category("Audio")]
-        public SoundFile AmbientSound
+        public AudioFile AmbientSound
         {
             get => _ambientSound;
             set => _ambientSound = value;
@@ -166,7 +166,7 @@ namespace TheraEngine.Worlds
             set => _maps = value;
         }
         [Browsable(false)]
-        public AudioSourceParameters AmbientParams
+        public AudioParameters AmbientParams
         {
             get => _ambientParams;
             set => _ambientParams = value;

@@ -350,6 +350,7 @@
     <Compile Include="Components\Logic\Animation\StateMachine\AnimState.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\BlendManager.cs" />
+    <Compile Include="Components\Scene\AudioComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\XAligned\CapsuleXComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\ZAligned\CapsuleZComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Shape3DComponent.cs" />
@@ -418,6 +419,7 @@
     <Compile Include="Core\Extensions\ControlExtension.cs" />
     <Compile Include="Core\Extensions\EventInfoExtension.cs" />
     <Compile Include="Core\Extensions\GenericExtensions.cs" />
+    <Compile Include="Core\Extensions\BinaryReaderWriterExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Files\References\PathReference.cs" />
     <Compile Include="Core\Files\Serialization\AssemblyQualifiedName.cs" />
@@ -636,7 +638,7 @@
     <Compile Include="Audio\AbstractAudioManager.cs" />
     <Compile Include="Audio\ALAudioManager.cs" />
     <Compile Include="Audio\AudioParameters.cs" />
-    <Compile Include="Audio\SoundFile.cs" />
+    <Compile Include="Audio\AudioFile.cs" />
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Rendering\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
@@ -939,7 +941,6 @@
     <Compile Include="Components\Scene\Lights\DirectionalLightComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\PositionLag.cs" />
     <Compile Include="Components\Scene\SplineComponent.cs" />
-    <Compile Include="Components\Scene\SoundComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoisePosition.cs" />
     <Compile Include="Components\Scene\Transforms\R.cs" />
     <Compile Include="Components\Scene\Transforms\RT.cs" />

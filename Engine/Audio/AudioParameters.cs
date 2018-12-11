@@ -1,9 +1,13 @@
 ﻿using System;
+using System.ComponentModel;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Audio
 {
-    public class AudioSourceParameters
+    [TFileDef("Audio Parameters", "Describes how a raw audio file should sound within the engine.")]
+    [TFileExt("aup")]
+    public class AudioParameters : TFileObject
     {
         /// <summary>
         /// Determines if Position, Direction and Velocity are relative to the listener or the world.

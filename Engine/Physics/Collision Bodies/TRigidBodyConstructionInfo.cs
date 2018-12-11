@@ -1,11 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Physics
 {
-    [TFileDef("Rigid Body Construction Info")]
-    public class TRigidBodyConstructionInfo : TSettings
+    /// <summary>
+    /// Contains parameters for constructing a new rigid body.
+    /// </summary>
+    [TFileDef("Rigid Body Construction Info", "Contains parameters for constructing a new rigid body.")]
+    public class TRigidBodyConstructionInfo : TFileObject
     {
         public TRigidBodyConstructionInfo() { }
         public TRigidBodyConstructionInfo(

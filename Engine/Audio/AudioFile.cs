@@ -16,9 +16,9 @@ namespace TheraEngine.Audio
         [TSerialize(IsAttribute = true)]
         public int Channels { get; private set; }
         [TSerialize(IsAttribute = true)]
-        public int BitsPerSample { get; private set; };
+        public int BitsPerSample { get; private set; }
         [TSerialize(IsAttribute = true)]
-        public int SampleRate { get; private set; };
+        public int SampleRate { get; private set; }
         
         public override void ManualRead3rdParty(string filePath)
         {

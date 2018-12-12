@@ -136,7 +136,7 @@ namespace TheraEngine.Audio
         public override void Update(int soundId, AudioParameters param)
             => ApplyParameters(soundId, param, false);
         public override int Play(AudioFile sound) => Play(sound, null);
-        public override int Play(AudioFile sound, IAudioSource source, AudioParameters param)
+        public override int Play(AudioFile sound, AudioParameters param)
         {
             byte[] data = sound?.Samples;
             if (data == null)

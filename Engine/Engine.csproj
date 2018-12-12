@@ -419,7 +419,7 @@
     <Compile Include="Core\Extensions\ControlExtension.cs" />
     <Compile Include="Core\Extensions\EventInfoExtension.cs" />
     <Compile Include="Core\Extensions\GenericExtensions.cs" />
-    <Compile Include="Core\Extensions\BinaryReaderWriterExtension.cs" />
+    <Compile Include="Core\Extensions\StreamExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Files\References\PathReference.cs" />
     <Compile Include="Core\Files\Serialization\AssemblyQualifiedName.cs" />

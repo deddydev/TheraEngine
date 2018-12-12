@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Audio
@@ -36,16 +37,80 @@ namespace TheraEngine.Audio
             MULaw = 7,
             Extensible = 0xFFFE,
         }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct Magic
+        {
+            private fixed sbyte _value[4];
+
+            public Magic(string value) => Value = value;
+
+            public string Value
+            {
+                get
+                {
+                    fixed (sbyte* ptr = _value)
+                        return new string(ptr);
+                }
+                set
+                {
+                    fixed (sbyte* ptr = _value)
+                    {
+                        for (int i = 0; i < 4; ++i)
+                            ptr[i] = i < value.Length ? (sbyte)value[i] : (sbyte)0;
+                    }
+                }
+            }
+            public override string ToString() => Value;
+            public static implicit operator string(Magic m) => m.Value;
+            public static implicit operator Magic(string str) => new Magic(str);
+        }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public unsafe struct RIFFHeader
         {
-            public static readonly string RIFFMagic = "RIFF";
+            public static readonly string RIFFLittleMagic = "RIFF";
+            public static readonly string RIFFBigMagic = "RIFX";
             public static readonly string WAVEMagic = "WAVE";
-            public static readonly string fmtMagic = "fmt ";
 
-            public fixed byte _riffMagic[4];
-            public bint _chunkSize;
-            public fixed byte _waveMagic[4];
+            public Magic _riffMagic;
+            public bint _chunkSize; //4 + (8 + SubChunk1Size) + (8 + SubChunk2Size)
+            public Magic _waveMagic;
+            public FmtChunk _fmtChunk;
+            public DataChunk _dataChunk;
+
+            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+            public unsafe struct FmtChunk
+            {
+                public static readonly string Magic = "fmt ";
+                
+                public Magic _fmtMagic;
+                public bint _size;
+                public bshort _format;
+                public bshort _numChannels;
+                public bint _sampleRate;
+                public bint _byteRate;
+                public bshort _blockAlign;
+                public bshort _bitsPerSample;
+                //public bshort _extraParamSize; //Nonexistant if PCM
+
+                //Extra params here
+
+                public EWaveFormat Format
+                {
+                    get => (EWaveFormat)(short)_format;
+                    set => _format = (short)value;
+                }
+            }
+            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+            public unsafe struct DataChunk
+            {
+                public static readonly string Magic = "data";
+                
+                public Magic _dataMagic;
+                public bint _size;
+
+                //Sound data here
+            }
         }
         public static byte[] ReadSamples(
             Stream waveFileStream,
@@ -55,50 +120,29 @@ namespace TheraEngine.Audio
         {
             if (waveFileStream == null)
                 throw new ArgumentNullException(nameof(waveFileStream));
+            
+            RIFFHeader riff = waveFileStream.Read<RIFFHeader>();
+            
+            if (riff._riffMagic != RIFFHeader.RIFFLittleMagic)
+                throw new NotSupportedException("Specified stream is not a wave file.");
 
-            using (BinaryReader reader = new BinaryReader(waveFileStream))
-            {
-                RIFFHeader riff = reader.Read<RIFFHeader>();
+            if (riff._waveMagic != RIFFHeader.WAVEMagic)
+                throw new NotSupportedException("Specified stream is not a wave file.");
 
-                // RIFF header
-                string riffMagic = new string(reader.ReadChars(4));
-                if (riffMagic != "RIFF")
-                    throw new NotSupportedException("Specified stream is not a wave file.");
+            if (riff._fmtChunk._fmtMagic != RIFFHeader.FmtChunk.Magic)
+                throw new NotSupportedException("Specified wave file is not supported.");
 
-                int chunkSize = reader.ReadInt32();
+            if (riff._dataChunk._dataMagic != RIFFHeader.DataChunk.Magic)
+                throw new NotSupportedException("Specified wave file is not supported.");
 
-                string waveMagic = new string(reader.ReadChars(4));
-                if (waveMagic != "WAVE")
-                    throw new NotSupportedException("Specified stream is not a wave file.");
+            channels = riff._fmtChunk._numChannels;
+            sampleRate = riff._fmtChunk._sampleRate;
+            bitsPerSample = riff._fmtChunk._bitsPerSample;
 
-                // WAVE header
-                string fmtMagic = new string(reader.ReadChars(4));
-                if (fmtMagic != "fmt ")
-                    throw new NotSupportedException("Specified wave file is not supported.");
-
-                int formatChunkSize = reader.ReadInt32(); //Chunk size: 16, 18 or 40
-
-                int audioFormat     = reader.ReadInt16(); //Format code
-//0x0001  WAVE_FORMAT_PCM PCM
-//0x0003  WAVE_FORMAT_IEEE_FLOAT IEEE float
-//0x0006  WAVE_FORMAT_ALAW    8 - bit ITU - T G.711 A - law
-//0x0007  WAVE_FORMAT_MULAW   8 - bit ITU - T G.711 µ - law
-//0xFFFE  WAVE_FORMAT_EXTENSIBLE Determined by SubFormat
-
-                channels            = reader.ReadInt16();
-                sampleRate          = reader.ReadInt32();
-                int byteRate        = reader.ReadInt32();
-                int blockAlign      = reader.ReadInt16();
-                bitsPerSample       = reader.ReadInt16();
-
-                string dataMagic = new string(reader.ReadChars(4));
-                if (dataMagic != "data")
-                    throw new NotSupportedException("Specified wave file is not supported.");
-
-                int dataSize = reader.ReadInt32();
-                
-                return reader.ReadBytes(dataSize);
-            }
+            int dataSize = riff._dataChunk._size;
+            byte[] buffer = new byte[dataSize];
+            int bytesRead = waveFileStream.Read(buffer, 0, dataSize);
+            return buffer;
         }
     }
 }

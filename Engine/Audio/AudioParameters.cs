@@ -12,7 +12,7 @@ namespace TheraEngine.Audio
         /// <summary>
         /// Determines if Position, Direction and Velocity are relative to the listener or the world.
         /// </summary>
-        public UsableValue<bool> SourceRelative = new UsableValue<bool>(false, false, false);
+        public UsableValue<bool> ListenerRelative = new UsableValue<bool>(false, false, false);
         /// <summary>
         /// Determines if the source plays again upon ending.
         /// </summary>

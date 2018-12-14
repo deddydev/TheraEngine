@@ -6,6 +6,8 @@ namespace TheraEngine.Core.Files.Serialization
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class ObjectSerializerFor : Attribute
     {
+        public bool CanSerializeAsBinary { get; set; } = true;
+        public bool CanSerializeAsString { get; set; } = false;
         /// <summary>
         /// The type this writer will be collecting members for.
         /// </summary>
@@ -32,17 +34,47 @@ namespace TheraEngine.Core.Files.Serialization
         
         public SerializeElement TreeNode { get; internal protected set; } = null;
         public int TreeSize { get; private set; }
+        
+        protected abstract int OnGetTreeSize(TSerializer.WriterBinary binWriter);
+        /// <summary>
+        /// Retrieves the size of the serialization tree in bytes.
+        /// </summary>
+        /// <param name="binWriter"></param>
+        /// <returns></returns>
+        public int GetTreeSize(TSerializer.WriterBinary binWriter)
+            => TreeSize = OnGetTreeSize(binWriter);
 
-        //protected TSerializer.WriterBinary      GetBinaryWriter()   => TreeNode.Owner as TSerializer.WriterBinary;
-        //protected TSerializer.WriterXML         GetXMLWriter()      => TreeNode.Owner as TSerializer.WriterXML;
-        //protected TDeserializer.ReaderBinary    GetBinaryReader()   => TreeNode.Owner as TDeserializer.ReaderBinary;
-        //protected TDeserializer.ReaderXML       GetXMLReader()      => TreeNode.Owner as TDeserializer.ReaderXML;
+        /// <summary>
+        /// Creates the serialization tree from a binary representation.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="binReader"></param>
+        public abstract void DeserializeTreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader);
+        /// <summary>
+        /// Creates a binary representation of the serialization tree.
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="binWriter"></param>
+        public abstract void SerializeTreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter);
 
-        public int GetTreeSize(TSerializer.WriterBinary binWriter) => TreeSize = OnGetTreeSize(binWriter);
-        public abstract int OnGetTreeSize(TSerializer.WriterBinary binWriter);
-        public abstract void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader);
-        public abstract void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter);
+        /// <summary>
+        /// Creates the serialization tree from a string.
+        /// </summary>
+        /// <param name="value"></param>
+        public abstract void DeserializeTreeFromString(string value);
+        /// <summary>
+        /// Creates a string from the serialization tree.
+        /// </summary>
+        /// <returns></returns>
+        public abstract string SerializeTreeToString();
+
+        /// <summary>
+        /// Creates the TreeNode's object from the serialization tree.
+        /// </summary>
         public abstract void DeserializeTreeToObject();
+        /// <summary>
+        /// Creates the serialization tree from the TreeNode's object.
+        /// </summary>
         public abstract void SerializeTreeFromObject();
     }
 }

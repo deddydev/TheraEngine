@@ -72,17 +72,20 @@ namespace TheraEngine.Core.Files.Serialization
                 valNode.SerializeTreeFromObject();
             }
         }
-        public override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
+        protected override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();
         }
-        public override void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader)
+        public override void DeserializeTreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader)
         {
             throw new NotImplementedException();
         }
-        public override void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
+        public override void SerializeTreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();
         }
+
+        public override void DeserializeTreeFromString(string value) => throw new NotImplementedException();
+        public override string SerializeTreeToString() => throw new NotImplementedException();
     }
 }

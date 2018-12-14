@@ -231,6 +231,10 @@ namespace TheraEngine.Core.Files.Serialization
                     });
                 }
             }
+            else if (t == typeof(Type))
+            {
+                return new Func<object, string>(value => ((Type)value).AssemblyQualifiedName);
+            }
             return null;
         }
         public static bool GetString(object value, Type t, out string result)
@@ -269,6 +273,11 @@ namespace TheraEngine.Core.Files.Serialization
                     result = /*t.AssemblyQualifiedName + " : " + */list.ToStringList(separator, separator, func);
                     return true;
                 }
+            }
+            else if (t == typeof(Type))
+            {
+                result = ((Type)value).AssemblyQualifiedName;
+                return true;
             }
 
             result = null;

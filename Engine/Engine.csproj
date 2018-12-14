@@ -422,6 +422,7 @@
     <Compile Include="Core\Extensions\StreamExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
     <Compile Include="Core\Files\References\PathReference.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\TypeSerializer.cs" />
     <Compile Include="Core\Files\Serialization\AssemblyQualifiedName.cs" />
     <Compile Include="Core\Files\EventRaisingStreamWriter.cs" />
     <Compile Include="Core\Files\FileObject\Statics.cs" />

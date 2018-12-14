@@ -66,7 +66,7 @@ namespace TheraEngine.Audio
 
         private void ApplyParameters(int soundId, AudioParameters param, bool initialPlay)
         {
-            ApplyParam(soundId, param.SourceRelative, 
+            ApplyParam(soundId, param.ListenerRelative, 
                 ALSourceb.SourceRelative, initialPlay);
 
             ApplyParam(soundId, param.Loop,

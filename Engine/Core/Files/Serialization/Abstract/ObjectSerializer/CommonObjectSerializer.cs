@@ -324,18 +324,21 @@ namespace TheraEngine.Core.Files.Serialization
         #endregion
 
         #region Binary
-        public override void TreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binWriter)
+        public override void DeserializeTreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binWriter)
         {
 
         }
-        public override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
+        protected override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
         {
             return 0;
         }
-        public override void TreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
+        public override void SerializeTreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
         {
 
         }
+
+        public override void DeserializeTreeFromString(string value) => throw new NotImplementedException();
+        public override string SerializeTreeToString() => throw new NotImplementedException();
         #endregion
     }
 }

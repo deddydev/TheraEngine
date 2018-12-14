@@ -23,6 +23,7 @@ using TheraEngine.Physics.Jitter;
 using TheraEngine.Rendering;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
+using System.ComponentModel;
 
 namespace TheraEngine
 {
@@ -41,6 +42,16 @@ namespace TheraEngine
         Animation = 6, //Update model animation positions
         Logic = 9, //Gameplay calculations
         Scene = 12, //Update scene
+    }
+    /// <summary>
+    /// Class to inherit from in order to store custom persistent information.
+    /// </summary>
+    [TFileExt("singleton")]
+    public class EngineSingleton : TFileObject
+    {
+        internal EngineSingleton() { }
+
+
     }
     public static partial class Engine
     {
@@ -62,6 +73,7 @@ namespace TheraEngine
         public static NetworkConnection Network { get; set; }
         public static Server ServerConnection => Network as Server;
         public static Client ClientConnection => Network as Client;
+        public static EngineSingleton Singleton { get; private set; }
 
         /// <summary>
         /// Event for when the engine is paused or unpaused and by which player.

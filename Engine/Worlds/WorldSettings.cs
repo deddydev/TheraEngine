@@ -109,7 +109,7 @@ namespace TheraEngine.Worlds
         [TSerialize(nameof(AmbientParams))]
         private AudioParameters _ambientParams = new AudioParameters()
         {
-            SourceRelative = new UsableValue<bool>(true, false, true),
+            ListenerRelative = new UsableValue<bool>(true, false, true),
             Gain = new UsableValue<float>(0.6f, 1.0f, true),
             Loop = new UsableValue<bool>(true, false, true),
         };

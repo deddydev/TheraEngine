@@ -6,8 +6,8 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [ObjectSerializerFor(typeof(IList))]
-    public class IListSerializer : BaseObjectSerializer
+    [ObjectSerializerFor(typeof(Type))]
+    public class TypeSerializer : BaseObjectSerializer
     {
         public override void DeserializeTreeToObject()
         {
@@ -64,6 +64,10 @@ namespace TheraEngine.Core.Files.Serialization
         {
             throw new NotImplementedException();
         }
+        public override string SerializeTreeToString()
+        {
+
+        }
         protected override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();
@@ -72,8 +76,9 @@ namespace TheraEngine.Core.Files.Serialization
         {
             throw new NotImplementedException();
         }
-
-        public override void DeserializeTreeFromString(string value) => throw new NotImplementedException();
-        public override string SerializeTreeToString() => throw new NotImplementedException();
+        public override void DeserializeTreeFromString(string value)
+        {
+            TreeNode.Object = Type.GetType(value, false, true);
+        }
     }
 }

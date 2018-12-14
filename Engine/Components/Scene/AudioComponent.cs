@@ -1,25 +1,20 @@
-﻿using TheraEngine.Audio;
-using TheraEngine.Core.Files;
-using TheraEngine.Components.Scene.Shapes;
-using TheraEngine.Physics;
+﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Audio;
+using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene
 {
-    public interface IAudioSource
+    public class AudioComponent : TranslationComponent, I3DRenderable
     {
-        int BufferID { get; }
-    }
-    public class AudioComponent : SphereComponent, I3DRenderable
-    {
-        public AudioComponent() 
-            : this(1.0f) { }
+        public AudioComponent()
+        {
 
-        public AudioComponent(float radius) 
-            : base(radius) { }
-
-        public AudioComponent(float radius, TRigidBodyConstructionInfo info)
-            : base(radius, info) { }
+        }
 
         protected internal int _bufferId;
         protected HashSet<int> _sourceIds = new HashSet<int>();
@@ -54,7 +49,11 @@ namespace TheraEngine.Components.Scene
         }
 
         public int PlayingCount => _sourceIds.Count;
-        
+
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass.OnTopForward, false, true);
+        public Shape CullingVolume { get; } = null;
+        public IOctreeNode OctreeNode { get; set; }
+
         /// <summary>
         /// Plays the sound given a priority value.
         /// A larger value means a higher priority.
@@ -72,5 +71,13 @@ namespace TheraEngine.Components.Scene
             _sourceIds.Add(id);
             return id;
         }
+
+        protected override void OnWorldTransformChanged()
+        {
+            base.OnWorldTransformChanged();
+            Parameters.File.Position.Value = WorldPoint;
+        }
+
+        public void AddRenderables(RenderPasses passes, Camera camera) => throw new NotImplementedException();
     }
 }

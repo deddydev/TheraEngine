@@ -91,7 +91,7 @@ namespace TheraEngine.Audio
         /// <summary>
         /// The playback position, expressed in seconds.
         /// </summary>
-        public UsableValue<float> SecOffset = new UsableValue<float>(0.0f, 0.0f, false);
+        public UsableValue<float> PlaybackOffsetSeconds = new UsableValue<float>(0.0f, 0.0f, false);
         /// <summary>
         /// (EFX Extension) This property is a multiplier on the amount of Air Absorption
         /// applied to the Source. The AL_AIR_ABSORPTION_FACTOR is multiplied by an internal
@@ -113,15 +113,15 @@ namespace TheraEngine.Audio
         /// </summary>
         public UsableValue<float> EfxConeOuterGainHighFrequency = new UsableValue<float>(1.0f, 1.0f, false);
         /// <summary>
-        /// 
+        /// The position of the audio in world or listener relative space.
         /// </summary>
         public UsableValue<Vec3> Position = new UsableValue<Vec3>(0.0f, 0.0f, false);
         /// <summary>
-        /// 
+        /// The direction the sound is facing.
         /// </summary>
         public UsableValue<Vec3> Direction = new UsableValue<Vec3>(Vec3.Forward, Vec3.Forward, false);
         /// <summary>
-        /// 
+        /// How fast the the sound is moving.
         /// </summary>
         public UsableValue<Vec3> Velocity = new UsableValue<Vec3>(0.0f, 0.0f, false);
     }
@@ -131,21 +131,21 @@ namespace TheraEngine.Audio
         {
             DefaultValue = defaultValue;
             _value = value;
-            Use = use;
+            UseOverrideValue = use;
         }
 
         private T _value;
 
-        public bool Use { get; set; }
-        public T ActualValue => Use ? _value : DefaultValue;
+        public bool UseOverrideValue { get; set; }
+        public T Value => UseOverrideValue ? _value : DefaultValue;
         public T DefaultValue { get; }
-        public T Value
+        public T OverrideValue
         {
             get => _value;
             set
             {
                 _value = value;
-                Use = _value.Equals(DefaultValue);
+                UseOverrideValue = _value.Equals(DefaultValue);
             }
         }
 
@@ -153,9 +153,9 @@ namespace TheraEngine.Audio
         public static implicit operator UsableValue<T>(bool use) => new UsableValue<T>(default, default, use);
         public static implicit operator T(UsableValue<T> value)
         {
-            if (!value.Use)
+            if (!value.UseOverrideValue)
                 throw new Exception("Value not set.");
-            return value.Value;
+            return value.OverrideValue;
         }
     }
 }

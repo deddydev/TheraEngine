@@ -386,23 +386,27 @@ namespace TheraEngine.Core.Maths.Transforms
 
         #region Dot/Cross
         /// <summary>
-        /// Dot product; 1 is same direction, -1 is opposite direction, 0 is a 90 degree angle
+        /// Dot product; 
+        /// 1 is same direction (0 degrees difference),
+        /// -1 is opposite direction (180 degrees difference), 
+        /// 0 is perpendicular (a 90 degree angle)
         /// </summary>
         public static float Dot(Vec3 left, Vec3 right)
             => left.Dot(right);
         /// <summary>
-        /// Dot product; 1 is same direction, -1 is opposite direction, 0 is a 90 degree angle
+        /// Dot product; 
+        /// 1 is same direction (0 degrees difference),
+        /// -1 is opposite direction (180 degrees difference), 
+        /// 0 is perpendicular (a 90 degree angle)
         /// </summary>
         public float Dot(Vec3 right)
             => X * right.X + Y * right.Y + Z * right.Z;
-
-        /// <summary>
-        ///        |
-        /// normal |  /
-        /// l x r, | / right
-        /// -r x l |/_______ 
-        ///            left
-        /// </summary>
+        
+        //        |
+        // normal |  /
+        // l x r, | / right
+        // -r x l |/_______ 
+        //            left
         public Vec3 Cross(Vec3 right) 
             => new Vec3(
                 Y * right.Z - Z * right.Y,
@@ -1092,7 +1096,10 @@ namespace TheraEngine.Core.Maths.Transforms
             => vec1.Cross(vec2);
 
         /// <summary>
-        /// Dot product; 1 is same direction, -1 is opposite direction, 0 is a 90 degree angle
+        /// Dot product; 
+        /// 1 is same direction (0 degrees difference),
+        /// -1 is opposite direction (180 degrees difference), 
+        /// 0 is perpendicular (a 90 degree angle)
         /// </summary>
         public static float operator |(Vec3 vec1, Vec3 vec2)
             => vec1.Dot(vec2);

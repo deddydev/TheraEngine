@@ -66,7 +66,10 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public override string SerializeTreeToString()
         {
-
+            bool success = TreeNode.GetElementContentAsString(out string value);
+            if (success)
+                return value;
+            throw new InvalidOperationException();
         }
         protected override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
         {

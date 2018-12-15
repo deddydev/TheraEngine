@@ -9,7 +9,14 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene
 {
-    public class AudioComponent : TranslationComponent, I3DRenderable
+    public interface IAudioSource
+    {
+        AudioFile Audio { get; }
+        AudioParameters Parameters { get; }
+        int Priority { get; set; }
+
+    }
+    public class AudioComponent : TranslationComponent, IAudioSource, I3DRenderable, IPreRendered
     {
         public AudioComponent()
         {
@@ -23,11 +30,11 @@ namespace TheraEngine.Components.Scene
         public int BufferID
         {
             get => _bufferId;
-            internal set => _bufferId = value;
+            set => _bufferId = value;
         }
         public int Priority { get; set; } = 0;
-        public GlobalFileRef<AudioFile> AudioFile { get; set; }
-        public LocalFileRef<AudioParameters> Parameters { get; set; }
+        public GlobalFileRef<AudioFile> AudioFileRef { get; set; }
+        public LocalFileRef<AudioParameters> ParametersRef { get; set; }
 
         public override void OnSpawned()
         {
@@ -53,6 +60,10 @@ namespace TheraEngine.Components.Scene
         public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass.OnTopForward, false, true);
         public Shape CullingVolume { get; } = null;
         public IOctreeNode OctreeNode { get; set; }
+        public bool PreRenderEnabled { get; set; }
+
+        AudioFile IAudioSource.Audio => AudioFileRef?.File;
+        AudioParameters IAudioSource.Parameters => ParametersRef?.File;
 
         /// <summary>
         /// Plays the sound given a priority value.
@@ -63,11 +74,11 @@ namespace TheraEngine.Components.Scene
         /// <returns>A unique identifier for the new instance of this audio.</returns>
         public int Play()
         {
-            var file = AudioFile?.File;
+            var file = AudioFileRef?.File;
             if (file is null)
                 return -1;
 
-            int id = Engine.Audio.Play(file, Parameters?.File);
+            int id = Engine.Audio.Play(this);
             _sourceIds.Add(id);
             return id;
         }
@@ -75,9 +86,25 @@ namespace TheraEngine.Components.Scene
         protected override void OnWorldTransformChanged()
         {
             base.OnWorldTransformChanged();
-            Parameters.File.Position.Value = WorldPoint;
+            ParametersRef.File.Position.OverrideValue = WorldPoint;
         }
 
+        private RenderCommandMesh3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera) => throw new NotImplementedException();
+
+        public void PreRenderUpdate(Camera camera)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PreRenderSwap()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void PreRender(Viewport viewport, Camera camera)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -2,8 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace TheraEngine.Networking
@@ -52,10 +50,7 @@ namespace TheraEngine.Networking
             return _connectionAccepted;
         }
 
-        private void BlockWhile(Func<bool> p)
-        {
-            while (p()) ;
-        }
+        private void BlockWhile(Func<bool> func) { while (func()) ; }
 
         public Task<bool> RequestConnectionAsync(float timeout = 5.0f, int packetsPerSecond = 10)
             => Task.Run(() => RequestConnection(timeout, packetsPerSecond));

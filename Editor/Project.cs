@@ -590,11 +590,11 @@ namespace TheraEditor
             BuildResult result = BuildManager.DefaultBuildManager.Build(bp, request);
             if (result.OverallResult == BuildResultCode.Success)
             {
-                Engine.PrintLine(SolutionPath + " : Build succeeded.");
+                PrintLine(SolutionPath + " : Build succeeded.");
             }
             else
             {
-                Engine.PrintLine(SolutionPath + " : Build failed.");
+                PrintLine(SolutionPath + " : Build failed.");
                 //foreach (var target in result.ResultsByTarget)
                 //{
                 //    if (target.Value.ResultCode == TargetResultCode.Failure)
@@ -722,39 +722,39 @@ namespace TheraEditor
             }
             public void ErrorHandler(object sender, BuildErrorEventArgs e)
             {
-                Engine.PrintLine($"Error {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
+                PrintLine($"Error {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
             }
             public void MessageHandler(object sender, BuildMessageEventArgs e)
             {
-                Engine.PrintLine($"Message {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
+                PrintLine($"Message {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
             }
             public void ProjectStartedHandler(object sender, ProjectStartedEventArgs e)
             {
-                Engine.PrintLine($"Started project {e.ProjectFile}");
+                PrintLine($"Started project {e.ProjectFile}");
             }
             public void ProjectFinishedHandler(object sender, ProjectFinishedEventArgs e)
             {
-                Engine.PrintLine($"Finished project {e.ProjectFile}");
+                PrintLine($"Finished project {e.ProjectFile}");
             }
             public void TargetStartedHandler(object sender, TargetStartedEventArgs e)
             {
-                Engine.PrintLine($"Started target {e.TargetFile}");
+                PrintLine($"Started target {e.TargetFile}");
             }
             public void TargetFinishedHandler(object sender, TargetFinishedEventArgs e)
             {
-                Engine.PrintLine($"Finished target {e.TargetFile}");
+                PrintLine($"Finished target {e.TargetFile}");
             }
             public void TaskStartedHandler(object sender, TaskStartedEventArgs e)
             {
-                Engine.PrintLine($"Started task {e.TaskName}");
+                PrintLine($"Started task {e.TaskName}");
             }
             public void TaskFinishedHandler(object sender, TaskFinishedEventArgs e)
             {
-                Engine.PrintLine($"Finished task {e.TaskName}");
+                PrintLine($"Finished task {e.TaskName}");
             }
             public void WarningHandler(object sender, BuildWarningEventArgs e)
             {
-                Engine.PrintLine($"Warning {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
+                PrintLine($"Warning {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
             }
         }
         //public void Compile(string configuration, string platform)

@@ -225,6 +225,17 @@ namespace TheraEngine
         }
         #endregion
 
+        /// <summary>
+        /// Prints a line to output.
+        /// Identical to Engine.Print().
+        /// </summary>
+        protected static void Print(string message, params object[] args) => Engine.Print(message, args);
+        /// <summary>
+        /// Prints a line to output.
+        /// Identical to Engine.PrintLine().
+        /// </summary>
+        protected static void PrintLine(string message, params object[] args) => Engine.PrintLine(message, args);
+
         public override string ToString() => Name;
     }
 }

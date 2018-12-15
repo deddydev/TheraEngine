@@ -331,7 +331,7 @@ namespace TheraEngine.Core.Maths
             Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
             out Vec3 third, out Vec3 second, out Vec3 first, out Vec3 zero)
         {
-             third  = ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            third  = ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
             second = (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
             first  = t0;
             zero   = p0;

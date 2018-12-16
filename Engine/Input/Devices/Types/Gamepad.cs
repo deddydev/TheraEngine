@@ -12,14 +12,18 @@ namespace TheraEngine.Input.Devices
         DPadDown,
         DPadLeft,
         DPadRight,
+
         FaceUp,
         FaceDown,
         FaceLeft,
         FaceRight,
+
         LeftStick,
         RightStick,
+
         SpecialLeft,
         SpecialRight,
+
         LeftBumper,
         RightBumper
     }
@@ -27,8 +31,10 @@ namespace TheraEngine.Input.Devices
     {
         LeftTrigger,
         RightTrigger,
+
         LeftThumbstickX,
         LeftThumbstickY,
+
         RightThumbstickX,
         RightThumbstickY,
     }
@@ -55,9 +61,9 @@ namespace TheraEngine.Input.Devices
         public override EDeviceType DeviceType => EDeviceType.Gamepad;
 
         protected abstract bool ButtonExists(EGamePadButton button);
-        protected abstract List<bool> ButtonsExist(List<EGamePadButton> buttons);
-        protected abstract bool AxistExists(EGamePadAxis axis);
-        protected abstract List<bool> AxesExist(List<EGamePadAxis> axes);
+        protected abstract List<bool> ButtonsExist(IEnumerable<EGamePadButton> buttons);
+        protected abstract bool AxisExists(EGamePadAxis axis);
+        protected abstract List<bool> AxesExist(IEnumerable<EGamePadAxis> axes);
 
         private ButtonManager FindOrCacheButton(EGamePadButton button)
         {
@@ -70,7 +76,7 @@ namespace TheraEngine.Input.Devices
         private AxisManager FindOrCacheAxis(EGamePadAxis axis)
         {
             int index = (int)axis;
-            if (_axisStates[index] == null && AxistExists(axis))
+            if (_axisStates[index] == null && AxisExists(axis))
                 _axisStates[index] = new AxisManager(index, axis.ToString(), SendAxisButtonPressedState, SendAxisButtonAction, SendAxisValue);
             return _axisStates[index];
         }

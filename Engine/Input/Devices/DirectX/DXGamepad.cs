@@ -1,16 +1,14 @@
 ﻿using SharpDX.XInput;
 using System.Collections.Generic;
 using System.Linq;
-using TheraEngine.Networking;
 
 namespace TheraEngine.Input.Devices.DirectX
 {
     public class DXGamepad : BaseGamePad
     {
-        const float ByteDiv = 1.0f / byte.MaxValue;
-        const float ShortDiv = 1.0f / short.MaxValue;
-        
         private Controller _controller;
+
+        public static DXGamepadConfiguration Config { get; set; } = new DXGamepadConfiguration();
 
         public DXGamepad(int index) : base(index)
         {
@@ -39,11 +37,11 @@ namespace TheraEngine.Input.Devices.DirectX
             }
             return false;
         }
-        protected override bool AxistExists(EGamePadAxis axis)
+        protected override bool AxisExists(EGamePadAxis axis)
         {
             return AxistExists(axis, _controller.GetCapabilities(DeviceQueryType.Gamepad));
         }
-        protected override List<bool> AxesExist(List<EGamePadAxis> axes)
+        protected override List<bool> AxesExist(IEnumerable<EGamePadAxis> axes)
         {
             Capabilities c = _controller.GetCapabilities(DeviceQueryType.Gamepad);
             return axes.Select(x => AxistExists(x, c)).ToList();
@@ -73,7 +71,7 @@ namespace TheraEngine.Input.Devices.DirectX
         {
             return ButtonExists(button, _controller.GetCapabilities(DeviceQueryType.Gamepad));
         }
-        protected override List<bool> ButtonsExist(List<EGamePadButton> buttons)
+        protected override List<bool> ButtonsExist(IEnumerable<EGamePadButton> buttons)
         {
             Capabilities c = _controller.GetCapabilities(DeviceQueryType.Gamepad);
             return buttons.Select(x => ButtonExists(x, c)).ToList();
@@ -85,29 +83,11 @@ namespace TheraEngine.Input.Devices.DirectX
 
             State state = _controller.GetState();
 
-            FaceDown?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.A), delta);
-            FaceRight?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.B), delta);
-            FaceLeft?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.X), delta);
-            FaceUp?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.Y), delta);
+            for (int i = 0; i < 14; ++i)
+                _buttonStates[i]?.Tick(Config.Map((EGamePadButton)i, state.Gamepad), delta);
 
-            DPadDown?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadDown), delta);
-            DPadRight?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadRight), delta);
-            DPadLeft?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadLeft), delta);
-            DPadUp?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.DPadUp), delta);
-
-            LeftBumper?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.LeftShoulder), delta);
-            RightBumper?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.RightShoulder), delta);
-            LeftStick?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.LeftThumb), delta);
-            RightStick?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.RightThumb), delta);
-            SpecialLeft?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.Back), delta);
-            SpecialRight?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.Start), delta);
-
-            LeftTrigger?.Tick(state.Gamepad.LeftTrigger * ByteDiv, delta);
-            RightTrigger?.Tick(state.Gamepad.RightTrigger * ByteDiv, delta);
-            LeftThumbstickX?.Tick(state.Gamepad.LeftThumbX * ShortDiv, delta);
-            LeftThumbstickY?.Tick(state.Gamepad.LeftThumbY * ShortDiv, delta);
-            RightThumbstickX?.Tick(state.Gamepad.RightThumbX * ShortDiv, delta);
-            RightThumbstickY?.Tick(state.Gamepad.RightThumbY * ShortDiv, delta);
+            for (int i = 0; i < 6; ++i)
+                _axisStates[i]?.Tick(Config.Map((EGamePadAxis)i, state.Gamepad), delta);
         }
     }
 }

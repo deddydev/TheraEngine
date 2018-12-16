@@ -14,7 +14,6 @@ namespace TheraEngine.Components.Scene
         AudioFile Audio { get; }
         AudioParameters Parameters { get; }
         int Priority { get; set; }
-
     }
     public class AudioComponent : TranslationComponent, IAudioSource, I3DRenderable, IPreRendered
     {
@@ -22,16 +21,12 @@ namespace TheraEngine.Components.Scene
         {
 
         }
+        
+        protected HashSet<AudioInstance> _instances = new HashSet<AudioInstance>();
 
-        protected internal int _bufferId;
-        protected HashSet<int> _sourceIds = new HashSet<int>();
+        public IReadOnlyCollection<AudioInstance> Instances => _instances;
 
         public bool PlayOnSpawn { get; set; }
-        public int BufferID
-        {
-            get => _bufferId;
-            set => _bufferId = value;
-        }
         public int Priority { get; set; } = 0;
         public GlobalFileRef<AudioFile> AudioFileRef { get; set; }
         public LocalFileRef<AudioParameters> ParametersRef { get; set; }
@@ -45,18 +40,11 @@ namespace TheraEngine.Components.Scene
 
         public void StopAllInstances()
         {
-            foreach (int id in _sourceIds)
-                Engine.Audio.Stop(id);
-            _sourceIds.Clear();
+            foreach (AudioInstance instance in _instances)
+                Engine.Audio.Stop(instance);
+            _instances.Clear();
         }
-        public void StopInstance(int id)
-        {
-            if (_sourceIds.Remove(id))
-                Engine.Audio.Stop(id);
-        }
-
-        public int PlayingCount => _sourceIds.Count;
-
+        
         public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass.OnTopForward, false, true);
         public Shape CullingVolume { get; } = null;
         public IOctreeNode OctreeNode { get; set; }
@@ -72,15 +60,15 @@ namespace TheraEngine.Components.Scene
         /// </summary>
         /// <param name="priority">The priority of this audio file.</param>
         /// <returns>A unique identifier for the new instance of this audio.</returns>
-        public int Play()
+        public AudioInstance Play()
         {
             var file = AudioFileRef?.File;
             if (file is null)
-                return -1;
+                return new AudioInstance(0, null);
 
-            int id = Engine.Audio.Play(this);
-            _sourceIds.Add(id);
-            return id;
+            AudioInstance instance = Engine.Audio.Play(this);
+            _instances.Add(instance);
+            return instance;
         }
 
         protected override void OnWorldTransformChanged()
@@ -96,12 +84,10 @@ namespace TheraEngine.Components.Scene
         {
             throw new NotImplementedException();
         }
-
         public void PreRenderSwap()
         {
             throw new NotImplementedException();
         }
-
         public void PreRender(Viewport viewport, Camera camera)
         {
             throw new NotImplementedException();

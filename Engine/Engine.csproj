@@ -344,6 +344,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\AudioInstance.cs" />
     <Compile Include="Components\Logic\Animation\Poses\PoseBlend1D.cs" />
     <Compile Include="Components\Logic\Animation\Poses\DirectPose.cs" />
     <Compile Include="Components\Logic\Animation\Poses\PoseGenBase.cs" />
@@ -461,6 +462,9 @@
     </Compile>
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
     <Compile Include="Core\ResourcePool.cs" />
+    <Compile Include="Input\Devices\BaseGamepadConfiguration.cs" />
+    <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
+    <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
     <Compile Include="Rendering\Shapes\BoundingRectangle.cs" />
     <Compile Include="Rendering\Shapes\Cylindrical\XAligned\CapsuleX.cs" />
     <Compile Include="Rendering\Shapes\Cylindrical\ZAligned\CapsuleZ.cs" />

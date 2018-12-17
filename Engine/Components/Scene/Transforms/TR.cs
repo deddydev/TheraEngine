@@ -91,7 +91,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected override void DeriveMatrix()
         {
-            Transform.DeriveTR(LocalMatrix, out Vec3 t, out Quat r);
+            BasicTransform.DeriveTR(Transform.LocalMatrix, out Vec3 t, out Quat r);
             _translation.SetRawNoUpdate(t);
             _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
         }
@@ -116,8 +116,6 @@ namespace TheraEngine.Components.Scene.Transforms
 
             localTransform = t * r;
             inverseLocalTransform = ir * it;
-
-            //Engine.PrintLine("Recalculated TR.");
         }
 
         #region Camera Translation
@@ -125,24 +123,31 @@ namespace TheraEngine.Components.Scene.Transforms
             => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
         {
-            _localTransform = LocalMatrix * translation.AsTranslationMatrix();
-            _inverseLocalTransform = (-translation).AsTranslationMatrix() * InverseLocalMatrix;
-            _translation.SetRawNoUpdate(LocalMatrix.Translation);
+            Matrix4 local = Transform.LocalMatrix * translation.AsTranslationMatrix();
+            Matrix4 invLocal = (-translation).AsTranslationMatrix() * Transform.InverseLocalMatrix;
+
+            Transform.SetLocalMatrices(local, invLocal);
+
+            _translation.SetRawNoUpdate(Transform.LocalPoint);
+
             RecalcWorldTransform();
         }
         public void Pivot(float pitch, float yaw, float distance)
-            => ArcBallRotate(pitch, yaw, _translation + GetLocalForwardDir() * distance);
+            => ArcBallRotate(pitch, yaw, _translation + Transform.LocalForwardVec.Normalized() * distance);
         public void ArcBallRotate(float pitch, float yaw, Vec3 focusPoint)
         {
             //"Arcball" rotation
             //All rotation is done within local component space
-            _translation.Raw = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Raw, GetLocalRightDir());
+            _translation.Raw = TMath.ArcballTranslation(pitch, yaw, focusPoint, _translation.Raw, Transform.LocalRightVec.Normalized());
             _rotation.AddRotations(pitch, yaw, 0.0f);
         }
         #endregion
 
         [Browsable(false)]
         public override bool IsRotatable => true;
+        
+        Vec3 ICameraTransformable.WorldPoint => Transform.WorldPoint;
+
         public override void HandleWorldRotation(Quat delta)
         {
             Quat q = _rotation.ToQuaternion();
@@ -150,13 +155,5 @@ namespace TheraEngine.Components.Scene.Transforms
             _rotation.SetRotations(q.ToYawPitchRoll());
             base.HandleWorldRotation(delta);
         }
-
-        public Vec3 GetLocalRightDir() => LocalMatrix.Row0.Xyz;
-        public Vec3 GetLocalUpDir() => LocalMatrix.Row1.Xyz;
-        public Vec3 GetLocalForwardDir() => LocalMatrix.Row2.Xyz;
-
-        public Vec3 GetWorldRightDir() => WorldMatrix.Row0.Xyz;
-        public Vec3 GetWorldUpDir() => WorldMatrix.Row1.Xyz;
-        public Vec3 GetWorldForwardDir() => WorldMatrix.Row2.Xyz;
     }
 }

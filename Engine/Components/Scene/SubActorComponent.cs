@@ -7,42 +7,35 @@ namespace TheraEngine.Components.Scene
 {
     public class SubActorComponent<T> : SceneComponent where T : class, IActor
     {
-        [TSerialize]
-        public LocalFileRef<T> Actor { get; set; }
+        private LocalFileRef<T> _actor;
 
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        [TSerialize]
+        public LocalFileRef<T> Actor
         {
-            SceneComponent root = Actor?.File?.RootComponent;
-            if (root != null)
+            get => _actor;
+            set
             {
-                localTransform = root.WorldMatrix;
-                inverseLocalTransform = root.InverseWorldMatrix;
-            }
-            else
-            {
-                localTransform = Matrix4.Identity;
-                inverseLocalTransform = Matrix4.Identity;
+                _actor?.UnregisterLoadEvent(ActorLoaded);
+                _actor = value;
+                _actor?.RegisterLoadEvent(ActorLoaded);
             }
         }
-    }
-    public class SubActorComponent : SceneComponent
-    {
-        [TSerialize]
-        public LocalFileRef<Actor> Actor { get; set; }
+        private void ActorLoaded(T actor)
+        {
+            actor.RootComponent.ParentSocket = this; 
+        }
+        public override void OnSpawned()
+        {
+            Actor?.File?.Spawned(OwningWorld);
+        }
+        public override void OnDespawned()
+        {
+            Actor?.File?.Despawned();
+        }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            SceneComponent root = Actor?.File?.RootComponent;
-            if (root != null)
-            {
-                localTransform = root.WorldMatrix;
-                inverseLocalTransform = root.InverseWorldMatrix;
-            }
-            else
-            {
-                localTransform = Matrix4.Identity;
-                inverseLocalTransform = Matrix4.Identity;
-            }
+            throw new NotImplementedException();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace TheraEngine.Core.Shapes
     public class Cylinder : Shape
     {
         public Cylinder(
-            Transform transform,
+            BasicTransform transform,
             Vec3 upAxis,
             float radius,
             float halfHeight)

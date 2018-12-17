@@ -29,23 +29,23 @@ namespace TheraEngine.Rendering.Models
         {
             Skeleton = owner;
         }
-        public Bone(string name, Transform bindstate, TRigidBodyConstructionInfo info)
+        public Bone(string name, BasicTransform bindstate, TRigidBodyConstructionInfo info)
         {
             Init(name, bindstate, info);
         }
-        public Bone(string name, Transform bindState)
+        public Bone(string name, BasicTransform bindState)
         {
             Init(name, bindState, null);
         }
         public Bone(string name)
         {
-            Init(name, new Transform(), null);
+            Init(name, new BasicTransform(), null);
         }
         public Bone()
         {
-            Init("NewBone", new Transform(), null);
+            Init("NewBone", new BasicTransform(), null);
         }
-        private void Init(string name, Transform bindState, TRigidBodyConstructionInfo info)
+        private void Init(string name, BasicTransform bindState, TRigidBodyConstructionInfo info)
         {
             FrameState = bindState.HardCopy();
             _bindState = bindState.HardCopy();
@@ -113,17 +113,17 @@ namespace TheraEngine.Rendering.Models
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
 
         [TSerialize("Transform")]
-        private Transform _bindState;
+        private BasicTransform _bindState;
         [TSerialize("ChildBones")]
         private EventList<Bone> _childBones = new EventList<Bone>();
         [TSerialize("ConstraintToParent")]
         private TConstraint _parentConstraint;
         private TRigidBody _rigidBodyCollision;
         [TSerialize(nameof(RigidBodyLocalTransform))]
-        private Transform _rigidBodyLocalTransform = Transform.GetIdentity();
+        private BasicTransform _rigidBodyLocalTransform = BasicTransform.GetIdentity();
 
         [Category("Bone")]
-        public Transform RigidBodyLocalTransform
+        public BasicTransform RigidBodyLocalTransform
         {
             get => _rigidBodyLocalTransform;
             set
@@ -248,9 +248,9 @@ namespace TheraEngine.Rendering.Models
         public EventList<Bone> ChildBones => _childBones;
         [Category("Bone")]
         [TSerialize]
-        public Transform FrameState { get; private set; }
+        public BasicTransform FrameState { get; private set; }
         [Category("Bone")]
-        public Transform BindState
+        public BasicTransform BindState
         {
             get => _bindState;
             set
@@ -727,5 +727,6 @@ namespace TheraEngine.Rendering.Models
             else
                 SocketTransformChanged += eventMethod;
         }
+        void ISocket.OnWorldTransformChanged() => OnWorldTransformChanged();
     }
 }

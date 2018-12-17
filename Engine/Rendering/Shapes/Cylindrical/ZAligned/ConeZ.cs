@@ -11,9 +11,9 @@ namespace TheraEngine.Core.Shapes
             : this(1.0f, 1.0f) { }
 
         public ConeZ(float radius, float height)
-            : this(Transform.GetIdentity(), radius, height) { }
+            : this(BasicTransform.GetIdentity(), radius, height) { }
 
-        public ConeZ(Transform transform, float radius, float height)
+        public ConeZ(BasicTransform transform, float radius, float height)
             : base(transform, Vec3.UnitZ, radius, height) { }
 
         public override Shape HardCopy()

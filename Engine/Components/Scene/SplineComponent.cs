@@ -296,14 +296,14 @@ void main()
         }
         protected override void DeriveMatrix()
         {
-            Transform.DeriveTRS(_localTRS, out Vec3 t, out Vec3 s, out Quat r);
+            BasicTransform.DeriveTRS(_localTRS, out Vec3 t, out Quat r, out Vec3 s);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
             _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
         }
-        protected override void OnWorldTransformChanged()
+        internal protected override void OnWorldTransformChanged()
         {
-            Matrix4 mtx = GetParentMatrix() * _localTRS;
+            Matrix4 mtx = Transform.ParentWorldMatrix * _localTRS;
             _rcKfLines.WorldMatrix = mtx;
             _rcSpline.WorldMatrix = mtx;
             _rcVelocityTangents.WorldMatrix = mtx;

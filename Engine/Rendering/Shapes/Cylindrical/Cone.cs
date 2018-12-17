@@ -11,7 +11,7 @@ namespace TheraEngine.Core.Shapes
     {
         public override Shape CullingVolume => null;
 
-        public Cone(Transform transform, Vec3 upAxis, float radius, float height)
+        public Cone(BasicTransform transform, Vec3 upAxis, float radius, float height)
         {
             _radius = Math.Abs(radius);
             _height = Math.Abs(height);

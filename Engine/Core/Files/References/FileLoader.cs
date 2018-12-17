@@ -65,9 +65,10 @@ namespace TheraEngine.Core.Files
         [TSerialize]
         public (Type Type, object Value)[] DefaultConstructionArguments { get; set; } = null;
 
+        [DisplayName("Create File If Non-Existent")]
         [Category("File Reference")]
         [TSerialize]
-        public bool CreateFileIfNonExistant { get; set; } = false;
+        public bool CreateFileIfNonExistent { get; set; } = false;
         [Category("File Reference")]
         [TSerialize]
         public bool AllowDynamicConstruction { get; set; } = false;
@@ -211,7 +212,7 @@ namespace TheraEngine.Core.Files
 
             if (!File.Exists(absolutePath))
             {
-                if (CreateFileIfNonExistant)
+                if (CreateFileIfNonExistent)
                 {
                     if (AllowDynamicConstruction)
                     {
@@ -221,12 +222,12 @@ namespace TheraEngine.Core.Files
                     }
                     else
                     {
-                        Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(CreateFileIfNonExistant)}' property is enabled, but '{nameof(AllowDynamicConstruction)}' is not.");
+                        Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(CreateFileIfNonExistent)}' property is enabled, but '{nameof(AllowDynamicConstruction)}' is not.");
                     }
                 }
                 else
                 {
-                    Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(CreateFileIfNonExistant)}' property is not enabled.");
+                    Engine.LogWarning($"No file exists at \"{absolutePath}\" and the '{nameof(CreateFileIfNonExistent)}' property is not enabled.");
                 }
                 return null;
             }

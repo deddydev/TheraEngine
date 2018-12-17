@@ -249,12 +249,12 @@ namespace TheraEngine.Animation
             if (bone != null)
                 UpdateState(bone.FrameState, bone.BindState);
         }
-        public void UpdateState(Transform frameState, Transform bindState)
+        public void UpdateState(BasicTransform frameState, BasicTransform bindState)
         {
             GetTransform(bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
         }
-        public void UpdateState(Transform frameState, Transform bindState, float second)
+        public void UpdateState(BasicTransform frameState, BasicTransform bindState, float second)
         {
             GetTransform(bindState, second, out Vec3 translation, out Rotator rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
@@ -263,18 +263,18 @@ namespace TheraEngine.Animation
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the current frame second.
         /// </summary>
-        public unsafe void GetTransform(Transform bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(BasicTransform bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale)
             => _tracks.GetTransform(bindState, out translation, out rotation, out scale);
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the requested frame second.
         /// </summary>
-        public unsafe void GetTransform(Transform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(BasicTransform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
             => _tracks.GetTransform(bindState, second, out translation, out rotation, out scale);
-        public void UpdateStateBlended(Transform frameState, Transform bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
+        public void UpdateStateBlended(BasicTransform frameState, BasicTransform bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
             => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentTime, otherBoneAnim.Parent.CurrentTime, otherWeight, blendType);
         public void UpdateStateBlended(
-            Transform frameState,
-            Transform bindState, 
+            BasicTransform frameState,
+            BasicTransform bindState, 
             BoneAnimation otherBoneAnim,
             float thisSecond,
             float otherSecond,

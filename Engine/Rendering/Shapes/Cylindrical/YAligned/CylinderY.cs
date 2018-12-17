@@ -13,9 +13,9 @@ namespace TheraEngine.Core.Shapes
             : this(1.0f, 1.0f) { }
 
         public CylinderY(float radius, float halfHeight) 
-            : this(Transform.GetIdentity(), radius, halfHeight) { }
+            : this(BasicTransform.GetIdentity(), radius, halfHeight) { }
 
-        public CylinderY(Transform transform, float radius, float halfHeight)
+        public CylinderY(BasicTransform transform, float radius, float halfHeight)
             : base(transform, Vec3.UnitY, radius, halfHeight) { }
 
         public override TCollisionShape GetCollisionShape()

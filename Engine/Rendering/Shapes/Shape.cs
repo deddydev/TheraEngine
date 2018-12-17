@@ -44,14 +44,14 @@ namespace TheraEngine.Core.Shapes
 
         [TSerialize]
         [Category("Shape")]
-        public Transform Transform
+        public BasicTransform Transform
         {
             get => _transform;
             set
             {
                 if (_transform != null)
                     _transform.MatrixChanged -= TransformChanged;
-                _transform = value ?? Transform.GetIdentity();
+                _transform = value ?? BasicTransform.GetIdentity();
                 _transform.MatrixChanged += TransformChanged;
             }
         }
@@ -61,7 +61,7 @@ namespace TheraEngine.Core.Shapes
         [TSerialize("RenderColor")]
         protected ColorF3 _renderColor = ColorF3.Red;
 
-        protected Transform _transform = Transform.GetIdentity();
+        protected BasicTransform _transform = BasicTransform.GetIdentity();
 
         [Browsable(false)]
         public Scene3D OwningScene3D { get; set; }

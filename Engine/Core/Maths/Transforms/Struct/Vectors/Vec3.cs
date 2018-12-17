@@ -179,10 +179,10 @@ namespace TheraEngine.Core.Maths.Transforms
         /// Returns a copy of this vector safely normalized to unit length.
         /// For a faster but less accurate method, use NormalizedFast.
         /// </summary>
-        public Vec3 Normalized()
+        public Vec3 Normalized(bool safe = true)
         {
             Vec3 v = this;
-            v.Normalize();
+            v.Normalize(safe);
             return v;
         }
         /// <summary>

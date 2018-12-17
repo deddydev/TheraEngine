@@ -50,7 +50,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected override void DeriveMatrix()
         {
-            Transform.DeriveTRS(LocalMatrix, out Vec3 t, out Vec3 s, out Quat r);
+            Transform.DeriveTRS(LocalMatrix, out Vec3 t, out Quat r, out Vec3 s);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
             _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());

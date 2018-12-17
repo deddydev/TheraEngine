@@ -15,13 +15,13 @@ namespace TheraEngine.Components.Scene.Shapes
         public ConeYComponent(float radius, float height, TRigidBodyConstructionInfo info)
             : this(new ConeY(radius, height), info) { }
 
-        public ConeYComponent(Transform transform)
+        public ConeYComponent(BasicTransform transform)
             : base(new ConeY(transform, 1.0f, 1.0f)) { }
 
-        public ConeYComponent(Transform transform, float radius, float halfHeight)
+        public ConeYComponent(BasicTransform transform, float radius, float halfHeight)
             : base(new ConeY(transform, radius, halfHeight)) { }
         
-        public ConeYComponent(Transform transform, float radius, float halfHeight, TRigidBodyConstructionInfo info)
+        public ConeYComponent(BasicTransform transform, float radius, float halfHeight, TRigidBodyConstructionInfo info)
             : base(new ConeY(transform, radius, halfHeight), info) { }
 
         public ConeYComponent(ConeY cone)

@@ -176,7 +176,7 @@ namespace TheraEngine.Actors
                 return;
 
             BoundingBox bounds = OwningWorld.Settings.OriginRebaseBounds;
-            Vec3 point = RootComponent.WorldMatrix.Translation;
+            Vec3 point = RootComponent.Transform.WorldMatrix.Translation;
             if (!bounds.Contains(point))
                 Engine.QueueRebaseOrigin(OwningWorld, point);
         }
@@ -188,6 +188,6 @@ namespace TheraEngine.Actors
             return IsInBounds(OwningWorld.Settings.Bounds);
         }
         public bool IsInBounds(BoundingBox bounds)
-            => bounds.Contains(RootComponent.WorldMatrix.Translation);
+            => bounds.Contains(RootComponent.Transform.WorldMatrix.Translation);
     }
 }

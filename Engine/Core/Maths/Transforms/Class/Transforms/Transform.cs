@@ -16,24 +16,24 @@ namespace TheraEngine.Core.Maths.Transforms
     }
     [TFileExt("transform")]
     [TFileDef("Transform")]
-    public class Transform : TFileObject
+    public class BasicTransform : TFileObject
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(float oldRotation);
         public delegate void ScaleChange(Vec3 oldScale);
         public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
 
-        public static Transform GetIdentity(
+        public static BasicTransform GetIdentity(
             TransformOrder transformationOrder = TransformOrder.TRS,
             RotationOrder rotationOrder = RotationOrder.YPR)
         {
-            Transform identity = GetIdentity();
+            BasicTransform identity = GetIdentity();
             identity._transformOrder = transformationOrder;
             identity.RotationOrder = rotationOrder;
             return identity;
         }
-        public static Transform GetIdentity() => new Transform(Vec3.Zero, Quat.Identity, Vec3.One);
-        public Transform()
+        public static BasicTransform GetIdentity() => new BasicTransform(Vec3.Zero, Quat.Identity, Vec3.One);
+        public BasicTransform()
         {
             _translation = Vec3.Zero;
             _translation.Changed += CreateTransform;
@@ -46,11 +46,11 @@ namespace TheraEngine.Core.Maths.Transforms
             _scale.Changed += CreateTransform;
 
             _transformOrder = TransformOrder.TRS;
-            _transform = Matrix4.Identity;
-            _inverseTransform = Matrix4.Identity;
+            _mtx = Matrix4.Identity;
+            _inv = Matrix4.Identity;
         }
         
-        public Transform(
+        public BasicTransform(
             Vec3 translate, 
             Rotator rotate,
             Vec3 scale,
@@ -69,7 +69,7 @@ namespace TheraEngine.Core.Maths.Transforms
             _transformOrder = transformOrder;
             CreateTransform();
         }
-        public Transform(
+        public BasicTransform(
             Vec3 translate,
             Quat rotate,
             Vec3 scale,
@@ -116,13 +116,20 @@ namespace TheraEngine.Core.Maths.Transforms
         private TransformOrder _transformOrder = TransformOrder.TRS;
         private bool _matrixChanged = false;
 
-        private Matrix4 _transform = Matrix4.Identity;
-        private Matrix4 _inverseTransform = Matrix4.Identity;
+        public void SetMatrices(Matrix4 matrix, Matrix4 inverse)
+        {
+            _mtx = matrix;
+            _inv = inverse;
+            _matrixChanged = true;
+        }
+
+        private Matrix4 _mtx = Matrix4.Identity;
+        private Matrix4 _inv = Matrix4.Identity;
 
         public event MatrixChange MatrixChanged;
         public void Lookat(Vec3 point)
         {
-            SetForwardVector(point - _transform.Translation);
+            SetForwardVector(point - _mtx.Translation);
         }
         public void SetForwardVector(Vec3 direction)
         {
@@ -137,11 +144,11 @@ namespace TheraEngine.Core.Maths.Transforms
         [Browsable(false)]
         public Matrix4 Matrix
         {
-            get => _transform;
+            get => _mtx;
             set
             {
-                _transform = value;
-                _inverseTransform = _transform.Inverted();
+                _mtx = value;
+                _inv = _mtx.Inverted();
                 _matrixChanged = true;
             }
         }
@@ -149,11 +156,11 @@ namespace TheraEngine.Core.Maths.Transforms
         [Browsable(false)]
         public Matrix4 InverseMatrix
         {
-            get => _inverseTransform;
+            get => _inv;
             set
             {
-                _inverseTransform = value;
-                _transform = _inverseTransform.Inverted();
+                _inv = value;
+                _mtx = _inv.Inverted();
                 _matrixChanged = true;
             }
         }
@@ -161,7 +168,7 @@ namespace TheraEngine.Core.Maths.Transforms
         private void MatrixUpdated()
         {
             _matrixChanged = false;
-            DeriveTRS(_transform, out Vec3 t, out Vec3 s, out Quat r);
+            DeriveTRS(_mtx, out Vec3 t, out Quat r, out Vec3 s);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
             _quaternion = r;
@@ -313,12 +320,12 @@ namespace TheraEngine.Core.Maths.Transforms
         [TPostDeserialize]
         public void CreateTransform()
         {
-            Matrix4 oldMatrix = _transform;
-            Matrix4 oldInvMatrix = _inverseTransform;
+            Matrix4 oldMatrix = _mtx;
+            Matrix4 oldInvMatrix = _inv;
 
             _quaternion = _rotation.ToQuaternion();
-            _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation, _transformOrder);
-            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _transformOrder);
+            _mtx = Matrix4.TransformMatrix(_scale, _rotation, _translation, _transformOrder);
+            _inv = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _transformOrder);
 
             MatrixChanged?.Invoke(oldMatrix, oldInvMatrix);
         }
@@ -452,7 +459,7 @@ namespace TheraEngine.Core.Maths.Transforms
         /// <param name="translation"></param>
         /// <param name="scale"></param>
         /// <param name="rotation"></param>
-        public static void DeriveTRS(Matrix4 m, out Vec3 translation, out Vec3 scale, out Quat rotation)
+        public static void DeriveTRS(Matrix4 m, out Vec3 translation, out Quat rotation, out Vec3 scale)
         {
             translation = m.Row3.Xyz;
             scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
@@ -469,9 +476,9 @@ namespace TheraEngine.Core.Maths.Transforms
         {
             translation = m.Row3.Xyz;
         }
-        public static unsafe Transform DeriveTRS(Matrix4 m)
+        public static unsafe BasicTransform DeriveTRS(Matrix4 m)
         {
-            Transform state = new Transform()
+            BasicTransform state = new BasicTransform()
             {
                 _translation = m.Row3.Xyz,
                 _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),
@@ -607,9 +614,9 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         #endregion
 
-        public Transform HardCopy()
+        public BasicTransform HardCopy()
         {
-            return new Transform(Translation, Rotation, Scale, TransformationOrder);
+            return new BasicTransform(Translation, Rotation, Scale, TransformationOrder);
         }
     }
 }

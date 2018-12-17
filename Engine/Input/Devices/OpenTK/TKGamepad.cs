@@ -8,7 +8,7 @@ namespace TheraEngine.Input.Devices.OpenTK
     {
         public TKGamepad(int index) : base(index) { }
 
-        public static TKGamepadConfiguration Config { get; set; } = new TKGamepadConfiguration();
+        public TKGamepadConfiguration Config { get; set; } = new TKGamepadConfiguration();
 
         public override void Vibrate(float left, float right)
             => GamePad.SetVibration(_index, left, right);
@@ -21,13 +21,13 @@ namespace TheraEngine.Input.Devices.OpenTK
         protected override List<bool> AxesExist(IEnumerable<EGamePadAxis> axes)
         {
             GamePadCapabilities c = GamePad.GetCapabilities(_index);
-            return axes.Select(x => AxistExists(x, c)).ToList();
+            return axes.Select(x => AxisExists(x, c)).ToList();
         }
 
         protected override bool ButtonExists(EGamePadButton button)
             => ButtonExists(button, GamePad.GetCapabilities(_index));
         protected override bool AxisExists(EGamePadAxis axis)
-            => AxistExists(axis, GamePad.GetCapabilities(_index));
+            => AxisExists(axis, GamePad.GetCapabilities(_index));
 
         public static bool ButtonExists(EGamePadButton button, GamePadCapabilities c)
         {
@@ -50,7 +50,7 @@ namespace TheraEngine.Input.Devices.OpenTK
             }
             return false;
         }
-        public static bool AxistExists(EGamePadAxis axis, GamePadCapabilities c)
+        public static bool AxisExists(EGamePadAxis axis, GamePadCapabilities c)
         {
             switch (axis)
             {

@@ -49,10 +49,10 @@ namespace TheraEngine.Actors
     [Description("An actor with a TRS component as the root. " +
         "Generally used for actors which manage their own world matrix or do not need one, " +
         "but provide traits that affect the scene.")]
-    public class Actor : Actor<TRSComponent>
+    public class TransformActor : Actor<TRSComponent>
     {
-        public Actor() : base() { }
-        public Actor(TRSComponent root, params LogicComponent[] logicComponents)
+        public TransformActor() : base() { }
+        public TransformActor(TRSComponent root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
     }
     #endregion
@@ -62,25 +62,6 @@ namespace TheraEngine.Actors
     [TFileDef("Actor")]
     public class Actor<T> : TFileObject, IActor where T : OriginRebasableComponent
     {
-        static Actor()
-        {
-            //Register3rdPartyLoader<Actor<T>>("dae", LoadDAE);
-        }
-
-        //[ThirdPartyLoader("dae", true)]
-        //public static async Task<Actor<T2>> LoadDAEAsync<T2>(string path, IProgress<float> progress, CancellationToken cancel) where T2 : T
-        //{
-        //    ColladaImportOptions o = new ColladaImportOptions()
-        //    {
-        //        IgnoreFlags = Collada.EIgnoreFlags.Extra
-        //    };
-        //    Collada.Data data = await Collada.ImportAsync(path, o, progress, cancel);
-        //    if (data != null)
-        //    {
-        //        return (Actor<T2>)data.Actor;
-        //    }
-        //    return null;
-        //}
         public Actor() : this(false) { }
         public Actor(string name) : this(name, false) { }
         public Actor(bool deferInitialization) : this(null, deferInitialization) { }
@@ -405,5 +386,20 @@ For example, a logic component could give any actor health and/or allow it to ta
         {
             item.OwningActor = this;
         }
+
+        //[ThirdPartyLoader("dae", true)]
+        //public static async Task<Actor<T2>> LoadDAEAsync<T2>(string path, IProgress<float> progress, CancellationToken cancel) where T2 : T
+        //{
+        //    ColladaImportOptions o = new ColladaImportOptions()
+        //    {
+        //        IgnoreFlags = Collada.EIgnoreFlags.Extra
+        //    };
+        //    Collada.Data data = await Collada.ImportAsync(path, o, progress, cancel);
+        //    if (data != null)
+        //    {
+        //        return (Actor<T2>)data.Actor;
+        //    }
+        //    return null;
+        //}
     }
 }

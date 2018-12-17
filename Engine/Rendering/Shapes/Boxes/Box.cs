@@ -36,26 +36,26 @@ namespace TheraEngine.Core.Shapes
         public Vec3 Center => _transform.Matrix.Translation;
 
         public Box(BoundingBox aabb)
-            : this(aabb.HalfExtents, new Transform(aabb.Translation, Quat.Identity, Vec3.One)) { }
+            : this(aabb.HalfExtents, new BasicTransform(aabb.Translation, Quat.Identity, Vec3.One)) { }
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ) 
-            : this(halfExtentX, halfExtentY, halfExtentZ, Transform.GetIdentity()) { }
-        public Box(float halfExtentX, float halfExtentY, float halfExtentZ, Transform transform)
+            : this(halfExtentX, halfExtentY, halfExtentZ, BasicTransform.GetIdentity()) { }
+        public Box(float halfExtentX, float halfExtentY, float halfExtentZ, BasicTransform transform)
             : this()
         {
             _halfExtents = new Vec3(halfExtentX, halfExtentY, halfExtentZ);
             _transform = transform;
         }
         public Box(Vec3 halfExtents) 
-            : this(halfExtents, Transform.GetIdentity()) { }
-        public Box(Vec3 halfExtents, Transform transform)
+            : this(halfExtents, BasicTransform.GetIdentity()) { }
+        public Box(Vec3 halfExtents, BasicTransform transform)
             : this()
         {
             _halfExtents = halfExtents;
             _transform = transform;
         }
         public Box(float uniformHalfExtents) 
-            : this(uniformHalfExtents, Transform.GetIdentity()) { }
-        public Box(float uniformHalfExtents, Transform transform) 
+            : this(uniformHalfExtents, BasicTransform.GetIdentity()) { }
+        public Box(float uniformHalfExtents, BasicTransform transform) 
             : this()
         {
             _halfExtents = new Vec3(uniformHalfExtents);
@@ -64,7 +64,7 @@ namespace TheraEngine.Core.Shapes
         public Box()
         {
             _halfExtents = Vec3.Half;
-            _transform = Transform.GetIdentity();
+            _transform = BasicTransform.GetIdentity();
         }
 
         /// <summary>

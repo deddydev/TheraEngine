@@ -231,7 +231,7 @@ namespace TheraEngine.Animation
             if (bone != null)
                 UpdateState(bone.FrameState, bone.BindState);
         }
-        public void UpdateState(Transform frameState, Transform bindState)
+        public void UpdateState(BasicTransform frameState, BasicTransform bindState)
         {
             Vec3 t = GetTranslation(bindState.Translation);
             Rotator r = GetRotation(bindState.Rotation);
@@ -245,8 +245,8 @@ namespace TheraEngine.Animation
                 UpdateStateBlended(bone.FrameState, bone.BindState, otherBoneFrame, otherWeight);
         }
         public void UpdateStateBlended(
-            Transform frameState,
-            Transform bindState,
+            BasicTransform frameState,
+            BasicTransform bindState,
             BoneFrame otherBoneFrame,
             float otherWeight)
         {

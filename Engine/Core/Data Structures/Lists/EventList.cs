@@ -108,7 +108,13 @@ namespace System.Collections.Generic
         public EventList(IEnumerable<T> list) => AddRange(list);
         public EventList(IEnumerable<T> list, bool allowDuplicates, bool allowNull) : this(allowDuplicates, allowNull) => AddRange(list);
         public EventList(int capacity) : base(capacity) { }
-        
+
+        public EventList(SingleHandler postAnythingAdded, SingleHandler postAnythingRemoved)
+        {
+            PostAnythingAdded += postAnythingAdded;
+            PostAnythingRemoved += postAnythingRemoved;
+        }
+
         /// <summary>
         /// Completely replaces the list's items with the given items.
         /// </summary>

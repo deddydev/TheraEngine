@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using TheraEngine;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -11,23 +10,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridList : PropGridItem, ICollapsible
     {
         public PropGridList() => InitializeComponent();
+
         private IList _list = null;
         private Type _elementType;
+
         protected override void UpdateDisplayInternal(object value)
         {
+            _list = value as IList;
             if (Editor.GetSettings().PropertyGrid.ShowTypeNames)
             {
                 string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
-                lblObjectTypeName.Text = "[" + typeName + "] " + (value == null ? "null" : value.ToString());
+                lblObjectTypeName.Text = "[" + typeName + "] ";
             }
             else
-            {
-                lblObjectTypeName.Text = value == null ? "null" : value.ToString();
-            }
+                lblObjectTypeName.Text = string.Empty;
 
+            lblObjectTypeName.Text += _list == null ? "null" : _list.Count.ToString() + (_list.Count == 1 ? " item" : " items");
+            
             chkNull.Visible = !DataType.IsValueType;
             
-            _list = value as IList;
             if (!(chkNull.Checked = _list == null))
             {
                 lblObjectTypeName.Enabled = _list.Count > 0;

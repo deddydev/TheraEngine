@@ -70,7 +70,7 @@ namespace TheraEngine.Tests
                 Collada.EIgnoreFlags.Lights |
                 Collada.EIgnoreFlags.Cameras |
                 Collada.EIgnoreFlags.Animations,
-                InitialTransform = new Transform(Vec3.Zero, Quat.Identity, new Vec3(0.45f), TransformOrder.TRS),
+                InitialTransform = new BasicTransform(Vec3.Zero, Quat.Identity, new Vec3(0.45f), TransformOrder.TRS),
             };
             
             Task.Run(() => Collada.ImportAsync(TestDefaults.DesktopPath + "test.dae", options)).ContinueWith(task => SceneImported(task));

@@ -118,11 +118,15 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public void SetMatrices(Matrix4 matrix, Matrix4 inverse)
         {
+            _prevMtx = _mtx;
+            _prevInv = _inv;
             _mtx = matrix;
             _inv = inverse;
             _matrixChanged = true;
         }
 
+        private Matrix4 _prevMtx = Matrix4.Identity;
+        private Matrix4 _prevInv = Matrix4.Identity;
         private Matrix4 _mtx = Matrix4.Identity;
         private Matrix4 _inv = Matrix4.Identity;
 
@@ -147,6 +151,8 @@ namespace TheraEngine.Core.Maths.Transforms
             get => _mtx;
             set
             {
+                _prevMtx = _mtx;
+                _prevInv = _inv;
                 _mtx = value;
                 _inv = _mtx.Inverted();
                 _matrixChanged = true;
@@ -159,6 +165,8 @@ namespace TheraEngine.Core.Maths.Transforms
             get => _inv;
             set
             {
+                _prevMtx = _mtx;
+                _prevInv = _inv;
                 _inv = value;
                 _mtx = _inv.Inverted();
                 _matrixChanged = true;
@@ -324,6 +332,8 @@ namespace TheraEngine.Core.Maths.Transforms
             Matrix4 oldInvMatrix = _inv;
 
             _quaternion = _rotation.ToQuaternion();
+            _prevMtx = _mtx;
+            _prevInv = _inv;
             _mtx = Matrix4.TransformMatrix(_scale, _rotation, _translation, _transformOrder);
             _inv = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _transformOrder);
 
@@ -534,84 +544,30 @@ namespace TheraEngine.Core.Maths.Transforms
         }
 
         #region Animation
-        public void SetRotationRoll(float degreeAngle) { Roll = degreeAngle; }
-        public void SetRotationYaw(float degreeAngle) { Yaw = degreeAngle; }
-        public void SetRotationPitch(float degreeAngle) { Pitch = degreeAngle; }
-        public void AddRotationRoll(float degreeAngle) { Roll += degreeAngle; }
-        public void AddRotationYaw(float degreeAngle) { Yaw += degreeAngle; }
-        public void AddRotationPitch(float degreeAngle) { Pitch += degreeAngle; }
-        public void SetTranslationZ(float value)
-        {
-            _translation.Z = value;
-        }
-        public void SetTranslationY(float value)
-        {
-            _translation.Y = value;
-        }
-        public void SetTranslationX(float value)
-        {
-            _translation.X = value;
-        }
-        public void AddTranslationZ(float value)
-        {
-            _translation.Z += value;
-        }
-        public void AddTranslationY(float value)
-        {
-            _translation.Y += value;
-        }
-        public void AddTranslationX(float value)
-        {
-            _translation.X += value;
-        }
-        public void MultTranslationZ(float value)
-        {
-            _translation.Z *= value;
-        }
-        public void MultTranslationY(float value)
-        {
-            _translation.Y *= value;
-        }
-        public void MultTranslationX(float value)
-        {
-            _translation.X *= value;
-        }
-        public void SetScaleZ(float value)
-        {
-            _scale.Z = value;
-        }
-        public void SetScaleY(float value)
-        {
-            _scale.Y = value;
-        }
-        public void SetScaleX(float value)
-        {
-            _scale.X = value;
-        }
-        public void AddScaleZ(float value)
-        {
-            _scale.Z += value;
-        }
-        public void AddScaleY(float value)
-        {
-            _scale.Y += value;
-        }
-        public void AddScaleX(float value)
-        {
-            _scale.X += value;
-        }
-        public void MultScaleZ(float value)
-        {
-            _scale.Z *= value;
-        }
-        public void MultScaleY(float value)
-        {
-            _scale.Y *= value;
-        }
-        public void MultScaleX(float value)
-        {
-            _scale.X *= value;
-        }
+        public void SetRotationRoll(float degreeAngle)      => Roll             = degreeAngle;
+        public void SetRotationYaw(float degreeAngle)       => Yaw              = degreeAngle;
+        public void SetRotationPitch(float degreeAngle)     => Pitch            = degreeAngle;
+        public void AddRotationRoll(float degreeAngle)      => Roll            += degreeAngle;
+        public void AddRotationYaw(float degreeAngle)       => Yaw             += degreeAngle;
+        public void AddRotationPitch(float degreeAngle)     => Pitch           += degreeAngle;
+        public void SetTranslationX(float value)            => _translation.X   = value;
+        public void SetTranslationY(float value)            => _translation.Y   = value;
+        public void SetTranslationZ(float value)            => _translation.Z   = value;
+        public void AddTranslationX(float value)            => _translation.X  += value;
+        public void AddTranslationY(float value)            => _translation.Y  += value;
+        public void AddTranslationZ(float value)            => _translation.Z  += value;
+        public void MultTranslationX(float value)           => _translation.X  *= value;
+        public void MultTranslationY(float value)           => _translation.Y  *= value;
+        public void MultTranslationZ(float value)           => _translation.Z  *= value;
+        public void SetScaleZ(float value)                  => _scale.Z         = value;
+        public void SetScaleY(float value)                  => _scale.Y         = value;
+        public void SetScaleX(float value)                  => _scale.X         = value;
+        public void AddScaleZ(float value)                  => _scale.Z        += value;
+        public void AddScaleY(float value)                  => _scale.Y        += value;
+        public void AddScaleX(float value)                  => _scale.X        += value;
+        public void MultScaleZ(float value)                 => _scale.Z        *= value;
+        public void MultScaleY(float value)                 => _scale.Y        *= value;
+        public void MultScaleX(float value)                 => _scale.X        *= value;
         #endregion
 
         public BasicTransform HardCopy()

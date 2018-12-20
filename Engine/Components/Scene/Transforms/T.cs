@@ -64,7 +64,7 @@ namespace TheraEngine.Components.Scene.Transforms
 
         protected virtual void DeriveMatrix()
         {
-            Transform.DeriveT(LocalMatrix, out Vec3 t);
+            Transform.DeriveT(Transform.Local.Matrix, out Vec3 t);
             _translation.SetRawNoUpdate(t);
         }
 

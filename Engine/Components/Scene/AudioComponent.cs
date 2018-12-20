@@ -71,10 +71,10 @@ namespace TheraEngine.Components.Scene
             return instance;
         }
 
-        protected override void OnWorldTransformChanged()
+        internal protected override void OnWorldTransformChanged()
         {
             base.OnWorldTransformChanged();
-            ParametersRef.File.Position.OverrideValue = WorldPoint;
+            ParametersRef.File.Position.OverrideValue = Transform.WorldPoint;
         }
 
         private RenderCommandMesh3D _rc;

@@ -336,9 +336,10 @@ namespace TheraEngine.Core.Files.Serialization
         {
 
         }
+        #endregion
 
         public override void DeserializeTreeFromString(string value) => throw new NotImplementedException();
         public override string SerializeTreeToString() => throw new NotImplementedException();
-        #endregion
+        public override bool CanWriteTreeAsString() => throw new NotImplementedException();
     }
 }

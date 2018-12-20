@@ -2,44 +2,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using TheraEngine.Core.Memory;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectSerializerFor(typeof(Type))]
     public class TypeSerializer : BaseObjectSerializer
     {
+        public override bool CanWriteTreeAsString() => true;
         public override void DeserializeTreeToObject()
         {
-            Type arrayType = TreeNode.ObjectType;
+            Type type = TreeNode.ObjectType;
 
-            if (!TreeNode.GetElementContent(arrayType, out object array))
+            if (!TreeNode.GetElementContent(type, out object literalType))
             {
-                int count = TreeNode.ChildElements.Count;
-
-                IList list;
-                if (arrayType.IsArray)
-                    list = Activator.CreateInstance(arrayType, count) as IList;
-                else
-                    list = Activator.CreateInstance(arrayType) as IList;
-
-                Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
-                for (int i = 0; i < count; ++i)
-                {
-                    SerializeElement node = TreeNode.ChildElements[i];
-                    node.MemberInfo.MemberType = elementType;
-                    node.DeserializeTreeToObject();
-
-                    if (list.IsFixedSize)
-                        list[i] = node.Object;
-                    else
-                        list.Add(node.Object);
-                }
                 
-                array = list;
             }
 
-            TreeNode.Object = array;
+            TreeNode.Object = literalType;
         }
         public override void SerializeTreeFromObject()
         {
@@ -81,7 +60,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public override void DeserializeTreeFromString(string value)
         {
-            TreeNode.Object = Type.GetType(value, false, true);
+            TreeNode.Object = SerializationCommon.CreateType(value);
         }
     }
 }

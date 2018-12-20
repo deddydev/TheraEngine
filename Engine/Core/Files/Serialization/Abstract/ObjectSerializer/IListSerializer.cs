@@ -2,13 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using TheraEngine.Core.Memory;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectSerializerFor(typeof(IList))]
     public class IListSerializer : BaseObjectSerializer
     {
+        public override bool CanWriteTreeAsString()
+        {
+            Type arrayType = TreeNode.ObjectType;
+            Type elementType = arrayType.DetermineElementType();
+            var ser = DetermineObjectSerializer(elementType, new SerializeElement(null, new TSerializeMemberInfo(elementType, null)));
+            return ser.CanWriteTreeAsString();
+        }
         public override void DeserializeTreeToObject()
         {
             Type arrayType = TreeNode.ObjectType;

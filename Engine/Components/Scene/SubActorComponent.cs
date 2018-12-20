@@ -15,14 +15,30 @@ namespace TheraEngine.Components.Scene
             get => _actor;
             set
             {
-                _actor?.UnregisterLoadEvent(ActorLoaded);
+                if (_actor != null)
+                {
+                    _actor.UnregisterLoadEvent(ActorLoaded);
+                    _actor.UnregisterUnloadEvent(ActorUnloaded);
+                }
                 _actor = value;
-                _actor?.RegisterLoadEvent(ActorLoaded);
+                if (_actor != null)
+                {
+                    _actor.RegisterLoadEvent(ActorLoaded);
+                    _actor.RegisterUnloadEvent(ActorUnloaded);
+                }
             }
         }
         private void ActorLoaded(T actor)
         {
-            actor.RootComponent.ParentSocket = this; 
+            actor.RootComponent.ParentSocket = this;
+            if (IsSpawned)
+                Actor?.File?.Spawned(OwningWorld);
+        }
+        private void ActorUnloaded(T actor)
+        {
+            actor.RootComponent.ParentSocket = this;
+            if (IsSpawned)
+                Actor?.File?.Spawned(OwningWorld);
         }
         public override void OnSpawned()
         {

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -27,11 +29,14 @@ namespace TheraEngine.Core.Files.Serialization
     /// </summary>
     public abstract class BaseObjectSerializer
     {
+        private static Dictionary<ObjectSerializerFor, Type> ObjectSerializers { get; set; } = null;
+
         public bool ShouldWriteDefaultMembers
             => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteDefaultMembers) ?? false;
         public bool WriteChangedMembersOnly
             => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteChangedMembersOnly) ?? false;
-        
+
+        public abstract bool CanWriteTreeAsString();
         public SerializeElement TreeNode { get; internal protected set; } = null;
         public int TreeSize { get; private set; }
         
@@ -76,5 +81,62 @@ namespace TheraEngine.Core.Files.Serialization
         /// Creates the serialization tree from the TreeNode's object.
         /// </summary>
         public abstract void SerializeTreeFromObject();
+
+        /// <summary>
+        /// Finds the class to use to read and write the given type.
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public static BaseObjectSerializer DetermineObjectSerializer(Type objectType, SerializeElement node)
+        {
+            BaseObjectSerializer serializer = null;
+            Type[] types = null;
+
+            if (objectType != null)
+            {
+                Type baseObjSerType = typeof(BaseObjectSerializer);
+                if (ObjectSerializers == null)
+                {
+                    var typeList = Engine.FindTypes(type =>
+                        baseObjSerType.IsAssignableFrom(type) &&
+                        (type.GetCustomAttributeExt<ObjectSerializerFor>() != null), true);
+
+                    ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
+                    foreach (var type in typeList)
+                        ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectSerializerFor>(), type);
+                }
+
+                types = ObjectSerializers.Where(type => (type.Key.ObjectType?.IsAssignableFrom(objectType) ?? false)).Select(x => x.Value).ToArray();
+            }
+            else
+            {
+                Engine.LogWarning("Unable to create object serializer for null type.");
+                return null;
+            }
+
+            Type t;
+            if (types != null && types.Length > 0)
+            {
+                if (types.Length == 1)
+                    t = types[0];
+                else
+                {
+                    var counts = types.Select(serType => types.Count(v => serType.IsAssignableFrom(v))).ToArray();
+                    int min = counts.Min();
+                    int[] mins = counts.FindAllMatchIndices(x => x == min);
+                    string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
+                    msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
+                    Engine.PrintLine(msg);
+                    t = types[mins[0]];
+                }
+            }
+            else
+                t = typeof(CommonObjectSerializer);
+
+            serializer = (BaseObjectSerializer)Activator.CreateInstance(t);
+            serializer.TreeNode = node;
+            return serializer;
+        }
     }
 }

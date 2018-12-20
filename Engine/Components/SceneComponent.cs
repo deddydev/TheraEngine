@@ -17,7 +17,6 @@ namespace TheraEngine.Components
         Scene3D OwningScene3D { get; }
         Scene2D OwningScene2D { get; }
         TWorld OwningWorld { get; }
-        IActor OwningActor { get; set; }
         
         /// <summary>
         /// Attaches this scene component to the given skeletal mesh component at the given socket name.
@@ -68,7 +67,7 @@ namespace TheraEngine.Components
         {
             if (this is IRigidBodyCollidable p && p.RigidBodyCollision != null)
             {
-                p.RigidBodyCollision.WorldTransform = _transform.WorldMatrix;
+                p.RigidBodyCollision.WorldTransform = Transform.World.Matrix;
 
                 //AABBs are not updated unless the physics world is ticking.
                 //Without an updated AABB, collision against traces will not work properly.
@@ -105,7 +104,12 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public override IActor OwningActor
         {
-            get => Transform.IsRootTransform ? base.OwningActor : Transform.RootTransform.Socket.OwningActor;
+            get
+            {
+                if (Transform.IsRootTransform)
+                    return base.OwningActor;
+                return Transform.RootTransform.Socket.OwningActor;
+            }
             internal set => base.OwningActor = value;
         }
 
@@ -180,8 +184,12 @@ namespace TheraEngine.Components
             if (this is I2DRenderable r2d)
                 r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
 
-            foreach (SceneComponent c in _children)
-                c.OnSpawned();
+            foreach (SceneTransform transform in Transform.Children)
+            {
+                ISocket socket = transform.Socket;
+                if (socket is SceneComponent comp)
+                    comp.OnSpawned();
+            }
         }
         public override void OnDespawned()
         {
@@ -197,8 +205,12 @@ namespace TheraEngine.Components
             if (this is I2DRenderable r2d)
                 r2d.RenderInfo.UnlinkScene(r2d, OwningScene2D);
 
-            foreach (SceneComponent c in _children)
-                c.OnDespawned();
+            foreach (SceneTransform transform in Transform.Children)
+            {
+                ISocket socket = transform.Socket;
+                if (socket is SceneComponent comp)
+                    comp.OnDespawned();
+            }
         }
 
         public List<SceneComponent> GenerateChildCache()
@@ -210,8 +222,12 @@ namespace TheraEngine.Components
         protected virtual void GenerateChildCache(List<SceneComponent> cache)
         {
             cache.Add(this);
-            foreach (SceneComponent c in _children)
-                c.GenerateChildCache(cache);
+            foreach (SceneTransform transform in Transform.Children)
+            {
+                ISocket socket = transform.Socket;
+                if (socket is SceneComponent comp)
+                    comp.GenerateChildCache(cache);
+            }
         }
 
         #region Child Components
@@ -295,7 +311,7 @@ namespace TheraEngine.Components
         /// <param name="mesh">The skeletal mesh to attach to.</param>
         /// <param name="socketName">The name of the socket to attach to.</param>
         /// <returns>The socket that this component was attached to. Null if failed to attach.</returns>
-        public ISocket AttachTo(SkeletalMeshComponent mesh, string socketName)
+        public ISocket AttachTo(SkeletalMeshComponent mesh, string socketName, bool retainTransform)
         {
             if (mesh == null)
             {
@@ -332,7 +348,7 @@ namespace TheraEngine.Components
         /// <param name="mesh"></param>
         /// <param name="socketName"></param>
         /// <returns>The socket that this component was attached to. Null if failed to attach.</returns>
-        public ISocket AttachTo(StaticMeshComponent mesh, string socketName)
+        public ISocket AttachTo(StaticMeshComponent mesh, string socketName, bool retainTransform)
         {
             if (mesh == null)
             {
@@ -355,7 +371,7 @@ namespace TheraEngine.Components
         /// <summary>
         /// Attaches this component to the given scene component parent transform.
         /// </summary>
-        public void AttachTo(SceneComponent component)
+        public void AttachTo(SceneComponent component, bool retainTransform)
             => component?.ChildComponents.Add(this);
         /// <summary>
         /// Detaches self from the current parent socket transform.
@@ -425,5 +441,16 @@ namespace TheraEngine.Components
         public virtual void RecalcWorldTransform() => Transform.RecalcWorldMatrix();
 
         void ISocket.OnWorldTransformChanged() => OnWorldTransformChanged();
+
+        public void AddChild(ISocket child)
+        {
+            if (child != null)
+                Transform.Children.Add(child.Transform);
+        }
+        public void RemoveChild(ISocket child)
+        {
+            if (child != null)
+                Transform.Children.Remove(child.Transform);
+        }
     }
 }

@@ -8,6 +8,12 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Animation.Cutscenes
 {
+    public class WorldObjectReference
+    {
+        public string WorldPath { get; set; }
+        public int ActorID { get; set; }
+
+    }
     [TFileExt("cut")]
     [TFileDef("Cutscene")]
     public class Cutscene : BaseAnimation

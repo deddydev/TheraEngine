@@ -123,14 +123,17 @@ namespace TheraEngine.Core.Maths.Transforms
             _mtx = matrix;
             _inv = inverse;
             _matrixChanged = true;
+            OnMatrixChanged();
         }
 
         private Matrix4 _prevMtx = Matrix4.Identity;
         private Matrix4 _prevInv = Matrix4.Identity;
         private Matrix4 _mtx = Matrix4.Identity;
         private Matrix4 _inv = Matrix4.Identity;
+        
+        public event Action MatrixChanged;
+        public void OnMatrixChanged() => MatrixChanged?.Invoke();
 
-        public event MatrixChange MatrixChanged;
         public void Lookat(Vec3 point)
         {
             SetForwardVector(point - _mtx.Translation);
@@ -156,6 +159,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 _mtx = value;
                 _inv = _mtx.Inverted();
                 _matrixChanged = true;
+                OnMatrixChanged();
             }
         }
 
@@ -170,6 +174,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 _inv = value;
                 _mtx = _inv.Inverted();
                 _matrixChanged = true;
+                OnMatrixChanged();
             }
         }
 
@@ -328,16 +333,13 @@ namespace TheraEngine.Core.Maths.Transforms
         [TPostDeserialize]
         public void CreateTransform()
         {
-            Matrix4 oldMatrix = _mtx;
-            Matrix4 oldInvMatrix = _inv;
-
             _quaternion = _rotation.ToQuaternion();
             _prevMtx = _mtx;
             _prevInv = _inv;
             _mtx = Matrix4.TransformMatrix(_scale, _rotation, _translation, _transformOrder);
             _inv = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _transformOrder);
 
-            MatrixChanged?.Invoke(oldMatrix, oldInvMatrix);
+            OnMatrixChanged();
         }
 
         //public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }

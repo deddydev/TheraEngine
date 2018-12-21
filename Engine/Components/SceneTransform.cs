@@ -7,61 +7,50 @@ using TheraEngine.Core.Maths.Transforms;
 namespace TheraEngine.Components
 {
     public delegate void DelRecalcWorldMatrixOverride(out Matrix4 worldMatrix, out Matrix4 inverseWorldMatrix);
-    public class SceneTransform : TObject
+    public class SocketTransform : TObject
     {
         public DelRecalcWorldMatrixOverride RecalcWorldMatrixOverride;
 
-        public SceneTransform()
+        public SocketTransform()
         {
-            Children = new EventList<SceneTransform>(ChildAdded, ChildRemoved);
+            //Children = new EventList<SceneTransform>(ChildAdded, ChildRemoved);
         }
 
         public bool IsRootTransform => _rootTransform == null;
-        public SceneTransform RootTransform => _rootTransform ?? this;
+        public SocketTransform RootTransform => _rootTransform ?? this;
         public ISocket Socket { get; internal set; }
-        public EventList<SceneTransform> Children { get; private set; }
-        public SceneTransform Parent
-        {
-            get => _parent;
-            set
-            {
-                if (_parent == value)
-                    return;
+        public SocketTransform ParentTransform => Socket?.Parent.Transform;
+        //{
+        //    get => _parent;
+        //    set
+        //    {
+        //        if (_parent == value)
+        //            return;
 
-                if (_parent != null)
-                    _parent.Children.Remove(this);
+        //        if (_parent != null)
+        //            _parent.Children.Remove(this);
 
-                _parent = value;
+        //        _parent = value;
 
-                if (_parent != null)
-                {
-                    _rootTransform = _parent.RootTransform;
-                    _parent.Children.Add(this);
-                }
-                else
-                {
-                    _rootTransform = null;
-                }
-            }
-        }
+        //        if (_parent != null)
+        //        {
+        //            _rootTransform = _parent.RootTransform;
+        //            _parent.Children.Add(this);
+        //        }
+        //        else
+        //        {
+        //            _rootTransform = null;
+        //        }
+        //    }
+        //}
 
-        private SceneTransform _rootTransform;
-        private SceneTransform _parent;
+        private SocketTransform _rootTransform;
+        private SocketTransform _parent;
 
-        protected SceneTransform _ancestorSimulatingPhysics;
+        protected SocketTransform _ancestorSimulatingPhysics;
         protected bool _simulatingPhysics = false;
         
         internal protected BasicTransform _local, _world;
-
-        private void ChildAdded(SceneTransform item)
-        {
-            item.Parent = this;
-        }
-        private void ChildRemoved(SceneTransform item)
-        {
-            if (item.Parent == this)
-                item.Parent = null;
-        }
 
         public event DelSocketTransformChange SocketTransformChanged;
 
@@ -97,7 +86,12 @@ namespace TheraEngine.Components
             get => _world;
             set
             {
+                if (_world != null)
+                    _world.MatrixChanged -= WorldMatrixChanged;
+
                 _world = value ?? BasicTransform.GetIdentity();
+                _world.MatrixChanged += WorldMatrixChanged;
+                WorldMatrixChanged();
             }
         }
         public BasicTransform Local
@@ -105,9 +99,26 @@ namespace TheraEngine.Components
             get => _local;
             set
             {
+                if (_local != null)
+                    _local.MatrixChanged -= LocalMatrixChanged;
+
                 _local = value ?? BasicTransform.GetIdentity();
-                RecalcWorldMatrix();
+                _local.MatrixChanged += LocalMatrixChanged;
+                LocalMatrixChanged();
             }
+        }
+
+        private void LocalMatrixChanged()
+        {
+            RecalcWorldMatrix();
+        }
+        private void WorldMatrixChanged()
+        {
+            Matrix4 mtx = ParentInverseWorldMatrix * World.Matrix;
+            Matrix4 inv = World.InverseMatrix * ParentWorldMatrix;
+            _local.SetMatrices(mtx, inv);
+
+            Socket?.OnWorldTransformChanged();
         }
 
         /// <summary>
@@ -117,13 +128,8 @@ namespace TheraEngine.Components
         public void SetWorldMatrices(Matrix4 matrix, Matrix4 inverse)
         {
             World.SetMatrices(matrix, inverse);
-
-            Matrix4 mtx = ParentInverseWorldMatrix * World.Matrix;
-            Matrix4 inv = World.InverseMatrix * ParentWorldMatrix;
-            _local.SetMatrices(mtx, inv);
-
-            Socket?.OnWorldTransformChanged();
         }
+
         public void DeriveLocalFromWorld()
         {
 
@@ -140,18 +146,17 @@ namespace TheraEngine.Components
         }
         public void RecalcWorldMatrix()
         {
-            _prevWorld = _world;
-            _prevInvWorld = _invWorld;
+            Matrix4 mtx, inv;
 
             if (RecalcWorldMatrixOverride != null)
-                RecalcWorldMatrixOverride(out _world, out _invWorld);
+                RecalcWorldMatrixOverride(out mtx, out inv);
             else
             {
-                _world = ParentWorldMatrix * Local.Matrix;
-                _invWorld = Local.InverseMatrix * ParentInverseWorldMatrix;
+                mtx = ParentWorldMatrix * Local.Matrix;
+                inv = Local.InverseMatrix * ParentInverseWorldMatrix;
             }
 
-            Socket?.OnWorldTransformChanged();
+            SetWorldMatrices(mtx, inv);
         }
 
         #endregion
@@ -170,11 +175,11 @@ namespace TheraEngine.Components
         /// <summary>
         /// Returns the world transform of the parent scene component.
         /// </summary>
-        public Matrix4 ParentWorldMatrix => Parent?.World?.Matrix ?? Matrix4.Identity;
+        public Matrix4 ParentWorldMatrix => ParentTransform?.World?.Matrix ?? Matrix4.Identity;
         /// <summary>
         /// Returns the inverse of the world transform of the parent scene component.
         /// </summary>
-        public Matrix4 ParentInverseWorldMatrix => Parent?.World?.InverseMatrix ?? Matrix4.Identity;
+        public Matrix4 ParentInverseWorldMatrix => ParentTransform?.World?.InverseMatrix ?? Matrix4.Identity;
 
         /// <summary>
         /// Gets the transformation of this component in relation to the root transform.
@@ -219,38 +224,38 @@ namespace TheraEngine.Components
         protected void PhysicsSimulationStarted()
         {
             _simulatingPhysics = true;
-            foreach (SceneTransform transform in Children)
-                transform.PhysicsSimulationStarted(this);
+            foreach (ISocket socket in Socket.Children)
+                socket.Transform.PhysicsSimulationStarted(this);
         }
-        protected void PhysicsSimulationStarted(SceneTransform simulatingAncestor)
+        protected void PhysicsSimulationStarted(SocketTransform simulatingAncestor)
         {
             _ancestorSimulatingPhysics = simulatingAncestor;
-            foreach (SceneTransform transform in Children)
-                transform.PhysicsSimulationStarted(simulatingAncestor);
+            foreach (ISocket socket in Socket.Children)
+                socket.Transform.PhysicsSimulationStarted(simulatingAncestor);
         }
         protected void StopSimulatingPhysics(bool retainCurrentPosition)
         {
             _simulatingPhysics = false;
             if (retainCurrentPosition)
             {
-                _invWorld = _world.Inverted();
+                World.InverseMatrix = World.Matrix.Inverted();
 
-                Matrix4 mtx = ParentInverseWorldMatrix * WorldMatrix;
-                Matrix4 inv = InverseWorldMatrix * ParentWorldMatrix;
+                Matrix4 mtx = ParentInverseWorldMatrix * World.Matrix;
+                Matrix4 inv = World.InverseMatrix * ParentWorldMatrix;
                 _local.SetMatrices(mtx, inv);
                 
                 RecalcWorldMatrix();
             }
-            foreach (SceneTransform transform in Children)
-                transform.PhysicsSimulationEnded();
+            foreach (ISocket socket in Socket.Children)
+                socket.Transform.PhysicsSimulationEnded();
         }
         protected void PhysicsSimulationEnded()
         {
             RecalcWorldMatrix();
 
             _ancestorSimulatingPhysics = null;
-            foreach (SceneTransform transform in Children)
-                transform.PhysicsSimulationEnded();
+            foreach (ISocket socket in Socket.Children)
+                socket.Transform.PhysicsSimulationEnded();
         }
 
         #endregion
@@ -261,17 +266,17 @@ namespace TheraEngine.Components
         /// Right direction relative to the parent component (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalRightVec => _local.RightVec;
+        public Vec3 LocalRightVec => _local.Matrix.RightVec;
         /// <summary>
         /// Up direction relative to the parent component (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalUpVec => _local.UpVec;
+        public Vec3 LocalUpVec => _local.Matrix.UpVec;
         /// <summary>
         /// Forward direction relative to the parent component (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalForwardVec => _local.ForwardVec;
+        public Vec3 LocalForwardVec => _local.Matrix.ForwardVec;
         /// <summary>
         /// The position of this transform relative to the parent transform (or world if null).
         /// </summary>
@@ -287,17 +292,17 @@ namespace TheraEngine.Components
         /// Right direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldRightVec => _world.RightVec;
+        public Vec3 WorldRightVec => _world.Matrix.RightVec;
         /// <summary>
         /// Up direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldUpVec => _world.UpVec;
+        public Vec3 WorldUpVec => _world.Matrix.UpVec;
         /// <summary>
         /// Forward direction relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldForwardVec => _world.ForwardVec;
+        public Vec3 WorldForwardVec => _world.Matrix.ForwardVec;
         /// <summary>
         /// The position of this component relative to the world.
         /// </summary>

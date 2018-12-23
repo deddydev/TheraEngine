@@ -58,7 +58,7 @@ namespace TheraEngine.Components.Scene.Transforms
         {
             _delta = delta;
             _currentPoint = Transform.WorldPoint;
-            _destPoint = Transform.ParentTransform.WorldPoint;
+            _destPoint = Transform.Parent.WorldPoint;
             LaggingDistance = _destPoint.DistanceToFast(_currentPoint);
 
             //if (_laggingDistance > _maxLagDistance)

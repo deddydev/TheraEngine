@@ -21,10 +21,8 @@ namespace TheraEngine.Components.Scene.Mesh
     /// </summary>
     public interface ISocket
     {
-        ISocket Parent { get; set; }
-        SocketTransform Transform { get; set; }
+        SceneTransform Transform { get; set; }
         IActor OwningActor { get; }
-        IReadOnlyList<ISocket> Children { get; }
 
         bool IsTranslatable { get; }
         bool IsScalable { get; }
@@ -98,7 +96,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         bool ISocket.IsRotatable => true;
 
-        SocketTransform ISocket.Transform { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        SceneTransform ISocket.Transform { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public void HandleWorldRotation(Quat delta)
         {

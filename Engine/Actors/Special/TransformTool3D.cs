@@ -364,8 +364,8 @@ namespace TheraEngine.Actors.Types
                     }
                 case ESpace.Parent:
                     {
-                        if (_targetSocket.Transform.ParentTransform != null)
-                            return _targetSocket.Transform.ParentTransform.WorldMatrix.ClearScale();
+                        if (_targetSocket.Transform.Parent != null)
+                            return _targetSocket.Transform.Parent.WorldMatrix.ClearScale();
                         else
                             return _targetSocket.Transform.WorldMatrix.Translation.AsTranslationMatrix();
                     }
@@ -410,8 +410,8 @@ namespace TheraEngine.Actors.Types
                     }
                 case ESpace.Parent:
                     {
-                        if (_targetSocket.Transform.ParentTransform != null)
-                            return _targetSocket.Transform.ParentTransform.InverseWorldMatrix.ClearScale();
+                        if (_targetSocket.Transform.Parent != null)
+                            return _targetSocket.Transform.Parent.InverseWorldMatrix.ClearScale();
                         else
                             return _targetSocket.Transform.InverseWorldMatrix.Translation.AsTranslationMatrix();
                     }

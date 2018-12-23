@@ -34,7 +34,7 @@ namespace TheraEngine.Components
         /// <param name="socketName"></param>
         /// <returns></returns>
         ISocket AttachTo(StaticMeshComponent mesh, string socketName, bool retainTransform);
-        void AttachTo(SceneComponent component, bool retainTransform);
+        void AttachTo(SceneComponent component);
         void DetachFromParent();
 
         //List<SceneComponent> GenerateChildCache();
@@ -52,11 +52,11 @@ namespace TheraEngine.Components
 
         public event Action WorldTransformChanged;
         
-        private SocketTransform _transform;
-        public SocketTransform Transform
+        private SceneTransform _transform;
+        public SceneTransform Transform
         {
             get => _transform;
-            set => _transform = value ?? new SocketTransform();
+            set => _transform = value ?? new SceneTransform();
         }
 
         /// <summary>
@@ -82,8 +82,10 @@ namespace TheraEngine.Components
                 r3d.OctreeNode?.ItemMoved(r3d);
             
             WorldTransformChanged?.Invoke();
-            //SocketTransformChanged?.Invoke(this);
+            SocketTransformChanged?.Invoke(this);
         }
+
+        //internal ITransformable _parent;
         
         private BaseScene _owningScene;
         [Browsable(false)]
@@ -114,39 +116,36 @@ namespace TheraEngine.Components
         /// <summary>
         /// All scene components that derive their transform from this one.
         /// </summary>
-        [TSerialize]
-        [Browsable(false)]
-        [Category("Scene Component")]
-        public EventList<SceneComponent> ChildComponents
-        {
-            get => _children;
-            set
-            {
-                if (_children != null)
-                {
-                    _children.Clear();
-                    _children.PostAdded -= OnChildComponentAdded;
-                    _children.PostAddedRange -= OnChildComponentsAdded;
-                    _children.PostInserted -= OnChildComponentInserted;
-                    _children.PostInsertedRange -= OnChildComponentsInserted;
-                    _children.PostRemoved -= OnChildComponentRemoved;
-                    _children.PostRemovedRange -= OnChildComponentsRemoved;
-                }
-                if (value != null)
-                {
-                    _children = value;
-                    _children.PostAdded += OnChildComponentAdded;
-                    _children.PostAddedRange += OnChildComponentsAdded;
-                    _children.PostInserted += OnChildComponentInserted;
-                    _children.PostInsertedRange += OnChildComponentsInserted;
-                    _children.PostRemoved += OnChildComponentRemoved;
-                    _children.PostRemovedRange += OnChildComponentsRemoved;
-                }
-            }
-        }
-
-        private EventList<SceneComponent> _children;
-        private ISocket _parentSocket = null;
+        //[TSerialize]
+        //[Browsable(false)]
+        //[Category("Scene Component")]
+        //public EventList<SceneComponent> ChildComponents
+        //{
+        //    get => _children;
+        //    set
+        //    {
+        //        if (_children != null)
+        //        {
+        //            _children.Clear();
+        //            _children.PostAdded -= OnChildComponentAdded;
+        //            _children.PostAddedRange -= OnChildComponentsAdded;
+        //            _children.PostInserted -= OnChildComponentInserted;
+        //            _children.PostInsertedRange -= OnChildComponentsInserted;
+        //            _children.PostRemoved -= OnChildComponentRemoved;
+        //            _children.PostRemovedRange -= OnChildComponentsRemoved;
+        //        }
+        //        if (value != null)
+        //        {
+        //            _children = value;
+        //            _children.PostAdded += OnChildComponentAdded;
+        //            _children.PostAddedRange += OnChildComponentsAdded;
+        //            _children.PostInserted += OnChildComponentInserted;
+        //            _children.PostInsertedRange += OnChildComponentsInserted;
+        //            _children.PostRemoved += OnChildComponentRemoved;
+        //            _children.PostRemovedRange += OnChildComponentsRemoved;
+        //        }
+        //    }
+        //}
 
         //[Browsable(false)]
         //[Category("Rendering")]
@@ -155,14 +154,14 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public virtual ISocket ParentSocket
         {
-            get => _parentSocket;
+            get => Transform.Parent?.Socket;
             set
             {
                 if (ParentSocket == value)
                     return;
-                
+
                 IActor prevActor = OwningActor;
-                _parentSocket = value;
+                Transform.Parent = value?.Transform;
 
                 if (prevActor != OwningActor)
                     prevActor?.GenerateSceneComponentCache();
@@ -185,8 +184,12 @@ namespace TheraEngine.Components
             if (this is I2DRenderable r2d)
                 r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
 
-            foreach (SceneComponent comp in ChildComponents)
-                comp.OnSpawned();
+            foreach (SceneTransform transform in Transform.Children)
+            {
+                ISocket socket = transform.Socket;
+                if (socket is SceneComponent comp)
+                    comp.OnSpawned();
+            }
         }
         public override void OnDespawned()
         {
@@ -202,8 +205,12 @@ namespace TheraEngine.Components
             if (this is I2DRenderable r2d)
                 r2d.RenderInfo.UnlinkScene(r2d, OwningScene2D);
 
-            foreach (SceneComponent comp in ChildComponents)
-                comp.OnDespawned();
+            foreach (SceneTransform transform in Transform.Children)
+            {
+                ISocket socket = transform.Socket;
+                if (socket is SceneComponent comp)
+                    comp.OnDespawned();
+            }
         }
 
         public List<SceneComponent> GenerateChildCache()
@@ -215,8 +222,12 @@ namespace TheraEngine.Components
         protected virtual void GenerateChildCache(List<SceneComponent> cache)
         {
             cache.Add(this);
-            foreach (SceneComponent comp in ChildComponents)
-                comp.GenerateChildCache(cache);
+            foreach (SceneTransform transform in Transform.Children)
+            {
+                ISocket socket = transform.Socket;
+                if (socket is SceneComponent comp)
+                    comp.GenerateChildCache(cache);
+            }
         }
 
         #region Child Components
@@ -227,7 +238,7 @@ namespace TheraEngine.Components
                 if (item.IsSpawned)
                     item.OnDespawned();
 
-                item.ParentSocket = null;
+                item._parent = null;
                 item.OwningActor = null;
                 item.RecalcWorldTransform();
             }
@@ -238,7 +249,7 @@ namespace TheraEngine.Components
             if (item.IsSpawned)
                 item.OnDespawned();
 
-            item.ParentSocket = null;
+            item._parent = null;
             item.OwningActor = null;
             item.RecalcWorldTransform();
 
@@ -279,7 +290,7 @@ namespace TheraEngine.Components
 
             bool spawnedMismatch = IsSpawned != item.IsSpawned;
 
-            item.ParentSocket = this;
+            item._parent = this;
             item.OwningActor = OwningActor;
             item.RecalcWorldTransform();
 
@@ -321,7 +332,7 @@ namespace TheraEngine.Components
                 Bone bone = mesh.SkeletonOverride[socketName];
                 if (bone != null)
                 {
-                    bone.Transform.Children.Add(Transform);
+                    bone.ChildComponents.Add(this);
                     return bone;
                 }
             }
@@ -367,7 +378,7 @@ namespace TheraEngine.Components
         /// Retains current position in world space.
         /// </summary>
         public void DetachFromParent()
-            => ParentSocket?.Children.Remove(Transform);
+            => ParentSocket?.ChildComponents.Remove(this);
         #endregion
 
         #region Transform Tool

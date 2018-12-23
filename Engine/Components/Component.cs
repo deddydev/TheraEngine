@@ -7,7 +7,7 @@ namespace TheraEngine.Components
     public interface IComponent : IFileObject
     {
         bool Locked { get; }
-        IActor OwningActor { get; }
+        IActor OwningActor { get; set; }
         bool IsSpawned { get; }
         void OnSpawned();
         void OnDespawned();

@@ -1,6 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using TheraEngine.Animation;
+using TheraEngine.Animation.Property;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Shapes;
@@ -209,6 +213,54 @@ namespace TheraEngine.Rendering.Cameras
         public float HorizontalFovForHeightAndDistance(float height, float distance)
             => 2.0f * TMath.RadToDeg((float)Math.Atan(height * _aspect * 0.5f / distance));
         
+        public void SetKeyframe(AnimationMember anim)
+        {
+            anim.Animation
+        }
+        public void Lerp(PerspectiveCamera from, PerspectiveCamera to, float time)
+        {
+            _fovX = Interp.Lerp(from._fovX, to._fovX, time);
+            _fovY = Interp.Lerp(from._fovY, to._fovY, time);
+            _width = Interp.Lerp(from._width, to._width, time);
+            _height = Interp.Lerp(from._height, to._height, time);
+            _nearZ = Interp.Lerp(from._nearZ, to._nearZ, time);
+            _farZ = Interp.Lerp(from._farZ, to._farZ, time);
+
+            if (from._viewTarget != null && to._viewTarget != null)
+            {
+                if (_viewTarget == null)
+                    _viewTarget = new EventVec3();
+
+                _viewTarget.SetRawNoUpdate(Vec3.Lerp(from._viewTarget.Raw, to._viewTarget.Raw, time));
+            }
+            else
+                _localRotation.SetRawNoUpdate(Rotator.Lerp(from._localRotation, to._localRotation, time));
+
+            _localPoint.SetRawNoUpdate(Vec3.Lerp(from._localPoint, to._localPoint, time));
+
+            if (from._overrideAspect || to._overrideAspect)
+            {
+                _aspect = Interp.Lerp(from._aspect, to._aspect, time);
+                _overrideAspect = true;
+            }
+            else
+                _aspect = _width / _height;
+
+            if (from.PostProcessRef?.File != null && to.PostProcessRef?.File != null)
+            {
+                if (PostProcessRef == null)
+                    PostProcessRef = new GlobalFileRef<PostProcessSettings>();
+
+                if (PostProcessRef.File == null)
+                    PostProcessRef.File = new PostProcessSettings();
+
+                PostProcessRef.File.Lerp(from.PostProcessRef.File, to.PostProcessRef.File, time);
+            }
+
+            CalculateProjection();
+            PositionChanged();
+        }
+
         // half of the the horizontal field of view
         //       float angleX;
         //// store the information

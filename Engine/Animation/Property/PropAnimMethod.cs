@@ -61,7 +61,7 @@ namespace TheraEngine.Animation
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
-            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
+            SetBakedFrameCount();
             _baked = new T[BakedFrameCount];
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = TickMethod(i);

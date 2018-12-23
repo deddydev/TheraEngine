@@ -45,12 +45,12 @@ namespace TheraEngine.Components
         //}
 
         private SocketTransform _rootTransform;
-        private SocketTransform _parent;
+        //private SocketTransform _parent;
 
         protected SocketTransform _ancestorSimulatingPhysics;
         protected bool _simulatingPhysics = false;
         
-        internal protected BasicTransform _local, _world;
+        internal protected MatrixTransform _local, _world;
 
         public event DelSocketTransformChange SocketTransformChanged;
 
@@ -63,25 +63,7 @@ namespace TheraEngine.Components
         }
 
         #region Main Matrices
-        //public virtual Matrix4 WorldMatrix
-        //{
-        //    get => _world;
-        //    set => SetWorldMatrices(value, value.Inverted());
-        //}
-        /// <summary>
-        /// Retrieving the inverse world matrix on a component that is simulating physics,
-        /// or especially whose ancestor is simulating physics,
-        /// is expensive because it must invert the world matrix at this given moment
-        /// and also has to follow the parent heirarchy to create the inverse transform tree.
-        /// Avoid calling if possible when simulating physics.
-        /// </summary>
-        //public virtual Matrix4 InverseWorldMatrix
-        //{
-        //    get => _invWorld;
-        //    set => SetWorldMatrices(value.Inverted(), value);
-        //}
-
-        public BasicTransform World
+        public MatrixTransform World
         {
             get => _world;
             set
@@ -89,12 +71,12 @@ namespace TheraEngine.Components
                 if (_world != null)
                     _world.MatrixChanged -= WorldMatrixChanged;
 
-                _world = value ?? BasicTransform.GetIdentity();
+                _world = value ?? new MatrixTransform();
                 _world.MatrixChanged += WorldMatrixChanged;
                 WorldMatrixChanged();
             }
         }
-        public BasicTransform Local
+        public MatrixTransform Local
         {
             get => _local;
             set
@@ -102,7 +84,7 @@ namespace TheraEngine.Components
                 if (_local != null)
                     _local.MatrixChanged -= LocalMatrixChanged;
 
-                _local = value ?? BasicTransform.GetIdentity();
+                _local = value ?? new MatrixTransform();
                 _local.MatrixChanged += LocalMatrixChanged;
                 LocalMatrixChanged();
             }
@@ -114,35 +96,16 @@ namespace TheraEngine.Components
         }
         private void WorldMatrixChanged()
         {
-            Matrix4 mtx = ParentInverseWorldMatrix * World.Matrix;
-            Matrix4 inv = World.InverseMatrix * ParentWorldMatrix;
-            _local.SetMatrices(mtx, inv);
-
+            DeriveLocalFromWorld();
             Socket?.OnWorldTransformChanged();
-        }
-
-        /// <summary>
-        /// Use to set both matrices at the same time, so neither needs to be inverted to get the other.
-        /// Highly recommended if you are able to compute both with the same initial parameters.
-        /// </summary>
-        public void SetWorldMatrices(Matrix4 matrix, Matrix4 inverse)
-        {
-            World.SetMatrices(matrix, inverse);
         }
 
         public void DeriveLocalFromWorld()
         {
-
-        }
-        /// <summary>
-        /// Use to set both matrices at the same time, so neither needs to be inverted to get the other.
-        /// Highly recommended if you are able to compute both with the same initial parameters.
-        /// </summary>
-        public void SetLocalMatrices(Matrix4 matrix, Matrix4 inverse)
-        {
-            _local.SetMatrices(matrix, inverse);
-
-            RecalcWorldMatrix();
+            //Derive local matrices using difference between this and parent world matrix
+            Matrix4 mtx = ParentInverseWorldMatrix * World.Matrix;
+            Matrix4 inv = World.InverseMatrix * ParentWorldMatrix;
+            _local.Set(mtx, inv, true);
         }
         public void RecalcWorldMatrix()
         {
@@ -152,11 +115,13 @@ namespace TheraEngine.Components
                 RecalcWorldMatrixOverride(out mtx, out inv);
             else
             {
+                //Default: apply local transform after parent world transform to get world transform
                 mtx = ParentWorldMatrix * Local.Matrix;
                 inv = Local.InverseMatrix * ParentInverseWorldMatrix;
             }
 
-            SetWorldMatrices(mtx, inv);
+            World.Set(mtx, inv, true);
+            Socket?.OnWorldTransformChanged();
         }
 
         #endregion
@@ -224,13 +189,13 @@ namespace TheraEngine.Components
         protected void PhysicsSimulationStarted()
         {
             _simulatingPhysics = true;
-            foreach (ISocket socket in Socket.Children)
+            foreach (ISocket socket in Socket.ChildComponents)
                 socket.Transform.PhysicsSimulationStarted(this);
         }
         protected void PhysicsSimulationStarted(SocketTransform simulatingAncestor)
         {
             _ancestorSimulatingPhysics = simulatingAncestor;
-            foreach (ISocket socket in Socket.Children)
+            foreach (ISocket socket in Socket.ChildComponents)
                 socket.Transform.PhysicsSimulationStarted(simulatingAncestor);
         }
         protected void StopSimulatingPhysics(bool retainCurrentPosition)
@@ -238,23 +203,20 @@ namespace TheraEngine.Components
             _simulatingPhysics = false;
             if (retainCurrentPosition)
             {
+                //World matrix has been updated by physics.
+                //Calculate inverse and derive local transforms
                 World.InverseMatrix = World.Matrix.Inverted();
-
-                Matrix4 mtx = ParentInverseWorldMatrix * World.Matrix;
-                Matrix4 inv = World.InverseMatrix * ParentWorldMatrix;
-                _local.SetMatrices(mtx, inv);
-                
-                RecalcWorldMatrix();
+                DeriveLocalFromWorld();
             }
-            foreach (ISocket socket in Socket.Children)
+            foreach (ISocket socket in Socket.ChildComponents)
                 socket.Transform.PhysicsSimulationEnded();
         }
         protected void PhysicsSimulationEnded()
         {
-            RecalcWorldMatrix();
+            //RecalcWorldMatrix();
 
             _ancestorSimulatingPhysics = null;
-            foreach (ISocket socket in Socket.Children)
+            foreach (ISocket socket in Socket.ChildComponents)
                 socket.Transform.PhysicsSimulationEnded();
         }
 
@@ -281,12 +243,12 @@ namespace TheraEngine.Components
         /// The position of this transform relative to the parent transform (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalPoint => _local.Translation;
+        public Vec3 LocalPoint => _local.Matrix.Translation;
         /// <summary>
         /// The scale of this transform relative to the parent transform (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalScale => _local.Scale;
+        public Vec3 LocalScale => _local.Matrix.Scale;
 
         /// <summary>
         /// Right direction relative to the world.
@@ -307,12 +269,12 @@ namespace TheraEngine.Components
         /// The position of this component relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldPoint => _world.Translation;
+        public Vec3 WorldPoint => _world.Matrix.Translation;
         /// <summary>
         /// The scale of this component relative to the world.
         /// </summary>
         [Browsable(false)]
-        public Vec3 WorldScale => _world.Scale;
+        public Vec3 WorldScale => _world.Matrix.Scale;
 
         #endregion
     }

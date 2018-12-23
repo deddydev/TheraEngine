@@ -136,18 +136,18 @@ namespace TheraEngine.Animation
             throw new NotImplementedException();
         }
     }
-    public class IntKeyframe : Keyframe, IPlanarKeyframe<int>
+    public class IntKeyframe : Keyframe, IVectorKeyframe<int>
     {
         public IntKeyframe() { }
-        public IntKeyframe(int frameIndex, float FPS, int inValue, int outValue, float inTangent, float outTangent, EPlanarInterpType type)
+        public IntKeyframe(int frameIndex, float FPS, int inValue, int outValue, float inTangent, float outTangent, EVectorInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public IntKeyframe(int frameIndex, float FPS, int inoutValue, float inoutTangent, EPlanarInterpType type)
+        public IntKeyframe(int frameIndex, float FPS, int inoutValue, float inoutTangent, EVectorInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public IntKeyframe(float second, int inoutValue, float inoutTangent, EPlanarInterpType type)
+        public IntKeyframe(float second, int inoutValue, float inoutTangent, EVectorInterpType type)
             : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public IntKeyframe(float second, int inoutValue, float inTangent, float outTangent, EPlanarInterpType type)
+        public IntKeyframe(float second, int inoutValue, float inTangent, float outTangent, EVectorInterpType type)
             : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
-        public IntKeyframe(float second, int inValue, int outValue, float inTangent, float outTangent, EPlanarInterpType type) : base()
+        public IntKeyframe(float second, int inValue, int outValue, float inTangent, float outTangent, EVectorInterpType type) : base()
         {
             Second = second;
             InValue = inValue;
@@ -165,7 +165,7 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate;
         private DelInterpolate _interpolateVelocity;
         private DelInterpolate _interpolateAcceleration;
-        protected EPlanarInterpType _interpolationType;
+        protected EVectorInterpType _interpolationType;
         
         [TSerialize(NodeType = ENodeType.Attribute)]
         public int InValue { get; set; }
@@ -191,7 +191,7 @@ namespace TheraEngine.Animation
         }
 
         [TSerialize(NodeType = ENodeType.Attribute)]
-        public EPlanarInterpType InterpolationType
+        public EVectorInterpType InterpolationType
         {
             get => _interpolationType;
             set
@@ -199,22 +199,22 @@ namespace TheraEngine.Animation
                 _interpolationType = value;
                 switch (_interpolationType)
                 {
-                    case EPlanarInterpType.Step:
+                    case EVectorInterpType.Step:
                         _interpolate = Step;
                         _interpolateVelocity = StepVelocity;
                         _interpolateAcceleration = StepAcceleration;
                         break;
-                    case EPlanarInterpType.Linear:
+                    case EVectorInterpType.Linear:
                         _interpolate = Lerp;
                         _interpolateVelocity = LerpVelocity;
                         _interpolateAcceleration = LerpAcceleration;
                         break;
-                    case EPlanarInterpType.CubicHermite:
+                    case EVectorInterpType.CubicHermite:
                         _interpolate = CubicHermite;
                         _interpolateVelocity = CubicHermiteVelocity;
                         _interpolateAcceleration = CubicHermiteAcceleration;
                         break;
-                    case EPlanarInterpType.CubicBezier:
+                    case EVectorInterpType.CubicBezier:
                         _interpolate = CubicBezier;
                         _interpolateVelocity = CubicBezierVelocity;
                         _interpolateAcceleration = CubicBezierAcceleration;
@@ -224,12 +224,12 @@ namespace TheraEngine.Animation
         }
 
         public override Type ValueType => typeof(int);
-        object IPlanarKeyframe.InValue { get => InValue; set => InValue = (int)value; }
-        object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (int)value; }
-        object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (int)value; }
-        object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (int)value; }
-        int IPlanarKeyframe<int>.InTangent { get => (int)InTangent; set => InTangent = value; }
-        int IPlanarKeyframe<int>.OutTangent { get => (int)OutTangent; set => OutTangent = value; }
+        object IVectorKeyframe.InValue { get => InValue; set => InValue = (int)value; }
+        object IVectorKeyframe.OutValue { get => OutValue; set => OutValue = (int)value; }
+        object IVectorKeyframe.InTangent { get => InTangent; set => InTangent = (int)value; }
+        object IVectorKeyframe.OutTangent { get => OutTangent; set => OutTangent = (int)value; }
+        int IVectorKeyframe<int>.InTangent { get => (int)InTangent; set => InTangent = value; }
+        int IVectorKeyframe<int>.OutTangent { get => (int)OutTangent; set => OutTangent = value; }
 
         /// <summary>
         /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
@@ -361,17 +361,17 @@ namespace TheraEngine.Animation
             OutValue = int.Parse(parts[2]);
             InTangent = float.Parse(parts[3]);
             OutTangent = float.Parse(parts[4]);
-            InterpolationType = parts[5].AsEnum<EPlanarInterpType>();
+            InterpolationType = parts[5].AsEnum<EVectorInterpType>();
         }
         
-        void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
+        void IVectorKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
         {
             InValue = int.Parse(inValue);
             OutValue = int.Parse(outValue);
             InTangent = float.Parse(inTangent);
             OutTangent = float.Parse(outTangent);
         }
-        void IPlanarKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
+        void IVectorKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
         {
             inValue = InValue.ToString();
             outValue = OutValue.ToString();

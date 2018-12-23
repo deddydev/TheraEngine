@@ -30,13 +30,13 @@ namespace TheraEngine.Components.Scene
         }
         private void ActorLoaded(T actor)
         {
-            actor.RootComponent.ParentSocket = this;
+            actor.RootComponent.Parent = this;
             if (IsSpawned)
                 Actor?.File?.Spawned(OwningWorld);
         }
         private void ActorUnloaded(T actor)
         {
-            actor.RootComponent.ParentSocket = this;
+            actor.RootComponent.Parent = this;
             if (IsSpawned)
                 Actor?.File?.Spawned(OwningWorld);
         }

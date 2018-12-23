@@ -936,7 +936,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
             {
                 SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-                var sibComps = sceneCompSel.ParentSocket?.ChildComponents;
+                var sibComps = sceneCompSel.Parent?.ChildComponents;
                 int index = sibComps?.IndexOf(sceneCompSel) ?? -1;
                 int count = sibComps?.Count ?? -1;
 
@@ -948,14 +948,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 btnAddToSibAboveSceneComp.Enabled = index > 0;
                 btnAddToSibBelowSceneComp.Enabled = index < count - 1;
 
-                btnAddSiblingSceneComp.Enabled = sceneCompSel.ParentSocket is SceneComponent;
-                btnAddSibToParentSceneComp.Enabled = sceneCompSel.ParentSocket?.ParentSocket is SceneComponent;
+                btnAddSiblingSceneComp.Enabled = sceneCompSel.Parent is SceneComponent;
+                btnAddSibToParentSceneComp.Enabled = sceneCompSel.Parent?.ParentSocket is SceneComponent;
             }
         }
         private void btnAddSiblingSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.Parent.ChildComponents;
             SceneComponent comp = Editor.UserCreateInstanceOf<SceneComponent>(true);
             if (comp == null)
                 return;
@@ -1010,7 +1010,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnMoveUpSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.Parent.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
             sibComps.Insert(index - 1, sceneCompSel);
@@ -1028,7 +1028,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnMoveDownSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.Parent.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
             sibComps.Insert(index + 1, sceneCompSel);
@@ -1046,7 +1046,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAddToSibAboveSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.Parent.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
             sibComps[index - 1].ChildComponents.Add(sceneCompSel);
@@ -1064,7 +1064,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAddToSibBelowSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-            var sibComps = sceneCompSel.ParentSocket.ChildComponents;
+            var sibComps = sceneCompSel.Parent.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
             sibComps[index].ChildComponents.Add(sceneCompSel);
@@ -1082,7 +1082,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAddSibToParentSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-            var parent = sceneCompSel.ParentSocket;
+            var parent = sceneCompSel.Parent;
             var sibComps = parent.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);

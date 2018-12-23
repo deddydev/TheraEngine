@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public event DelConnected Connected, Disconnected;
 
         public override bool IsOutput => false;
-        public new TParent ParentSocket => (TParent)base.ParentSocket;
+        public new TParent ParentSocket => (TParent)base.Parent;
         public TOutput Connection
         {
             get => _connection;

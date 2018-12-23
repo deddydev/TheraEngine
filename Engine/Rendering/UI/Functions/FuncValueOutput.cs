@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.UI.Functions
 
         public override bool IsOutput => true;
         public EventList<TInput> Connections => _connections;
-        public new TParent ParentSocket => (TParent)base.ParentSocket;
+        public new TParent ParentSocket => (TParent)base.Parent;
 
         public override bool HasConnection => Connections.Count > 0;
 

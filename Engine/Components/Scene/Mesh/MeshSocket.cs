@@ -17,22 +17,14 @@ namespace TheraEngine.Components.Scene.Mesh
     }
     public delegate void DelSocketTransformChange(ISocket socket);
     /// <summary>
-    /// An ISocket can be a bone, mesh socket, or scene component.
+    /// An ISocket can be a bone, static or skeletal mesh, mesh socket, or scene component.
     /// </summary>
     public interface ISocket
     {
-        ISocket Parent { get; set; }
-        SocketTransform Transform { get; set; }
+        ISocket Parent { get; }
         IActor OwningActor { get; }
-        IReadOnlyList<ISocket> Children { get; }
-
-        bool IsTranslatable { get; }
-        bool IsScalable { get; }
-        bool IsRotatable { get; }
-
-        void HandleWorldTranslation(Vec3 delta);
-        void HandleWorldScale(Vec3 delta);
-        void HandleWorldRotation(Quat delta);
+        SocketTransform Transform { get; set; }
+        EventList<SceneComponent> ChildComponents { get; set; }
 
         void OnWorldTransformChanged();
     }
@@ -40,98 +32,73 @@ namespace TheraEngine.Components.Scene.Mesh
     {
         internal MeshSocket(BasicTransform transform, IMeshSocketOwner owner, IActor actor)
         {
-            _owner = owner;
+            _parent = owner;
             _owningActor = actor;
             _transform = transform;
 
             ChildComponents = new EventList<SceneComponent>(_children_Added, _children_Removed);
         }
 
-        private IMeshSocketOwner _owner;
+        private IMeshSocketOwner _parent;
         private IActor _owningActor;
-        private BasicTransform _transform = BasicTransform.GetIdentity();
+        private SocketTransform _transform = new SocketTransform();
 
-        public Matrix4 WorldMatrix { get=> _transform.Matrix; set => _transform.Matrix = value; }
-        public Matrix4 InverseWorldMatrix { get => _transform.InverseMatrix; set => _transform.InverseMatrix = value; }
-        public EventList<SceneComponent> ChildComponents { get; }
+        private EventList<SceneComponent> _childComponents;
+        public EventList<SceneComponent> ChildComponents
+        {
+            get => _childComponents;
+            set
+            {
+                if (_childComponents != null)
+                {
+                    _childComponents.PostAnythingAdded -= _children_Added;
+                    _childComponents.PostAnythingRemoved -= _children_Removed;
+                }
+                _childComponents = value ?? new EventList<SceneComponent>();
+                _childComponents.PostAnythingAdded += _children_Added;
+                _childComponents.PostAnythingRemoved += _children_Removed;
+            }
+        }
         
         private void _children_Added(SceneComponent item)
         {
-            item._parent = this;
+            item.Parent = this;
             item.OwningActor = _owningActor;
             item.RecalcWorldTransform();
         }
         private void _children_Removed(SceneComponent item)
         {
-            item._parent = null;
+            item.Parent = null;
             item.OwningActor = null;
             item.RecalcWorldTransform();
         }
 
         [TSerialize]
-        public BasicTransform Transform
+        public SocketTransform Transform
         {
             get => _transform;
             set
             {
                 _transform = value;
-                _transform.MatrixChanged += _transform_MatrixChanged;
             }
         }
         
-        public ISocket ParentSocket => _owner;
+        public IMeshSocketOwner Parent
+        {
+            get => _parent;
+            set
+            {
+                _parent = value;
+            }
+        }
+        ISocket ISocket.Parent  => Parent;
 
-        private void _transform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        private void _transform_MatrixChanged()
         {
             SocketTransformChanged?.Invoke(this);
         }
-
-        bool ISocket.IsTranslatable => true;
-        public void HandleWorldTranslation(Vec3 delta)
-        {
-            _transform.Translation += delta;
-        }
-        bool ISocket.IsScalable => true;
-        public void HandleWorldScale(Vec3 delta)
-        {
-            _transform.Scale += delta;
-        }
-        bool ISocket.IsRotatable => true;
-
+        
         SocketTransform ISocket.Transform { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public void HandleWorldRotation(Quat delta)
-        {
-            _transform.Quaternion *= delta;
-        }
-
-        private DelSocketTransformChange SocketTransformChanged;
-        public void RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister = false)
-        {
-            if (unregister)
-                SocketTransformChanged -= eventMethod;
-            else
-                SocketTransformChanged += eventMethod;
-        }
-
-        void ISocket.HandleWorldTranslation(Vec3 delta)
-        {
-            throw new NotImplementedException();
-        }
-
-        void ISocket.HandleWorldScale(Vec3 delta)
-        {
-            throw new NotImplementedException();
-        }
-
-        void ISocket.HandleWorldRotation(Quat delta)
-        {
-            throw new NotImplementedException();
-        }
-
-        void ISocket.OnWorldTransformChanged()
-        {
-            throw new NotImplementedException();
-        }
+        public IActor OwningActor { get; }
     }
 }

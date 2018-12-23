@@ -53,7 +53,7 @@ namespace TheraEngine.Components.Scene.Transforms
             Transform.DeriveTRS(LocalMatrix, out Vec3 t, out Quat r, out Vec3 s);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
-            _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
+            _rotation.SetRawNoUpdate(r.ToYawPitchRoll());
         }
 
         protected internal override void OnDeserialized()

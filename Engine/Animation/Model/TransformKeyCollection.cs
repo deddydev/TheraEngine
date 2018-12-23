@@ -385,12 +385,12 @@ namespace TheraEngine.Animation
                     if (node.GetAttributeValue("Count", out int keyCount))
                     {
                         float[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null;
-                        EPlanarInterpType[] interpolation = null;
+                        EVectorInterpType[] interpolation = null;
 
                         foreach (SerializeElement keyframePartElement in targetTrackElement.ChildElements)
                         {
                             if (keyframePartElement.MemberInfo.Name == "Interpolation" && 
-                                keyframePartElement.GetElementContentAs(out EPlanarInterpType[] array1))
+                                keyframePartElement.GetElementContentAs(out EVectorInterpType[] array1))
                             {
                                 interpolation = array1;
                             }

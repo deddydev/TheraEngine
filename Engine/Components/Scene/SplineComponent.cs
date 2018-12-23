@@ -299,7 +299,7 @@ void main()
             BasicTransform.DeriveTRS(_localTRS, out Vec3 t, out Quat r, out Vec3 s);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
-            _rotation.SetRotationsNoUpdate(r.ToYawPitchRoll());
+            _rotation.SetRawNoUpdate(r.ToYawPitchRoll());
         }
         internal protected override void OnWorldTransformChanged()
         {

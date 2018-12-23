@@ -12,13 +12,13 @@ namespace TheraEngine.Animation
         Type ValueType { get; }
         float Second { get; set; }
     }
-    public interface IPlanarKeyframe : IKeyframe
+    public interface IVectorKeyframe : IKeyframe
     {
         object InValue { get; set; }
         object OutValue { get; set; }
         object InTangent { get; set; }
         object OutTangent { get; set; }
-        EPlanarInterpType InterpolationType { get; set; }
+        EVectorInterpType InterpolationType { get; set; }
 
         void UnifyKeyframe(EUnifyBias bias);
         void UnifyValues(EUnifyBias bias);
@@ -30,7 +30,7 @@ namespace TheraEngine.Animation
         void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent);
         void WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent);
     }
-    public interface IPlanarKeyframe<T> : IPlanarKeyframe where T : unmanaged
+    public interface IVectorKeyframe<T> : IVectorKeyframe where T : unmanaged
     {
         new T InValue { get; set; }
         new T OutValue { get; set; }
@@ -38,10 +38,6 @@ namespace TheraEngine.Animation
         new T OutTangent { get; set; }
     }
     public interface IRadialKeyframe
-    {
-
-    }
-    public interface IStepKeyframe
     {
 
     }
@@ -455,7 +451,7 @@ namespace TheraEngine.Animation
                 return;
 
             Type t = typeof(T);
-            if (!typeof(IPlanarKeyframe).IsAssignableFrom(t))
+            if (!typeof(IVectorKeyframe).IsAssignableFrom(t))
                 return;
 
             T kf = new T();
@@ -468,7 +464,7 @@ namespace TheraEngine.Animation
             object outValues = null;
             object inTans = null;
             object outTans = null;
-            EPlanarInterpType[] interpTypes = new EPlanarInterpType[keyCount];
+            EVectorInterpType[] interpTypes = new EVectorInterpType[keyCount];
             
             //Read all keyframe information, split into separate element arrays
             foreach (SerializeElement element in node.ChildElements)
@@ -488,7 +484,7 @@ namespace TheraEngine.Animation
             for (int i = 0; i < keyCount; ++i)
             {
                 float sec                   = seconds       == null || !seconds.IndexInArrayRange(i)            ? 0.0f                   : seconds[i];
-                EPlanarInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)        ? EPlanarInterpType.Step : interpTypes[i];
+                EVectorInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)        ? EVectorInterpType.Step : interpTypes[i];
                 object inVal                = inValues      == null || !((Array)inValues).IndexInArrayRange(i)  ? defaultObj             : ((Array)inValues).GetValue(i);
                 object outVal               = outValues     == null || !((Array)outValues).IndexInArrayRange(i) ? defaultObj             : ((Array)outValues).GetValue(i);
                 object inTan                = inTans        == null || !((Array)inTans).IndexInArrayRange(i)    ? defaultObj             : ((Array)inTans).GetValue(i);
@@ -496,7 +492,7 @@ namespace TheraEngine.Animation
 
                 kf = new T();
 
-                IPlanarKeyframe kfp = (IPlanarKeyframe)kf;
+                IVectorKeyframe kfp = (IVectorKeyframe)kf;
                 kfp.InterpolationType = interp;
                 kfp.Second = sec;
                 kfp.InValue = inVal;
@@ -517,7 +513,7 @@ namespace TheraEngine.Animation
                 return;
             
             Type t = typeof(T);
-            if (!typeof(IPlanarKeyframe).IsAssignableFrom(t))
+            if (!typeof(IVectorKeyframe).IsAssignableFrom(t))
                 return;
 
             float[] seconds     = new float[Count];
@@ -525,10 +521,10 @@ namespace TheraEngine.Animation
             object[] outValues  = new object[Count];
             object[] inTans     = new object[Count];
             object[] outTans    = new object[Count];
-            EPlanarInterpType[] interpTypes = new EPlanarInterpType[Count];
+            EVectorInterpType[] interpTypes = new EVectorInterpType[Count];
 
             int i = 0;
-            foreach (IPlanarKeyframe kf in this)
+            foreach (IVectorKeyframe kf in this)
             {
                 seconds[i] = kf.Second;
                 interpTypes[i] = kf.InterpolationType;
@@ -550,16 +546,21 @@ namespace TheraEngine.Animation
     }
     public enum ERadialInterpType
     {
-        Step,
-        Linear,
-        CubicBezier
+        Step = 0,
+        Linear = 1,
+        SphericalLinear = 2,
     }
-    public enum EPlanarInterpType
+    public enum ELerpType
     {
-        Step,
-        Linear,
-        CubicHermite,
-        CubicBezier
+        Step = 0,
+        Linear = 1
+    }
+    public enum EVectorInterpType
+    {
+        Step = 0,
+        Linear = 1,
+        CubicBezier = 2,
+        CubicHermite = 3,
     }
     public abstract class Keyframe : IKeyframe, ISerializableString
     {

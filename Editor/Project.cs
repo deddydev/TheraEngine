@@ -342,7 +342,7 @@ namespace TheraEditor
             await project.ExportAsync();
 
             project.GenerateSolution(true);
-            await project.CompileAsync();
+            project.Compile();
             
             return project;
         }
@@ -570,12 +570,7 @@ namespace TheraEditor
             //sln.SaveAs(Path.Combine(slnDir, Name + ".sln"));
             //VisualStudioManager.VSInstanceClosed();
         }
-        public async Task CompileAsync()
-            => await Task.Run(() => Compile());
-        public async Task CompileAsync(string buildConfiguration, string buildPlatform) 
-            => await Task.Run(() => Compile(buildConfiguration, buildPlatform));
-        public void Compile()
-            => Compile(TargetBuildConfiguration, TargetBuildPlatform);
+        public void Compile() => Compile(TargetBuildConfiguration, TargetBuildPlatform);
         public void Compile(string buildConfiguration, string buildPlatform)
         {
             ProjectCollection pc = new ProjectCollection();

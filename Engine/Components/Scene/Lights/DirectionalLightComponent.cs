@@ -69,11 +69,11 @@ namespace TheraEngine.Components.Scene.Lights
             _direction = _rotation.GetDirection();
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
-        internal protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged()
         {
             if (ShadowCamera != null)
             {
-                ShadowCamera.LocalPoint.Raw = Transform.WorldPoint;
+                ShadowCamera.LocalPoint.Raw = WorldPoint;
                 ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
             }
             
@@ -92,7 +92,7 @@ namespace TheraEngine.Components.Scene.Lights
                     if (ShadowMap == null)
                         SetShadowMapResolution(1024, 1024);
 
-                    ShadowCamera.LocalPoint.Raw = Transform.WorldPoint;
+                    ShadowCamera.LocalPoint.Raw = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
                 ShadowCamera.RenderInfo.LinkScene(ShadowCamera, s3d);

@@ -22,12 +22,10 @@ namespace TheraEngine.Components.Scene.Mesh
     public interface ISocket
     {
         SceneTransform Transform { get; set; }
-        IActor OwningActor { get; }
 
         bool IsTranslatable { get; }
         bool IsScalable { get; }
         bool IsRotatable { get; }
-
         void HandleWorldTranslation(Vec3 delta);
         void HandleWorldScale(Vec3 delta);
         void HandleWorldRotation(Quat delta);

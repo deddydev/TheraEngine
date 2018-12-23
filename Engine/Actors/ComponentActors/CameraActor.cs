@@ -23,7 +23,7 @@ namespace TheraEngine.Actors.Types
             //Camera camera = new OrthographicCamera(1.0f, 10000.0f);
             CameraComponent = new CameraComponent(camera);
             TRComponent tr = new TRComponent();
-            tr.AddChild(CameraComponent);
+            tr.ChildComponents.Add(CameraComponent);
             return tr;
         }
     }

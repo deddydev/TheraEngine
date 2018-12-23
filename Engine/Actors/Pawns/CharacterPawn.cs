@@ -245,7 +245,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
             _meshComp = new SkeletalMeshComponent();
             _meshComp.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
-            rootCapsule.Transform.Children.Add(_meshComp.Transform);
+            rootCapsule.ChildComponents.Add(_meshComp);
 
             //PerspectiveCamera FPCam = new PerspectiveCamera()
             //{
@@ -257,13 +257,13 @@ namespace TheraEngine.Actors.Types.Pawns
             //_fpCameraComponent.AttachTo(_meshComp, "Head");
 
             PositionLagComponent lagComp = new PositionLagComponent(50.0f, 0.0f);
-            rootCapsule.Transform.Children.Add(lagComp.Transform);
+            rootCapsule.ChildComponents.Add(lagComp);
 
             _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.RigidBodyCollision };
             _tpCameraBoom.Translation.Raw = new Vec3(0.0f, 0.3f, 0.0f);
             _tpCameraBoom.Rotation.SyncFrom(_viewRotation);
             _tpCameraBoom.MaxLength = 5.0f;
-            lagComp.Transform.Children.Add(_tpCameraBoom.Transform);
+            lagComp.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()
             {
@@ -273,7 +273,7 @@ namespace TheraEngine.Actors.Types.Pawns
             };
 
             _tpCameraComponent = new CameraComponent(TPCam);
-            _tpCameraBoom.Transform.Children.Add(_tpCameraComponent.Transform);
+            _tpCameraBoom.ChildComponents.Add(_tpCameraComponent);
             
             CurrentCameraComponent = _tpCameraComponent;
 

@@ -19,6 +19,7 @@ namespace TheraEngine.Components
     [TFileExt("comp")]
     public abstract class Component : TFileObject
     {
+        private IActor _owner;
         public bool _locked = true;
 
         /// <summary>
@@ -27,7 +28,11 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public bool Locked => _locked;
         [Browsable(false)]
-        public virtual IActor OwningActor { get; internal set; }
+        public virtual IActor OwningActor
+        {
+            get => _owner;
+            set => _owner = value;
+        }
         [Browsable(false)]
         public bool IsSpawned => OwningActor?.IsSpawned ?? false;
 

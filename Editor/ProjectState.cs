@@ -20,7 +20,7 @@ namespace TheraEditor
         
         private TWorld _currentWorld;
         private Map _currentMap;
-        private TransformActor _currentActor;
+        private Actor _currentActor;
 
         public TWorld CurrentWorld
         {
@@ -32,7 +32,7 @@ namespace TheraEditor
             get => _currentMap;
             set => _currentMap = value;
         }
-        public TransformActor CurrentActor
+        public Actor CurrentActor
         {
             get => _currentActor;
             set => _currentActor = value;

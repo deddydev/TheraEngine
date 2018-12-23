@@ -44,7 +44,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 return socket;
             }
         }
-        public MeshSocket FindOrCreateSocket(string socketName, BasicTransform transform)
+        public MeshSocket FindOrCreateSocket(string socketName, Transform transform)
         {
             if (_sockets.ContainsKey(socketName))
             {

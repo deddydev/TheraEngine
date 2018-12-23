@@ -2,7 +2,7 @@
 
 namespace Thera.Worlds.Actors
 {
-    public class InteractableActor : TransformActor
+    public class InteractableActor : Actor
     {
 
     }

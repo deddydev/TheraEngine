@@ -11,9 +11,9 @@ namespace TheraEngine.Core.Shapes
             : this(1.0f, 1.0f) { }
 
         public CapsuleY(float radius, float halfHeight)
-            : this(BasicTransform.GetIdentity(), radius, halfHeight) { }
+            : this(Transform.GetIdentity(), radius, halfHeight) { }
 
-        public CapsuleY(BasicTransform transform, float radius, float halfHeight) 
+        public CapsuleY(Transform transform, float radius, float halfHeight) 
             : base(transform, Vec3.UnitY, radius, halfHeight) { }
 
         public override TCollisionShape GetCollisionShape()

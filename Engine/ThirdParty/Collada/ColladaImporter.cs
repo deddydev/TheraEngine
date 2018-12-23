@@ -200,7 +200,7 @@ namespace TheraEngine.Rendering.Models
             Matrix4 inv = invParent;
             if (node.Type == Node.EType.JOINT)
             {
-                Bone bone = new Bone(node.Name ?? node.ID, BasicTransform.DeriveTRS(invParent * bindMatrix));
+                Bone bone = new Bone(node.Name ?? node.ID, Transform.DeriveTRS(invParent * bindMatrix));
                 node.UserData = bone;
                 if (parent == null)
                     rootBone = bone;
@@ -828,7 +828,7 @@ namespace TheraEngine.Rendering.Models
                                         outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
                                         outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
 
-                                BasicTransform transform = BasicTransform.DeriveTRS(matrix);
+                                Transform transform = Transform.DeriveTRS(matrix);
 
                                 BoneAnimation bone = anim.FindOrCreateBoneAnimation(targetName, out bool wasFound);
 

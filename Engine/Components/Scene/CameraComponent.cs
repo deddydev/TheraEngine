@@ -260,8 +260,6 @@ namespace TheraEngine.Components.Scene
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        Vec3 ICameraTransformable.WorldPoint => Transform.WorldPoint;
-
         public void TranslateRelative(Vec3 delta)
         {
             throw new NotImplementedException();
@@ -276,7 +274,7 @@ namespace TheraEngine.Components.Scene
         }
         public void ArcBallRotate(float pitch, float yaw, Vec3 origin)
         {
-            Translation.Raw = TMath.ArcballTranslation(pitch, yaw, origin, Translation.Raw, Transform.LocalRightVec.Normalized());
+            Translation.Raw = TMath.ArcballTranslation(pitch, yaw, origin, Translation.Raw, LocalRightDir);
             Rotation.AddRotations(pitch, yaw, 0.0f);
         }
 

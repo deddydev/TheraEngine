@@ -71,7 +71,7 @@ namespace TheraEngine.Components.Scene.Lights
             localTransform = t * r;
             inverseLocalTransform = ir * it;
         }
-        internal protected override void OnWorldTransformChanged()
+        protected override void OnWorldTransformChanged()
         {
             _influenceVolume.Transform.Matrix = WorldMatrix;
             foreach (PerspectiveCamera cam in ShadowCameras)

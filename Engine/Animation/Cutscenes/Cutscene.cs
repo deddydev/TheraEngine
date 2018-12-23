@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using TheraEngine.Actors;
+using TheraEngine.Animation;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds;
 
-namespace TheraEngine.Animation.Cutscenes
+namespace TheraEngine.Cutscenes
 {
     [TFileExt("cut")]
     [TFileDef("Cutscene")]
@@ -29,7 +32,7 @@ namespace TheraEngine.Animation.Cutscenes
 
         
         private EventList<Clip<Cutscene>> _scenes = new EventList<Clip<Cutscene>>();
-        private EventList<Clip<BaseAnimation>> _animationTracks = new EventList<Clip<BaseAnimation>>();
+        private EventList<Clip<BasePropAnim>> _animationTracks = new EventList<Clip<BasePropAnim>>();
 
         public List<GlobalFileRef<IActor>> InvolvedActors { get; set; }
         private Camera CurrentCamera { get; set; }
@@ -38,7 +41,7 @@ namespace TheraEngine.Animation.Cutscenes
         private int CurrentSceneIndex { get; set; } = -1;
 
         [TSerialize]
-        public EventList<Clip<BaseAnimation>> AnimationTracks
+        public EventList<Clip<BasePropAnim>> AnimationTracks
         {
             get => _animationTracks;
             set => _animationTracks = value;

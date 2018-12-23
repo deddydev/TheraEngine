@@ -15,13 +15,13 @@ namespace TheraEngine.Components.Scene.Shapes
         public CapsuleXComponent(float radius, float halfHeight, TRigidBodyConstructionInfo info)
             : this(Transform.GetIdentity(), radius, halfHeight, info) { }
 
-        public CapsuleXComponent(BasicTransform transform)
+        public CapsuleXComponent(Transform transform)
             : base(new CapsuleX(transform, 1.0f, 1.0f)) { }
 
-        public CapsuleXComponent(BasicTransform transform, float radius, float halfHeight)
+        public CapsuleXComponent(Transform transform, float radius, float halfHeight)
             : base(new CapsuleX(transform, radius, halfHeight)) { }
         
-        public CapsuleXComponent(BasicTransform transform, float radius, float halfHeight, TRigidBodyConstructionInfo info)
+        public CapsuleXComponent(Transform transform, float radius, float halfHeight, TRigidBodyConstructionInfo info)
             : base(new CapsuleX(transform, radius, halfHeight), info) { }
 
         public CapsuleXComponent(CapsuleX capsule)

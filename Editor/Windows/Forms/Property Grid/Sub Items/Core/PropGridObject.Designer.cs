@@ -57,8 +57,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.lblObjectTypeName.AutoEllipsis = true;
             this.lblObjectTypeName.BackColor = System.Drawing.Color.Transparent;
             this.lblObjectTypeName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblObjectTypeName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblObjectTypeName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(220)))));
+            this.lblObjectTypeName.Font = new System.Drawing.Font("Segoe UI", 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblObjectTypeName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.lblObjectTypeName.Location = new System.Drawing.Point(0, 0);
             this.lblObjectTypeName.Margin = new System.Windows.Forms.Padding(0);
             this.lblObjectTypeName.Name = "lblObjectTypeName";
@@ -75,19 +75,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.chkNull.AutoSize = true;
             this.chkNull.BackColor = System.Drawing.Color.Transparent;
             this.chkNull.Dock = System.Windows.Forms.DockStyle.Right;
-            this.chkNull.Location = new System.Drawing.Point(-50, 0);
+            this.chkNull.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.chkNull.Location = new System.Drawing.Point(-60, 0);
             this.chkNull.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.chkNull.Name = "chkNull";
-            this.chkNull.Size = new System.Drawing.Size(61, 31);
+            this.chkNull.Size = new System.Drawing.Size(60, 25);
             this.chkNull.TabIndex = 2;
             this.chkNull.Text = "Null";
             this.chkNull.UseMnemonic = false;
             this.chkNull.UseVisualStyleBackColor = false;
-            this.chkNull.CheckedChanged += new System.EventHandler(this.chkNull_CheckedChanged);
+            this.chkNull.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // pnlHeader
             // 
-            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(75)))), ((int)(((byte)(120)))), ((int)(((byte)(160)))));
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(75)))), ((int)(((byte)(110)))), ((int)(((byte)(140)))));
             this.pnlHeader.Controls.Add(this.lblObjectTypeName);
             this.pnlHeader.Controls.Add(this.chkNull);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -101,7 +102,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            //this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.Controls.Add(this.pnlProps);
             this.Controls.Add(this.pnlHeader);
             this.Name = "PropGridObject";

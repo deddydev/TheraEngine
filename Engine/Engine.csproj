@@ -351,7 +351,6 @@
     <Compile Include="Components\Logic\Animation\StateMachine\AnimState.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\BlendManager.cs" />
-    <Compile Include="Components\SceneTransform.cs" />
     <Compile Include="Components\Scene\AudioComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\XAligned\CapsuleXComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\ZAligned\CapsuleZComponent.cs" />

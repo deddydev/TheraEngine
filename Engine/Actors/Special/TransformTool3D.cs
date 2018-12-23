@@ -220,7 +220,7 @@ namespace TheraEngine.Actors.Types
 
                 _transformSpace = value;
 
-                RootComponent.Transform.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+                RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
 
@@ -340,11 +340,11 @@ namespace TheraEngine.Actors.Types
 //                    _targetSocket.Selected = true;
 //#endif
                     
-                    RootComponent.Transform.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+                    RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
                     _targetSocket.RegisterWorldMatrixChanged(Instance.TransformChanged, false);
                 }
                 else
-                    RootComponent.Transform.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
+                    RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
 
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
@@ -360,18 +360,18 @@ namespace TheraEngine.Actors.Types
             {
                 case ESpace.Local:
                     {
-                        return _targetSocket.Transform.WorldMatrix.ClearScale();
+                        return _targetSocket.WorldMatrix.ClearScale();
                     }
                 case ESpace.Parent:
                     {
-                        if (_targetSocket.Transform.Parent != null)
-                            return _targetSocket.Transform.Parent.WorldMatrix.ClearScale();
+                        if (_targetSocket.ParentSocket != null)
+                            return _targetSocket.ParentSocket.WorldMatrix.ClearScale();
                         else
-                            return _targetSocket.Transform.WorldMatrix.Translation.AsTranslationMatrix();
+                            return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
                     }
                 case ESpace.Screen:
                     {
-                        Vec3 point = _targetSocket.Transform.WorldMatrix.Translation;
+                        Vec3 point = _targetSocket.WorldMatrix.Translation;
                         var localPlayers = Engine.LocalPlayers;
                         if (localPlayers.Count > 0)
                         {
@@ -393,7 +393,7 @@ namespace TheraEngine.Actors.Types
                 case ESpace.World:
                 default:
                     {
-                        return _targetSocket.Transform.WorldMatrix.Translation.AsTranslationMatrix();
+                        return _targetSocket.WorldMatrix.Translation.AsTranslationMatrix();
                     }
             }
         }
@@ -406,26 +406,26 @@ namespace TheraEngine.Actors.Types
             {
                 case ESpace.Local:
                     {
-                        return _targetSocket.Transform.InverseWorldMatrix.ClearScale();
+                        return _targetSocket.InverseWorldMatrix.ClearScale();
                     }
                 case ESpace.Parent:
                     {
-                        if (_targetSocket.Transform.Parent != null)
-                            return _targetSocket.Transform.Parent.InverseWorldMatrix.ClearScale();
+                        if (_targetSocket.ParentSocket != null)
+                            return _targetSocket.ParentSocket.InverseWorldMatrix.ClearScale();
                         else
-                            return _targetSocket.Transform.InverseWorldMatrix.Translation.AsTranslationMatrix();
+                            return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
                     }
                 case ESpace.Screen:
                     {
                         Camera c = Engine.LocalPlayers[0].ViewportCamera;
                         Matrix4 mtx = c.CameraToWorldSpaceMatrix;
-                        mtx.Translation = _targetSocket.Transform.InverseWorldMatrix.Translation;
+                        mtx.Translation = _targetSocket.InverseWorldMatrix.Translation;
                         return mtx;
                     }
                 case ESpace.World:
                 default:
                     {
-                        return _targetSocket.Transform.InverseWorldMatrix.Translation.AsTranslationMatrix();
+                        return _targetSocket.InverseWorldMatrix.Translation.AsTranslationMatrix();
                     }
             }
         }
@@ -449,7 +449,7 @@ namespace TheraEngine.Actors.Types
             if (!_pressed)
             {
                 _pressed = true;
-                RootComponent.Transform.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
+                RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
                 _dragMatrix = RootComponent.WorldMatrix;
                 _invDragMatrix = RootComponent.InverseWorldMatrix;
                 _pressed = false;

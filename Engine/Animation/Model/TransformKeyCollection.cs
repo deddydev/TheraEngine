@@ -70,7 +70,7 @@ namespace TheraEngine.Animation
         /// Retrieves the parts of the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe void GetTransform(BasicTransform bindState,
+        public unsafe void GetTransform(Transform bindState,
             out Vec3 translation, out Rotator rotation, out Vec3 scale)
         {
             Vec3 t, r, s;
@@ -108,7 +108,7 @@ namespace TheraEngine.Animation
         /// Retrieves the parts of the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe void GetTransform(BasicTransform bindState, float second,
+        public unsafe void GetTransform(Transform bindState, float second,
             out Vec3 translation, out Rotator rotation, out Vec3 scale)
         {
             Vec3 t, r, s;
@@ -190,7 +190,7 @@ namespace TheraEngine.Animation
         /// Retrieves the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe BasicTransform GetTransform(BasicTransform defaultTransform)
+        public unsafe Transform GetTransform(Transform defaultTransform)
         {
             Vec3 t, r, s;
             Vec3
@@ -221,13 +221,13 @@ namespace TheraEngine.Animation
                 *ps++ = track.Keyframes.Count == 0 ? *pbs : track.CurrentPosition;
             }
 
-            return new BasicTransform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
         }
         /// <summary>
         /// Retrieves the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe BasicTransform GetTransform(BasicTransform defaultTransform, float second)
+        public unsafe Transform GetTransform(Transform defaultTransform, float second)
         {
             Vec3 t, r, s;
             Vec3
@@ -258,12 +258,12 @@ namespace TheraEngine.Animation
                 *ps++ = track.Keyframes.Count == 0 ? *pbs : track.GetValue(second);
             }
 
-            return new BasicTransform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
         }
         /// <summary>
         /// Retrieves the transform at the current frame second.
         /// </summary>
-        public unsafe BasicTransform GetTransform()
+        public unsafe Transform GetTransform()
         {
             Vec3 t, r, s;
             float* pt = (float*)&t;
@@ -277,12 +277,12 @@ namespace TheraEngine.Animation
             for (int i = 6; i < 9; ++i)
                 *ps++ = _tracks[i].CurrentPosition;
 
-            return new BasicTransform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
         }
         /// <summary>
         /// Retrieves the transform at the requested frame second.
         /// </summary>
-        public unsafe BasicTransform GetTransform(float second)
+        public unsafe Transform GetTransform(float second)
         {
             Vec3 t, r, s;
             float* pt = (float*)&t;
@@ -296,7 +296,7 @@ namespace TheraEngine.Animation
             for (int i = 6; i < 9; ++i)
                 *ps++ = _tracks[i].GetValue(second);
 
-            return new BasicTransform(t, new Rotator(r, EulerOrder), s, TransformOrder);
+            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
         }
         public float?[] GetValues()
         {

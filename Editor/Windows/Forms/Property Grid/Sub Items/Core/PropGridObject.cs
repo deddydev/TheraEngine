@@ -171,7 +171,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
         
-        private void chkNull_CheckedChanged(object sender, EventArgs e)
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
                 UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true, this), true);

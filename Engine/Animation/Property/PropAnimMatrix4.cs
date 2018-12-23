@@ -1,53 +1,118 @@
 ﻿using System;
-using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimMatrix4 : PropAnimLerpable<Matrix4, Matrix4Keyframe>
+    public class PropAnimMatrix4 : PropAnimKeyframed<Matrix4Keyframe>, IEnumerable<Matrix4Keyframe>
     {
-        public PropAnimMatrix4()
-            : base() { }
+        private DelGetValue<Matrix4> _getValue;
+
+        [TSerialize(Condition = "Baked")]
+        private Matrix4[] _baked = null;
+        /// <summary>
+        /// The default value to return when no keyframes are set.
+        /// </summary>
+        [Category(PropAnimCategory)]
+        [TSerialize(Condition = "!Baked")]
+        public Matrix4 DefaultValue { get; set; } = Matrix4.Identity;
+
+        public PropAnimMatrix4() : base(0.0f, false) { }
         public PropAnimMatrix4(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
-        public PropAnimMatrix4(int frameCount, float FPS, bool looped, bool useKeyframes)
+        public PropAnimMatrix4(int frameCount, float FPS, bool looped, bool useKeyframes) 
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override Matrix4 LerpValues(Matrix4 from, Matrix4 to, float time) => Matrix4.Lerp(from, to, time);
-    }
-    public class Matrix4Keyframe : LerpableKeyframe<Matrix4>
-    {
-        public Matrix4Keyframe()
-            : this(0.0f, new Matrix4(0.0f), new Matrix4(0.0f)) { }
-        public Matrix4Keyframe(int frameIndex, float framesPerSecond, Matrix4 inValue, Matrix4 outValue)
-            : this(frameIndex / framesPerSecond, inValue, outValue) { }
-        public Matrix4Keyframe(int frameIndex, float framesPerSecond, Matrix4 inoutValue)
-            : this(frameIndex / framesPerSecond, inoutValue, inoutValue) { }
-        public Matrix4Keyframe(float second, Matrix4 inoutValue)
-            : this(second, inoutValue, inoutValue) { }
-        public Matrix4Keyframe(float second, Matrix4 inValue, Matrix4 outValue)
-            : base(second, inValue, outValue) { }
-        
-        public override Matrix4 Lerp(LerpableKeyframe<Matrix4> key1, LerpableKeyframe<Matrix4> key2, float time)
-            => Matrix4.Lerp(key1.OutValue, key2.InValue, time);
+        protected override void BakedChanged()
+            => _getValue = !IsBaked ? (DelGetValue<Matrix4>)GetValueKeyframed : GetValueBaked;
 
-        public override string WriteToString()
-            => string.Format("{0} {1} {2}", Second, InValue.WriteToString(), OutValue.WriteToString());
+        public Matrix4 GetValue(float second)
+            => _getValue(second);
+        protected override object GetValueGeneric(float second)
+            => _getValue(second);
+        public Matrix4 GetValueBaked(float second)
+            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
+        public Matrix4 GetValueBaked(int frameIndex)
+            => _baked[frameIndex];
+        public Matrix4 GetValueKeyframed(float second)
+            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
+        
+        public override void Bake(float framesPerSecond)
+        {
+            _bakedFPS = framesPerSecond;
+            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
+            _baked = new Matrix4[BakedFrameCount];
+            for (int i = 0; i < BakedFrameCount; ++i)
+                _baked[i] = GetValueKeyframed(i);
+        }
+
+        protected override object GetCurrentValueGeneric()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnProgressed(float delta)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class Matrix4Keyframe : Keyframe, IStepKeyframe
+    {
+        public Matrix4Keyframe() { }
+        public Matrix4Keyframe(float second, Matrix4 value) : base()
+        {
+            Second = second;
+            Value = value;
+        }
+
+        protected delegate Matrix4 DelInterpolate(Matrix4Keyframe key1, Matrix4Keyframe key2, float time);
+        
+        [TSerialize(NodeType = ENodeType.Attribute)]
+        public Matrix4 Value { get; set; }
+        public override Type ValueType => typeof(Matrix4);
+
+        [Browsable(false)]
+        public new Matrix4Keyframe Next
+        {
+            get => _next as Matrix4Keyframe;
+            set => _next = value;
+        }
+        [Browsable(false)]
+        public new Matrix4Keyframe Prev
+        {
+            get => _prev as Matrix4Keyframe;
+            set => _prev = value;
+        }
+
+        public Matrix4 Interpolate(float frameIndex)
+        {
+            if (_prev == this || _next == this)
+                return Value;
+
+            if (frameIndex < Second && _prev.Second > Second)
+                return Prev.Interpolate(frameIndex);
+
+            if (frameIndex > _next.Second && _next.Second > Second)
+                return Next.Interpolate(frameIndex);
+
+            //float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
+
+            return Value;
+
+            //return _interpolate(this, Next, t);
+        }
 
         public override void ReadFromString(string str)
         {
-            float[] values = str.Split(' ').Select(x => float.Parse(x)).ToArray();
-            Matrix4 inValue = Matrix4.Identity;
-            Matrix4 outValue = Matrix4.Identity;
-            for (int i = 0; i < 16; ++i)
-            {
-                if (i + 1 < values.Length)
-                    inValue[i] = values[i + 1];
-                if (i + 17 < values.Length)
-                    outValue[i] = values[i + 17];
-            }
-            Second = values.Length > 0 ? values[0] : 0.0f;
-            InValue = inValue;
-            OutValue = outValue;
+            int spaceIndex = str.IndexOf(' ');
+            Second = float.Parse(str.Substring(0, spaceIndex));
+            Value = new Matrix4();
+            Value.ReadFromString(str.Substring(spaceIndex + 1));
+        }
+        public override string WriteToString()
+        {
+            return string.Format("{0} {1}", Second, Value.WriteToString());
         }
     }
 }

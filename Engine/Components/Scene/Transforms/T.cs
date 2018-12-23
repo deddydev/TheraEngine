@@ -40,7 +40,28 @@ namespace TheraEngine.Components.Scene.Transforms
                 RecalcLocalTransform();
             }
         }
-        
+
+        [Browsable(false)]
+        public override Matrix4 WorldMatrix
+        {
+            get => base.WorldMatrix;
+            set
+            {
+                base.WorldMatrix = value;
+                _matrixChanged = true;
+            }
+        }
+        [Browsable(false)]
+        public override Matrix4 InverseWorldMatrix
+        {
+            get => base.InverseWorldMatrix;
+            set
+            {
+                base.InverseWorldMatrix = value;
+                _matrixChanged = true;
+            }
+        }
+
         protected virtual void DeriveMatrix()
         {
             Transform.DeriveT(Transform.Local.Matrix, out Vec3 t);

@@ -6,8 +6,7 @@ namespace TheraEngine.Animation
 {
     public class PropAnimVec2 : PropAnimVector<Vec2, Vec2Keyframe>
     {
-        public PropAnimVec2() 
-            : base() { }
+        public PropAnimVec2() : base() { }
         public PropAnimVec2(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimVec2(int frameCount, float FPS, bool looped, bool useKeyframes)
@@ -50,7 +49,7 @@ namespace TheraEngine.Animation
             OutValue = new Vec2(float.Parse(parts[3]), float.Parse(parts[4]));
             InTangent = new Vec2(float.Parse(parts[5]), float.Parse(parts[6]));
             OutTangent = new Vec2(float.Parse(parts[7]), float.Parse(parts[8]));
-            InterpolationType = parts[9].AsEnum<EVectorInterpType>();
+            InterpolationType = parts[9].AsEnum<EPlanarInterpType>();
         }
         protected override void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
         {

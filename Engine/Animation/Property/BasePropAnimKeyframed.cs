@@ -37,7 +37,7 @@ namespace TheraEngine.Animation
             : base(lengthInSeconds, looped)
         {
             _bakedFPS = 60.0f;
-            SetBakedFrameCount();
+            SetBakedFramecount();
             IsBaked = isBaked;
         }
         public BasePropAnimBakeable(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
@@ -83,7 +83,7 @@ namespace TheraEngine.Animation
             set
             {
                 _bakedFPS = value.ClampMin(0.0f);
-                SetBakedFrameCount();
+                SetBakedFramecount();
                 OnBakedFPSChanged();
             }
         }
@@ -102,10 +102,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        /// <summary>
-        /// Sets _bakedFrameCount using _lengthInSeconds and _bakedFPS.
-        /// </summary>
-        protected void SetBakedFrameCount()
+        protected void SetBakedFramecount()
             => _bakedFrameCount = (int)Math.Ceiling(_lengthInSeconds * _bakedFPS);
 
         public override void SetLength(float lengthInSeconds, bool stretchAnimation)
@@ -113,7 +110,7 @@ namespace TheraEngine.Animation
             if (lengthInSeconds < 0.0f)
                 return;
             _lengthInSeconds = lengthInSeconds;
-            SetBakedFrameCount();
+            SetBakedFramecount();
             base.SetLength(lengthInSeconds, stretchAnimation);
         }
 

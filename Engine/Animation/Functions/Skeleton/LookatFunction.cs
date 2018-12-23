@@ -7,7 +7,7 @@ namespace TheraEngine.Animation
 {
     public class BoneLookatFunction : AnimationFunction
     {
-        protected override void Execute(AnimationTree output, Skeleton skeleton, object[] input)
+        protected override void Execute(AnimationContainer output, Skeleton skeleton, object[] input)
         {
             string boneName = (string)input[0];
             Bone bone = skeleton[boneName];

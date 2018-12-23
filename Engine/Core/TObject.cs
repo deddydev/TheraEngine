@@ -33,15 +33,15 @@ namespace TheraEngine
         #endregion
         
         #region Animation
-        IReadOnlyList<AnimationTree> Animations { get; }
+        IReadOnlyList<AnimationContainer> Animations { get; }
         void AddAnimation(
-            AnimationTree anim,
+            AnimationContainer anim,
             bool startNow = false,
             bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
             ETickOrder order = ETickOrder.Animation,
             EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
-        bool RemoveAnimation(AnimationTree anim);
+        bool RemoveAnimation(AnimationContainer anim);
         #endregion
     }
 
@@ -139,8 +139,6 @@ namespace TheraEngine
             get => _editorState ?? (_editorState = new EditorState(this));
             set
             {
-                if (_editorState != null && _editorState.Object == this)
-                    _editorState.Object = null;
                 _editorState = value;
                 if (_editorState != null)
                     _editorState.Object = this;
@@ -171,10 +169,10 @@ namespace TheraEngine
         #region Animation
         
         [TSerialize(nameof(Animations))]
-        private Dictionary<string, AnimationTree> _animations = null;
+        private List<AnimationContainer> _animations = null;
 
         [Browsable(false)]
-        public IReadOnlyDictionary<string, AnimationTree> Animations => _animations;
+        public IReadOnlyList<AnimationContainer> Animations => _animations;
 
         /// <summary>
         /// Adds a property animation tree to this TObject.
@@ -186,82 +184,42 @@ namespace TheraEngine
         /// <param name="order">The order within the group to tick this animation in.</param>
         /// <param name="pausedBehavior">Ticking behavior of the animation while paused.</param>
         public void AddAnimation(
-            AnimationTree anim,
+            AnimationContainer anim,
             bool startNow = false,
-            bool removeOnEnd = false,
+            bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
             ETickOrder order = ETickOrder.Animation,
             EInputPauseType pausedBehavior = EInputPauseType.TickOnlyWhenUnpaused)
         {
             if (anim == null)
                 return;
-
             if (removeOnEnd)
                 anim.AnimationEnded += RemoveAnimationSelf;
-
             if (_animations == null)
-                _animations = new Dictionary<string, AnimationTree>();
-
-            if (_animations.ContainsKey(anim.Name))
-                ResolveAnimName(anim);
-
-            anim.Renamed += Anim_Renamed;
-            _animations.Add(anim.Name, anim);
-
+                _animations = new List<AnimationContainer>();
+            _animations.Add(anim);
             anim.Owners.Add(this);
             anim.Group = group;
             anim.Order = order;
             anim.PausedBehavior = pausedBehavior;
-
             if (startNow)
                 anim.Start();
         }
-
-        private void Anim_Renamed(TObject node, string oldName)
-        {
-            AnimationTree anim;
-            if (_animations.ContainsKey(oldName))
-            {
-                anim = _animations[oldName];
-                _animations.Remove(oldName);
-
-                if (_animations.ContainsKey(anim.Name))
-                    ResolveAnimName(anim);
-
-                _animations.Add(anim.Name, anim);
-            }
-        }
-        private void ResolveAnimName(AnimationTree anim)
-        {
-            int i = 0;
-            string name = anim.Name;
-            string baseName = name;
-            if (string.IsNullOrWhiteSpace(baseName))
-                baseName = "UnnamedAnimation";
-
-            while (_animations.ContainsKey(name))
-                name = baseName + (i++).ToString();
-
-            anim.Name = name;
-        }
-        public bool RemoveAnimation(AnimationTree anim)
+        public bool RemoveAnimation(AnimationContainer anim)
         {
             if (anim == null)
                 return false;
-
             anim.AnimationEnded -= RemoveAnimationSelf;
             anim.Owners.Remove(this);
-            bool removed = _animations.Remove(anim.Name);
-
+            bool removed = _animations.Remove(anim);
             if (_animations.Count == 0)
                 _animations = null;
-
             return removed;
         }
         private void RemoveAnimationSelf(BaseAnimation anim)
         {
             anim.AnimationEnded -= RemoveAnimationSelf;
-            AnimationTree cont = anim as AnimationTree;
+            AnimationContainer cont = anim as AnimationContainer;
             cont.Owners.Remove(this);
             _animations.Remove(cont);
         }
@@ -271,14 +229,12 @@ namespace TheraEngine
         /// Prints a line to output.
         /// Identical to Engine.Print().
         /// </summary>
-        protected static void Print(string message, params object[] args) 
-            => Engine.Print(message, args);
+        protected static void Print(string message, params object[] args) => Engine.Print(message, args);
         /// <summary>
         /// Prints a line to output.
         /// Identical to Engine.PrintLine().
         /// </summary>
-        protected static void PrintLine(string message, params object[] args)
-            => Engine.PrintLine(message, args);
+        protected static void PrintLine(string message, params object[] args) => Engine.PrintLine(message, args);
 
         public override string ToString() => Name;
     }

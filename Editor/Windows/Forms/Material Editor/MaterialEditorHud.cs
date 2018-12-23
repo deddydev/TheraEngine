@@ -305,7 +305,7 @@ namespace TheraEditor.Windows.Forms
             UIComponent comp = FindComponent();
 
             if (comp is UITextComponent)
-                comp = (UIComponent)comp.Parent;
+                comp = (UIComponent)comp.ParentSocket;
 
             if (_highlightedFunc != null && comp != _highlightedFunc)
                 _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = _highlightedFunc == _selectedFunc ? BaseFunction.SelectedColor : BaseFunction.RegularColor;
@@ -320,7 +320,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     _highlightedArg.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFuncExec.DefaultColor;
                 }
-                UIMaterialRectangleComponent r = _highlightedArg.Parent as UIMaterialRectangleComponent;
+                UIMaterialRectangleComponent r = _highlightedArg.ParentSocket as UIMaterialRectangleComponent;
                 r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.RegularColor;
             }
 
@@ -332,7 +332,7 @@ namespace TheraEditor.Windows.Forms
 
             if (_highlightedArg != null)
             {
-                UIMaterialRectangleComponent r = _highlightedArg.Parent as UIMaterialRectangleComponent;
+                UIMaterialRectangleComponent r = _highlightedArg.ParentSocket as UIMaterialRectangleComponent;
                 r.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = BaseFunction.HighlightedColor;
 
                 if (_draggedArg != null &&

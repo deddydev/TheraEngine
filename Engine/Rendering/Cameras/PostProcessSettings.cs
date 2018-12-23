@@ -81,11 +81,6 @@ namespace TheraEngine.Rendering.Cameras
                 Environment.NewLine + color +
                 Environment.NewLine + dof;
         }
-
-        public void Lerp(PostProcessSettings from, PostProcessSettings to, float time)
-        {
-
-        }
     }
     public class ShadowSettings : PostSettings
     {

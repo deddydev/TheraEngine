@@ -620,16 +620,16 @@ namespace TheraEngine.Rendering.Models
                                             float second = inputData[i];
                                             float value = outputData[i];
                                             InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                            EVectorInterpType pType = (EVectorInterpType)(int)type;
+                                            EPlanarInterpType pType = (EPlanarInterpType)(int)type;
 
                                             float inTan = 0.0f, outTan = 0.0f;
                                             switch (pType)
                                             {
-                                                case EVectorInterpType.CubicHermite:
+                                                case EPlanarInterpType.CubicHermite:
                                                     inTan = inTanData[i];
                                                     outTan = outTanData[i];
                                                     break;
-                                                case EVectorInterpType.CubicBezier:
+                                                case EPlanarInterpType.CubicBezier:
                                                     inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
                                                     outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
                                                     if (float.IsNaN(inTan) || float.IsInfinity(inTan))
@@ -685,16 +685,16 @@ namespace TheraEngine.Rendering.Models
                                         float second = inputData[i];
                                         float value = outputData[i];
                                         InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                        EVectorInterpType pType = (EVectorInterpType)(int)type;
+                                        EPlanarInterpType pType = (EPlanarInterpType)(int)type;
 
                                         float inTan = 0.0f, outTan = 0.0f;
                                         switch (pType)
                                         {
-                                            case EVectorInterpType.CubicHermite:
+                                            case EPlanarInterpType.CubicHermite:
                                                 inTan = inTanData[i];
                                                 outTan = outTanData[i];
                                                 break;
-                                            case EVectorInterpType.CubicBezier:
+                                            case EPlanarInterpType.CubicBezier:
                                                 inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
                                                 outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
                                                 if (float.IsNaN(inTan) || float.IsInfinity(inTan))
@@ -739,16 +739,16 @@ namespace TheraEngine.Rendering.Models
                                         float second = inputData[i];
                                         float value = outputData[i];
                                         InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                        EVectorInterpType pType = (EVectorInterpType)(int)type;
+                                        EPlanarInterpType pType = (EPlanarInterpType)(int)type;
 
                                         float inTan = 0.0f, outTan = 0.0f;
                                         switch (pType)
                                         {
-                                            case EVectorInterpType.CubicHermite:
+                                            case EPlanarInterpType.CubicHermite:
                                                 inTan = inTanData[i];
                                                 outTan = outTanData[i];
                                                 break;
-                                            case EVectorInterpType.CubicBezier:
+                                            case EPlanarInterpType.CubicBezier:
                                                 inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
                                                 outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);
                                                 if (float.IsNaN(inTan) || float.IsInfinity(inTan))
@@ -804,16 +804,16 @@ namespace TheraEngine.Rendering.Models
                             {
                                 float second = inputData[i];
                                 InterpType type = interpTypeData[i].AsEnum<InterpType>();
-                                EVectorInterpType pType = (EVectorInterpType)(int)type;
+                                EPlanarInterpType pType = (EPlanarInterpType)(int)type;
 
                                 float inTan = 0.0f, outTan = 0.0f;
                                 switch (pType)
                                 {
-                                    case EVectorInterpType.CubicHermite:
+                                    case EPlanarInterpType.CubicHermite:
                                         inTan = inTanData[i];
                                         outTan = outTanData[i];
                                         break;
-                                    case EVectorInterpType.CubicBezier:
+                                    case EPlanarInterpType.CubicBezier:
                                         Engine.LogWarning("Matrix has bezier interpolation");
                                         //inTan = (inTanData[x + 1] - value) / (inTanData[x] - second);
                                         //outTan = (outTanData[x + 1] - value) / (outTanData[x] - second);

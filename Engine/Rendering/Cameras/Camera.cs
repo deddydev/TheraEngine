@@ -63,7 +63,7 @@ namespace TheraEngine.Rendering.Cameras
         [Browsable(false)]
         public Matrix4 CameraToWorldSpaceMatrix
         {
-            get => _owningComponent != null ? _owningComponent.Transform.World.Matrix : _cameraToWorldSpaceMatrix;
+            get => _owningComponent != null ? _owningComponent.WorldMatrix : _cameraToWorldSpaceMatrix;
             //set
             //{
             //    if (_owningComponent != null)
@@ -85,7 +85,7 @@ namespace TheraEngine.Rendering.Cameras
         [Browsable(false)]
         public Matrix4 WorldToCameraSpaceMatrix
         {
-            get => _owningComponent != null ? _owningComponent.Transform.World.InverseMatrix : _worldToCameraSpaceMatrix;
+            get => _owningComponent != null ? _owningComponent.InverseWorldMatrix : _worldToCameraSpaceMatrix;
             //set
             //{
             //    if (_owningComponent != null)
@@ -141,7 +141,7 @@ namespace TheraEngine.Rendering.Cameras
 
         [Browsable(false)]
         [Category("Camera")]
-        public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.Transform.World.Matrix.Translation : _localPoint.Raw;
+        public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.Translation : _localPoint.Raw;
         
         [Category("Camera")]
         public EventVec3 LocalPoint
@@ -220,7 +220,7 @@ namespace TheraEngine.Rendering.Cameras
         internal Vec3 _projectionRange;
         internal Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
-        protected EventVec3 _viewTarget = null;
+        private EventVec3 _viewTarget = null;
         protected bool _updating = false;
         protected Matrix4
             _projectionMatrix = Matrix4.Identity,
@@ -279,7 +279,7 @@ namespace TheraEngine.Rendering.Cameras
         protected virtual void PositionChanged()
         {
             if (_viewTarget != null)
-                _localRotation.SetRawNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles());
+                _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles());
             CreateTransform();
         }
         protected virtual void CreateTransform()
@@ -476,9 +476,6 @@ namespace TheraEngine.Rendering.Cameras
             //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraRight),                 GetRightVector());
         }
 
-        /// <summary>
-        /// Call when camera frustum parameters have been changed.
-        /// </summary>
         [TPostDeserialize]
         protected virtual void CalculateProjection()
         {

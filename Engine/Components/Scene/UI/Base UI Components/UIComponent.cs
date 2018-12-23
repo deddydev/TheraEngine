@@ -48,12 +48,12 @@ namespace TheraEngine.Rendering.UI
         }
 
         [Browsable(false)]
-        public override ISocket Parent
+        public override ISocket ParentSocket
         {
-            get => base.Parent;
+            get => base.ParentSocket;
             set
             {
-                base.Parent = value;
+                base.ParentSocket = value;
                 PerformResize();
             }
         }
@@ -208,7 +208,7 @@ namespace TheraEngine.Rendering.UI
             if (_resizing)
                 return;
 
-            if (Parent is UIBoundableComponent comp)
+            if (ParentSocket is UIBoundableComponent comp)
                 Resize(comp.Size);
             else if (OwningActor != null)
                 Resize(OwningActor.Bounds);

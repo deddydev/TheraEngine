@@ -33,21 +33,41 @@ namespace TheraEngine.Core.Maths
             return third * x2 * x + second * x2 + first * x + zero;
         }
         public static float EvaluatePolynomial(float second, float first, float zero, float x)
-            => (second * x * x) + (first * x) + zero;
+        {
+            float x2 = x * x;
+            return second * x2 + first * x + zero;
+        }
         public static Vec2 EvaluatePolynomial(Vec2 second, Vec2 first, Vec2 zero, Vec2 x)
-            => (second * x * x) + (first * x) + zero;
+        {
+            Vec2 x2 = x * x;
+            return second * x2 + first * x + zero;
+        }
         public static Vec3 EvaluatePolynomial(Vec3 second, Vec3 first, Vec3 zero, Vec3 x)
-            => (second * x * x) + (first * x) + zero;
+        {
+            Vec3 x2 = x * x;
+            return second * x2 + first * x + zero;
+        }
         public static Vec4 EvaluatePolynomial(Vec4 second, Vec4 first, Vec4 zero, Vec4 x)
-            => (second * x * x) + (first * x) + zero;
+        {
+            Vec4 x2 = x * x;
+            return second * x2 + first * x + zero;
+        }
         public static float EvaluatePolynomial(float first, float zero, float x)
-            => (first * x) + zero;
+        {
+            return first * x + zero;
+        }
         public static Vec2 EvaluatePolynomial(Vec2 first, Vec2 zero, Vec2 x)
-            => (first * x) + zero;
+        {
+            return first * x + zero;
+        }
         public static Vec3 EvaluatePolynomial(Vec3 first, Vec3 zero, Vec3 x)
-            => (first * x) + zero;
+        {
+            return first * x + zero;
+        }
         public static Vec4 EvaluatePolynomial(Vec4 first, Vec4 zero, Vec4 x)
-            => (first * x) + zero;
+        {
+            return first * x + zero;
+        }
         #endregion
 
         #region Bezier
@@ -510,30 +530,11 @@ namespace TheraEngine.Core.Maths
                 start.X + (end.X - start.X) * time,
                 start.Y + (end.Y - start.Y) * time);
         }
-        public static Matrix4 Lerp(Matrix4 from, Matrix4 to, float time)
-        {
-            Matrix4 ret = new Matrix4();
-            for (int i = 0; i < 16; i++)
-                ret[i] = Interp.Lerp(from[i], to[i], time);
-            return ret;
-        }
-        public static Rotator Lerp(Rotator from, Rotator to, float time)
-        {
-            //TODO: if orders don't match, lerp using quaternion and derive rotator?
-            //Or probably just recommend the end user do that themselves
-            if (from.Order != to.Order)
-                throw new InvalidOperationException("Rotator orders don't match; can't lerp.");
 
-            return new Rotator(
-                Lerp(from.Pitch, to.Pitch, time),
-                Lerp(from.Yaw, to.Yaw, time),
-                Lerp(from.Roll, to.Roll, time),
-                from.Order);
-        }
-        public static float Lerp(float from, float to, float time)
+        public static float Lerp(float startValue, float endValue, float time)
         {
             //return startValue * (1.0f - time) + endValue * time;
-            return from + (to - from) * time;
+            return startValue + (endValue - startValue) * time;
         }
 
         public static float InterpQuadraticEaseEnd(float start, float end, float time, float speed = 1.0f, float power = 2.0f)

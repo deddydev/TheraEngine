@@ -5,7 +5,7 @@ namespace TheraEngine.Animation
 {
     public class IfFunction : AnimationFunction
     {
-        protected override void Execute(AnimationTree output, Skeleton skeleton, object[] input)
+        protected override void Execute(AnimationContainer output, Skeleton skeleton, object[] input)
         {
             if ((bool)input[0])
             {

@@ -18,8 +18,9 @@ namespace TheraEngine.Core.Maths.Transforms
     }
     public delegate void RotatorChange(Rotator rotation);
     public delegate void RotationOrderChange(RotationOrder newOrder, RotationOrder prevOrder);
-    
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe class Rotator : IEquatable<Rotator>
     {
         public Rotator() : this(RotationOrder.YPR) { }
@@ -354,15 +355,16 @@ namespace TheraEngine.Core.Maths.Transforms
             return v;
         }
 
-        /// <summary>
-        /// Intuitive static method that is the same as Interp.Lerp(Rotator from, Rotator to, float time).
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        public static Rotator Lerp(Rotator from, Rotator to, float time)
-            => Interp.Lerp(from, to, time);
+        public static Rotator Lerp(Rotator r1, Rotator r2, float time)
+        {
+            if (r1.Order != r2.Order)
+                return null;
+            return new Rotator(
+                Interp.Lerp(r1.Pitch, r2.Pitch, time),
+                Interp.Lerp(r1.Yaw, r2.Yaw, time),
+                Interp.Lerp(r1.Roll, r2.Roll, time), 
+                r1.Order);
+        }
 
         public void Clamp(Rotator min, Rotator max)
         {
@@ -430,7 +432,7 @@ namespace TheraEngine.Core.Maths.Transforms
         /// <summary>
         /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
         /// </summary>
-        public void SetRawNoUpdate(Rotator other)
+        public void SetRotationsNoUpdate(Rotator other)
         {
             if (other != null)
             {

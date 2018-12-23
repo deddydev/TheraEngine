@@ -48,13 +48,6 @@ namespace System
         }
 
         public float* Data { get { fixed (Matrix4* p = &this) return (float*)p; } }
-        public float[] GetValues()
-        {
-            float[] values = new float[16];
-            for (int i = 0; i < values.Length; ++i)
-                values[i] = Data[i];
-            return values;
-        }
 
         public static readonly Matrix4 Identity = new Matrix4(Vec4.UnitX, Vec4.UnitY, Vec4.UnitZ, Vec4.UnitW);
         public static readonly Matrix4 Zero = new Matrix4(Vec4.Zero, Vec4.Zero, Vec4.Zero, Vec4.Zero);
@@ -112,19 +105,13 @@ namespace System
             }
             return new Matrix4(new Vec4(vecs[0], 0.0f), new Vec4(vecs[1], 0.0f), new Vec4(vecs[2], 0.0f), Vec4.UnitW) * originalMatrix;
         }
+        
         public Matrix4(Vec4 row0, Vec4 row1, Vec4 row2, Vec4 row3)
         {
             Row0 = row0;
             Row1 = row1;
             Row2 = row2;
             Row3 = row3;
-        }
-        public Matrix4(float value)
-        {
-            Row0 = value;
-            Row1 = value;
-            Row2 = value;
-            Row3 = value;
         }
 
         public static Matrix4 CreateFromRotator(Rotator rotator)
@@ -1046,18 +1033,12 @@ namespace System
         {
             X,Y,Z
         }
-        public static Matrix4 Lerp(Matrix4 from, Matrix4 to, float time)
+        public static Matrix4 MatrixLerp(Matrix4 from, Matrix4 to, float time)
         {
             Matrix4 ret = new Matrix4();
             for (int i = 0; i < 16; i++)
                 ret[i] = Interp.Lerp(from[i], to[i], time);
             return ret;
-        }
-        public void DeriveTRS(out Vec3 translation, out Quat rotation, out Vec3 scale)
-        {
-            translation = Row3.Xyz;
-            scale = new Vec3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length);
-            rotation = ExtractRotation(true);
         }
         public Vec3 GetScaledAxis(Axis axis)
         {
@@ -1066,7 +1047,8 @@ namespace System
 	            case Axis.X: return new Vec3(M11, M12, M13);
 	            case Axis.Y: return new Vec3(M21, M22, M23);
 	            case Axis.Z: return new Vec3(M31, M32, M33);
-	            default: return Vec3.Zero;
+	            default:
+		            return Vec3.Zero;
 	        }
         }
         public static Matrix4 operator *(Matrix4 left, Matrix4 right)

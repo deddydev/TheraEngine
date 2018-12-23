@@ -14,97 +14,8 @@ namespace TheraEngine.Core.Maths.Transforms
         STR,
         SRT,
     }
-    public class MatrixTransform : TFileObject
-    {
-        public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
-        
-        public MatrixTransform()
-        {
-            PreviousMatrix = Matrix4.Identity;
-            PreviousInverseMatrix = Matrix4.Identity;
-
-            _mtx = Matrix4.Identity;
-            _inv = Matrix4.Identity;
-        }
-
-        public MatrixTransform(Matrix4 matrix, Matrix4 inverseMatrix)
-        {
-            PreviousMatrix = matrix;
-            PreviousInverseMatrix = inverseMatrix;
-
-            _mtx = matrix;
-            _inv = inverseMatrix;
-        }
-
-        public MatrixTransform(BasicTransform transform)
-        {
-            _mtx = transform.Matrix;
-            _inv = transform.InverseMatrix;
-
-            PreviousMatrix = transform.PreviousMatrix;
-            PreviousInverseMatrix = transform.PreviousInverseMatrix;
-        }
-
-        /// <summary>
-        /// Use to set both matrices at the same time, so neither needs to be inverted to get the other.
-        /// Highly recommended if you are able to compute both with the same initial parameters.
-        /// </summary>
-        public void Set(Matrix4 matrix, Matrix4 inverse, bool silent = false)
-        {
-            PreviousMatrix = _mtx;
-            PreviousInverseMatrix = _inv;
-
-            _mtx = matrix;
-            _inv = inverse;
-            
-            if (!silent)
-                OnMatrixChanged();
-        }
-
-        private Matrix4 _mtx = Matrix4.Identity;
-        private Matrix4 _inv = Matrix4.Identity;
-
-        public event Action MatrixChanged;
-        public void OnMatrixChanged() => MatrixChanged?.Invoke();
-
-        [Browsable(false)]
-        public Matrix4 PreviousMatrix { get; private set; } = Matrix4.Identity;
-        [Browsable(false)]
-        public Matrix4 PreviousInverseMatrix { get; private set; } = Matrix4.Identity;
-        [Browsable(false)]
-        public Matrix4 Matrix
-        {
-            get => _mtx;
-            set
-            {
-                PreviousMatrix = _mtx;
-                PreviousInverseMatrix = _inv;
-                _mtx = value;
-                _inv = _mtx.Inverted();
-                OnMatrixChanged();
-            }
-        }
-        [Browsable(false)]
-        public Matrix4 InverseMatrix
-        {
-            get => _inv;
-            set
-            {
-                PreviousMatrix = _mtx;
-                PreviousInverseMatrix = _inv;
-                _inv = value;
-                _mtx = _inv.Inverted();
-                OnMatrixChanged();
-            }
-        }
-        
-        public MatrixTransform HardCopy()
-        {
-            return new MatrixTransform(Matrix, InverseMatrix);
-        }
-    }
-    [TFileExt("btfm")]
-    [TFileDef("Basic Transform")]
+    [TFileExt("transform")]
+    [TFileDef("Transform")]
     public class BasicTransform : TFileObject
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
@@ -181,7 +92,7 @@ namespace TheraEngine.Core.Maths.Transforms
         {
             _translation.SetRawNoUpdate(translate);
             _scale.SetRawNoUpdate(scale);
-            _rotation.SetRawNoUpdate(rotation);
+            _rotation.SetRotationsNoUpdate(rotation);
             _quaternion = _rotation.ToQuaternion();
             CreateTransform();
         }
@@ -190,7 +101,7 @@ namespace TheraEngine.Core.Maths.Transforms
             _translation.SetRawNoUpdate(translate);
             _scale.SetRawNoUpdate(scale);
             _quaternion = rotation;
-            _rotation.SetRawNoUpdate(_quaternion.ToYawPitchRoll());
+            _rotation.SetRotationsNoUpdate(_quaternion.ToYawPitchRoll());
             CreateTransform();
         }
 
@@ -205,24 +116,14 @@ namespace TheraEngine.Core.Maths.Transforms
         private TransformOrder _transformOrder = TransformOrder.TRS;
         private bool _matrixChanged = false;
 
-        /// <summary>
-        /// Use to set both matrices at the same time, so neither needs to be inverted to get the other.
-        /// Highly recommended if you are able to compute both with the same initial parameters.
-        /// </summary>
-        public void SetMatrices(Matrix4 matrix, Matrix4 inverse, bool silent = false, bool deriveNow = false)
+        public void SetMatrices(Matrix4 matrix, Matrix4 inverse)
         {
             _prevMtx = _mtx;
             _prevInv = _inv;
             _mtx = matrix;
             _inv = inverse;
-
-            if (deriveNow)
-                DeriveMatrix();
-            else
-                _matrixChanged = true;
-            
-            if (!silent)
-                OnMatrixChanged();
+            _matrixChanged = true;
+            OnMatrixChanged();
         }
 
         private Matrix4 _prevMtx = Matrix4.Identity;
@@ -277,14 +178,14 @@ namespace TheraEngine.Core.Maths.Transforms
             }
         }
 
-        private void DeriveMatrix()
+        private void MatrixUpdated()
         {
             _matrixChanged = false;
             DeriveTRS(_mtx, out Vec3 t, out Quat r, out Vec3 s);
             _translation.SetRawNoUpdate(t);
             _scale.SetRawNoUpdate(s);
             _quaternion = r;
-            Rotation.SetRawNoUpdate(_quaternion.ToYawPitchRoll());
+            Rotation.SetRotationsNoUpdate(_quaternion.ToYawPitchRoll());
         }
 
         public EventVec3 Translation
@@ -292,7 +193,7 @@ namespace TheraEngine.Core.Maths.Transforms
             get
             {
                 if (_matrixChanged)
-                    DeriveMatrix();
+                    MatrixUpdated();
                 return _translation;
             }
             set
@@ -307,7 +208,7 @@ namespace TheraEngine.Core.Maths.Transforms
             get
             {
                 if (_matrixChanged)
-                    DeriveMatrix();
+                    MatrixUpdated();
                 return _rotation.Yaw;
             }
             set => _rotation.Yaw = value;
@@ -318,7 +219,7 @@ namespace TheraEngine.Core.Maths.Transforms
             get
             {
                 if (_matrixChanged)
-                    DeriveMatrix();
+                    MatrixUpdated();
                 return _rotation.Pitch;
             }
             set => _rotation.Pitch = value;
@@ -329,7 +230,7 @@ namespace TheraEngine.Core.Maths.Transforms
             get
             {
                 if (_matrixChanged)
-                    DeriveMatrix();
+                    MatrixUpdated();
                 return _rotation.Roll;
             }
             set => _rotation.Roll = value;
@@ -339,7 +240,7 @@ namespace TheraEngine.Core.Maths.Transforms
             get
             {
                 if (_matrixChanged)
-                    DeriveMatrix();
+                    MatrixUpdated();
                 return _scale;
             }
             set
@@ -368,7 +269,7 @@ namespace TheraEngine.Core.Maths.Transforms
             get
             {
                 if (_matrixChanged)
-                    DeriveMatrix();
+                    MatrixUpdated();
                 return _rotation;
             }
             set
@@ -383,7 +284,7 @@ namespace TheraEngine.Core.Maths.Transforms
             get
             {
                 if (_matrixChanged)
-                    DeriveMatrix();
+                    MatrixUpdated();
                 return _quaternion;
             }
             set
@@ -392,7 +293,43 @@ namespace TheraEngine.Core.Maths.Transforms
                 Rotation.SetRotations(_quaternion.ToYawPitchRoll());
             }
         }
-        
+
+        //private void SetTranslate(Vec3 value)
+        //{
+        //    Vec3 oldTranslation = _translation;
+        //    _translation.Raw = value;
+        //    CreateTransform();
+        //    TranslationChanged?.Invoke(oldTranslation);
+        //}
+        //private void SetYaw(float value)
+        //{
+        //    float oldRotation = _rotation.Yaw;
+        //    _rotation.Yaw = value;
+        //    CreateTransform();
+        //    YawChanged?.Invoke(oldRotation);
+        //}
+        //private void SetPitch(float value)
+        //{
+        //    float oldRotation = _rotation.Pitch;
+        //    _rotation.Pitch = value;
+        //    CreateTransform();
+        //    PitchChanged?.Invoke(oldRotation);
+        //}
+        //private void SetRoll(float value)
+        //{
+        //    float oldRotation = _rotation.Roll;
+        //    _rotation.Roll = value;
+        //    CreateTransform();
+        //    RollChanged?.Invoke(oldRotation);
+        //}
+        //private void SetScale(Vec3 value)
+        //{
+        //    Vec3 oldScale = _scale;
+        //    _scale.Raw = value;
+        //    CreateTransform();
+        //    ScaleChanged?.Invoke(oldScale);
+        //}
+
         [TPostDeserialize]
         public void CreateTransform()
         {
@@ -539,6 +476,8 @@ namespace TheraEngine.Core.Maths.Transforms
             translation = m.Row3.Xyz;
             scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
             rotation = m.ExtractRotation(true);
+            //translation.Round(5);
+            //scale.Round(5);
         }
         public static void DeriveTR(Matrix4 m, out Vec3 translation, out Quat rotation)
         {

@@ -146,23 +146,23 @@ namespace TheraEngine.Components
         }
 
         private EventList<SceneComponent> _children;
-        private ISocket _parent = null;
+        private ISocket _parentSocket = null;
 
         //[Browsable(false)]
         //[Category("Rendering")]
         //public bool IsSpawned
         //    => OwningActor == null ? false : OwningActor.IsSpawned;
         [Browsable(false)]
-        public virtual ISocket Parent
+        public virtual ISocket ParentSocket
         {
-            get => _parent;
+            get => _parentSocket;
             set
             {
-                if (Parent == value)
+                if (ParentSocket == value)
                     return;
                 
                 IActor prevActor = OwningActor;
-                _parent = value;
+                _parentSocket = value;
 
                 if (prevActor != OwningActor)
                     prevActor?.GenerateSceneComponentCache();
@@ -227,7 +227,7 @@ namespace TheraEngine.Components
                 if (item.IsSpawned)
                     item.OnDespawned();
 
-                item.Parent = null;
+                item.ParentSocket = null;
                 item.OwningActor = null;
                 item.RecalcWorldTransform();
             }
@@ -238,7 +238,7 @@ namespace TheraEngine.Components
             if (item.IsSpawned)
                 item.OnDespawned();
 
-            item.Parent = null;
+            item.ParentSocket = null;
             item.OwningActor = null;
             item.RecalcWorldTransform();
 
@@ -279,7 +279,7 @@ namespace TheraEngine.Components
 
             bool spawnedMismatch = IsSpawned != item.IsSpawned;
 
-            item.Parent = this;
+            item.ParentSocket = this;
             item.OwningActor = OwningActor;
             item.RecalcWorldTransform();
 
@@ -321,7 +321,7 @@ namespace TheraEngine.Components
                 Bone bone = mesh.SkeletonOverride[socketName];
                 if (bone != null)
                 {
-                    bone.ChildComponents.Add(this);
+                    bone.Transform.Children.Add(Transform);
                     return bone;
                 }
             }
@@ -367,7 +367,7 @@ namespace TheraEngine.Components
         /// Retains current position in world space.
         /// </summary>
         public void DetachFromParent()
-            => Parent?.ChildComponents.Remove(this);
+            => ParentSocket?.Children.Remove(Transform);
         #endregion
 
         #region Transform Tool
@@ -416,7 +416,7 @@ namespace TheraEngine.Components
         protected void RecalcLocalTransform()
         {
             OnRecalcLocalTransform(out Matrix4 mtx, out Matrix4 inv);
-            Transform.Local.Set(mtx, inv);
+            Transform.Local.SetMatrices(mtx, inv);
             RecalcWorldTransform();
         }
         /// <summary>
@@ -430,5 +430,16 @@ namespace TheraEngine.Components
         public virtual void RecalcWorldTransform() => Transform.RecalcWorldMatrix();
 
         void ISocket.OnWorldTransformChanged() => OnWorldTransformChanged();
+
+        public void AddChild(ISocket child)
+        {
+            if (child != null)
+                Transform.Children.Add(child.Transform);
+        }
+        public void RemoveChild(ISocket child)
+        {
+            if (child != null)
+                Transform.Children.Remove(child.Transform);
+        }
     }
 }

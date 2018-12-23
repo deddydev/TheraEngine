@@ -22,16 +22,6 @@ namespace TheraEngine.Animation
         /// <summary>
         /// Call to set this animation's current value to an object's property and then advance the animation by the given delta.
         /// </summary>
-        public void Tick(object obj, FieldInfo field, float delta)
-        {
-            if (_state != EAnimationState.Playing)
-                return;
-            field.SetValue(obj, GetCurrentValueGeneric());
-            Progress(delta);
-        }
-        /// <summary>
-        /// Call to set this animation's current value to an object's property and then advance the animation by the given delta.
-        /// </summary>
         public void Tick(object obj, PropertyInfo property, float delta)
         {
             if (_state != EAnimationState.Playing)
@@ -52,13 +42,13 @@ namespace TheraEngine.Animation
 
         /// <summary>
         /// Retrieves the value for the animation's current time.
-        /// Used by the internal animation implementation to set property/field values and call methods,
+        /// Used by the internal animation implementation to set property values and call methods,
         /// so must be overridden.
         /// </summary>
         protected abstract object GetCurrentValueGeneric();
         /// <summary>
         /// Retrieves the value for the given second.
-        /// Used by the internal animation implementation to set property/field values and call methods,
+        /// Used by the internal animation implementation to set property values and call methods,
         /// so must be overridden.
         /// </summary>
         protected abstract object GetValueGeneric(float second);

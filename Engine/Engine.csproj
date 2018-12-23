@@ -344,7 +344,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animation\Property\Core\PropAnimLerpable.cs" />
+    <Compile Include="Animation\Property\Core\PropAnimInterpolatable.cs" />
     <Compile Include="Audio\AudioInstance.cs" />
     <Compile Include="Components\Logic\Animation\Poses\PoseBlend1D.cs" />
     <Compile Include="Components\Logic\Animation\Poses\DirectPose.cs" />

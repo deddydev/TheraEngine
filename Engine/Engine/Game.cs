@@ -9,6 +9,7 @@ using TheraEngine.GameModes;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Collections.Generic;
 
 namespace TheraEngine
 {
@@ -19,9 +20,7 @@ namespace TheraEngine
     [TFileDef("Game Info", "Contains all information needed to run any game using the engine.")]
     public class TGame : TFileObject
     {
-        public TGame()
-        {
-        }
+        public TGame() { }
 
         protected LocalizedStringTable _localizedStringTable;
 
@@ -41,6 +40,13 @@ namespace TheraEngine
 
         [TSerialize(nameof(DefaultGameModeRef))]
         protected GlobalFileRef<BaseGameMode> _gameModeRef;
+
+        private List<GlobalFileRef<TWorld>> _worldCollection;
+        public List<GlobalFileRef<TWorld>> WorldCollection
+        {
+            get => _worldCollection;
+            set => _worldCollection = value ?? new List<GlobalFileRef<TWorld>>();
+        }
 
         /// <summary>
         /// The world the engine uses as a loading screen.

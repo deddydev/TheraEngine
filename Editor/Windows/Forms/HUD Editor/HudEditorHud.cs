@@ -14,7 +14,7 @@ using TheraEngine.Rendering.UI;
 namespace TheraEditor.Windows.Forms
 {
     public delegate void DelUIComponentSelect(UIComponent comp);
-    public class UIHudEditor : UserInterface<UIMaterialRectangleComponent>, I2DRenderable
+    public class UIHudEditor : EditorUserInterface, I2DRenderable
     {
         public UIHudEditor() : base()
         {
@@ -40,12 +40,12 @@ namespace TheraEditor.Windows.Forms
                     return;
                 else if (_targetHud != null)
                 {
-                    _rootTransform.ChildComponents.Remove(_targetHud.RootComponent);
+                    _baseTransformComponent.ChildComponents.Remove(_targetHud.RootComponent);
                 }
                 _targetHud = value;
                 if (_targetHud != null)
                 {
-                    _rootTransform.ChildComponents.Add(_targetHud.RootComponent);
+                    _baseTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
                     IVec2 vec = LocalPlayerController.Viewport.Region.Extents;
                     UIDockableComponent comp = _targetHud.RootComponent as UIDockableComponent;
                     //comp.Bounds = vec;
@@ -67,31 +67,19 @@ namespace TheraEditor.Windows.Forms
         private Vec2 _minScale = new Vec2(0.1f), _maxScale = new Vec2(4.0f);
         private Vec2 _lastWorldPos = Vec2.Zero;
         //private Vec2 _lastFocusPoint = Vec2.Zero;
-        internal UIComponent _rootTransform;
         private bool _rightClickDown = false;
-
-        protected override UIMaterialRectangleComponent OnConstructRoot()
-        {
-            UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
-            {
-                DockStyle = UIDockStyle.Fill,
-                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
-            };
-            _rootTransform = new UIComponent();
-            root.ChildComponents.Add(_rootTransform);
-            return root;
-        }
+        
         public override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
-            UIScene.Add(this);
+            ScreenSpaceUIScene.Add(this);
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
-            UIScene.Remove(this);
+            ScreenSpaceUIScene.Remove(this);
         }
-        private TMaterial GetGraphMaterial()
+        protected override TMaterial GetBackgroundMaterial()
         {
             GLSLShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", EShaderMode.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
@@ -162,10 +150,10 @@ namespace TheraEditor.Windows.Forms
         }
         private void HandleDragView(Vec2 cursorPosScreen)
         {
-            _rootTransform.LocalTranslation += GetWorldCursorDiff(cursorPosScreen);
+            _baseTransformComponent.LocalTranslation += GetWorldCursorDiff(cursorPosScreen);
 
-            TMaterial mat = RootComponent.InterfaceMaterial;
-            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+            TMaterial mat = _backgroundComponent.InterfaceMaterial;
+            mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
         }
         private void HandleDragHudComp(Vec2 cursorPosScreen, UIComponent draggedComp)
         {
@@ -181,11 +169,11 @@ namespace TheraEditor.Windows.Forms
         protected override void OnScrolledInput(bool down)
         {
             Vec3 worldPoint = CursorPositionWorld();
-            _rootTransform.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, _minScale, _maxScale);
+            _baseTransformComponent.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, _minScale, _maxScale);
 
-            TMaterial mat = RootComponent.InterfaceMaterial;
-            mat.Parameter<ShaderFloat>(2).Value = _rootTransform.ScaleX;
-            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+            TMaterial mat = _backgroundComponent.InterfaceMaterial;
+            mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
+            mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
         }
 
         private RenderCommandMesh2D _highlightMesh = new RenderCommandMesh2D();

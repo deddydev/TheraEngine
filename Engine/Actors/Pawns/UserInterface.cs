@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEngine.Core.Files.References;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.UI;
 
 namespace TheraEngine.Actors.Types.Pawns
@@ -14,8 +16,8 @@ namespace TheraEngine.Actors.Types.Pawns
     public interface IUserInterface : IPawn
     {
         IPawn OwningPawn { get; set; }
-        Scene2D UIScene { get; }
-        OrthographicCamera Camera { get; }
+        Scene2D ScreenSpaceUIScene { get; }
+        OrthographicCamera ScreenOverlayCamera { get; }
         Vec2 Bounds { get; }
         RenderPasses RenderPasses { get; set; }
 
@@ -32,18 +34,72 @@ namespace TheraEngine.Actors.Types.Pawns
         void RemoveRenderableComponent(I2DRenderable r);
         void AddRenderableComponent(I2DRenderable r);
     }
+    public class UICanvasComponent : UIBoundableComponent
+    {
+        public enum ECanvasDrawSpace
+        {
+            /// <summary>
+            /// Canvas is drawn on top of the viewport.
+            /// </summary>
+            Screen,
+            /// <summary>
+            /// Canvas is drawn in front of the camera.
+            /// </summary>
+            Camera,
+            /// <summary>
+            /// Canvas is drawn in the world like any other actor.
+            /// Camera is irrelevant.
+            /// </summary>
+            World,
+        }
+
+        //[Browsable(false)]
+        //public WorldFileRef<Camera> CanvasCamera { get; }
+    }
+    public class UserInterface : UserInterface<UICanvasComponent>
+    {
+        public UserInterface() : base() { }
+        public UserInterface(Vec2 bounds) : base(bounds) { }
+    }
+    public abstract class EditorUserInterface : UserInterface
+    {
+        public EditorUserInterface() : base() { }
+        public EditorUserInterface(Vec2 bounds) : base(bounds) { }
+
+        protected UIComponent _baseTransformComponent;
+        protected UIMaterialRectangleComponent _backgroundComponent;
+
+        protected override UICanvasComponent OnConstructRoot()
+        {
+            _baseTransformComponent = new UIComponent();
+            _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial())
+            {
+                DockStyle = UIDockStyle.Fill,
+                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
+            };
+            _backgroundComponent.ChildComponents.Add(_baseTransformComponent);
+
+            UICanvasComponent baseUI = new UICanvasComponent();
+            baseUI.ChildComponents.Add(_backgroundComponent);
+
+            return baseUI;
+        }
+
+        protected abstract TMaterial GetBackgroundMaterial();
+    }
     /// <summary>
     /// Each viewport has a HUD that manages 2D user interface elements.
     /// </summary>
     [TFileExt("ui")]
     [TFileDef("User Interface")]
-    public class UserInterface<T> : Pawn<T>, IUserInterface where T : UIDockableComponent, new()
+    public class UserInterface<T> : Pawn<T>, IUserInterface where T : UICanvasComponent, new()
     {
         public UserInterface() : base()
         {
-            Camera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
-            Camera.SetOriginBottomLeft();
-            Camera.Resize(1, 1);
+            ScreenOverlayCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
+            ScreenOverlayCamera.SetOriginBottomLeft();
+            ScreenOverlayCamera.Resize(1, 1);
+
             _scene = new Scene2D();
         }
         public UserInterface(Vec2 bounds) : this()
@@ -59,13 +115,13 @@ namespace TheraEngine.Actors.Types.Pawns
         [Browsable(false)]
         public Vec2 Bounds { get; private set; }
         [Browsable(false)]
-        public OrthographicCamera Camera { get; }
+        public OrthographicCamera ScreenOverlayCamera { get; }
         [Browsable(false)]
-        public UIComponent FocusedComponent { get; set; }
-        [Browsable(false)]
-        public Scene2D UIScene => _scene;
+        public Scene2D ScreenSpaceUIScene => _scene;
         [Browsable(false)]
         public RenderPasses RenderPasses { get; set; } = new RenderPasses();
+        [Browsable(false)]
+        public UIComponent FocusedComponent { get; set; }
         [Browsable(false)]
         public IPawn OwningPawn
         {
@@ -106,7 +162,7 @@ namespace TheraEngine.Actors.Types.Pawns
             }
         }
 
-        protected override T OnConstructRoot() => new T() { DockStyle = UIDockStyle.Fill };
+        protected override T OnConstructRoot() => new T() { };
         public override void RegisterInput(InputInterface input)
         {
             RootComponent.RegisterInputs(input);
@@ -173,7 +229,7 @@ namespace TheraEngine.Actors.Types.Pawns
                 return;
             _scene.Resize(bounds);
             RootComponent.Resize(bounds);
-            Camera.Resize(bounds.X, bounds.Y);
+            ScreenOverlayCamera.Resize(bounds.X, bounds.Y);
         }
         protected override void PostConstruct()
         {

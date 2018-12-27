@@ -3,8 +3,8 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [ObjectSerializerFor(typeof(Type), CanSerializeAsString = true)]
-    public class TypeSerializer : BaseObjectSerializer
+    [ObjectSerializerFor(typeof(DateTime))]
+    public class DateTimeSerializer : BaseObjectSerializer
     {
         #region Tree
         public override void DeserializeTreeToObject()

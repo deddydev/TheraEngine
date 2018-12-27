@@ -11,6 +11,8 @@ namespace TheraEngine.Animation
         [TSerialize("KeyframeTrack")]
         protected KeyframeTrack<T> _keyframes;
 
+        public PropAnimKeyframed()
+            : this(0.0f, false) { }
         public PropAnimKeyframed(float lengthInSeconds, bool looped, bool isBaked = false) 
             : base(lengthInSeconds, looped, isBaked) => ConstructKeyframes();
         public PropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
@@ -25,7 +27,7 @@ namespace TheraEngine.Animation
         private void KeyframesLengthChanged(float oldValue, BaseKeyframeTrack track)
         {
             _lengthInSeconds = track.LengthInSeconds;
-            SetBakedFramecount();
+            SetBakedFrameCount();
             OnLengthChanged();
         }
         

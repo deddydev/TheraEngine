@@ -4,8 +4,14 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
+    public interface ITRSComponent : ITRComponent
+    {
+        EventVec3 Scale { get; set; }
+
+        void SetTRS(Vec3 translation, Rotator rotation, Vec3 scale);
+    }
     [TFileDef("Translate-Rotate-Scale Component")]
-    public class TRSComponent : TRComponent
+    public class TRSComponent : TRComponent, ITRSComponent
     {
         public TRSComponent() : this(Vec3.Zero, Rotator.GetZero(), Vec3.One, true) { }
         public TRSComponent(Vec3 translation, Rotator rotation, Vec3 scale, bool deferLocalRecalc = false) 

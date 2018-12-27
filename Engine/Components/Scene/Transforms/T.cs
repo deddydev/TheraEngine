@@ -5,6 +5,10 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
+    public interface ITranslationComponent : ISceneComponent
+    {
+        EventVec3 Translation { get; set; }
+    }
     /// <summary>
     /// Contains a general translation.
     /// </summary>

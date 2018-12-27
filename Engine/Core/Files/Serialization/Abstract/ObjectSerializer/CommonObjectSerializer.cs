@@ -10,7 +10,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    //[ObjectWriterKind(typeof(object))]
+    [ObjectSerializerFor(typeof(object), CanSerializeAsString = true)]
     public class CommonObjectSerializer : BaseObjectSerializer
     {
         #region Reading
@@ -336,9 +336,72 @@ namespace TheraEngine.Core.Files.Serialization
         {
 
         }
+        #endregion
 
-        public override void DeserializeTreeFromString(string value) => throw new NotImplementedException();
-        public override string SerializeTreeToString() => throw new NotImplementedException();
+        #region String
+        public override object ObjectFromString(Type type, string value)
+        {
+            if (type.IsEnum)
+            {
+                value = value.ReplaceWhitespace("").Replace("|", ", ");
+                return Enum.Parse(type, value);
+            }
+            switch (type.Name)
+            {
+                case "Boolean": return Boolean.Parse(value);
+                case "SByte":   return SByte.Parse(value);
+                case "Byte":    return Byte.Parse(value);
+                case "Char":    return Char.Parse(value);
+                case "Int16":   return Int16.Parse(value);
+                case "UInt16":  return UInt16.Parse(value);
+                case "Int32":   return Int32.Parse(value);
+                case "UInt32":  return UInt32.Parse(value);
+                case "Int64":   return Int64.Parse(value);
+                case "UInt64":  return UInt64.Parse(value);
+                case "Single":  return Single.Parse(value);
+                case "Double":  return Double.Parse(value);
+                case "Decimal": return Decimal.Parse(value);
+                case "String":  return value;
+            }
+            if (type.IsValueType)
+                return SerializationCommon.ParseStructBytesString(type, value);
+            throw new InvalidOperationException();
+        }
+        public override bool ObjectToString(object obj, out string str)
+        {
+            Type type = obj.GetType();
+            if (type.IsEnum)
+            {
+                str = obj.ToString().Replace(",", "|").ReplaceWhitespace("");
+                return true;
+            }
+            switch (type.Name)
+            {
+                case "Boolean":
+                case "SByte":
+                case "Byte":
+                case "Char":
+                case "Int16":
+                case "UInt16":
+                case "Int32":
+                case "UInt32":
+                case "Int64":
+                case "UInt64":
+                case "Single":
+                case "Double":
+                case "Decimal":
+                case "String":
+                    str = obj.ToString();
+                    return true;
+            }
+            if (type.IsValueType)
+            {
+                str = SerializationCommon.GetStructAsBytesString(obj);
+                return true;
+            }
+            str = null;
+            return false;
+        }
         #endregion
     }
 }

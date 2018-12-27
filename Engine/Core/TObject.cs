@@ -33,15 +33,15 @@ namespace TheraEngine
         #endregion
         
         #region Animation
-        IReadOnlyList<AnimationContainer> Animations { get; }
+        IReadOnlyList<AnimationTree> Animations { get; }
         void AddAnimation(
-            AnimationContainer anim,
+            AnimationTree anim,
             bool startNow = false,
             bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
             ETickOrder order = ETickOrder.Animation,
             EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
-        bool RemoveAnimation(AnimationContainer anim);
+        bool RemoveAnimation(AnimationTree anim);
         #endregion
     }
 
@@ -169,10 +169,10 @@ namespace TheraEngine
         #region Animation
         
         [TSerialize(nameof(Animations))]
-        private List<AnimationContainer> _animations = null;
+        private List<AnimationTree> _animations = null;
 
         [Browsable(false)]
-        public IReadOnlyList<AnimationContainer> Animations => _animations;
+        public IReadOnlyList<AnimationTree> Animations => _animations;
 
         /// <summary>
         /// Adds a property animation tree to this TObject.
@@ -184,7 +184,7 @@ namespace TheraEngine
         /// <param name="order">The order within the group to tick this animation in.</param>
         /// <param name="pausedBehavior">Ticking behavior of the animation while paused.</param>
         public void AddAnimation(
-            AnimationContainer anim,
+            AnimationTree anim,
             bool startNow = false,
             bool removeOnEnd = true,
             ETickGroup group = ETickGroup.PostPhysics,
@@ -196,7 +196,7 @@ namespace TheraEngine
             if (removeOnEnd)
                 anim.AnimationEnded += RemoveAnimationSelf;
             if (_animations == null)
-                _animations = new List<AnimationContainer>();
+                _animations = new List<AnimationTree>();
             _animations.Add(anim);
             anim.Owners.Add(this);
             anim.Group = group;
@@ -205,7 +205,7 @@ namespace TheraEngine
             if (startNow)
                 anim.Start();
         }
-        public bool RemoveAnimation(AnimationContainer anim)
+        public bool RemoveAnimation(AnimationTree anim)
         {
             if (anim == null)
                 return false;
@@ -219,7 +219,7 @@ namespace TheraEngine
         private void RemoveAnimationSelf(BaseAnimation anim)
         {
             anim.AnimationEnded -= RemoveAnimationSelf;
-            AnimationContainer cont = anim as AnimationContainer;
+            AnimationTree cont = anim as AnimationTree;
             cont.Owners.Remove(this);
             _animations.Remove(cont);
         }

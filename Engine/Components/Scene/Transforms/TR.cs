@@ -31,11 +31,17 @@ namespace TheraEngine.Components.Scene.Transforms
         /// </summary>
         void ArcBallRotate(float pitch, float yaw, Vec3 origin);
     }
+    public interface ITRComponent : ITranslationComponent
+    {
+        Rotator Rotation { get; set; }
+
+        void SetTR(Vec3 translation, Rotator rotation);
+    }
     /// <summary>
     /// Translates first, then rotates.
     /// </summary>
     [TFileDef("Translate-Rotate Component")]
-    public class TRComponent : TranslationComponent, ICameraTransformable
+    public class TRComponent : TranslationComponent, ITRComponent, ICameraTransformable
     {
         public TRComponent() : this(Vec3.Zero, Rotator.GetZero(), true) { }
         public TRComponent(Vec3 translation, Rotator rotation, bool deferLocalRecalc = false) : base(translation, true)
@@ -125,8 +131,8 @@ namespace TheraEngine.Components.Scene.Transforms
             => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
         {
-            _localTransform = LocalMatrix * translation.AsTranslationMatrix();
-            _inverseLocalTransform = (-translation).AsTranslationMatrix() * InverseLocalMatrix;
+            _localMatrix = LocalMatrix * translation.AsTranslationMatrix();
+            _inverseLocalMatrix = (-translation).AsTranslationMatrix() * InverseLocalMatrix;
             _translation.SetRawNoUpdate(LocalMatrix.Translation);
             RecalcWorldTransform();
         }

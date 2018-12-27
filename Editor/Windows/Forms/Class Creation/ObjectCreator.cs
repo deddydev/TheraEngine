@@ -165,15 +165,13 @@ namespace TheraEditor.Windows.Forms
                     Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
                     if (types.Length > 1)
                     {
-                        if (!type.IsAbstract && !type.IsInterface)
-                            SetTargetType(type);
-                        toolStripTypeSelection.Visible = false;
-                        int constructorCount = type.GetConstructors().Length;
-                        int staticConstructorCount = type.GetMethods(BindingFlags.Public | BindingFlags.Static).Where(x => x.ReturnType == type && !x.IsSpecialName).ToArray().Length;
-                        return constructorCount + staticConstructorCount > 0;
+                        toolStripDropDownButton1.Visible = true;
+                        return true;
                     }
                     else if (types.Length == 1)
                         type = types[0];
+                    else
+                        return false;
                 }
 
                 if (type.IsAbstract || type.IsInterface)

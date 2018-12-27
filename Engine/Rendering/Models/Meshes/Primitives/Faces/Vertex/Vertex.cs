@@ -8,10 +8,8 @@ namespace TheraEngine.Rendering.Models
     public class Vertex
     {
         public Vertex(FacePoint facepoint, List<DataBuffer> buffers)
-        {
-            GetData(facepoint, buffers);
-        }
-
+            => GetData(facepoint, buffers);
+        
         public int Index { get; set; } = -1;
         public InfluenceDef Influence { get; set; }
         public Vec3 Position { get; set; }

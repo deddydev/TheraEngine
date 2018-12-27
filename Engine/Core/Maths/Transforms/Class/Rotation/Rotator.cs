@@ -249,11 +249,11 @@ namespace TheraEngine.Core.Maths.Transforms
             => Matrix4.CreateRotationZ(Roll);
 
         public Quat GetYawQuat() 
-            => Quat.FromAxisAngle(Vec3.Up, Yaw);
+            => Quat.FromAxisAngleDeg(Vec3.Up, Yaw);
         public Quat GetPitchQuat()
-            => Quat.FromAxisAngle(Vec3.Right, Pitch);
+            => Quat.FromAxisAngleDeg(Vec3.Right, Pitch);
         public Quat GetRollQuat()
-            => Quat.FromAxisAngle(Vec3.Forward, Roll);
+            => Quat.FromAxisAngleDeg(Vec3.Forward, Roll);
 
         public void SetDirection(Vec3 value)
             => SetRotations(value.LookatAngles());

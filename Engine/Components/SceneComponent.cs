@@ -15,15 +15,18 @@ namespace TheraEngine.Components
     {
         Matrix4 LocalMatrix { get; }
         Matrix4 InverseLocalMatrix { get; }
+
         BaseScene OwningScene { get; set; }
         Scene3D OwningScene3D { get; }
         Scene2D OwningScene2D { get; }
         TWorld OwningWorld { get; }
         IActor OwningActor { get; set; }
+
         Vec3 LocalRightDir { get; }
         Vec3 LocalUpDir { get; }
         Vec3 LocalForwardDir { get; }
         Vec3 LocalPoint { get; }
+
         Vec3 WorldRightVec { get; }
         Vec3 WorldUpVec { get; }
         Vec3 WorldForwardVec { get; }
@@ -101,9 +104,9 @@ namespace TheraEngine.Components
         //[TSerialize("InverseWorldTransform")]
         protected Matrix4 _inverseWorldTransform = Matrix4.Identity;
         //[TSerialize("LocalTransform")]
-        protected Matrix4 _localTransform = Matrix4.Identity;
+        protected Matrix4 _localMatrix = Matrix4.Identity;
         //[TSerialize("InverseLocalTransform")]
-        protected Matrix4 _inverseLocalTransform = Matrix4.Identity;
+        protected Matrix4 _inverseLocalMatrix = Matrix4.Identity;
 
         internal ISocket _parent;
         protected EventList<SceneComponent> _children;
@@ -120,8 +123,8 @@ namespace TheraEngine.Components
             _inverseWorldTransform = inverse;
             _worldTransform = transform;
 
-            _localTransform = GetInverseParentMatrix() * WorldMatrix;
-            _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
+            _localMatrix = GetInverseParentMatrix() * WorldMatrix;
+            _inverseLocalMatrix = InverseWorldMatrix * GetParentMatrix();
 
             OnWorldTransformChanged();
         }
@@ -139,8 +142,8 @@ namespace TheraEngine.Components
                 _worldTransform = value;
                 _inverseWorldTransform = _worldTransform.Inverted();
 
-                _localTransform = WorldMatrix * GetInverseParentMatrix();
-                _inverseLocalTransform = GetParentMatrix() * InverseWorldMatrix;
+                _localMatrix = WorldMatrix * GetInverseParentMatrix();
+                _inverseLocalMatrix = GetParentMatrix() * InverseWorldMatrix;
 
                 OnWorldTransformChanged();
             }
@@ -193,8 +196,8 @@ namespace TheraEngine.Components
                 _inverseWorldTransform = value;
                 _worldTransform = _inverseWorldTransform.Inverted();
 
-                _localTransform = GetInverseParentMatrix() * WorldMatrix;
-                _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
+                _localMatrix = GetInverseParentMatrix() * WorldMatrix;
+                _inverseLocalMatrix = InverseWorldMatrix * GetParentMatrix();
 
                 OnWorldTransformChanged();
             }
@@ -206,7 +209,7 @@ namespace TheraEngine.Components
             {
                 //if (_simulatingPhysics)
                 //    throw new InvalidOperationException("Component is simulating physics; local transform is not updated.");
-                return _localTransform;
+                return _localMatrix;
             }
         }
         [Browsable(false)]
@@ -216,7 +219,7 @@ namespace TheraEngine.Components
             {
                 //if (_simulatingPhysics)
                 //    throw new InvalidOperationException("Component is simulating physics; inverse local transform is not updated.");
-                return _inverseLocalTransform;
+                return _inverseLocalMatrix;
             }
         }
         [Browsable(false)]
@@ -252,22 +255,22 @@ namespace TheraEngine.Components
         /// Right direction relative to the parent component (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalRightDir => _localTransform.RightVec;
+        public Vec3 LocalRightDir => _localMatrix.RightVec;
         /// <summary>
         /// Up direction relative to the parent component (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalUpDir => _localTransform.UpVec;
+        public Vec3 LocalUpDir => _localMatrix.UpVec;
         /// <summary>
         /// Forward direction relative to the parent component (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalForwardDir => _localTransform.ForwardVec;
+        public Vec3 LocalForwardDir => _localMatrix.ForwardVec;
         /// <summary>
         /// The position of this component relative to the parent component (or world if null).
         /// </summary>
         [Browsable(false)]
-        public Vec3 LocalPoint => _localTransform.Translation;
+        public Vec3 LocalPoint => _localMatrix.Translation;
         
         /// <summary>
         /// Right direction relative to the world.
@@ -347,8 +350,8 @@ namespace TheraEngine.Components
             if (retainCurrentPosition)
             {
                 _inverseWorldTransform = WorldMatrix.Inverted();
-                _localTransform = WorldMatrix * GetInverseParentMatrix();
-                _inverseLocalTransform = GetParentMatrix() * InverseWorldMatrix;
+                _localMatrix = WorldMatrix * GetInverseParentMatrix();
+                _inverseLocalMatrix = GetParentMatrix() * InverseWorldMatrix;
                 RecalcWorldTransform();
             }
             foreach (SceneComponent c in ChildComponents)
@@ -477,7 +480,7 @@ namespace TheraEngine.Components
         }
         protected void RecalcLocalTransform()
         {
-            OnRecalcLocalTransform(out _localTransform, out _inverseLocalTransform);
+            OnRecalcLocalTransform(out _localMatrix, out _inverseLocalMatrix);
             RecalcWorldTransform();
         }
         /// <summary>

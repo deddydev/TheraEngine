@@ -107,20 +107,20 @@ namespace TheraEditor
             {
                 Name = name;
                 Children = new Dictionary<string, NamespaceNode>();
-                Button = new ToolStripDropDownButton(Name)
+                Button = new ToolStripMenuItem(Name)
                 {
-                    AutoSize = false,
-                    ShowDropDownArrow = true,
+                    AutoSize = true,
+                    //ShowDropDownArrow = true,
                     TextAlign = ContentAlignment.MiddleLeft,
                 };
-                Size s = TextRenderer.MeasureText(Name, Button.Font);
-                Button.Width = s.Width + 10;
-                Button.Height = s.Height + 10;
+                //Size s = TextRenderer.MeasureText(Name, Button.Font);
+                //Button.Width = s.Width + 10;
+                //Button.Height = s.Height + 10;
             }
 
             public string Name { get; set; }
             private Dictionary<string, NamespaceNode> Children { get; set; }
-            public ToolStripDropDownButton Button { get; set; }
+            public ToolStripMenuItem Button { get; set; }
 
             public void Add(string path, Type t, EventHandler onClick)
             {
@@ -129,16 +129,16 @@ namespace TheraEditor
                     string typeName = t.GetFriendlyName();
                     //FileDef def = t.GetCustomAttributeExt<FileDef>();
                     string displayText = /*def?.UserFriendlyName ?? */typeName;
-                    ToolStripDropDownButton btn = new ToolStripDropDownButton(displayText)
+                    ToolStripMenuItem btn = new ToolStripMenuItem(displayText)
                     {
-                        AutoSize = false,
-                        ShowDropDownArrow = false,
+                        AutoSize = true,
+                        //ShowDropDownArrow = false,
                         TextAlign = ContentAlignment.MiddleLeft,
                         Tag = t,
                     };
-                    Size s = TextRenderer.MeasureText(displayText, btn.Font);
-                    btn.Width = s.Width;
-                    btn.Height = s.Height + 10;
+                    //Size s = TextRenderer.MeasureText(displayText, btn.Font);
+                    //btn.Width = s.Width;
+                    //btn.Height = s.Height + 10;
                     btn.Click += onClick;
                     Button.DropDownItems.Add(btn);
                     return;

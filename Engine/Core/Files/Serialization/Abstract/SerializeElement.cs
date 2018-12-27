@@ -415,7 +415,8 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (ObjectType != null)
             {
-                ObjectSerializer = SerializationCommon.DetermineObjectSerializer(ObjectType, this);
+                ObjectSerializer = BaseObjectSerializer.DetermineObjectSerializer(ObjectType, false, false);
+                ObjectSerializer.TreeNode = this;
 
                 IEnumerable<MethodInfo> methods = ObjectType?.GetMethods(
                     BindingFlags.NonPublic |

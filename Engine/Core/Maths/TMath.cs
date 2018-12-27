@@ -7,8 +7,8 @@ using System.Numerics;
 namespace System
 {
     /// <summary>
-    /// Thera Math: contains static methods and constants not included in the built-in System.Math class.
-    /// <para>Easily call utilize this class by implementing 'using static System.TMath;' at the top of code files.</para>
+    /// Thera Math: contains static methods and constants not included in the built-in System.Math class.<para></para>
+    /// Easily call methods in this class by implementing 'using static System.TMath;' at the top of code files.
     /// </summary>
     public unsafe static class TMath
     {
@@ -160,7 +160,7 @@ namespace System
         /// <param name="cameraRightDir">The direction representing the right side of a camera. This is the reference axis rotated around (at the focusPoint) using the pitch value.</param>
         /// <returns></returns>
         public static Vec3 ArcballTranslation(float pitch, float yaw, Vec3 focusPoint, Vec3 cameraPoint, Vec3 cameraRightDir)
-            => ArcballTranslation(Quat.FromAxisAngle(Vec3.Up, yaw) * Quat.FromAxisAngle(cameraRightDir, pitch), focusPoint, cameraPoint);
+            => ArcballTranslation(Quat.FromAxisAngleDeg(Vec3.Up, yaw) * Quat.FromAxisAngleDeg(cameraRightDir, pitch), focusPoint, cameraPoint);
         /// <summary>
         /// Returns a translation value representing a rotation of the cameraPoint around the focusPoint.
         /// Assumes the Y axis is up. Yaw is performed before pitch.

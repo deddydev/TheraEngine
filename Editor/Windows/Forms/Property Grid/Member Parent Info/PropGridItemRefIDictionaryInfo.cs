@@ -55,11 +55,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (IsKey)
                     return Key;
                 else
-                    return OwnerDictionary[Key];
+                {
+                    IDictionary dic = OwnerDictionary;
+                    if (dic == null)
+                        return null;
+                    return dic[Key];
+                }
             }
             set
             {
                 IDictionary dic = OwnerDictionary;
+                if (dic == null)
+                    return;
+
                 if (!IsKey)
                     dic[Key] = value;
                 else

@@ -485,12 +485,7 @@ namespace TheraEngine.Core.Maths
         #endregion
 
         #endregion
-
-        private delegate byte DelComponentSelector(Color color);
-        private static readonly DelComponentSelector _redSelector = color => color.R;
-        private static readonly DelComponentSelector _greenSelector = color => color.G;
-        private static readonly DelComponentSelector _blueSelector = color => color.B;
-
+        
         public static Color Lerp(
             Color startColor,
             Color endColor,
@@ -503,13 +498,6 @@ namespace TheraEngine.Core.Maths
                 (byte)(startColor.B + (endColor.B - startColor.B) * time));
             return color;
         }
-        private static byte InterpColorComponent(
-            Color start,
-            Color end,
-            float time,
-            DelComponentSelector selector)
-            => (byte)(selector(start) + (selector(end) - selector(start)) * time);
-
         public static Point Lerp(
             Point start,
             Point end,
@@ -532,20 +520,28 @@ namespace TheraEngine.Core.Maths
         }
 
         public static float Lerp(float startValue, float endValue, float time)
-        {
-            //return startValue * (1.0f - time) + endValue * time;
-            return startValue + (endValue - startValue) * time;
-        }
+            => startValue + (endValue - startValue) * time;
+        public static Vec2 Lerp(Vec2 startValue, Vec2 endValue, float time)
+            => startValue + (endValue - startValue) * time;
+        public static Vec3 Lerp(Vec3 startValue, Vec3 endValue, float time)
+            => startValue + (endValue - startValue) * time;
+        public static Vec4 Lerp(Vec4 startValue, Vec4 endValue, float time)
+            => startValue + (endValue - startValue) * time;
 
-        public static float InterpQuadraticEaseEnd(float start, float end, float time, float speed = 1.0f, float power = 2.0f)
-            => Lerp(start, end, 1.0f - (float)Pow(1.0f - (time * speed), power));
-        public static float InterpQuadraticEaseStart(float start, float end, float time, float speed = 1.0f, float power = 2.0f)
-            => Lerp(start, end, (float)Pow(time * speed, power));
+        public static float InterpQuadraticEaseEnd(float start, float end, float time, float speed = 1.0f, float exponent = 2.0f)
+            => Lerp(start, end, 1.0f - (float)Pow(1.0f - (time * speed), exponent));
+        public static float InterpQuadraticEaseStart(float start, float end, float time, float speed = 1.0f, float exponent = 2.0f)
+            => Lerp(start, end, (float)Pow(time * speed, exponent));
 
+        /// <summary>
+        /// Maps a linear time value from 0.0f to 1.0f to a time value that bounces back a specified amount of times after hitting 1.0f.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <param name="bounces"></param>
+        /// <param name="bounceFalloff"></param>
+        /// <returns></returns>
         public static float BounceTimeModifier(float time, int bounces = 4, double bounceFalloff = 4.0)
-        {
-            return 1.0f - (float)(Pow(E, -bounceFalloff * time) * Abs(Cos(PI * (0.5 + bounces) * time)));
-        }
+            => 1.0f - (float)(Pow(E, -bounceFalloff * time) * Abs(Cos(PI * (0.5 + bounces) * time)));
         /// <summary>
         /// Maps a linear time value from 0.0f to 1.0f to a cosine time value that eases in and out.
         /// </summary>
@@ -594,18 +590,18 @@ namespace TheraEngine.Core.Maths
         public static Vec4 InterpLinearTo(Vec4 start, Vec4 end, float time, float speed = 1.0f)
             => Vec4.Lerp(start, end, time * speed);
 
-        public static Vec3 VInterpNormalRotationTo(Vec3 current, Vec3 target, float delta, float rotationSpeedDegrees)
+        public static Vec3 VInterpNormalRotationTo(Vec3 current, Vec3 target, float delta, float degPerSec)
         {
             Quat deltaQuat = Quat.BetweenVectors(current, target);
 
-            deltaQuat.ToAxisAngleDeg(out Vec3 deltaAxis, out float deltaAngle);
+            deltaQuat.ToAxisAngleRad(out Vec3 deltaAxis, out float totalRads);
 
-            float rotStepRads = DegToRad(rotationSpeedDegrees) * delta;
+            float deltaRads = DegToRad(degPerSec) * delta;
 
-            if (Abs(deltaAngle) > rotStepRads)
+            if (Abs(totalRads) > deltaRads)
             {
-                deltaAngle = deltaAngle.Clamp(-rotStepRads, rotStepRads);
-                deltaQuat = new Quat(deltaAxis, deltaAngle);
+                //totalRads = totalRads.Clamp(-deltaRads, deltaRads);
+                deltaQuat = Quat.FromAxisAngleDeg(deltaAxis, deltaRads);
                 return deltaQuat * current;
             }
 

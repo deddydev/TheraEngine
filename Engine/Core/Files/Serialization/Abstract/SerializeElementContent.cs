@@ -16,7 +16,19 @@ namespace TheraEngine.Core.Files.Serialization
         {
             _value = o;
             _valueType = _value?.GetType();
-            IsNonStringObject = _value != null ? !SerializationCommon.GetString(_value, _valueType, out _stringValue) : false;
+
+            if (_value == null)
+            {
+                IsNonStringObject = true;
+                return false;
+            }
+
+            var serializer = BaseObjectSerializer.DetermineObjectSerializer(_valueType, true);
+
+            string str = null;
+            IsNonStringObject = serializer == null || !serializer.ObjectToString(_value, out str);
+            _stringValue = str;
+            
             return !IsNonStringObject;
         }
         public void SetValueAsString(string o)
@@ -38,16 +50,18 @@ namespace TheraEngine.Core.Files.Serialization
 
         private bool ParseStringToObject(Type type)
         {
-            bool canParse = SerializationCommon.IsSerializableAsString(type);
-            if (canParse)
+            var serializer = BaseObjectSerializer.DetermineObjectSerializer(type, true);
+            if (serializer == null)
             {
-                _value = SerializationCommon.ParseString(_stringValue, type);
-                _valueType = type;
-            }
-            else
                 _valueType = null;
+                return false;
+            }
+
+            _value = serializer.ObjectFromString(type, _stringValue);
+            _valueType = type;
+            
             IsNonStringObject = false;
-            return canParse;
+            return true;
         }
         public bool GetObject(Type expectedType, out object value)
         {

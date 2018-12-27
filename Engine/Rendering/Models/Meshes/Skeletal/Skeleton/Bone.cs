@@ -239,9 +239,18 @@ namespace TheraEngine.Rendering.Models
         //[Browsable(false)]
         //public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
 
+        private EventList<SceneComponent> _childComponents = new EventList<SceneComponent>();
+        [TSerialize]
         [Category("Bone")]
         [Browsable(false)]
-        public EventList<SceneComponent> ChildComponents { get; } = new EventList<SceneComponent>();
+        public EventList<SceneComponent> ChildComponents
+        {
+            get => _childComponents;
+            set
+            {
+                _childComponents = value ?? new EventList<SceneComponent>();
+            }
+        }
 
         [Category("Bone")]
         [Browsable(false)]

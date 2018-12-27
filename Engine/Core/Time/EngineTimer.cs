@@ -1,10 +1,9 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using Core.Win32.Native;
 using System;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Core.Win32.Native;
-using TheraEngine.Rendering;
 
 namespace TheraEngine.Timers
 {
@@ -144,7 +143,7 @@ namespace TheraEngine.Timers
                 // Prepare for next loop
                 elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
 
-                if (TargetUpdatePeriod <= Single.Epsilon)
+                if (TargetUpdatePeriod <= float.Epsilon)
                 {
                     // According to the TargetUpdatePeriod documentation,
                     // a TargetUpdatePeriod of zero means we will raise

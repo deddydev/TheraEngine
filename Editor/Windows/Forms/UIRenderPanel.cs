@@ -33,8 +33,8 @@ namespace TheraEngine
         TWorld IUIRenderPanel.World => World;
         IUIGameMode IUIRenderPanel.GameMode => GameMode;
 
-        protected override Scene2D GetScene(Viewport v) => UI?.UIScene;
-        protected override Camera GetCamera(Viewport v) => UI?.Camera;
+        protected override Scene2D GetScene(Viewport v) => UI?.ScreenSpaceUIScene;
+        protected override Camera GetCamera(Viewport v) => UI?.ScreenOverlayCamera;
 
         public UIRenderPanel()
         {
@@ -42,7 +42,7 @@ namespace TheraEngine
                 return;
             Viewport v = AddViewport();
             v.HUD = UI = new UIPawnType();
-            v.Camera = UI.Camera;
+            v.Camera = UI.ScreenOverlayCamera;
         }
         public void FormShown()
         {

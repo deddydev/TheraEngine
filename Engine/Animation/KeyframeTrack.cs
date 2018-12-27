@@ -18,7 +18,7 @@ namespace TheraEngine.Animation
         object OutValue { get; set; }
         object InTangent { get; set; }
         object OutTangent { get; set; }
-        EPlanarInterpType InterpolationType { get; set; }
+        EVectorInterpType InterpolationType { get; set; }
 
         void UnifyKeyframe(EUnifyBias bias);
         void UnifyValues(EUnifyBias bias);
@@ -468,7 +468,7 @@ namespace TheraEngine.Animation
             object outValues = null;
             object inTans = null;
             object outTans = null;
-            EPlanarInterpType[] interpTypes = new EPlanarInterpType[keyCount];
+            EVectorInterpType[] interpTypes = new EVectorInterpType[keyCount];
             
             //Read all keyframe information, split into separate element arrays
             foreach (SerializeElement element in node.ChildElements)
@@ -488,7 +488,7 @@ namespace TheraEngine.Animation
             for (int i = 0; i < keyCount; ++i)
             {
                 float sec                   = seconds       == null || !seconds.IndexInArrayRange(i)            ? 0.0f                   : seconds[i];
-                EPlanarInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)        ? EPlanarInterpType.Step : interpTypes[i];
+                EVectorInterpType interp    = interpTypes   == null || !interpTypes.IndexInArrayRange(i)        ? EVectorInterpType.Step : interpTypes[i];
                 object inVal                = inValues      == null || !((Array)inValues).IndexInArrayRange(i)  ? defaultObj             : ((Array)inValues).GetValue(i);
                 object outVal               = outValues     == null || !((Array)outValues).IndexInArrayRange(i) ? defaultObj             : ((Array)outValues).GetValue(i);
                 object inTan                = inTans        == null || !((Array)inTans).IndexInArrayRange(i)    ? defaultObj             : ((Array)inTans).GetValue(i);
@@ -525,7 +525,7 @@ namespace TheraEngine.Animation
             object[] outValues  = new object[Count];
             object[] inTans     = new object[Count];
             object[] outTans    = new object[Count];
-            EPlanarInterpType[] interpTypes = new EPlanarInterpType[Count];
+            EVectorInterpType[] interpTypes = new EVectorInterpType[Count];
 
             int i = 0;
             foreach (IPlanarKeyframe kf in this)
@@ -554,7 +554,7 @@ namespace TheraEngine.Animation
         Linear,
         CubicBezier
     }
-    public enum EPlanarInterpType
+    public enum EVectorInterpType
     {
         Step,
         Linear,

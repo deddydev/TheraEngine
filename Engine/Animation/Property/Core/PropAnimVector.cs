@@ -12,30 +12,37 @@ namespace TheraEngine.Animation
         Velocity,
         Acceleration,
     }
-    public abstract class PropAnimVector<T, T2> : PropAnimKeyframed<T2>
-        where T : unmanaged
-        where T2 : VectorKeyframe<T>, new()
+    public abstract class PropAnimVector<TValue, TValueKey> : PropAnimKeyframed<TValueKey>
+        where TValue : unmanaged
+        where TValueKey : VectorKeyframe<TValue>, new()
     {
-        private DelGetValue<T> _getValue;
-        private T _defaultValue = new T();
+        public PropAnimVector()
+            : base(0.0f, false) { }
+        public PropAnimVector(float lengthInSeconds, bool looped, bool useKeyframes)
+            : base(lengthInSeconds, looped, useKeyframes) { }
+        public PropAnimVector(int frameCount, float framesPerSecond, bool looped, bool useKeyframes)
+            : base(frameCount, framesPerSecond, looped, useKeyframes) { }
+
+        public event Action<PropAnimVector<TValue, TValueKey>> DefaultValueChanged;
+        public event Action<PropAnimVector<TValue, TValueKey>> ConstrainKeyframedFPSChanged;
+        public event Action<PropAnimVector<TValue, TValueKey>> LerpConstrainedFPSChanged;
+
+        public event Action<PropAnimVector<TValue, TValueKey>> CurrentPositionChanged;
+        public event Action<PropAnimVector<TValue, TValueKey>> CurrentVelocityChanged;
+        public event Action<PropAnimVector<TValue, TValueKey>> CurrentAccelerationChanged;
+
+        private DelGetValue<TValue> _getValue;
+        private TValue _defaultValue = new TValue();
         private bool _constrainKeyframedFPS = false;
         private bool _lerpConstrainedFPS = false;
-        private VectorKeyframe<T> _prevKeyframe = null;
+        private VectorKeyframe<TValue> _prevKeyframe = null;
 
-        public event Action<PropAnimVector<T, T2>> DefaultValueChanged;
-        public event Action<PropAnimVector<T, T2>> ConstrainKeyframedFPSChanged;
-        public event Action<PropAnimVector<T, T2>> LerpConstrainedFPSChanged;
+        private TValue _currentPosition;
+        private TValue _currentVelocity;
+        private TValue _currentAcceleration;
 
-        public event Action<PropAnimVector<T, T2>> CurrentPositionChanged;
-        public event Action<PropAnimVector<T, T2>> CurrentVelocityChanged;
-        public event Action<PropAnimVector<T, T2>> CurrentAccelerationChanged;
-
-        protected void OnDefaultValueChanged() => DefaultValueChanged?.Invoke(this);
-        protected void OnConstrainKeyframedFPSChanged() => ConstrainKeyframedFPSChanged?.Invoke(this);
-        protected void OnLerpConstrainedFPSChanged() => LerpConstrainedFPSChanged?.Invoke(this);
-        
         [TSerialize("BakedValues", Condition = "IsBaked")]
-        private T[] _baked = null;
+        private TValue[] _baked = null;
 
         /// <summary>
         /// The default value to return when no keyframes are set.
@@ -43,7 +50,7 @@ namespace TheraEngine.Animation
         [Description("The default value to return when no keyframes are set.")]
         [Category(PropAnimCategory)]
         [TSerialize]
-        public T DefaultValue
+        public TValue DefaultValue
         {
             get => _defaultValue;
             set
@@ -86,18 +93,10 @@ namespace TheraEngine.Animation
                 OnLerpConstrainedFPSChanged();
             }
         }
-
-        public PropAnimVector() : base(0.0f, false) { }
-        public PropAnimVector(float lengthInSeconds, bool looped, bool useKeyframes)
-            : base(lengthInSeconds, looped, useKeyframes) { }
-        public PropAnimVector(int frameCount, float FPS, bool looped, bool useKeyframes) 
-            : base(frameCount, FPS, looped, useKeyframes) { }
-
-        private T _currentPosition;
-        private T _currentVelocity;
-        private T _currentAcceleration;
-
-        public T CurrentPosition
+        /// <summary>
+        /// The value at the current time.
+        /// </summary>
+        public TValue CurrentPosition
         {
             get => _currentPosition;
             private set
@@ -106,7 +105,10 @@ namespace TheraEngine.Animation
                 CurrentPositionChanged?.Invoke(this);
             }
         }
-        public T CurrentVelocity
+        /// <summary>
+        /// The velocity at the current time.
+        /// </summary>
+        public TValue CurrentVelocity
         {
             get => _currentVelocity;
             private set
@@ -115,7 +117,10 @@ namespace TheraEngine.Animation
                 CurrentVelocityChanged?.Invoke(this);
             }
         }
-        public T CurrentAcceleration
+        /// <summary>
+        /// The acceleration at the current time.
+        /// </summary>
+        public TValue CurrentAcceleration
         {
             get => _currentAcceleration;
             private set
@@ -128,9 +133,8 @@ namespace TheraEngine.Animation
         protected override object GetCurrentValueGeneric() => CurrentPosition;
         protected override object GetValueGeneric(float second) => _getValue(second);
 
-        public T GetValue(float second) => _getValue(second);
-
-        public T GetValueBakedBySecond(float second)
+        public TValue GetValue(float second) => _getValue(second);
+        public TValue GetValueBakedBySecond(float second)
         {
             float frameTime = second * BakedFramesPerSecond;
             int frame = (int)frameTime;
@@ -140,8 +144,8 @@ namespace TheraEngine.Animation
                 {
                     if (Looped && frame != 0)
                     {
-                        T t1 = _baked[frame];
-                        T t2 = _baked[0];
+                        TValue t1 = _baked[frame];
+                        TValue t2 = _baked[0];
 
                         //TODO: interpolate values by creating tangents dynamically?
 
@@ -154,8 +158,8 @@ namespace TheraEngine.Animation
                 }
                 else
                 {
-                    T t1 = _baked[frame];
-                    T t2 = _baked[frame + 1];
+                    TValue t1 = _baked[frame];
+                    TValue t2 = _baked[frame + 1];
 
                     //TODO: interpolate values by creating tangents dynamically?
 
@@ -170,13 +174,34 @@ namespace TheraEngine.Animation
                 return _baked[frame];
             }
         }
-        public T GetValueBakedByFrame(int frame)
+        /// <summary>
+        /// Returns a value from the baked array by frame index.
+        /// </summary>
+        /// <param name="frame">The frame to get a value for.</param>
+        /// <returns>The value at the specified frame.</returns>
+        public TValue GetValueBakedByFrame(int frame)
         {
             if (!_baked.IndexInArrayRange(frame))
-                return new T();
+                return new TValue();
             return _baked[frame.Clamp(0, _baked.Length - 1)];
         }
-        protected abstract T LerpValues(T t1, T t2, float time);
+        /// <summary>
+        /// Returns a linearly interpolated value between two values.
+        /// </summary>
+        /// <param name="from">The starting value.</param>
+        /// <param name="to">The target value.</param>
+        /// <param name="time">Normalized time between the two values (0.0f - 1.0f).</param>
+        /// <returns>A linearly interpolated value between two values.</returns>
+        protected abstract TValue LerpValues(TValue from, TValue to, float time);
+
+        protected void OnDefaultValueChanged()
+            => DefaultValueChanged?.Invoke(this);
+
+        protected void OnConstrainKeyframedFPSChanged()
+            => ConstrainKeyframedFPSChanged?.Invoke(this);
+
+        protected void OnLerpConstrainedFPSChanged()
+            => LerpConstrainedFPSChanged?.Invoke(this);
 
         protected override void BakedChanged()
         {
@@ -191,17 +216,17 @@ namespace TheraEngine.Animation
                 _getValue = GetValueKeyframed;
             }
         }
-        public T GetValueBaked(int frameIndex)
-            => _baked == null || _baked.Length == 0 ? new T() :
+        public TValue GetValueBaked(int frameIndex)
+            => _baked == null || _baked.Length == 0 ? new TValue() :
             _baked[frameIndex.Clamp(0, _baked.Length - 1)];
 
-        public T GetValueKeyframed(float second)
+        public TValue GetValueKeyframed(float second)
             => Interpolate(second, EVectorInterpValueType.Position);
-        public T GetVelocityKeyframed(float second)
+        public TValue GetVelocityKeyframed(float second)
             => Interpolate(second, EVectorInterpValueType.Velocity);
-        public T GetAccelerationKeyframed(float second)
+        public TValue GetAccelerationKeyframed(float second)
             => Interpolate(second, EVectorInterpValueType.Acceleration);
-        private T Interpolate(float second, EVectorInterpValueType type)
+        private TValue Interpolate(float second, EVectorInterpValueType type)
         {
             if (_keyframes.Count == 0)
                 return DefaultValue;
@@ -212,8 +237,10 @@ namespace TheraEngine.Animation
                 float floorSec = frame / _bakedFPS;
                 float ceilSec = (frame + 1) / _bakedFPS;
                 float time = second - floorSec;
+
                 if (LerpConstrainedFPS)
                     return LerpKeyedValues(floorSec, ceilSec, time, type);
+
                 second = floorSec;
             }
             
@@ -238,8 +265,8 @@ namespace TheraEngine.Animation
             if (IsBaked)
             {
                 CurrentPosition = GetValueBakedBySecond(_currentTime);
-                CurrentVelocity = new T();
-                CurrentAcceleration = new T();
+                CurrentVelocity = new TValue();
+                CurrentAcceleration = new TValue();
                 return;
             }
 
@@ -248,8 +275,8 @@ namespace TheraEngine.Animation
             if (_keyframes.Count == 0)
             {
                 CurrentPosition = DefaultValue;
-                CurrentVelocity = new T();
-                CurrentAcceleration = new T();
+                CurrentVelocity = new TValue();
+                CurrentAcceleration = new TValue();
                 return;
             }
             float second = _currentTime;
@@ -268,19 +295,19 @@ namespace TheraEngine.Animation
                 {
                     _prevKeyframe.Interpolate(floorSec,
                         out _prevKeyframe, 
-                        out VectorKeyframe<T> nextKeyF,
+                        out VectorKeyframe<TValue> nextKeyF,
                         out float normalizedTimeF,
-                        out T floorPosition,
-                        out T floorVelocity,
-                        out T floorAcceleration);
+                        out TValue floorPosition,
+                        out TValue floorVelocity,
+                        out TValue floorAcceleration);
 
                     _prevKeyframe.Interpolate(ceilSec,
-                       out VectorKeyframe<T> prevKeyC,
-                       out VectorKeyframe<T> nextKeyC,
+                       out VectorKeyframe<TValue> prevKeyC,
+                       out VectorKeyframe<TValue> nextKeyC,
                        out float normalizedTimeC,
-                       out T ceilPosition,
-                       out T ceilVelocity,
-                       out T ceilAcceleration);
+                       out TValue ceilPosition,
+                       out TValue ceilVelocity,
+                       out TValue ceilAcceleration);
 
                     CurrentPosition = LerpValues(floorPosition, ceilPosition, time);
                     CurrentVelocity = LerpValues(floorVelocity, ceilVelocity, time);
@@ -292,28 +319,28 @@ namespace TheraEngine.Animation
 
             _prevKeyframe.Interpolate(second,
                 out _prevKeyframe,
-                out VectorKeyframe<T> nextKey,
+                out VectorKeyframe<TValue> nextKey,
                 out float normalizedTime,
-                out T pos,
-                out T vel,
-                out T acc);
+                out TValue pos,
+                out TValue vel,
+                out TValue acc);
 
             CurrentPosition = pos;
             CurrentVelocity = vel;
             CurrentAcceleration = acc;
         }
-        private T LerpKeyedValues(float floorSec, float ceilSec, float time, EVectorInterpValueType type)
+        private TValue LerpKeyedValues(float floorSec, float ceilSec, float time, EVectorInterpValueType type)
         {
-            T floorValue = _keyframes.First.Interpolate(floorSec, type,
-                out VectorKeyframe<T> prevKey, out VectorKeyframe<T> nextKey, out float normalizedTime);
-            T ceilValue = prevKey.Interpolate(ceilSec, type);
+            TValue floorValue = _keyframes.First.Interpolate(floorSec, type,
+                out VectorKeyframe<TValue> prevKey, out VectorKeyframe<TValue> nextKey, out float normalizedTime);
+            TValue ceilValue = prevKey.Interpolate(ceilSec, type);
             return LerpValues(floorValue, ceilValue, time);
         }
         public override void Bake(float framesPerSecond)
         {
             _bakedFPS = framesPerSecond;
             _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
-            _baked = new T[BakedFrameCount];
+            _baked = new TValue[BakedFrameCount];
             float invFPS = 1.0f / _bakedFPS;
             for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i * invFPS);
@@ -337,7 +364,7 @@ namespace TheraEngine.Animation
                 return;
             }
 
-            VectorKeyframe<T> kf = _keyframes.First;
+            VectorKeyframe<TValue> kf = _keyframes.First;
 
             //Only one keyframe?
             if (_keyframes.Count == 1)
@@ -380,7 +407,7 @@ namespace TheraEngine.Animation
                 max = new(float Time, float Value)[compCount];
                 max = max.FillWith((0.0f, float.MinValue));
 
-                VectorKeyframe<T> next;
+                VectorKeyframe<TValue> next;
                 float minVal, maxVal, oldMin, oldMax;
 
                 //Evaluate all keyframes
@@ -389,7 +416,7 @@ namespace TheraEngine.Animation
                     //Retrieve the next keyframe; will be the first keyframe if this is the last
                     next = kf.Next ?? 
                         (kf.OwningTrack.FirstKey != kf ? 
-                        (VectorKeyframe<T>)kf.OwningTrack.FirstKey :
+                        (VectorKeyframe<TValue>)kf.OwningTrack.FirstKey :
                         null);
 
                     if (next == null)
@@ -398,7 +425,7 @@ namespace TheraEngine.Animation
                     inComps = GetComponents(next.InValue);
                     outComps = GetComponents(kf.OutValue);
 
-                    bool cubic = kf.InterpolationType > EPlanarInterpType.Linear;
+                    bool cubic = kf.InterpolationType > EVectorInterpType.Linear;
                     if (cubic)
                     {
                         inTanComps = GetComponents(next.InTangent);
@@ -453,7 +480,7 @@ namespace TheraEngine.Animation
                         //Retrieve velocity interpolation equation coefficients
                         //so we can solve for the two time values where velocity is zero.
                         float second = 0.0f, first = 0.0f, zero = 0.0f;
-                        if (kf.InterpolationType == EPlanarInterpType.CubicHermite)
+                        if (kf.InterpolationType == EVectorInterpType.CubicHermite)
                             Interp.CubicHermiteVelocityCoefs(
                                 outComps[x],
                                 outTanComps[x],
@@ -483,7 +510,7 @@ namespace TheraEngine.Animation
                                 if (timeValid)
                                 {
                                     //Retrieve position value using time found using velocity
-                                    T val = kf.InterpolateNormalized(next, time);
+                                    TValue val = kf.InterpolateNormalized(next, time);
 
                                     //Find real second within the animation using normalized time value
                                     float interpSec = 0.0f;
@@ -517,9 +544,9 @@ namespace TheraEngine.Animation
                 }
             }
         }
-        protected abstract float[] GetComponents(T value);
-        protected abstract T GetMaxValue();
-        protected abstract T GetMinValue();
+        protected abstract float[] GetComponents(TValue value);
+        protected abstract TValue GetMaxValue();
+        protected abstract TValue GetMinValue();
     }
     public enum EUnifyBias
     {
@@ -527,17 +554,17 @@ namespace TheraEngine.Animation
         Out,
         Average,
     }
-    public abstract class VectorKeyframe<T> : Keyframe, IPlanarKeyframe<T> where T : unmanaged
+    public abstract class VectorKeyframe<T> : Keyframe where T : unmanaged
     {
         public VectorKeyframe()
-            : this(0.0f, new T(), new T(), EPlanarInterpType.CubicBezier) { }
-        public VectorKeyframe(int frameIndex, float FPS, T inValue, T outValue, T inTangent, T outTangent, EPlanarInterpType type)
+            : this(0.0f, new T(), new T(), EVectorInterpType.CubicBezier) { }
+        public VectorKeyframe(int frameIndex, float FPS, T inValue, T outValue, T inTangent, T outTangent, EVectorInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public VectorKeyframe(int frameIndex, float FPS, T inoutValue, T inoutTangent, EPlanarInterpType type)
+        public VectorKeyframe(int frameIndex, float FPS, T inoutValue, T inoutTangent, EVectorInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public VectorKeyframe(float second, T inoutValue, T inoutTangent, EPlanarInterpType type)
+        public VectorKeyframe(float second, T inoutValue, T inoutTangent, EVectorInterpType type)
             : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public VectorKeyframe(float second, T inValue, T outValue, T inTangent, T outTangent, EPlanarInterpType type) : base()
+        public VectorKeyframe(float second, T inValue, T outValue, T inTangent, T outTangent, EVectorInterpType type) : base()
         {
             Second = second;
             InValue = inValue;
@@ -548,16 +575,12 @@ namespace TheraEngine.Animation
         }
 
         protected delegate T DelInterpolate(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time);
-        protected EPlanarInterpType _interpolationType;
+        protected EVectorInterpType _interpolationType;
         protected DelInterpolate _interpolate;
         protected DelInterpolate _interpolateVelocity;
         protected DelInterpolate _interpolateAcceleration;
 
         public override Type ValueType => typeof(T);
-        object IPlanarKeyframe.InValue { get => InValue; set => InValue = (T)value; }
-        object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (T)value; }
-        object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (T)value; }
-        object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (T)value; }
 
         private T _inValue, _outValue, _inTangent, _outTangent;
         private bool _syncInOutValues = false;
@@ -712,7 +735,7 @@ namespace TheraEngine.Animation
 
         [Category("Keyframe")]
         [TSerialize(NodeType = ENodeType.Attribute)]
-        public EPlanarInterpType InterpolationType
+        public EVectorInterpType InterpolationType
         {
             get => _interpolationType;
             set
@@ -720,22 +743,22 @@ namespace TheraEngine.Animation
                 _interpolationType = value;
                 switch (_interpolationType)
                 {
-                    case EPlanarInterpType.Step:
+                    case EVectorInterpType.Step:
                         _interpolate = Step;
                         _interpolateVelocity = StepVelocity;
                         _interpolateAcceleration = StepAcceleration;
                         break;
-                    case EPlanarInterpType.Linear:
+                    case EVectorInterpType.Linear:
                         _interpolate = Lerp;
                         _interpolateVelocity = LerpVelocity;
                         _interpolateAcceleration = LerpAcceleration;
                         break;
-                    case EPlanarInterpType.CubicHermite:
+                    case EVectorInterpType.CubicHermite:
                         _interpolate = CubicHermite;
                         _interpolateVelocity = CubicHermiteVelocity;
                         _interpolateAcceleration = CubicHermiteAcceleration;
                         break;
-                    case EPlanarInterpType.CubicBezier:
+                    case EVectorInterpType.CubicBezier:
                         _interpolate = CubicBezier;
                         _interpolateVelocity = CubicBezierVelocity;
                         _interpolateAcceleration = CubicBezierAcceleration;
@@ -1084,14 +1107,6 @@ namespace TheraEngine.Animation
         [GridCallable]
         public abstract void MakeInLinear();
         
-        void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
-            => ParsePlanar(inValue, outValue, inTangent, outTangent);
-        protected abstract void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent);
-
-        void IPlanarKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
-            => WritePlanar(out inValue, out outValue, out inTangent, out outTangent);
-        protected abstract void WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent);
-
         public void UnifyKeyframe(EUnifyBias bias)
         {
             UnifyTangents(bias);

@@ -292,7 +292,7 @@ namespace TheraEngine.Rendering
         private RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(BaseScene scene, Camera camera, FrameBuffer target)
         {
-            HUD?.UIScene?.Render(HUD.RenderPasses, HUD.Camera, this, HudFBO);
+            HUD?.ScreenSpaceUIScene?.Render(HUD.RenderPasses, HUD.ScreenOverlayCamera, this, HudFBO);
             scene.Render(_renderPasses, camera, this, target);
         }
         internal protected virtual void SwapBuffers()
@@ -302,7 +302,7 @@ namespace TheraEngine.Rendering
         }
         public void Update(BaseScene scene, Camera camera, Frustum frustum)
         {
-            HUD?.UIScene?.Update(HUD.RenderPasses, null, HUD.Camera);
+            HUD?.ScreenSpaceUIScene?.Update(HUD.RenderPasses, null, HUD.ScreenOverlayCamera);
             scene?.Update(_renderPasses, frustum, camera);
         }
 

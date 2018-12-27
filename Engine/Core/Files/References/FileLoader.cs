@@ -36,13 +36,18 @@ namespace TheraEngine.Core.Files
                 _subType = type;
             else
                 throw new Exception(type.ToString() + " is not assignable to " + typeof(T).ToString());
+
+            Path = new PathReference();
         }
         public FileLoader(string filePath)
         {
             _subType = typeof(T);
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
-            Path.Absolute = filePath;
+            Path = new PathReference
+            {
+                Absolute = filePath
+            };
         }
         public FileLoader(string filePath, Type type)
         {
@@ -52,14 +57,18 @@ namespace TheraEngine.Core.Files
                 throw new Exception(type.ToString() + " is not assignable to " + typeof(T).ToString());
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
-            Path.Absolute = filePath;
+            Path = new PathReference
+            {
+                Absolute = filePath
+            };
         }
         public FileLoader(string dir, string name, EProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
         protected Type _subType = null;
         protected bool _updating;
-        private PathReference _path = new PathReference();
+
+        protected virtual PathReference InternalPath { get; set; }
 
         [Category("File Reference")]
         [TSerialize]
@@ -77,19 +86,19 @@ namespace TheraEngine.Core.Files
         [TSerialize]
         public PathReference Path
         {
-            get => _path;
+            get => InternalPath;
             set
             {
-                if (_path != null)
+                if (InternalPath != null)
                 {
-                    _path.RelativePathChanged -= OnRelativeRefPathChanged;
-                    _path.AbsolutePathChanged -= OnAbsoluteRefPathChanged;
+                    InternalPath.RelativePathChanged -= OnRelativeRefPathChanged;
+                    InternalPath.AbsolutePathChanged -= OnAbsoluteRefPathChanged;
                 }
 
-                _path = value ?? new PathReference();
+                InternalPath = value ?? new PathReference();
 
-                _path.RelativePathChanged += OnRelativeRefPathChanged;
-                _path.AbsolutePathChanged += OnAbsoluteRefPathChanged;
+                InternalPath.RelativePathChanged += OnRelativeRefPathChanged;
+                InternalPath.AbsolutePathChanged += OnAbsoluteRefPathChanged;
             }
         }
 

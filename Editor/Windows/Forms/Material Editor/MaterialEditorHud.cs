@@ -20,17 +20,13 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public class UIMaterialEditor : UserInterface<UIMaterialRectangleComponent>, I2DRenderable
+    public class UIMaterialEditor : EditorUserInterface, I2DRenderable
     {
         public UIMaterialEditor() : base()
-        {
-            _rc = new RenderCommandMethod2D(Render);
-        }
+            => _rc = new RenderCommandMethod2D(Render);
         public UIMaterialEditor(Vec2 bounds) : base(bounds)
-        {
-            _rc = new RenderCommandMethod2D(Render);
-        }
-
+            => _rc = new RenderCommandMethod2D(Render);
+        
         public event DelSelectedFunctionChanged SelectedFunctionChanged;
         
         public TMaterial TargetMaterial
@@ -79,7 +75,6 @@ namespace TheraEditor.Windows.Forms
         private BaseFuncArg _selectedArg = null;
         private BaseFuncArg _highlightedArg = null;
         private BaseFuncArg _draggedArg = null;
-        internal UIComponent _rootTransform;
         private bool _rightClickDown = false;
         private List<MaterialFunction> _materialFuncCache = new List<MaterialFunction>();
         
@@ -88,7 +83,7 @@ namespace TheraEditor.Windows.Forms
             if (func == null)
                 return;
 
-            _rootTransform.ChildComponents.Add(func);
+            _baseTransformComponent.ChildComponents.Add(func);
             _materialFuncCache.Add(func);
         }
         public void RemoveMaterialFunction(MaterialFunction func)
@@ -100,28 +95,23 @@ namespace TheraEditor.Windows.Forms
             _materialFuncCache.Remove(func);
         }
 
-        protected override UIMaterialRectangleComponent OnConstructRoot()
+        protected override UICanvasComponent OnConstructRoot()
         {
-            UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
-            {
-                DockStyle = UIDockStyle.Fill,
-                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
-            };
-            _rootTransform = new UIComponent();
-            root.ChildComponents.Add(_rootTransform);
+            var root = base.OnConstructRoot();
+
             return root;
         }
         public override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
-            UIScene.Add(this);
+            ScreenSpaceUIScene.Add(this);
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
-            UIScene.Remove(this);
+            ScreenSpaceUIScene.Remove(this);
         }
-        private TMaterial GetGraphMaterial()
+        protected override TMaterial GetBackgroundMaterial()
         {
             GLSLShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", EShaderMode.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
@@ -272,10 +262,10 @@ namespace TheraEditor.Windows.Forms
         }
         private void HandleDragView(Vec2 cursorPosScreen)
         {
-            _rootTransform.LocalTranslation += GetWorldCursorDiff(cursorPosScreen);
+            _baseTransformComponent.LocalTranslation += GetWorldCursorDiff(cursorPosScreen);
 
-            TMaterial mat = RootComponent.InterfaceMaterial;
-            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+            TMaterial mat = _backgroundComponent.InterfaceMaterial;
+            mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
         }
         private void HandleDragFunc(Vec2 cursorPosScreen, MaterialFunction draggedFunc)
         {
@@ -357,11 +347,11 @@ namespace TheraEditor.Windows.Forms
         protected override void OnScrolledInput(bool down)
         {
             Vec3 worldPoint = CursorPositionWorld();
-            _rootTransform.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, _minScale, _maxScale);
+            _baseTransformComponent.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, _minScale, _maxScale);
 
-            TMaterial mat = RootComponent.InterfaceMaterial;
-            mat.Parameter<ShaderFloat>(2).Value = _rootTransform.ScaleX;
-            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+            TMaterial mat = _backgroundComponent.InterfaceMaterial;
+            mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
+            mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
         }
         #endregion
 
@@ -372,7 +362,7 @@ namespace TheraEditor.Windows.Forms
             _cursorBezier.StartPoint = start;
             _cursorBezier.EndPoint = end;
         }
-        public float BoxDim() => (BaseFuncArg.ConnectionBoxDims * 0.5f) * _rootTransform.ScaleX;
+        public float BoxDim() => (BaseFuncArg.ConnectionBoxDims * 0.5f) * _baseTransformComponent.ScaleX;
         public void Render()
         {
             float boxDim = BoxDim();
@@ -392,7 +382,7 @@ namespace TheraEditor.Windows.Forms
         private void DrawBezier(Vec2 start, Vec2 end, ColorF4 color)
         {
             float dist = start.DistanceToFast(end).ClampMax(BezierTangentDist);
-            Vec2 diff = new Vec2(dist * _rootTransform.ScaleX, 0.0f);
+            Vec2 diff = new Vec2(dist * _baseTransformComponent.ScaleX, 0.0f);
             Vec2[] points = Interp.GetBezierPoints(start, start + diff, end - diff, end, 20);
             for (int i = 1; i < points.Length; ++i)
                 Engine.Renderer.RenderLine(points[i - 1], points[i], color, true, 1.0f);

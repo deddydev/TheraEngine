@@ -132,10 +132,16 @@ namespace TheraEditor.Wrappers
 
         }
 
-        public virtual void EditResource()
+        public virtual async void EditResource()
         {
-            IFileObject o = SingleInstance;
-            if (o == null)
+            IGlobalFileRef gref = SingleInstanceRef;
+            if (gref == null)
+            {
+                Engine.PrintLine("Cannot edit " + FilePath + ", reference is null.");
+                return;
+            }
+            IFileObject fileObj = await gref.GetInstanceAsync();
+            if (fileObj == null)
             {
                 Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
                 return;
@@ -146,7 +152,7 @@ namespace TheraEditor.Wrappers
                 if (TheraPropertyGrid.FullEditorTypes.ContainsKey(t))
                 {
                     var editorType = TheraPropertyGrid.FullEditorTypes[t];
-                    using (Form f = Activator.CreateInstance(editorType, o) as Form)
+                    using (Form f = Activator.CreateInstance(editorType, fileObj) as Form)
                         f?.ShowDialog(Editor.Instance);
                     return;
                 }
@@ -155,14 +161,14 @@ namespace TheraEditor.Wrappers
                     if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
                     {
                         var editorType = TheraPropertyGrid.FullEditorTypes[intfType];
-                        using (Form f = Activator.CreateInstance(editorType, o) as Form)
+                        using (Form f = Activator.CreateInstance(editorType, fileObj) as Form)
                             f?.ShowDialog(Editor.Instance);
                         return;
                     }
                 }
                 t = t.BaseType;
             }
-            Editor.SetPropertyGridObject(SingleInstance);
+            Editor.SetPropertyGridObject(fileObj);
         }
         public virtual async void EditResourceRaw()
         {

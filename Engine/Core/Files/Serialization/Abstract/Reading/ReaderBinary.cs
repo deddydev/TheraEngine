@@ -162,9 +162,13 @@ namespace TheraEngine.Core.Files.Serialization
                                 }
                                 else
                                 {
-                                    var objSer = SerializationCommon.DetermineObjectSerializer(objType, null);
+                                    SerializeElement elem = new SerializeElement(null, new TSerializeMemberInfo(memberType, null));
+                                    var objSer = BaseObjectSerializer.DetermineObjectSerializer(objType, false, true);
+                                    objSer.TreeNode = elem;
                                     objSer.DeserializeTreeFromBinary(ref address, this);
+                                    objSer.DeserializeTreeToObject();
                                     obj = null;
+                                    return elem;
                                 }
 
                                 break;

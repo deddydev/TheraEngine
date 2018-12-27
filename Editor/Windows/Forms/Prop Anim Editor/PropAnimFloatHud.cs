@@ -19,7 +19,7 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public class UIPropAnimFloatEditor : UserInterface<UIMaterialRectangleComponent>, I2DRenderable
+    public class UIPropAnimFloatEditor : EditorUserInterface, I2DRenderable
     {
         public UIPropAnimFloatEditor() : base()
         {
@@ -264,54 +264,58 @@ void main()
         private Vec2 _minScale = new Vec2(0.01f), _maxScale = new Vec2(1.0f);
         private Vec2 _lastWorldPos = Vec2.Zero;
         //private Vec2 _lastFocusPoint = Vec2.Zero;
-        internal UIComponent _rootTransform;
         private bool _rightClickDown = false;
         private FloatKeyframe _selectedKf;
         private FloatKeyframe _highlightedKf;
         private FloatKeyframe _draggedKf;
 
-        protected override UIMaterialRectangleComponent OnConstructRoot()
+        protected override UICanvasComponent OnConstructRoot()
         {
-            UIMaterialRectangleComponent root = new UIMaterialRectangleComponent(GetGraphMaterial())
-            {
-                DockStyle = UIDockStyle.Fill,
-                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
-            };
-            _rootTransform = new UIComponent();
-            root.ChildComponents.Add(_rootTransform);
-            _rootTransform.WorldTransformChanged += _rootTransform_WorldTransformChanged;
+            var root = base.OnConstructRoot();
+            _baseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
             return root;
         }
         private void _position_CurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
         {
-            _rcCurrentPoint.WorldMatrix = _rootTransform.WorldMatrix * Matrix4.CreateTranslation(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
+            _rcCurrentPoint.WorldMatrix = _baseTransformComponent.WorldMatrix * Matrix4.CreateTranslation(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
             //RegenerateSplinePrimitive();
         }
-        private void _rootTransform_WorldTransformChanged()
+        private void BaseWorldTransformChanged()
         {
-            _rcKfLines.WorldMatrix = _rootTransform.WorldMatrix;
-            _rcCurrentPoint.WorldMatrix = _rootTransform.WorldMatrix * (_targetAnimation == null ? Matrix4.Identity : Matrix4.CreateTranslation(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f));
-            _rcSpline.WorldMatrix = _rootTransform.WorldMatrix;
-            _rcVelocity.WorldMatrix = _rootTransform.WorldMatrix;
-            _rcPoints.WorldMatrix = _rootTransform.WorldMatrix;
-            _rcTangents.WorldMatrix = _rootTransform.WorldMatrix;
+            Matrix4 mtx = _baseTransformComponent.WorldMatrix;
 
-            TMaterial mat = RootComponent.InterfaceMaterial;
-            mat.Parameter<ShaderFloat>(2).Value = _rootTransform.ScaleX;
-            mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
+            _rcKfLines.WorldMatrix =
+            _rcSpline.WorldMatrix =
+            _rcVelocity.WorldMatrix =
+            _rcPoints.WorldMatrix =
+            _rcTangents.WorldMatrix = mtx;
+
+            if (_targetAnimation != null)
+            {
+                Matrix4 pointMtx = Matrix4.CreateTranslation(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
+                _rcCurrentPoint.WorldMatrix = mtx * pointMtx;
+            }
+            else
+            {
+                _rcCurrentPoint.WorldMatrix = mtx;
+            }
+
+            TMaterial mat = _backgroundComponent.InterfaceMaterial;
+            mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
+            mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
         }
 
         public override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
-            UIScene.Add(this);
+            ScreenSpaceUIScene.Add(this);
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
-            UIScene.Remove(this);
+            ScreenSpaceUIScene.Remove(this);
         }
-        private TMaterial GetGraphMaterial()
+        protected override TMaterial GetBackgroundMaterial()
         {
             GLSLShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", EShaderMode.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
@@ -340,7 +344,7 @@ void main()
         internal void LeftClickDown()
         {
             Vec2 worldPos = CursorPositionWorld();
-            _targetAnimation?.Keyframes?.Add(new FloatKeyframe(worldPos.X, worldPos.Y, 1.0f, EPlanarInterpType.Linear));
+            _targetAnimation?.Keyframes?.Add(new FloatKeyframe(worldPos.X, worldPos.Y, 1.0f, EVectorInterpType.Linear));
             //if (_selectedKf != null && _selectedKf != _highlightedKf)
             //{
             //    //Reset current _selectedKf
@@ -409,7 +413,7 @@ void main()
         private void HandleDragView(Vec2 cursorPosScreen)
         {
             Vec2 diff = GetWorldCursorDiff(cursorPosScreen);
-            _rootTransform.LocalTranslation += diff;
+            _baseTransformComponent.LocalTranslation += diff;
         }
         private bool _draggingInValue;
         private bool _draggingTangent;
@@ -456,7 +460,7 @@ void main()
         protected override void OnScrolledInput(bool down)
         {
             Vec3 worldPoint = CursorPositionWorld();
-            _rootTransform.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, null, null);
+            _baseTransformComponent.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, null, null);
         }
         public void AddRenderables(RenderPasses passes)
         {

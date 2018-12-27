@@ -85,7 +85,7 @@ namespace TheraEngine.Core.Files.Serialization
             throw new NotImplementedException();
         }
 
-        public override void DeserializeTreeFromString(string value) => throw new NotImplementedException();
-        public override string SerializeTreeToString() => throw new NotImplementedException();
+        public override object ObjectFromString(Type type, string value) => throw new NotImplementedException();
+        public override bool ObjectToString(object obj, out string str) => throw new NotImplementedException();
     }
 }

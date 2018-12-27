@@ -49,21 +49,7 @@ namespace TheraEngine.Animation
             OutValue = new Vec2(float.Parse(parts[3]), float.Parse(parts[4]));
             InTangent = new Vec2(float.Parse(parts[5]), float.Parse(parts[6]));
             OutTangent = new Vec2(float.Parse(parts[7]), float.Parse(parts[8]));
-            InterpolationType = parts[9].AsEnum<EPlanarInterpType>();
-        }
-        protected override void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
-        {
-            InValue = new Vec2(inValue);
-            OutValue = new Vec2(outValue);
-            InTangent = new Vec2(inTangent);
-            OutTangent = new Vec2(outTangent);
-        }
-        protected override void WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
-        {
-            inValue = InValue.ToString("", "", " ");
-            outValue = OutValue.ToString("", "", " ");
-            inTangent = InTangent.ToString("", "", " ");
-            outTangent = OutTangent.ToString("", "", " ");
+            InterpolationType = parts[9].AsEnum<EVectorInterpType>();
         }
 
         [GridCallable]

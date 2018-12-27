@@ -34,10 +34,10 @@ namespace TheraEditor
         /// This is the global GUID for a C# project.
         /// </summary>
         public const string CSharpProjectGuid = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
-        
+
         [TSerialize(nameof(ProjectGuid))]
         protected Guid _projectGuid = Guid.NewGuid();
-        
+
         public Guid ProjectGuid => _projectGuid;
 
         [TSerialize(State = true)]
@@ -223,17 +223,17 @@ namespace TheraEditor
                     EditorSettingsOverrideRef = value;
             }
         }
-        
+
         public void SetDirectoryDefaults(string directory)
         {
             if (!directory.EndsWithDirectorySeparator())
                 directory += Path.DirectorySeparatorChar;
 
-            string bin = "Bin"      + Path.DirectorySeparatorChar;
-            string cfg = "Config"   + Path.DirectorySeparatorChar;
-            string src = "Source"   + Path.DirectorySeparatorChar;
-            string ctt = "Content"  + Path.DirectorySeparatorChar;
-            string tmp = "Temp"     + Path.DirectorySeparatorChar;
+            string bin = "Bin" + Path.DirectorySeparatorChar;
+            string cfg = "Config" + Path.DirectorySeparatorChar;
+            string src = "Source" + Path.DirectorySeparatorChar;
+            string ctt = "Content" + Path.DirectorySeparatorChar;
+            string tmp = "Temp" + Path.DirectorySeparatorChar;
 
             string binDir = directory + bin;
             string cfgDir = directory + cfg;
@@ -266,12 +266,12 @@ namespace TheraEditor
             Update(ref _userSettingsRef, nameof(UserSettings));
             Update(ref _engineSettingsRef, nameof(EngineSettings));
             Update(ref _editorSettingsRef, nameof(EditorSettings));
-            
-            LocalBinariesDirectory  = bin;
-            LocalConfigDirectory    = cfg;
-            LocalSourceDirectory    = src;
-            LocalContentDirectory   = ctt;
-            LocalTempDirectory      = tmp;
+
+            LocalBinariesDirectory = bin;
+            LocalConfigDirectory = cfg;
+            LocalSourceDirectory = src;
+            LocalContentDirectory = ctt;
+            LocalTempDirectory = tmp;
         }
 
         public static async Task<TProject> CreateAsync(
@@ -307,11 +307,11 @@ namespace TheraEditor
             {
                 Name = name,
 
-                LocalBinariesDirectory  = bin,
-                LocalConfigDirectory    = cfg,
-                LocalSourceDirectory    = src,
-                LocalContentDirectory   = ctt,
-                LocalTempDirectory      = tmp,
+                LocalBinariesDirectory = bin,
+                LocalConfigDirectory = cfg,
+                LocalSourceDirectory = src,
+                LocalContentDirectory = ctt,
+                LocalTempDirectory = tmp,
 
                 FilePath
                     = GetFilePath<TProject>(directory, name,
@@ -342,8 +342,8 @@ namespace TheraEditor
             await project.ExportAsync();
 
             project.GenerateSolution(true);
-            project.Compile();
-            
+            await project.CompileAsync();
+
             return project;
         }
 
@@ -371,7 +371,7 @@ namespace TheraEditor
                 RootNamespace);
             File.WriteAllText(SourceDirectory + "Program.cs", progCs.Replace('@', '{').Replace('#', '}'));
         }
-        
+
         public async void GenerateSolution(bool forceRegenerateProgramCS = false)
         {
             Process[] devenv = Process.GetProcessesByName("DevEnv");
@@ -395,7 +395,7 @@ namespace TheraEditor
             string csprojPath = Path.Combine(DirectoryPath, Name + ".csproj");
             MSBuild.Project p = new MSBuild.Project
             {
-                ToolsVersion =  majorVer.ToString() + "." + minorVer.ToString(),
+                ToolsVersion = majorVer.ToString() + "." + minorVer.ToString(),
                 DefaultTargets = "Build",
                 Schema = "http://schemas.microsoft.com/developer/msbuild/2003"
             };
@@ -403,7 +403,7 @@ namespace TheraEditor
             var import = new Import(
                 "$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props",
                 "Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')");
-            
+
             const string targetNetVersion = "v4.7.2";
             const string defaultConfig = "Debug";
             const string defaultPlatform = "x64";
@@ -490,7 +490,7 @@ namespace TheraEditor
 
             //ItemGroup folderGrp = new ItemGroup();
             //folderGrp.AddElements(new Item("Folder") { Include = LocalSourceDirectory });
-            
+
             Import csharpImport = new Import("$(MSBuildToolsPath)\\Microsoft.CSharp.targets", null);
 
             Target beforeBuild = new Target
@@ -533,7 +533,7 @@ namespace TheraEditor
             //0 = config name, 1 = platform name
             string preSolTmpl = "\t{0}|{1} = {0}|{1}\n\t";
             string preSol = string.Empty;
-            void AppendPreSol(string config, string platform) 
+            void AppendPreSol(string config, string platform)
                 => preSol += string.Format(preSolTmpl, config, platform);
             AppendPreSol("Debug", "x64");
             AppendPreSol("Debug", "x86");
@@ -543,7 +543,7 @@ namespace TheraEditor
             //0 = project GUID, 1 = config name, 2 = platform name
             string postSolTmpl = "\t{0}.{1}|{2}.ActiveCfg = {1}|{2}\n\t\t{0}.{1}|{2}.Build.0 = {1}|{2}\n\t";
             string postSol = string.Empty;
-            void AppendPostSol(string guid, string config, string platform) 
+            void AppendPostSol(string guid, string config, string platform)
                 => postSol += string.Format(postSolTmpl, guid, config, platform);
             AppendPostSol(projectGuid, "Debug", "x86");
             AppendPostSol(projectGuid, "Debug", "x64");
@@ -556,7 +556,7 @@ namespace TheraEditor
 
             File.WriteAllText(SolutionPath, sln);
             #endregion
-            
+
             //EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
             //dte.SuppressUI = true;
             //Solution4 sln = (Solution4)dte.Solution;
@@ -570,7 +570,12 @@ namespace TheraEditor
             //sln.SaveAs(Path.Combine(slnDir, Name + ".sln"));
             //VisualStudioManager.VSInstanceClosed();
         }
-        public void Compile() => Compile(TargetBuildConfiguration, TargetBuildPlatform);
+        public async Task CompileAsync()
+            => await Task.Run(() => Compile());
+        public async Task CompileAsync(string buildConfiguration, string buildPlatform)
+            => await Task.Run(() => Compile(buildConfiguration, buildPlatform));
+        public void Compile()
+            => Compile(TargetBuildConfiguration, TargetBuildPlatform);
         public void Compile(string buildConfiguration, string buildPlatform)
         {
             ProjectCollection pc = new ProjectCollection();
@@ -707,7 +712,7 @@ namespace TheraEditor
                 //_source.TaskStarted -= TaskStartedHandler;
                 _source.WarningRaised -= WarningHandler;
             }
-            
+
             public void BuildStartedHandler(object sender, BuildStartedEventArgs e)
             {
 

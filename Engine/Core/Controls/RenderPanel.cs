@@ -67,7 +67,7 @@ namespace TheraEngine
                 camera = GetCamera(viewport);
                 scene = GetScene(viewport);
 
-                viewport.HUD?.UIScene?.PreRender(viewport, viewport.HUD.Camera);
+                viewport.HUD?.ScreenSpaceUIScene?.PreRender(viewport, viewport.HUD.ScreenOverlayCamera);
                 scene?.PreRender(viewport, camera);
                 viewport.Render(scene, camera, null);
             }

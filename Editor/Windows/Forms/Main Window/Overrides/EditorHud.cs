@@ -25,7 +25,7 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class EditorHud : UserInterface<UIDockableComponent>
+    public class EditorHud : UserInterface
     {
         public EditorHud(Vec2 bounds) : base(bounds)
         {
@@ -205,11 +205,11 @@ namespace TheraEditor.Windows.Forms
         public UIViewportComponent SubViewport { get; private set; }
         public UITextComponent SubViewportText { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
-        protected override UIDockableComponent OnConstructRoot()
+        protected override UICanvasComponent OnConstructRoot()
         {
-            UIDockableComponent dock = new UIDockableComponent()
+            UICanvasComponent canvas = new UICanvasComponent()
             {
-                DockStyle = UIDockStyle.Fill,
+                //DockStyle = UIDockStyle.Fill,
             };
 
             SubViewport = new UIViewportComponent();
@@ -220,7 +220,7 @@ namespace TheraEditor.Windows.Forms
             SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Width);
             SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
             SubViewport.IsVisible = false;
-            dock.ChildComponents.Add(SubViewport);
+            canvas.ChildComponents.Add(SubViewport);
 
             Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
             string t = "Selected Camera View";
@@ -256,7 +256,7 @@ namespace TheraEditor.Windows.Forms
             //};
             //dock.ChildComponents.Add(TextOverlay);
 
-            return dock;
+            return canvas;
         }
         public override void RegisterInput(InputInterface input)
         {
@@ -445,7 +445,7 @@ namespace TheraEditor.Windows.Forms
                 }
 
                 Vec3 rightCameraVector = v.Camera.RightVector;
-                Quat rotation = Quat.FromAxisAngle(_hitNormal, _spawnRotation);
+                Quat rotation = Quat.FromAxisAngleDeg(_hitNormal, _spawnRotation);
                 rightCameraVector = rotation * rightCameraVector;
                 Vec3
                     forward = rightCameraVector ^ _hitNormal,

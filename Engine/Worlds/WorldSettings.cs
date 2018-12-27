@@ -1,15 +1,14 @@
-﻿using TheraEngine.Core.Files;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Animation.Cutscenes;
+using TheraEngine.Audio;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
 using TheraEngine.Rendering.Models.Materials;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using TheraEngine.Audio;
-using System.ComponentModel;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Cutscenes;
 
 namespace TheraEngine.Worlds
 {
@@ -87,13 +86,7 @@ namespace TheraEngine.Worlds
 
         [TSerialize(nameof(Cutscenes))]
         private EventDictionary<string, Cutscene> _cutscenes;
-
-        //[TSerialize(nameof(GlobalAmbient))]
-        //private ColorF3 _globalAmbient;
-
-        [TSerialize(nameof(DefaultHud))]
-        private IUserInterface _defaultHud;
-
+        
         [TSerialize(nameof(Bounds))]
         private BoundingBox _bounds = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
 
@@ -171,18 +164,6 @@ namespace TheraEngine.Worlds
             get => _ambientParams;
             set => _ambientParams = value;
         }
-        [Browsable(false)]
-        public IUserInterface DefaultHud
-        {
-            get => _defaultHud;
-            set => _defaultHud = value;
-        }
-        //[Category("Lighting")]
-        //public ColorF3 GlobalAmbient
-        //{
-        //    get => _globalAmbient;
-        //    set => _globalAmbient = value;
-        //}
         public List<TMaterial> CollectDefaultMaterials()
         {
             foreach (Map m in _maps)

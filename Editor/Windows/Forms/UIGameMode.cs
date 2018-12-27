@@ -19,7 +19,7 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.GetOrAddViewport(0)?.RegisterController(item);
             item.EnqueuePosession(RenderPanel.UI);
             item.Viewport.HUD = RenderPanel.UI;
-            item.ViewportCamera = RenderPanel.UI.Camera;
+            item.ViewportCamera = RenderPanel.UI.ScreenOverlayCamera;
         }
         protected override void HandleLocalPlayerLeft(ControllerType item)
         {

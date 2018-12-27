@@ -174,7 +174,7 @@ namespace TheraEngine.Actors.Types
                         (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
                 }
 
-                _viewport.HUD?.UIScene?.PreRender(_viewport, _viewport.HUD.Camera);
+                _viewport.HUD?.ScreenSpaceUIScene?.PreRender(_viewport, _viewport.HUD.ScreenOverlayCamera);
                 scene.PreRender(_viewport, camera);
 
                 _viewport.Render(scene, camera, RenderFBO);

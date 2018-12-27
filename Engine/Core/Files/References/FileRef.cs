@@ -11,6 +11,12 @@ namespace TheraEngine.Core.Files
         bool IsLoaded { get; set; }
         bool StoredInternally { get; }
         void UnloadReference();
+        bool LoadAttempted { get; }
+
+        IFileObject GetInstance();
+        Task<IFileObject> GetInstanceAsync();
+        Task<IFileObject> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
+
         //Task ExportReferenceAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
         //Task ExportReferenceAsync(string dir, string name, EFileFormat format, string thirdPartyExt, bool setPath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel);
     }
@@ -206,6 +212,7 @@ namespace TheraEngine.Core.Files
             LoadAttempted = false;
             base.OnAbsoluteRefPathChanged(oldPath, newPath);
         }
+        IFileObject IFileRef.GetInstance() => GetInstance();
         public T GetInstance()
         {
             if (_file != null || LoadAttempted)
@@ -216,7 +223,14 @@ namespace TheraEngine.Core.Files
             return _file;
         }
 
-        public async Task<T> GetInstanceAsync() => await GetInstanceAsync(null, CancellationToken.None);
+        async Task<IFileObject> IFileRef.GetInstanceAsync() 
+            => await GetInstanceAsync();
+        async Task<IFileObject> IFileRef.GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
+            => await GetInstanceAsync(progress, cancel);
+
+        public async Task<T> GetInstanceAsync() 
+            => await GetInstanceAsync(null, CancellationToken.None);
+
         public abstract Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel);
 
         /// <summary>

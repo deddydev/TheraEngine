@@ -1,19 +1,15 @@
-﻿using System.Windows.Forms;
-using System.ComponentModel;
+﻿using Microsoft.VisualBasic.FileIO;
 using System;
-using TheraEngine.Core.Files;
-using System.IO;
+using System.ComponentModel;
 using System.Diagnostics;
-using Microsoft.VisualBasic.FileIO;
-using TheraEditor.Windows.Forms;
-using System.Drawing;
+using System.IO;
 using System.Threading;
+using System.Windows.Forms;
+using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
-using System.Drawing.Imaging;
-using System.Security.Cryptography;
-using System.Collections.Concurrent;
-using TheraEditor.Core;
+using TheraEngine.Scripting;
 
 namespace TheraEditor.Wrappers
 {
@@ -49,6 +45,33 @@ namespace TheraEditor.Wrappers
 
             LoadFileTypes();
         }
+        private static void LoadFileTypes()
+        {
+            ToolStripDropDownItem importDropdown = (ToolStripDropDownItem)_menu.Items[3];
+            ToolStripDropDownItem newDropdown = (ToolStripDropDownItem)_menu.Items[4];
+
+            ToolStripMenuItem newCodeItem = new ToolStripMenuItem("Code");
+            newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Class", null, NewClassAction));
+            newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Struct", null, NewStructAction));
+            newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Interface", null, NewInterfaceAction));
+            newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
+            newDropdown.DropDownItems.Add(newCodeItem);
+
+            Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
+            Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
+        }
+        
+        private enum ECodeFileType
+        {
+            Class,
+            Struct,
+            Interface,
+            Enum,
+        }
+        protected static void NewClassAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().NewCodeFile(ECodeFileType.Class);
+        protected static void NewStructAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().NewCodeFile(ECodeFileType.Struct);
+        protected static void NewInterfaceAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().NewCodeFile(ECodeFileType.Interface);
+        protected static void NewEnumAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().NewCodeFile(ECodeFileType.Enum);
 
         protected static void RenameAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Rename();
         protected static void DeleteAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Delete();
@@ -228,11 +251,6 @@ namespace TheraEditor.Wrappers
             return ext != null && ext.Length > 0;
         }
 
-        private static void LoadFileTypes()
-        {
-            Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[3], OnImportClickAsync, Is3rdPartyImportable);
-            Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[4], OnNewClick, IsFileObject);
-        }
         private static async void OnImportClickAsync(object sender, EventArgs e)
         {
             if (sender is ToolStripDropDownButton button)
@@ -283,18 +301,18 @@ namespace TheraEditor.Wrappers
                 }
             }
         }
+        public static string GetFolderPath() => GetInstance<FolderWrapper>().FilePath;
         private static async void OnNewClick(object sender, EventArgs e)
         {
-            if (!(sender is ToolStripDropDownButton button))
+            if (!(sender is ToolStripMenuItem button))
                 return;
             
             Type fileType = button.Tag as Type;
 
             if (!(Editor.UserCreateInstanceOf(fileType, true, button.Owner) is TFileObject file))
                 return;
-
-            FolderWrapper folderNode = GetInstance<FolderWrapper>();
-            string dir = folderNode.FilePath as string;
+            
+            string dir = GetFolderPath();
 
             //Node will automatically be added to the file tree
             if (TSerializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
@@ -305,8 +323,21 @@ namespace TheraEditor.Wrappers
                 Editor.Instance.ContentTree.EndFileSave(path);
             }
         }
+        private async void NewCodeFile(ECodeFileType type)
+        {
+            string Namespace = Editor.Instance.Project.RootNamespace;
+            if (string.IsNullOrWhiteSpace(Namespace))
+                Namespace = Editor.Instance.Project.Name;
+            string ClassName = "NewClass";
+
+            TextFile file = Engine.LoadEngineScript(type.ToString() + "_Template.cs");
+            string text = string.Format(file.Text, Namespace, ClassName, ": " + nameof(TObject));
+            text = text.Replace("@", "{").Replace("#", "}");
+            CSharpScript code = CSharpScript.FromText(text);
+            await code.Export3rdPartyAsync(GetFolderPath(), "NewCodeFile", "cs", null, CancellationToken.None);
+        }
         #endregion
-        
+
         public void OpenInExplorer()
         {
             string path = FilePath;

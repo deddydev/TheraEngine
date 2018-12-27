@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TheraEngine.Core.Memory;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -73,7 +72,61 @@ namespace TheraEngine.Core.Files.Serialization
             throw new NotImplementedException();
         }
 
-        public override void DeserializeTreeFromString(string value) => throw new NotImplementedException();
-        public override string SerializeTreeToString() => throw new NotImplementedException();
+        public override object ObjectFromString(Type type, string value)
+        {
+            Type elementType = type.DetermineElementType();
+            var ser = DetermineObjectSerializer(elementType, true);
+            if (ser == null)
+                return null;
+            
+            char separator = ' ';
+            if (!SerializationCommon.IsPrimitiveType(elementType))
+                separator = ',';
+
+            string[] values = value.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+
+            IList list;
+            if (type.IsArray)
+                list = Activator.CreateInstance(type, values.Length) as IList;
+            else
+                list = Activator.CreateInstance(type) as IList;
+            
+            if (list.IsFixedSize)
+            {
+                for (int i = 0; i < values.Length; ++i)
+                    list[i] = ser.ObjectFromString(elementType, values[i]);
+            }
+            else
+            {
+                for (int i = 0; i < values.Length; ++i)
+                    list.Add(ser.ObjectFromString(elementType, values[i]));
+            }
+
+            return list;
+            
+        }
+        public override bool ObjectToString(object obj, out string str)
+        {
+            str = null;
+            IList list = obj as IList;
+            Type arrayType = TreeNode.ObjectType;
+            Type elementType = arrayType.DetermineElementType();
+            var ser = DetermineObjectSerializer(elementType, true);
+            if (ser == null)
+                return false;
+            
+            string separator = " ";
+            if (!SerializationCommon.IsPrimitiveType(elementType))
+                separator = ",";
+            
+            string convert(object elem)
+            {
+                //No if statements for best speed possible
+                ser.ObjectToString(elem, out string subStr);
+                return subStr;
+            }
+            str = list.ToStringList(separator, separator, convert);
+            return true;
+        }
     }
 }

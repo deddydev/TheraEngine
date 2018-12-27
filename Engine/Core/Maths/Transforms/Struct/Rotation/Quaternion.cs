@@ -300,23 +300,23 @@ namespace System
         public static Quat BetweenVectors(Vec3 initialVector, Vec3 finalVector)
         {
             AxisAngleBetween(initialVector, finalVector, out Vec3 axis, out float angle);
-            return FromAxisAngle(axis, angle);
+            return FromAxisAngleDeg(axis, angle);
         }
         public static Quat LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
             => BetweenVectors(initialDirection, destPoint - sourcePoint);
-        public static Quat FromAxisAngle(Vec3 axis, float angle)
+        public static Quat FromAxisAngleDeg(Vec3 axis, float degrees)
+            => FromAxisAngleRad(axis, DegToRad(degrees));
+        public static Quat FromAxisAngleRad(Vec3 axis, float radians)
         {
-            angle = DegToRad(angle);
-
             if (axis.LengthSquared == 0.0f)
                 return Identity;
 
             Quat result = Identity;
 
-            angle *= 0.5f;
-            axis.NormalizeFast();
-            result.Xyz = axis.Xyz * (float)Sin(angle);
-            result.W = (float)Cos(angle);
+            radians *= 0.5f;
+            axis.Normalize();
+            result.Xyz = axis.Xyz * (float)Sin(radians);
+            result.W = (float)Cos(radians);
 
             return result.Normalized();
         }
@@ -332,9 +332,9 @@ namespace System
         /// <param name="roll">The roll (bank), rotation around Z axis</param>
         public static Quat FromEulerAngles(float pitch, float yaw, float roll, RotationOrder order = RotationOrder.YPR)
         {
-            Quat p = FromAxisAngle(Vec3.UnitX, pitch);
-            Quat y = FromAxisAngle(Vec3.UnitY, yaw);
-            Quat r = FromAxisAngle(Vec3.UnitZ, roll);
+            Quat p = FromAxisAngleDeg(Vec3.UnitX, pitch);
+            Quat y = FromAxisAngleDeg(Vec3.UnitY, yaw);
+            Quat r = FromAxisAngleDeg(Vec3.UnitZ, roll);
             switch (order)
             {
                 case RotationOrder.RYP: return r * y * p;

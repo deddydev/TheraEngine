@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using TheraEngine.Actors;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Worlds;
 
 namespace TheraEditor
@@ -13,29 +14,36 @@ namespace TheraEditor
     [TFileDef("Project State")]
     public class ProjectState : TFileObject
     {
+        public ProjectState()
+        {
+            TimeCreated = DateTime.Now;
+        }
+
         [TSerialize]
         public DateTime TimeCreated { get; internal set; }
         [TSerialize]
-        public DateTime TimeSpentWorking { get; internal set; }
-        
+        public TimeSpan TotalTimeSpentWorking { get; private set; }
+
+        public DateTime TimeOpened { get; private set; }
+        public TimeSpan SessionElapsedTime => DateTime.Now - TimeOpened;
+
+        [TPreDeserialize]
+        private void PreDeserialize()
+        {
+            TimeOpened = DateTime.Now;
+        }
+        [TPreSerialize]
+        private void PreSerialize()
+        {
+            TotalTimeSpentWorking += SessionElapsedTime;
+        }
+
         private TWorld _currentWorld;
-        private Map _currentMap;
-        private Actor _currentActor;
 
         public TWorld CurrentWorld
         {
             get => _currentWorld;
             set => _currentWorld = value;
-        }
-        public Map CurrentMap
-        {
-            get => _currentMap;
-            set => _currentMap = value;
-        }
-        public Actor CurrentActor
-        {
-            get => _currentActor;
-            set => _currentActor = value;
         }
     }
 }

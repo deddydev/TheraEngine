@@ -20,16 +20,16 @@ namespace TheraEngine.Animation
     public class FloatKeyframe : VectorKeyframe<float>
     {
         public FloatKeyframe()
-            : this(0.0f, 0.0f, 0.0f, EPlanarInterpType.CubicBezier) { }
-        public FloatKeyframe(int frameIndex, float FPS, float inValue, float outValue, float inTangent, float outTangent, EPlanarInterpType type)
+            : this(0.0f, 0.0f, 0.0f, EVectorInterpType.CubicBezier) { }
+        public FloatKeyframe(int frameIndex, float FPS, float inValue, float outValue, float inTangent, float outTangent, EVectorInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public FloatKeyframe(int frameIndex, float FPS, float inoutValue, float inoutTangent, EPlanarInterpType type)
+        public FloatKeyframe(int frameIndex, float FPS, float inoutValue, float inoutTangent, EVectorInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public FloatKeyframe(float second, float inoutValue, float inoutTangent, EPlanarInterpType type)
+        public FloatKeyframe(float second, float inoutValue, float inoutTangent, EVectorInterpType type)
             : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public FloatKeyframe(float second, float inoutValue, float inTangent, float outTangent, EPlanarInterpType type)
+        public FloatKeyframe(float second, float inoutValue, float inTangent, float outTangent, EVectorInterpType type)
             : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
-        public FloatKeyframe(float second, float inValue, float outValue, float inTangent, float outTangent, EPlanarInterpType type)
+        public FloatKeyframe(float second, float inValue, float outValue, float inTangent, float outTangent, EVectorInterpType type)
             : base(second, inValue, outValue, inTangent, outTangent, type) { }
         
         public override float Lerp(VectorKeyframe<float> key1, VectorKeyframe<float> key2, float time)
@@ -62,21 +62,7 @@ namespace TheraEngine.Animation
             OutValue = float.Parse(parts[2]);
             InTangent = float.Parse(parts[3]);
             OutTangent = float.Parse(parts[4]);
-            InterpolationType = parts[5].AsEnum<EPlanarInterpType>();
-        }
-        protected override void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
-        {
-            InValue = float.Parse(inValue);
-            OutValue = float.Parse(outValue);
-            InTangent = float.Parse(inTangent);
-            OutTangent = float.Parse(outTangent);
-        }
-        protected override void WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
-        {
-            inValue = InValue.ToString();
-            outValue = OutValue.ToString();
-            inTangent = InTangent.ToString();
-            outTangent = OutTangent.ToString();
+            InterpolationType = parts[5].AsEnum<EVectorInterpType>();
         }
 
         [GridCallable]

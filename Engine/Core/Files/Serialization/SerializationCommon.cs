@@ -440,12 +440,12 @@ namespace TheraEngine.Core.Files.Serialization
             //    object value = member.GetValue(structObj);
             //}
         }
-        public static object ParseStructBytesString(Type t, string structBytes)
+        public static object ParseStructBytesString(Type type, string structBytes)
         {
-            string[] strBytes = structBytes.Split(' ');
+            string[] strBytes = structBytes.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             byte[] bytes = strBytes.Select(x => byte.Parse(x, NumberStyles.HexNumber | NumberStyles.AllowHexSpecifier)).ToArray();
             GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            object result = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), t);
+            object result = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), type);
             handle.Free();
             return result;
         }
@@ -786,55 +786,55 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="objectType"></param>
         /// <param name="node"></param>
         /// <returns></returns>
-        public static BaseObjectSerializer DetermineObjectSerializer(Type objectType, SerializeElement node)
-        {
-            BaseObjectSerializer serializer = null;
-            Type[] types = null;
+        //public static BaseObjectSerializer DetermineObjectSerializer(Type objectType, SerializeElement node)
+        //{
+        //    BaseObjectSerializer serializer = null;
+        //    Type[] types = null;
 
-            if (objectType != null)
-            {
-                Type baseObjSerType = typeof(BaseObjectSerializer);
-                if (ObjectSerializers == null)
-                {
-                    var typeList = Engine.FindTypes(type =>
-                        baseObjSerType.IsAssignableFrom(type) &&
-                        (type.GetCustomAttributeExt<ObjectSerializerFor>() != null), true);
+        //    if (objectType != null)
+        //    {
+        //        Type baseObjSerType = typeof(BaseObjectSerializer);
+        //        if (ObjectSerializers == null)
+        //        {
+        //            var typeList = Engine.FindTypes(type =>
+        //                baseObjSerType.IsAssignableFrom(type) &&
+        //                (type.GetCustomAttributeExt<ObjectSerializerFor>() != null), true);
 
-                    ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
-                    foreach (var type in typeList)
-                        ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectSerializerFor>(), type);
-                }
+        //            ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
+        //            foreach (var type in typeList)
+        //                ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectSerializerFor>(), type);
+        //        }
 
-                types = ObjectSerializers.Where(type => (type.Key.ObjectType?.IsAssignableFrom(objectType) ?? false)).Select(x => x.Value).ToArray();
-            }
-            else
-            {
-                Engine.LogWarning("Unable to create object serializer for null type.");
-                return null;
-            }
+        //        types = ObjectSerializers.Where(type => (type.Key.ObjectType?.IsAssignableFrom(objectType) ?? false)).Select(x => x.Value).ToArray();
+        //    }
+        //    else
+        //    {
+        //        Engine.LogWarning("Unable to create object serializer for null type.");
+        //        return null;
+        //    }
 
-            Type t;
-            if (types != null && types.Length > 0)
-            {
-                if (types.Length == 1)
-                    t = types[0];
-                else
-                {
-                    var counts = types.Select(serType => types.Count(v => serType.IsAssignableFrom(v))).ToArray();
-                    int min = counts.Min();
-                    int[] mins = counts.FindAllMatchIndices(x => x == min);
-                    string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
-                    msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
-                    Engine.PrintLine(msg);
-                    t = types[mins[0]];
-                }
-            }
-            else
-                t = typeof(CommonObjectSerializer);
+        //    Type t;
+        //    if (types != null && types.Length > 0)
+        //    {
+        //        if (types.Length == 1)
+        //            t = types[0];
+        //        else
+        //        {
+        //            var counts = types.Select(serType => types.Count(v => serType.IsAssignableFrom(v))).ToArray();
+        //            int min = counts.Min();
+        //            int[] mins = counts.FindAllMatchIndices(x => x == min);
+        //            string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
+        //            msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
+        //            Engine.PrintLine(msg);
+        //            t = types[mins[0]];
+        //        }
+        //    }
+        //    else
+        //        t = typeof(CommonObjectSerializer);
             
-            serializer = (BaseObjectSerializer)Activator.CreateInstance(t);
-            serializer.TreeNode = node;
-            return serializer;
-        }
+        //    serializer = (BaseObjectSerializer)Activator.CreateInstance(t);
+        //    serializer.TreeNode = node;
+        //    return serializer;
+        //}
     }
 }

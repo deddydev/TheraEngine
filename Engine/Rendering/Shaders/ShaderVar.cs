@@ -127,7 +127,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             Type varType = typeof(T);
             Type shaderType = typeof(ShaderVar);
-            var types = Engine.FindTypes(t => t.IsSubclassOf(shaderType) && varType.IsAssignableFrom(t), true);
+            var types = Engine.FindTypes(t => t.IsSubclassOf(shaderType) && varType.IsAssignableFrom(t));
             return types.Select(x => TypeAssociations[x]).Distinct().ToArray();
         }
         public static Dictionary<Type, EShaderVarType> TypeAssociations = new Dictionary<Type, EShaderVarType>()

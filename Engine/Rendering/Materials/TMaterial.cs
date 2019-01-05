@@ -30,37 +30,37 @@ namespace TheraEngine.Rendering.Models.Materials
 #endif
 
         [TSerialize(nameof(Shaders))]
-        private EventList<GlobalFileRef<GLSLShaderFile>> _shaders;
+        private EventList<GlobalFileRef<GLSLScript>> _shaders;
 
-        public List<GLSLShaderFile> FragmentShaders { get; } = new List<GLSLShaderFile>();
-        public List<GLSLShaderFile> GeometryShaders { get; } = new List<GLSLShaderFile>();
-        public List<GLSLShaderFile> TessEvalShaders { get; } = new List<GLSLShaderFile>();
-        public List<GLSLShaderFile> TessCtrlShaders { get; } = new List<GLSLShaderFile>();
-        public List<GLSLShaderFile> VertexShaders { get; } = new List<GLSLShaderFile>();
-        public EventList<GlobalFileRef<GLSLShaderFile>> Shaders => _shaders;
+        public List<GLSLScript> FragmentShaders { get; } = new List<GLSLScript>();
+        public List<GLSLScript> GeometryShaders { get; } = new List<GLSLScript>();
+        public List<GLSLScript> TessEvalShaders { get; } = new List<GLSLScript>();
+        public List<GLSLScript> TessCtrlShaders { get; } = new List<GLSLScript>();
+        public List<GLSLScript> VertexShaders { get; } = new List<GLSLScript>();
+        public EventList<GlobalFileRef<GLSLScript>> Shaders => _shaders;
 
         public TMaterial()
             : this("NewMaterial", new RenderingParameters()) { }
 
-        public TMaterial(string name, params GLSLShaderFile[] shaders)
+        public TMaterial(string name, params GLSLScript[] shaders)
             : this(name, null, new ShaderVar[0], new BaseTexRef[0], shaders) { }
 
-        public TMaterial(string name, RenderingParameters renderParams, params GLSLShaderFile[] shaders)
+        public TMaterial(string name, RenderingParameters renderParams, params GLSLScript[] shaders)
             : this(name, renderParams, new ShaderVar[0], new BaseTexRef[0], shaders) { }
 
-        public TMaterial(string name, ShaderVar[] vars, params GLSLShaderFile[] shaders)
+        public TMaterial(string name, ShaderVar[] vars, params GLSLScript[] shaders)
             : this(name, null, vars, new BaseTexRef[0], shaders) { }
         
-        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, params GLSLShaderFile[] shaders)
+        public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, params GLSLScript[] shaders)
             : this(name, renderParams, vars, new BaseTexRef[0], shaders) { }
 
-        public TMaterial(string name, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
+        public TMaterial(string name, BaseTexRef[] textures, params GLSLScript[] shaders)
             : this(name, null, new ShaderVar[0], textures, shaders) { }
 
-        public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
+        public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params GLSLScript[] shaders)
             : this(name, renderParams, new ShaderVar[0], textures,  shaders) { }
 
-        public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params GLSLShaderFile[] shaders)
+        public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params GLSLScript[] shaders)
             : this(name, null, vars, textures,shaders) { }
         
         public TMaterial(
@@ -68,15 +68,15 @@ namespace TheraEngine.Rendering.Models.Materials
             RenderingParameters renderParams, 
             ShaderVar[] vars,
             BaseTexRef[] textures,
-            params GLSLShaderFile[] shaders)
+            params GLSLScript[] shaders)
         {
             _name = name;
             RenderParams = renderParams ?? new RenderingParameters();
             _parameters = vars ?? new ShaderVar[0];
             Textures = textures ?? new BaseTexRef[0];
-            _shaders = new EventList<GlobalFileRef<GLSLShaderFile>>();
+            _shaders = new EventList<GlobalFileRef<GLSLScript>>();
             _shaders.PostModified += ShadersChanged;
-            _shaders.AddRange(shaders.Select(x => new GlobalFileRef<GLSLShaderFile>(x)));
+            _shaders.AddRange(shaders.Select(x => new GlobalFileRef<GLSLScript>(x)));
         }
 
         [TPostDeserialize]
@@ -95,23 +95,23 @@ namespace TheraEngine.Rendering.Models.Materials
             }
 
             if (_shaders != null)
-                foreach (GLSLShaderFile s in _shaders)
+                foreach (GLSLScript s in _shaders)
                 {
                     switch (s.Type)
                     {
-                        case EShaderMode.Vertex:
+                        case EGLSLType.Vertex:
                             VertexShaders.Add(s);
                             break;
-                        case EShaderMode.Fragment:
+                        case EGLSLType.Fragment:
                             FragmentShaders.Add(s);
                             break;
-                        case EShaderMode.Geometry:
+                        case EGLSLType.Geometry:
                             GeometryShaders.Add(s);
                             break;
-                        case EShaderMode.TessControl:
+                        case EGLSLType.TessControl:
                             TessCtrlShaders.Add(s);
                             break;
-                        case EShaderMode.TessEvaluation:
+                        case EGLSLType.TessEvaluation:
                             TessEvalShaders.Add(s);
                             break;
                     }
@@ -143,7 +143,7 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 Requirements = EUniformRequirements.None
             };
-            GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
+            GLSLScript frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", param, frag);
         }
         //public static TMaterial CreateLitTextureMaterial(TexRef2D texture)
@@ -154,7 +154,7 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 Requirements = EUniformRequirements.None
             };
-            GLSLShaderFile frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
+            GLSLScript frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new TMaterial("LitTextureMaterial", param, new TexRef2D[] { texture }, frag);
         }
         public static TMaterial CreateUnlitColorMaterialForward()
@@ -176,7 +176,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public static TMaterial CreateLitColorMaterial(ColorF4 color, bool deferred = true)
         {
             ShaderVar[] parameters;
-            GLSLShaderFile frag;
+            GLSLScript frag;
             if (deferred)
             {
                 frag = ShaderHelpers.LitColorFragDeferred();
@@ -330,7 +330,7 @@ result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (
 //    OutColor = MatColor * vec4(totalLight, 1.0);
 //}
 
-            GLSLShaderFile s = new GLSLShaderFile(EShaderMode.Fragment, source);
+            GLSLScript s = new GLSLScript(EGLSLType.Fragment, source);
             RenderingParameters param = new RenderingParameters()
             {
                 Requirements = EUniformRequirements.None

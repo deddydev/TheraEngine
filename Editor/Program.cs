@@ -79,7 +79,7 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static Type[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
         {
-            Type[] fileObjectTypes = Engine.FindTypes(match, true, Assembly.GetExecutingAssembly()).ToArray();
+            Type[] fileObjectTypes = Engine.FindTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (Type t in fileObjectTypes)

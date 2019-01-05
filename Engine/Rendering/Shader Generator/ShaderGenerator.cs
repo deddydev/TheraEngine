@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering
 
         public static bool Generate(
             ResultFunc resultFunction,
-            out GLSLShaderFile[] shaderFiles,
+            out GLSLScript[] shaderFiles,
             out ShaderVar[] shaderVars)
         {
             if (resultFunction == null)
@@ -216,9 +216,9 @@ namespace TheraEngine.Rendering
 
             Engine.PrintLine("Generated Fragment Shader, " + maxGLSLVer.ToString() + ":\n" + fragStr);
 
-            shaderFiles = new GLSLShaderFile[]
+            shaderFiles = new GLSLScript[]
             {
-                new GLSLShaderFile(EShaderMode.Fragment, fragStr),
+                new GLSLScript(EGLSLType.Fragment, fragStr),
             };
             shaderVars = vars.ToArray();
 

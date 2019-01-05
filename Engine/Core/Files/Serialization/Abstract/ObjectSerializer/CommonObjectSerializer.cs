@@ -10,7 +10,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [ObjectSerializerFor(typeof(object), CanSerializeAsString = true)]
+    //[ObjectSerializerFor(typeof(object), CanSerializeAsString = true)]
     public class CommonObjectSerializer : BaseObjectSerializer
     {
         #region Reading

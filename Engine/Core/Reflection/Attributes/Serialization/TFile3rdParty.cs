@@ -24,13 +24,13 @@ namespace System.ComponentModel
             return ExtensionNames3rdParty.ContainsKey(ext);
         }
         public bool HasExtension(string ext)
-        { 
+        {
             if (string.IsNullOrWhiteSpace(ext))
                 return false;
             //ext = ext.ToLowerInvariant();
             if (ext[0] == '.')
                 ext = ext.Substring(0);
-            return Extensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase);
+            return Extensions.Contains(ext, StringComparison.InvariantCultureIgnoreCase) || Extensions.Contains("*", StringComparison.InvariantCultureIgnoreCase);
         }
 
         public static Dictionary<string, string> ExtensionNames3rdParty = new Dictionary<string, string>()

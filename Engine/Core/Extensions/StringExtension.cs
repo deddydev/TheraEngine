@@ -14,6 +14,13 @@ namespace System
 {
     public static unsafe class StringExtension
     {
+        public static bool EndsWithAny(this string s, string[] values, StringComparison comparisonType)
+        {
+            foreach (string value in values)
+                if (s.EndsWith(value, comparisonType))
+                    return true;
+            return false;
+        }
         /// <summary>
         /// Converts the elements of an array into a well-formatted list.
         /// </summary>

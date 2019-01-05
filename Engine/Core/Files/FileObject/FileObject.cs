@@ -93,7 +93,11 @@ namespace TheraEngine.Core.Files
         /// <returns>An absolute path to the file.</returns>
         public string GetFilePath(string dir, string name, EProprietaryFileFormat format)
             => GetFilePath(dir, name, format, GetType());
-        public string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false)
+        public string GetFilter(
+            bool proprietary = true,
+            bool thirdParty = true,
+            bool import3rdParty = false, 
+            bool export3rdParty = false)
             => GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
         
         public async void Export()
@@ -170,6 +174,8 @@ namespace TheraEngine.Core.Files
 
         public async Task ExportAsync(ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
             => await ExportAsync(FilePath, flags, progress, cancel);
+        public async Task ExportAsync(string path, IProgress<float> progress, CancellationToken cancel)
+            => await ExportAsync(path, ESerializeFlags.Default, progress, cancel);
         public async Task ExportAsync(string path, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
         {
             if (string.IsNullOrEmpty(path))
@@ -355,7 +361,7 @@ namespace TheraEngine.Core.Files
                 else
                     ManualWrite3rdParty(FilePath);
             }
-            Engine.PrintLine($"Saved {thirdPartyExt} file to {0}", FilePath);
+            Engine.PrintLine($"Saved {thirdPartyExt} file to {FilePath}");
         }
 
         #region Manual Read/Write
@@ -549,7 +555,7 @@ namespace TheraEngine.Core.Files
         void Unload();
 
         string GetFilePath(string dir, string name, EProprietaryFileFormat format);
-        string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false);
+        string GetFilter(bool proprietary = true, bool thirdParty = true, bool import3rdParty = false, bool export3rdParty = false);
 
         Task ManualWrite3rdPartyAsync(string filePath);
         Task ManualRead3rdPartyAsync(string filePath);

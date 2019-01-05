@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms
         public MaterialControl()
         {
             InitializeComponent();
-            comboBox1.DataSource = Enum.GetNames(typeof(EShaderMode));
+            comboBox1.DataSource = Enum.GetNames(typeof(EGLSLType));
             comboBox2.DataSource = Enum.GetNames(typeof(ETextureType));
         }
 
@@ -203,38 +203,28 @@ namespace TheraEditor.Windows.Forms
 
         }
 
-        private Dictionary<GLSLShaderFile, DockableTextEditor> _textEditors = new Dictionary<GLSLShaderFile, DockableTextEditor>();
+        private Dictionary<GLSLScript, DockableTextEditor> _textEditors = new Dictionary<GLSLScript, DockableTextEditor>();
 
         private void lstShaders_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (lstShaders.SelectedItems.Count == 0)
                 return;
 
-            GlobalFileRef<GLSLShaderFile> fileRef = lstShaders.SelectedItems[0].Tag as GlobalFileRef<GLSLShaderFile>;
-            GLSLShaderFile file = fileRef.File;
+            GlobalFileRef<GLSLScript> fileRef = lstShaders.SelectedItems[0].Tag as GlobalFileRef<GLSLScript>;
+            GLSLScript file = fileRef.File;
 
             if (file == null)
                 return;
 
             if (_textEditors.ContainsKey(file))
-            {
                 _textEditors[file].Focus();
-            }
             else
             {
                 DockContent form = FindForm() as DockContent;
                 DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
-
-                DockableTextEditor textEditor = new DockableTextEditor
-                {
-                    Tag = fileRef
-                };
-                textEditor.Show(p, DockState.DockLeft);
-                textEditor.InitText(fileRef.File.Text, Path.GetFileName(fileRef.Path.Absolute), ETextEditorMode.GLSL);
-                textEditor.Saved += M_Saved;
+                var textEditor = DockableTextEditor.ShowNew(p, DockState.DockLeft, fileRef.File);
                 textEditor.CompileGLSL = M_CompileGLSL;
                 textEditor.FormClosed += TextEditor_FormClosed;
-
                 _textEditors.Add(file, textEditor);
             }
         }
@@ -242,30 +232,30 @@ namespace TheraEditor.Windows.Forms
         private void TextEditor_FormClosed(object sender, FormClosedEventArgs e)
         {
             DockableTextEditor editor = sender as DockableTextEditor;
-            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
+            GlobalFileRef<GLSLScript> fileRef = editor.Tag as GlobalFileRef<GLSLScript>;
             _textEditors.Remove(fileRef.File);
         }
 
         private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)
         {
-            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
-            EShaderMode mode = fileRef.File.Type;
+            GlobalFileRef<GLSLScript> fileRef = editor.Tag as GlobalFileRef<GLSLScript>;
+            EGLSLType mode = fileRef.File.Type;
             fileRef.File.Text = text;
             //bool success = _shader.Compile(out string info, false);
             return (true, null);
         }
 
-        private async void M_Saved(DockableTextEditor editor)
-        {
-            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
-            fileRef.File.Text = editor.GetText();
+        //private async void M_Saved(DockableTextEditor editor)
+        //{
+        //    GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
+        //    fileRef.File.Text = editor.GetText();
 
-            Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            int op = Editor.Instance.BeginOperation("Saving text...", out Progress<float> progress, out System.Threading.CancellationTokenSource cancel);
-            await fileRef.File.ExportAsync(fileRef.Path.Absolute, ESerializeFlags.Default, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
-            Editor.Instance.ContentTree.WatchProjectDirectory = true;
-        }
+        //    Editor.Instance.ContentTree.WatchProjectDirectory = false;
+        //    int op = Editor.Instance.BeginOperation("Saving text...", out Progress<float> progress, out System.Threading.CancellationTokenSource cancel);
+        //    await fileRef.File.ExportAsync(fileRef.Path.Absolute, ESerializeFlags.Default, progress, cancel.Token);
+        //    Editor.Instance.EndOperation(op);
+        //    Editor.Instance.ContentTree.WatchProjectDirectory = true;
+        //}
         public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
         {
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, dicOwner, key, isKey);
@@ -310,9 +300,9 @@ namespace TheraEditor.Windows.Forms
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            GLSLShaderFile f = new GLSLShaderFile((EShaderMode)((int)Math.Pow(2, comboBox1.SelectedIndex)));
+            GLSLScript f = new GLSLScript((EGLSLType)((int)Math.Pow(2, comboBox1.SelectedIndex)));
 
-            GlobalFileRef<GLSLShaderFile> shaderRef = f;
+            GlobalFileRef<GLSLScript> shaderRef = f;
 
             string text = string.Empty;
             if (!string.IsNullOrWhiteSpace(shaderRef.Path.Absolute))

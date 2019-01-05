@@ -1,10 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TheraEditor.Windows.Forms;
-using TheraEngine;
 using TheraEngine.Core.Files;
 
 namespace TheraEditor.Wrappers
@@ -59,18 +56,18 @@ namespace TheraEditor.Wrappers
                 parentFolderPath += Path.DirectorySeparatorChar;
             FilePath = parentFolderPath + fileName;
         }
-        protected async void DefaultSaveText(DockableTextEditor obj)
-        {
-            if (!(Resource is ITextSource source))
-                return;
+        //protected async void DefaultSaveText(DockableTextEditor obj)
+        //{
+        //    if (!(Resource is ITextSource source))
+        //        return;
 
-            source.Text = obj.GetText();
+        //    source.Text = obj.GetText();
 
-            string path = ResourceRef.Path.Absolute;
+        //    string path = ResourceRef.Path.Absolute;
 
-            Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving text...", out Progress<float> progress, out CancellationTokenSource cancel);
-            await ResourceRef.File.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);
-            Editor.Instance.ContentTree.EndFileSave(path);
-        }
+        //    Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving text...", out Progress<float> progress, out CancellationTokenSource cancel);
+        //    await ResourceRef.File.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);
+        //    Editor.Instance.ContentTree.EndFileSave(path);
+        //}
     }
 }

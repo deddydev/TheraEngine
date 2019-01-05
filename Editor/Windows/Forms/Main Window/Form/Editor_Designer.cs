@@ -135,19 +135,28 @@ namespace TheraEditor.Windows.Forms
         public DockableWorldRenderForm RenderForm4 => GetRenderForm(3);
         
         private bool GetFormActive<T>(T value) where T : DockContent
-        {
-            return value != null && !value.IsDisposed;
-        }
-        public T GetForm<T>(ref T value) where T : DockContent, new()
+            => value != null && !value.IsDisposed;
+        
+        public T GetForm<T>(ref T value, DockState defaultDockState = DockState.Document) where T : DockContent, new()
         {
             if (value == null || value.IsDisposed)
             {
                 value = new T();
                 Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
-                value.Show(DockPanel);
+                if (InvokeRequired)
+                {
+                    T value2 = value;
+                    Invoke((Action)(() => value2.Show(DockPanel, defaultDockState)));
+                }
+                else
+                    value.Show(DockPanel);
             }
             return value;
         }
+
+        private DockableErrorList _errorListForm;
+        public bool DockableErrorListFormActive => GetFormActive(_errorListForm);
+        public DockableErrorList ErrorListForm => GetForm(ref _errorListForm, DockState.DockBottomAutoHide);
         
         private DockableProjectCreator _projectCreatorForm;
         public bool ProjectCreatorFormActive => GetFormActive(_projectCreatorForm);
@@ -159,19 +168,19 @@ namespace TheraEditor.Windows.Forms
 
         private DockableOutputWindow _outputForm;
         public bool OutputFormActive => GetFormActive(_outputForm);
-        public DockableOutputWindow OutputForm => GetForm(ref _outputForm);
+        public DockableOutputWindow OutputForm => GetForm(ref _outputForm, DockState.DockBottom);
 
         private DockableActorTree _actorTreeForm;
         public bool ActorTreeFormActive => GetFormActive(_actorTreeForm);
-        public DockableActorTree ActorTreeForm => GetForm(ref _actorTreeForm);
+        public DockableActorTree ActorTreeForm => GetForm(ref _actorTreeForm, DockState.DockRight);
 
         private DockableFileTree _fileTreeForm;
         public bool FileTreeFormActive => GetFormActive(_fileTreeForm);
-        public DockableFileTree FileTreeForm => GetForm(ref _fileTreeForm);
+        public DockableFileTree FileTreeForm => GetForm(ref _fileTreeForm, DockState.DockLeft);
         
         private DockableMSBuildTree _msBuildTreeForm;
         public bool MSBuildTreeFormActive => GetFormActive(_msBuildTreeForm);
-        public DockableMSBuildTree MSBuildTreeForm => GetForm(ref _msBuildTreeForm);
+        public DockableMSBuildTree MSBuildTreeForm => GetForm(ref _msBuildTreeForm, DockState.DockLeft);
 
         private DockablePropertyGrid _propertyGridForm;
         public bool PropertyGridFormActive => GetFormActive(_propertyGridForm);

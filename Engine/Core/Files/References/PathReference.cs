@@ -100,22 +100,22 @@ namespace TheraEngine.Core.Files
                             _relative = _absolute;
                         else
                         {
-                            string root = Path.GetPathRoot(value);
-                            int colonIndex = root.IndexOf(":");
+                            string refDrive = Path.GetPathRoot(value);
+                            int colonIndex = refDrive.IndexOf(":");
                             if (colonIndex > 0)
-                                root = root.Substring(0, colonIndex);
+                                refDrive = refDrive.Substring(0, colonIndex);
                             else
-                                root = string.Empty;
+                                refDrive = string.Empty;
 
                             if (Type == EPathType.EngineRelative)
                             {
-                                string root2 = Path.GetPathRoot(Application.StartupPath);
-                                colonIndex = root2.IndexOf(":");
+                                string appDrive = Path.GetPathRoot(Application.StartupPath);
+                                colonIndex = appDrive.IndexOf(":");
                                 if (colonIndex > 0)
-                                    root2 = root2.Substring(0, colonIndex);
+                                    appDrive = appDrive.Substring(0, colonIndex);
                                 else
-                                    root2 = string.Empty;
-                                if (!string.Equals(root, root2))
+                                    appDrive = string.Empty;
+                                if (!string.Equals(refDrive, appDrive))
                                 {
                                     Type = EPathType.Absolute;
                                     _relative = _absolute;
@@ -133,7 +133,7 @@ namespace TheraEngine.Core.Files
                                         root2 = root2.Substring(0, colonIndex);
                                     else
                                         root2 = string.Empty;
-                                    if (!string.Equals(root, root2))
+                                    if (!string.Equals(refDrive, root2))
                                     {
                                         Type = EPathType.Absolute;
                                         _relative = _absolute;

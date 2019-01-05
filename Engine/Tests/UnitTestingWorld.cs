@@ -313,11 +313,11 @@ namespace TheraEngine.Tests
             Actor<TranslationComponent> testScreenshake = new Actor<TranslationComponent>(posComp);
             actors.Add(testScreenshake);
 
-            TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
+            TextureFile2D skyTex = await Engine.Files.LoadEngineTexture2DAsync("modelviewerbg1.png");
             SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
             actors.Add(skyboxActor);
 
-            TextureFile2D decalTex = await Engine.LoadEngineTexture2DAsync("decal guide.png");
+            TextureFile2D decalTex = await Engine.Files.LoadEngineTexture2DAsync("decal guide.png");
             var bmp = decalTex.GetLargestBitmap();
             DecalActor decal = new DecalActor();
             decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);

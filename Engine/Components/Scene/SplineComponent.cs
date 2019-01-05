@@ -217,7 +217,7 @@ namespace TheraEngine.Components.Scene
             };
 
             PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.PosColor(), strip);
-            TMaterial mat = new TMaterial("SplineColor", new GLSLShaderFile(EShaderMode.Fragment,
+            TMaterial mat = new TMaterial("SplineColor", new GLSLScript(EGLSLType.Fragment,
 @"
 #version 450
 

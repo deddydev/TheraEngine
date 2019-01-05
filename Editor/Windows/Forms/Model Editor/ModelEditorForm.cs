@@ -160,7 +160,7 @@ namespace TheraEditor.Windows.Forms
                 comp.Scale = new Vec3(5.0f);
                 actors.Add(light);
                 
-                TextureFile2D skyTex = await Engine.LoadEngineTexture2DAsync("modelviewerbg1.png");
+                TextureFile2D skyTex = await Engine.Files.LoadEngineTexture2DAsync("modelviewerbg1.png");
                 SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
                 actors.Add(skyboxActor);
 

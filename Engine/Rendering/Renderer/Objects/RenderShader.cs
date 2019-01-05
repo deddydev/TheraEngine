@@ -11,9 +11,9 @@ namespace TheraEngine.Rendering
 
         public string SourceText { get; private set; } = null;
 
-        public EShaderMode ShaderMode { get; private set; }
-        private GLSLShaderFile _file = null;
-        public GLSLShaderFile File
+        public EGLSLType ShaderMode { get; private set; }
+        private GLSLScript _file = null;
+        public GLSLScript File
         {
             get => _file;
             set
@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering
                     File_SourceChanged();
                 }
                 else
-                    ShaderMode = EShaderMode.Fragment;
+                    ShaderMode = EGLSLType.Fragment;
             }
         }
 
@@ -39,9 +39,9 @@ namespace TheraEngine.Rendering
         public RenderProgram OwningProgram { get; set; }
 
         public RenderShader() : base(EObjectType.Shader) { }
-        public RenderShader(GLSLShaderFile file) : this() => File = file;
+        public RenderShader(GLSLScript file) : this() => File = file;
         
-        public void SetSource(string text, EShaderMode mode, bool compile = true)
+        public void SetSource(string text, EGLSLType mode, bool compile = true)
         {
             SourceText = text;
             ShaderMode = mode;

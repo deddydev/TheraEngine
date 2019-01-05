@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms
         public MaterialControl2()
         {
             InitializeComponent();
-            comboBox1.DataSource = Enum.GetNames(typeof(EShaderMode));
+            comboBox1.DataSource = Enum.GetNames(typeof(EGLSLType));
             comboBox2.DataSource = Enum.GetNames(typeof(ETextureType));
         }
 
@@ -162,15 +162,15 @@ namespace TheraEditor.Windows.Forms
 
         }
 
-        private Dictionary<GLSLShaderFile, DockableTextEditor> _textEditors = new Dictionary<GLSLShaderFile, DockableTextEditor>();
+        private Dictionary<GLSLScript, DockableTextEditor> _textEditors = new Dictionary<GLSLScript, DockableTextEditor>();
 
         private void lstShaders_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (lstShaders.SelectedItems.Count == 0)
                 return;
 
-            GlobalFileRef<GLSLShaderFile> fileRef = lstShaders.SelectedItems[0].Tag as GlobalFileRef<GLSLShaderFile>;
-            GLSLShaderFile file = fileRef.File;
+            GlobalFileRef<GLSLScript> fileRef = lstShaders.SelectedItems[0].Tag as GlobalFileRef<GLSLScript>;
+            GLSLScript file = fileRef.File;
 
             if (file == null)
                 return;
@@ -189,8 +189,8 @@ namespace TheraEditor.Windows.Forms
                     Tag = fileRef
                 };
                 textEditor.Show(p, DockState.DockLeft);
-                textEditor.InitText(fileRef.File.Text, Path.GetFileName(fileRef.Path.Absolute), ETextEditorMode.GLSL);
-                textEditor.Saved += M_Saved;
+                textEditor.TargetFile = file;
+                //textEditor.Saved += M_Saved;
                 textEditor.CompileGLSL = M_CompileGLSL;
                 textEditor.FormClosed += TextEditor_FormClosed;
 
@@ -201,27 +201,27 @@ namespace TheraEditor.Windows.Forms
         private void TextEditor_FormClosed(object sender, FormClosedEventArgs e)
         {
             DockableTextEditor editor = sender as DockableTextEditor;
-            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
+            GlobalFileRef<GLSLScript> fileRef = editor.Tag as GlobalFileRef<GLSLScript>;
             _textEditors.Remove(fileRef.File);
         }
 
         private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)
         {
-            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
-            EShaderMode mode = fileRef.File.Type;
+            GlobalFileRef<GLSLScript> fileRef = editor.Tag as GlobalFileRef<GLSLScript>;
+            EGLSLType mode = fileRef.File.Type;
             fileRef.File.Text = text;
             //bool success = _shader.Compile(out string info, false);
             return (true, null);
         }
 
-        private void M_Saved(DockableTextEditor editor)
-        {
-            GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
-            fileRef.File.Text = editor.GetText();
-            Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            //WfileRef.ExportReference();
-            Editor.Instance.ContentTree.WatchProjectDirectory = true;
-        }
+        //private void M_Saved(DockableTextEditor editor)
+        //{
+        //    GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
+        //    fileRef.File.Text = editor.GetText();
+        //    Editor.Instance.ContentTree.WatchProjectDirectory = false;
+        //    //WfileRef.ExportReference();
+        //    Editor.Instance.ContentTree.WatchProjectDirectory = true;
+        //}
         public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
         {
             Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, dicOwner, key, isKey);
@@ -259,9 +259,9 @@ namespace TheraEditor.Windows.Forms
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            GLSLShaderFile f = new GLSLShaderFile((EShaderMode)((int)Math.Pow(2, comboBox1.SelectedIndex)));
+            GLSLScript f = new GLSLScript((EGLSLType)((int)Math.Pow(2, comboBox1.SelectedIndex)));
 
-            GlobalFileRef<GLSLShaderFile> shaderRef = f;
+            GlobalFileRef<GLSLScript> shaderRef = f;
 
             string text = string.Empty;
             if (!string.IsNullOrWhiteSpace(shaderRef.Path.Absolute))

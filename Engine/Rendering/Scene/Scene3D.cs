@@ -45,7 +45,7 @@ namespace TheraEngine.Rendering
                         Resizable = false
                     },
                 },
-                new GLSLShaderFile[]
+                new GLSLScript[]
                 {
 
                 }

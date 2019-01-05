@@ -43,11 +43,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _keyType = OwnerDictionary?.DetermineKeyType();
         }
 
-        public override bool IsReadOnly() => GetOwner == null || OwnerDictionary.IsReadOnly;
+        public override bool IsReadOnly() => OwnerDictionary?.IsReadOnly ?? false;
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
-        {
-            dataChangeHandler?.IDictionaryObjectChanged(oldValue, newValue, OwnerDictionary, Key, IsKey);
-        }
+            => dataChangeHandler?.IDictionaryObjectChanged(oldValue, newValue, OwnerDictionary, Key, IsKey);
+        
         public override object MemberValue
         {
             get
@@ -79,10 +78,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         v = dic[Key];
                     }
                     Key = value;
-                    if (dic.Contains(Key))
-                        dic[Key] = v;
-                    else
-                        dic.Add(Key, v);
+                    if (v != null)
+                    {
+                        if (dic.Contains(Key))
+                            dic[Key] = v;
+                        else
+                            dic.Add(Key, v);
+                    }
                 }
             }
         }

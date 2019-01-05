@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Build.Locator.1.0.31\build\Microsoft.Build.Locator.props" Condition="Exists('..\packages\Microsoft.Build.Locator.1.0.31\build\Microsoft.Build.Locator.props')" />
+  <Import Project="..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props" Condition="Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -111,6 +111,9 @@
     <StartupObject>TheraEditor.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AppDomainToolkit, Version=1.0.4.1, Culture=neutral, PublicKeyToken=f2fc7ab5180cf5c4, processorArchitecture=MSIL">
+      <HintPath>..\packages\AppDomainToolkit.1.0.4.3\lib\net\AppDomainToolkit.dll</HintPath>
+    </Reference>
     <Reference Include="BulletSharp">
       <HintPath Condition="'$(Platform)'=='x86'">$(SolutionDir)\Libraries\x86\BulletSharp.dll</HintPath>
       <HintPath Condition="'$(Platform)'=='x64'">$(SolutionDir)\Libraries\x64\BulletSharp.dll</HintPath>
@@ -134,8 +137,8 @@
     <Reference Include="envdte90a, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="FastColoredTextBox, Version=2.16.21.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
-      <HintPath>..\packages\FCTB.2.16.21.0\lib\FastColoredTextBox.dll</HintPath>
+    <Reference Include="FastColoredTextBox, Version=2.16.24.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
+      <HintPath>..\packages\FCTB.2.16.24\lib\FastColoredTextBox.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Build.15.9.20\lib\net46\Microsoft.Build.dll</HintPath>
@@ -145,7 +148,7 @@
       <HintPath>..\packages\Microsoft.Build.Framework.15.9.20\lib\net46\Microsoft.Build.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Locator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9dff12846e04bfbd, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Build.Locator.1.0.31\lib\net46\Microsoft.Build.Locator.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Build.Locator.1.1.2\lib\net46\Microsoft.Build.Locator.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Build.Tasks.Core.15.9.20\lib\net46\Microsoft.Build.Tasks.Core.dll</HintPath>
@@ -172,11 +175,14 @@
     <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Octokit, Version=0.32.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.0.32.0\lib\net45\Octokit.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg, Version=2.2.1.39233, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
+      <HintPath>..\packages\Svg.2.3.0\lib\net35\Svg.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -315,6 +321,12 @@
     <Compile Include="Windows\Forms\Main Window\RecentProjectInfo.Designer.cs">
       <DependentUpon>RecentProjectInfo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableErrorList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableErrorList.Designer.cs">
+      <DependentUpon>DockableErrorList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableProjectCreator.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -332,6 +344,24 @@
     </Compile>
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableMSBuildTree.Designer.cs">
       <DependentUpon>DockableMSBuildTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockingHostToolStripPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockingHostToolStripPanel.designer.cs">
+      <DependentUpon>DockingHostToolStripPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\FloatingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\FloatingForm.designer.cs">
+      <DependentUpon>FloatingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\TearOffToolStrip.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\TearOffToolStrip.designer.cs">
+      <DependentUpon>TearOffToolStrip.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.cs">
       <SubType>Form</SubType>
@@ -511,10 +541,10 @@
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableContentCreator.Designer.cs">
       <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockableTextEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor.Designer.cs">
+    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockableTextEditor.Designer.cs">
       <DependentUpon>DockableTextEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableOutputWindow.cs">
@@ -816,8 +846,17 @@
     <EmbeddedResource Include="Windows\Forms\Main Window\RecentProjectInfo.resx">
       <DependentUpon>RecentProjectInfo.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableErrorList.resx">
+      <DependentUpon>DockableErrorList.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableProjectCreator.resx">
       <DependentUpon>DockableProjectCreator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\FloatingForm.resx">
+      <DependentUpon>FloatingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\TearOffToolStrip.resx">
+      <DependentUpon>TearOffToolStrip.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.resx">
       <DependentUpon>MaterialControlOld.cs</DependentUpon>
@@ -1027,7 +1066,7 @@
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableContentCreator.resx">
       <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor.resx">
+    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockableTextEditor.resx">
       <DependentUpon>DockableTextEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableOutputWindow.resx">
@@ -1241,10 +1280,10 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.0.31\build\Microsoft.Build.Locator.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.0.31\build\Microsoft.Build.Locator.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.0.31\build\Microsoft.Build.Locator.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.0.31\build\Microsoft.Build.Locator.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets'))" />
   </Target>
-  <Import Project="..\packages\Microsoft.Build.Locator.1.0.31\build\Microsoft.Build.Locator.targets" Condition="Exists('..\packages\Microsoft.Build.Locator.1.0.31\build\Microsoft.Build.Locator.targets')" />
+  <Import Project="..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets" Condition="Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

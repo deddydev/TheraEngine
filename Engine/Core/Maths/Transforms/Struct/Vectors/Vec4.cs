@@ -26,7 +26,11 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public float X, Y, Z, W;
 
-        public Color Color { get => (Color)this; set => Xyzw = (Vec4)value; }
+        public Color Color
+        {
+            get => (Color)this;
+            set => Xyzw = value;
+        }
 
         [Browsable(false)]
         public float* Data => (float*)Address;

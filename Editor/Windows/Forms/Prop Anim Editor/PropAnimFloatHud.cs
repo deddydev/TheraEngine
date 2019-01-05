@@ -179,7 +179,7 @@ namespace TheraEditor.Windows.Forms
             };
 
             PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.PosColor(), strip);
-            TMaterial mat = new TMaterial("SplineColor", new GLSLShaderFile(EShaderMode.Fragment,
+            TMaterial mat = new TMaterial("SplineColor", new GLSLScript(EGLSLType.Fragment,
 @"
 #version 450
 
@@ -317,7 +317,7 @@ void main()
         }
         protected override TMaterial GetBackgroundMaterial()
         {
-            GLSLShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", EShaderMode.Fragment);
+            GLSLScript frag = Engine.Files.LoadEngineShader("MaterialEditorGraphBG.fs", EGLSLType.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
             {
                 new ShaderVec3(new Vec3(0.3f, 0.12f, 0.13f), "LineColor"),

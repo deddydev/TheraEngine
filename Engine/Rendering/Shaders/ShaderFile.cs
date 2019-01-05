@@ -4,7 +4,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public enum EShaderMode
+    public enum EGLSLType
     {
         Vertex          = 01, // https://www.opengl.org/wiki/Vertex_Shader
         Fragment        = 02, // https://www.opengl.org/wiki/Fragment_Shader
@@ -18,21 +18,22 @@ namespace TheraEngine.Rendering.Models.Materials
     /// </summary>
     [TFile3rdPartyExt(
         "fs",   "vs",   "gs",   "tcs",  "tes",  //"cs", //C# file extension...
-        "frag", "vert", "geom", "tesc", "tese", "comp")]
-    [TFileDef("Shader")]
-    public class GLSLShaderFile : TextFile
+        "frag", "vert", "geom", "tesc", "tese", "comp",
+        "glsl")]
+    [TFileDef("GLSL Shader")]
+    public class GLSLScript : TextFile
     {
         [TSerialize(NodeType = ENodeType.Attribute)]
-        public EShaderMode Type { get; set; }
+        public EGLSLType Type { get; set; }
 
         #region Constructors
-        public GLSLShaderFile() { }
-        public GLSLShaderFile(string path) : base(path) { }
-        public GLSLShaderFile(EShaderMode type)
+        public GLSLScript() { }
+        public GLSLScript(string path) : base(path) { }
+        public GLSLScript(EGLSLType type)
         {
             Type = type;
         }
-        public GLSLShaderFile(EShaderMode type, string source)
+        public GLSLScript(EGLSLType type, string source)
         {
             Type = type;
             Text = source;
@@ -48,27 +49,27 @@ namespace TheraEngine.Rendering.Models.Materials
                 default:
                 case "fs":
                 case "frag":
-                    Type = EShaderMode.Fragment;
+                    Type = EGLSLType.Fragment;
                     break;
                 case "vs":
                 case "vert":
-                    Type = EShaderMode.Vertex;
+                    Type = EGLSLType.Vertex;
                     break;
                 case "gs":
                 case "geom":
-                    Type = EShaderMode.Geometry;
+                    Type = EGLSLType.Geometry;
                     break;
                 case "tcs":
                 case "tesc":
-                    Type = EShaderMode.TessControl;
+                    Type = EGLSLType.TessControl;
                     break;
                 case "tes":
                 case "tese":
-                    Type = EShaderMode.TessEvaluation;
+                    Type = EGLSLType.TessEvaluation;
                     break;
                 case "cs":
                 case "comp":
-                    Type = EShaderMode.Compute;
+                    Type = EGLSLType.Compute;
                     break;
             }
         }

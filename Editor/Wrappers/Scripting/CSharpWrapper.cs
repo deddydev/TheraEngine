@@ -36,10 +36,7 @@ namespace TheraEditor.Wrappers
             DockableTextEditor.ShowNew(
                 Editor.Instance.DockPanel,
                 DockState.Document, 
-                Resource.Text, 
-                Path.GetFileName(ResourceRef.Path.Absolute),
-                ETextEditorMode.Python,
-                DefaultSaveText);
+                Resource);
         }
     }
 }

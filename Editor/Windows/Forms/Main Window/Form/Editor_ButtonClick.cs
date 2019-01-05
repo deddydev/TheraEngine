@@ -156,13 +156,7 @@ namespace TheraEditor.Windows.Forms
 
             Engine.PrintLine("Creating new release...");
 
-            DockableTextEditor.ShowNew(
-                DockPanel,
-                WeifenLuo.WinFormsUI.Docking.DockState.Document,
-                "", "", ETextEditorMode.Text, t =>
-            {
-
-            });
+            //TODO: create release creator form
 
             string[] paths = Directory.EnumerateFileSystemEntries(progDir, "*.*", SearchOption.AllDirectories).
                 Where(x => exts.Contains(Path.GetExtension(x).ToLowerInvariant())).ToArray();

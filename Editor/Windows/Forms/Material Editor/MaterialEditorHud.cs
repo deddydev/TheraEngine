@@ -113,7 +113,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected override TMaterial GetBackgroundMaterial()
         {
-            GLSLShaderFile frag = Engine.LoadEngineShader("MaterialEditorGraphBG.fs", EShaderMode.Fragment);
+            GLSLScript frag = Engine.Files.LoadEngineShader("MaterialEditorGraphBG.fs", EGLSLType.Fragment);
             return new TMaterial("MatEditorGraphBG", new ShaderVar[]
             {
                 new ShaderVec3(new Vec3(0.1f, 0.12f, 0.13f), "LineColor"),
@@ -131,10 +131,10 @@ namespace TheraEditor.Windows.Forms
             => GenerateShaders();
         private void GenerateShaders()
         {
-            if (!EndFunc.Generate(out GLSLShaderFile[] shaderFiles, out ShaderVar[] shaderVars))
+            if (!EndFunc.Generate(out GLSLScript[] shaderFiles, out ShaderVar[] shaderVars))
                 return;
             TargetMaterial.Parameters = shaderVars;
-            TargetMaterial.Shaders.Set(shaderFiles.Select(x => new GlobalFileRef<GLSLShaderFile>(x)));
+            TargetMaterial.Shaders.Set(shaderFiles.Select(x => new GlobalFileRef<GLSLScript>(x)));
         }
 
         private ResultFunc Decompile(TMaterial mat)

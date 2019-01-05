@@ -12,8 +12,8 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(GLSLShaderFile), nameof(Resources.GenericFile))]
-    public class GLSLWrapper : FileWrapper<GLSLShaderFile>
+    [NodeWrapper(typeof(GLSLScript), nameof(Resources.GenericFile))]
+    public class GLSLWrapper : FileWrapper<GLSLScript>
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -38,12 +38,10 @@ namespace TheraEditor.Wrappers
         private RenderShader _shader;
         public override void EditResource()
         {
-            DockableTextEditor textEditor = new DockableTextEditor();
-            textEditor.Show(Editor.Instance.DockPanel, DockState.Document);
             _shader = new RenderShader(ResourceRef.File);
             _shader.Generate();
-            textEditor.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.Path.Absolute), ETextEditorMode.GLSL);
-            textEditor.Saved += M_Saved;
+
+            var textEditor = DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, ResourceRef.File, M_Saved);
             textEditor.CompileGLSL = M_CompileGLSL;
             textEditor.FormClosed += TextEditor_FormClosed;
         }
@@ -57,33 +55,33 @@ namespace TheraEditor.Wrappers
         private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)
         {
             string ext = Path.GetExtension(ResourceRef.Path.Absolute).Substring(1);
-            EShaderMode mode = EShaderMode.Fragment;
+            EGLSLType mode = EGLSLType.Fragment;
             switch (ext)
             {
                 default:
                 case "fs":
                 case "frag":
-                    mode = EShaderMode.Fragment;
+                    mode = EGLSLType.Fragment;
                     break;
                 case "vs":
                 case "vert":
-                    mode = EShaderMode.Vertex;
+                    mode = EGLSLType.Vertex;
                     break;
                 case "gs":
                 case "geom":
-                    mode = EShaderMode.Geometry;
+                    mode = EGLSLType.Geometry;
                     break;
                 case "tcs":
                 case "tesc":
-                    mode = EShaderMode.TessControl;
+                    mode = EGLSLType.TessControl;
                     break;
                 case "tes":
                 case "tese":
-                    mode = EShaderMode.TessEvaluation;
+                    mode = EGLSLType.TessEvaluation;
                     break;
                 case "cs":
                 case "comp":
-                    mode = EShaderMode.Compute;
+                    mode = EGLSLType.Compute;
                     break;
             }
             _shader.SetSource(text, mode, false);

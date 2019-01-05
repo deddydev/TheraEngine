@@ -1,25 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Threading;
-using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Actors;
-using TheraEngine.Core.Files;
-using TheraEngine.Editor;
-using TheraEngine.GameModes;
-using TheraEngine.Input.Devices;
-using TheraEngine.Networking;
+using TheraEngine.Core.Maths;
 using TheraEngine.Timers;
-using TheraEngine.Worlds;
-using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -40,25 +25,23 @@ namespace TheraEditor.Windows.Forms
             _operations.Add(new OperationInfo(progress, cancelSource, OnOperationProgressUpdate, index, statusBarMessage));
             cancel = cancelSource;
 
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action)(() =>
-                {
-                    if (noOps)
-                        toolStripProgressBar1.Value = 0;
-                    btnCancelOp.Visible = _operations.Any(x => x != null && x.CanCancel);
-                    toolStripProgressBar1.Visible = true;
-                    toolStripStatusLabel1.Text = statusBarMessage;
-                }));
-            }
-            else
+            if (noOps)
+                Engine.RegisterTick(null, TickOperationProgressBar, null);
+
+            void Finish()
             {
                 if (noOps)
                     toolStripProgressBar1.Value = 0;
-                btnCancelOp.Visible = _operations.Any(x => x.CanCancel);
+                btnCancelOp.Visible = _operations.Any(x => x != null && x.CanCancel);
                 toolStripProgressBar1.Visible = true;
                 toolStripStatusLabel1.Text = statusBarMessage;
             }
+
+            if (InvokeRequired)
+                BeginInvoke((Action)Finish);
+            else
+                Finish();
+            
             return index;
         }
         private void OnOperationProgressUpdate(int operationIndex)
@@ -68,8 +51,6 @@ namespace TheraEditor.Windows.Forms
                 BeginInvoke((Action<int>)OnOperationProgressUpdate, operationIndex);
                 return;
             }
-
-            int maxValue = toolStripProgressBar1.Maximum;
 
             float avgProgress = 0.0f;
             int valid = 0;
@@ -91,14 +72,18 @@ namespace TheraEditor.Windows.Forms
 
             avgProgress /= valid;
 
-            int value = (int)(avgProgress * maxValue + 0.5f);
+            int maxValue = toolStripProgressBar1.Maximum;
+            int minValue = toolStripProgressBar1.Minimum;
+
+            int value = (int)Math.Round(Interp.Lerp(minValue, maxValue, avgProgress));
             TargetOperationValue = value;
-            toolStripProgressBar1.ProgressBar.Value = value;
+            //toolStripProgressBar1.ProgressBar.Value = TargetOperationValue;
         }
         private int TargetOperationValue { get; set; }
-        private void TickOperationProgressBar(float delta)
+        private void TickOperationProgressBar(object sender, FrameEventArgs args)
         {
-
+            toolStripProgressBar1.ProgressBar.Value = (int)Math.Round(Interp.Lerp(
+                toolStripProgressBar1.ProgressBar.Value, TargetOperationValue, args.Time));
         }
         public void EndOperation(int index)
         {
@@ -119,6 +104,7 @@ namespace TheraEditor.Windows.Forms
                     toolStripProgressBar1.Visible = false;
                     TargetOperationValue = 0;
                     toolStripStatusLabel1.Text = $"Operation completed successfully in {Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero)} seconds.";
+                    Engine.UnregisterTick(null, TickOperationProgressBar, null);
                     return;
                 }
             }
@@ -130,6 +116,7 @@ namespace TheraEditor.Windows.Forms
                 toolStripProgressBar1.Visible = false;
                 TargetOperationValue = 0;
                 toolStripStatusLabel1.Text = null;
+                Engine.UnregisterTick(null, TickOperationProgressBar, null);
             }
             else if (_operations.Count(x => x != null) > 1)
             {

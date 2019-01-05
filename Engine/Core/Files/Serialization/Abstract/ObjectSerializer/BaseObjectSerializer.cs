@@ -80,6 +80,24 @@ namespace TheraEngine.Core.Files.Serialization
         /// </summary>
         public abstract void SerializeTreeFromObject();
 
+        public static void ResetObjectSerializerCache(bool reloadNow)
+        {
+            if (reloadNow)
+            {
+                Type baseObjSerType = typeof(BaseObjectSerializer);
+                var typeList = Engine.FindTypes(type =>
+                   baseObjSerType.IsAssignableFrom(type) &&
+                   (type.GetCustomAttributeExt<ObjectSerializerFor>() != null));
+
+                ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
+                foreach (var type in typeList)
+                    ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectSerializerFor>(), type);
+            }
+            else
+            {
+                ObjectSerializers = null;
+            }
+        }
         /// <summary>
         /// Finds the class to use to read and write the given type.
         /// </summary>
@@ -95,17 +113,8 @@ namespace TheraEngine.Core.Files.Serialization
                 return null;
             }
             
-            Type baseObjSerType = typeof(BaseObjectSerializer);
             if (ObjectSerializers == null)
-            {
-                var typeList = Engine.FindTypes(type =>
-                    baseObjSerType.IsAssignableFrom(type) &&
-                    (type.GetCustomAttributeExt<ObjectSerializerFor>() != null), true);
-                
-                ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
-                foreach (var type in typeList)
-                    ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectSerializerFor>(), type);
-            }
+                ResetObjectSerializerCache(true);
 
             var temp = ObjectSerializers.Where(kv => (kv.Key.ObjectType?.IsAssignableFrom(objectType) ?? false));
             if (mustAllowStringSerialize)
@@ -123,7 +132,7 @@ namespace TheraEngine.Core.Files.Serialization
                     serType = types[0];
                 else
                 {
-                    var counts = types.Select(x => types.Count(v => x.IsAssignableFrom(v))).ToArray();
+                    var counts = types.Select(x => types.Count(v => x.IsSubclassOf(v))).ToArray();
                     int min = counts.Min();
                     int[] mins = counts.FindAllMatchIndices(x => x == min);
                     string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());

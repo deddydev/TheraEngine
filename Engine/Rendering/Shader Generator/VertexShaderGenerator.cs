@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering
         private bool MultiRig => UseMorphs && _useMorphMultiRig;
         private TMaterial Material { get; set; }
 
-        public GLSLShaderFile Generate(
+        public GLSLScript Generate(
             VertexShaderDesc info,
             TMaterial material,
             bool allowMeshMorphing = true, 
@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering
 
             string source = EndMain();
             //Engine.PrintLine(source);
-            return new GLSLShaderFile(EShaderMode.Vertex, source);
+            return new GLSLScript(EGLSLType.Vertex, source);
         }
         private void WriteBuffers()
         {

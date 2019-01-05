@@ -8,7 +8,6 @@ using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -111,11 +110,51 @@ namespace TheraEngine.Actors.Types
         }
         public unsafe float GetHeight(int x, int y)
         {
-            float* heightPtr = (float*)_heightData.Address;
-            int heightIndex = x + y * _dimensions.X;
-            if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(float))
-                throw new IndexOutOfRangeException();
-            return heightPtr[heightIndex];
+            switch (_heightValueType)
+            {
+                case TCollisionHeightField.EHeightValueType.Byte:
+                    {
+                        byte* heightPtr = (byte*)_heightData.Address;
+                        int heightIndex = x + y * _dimensions.X;
+                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(byte))
+                            throw new IndexOutOfRangeException();
+                        return heightPtr[heightIndex];
+                    }
+                case TCollisionHeightField.EHeightValueType.Int16:
+                    {
+                        short* heightPtr = (short*)_heightData.Address;
+                        int heightIndex = x + y * _dimensions.X;
+                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(short))
+                            throw new IndexOutOfRangeException();
+                        return heightPtr[heightIndex];
+                    }
+                case TCollisionHeightField.EHeightValueType.Int32:
+                    {
+                        int* heightPtr = (int*)_heightData.Address;
+                        int heightIndex = x + y * _dimensions.X;
+                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(int))
+                            throw new IndexOutOfRangeException();
+                        return heightPtr[heightIndex];
+                    }
+                default:
+                //case TCollisionHeightField.EHeightValueType.FixedPoint88:
+                case TCollisionHeightField.EHeightValueType.Single:
+                    {
+                        float* heightPtr = (float*)_heightData.Address;
+                        int heightIndex = x + y * _dimensions.X;
+                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(float))
+                            throw new IndexOutOfRangeException();
+                        return heightPtr[heightIndex];
+                    }
+                case TCollisionHeightField.EHeightValueType.Double:
+                    {
+                        double* heightPtr = (double*)_heightData.Address;
+                        int heightIndex = x + y * _dimensions.X;
+                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(double))
+                            throw new IndexOutOfRangeException();
+                        return (float)heightPtr[heightIndex];
+                    }
+            }
         }
         public unsafe void GenerateHeightFieldMesh(TMaterial material, int stride = 1)
         {
@@ -131,8 +170,7 @@ namespace TheraEngine.Actors.Types
             int nextX, nextY, prevX, prevY;
             int xTriStride = _dimensions.X / xInc * 2;
             int triCount = 0;
-
-            float* heightPtr = (float*)_heightData.Address;
+            
             float halfX = xDim * 0.5f, halfY = yDim * 0.5f;
             float yOffset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
             Vec3 GetPosition(int x, int y) => new Vec3(x - halfX, GetHeight(x, y) - yOffset, y - halfY);

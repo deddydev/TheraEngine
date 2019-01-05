@@ -4,11 +4,10 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Core.Files;
 
 namespace TheraEngine.Core.Files
 {
-    [TFile3rdPartyExt("txt", "rtf")]
+    [TFile3rdPartyExt("txt", "rtf", "*")]
     [TFileDef("Text File")]
     public class TextFile : TFileObject, ITextSource
     {
@@ -27,17 +26,32 @@ namespace TheraEngine.Core.Files
             }
         }
 
+        private Encoding _encoding = Encoding.Default;
+        public Encoding Encoding
+        {
+            get
+            {
+                if (_text == null && !string.IsNullOrWhiteSpace(FilePath))
+                    _encoding = GetEncoding(FilePath);
+                return _encoding;
+            }
+            set
+            {
+                _encoding = value;
+            }
+        }
+
         protected void OnTextChanged() => TextChanged?.Invoke();
 
         public TextFile()
         {
             FilePath = null;
-            Text = "";
+            _text = "";
         }
         public TextFile(string path)
         {
             FilePath = path;
-            Text = null;
+            _text = null;
         }
 
         public static TextFile FromText(string text)
@@ -51,28 +65,28 @@ namespace TheraEngine.Core.Files
         public override void ManualRead3rdParty(string filePath)
         {
             FilePath = filePath;
-            Text = LoadText();
+            //Text = LoadText();
         }
         public override void ManualWrite3rdParty(string filePath)
         {
-            File.WriteAllText(filePath, Text);
+            File.WriteAllText(filePath, Text, Encoding);
         }
         public string LoadText()
         {
             _text = null;
             if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
-                _text = File.ReadAllText(FilePath, GetEncoding(FilePath));
+                _text = File.ReadAllText(FilePath, Encoding = GetEncoding(FilePath));
             return _text;
         }
         public void UnloadText()
         {
             _text = null;
         }
-        public async Task<string> LoadAsync()
+        public async Task<string> LoadTextAsync()
         {
             _text = null;
             if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
-                _text = await Task.Run(() => File.ReadAllText(FilePath, GetEncoding(FilePath)));
+                _text = await Task.Run(() => File.ReadAllText(FilePath, Encoding = GetEncoding(FilePath)));
             return _text;
         }
 

@@ -58,7 +58,7 @@ namespace TheraEngine.Rendering
 
         public bool IsValid { get; private set; } = false;
 
-        public int AddShader(GLSLShaderFile shader)
+        public int AddShader(GLSLScript shader)
         {
             if (shader == null)
                 return -1;
@@ -88,18 +88,18 @@ namespace TheraEngine.Rendering
             Destroy();
         }
 
-        public void SetShaders(params GLSLShaderFile[] shaders)
+        public void SetShaders(params GLSLScript[] shaders)
             => Shaders = shaders.Select(x => new RenderShader(x)).ToList();
-        public void SetShaders(IEnumerable<GLSLShaderFile> shaders)
+        public void SetShaders(IEnumerable<GLSLScript> shaders)
             => Shaders = shaders.Select(x => new RenderShader(x)).ToList();
         public void SetShaders(IEnumerable<RenderShader> shaders)
             => Shaders = shaders.ToList();
         public void SetShaders(params RenderShader[] shaders)
             => Shaders = shaders.ToList();
 
-        public RenderProgram(params GLSLShaderFile[] shaders)
+        public RenderProgram(params GLSLScript[] shaders)
             : base(EObjectType.Program) => SetShaders(shaders);
-        public RenderProgram(IEnumerable<GLSLShaderFile> shaders)
+        public RenderProgram(IEnumerable<GLSLScript> shaders)
             : base(EObjectType.Program) => SetShaders(shaders);
         public RenderProgram(IEnumerable<RenderShader> shaders)
             : base(EObjectType.Program) => SetShaders(shaders);

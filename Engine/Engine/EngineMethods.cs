@@ -52,7 +52,7 @@ namespace TheraEngine
 
         /// <summary>
         /// Call this in the program's main method run a game in the engine.
-        /// Will create a render form,  initialize the engine, and start the game, so no other methods are needed.
+        /// Will create a render form, initialize the engine, and start the game, so no other methods are needed.
         /// </summary>
         /// <param name="game">The game to play.</param>
         public static void Run(TGame game)
@@ -62,29 +62,6 @@ namespace TheraEngine
             Application.Run(new RenderForm(game));
         }
 
-        public static string EngineWorldsPath(string fileName)
-            => Path.Combine(Settings.WorldsFolder ?? string.Empty, fileName);
-        public static async Task<TWorld> LoadEngineWorldAsync(string fileName)
-            => await TFileObject.LoadAsync<TWorld>(EngineWorldsPath(fileName));
-
-        public static string EngineShadersPath(string fileName)
-            => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
-        public static GLSLShaderFile LoadEngineShader(string fileName, EShaderMode mode)
-            => new GLSLShaderFile(mode, new TextFile(EngineShadersPath(fileName)));
-
-        public static string EngineFontsPath(string fileName)
-            => Path.Combine(Settings.FontsFolder ?? string.Empty, fileName);
-
-        public static string EngineScriptsPath(string fileName)
-            => Path.Combine(Settings.ScriptsFolder ?? string.Empty, fileName);
-        public static TextFile LoadEngineScript(string fileName)
-            => new TextFile(EngineScriptsPath(fileName));
-
-        public static async Task<TextureFile2D> LoadEngineTexture2DAsync(string fileName)
-            => await TFileObject.LoadAsync<TextureFile2D>(EngineTexturesPath(fileName));
-        public static string EngineTexturesPath(string fileName)
-            => Path.Combine(Settings.TexturesFolder ?? string.Empty, fileName);
-        
         /// <summary>
         /// Call this to shut down the engine, deallocate all resources, and close the application.
         /// </summary>
@@ -117,23 +94,30 @@ namespace TheraEngine
         /// <param name="matchPredicate">What determines if the type is a match or not.</param>
         /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
         /// <returns>All types that match the predicate.</returns>
-        public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, bool includeEngineAssembly = true, params Assembly[] assemblies)
+        public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, params Assembly[] assemblies)
         {
             IEnumerable<Assembly> search;
 
             if (assemblies == null || assemblies.Length == 0)
-                search = EnumAppDomains().SelectMany(x => x.GetAssemblies());
+            {
+                PrintLine("FindTypes; returning assemblies from domains:");
+                search = EnumAppDomains().SelectMany(x =>
+                {
+                    PrintLine(x.FriendlyName);
+                    return x.GetAssemblies();
+                });
+            }
             else
                 search = assemblies;
 
             search = search.Where(x => !x.IsDynamic);
 
-            if (includeEngineAssembly)
-            {
-                Assembly engine = Assembly.GetExecutingAssembly();
-                if (!search.Contains(engine))
-                    search = search.Append(engine);
-            }
+            //if (includeEngineAssembly)
+            //{
+            //    Assembly engine = Assembly.GetExecutingAssembly();
+            //    if (!search.Contains(engine))
+            //        search = search.Append(engine);
+            //}
 
             var allTypes = search.SelectMany(x => x.GetExportedTypes());
 
@@ -681,47 +665,6 @@ namespace TheraEngine
         }
 
         /// <summary>
-        /// Makes path relative to the application exe and returns only the relative part of the path.
-        /// </summary>
-        //public static string ModifyPath(string path)
-        //{
-        //    if (string.IsNullOrEmpty(path))
-        //        return path;
-        //    string startupPath = Application.StartupPath;
-        //    return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
-        //}
-
-        //internal static bool AddLocalFileInstance<T>(string path, T file) where T : class, IFileObject
-        //{
-        //    if (string.IsNullOrEmpty(path) || file == null)
-        //        return false;
-
-        //    LocalFileInstances.AddOrUpdate(path, new List<IFileObject>() { file }, (key, oldValue) =>
-        //    {
-        //        oldValue.Add(file);
-        //        return oldValue;
-        //    });
-            
-        //    return true;
-        //}
-        internal static bool AddGlobalFileInstance<T>(GlobalFileRef<T> gref) where T : class, IFileObject
-        {
-            if (string.IsNullOrEmpty(gref.Path.Absolute) || !gref.IsLoaded)
-                return false;
-
-            GlobalFileInstances.AddOrUpdate(gref.Path.Absolute, gref, (key, oldValue) => gref);
-            
-            return true;
-        }
-        internal static bool RemoveGlobalFileInstance(string absRefPath)
-        {
-            if (string.IsNullOrEmpty(absRefPath))
-                return false;
-
-            return GlobalFileInstances.TryRemove(absRefPath, out IGlobalFileRef value);
-        }
-
-        /// <summary>
         /// Retrieves the world viewport with the same index.
         /// </summary>
         public static Viewport GetViewport(LocalPlayerIndex index)
@@ -770,47 +713,6 @@ namespace TheraEngine
                 previous?.Unload();
         }
 
-        /// <summary>
-        /// Called when the input awaiter discovers a new input device.
-        /// </summary>
-        /// <param name="device">The device that was found.</param>
-        internal static void FoundInput(InputDevice device)
-        {
-            if (device is BaseKeyboard || device is BaseMouse)
-            {
-                if (LocalPlayers.Count == 0)
-                {
-                    LocalPlayerIndex index = LocalPlayerIndex.One;
-                    if (_possessionQueues.ContainsKey(index))
-                    {
-                        //Transfer possession queue to the controller itself
-                        ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
-                        _possessionQueues.Remove(index);
-                    }
-                    else
-                        ActiveGameMode?.CreateLocalController(index);
-                }
-                else
-                    LocalPlayers[0].Input.UpdateDevices();
-            }
-            else
-            {
-                if (device.Index >= LocalPlayers.Count)
-                {
-                    LocalPlayerIndex index = (LocalPlayerIndex)LocalPlayers.Count;
-                    if (_possessionQueues.ContainsKey(index))
-                    {
-                        //Transfer possession queue to the controller itself
-                        ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
-                        _possessionQueues.Remove(index);
-                    }
-                    else
-                        ActiveGameMode?.CreateLocalController(index);
-                }
-                else
-                    LocalPlayers[device.Index].Input.UpdateDevices();
-            }
-        }
 
         public static IEnumerable<AppDomain> EnumAppDomains()
         {
@@ -842,13 +744,87 @@ namespace TheraEngine
                 }
             }
         }
-
+        
         public static DelBeginOperation BeginOperation;
         public static DelEndOperation EndOperation;
 
         public delegate int DelBeginOperation(string operationMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null);
         public delegate void DelEndOperation(int operationId);
+        
+        /// <summary>
+        /// Static class for accessing engine files.
+        /// </summary>
+        public static class Files
+        {
+            public static string WorldPath(string fileName)
+                => Path.Combine(Settings.WorldsFolder ?? string.Empty, fileName);
+            public static async Task<TWorld> LoadEngineWorldAsync(string fileName)
+                => await TFileObject.LoadAsync<TWorld>(WorldPath(fileName));
 
+            public static string ShaderPath(string fileName)
+                => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);
+            public static GLSLScript LoadEngineShader(string fileName, EGLSLType mode)
+                => new GLSLScript(mode, new TextFile(ShaderPath(fileName)));
+
+            public static string FontPath(string fileName)
+                => Path.Combine(Settings.FontsFolder ?? string.Empty, fileName);
+
+            public static string ScriptPath(string fileName)
+                => Path.Combine(Settings.ScriptsFolder ?? string.Empty, fileName);
+            public static TextFile LoadEngineScript(string fileName)
+                => LoadEngineScript<TextFile>(fileName);
+            public static T LoadEngineScript<T>(string fileName) where T : TextFile, new()
+            {
+                T value = new T { FilePath = ScriptPath(fileName) };
+                return value;
+            }
+
+            public static async Task<TextureFile2D> LoadEngineTexture2DAsync(string fileName)
+                => await TFileObject.LoadAsync<TextureFile2D>(TexturePath(fileName));
+            public static string TexturePath(string fileName)
+                => Path.Combine(Settings.TexturesFolder ?? string.Empty, fileName);
+
+            /// <summary>
+            /// Makes path relative to the application exe and returns only the relative part of the path.
+            /// </summary>
+            //public static string ModifyPath(string path)
+            //{
+            //    if (string.IsNullOrEmpty(path))
+            //        return path;
+            //    string startupPath = Application.StartupPath;
+            //    return Path.GetFullPath(path).MakePathRelativeTo(startupPath).Substring(startupPath.Length);
+            //}
+
+            //internal static bool AddLocalFileInstance<T>(string path, T file) where T : class, IFileObject
+            //{
+            //    if (string.IsNullOrEmpty(path) || file == null)
+            //        return false;
+
+            //    LocalFileInstances.AddOrUpdate(path, new List<IFileObject>() { file }, (key, oldValue) =>
+            //    {
+            //        oldValue.Add(file);
+            //        return oldValue;
+            //    });
+
+            //    return true;
+            //}
+            internal static bool AddGlobalFileInstance<T>(GlobalFileRef<T> gref) where T : class, IFileObject
+            {
+                if (string.IsNullOrEmpty(gref.Path.Absolute) || !gref.IsLoaded)
+                    return false;
+
+                GlobalFileInstances.AddOrUpdate(gref.Path.Absolute, gref, (key, oldValue) => gref);
+
+                return true;
+            }
+            internal static bool RemoveGlobalFileInstance(string absRefPath)
+            {
+                if (string.IsNullOrEmpty(absRefPath))
+                    return false;
+
+                return GlobalFileInstances.TryRemove(absRefPath, out IGlobalFileRef value);
+            }
+        }
         /// <summary>
         /// Interface for accessing inputs.
         /// </summary>
@@ -895,6 +871,48 @@ namespace TheraEngine
                 => MouseButton(localPlayerIndex, button, EButtonInputType.Held);
             public static bool MouseButtonDoublePressed(int localPlayerIndex, EMouseButton button)
                 => MouseButton(localPlayerIndex, button, EButtonInputType.DoublePressed);
+
+            /// <summary>
+            /// Called when the input awaiter discovers a new input device.
+            /// </summary>
+            /// <param name="device">The device that was found.</param>
+            internal static void FoundInput(InputDevice device)
+            {
+                if (device is BaseKeyboard || device is BaseMouse)
+                {
+                    if (LocalPlayers.Count == 0)
+                    {
+                        LocalPlayerIndex index = LocalPlayerIndex.One;
+                        if (_possessionQueues.ContainsKey(index))
+                        {
+                            //Transfer possession queue to the controller itself
+                            ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
+                            _possessionQueues.Remove(index);
+                        }
+                        else
+                            ActiveGameMode?.CreateLocalController(index);
+                    }
+                    else
+                        LocalPlayers[0].Input.UpdateDevices();
+                }
+                else
+                {
+                    if (device.Index >= LocalPlayers.Count)
+                    {
+                        LocalPlayerIndex index = (LocalPlayerIndex)LocalPlayers.Count;
+                        if (_possessionQueues.ContainsKey(index))
+                        {
+                            //Transfer possession queue to the controller itself
+                            ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
+                            _possessionQueues.Remove(index);
+                        }
+                        else
+                            ActiveGameMode?.CreateLocalController(index);
+                    }
+                    else
+                        LocalPlayers[device.Index].Input.UpdateDevices();
+                }
+            }
         }
     }
 }

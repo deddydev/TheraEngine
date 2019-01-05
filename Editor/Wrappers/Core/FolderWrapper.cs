@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
@@ -45,12 +46,21 @@ namespace TheraEditor.Wrappers
 
             LoadFileTypes();
         }
-        private static void LoadFileTypes()
+        public static void LoadFileTypes()
         {
+            if (_menu.InvokeRequired)
+            {
+                _menu.Invoke((Action)LoadFileTypes);
+                return;
+            }
+
             ToolStripDropDownItem importDropdown = (ToolStripDropDownItem)_menu.Items[3];
             ToolStripDropDownItem newDropdown = (ToolStripDropDownItem)_menu.Items[4];
 
-            ToolStripMenuItem newCodeItem = new ToolStripMenuItem("Code");
+            importDropdown.DropDownItems.Clear();
+            newDropdown.DropDownItems.Clear();
+
+            ToolStripMenuItem newCodeItem = new ToolStripMenuItem("C#");
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Class", null, NewClassAction));
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Struct", null, NewStructAction));
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Interface", null, NewInterfaceAction));
@@ -234,13 +244,11 @@ namespace TheraEditor.Wrappers
         #region File Type Loading
 
         private static bool IsFileObject(Type t)
-        {
-            return 
-                !t.IsAbstract && 
+            =>  !t.IsAbstract && 
                 !t.IsInterface &&
+                t.GetConstructors().Where(x => x.IsPublic).Count() > 0 &&
                 t.IsSubclassOf(typeof(TFileObject)) &&
                 t.GetCustomAttributeExt<TFileExt>() != null;
-        }
 
         private static bool Is3rdPartyImportable(Type t)
         {
@@ -253,50 +261,50 @@ namespace TheraEditor.Wrappers
 
         private static async void OnImportClickAsync(object sender, EventArgs e)
         {
-            if (sender is ToolStripDropDownButton button)
+            if (!(sender is ToolStripDropDownButton button))
+                return;
+            
+            Type fileType = button.Tag as Type;
+            if (fileType.ContainsGenericParameters)
             {
-                Type fileType = button.Tag as Type;
-                if (fileType.ContainsGenericParameters)
+                using (GenericsSelector gs = new GenericsSelector(fileType))
                 {
-                    using (GenericsSelector gs = new GenericsSelector(fileType))
-                    {
-                        if (gs.ShowDialog(button.Owner) == DialogResult.OK)
-                            fileType = gs.FinalClassType;
-                        else
-                            return;
-                    }
+                    if (gs.ShowDialog(button.Owner) == DialogResult.OK)
+                        fileType = gs.FinalClassType;
+                    else
+                        return;
                 }
-                using (OpenFileDialog ofd = new OpenFileDialog()
+            }
+            using (OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = TFileObject.GetFilter(fileType, true, true, false),
+                Title = "Import File"
+            })
+            {
+                DialogResult r = ofd.ShowDialog(button.Owner);
+                if (r == DialogResult.OK)
                 {
-                    Filter = TFileObject.GetFilter(fileType, true, true, false),
-                    Title = "Import File"
-                })
-                {
-                    DialogResult r = ofd.ShowDialog(button.Owner);
-                    if (r == DialogResult.OK)
+                    string name = Path.GetFileNameWithoutExtension(ofd.FileName);
+                    ResourceTree tree = Editor.Instance.ContentTree;
+                    string path = ofd.FileName;
+                        
+                    int op = Editor.Instance.BeginOperation($"Importing '{path}'...", out Progress<float> progress, out CancellationTokenSource cancel);
+                    object file = await TFileObject.LoadAsync(fileType, path, progress, cancel.Token);
+                    Editor.Instance.EndOperation(op);
+
+                    if (file == null)
+                        return;
+                        
+                    FolderWrapper folderNode = GetInstance<FolderWrapper>();
+                    string dir = folderNode.FilePath as string;
+                        
+                    if (TSerializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
                     {
-                        string name = Path.GetFileNameWithoutExtension(ofd.FileName);
-                        ResourceTree tree = Editor.Instance.ContentTree;
-                        string path = ofd.FileName;
-                        
-                        int op = Editor.Instance.BeginOperation($"Importing '{path}'...", out Progress<float> progress, out CancellationTokenSource cancel);
-                        object file = await TFileObject.LoadAsync(fileType, path, progress, cancel.Token);
-                        Editor.Instance.EndOperation(op);
+                        TSerializer serializer = new TSerializer();
 
-                        if (file == null)
-                            return;
-                        
-                        FolderWrapper folderNode = GetInstance<FolderWrapper>();
-                        string dir = folderNode.FilePath as string;
-                        
-                        if (TSerializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
-                        {
-                            TSerializer serializer = new TSerializer();
-
-                            tree.BeginFileSaveWithProgress(filePath, $"Saving...", out progress, out cancel);
-                            await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
-                            tree.EndFileSave(filePath);
-                        }
+                        tree.BeginFileSaveWithProgress(filePath, $"Saving...", out progress, out cancel);
+                        await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
+                        tree.EndFileSave(filePath);
                     }
                 }
             }
@@ -325,16 +333,20 @@ namespace TheraEditor.Wrappers
         }
         private async void NewCodeFile(ECodeFileType type)
         {
-            string Namespace = Editor.Instance.Project.RootNamespace;
-            if (string.IsNullOrWhiteSpace(Namespace))
-                Namespace = Editor.Instance.Project.Name;
+            string ns = Editor.Instance.Project.RootNamespace;
             string ClassName = "NewClass";
 
-            TextFile file = Engine.LoadEngineScript(type.ToString() + "_Template.cs");
-            string text = string.Format(file.Text, Namespace, ClassName, ": " + nameof(TObject));
+            TextFile file = Engine.Files.LoadEngineScript(type.ToString() + "_Template.cs");
+            string text = string.Format(file.Text, ns, ClassName, ": " + nameof(TObject));
             text = text.Replace("@", "{").Replace("#", "}");
             CSharpScript code = CSharpScript.FromText(text);
-            await code.Export3rdPartyAsync(GetFolderPath(), "NewCodeFile", "cs", null, CancellationToken.None);
+            string dir = GetFolderPath();
+
+            string name = "NewCodeFile";
+            string path = Path.Combine(dir, name + ".cs");
+            Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving script...", out Progress<float> progress, out CancellationTokenSource cancel);
+            await code.Export3rdPartyAsync(dir, "NewCodeFile", "cs", progress, cancel.Token);
+            Editor.Instance.ContentTree.EndFileSave(path);
         }
         #endregion
 

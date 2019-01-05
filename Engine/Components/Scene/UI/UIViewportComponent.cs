@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.UI
                         EPixelFormat.Rgba, EPixelType.HalfFloat,
                         EFramebufferAttachment.ColorAttachment0),
                 },
-                Engine.LoadEngineShader("ViewportFBO.fs", EShaderMode.Fragment));
+                Engine.Files.LoadEngineShader("ViewportFBO.fs", EGLSLType.Fragment));
         }
 
         private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)

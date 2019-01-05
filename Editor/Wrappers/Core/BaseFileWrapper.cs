@@ -172,21 +172,11 @@ namespace TheraEditor.Wrappers
         }
         public virtual async void EditResourceRaw()
         {
-            DockableTextEditor m = new DockableTextEditor();
-            m.Show(Editor.Instance.DockPanel, DockState.Document);
             TextFile file = await TFileObject.LoadAsync<TextFile>(FilePath);
-            m.InitText(file.Text, Path.GetFileName(FilePath), ETextEditorMode.Text);
-            m.Tag = file;
-            m.Saved += M_Saved;
+            if (file != null)
+                DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, file);
         }
-
-        private void M_Saved(DockableTextEditor obj)
-        {
-            TextFile file = obj.Tag as TextFile;
-            file.Text = obj.GetText();
-            file.Export();
-        }
-
+        
         internal protected override void OnExpand()
         {
 

@@ -41,9 +41,9 @@ namespace TheraEditor.Wrappers
         
         public SolutionWrapper() : base(_menu) { }
 
-        public void Compile()
+        public async void Compile()
         {
-            Editor.Instance.Project.Compile("Debug", "x86");
+            await Editor.Instance.Project.CompileAsync();
         }
     }
 }

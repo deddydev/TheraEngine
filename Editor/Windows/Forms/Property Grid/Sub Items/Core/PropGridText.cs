@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection.Attributes;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -91,19 +92,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnEdit_Click(object sender, EventArgs e)
         {
-            DockableTextEditor textEditor = new DockableTextEditor();
             DockContent form = FindForm() as DockContent;
             DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
-            textEditor.Show(p, DockState.Document);
-            textEditor.InitText(GetValue()?.ToString() ?? string.Empty, null);
-            textEditor.Saved += TextEditor_Saved;
+            TextFile file = GetValue()?.ToString() ?? string.Empty;
+            DockableTextEditor.ShowNew(p, DockState.Document, file, TextEditor_Saved);
         }
-
         private void TextEditor_Saved(DockableTextEditor obj)
-        {
-            UpdateValue(obj.GetText(), true);
-        }
-
+            => UpdateValue(obj.GetText(), true);
+        
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             string path = GetValue()?.ToString() ?? string.Empty;
@@ -118,9 +114,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     ofd.InitialDirectory = Path.GetDirectoryName(path);
 
                 if (ofd.ShowDialog(this) == DialogResult.OK)
-                {
                     UpdateValue(string.Join(Environment.NewLine, ofd.FileNames), true);
-                }
             }
         }
     }

@@ -158,7 +158,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void SetShaderMode(EShaderMode type)
+        public override void SetShaderMode(EGLSLType type)
         {
             throw new NotImplementedException();
         }

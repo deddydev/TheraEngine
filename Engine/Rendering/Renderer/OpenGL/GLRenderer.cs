@@ -225,26 +225,26 @@ namespace TheraEngine.Rendering.OpenGL
         #endregion
 
         #region Shaders
-        public override void SetShaderMode(EShaderMode type)
+        public override void SetShaderMode(EGLSLType type)
         {
             switch (type)
             {
-                case EShaderMode.Fragment:
+                case EGLSLType.Fragment:
                     _currentShaderMode = ShaderType.FragmentShader;
                     break;
-                case EShaderMode.Vertex:
+                case EGLSLType.Vertex:
                     _currentShaderMode = ShaderType.VertexShader;
                     break;
-                case EShaderMode.Geometry:
+                case EGLSLType.Geometry:
                     _currentShaderMode = ShaderType.GeometryShader;
                     break;
-                case EShaderMode.TessControl:
+                case EGLSLType.TessControl:
                     _currentShaderMode = ShaderType.TessControlShader;
                     break;
-                case EShaderMode.TessEvaluation:
+                case EGLSLType.TessEvaluation:
                     _currentShaderMode = ShaderType.TessEvaluationShader;
                     break;
-                case EShaderMode.Compute:
+                case EGLSLType.Compute:
                     _currentShaderMode = ShaderType.ComputeShader;
                     break;
             }

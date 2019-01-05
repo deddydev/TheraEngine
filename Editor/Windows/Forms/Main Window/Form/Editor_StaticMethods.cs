@@ -2,19 +2,24 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using TheraEditor.Windows.Forms.PropertyGrid;
+using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Input;
 
 namespace TheraEditor.Windows.Forms
 {
     public partial class Editor : TheraForm, IMappableShortcutControl
     {
-        static Editor()
+        public static void ResetTypeCaches()
         {
-
+            TheraPropertyGrid.ClearEditorTypes(true);
+            FolderWrapper.LoadFileTypes();
+            BaseObjectSerializer.ResetObjectSerializerCache(true);
+            TFileObject.ClearThirdPartyTypeCache(true);
         }
-
         /// <summary>
         /// This will possess and unpossess the necessary viewports and pawns corresponding to the given editor control.
         /// </summary>

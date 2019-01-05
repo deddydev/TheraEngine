@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using TheraEngine.ThirdParty;
 
 namespace TheraEngine.Core.Files.XML
 {
@@ -37,7 +36,7 @@ namespace TheraEngine.Core.Files.XML
             static ChildInfo()
             {
                 Type elemType = typeof(IElement);
-                ElementTypes = Engine.FindTypes((Type t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<ElementName>() != null, true).ToArray();
+                ElementTypes = Engine.FindTypes((Type t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<ElementName>() != null).ToArray();
             }
             public ChildInfo(ElementChild data)
             {

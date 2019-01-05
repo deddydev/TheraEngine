@@ -361,7 +361,7 @@ namespace TheraEngine.ThirdParty
 
             public static PropertyGroup Create(string condition, params (string elementName, string content, string condition)[] properties)
             {
-                var grp = new PropertyGroup();
+                var grp = new PropertyGroup { Condition = condition };
                 grp.AddElements(properties.Select(x => (Property)x).ToArray());
                 return grp;
             }

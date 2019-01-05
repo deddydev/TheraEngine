@@ -90,7 +90,7 @@ namespace TheraEditor.Windows.Forms
                     _imgList.Images.Add(nameof(Resources.LockedFolder), Resources.GenericFile);
 
                     Type fileWrapper = typeof(BaseFileWrapper);
-                    var types = Engine.FindTypes(t => fileWrapper.IsAssignableFrom(t), false, Assembly.GetExecutingAssembly());
+                    var types = Engine.FindTypes(t => fileWrapper.IsAssignableFrom(t), Assembly.GetExecutingAssembly());
                     foreach (Type t in types)
                     {
                         var wrapper = t.GetCustomAttribute<NodeWrapperAttribute>();
@@ -407,8 +407,7 @@ namespace TheraEditor.Windows.Forms
                 destPath = Path.GetDirectoryName(destPath);
             if (!destPath.EndsWith("\\"))
                 destPath += "\\";
-
-            //WatchProjectDirectory = false;
+            
             foreach (string pastedPath in pastedPaths)
             {
                 bool? isDir = pastedPath.IsExistingDirectoryPath();
@@ -452,42 +451,25 @@ namespace TheraEditor.Windows.Forms
                 }
 
                 string tempDestPath = destPath + name;
-
-                //bool caseChange = string.Equals(pastedPath, destPath, StringComparison.InvariantCultureIgnoreCase) && !sameLocation;
-
+                
                 if (isDir.Value)
                 {
                     if (!Directory.Exists(tempDestPath))
                         Directory.CreateDirectory(tempDestPath);
+
                     if (cut)
-                    {
                         FileSystem.MoveDirectory(pastedPath, tempDestPath, UIOption.AllDialogs, UICancelOption.DoNothing);
-                    }
                     else
-                    {
                         FileSystem.CopyDirectory(pastedPath, tempDestPath, UIOption.AllDialogs, UICancelOption.DoNothing);
-                    }
                 }
                 else
                 {
                     if (cut)
-                    {
                         FileSystem.MoveFile(pastedPath, tempDestPath, UIOption.AllDialogs, UICancelOption.DoNothing);
-                    }
                     else
-                    {
                         FileSystem.CopyFile(pastedPath, tempDestPath, UIOption.AllDialogs, UICancelOption.DoNothing);
-                    }
-                    //FindOrCreatePath(destPath);
                 }
             }
-            //WatchProjectDirectory = true;
-
-            //BaseWrapper node = FindOrCreatePath(destPath);
-            //if (node != null && node.IsPopulated)
-            //{
-
-            //}
         }
         #endregion
 
@@ -510,60 +492,70 @@ namespace TheraEditor.Windows.Forms
         }
         public BaseWrapper FindOrCreatePath(string path)
         {
-            BaseWrapper current = Nodes[0] as BaseWrapper;
-            string projectFilePath = current.FilePath;
-            string currentPath = projectFilePath;
-            string relativePath = path.MakeAbsolutePathRelativeTo(projectFilePath);
-            string[] pathHierarchy = relativePath.Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string name in pathHierarchy)
+            BaseWrapper current;
+            try
             {
-                currentPath += Path.DirectorySeparatorChar + name;
-                if (name == "..")
+                current = Nodes[0] as BaseWrapper;
+                string projectFilePath = current.FilePath;
+                string currentPath = projectFilePath;
+                string relativePath = path.MakeAbsolutePathRelativeTo(projectFilePath);
+                string[] pathHierarchy = relativePath.Split(new char[] { Path.DirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string name in pathHierarchy)
                 {
-                    if (current != null)
-                        current = current.Parent;
-                    else
-                        throw new Exception("Not a valid path.");
-                }
-                else
-                {
-                    bool found = false;
-                    if (!current.IsPopulated)
+                    currentPath += Path.DirectorySeparatorChar + name;
+                    if (name == "..")
                     {
-                        //The rest of the path will be populated when the user expands this node.
-                        //Just end now instead of expanding and continuing
-                        //current.Expand();
-                        //bool? isDir = currentPath.IsDirectory();
-                        if (current is FolderWrapper && current.Nodes.Count == 0 && Directory.GetFileSystemEntries(current.FilePath).Length > 0)
-                            current.Nodes.Add("...");
-                        break;
+                        if (current != null)
+                            current = current.Parent;
+                        else
+                            throw new Exception("Not a valid path.");
                     }
-
-                    foreach (BaseWrapper searchNode in current.Nodes)
-                        if (searchNode.Text == name)
+                    else
+                    {
+                        bool found = false;
+                        if (!current.IsPopulated)
                         {
-                            current = searchNode;
-                            found = true;
+                            //The rest of the path will be populated when the user expands this node.
+                            //Just end now instead of expanding and continuing
+                            //current.Expand();
+                            //bool? isDir = currentPath.IsDirectory();
+                            if (current is FolderWrapper && current.Nodes.Count == 0 && Directory.GetFileSystemEntries(current.FilePath).Length > 0)
+                                current.Nodes.Add("...");
                             break;
                         }
-                    if (found)
-                        continue;
 
-                    //Folder or file not found. Add it.
-                    BaseWrapper n = BaseWrapper.Wrap(currentPath);
-                    if (n == null)
-                    {
-                        Engine.LogWarning("Could not wrap path {0}", currentPath);
-                        return null;
+                        foreach (BaseWrapper searchNode in current.Nodes)
+                            if (searchNode.Text == name)
+                            {
+                                current = searchNode;
+                                found = true;
+                                break;
+                            }
+
+                        if (found)
+                            continue;
+
+                        //Folder or file not found. Add it.
+                        BaseWrapper n = BaseWrapper.Wrap(currentPath);
+                        if (n == null)
+                        {
+                            Engine.LogWarning("Could not wrap path {0}", currentPath);
+                            return null;
+                        }
+                        if (!(n is FolderWrapper))
+                        {
+                            string key = GetOrAddIcon(currentPath);
+                            n.ImageKey = n.SelectedImageKey = n.StateImageKey = key;
+                        }
+                        current.Nodes.Add(n);
+                        current = n;
                     }
-                    if (!(n is FolderWrapper))
-                    {
-                        string key = GetOrAddIcon(currentPath);
-                        n.ImageKey = n.SelectedImageKey = n.StateImageKey = key;
-                    }
-                    current.Nodes.Add(n);
-                    current = n;
                 }
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+                current = null;
             }
             return current;
         }

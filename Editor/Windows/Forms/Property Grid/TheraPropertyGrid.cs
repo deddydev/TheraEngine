@@ -55,6 +55,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private const string MethodName = "Methods";
         private const string EventName = "Events";
 
+        private List<object> _prevObjectChain = new List<object>();
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
         private bool _updating;
         private IFileObject _targetFileObject;
@@ -100,7 +101,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
                     PopulateLogicComponentList(actor?.LogicComponents);
 
-                    lblProperties.Visible = ShowPropertiesHeader;
+                    lblProperties.Visible = actor != null && ShowPropertiesHeader;
                     CalcSceneCompTreeHeight();
                 }
                 else
@@ -778,8 +779,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnMoveDownLogicComp_Click(object sender, EventArgs e)
         {
-            IActor a = TargetFileObject as IActor;
-            if (a == null || a.LogicComponents.Count <= 1)
+            if (!(TargetFileObject is IActor a) || a.LogicComponents.Count <= 1)
                 return;
             int i = lstLogicComps.SelectedIndex;
             if (i == 0 || !a.LogicComponents.IndexInRange(i))
@@ -809,8 +809,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAddLogicComp_Click(object sender, EventArgs e)
         {
-            IActor a = TargetFileObject as IActor;
-            if (a == null)
+            if (!(TargetFileObject is IActor a))
                 return;
             LogicComponent comp = Editor.UserCreateInstanceOf<LogicComponent>(true);
             if (comp == null)
@@ -832,9 +831,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnRemoveLogicComp_Click(object sender, EventArgs e)
         {
-            IActor a = TargetFileObject as IActor;
             int i = lstLogicComps.SelectedIndex;
-            if (a == null || a.LogicComponents.Count == 0 || !a.LogicComponents.IndexInRange(i))
+            if (!(TargetFileObject is IActor a) || a.LogicComponents.Count == 0 || !a.LogicComponents.IndexInRange(i))
                 return;
             a.LogicComponents.RemoveAt(i);
             if (a.LogicComponents.Count == 0)
@@ -877,21 +875,52 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //}
 
         #region Static
+        
+        internal static Dictionary<Type, Type> _inPlaceEditorTypes;
+        internal static Dictionary<Type, Type> _fullEditorTypes;
+
         /// <summary>
         /// Object type editors that appear within the property grid.
         /// </summary>
-        public static Dictionary<Type, Type> InPlaceEditorTypes = new Dictionary<Type, Type>();
+        public static Dictionary<Type, Type> InPlaceEditorTypes
+        {
+            get
+            {
+                if (_inPlaceEditorTypes == null)
+                    LoadEditorTypes();
+
+                return _inPlaceEditorTypes;
+            }
+        }
         /// <summary>
         /// Object type editors that have their own dedicated window for the type.
         /// </summary>
-        public static Dictionary<Type, Type> FullEditorTypes = new Dictionary<Type, Type>();
-
-        static TheraPropertyGrid()
+        public static Dictionary<Type, Type> FullEditorTypes
+        {
+            get
+            {
+                if (_fullEditorTypes == null)
+                    LoadEditorTypes();
+                
+                return _fullEditorTypes;
+            }
+        }
+        internal static void ClearEditorTypes(bool reloadNow = false)
+        {
+            _inPlaceEditorTypes = null;
+            _fullEditorTypes = null;
+            if (reloadNow)
+                LoadEditorTypes();
+        }
+        private static void LoadEditorTypes()
         {
             if (Engine.DesignMode)
                 return;
 
-            var propControls = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)), false, Assembly.GetExecutingAssembly());
+            _inPlaceEditorTypes = new Dictionary<Type, Type>();
+            _fullEditorTypes = new Dictionary<Type, Type>();
+
+            var propControls = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)), Assembly.GetExecutingAssembly());
             foreach (var propControlType in propControls)
             {
                 var attribs = propControlType.GetCustomAttributesExt<PropGridControlForAttribute>();
@@ -900,21 +929,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     PropGridControlForAttribute a = attribs[0];
                     foreach (Type varType in a.Types)
                     {
-                        if (InPlaceEditorTypes.ContainsKey(varType))
+                        if (_inPlaceEditorTypes.ContainsKey(varType))
                             throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
-                        InPlaceEditorTypes.Add(varType, propControlType);
+                        _inPlaceEditorTypes.Add(varType, propControlType);
                     }
                 }
             }
-            var fullEditors = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null, false, Assembly.GetExecutingAssembly());
+            var fullEditors = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.GetCustomAttribute<EditorForAttribute>() != null, Assembly.GetExecutingAssembly());
             foreach (var editorType in fullEditors)
             {
                 var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
                 foreach (Type varType in attrib.DataTypes)
                 {
-                    if (FullEditorTypes.ContainsKey(varType))
+                    if (_fullEditorTypes.ContainsKey(varType))
                         throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
-                    FullEditorTypes.Add(varType, editorType);
+                    _fullEditorTypes.Add(varType, editorType);
                 }
             }
         }

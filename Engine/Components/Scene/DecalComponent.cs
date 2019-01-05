@@ -96,7 +96,7 @@ namespace TheraEngine.Components.Scene
                 null,
                 new TexRef2D("DecalTexture", texture)
             };
-            GLSLShaderFile decalShader = Engine.LoadEngineShader(Path.Combine(Viewport.SceneShaderPath, "DeferredDecal.fs"), EShaderMode.Fragment);
+            GLSLScript decalShader = Engine.Files.LoadEngineShader(Path.Combine(Viewport.SceneShaderPath, "DeferredDecal.fs"), EGLSLType.Fragment);
             ShaderVar[] decalVars = new ShaderVar[] { };
             RenderingParameters decalRenderParams = new RenderingParameters
             {

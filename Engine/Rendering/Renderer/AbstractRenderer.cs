@@ -419,7 +419,7 @@ namespace TheraEngine.Rendering
         #region Shaders
 
         public abstract void SetBindFragDataLocation(int bindingId, int location, string name);
-        public abstract void SetShaderMode(EShaderMode type);
+        public abstract void SetShaderMode(EGLSLType type);
         public abstract void SetShaderSource(int bindingId, params string[] sources);
         public abstract bool CompileShader(int bindingId, out string info);
         public abstract int GenerateProgram(bool separable);

@@ -1,4 +1,5 @@
-﻿using EnvDTE100;
+﻿using AppDomainToolkit;
+using EnvDTE100;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
@@ -9,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEditor.Windows.Forms;
@@ -16,6 +18,7 @@ using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.ThirdParty;
 using static TheraEngine.ThirdParty.MSBuild;
 using static TheraEngine.ThirdParty.MSBuild.Item;
@@ -37,17 +40,22 @@ namespace TheraEditor
 
         [TSerialize(nameof(ProjectGuid))]
         protected Guid _projectGuid = Guid.NewGuid();
+        protected string _rootNamespace;
 
         public Guid ProjectGuid => _projectGuid;
 
         [TSerialize(State = true)]
         [Category("Code")]
-        public string TargetBuildConfiguration { get; set; } = "Debug";
+        public string TargetBuildConfiguration { get; set; } = "Release";
         [TSerialize(State = true)]
         [Category("Code")]
         public string TargetBuildPlatform { get; set; } = "x64";
 
-        public string RootNamespace { get; set; } = null;
+        public string RootNamespace
+        {
+            get => string.IsNullOrWhiteSpace(_rootNamespace) ? Name.ReplaceWhitespace("_") : _rootNamespace;
+            set => _rootNamespace = value.ReplaceWhitespace("_");
+        }
         public override string Name
         {
             get => base.Name;
@@ -67,6 +75,10 @@ namespace TheraEditor
         private string _localConfigDirectory;
         private string _localContentDirectory;
         private string _localTempDirectory;
+        private AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> _gameDomain;
+
+        [TSerialize("AssemblyPaths")]
+        private string[] _assemblyPaths;
 
         [TString(false, true, false, true)]
         [TSerialize]
@@ -347,6 +359,8 @@ namespace TheraEditor
             return project;
         }
 
+        //TODO: only have user program in library,
+        //generate EXE on full project build to run game as standalone.
         public void GenerateProgramCS()
         {
             //0 = game name
@@ -448,40 +462,55 @@ namespace TheraEditor
             CollectFiles(
                 out List<string> codeFiles,
                 out List<string> contentFiles,
-                out HashSet<string> references);
-
-            //TODO: copy the thera engine dll to the game exe directory first
-            Assembly engineAssembly = typeof(Engine).Assembly;
-            string engineDLLPath = engineAssembly.CodeBase;
-            if (engineDLLPath.StartsWith("file:///"))
-                engineDLLPath = engineDLLPath.Substring(8);
-            engineDLLPath = engineDLLPath.MakeAbsolutePathRelativeTo(csprojPath);
-            if (engineDLLPath.StartsWith("\\"))
-                engineDLLPath = engineDLLPath.Substring(1);
+                out HashSet<string> usingNamespaces);
 
             ItemGroup refGrp = new ItemGroup();
+            foreach (string nsRef in usingNamespaces)
             {
-                Item theraEngineRef = new Item("Reference")
+                int end = nsRef.IndexOf(".");
+                string root = end > 0 ? nsRef.Substring(0, end) : nsRef;
+                if (string.Equals(root, "System", StringComparison.InvariantCulture))
                 {
-                    Include = engineAssembly.GetName().ToString()
-                };
-                {
-                    ItemMetadata specificVersion = new ItemMetadata
-                    {
-                        ElementName = "SpecificVersion",
-                        StringContent = new ElementString("False"),
-                    };
-                    ItemMetadata hintPath = new ItemMetadata
-                    {
-                        ElementName = "HintPath",
-                        StringContent = new ElementString(engineDLLPath),
-                    };
-                    theraEngineRef.AddElements(specificVersion, hintPath);
+                    refGrp.AddElements(new Item("Reference") { Include = nsRef });
                 }
-                refGrp.AddElements(theraEngineRef);
-            }
-            refGrp.AddElements(references.OrderBy(x => x).Select(x => new Item("Reference") { Include = x }).ToArray());
+                else
+                {
+                    //TODO: determine which dll or exe this root namespace resides in.
+                    //Or just pull the references out of the original csproj and put them back in.
+                    //If no csproj previously existed, just reference TheraEngine.dll
+                    //if (previousReferences.Count == 0)
+                    //{
+                        ////TODO: copy the thera engine dll to the game exe directory first
+                        //Assembly engineAssembly = typeof(Engine).Assembly;
+                        //string engineDLLPath = engineAssembly.CodeBase;
+                        //if (engineDLLPath.StartsWith("file:///"))
+                        //    engineDLLPath = engineDLLPath.Substring(8);
+                        //engineDLLPath = engineDLLPath.MakeAbsolutePathRelativeTo(Path.GetDirectoryName(csprojPath));
+                        //if (engineDLLPath.StartsWith("\\"))
+                        //    engineDLLPath = engineDLLPath.Substring(1);
 
+                    //}
+                    Item asmRef = new Item("Reference")
+                    {
+                        //Include = engineAssembly.GetName().ToString()
+                    };
+                    {
+                        ItemMetadata specificVersion = new ItemMetadata
+                        {
+                            ElementName = "SpecificVersion",
+                            StringContent = new ElementString("False"),
+                        };
+                        ItemMetadata hintPath = new ItemMetadata
+                        {
+                            ElementName = "HintPath",
+                            //StringContent = new ElementString(engineDLLPath),
+                        };
+                        asmRef.AddElements(specificVersion, hintPath);
+                    }
+                    refGrp.AddElements(asmRef);
+                }
+            }
+            
             ItemGroup compileGrp = new ItemGroup();
             compileGrp.AddElements(codeFiles.OrderBy(x => x).Select(x => new Item("Compile") { Include = x }).ToArray());
 
@@ -575,42 +604,122 @@ namespace TheraEditor
         public async Task CompileAsync(string buildConfiguration, string buildPlatform)
             => await Task.Run(() => Compile(buildConfiguration, buildPlatform));
         public void Compile()
-            => Compile(TargetBuildConfiguration, TargetBuildPlatform);
+            => Compile("Debug", IntPtr.Size == 8 ? "x64" : "x86");
         public void Compile(string buildConfiguration, string buildPlatform)
         {
             ProjectCollection pc = new ProjectCollection();
-            Dictionary<string, string> globalProperties = new Dictionary<string, string>
+            Dictionary<string, string> props = new Dictionary<string, string>
             {
-                { "Configuration", buildConfiguration },
-                { "Platform", buildPlatform },
+                { "Configuration",  buildConfiguration  },
+                { "Platform",       buildPlatform       },
             };
-            BuildRequestData request = new BuildRequestData(SolutionPath, globalProperties, null, new string[] { "Build" }, null);
-            BuildParameters bp = new BuildParameters(pc)
+            BuildRequestData request = new BuildRequestData(SolutionPath, props, null, new string[] { "Build" }, null);
+            EngineLogger logger = new EngineLogger();
+            BuildParameters buildParams = new BuildParameters(pc)
             {
-                Loggers = new ILogger[]
-                {
-                    new EngineLogger()
-                }
+                Loggers = new ILogger[] { logger }
             };
-            BuildResult result = BuildManager.DefaultBuildManager.Build(bp, request);
+            BuildResult result = BuildManager.DefaultBuildManager.Build(buildParams, request);
             if (result.OverallResult == BuildResultCode.Success)
             {
+                var buildItems = result.ResultsByTarget["Build"].Items;
+                _assemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
+
+                CreateGameDomain(true);
+                
                 PrintLine(SolutionPath + " : Build succeeded.");
+                Editor.ResetTypeCaches();
             }
             else
             {
                 PrintLine(SolutionPath + " : Build failed.");
-                //foreach (var target in result.ResultsByTarget)
-                //{
-                //    if (target.Value.ResultCode == TargetResultCode.Failure)
-                //    {
-                //        Engine.PrintLine(target.Key + " : Build failed.");
-                //        if (target.Value.Exception != null)
-                //            Engine.PrintLine("Exception:\n" + target.Value.Exception.ToString());
-                //    }
-                //}
             }
+
+            if (Editor.Instance.InvokeRequired)
+                Editor.Instance.Invoke((Action<EngineLogger>)ShowErrorForm, logger);
+            else
+                ShowErrorForm(logger);
+
             pc.UnregisterAllLoggers();
+        }
+        private void ShowErrorForm(EngineLogger logger)
+        {
+            Editor.Instance.ErrorListForm.Focus();
+            Editor.Instance.ErrorListForm.SetLog(logger);
+        }
+
+        [TPostDeserialize]
+        private void PostDeserialize()
+        {
+            CreateGameDomain(false);
+        }
+        private void CreateGameDomain(bool compiling)
+        {
+            if (_gameDomain != null)
+            {
+                AppDomain.Unload(_gameDomain.Domain);
+                _gameDomain.Dispose();
+                _gameDomain = null;
+            }
+
+            string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
+            string buildConfiguration = "Debug";
+            string rootDir = DirectoryPath + $"\\Bin\\{buildPlatform}\\{buildConfiguration}";
+            if (!Directory.Exists(rootDir) && !compiling)
+            {
+                Compile(buildConfiguration, buildPlatform);
+                return;
+            }
+
+            try
+            {
+                AppDomainSetup setupInfo = new AppDomainSetup()
+                {
+                    ApplicationName = Name,
+                    ApplicationBase = rootDir,
+                    PrivateBinPath = rootDir
+                };
+
+                _gameDomain = AppDomainContext.Create(setupInfo);
+
+                string path;
+                for (int i = 0; i < _assemblyPaths.Length; ++i)
+                {
+                    path = _assemblyPaths[i];
+                    FileInfo file = new FileInfo(path);
+                    if (file.Exists)
+                    {
+                        PrintLine("Loading compiled assembly at " + path);
+                        _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
+                        _gameDomain.LoadAssemblyWithReferences(LoadMethod.LoadFrom, path);
+
+                        //RemoteAction.Invoke(
+                        //    _gameDomain.Domain,
+                        //    "Hello World",
+                        //    (message) =>
+                        //    {
+                        //        var msg = message + " from AppDomain " + AppDomain.CurrentDomain.SetupInformation.ApplicationName;
+                        //        Console.WriteLine(msg);
+                        //    });
+
+                        //Assembly[] a = RemoteFunc.Invoke(_gameDomain.Domain, file.FullName,
+                        //    (string fullname) =>
+                        //    {
+                        //        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                        //        PrintLine(fullname);
+                        //        string list = assemblies.ToStringList(",", ", and ", x => x.GetName().Name);
+                        //        PrintLine(list);
+                        //        //.Single(s => s.FullName.Equals(fullname));
+                        //        //return asm.GetType("algoritmo", true, true);
+                        //        return assemblies;
+                        //    });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
         }
 
         public void CollectFiles(
@@ -623,9 +732,9 @@ namespace TheraEditor
             references = new HashSet<string>();
             void RecursiveCollect(
                 string dir,
-                ref List<string> codeFiles2,
-                ref List<string> contentFiles2,
-                ref HashSet<string> references2)
+                ref List<string> codeFilesRef,
+                ref List<string> contentFilesRef,
+                ref HashSet<string> referencesRef)
             {
                 if (!Directory.Exists(dir))
                     return;
@@ -633,44 +742,53 @@ namespace TheraEditor
                 string[] files = Directory.GetFiles(dir);
                 foreach (string path in files)
                 {
-                    string path2 = LocalSourceDirectory + path.MakeAbsolutePathRelativeTo(SourceDirectory).Substring(1);
-                    if (Path.GetExtension(path2).Substring(1).ToLowerInvariant() == "cs")
+                    string localPath = LocalSourceDirectory + path.MakeAbsolutePathRelativeTo(SourceDirectory).Substring(1);
+                    if (localPath.EndsWith("cs", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        codeFiles2.Add(path2);
+                        codeFilesRef.Add(localPath);
+
                         string text = File.ReadAllText(path);
-                        int end = text.FindFirst(0, "namespace");
-                        if (end > 0)
-                            text = text.Substring(0, end);
+                        int usingsEnd = text.FindFirst(0, "namespace");
+                        if (usingsEnd > 0)
+                            text = text.Substring(0, usingsEnd);
+
                         string usingStr = "using ";
                         int[] usingIndices = text.FindAllOccurrences(0, usingStr);
+
                         foreach (int i in usingIndices)
                         {
                             int startIndex = i + usingStr.Length;
                             int endIndex = text.FindFirst(startIndex, ';');
+
                             if (endIndex < 0)
                                 continue;
+
                             string reference = text.Substring(startIndex, endIndex - startIndex).Trim();
-                            if (!reference.StartsWith("TheraEngine"))
-                                references2.Add(reference);
+                            
+                            referencesRef.Add(reference);
                         }
                     }
                     else
-                        contentFiles2.Add(path2);
+                        contentFilesRef.Add(localPath);
                 }
 
                 string[] dirs = Directory.GetDirectories(dir);
                 foreach (string d in dirs)
-                    RecursiveCollect(d, ref codeFiles2, ref contentFiles2, ref references2);
+                    RecursiveCollect(d, ref codeFilesRef, ref contentFilesRef, ref referencesRef);
             }
             RecursiveCollect(SourceDirectory, ref codeFiles, ref contentFiles, ref references);
         }
 
-        private class EngineLogger : ILogger
+        public class EngineLogger : ILogger
         {
+            public List<BuildErrorEventArgs> Errors { get; private set; }
+            public List<BuildWarningEventArgs> Warnings { get; private set; }
+            public List<BuildMessageEventArgs> Messages { get; private set; }
+
             public EngineLogger() { }
             public EngineLogger(LoggerVerbosity verbosity) => Verbosity = verbosity;
 
-            public LoggerVerbosity Verbosity { get; set; } = LoggerVerbosity.Normal;
+            public LoggerVerbosity Verbosity { get; set; } = LoggerVerbosity.Diagnostic;
             public string Parameters { get; set; }
 
             private IEventSource _source = null;
@@ -684,7 +802,7 @@ namespace TheraEditor
                 _source.BuildStarted += BuildStartedHandler;
                 _source.CustomEventRaised += CustomEventHandler;
                 _source.ErrorRaised += ErrorHandler;
-                //_source.MessageRaised += MessageHandler;
+                _source.MessageRaised += MessageHandler;
                 _source.ProjectFinished += ProjectFinishedHandler;
                 _source.ProjectStarted += ProjectStartedHandler;
                 //_source.TargetFinished += TargetFinishedHandler;
@@ -703,7 +821,7 @@ namespace TheraEditor
                 _source.BuildStarted -= BuildStartedHandler;
                 _source.CustomEventRaised -= CustomEventHandler;
                 _source.ErrorRaised -= ErrorHandler;
-                //_source.MessageRaised -= MessageHandler;
+                _source.MessageRaised -= MessageHandler;
                 _source.ProjectFinished -= ProjectFinishedHandler;
                 _source.ProjectStarted -= ProjectStartedHandler;
                 //_source.TargetFinished -= TargetFinishedHandler;
@@ -715,23 +833,26 @@ namespace TheraEditor
 
             public void BuildStartedHandler(object sender, BuildStartedEventArgs e)
             {
-
+                Errors = new List<BuildErrorEventArgs>();
+                Warnings = new List<BuildWarningEventArgs>();
+                Messages = new List<BuildMessageEventArgs>();
             }
             public void BuildFinishedHandler(object sender, BuildFinishedEventArgs e)
             {
-
+                //foreach (var error in Errors)
+                //    PrintLine($"Error {error.Code} : {error.Message} [{error.File} line {error.LineNumber} column {error.ColumnNumber}]");
+                //foreach (var warning in Warnings)
+                //    PrintLine($"Warning {warning.Code} : {e.Message} [{warning.File} line {warning.LineNumber} column {warning.ColumnNumber}]");
+                //foreach (var message in Messages)
+                //    PrintLine($"Message {message.Code} : {message.Message} [{message.File} line {message.LineNumber} column {message.ColumnNumber}]");
             }
+            public void ErrorHandler(object sender, BuildErrorEventArgs e) => Errors.Add(e);
+            public void WarningHandler(object sender, BuildWarningEventArgs e) => Warnings.Add(e);
+            public void MessageHandler(object sender, BuildMessageEventArgs e) => Messages.Add(e);
+
             public void CustomEventHandler(object sender, CustomBuildEventArgs e)
             {
 
-            }
-            public void ErrorHandler(object sender, BuildErrorEventArgs e)
-            {
-                PrintLine($"Error {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
-            }
-            public void MessageHandler(object sender, BuildMessageEventArgs e)
-            {
-                PrintLine($"Message {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
             }
             public void ProjectStartedHandler(object sender, ProjectStartedEventArgs e)
             {
@@ -757,41 +878,166 @@ namespace TheraEditor
             {
                 PrintLine($"Finished task {e.TaskName}");
             }
-            public void WarningHandler(object sender, BuildWarningEventArgs e)
+        }
+        public enum EDataType
+        {
+            Class,
+            Struct,
+            Interface,
+            Enum,
+            Method,
+            Event,
+            Delegate,
+        }
+        /// <summary>
+        /// Contains information for where a type is declared.
+        /// </summary>
+        public class ScriptDeclareInfo
+        {
+            public string FileDeclaredInPath { get; set; }
+            public int LineNumberStart { get; set; }
+            public int LineNumberEnd { get; set; }
+        }
+        public class ScriptArgument
+        {
+            public string TypeName { get; set; }
+            public string ArgumentName { get; set; }
+            public bool In { get; }
+            public bool Out { get; }
+            public bool Ref { get; }
+
+            public ScriptTypeInfo GetTypeInfo => Editor.Instance.Project.GetTypeInfo(TypeName);
+        }
+        public class ScriptConstructionSpecialArgument
+        {
+            public string MemberName { get; set; }
+
+        }
+        public class ScriptAttributeInfo
+        {
+            public string TypeName { get; set; }
+            public string[] ConstructionArguments { get; set; }
+            public (string, string)[] PropertyArguments { get; set; }
+            public (string, string)[] FieldArguments { get; set; }
+
+            public ScriptTypeInfo GetTypeInfo() => Editor.Instance.Project.GetTypeInfo(TypeName);
+        }
+        public class ScriptNamespace
+        {
+            /// <summary>
+            /// The local name of this namespace.
+            /// </summary>
+            public string Name { get; set; }
+            /// <summary>
+            /// Full parent namespace.
+            /// </summary>
+            public string ParentNamespace { get; set; }
+            /// <summary>
+            /// Full child namespaces.
+            /// </summary>
+            public string ChildNamespaces { get; set; }
+            public string[] TypeNames { get; set; }
+
+            public ScriptTypeInfo GetTypeName(int i)
+                => Editor.Instance.Project.GetTypeInfo(TypeNames[i]);
+            public string GetFullNamespacePath()
             {
-                PrintLine($"Warning {e.Code} : {e.Message} [{e.File} line {e.LineNumber} column {e.ColumnNumber}]");
+                if (ParentNamespace == null)
+                    return Name;
+                else
+                    return ParentNamespace + "." + Name;
             }
         }
-        //public void Compile(string configuration, string platform)
-        //{
-        //    string projectFileName = @"...\ConsoleApplication3\ConsoleApplication3.sln";
+        public class ScriptMemberInfo
+        {
+            public string MemberName { get; set; }
+            public int PtrCount { get; set; } //*
+            public int DerefPtrCount { get; set; } //&
+        }
+        public abstract class ScriptTypeInfo
+        {
+            public string TypeName { get; set; }
+            public string OwningTypeName { get; set; }
+            public string OwningNamespace { get; set; }
+            public ScriptDeclareInfo DeclareInfo { get; set; }
+            public ScriptAttributeInfo[] Attributes { get; set; }
+            public ScriptModifiers Modifiers { get; set; }
+            public ScriptMemberInfo MemberInfo { get; set; }
+            
+            public abstract EDataType Type { get; }
+            public abstract bool CanResideInNamespace { get; }
+        }
+        public abstract class ScriptClassStructTypeInfo : ScriptTypeInfo
+        {
+            /// <summary>
+            /// Members indexed by member name.
+            /// </summary>
+            public Dictionary<string, ScriptMemberInfo> Members { get; set; }
+            public override bool CanResideInNamespace => true;
+        }
+        public class ScriptClassTypeInfo : ScriptClassStructTypeInfo
+        {
+            public override EDataType Type => EDataType.Class;
+            public bool IsPartial { get; set; }
+            public ScriptDeclareInfo[] PartialDeclareInfos { get; set; }
+        }
+        public class ScriptStructTypeInfo : ScriptClassStructTypeInfo
+        {
+            public override EDataType Type => EDataType.Struct;
+        }
+        public class ScriptEnumTypeInfo : ScriptTypeInfo
+        {
+            public override EDataType Type => EDataType.Enum;
+            public override bool CanResideInNamespace => true;
+        }
+        public class ScriptInterfaceTypeInfo : ScriptTypeInfo
+        {
+            public override EDataType Type => EDataType.Interface;
+            public override bool CanResideInNamespace => true;
+        }
+        public class ScriptDelegateTypeInfo : ScriptTypeInfo
+        {
+            public override EDataType Type => EDataType.Delegate;
+            public override bool CanResideInNamespace => true;
+        }
+        public class ScriptEventTypeInfo : ScriptTypeInfo
+        {
+            public override EDataType Type => EDataType.Event;
+            public override bool CanResideInNamespace => false;
+        }
+        public class ScriptMethodTypeInfo : ScriptTypeInfo
+        {
+            public override EDataType Type => EDataType.Method;
+            public override bool CanResideInNamespace => false;
+            public ScriptMethodBody Body { get; set; }
+        }
+        public class ScriptMethodLocalVar
+        {
 
-        //    ProjectCollection pc = new ProjectCollection();
-        //    Dictionary<string, string> GlobalProperty = new Dictionary<string, string>
-        //    {
-        //        { "Configuration", configuration },
-        //        { "Platform", platform }
-        //    };
+        }
+        public class ScriptMethodBody
+        {
 
-        //    BuildParameters buildParams = new BuildParameters(pc);
-        //    BuildRequestData buildRequest = new BuildRequestData(projectFileName, GlobalProperty, null, new string[] { "Build" }, null);
-        //    BuildResult buildResult = BuildManager.DefaultBuildManager.Build(buildParams, buildRequest);
+        }
+        public class ScriptModifiers
+        {
+            public bool Public { get; set; }
+            public bool Private { get; set; }
+            public bool Internal { get; set; }
+            public bool Protected { get; set; }
+            public bool Abstract { get; set; }
+            public bool Virtual { get; set; }
+            public bool Override { get; set; }
+        }
+        
+        public ScriptNamespace GetNamespace(string ns)
+            => Namespaces.ContainsKey(ns) ? Namespaces[ns] : null;
+        public ScriptTypeInfo GetTypeInfo(string typeName)
+            => Types.ContainsKey(typeName) ? Types[typeName] : null;
 
-        //    //CSharpCodeProvider codeProvider = new CSharpCodeProvider();
-        //    //CompilerParameters parameters = new CompilerParameters
-        //    //{
-        //    //    GenerateExecutable = true,
-        //    //    OutputAssembly = Path.Combine(FilePath, "Intermediate", Name + ".exe"),
-        //    //};
-        //    //CompilerResults results = codeProvider.CompileAssemblyFromFile(parameters, "");
-        //    //if (results.Errors.Count > 0)
-        //    //{
-        //    //    foreach (CompilerError CompErr in results.Errors)
-        //    //    {
-        //    //        Engine.PrintLine("Line number {0}, Error Number: {1}, '{2};",
-        //    //            CompErr.Line, CompErr.ErrorNumber, CompErr.ErrorText);
-        //    //    }
-        //    //}
-        //}
+        public Dictionary<string, ScriptTypeInfo> Types { get; }
+            = new Dictionary<string, ScriptTypeInfo>();
+        public Dictionary<string, ScriptNamespace> Namespaces { get; }
+            = new Dictionary<string, ScriptNamespace>();
     }
 }

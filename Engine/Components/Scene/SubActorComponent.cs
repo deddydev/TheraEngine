@@ -1,48 +1,36 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Actors;
-using TheraEngine.Core.Files;
+using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Components.Scene
 {
-    public class SubActorComponent<T> : SceneComponent where T : class, IActor
+    public class SubActorComponent<T> : TRSComponent where T : class, IActor
     {
-        [TSerialize]
-        public LocalFileRef<T> Actor { get; set; }
+        private T _actor;
 
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        [TSerialize]
+        public T Actor
         {
-            SceneComponent root = Actor?.File?.RootComponent;
-            if (root != null)
+            get => _actor;
+            set
             {
-                localTransform = root.WorldMatrix;
-                inverseLocalTransform = root.InverseWorldMatrix;
-            }
-            else
-            {
-                localTransform = Matrix4.Identity;
-                inverseLocalTransform = Matrix4.Identity;
+                var oldRoot = _actor?.RootComponent;
+                if (_actor != null)
+                    _actor.RootComponentChanged -= RootComponentChanged;
+                _actor = value;
+                var newRoot = _actor?.RootComponent;
+                if (_actor != null)
+                    _actor.RootComponentChanged += RootComponentChanged;
+                RootComponentChanged(oldRoot, newRoot);
             }
         }
-    }
-    public class SubActorComponent : SceneComponent
-    {
-        [TSerialize]
-        public LocalFileRef<Actor> Actor { get; set; }
-
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        private void RootComponentChanged(OriginRebasableComponent oldRoot, OriginRebasableComponent newRoot)
         {
-            SceneComponent root = Actor?.File?.RootComponent;
-            if (root != null)
-            {
-                localTransform = root.WorldMatrix;
-                inverseLocalTransform = root.InverseWorldMatrix;
-            }
-            else
-            {
-                localTransform = Matrix4.Identity;
-                inverseLocalTransform = Matrix4.Identity;
-            }
+            if (oldRoot != null && oldRoot.ParentSocket == this)
+                oldRoot.ParentSocket = null;
+            if (newRoot != null)
+                newRoot.ParentSocket = this;
         }
     }
 }

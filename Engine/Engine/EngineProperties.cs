@@ -55,6 +55,8 @@ namespace TheraEngine
     }
     public static partial class Engine
     {
+        public static Dictionary<Guid, TObject> ObjectCache { get; } = new Dictionary<Guid, TObject>();
+
         public const ERenderLibrary DefaultRenderLibrary = ERenderLibrary.OpenGL;
         public const EAudioLibrary DefaultAudioLibrary = EAudioLibrary.OpenAL;
         public const EInputLibrary DefaultInputLibrary = EInputLibrary.OpenTK;
@@ -252,7 +254,7 @@ namespace TheraEngine
         public static ERenderLibrary RenderLibrary
         {
             get => _renderLibrary;
-            set
+            internal set
             {
                 _renderLibrary = value;
                 List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
@@ -266,7 +268,7 @@ namespace TheraEngine
         public static EAudioLibrary AudioLibrary
         {
             get => _audioLibrary;
-            set
+            internal set
             {
                 _audioLibrary = value;
                 switch (_audioLibrary)
@@ -283,7 +285,7 @@ namespace TheraEngine
         public static EPhysicsLibrary PhysicsLibrary
         {
             get => _physicsLibrary;
-            set
+            internal set
             {
                 _physicsLibrary = value;
                 switch (_physicsLibrary)
@@ -303,17 +305,17 @@ namespace TheraEngine
         public static EInputLibrary InputLibrary
         {
             get => _inputLibrary;
-            set
+            internal set
             {
                 _inputLibrary = value;
                 _inputAwaiter?.Dispose();
                 switch (_inputLibrary)
                 {
                     case EInputLibrary.OpenTK:
-                        _inputAwaiter = new TKInputAwaiter(FoundInput);
+                        _inputAwaiter = new TKInputAwaiter(Input.FoundInput);
                         break;
                     case EInputLibrary.XInput:
-                        _inputAwaiter = new DXInputAwaiter(FoundInput);
+                        _inputAwaiter = new DXInputAwaiter(Input.FoundInput);
                         break;
                 }
             }

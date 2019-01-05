@@ -160,7 +160,7 @@ namespace TheraEngine.Components.Scene.Lights
 
             //This material is used for rendering to the framebuffer.
             TMaterial mat = new TMaterial("DirLightShadowMat", new ShaderVar[0], refs, 
-                new GLSLShaderFile(EShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput));
+                new GLSLScript(EGLSLType.Fragment, ShaderHelpers.Frag_DepthOutput));
 
             //No culling so if a light exists inside of a mesh it will shadow everything.
             mat.RenderParams.CullMode = ECulling.None;

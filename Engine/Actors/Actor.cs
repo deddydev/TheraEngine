@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Worlds;
 
 namespace TheraEngine.Actors
 {
+    public delegate void DelRootComponentChanged(OriginRebasableComponent oldRoot, OriginRebasableComponent newRoot);
     public interface IActor : IFileObject
     {
+        event DelRootComponentChanged RootComponentChanged;
+
         bool AttachedToMap { get; set; }
         bool IsConstructing { get; }
         TWorld OwningWorld { get; }
@@ -26,7 +26,7 @@ namespace TheraEngine.Actors
 
         IReadOnlyCollection<SceneComponent> SceneComponentCache { get; }
         void GenerateSceneComponentCache();
-        SceneComponent RootComponent { get; }
+        OriginRebasableComponent RootComponent { get; }
         void RebaseOrigin(Vec3 newOrigin);
 
         EventList<LogicComponent> LogicComponents { get; }
@@ -62,6 +62,8 @@ namespace TheraEngine.Actors
     [TFileDef("Actor")]
     public class Actor<T> : TFileObject, IActor where T : OriginRebasableComponent
     {
+        public event DelRootComponentChanged RootComponentChanged;
+
         static Actor()
         {
             //Register3rdPartyLoader<Actor<T>>("dae", LoadDAE);
@@ -147,9 +149,9 @@ namespace TheraEngine.Actors
         /// </summary>
         /// <returns>The root scene component for this actor.</returns>
         protected virtual T OnConstructRoot() => RootComponent ?? Activator.CreateInstance<T>();
-        [ReadOnly(true)]
+        [Browsable(false)]
         public DateTime SpawnTime { get; private set; }
-        [ReadOnly(true)]
+        [Browsable(false)]
         public TimeSpan ActiveTime => DateTime.Now - SpawnTime;
         public float LifeSpan
         {
@@ -189,9 +191,8 @@ namespace TheraEngine.Actors
         private List<SceneComponent> _sceneComponentCache;
         [Browsable(false)]
         public IReadOnlyCollection<SceneComponent> SceneComponentCache => _sceneComponentCache;
-
-        [Browsable(false)]
-        SceneComponent IActor.RootComponent => RootComponent;
+        
+        OriginRebasableComponent IActor.RootComponent => RootComponent;
 
         /// <summary>
         /// The root component is the main scene component that controls this actor's transform in the world and acts as the main ancestor for all scene components in the actor's tree.
@@ -206,9 +207,13 @@ namespace TheraEngine.Actors
             get => _rootComponent;
             set
             {
+                if (_rootComponent == value)
+                    return;
+
                 if (_rootComponent != null)
                     _rootComponent.OwningActor = null;
 
+                T oldRoot = _rootComponent;
                 _rootComponent = value;
 
                 if (_rootComponent != null)
@@ -217,6 +222,7 @@ namespace TheraEngine.Actors
                     _rootComponent.RecalcWorldTransform();
                 }
                 GenerateSceneComponentCache();
+                RootComponentChanged?.Invoke(oldRoot, _rootComponent);
             }
         }
 

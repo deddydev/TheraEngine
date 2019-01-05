@@ -1,0 +1,1931 @@
+﻿using FastColoredTextBoxNS;
+using Svg;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Windows.Forms;
+using TheraEngine;
+using TheraEngine.Core.Files;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Scripting;
+using WeifenLuo.WinFormsUI.Docking;
+
+namespace TheraEditor.Windows.Forms
+{
+    public enum ETextEditorMode
+    {
+        Text,
+        Python,
+        Lua,
+        CSharp,
+        GLSL,
+    }
+    public partial class DockableTextEditor : DockContent
+    {
+        public DockableTextEditor()
+        {
+            InitializeComponent();
+
+            cboMode.Items.AddRange(Enum.GetNames(typeof(ETextEditorMode)));
+            cboMode.SelectedIndex = 0;
+
+            TextBox.CustomAction += TextBox_CustomAction;
+            TextBox.HotkeysMapping.Add(Keys.Control | Keys.S, FCTBAction.CustomAction1);
+
+            TextBox.AutoCompleteBrackets = true;
+            TextBox.AllowSeveralTextStyleDrawing = true;
+            TextBox.AutoIndent = true;
+            TextBox.AutoIndentChars = true;
+            TextBox.AutoCompleteBrackets = true;
+
+            TextBox.Language = Language.Custom;
+            TextBox.AddStyle(SameWordsStyle);
+            TextBox.AddStyle(PreprocessorStyle);
+            TextBox.AddStyle(KeywordStyle);
+            TextBox.AddStyle(ClassNameStyle);
+
+            stripTextDisplay.RenderMode = ToolStripRenderMode.Professional;
+            stripTextDisplay.Renderer = new TheraForm.TheraToolstripRenderer();
+            ctxRightClick.RenderMode = ToolStripRenderMode.Professional;
+            ctxRightClick.Renderer = new TheraForm.TheraToolstripRenderer();
+
+            //_errorBrush = new SolidBrush(Color.FromArgb(TextBox.BackColor.R + 40, TextBox.BackColor.G, TextBox.BackColor.B));
+        }
+
+        static readonly string[] sources = new string[]
+        {
+            "com",
+            "com.company",
+            "com.company.Class1",
+            "com.company.Class1.Method1",
+            "com.company.Class1.Method2",
+            "com.company.Class2",
+            "com.company.Class3",
+            "com.example",
+            "com.example.ClassX",
+            "com.example.ClassX.Method1",
+            "com.example.ClassY",
+            "com.example.ClassY.Method1"
+        };
+
+        public Func<string, DockableTextEditor, (bool, string)> CompileGLSL;
+        
+        private Range HoveredWordRange { get; set; }
+        private Style InvisibleCharsStyle { get; } = new InvisibleCharsRenderer(Pens.Gray);
+        private Color CurrentLineColor { get; } = Color.FromArgb(255, 80, 95, 90);
+        private Color ChangedLineColor { get; } = Color.FromArgb(200, Color.Yellow);
+        private MarkerStyle HoveredWordStyle { get; } = new MarkerStyle(new SolidBrush(Color.FromArgb(255, 60, 60, 40)));
+        private TextStyle KeywordStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(86, 156, 214)), null, FontStyle.Regular);
+        private TextStyle ClassNameStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(78, 201, 176)), null, FontStyle.Regular);
+        private TextStyle PreprocessorStyle { get; } = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
+        private TextStyle NumberStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(90, 40, 30)), null, FontStyle.Regular);
+        private TextStyle CommentStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(86, 166, 74)), null, FontStyle.Regular);
+        private TextStyle StringStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(214, 157, 133)), null, FontStyle.Regular);
+        private TextStyle MaroonStyle { get; } = new TextStyle(Brushes.Maroon, null, FontStyle.Regular);
+        private MarkerStyle SameWordsStyle { get; } = new MarkerStyle(new SolidBrush(Color.FromArgb(150, Color.Teal)));
+
+        public static Dictionary<string, DockableTextEditor> TextEditorInstances { get; } = new Dictionary<string, DockableTextEditor>();
+
+        public static DockableTextEditor ShowNew(
+            DockPanel dockPanel,
+            DockState document,
+            TextFile file,
+            Action<DockableTextEditor> onSave = null)
+        {
+            DockableTextEditor editor;
+            if (!string.IsNullOrWhiteSpace(file?.FilePath))
+            {
+                if (TextEditorInstances.ContainsKey(file.FilePath))
+                {
+                    DockableTextEditor e = TextEditorInstances[file.FilePath];
+                    e.Focus();
+                    return e;
+                }
+                else
+                {
+                    editor = new DockableTextEditor();
+                    TextEditorInstances.Add(file.FilePath, editor);
+                }
+            }
+            else
+            {
+                editor = new DockableTextEditor();
+            }
+            
+            editor.Show(dockPanel, document);
+            editor.TargetFile = file;
+
+            if (onSave != null)
+                editor.Saved += onSave;
+
+            return editor;
+        }
+        private void TextBox_CustomAction(object sender, CustomActionEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case FCTBAction.CustomAction1:
+                    btnSave_Click(null, null);
+                    break;
+            }
+        }
+        private bool _isStreaming = false;
+        private TextFile _targetFile;
+        public TextFile TargetFile
+        {
+            get => _targetFile;
+            set
+            {
+                string path = _targetFile?.FilePath;
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    if (TextEditorInstances.ContainsKey(path))
+                        TextEditorInstances.Remove(path);
+
+                    TextBox.CloseBindingFile();
+                }
+
+                _targetFile = value;
+
+                path = _targetFile?.FilePath;
+                if (_isStreaming = !string.IsNullOrWhiteSpace(path))
+                {
+                    if (!TextEditorInstances.ContainsKey(path))
+                        TextEditorInstances.Add(path, this);
+
+                    Text = Path.GetFileName(path);
+                    TextBox.OpenBindingFile(path, _targetFile.Encoding);
+                }
+                else
+                {
+                    Text = "Text Editor";
+                    TextBox.Text = _targetFile.Text;
+                }
+
+                if (_targetFile is CSharpScript || path.EndsWith("cs", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Mode = ETextEditorMode.CSharp;
+                }
+                else if (_targetFile is PythonScript || path.EndsWith("py", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Mode = ETextEditorMode.Python;
+                }
+                else if (_targetFile is LuaScript || path.EndsWith("lua", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Mode = ETextEditorMode.Lua;
+                }
+                else if (_targetFile is GLSLScript || path.EndsWithAny(
+                    TFileObject.GetFile3rdPartyExtensions<GLSLScript>().Extensions, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Mode = ETextEditorMode.GLSL;
+                }
+                else
+                {
+                    Mode = ETextEditorMode.Text;
+                }
+                
+                TextBox.IsChanged = false;
+                TextBox.ClearUndo();
+            }
+        }
+        public void Save()
+        {
+            TargetFile.Text = GetText();
+            if (!string.IsNullOrWhiteSpace(TargetFile.FilePath))
+                SaveAs(TargetFile.FilePath);
+            Saved?.Invoke(this);
+        }
+        public async void SaveAs(string path)
+        {
+            TextBox.CloseBindingFile();
+            Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving text...", out Progress<float> progress, out CancellationTokenSource cancel);
+            await TargetFile.ExportAsync(path, progress, cancel.Token);
+            Editor.Instance.ContentTree.EndFileSave(path);
+            TextBox.OpenBindingFile(path, TargetFile.Encoding);
+            //HighlightRange(TextBox.VisibleRange);
+            //TextBox.Invalidate();
+        }
+        protected override void OnClosed(EventArgs e)
+        {
+            TextBox.CloseBindingFile();
+            if (!string.IsNullOrWhiteSpace(TargetFile?.FilePath))
+                TextEditorInstances.Remove(TargetFile.FilePath);
+            base.OnClosed(e);
+        }
+        
+        private ETextEditorMode _mode = ETextEditorMode.Text;
+        public ETextEditorMode Mode
+        {
+            get => _mode;
+            set
+            {
+                if (_mode == value)
+                    return;
+                _updating = true;
+                switch (_mode)
+                {
+                    case ETextEditorMode.Text:      UnInitText();   break;
+                    case ETextEditorMode.Python:    UnInitPython(); break;
+                    case ETextEditorMode.CSharp:    UnInitCSharp(); break;
+                    case ETextEditorMode.Lua:       UnInitLua();    break;
+                    case ETextEditorMode.GLSL:      UnInitGLSL();   break;
+                }
+                _mode = value;
+                cboMode.SelectedIndex = (int)_mode;
+                switch (_mode)
+                {
+                    case ETextEditorMode.Text:      InitText();     break;
+                    case ETextEditorMode.Python:    InitPython();   break;
+                    case ETextEditorMode.CSharp:    InitCSharp();   break;
+                    case ETextEditorMode.Lua:       InitLua();      break;
+                    case ETextEditorMode.GLSL:      InitGLSL();     break;
+                }
+                
+                TextBox.Focus();
+
+                _updating = false;
+            }
+        }
+        private void ReInit()
+        {
+            switch (_mode)
+            {
+                case ETextEditorMode.Text: UnInitText(); InitText(); break;
+                case ETextEditorMode.Python: UnInitPython(); InitPython(); break;
+                case ETextEditorMode.CSharp: UnInitCSharp(); InitCSharp(); break;
+                case ETextEditorMode.Lua: UnInitLua(); InitLua(); break;
+                case ETextEditorMode.GLSL: UnInitGLSL(); InitGLSL(); break;
+            }
+        }
+
+        private void InitText()
+        {
+
+        }
+        private void UnInitText()
+        {
+
+        }
+        private void InitPython()
+        {
+            TextBox.CommentPrefix = "#";
+            TextBox.AutoCompleteBrackets = true;
+            TextBox.AutoIndent = true;
+            TextBox.DescriptionFile = Engine.Files.ScriptPath("PythonHighlighting.xml");
+            TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded_Python;
+        }
+        private void UnInitPython()
+        {
+            TextBox.AutoIndentNeeded -= TextBox_AutoIndentNeeded_Python;
+        }
+        private void InitGLSL()
+        {
+            TextBox.CommentPrefix = "//";
+            TextBox.DescriptionFile = Engine.Files.ScriptPath("GLSLHighlighting.xml");
+            TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded_GLSL;
+        }
+        private void UnInitGLSL()
+        {
+            TextBox.AutoIndentNeeded -= TextBox_AutoIndentNeeded_GLSL;
+        }
+        private void InitLua()
+        {
+
+        }
+        private void UnInitLua()
+        {
+
+        }
+        private void InitCSharp()
+        {
+            CurrentKeywords = CSharpKeywords;
+            HighlightScriptSyntax = CSharpSyntaxHighlight;
+
+            TextBox.AutoIndent = true;
+            TextBox.AutoIndentChars = true;
+            TextBox.AutoCompleteBrackets = true;
+            TextBox.DelayedTextChangedInterval = 1000;
+            TextBox.DelayedEventsInterval = 500;
+
+            //TextBox.VisibleRangeChanged += TextBox_VisibleRangeChanged;
+            TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
+            TextBox.SelectionChangedDelayed += TextBox_SelectionChangedDelayed;
+            TextBox.KeyDown += TextBox_KeyDown;
+            TextBox.MouseMove += TextBox_MouseMove;
+            TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded_CSharp;
+            TextBox.SelectionChanged += TextBox_SelectionChanged;
+
+            TextBox.ChangedLineColor = ChangedLineColor;
+            //if (btnHighlightCurrentLine.Checked)
+                TextBox.CurrentLineColor = CurrentLineColor;
+            TextBox.ShowFoldingLines = btnShowFoldingLines.Checked;
+
+            //create autocomplete popup menu
+            AutocompleteMenu popupMenu = new AutocompleteMenu(TextBox);
+            //popupMenu.Items.ImageList = ilAutocomplete;
+            popupMenu.Opening += popupMenu_Opening;
+            BuildAutocompleteMenu(popupMenu);
+            TextBox.Tag = new TextBoxInfo() { PopupMenu = popupMenu };
+        }
+
+        private void TextBox_VisibleRangeChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void UnInitCSharp()
+        {
+            TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
+            TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
+            TextBox.KeyDown -= TextBox_KeyDown;
+            TextBox.MouseMove -= TextBox_MouseMove;
+            TextBox.AutoIndentNeeded -= TextBox_AutoIndentNeeded_CSharp;
+            TextBox.SelectionChanged -= TextBox_SelectionChanged;
+        }
+
+        void popupMenu_Opening(object sender, CancelEventArgs e)
+        {
+            //---block autocomplete menu for comments
+            //get index of green style (used for comments)
+            var iGreenStyle = TextBox.GetStyleIndex(TextBox.SyntaxHighlighter.GreenStyle);
+            if (iGreenStyle >= 0 && TextBox.Selection.Start.iChar > 0)
+            {
+                //current char (before caret)
+                var c = TextBox[TextBox.Selection.Start.iLine][TextBox.Selection.Start.iChar - 1];
+                //green Style
+                var greenStyleIndex = Range.ToStyleIndex(iGreenStyle);
+                //if char contains green style then block popup menu
+                if ((c.style & greenStyleIndex) != 0)
+                    e.Cancel = true;
+            }
+        }
+        private void BuildAutocompleteMenu(AutocompleteMenu popupMenu)
+        {
+            List<AutocompleteItem> items = new List<AutocompleteItem>();
+
+            foreach (var item in CSharpSnippets)
+                items.Add(new SnippetAutocompleteItem(item) { ImageIndex = 1 });
+            foreach (var item in CSharpDecSnippets)
+                items.Add(new DeclarationSnippet(item) { ImageIndex = 0 });
+            foreach (var item in CSharpObjectMethods)
+                items.Add(new MethodAutocompleteItem(item) { ImageIndex = 2 });
+            foreach (var item in CSharpKeywords)
+                items.Add(new AutocompleteItem(item));
+
+            items.Add(new InsertSpaceSnippet());
+            items.Add(new InsertSpaceSnippet(@"^(\w+)([=<>!:]+)(\w+)$"));
+            items.Add(new InsertEnterSnippet());
+
+            //set as autocomplete source
+            popupMenu.Items.SetAutocompleteItems(items);
+            popupMenu.SearchPattern = @"[\w\.:=!<>]";
+        }
+        private void TextBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            var place = TextBox.PointToPlace(e.Location);
+            var range = new Range(TextBox, place, place);
+            HoveredWordRange?.ClearStyle(HoveredWordStyle);
+            HoveredWordRange = range.GetFragment("[a-zA-Z]");
+            HoveredWordRange?.SetStyle(HoveredWordStyle);
+            
+            lblHoveredWord.Text = HoveredWordRange.Text;
+        }
+        private void TextBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            TextBox.Selection = HoveredWordRange;
+        }
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            //if (e.Modifiers == Keys.Control && e.KeyCode == Keys.OemMinus)
+            //{
+            //    NavigateBackward();
+            //    e.Handled = true;
+            //}
+            //if (e.Modifiers == (Keys.Control | Keys.Shift) && e.KeyCode == Keys.OemMinus)
+            //{
+            //    NavigateForward();
+            //    e.Handled = true;
+            //}
+            if (e.KeyData == (Keys.K | Keys.Control))
+            {
+                //forced show (MinFragmentLength will be ignored)
+                (TextBox.Tag as TextBoxInfo).PopupMenu.Show(true);
+                e.Handled = true;
+            }
+        }
+        private void TextBox_SelectionChangedDelayed(object sender, EventArgs e)
+        {
+            TextBox.VisibleRange.ClearStyle(SameWordsStyle);
+            if (!TextBox.Selection.IsEmpty)
+                return;
+            
+            var fragment = TextBox.Selection.GetFragment(@"\w"); //Get selected word
+            string text = fragment.Text;
+            if (text.Length == 0 || 
+                CurrentKeywords.Contains(text, StringComparison.InvariantCulture) ||
+                IsInString(fragment))
+                return;
+            
+            Range[] ranges = TextBox.VisibleRange.GetRanges("\\b" + text + "\\b").ToArray();
+            
+            foreach (var range in ranges)
+                range.SetStyle(SameWordsStyle);
+        }
+
+        private bool IsInString(Range fragment)
+        {
+            Range strRange = fragment.GetFragment(StringRegex);
+            return strRange != null && strRange.GetUnionWith(fragment).TextLength == fragment.TextLength;
+        }
+
+        private void TextBox_TextChangedDelayed(object sender, TextChangedEventArgs e)
+        {
+            ThreadPool.QueueUserWorkItem((o) => ReBuildObjectExplorer(TextBox.Text));
+
+            HighlightRange(e.ChangedRange);
+        }
+        public void HighlightRange(Range range)
+        {
+            HighlightInvisibleChars(range);
+            HighlightScriptSyntax?.Invoke(range);
+        }
+
+        private delegate void DelHighlightScriptSyntax(Range range);
+        private DelHighlightScriptSyntax HighlightScriptSyntax;
+
+        private void HighlightInvisibleChars(Range range)
+        {
+            range.ClearStyle(InvisibleCharsStyle);
+            if (btnShowInvisibleCharacters.Checked)
+                range.SetStyle(InvisibleCharsStyle, @".$|.\r\n|\s");
+        }
+
+        List<ExplorerItem> _explorerList = new List<ExplorerItem>();
+
+        private void ReBuildObjectExplorer(string text)
+        {
+            try
+            {
+                List<ExplorerItem> list = new List<ExplorerItem>();
+                int lastClassIndex = -1;
+                //find classes, methods and properties
+                Regex regex = new Regex(@"^(?<range>[\w\s]+\b(class|struct|enum|interface)\s+[\w<>,\s]+)|^\s*(public|private|internal|protected)[^\n]+(\n?\s*{|;)?", RegexOptions.Multiline);
+                foreach (Match r in regex.Matches(text))
+                {
+                    try
+                    {
+                        string s = r.Value;
+                        int i = s.IndexOfAny(new char[] { '=', '{', ';' });
+                        if (i >= 0)
+                            s = s.Substring(0, i);
+                        s = s.Trim();
+
+                        var item = new ExplorerItem()
+                        {
+                            Title = s,
+                            Position = r.Index
+                        };
+
+                        if (Regex.IsMatch(item.Title, @"\b(class|struct|enum|interface)\b"))
+                        {
+                            item.Title = item.Title.Substring(item.Title.LastIndexOf(' ')).Trim();
+                            item.Type = EExplorerItemType.Class;
+                            list.Sort(lastClassIndex + 1, list.Count - (lastClassIndex + 1), new ExplorerItemComparer());
+                            lastClassIndex = list.Count;
+                        }
+                        else if (item.Title.Contains(" event "))
+                        {
+                            int ii = item.Title.LastIndexOf(' ');
+                            item.Title = item.Title.Substring(ii).Trim();
+                            item.Type = EExplorerItemType.Event;
+                        }
+                        else if (item.Title.Contains("("))
+                        {
+                            var parts = item.Title.Split('(');
+                            item.Title = parts[0].Substring(parts[0].LastIndexOf(' ')).Trim() + "(" + parts[1];
+                            item.Type = EExplorerItemType.Method;
+                        }
+                        else if (item.Title.EndsWith("]"))
+                        {
+                            var parts = item.Title.Split('[');
+                            if (parts.Length < 2) continue;
+                            item.Title = parts[0].Substring(parts[0].LastIndexOf(' ')).Trim() + "[" + parts[1];
+                            item.Type = EExplorerItemType.Method;
+                        }
+                        else
+                        {
+                            int ii = item.Title.LastIndexOf(' ');
+                            item.Title = item.Title.Substring(ii).Trim();
+                            item.Type = EExplorerItemType.Property;
+                        }
+                        list.Add(item);
+                    }
+                    catch { }
+                }
+
+                list.Sort(lastClassIndex + 1, list.Count - (lastClassIndex + 1), new ExplorerItemComparer());
+
+                BeginInvoke(
+                    new Action(() =>
+                    {
+                        _explorerList = list;
+                        dgvObjectExplorer.RowCount = _explorerList.Count;
+                        dgvObjectExplorer.Invalidate();
+                    })
+                );
+            }
+            catch { }
+        }
+
+        private enum EExplorerItemType
+        {
+            Class,
+            Method,
+            Property,
+            Event
+        }
+        private class ExplorerItem
+        {
+            public EExplorerItemType Type { get; set; }
+            public string Title { get; set; }
+            public int Position { get; set; }
+        }
+        private class ExplorerItemComparer : IComparer<ExplorerItem>
+        {
+            public int Compare(ExplorerItem x, ExplorerItem y)
+                => x.Title.CompareTo(y.Title);
+        }
+        
+        private void btnCut_Click(object sender, EventArgs e) => TextBox.Cut();
+        private void btnCopy_Click(object sender, EventArgs e) => TextBox.Copy();
+        private void btnPaste_Click(object sender, EventArgs e) => TextBox.Paste();
+        private void btnSelectAll_Click(object sender, EventArgs e) => TextBox.Selection.SelectAll();
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (TextBox.UndoEnabled)
+                TextBox.Undo();
+        }
+        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (TextBox.RedoEnabled)
+                TextBox.Redo();
+        }
+
+        private void tmUpdateInterface_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                //if (TextBox != null && tsFiles.Items.Count > 0)
+                //{
+                //    var tb = TextBox;
+                //    undoStripButton.Enabled = undoToolStripMenuItem.Enabled = tb.UndoEnabled;
+                //    redoStripButton.Enabled = redoToolStripMenuItem.Enabled = tb.RedoEnabled;
+                //    saveToolStripButton.Enabled = saveToolStripMenuItem.Enabled = tb.IsChanged;
+                //    saveAsToolStripMenuItem.Enabled = true;
+                //    pasteToolStripButton.Enabled = pasteToolStripMenuItem.Enabled = true;
+                //    cutToolStripButton.Enabled = cutToolStripMenuItem.Enabled =
+                //    copyToolStripButton.Enabled = copyToolStripMenuItem.Enabled = !tb.Selection.IsEmpty;
+                //    printToolStripButton.Enabled = true;
+                //}
+                //else
+                //{
+                //    saveToolStripButton.Enabled = saveToolStripMenuItem.Enabled = false;
+                //    saveAsToolStripMenuItem.Enabled = false;
+                //    cutToolStripButton.Enabled = cutToolStripMenuItem.Enabled =
+                //    copyToolStripButton.Enabled = copyToolStripMenuItem.Enabled = false;
+                //    pasteToolStripButton.Enabled = pasteToolStripMenuItem.Enabled = false;
+                //    printToolStripButton.Enabled = false;
+                //    undoStripButton.Enabled = undoToolStripMenuItem.Enabled = false;
+                //    redoStripButton.Enabled = redoToolStripMenuItem.Enabled = false;
+                //    dgvObjectExplorer.RowCount = 0;
+                //}
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        
+        bool tbFindChanged = false;
+
+        private void tbFind_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //if (e.KeyChar == '\r' && TextBox != null)
+            //{
+            //    Range r = tbFindChanged ? TextBox.Range.Clone() : TextBox.Selection.Clone();
+            //    tbFindChanged = false;
+            //    r.End = new Place(TextBox[TextBox.LinesCount - 1].Count, TextBox.LinesCount - 1);
+            //    var pattern = Regex.Escape(tbFind.Text);
+            //    foreach (var found in r.GetRanges(pattern))
+            //    {
+            //        found.Inverse();
+            //        TextBox.Selection = found;
+            //        TextBox.DoSelectionVisible();
+            //        return;
+            //    }
+            //    MessageBox.Show("Not found.");
+            //}
+            //else
+            //    tbFindChanged = true;
+        }
+        
+        private void dgvObjectExplorer_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (TextBox != null)
+            {
+                var item = _explorerList[e.RowIndex];
+                TextBox.GoEnd();
+                TextBox.SelectionStart = item.Position;
+                TextBox.DoSelectionVisible();
+                TextBox.Focus();
+            }
+        }
+
+        private static Bitmap ClassImage;
+        private static Bitmap MethodImage;
+        private static Bitmap EventImage;
+        private static Bitmap PropertyImage;
+        private static Bitmap FieldImage;
+        private static readonly int WidthHeight = 16;
+        static DockableTextEditor()
+        {
+            LoadImages();
+        }
+        private static void LoadImages()
+        {
+            var classSVG = SvgDocument.Open(Engine.Files.TexturePath("Class.svg"));
+            var methodSVG = SvgDocument.Open(Engine.Files.TexturePath("Method.svg"));
+            var eventSVG = SvgDocument.Open(Engine.Files.TexturePath("Event.svg"));
+            var propertySVG = SvgDocument.Open(Engine.Files.TexturePath("Property.svg"));
+            var fieldSVG = SvgDocument.Open(Engine.Files.TexturePath("Field.svg"));
+
+            ClassImage = classSVG.Draw(WidthHeight, WidthHeight);
+            MethodImage = methodSVG.Draw(WidthHeight, WidthHeight);
+            EventImage = eventSVG.Draw(WidthHeight, WidthHeight);
+            PropertyImage = propertySVG.Draw(WidthHeight, WidthHeight);
+            FieldImage = fieldSVG.Draw(WidthHeight, WidthHeight);
+        }
+        private void dgvObjectExplorer_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        {
+            try
+            {
+                ExplorerItem item = _explorerList[e.RowIndex];
+                if (e.ColumnIndex == 1)
+                    e.Value = item.Title;
+                else
+                    switch (item.Type)
+                    {
+                        case EExplorerItemType.Class:
+                            e.Value = ClassImage;
+                            return;
+                        case EExplorerItemType.Method:
+                            e.Value = MethodImage;
+                            return;
+                        case EExplorerItemType.Event:
+                            e.Value = EventImage;
+                            return;
+                        case EExplorerItemType.Property:
+                            e.Value = PropertyImage;
+                            return;
+                    }
+            }
+            catch { }
+        }
+        
+        /// <summary>
+        /// This item appears when any part of snippet text is typed
+        /// </summary>
+        private class DeclarationSnippet : SnippetAutocompleteItem
+        {
+            public DeclarationSnippet(string snippet) : base(snippet) { }
+
+            public override CompareResult Compare(string fragmentText)
+            {
+                var pattern = Regex.Escape(fragmentText);
+                if (Regex.IsMatch(Text, "\\b" + pattern, RegexOptions.IgnoreCase))
+                    return CompareResult.Visible;
+                return CompareResult.Hidden;
+            }
+        }
+
+        /// <summary>
+        /// Divides numbers and words: "123AND456" -> "123 AND 456"
+        /// Or "i=2" -> "i = 2"
+        /// </summary>
+        private class InsertSpaceSnippet : AutocompleteItem
+        {
+            private string Pattern { get; set; }
+
+            public InsertSpaceSnippet(string pattern)
+                : base("") => Pattern = pattern;
+            
+            public InsertSpaceSnippet()
+                : this(@"^(\d+)([a-zA-Z_]+)(\d*)$") { }
+
+            public override CompareResult Compare(string fragmentText)
+            {
+                if (Regex.IsMatch(fragmentText, Pattern))
+                {
+                    Text = InsertSpaces(fragmentText);
+                    if (Text != fragmentText)
+                        return CompareResult.Visible;
+                }
+                return CompareResult.Hidden;
+            }
+
+            public string InsertSpaces(string fragment)
+            {
+                var m = Regex.Match(fragment, Pattern);
+                if (m == null)
+                    return fragment;
+                if (m.Groups[1].Value == "" && m.Groups[3].Value == "")
+                    return fragment;
+                return (m.Groups[1].Value + " " + m.Groups[2].Value + " " + m.Groups[3].Value).Trim();
+            }
+
+            public override string ToolTipTitle => Text;
+        }
+
+        /// <summary>
+        /// Inerts line break after '}'
+        /// </summary>
+        private class InsertEnterSnippet : AutocompleteItem
+        {
+            Place EnterPlace = Place.Empty;
+
+            public InsertEnterSnippet()
+                : base("[Line break]") { }
+
+            public override CompareResult Compare(string fragmentText)
+            {
+                var r = Parent.Fragment.Clone();
+                while (r.Start.iChar > 0)
+                {
+                    if (r.CharBeforeStart == '}')
+                    {
+                        EnterPlace = r.Start;
+                        return CompareResult.Visible;
+                    }
+
+                    r.GoLeftThroughFolded();
+                }
+
+                return CompareResult.Hidden;
+            }
+
+            public override string GetTextForReplace()
+            {
+                //extend range
+                Range r = Parent.Fragment;
+                Place end = r.End;
+                r.Start = EnterPlace;
+                r.End = r.End;
+                //insert line break
+                return Environment.NewLine + r.Text;
+            }
+
+            public override void OnSelected(AutocompleteMenu popupMenu, SelectedEventArgs e)
+            {
+                base.OnSelected(popupMenu, e);
+                if (Parent.Fragment.tb.AutoIndent)
+                    Parent.Fragment.tb.DoAutoIndent();
+            }
+
+            public override string ToolTipTitle
+            {
+                get
+                {
+                    return "Insert line break after '}'";
+                }
+            }
+        }
+
+        private void btnAutoIndentSelectedLines_Click(object sender, EventArgs e) => TextBox.DoAutoIndent();
+        private void btHighlightCurrentLine_Click(object sender, EventArgs e)
+        {
+            //btnHighlightCurrentLine.Checked = !btnHighlightCurrentLine.Checked;
+            //if (btnHighlightCurrentLine.Checked)
+            //    TextBox.CurrentLineColor = CurrentLineColor;
+            //else
+            //    TextBox.CurrentLineColor = Color.Transparent;
+            //TextBox.Invalidate();
+        }
+        //private void cloneLinesToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    //expand selection
+        //    TextBox.Selection.Expand();
+        //    //get text of selected lines
+        //    string text = Environment.NewLine + TextBox.Selection.Text;
+        //    //move caret to end of selected lines
+        //    TextBox.Selection.Start = TextBox.Selection.End;
+        //    //insert text
+        //    TextBox.InsertText(text);
+        //}
+        //private void cloneLinesAndCommentToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    //start autoUndo block
+        //    TextBox.BeginAutoUndo();
+        //    //expand selection
+        //    TextBox.Selection.Expand();
+        //    //get text of selected lines
+        //    string text = Environment.NewLine + TextBox.Selection.Text;
+        //    //comment lines
+        //    TextBox.InsertLinePrefix(TextBox.CommentPrefix);
+        //    //move caret to end of selected lines
+        //    TextBox.Selection.Start = TextBox.Selection.End;
+        //    //insert text
+        //    TextBox.InsertText(text);
+        //    //end of autoUndo block
+        //    TextBox.EndAutoUndo();
+        //}
+
+        private void bookmarkPlusButton_Click(object sender, EventArgs e)
+        {
+            if (TextBox == null)
+                return;
+            TextBox.BookmarkLine(TextBox.Selection.Start.iLine);
+        }
+        private void bookmarkMinusButton_Click(object sender, EventArgs e)
+        {
+            if (TextBox == null)
+                return;
+            TextBox.UnbookmarkLine(TextBox.Selection.Start.iLine);
+        }
+
+        //private void gotoButton_DropDownOpening(object sender, EventArgs e)
+        //{
+        //    btnGoto.DropDownItems.Clear();
+        //    FastColoredTextBox tb = TextBox;
+        //    foreach (var bookmark in tb.Bookmarks)
+        //    {
+        //        var item = btnGoto.DropDownItems.Add(bookmark.Name + " [" + Path.GetFileNameWithoutExtension(tab.Tag as String) + "]");
+        //        item.Tag = bookmark;
+        //        item.Click += (o, a) =>
+        //        {
+        //            var b = (Bookmark)(o as ToolStripItem).Tag;
+        //            try
+        //            {
+        //                TextBox = b.TB;
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Engine.LogException(ex);
+        //                return;
+        //            }
+        //            b.DoVisible();
+        //        };
+        //    }
+        //}
+        //private void btnZoom_Click(object sender, EventArgs e)
+        //{
+        //    TextBox.Zoom = int.Parse((sender as ToolStripItem).Tag.ToString());
+        //}
+
+        private void btnShowInvisibleCharacters_Click(object sender, EventArgs e)
+        {
+            btnShowInvisibleCharacters.Checked = !btnShowInvisibleCharacters.Checked;
+            HighlightInvisibleChars(TextBox.Range);
+            TextBox.Invalidate();
+        }
+        private void btnShowFoldingLines_Click(object sender, EventArgs e)
+        {
+            btnShowFoldingLines.Checked = !btnShowFoldingLines.Checked;
+            TextBox.ShowFoldingLines = btnShowFoldingLines.Checked;
+            TextBox.Invalidate();
+        }
+
+        public static readonly char[] GLSLSyntax = { '(', ')', '[', ']', '{', '}', ',', ';' };
+        public static readonly string[] GLSLKeywords =
+        {
+            "attribute",
+            "const",
+            "uniform",
+            "varying",
+            "buffer",
+            "shared",
+            "coherent",
+            "volatile",
+            "restrict",
+            "readonly",
+            "writeonly",
+            "atomic_uint",
+            "layout",
+            "centroid",
+            "flat",
+            "smooth",
+            "noperspective",
+            "patch",
+            "sample",
+            "break",
+            "continue",
+            "do",
+            "for",
+            "while",
+            "switch",
+            "case",
+            "default",
+            "if",
+            "else",
+            "subroutine",
+            "in",
+            "out",
+            "inout",
+            "float",
+            "double",
+            "int",
+            "void",
+            "bool",
+            "true",
+            "false",
+            "invariant",
+            "precise",
+            "discard",
+            "return",
+            "mat2",
+            "mat3",
+            "mat4",
+            "dmat2",
+            "dmat3",
+            "dmat4",
+            "mat2x2",
+            "mat2x3",
+            "mat2x4",
+            "dmat2x2",
+            "dmat2x3",
+            "dmat2x4",
+            "mat3x2",
+            "mat3x3",
+            "mat3x4",
+            "dmat3x2",
+            "dmat3x3",
+            "dmat3x4",
+            "mat4x2",
+            "mat4x3",
+            "mat4x4",
+            "dmat4x2",
+            "dmat4x3",
+            "dmat4x4",
+            "vec2",
+            "vec3",
+            "vec4",
+            "ivec2",
+            "ivec3", "ivec4", "bvec2", "bvec3", "bvec4", "dvec2", "dvec3", "dvec4", "uint", "uvec2", "uvec3", "uvec4", "lowp", "mediump", "highp", "precision", "sampler1D", "sampler2D", "sampler3D", "samplerCube", "sampler1DShadow", "sampler2DShadow", "samplerCubeShadow", "sampler1DArray", "sampler2DArray", "sampler1DArrayShadow", "sampler2DArrayShadow", "isampler1D", "isampler2D", "isampler3D", "isamplerCube", "isampler1DArray", "isampler2DArray", "usampler1D", "usampler2D", "usampler3D", "usamplerCube", "usampler1DArray", "usampler2DArray", "sampler2DRect", "sampler2DRectShadow", "isampler2DRect", "usampler2DRect", "samplerBuffer", "isamplerBuffer", "usamplerBuffer", "sampler2DMS", "isampler2DMS", "usampler2DMS", "sampler2DMSArray", "isampler2DMSArray", "usampler2DMSArray", "samplerCubeArray", "samplerCubeArrayShadow", "isamplerCubeArray", "usamplerCubeArray", "image1D", "iimage1D", "uimage1D", "image2D", "iimage2D", "uimage2D", "image3D", "iimage3D", "uimage3D", "image2DRect", "iimage2DRect", "uimage2DRect", "imageCube", "iimageCube", "uimageCube", "imageBuffer", "iimageBuffer", "uimageBuffer", "image1DArray", "iimage1DArray", "uimage1DArray", "image2DArray", "iimage2DArray", "uimage2DArray", "imageCubeArray", "iimageCubeArray", "uimageCubeArray", "image2DMS", "iimage2DMS", "uimage2DMS", "image2DMSArray", "iimage2DMSArray", "uimage2DMSArray", "struct" };
+
+        public static string[] GLSLBuiltInMethods =
+        {
+            "abs",
+            "acos",
+            "acosh",
+            "all",
+            "any",
+            "asin",
+            "asinh",
+            "atan",
+            "atanh",
+            "atomicAdd",
+            "atomicAnd",
+            "atomicCompSwap",
+            "atomicCounter",
+            "atomicCounterDecrement",
+            "atomicCounterIncrement",
+            "atomicExchange",
+            "atomicMax",
+            "atomicMin",
+            "atomicOr",
+            "atomicXor",
+            "barrier",
+            "bitCount",
+            "bitfieldExtract",
+            "bitfieldInsert",
+            "bitfieldReverse",
+            "ceil",
+            "clamp",
+            "cos",
+            "cosh",
+            "cross",
+            "degrees",
+            "determinant",
+            "dFdx",
+            "dFdxCoarse",
+            "dFdxFine",
+            "dFdy",
+            "dFdyCoarse",
+            "dFdyFine",
+            "distance",
+            "dot",
+            "EmitStreamVertex",
+            "EmitVertex",
+            "EndPrimitive",
+            "EndStreamPrimitive",
+            "equal",
+            "exp",
+            "exp2",
+            "faceforward", "findLSB", "findMSB", "floatBitsToInt", "floatBitsToUint", "floor", "fma", "fract", "frexp", "fwidth", "fwidthCoarse", "fwidthFine", "gl_ClipDistance", "gl_CullDistance", "gl_FragCoord", "gl_FragDepth", "gl_FrontFacing", "gl_GlobalInvocationID", "gl_HelperInvocation", "gl_InstanceID", "gl_InvocationID", "gl_Layer", "gl_LocalInvocationID", "gl_LocalInvocationIndex", "gl_NumSamples", "gl_NumWorkGroups", "gl_PatchVerticesIn", "gl_PointCoord", "gl_PointSize", "gl_Position", "gl_PrimitiveID", "gl_PrimitiveIDIn", "gl_SampleID", "gl_SampleMask", "gl_SampleMaskIn", "gl_SamplePosition", "gl_TessCoord", "gl_TessLevelInner", "gl_TessLevelOuter", "gl_VertexID", "gl_ViewportIndex", "gl_WorkGroupID", "gl_WorkGroupSize", "greaterThan", "greaterThanEqual", "groupMemoryBarrier", "imageAtomicAdd", "imageAtomicAnd", "imageAtomicCompSwap", "imageAtomicExchange", "imageAtomicMax", "imageAtomicMin", "imageAtomicOr", "imageAtomicXor", "imageLoad", "imageSamples", "imageSize", "imageStore", "imulExtended", "intBitsToFloat", "interpolateAtCentroid", "interpolateAtOffset", "interpolateAtSample", "inverse", "inversesqrt", "isinf", "isnan", "ldexp", "length", "lessThan", "lessThanEqual", "log", "log2", "matrixCompMult", "max", "memoryBarrier", "memoryBarrierAtomicCounter", "memoryBarrierBuffer", "memoryBarrierImage", "memoryBarrierShared", "min", "mix", "mod", "modf", "noise", "noise1", "noise2", "noise3", "noise4", "normalize", "not", "notEqual", "outerProduct", "packDouble2x32", "packHalf2x16", "packSnorm2x16", "packSnorm4x8", "packUnorm", "packUnorm2x16", "packUnorm4x8", "pow", "radians", "reflect", "refract", "round", "roundEven", "sign", "sin", "sinh", "smoothstep", "sqrt", "step", "tan", "tanh", "texelFetch", "texelFetchOffset", "texture", "textureGather", "textureGatherOffset", "textureGatherOffsets", "textureGrad", "textureGradOffset", "textureLod", "textureLodOffset", "textureOffset", "textureProj", "textureProjGrad", "textureProjGradOffset", "textureProjLod", "textureProjLodOffset", "textureProjOffset", "textureQueryLevels", "textureQueryLod", "textureSamples", "textureSize", "transpose", "trunc", "uaddCarry", "uintBitsToFloat", "umulExtended", "unpackDouble2x32", "unpackHalf2x16", "unpackSnorm2x16", "unpackSnorm4x8", "unpackUnorm", "unpackUnorm2x16", "unpackUnorm4x8", "usubBorrow" };
+        
+        public static string[] PythonKeywords =
+        {
+            "False",
+            "class",
+            "finally",
+            "is",
+            "return",
+            "None",
+            "continue",
+            "for",
+            "lambda",
+            "try",
+            "True",
+            "def",
+            "from",
+            "nonlocal",
+            "while",
+            "and",
+            "del",
+            "global",
+            "not",
+            "with",
+            "as",
+            "elif",
+            "if",
+            "or",
+            "yield",
+            "assert",
+            "else",
+            "import",
+            "pass",
+            "break",
+            "except",
+            "in",
+            "raise"
+        };
+        public static readonly string PythonKeywordsRegex = string.Join("|", PythonKeywords);
+        public static readonly string[] CSharpPreprocessDirectives =
+        {
+            "region",
+            "endregion",
+            "if",
+            "elif",
+            "else",
+            "endif",
+            "error",
+            "warning",
+            "pragma",
+            "line",
+        };
+        public static readonly string CSharpPreprocessDirectivesRegex = string.Join("|", CSharpPreprocessDirectives);
+        public static readonly string[] CSharpKeywords =
+        {
+            "abstract",
+            "as",
+            "base",
+            "bool",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "checked",
+            "class",
+            "const",
+            "continue",
+            "decimal",
+            "default",
+            "delegate",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "event",
+            "explicit",
+            "extern",
+            "false",
+            "finally",
+            "fixed",
+            "float",
+            "for",
+            "foreach",
+            "goto",
+            "if",
+            "implicit",
+            "in",
+            "int",
+            "interface",
+            "internal",
+            "is",
+            "lock",
+            "long",
+            "namespace",
+            "new",
+            "null",
+            "object",
+            "operator",
+            "out",
+            "override",
+            "params",
+            "private",
+            "protected",
+            "public",
+            "readonly",
+            "ref",
+            "return",
+            "sbyte",
+            "sealed",
+            "short",
+            "sizeof",
+            "stackalloc",
+            "static",
+            "string",
+            "struct",
+            "switch",
+            "this",
+            "throw",
+            "true",
+            "try",
+            "typeof",
+            "uint",
+            "ulong",
+            "unchecked",
+            "unsafe",
+            "ushort",
+            "using",
+            "virtual",
+            "void",
+            "volatile",
+            "while",
+            "add",
+            "alias",
+            "ascending",
+            "descending",
+            "dynamic",
+            "from",
+            "get",
+            "global",
+            "group",
+            "into",
+            "join",
+            "let",
+            "orderby",
+            "partial",
+            "remove",
+            "select",
+            "set",
+            "value",
+            "var",
+            "where",
+            "yield",
+            "nameof"
+        };
+        public static readonly string CSharpKeywordsRegex = string.Join("|", CSharpKeywords);
+
+        public string[] CurrentKeywords;
+
+        public static readonly string[] CSharpObjectMethods =
+        {
+            "Equals()", "GetHashCode()", "GetType()", "ToString()"
+        };
+        public static readonly string[] CSharpSnippets = 
+        {
+            "if (^)\n{\n\n}",
+            "if (^)\n{\n\n}\nelse\n{\n\n}",
+            "for (^;;)\n{\n\n}",
+            "while (^)\n{\n\n}",
+            "do\n{\n^;\n} ",
+            "while (^);",
+            "switch (^)\n{\n\n}",
+            "case ^:",
+            "case ^:\nbreak;",
+            "case ^:\n{\n\n}\nbreak;",
+        };
+        public static readonly string[] CSharpDecSnippets = 
+        {
+            "public class ^\n{\n\n}",
+            "private class ^\n{\n\n}",
+            "internal class ^\n{\n\n}",
+
+            "public struct ^\n{\n\n}",
+            "private struct ^\n{\n\n}",
+            "internal struct ^\n{\n\n}",
+
+            "public void ^()\n{\nthrow new NotImplementedException();\n}",
+            "private void ^()\n{\nthrow new NotImplementedException();\n}",
+            "internal void ^()\n{\nthrow new NotImplementedException();\n}",
+            "internal protected void ^()\n{\nthrow new NotImplementedException();\n}",
+            "protected void ^()\n{\nthrow new NotImplementedException();\n}",
+
+            "public static void ^()\n{\nthrow new NotImplementedException();\n}",
+            "private static  void ^()\n{\nthrow new NotImplementedException();\n}",
+            "internal static void ^()\n{\nthrow new NotImplementedException();\n}",
+            "internal protected static void ^()\n{\nthrow new NotImplementedException();\n}",
+            "protected static void ^()\n{\nthrow new NotImplementedException();\n}",
+
+            "public ^{ get; set; }",
+            "private ^{ get; set; }",
+            "internal ^{ get; set; }",
+            "internal protected ^{ get; set; }",
+            "protected ^{ get; set; }",
+        };
+
+        private static readonly string StringRegex = @"""""|@""""|''|@"".*?""|(?<!@)(?<range>"".*?[^\\]"")|'.*?[^\\]'";
+        private static readonly string NumberRegex = @"\b\d+[\.]?\d*([eE]\-?\d+)?[lLdDfF]?\b|\b0x[a-fA-F\d]+\b";
+        private void CSharpSyntaxHighlight(Range e)
+        {
+            TextBox.LeftBracket = '(';
+            TextBox.RightBracket = ')';
+            TextBox.LeftBracket2 = '\x0';
+            TextBox.RightBracket2 = '\x0';
+
+            //clear style of changed range
+            e.ClearStyle(KeywordStyle, ClassNameStyle, PreprocessorStyle, NumberStyle, CommentStyle, StringStyle);
+
+            //string highlighting
+            e.SetStyle(StringStyle, StringRegex);
+
+            //comment highlighting
+            e.SetStyle(CommentStyle, @"//.*$", RegexOptions.Multiline);
+            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(/\*.*)", RegexOptions.Singleline);
+            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(.*\*/)", RegexOptions.Singleline | RegexOptions.RightToLeft);
+            
+            //number highlighting
+            e.SetStyle(NumberStyle, NumberRegex);
+            
+            //attribute highlighting
+            //e.SetStyle(AttributeStyle, @"^\s*(?<range>\[.+?\])\s*$", RegexOptions.Multiline);
+            e.SetStyle(PreprocessorStyle, "^#(" + CSharpPreprocessDirectivesRegex + ")\b");
+
+            //class name highlighting
+            e.SetStyle(ClassNameStyle, @"\b(class|struct|enum|interface)\s+(?<range>\w+?)\b");
+
+            //keyword highlighting
+            e.SetStyle(KeywordStyle, @"\b(" + CSharpKeywordsRegex + ")\b");
+
+            //clear folding markers
+            e.ClearFoldingMarkers();
+
+            //set folding markers
+            e.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
+            e.SetFoldingMarkers(@"#region\b", @"#endregion\b"); //allow to collapse #region blocks
+            e.SetFoldingMarkers(@"/\*", @"\*/"); //allow to collapse comment block
+        }
+
+        private void TextBox_AutoIndentNeeded_CSharp(object sender, AutoIndentEventArgs args)
+        {
+            //block {}
+            if (Regex.IsMatch(args.LineText, @"^[^""']*\{.*\}[^""']*$"))
+                return;
+
+            //start of block {}
+            if (Regex.IsMatch(args.LineText, @"^[^""']*\{"))
+            {
+                args.ShiftNextLines = args.TabLength;
+                return;
+            }
+
+            //end of block {}
+            if (Regex.IsMatch(args.LineText, @"}[^""']*$"))
+            {
+                args.Shift = -args.TabLength;
+                args.ShiftNextLines = -args.TabLength;
+                return;
+            }
+
+            //label
+            if (Regex.IsMatch(args.LineText, @"^\s*\w+\s*:\s*($|//)") &&
+                !Regex.IsMatch(args.LineText, @"^\s*default\s*:"))
+            {
+                args.Shift = -args.TabLength;
+                return;
+            }
+
+            //some statements: case, default
+            if (Regex.IsMatch(args.LineText, @"^\s*(case|default)\b.*:\s*($|//)"))
+            {
+                args.Shift = -args.TabLength / 2;
+                return;
+            }
+
+            //is unclosed operator in previous line ?
+            if (Regex.IsMatch(args.PrevLineText, @"^\s*(if|for|foreach|while|[\}\s]*else)\b[^{]*$"))
+                if (!Regex.IsMatch(args.PrevLineText, @"(;\s*$)|(;\s*//)")) //operator is unclosed
+                {
+                    args.Shift = args.TabLength;
+                    return;
+                }
+        }
+        private void TextBox_AutoIndentNeeded_GLSL(object sender, AutoIndentEventArgs e)
+        {
+            string line = e.LineText.Trim();
+            if (line.EndsWith("{"))
+            {
+                e.ShiftNextLines = e.TabLength;
+                return;
+            }
+            else if (line.EndsWith("}"))
+            {
+                e.ShiftNextLines = -e.TabLength;
+                return;
+            }
+        }
+        private void TextBox_AutoIndentNeeded_Python(object sender, AutoIndentEventArgs e)
+        {
+            string line = e.LineText.Trim();
+            if (line.EndsWith(":"))
+            {
+                e.ShiftNextLines = e.TabLength;
+                return;
+            }
+        }
+
+        public string GetText() => TextBox.Text;
+        public event Action<DockableTextEditor> Saved;
+
+        private bool _updating = false;
+        private void cboMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (!_updating)
+                Mode = (ETextEditorMode)cboMode.SelectedIndex;
+        }
+        private void btnFont_Click(object sender, EventArgs e)
+        {
+            Font prevFont = TextBox.Font;
+            Color prevColor = TextBox.ForeColor;
+            using (FontDialog fd = new FontDialog()
+            {
+                FixedPitchOnly = true,
+                Font = TextBox.Font,
+                ShowHelp = false,
+                ShowApply = true,
+                ShowEffects = false,
+                ShowColor = true,
+                Color = TextBox.ForeColor,
+                AllowScriptChange = false,
+            })
+            {
+                fd.Apply += FontDialog_Apply;
+                if (fd.ShowDialog(this) == DialogResult.OK)
+                {
+                    prevFont = fd.Font;
+                    prevColor = fd.Color;
+                }
+            }
+            TextBox.Font = prevFont;
+            TextBox.ForeColor = prevColor;
+            btnFont.Text = string.Format("{0} {1} pt", TextBox.Font.Name, Math.Round(TextBox.Font.SizeInPoints));
+        }
+
+        private void FontDialog_Apply(object sender, EventArgs e)
+        {
+            FontDialog fd = sender as FontDialog;
+            TextBox.Font = fd.Font;
+            TextBox.ForeColor = fd.Color;
+            btnFont.Text = string.Format("{0} {1} pt", fd.Font.Name, Math.Round(fd.Font.SizeInPoints));
+        }
+        private void btnOpen_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = TFileObject.GetFilter<TextFile>(true, true, false, false) + "|All files (*.*)|*.*",
+                Multiselect = true
+            })
+            {
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                {
+                    string text = "";
+                    foreach (string path in ofd.FileNames)
+                        text += File.ReadAllText(path, TextFile.GetEncoding(path));
+                    TextBox.Text = text;
+                    TextBox.IsChanged = false;
+                }
+            }
+        }
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if (TargetFile == null)
+                return;
+
+            if (TextBox.IsChanged)
+            {
+                Save();
+                TextBox.IsChanged = false;
+            }
+        }
+        private void btnSaveAs_Click(object sender, EventArgs e)
+        {
+            if (TargetFile == null)
+                return;
+
+            using (SaveFileDialog sfd = new SaveFileDialog()
+            {
+                Filter = TargetFile.GetFilter(true, true, false, false) + "|All files (*.*)|*.*",
+            })
+            {
+                if (sfd.ShowDialog(this) == DialogResult.OK)
+                {
+                    SaveAs(sfd.FileName);
+                }
+            }
+        }
+        private void btnSelectPaths_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = "All files (*.*)|*.*",
+                Multiselect = true
+            })
+            {
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                {
+                    TextBox.Text = TextBox.Text.Insert(TextBox.SelectionStart, string.Join(Environment.NewLine, ofd.FileNames));
+                }
+            }
+        }
+        private void btnCommentSelectedLines_Click(object sender, EventArgs e)
+        {
+            TextBox.InsertLinePrefix(TextBox.CommentPrefix);
+        }
+        private void btnUncommentSelectedLines_Click(object sender, EventArgs e)
+        {
+            TextBox.RemoveLinePrefix(TextBox.CommentPrefix);
+        }
+        private void btnCollapseAllFoldingBlocks_Click(object sender, EventArgs e)
+        {
+            TextBox.CollapseAllFoldingBlocks();
+            TextBox.DoSelectionVisible();
+        }
+        private void btnExpandAllFoldingBlocks_Click(object sender, EventArgs e)
+        {
+            TextBox.ExpandAllFoldingBlocks();
+            TextBox.DoSelectionVisible();
+        }
+        private void btnExpandAllRegionBlocks_Click(object sender, EventArgs e)
+        {
+            if (Mode != ETextEditorMode.CSharp)
+                return;
+
+            for (int iLine = 0; iLine < TextBox.LinesCount; iLine++)
+                if (TextBox[iLine].FoldingStartMarker == @"#region\b")
+                    TextBox.ExpandFoldedBlock(iLine);
+        }
+        private void btnCollapseAllRegionBlocks_Click(object sender, EventArgs e)
+        {
+            if (Mode != ETextEditorMode.CSharp)
+                return;
+
+            for (int iLine = 0; iLine < TextBox.LinesCount; iLine++)
+                if (TextBox[iLine].FoldingStartMarker == @"#region\b")
+                    TextBox.CollapseFoldingBlock(iLine);
+        }
+        private void btnRemoveEmptyLines_Click(object sender, EventArgs e)
+        {
+            var iLines = TextBox.FindLines(@"^\s*$", RegexOptions.None);
+            TextBox.RemoveLines(iLines);
+        }
+        private void btnFind_Click(object sender, EventArgs e)
+        {
+            if (TextBox.Selection.TextLength > 0)
+                TextBox.ShowFindDialog(TextBox.Selection.Text);
+            else
+                TextBox.ShowFindDialog();
+        }
+        private void btnReplace_Click(object sender, EventArgs e)
+        {
+            if (TextBox.Selection.TextLength > 0)
+                TextBox.ShowReplaceDialog(TextBox.Selection.Text);
+            else
+                TextBox.ShowReplaceDialog();
+        }
+        private void btnGoto_Click(object sender, EventArgs e)
+        {
+            TextBox.ShowGoToDialog();
+        }
+        private void btnHotkeys_Click(object sender, EventArgs e)
+        {
+            var form = new HotkeysEditorForm(TextBox.HotkeysMapping);
+            if (form.ShowDialog() == DialogResult.OK)
+                TextBox.HotkeysMapping = form.GetHotkeys();
+        }
+        private void btnStartStopRecording_Click(object sender, EventArgs e)
+        {
+            TextBox.MacrosManager.IsRecording = !TextBox.MacrosManager.IsRecording;
+            //btnStartStopRecording.Text = TextBox.MacrosManager.IsRecording ? "Stop Recording" : "Start Recording";
+        }
+        private void btnSaveRecordedMacros_Click(object sender, EventArgs e)
+        {
+            string macros = TextBox.MacrosManager.Macros;
+            if (!string.IsNullOrWhiteSpace(macros))
+            {
+                TextFile file = macros;
+                //SaveFileDialog sfd = new SaveFileDialog();
+                //file.ExportAsync("");
+            }
+        }
+        private void btnLoadMacros_Click(object sender, EventArgs e)
+        {
+            //OpenFileDialog ofd = new OpenFileDialog();
+            //Add ToolStripButton with tag as macro text
+        }
+        private void btnClearMacros_Click(object sender, EventArgs e)
+        {
+            TextBox.MacrosManager.ClearMacros();
+        }
+        private void btnExecuteMacros_Click(object sender, EventArgs e)
+        {
+            ToolStripButton btn = sender as ToolStripButton;
+            string macros = btn.Tag as string;
+            TextBox.MacrosManager.Macros = macros;
+            TextBox.MacrosManager.ExecuteMacros();
+            TextBox.MacrosManager.Macros = null;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            bool processed = base.ProcessCmdKey(ref msg, keyData);
+            if (keyData == Keys.Insert)
+                TextBox_SelectionChanged(null, null);
+            return processed;
+        }
+
+        private Range _currentLine;
+        private SelectionStyle SelStyle = new SelectionStyle(new Pen(new SolidBrush(Color.Gray), 1.2f));
+        private void TextBox_SelectionChanged(object sender, EventArgs e)
+        {
+            bool insert = IsKeyLocked(Keys.Insert);
+            Range newSelection = TextBox.Selection;
+            lblStatusText.Text = string.Format("Ln {0} Col {1} {2}", 
+                newSelection.Start.iLine + 1, newSelection.Start.iChar + 1, insert ? "OVR" : "INS");
+            
+            //_currentLine?.ClearStyle(SelStyle);
+            //if (newSelection.Start.iLine == newSelection.End.iLine)
+            //    newSelection.SetStyle(SelStyle);
+            //_currentLine = newSelection;
+
+            //bool open = AutoCompleteOpen;
+            //if (open)
+            //{
+            //    string prevAuto = _autoCompleteStr;
+            //    FindAutocompleteString(TextBox.Selection.Start);
+            //    if (string.IsNullOrWhiteSpace(_autoCompleteStr) ||
+            //        !string.Equals(_autoCompleteStr, prevAuto))
+            //    {
+            //        open = false;
+            //    }
+            //}
+
+            //Range sel = TextBox.Selection;
+            //Place start = sel.Start;
+            //FindAutocompleteString(start);
+            //int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
+            //if (selCount > 1)
+            //{
+            //    open = true;
+            //}
+
+            //if (AutoCompleteOpen != open)
+            //    AutoCompleteOpen = open;
+        }
+
+        public class SelectionStyle : Style
+        {
+            Pen Pen { get; set; }
+
+            public SelectionStyle(Pen pen)
+            {
+                Pen = pen;
+            }
+
+            public override void Draw(Graphics graphics, Point position, Range range)
+            {
+                var tb = range.tb;
+                graphics.DrawRectangle(Pen, new Rectangle(position, new Size(range.TextLength * tb.CharWidth, tb.CharHeight)));
+            }
+        }
+
+        public class InvisibleCharsRenderer : Style
+        {
+            Pen Pen { get; set; }
+
+            public InvisibleCharsRenderer(Pen pen)
+            {
+                Pen = pen;
+            }
+
+            public override void Draw(Graphics graphics, Point position, Range range)
+            {
+                var tb = range.tb;
+                using (Brush brush = new SolidBrush(Pen.Color))
+                {
+                    foreach (var place in range)
+                    {
+                        switch (tb[place].c)
+                        {
+                            case ' ':
+                                var point = tb.PlaceToPoint(place);
+                                point.Offset(tb.CharWidth / 2, tb.CharHeight / 2);
+                                graphics.DrawLine(Pen, point.X, point.Y, point.X + 1, point.Y);
+                                break;
+                        }
+
+                        if (tb[place.iLine].Count - 1 == place.iChar)
+                        {
+                            var point = tb.PlaceToPoint(place);
+                            point.Offset(tb.CharWidth, 0);
+                            graphics.DrawString("¶", tb.Font, brush, point);
+                        }
+                    }
+                }
+            }
+        }
+        public class TextBoxInfo
+        {
+            public AutocompleteMenu PopupMenu { get; set; }
+        }
+
+        private void btnGoToDef_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void btnGoToInf_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void lblSplitFileObjects_Click(object sender, EventArgs e)
+        {
+            dgvObjectExplorer.Visible = !dgvObjectExplorer.Visible;
+            lblSplitFileObjects.Text = dgvObjectExplorer.Visible ? "<" : ">";
+        }
+        private void lblSplitFileObjects_MouseEnter(object sender, EventArgs e)
+        {
+            lblSplitFileObjects.BackColor = Color.FromArgb(40, 40, 50);
+        }
+        private void lblSplitFileObjects_MouseLeave(object sender, EventArgs e)
+        {
+            lblSplitFileObjects.BackColor = Color.FromArgb(30, 30, 40);
+        }
+        private void btnFindAllRefs_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        //private bool AutoCompleteOpen
+        //{
+        //    get => pnlAutocomplete.Visible;
+        //    set => pnlAutocomplete.Visible = value;
+        //}
+        //private int RemakeAutoCompleteSelections(string str)
+        //{
+        //    if (string.IsNullOrWhiteSpace(str))
+        //        return 0;
+        //    int i = lstAutocomplete.SelectedIndex;
+        //    var matches = 
+        //        GLSLKeywords.Where(x => x.IndexOf(str, StringComparison.InvariantCultureIgnoreCase) >= 0).Union(
+        //        GLSLBuiltInMethods.Where(x => x.IndexOf(str, StringComparison.InvariantCultureIgnoreCase) >= 0)).ToArray();
+        //    Array.Sort(matches);
+        //    lstAutocomplete.Items.Clear();
+        //    if (matches.Length == 0)
+        //        return 0;
+        //    lstAutocomplete.Items.AddRange(matches);
+        //    int match = Array.FindIndex(matches, x => string.Equals(str, x, StringComparison.InvariantCultureIgnoreCase));
+        //    if (match >= 0)
+        //        lstAutocomplete.SelectedIndex = match;
+        //    else
+        //    {
+        //        match = Array.FindIndex(matches, x => x.StartsWith(str, StringComparison.InvariantCultureIgnoreCase));
+        //        if (match >= 0)
+        //            lstAutocomplete.SelectedIndex = match;
+        //        else
+        //            lstAutocomplete.SelectedIndex = i.Clamp(0, lstAutocomplete.Items.Count - 1);
+        //    }
+        //    pnlAutocomplete.Height = (matches.Length * lstAutocomplete.ItemHeight).Clamp(0, 264);
+        //    return matches.Length;
+        //}
+        //private void FillAutoCompleteSelection()
+        //{
+        //    TextBox.Selection = _autoCompleteStrRange;
+        //    TextBox.ClearSelected();
+        //    string str = (string)lstAutocomplete.SelectedItem;
+        //    TextBox.InsertText(str);
+        //    _autoCompleteStrRange.End = new Place(_autoCompleteStrRange.Start.iChar + str.Length, _autoCompleteStrRange.End.iLine);
+        //    _autoCompleteStr = str;
+        //    AutoCompleteOpen = false;
+        //}
+
+        //private string _autoCompleteStr = null;
+        //private Range _autoCompleteStrRange = null;
+        //private void FindAutocompleteString(Place p)
+        //{
+        //    //int pos = TextBox.PlaceToPosition(p), start = pos, end = pos;
+        //    //bool onBadChar = true;
+        //    //char c;
+        //    //if (pos < TextBox.Text.Length && pos >= 0)
+        //    //{
+        //    //    c = TextBox.Text[pos];
+        //    //    onBadChar = char.IsWhiteSpace(c) || GLSLSyntax.Contains(c);
+        //    //}
+        //    //for (; start > 0;)
+        //    //{
+        //    //    c = TextBox.Text[start - 1];
+        //    //    if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
+        //    //        break;
+        //    //    --start;
+        //    //}
+        //    //if (!onBadChar)
+        //    //{
+        //    //    for (; end < TextBox.Text.Length - 1;)
+        //    //    {
+        //    //        c = TextBox.Text[end + 1];
+        //    //        if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
+        //    //            break;
+        //    //        ++end;
+        //    //    }
+        //    //}
+        //    //else
+        //    //{
+        //    //    if (start == pos)
+        //    //    {
+        //    //        _autoCompleteStr = null;
+        //    //        return;
+        //    //    }
+        //    //    else
+        //    //    {
+        //    //        --end;
+        //    //    }
+        //    //}
+        //    //_autoCompleteStr = "";
+        //    //for (int i = start; i <= end; ++i)
+        //    //    _autoCompleteStr += TextBox.Text[i].ToString();
+        //    //_autoCompleteStrRange = new Range(TextBox, TextBox.PositionToPlace(start), TextBox.PositionToPlace(end + 1));
+        //}
+
+        //private void lstAutocomplete_MouseDoubleClick(object sender, MouseEventArgs e)
+        //{
+        //    FillAutoCompleteSelection();
+        //}
+        //private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    if (e.Modifiers != Keys.None)
+        //        return;
+
+        //    char c = (char)e.KeyData;
+        //    if (AutoCompleteOpen)
+        //    {
+        //        if (e.KeyData == Keys.Up)
+        //        {
+        //            lstAutocomplete.SelectedIndex = (lstAutocomplete.SelectedIndex - 1).ClampMin(0);
+        //            e.Handled = true;
+        //            e.SuppressKeyPress = true;
+        //        }
+        //        else if (e.KeyData == Keys.Down)
+        //        {
+        //            lstAutocomplete.SelectedIndex = (lstAutocomplete.SelectedIndex + 1).ClampMax(lstAutocomplete.Items.Count - 1);
+        //            e.Handled = true;
+        //            e.SuppressKeyPress = true;
+        //        }
+        //        else if (e.KeyData == Keys.Return)
+        //        {
+        //            FillAutoCompleteSelection();
+        //            e.Handled = true;
+        //            e.SuppressKeyPress = true;
+        //        }
+        //    }
+        //}
+        //SolidBrush _errorBrush;
+        //private List<Line> _errorLines = new List<Line>();
+        //private void TextBox_KeyUp(object sender, KeyEventArgs e)
+        //{
+        //    foreach (Line line in _errorLines)
+        //    {
+        //        line.BackgroundBrush = TextBox.BackBrush;
+        //        int startRemove = line.Text.IndexOf(" // error");
+        //        if (startRemove >= 0)
+        //            line.RemoveRange(startRemove, line.Count - startRemove);
+        //        startRemove = line.Text.IndexOf(" // warning");
+        //        if (startRemove >= 0)
+        //            line.RemoveRange(startRemove, line.Count - startRemove);
+        //    }
+
+        //    if (e.Modifiers != Keys.None)
+        //        return;
+
+        //    char c = (char)e.KeyData;
+        //    if (AutoCompleteOpen)
+        //    {
+        //        if (e.KeyData == Keys.Up)
+        //        {
+        //            e.Handled = true;
+        //            e.SuppressKeyPress = true;
+        //        }
+        //        else if (e.KeyData == Keys.Down)
+        //        {
+        //            e.Handled = true;
+        //            e.SuppressKeyPress = true;
+        //        }
+        //        else if (e.KeyData == Keys.Return)
+        //        {
+        //            e.Handled = true;
+        //            e.SuppressKeyPress = true;
+        //        }
+        //        else if (e.KeyData == Keys.Left ||
+        //            e.KeyData == Keys.Right)
+        //        {
+        //            string prevAuto = _autoCompleteStr;
+        //            Range sel = TextBox.Selection;
+        //            Place start = sel.Start;
+        //            FindAutocompleteString(start);
+        //            if (string.IsNullOrWhiteSpace(_autoCompleteStr) ||
+        //                !string.Equals(_autoCompleteStr, prevAuto))
+        //            {
+        //                AutoCompleteOpen = false;
+        //            }
+        //            e.Handled = true;
+        //        }
+        //        else if (e.KeyData == Keys.Back ||
+        //            e.KeyData == Keys.Delete ||
+        //            char.IsLetterOrDigit(c))
+        //        {
+        //            //e.Handled = false;
+        //            Range sel = TextBox.Selection;
+        //            Place start = sel.Start;
+        //            FindAutocompleteString(start);
+        //            int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
+        //            if (selCount == 0)
+        //            {
+        //                AutoCompleteOpen = false;
+        //                lstAutocomplete.Items.Clear();
+        //            }
+        //        }
+        //        else if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
+        //        {
+        //            AutoCompleteOpen = false;
+        //            lstAutocomplete.Items.Clear();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (char.IsLetterOrDigit(c))
+        //        {
+        //            Range sel = TextBox.Selection;
+        //            Place start = sel.Start;
+        //            FindAutocompleteString(start);
+        //            int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
+        //            if (selCount > 0)
+        //            {
+        //                AutoCompleteOpen = true;
+        //                --start.iChar;
+        //                Point p = TextBox.PlaceToPoint(start);
+        //                p = PointToClient(TextBox.PointToScreen(p));
+        //                p.Y += TextBox.CharHeight;
+        //                //p.X -= TextBox.CharWidth;
+        //                pnlAutocomplete.Location = p;
+        //                //e.Handled = true;
+        //            }
+        //        }
+        //    }
+
+        //    if (Mode == ETextEditorMode.GLSL)
+        //    {
+        //        var result = CompileGLSL?.Invoke(TextBox.Text, this);
+        //        if (result != null && !result.Value.Item1)
+        //        {
+        //            string errors = result.Value.Item2;
+        //            int[] errorLines = errors.FindAllOccurrences(0, ") : ");
+        //            foreach (int i in errorLines)
+        //            {
+        //                int start = errors.FindFirstReverse(i - 1, '(');
+        //                int lineIndex = int.Parse(errors.Substring(start + 1, i - start - 1)) - 1;
+        //                if (lineIndex >= 0 && lineIndex < TextBox.LinesCount)
+        //                {
+        //                    Line lineInfo = TextBox[lineIndex];
+        //                    _errorLines.Add(lineInfo);
+        //                    lineInfo.BackgroundBrush = _errorBrush;
+
+        //                    string line = lineInfo.Text;
+        //                    int errorStart = i + 4;//errors.FindFirst(i + 3, ':') + 2;
+        //                    int errorEnd = errors.FindFirst(errorStart, "\n");
+        //                    string errorMsg = errors.Substring(errorStart, errorEnd - errorStart);
+
+        //                    lineInfo.AddRange((" // " + errorMsg).Select(x => new FastColoredTextBoxNS.Char(x)));
+        //                }
+        //                //Match m = Regex.Match(errorMsg, "(?<= \").*(?=\")");
+        //                //int tokenStart = line.IndexOf(m.Value);
+        //                //if (tokenStart < 0)
+        //                //    continue;
+        //                //Place px;
+        //                //for (int x = 0; x < m.Length; ++x)
+        //                //{
+        //                //    px = new Place(tokenStart + x, lineIndex);
+        //                //    FastColoredTextBoxNS.Char cx = TextBox[px];
+        //                //    cx.style = TextBox.GetStyleIndexMask(new Style[] { _errorStyle });
+        //                //    TextBox[px] = cx;
+        //                //}
+        //                //0(line#) : error CXXXX: <message>
+        //                //at token "<token>"
+        //            }
+        //        }
+        //    }
+        //}
+    }
+}

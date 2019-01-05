@@ -36,21 +36,7 @@ namespace TheraEditor.Wrappers
 
         public override void EditResource()
         {
-            DockableTextEditor m = new DockableTextEditor();
-            m.Show(Editor.Instance.DockPanel, DockState.Document);
-            m.InitText(ResourceRef.File.Text, Path.GetFileName(ResourceRef.Path.Absolute), ETextEditorMode.Python);
-            m.Saved += M_Saved;
-        }
-
-        private async void M_Saved(DockableTextEditor obj)
-        {
-            ResourceRef.File.Text = obj.GetText();
-
-            Editor.Instance.ContentTree.WatchProjectDirectory = false;
-            int op = Editor.Instance.BeginOperation("Saving python script...", out Progress<float> progress, out CancellationTokenSource cancel);
-            await ResourceRef.File.ExportAsync(ResourceRef.Path.Absolute, ESerializeFlags.Default, progress, cancel.Token);
-            Editor.Instance.EndOperation(op);
-            Editor.Instance.ContentTree.WatchProjectDirectory = true;
+            DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, Resource);
         }
     }
 }

@@ -67,7 +67,7 @@ namespace TheraEngine.Core.Files
                 return true;
             }
             else
-                return Engine.AddGlobalFileInstance(this);
+                return Engine.Files.AddGlobalFileInstance(this);
         }
 
         protected override void OnAbsoluteRefPathChanged(string oldPath, string newPath)
@@ -86,9 +86,9 @@ namespace TheraEngine.Core.Files
             else
             {
                 if (!string.IsNullOrEmpty(oldPath))
-                    Engine.RemoveGlobalFileInstance(oldPath);
+                    Engine.Files.RemoveGlobalFileInstance(oldPath);
                 if (!string.IsNullOrEmpty(newPath))
-                    Engine.AddGlobalFileInstance(this);
+                    Engine.Files.AddGlobalFileInstance(this);
             }
         }
 

@@ -45,34 +45,31 @@ namespace TheraEditor.Windows.Forms
 
             TextBox.Language = Language.Custom;
             TextBox.AddStyle(SameWordsStyle);
-            TextBox.AddStyle(PreprocessorStyle);
-            TextBox.AddStyle(KeywordStyle);
-            TextBox.AddStyle(ClassNameStyle);
+            //TextBox.AddStyle(PreprocessorStyle);
+            //TextBox.AddStyle(KeywordStyle);
+            //TextBox.AddStyle(ClassNameStyle);
 
             stripTextDisplay.RenderMode = ToolStripRenderMode.Professional;
-            stripTextDisplay.Renderer = new TheraForm.TheraToolstripRenderer();
+            stripMain.RenderMode = ToolStripRenderMode.Professional;
+            stripSearch.RenderMode = ToolStripRenderMode.Professional;
+            stripTextEdit.RenderMode = ToolStripRenderMode.Professional;
             ctxRightClick.RenderMode = ToolStripRenderMode.Professional;
+
+            stripTextDisplay.Renderer =
+            stripMain.Renderer =
+            stripSearch.Renderer =
+            stripTextEdit.Renderer =
             ctxRightClick.Renderer = new TheraForm.TheraToolstripRenderer();
 
-            //_errorBrush = new SolidBrush(Color.FromArgb(TextBox.BackColor.R + 40, TextBox.BackColor.G, TextBox.BackColor.B));
+            dgvObjectExplorer.RowPrePaint += DgvObjectExplorer_RowPrePaint;
         }
 
-        static readonly string[] sources = new string[]
+        private void DgvObjectExplorer_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
-            "com",
-            "com.company",
-            "com.company.Class1",
-            "com.company.Class1.Method1",
-            "com.company.Class1.Method2",
-            "com.company.Class2",
-            "com.company.Class3",
-            "com.example",
-            "com.example.ClassX",
-            "com.example.ClassX.Method1",
-            "com.example.ClassY",
-            "com.example.ClassY.Method1"
-        };
-
+            dgvObjectExplorer.Rows[e.RowIndex].DefaultCellStyle.BackColor = dgvObjectExplorer.BackgroundColor;
+        }
+        
+        private AutocompleteMenu AutoCompleteMenu { get; set; }
         public Func<string, DockableTextEditor, (bool, string)> CompileGLSL;
         
         private Range HoveredWordRange { get; set; }
@@ -83,7 +80,7 @@ namespace TheraEditor.Windows.Forms
         private TextStyle KeywordStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(86, 156, 214)), null, FontStyle.Regular);
         private TextStyle ClassNameStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(78, 201, 176)), null, FontStyle.Regular);
         private TextStyle PreprocessorStyle { get; } = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
-        private TextStyle NumberStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(90, 40, 30)), null, FontStyle.Regular);
+        private TextStyle NumberStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(181, 206, 168)), null, FontStyle.Regular);
         private TextStyle CommentStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(86, 166, 74)), null, FontStyle.Regular);
         private TextStyle StringStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(214, 157, 133)), null, FontStyle.Regular);
         private TextStyle MaroonStyle { get; } = new TextStyle(Brushes.Maroon, null, FontStyle.Regular);
@@ -152,7 +149,7 @@ namespace TheraEditor.Windows.Forms
 
                 _targetFile = value;
 
-                path = _targetFile?.FilePath;
+                path = _targetFile?.FilePath ?? string.Empty;
                 if (_isStreaming = !string.IsNullOrWhiteSpace(path))
                 {
                     if (!TextEditorInstances.ContainsKey(path))
@@ -207,8 +204,9 @@ namespace TheraEditor.Windows.Forms
             await TargetFile.ExportAsync(path, progress, cancel.Token);
             Editor.Instance.ContentTree.EndFileSave(path);
             TextBox.OpenBindingFile(path, TargetFile.Encoding);
-            //HighlightRange(TextBox.VisibleRange);
-            //TextBox.Invalidate();
+
+            TextBox.OnTextChanged();
+            TextBox.OnSyntaxHighlight(new TextChangedEventArgs(TextBox.Range));
         }
         protected override void OnClosed(EventArgs e)
         {
@@ -246,7 +244,8 @@ namespace TheraEditor.Windows.Forms
                     case ETextEditorMode.GLSL:      InitGLSL();     break;
                 }
                 
-                TextBox.Focus();
+                TextBox.OnTextChanged();
+                TextBox.OnSyntaxHighlight(new TextChangedEventArgs(TextBox.Range));
 
                 _updating = false;
             }
@@ -265,7 +264,8 @@ namespace TheraEditor.Windows.Forms
 
         private void InitText()
         {
-
+            dgvObjectExplorer.Visible = false;
+            lblSplitFileObjects.Visible = false;
         }
         private void UnInitText()
         {
@@ -276,7 +276,7 @@ namespace TheraEditor.Windows.Forms
             TextBox.CommentPrefix = "#";
             TextBox.AutoCompleteBrackets = true;
             TextBox.AutoIndent = true;
-            TextBox.DescriptionFile = Engine.Files.ScriptPath("PythonHighlighting.xml");
+            //TextBox.DescriptionFile = Engine.Files.ScriptPath("PythonHighlighting.xml");
             TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded_Python;
         }
         private void UnInitPython()
@@ -286,7 +286,7 @@ namespace TheraEditor.Windows.Forms
         private void InitGLSL()
         {
             TextBox.CommentPrefix = "//";
-            TextBox.DescriptionFile = Engine.Files.ScriptPath("GLSLHighlighting.xml");
+            //TextBox.DescriptionFile = Engine.Files.ScriptPath("GLSLHighlighting.xml");
             TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded_GLSL;
         }
         private void UnInitGLSL()
@@ -303,6 +303,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void InitCSharp()
         {
+            dgvObjectExplorer.Visible = true;
+            lblSplitFileObjects.Visible = true;
             CurrentKeywords = CSharpKeywords;
             HighlightScriptSyntax = CSharpSyntaxHighlight;
 
@@ -314,6 +316,7 @@ namespace TheraEditor.Windows.Forms
 
             //TextBox.VisibleRangeChanged += TextBox_VisibleRangeChanged;
             TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
+            TextBox.TextChanged += TextBox_TextChanged;
             TextBox.SelectionChangedDelayed += TextBox_SelectionChangedDelayed;
             TextBox.KeyDown += TextBox_KeyDown;
             TextBox.MouseMove += TextBox_MouseMove;
@@ -326,20 +329,19 @@ namespace TheraEditor.Windows.Forms
             TextBox.ShowFoldingLines = btnShowFoldingLines.Checked;
 
             //create autocomplete popup menu
-            AutocompleteMenu popupMenu = new AutocompleteMenu(TextBox);
+            AutoCompleteMenu = new AutocompleteMenu(TextBox);
             //popupMenu.Items.ImageList = ilAutocomplete;
-            popupMenu.Opening += popupMenu_Opening;
-            BuildAutocompleteMenu(popupMenu);
-            TextBox.Tag = new TextBoxInfo() { PopupMenu = popupMenu };
-        }
-
-        private void TextBox_VisibleRangeChanged(object sender, EventArgs e)
-        {
-
+            AutoCompleteMenu.Opening += popupMenu_Opening;
+            AutoCompleteMenu.SearchPattern = @"[\w\.:=!<>]";
+            BuildAutocompleteMenu();
+            //TextBox.Tag = new TextBoxInfo() { PopupMenu = AutoCompleteMenu };
         }
 
         private void UnInitCSharp()
         {
+            dgvObjectExplorer.Visible = false;
+            lblSplitFileObjects.Visible = false;
+
             TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
             TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
             TextBox.KeyDown -= TextBox_KeyDown;
@@ -352,7 +354,7 @@ namespace TheraEditor.Windows.Forms
         {
             //---block autocomplete menu for comments
             //get index of green style (used for comments)
-            var iGreenStyle = TextBox.GetStyleIndex(TextBox.SyntaxHighlighter.GreenStyle);
+            var iGreenStyle = TextBox.GetStyleIndex(CommentStyle);
             if (iGreenStyle >= 0 && TextBox.Selection.Start.iChar > 0)
             {
                 //current char (before caret)
@@ -361,11 +363,17 @@ namespace TheraEditor.Windows.Forms
                 var greenStyleIndex = Range.ToStyleIndex(iGreenStyle);
                 //if char contains green style then block popup menu
                 if ((c.style & greenStyleIndex) != 0)
+                {
                     e.Cancel = true;
+                    return;
+                }
             }
+            //TODO: build menu when we can actually recognize the type in the selection
+            //BuildAutocompleteMenu();
         }
-        private void BuildAutocompleteMenu(AutocompleteMenu popupMenu)
+        private void BuildAutocompleteMenu()
         {
+            //TODO: use selection location to determine type to build relevant matches for
             List<AutocompleteItem> items = new List<AutocompleteItem>();
 
             foreach (var item in CSharpSnippets)
@@ -382,8 +390,7 @@ namespace TheraEditor.Windows.Forms
             items.Add(new InsertEnterSnippet());
 
             //set as autocomplete source
-            popupMenu.Items.SetAutocompleteItems(items);
-            popupMenu.SearchPattern = @"[\w\.:=!<>]";
+            AutoCompleteMenu.Items.SetAutocompleteItems(items);
         }
         private void TextBox_MouseMove(object sender, MouseEventArgs e)
         {
@@ -395,10 +402,44 @@ namespace TheraEditor.Windows.Forms
             
             lblHoveredWord.Text = HoveredWordRange.Text;
         }
-        private void TextBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        //private void TextBox_MouseDoubleClick(object sender, MouseEventArgs e)
+        //{
+        //    TextBox.Selection = HoveredWordRange;
+        //}
+        private DateTime _lastClickedTime;
+        private DateTime _lastDoubleClickedTime;
+        private void TextBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            int ms = SystemInformation.DoubleClickTime;
+            DateTime now = DateTime.Now;
+            if ((now - _lastClickedTime).TotalMilliseconds <= ms)
+            {
+                if ((now - _lastDoubleClickedTime).TotalMilliseconds <= ms)
+                    SelectHoveredLine();
+                else
+                    SelectHoveredWord();
+                
+                _lastDoubleClickedTime = now;
+            }
+            else
+            {
+
+            }
+            
+            _lastClickedTime = now;
+
+        }
+        private void SelectHoveredWord()
         {
             TextBox.Selection = HoveredWordRange;
         }
+        private void SelectHoveredLine()
+        {
+            Range line = HoveredWordRange.Clone();
+            line.Expand();
+            TextBox.Selection = line;
+        }
+
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
             //if (e.Modifiers == Keys.Control && e.KeyCode == Keys.OemMinus)
@@ -414,7 +455,7 @@ namespace TheraEditor.Windows.Forms
             if (e.KeyData == (Keys.K | Keys.Control))
             {
                 //forced show (MinFragmentLength will be ignored)
-                (TextBox.Tag as TextBoxInfo).PopupMenu.Show(true);
+                AutoCompleteMenu.Show(true);
                 e.Handled = true;
             }
         }
@@ -427,7 +468,7 @@ namespace TheraEditor.Windows.Forms
             var fragment = TextBox.Selection.GetFragment(@"\w"); //Get selected word
             string text = fragment.Text;
             if (text.Length == 0 || 
-                CurrentKeywords.Contains(text, StringComparison.InvariantCulture) ||
+                (CurrentKeywords != null && CurrentKeywords.Contains(text, StringComparison.InvariantCulture)) ||
                 IsInString(fragment))
                 return;
             
@@ -442,12 +483,13 @@ namespace TheraEditor.Windows.Forms
             Range strRange = fragment.GetFragment(StringRegex);
             return strRange != null && strRange.GetUnionWith(fragment).TextLength == fragment.TextLength;
         }
-
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            HighlightRange(e.ChangedRange);
+        }
         private void TextBox_TextChangedDelayed(object sender, TextChangedEventArgs e)
         {
             ThreadPool.QueueUserWorkItem((o) => ReBuildObjectExplorer(TextBox.Text));
-
-            HighlightRange(e.ChangedRange);
         }
         public void HighlightRange(Range range)
         {
@@ -488,7 +530,8 @@ namespace TheraEditor.Windows.Forms
                         var item = new ExplorerItem()
                         {
                             Title = s,
-                            Position = r.Index
+                            Position = r.Index,
+                            Length = r.Length,
                         };
 
                         if (Regex.IsMatch(item.Title, @"\b(class|struct|enum|interface)\b"))
@@ -554,6 +597,7 @@ namespace TheraEditor.Windows.Forms
             public EExplorerItemType Type { get; set; }
             public string Title { get; set; }
             public int Position { get; set; }
+            public int Length { get; set; }
         }
         private class ExplorerItemComparer : IComparer<ExplorerItem>
         {
@@ -611,29 +655,52 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        bool tbFindChanged = false;
-
+        private bool _tbFindChanged = false;
         private void tbFind_KeyPress(object sender, KeyPressEventArgs e)
         {
-            //if (e.KeyChar == '\r' && TextBox != null)
-            //{
-            //    Range r = tbFindChanged ? TextBox.Range.Clone() : TextBox.Selection.Clone();
-            //    tbFindChanged = false;
-            //    r.End = new Place(TextBox[TextBox.LinesCount - 1].Count, TextBox.LinesCount - 1);
-            //    var pattern = Regex.Escape(tbFind.Text);
-            //    foreach (var found in r.GetRanges(pattern))
-            //    {
-            //        found.Inverse();
-            //        TextBox.Selection = found;
-            //        TextBox.DoSelectionVisible();
-            //        return;
-            //    }
-            //    MessageBox.Show("Not found.");
-            //}
-            //else
-            //    tbFindChanged = true;
+            if (e.KeyChar == '\r' && TextBox != null)
+            {
+                Range range = _tbFindChanged ? TextBox.Range.Clone() : TextBox.Selection.Clone();
+                _tbFindChanged = false;
+                range.End = new Place(TextBox[TextBox.LinesCount - 1].Count, TextBox.LinesCount - 1);
+                var pattern = Regex.Escape(tbFind.Text);
+                foreach (var found in range.GetRanges(pattern))
+                {
+                    found.Inverse();
+                    TextBox.Selection = found;
+                    TextBox.DoSelectionVisible();
+                    return;
+                }
+                MessageBox.Show("Not found.");
+            }
+            else
+            {
+                _tbFindChanged = true;
+
+            }
         }
-        
+        private MarkerStyle SearchMatchStyle { get; } = new MarkerStyle(new SolidBrush(Color.FromArgb(120, Color.Orange)));
+        private IEnumerable<Range> _searchMatches = null;
+        private void tbFind_TextChanged(object sender, EventArgs e)
+        {
+            if (_searchMatches != null)
+                foreach (var match in _searchMatches)
+                    match.ClearStyle(SearchMatchStyle);
+
+            if (string.IsNullOrEmpty(tbFind.Text))
+            {
+                _searchMatches = null;
+                return;
+            }
+
+            var pattern = Regex.Escape(tbFind.Text);
+            _searchMatches = TextBox.GetRanges(pattern);
+
+            if (_searchMatches != null)
+                foreach (var match in _searchMatches)
+                    match.SetStyle(SearchMatchStyle);
+        }
+
         private void dgvObjectExplorer_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (TextBox != null)
@@ -641,6 +708,7 @@ namespace TheraEditor.Windows.Forms
                 var item = _explorerList[e.RowIndex];
                 TextBox.GoEnd();
                 TextBox.SelectionStart = item.Position;
+                TextBox.SelectionLength = item.Length;
                 TextBox.DoSelectionVisible();
                 TextBox.Focus();
             }
@@ -1255,13 +1323,13 @@ namespace TheraEditor.Windows.Forms
             
             //attribute highlighting
             //e.SetStyle(AttributeStyle, @"^\s*(?<range>\[.+?\])\s*$", RegexOptions.Multiline);
-            e.SetStyle(PreprocessorStyle, "^#(" + CSharpPreprocessDirectivesRegex + ")\b");
+            e.SetStyle(PreprocessorStyle, @"^#(region|endregion|if|elif|else|endif|error|warning|pragma|line)\b");
 
             //class name highlighting
             e.SetStyle(ClassNameStyle, @"\b(class|struct|enum|interface)\s+(?<range>\w+?)\b");
 
             //keyword highlighting
-            e.SetStyle(KeywordStyle, @"\b(" + CSharpKeywordsRegex + ")\b");
+            e.SetStyle(KeywordStyle, @"\b(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while|add|alias|ascending|descending|dynamic|from|get|global|group|into|join|let|orderby|partial|remove|select|set|value|var|where|yield|nameof)\b");
 
             //clear folding markers
             e.ClearFoldingMarkers();
@@ -1639,10 +1707,10 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        public class TextBoxInfo
-        {
-            public AutocompleteMenu PopupMenu { get; set; }
-        }
+        //public class TextBoxInfo
+        //{
+        //    public AutocompleteMenu PopupMenu { get; set; }
+        //}
 
         private void btnGoToDef_Click(object sender, EventArgs e)
         {

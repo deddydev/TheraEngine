@@ -238,6 +238,7 @@
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Extensions\ZipFileWithProgress.cs" />
     <Compile Include="Core\Thumbnails.cs" />
+    <Compile Include="Intellisense.cs" />
     <Compile Include="Windows\Forms\HUD Editor\DockableHudGraph.cs">
       <SubType>Form</SubType>
     </Compile>

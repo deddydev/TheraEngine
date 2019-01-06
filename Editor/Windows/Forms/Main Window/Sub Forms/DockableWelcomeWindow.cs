@@ -79,6 +79,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            label2.Location = new Point((int)(label2.Parent.Size.Width / 2.0f - label2.Size.Width / 2.0f) + 10, label2.Location.Y);
             TitleStartLoc = label2.Location;
             TitleHoverLoc = label2.Location;
             TitleHoverLoc.Y += 20;
@@ -185,6 +186,9 @@ namespace TheraEditor.Windows.Forms
         {
             LastMousePosition = Cursor.Position;
             Dragging = true;
+
+            Engine.UnregisterTick(null, LocEvent, null);
+            LocEvent = null;
         }
         private void label2_MouseUp(object sender, MouseEventArgs e)
         {

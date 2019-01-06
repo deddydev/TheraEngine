@@ -60,7 +60,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private bool _updating;
         private IFileObject _targetFileObject;
         private object _subObject;
-        
+
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object TargetObject
         {
@@ -131,10 +131,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 {
                     lblProperties.Text = "Properties";
                 }
-                
+
                 if (isObj)
                     obj.EditorState.Selected = true;
-                
+
                 //Load the properties of the object
                 LoadProperties();
             }
@@ -175,7 +175,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 if (_targetFileObject == value)
                     return;
-                
+
                 _targetFileObject = value;
 
                 //_updating = true;
@@ -214,8 +214,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
-                btnMoveUpLogicComp.Visible = 
-                btnMoveDownLogicComp.Visible = 
+                btnMoveUpLogicComp.Visible =
+                btnMoveDownLogicComp.Visible =
                 btnRemoveLogicComp.Visible = false;
             }
         }
@@ -234,7 +234,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.OnHandleDestroyed(e);
         }
         public event Action<object> PropertiesLoaded;
-        
+
         private async void LoadProperties(bool showProperties = true, bool showEvents = false, bool showMethods = false)
         {
             if (Disposing || IsDisposed)
@@ -510,10 +510,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //        categories.Add(catName, methods);
         //        panel.Controls.Add(methods);
         //    }
-            
+
         //    return control;
         //}
-        
+
         //public static PropGridEvent CreateEventControl(
         //    EventInfo m,
         //    string displayName,
@@ -591,7 +591,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 panel.Controls.Add(misc);
             }
         }
-#endregion
+        #endregion
 
         private void PopulateSceneComponentTree(TreeNodeCollection nodes, SceneComponent currentSceneComp)
         {
@@ -661,7 +661,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             => lblObjectName.FadeBackColor(_lblObjectName_EndColor, 0.5f, ref lblObjectName_FadeMethod);
         private void lblObjectName_MouseLeave(object sender, EventArgs e)
             => lblObjectName.FadeBackColor(_lblObjectName_StartColor, 0.5f, ref lblObjectName_FadeMethod);
-        
+
         private TreeNode _selectedSceneComp = null;
         private void treeViewSceneComps_MouseDown(object sender, MouseEventArgs e)
         {
@@ -699,8 +699,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void treeViewSceneComps_BeforeSelect(object sender, TreeViewCancelEventArgs e)
         {
-            if (_updating || 
-                e.Action == TreeViewAction.ByMouse || 
+            if (_updating ||
+                e.Action == TreeViewAction.ByMouse ||
                 e.Action == TreeViewAction.Unknown)
                 return;
 
@@ -738,7 +738,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             await file.ExportAsync(ESerializeFlags.Default, progress, cancel.Token);
             editor.EndOperation(op);
             editor.ContentTree.WatchProjectDirectory = true;
-        
+
             //if (TargetFileObject.References.Count == 1)
             //{
 
@@ -754,7 +754,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             btnSave.Visible = false;
             file.EditorState.IsDirty = false;
         }
-        
+
         public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
         {
             if (TargetFileObject == null)
@@ -840,8 +840,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (lstLogicComps.Visible)
                     lstLogicComps.Visible = false;
 
-                btnRemoveLogicComp.Visible = 
-                btnMoveDownLogicComp.Visible = 
+                btnRemoveLogicComp.Visible =
+                btnMoveDownLogicComp.Visible =
                 btnMoveUpLogicComp.Visible = false;
             }
             else
@@ -875,7 +875,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //}
 
         #region Static
-        
+
         internal static Dictionary<Type, Type> _inPlaceEditorTypes;
         internal static Dictionary<Type, Type> _fullEditorTypes;
 
@@ -901,7 +901,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 if (_fullEditorTypes == null)
                     LoadEditorTypes();
-                
+
                 return _fullEditorTypes;
             }
         }
@@ -912,10 +912,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (reloadNow)
                 LoadEditorTypes();
         }
+        private static bool IsLoadingTypes { get; set; } = false;
         private static void LoadEditorTypes()
         {
             if (Engine.DesignMode)
                 return;
+            if (IsLoadingTypes)
+            {
+                while (IsLoadingTypes) ;
+                return;
+            }
+            IsLoadingTypes = true;
 
             _inPlaceEditorTypes = new Dictionary<Type, Type>();
             _fullEditorTypes = new Dictionary<Type, Type>();
@@ -929,9 +936,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     PropGridControlForAttribute a = attribs[0];
                     foreach (Type varType in a.Types)
                     {
-                        if (_inPlaceEditorTypes.ContainsKey(varType))
-                            throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
-                        _inPlaceEditorTypes.Add(varType, propControlType);
+                        if (!_inPlaceEditorTypes.ContainsKey(varType))
+                            //throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
+                            _inPlaceEditorTypes.Add(varType, propControlType);
                     }
                 }
             }
@@ -941,9 +948,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
                 foreach (Type varType in attrib.DataTypes)
                 {
-                    if (_fullEditorTypes.ContainsKey(varType))
-                        throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
-                    _fullEditorTypes.Add(varType, editorType);
+                    if (!_fullEditorTypes.ContainsKey(varType))
+                        //throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
+                        _fullEditorTypes.Add(varType, editorType);
                 }
             }
         }

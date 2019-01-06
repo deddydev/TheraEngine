@@ -1,5 +1,4 @@
 ﻿using AppDomainToolkit;
-using EnvDTE100;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
@@ -9,8 +8,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEditor.Windows.Forms;
@@ -77,8 +74,10 @@ namespace TheraEditor
         private string _localTempDirectory;
         private AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> _gameDomain;
 
-        [TSerialize("AssemblyPaths")]
-        private string[] _assemblyPaths;
+        public Intellisense Intellisense { get; } = new Intellisense();
+
+        [TSerialize]
+        public string[] AssemblyPaths { get; private set; }
 
         [TString(false, true, false, true)]
         [TSerialize]
@@ -623,7 +622,7 @@ namespace TheraEditor
             if (result.OverallResult == BuildResultCode.Success)
             {
                 var buildItems = result.ResultsByTarget["Build"].Items;
-                _assemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
+                AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
 
                 CreateGameDomain(true);
                 
@@ -683,9 +682,9 @@ namespace TheraEditor
                 _gameDomain = AppDomainContext.Create(setupInfo);
 
                 string path;
-                for (int i = 0; i < _assemblyPaths.Length; ++i)
+                for (int i = 0; i < AssemblyPaths.Length; ++i)
                 {
-                    path = _assemblyPaths[i];
+                    path = AssemblyPaths[i];
                     FileInfo file = new FileInfo(path);
                     if (file.Exists)
                     {
@@ -879,165 +878,5 @@ namespace TheraEditor
                 PrintLine($"Finished task {e.TaskName}");
             }
         }
-        public enum EDataType
-        {
-            Class,
-            Struct,
-            Interface,
-            Enum,
-            Method,
-            Event,
-            Delegate,
-        }
-        /// <summary>
-        /// Contains information for where a type is declared.
-        /// </summary>
-        public class ScriptDeclareInfo
-        {
-            public string FileDeclaredInPath { get; set; }
-            public int LineNumberStart { get; set; }
-            public int LineNumberEnd { get; set; }
-        }
-        public class ScriptArgument
-        {
-            public string TypeName { get; set; }
-            public string ArgumentName { get; set; }
-            public bool In { get; }
-            public bool Out { get; }
-            public bool Ref { get; }
-
-            public ScriptTypeInfo GetTypeInfo => Editor.Instance.Project.GetTypeInfo(TypeName);
-        }
-        public class ScriptConstructionSpecialArgument
-        {
-            public string MemberName { get; set; }
-
-        }
-        public class ScriptAttributeInfo
-        {
-            public string TypeName { get; set; }
-            public string[] ConstructionArguments { get; set; }
-            public (string, string)[] PropertyArguments { get; set; }
-            public (string, string)[] FieldArguments { get; set; }
-
-            public ScriptTypeInfo GetTypeInfo() => Editor.Instance.Project.GetTypeInfo(TypeName);
-        }
-        public class ScriptNamespace
-        {
-            /// <summary>
-            /// The local name of this namespace.
-            /// </summary>
-            public string Name { get; set; }
-            /// <summary>
-            /// Full parent namespace.
-            /// </summary>
-            public string ParentNamespace { get; set; }
-            /// <summary>
-            /// Full child namespaces.
-            /// </summary>
-            public string ChildNamespaces { get; set; }
-            public string[] TypeNames { get; set; }
-
-            public ScriptTypeInfo GetTypeName(int i)
-                => Editor.Instance.Project.GetTypeInfo(TypeNames[i]);
-            public string GetFullNamespacePath()
-            {
-                if (ParentNamespace == null)
-                    return Name;
-                else
-                    return ParentNamespace + "." + Name;
-            }
-        }
-        public class ScriptMemberInfo
-        {
-            public string MemberName { get; set; }
-            public int PtrCount { get; set; } //*
-            public int DerefPtrCount { get; set; } //&
-        }
-        public abstract class ScriptTypeInfo
-        {
-            public string TypeName { get; set; }
-            public string OwningTypeName { get; set; }
-            public string OwningNamespace { get; set; }
-            public ScriptDeclareInfo DeclareInfo { get; set; }
-            public ScriptAttributeInfo[] Attributes { get; set; }
-            public ScriptModifiers Modifiers { get; set; }
-            public ScriptMemberInfo MemberInfo { get; set; }
-            
-            public abstract EDataType Type { get; }
-            public abstract bool CanResideInNamespace { get; }
-        }
-        public abstract class ScriptClassStructTypeInfo : ScriptTypeInfo
-        {
-            /// <summary>
-            /// Members indexed by member name.
-            /// </summary>
-            public Dictionary<string, ScriptMemberInfo> Members { get; set; }
-            public override bool CanResideInNamespace => true;
-        }
-        public class ScriptClassTypeInfo : ScriptClassStructTypeInfo
-        {
-            public override EDataType Type => EDataType.Class;
-            public bool IsPartial { get; set; }
-            public ScriptDeclareInfo[] PartialDeclareInfos { get; set; }
-        }
-        public class ScriptStructTypeInfo : ScriptClassStructTypeInfo
-        {
-            public override EDataType Type => EDataType.Struct;
-        }
-        public class ScriptEnumTypeInfo : ScriptTypeInfo
-        {
-            public override EDataType Type => EDataType.Enum;
-            public override bool CanResideInNamespace => true;
-        }
-        public class ScriptInterfaceTypeInfo : ScriptTypeInfo
-        {
-            public override EDataType Type => EDataType.Interface;
-            public override bool CanResideInNamespace => true;
-        }
-        public class ScriptDelegateTypeInfo : ScriptTypeInfo
-        {
-            public override EDataType Type => EDataType.Delegate;
-            public override bool CanResideInNamespace => true;
-        }
-        public class ScriptEventTypeInfo : ScriptTypeInfo
-        {
-            public override EDataType Type => EDataType.Event;
-            public override bool CanResideInNamespace => false;
-        }
-        public class ScriptMethodTypeInfo : ScriptTypeInfo
-        {
-            public override EDataType Type => EDataType.Method;
-            public override bool CanResideInNamespace => false;
-            public ScriptMethodBody Body { get; set; }
-        }
-        public class ScriptMethodLocalVar
-        {
-
-        }
-        public class ScriptMethodBody
-        {
-
-        }
-        public class ScriptModifiers
-        {
-            public bool Public { get; set; }
-            public bool Private { get; set; }
-            public bool Internal { get; set; }
-            public bool Protected { get; set; }
-            public bool Abstract { get; set; }
-            public bool Virtual { get; set; }
-            public bool Override { get; set; }
-        }
-        
-        public ScriptNamespace GetNamespace(string ns)
-            => Namespaces.ContainsKey(ns) ? Namespaces[ns] : null;
-        public ScriptTypeInfo GetTypeInfo(string typeName)
-            => Types.ContainsKey(typeName) ? Types[typeName] : null;
-
-        public Dictionary<string, ScriptTypeInfo> Types { get; }
-            = new Dictionary<string, ScriptTypeInfo>();
-        public Dictionary<string, ScriptNamespace> Namespaces { get; }
-            = new Dictionary<string, ScriptNamespace>();
     }
 }

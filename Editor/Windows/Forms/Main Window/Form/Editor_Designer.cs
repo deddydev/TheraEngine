@@ -885,7 +885,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnActivated(EventArgs e)
         {
-            TheraEngineText.ForeColor = ActiveBorderColor;
+            TheraEngineText.ForeColor = TurquoiseColorLight;
             base.OnActivated(e);
         }
         public void SaveFile(TFileObject file)

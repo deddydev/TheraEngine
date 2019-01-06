@@ -5,9 +5,10 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    [ObjectSerializerFor(typeof(IList))]
+    [ObjectSerializerFor(typeof(IList), CanSerializeAsString = true)]
     public class IListSerializer : BaseObjectSerializer
     {
+        #region Tree
         public override void DeserializeTreeToObject()
         {
             Type arrayType = TreeNode.ObjectType;
@@ -59,19 +60,9 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
         }
-        public override void SerializeTreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
-        {
-            throw new NotImplementedException();
-        }
-        protected override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
-        {
-            throw new NotImplementedException();
-        }
-        public override void DeserializeTreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
 
+        #region String
         public override object ObjectFromString(Type type, string value)
         {
             Type elementType = type.DetermineElementType();
@@ -103,13 +94,15 @@ namespace TheraEngine.Core.Files.Serialization
             }
 
             return list;
-            
         }
         public override bool ObjectToString(object obj, out string str)
         {
             str = null;
-            IList list = obj as IList;
-            Type arrayType = TreeNode.ObjectType;
+
+            if (!(obj is IList list))
+                return true;
+
+            Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
             var ser = DetermineObjectSerializer(elementType, true);
             if (ser == null)
@@ -128,5 +121,21 @@ namespace TheraEngine.Core.Files.Serialization
             str = list.ToStringList(separator, separator, convert);
             return true;
         }
+        #endregion
+
+        #region Binary
+        public override void SerializeTreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
+        {
+            throw new NotImplementedException();
+        }
+        protected override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
+        {
+            throw new NotImplementedException();
+        }
+        public override void DeserializeTreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }

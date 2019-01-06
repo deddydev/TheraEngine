@@ -27,7 +27,8 @@ namespace TheraEditor.Windows.Forms
         
         public static Color BackgroundColor => Color.FromArgb(92, 93, 100);
         public static Color TitleBarColor => Color.FromArgb(92, 93, 100);
-        public static Color TurquoiseColor => Color.FromArgb(/*150, 192, 192*/60, 102, 100);
+        public static Color TurquoiseColor => Color.FromArgb(60, 102, 100);
+        public static Color TurquoiseColorLight => Color.FromArgb(150, 192, 192);
         public static Color TextColor => Color.FromArgb(224, 224, 224);
     }
 }

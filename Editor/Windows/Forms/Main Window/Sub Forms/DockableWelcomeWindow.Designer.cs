@@ -32,10 +32,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.transparentPanel1 = new TheraEditor.Windows.Forms.TransparentPanel();
-            this.btnNew = new System.Windows.Forms.Button();
             this.btnOpen = new System.Windows.Forms.Button();
+            this.btnNew = new System.Windows.Forms.Button();
             this.pnlCreateProj = new TheraEditor.Windows.Forms.TransparentPanel();
             this.panel5 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
@@ -47,6 +45,8 @@
             this.panel6 = new System.Windows.Forms.Panel();
             this.txtName = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.transparentPanel1 = new TheraEditor.Windows.Forms.TransparentPanel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -120,33 +120,19 @@
             this.panel2.Size = new System.Drawing.Size(896, 321);
             this.panel2.TabIndex = 8;
             // 
-            // label2
+            // btnOpen
             // 
-            this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label2.AutoSize = true;
-            this.label2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(315, 99);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(258, 46);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Thera Engine";
-            this.label2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.label2_MouseDown);
-            this.label2.MouseEnter += new System.EventHandler(this.label2_MouseEnter);
-            this.label2.MouseLeave += new System.EventHandler(this.label2_MouseLeave);
-            this.label2.MouseMove += new System.Windows.Forms.MouseEventHandler(this.label2_MouseMove);
-            this.label2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.label2_MouseUp);
-            // 
-            // transparentPanel1
-            // 
-            this.transparentPanel1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.transparentPanel1.BackColor = System.Drawing.Color.Transparent;
-            this.transparentPanel1.Location = new System.Drawing.Point(296, 64);
-            this.transparentPanel1.Name = "transparentPanel1";
-            this.transparentPanel1.Size = new System.Drawing.Size(320, 97);
-            this.transparentPanel1.TabIndex = 8;
-            this.transparentPanel1.MouseEnter += new System.EventHandler(this.transparentPanel1_MouseEnter);
-            this.transparentPanel1.MouseLeave += new System.EventHandler(this.transparentPanel1_MouseLeave);
+            this.btnOpen.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnOpen.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnOpen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnOpen.Font = new System.Drawing.Font("Segoe UI", 10.2F);
+            this.btnOpen.Location = new System.Drawing.Point(468, 169);
+            this.btnOpen.Name = "btnOpen";
+            this.btnOpen.Size = new System.Drawing.Size(148, 56);
+            this.btnOpen.TabIndex = 4;
+            this.btnOpen.Text = "Open Project";
+            this.btnOpen.UseVisualStyleBackColor = false;
+            this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
             // 
             // btnNew
             // 
@@ -161,20 +147,6 @@
             this.btnNew.Text = "New Project";
             this.btnNew.UseVisualStyleBackColor = false;
             this.btnNew.Click += new System.EventHandler(this.btnNew_Click);
-            // 
-            // btnOpen
-            // 
-            this.btnOpen.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnOpen.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnOpen.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOpen.Font = new System.Drawing.Font("Segoe UI", 10.2F);
-            this.btnOpen.Location = new System.Drawing.Point(468, 169);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(148, 56);
-            this.btnOpen.TabIndex = 4;
-            this.btnOpen.Text = "Open Project";
-            this.btnOpen.UseVisualStyleBackColor = false;
-            this.btnOpen.Click += new System.EventHandler(this.btnOpen_Click);
             // 
             // pnlCreateProj
             // 
@@ -249,10 +221,10 @@
             this.txtProjectDir.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtProjectDir.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtProjectDir.ForeColor = System.Drawing.Color.Gainsboro;
-            this.txtProjectDir.Location = new System.Drawing.Point(93, 0);
+            this.txtProjectDir.Location = new System.Drawing.Point(73, 0);
             this.txtProjectDir.Name = "txtProjectDir";
             this.txtProjectDir.ReadOnly = true;
-            this.txtProjectDir.Size = new System.Drawing.Size(188, 32);
+            this.txtProjectDir.Size = new System.Drawing.Size(208, 27);
             this.txtProjectDir.TabIndex = 0;
             // 
             // label3
@@ -263,7 +235,7 @@
             this.label3.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(0, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(93, 25);
+            this.label3.Size = new System.Drawing.Size(73, 20);
             this.label3.TabIndex = 2;
             this.label3.Text = "Directory:";
             this.label3.TextAlign = System.Drawing.ContentAlignment.BottomRight;
@@ -301,9 +273,9 @@
             this.txtName.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtName.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtName.ForeColor = System.Drawing.Color.Gainsboro;
-            this.txtName.Location = new System.Drawing.Point(66, 0);
+            this.txtName.Location = new System.Drawing.Point(52, 0);
             this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(254, 32);
+            this.txtName.Size = new System.Drawing.Size(268, 27);
             this.txtName.TabIndex = 5;
             // 
             // label4
@@ -314,11 +286,39 @@
             this.label4.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(0, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(66, 25);
+            this.label4.Size = new System.Drawing.Size(52, 20);
             this.label4.TabIndex = 2;
             this.label4.Text = "Name:";
             this.label4.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             this.label4.UseMnemonic = false;
+            // 
+            // label2
+            // 
+            this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(315, 99);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(209, 37);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Thera Engine";
+            this.label2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.label2_MouseDown);
+            this.label2.MouseEnter += new System.EventHandler(this.label2_MouseEnter);
+            this.label2.MouseLeave += new System.EventHandler(this.label2_MouseLeave);
+            this.label2.MouseMove += new System.Windows.Forms.MouseEventHandler(this.label2_MouseMove);
+            this.label2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.label2_MouseUp);
+            // 
+            // transparentPanel1
+            // 
+            this.transparentPanel1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.transparentPanel1.BackColor = System.Drawing.Color.Transparent;
+            this.transparentPanel1.Location = new System.Drawing.Point(296, 64);
+            this.transparentPanel1.Name = "transparentPanel1";
+            this.transparentPanel1.Size = new System.Drawing.Size(320, 97);
+            this.transparentPanel1.TabIndex = 8;
+            this.transparentPanel1.MouseEnter += new System.EventHandler(this.transparentPanel1_MouseEnter);
+            this.transparentPanel1.MouseLeave += new System.EventHandler(this.transparentPanel1_MouseLeave);
             // 
             // DockableWelcomeWindow
             // 

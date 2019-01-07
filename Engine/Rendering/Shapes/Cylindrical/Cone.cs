@@ -11,32 +11,31 @@ namespace TheraEngine.Core.Shapes
     {
         public override Shape CullingVolume => null;
 
-        public Cone(Transform transform, Vec3 upAxis, float radius, float height)
+        public Cone(EventVec3 center, Vec3 upAxis, float radius, float height)
         {
+            _center = center ?? Vec3.Zero;
             _radius = Math.Abs(radius);
             _height = Math.Abs(height);
-
             _localUpAxis = upAxis;
             _localUpAxis.Normalize();
-
-            Transform = _transform;
         }
-        
+
+        protected EventVec3 _center;
         protected Vec3 _localUpAxis = Vec3.Up;
         protected float _radius = 0.5f, _height = 1.0f;
         
         public Vec3 GetTopPoint()
-            => Vec3.TransformPosition(_localUpAxis * (_height / 2.0f), _transform.Matrix);
+            => _center + _localUpAxis * (_height / 2.0f);
         public Vec3 GetBottomCenterPoint()
-            => Vec3.TransformPosition(_localUpAxis * (_height / -2.0f), _transform.Matrix);
+            => _center + _localUpAxis * (_height / -2.0f);
         public Circle3D GetBottomCircle(bool normalFacingIn = false)
-            => new Circle3D(_radius, GetBottomCenterPoint(), normalFacingIn ? WorldUpAxis : -WorldUpAxis);
+            => new Circle3D(_radius, GetBottomCenterPoint(), normalFacingIn ? UpAxis : -UpAxis);
         
         [Category("Cone")]
-        public Vec3 Center
+        public EventVec3 Center
         {
-            get => _transform.Translation.Raw;
-            set => _transform.Translation.Raw = value;
+            get => _center;
+            set => _center = value ?? Vec3.Zero;
         }
         [Category("Cone")]
         public float Radius
@@ -51,12 +50,10 @@ namespace TheraEngine.Core.Shapes
             set => _height = value;
         }
         [Browsable(false)]
-        public Vec3 LocalUpAxis => _localUpAxis;
-        [Browsable(false)]
-        public Vec3 WorldUpAxis => _localUpAxis * _transform.Matrix.GetRotationMatrix4();
+        public Vec3 UpAxis => _localUpAxis;
         
         public override void Render()
-            => Engine.Renderer.RenderCone(_transform.Matrix, _localUpAxis, _radius, _height, _renderSolid, Color.Magenta);
+            => Engine.Renderer.RenderCone(_center.AsTranslationMatrix(), _localUpAxis, _radius, _height, _renderSolid, Color.Magenta);
 
         public static PrimitiveData WireMesh(Vec3 center, Vec3 up, float height, float radius, int sides)
         {
@@ -130,7 +127,10 @@ namespace TheraEngine.Core.Shapes
 
             return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), tris);
         }
-
+        public override EContainment Contains(BoundingBoxStruct box)
+        {
+            throw new NotImplementedException();
+        }
         public override bool Contains(Vec3 point)
         {
             throw new NotImplementedException();
@@ -166,6 +166,14 @@ namespace TheraEngine.Core.Shapes
         public override BoundingBox GetAABB()
         {
             throw new NotImplementedException();
+        }
+        public override Matrix4 GetTransformMatrix()
+        {
+            return Center.AsTranslationMatrix();
+        }
+        public override void SetTransformMatrix(Matrix4 matrix)
+        {
+            Center.Raw = matrix.Translation;
         }
     }
 }

@@ -9,16 +9,12 @@ namespace TheraEngine.Core.Shapes
     {
         public ConeY()
             : this(1.0f, 1.0f) { }
-
         public ConeY(float radius, float height)
-            : this(Transform.GetIdentity(), radius, height) { }
-        
-        public ConeY(Transform transform, float radius, float height)
-            : base(transform, Vec3.UnitY, radius, height) { }
-        
+            : this(Vec3.Zero, radius, height) { }
+        public ConeY(EventVec3 center, float radius, float height)
+            : base(center, Vec3.UnitY, radius, height) { }
         public override Shape HardCopy()
-            => new ConeY(Transform, Radius, Height);
-        
+            => new ConeY(Center, Radius, Height);
         public override TCollisionShape GetCollisionShape()
             => TCollisionConeY.New(Radius, Height);
     }

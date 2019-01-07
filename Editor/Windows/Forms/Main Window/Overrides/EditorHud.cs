@@ -384,14 +384,16 @@ namespace TheraEditor.Windows.Forms
             base.OnSpawnedPostComponentSpawn();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             _highlightPoint.OwningScene3D = OwningScene3D;
-            OwningWorld.Scene.Add(_highlightPoint);
+            _highlightPoint.RenderInfo.LinkScene(_highlightPoint, OwningScene3D);
+            //OwningWorld.Scene.Add(_highlightPoint);
             SubViewport.IsVisible = false;
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
-            OwningWorld.Scene.Remove(_highlightPoint);
+            //OwningWorld.Scene.Remove(_highlightPoint);
+            _highlightPoint.RenderInfo.UnlinkScene(_highlightPoint, OwningScene3D);
             _highlightPoint.OwningScene3D = null;
         }
         private void MouseMove(float delta)

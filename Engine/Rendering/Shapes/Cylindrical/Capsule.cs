@@ -12,10 +12,9 @@ namespace TheraEngine.Core.Shapes
     public abstract class Capsule : Cylinder
     {
         public Capsule(Vec3 upAxis, float radius, float halfHeight)
-            : this(Transform.GetIdentity(), upAxis, radius, halfHeight) { }
-
-        public Capsule(Transform transform, Vec3 upAxis, float radius, float halfHeight) 
-            : base(transform, upAxis, radius, halfHeight) { }
+            : this(Vec3.Zero, upAxis, radius, halfHeight) { }
+        public Capsule(EventVec3 center, Vec3 upAxis, float radius, float halfHeight) 
+            : base(center, upAxis, radius, halfHeight) { }
 
         public Sphere GetTopSphere()
             => new Sphere(Radius, GetTopCenterPoint());
@@ -24,7 +23,7 @@ namespace TheraEngine.Core.Shapes
 
         public override void Render()
         {
-            Engine.Renderer.RenderCapsule(_transform.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Red);
+            Engine.Renderer.RenderCapsule(_center.AsTranslationMatrix(), _upAxis, _radius, _halfHeight, _renderSolid, Color.Red);
         }
 
         /// <summary>

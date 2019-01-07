@@ -1,24 +1,23 @@
-﻿using static System.Math;
-using TheraEngine.Rendering.Models;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Drawing;
 using System.ComponentModel;
-using TheraEngine.Maths;
-using System;
-using TheraEngine.Physics;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
+using System.Drawing;
+using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Maths;
+using TheraEngine.Physics;
+using TheraEngine.Rendering.Models;
+using static System.Math;
 
 namespace TheraEngine.Core.Shapes
 {
     [TFileDef("Sphere")]
     public class Sphere : Shape
     {
-        [TSerialize("Radius")]
         private float _radius = 1.0f;
+        private EventVec3 _center = Vec3.Zero;
 
+        [TSerialize]
         [Category("Sphere")]
         public float Radius
         {
@@ -26,21 +25,18 @@ namespace TheraEngine.Core.Shapes
             set => _radius = Abs(value);
         }
         [Category("Sphere")]
-        public Vec3 Center
+        public EventVec3 Center
         {
-            get => Transform.Translation.Raw;
-            set => Transform.Translation.Raw = value;
+            get => _center;
+            set => _center = value ?? Vec3.Zero;
         }
 
         public Sphere() 
             : this(0.0f, Vec3.Zero) { }
-
         public Sphere(Vec3 center)
             : this(0.0f, center) { }
-
         public Sphere(float radius)
             : this(radius, Vec3.Zero) { }
-
         public Sphere(float radius, Vec3 center) 
         {
             _radius = Abs(radius);
@@ -147,9 +143,9 @@ namespace TheraEngine.Core.Shapes
             return PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), triangles);
         }
         public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)
-            => SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, slices, stacks);
+            => SolidMesh(includeCenter ? Center.Raw : Vec3.Zero, _radius, slices, stacks);
         public PrimitiveData GetMesh(uint precision, bool includeCenter)
-            => SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, precision);
+            => SolidMesh(includeCenter ? Center.Raw : Vec3.Zero, _radius, precision);
         #endregion
 
         #region Containment
@@ -158,7 +154,7 @@ namespace TheraEngine.Core.Shapes
         public override EContainment Contains(BoundingBox box)
             => Collision.SphereContainsAABB(Center, Radius, box.Minimum, box.Maximum);
         public override EContainment Contains(Box box)
-            => Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.InverseWorldMatrix);
+            => Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.Transform.InverseMatrix);
         public override EContainment Contains(Sphere sphere)
             => Collision.SphereContainsSphere(Center, Radius, sphere.Center, sphere.Radius);
         public override EContainment Contains(Cone cone)
@@ -210,5 +206,15 @@ namespace TheraEngine.Core.Shapes
         
         public override void Render()
             => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);
+
+        public override void SetTransformMatrix(Matrix4 matrix) 
+            => Center.Raw = matrix.Translation;
+        public override Matrix4 GetTransformMatrix() 
+            => Center.AsTranslationMatrix();
+
+        public override EContainment Contains(BoundingBoxStruct box)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

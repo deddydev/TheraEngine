@@ -42,26 +42,26 @@ namespace TheraEngine.Core.Shapes
 
         public Action VisibilityChanged;
 
-        [TSerialize]
-        [Category("Shape")]
-        public Transform Transform
-        {
-            get => _transform;
-            set
-            {
-                if (_transform != null)
-                    _transform.MatrixChanged -= TransformChanged;
-                _transform = value ?? Transform.GetIdentity();
-                _transform.MatrixChanged += TransformChanged;
-            }
-        }
+        //[TSerialize]
+        //[Category("Shape")]
+        //public Transform Transform
+        //{
+        //    get => _transform;
+        //    set
+        //    {
+        //        if (_transform != null)
+        //            _transform.MatrixChanged -= TransformChanged;
+        //        _transform = value ?? Transform.GetIdentity();
+        //        _transform.MatrixChanged += TransformChanged;
+        //    }
+        //}
 
         [TSerialize("RenderSolid", NodeType = ENodeType.Attribute)]
         protected bool _renderSolid = false;
         [TSerialize("RenderColor")]
         protected ColorF3 _renderColor = ColorF3.Red;
 
-        protected Transform _transform = Transform.GetIdentity();
+        //protected Transform _transform = Transform.GetIdentity();
 
         [Browsable(false)]
         public Scene3D OwningScene3D { get; set; }
@@ -89,6 +89,7 @@ namespace TheraEngine.Core.Shapes
 
         #region Containment
         public abstract bool Contains(Vec3 point);
+        public abstract EContainment Contains(BoundingBoxStruct box);
         public abstract EContainment Contains(BoundingBox box);
         public abstract EContainment Contains(Box box);
         public abstract EContainment Contains(Sphere sphere);
@@ -114,6 +115,7 @@ namespace TheraEngine.Core.Shapes
             }
             return EContainment.Contains;
         }
+        public EContainment ContainedWithin(BoundingBoxStruct box) => box.Contains(this);
         public EContainment ContainedWithin(BoundingBox box) => box?.Contains(this) ?? EContainment.Contains;
         public EContainment ContainedWithin(Box box) => box?.Contains(this) ?? EContainment.Contains;
         public EContainment ContainedWithin(Sphere sphere) => sphere?.Contains(this) ?? EContainment.Contains;
@@ -121,31 +123,33 @@ namespace TheraEngine.Core.Shapes
         public EContainment ContainedWithin(Shape shape) => shape?.Contains(this) ?? EContainment.Contains;
         #endregion
 
-        /// <summary>
-        /// Returns a hard copy of this shape, transformed by the given transform.
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns></returns>
-        public Shape PostTransformedBy(Matrix4 matrix)
-        {
-            var obj = HardCopy();
-            obj.Transform.Matrix = Transform.Matrix * matrix;
-            return obj;
-        }
-        /// <summary>
-        /// Returns a hard copy of this shape, transformed by the given transform.
-        /// </summary>
-        /// <param name="matrix"></param>
-        /// <returns></returns>
-        public Shape PreTransformedBy(Matrix4 matrix)
-        {
-            var obj = HardCopy();
-            obj.Transform.Matrix = matrix * Transform.Matrix;
-            return obj;
-        }
+        ///// <summary>
+        ///// Returns a hard copy of this shape, transformed by the given transform.
+        ///// </summary>
+        ///// <param name="matrix"></param>
+        ///// <returns></returns>
+        //public Shape PostTransformedBy(Matrix4 matrix)
+        //{
+        //    var obj = HardCopy();
+        //    obj.Transform.Matrix = Transform.Matrix * matrix;
+        //    return obj;
+        //}
+        ///// <summary>
+        ///// Returns a hard copy of this shape, transformed by the given transform.
+        ///// </summary>
+        ///// <param name="matrix"></param>
+        ///// <returns></returns>
+        //public Shape PreTransformedBy(Matrix4 matrix)
+        //{
+        //    var obj = HardCopy();
+        //    obj.Transform.Matrix = matrix * Transform.Matrix;
+        //    return obj;
+        //}
         /// <summary>
         /// Returns a completely unique copy of this shape (nothing shares the same memory location).
         /// </summary>
+        public abstract void SetTransformMatrix(Matrix4 matrix);
+        public abstract Matrix4 GetTransformMatrix();
         public abstract Shape HardCopy();
         public abstract void Render();
 

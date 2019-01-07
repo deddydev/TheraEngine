@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.Models
         }
         [Category("LOD")]
         [TSerialize(IsAttribute = true)]
-        public EBillboardMode BillboardMode
+        public ETransformFlags TransformFlags
         {
             get => _billboardMode;
             set
@@ -64,12 +64,12 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("Material")]
         protected GlobalFileRef<TMaterial> _material;
         protected float _visibleDistance = 0.0f;
-        protected EBillboardMode _billboardMode = EBillboardMode.None;
+        protected ETransformFlags _billboardMode = ETransformFlags.None;
 
         public PrimitiveManager CreatePrimitiveManager()
         {
             PrimitiveManager m = new PrimitiveManager(_primitives.File, _material.File);
-            m.BufferInfo.BillboardMode = BillboardMode;
+            m.BufferInfo.BillboardMode = TransformFlags;
             return m;
         }
     }

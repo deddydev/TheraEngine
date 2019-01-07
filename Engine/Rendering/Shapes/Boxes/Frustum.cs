@@ -28,6 +28,7 @@ namespace TheraEngine.Core.Shapes
     {
         EContainment Contains(Box box);
         EContainment Contains(BoundingBox box);
+        EContainment Contains(BoundingBoxStruct box);
         EContainment Contains(Sphere sphere);
         EContainment Contains(Shape shape);
         EContainment Contains(Cone cone);
@@ -450,7 +451,7 @@ namespace TheraEngine.Core.Shapes
         {
             if (_boundingSphere != null)
             {
-                _boundingSphere.Center = other._boundingSphere.Center * transform;
+                _boundingSphere.Center.Raw = other._boundingSphere.Center.Raw * transform;
                 _boundingSphere.Radius = other._boundingSphere.Radius;
             }
             for (int i = 0; i < 8; ++i)
@@ -462,7 +463,7 @@ namespace TheraEngine.Core.Shapes
         public void TransformBy(Matrix4 transform)
         {
             if (_boundingSphere != null)
-                _boundingSphere.Center = _boundingSphere.Center * transform;
+                _boundingSphere.Center.Raw = _boundingSphere.Center.Raw * transform;
             for (int i = 0; i < 8; ++i)
                 _points[i] = _points[i] * transform;
             for (int i = 0; i < 6; ++i)
@@ -473,7 +474,7 @@ namespace TheraEngine.Core.Shapes
         {
             Frustum f = new Frustum();
             if (_boundingSphere != null)
-                f._boundingSphere = new Sphere(_boundingSphere.Radius, _boundingSphere.Center * transform);
+                f._boundingSphere = new Sphere(_boundingSphere.Radius, _boundingSphere.Center.Raw * transform);
             for (int i = 0; i < 8; ++i)
                 f._points[i] = _points[i] * transform;
             for (int i = 0; i < 6; ++i)
@@ -502,7 +503,9 @@ namespace TheraEngine.Core.Shapes
             return EContainment.Contains;
         }
         public EContainment Contains(Box box) 
-            => Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix);
+            => Collision.FrustumContainsBox1(this, box.HalfExtents, box.Transform.Matrix);
+        public EContainment Contains(BoundingBoxStruct box)
+            => Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum);
         public EContainment Contains(BoundingBox box) 
             => Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum);
         public EContainment Contains(Sphere sphere) 

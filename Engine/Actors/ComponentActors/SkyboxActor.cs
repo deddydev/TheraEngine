@@ -1,10 +1,8 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Core.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -113,17 +111,14 @@ namespace TheraEngine.Actors.Types
             //}
 
             StaticRigidSubMesh mesh = new StaticRigidSubMesh(
-                "Mesh", 
+                "Mesh",
                 null,
                 BoundingBox.FromMinMax(min, max),
                 BoundingBox.SolidMesh(min, max, true, uvType),
                 _material);
 
             foreach (LOD lod in mesh.LODs)
-                lod.BillboardMode =
-                    EBillboardMode.ConstrainTranslationX |
-                    EBillboardMode.ConstrainTranslationY |
-                    EBillboardMode.ConstrainTranslationZ;
+                lod.TransformFlags = ETransformFlags.ConstrainTranslations;
 
             mesh.RenderInfo.RenderPass = ERenderPass.Background;
 

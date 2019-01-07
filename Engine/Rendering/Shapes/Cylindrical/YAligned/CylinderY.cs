@@ -1,8 +1,6 @@
-﻿using static System.Math;
-using System.ComponentModel;
-using System;
-using TheraEngine.Physics;
+﻿using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -11,17 +9,13 @@ namespace TheraEngine.Core.Shapes
     {
         public CylinderY() 
             : this(1.0f, 1.0f) { }
-
         public CylinderY(float radius, float halfHeight) 
-            : this(Transform.GetIdentity(), radius, halfHeight) { }
-
-        public CylinderY(Transform transform, float radius, float halfHeight)
-            : base(transform, Vec3.UnitY, radius, halfHeight) { }
-
+            : this(Vec3.Zero, radius, halfHeight) { }
+        public CylinderY(EventVec3 center, float radius, float halfHeight)
+            : base(center, Vec3.UnitY, radius, halfHeight) { }
         public override TCollisionShape GetCollisionShape()
             => TCollisionCylinderY.New(Radius, HalfHeight * 2.0f);
-
         public override Shape HardCopy()
-            => new CylinderY(Transform, Radius, HalfHeight);
+            => new CylinderY(Center, Radius, HalfHeight);
     }
 }

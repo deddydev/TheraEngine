@@ -73,7 +73,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         protected override void OnWorldTransformChanged()
         {
-            _influenceVolume.Transform.Matrix = WorldMatrix;
+            _influenceVolume.SetTransformMatrix(WorldMatrix);
             foreach (PerspectiveCamera cam in ShadowCameras)
                 cam.LocalPoint.Raw = WorldMatrix.Translation;
             LightMatrix = WorldMatrix * Matrix4.CreateScale(Radius);

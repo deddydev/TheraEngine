@@ -33,7 +33,7 @@ namespace TheraEngine.Rendering
         public Scene3D() : this(0.5f) { }
         public Scene3D(Vec3 boundsHalfExtents)
         {
-            Clear(new BoundingBox(boundsHalfExtents, Vec3.Zero));
+            Clear(new BoundingBoxStruct(boundsHalfExtents, Vec3.Zero));
             Render = RenderDeferred;
 
             TMaterial m = new TMaterial("VoxelizeMat",
@@ -177,6 +177,14 @@ namespace TheraEngine.Rendering
         //    AbstractRenderer.PopCurrent3DScene();
         //    AbstractRenderer.PopCamera();
         //}
+        public abstract class RenderSequenceCommand
+        {
+
+        }
+        public abstract class RenderSequenceViewportCommand
+        {
+
+        }
         public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
             //_timeQuery.BeginQuery(EQueryTarget.TimeElapsed);
@@ -306,7 +314,7 @@ namespace TheraEngine.Rendering
         /// Clears all items from the scene and sets the bounds.
         /// </summary>
         /// <param name="sceneBounds">The total extent of the items in the scene.</param>
-        public void Clear(BoundingBox sceneBounds)
+        public void Clear(BoundingBoxStruct sceneBounds)
         {
             RenderTree = new Octree(sceneBounds);
             Lights = new LightManager();

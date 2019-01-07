@@ -157,7 +157,7 @@ namespace TheraEngine.Rendering
             WriteUniform(EShaderVarType._mat4, EEngineUniform.ModelMatrix.ToString());
             WriteUniform(EShaderVarType._mat3, EEngineUniform.NormalMatrix.ToString());
             WriteUniform(EShaderVarType._mat4, EEngineUniform.WorldToCameraSpaceMatrix.ToString());
-            if (_info.BillboardMode != EBillboardMode.None)
+            if (_info.BillboardMode != ETransformFlags.None)
                 WriteUniform(EShaderVarType._mat4, EEngineUniform.CameraToWorldSpaceMatrix.ToString());
             WriteUniform(EShaderVarType._mat4, EEngineUniform.ProjMatrix.ToString());
             if (_info.IsWeighted)
@@ -368,7 +368,7 @@ namespace TheraEngine.Rendering
         private void ResolvePosition(string posName)
         {
             Line("mat4 ViewMatrix = WorldToCameraSpaceMatrix;");
-            if (_info.BillboardMode == EBillboardMode.None)
+            if (_info.BillboardMode == ETransformFlags.None)
             {
                 Line($"{posName} = ModelMatrix * vec4({posName}.xyz, 1.0f);");
                 Line($"{FragPosName} = {posName}.xyz;");
@@ -376,7 +376,7 @@ namespace TheraEngine.Rendering
                 return;
             }
             Line("mat4 BillboardMatrix = CameraToWorldSpaceMatrix;");
-            if (_info.BillboardMode.HasFlag(EBillboardMode.RotateX))
+            if (_info.BillboardMode.HasFlag(ETransformFlags.RotateX))
             {
                 //Do not align X column to be stationary from camera's viewpoint
                 Line("ViewMatrix[0][0] = 1.0f;");
@@ -393,7 +393,7 @@ namespace TheraEngine.Rendering
                 Line("BillboardMatrix[2][1] = 0.0f;");
                 Line("BillboardMatrix[2][2] = 1.0f;");
             }
-            if (_info.BillboardMode.HasFlag(EBillboardMode.RotateY))
+            if (_info.BillboardMode.HasFlag(ETransformFlags.RotateY))
             {
                 //Do not fix X column to rotate with camera
                 Line("BillboardMatrix[0][0] = 1.0f;");
@@ -410,7 +410,7 @@ namespace TheraEngine.Rendering
                 Line("BillboardMatrix[2][1] = 0.0f;");
                 Line("BillboardMatrix[2][2] = 1.0f;");
             }
-            if (_info.BillboardMode.HasFlag(EBillboardMode.RotateZ))
+            if (_info.BillboardMode.HasFlag(ETransformFlags.RotateZ))
             {
                 //Do not fix X column to rotate with camera
                 Line("BillboardMatrix[0][0] = 1.0f;");
@@ -427,19 +427,19 @@ namespace TheraEngine.Rendering
                 Line("ViewMatrix[2][1] = 0.0f;");
                 Line("ViewMatrix[2][2] = 1.0f;");
             }
-            if (_info.BillboardMode.HasFlag(EBillboardMode.ConstrainTranslationX))
+            if (_info.BillboardMode.HasFlag(ETransformFlags.ConstrainTranslationX))
             {
                 //Clear X translation
                 Line("ViewMatrix[3][0] = 0.0f;");
                 Line("BillboardMatrix[3][0] = 0.0f;");
             }
-            if (_info.BillboardMode.HasFlag(EBillboardMode.ConstrainTranslationY))
+            if (_info.BillboardMode.HasFlag(ETransformFlags.ConstrainTranslationY))
             {
                 //Clear Y translation
                 Line("ViewMatrix[3][1] = 0.0f;");
                 Line("BillboardMatrix[3][1] = 0.0f;");
             }
-            if (_info.BillboardMode.HasFlag(EBillboardMode.ConstrainTranslationZ))
+            if (_info.BillboardMode.HasFlag(ETransformFlags.ConstrainTranslationZ))
             {
                 //Clear Z translation
                 Line("ViewMatrix[3][2] = 0.0f;");
@@ -456,7 +456,7 @@ namespace TheraEngine.Rendering
     /// Determines how vertices should rotate and scale in relation to the camera.
     /// </summary>
     [Flags]
-    public enum EBillboardMode
+    public enum ETransformFlags
     {
         /// <summary>
         /// No billboarding, all vertices are static.
@@ -532,5 +532,7 @@ namespace TheraEngine.Rendering
         /// If set, the Z axis translation will not move with the camera.
         /// </summary>
         ConstrainTranslationZ = 0x4000,
+
+        ConstrainTranslations = ConstrainTranslationX | ConstrainTranslationY | ConstrainTranslationZ,
     }
 }

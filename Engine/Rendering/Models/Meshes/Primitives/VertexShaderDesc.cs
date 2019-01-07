@@ -39,8 +39,8 @@ namespace TheraEngine.Rendering.Models
         public bool HasTexCoords => _texcoordCount > 0;
         public bool HasColors => _colorCount > 0;
 
-        private EBillboardMode _billboardMode = EBillboardMode.None;
-        public EBillboardMode BillboardMode
+        private ETransformFlags _billboardMode = ETransformFlags.None;
+        public ETransformFlags BillboardMode
         {
             get => _billboardMode;
             set

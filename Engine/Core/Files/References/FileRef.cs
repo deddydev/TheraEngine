@@ -246,8 +246,8 @@ namespace TheraEngine.Core.Files
                 //if (_file.References.Count == 0)
                 //    _file.Unload();
                 _file = null;
-                LoadAttempted = false;
             }
+            LoadAttempted = false;
         }
 
         protected override void OnFileLoaded(T file)

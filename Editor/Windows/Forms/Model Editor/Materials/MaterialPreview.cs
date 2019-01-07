@@ -151,7 +151,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (_spherePrim == null)
                     {
-                        basicRenderPanel1.Scene.Clear(BoundingBox.FromHalfExtentsTranslation(5.0f, 0.0f));
+                        basicRenderPanel1.Scene.Clear(BoundingBoxStruct.FromHalfExtentsTranslation(5.0f, 0.0f));
                         basicRenderPanel1.Scene.Lights.Add(_light);
                         _spherePrim = new MeshRenderable( //0.8f instead of 1.0f for border padding
                             new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));

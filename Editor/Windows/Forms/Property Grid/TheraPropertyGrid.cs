@@ -169,7 +169,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 if (InvokeRequired)
                 {
-                    Invoke((Action)(() => TargetFileObject = value));
+                    BeginInvoke((Action)(() => TargetFileObject = value));
                     return;
                 }
 

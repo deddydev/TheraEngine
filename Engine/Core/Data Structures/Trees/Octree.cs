@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using TheraEngine;
@@ -12,6 +13,238 @@ using TheraEngine.Rendering.Cameras;
 
 namespace System
 {
+    public struct BoundingBoxStruct
+    {
+        public Vec3 HalfExtents;
+        public Vec3 Translation;
+        public Vec3 Minimum
+        {
+            get => Translation - HalfExtents;
+            set
+            {
+                Vec3 max = Maximum;
+                Translation = (max + value) / 2.0f;
+                HalfExtents = (max - value) / 2.0f;
+            }
+        }
+        public Vec3 Maximum
+        {
+            get => Translation + HalfExtents;
+            set
+            {
+                Vec3 min = Minimum;
+                Translation = (value + min) / 2.0f;
+                HalfExtents = (value - min) / 2.0f;
+            }
+        }
+
+        #region Constructors
+        public BoundingBoxStruct(float uniformHalfExtents)
+            : this(new Vec3(uniformHalfExtents)) { }
+        public BoundingBoxStruct(float uniformHalfExtents, Vec3 translation)
+            : this(new Vec3(uniformHalfExtents), translation) { }
+        public BoundingBoxStruct(float halfExtentX, float halfExtentY, float halfExtentZ)
+            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ)) { }
+        public BoundingBoxStruct(float halfExtentX, float halfExtentY, float halfExtentZ, Vec3 translation)
+            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ), translation) { }
+        public BoundingBoxStruct(float halfExtentX, float halfExtentY, float halfExtentZ, float x, float y, float z)
+            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ), new Vec3(x, y, z)) { }
+        public BoundingBoxStruct(Vec3 halfExtents)
+            : this(halfExtents, Vec3.Zero) { }
+        public BoundingBoxStruct(EventVec3 halfExtents)
+            : this(halfExtents, new EventVec3(Vec3.Zero)) { }
+        public BoundingBoxStruct(Vec3 halfExtents, Vec3 translation)
+            : this()
+        {
+            HalfExtents = halfExtents;
+            Translation = translation;
+        }
+        #endregion
+        
+        //Half extents is one of 8 octants that make up the box, so multiply half extent volume by 8
+        public float GetVolume() =>
+            HalfExtents.X * HalfExtents.Y * HalfExtents.Z * 8.0f;
+        //Each half extent side is one of 4 quadrants on both sides of the box, so multiply each side area by 8
+        public float GetSurfaceArea() =>
+            HalfExtents.X * HalfExtents.Y * 8.0f +
+            HalfExtents.Y * HalfExtents.Z * 8.0f +
+            HalfExtents.Z * HalfExtents.X * 8.0f;
+
+        /// <summary>
+        /// Expands this bounding box to include the given point.
+        /// </summary>
+        public void Expand(Vec3 point)
+        {
+            Vec3 min = Vec3.ComponentMin(point, Minimum);
+            Vec3 max = Vec3.ComponentMax(point, Maximum);
+            Translation = (max + min) / 2.0f;
+            HalfExtents = (max - min) / 2.0f;
+        }
+        public void Expand(BoundingBoxStruct box)
+        {
+            Vec3 min = Vec3.ComponentMin(box.Minimum, box.Maximum, Minimum);
+            Vec3 max = Vec3.ComponentMax(box.Minimum, box.Maximum, Maximum);
+            Translation = (max + min) / 2.0f;
+            HalfExtents = (max - min) / 2.0f;
+        }
+
+        #region Collision
+        /// <summary>
+        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBoxStruct"/>.
+        /// </summary>
+        public bool Intersects(Ray ray)
+            => Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out float distance);
+        /// <summary>
+        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBoxStruct"/>.
+        /// Returns the distance of the closest intersection.
+        /// </summary>
+        public bool Intersects(Ray ray, out float distance)
+            => Collision.RayIntersectsAABBDistance(ray, Minimum, Maximum, out distance);
+        public bool Intersects(Vec3 start, Vec3 direction, out float distance)
+            => Collision.RayIntersectsAABBDistance(start, direction, Minimum, Maximum, out distance);
+        /// <summary>
+        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBoxStruct"/>.
+        /// Returns the position of the closest intersection.
+        /// </summary>
+        public bool Intersects(Ray ray, out Vec3 point)
+            => Collision.RayIntersectsAABB(ray, Minimum, Maximum, out point);
+        //public bool Intersects(Vec3 start, Vec3 direction, out Vec3 point)
+        //    => Collision.RayIntersectsAABB(start, direction, Minimum, Maximum, out point);
+
+        public bool Contains(Vec3 point)
+            => Collision.AABBContainsPoint(Minimum, Maximum, point);
+        public EContainment Contains(BoundingBox box)
+            => Collision.AABBContainsAABB(Minimum, Maximum, box.Minimum, box.Maximum);
+        public EContainment Contains(BoundingBoxStruct box)
+            => Collision.AABBContainsAABB(Minimum, Maximum, box.Minimum, box.Maximum);
+        public EContainment Contains(Box box)
+            => Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.Transform.Matrix);
+        public EContainment Contains(Sphere sphere)
+            => Collision.AABBContainsSphere(Minimum, Maximum, sphere.Center, sphere.Radius);
+        public EContainment Contains(Cone cone)
+        {
+            bool top = Contains(cone.GetTopPoint());
+            bool bot = Contains(cone.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
+        public EContainment Contains(Cylinder cylinder)
+        {
+            bool top = Contains(cylinder.GetTopCenterPoint());
+            bool bot = Contains(cylinder.GetBottomCenterPoint());
+            if (top && bot)
+                return EContainment.Contains;
+            else if (!top && !bot)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
+        public EContainment Contains(Capsule capsule)
+        {
+            Vec3 top = capsule.GetTopCenterPoint();
+            Vec3 bot = capsule.GetBottomCenterPoint();
+            Vec3 radiusVec = new Vec3(capsule.Radius);
+            Vec3 capsuleMin = Vec3.ComponentMin(top, bot) - radiusVec;
+            Vec3 capsuleMax = Vec3.ComponentMax(top, bot) + radiusVec;
+            Vec3 min = Minimum;
+            Vec3 max = Maximum;
+
+            bool containsX = false, containsY = false, containsZ = false;
+            bool disjointX = false, disjointY = false, disjointZ = false;
+
+            containsX = capsuleMin.X >= min.X && capsuleMax.X <= max.X;
+            containsY = capsuleMin.Y >= min.Y && capsuleMax.Y <= max.Y;
+            containsZ = capsuleMin.Z >= min.Z && capsuleMax.Z <= max.Z;
+
+            if (!containsX) disjointX = capsuleMax.X < min.X || capsuleMin.X > max.X;
+            if (!containsY) disjointY = capsuleMax.Y < min.Y || capsuleMin.Y > max.Y;
+            if (!containsZ) disjointZ = capsuleMax.Z < min.Z || capsuleMin.Z > max.Z;
+
+            if (containsX && containsY && containsZ)
+                return EContainment.Contains;
+            if (disjointX && disjointY && disjointZ)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
+        }
+        public EContainment Contains(Shape shape)
+        {
+            if (shape != null)
+            {
+                if (shape is BoundingBox bb)
+                    return Contains(bb);
+                else if (shape is Box box)
+                    return Contains(box);
+                else if (shape is Sphere sphere)
+                    return Contains(sphere);
+                else if (shape is Cone cone)
+                    return Contains(cone);
+                else if (shape is Cylinder cylinder)
+                    return Contains(cylinder);
+                else if (shape is Capsule capsule)
+                    return Contains(capsule);
+            }
+            return EContainment.Contains;
+        }
+        #endregion
+
+        #region Static Constructors
+        /// <summary>
+        /// Creates a new bounding box from minimum and maximum coordinates.
+        /// </summary>
+        public static BoundingBoxStruct FromMinMax(Vec3 min, Vec3 max)
+            => new BoundingBoxStruct((max - min) * 0.5f, (max + min) * 0.5f);
+        /// <summary>
+        /// Creates a new bounding box from half extents and a translation.
+        /// </summary>
+        public static BoundingBoxStruct FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
+            => new BoundingBoxStruct(halfExtents, translation);
+        /// <summary>
+        /// Creates a new bounding box from half extents and a translation.
+        /// </summary>
+        public static BoundingBoxStruct FromHalfExtentsTranslation(EventVec3 halfExtents, EventVec3 translation)
+            => new BoundingBoxStruct(halfExtents, translation);
+        /// <summary>
+        /// Creates a bounding box that encloses the given sphere.
+        /// </summary>
+        public static BoundingBoxStruct EnclosingSphere(Sphere sphere)
+            => FromMinMax(sphere.Center - sphere.Radius, sphere.Center + sphere.Radius);
+        /// <summary>
+        /// Creates a bounding box that includes both given bounding boxes.
+        /// </summary>
+        public static BoundingBoxStruct Merge(BoundingBoxStruct box1, BoundingBoxStruct box2)
+            => FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
+        #endregion
+
+        public static bool operator ==(BoundingBoxStruct left, BoundingBoxStruct right) => left.Equals(ref right);
+        public static bool operator !=(BoundingBoxStruct left, BoundingBoxStruct right) => !left.Equals(ref right);
+
+        public bool Equals(ref BoundingBoxStruct value)
+            => Minimum == value.Minimum && Maximum == value.Maximum;
+        
+        public override string ToString()
+        {
+            return string.Format(CultureInfo.CurrentCulture, "Minimum:{0} Maximum:{1}", Minimum.ToString(), Maximum.ToString());
+        }
+        public override bool Equals(object value)
+        {
+            if (!(value is BoundingBoxStruct))
+                return false;
+
+            var strongValue = (BoundingBoxStruct)value;
+            return Equals(ref strongValue);
+        }
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Minimum.GetHashCode() * 397) ^ Maximum.GetHashCode();
+            }
+        }
+        public Vec3 ClosestPoint(Vec3 point)
+            => Collision.ClosestPointAABBPoint(Minimum, Maximum, point);
+    }
     /// <summary>
     /// The interface for interacting with an internal octree subdivision.
     /// </summary>
@@ -30,8 +263,8 @@ namespace System
     /// </summary>
     public class Octree : Octree<I3DRenderable>
     {
-        public Octree(BoundingBox bounds) : base(bounds) { }
-        public Octree(BoundingBox bounds, List<I3DRenderable> items) : base(bounds, items) { }
+        public Octree(BoundingBoxStruct bounds) : base(bounds) { }
+        public Octree(BoundingBoxStruct bounds, List<I3DRenderable> items) : base(bounds, items) { }
     }
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
@@ -39,6 +272,7 @@ namespace System
     /// <typeparam name="T">The item type to use. Must be a class deriving from I3DBoundable.</typeparam>
     public class Octree<T> where T : class, I3DRenderable
     {
+        public const float MinimumUnit = 10.0f;
         public const int MaxChildNodeCount = 8;
         
         internal int ItemID = 0;
@@ -47,8 +281,24 @@ namespace System
         internal HashSet<T> AllItems { get; } = new HashSet<T>();
         public int Count => AllItems.Count;
 
-        public Octree(BoundingBox bounds) => _head = new Node(bounds, 0, 0, null, this);
-        public Octree(BoundingBox bounds, List<T> items) : this(bounds) => _head.Add(items);
+        public Octree(BoundingBoxStruct bounds)
+        {
+            _head = new Node(bounds, 0, 0, null, this);
+            Engine.PrintLine($"Octree array length with {MinimumUnit} minimum unit: {ArrayLength(bounds.HalfExtents).ToString()}");
+        }
+        public Octree(BoundingBoxStruct bounds, List<T> items) : this(bounds) => _head.Add(items);
+
+        public int ArrayLength(Vec3 halfExtents)
+        {
+            float minExtent = TMath.Min(halfExtents.X, halfExtents.Y, halfExtents.Z);
+            int divisions = 0;
+            while (minExtent >= MinimumUnit)
+            {
+                minExtent *= 0.5f;
+                ++divisions;
+            }
+            return (int)Math.Pow(MaxChildNodeCount, divisions);
+        }
 
         public class RenderEquality : IEqualityComparer<I3DRenderable>
         {
@@ -57,9 +307,10 @@ namespace System
             public int GetHashCode(I3DRenderable obj)
                 => obj.RenderInfo.SceneID;
         }
-        public void Remake(BoundingBox newBounds = null)
+        public void Remake() => Remake(_head.Bounds);
+        public void Remake(BoundingBoxStruct newBounds)
         {
-            _head = new Node(newBounds ?? _head.Bounds, 0, 0, null, this);
+            _head = new Node(newBounds, 0, 0, null, this);
             var array = AllItems.ToArray();
             AllItems.Clear();
             foreach (T item in array)
@@ -127,7 +378,7 @@ namespace System
 
         private class Node : IOctreeNode
         {
-            public Node(BoundingBox bounds, int subDivIndex, int subDivLevel, Node parent, Octree<T> owner)
+            public Node(BoundingBoxStruct bounds, int subDivIndex, int subDivLevel, Node parent, Octree<T> owner)
             {
                 _bounds = bounds;
                 _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
@@ -140,7 +391,7 @@ namespace System
             }
 
             protected int _subDivIndex, _subDivLevel;
-            protected BoundingBox _bounds;
+            protected BoundingBoxStruct _bounds;
             protected ThreadSafeList<T> _items;
             protected Node[] _subNodes;
             protected Node _parentNode;
@@ -151,12 +402,12 @@ namespace System
             public int SubDivIndex { get => _subDivIndex; set => _subDivIndex = value; }
             public int SubDivLevel { get => _subDivLevel; set => _subDivLevel = value; }
             public ThreadSafeList<T> Items => _items;
-            public BoundingBox Bounds => _bounds;
+            public BoundingBoxStruct Bounds => _bounds;
             public Vec3 Center => _bounds.Translation;
             public Vec3 Min => _bounds.Minimum;
             public Vec3 Max => _bounds.Maximum;
             
-            public BoundingBox GetSubdivision(int index)
+            public BoundingBoxStruct? GetSubdivision(int index)
             {
                 Node node = _subNodes[index];
                 if (node != null)
@@ -170,14 +421,14 @@ namespace System
                 Vec3 center = Center;
                 switch (index)
                 {
-                    case 0: return BoundingBox.FromMinMax(new Vec3(Min.X, Min.Y, Min.Z), new Vec3(center.X, center.Y, center.Z));
-                    case 1: return BoundingBox.FromMinMax(new Vec3(Min.X, Min.Y, center.Z), new Vec3(center.X, center.Y, Max.Z));
-                    case 2: return BoundingBox.FromMinMax(new Vec3(Min.X, center.Y, Min.Z), new Vec3(center.X, Max.Y, center.Z));
-                    case 3: return BoundingBox.FromMinMax(new Vec3(Min.X, center.Y, center.Z), new Vec3(center.X, Max.Y, Max.Z));
-                    case 4: return BoundingBox.FromMinMax(new Vec3(center.X, Min.Y, Min.Z), new Vec3(Max.X, center.Y, center.Z));
-                    case 5: return BoundingBox.FromMinMax(new Vec3(center.X, Min.Y, center.Z), new Vec3(Max.X, center.Y, Max.Z));
-                    case 6: return BoundingBox.FromMinMax(new Vec3(center.X, center.Y, Min.Z), new Vec3(Max.X, Max.Y, center.Z));
-                    case 7: return BoundingBox.FromMinMax(new Vec3(center.X, center.Y, center.Z), new Vec3(Max.X, Max.Y, Max.Z));
+                    case 0: return BoundingBoxStruct.FromMinMax(new Vec3(Min.X, Min.Y, Min.Z), new Vec3(center.X, center.Y, center.Z));
+                    case 1: return BoundingBoxStruct.FromMinMax(new Vec3(Min.X, Min.Y, center.Z), new Vec3(center.X, center.Y, Max.Z));
+                    case 2: return BoundingBoxStruct.FromMinMax(new Vec3(Min.X, center.Y, Min.Z), new Vec3(center.X, Max.Y, center.Z));
+                    case 3: return BoundingBoxStruct.FromMinMax(new Vec3(Min.X, center.Y, center.Z), new Vec3(center.X, Max.Y, Max.Z));
+                    case 4: return BoundingBoxStruct.FromMinMax(new Vec3(center.X, Min.Y, Min.Z), new Vec3(Max.X, center.Y, center.Z));
+                    case 5: return BoundingBoxStruct.FromMinMax(new Vec3(center.X, Min.Y, center.Z), new Vec3(Max.X, center.Y, Max.Z));
+                    case 6: return BoundingBoxStruct.FromMinMax(new Vec3(center.X, center.Y, Min.Z), new Vec3(Max.X, Max.Y, center.Z));
+                    case 7: return BoundingBoxStruct.FromMinMax(new Vec3(center.X, center.Y, center.Z), new Vec3(Max.X, Max.Y, Max.Z));
                 }
                 return null;
             }
@@ -199,17 +450,15 @@ namespace System
                     //Try subdividing
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
-                        BoundingBox bounds = GetSubdivision(i);
+                        BoundingBoxStruct? bounds = GetSubdivision(i);
                         if (bounds is null)
-                        {
                             return;
-                        }
-                        if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
+                        if (item.CullingVolume.ContainedWithin(bounds.Value) == EContainment.Contains)
                         {
                             bool shouldDestroy = Remove(item);
                             if (shouldDestroy)
                                 ClearSubNode(_subDivIndex);
-                            CreateSubNode(bounds, i)?.Add(item);
+                            CreateSubNode(bounds.Value, i)?.Add(item);
                             break;
                         }
                     }
@@ -387,14 +636,14 @@ namespace System
                         if (i == ignoreSubNode)
                             continue;
 
-                        BoundingBox bounds = GetSubdivision(i);
+                        BoundingBoxStruct? bounds = GetSubdivision(i);
                         if (bounds is null)
                         {
                             return QueueAdd(item);
                         }
-                        if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
+                        if (item.CullingVolume.ContainedWithin(bounds.Value) == EContainment.Contains)
                         {
-                            CreateSubNode(bounds, i)?.Add(item);
+                            CreateSubNode(bounds.Value, i)?.Add(item);
                             return true;
                         }
                     }
@@ -575,7 +824,7 @@ namespace System
                         return false;
                 return true;
             }
-            private Node CreateSubNode(BoundingBox bounds, int index)
+            private Node CreateSubNode(BoundingBoxStruct bounds, int index)
             {
                 try
                 {

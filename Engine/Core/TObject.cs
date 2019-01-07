@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
 using TheraEngine.Scripting;
@@ -50,16 +51,19 @@ namespace TheraEngine
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
     public abstract class TObject : IObject
     {
-        /// <summary>
-        /// Event called any time a new object is created.
-        /// </summary>
-        public static event Action<TObject> OnConstructed;
-
-        public TObject()
+        ~TObject()
         {
-            OnConstructed?.Invoke(this);
+            if (!Guid.Equals(Guid.Empty) && Engine.ObjectCache.ContainsKey(Guid))
+                Engine.ObjectCache.Remove(Guid);
         }
         
+        [TPostDeserialize]
+        private void PostDeserialize()
+        {
+            if (!Guid.Equals(Guid.Empty))
+                Engine.ObjectCache.Add(Guid, this);
+        }
+
         [TString(false, false, false)]
         [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
         protected string _name = null;
@@ -119,13 +123,6 @@ namespace TheraEngine
             Engine.UnregisterTick(group, order, tickFunc, pausedBehavior);
         }
         #endregion
-
-        public static void RunScript(string path, params object[] arguments)
-            => RunScript(new PythonScript(path));
-        public static void RunScript(PythonScript script, params object[] arguments)
-        {
-            //script.Run();
-        }
 
 #if EDITOR
 

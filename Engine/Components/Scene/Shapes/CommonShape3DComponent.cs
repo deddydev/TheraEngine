@@ -42,9 +42,7 @@ namespace TheraEngine.Components.Scene.Shapes
 
         protected override void OnWorldTransformChanged()
         {
-            if (_shape != null)
-                _shape.Transform.Matrix = WorldMatrix;
-
+            _shape?.SetTransformMatrix(WorldMatrix);
             base.OnWorldTransformChanged();
         }
 

@@ -10,40 +10,42 @@ namespace TheraEngine.Core.Shapes
     public class Cylinder : Shape
     {
         public Cylinder(
-            Transform transform,
+            EventVec3 center,
             Vec3 upAxis,
             float radius,
             float halfHeight)
         {
+            Center = center;
             _radius = Math.Abs(radius);
             _halfHeight = Math.Abs(halfHeight);
-            _localUpAxis = upAxis;
-            _localUpAxis.Normalize();
-            Transform = transform;
+            _upAxis = upAxis;
+            _upAxis.Normalize();
         }
-        protected Vec3 _localUpAxis = Vec3.Up;
+
+        protected EventVec3 _center = Vec3.Zero;
+        protected Vec3 _upAxis = Vec3.Up;
         protected float _radius = 0.5f, _halfHeight = 1.0f;
         
         public Vec3 GetTopCenterPoint()
-            => Vec3.TransformPosition(_localUpAxis * _halfHeight, _transform.Matrix);
+            => _center + _upAxis * _halfHeight;
         public Vec3 GetBottomCenterPoint()
-            => Vec3.TransformPosition(_localUpAxis * -_halfHeight, _transform.Matrix);
+            => _center - _upAxis * _halfHeight;
         public Circle3D GetBottomCircle(bool normalFacingIn = false)
-            => new Circle3D(_radius, GetBottomCenterPoint(), normalFacingIn ? WorldUpAxis : -WorldUpAxis);
+            => new Circle3D(_radius, GetBottomCenterPoint(), normalFacingIn ? UpAxis : -UpAxis);
         public Circle3D GetTopCircle(bool normalFacingIn = false)
-            => new Circle3D(_radius, GetTopCenterPoint(), normalFacingIn ? -WorldUpAxis : WorldUpAxis);
+            => new Circle3D(_radius, GetTopCenterPoint(), normalFacingIn ? -UpAxis : UpAxis);
         
         [Browsable(false)]
-        public Vec3 Center
+        public EventVec3 Center
         {
-            get => _transform.Translation;
-            set => _transform.Translation = value;
+            get => _center;
+            set => _center = value ?? Vec3.Zero;
         }
         [Category("Cylinder")]
         public float Radius
         {
             get => _radius;
-            set => _radius = value;
+            set => _radius = Math.Abs(value);
         }
         [Category("Cylinder")]
         public float HalfHeight
@@ -52,8 +54,7 @@ namespace TheraEngine.Core.Shapes
             set => _halfHeight = value;
         }
 
-        public Vec3 LocalUpAxis => _localUpAxis;
-        public Vec3 WorldUpAxis => Vec3.TransformNormalInverse(_localUpAxis, _transform.InverseMatrix);
+        public Vec3 UpAxis => _upAxis;
 
         public override BoundingBox GetAABB()
         {
@@ -95,10 +96,24 @@ namespace TheraEngine.Core.Shapes
         public float GetTotalHeight() => GetTotalHalfHeight() * 2.0f;
         public override void Render()
         {
-            Engine.Renderer.RenderCylinder(_transform.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Black);
+            Engine.Renderer.RenderCylinder(_center.AsTranslationMatrix(), _upAxis, _radius, _halfHeight, _renderSolid, Color.Black);
         }
 
         public override TCollisionShape GetCollisionShape() => throw new NotImplementedException();
         public override Shape HardCopy() => throw new NotImplementedException();
+
+        public override EContainment Contains(BoundingBoxStruct box)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetTransformMatrix(Matrix4 matrix)
+        {
+            throw new NotImplementedException();
+        }
+        public override Matrix4 GetTransformMatrix()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

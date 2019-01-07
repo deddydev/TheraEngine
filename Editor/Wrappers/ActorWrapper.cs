@@ -1,8 +1,7 @@
-﻿using System.Windows.Forms;
-using System.ComponentModel;
-using TheraEditor.Windows.Forms;
-using TheraEngine.Rendering.Models;
+﻿using System.ComponentModel;
+using System.Windows.Forms;
 using TheraEditor.Properties;
+using TheraEditor.Windows.Forms;
 using TheraEngine.Actors;
 
 namespace TheraEditor.Wrappers

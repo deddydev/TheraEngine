@@ -20,18 +20,25 @@ namespace TheraEngine.Core.Shapes
             get => _halfExtents;
             set => _halfExtents = value;
         }
-        [Browsable(false)]
-        public Matrix4 WorldMatrix
+
+        private Transform _transform;
+        public Transform Transform
         {
-            get => _transform.Matrix;
-            set => _transform.Matrix = value;
+            get => _transform;
+            set
+            {
+                //if (_transform != null)
+                //    _transform.MatrixChanged -= _transform_MatrixChanged;
+                _transform = value ?? Transform.GetIdentity();
+                //_transform.MatrixChanged += _transform_MatrixChanged;
+            }
         }
-        [Browsable(false)]
-        public Matrix4 InverseWorldMatrix
-        {
-            get => _transform.InverseMatrix;
-            set => _transform.InverseMatrix = value;
-        }
+        //private void _transform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        //{
+
+        //}
+        public override void SetTransformMatrix(Matrix4 matrix) => _transform.Matrix = matrix;
+        public override Matrix4 GetTransformMatrix() => _transform.Matrix;
 
         public Vec3 Center => _transform.Matrix.Translation;
 
@@ -82,11 +89,11 @@ namespace TheraEngine.Core.Shapes
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            BoundingBox.GetCorners(_halfExtents, WorldMatrix, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            BoundingBox.GetCorners(_halfExtents, Transform.Matrix, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
         public Vec3[] GetCorners()
         {
-            BoundingBox.GetCorners(_halfExtents, WorldMatrix, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
+            BoundingBox.GetCorners(_halfExtents, Transform.Matrix, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public override void Render()
@@ -115,15 +122,15 @@ namespace TheraEngine.Core.Shapes
 
             return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
-        public PrimitiveData GetMesh() { return Mesh(HalfExtents, WorldMatrix); }
-        public Frustum AsFrustum() { return BoundingBox.GetFrustum(HalfExtents, WorldMatrix); }
+        public PrimitiveData GetMesh() { return Mesh(HalfExtents, Transform.Matrix); }
+        public Frustum AsFrustum() { return BoundingBox.GetFrustum(HalfExtents, Transform.Matrix); }
         public bool Intersects(Ray ray, out float distance)
         {
-            return Collision.RayIntersectsBoxDistance(ray.StartPoint, ray.Direction, HalfExtents, WorldMatrix, out distance);
+            return Collision.RayIntersectsBoxDistance(ray.StartPoint, ray.Direction, HalfExtents, Transform.Matrix, out distance);
         }
         public bool Intersects(Ray ray, out Vec3 point)
         {
-            return Collision.RayIntersectsBox(ray.StartPoint, ray.Direction, HalfExtents, WorldMatrix, out point);
+            return Collision.RayIntersectsBox(ray.StartPoint, ray.Direction, HalfExtents, Transform.Matrix, out point);
         }
         public static BoundingBox FromSphere(Sphere sphere)
         {
@@ -139,7 +146,7 @@ namespace TheraEngine.Core.Shapes
         //public static bool operator !=(Box left, Box right) { return !left.Equals(ref right); }
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "HalfExtents:{0} Matrix:{1}", HalfExtents.ToString(), WorldMatrix.ToString());
+            return string.Format(CultureInfo.CurrentCulture, "HalfExtents:{0} Matrix:{1}", HalfExtents.ToString(), Transform.Matrix.ToString());
         }
         //public override int GetHashCode()
         //{
@@ -164,19 +171,23 @@ namespace TheraEngine.Core.Shapes
         //}
         public override bool Contains(Vec3 point)
         {
-            return Collision.BoxContainsPoint(HalfExtents, WorldMatrix, point);
+            return Collision.BoxContainsPoint(HalfExtents, Transform.Matrix, point);
+        }
+        public override EContainment Contains(BoundingBoxStruct box)
+        {
+            return Collision.BoxContainsAABB(HalfExtents, Transform.Matrix, box.Minimum, box.Maximum);
         }
         public override EContainment Contains(BoundingBox box)
         {
-            return Collision.BoxContainsAABB(HalfExtents, WorldMatrix, box.Minimum, box.Maximum);
+            return Collision.BoxContainsAABB(HalfExtents, Transform.Matrix, box.Minimum, box.Maximum);
         }
         public override EContainment Contains(Box box)
         {
-            return Collision.BoxContainsBox(HalfExtents, WorldMatrix, box.HalfExtents, box.WorldMatrix);
+            return Collision.BoxContainsBox(HalfExtents, Transform.Matrix, box.HalfExtents, box.Transform.Matrix);
         }
         public override EContainment Contains(Sphere sphere)
         {
-            return Collision.BoxContainsSphere(HalfExtents, WorldMatrix, sphere.Center, sphere.Radius);
+            return Collision.BoxContainsSphere(HalfExtents, Transform.Matrix, sphere.Center, sphere.Radius);
         }
         public override TCollisionShape GetCollisionShape()
         {
@@ -201,17 +212,14 @@ namespace TheraEngine.Core.Shapes
             Vec3 max = Vec3.ComponentMax(corners);
             return BoundingBox.FromMinMax(min, max);
         }
-
         public override EContainment Contains(Cone cone)
         {
             throw new NotImplementedException();
         }
-
         public override EContainment Contains(Cylinder cylinder)
         {
             throw new NotImplementedException();
         }
-
         public override EContainment Contains(Capsule capsule)
         {
             Vec3 top = capsule.GetTopCenterPoint();

@@ -312,8 +312,7 @@ void main()
             _rcExtrema.WorldMatrix = mtx;
             _rcCurrentPoint.WorldMatrix = WorldMatrix;
 
-            if (CullingVolume != null)
-                CullingVolume.Transform.Matrix = mtx * Matrix4.CreateTranslation(_cullingVolumeTranslation.Raw);
+            CullingVolume?.SetTransformMatrix(mtx * _cullingVolumeTranslation.AsTranslationMatrix());
 
             base.OnWorldTransformChanged();
         }

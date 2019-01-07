@@ -114,5 +114,20 @@ namespace TheraEngine.Core.Shapes
         {
             throw new NotImplementedException();
         }
+
+        public override void SetTransformMatrix(Matrix4 matrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Matrix4 GetTransformMatrix()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(BoundingBoxStruct box)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

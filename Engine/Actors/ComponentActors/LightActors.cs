@@ -2,16 +2,7 @@
 
 namespace TheraEngine.Actors.Types.Lights
 {
-    public class DirectionalLightActor : Actor<DirectionalLightComponent>
-    {
-        public DirectionalLightActor() : base() { }
-    }
-    public class PointLightActor : Actor<PointLightComponent>
-    {
-        public PointLightActor() : base() { }
-    }
-    public class SpotLightActor : Actor<SpotLightComponent>
-    {
-        public SpotLightActor() : base() { }
-    }
+    public class DirectionalLightActor : Actor<DirectionalLightComponent> { }
+    public class PointLightActor : Actor<PointLightComponent> { }
+    public class SpotLightActor : Actor<SpotLightComponent> { }
 }

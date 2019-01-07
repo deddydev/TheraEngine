@@ -82,11 +82,14 @@ namespace TheraEditor.Windows.Forms
         private int TargetOperationValue { get; set; }
         private void TickOperationProgressBar(object sender, FrameEventArgs args)
         {
-            Invoke((Action)(() => 
+            int progress = (int)Math.Round(Interp.Lerp(toolStripProgressBar1.ProgressBar.Value, TargetOperationValue, args.Time));
+            if (progress != toolStripProgressBar1.ProgressBar.Value)
             {
-                toolStripProgressBar1.ProgressBar.Value = (int)Math.Round(Interp.Lerp(
-                toolStripProgressBar1.ProgressBar.Value, TargetOperationValue, args.Time));
-            }));
+                BeginInvoke((Action)(() =>
+                {
+                    toolStripProgressBar1.ProgressBar.Value = progress;
+                }));
+            }
         }
         public void EndOperation(int index)
         {

@@ -112,7 +112,7 @@ namespace TheraEngine
         public static List<AIController> ActiveAI = new List<AIController>();
 
         public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
-            = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistant = true };
+            = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
 
         /// <summary>
         /// The scene containing actors of the world the engine is currently hosting.

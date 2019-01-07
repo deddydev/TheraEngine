@@ -1,10 +1,9 @@
-﻿using System.Windows.Forms;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.Windows.Forms;
+using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
-using System.IO;
-using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {

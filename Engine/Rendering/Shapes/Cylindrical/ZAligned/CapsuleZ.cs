@@ -9,17 +9,13 @@ namespace TheraEngine.Core.Shapes
     {
         public CapsuleZ()
             : this(1.0f, 1.0f) { }
-
         public CapsuleZ(float radius, float halfHeight)
-            : this(Transform.GetIdentity(), radius, halfHeight) { }
-        
-        public CapsuleZ(Transform transform, float radius, float halfHeight) 
-            : base(transform, Vec3.UnitZ, radius, halfHeight) { }
-
+            : this(Vec3.Zero, radius, halfHeight) { }
+        public CapsuleZ(EventVec3 center, float radius, float halfHeight)
+            : base(center, Vec3.UnitZ, radius, halfHeight) { }
         public override TCollisionShape GetCollisionShape()
             => TCollisionCapsuleZ.New(Radius, HalfHeight * 2.0f);
-
         public override Shape HardCopy()
-            => new CapsuleZ(Transform, Radius, HalfHeight);
+            => new CapsuleZ(Center, Radius, HalfHeight);
     }
 }

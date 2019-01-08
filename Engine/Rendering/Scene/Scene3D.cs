@@ -332,7 +332,7 @@ namespace TheraEngine.Rendering
 
                 Engine.Renderer.EnableDepthTest(true);
                 //viewport.RenderingCamera.OwningComponent?.OwningWorld?.PhysicsWorld?.DrawDebugWorld();
-                //RenderTree.DebugRender(viewport.RenderingCamera.Frustum, true);
+                RenderTree.DebugRender(viewport.RenderingCamera.Frustum, true);
 
                 renderingPasses.Render(ERenderPass.OpaqueForward);
 

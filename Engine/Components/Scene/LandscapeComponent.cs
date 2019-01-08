@@ -292,6 +292,11 @@ namespace TheraEngine.Actors.Types
             Editor.EditorState.RegisterHighlightedMaterial(_rc.Mesh.Material, highlighted, OwningScene);
         }
 
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            base.OnSelectedChanged(selected);
+        }
+
         public override TCollisionShape GetCollisionShape() => _heightFieldShape;
 
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D();

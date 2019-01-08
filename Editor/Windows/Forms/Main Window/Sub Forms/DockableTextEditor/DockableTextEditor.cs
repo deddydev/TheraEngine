@@ -431,13 +431,17 @@ namespace TheraEditor.Windows.Forms
         }
         private void SelectHoveredWord()
         {
-            TextBox.Selection = HoveredWordRange;
+            if (HoveredWordRange != null)
+                TextBox.Selection = HoveredWordRange;
         }
         private void SelectHoveredLine()
         {
-            Range line = HoveredWordRange.Clone();
-            line.Expand();
-            TextBox.Selection = line;
+            if (HoveredWordRange != null)
+            {
+                Range line = HoveredWordRange.Clone();
+                line.Expand();
+                TextBox.Selection = line;
+            }
         }
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)

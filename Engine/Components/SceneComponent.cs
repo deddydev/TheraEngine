@@ -696,10 +696,10 @@ namespace TheraEngine.Components
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (this is I3DRenderable r3d)
-                r3d.RenderInfo.Visible = selected;
-            if (this is I2DRenderable r2d)
-                r2d.RenderInfo.Visible = selected;
+            //if (this is I3DRenderable r3d)
+            //    r3d.RenderInfo.Visible = selected;
+            //if (this is I2DRenderable r2d)
+            //    r2d.RenderInfo.Visible = selected;
 
             //foreach (SceneComponent comp in ChildComponents)
             //    comp.OnSelectedChanged(selected);

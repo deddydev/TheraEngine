@@ -300,10 +300,10 @@ namespace TheraEngine.Rendering
             _renderPasses.SwapBuffers();
             HUD?.RenderPasses.SwapBuffers();
         }
-        public void Update(BaseScene scene, Camera camera, Frustum frustum)
+        public void Update(BaseScene scene, Camera camera, IVolume cullingVolume)
         {
             HUD?.ScreenSpaceUIScene?.Update(HUD.RenderPasses, null, HUD.ScreenOverlayCamera);
-            scene?.Update(_renderPasses, frustum, camera);
+            scene?.Update(_renderPasses, cullingVolume, camera);
         }
 
         #region Coordinate conversion

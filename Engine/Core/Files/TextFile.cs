@@ -46,7 +46,7 @@ namespace TheraEngine.Core.Files
         public TextFile()
         {
             FilePath = null;
-            _text = "";
+            _text = null;
         }
         public TextFile(string path)
         {

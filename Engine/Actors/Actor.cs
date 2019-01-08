@@ -391,14 +391,14 @@ For example, a logic component could give any actor health and/or allow it to ta
         void IActor.OnSelectedChanged(bool selected) => OnSelectedChanged(selected);
         protected internal override void OnSelectedChanged(bool selected)
         {
-            foreach (SceneComponent s in SceneComponentCache)
-            {
-                //s.OnSelectedChanged(selected);
-                if (s is I3DRenderable r3d)
-                    r3d.RenderInfo.Visible = selected;
-                if (s is I2DRenderable r2d)
-                    r2d.RenderInfo.Visible = selected;
-            }
+            //foreach (SceneComponent s in SceneComponentCache)
+            //{
+            //    //s.OnSelectedChanged(selected);
+            //    if (s is I3DRenderable r3d)
+            //        r3d.RenderInfo.Visible = selected;
+            //    if (s is I2DRenderable r2d)
+            //        r2d.RenderInfo.Visible = selected;
+            //}
         }
 #endif
 

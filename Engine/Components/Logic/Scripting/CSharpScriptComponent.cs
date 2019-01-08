@@ -37,28 +37,28 @@ namespace TheraEngine.Components.Logic.Scripting
         [TSerialize]
         public ScriptExecInfo DespawnedExecInfo { get; set; }
         
-        public void Execute(string methodName, params object[] args)
-        {
-            ScriptRef.File?.Execute(methodName, args);
-        }
-        public void Execute(ScriptExecInfo info)
-        {
-            ScriptRef.File?.Execute(info);
-        }
-        public void ExecuteDefaultInfo()
-        {
-            if (DefaultExecInfo != null)
-                Execute(DefaultExecInfo);
-        }
-        public override void OnSpawned()
-        {
-            if (SpawnedExecInfo != null)
-                Execute(SpawnedExecInfo);
-        }
-        public override void OnDespawned()
-        {
-            if (DespawnedExecInfo != null)
-                Execute(DespawnedExecInfo);
-        }
+        //public void Execute(string methodName, params object[] args)
+        //{
+        //    ScriptRef.File?.Execute(methodName, args);
+        //}
+        //public void Execute(ScriptExecInfo info)
+        //{
+        //    ScriptRef.File?.Execute(info);
+        //}
+        //public void ExecuteDefaultInfo()
+        //{
+        //    if (DefaultExecInfo != null)
+        //        Execute(DefaultExecInfo);
+        //}
+        //public override void OnSpawned()
+        //{
+        //    if (SpawnedExecInfo != null)
+        //        Execute(SpawnedExecInfo);
+        //}
+        //public override void OnDespawned()
+        //{
+        //    if (DespawnedExecInfo != null)
+        //        Execute(DespawnedExecInfo);
+        //}
     }
 }

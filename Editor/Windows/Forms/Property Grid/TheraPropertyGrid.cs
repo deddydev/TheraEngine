@@ -882,47 +882,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// Object type editors that appear within the property grid.
         /// </summary>
-        public static Dictionary<Type, Type> InPlaceEditorTypes
-        {
-            get
-            {
-                if (_inPlaceEditorTypes == null)
-                    LoadEditorTypes();
-
-                return _inPlaceEditorTypes;
-            }
-        }
+        public static Dictionary<Type, Type> InPlaceEditorTypes => _inPlaceEditorTypes;
         /// <summary>
         /// Object type editors that have their own dedicated window for the type.
         /// </summary>
-        public static Dictionary<Type, Type> FullEditorTypes
-        {
-            get
-            {
-                if (_fullEditorTypes == null)
-                    LoadEditorTypes();
+        public static Dictionary<Type, Type> FullEditorTypes => _fullEditorTypes;
 
-                return _fullEditorTypes;
-            }
-        }
-        internal static void ClearEditorTypes(bool reloadNow = false)
+        static TheraPropertyGrid()
         {
-            _inPlaceEditorTypes = null;
-            _fullEditorTypes = null;
-            if (reloadNow)
-                LoadEditorTypes();
+            ReloadEditorTypes();
         }
-        private static bool IsLoadingTypes { get; set; } = false;
-        private static void LoadEditorTypes()
+
+        public static void ReloadEditorTypes()
         {
             if (Engine.DesignMode)
                 return;
-            if (IsLoadingTypes)
-            {
-                while (IsLoadingTypes) ;
-                return;
-            }
-            IsLoadingTypes = true;
 
             _inPlaceEditorTypes = new Dictionary<Type, Type>();
             _fullEditorTypes = new Dictionary<Type, Type>();
@@ -937,8 +911,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     foreach (Type varType in a.Types)
                     {
                         if (!_inPlaceEditorTypes.ContainsKey(varType))
-                            //throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
                             _inPlaceEditorTypes.Add(varType, propControlType);
+                        else
+                            throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
                     }
                 }
             }
@@ -949,8 +924,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 foreach (Type varType in attrib.DataTypes)
                 {
                     if (!_fullEditorTypes.ContainsKey(varType))
-                        //throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
                         _fullEditorTypes.Add(varType, editorType);
+                    else
+                        throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
                 }
             }
         }

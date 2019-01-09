@@ -229,16 +229,12 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnDespawned()
         {
-            Scene3D s3d = OwningScene3D;
-            if (s3d != null)
-            {
-                if (Type == ELightType.Dynamic)
-                {
-                    s3d.Lights.Remove(this);
-                }
-                InnerCone.RenderInfo.UnlinkScene(InnerCone, s3d);
-                OuterCone.RenderInfo.UnlinkScene(OuterCone, s3d);
-            }
+            if (Type == ELightType.Dynamic)
+                OwningScene3D?.Lights?.Remove(this);
+                
+            InnerCone.RenderInfo.UnlinkScene();
+            OuterCone.RenderInfo.UnlinkScene();
+            
             base.OnDespawned();
         }
         public override void SetUniforms(RenderProgram program, string targetStructName)

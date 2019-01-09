@@ -198,7 +198,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             if (Meshes != null)
                 foreach (StaticRenderableMesh m in Meshes)
-                    m.RenderInfo.UnlinkScene(m, OwningScene3D);
+                    m.RenderInfo.UnlinkScene();
             base.OnDespawned();
         }
         protected internal override void OnHighlightChanged(bool highlighted)

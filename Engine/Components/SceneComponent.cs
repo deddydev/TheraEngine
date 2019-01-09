@@ -470,10 +470,10 @@ namespace TheraEngine.Components
                 OwningScene?.RemovePreRenderedObject(r);
 
             if (this is I3DRenderable r3d)
-                r3d.RenderInfo.UnlinkScene(r3d, OwningScene3D);
+                r3d.RenderInfo.UnlinkScene();
 
             if (this is I2DRenderable r2d)
-                r2d.RenderInfo.UnlinkScene(r2d, OwningScene2D);
+                r2d.RenderInfo.UnlinkScene();
 
             foreach (SceneComponent c in _children)
                 c.OnDespawned();

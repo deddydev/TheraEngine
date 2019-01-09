@@ -180,10 +180,109 @@ namespace TheraEngine.Rendering
             return id;
         }
         
-        public void Use()
-        {
-            Engine.Renderer.UseProgram(BindingId);
-        }
+        public void Use() => Engine.Renderer.UseProgram(BindingId);
+
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params IUniformable4Int[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params IUniformable4Float[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params IUniformable3Int[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params IUniformable3Float[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params IUniformable2Int[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params IUniformable2Float[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params IUniformable1Int[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params IUniformable1Float[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params int[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params float[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params uint[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, params double[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, Matrix4 p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, Matrix4[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, Matrix3 p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
+        /// <summary>
+        /// Passes a uniform value into the shaders of this program by engineUniform.
+        /// The engineUniform is cached so that retrieving the uniform location is only required once.
+        /// </summary>
+        public void Uniform(EEngineUniform engineUniform, Matrix3[] p)
+            => Uniform(Models.Materials.Uniform.GetLocation(this, engineUniform), p);
 
         /// <summary>
         /// Passes a uniform value into the shaders of this program by name.

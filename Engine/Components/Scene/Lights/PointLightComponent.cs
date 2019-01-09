@@ -104,7 +104,7 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     s3d.Lights.Remove(this);
                 }
-                _influenceVolume.RenderInfo.UnlinkScene(_influenceVolume, s3d);
+                _influenceVolume.RenderInfo.UnlinkScene();
             }
             base.OnDespawned();
         }

@@ -158,9 +158,9 @@ namespace TheraEngine.Rendering.Cameras
         public override void SetUniforms(RenderProgram program)
         {
             base.SetUniforms(program);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraFovX), _fovX);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraFovY), _fovY);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraAspect), _aspect);
+            program.Uniform(EEngineUniform.CameraFovX, _fovX);
+            program.Uniform(EEngineUniform.CameraFovY, _fovY);
+            program.Uniform(EEngineUniform.CameraAspect, _aspect);
         }
         public override void Resize(float width, float height)
         {

@@ -80,7 +80,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            RenderInfo.UnlinkScene(this, OwningScene3D);
+            RenderInfo.UnlinkScene();
             base.OnDespawned();
         }
 

@@ -460,20 +460,16 @@ namespace TheraEngine.Rendering.Cameras
 
         public virtual void SetUniforms(RenderProgram program)
         {
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.WorldToCameraSpaceMatrix),    WorldToCameraSpaceMatrix);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.ProjMatrix),                  ProjectionMatrix);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraToWorldSpaceMatrix),    CameraToWorldSpaceMatrix);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.InvProjMatrix),               InverseProjectionMatrix);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.ScreenWidth),                 Width);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.ScreenHeight),                Height);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.ScreenOrigin),                Origin);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraNearZ),                 NearZ);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraFarZ),                  FarZ);
-            program.Uniform(Uniform.GetLocation(program, EEngineUniform.CameraPosition),              WorldPoint);
-
-            //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraForward),               GetForwardVector());
-            //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraUp),                    GetUpVector());
-            //Engine.Renderer.Uniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraRight),                 GetRightVector());
+            program.Uniform(EEngineUniform.WorldToCameraSpaceMatrix,    WorldToCameraSpaceMatrix);
+            program.Uniform(EEngineUniform.ProjMatrix,                  ProjectionMatrix);
+            program.Uniform(EEngineUniform.CameraToWorldSpaceMatrix,    CameraToWorldSpaceMatrix);
+            program.Uniform(EEngineUniform.InvProjMatrix,               InverseProjectionMatrix);
+            program.Uniform(EEngineUniform.ScreenWidth,                 Width);
+            program.Uniform(EEngineUniform.ScreenHeight,                Height);
+            program.Uniform(EEngineUniform.ScreenOrigin,                Origin);
+            program.Uniform(EEngineUniform.CameraNearZ,                 NearZ);
+            program.Uniform(EEngineUniform.CameraFarZ,                  FarZ);
+            program.Uniform(EEngineUniform.CameraPosition,              WorldPoint);
         }
 
         [TPostDeserialize]

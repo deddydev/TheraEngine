@@ -39,6 +39,18 @@ namespace TheraEditor.Wrappers
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = t.Result.Settings;
                 }
             });
+            int i = 0;
+            for (; i < 4; ++i)
+            {
+                if (Editor.Instance.RenderFormActive(i))
+                {
+                    Editor.Instance.GetRenderForm(i).Focus();
+                    break;
+                }
+            }
+            if (i == 4)
+                Editor.Instance.RenderForm1.Focus();
+
         }
     }
 }

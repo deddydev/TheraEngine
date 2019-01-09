@@ -393,7 +393,7 @@ namespace TheraEditor.Windows.Forms
             base.OnDespawned();
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             //OwningWorld.Scene.Remove(_highlightPoint);
-            _highlightPoint.RenderInfo.UnlinkScene(_highlightPoint, OwningScene3D);
+            _highlightPoint.RenderInfo.UnlinkScene();
             _highlightPoint.OwningScene3D = null;
         }
         private void MouseMove(float delta)

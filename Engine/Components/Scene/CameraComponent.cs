@@ -14,7 +14,7 @@ using TheraEngine.Rendering;
 namespace TheraEngine.Components.Scene
 {
     [TFileDef("Camera Component")]
-    public class CameraComponent : OriginRebasableComponent, ICameraTransformable, I3DRenderable
+    public class CameraComponent : OriginRebasableComponent, ICameraTransformable/*, I3DRenderable*/
     {
         #region Constructors
         public CameraComponent() : this(null) { }
@@ -200,7 +200,7 @@ namespace TheraEngine.Components.Scene
 
             Camera c = Camera;
             if (c != null)
-                c.RenderInfo.UnlinkScene(c, OwningScene3D);
+                c.RenderInfo.UnlinkScene();
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
@@ -278,11 +278,12 @@ namespace TheraEngine.Components.Scene
             Rotation.AddRotations(pitch, yaw, 0.0f);
         }
 
-        private readonly RenderCommandMesh3D _previewMesh = new RenderCommandMesh3D();
-        public void AddRenderables(RenderPasses passes, Camera camera)
-        {
-            passes.Add(_previewMesh, RenderInfo.RenderPass);
-        }
+        //private readonly RenderCommandMesh3D _previewMesh = new RenderCommandMesh3D();
+        //public void AddRenderables(RenderPasses passes, Camera camera)
+        //{
+        //    //passes.Add(_previewMesh, RenderInfo.RenderPass);
+        //    _cameraRef?.File?.AddRenderables(passes, camera);
+        //}
 
         #endregion
     }

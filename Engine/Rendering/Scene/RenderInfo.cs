@@ -62,29 +62,29 @@ namespace TheraEngine.Rendering
 
         public void LinkScene(I2DRenderable r2d, Scene2D scene, bool forceVisible = false)
         {
-            if (r2d?.RenderInfo == null || scene == null)
+            if (r2d == null || scene == null)
                 return;
 
-            r2d.RenderInfo.Scene = scene;
-            r2d.RenderInfo.Owner = r2d;
+            Scene = scene;
+            Owner = r2d;
 
-            bool spawn = r2d.RenderInfo.VisibleByDefault || forceVisible;
+            Visible = r2d.RenderInfo.VisibleByDefault || forceVisible;
 #if EDITOR
-            if (r2d.RenderInfo.VisibleInEditorOnly)
-                spawn = spawn && Engine.EditorState.InEditMode;
+            if (VisibleInEditorOnly)
+                Visible = Visible && Engine.EditorState.InEditMode;
 #endif
-            if (spawn)
-                scene.Add(r2d);
+            if (Visible)
+                Scene.Add(Owner);
         }
 
-        public void UnlinkScene(I2DRenderable r2d, Scene2D scene)
+        public void UnlinkScene()
         {
-            if (r2d?.RenderInfo == null || scene == null || !r2d.RenderInfo.Visible)
+            if (Owner == null || Scene == null)
                 return;
 
-            scene.Remove(r2d);
-            r2d.RenderInfo.Scene = null;
-            r2d.RenderInfo.Owner = null;
+            Scene.Remove(Owner);
+            Scene = null;
+            Owner = null;
         }
     }
     public delegate float DelGetSortOrder(bool shadowPass);
@@ -146,29 +146,29 @@ namespace TheraEngine.Rendering
 
         public void LinkScene(I3DRenderable r3d, Scene3D scene, bool forceVisible = false)
         {
-            if (r3d?.RenderInfo == null || scene == null)
+            if (r3d == null || scene == null)
                 return;
 
-            r3d.RenderInfo.Scene = scene;
-            r3d.RenderInfo.Owner = r3d;
+            Scene = scene;
+            Owner = r3d;
 
-            bool spawn = r3d.RenderInfo.VisibleByDefault || forceVisible;
+            Visible = VisibleByDefault || forceVisible;
 #if EDITOR
-            if (r3d.RenderInfo.VisibleInEditorOnly)
-                spawn = spawn && Engine.EditorState.InEditMode;
+            if (VisibleInEditorOnly)
+                Visible = Visible && Engine.EditorState.InEditMode;
 #endif
-            if (spawn)
-                scene.Add(r3d);
+            if (Visible)
+                Scene.Add(Owner);
         }
 
-        public void UnlinkScene(I3DRenderable r3d, Scene3D scene)
+        public void UnlinkScene()
         {
-            if (r3d?.RenderInfo == null || scene == null || !r3d.RenderInfo.Visible)
+            if (Owner == null || Scene == null)
                 return;
 
-            scene.Remove(r3d);
-            r3d.RenderInfo.Scene = null;
-            r3d.RenderInfo.Owner = null;
+            Scene.Remove(Owner);
+            Scene = null;
+            Owner = null;
         }
     }
 }

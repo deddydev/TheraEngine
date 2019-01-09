@@ -18,14 +18,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void UpdateDisplayInternal(object value)
         {
             base.UpdateDisplayInternal(value);
-            if (typeof(IFileRef).IsAssignableFrom(DataType))
-            {
-                //_fileRef = _object as IFileRef;
-                //label1.Text = _fileRef?.ReferencedType?.GetFriendlyName();
-                //textBox1.Text = _fileRef?.ReferencePath;
-            }
-            else
-                throw new Exception(DataType.GetFriendlyName() + " is not an IFileRef type.");
+            //if (typeof(IFileRef).IsAssignableFrom(DataType))
+            //{
+            //    //_fileRef = _object as IFileRef;
+            //    //label1.Text = _fileRef?.ReferencedType?.GetFriendlyName();
+            //    //textBox1.Text = _fileRef?.ReferencePath;
+            //}
+            //else
+            //    throw new Exception(DataType.GetFriendlyName() + " is not an IFileRef type.");
         }
         protected override void OnDragDrop(DragEventArgs e)
         {

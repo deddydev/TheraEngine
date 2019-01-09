@@ -92,11 +92,11 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize]
         [DisplayName("Multiplier")]
         [Category("Shadow Map Settings")]
-        public float ShadowBase { get; set; } = 1.0f;
+        public float ShadowBase { get; set; } = 0.04f;
         [TSerialize]
         [DisplayName("Exponent")]
         [Category("Shadow Map Settings")]
-        public float ShadowMult { get; set; } = 4.0f;
+        public float ShadowMult { get; set; } = 1.0f;
         [TSerialize]
         [DisplayName("Minimum")]
         [Category("Shadow Map Settings")]

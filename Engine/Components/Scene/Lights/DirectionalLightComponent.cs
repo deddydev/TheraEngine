@@ -108,7 +108,7 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     s3d.Lights.Remove(this);
                 }
-                ShadowCamera.RenderInfo.UnlinkScene(ShadowCamera, s3d);
+                ShadowCamera.RenderInfo.UnlinkScene();
             }
             base.OnDespawned();
         }

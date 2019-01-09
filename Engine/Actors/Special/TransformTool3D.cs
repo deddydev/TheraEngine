@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -568,84 +569,130 @@ namespace TheraEngine.Actors.Types
 
             Vec3 localCamPoint = camera.WorldPoint * _invDragMatrix;
             Vec3 dragPoint, unit;
-            if (_hiCam)
+
+            switch (_mode)
             {
-                _dragPlaneNormal = localCamPoint;
-                _dragPlaneNormal.NormalizeFast();
+                case TransformType.Scale:
+                case TransformType.Translate:
+                    {
+                        if (_hiCam)
+                        {
+                            _dragPlaneNormal = localCamPoint;
+                            _dragPlaneNormal.NormalizeFast();
+                        }
+                        else if (_hiAxis.X)
+                        {
+                            if (_hiAxis.Y)
+                            {
+                                _dragPlaneNormal = Vec3.UnitZ;
+                            }
+                            else if (_hiAxis.Z)
+                            {
+                                _dragPlaneNormal = Vec3.UnitY;
+                            }
+                            else
+                            {
+                                unit = Vec3.UnitX;
+                                Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
+                                _dragPlaneNormal = localCamPoint - perpPoint;
+                                _dragPlaneNormal.NormalizeFast();
+
+                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                                    return _lastPoint;
+
+                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
+                            }
+                        }
+                        else if (_hiAxis.Y)
+                        {
+                            if (_hiAxis.X)
+                            {
+                                _dragPlaneNormal = Vec3.UnitZ;
+                            }
+                            else if (_hiAxis.Z)
+                            {
+                                _dragPlaneNormal = Vec3.UnitX;
+                            }
+                            else
+                            {
+                                unit = Vec3.UnitY;
+                                Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
+                                _dragPlaneNormal = localCamPoint - perpPoint;
+                                _dragPlaneNormal.NormalizeFast();
+
+                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                                    return _lastPoint;
+
+                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
+                            }
+                        }
+                        else if (_hiAxis.Z)
+                        {
+                            if (_hiAxis.X)
+                            {
+                                _dragPlaneNormal = Vec3.UnitY;
+                            }
+                            else if (_hiAxis.Y)
+                            {
+                                _dragPlaneNormal = Vec3.UnitX;
+                            }
+                            else
+                            {
+                                unit = Vec3.UnitZ;
+                                Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
+                                _dragPlaneNormal = localCamPoint - perpPoint;
+                                _dragPlaneNormal.NormalizeFast();
+
+                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                                    return _lastPoint;
+
+                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
+                            }
+                        }
+
+                        if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                            return dragPoint;
+                    }
+                    break;
+                case TransformType.Rotate:
+                    {
+                        if (_hiCam)
+                        {
+                            _dragPlaneNormal = localCamPoint;
+                            _dragPlaneNormal.NormalizeFast();
+
+                            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                                return dragPoint;
+                        }
+                        else if (_hiAxis.Any)
+                        {
+                            if (_hiAxis.X)
+                            {
+                                unit = Vec3.UnitX;
+                            }
+                            else if (_hiAxis.Y)
+                            {
+                                unit = Vec3.UnitY;
+                            }
+                            else if (_hiAxis.Z)
+                            {
+                                unit = Vec3.UnitZ;
+                            }
+                            else
+                            {
+                                unit = Vec3.UnitX;
+                            }
+
+                            _dragPlaneNormal = unit;
+                            _dragPlaneNormal.NormalizeFast();
+
+                            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                                return dragPoint;
+                        }
+                    }
+                    break;
             }
-            else if (_hiAxis.X)
-            {
-                if (_hiAxis.Y)
-                {
-                    _dragPlaneNormal = Vec3.UnitZ;
-                }
-                else if (_hiAxis.Z)
-                {
-                    _dragPlaneNormal = Vec3.UnitY;
-                }
-                else
-                {
-                    unit = Vec3.UnitX;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
-                    _dragPlaneNormal = localCamPoint - perpPoint;
-                    _dragPlaneNormal.NormalizeFast();
-
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                        return _lastPoint;
-
-                    return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
-                }
-            }
-            else if (_hiAxis.Y)
-            {
-                if (_hiAxis.X)
-                {
-                    _dragPlaneNormal = Vec3.UnitZ;
-                }
-                else if (_hiAxis.Z)
-                {
-                    _dragPlaneNormal = Vec3.UnitX;
-                }
-                else
-                {
-                    unit = Vec3.UnitY;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
-                    _dragPlaneNormal = localCamPoint - perpPoint;
-                    _dragPlaneNormal.NormalizeFast();
-
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                        return _lastPoint;
-
-                    return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
-                }
-            }
-            else if (_hiAxis.Z)
-            {
-                if (_hiAxis.X)
-                {
-                    _dragPlaneNormal = Vec3.UnitY;
-                }
-                else if (_hiAxis.Y)
-                {
-                    _dragPlaneNormal = Vec3.UnitX;
-                }
-                else
-                {
-                    unit = Vec3.UnitZ;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
-                    _dragPlaneNormal = localCamPoint - perpPoint;
-                    _dragPlaneNormal.NormalizeFast();
-
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                        return _lastPoint;
-
-                    return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
-                }
-            }
-
-            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                return dragPoint;
-
+            
             return _lastPoint;
         }
 #endregion
@@ -656,40 +703,43 @@ namespace TheraEngine.Actors.Types
             Vec3 worldPoint = _dragMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
-            if (!Collision.RayIntersectsSphere(localRay.StartPoint, localRay.Direction, Vec3.Zero, radius, out Vec3 point))
+            if (!Collision.RayIntersectsSphere(localRay.StartPoint, localRay.Direction, Vec3.Zero, radius * _circOrbScale, out Vec3 point))
             {
                 //If no intersect is found, project the ray through the plane perpendicular to the camera.
                 //localRay.LinePlaneIntersect(Vec3.Zero, (camera.WorldPoint - worldPoint).Normalized(), out point);
                 Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, (camera.WorldPoint - worldPoint) * _invDragMatrix, out point);
-                
+
                 //Clamp the point to edge of the sphere
-                //if (clamp)
-                //    point = Ray.PointAtLineDistance(Vec3.Zero, point, radius);
+                point = Ray.PointAtLineDistance(Vec3.Zero, point, radius);
+
+                //Point lies on circ line?
+                float distance = point.LengthFast;
+                if (Math.Abs(distance - radius * _circOrbScale) < radius * _selectOrbScale)
+                    _hiCam = true;
             }
-
-            float distance = point.LengthFast;
-
-            //Point lies within orb radius?
-            if (Math.Abs(distance - radius) < radius * _selectOrbScale)
+            else
             {
+                point.NormalizeFast();
+                
                 _hiSphere = true;
+                
+                float x = point.Dot(Vec3.UnitX);
+                float y = point.Dot(Vec3.UnitY);
+                float z = point.Dot(Vec3.UnitZ);
 
-                //Determine axis snapping
-                Vec3 angles = point.GetAngles();
-                angles.X = Math.Abs(angles.X);
-                angles.Y = Math.Abs(angles.Y);
-                angles.Z = Math.Abs(angles.Z);
-
-                if (Math.Abs(angles.Y - 90.0f) <= _axisSnapRange)
+                if (Math.Abs(x) < 0.3f)
+                {
                     _hiAxis.X = true;
-                else if (angles.X >= (180.0f - _axisSnapRange) || angles.X <= _axisSnapRange)
+                }
+                else if (Math.Abs(y) < 0.3f)
+                {
                     _hiAxis.Y = true;
-                else if (angles.Y >= (180.0f - _axisSnapRange) || angles.Y <= _axisSnapRange)
+                }
+                else if (Math.Abs(z) < 0.3f)
+                {
                     _hiAxis.Z = true;
+                }
             }
-            //Point lies on circ line?
-            else if (Math.Abs(distance - radius * _circOrbScale) < radius * _selectOrbScale)
-                _hiCam = true;
 
             return _hiAxis.Any || _hiCam || _hiSphere;
         }

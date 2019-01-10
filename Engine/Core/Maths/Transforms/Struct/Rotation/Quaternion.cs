@@ -171,7 +171,7 @@ namespace System
         /// </summary>
         public Rotator ToYawPitchRoll()
         {
-            NormalizeFast();
+            Normalize();
             float sqx = X * X;
             float sqy = Y * Y;
             float sqz = Z * Z;

@@ -305,12 +305,12 @@ void main()
             mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
         }
 
-        public override void OnSpawnedPostComponentSpawn()
+        protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
             ScreenSpaceUIScene.Add(this);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
             ScreenSpaceUIScene.Remove(this);

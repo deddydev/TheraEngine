@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -233,6 +234,18 @@ namespace TheraEngine.Core.Tools
         {
             token = token.ToLowerInvariant();
 
+            //Negations will be found first
+            int invertCount = 0;
+            bool neg = false;
+            while ((neg = token.StartsWith("-")) || token.StartsWith("+"))
+            {
+                if (neg)
+                    ++invertCount;
+                token = token.Substring(1);
+            }            
+            //Don't negate if even, negate if odd
+            bool shouldInvert = (invertCount & 1) != 0;
+
             bool isIntegral = !token.Contains(".");
             if (isIntegral)
             {
@@ -266,17 +279,26 @@ namespace TheraEngine.Core.Tools
                     {
                         if (forceUnsigned)
                         {
+                            if (shouldInvert)
+                                throw new InvalidOperationException("Cannot negate an unsigned integer.");
+
                             if (forceLong)
-                                return ulong.Parse(token);
+                                return ulong.Parse(token, NumberStyles.HexNumber);
                             else
-                                return uint.Parse(token);
+                                return uint.Parse(token, NumberStyles.HexNumber);
                         }
                         else
                         {
                             if (forceLong)
-                                return long.Parse(token);
+                            {
+                                long value = long.Parse(token, NumberStyles.HexNumber);
+                                return shouldInvert ? -value : value;
+                            }
                             else
-                                return int.Parse(token);
+                            {
+                                int value = int.Parse(token, NumberStyles.HexNumber);
+                                return shouldInvert ? -value : value;
+                            }
                         }
                     }
                 }
@@ -286,6 +308,9 @@ namespace TheraEngine.Core.Tools
                     {
                         if (forceUnsigned)
                         {
+                            if (shouldInvert)
+                                throw new InvalidOperationException("Cannot negate an unsigned integer.");
+
                             if (forceLong)
                                 return ulong.Parse(token);
                             else
@@ -294,9 +319,15 @@ namespace TheraEngine.Core.Tools
                         else
                         {
                             if (forceLong)
-                                return long.Parse(token);
+                            {
+                                long value = long.Parse(token);
+                                return shouldInvert ? -value : value;
+                            }
                             else
-                                return int.Parse(token);
+                            {
+                                int value = int.Parse(token);
+                                return shouldInvert ? -value : value;
+                            }
                         }
                     }
                 }
@@ -345,12 +376,26 @@ namespace TheraEngine.Core.Tools
                 {
                     //Get the second operand first
                     String stackToken2 = stack.Pop();
-                    //First operand comes second
-                    String stackToken1 = stack.Pop();
-
-                    //Parse each operand so they can be evaluated
-                    object value1 = GetValue(stackToken1, provider);
                     object value2 = GetValue(stackToken2, provider);
+
+                    //First operand comes second
+                    object value1;
+                    if (stack.Count == 0)
+                    {
+                        if (token == "-" || token == "+")
+                        {
+                            value1 = 0;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"Operator {token} needs operands on both sides.");
+                        }
+                    }
+                    else
+                    {
+                        String stackToken1 = stack.Pop();
+                        value1 = GetValue(stackToken1, provider);
+                    }
 
                     if (value1 == null)
                     {

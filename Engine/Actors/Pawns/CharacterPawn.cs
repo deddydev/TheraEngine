@@ -106,12 +106,12 @@ namespace TheraEngine.Actors.Types.Pawns
                 Engine.World.SpawnActor(this);
             }
         }
-        public override void OnSpawnedPostComponentSpawn()
+        protected override void OnSpawnedPostComponentSpawn()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, TickMovementInput);
             //RootComponent.PhysicsDriver.SimulatingPhysics = true;
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, TickMovementInput);
             base.OnDespawned();

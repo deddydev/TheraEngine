@@ -101,12 +101,12 @@ namespace TheraEditor.Windows.Forms
 
             return root;
         }
-        public override void OnSpawnedPostComponentSpawn()
+        protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
             ScreenSpaceUIScene.Add(this);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
             ScreenSpaceUIScene.Remove(this);

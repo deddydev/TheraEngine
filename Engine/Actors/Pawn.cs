@@ -133,22 +133,23 @@ namespace TheraEngine.Actors
             }
         }
 
-        public override void OnSpawnedPreComponentSpawn()
+        protected override void OnSpawnedPreComponentSpawn()
         {
-            HUD?.Spawned(OwningWorld);
+            if (HUD is IActor_Internal actor)
+                actor.Spawned(OwningWorld);
         }
-
-        public override void OnSpawnedPostComponentSpawn()
+        protected override void OnSpawnedPostComponentSpawn()
         {
             if (OwningWorld.Settings.EnableOriginRebasing)
                 RootComponent.WorldTransformChanged += QueueWorldRebase;
         }
-
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             if (OwningWorld.Settings.EnableOriginRebasing)
                 RootComponent.WorldTransformChanged -= QueueWorldRebase;
-            HUD?.Despawned();
+
+            if (HUD is IActor_Internal actor)
+                actor.Despawned();
         }
         public void QueuePossession(LocalPlayerIndex possessor)
             => Engine.QueuePossession(this, possessor);

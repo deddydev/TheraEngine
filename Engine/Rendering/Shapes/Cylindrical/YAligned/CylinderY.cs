@@ -7,7 +7,7 @@ namespace TheraEngine.Core.Shapes
     [TFileDef("Y-Aligned Cylinder")]
     public class CylinderY : Cylinder
     {
-        public CylinderY() 
+        public CylinderY()
             : this(1.0f, 1.0f) { }
         public CylinderY(float radius, float halfHeight) 
             : this(Vec3.Zero, radius, halfHeight) { }

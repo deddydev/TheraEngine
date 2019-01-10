@@ -213,12 +213,11 @@ namespace TheraEditor.Windows.Forms
             };
 
             SubViewport = new UIViewportComponent();
-            SubViewport.SizeableWidth.Minimum = new SizeableElement();
-            SubViewport.SizeableWidth.Minimum.SetSizingPixels(200.0f, true, ParentBoundsInheritedValue.Width);
-            SubViewport.SizeableWidth.SetSizingPercentageOfParent(0.4f, true, ParentBoundsInheritedValue.Width);
-            SubViewport.SizeableHeight.SetSizingProportioned(SubViewport.SizeableWidth, 9.0f / 16.0f, true, ParentBoundsInheritedValue.Height);
-            SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Width);
-            SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f, true, ParentBoundsInheritedValue.Height);
+            SubViewport.SizeableWidth.Minimum = SizeableElement.Pixels(200.0f, true, EParentBoundsInheritedValue.Width);
+            SubViewport.SizeableWidth.SetSizingPercentageOfParent(0.4f);
+            SubViewport.SizeableHeight.SetSizingProportioned(SubViewport.SizeableWidth, 9.0f / 16.0f);
+            SubViewport.SizeablePosX.SetSizingPercentageOfParent(0.02f);
+            SubViewport.SizeablePosY.SetSizingPercentageOfParent(0.02f);
             SubViewport.IsVisible = false;
             canvas.ChildComponents.Add(SubViewport);
 
@@ -231,8 +230,8 @@ namespace TheraEditor.Windows.Forms
                 Height = s.Height,
             };
             SubViewportText.RenderInfo.Visible = false;
-            SubViewportText.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, ParentBoundsInheritedValue.Height);
-            SubViewportText.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, ParentBoundsInheritedValue.Width);
+            SubViewportText.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, EParentBoundsInheritedValue.Height);
+            SubViewportText.SizeableWidth.Minimum = SizeableElement.Pixels(s.Width, true, EParentBoundsInheritedValue.Width);
             StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
             {
                 //Alignment = StringAlignment.Center,
@@ -379,7 +378,7 @@ namespace TheraEditor.Windows.Forms
             else
                 DoMouseDown();
         }
-        public override void OnSpawnedPostComponentSpawn()
+        protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
@@ -388,7 +387,7 @@ namespace TheraEditor.Windows.Forms
             //OwningWorld.Scene.Add(_highlightPoint);
             SubViewport.IsVisible = false;
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);

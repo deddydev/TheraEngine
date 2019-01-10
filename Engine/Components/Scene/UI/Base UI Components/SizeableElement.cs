@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI
@@ -26,7 +22,7 @@ namespace TheraEngine.Rendering.UI
         /// </summary>
         Proportion,
     }
-    public enum ParentBoundsInheritedValue
+    public enum EParentBoundsInheritedValue
     {
         Width,
         Height,
@@ -51,7 +47,7 @@ namespace TheraEngine.Rendering.UI
             _minSize,
             _maxSize,
             _origin;
-        private ParentBoundsInheritedValue _parentBoundsInherit = ParentBoundsInheritedValue.Width;
+        private EParentBoundsInheritedValue _parentBoundsInherit = EParentBoundsInheritedValue.Width;
         private bool _smallerRelative = true;
 
         //public float CurrentValue
@@ -150,7 +146,7 @@ namespace TheraEngine.Rendering.UI
                 }
             }
         }
-        public ParentBoundsInheritedValue ParentBoundsInherited
+        public EParentBoundsInheritedValue ParentBoundsInherited
         {
             get => _parentBoundsInherit;
             set
@@ -181,9 +177,9 @@ namespace TheraEngine.Rendering.UI
         {
             switch (ParentBoundsInherited)
             {
-                case ParentBoundsInheritedValue.Width:
+                case EParentBoundsInheritedValue.Width:
                     return parentBounds.X;
-                case ParentBoundsInheritedValue.Height:
+                case EParentBoundsInheritedValue.Height:
                     return parentBounds.Y;
             }
             return 0.0f;
@@ -220,37 +216,45 @@ namespace TheraEngine.Rendering.UI
         }
 
         #region Sizing modes
-        public static SizeableElement PercentageOfParent(float percentage, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
+        public static SizeableElement PercentageOfParent(float percentage, bool smallerRelative, EParentBoundsInheritedValue parentBoundsInherited)
         {
-            SizeableElement e = new SizeableElement();
-            e.SetSizingPercentageOfParent(percentage, smallerRelative, parentDim);
+            SizeableElement e = new SizeableElement
+            {
+                ParentBoundsInherited = parentBoundsInherited,
+                SmallerRelative = smallerRelative
+            };
+            e.SetSizingPercentageOfParent(percentage);
             return e;
         }
-        public void SetSizingPercentageOfParent(float percentage, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
+        public void SetSizingPercentageOfParent(float percentage)
         {
-            SmallerRelative = smallerRelative;
-            ParentBoundsInherited = parentDim;
             SizingOption = SizingMode.PercentageOfParent;
             ModificationValue = percentage;
         }
-        public static SizeableElement Proportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
+        public static SizeableElement Proportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative, EParentBoundsInheritedValue parentBoundsInherited)
         {
-            SizeableElement e = new SizeableElement();
-            e.SetSizingProportioned(proportionalElement, ratio, smallerRelative, parentDim);
+            SizeableElement e = new SizeableElement
+            {
+                ParentBoundsInherited = parentBoundsInherited,
+                SmallerRelative = smallerRelative
+            };
+            e.SetSizingProportioned(proportionalElement, ratio);
             return e;
         }
-        public void SetSizingProportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
+        public void SetSizingProportioned(SizeableElement proportionalElement, float ratio)
         {
-            SmallerRelative = smallerRelative;
-            ParentBoundsInherited = parentDim;
             SizingOption = SizingMode.Proportion;
             ProportionElement = proportionalElement;
             ModificationValue = ratio;
         }
-        public static SizeableElement Pixels(float pixels, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
+        public static SizeableElement Pixels(float pixels, bool smallerRelative, EParentBoundsInheritedValue parentBoundsInherited)
         {
-            SizeableElement e = new SizeableElement();
-            e.SetSizingPixels(pixels, smallerRelative, parentDim);
+            SizeableElement e = new SizeableElement
+            {
+                ParentBoundsInherited = parentBoundsInherited,
+                SmallerRelative = smallerRelative
+            };
+            e.SetSizingPixels(pixels);
             return e;
         }
         /// <summary>
@@ -259,10 +263,8 @@ namespace TheraEngine.Rendering.UI
         /// <param name="pixels"></param>
         /// <param name="smallerRelative"></param>
         /// <param name="parentDim"></param>
-        public void SetSizingPixels(float pixels, bool smallerRelative = true, ParentBoundsInheritedValue parentDim = ParentBoundsInheritedValue.Width)
+        public void SetSizingPixels(float pixels)
         {
-            SmallerRelative = smallerRelative;
-            ParentBoundsInherited = parentDim;
             SizingOption = SizingMode.Pixels;
             ModificationValue = pixels;
         }

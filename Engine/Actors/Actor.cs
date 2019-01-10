@@ -12,6 +12,17 @@ using TheraEngine.Worlds;
 namespace TheraEngine.Actors
 {
     public delegate void DelRootComponentChanged(OriginRebasableComponent oldRoot, OriginRebasableComponent newRoot);
+    internal interface IActor_Internal : IActor
+    {
+        void RebaseOrigin(Vec3 newOrigin);
+        void GenerateSceneComponentCache();
+        void Spawned(TWorld world);
+        void Despawned();
+#if EDITOR
+        void OnHighlightChanged(bool highlighted);
+        void OnSelectedChanged(bool selected);
+#endif
+    }
     public interface IActor : IFileObject
     {
         event DelRootComponentChanged RootComponentChanged;
@@ -21,23 +32,15 @@ namespace TheraEngine.Actors
         TWorld OwningWorld { get; }
 
         bool IsSpawned { get; }
-        void Spawned(TWorld world);
-        void Despawned();
 
         IReadOnlyCollection<SceneComponent> SceneComponentCache { get; }
-        void GenerateSceneComponentCache();
         OriginRebasableComponent RootComponent { get; }
-        void RebaseOrigin(Vec3 newOrigin);
 
         EventList<LogicComponent> LogicComponents { get; }
         T1 FindFirstLogicComponentOfType<T1>() where T1 : LogicComponent;
         T1[] FindLogicComponentsOfType<T1>() where T1 : LogicComponent;
         LogicComponent FindFirstLogicComponentOfType(Type type);
         LogicComponent[] FindLogicComponentsOfType(Type type);
-#if EDITOR
-        void OnHighlightChanged(bool highlighted);
-        void OnSelectedChanged(bool selected);
-#endif
     }
 
     #region Generic Actor
@@ -60,7 +63,7 @@ namespace TheraEngine.Actors
     //[File3rdParty(new string[] { "dae" }, null)]
     [TFileExt("actor")]
     [TFileDef("Actor")]
-    public class Actor<T> : TFileObject, IActor where T : OriginRebasableComponent
+    public class Actor<T> : TFileObject, IActor_Internal where T : OriginRebasableComponent
     {
         public event DelRootComponentChanged RootComponentChanged;
 
@@ -115,8 +118,9 @@ namespace TheraEngine.Actors
             IsConstructing = false;
             GenerateSceneComponentCache();
         }
-
+        
         public float _lifeSpan = -1.0f;
+        public float CurrentLife { get; private set; }
         public int _spawnIndex = -1;
         private T _rootComponent;
 
@@ -277,7 +281,8 @@ For example, a logic component could give any actor health and/or allow it to ta
         //[Browsable(false)]
         //public bool HasRenderableComponents => RenderableComponentCache.Count > 0;
 
-        public void GenerateSceneComponentCache()
+        void IActor_Internal.GenerateSceneComponentCache() => GenerateSceneComponentCache();
+        internal void GenerateSceneComponentCache()
         {
             if (!IsConstructing)
             {
@@ -285,7 +290,8 @@ For example, a logic component could give any actor health and/or allow it to ta
                 _sceneComponentCache = _rootComponent?.GenerateChildCache() ?? new List<SceneComponent>();
             }
         }
-        public void RebaseOrigin(Vec3 newOrigin)
+        void IActor_Internal.RebaseOrigin(Vec3 newOrigin) => RebaseOrigin(newOrigin);
+        internal void RebaseOrigin(Vec3 newOrigin)
         {
             //Engine.PrintLine("Rebasing actor {0}", GetType().GetFriendlyName());
             RootComponent?.OriginRebased(newOrigin);
@@ -298,7 +304,8 @@ For example, a logic component could give any actor health and/or allow it to ta
                 OwningWorld.DespawnActor(this);
         }
 
-        public void Spawned(TWorld world)
+        void IActor_Internal.Spawned(TWorld world) => Spawned(world);
+        internal void Spawned(TWorld world)
         {
             if (IsSpawned)
                 return;
@@ -324,28 +331,38 @@ For example, a logic component could give any actor health and/or allow it to ta
             _spawnIndex = world.SpawnedActorCount - 1;
 
             if (Animations != null && Animations.Count > 0)
-                Animations.ForEach(x => 
+                Animations.ForEach(anim => 
                 {
-                    //if (x.BeginOnSpawn)
-                    //    x.Start();
+                    if (anim.BeginOnSpawn)
+                        anim.Start();
                 });
 
             SpawnTime = DateTime.Now;
             if (_lifeSpan > 0.0f)
+            {
+                CurrentLife = _lifeSpan;
                 RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+            }
         }
 
         private void DespawnTimer(float delta)
         {
-            _lifeSpan -= delta;
-            if (_lifeSpan <= 0.0f)
+            CurrentLife -= delta;
+            if (CurrentLife <= 0.0f)
             {
                 UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
-                Despawn();
+                OnLifeSpanOver();
             }
         }
 
-        public void Despawned()
+        /// <summary>
+        /// Overridable method called when an actor's life span runs out.
+        /// By default, despawns the actor.
+        /// </summary>
+        protected virtual void OnLifeSpanOver() => Despawn();
+
+        void IActor_Internal.Despawned() => Despawned();
+        internal void Despawned()
         {
             if (!IsSpawned)
                 return;
@@ -368,37 +385,29 @@ For example, a logic component could give any actor health and/or allow it to ta
         /// <summary>
         /// Called before OnSpawned() is called for all logic and scene components.
         /// </summary>
-        public virtual void OnSpawnedPreComponentSpawn() { }
+        protected virtual void OnSpawnedPreComponentSpawn() { }
         /// <summary>
         /// Called after OnSpawned() is called for all logic and scene components.
         /// </summary>
-        public virtual void OnSpawnedPostComponentSpawn() { }
+        protected virtual void OnSpawnedPostComponentSpawn() { }
         /// <summary>
         /// Called when this actor is removed from the world.
         /// </summary>
-        public virtual void OnDespawned() { }
+        protected virtual void OnDespawned() { }
         #endregion
 
 #if EDITOR
-        void IActor.OnHighlightChanged(bool highlighted) => OnHighlightChanged(highlighted);
+        void IActor_Internal.OnHighlightChanged(bool highlighted) => OnHighlightChanged(highlighted);
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             foreach (SceneComponent s in SceneComponentCache)
-            {
                 s.OnHighlightChanged(highlighted);
-            }
         }
-        void IActor.OnSelectedChanged(bool selected) => OnSelectedChanged(selected);
+        void IActor_Internal.OnSelectedChanged(bool selected) => OnSelectedChanged(selected);
         protected internal override void OnSelectedChanged(bool selected)
         {
             foreach (SceneComponent s in SceneComponentCache)
-            {
                 s.OnSelectedChanged(selected);
-                //if (s is I3DRenderable r3d)
-                //    r3d.RenderInfo.Visible = selected;
-                //if (s is I2DRenderable r2d)
-                //    r2d.RenderInfo.Visible = selected;
-            }
         }
 #endif
 

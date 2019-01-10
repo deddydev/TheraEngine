@@ -399,13 +399,13 @@ namespace TheraEngine.Tests
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        public override void OnSpawnedPostComponentSpawn()
+        protected override void OnSpawnedPostComponentSpawn()
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
             RootComponent.Rotation.Pitch = -90.0f;
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }

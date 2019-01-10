@@ -7,7 +7,7 @@ using TheraEngine.Physics;
 namespace TheraEngine.Core.Shapes
 {
     [TFileExt("cylinder")]
-    public class Cylinder : Shape
+    public abstract class Cylinder : Shape
     {
         public Cylinder(
             EventVec3 center,

@@ -425,7 +425,8 @@ namespace TheraEngine.Components
                 else
                 {
                     _parent = null;
-                    OwningActor?.GenerateSceneComponentCache();
+                    if (OwningActor is IActor_Internal actor)
+                        actor.GenerateSceneComponentCache();
                     OwningActor = null;
                 }
             }
@@ -525,7 +526,8 @@ namespace TheraEngine.Components
                 item.OwningActor = null;
                 item.RecalcWorldTransform();
             }
-            OwningActor?.GenerateSceneComponentCache();
+            if (OwningActor is IActor_Internal actor)
+                actor.GenerateSceneComponentCache();
         }
         protected virtual void OnChildComponentRemoved(SceneComponent item)
         {
@@ -536,7 +538,8 @@ namespace TheraEngine.Components
             item.OwningActor = null;
             item.RecalcWorldTransform();
 
-            OwningActor?.GenerateSceneComponentCache();
+            if (OwningActor is IActor_Internal actor)
+                actor.GenerateSceneComponentCache();
         }
         protected virtual void OnChildComponentsInserted(IEnumerable<SceneComponent> items, int index)
             => OnChildComponentsAdded(items);
@@ -551,7 +554,9 @@ namespace TheraEngine.Components
         {
             foreach (SceneComponent item in items)
                 HandleSingleChildAdded(item);
-            OwningActor?.GenerateSceneComponentCache();
+
+            if (OwningActor is IActor_Internal actor)
+                actor.GenerateSceneComponentCache();
         }
         /// <summary>
         /// Called when a single child component is added.
@@ -561,7 +566,9 @@ namespace TheraEngine.Components
         protected virtual void OnChildComponentAdded(SceneComponent item)
         {
             HandleSingleChildAdded(item);
-            OwningActor?.GenerateSceneComponentCache();
+
+            if (OwningActor is IActor_Internal actor)
+                actor.GenerateSceneComponentCache();
         }
         protected virtual void HandleSingleChildAdded(SceneComponent item)
         {

@@ -69,12 +69,12 @@ namespace TheraEditor.Windows.Forms
         //private Vec2 _lastFocusPoint = Vec2.Zero;
         private bool _rightClickDown = false;
         
-        public override void OnSpawnedPostComponentSpawn()
+        protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
             ScreenSpaceUIScene.Add(this);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
             ScreenSpaceUIScene.Remove(this);

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Reflection;
-using TheraEngine.Components;
 using TheraEngine.Core.Shapes;
-using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -204,13 +201,13 @@ namespace TheraEngine.Rendering.UI
         private readonly ISizeable[] _sizeableElements;
 
         [Category("Transform")]
-        public SizeableElement SizeableWidth { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Width };
+        public SizeableElement SizeableWidth { get; } = new SizeableElement() { ParentBoundsInherited = EParentBoundsInheritedValue.Width };
         [Category("Transform")]
-        public SizeableElement SizeableHeight { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Height };
+        public SizeableElement SizeableHeight { get; } = new SizeableElement() { ParentBoundsInherited = EParentBoundsInheritedValue.Height };
         [Category("Transform")]
-        public SizeableElement SizeablePosX { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Width };
+        public SizeableElement SizeablePosX { get; } = new SizeableElement() { ParentBoundsInherited = EParentBoundsInheritedValue.Width };
         [Category("Transform")]
-        public SizeableElement SizeablePosY { get; } = new SizeableElement() { ParentBoundsInherited = ParentBoundsInheritedValue.Height };
+        public SizeableElement SizeablePosY { get; } = new SizeableElement() { ParentBoundsInherited = EParentBoundsInheritedValue.Height };
         [Category("Transform")]
         protected SizeableElementQuad Padding { get; } = new SizeableElementQuad();
         [Category("Transform")]

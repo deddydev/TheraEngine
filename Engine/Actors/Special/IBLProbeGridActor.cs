@@ -70,7 +70,7 @@ namespace TheraEngine.Actors
         //    Initialize();
         //}
 
-        public override void OnSpawnedPostComponentSpawn()
+        protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
 
@@ -80,7 +80,7 @@ namespace TheraEngine.Actors
 
             OwningWorld.Scene.Add(this);
         }
-        public override void OnDespawned()
+        protected override void OnDespawned()
         {
             base.OnDespawned();
 
@@ -174,7 +174,7 @@ namespace TheraEngine.Actors
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
         }
 
-        public override void OnSpawnedPreComponentSpawn()
+        protected override void OnSpawnedPreComponentSpawn()
         {
             //SetFrequencies(ProbeBounds, ProbesPerMeter);
             base.OnSpawnedPreComponentSpawn();

@@ -40,12 +40,12 @@ namespace TheraEngine.Actors.Types
         Translate,
         DragDrop,
     }
-    public class TransformTool3D : Actor<SkeletalMeshComponent>
+    public class TransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
     {
         public static TransformTool3D Instance => _currentInstance.Value;
         private static Lazy<TransformTool3D> _currentInstance = new Lazy<TransformTool3D>(() => new TransformTool3D());
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, true, true);
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
@@ -54,6 +54,7 @@ namespace TheraEngine.Actors.Types
         public TransformTool3D() : base()
         {
             TransformSpace = ESpace.Local;
+            _rc = new RenderCommandMethod3D(Render);
         }
 
         private readonly TMaterial[] _axisMat = new TMaterial[3];
@@ -222,8 +223,8 @@ namespace TheraEngine.Actors.Types
                 _transformSpace = value;
 
                 RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
-                _dragMatrix = RootComponent.WorldMatrix;
-                _invDragMatrix = RootComponent.InverseWorldMatrix;
+                //_dragMatrix = RootComponent.WorldMatrix;
+                //_invDragMatrix = RootComponent.InverseWorldMatrix;
 
                 if (_transformSpace == ESpace.Screen)
                     RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, UpdateScreenSpace);
@@ -347,8 +348,8 @@ namespace TheraEngine.Actors.Types
                 else
                     RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
 
-                _dragMatrix = RootComponent.WorldMatrix;
-                _invDragMatrix = RootComponent.InverseWorldMatrix;
+                //_dragMatrix = RootComponent.WorldMatrix;
+                //_invDragMatrix = RootComponent.InverseWorldMatrix;
             }
         }
 
@@ -451,8 +452,8 @@ namespace TheraEngine.Actors.Types
             {
                 _pressed = true;
                 RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
-                _dragMatrix = RootComponent.WorldMatrix;
-                _invDragMatrix = RootComponent.InverseWorldMatrix;
+                //_dragMatrix = RootComponent.WorldMatrix;
+                //_invDragMatrix = RootComponent.InverseWorldMatrix;
                 _pressed = false;
             }
         }
@@ -488,7 +489,7 @@ namespace TheraEngine.Actors.Types
         private const float _scaleHalf1LDist = _orbRadius * 0.8f;
         private const float _scaleHalf2LDist = _orbRadius * 1.2f;
         
-        Vec3 _lastPoint;
+        Vec3 _lastPointWorld;
         Vec3 _dragPlaneNormal;
 
         private Action _mouseUp, _mouseDown;
@@ -509,29 +510,29 @@ namespace TheraEngine.Actors.Types
         private float _translationSnapInterval = 30.0f;
         private float _scaleSnapBias = 0.0f;
         private float _scaleSnapInterval = 0.25f;
-        private void DragRotation(Vec3 dragPoint)
+        private void DragRotation(Vec3 dragPointWorld)
         {
-            Quat delta = Quat.BetweenVectors(_lastPoint, dragPoint);
+            TMath.AxisAngleBetween(_lastPointWorld, dragPointWorld, out Vec3 axis, out float angle);
+            //if (angle == 0.0f)
+            //    return;
 
             //if (_snapRotations)
-            //{
-            //    delta.ToAxisAngle(out Vec3 axis, out float angle);
             //    angle = angle.RoundToNearest(_rotationSnapBias, _rotationSnapInterval);
-            //    delta = Quat.FromAxisAngle(axis, angle);
-            //}
 
+            Quat delta = Quat.FromAxisAngleDeg(axis, angle);
+            
             _targetSocket.HandleWorldRotation(delta);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
         
-        private void DragTranslation(Vec3 dragPoint)
+        private void DragTranslation(Vec3 dragPointWorld)
         {
-            Vec3 delta = dragPoint - _lastPoint;
+            Vec3 delta = dragPointWorld - _lastPointWorld;
             
-            Matrix4 m = _targetSocket.InverseWorldMatrix.ClearScale();
-            m = m.ClearTranslation();
-            Vec3 worldTrans = m * delta;
+            //Matrix4 m = _targetSocket.InverseWorldMatrix.ClearScale();
+            //m = m.ClearTranslation();
+            //Vec3 worldTrans = m * delta;
 
             //if (_snapTranslations)
             //{
@@ -546,13 +547,13 @@ namespace TheraEngine.Actors.Types
             //    worldTrans = resultPoint - worldPoint;
             //}
 
-            _targetSocket.HandleWorldTranslation(worldTrans);
+            _targetSocket.HandleWorldTranslation(delta);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
         }
-        private void DragScale(Vec3 dragPoint)
+        private void DragScale(Vec3 dragPointWorld)
         {
-            Vec3 delta = dragPoint - _lastPoint;
+            Vec3 delta = dragPointWorld - _lastPointWorld;
             _targetSocket.HandleWorldScale(delta);
 
             RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
@@ -567,7 +568,7 @@ namespace TheraEngine.Actors.Types
         {
             //Convert all coordinates to local space
 
-            Vec3 localCamPoint = camera.WorldPoint * _invDragMatrix;
+            Vec3 localCamPoint = camera.WorldPoint * RootComponent.InverseWorldMatrix;
             Vec3 dragPoint, unit;
 
             switch (_mode)
@@ -598,7 +599,7 @@ namespace TheraEngine.Actors.Types
                                 _dragPlaneNormal.NormalizeFast();
 
                                 if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                                    return _lastPoint;
+                                    return _lastPointWorld;
 
                                 return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
                             }
@@ -621,7 +622,7 @@ namespace TheraEngine.Actors.Types
                                 _dragPlaneNormal.NormalizeFast();
 
                                 if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                                    return _lastPoint;
+                                    return _lastPointWorld;
 
                                 return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
                             }
@@ -644,7 +645,7 @@ namespace TheraEngine.Actors.Types
                                 _dragPlaneNormal.NormalizeFast();
 
                                 if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                                    return _lastPoint;
+                                    return _lastPointWorld;
 
                                 return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
                             }
@@ -667,21 +668,11 @@ namespace TheraEngine.Actors.Types
                         else if (_hiAxis.Any)
                         {
                             if (_hiAxis.X)
-                            {
                                 unit = Vec3.UnitX;
-                            }
                             else if (_hiAxis.Y)
-                            {
                                 unit = Vec3.UnitY;
-                            }
-                            else if (_hiAxis.Z)
-                            {
+                            else// if (_hiAxis.Z)
                                 unit = Vec3.UnitZ;
-                            }
-                            else
-                            {
-                                unit = Vec3.UnitX;
-                            }
 
                             _dragPlaneNormal = unit;
                             _dragPlaneNormal.NormalizeFast();
@@ -689,25 +680,36 @@ namespace TheraEngine.Actors.Types
                             if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
                                 return dragPoint;
                         }
+                        else if (_hiSphere)
+                        {
+                            Vec3 worldPoint = RootComponent.WorldPoint;
+                            float radius = camera.DistanceScale(worldPoint, _orbRadius);
+
+                            if (Collision.RayIntersectsSphere(localRay.StartPoint, localRay.Direction, Vec3.Zero, radius * _circOrbScale, out dragPoint))
+                            {
+                                _dragPlaneNormal = (dragPoint * RootComponent.WorldMatrix - worldPoint).Normalized();
+                                return dragPoint;
+                            }
+                        }
                     }
                     break;
             }
             
-            return _lastPoint;
+            return _lastPointWorld;
         }
 #endregion
 
         #region Highlighting
         private bool HighlightRotation(Camera camera, Ray localRay)
         {
-            Vec3 worldPoint = _dragMatrix.Translation;
+            Vec3 worldPoint = RootComponent.WorldMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             if (!Collision.RayIntersectsSphere(localRay.StartPoint, localRay.Direction, Vec3.Zero, radius * _circOrbScale, out Vec3 point))
             {
                 //If no intersect is found, project the ray through the plane perpendicular to the camera.
                 //localRay.LinePlaneIntersect(Vec3.Zero, (camera.WorldPoint - worldPoint).Normalized(), out point);
-                Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, (camera.WorldPoint - worldPoint) * _invDragMatrix, out point);
+                Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, (camera.WorldPoint - worldPoint) * RootComponent.InverseWorldMatrix, out point);
 
                 //Clamp the point to edge of the sphere
                 point = Ray.PointAtLineDistance(Vec3.Zero, point, radius);
@@ -745,7 +747,7 @@ namespace TheraEngine.Actors.Types
         }
         private bool HighlightTranslation(Camera camera, Ray localRay)
         {
-            Vec3 worldPoint = _dragMatrix.Translation;
+            Vec3 worldPoint = RootComponent.WorldMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             List<Vec3> intersectionPoints = new List<Vec3>(3);
@@ -802,7 +804,7 @@ namespace TheraEngine.Actors.Types
         }
         private bool HighlightScale(Camera camera, Ray localRay)
         {
-            Vec3 worldPoint = _dragMatrix.Translation;
+            Vec3 worldPoint = RootComponent.WorldMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             List<Vec3> intersectionPoints = new List<Vec3>(3);
@@ -870,7 +872,7 @@ namespace TheraEngine.Actors.Types
         #endregion
 
         private bool _pressed = false;
-        private Matrix4 _dragMatrix, _invDragMatrix;
+        //private Matrix4 _dragMatrix, _invDragMatrix;
 
         /// <summary>
         /// Returns true if intersecting one of the transform tool's various parts.
@@ -886,18 +888,19 @@ namespace TheraEngine.Actors.Types
                 if (!_pressed)
                     OnPressed();
 
-                Ray localRay = cursor.TransformedBy(_invDragMatrix);
+                Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
                 Vec3 dragPoint = GetDragPoint(camera, localRay);
+                dragPoint = dragPoint * RootComponent.WorldMatrix;
                 _drag(dragPoint);
 
-                _lastPoint = dragPoint;
+                _lastPointWorld = dragPoint;
             }
             else
             {
                 if (_pressed)
                     OnReleased();
 
-                Ray localRay = cursor.TransformedBy(_invDragMatrix);
+                Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
 
                 _hiAxis.X = _hiAxis.Y = _hiAxis.Z = false;
                 _hiCam = _hiSphere = false;
@@ -911,7 +914,8 @@ namespace TheraEngine.Actors.Types
 
                 GetDependentColors();
 
-                _lastPoint = GetDragPoint(camera, localRay);
+                Vec3 dragPoint = GetDragPoint(camera, localRay);
+                _lastPointWorld = dragPoint * RootComponent.WorldMatrix;
             }
             return snapFound;
         }
@@ -947,31 +951,33 @@ namespace TheraEngine.Actors.Types
                 RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
 
             _pressed = true;
-            _dragMatrix = RootComponent.WorldMatrix;
-            _invDragMatrix = RootComponent.InverseWorldMatrix;
 
             PrevRootWorldMatrix = _targetSocket.WorldMatrix;
             MouseDown?.Invoke();
-            //_mouseDown();
         }
         private void OnReleased()
         {
             _pressed = false;
-            _dragMatrix = RootComponent.WorldMatrix;
-            _invDragMatrix = RootComponent.InverseWorldMatrix;
             MouseUp?.Invoke();
+        }
 
-            //_mouseUp();
-        }
         public event Action MouseDown, MouseUp;
-        UIString2D _xText, _yText, _zText;
-        public override void OnSpawnedPostComponentSpawn()
+
+        //UIString2D _xText, _yText, _zText;
+
+        private void Render()
         {
-            
+            if (_hiCam || _hiSphere || _hiAxis.Any)
+            {
+                Engine.Renderer.RenderPoint(_lastPointWorld, Color.Black, false);
+                Engine.Renderer.RenderLine(_lastPointWorld, _lastPointWorld + _dragPlaneNormal * Engine.Renderer.CurrentCamera.DistanceScale(RootComponent.WorldPoint, 2.0f), Color.Black, false);
+            }
         }
-        public override void OnDespawned()
+
+        private readonly RenderCommandMethod3D _rc;
+        public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            
+            passes.Add(_rc, RenderInfo.RenderPass);
         }
     }
 }

@@ -475,7 +475,9 @@
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
     <Compile Include="Rendering\Shapes\BoundingRectangle.cs" />
     <Compile Include="Rendering\Shapes\Cylindrical\XAligned\CapsuleX.cs" />
+    <Compile Include="Rendering\Shapes\Cylindrical\XAligned\CylinderX.cs" />
     <Compile Include="Rendering\Shapes\Cylindrical\ZAligned\CapsuleZ.cs" />
+    <Compile Include="Rendering\Shapes\Cylindrical\ZAligned\CylinderZ.cs" />
     <Compile Include="Rendering\Shapes\EventBoundingRectangleF.cs" />
     <Compile Include="Rendering\Shapes\Cylindrical\XAligned\ConeX.cs" />
     <Compile Include="Input\Devices\OpenTK\TKRift.cs" />

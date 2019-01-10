@@ -81,9 +81,9 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor)
         {
-            if (State.SpawnedActors.Add(actor))
+            if (actor is IActor_Internal internalActor && State.SpawnedActors.Add(internalActor))
             {
-                actor.Spawned(this);
+                internalActor.Spawned(this);
                 //Engine.PrintLine("Spawned " + actor.Name);
             }
         }
@@ -92,10 +92,10 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor, Vec3 position)
         {
-            if (State.SpawnedActors.Add(actor))
+            if (actor is IActor_Internal internalActor && State.SpawnedActors.Add(internalActor))
             {
-                actor.Spawned(this);
-                actor.RebaseOrigin(-position);
+                internalActor.Spawned(this);
+                internalActor.RebaseOrigin(-position);
             }
         }
         /// <summary>
@@ -103,11 +103,11 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void DespawnActor(IActor actor)
         {
-            if (!State.SpawnedActors.Contains(actor))
+            if (!(actor is IActor_Internal internalActor) || !State.SpawnedActors.Contains(actor))
                 return;
 
-            State.SpawnedActors.Remove(actor);
-            actor.Despawned();
+            State.SpawnedActors.Remove(internalActor);
+            internalActor.Despawned();
             //Engine.PrintLine("Despawned " + actor.Name);
         }
         
@@ -141,7 +141,7 @@ namespace TheraEngine.Worlds
                 PhysicsWorld.AllowIndividualAabbUpdates = false;
 
             //Update each actor in parallel; they should not depend on one another
-            await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
+            await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => ((IActor_Internal)a).RebaseOrigin(newOrigin)));
             //foreach (IActor a in State.SpawnedActors)
             //    a.RebaseOrigin(newOrigin);
 

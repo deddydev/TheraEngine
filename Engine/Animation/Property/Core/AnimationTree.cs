@@ -42,7 +42,10 @@ namespace TheraEngine.Animation
 
         [TSerialize("EndedAnimations", Config = false, State = true)]
         private int _endedAnimations = 0;
-        
+
+        [TSerialize]
+        public bool BeginOnSpawn { get; set; }
+
         [TSerialize]
         public AnimationMember RootMember
         {
@@ -53,6 +56,7 @@ namespace TheraEngine.Animation
                 _totalAnimCount = _root != null ? _root.Register(this) : 0;
             }
         }
+
         private void OwnersModified()
         {
             if (Owners.Count == 0 && IsTicking)

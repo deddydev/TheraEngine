@@ -344,7 +344,12 @@ void main()
         internal void LeftClickDown()
         {
             Vec2 worldPos = CursorPositionWorld();
-            _targetAnimation?.Keyframes?.Add(new FloatKeyframe(worldPos.X, worldPos.Y, 1.0f, EVectorInterpType.Linear));
+            if (_targetAnimation != null)
+            {
+                _targetAnimation.Keyframes?.Add(new FloatKeyframe(worldPos.X, worldPos.Y, 1.0f, EVectorInterpType.Linear));
+                _targetAnimation.LengthInSeconds++;
+            }
+            RegenerateSplinePrimitive();
             //if (_selectedKf != null && _selectedKf != _highlightedKf)
             //{
             //    //Reset current _selectedKf
@@ -449,14 +454,14 @@ void main()
             UIComponent comp = FindComponent();
             
         }
-        //public override void Resize(Vec2 bounds)
-        //{
-        //    base.Resize(bounds);
+        public override void Resize(Vec2 bounds)
+        {
+            base.Resize(bounds);
 
-        //    //TMaterial mat = RootComponent.InterfaceMaterial;
-        //    //mat.Parameter<ShaderFloat>(2).Value = _rootTransform.ScaleX;
-        //    //mat.Parameter<ShaderVec2>(4).Value = _rootTransform.LocalTranslation;
-        //}
+            TMaterial mat = _backgroundComponent.InterfaceMaterial;
+            mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
+            mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
+        }
         protected override void OnScrolledInput(bool down)
         {
             Vec3 worldPoint = CursorPositionWorld();

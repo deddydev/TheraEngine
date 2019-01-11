@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Input;
@@ -53,6 +54,11 @@ namespace TheraEngine
         {
             World.DespawnActor(UI);
             UnregisterTick();
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UI.Resize(new Vec2(Width, Height));
         }
     }
 }

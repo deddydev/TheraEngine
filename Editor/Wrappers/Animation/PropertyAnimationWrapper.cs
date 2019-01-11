@@ -34,7 +34,7 @@ namespace TheraEditor.Wrappers
         {
             if (_graph != null)
             {
-                //_graph.TargetAnimation = ResourceRef.File;
+                _graph.TargetAnimation = ResourceRef.File;
                 _graph.Focus();
             }
             else

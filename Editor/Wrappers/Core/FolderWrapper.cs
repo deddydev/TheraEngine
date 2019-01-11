@@ -261,7 +261,7 @@ namespace TheraEditor.Wrappers
 
         private static async void OnImportClickAsync(object sender, EventArgs e)
         {
-            if (!(sender is ToolStripDropDownButton button))
+            if (!(sender is ToolStripMenuItem button))
                 return;
             
             Type fileType = button.Tag as Type;

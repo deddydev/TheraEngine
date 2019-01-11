@@ -111,7 +111,7 @@ namespace TheraEditor.Windows.Forms
                     Renderer = new TheraToolstripRenderer()
                 };
 
-                ToolStripDropDownButton root = new ToolStripDropDownButton("Select a type...") { Tag = i };
+                ToolStripMenuItem root = new ToolStripMenuItem("Select a type...") { Tag = i };
 
                 bool test(Type type)
                 {
@@ -130,7 +130,7 @@ namespace TheraEditor.Windows.Forms
 
                 void onClick(object sender, EventArgs e)
                 {
-                    if (sender is ToolStripDropDownButton button)
+                    if (sender is ToolStripMenuItem button)
                     {
                         Type f = button.Tag as Type;
                         if (f.ContainsGenericParameters)

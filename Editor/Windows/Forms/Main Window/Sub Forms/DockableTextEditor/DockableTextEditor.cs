@@ -1317,6 +1317,9 @@ namespace TheraEditor.Windows.Forms
             //string highlighting
             e.SetStyle(StringStyle, StringRegex);
 
+            //keyword highlighting
+            e.SetStyle(KeywordStyle, @"\b(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while|add|alias|ascending|descending|dynamic|from|get|global|group|into|join|let|orderby|partial|remove|select|set|value|var|where|yield|nameof)\b");
+
             //comment highlighting
             e.SetStyle(CommentStyle, @"//.*$", RegexOptions.Multiline);
             e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(/\*.*)", RegexOptions.Singleline);
@@ -1331,9 +1334,6 @@ namespace TheraEditor.Windows.Forms
 
             //class name highlighting
             e.SetStyle(ClassNameStyle, @"\b(class|struct|enum|interface)\s+(?<range>\w+?)\b");
-
-            //keyword highlighting
-            e.SetStyle(KeywordStyle, @"\b(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while|add|alias|ascending|descending|dynamic|from|get|global|group|into|join|let|orderby|partial|remove|select|set|value|var|where|yield|nameof)\b");
 
             //clear folding markers
             e.ClearFoldingMarkers();
@@ -1579,6 +1579,23 @@ namespace TheraEditor.Windows.Forms
             var form = new HotkeysEditorForm(TextBox.HotkeysMapping);
             if (form.ShowDialog() == DialogResult.OK)
                 TextBox.HotkeysMapping = form.GetHotkeys();
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (TextBox.IsChanged)
+            {
+                DialogResult result = MessageBox.Show(this, 
+                    "Do you want to save your changes before closing?", 
+                    "Save changes?",
+                    MessageBoxButtons.YesNoCancel, 
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button3);
+
+                e.Cancel = result == DialogResult.Cancel;
+                if (result == DialogResult.Yes)
+                    Save();
+            }
+            base.OnClosing(e);
         }
         private void btnStartStopRecording_Click(object sender, EventArgs e)
         {

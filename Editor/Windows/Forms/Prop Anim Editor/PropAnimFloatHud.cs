@@ -346,8 +346,12 @@ void main()
             Vec2 worldPos = CursorPositionWorld();
             if (_targetAnimation != null)
             {
-                _targetAnimation.Keyframes?.Add(new FloatKeyframe(worldPos.X, worldPos.Y, 1.0f, EVectorInterpType.Linear));
-                _targetAnimation.LengthInSeconds++;
+                float sec = worldPos.X;
+                float val = worldPos.Y;
+                _targetAnimation.Keyframes?.Add(new FloatKeyframe(sec, val, 2.0f, EVectorInterpType.Linear));
+                float length = TMath.Max(_targetAnimation.LengthInSeconds, sec);
+                if (length > _targetAnimation.LengthInSeconds)
+                    _targetAnimation.LengthInSeconds = length;
             }
             RegenerateSplinePrimitive();
             //if (_selectedKf != null && _selectedKf != _highlightedKf)

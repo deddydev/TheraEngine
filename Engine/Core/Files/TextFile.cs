@@ -7,6 +7,11 @@ using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Core.Files
 {
+    public class ScriptFile : TextFile
+    {
+        public ScriptFile() : base() { }
+        public ScriptFile(string path) : base(path) { }
+    }
     [TFile3rdPartyExt("txt", "rtf", "*")]
     [TFileDef("Text File")]
     public class TextFile : TFileObject, ITextSource

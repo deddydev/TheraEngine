@@ -4,6 +4,7 @@ using Microsoft.Scripting.Hosting;
 using System.IO;
 using TheraEngine.Core.Files;
 using Microsoft.Scripting;
+using System.Collections.Generic;
 
 namespace TheraEngine.Scripting
 {
@@ -55,11 +56,46 @@ namespace TheraEngine.Scripting
         private static void OutputUpdate(object sender, EventArgs<string> e)
             => e.Value.Print();
     }
-    public class PythonCompileErrorListener : ErrorListener
+    public class IronPythonCompileLogger : ErrorListener
     {
+        public class ReportInfo
+        {
+            public ReportInfo(ScriptSource source, string message, SourceSpan span, int errorCode)
+            {
+                Source = source;
+                Message = message;
+                Span = span;
+                ErrorCode = errorCode;
+            }
+
+            public ScriptSource Source { get; set; }
+            public string Message { get; set; }
+            public SourceSpan Span { get; set; }
+            public int ErrorCode { get; set; }
+        }
+        public List<ReportInfo> Errors { get; set; } = new List<ReportInfo>();
+        public List<ReportInfo> Warnings { get; set; } = new List<ReportInfo>();
+        public List<ReportInfo> FatalErrors { get; set; } = new List<ReportInfo>();
+        public List<ReportInfo> Ignored { get; set; } = new List<ReportInfo>();
         public override void ErrorReported(ScriptSource source, string message, SourceSpan span, int errorCode, Severity severity)
         {
-            Engine.PrintLine(message);
+            ReportInfo info = new ReportInfo(source, message, span, errorCode);
+            switch (severity)
+            {
+                case Severity.Error:
+                    Errors.Add(info);
+                    break;
+                case Severity.Warning:
+                    Warnings.Add(info);
+                    break;
+                case Severity.FatalError:
+                    FatalErrors.Add(info);
+                    break;
+                case Severity.Ignore:
+                    Ignored.Add(info);
+                    break;
+            }
+            Engine.PrintLine($"{severity} {errorCode}: {message} (line {span.Start.Line} col {span.Start.Column})");
         }
     }
 }

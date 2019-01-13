@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Core.Files;
-using TheraEngine.Rendering.Models.Materials.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -244,7 +243,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public T2 Parameter<T2>(int index) where T2 : ShaderVar
         {
-            if (index >= 0 && index < Parameters.Length)
+            if (Parameters.IndexInArrayRange(index))
                 return Parameters[index] as T2;
             throw new IndexOutOfRangeException();
         }

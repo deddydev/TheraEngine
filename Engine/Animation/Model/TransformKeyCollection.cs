@@ -57,11 +57,11 @@ namespace TheraEngine.Animation
             new PropAnimFloat() { DefaultValue = 1.0f, TickSelf = false },  //sz
         };
 
-        public void SetLength(float seconds, bool stretchAnimation)
+        public void SetLength(float seconds, bool stretchAnimation, bool notifyChanged = true)
         {
             LengthInSeconds = seconds;
             foreach (var track in _tracks)
-                track.SetLength(seconds, stretchAnimation);
+                track.SetLength(seconds, stretchAnimation, notifyChanged);
         }
 
         public void Progress(float delta) => _tracks.ForEach(x => x.Progress(delta));

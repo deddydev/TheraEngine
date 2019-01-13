@@ -50,10 +50,10 @@ namespace TheraEngine.Animation
 
         public Dictionary<string, BoneAnimation> BoneAnimations { get => _boneAnimations; set => _boneAnimations = value; }
 
-        public override void SetLength(float seconds, bool stretchAnimation)
+        public override void SetLength(float seconds, bool stretchAnimation, bool notifyChanged = true)
         {
             foreach (BoneAnimation b in _boneAnimations.Values)
-                b.SetLength(seconds, stretchAnimation);
+                b.SetLength(seconds, stretchAnimation, notifyChanged);
             base.SetLength(seconds, stretchAnimation);
         }
 
@@ -190,8 +190,8 @@ namespace TheraEngine.Animation
 
         protected virtual void UseKeyframesChanged() { }
 
-        public void SetLength(float seconds, bool stretchAnimation)
-            => _tracks.SetLength(seconds, stretchAnimation);
+        public void SetLength(float seconds, bool stretchAnimation, bool notifyChanged = true)
+            => _tracks.SetLength(seconds, stretchAnimation, notifyChanged);
         
         internal SkeletalAnimation Parent { get; set; }
 

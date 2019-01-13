@@ -21,8 +21,20 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             RenderPanel.AllowDrop = false;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
+            RenderPanel.MouseEnter += RenderPanel_MouseEnter;
+            RenderPanel.MouseLeave += RenderPanel_MouseLeave;
             GameMode = new PropAnimFloatEditorGameMode() { RenderPanel = RenderPanel };
         }
+
+        private void RenderPanel_MouseLeave(object sender, EventArgs e)
+        {
+            Cursor.Show();
+        }
+        private void RenderPanel_MouseEnter(object sender, EventArgs e)
+        {
+            Cursor.Hide();
+        }
+
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             Editor.SetActiveEditorControl(this);
@@ -43,8 +55,8 @@ namespace TheraEditor.Windows.Forms
             internal set
             {
                 RenderPanel.UI.TargetAnimation = value;
-                if (TargetAnimation != null)
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = TargetAnimation;
+                if (value != null)
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = value;
             }
         }
 

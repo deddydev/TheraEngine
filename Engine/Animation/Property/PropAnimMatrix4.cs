@@ -68,6 +68,7 @@ namespace TheraEngine.Animation
         
         [TSerialize(NodeType = ENodeType.Attribute)]
         public Matrix4 Value { get; set; }
+        [Browsable(false)]
         public override Type ValueType => typeof(Matrix4);
 
         [Browsable(false)]
@@ -83,22 +84,19 @@ namespace TheraEngine.Animation
             set => _prev = value;
         }
 
-        public Matrix4 Interpolate(float frameIndex)
+        public Matrix4 Interpolate(float second)
         {
             if (_prev == this || _next == this)
                 return Value;
 
-            if (frameIndex < Second && _prev.Second > Second)
-                return Prev.Interpolate(frameIndex);
+            if (second < Second && _prev.Second > Second)
+                return Prev.Interpolate(second);
 
-            if (frameIndex > _next.Second && _next.Second > Second)
-                return Next.Interpolate(frameIndex);
+            if (second > _next.Second && _next.Second > Second)
+                return Next.Interpolate(second);
 
-            //float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
-
-            return Value;
-
-            //return _interpolate(this, Next, t);
+            float time = (second - Second) / (_next.Second - second);
+            return Matrix4.Lerp(Value, Next.Value, time);
         }
 
         public override void ReadFromString(string str)

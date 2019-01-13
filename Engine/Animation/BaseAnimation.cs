@@ -144,12 +144,13 @@ namespace TheraEngine.Animation
 
         public void SetFrameCount(int numFrames, float framesPerSecond, bool stretchAnimation)
             => SetLength(numFrames / framesPerSecond, stretchAnimation);
-        public virtual void SetLength(float seconds, bool stretchAnimation)
+        public virtual void SetLength(float seconds, bool stretchAnimation, bool notifyChanged = true)
         {
             if (seconds < 0.0f)
                 return;
             _lengthInSeconds = seconds;
-            OnLengthChanged();
+            if (notifyChanged)
+                OnLengthChanged();
         }
 
         [Category("Animation")]

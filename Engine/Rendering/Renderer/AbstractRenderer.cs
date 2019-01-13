@@ -133,14 +133,23 @@ namespace TheraEngine.Rendering
         {
             Point,
             Line,
-            WireSphere,
-            SolidSphere,
-            WireBox,
-            SolidBox,
+            
             WireQuad,
             SolidQuad,
+            
+            WireCircle,
+            SolidCircle,
+
+            WireSphere,
+            SolidSphere,
+
+            WireBox,
+            SolidBox,
+
+
             WireCylinder,
             SolidCylinder,
+
             WireCone,
             SolidCone,
         }
@@ -170,20 +179,21 @@ namespace TheraEngine.Rendering
                     return PrimitiveData.FromPoints(Vec3.Zero);
                 case DebugPrimitiveType.Line: VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
                     return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), line);
-                case DebugPrimitiveType.WireSphere: //Diameter is set to 2.0f on purpose
-                    return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60);
-                case DebugPrimitiveType.SolidSphere: //Diameter is set to 2.0f on purpose
-                    return Sphere.SolidMesh(Vec3.Zero, 1.0f, 30);
-                case DebugPrimitiveType.WireBox:
-                    return BoundingBox.WireframeMesh(-1.0f, 1.0f);
-                case DebugPrimitiveType.SolidBox:
-                    return BoundingBox.SolidMesh(-1.0f, 1.0f);
-                case DebugPrimitiveType.WireQuad:
-                    return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
-                case DebugPrimitiveType.SolidQuad:
-                    return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
-                case DebugPrimitiveType.WireCone:
-                    return Cone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
+
+                case DebugPrimitiveType.WireSphere: return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60); //Diameter is set to 2.0f on purpose
+                case DebugPrimitiveType.SolidSphere: return Sphere.SolidMesh(Vec3.Zero, 1.0f, 30); //Diameter is set to 2.0f on purpose
+
+                case DebugPrimitiveType.WireBox: return BoundingBox.WireframeMesh(-1.0f, 1.0f);
+                case DebugPrimitiveType.SolidBox: return BoundingBox.SolidMesh(-1.0f, 1.0f);
+
+                case DebugPrimitiveType.WireCircle: return Circle3D.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
+                case DebugPrimitiveType.SolidCircle: return Circle3D.SolidMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
+
+                case DebugPrimitiveType.WireQuad: return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
+                case DebugPrimitiveType.SolidQuad: return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
+
+                case DebugPrimitiveType.WireCone: return Cone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
+                case DebugPrimitiveType.SolidCone: return Cone.SolidMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20, true);
             }
             return null;
         }
@@ -257,6 +267,16 @@ namespace TheraEngine.Rendering
                 SetLineSize(lineWidth);
                 m.Render(modelMatrix, Matrix3.Identity);
             //}
+        }
+        public static readonly Vec3 UIPositionBias = new Vec3(0.0f, 0.0f, 0.1f);
+        public static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, RotationOrder.YPR);
+        public virtual void RenderCircle(Vec3 centerTranslation, Rotator rotation, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        {
+            SetLineSize(lineWidth);
+            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidCircle : DebugPrimitiveType.WireCircle);
+            m.Parameter<ShaderVec4>(0).Value = color;
+            Matrix4 mtx = Matrix4.CreateTranslation(centerTranslation) * Matrix4.CreateFromRotator(rotation) * Matrix4.CreateScale(radius, 1.0f, radius);
+            m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
         public virtual void RenderQuad(Vec3 centerTranslation, Rotator rotation, Vec2 extents, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {

@@ -24,13 +24,16 @@ namespace TheraEngine.Animation
             _keyframes.LengthChanged += KeyframesLengthChanged;
         }
 
+        private bool _updatingLength = false;
         private void KeyframesLengthChanged(float oldValue, BaseKeyframeTrack track)
         {
-            _lengthInSeconds = track.LengthInSeconds;
-            SetBakedFrameCount();
-            OnLengthChanged();
+            if (_updatingLength)
+                return;
+            _updatingLength = true;
+            SetLength(track.LengthInSeconds, false, true);
+            _updatingLength = false;
         }
-        
+
         protected override BaseKeyframeTrack InternalKeyframes => _keyframes;
 
         [Category(PropAnimCategory)]

@@ -116,7 +116,7 @@ void main()
   ldrSceneColor = mix(ldrSceneColor, hudColor.rgb, hudColor.a);
 
   //Fix subtle banding by applying fine noise
-  //ldrSceneColor += mix(-0.5f / 255.0f, 0.5f / 255.0f, rand(uv));
+  ldrSceneColor += mix(-0.5f / 255.0f, 0.5f / 255.0f, rand(uv));
 
 	//Gamma-correct
 	ldrSceneColor = pow(ldrSceneColor, vec3(1.0f / ColorGrade.Gamma));

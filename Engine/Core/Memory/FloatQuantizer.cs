@@ -70,7 +70,7 @@ namespace TheraEngine.Core.Memory
         private int _scale;
         private int _dataLen;
         
-        private float[] _pData;
+        private readonly float[] _pData;
 
         private FloatQuantizer() { }
         public FloatQuantizer(params Vec4[] values)

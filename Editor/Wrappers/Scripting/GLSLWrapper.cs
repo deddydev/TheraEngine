@@ -39,7 +39,7 @@ namespace TheraEditor.Wrappers
         public override void EditResource()
         {
             _shader = new RenderShader(ResourceRef.File);
-            _shader.Generate();
+            _shader.GenerateSafe();
 
             var textEditor = DockableTextEditor.ShowNew(Editor.Instance.DockPanel, DockState.Document, ResourceRef.File, M_Saved);
             textEditor.CompileGLSL = M_CompileGLSL;

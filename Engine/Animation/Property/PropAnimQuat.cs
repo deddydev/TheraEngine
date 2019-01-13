@@ -80,6 +80,7 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate = CubicBezier;
         protected ERadialInterpType _interpolationType;
 
+        [Browsable(false)]
         public override Type ValueType => typeof(Quat);
 
         [TSerialize(NodeType = ENodeType.Attribute)]

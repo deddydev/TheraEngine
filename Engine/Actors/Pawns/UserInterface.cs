@@ -86,6 +86,13 @@ namespace TheraEngine.Actors.Types.Pawns
         }
 
         protected abstract TMaterial GetBackgroundMaterial();
+
+        /// <summary>
+        /// Cursor position relative to the space of whatever is being rendered as a child of the base transform component.
+        /// </summary>
+        /// <returns></returns>
+        public Vec2 CursorPositionTransformRelative()
+            => Vec3.TransformPosition(CursorPositionWorld(), _baseTransformComponent.InverseWorldMatrix).Xy;
     }
     /// <summary>
     /// Each viewport has a HUD that manages 2D user interface elements.
@@ -331,12 +338,12 @@ namespace TheraEngine.Actors.Types.Pawns
         public Vec2 CursorPositionWorld()
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
-            return v.ScreenToWorld(CursorPosition(v)).Xy;
+            return v?.ScreenToWorld(CursorPosition(v)).Xy ?? Vec2.Zero;
         }
         public Vec2 CursorPositionWorld(Vec2 viewportPosition)
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
-            return v.ScreenToWorld(viewportPosition).Xy;
+            return v?.ScreenToWorld(viewportPosition).Xy ?? Vec2.Zero;
         }
         /// <summary>
         /// Returns the cursor position relative to the the viewport.

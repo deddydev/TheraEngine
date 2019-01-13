@@ -24,6 +24,8 @@ namespace TheraEngine.Rendering.Models
             { Influence = inf; }
         public Vertex(Vec3 position)
             { Position = position; }
+        public Vertex(Vec3 position, ColorF4 color)
+            { Position = position; Color = color; }
         public Vertex(Vec3 position, InfluenceDef inf) 
             : this(position) { Influence = inf; }
 

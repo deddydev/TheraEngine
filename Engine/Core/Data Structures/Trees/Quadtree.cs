@@ -255,8 +255,6 @@ namespace System
             #endregion
 
             #region Debug
-            static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, RotationOrder.YPR);
-            static readonly Vec3 Bias = new Vec3(0.0f, 0.0f, 0.1f);
             public void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangleF? f, float lineWidth)
             {
                 Color color = Color.Red;
@@ -275,14 +273,14 @@ namespace System
                     for (int i = 0; i < _items.Count; ++i)
                     {
                         region = _items[i].AxisAlignedRegion;
-                        Engine.Renderer.RenderQuad(region.Center + Bias, UIRotation, region.Extents, false, Color.Orange, lineWidth);
+                        Engine.Renderer.RenderQuad(region.Center + AbstractRenderer.UIPositionBias, AbstractRenderer.UIRotation, region.Extents, false, Color.Orange, lineWidth);
                     }
                     //if (anyVisible)
                         DebugRender(color, lineWidth);
                 }
             }
             public void DebugRender(Color color, float lineWidth)
-                => Engine.Renderer.RenderQuad(_bounds.Center + Bias, UIRotation, _bounds.Extents, false, color, lineWidth);
+                => Engine.Renderer.RenderQuad(_bounds.Center + AbstractRenderer.UIPositionBias, AbstractRenderer.UIRotation, _bounds.Extents, false, color, lineWidth);
             #endregion
 
             #region Visible collection

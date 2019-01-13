@@ -967,8 +967,10 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void PushBufferData(DataBuffer buffer)
         {
+            int id = buffer.BindingId;
+            //GL.BindBuffer((BufferTarget)(int)buffer.Target, id);
             //GL.BufferData((BufferTarget)(int)buffer.Target, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer.Usage);
-            GL.NamedBufferData(buffer.BindingId, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer.Usage);
+            GL.NamedBufferData(id, buffer.DataLength, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer.Usage);
         }
         public override void PushBufferSubData(DataBuffer buffer, int offset, int length)
         {

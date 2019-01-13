@@ -91,8 +91,8 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         public Color Color { get => (Color)this; set => this = value; }
 
-        public void Write(VoidPtr address) { this = *(ColorF4*)address; }
-        public void Read(VoidPtr address) { *(ColorF4*)address = this; }
+        public void Write(VoidPtr address) { *(ColorF4*)address = this; }
+        public void Read(VoidPtr address) { this = *(ColorF4*)address;  }
 
         private const float ByteToFloat = 1.0f / 255.0f;
 

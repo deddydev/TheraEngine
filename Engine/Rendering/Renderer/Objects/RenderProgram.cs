@@ -137,7 +137,7 @@ namespace TheraEngine.Rendering
                 shader = _shaders[i];
 
                 if (!shader.IsActive)
-                    shader.Generate();
+                    shader.GenerateSafe();
 
                 if (IsValid = IsValid && shader.IsCompiled)
                     Engine.Renderer.AttachShader(shader.BindingId, id);

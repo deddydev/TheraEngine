@@ -218,7 +218,8 @@ namespace TheraEngine.Rendering.Models
                     continue;
                 }
                 b._vaoId = vaoId;
-                bindingIds.Add(b.Generate());
+                int id = b.Generate();
+                bindingIds.Add(id);
             }
             return bindingIds.ToArray();
         }

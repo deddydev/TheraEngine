@@ -210,19 +210,19 @@ namespace TheraEngine.Rendering
         internal void GenerateFBOs()
         {
             DateTime start = DateTime.Now;
-            BloomBlurFBO1?.Generate();
-            BloomBlurFBO2?.Generate();
-            BloomBlurFBO4?.Generate();
-            BloomBlurFBO8?.Generate();
-            BloomBlurFBO16?.Generate();
-            ForwardPassFBO?.Generate();
+            BloomBlurFBO1?.GenerateSafe();
+            BloomBlurFBO2?.GenerateSafe();
+            BloomBlurFBO4?.GenerateSafe();
+            BloomBlurFBO8?.GenerateSafe();
+            BloomBlurFBO16?.GenerateSafe();
+            ForwardPassFBO?.GenerateSafe();
             //DirLightFBO?.Generate();
-            GBufferFBO?.Generate();
-            HudFBO?.Generate();
-            LightCombineFBO?.Generate();
-            PostProcessFBO?.Generate();
-            SSAOBlurFBO?.Generate();
-            SSAOFBO?.Generate();
+            GBufferFBO?.GenerateSafe();
+            HudFBO?.GenerateSafe();
+            LightCombineFBO?.GenerateSafe();
+            PostProcessFBO?.GenerateSafe();
+            SSAOBlurFBO?.GenerateSafe();
+            SSAOFBO?.GenerateSafe();
             TimeSpan span = DateTime.Now - start;
             Engine.PrintLine($"FBO regeneration took {span.Seconds} seconds.");
         }

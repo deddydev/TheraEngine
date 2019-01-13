@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering.Models
                     return null;
 
                 if (!IsActive)
-                    Generate();
+                    GenerateSafe();
 
                 return _vertexProgram;
             }
@@ -518,14 +518,14 @@ namespace TheraEngine.Rendering.Models
                 if (_boneMatrixBuffer != null)
                 {
                     _boneMatrixBuffer.Destroy();
-                    _boneMatrixBuffer.Generate();
+                    _boneMatrixBuffer.GenerateSafe();
                     _boneMatrixBuffer.PushData();
                 }
                 _remake = false;
             }
 
             if (!IsActive)
-                Generate();
+                GenerateSafe();
             
             if (_singleBind != null)
             {
@@ -618,7 +618,7 @@ namespace TheraEngine.Rendering.Models
             Engine.Renderer.BindPrimitiveManager(this);
             _bindingIds = _data.GenerateBuffers(BindingId);
             IndexBuffer._vaoId = BindingId;
-            IndexBuffer.Generate();
+            IndexBuffer.GenerateSafe();
             Engine.Renderer.LinkRenderIndices(this, IndexBuffer);
             Engine.Renderer.BindPrimitiveManager(null);
         }

@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Timers;
 
 namespace TheraEngine.Rendering.UI
 {

@@ -580,6 +580,7 @@ namespace TheraEngine.Animation
         protected DelInterpolate _interpolateVelocity;
         protected DelInterpolate _interpolateAcceleration;
 
+        [Browsable(false)]
         public override Type ValueType => typeof(T);
 
         private T _inValue, _outValue, _inTangent, _outTangent;
@@ -718,14 +719,14 @@ namespace TheraEngine.Animation
             }
         }
 
-        [Browsable(false)]
+        //[Browsable(false)]
         [Category("Keyframe")]
         public new VectorKeyframe<T> Next
         {
             get => _next as VectorKeyframe<T>;
             //set => _next = value;
         }
-        [Browsable(false)]
+        //[Browsable(false)]
         [Category("Keyframe")]
         public new VectorKeyframe<T> Prev
         {
@@ -796,15 +797,13 @@ namespace TheraEngine.Animation
 
         public T Interpolate(float desiredSecond, EVectorInterpValueType type)
         {
-            float span, diff;
+            float span = 1.0f, diff = 0.0f;
             VectorKeyframe<T> key1, key2;
 
             if (desiredSecond >= Second)
             {
-                if (Next == null)
+                if (IsLast || Next.Second > OwningTrack.LengthInSeconds)
                 {
-                    //This is the last keyframe
-
                     if (OwningTrack.FirstKey != this)
                     {
                         VectorKeyframe<T> first = (VectorKeyframe<T>)OwningTrack.FirstKey;
@@ -814,12 +813,7 @@ namespace TheraEngine.Animation
                         key2 = first;
                     }
                     else
-                    {
-                        if (type == EVectorInterpValueType.Position)
-                            return OutValue;
-                        else
-                            return new T();
-                    }
+                        return type == EVectorInterpValueType.Position ? OutValue : new T();
                 }
                 else if (desiredSecond < Next.Second)
                 {
@@ -830,32 +824,26 @@ namespace TheraEngine.Animation
                     key2 = Next;
                 }
                 else
-                {
                     return Next.Interpolate(desiredSecond, type);
-                }
             }
             else //desiredSecond < Second
             {
-                if (Prev != null)
+                if (!IsFirst)
                     return Prev.Interpolate(desiredSecond, type);
-                
-                //This is the first keyframe
 
-                if (OwningTrack.LastKey != this)
+                float length = OwningTrack.LengthInSeconds;
+                VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.GetKeyBeforeGeneric(length);
+                //VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
+
+                if (last != this && last != null)
                 {
-                    VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
-                    span = OwningTrack.LengthInSeconds - last.Second + Second;
-                    diff = OwningTrack.LengthInSeconds - last.Second + desiredSecond;
+                    span = length - last.Second + Second;
+                    diff = length - last.Second + desiredSecond;
                     key1 = last;
                     key2 = this;
                 }
                 else
-                {
-                    if (type == EVectorInterpValueType.Position)
-                        return InValue;
-                    else
-                        return new T();
-                }
+                    return type == EVectorInterpValueType.Position ? InValue : new T();
             }
 
             float time = diff / span;
@@ -885,10 +873,8 @@ namespace TheraEngine.Animation
 
             if (desiredSecond >= Second)
             {
-                if (Next == null)
+                if (IsLast || Next.Second > OwningTrack.LengthInSeconds)
                 {
-                    //This is the last keyframe
-
                     if (OwningTrack.FirstKey != this)
                     {
                         VectorKeyframe<T> first = (VectorKeyframe<T>)OwningTrack.FirstKey;
@@ -900,10 +886,7 @@ namespace TheraEngine.Animation
                     else
                     {
                         normalizedTime = 0.0f;
-                        if (type == EVectorInterpValueType.Position)
-                            return OutValue;
-                        else
-                            return new T();
+                        return type == EVectorInterpValueType.Position ? OutValue : new T();
                     }
                 }
                 else if (desiredSecond < Next.Second)
@@ -921,26 +904,24 @@ namespace TheraEngine.Animation
             }
             else //desiredSecond < Second
             {
-                if (Prev != null)
+                if (!IsFirst)
                     return Prev.Interpolate(desiredSecond, type, out prevKey, out nextKey, out normalizedTime);
 
-                //This is the first keyframe
+                float length = OwningTrack.LengthInSeconds;
+                VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.GetKeyBeforeGeneric(length);
+                //VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
 
-                if (OwningTrack.LastKey != this)
+                if (last != this && last != null)
                 {
-                    VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
-                    span = OwningTrack.LengthInSeconds - last.Second + Second;
-                    diff = OwningTrack.LengthInSeconds - last.Second + desiredSecond;
+                    span = length - last.Second + Second;
+                    diff = length - last.Second + desiredSecond;
                     key1 = last;
                     key2 = this;
                 }
                 else
                 {
                     normalizedTime = 0.0f;
-                    if (type == EVectorInterpValueType.Position)
-                        return InValue;
-                    else
-                        return new T();
+                    return type == EVectorInterpValueType.Position ? InValue : new T();
                 }
             }
 
@@ -973,10 +954,8 @@ namespace TheraEngine.Animation
 
             if (desiredSecond >= Second)
             {
-                if (Next == null)
+                if (IsLast || Next.Second > OwningTrack.LengthInSeconds)
                 {
-                    //This is the last keyframe
-
                     if (OwningTrack.FirstKey != this)
                     {
                         VectorKeyframe<T> first = (VectorKeyframe<T>)OwningTrack.FirstKey;
@@ -1017,7 +996,7 @@ namespace TheraEngine.Animation
             }
             else //desiredSecond < Second
             {
-                if (Prev != null)
+                if (!IsFirst)
                 {
                     Prev.Interpolate(desiredSecond,
                         out prevKey,
@@ -1029,24 +1008,27 @@ namespace TheraEngine.Animation
 
                     return;
                 }
-
-                //This is the first keyframe
-
-                if (OwningTrack.LastKey != this)
-                {
-                    VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
-                    span = OwningTrack.LengthInSeconds - last.Second + Second;
-                    diff = OwningTrack.LengthInSeconds - last.Second + desiredSecond;
-                    key1 = last;
-                    key2 = this;
-                }
                 else
                 {
-                    normalizedTime = 0.0f;
-                    position = InValue;
-                    velocity = new T();
-                    acceleration = new T();
-                    return;
+                    float length = OwningTrack.LengthInSeconds;
+                    VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.GetKeyBeforeGeneric(length);
+                    //VectorKeyframe<T> last = (VectorKeyframe<T>)OwningTrack.LastKey;
+
+                    if (last != this && last != null)
+                    {
+                        span = length - last.Second + Second;
+                        diff = length - last.Second + desiredSecond;
+                        key1 = last;
+                        key2 = this;
+                    }
+                    else
+                    {
+                        normalizedTime = 0.0f;
+                        position = InValue;
+                        velocity = new T();
+                        acceleration = new T();
+                        return;
+                    }
                 }
             }
 
@@ -1056,17 +1038,13 @@ namespace TheraEngine.Animation
             acceleration = _interpolateAcceleration(key1, key2, normalizedTime);
         }
 
-        public T Step(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time)
-            => time < 1.0f ? key1.OutValue : key2.OutValue;
-        public T StepVelocity(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time)
-            => new T();
-        public T StepAcceleration(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time)
-            => new T();
+        public static T Step(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time) => time < 1.0f ? key1.OutValue : key2.OutValue;
+        public static T StepVelocity(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time) => new T();
+        public static T StepAcceleration(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time) => new T();
 
         public abstract T Lerp(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time);
         public abstract T LerpVelocity(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time);
-        public static T LerpAcceleration(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time)
-            => new T();
+        public static T LerpAcceleration(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time) => new T();
 
         public abstract T CubicHermite(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time);
         public abstract T CubicHermiteVelocity(VectorKeyframe<T> key1, VectorKeyframe<T> key2, float time);

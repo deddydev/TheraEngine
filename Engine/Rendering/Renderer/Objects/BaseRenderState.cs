@@ -14,11 +14,11 @@ namespace TheraEngine.Rendering
         {
             //internal bool _generatedFailSafe = false;
             internal int _bindingId = NullBindingId;
-            private BaseRenderObject _parentState;
             internal RenderContext _context = null;
+
             internal ContextBind(RenderContext context, BaseRenderObject parentState, int contextIndex)
             {
-                _parentState = parentState;
+                ParentState = parentState;
                 _context = context;
                 ContextIndex = contextIndex;
                 context?.States.Add(this);
@@ -42,10 +42,10 @@ namespace TheraEngine.Rendering
                 }
             }
 
-            public BaseRenderObject ParentState => _parentState;
+            public BaseRenderObject ParentState { get; }
 
-            public void Destroy() => _parentState.DestroyContextBind(ContextIndex);
-            public override string ToString() => _parentState.ToString();
+            public void Destroy() => ParentState.DestroyContextBind(ContextIndex);
+            public override string ToString() => ParentState.ToString();
         }
 
         internal ContextBind CurrentBind
@@ -64,7 +64,7 @@ namespace TheraEngine.Rendering
             {
                 //Generate if not active already
                 if (!IsActive)
-                    Generate();
+                    GenerateSafe();
 
                 return CurrentBind.BindingId;
             }

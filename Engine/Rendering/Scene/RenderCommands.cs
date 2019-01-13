@@ -95,7 +95,7 @@ namespace TheraEngine.Rendering
     public class RenderCommandMesh2D : RenderCommand2D
     {
         public PrimitiveManager Mesh { get; set; }
-        public Matrix4 WorldMatrix { get; set; }
+        public Matrix4 WorldMatrix { get; set; } = Matrix4.Identity;
         public TMaterial MaterialOverride { get; set; }
 
         public RenderCommandMesh2D() { }

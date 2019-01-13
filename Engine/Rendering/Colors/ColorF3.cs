@@ -76,8 +76,8 @@ namespace TheraEngine.Rendering.Models.Materials
         [Browsable(false)]
         bool IBufferable.Normalize => false;
 
-        public void Write(VoidPtr address) { this = *(ColorF3*)address; }
-        public void Read(VoidPtr address) { *(ColorF3*)address = this; }
+        public void Write(VoidPtr address) { *(ColorF3*)address = this; }
+        public void Read(VoidPtr address) { this = *(ColorF3*)address; }
 
         private const float ByteToFloat = 1.0f / 255.0f;
 

@@ -30,22 +30,21 @@ namespace TheraEditor.Wrappers
         public PropAnimFloatWrapper() : base() { }
 
         DockablePropAnimFloatGraph _graph;
-        public override void EditResource()
+        public override async void EditResource()
         {
-            if (_graph != null)
+            if (_graph == null)
             {
-                _graph.TargetAnimation = ResourceRef.File;
-                _graph.Focus();
-            }
-            else
-            {
-                _graph = new DockablePropAnimFloatGraph { TargetAnimation = ResourceRef.File };
+                _graph = new DockablePropAnimFloatGraph();
                 _graph.FormClosed += _graph_FormClosed;
                 _graph.Show(Editor.Instance.DockPanel);
             }
+            PropAnimFloat anim = await ResourceRef.GetInstanceAsync();
+            _graph.TargetAnimation = anim;
+            _graph.Focus();
         }
         private void _graph_FormClosed(object sender, FormClosedEventArgs e)
         {
+            _graph.FormClosed -= _graph_FormClosed;
             _graph = null;
         }
     }

@@ -11,12 +11,14 @@ namespace TheraEngine.Rendering.Models
     public abstract class VertexPrimitive : TObject, IEnumerable<Vertex>
     {
         public abstract FaceType Type { get; }
-        public ReadOnlyCollection<Vertex> Vertices { get { return _vertices.AsReadOnly(); } }
+        public ReadOnlyCollection<Vertex> Vertices => _vertices.AsReadOnly();
 
         protected List<Vertex> _vertices = new List<Vertex>();
         
-        public VertexPrimitive(IEnumerable<Vertex> vertices) { _vertices = vertices.ToList(); }
-        public VertexPrimitive(params Vertex[] vertices) { _vertices = vertices.ToList(); }
+        public VertexPrimitive(IEnumerable<Vertex> vertices) 
+            => _vertices = vertices.ToList();
+        public VertexPrimitive(params Vertex[] vertices)
+            => _vertices = vertices.ToList();
 
         public BoundingBox GetCullingVolume()
         {

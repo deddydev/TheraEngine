@@ -307,6 +307,7 @@ namespace TheraEngine.Animation
         protected delegate T DelInterpolate(LerpableKeyframe<T> key1, LerpableKeyframe<T> key2, float time);
         protected DelInterpolate _interpolate;
 
+        [Browsable(false)]
         public override Type ValueType => typeof(T);
 
         private T _inValue, _outValue;

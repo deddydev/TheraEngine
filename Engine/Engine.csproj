@@ -718,7 +718,6 @@
     <EmbeddedResource Include="Engine\Fonts\Origicide.ttf" />
     <EmbeddedResource Include="Engine\Models\Sponza\sponza.mtl" />
     <EmbeddedResource Include="Engine\Models\Sponza\sponza.obj" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\Thumbs.db" />
     <EmbeddedResource Include="Engine\Shaders\Bezier.geom" />
     <EmbeddedResource Include="Engine\Shaders\Common\ColoredDeferred.frag" />
     <EmbeddedResource Include="Engine\Shaders\Common\TexturedDeferred.frag" />

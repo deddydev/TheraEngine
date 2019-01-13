@@ -390,13 +390,30 @@ namespace TheraEngine.Rendering.Models
 
         public bool IsMapped { get; internal set; } = false;
 
-        protected override void PostGenerated() => Engine.Renderer.InitializeBuffer(this);
-        public void PushData() => Engine.Renderer.PushBufferData(this);
-        public void PushSubData(int offset, int length)
-            => Engine.Renderer.PushBufferSubData(this, offset, length);
-        public void PushSubData()
-            => Engine.Renderer.PushBufferSubData(this, 0, DataLength);
+        protected override void PostGenerated()
+            => Engine.Renderer.InitializeBuffer(this);
+        public void PushData()
+        {
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PushData, BaseRenderPanel.PanelType.Rendering))
+                return;
 
+            if (!IsActive)
+                GenerateSafe();
+            else
+                Engine.Renderer.PushBufferData(this);
+        }
+        public void PushSubData() => PushSubData(0, DataLength);
+        public void PushSubData(int offset, int length)
+        {
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PushSubData, BaseRenderPanel.PanelType.Rendering, offset, length))
+                return;
+
+            if (!IsActive)
+                GenerateSafe();
+            else
+                Engine.Renderer.PushBufferSubData(this, offset, length);
+        }
+        
         /// <summary>
         /// Reads the struct value at the given offset into the buffer.
         /// Offset is in bytes; NOT relative to the size of the struct.
@@ -587,10 +604,8 @@ namespace TheraEngine.Rendering.Models
         public static implicit operator VoidPtr(DataBuffer b) => b.Address;
         public override string ToString() => _name;
 
-        public int GetSize()
-        {
-            return DataLength;
-        }
+        int ISerializablePointer.GetSize() => DataLength;
+        
         public void WriteToPointer(VoidPtr address)
         {
 

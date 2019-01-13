@@ -72,6 +72,7 @@ namespace TheraEngine.Animation
         
         [TSerialize(NodeType = ENodeType.Attribute)]
         public bool Value { get; set; }
+        [Browsable(false)]
         public override Type ValueType => typeof(bool);
 
         [Browsable(false)]

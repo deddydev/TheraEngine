@@ -15,12 +15,12 @@ namespace TheraEngine.Animation
         [Category(PropAnimCategory)]
         protected abstract BaseKeyframeTrack InternalKeyframes { get; }
 
-        public override void SetLength(float lengthInSeconds, bool stretchAnimation)
+        public override void SetLength(float lengthInSeconds, bool stretchAnimation, bool notifyChanged = true)
         {
             if (lengthInSeconds < 0.0f)
                 return;
-            InternalKeyframes.SetLength(lengthInSeconds, stretchAnimation);
-            base.SetLength(lengthInSeconds, stretchAnimation);
+            InternalKeyframes.SetLength(lengthInSeconds, stretchAnimation, notifyChanged, notifyChanged);
+            base.SetLength(lengthInSeconds, stretchAnimation, notifyChanged);
         }
     }
     public abstract class BasePropAnimBakeable : BasePropAnim
@@ -108,13 +108,13 @@ namespace TheraEngine.Animation
         protected void SetBakedFrameCount()
             => _bakedFrameCount = (int)Math.Ceiling(_lengthInSeconds * _bakedFPS);
 
-        public override void SetLength(float lengthInSeconds, bool stretchAnimation)
+        public override void SetLength(float lengthInSeconds, bool stretchAnimation, bool notifyChanged = true)
         {
             if (lengthInSeconds < 0.0f)
                 return;
             _lengthInSeconds = lengthInSeconds;
             SetBakedFrameCount();
-            base.SetLength(lengthInSeconds, stretchAnimation);
+            base.SetLength(lengthInSeconds, stretchAnimation, notifyChanged);
         }
 
         /// <summary>

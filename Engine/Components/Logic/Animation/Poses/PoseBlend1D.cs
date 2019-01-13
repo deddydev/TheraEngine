@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace TheraEngine.Components.Logic.Animation
     {
         private class SkelAnimKeyframe : Keyframe
         {
+            [Browsable(false)]
             public override Type ValueType => throw new NotImplementedException();
             public override void ReadFromString(string str)
             {

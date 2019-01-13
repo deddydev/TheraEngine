@@ -1033,7 +1033,7 @@ namespace System
         {
             X,Y,Z
         }
-        public static Matrix4 MatrixLerp(Matrix4 from, Matrix4 to, float time)
+        public static Matrix4 Lerp(Matrix4 from, Matrix4 to, float time)
         {
             Matrix4 ret = new Matrix4();
             for (int i = 0; i < 16; i++)

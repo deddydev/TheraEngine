@@ -223,6 +223,7 @@ namespace TheraEngine.Animation
             }
         }
 
+        [Browsable(false)]
         public override Type ValueType => typeof(int);
         object IPlanarKeyframe.InValue { get => InValue; set => InValue = (int)value; }
         object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (int)value; }

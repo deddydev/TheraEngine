@@ -24,11 +24,11 @@ namespace TheraEditor.Windows.Forms
     {
         public UIPropAnimFloatEditor() : base()
         {
-            _rcSelectionArea = new RenderCommandMethod2D(RenderSelectionAreaMethod);
+            _rcMethod = new RenderCommandMethod2D(RenderMethod);
         }
         public UIPropAnimFloatEditor(Vec2 bounds) : base(bounds)
         {
-            _rcSelectionArea = new RenderCommandMethod2D(RenderSelectionAreaMethod);
+            _rcMethod = new RenderCommandMethod2D(RenderMethod);
         }
 
         public event DelSelectedKeyframeChanged SelectedKeyframeChanged;
@@ -128,29 +128,34 @@ namespace TheraEditor.Windows.Forms
             posBuf.PushData();
             colBuf.PushData();
             
+            var kfPosBuf = _pointPrimitive.Data[EBufferType.Position];
             var tanPosBuf = _tangentPositionPrimitive.Data[EBufferType.Position];
             var keyLinesBuf = _keyframeLinesPrimitive.Data[EBufferType.Position];
-
+            
             i = 0;
             Vec3 p0, p1;
-            float tangentScale = 10.0f;
+            float tangentScale = 50.0f / _baseTransformComponent.ScaleX;
             foreach (FloatKeyframe kf in _targetAnimation)
             {
                 //In value and backward tangent
-                KeyframePositions[i] = p0 = new Vec3(kf.Second, kf.InValue, 0.0f);
+                p0 = new Vec3(kf.Second, kf.InValue, 0.0f);
                 p1 = new Vec3(kf.Second - tangentScale, kf.InValue + kf.InTangent * tangentScale, 0.0f);
 
-                tanPosBuf.Set(i * tanPosBuf.Stride, p0);
+                KeyframeInOutPositions[i] = p0;
+                kfPosBuf.Set(i * kfPosBuf.Stride, p0);
+                tanPosBuf.Set(i * tanPosBuf.Stride, p1);
                 keyLinesBuf.Set(((i << 1) + 0) * keyLinesBuf.Stride, p0);
                 keyLinesBuf.Set(((i << 1) + 1) * keyLinesBuf.Stride, p1);
 
                 ++i;
 
                 //Out value and forward tangent
-                KeyframePositions[i] = p0 = new Vec3(kf.Second, kf.OutValue, 0.0f);
+                p0 = new Vec3(kf.Second, kf.OutValue, 0.0f);
                 p1 = new Vec3(kf.Second + tangentScale, kf.OutValue + kf.OutTangent * tangentScale, 0.0f);
 
-                tanPosBuf.Set(i * tanPosBuf.Stride, p0);
+                KeyframeInOutPositions[i] = p0;
+                kfPosBuf.Set(i * kfPosBuf.Stride, p0);
+                tanPosBuf.Set(i * tanPosBuf.Stride, p1);
                 keyLinesBuf.Set(((i << 1) + 0) * keyLinesBuf.Stride, p0);
                 keyLinesBuf.Set(((i << 1) + 1) * keyLinesBuf.Stride, p1);
 
@@ -161,7 +166,7 @@ namespace TheraEditor.Windows.Forms
             keyLinesBuf.PushData();
         }
 
-        private Vec3[] KeyframePositions { get; set; }
+        private Vec3[] KeyframeInOutPositions { get; set; }
         private float DisplayFPS { get; set; } = 0.0f;
         private float AnimLength { get; set; } = 0.0f;
         private int KeyCount { get; set; } = 0;
@@ -182,8 +187,6 @@ namespace TheraEditor.Windows.Forms
             _pointPrimitive = null;
             _tangentPositionPrimitive?.Dispose();
             _tangentPositionPrimitive = null;
-            _timePointPrimitive?.Dispose();
-            _timePointPrimitive = null;
 
             if (_targetAnimation == null || (AnimLength = _targetAnimation.LengthInSeconds) <= 0.0f)
             {
@@ -209,7 +212,7 @@ namespace TheraEditor.Windows.Forms
             Vertex[] splinePoints = new Vertex[frameCount];
             VertexLine[] keyframeLines = new VertexLine[posCount];
             Vec3[] tangentPositions = new Vec3[posCount];
-            KeyframePositions = new Vec3[posCount];
+            KeyframeInOutPositions = new Vec3[posCount];
 
             int i;
             float sec = 0.0f;
@@ -227,15 +230,15 @@ namespace TheraEditor.Windows.Forms
 
             i = 0;
             Vec3 p0, p1;
-            float tangentScale = 10.0f;
+            float tangentScale = 50.0f / _baseTransformComponent.ScaleX;
             foreach (FloatKeyframe kf in _targetAnimation)
             {
-                KeyframePositions[i] = p0 = new Vec3(kf.Second, kf.InValue, 0.0f);
+                KeyframeInOutPositions[i] = p0 = new Vec3(kf.Second, kf.InValue, 0.0f);
                 tangentPositions[i] = p1 = new Vec3(kf.Second - tangentScale, kf.InValue + kf.InTangent * tangentScale, 0.0f);
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
 
-                KeyframePositions[i] = p0 = new Vec3(kf.Second, kf.OutValue, 0.0f);
+                KeyframeInOutPositions[i] = p0 = new Vec3(kf.Second, kf.OutValue, 0.0f);
                 tangentPositions[i] = p1 = new Vec3(kf.Second + tangentScale, kf.OutValue + kf.OutTangent * tangentScale, 0.0f);
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
@@ -243,7 +246,7 @@ namespace TheraEditor.Windows.Forms
             //Fill the rest in case of non-matching keyframe counts
             while (i < posCount)
             {
-                KeyframePositions[i] = p0 = Vec3.Zero;
+                KeyframeInOutPositions[i] = p0 = Vec3.Zero;
                 tangentPositions[i] = p1 = Vec3.Zero;
                 keyframeLines[i] = new VertexLine(p0, p1);
                 ++i;
@@ -278,7 +281,7 @@ void main()
             //mat.RenderParams = renderParams;
             //_velocityPrimitive = new PrimitiveManager(velocityData, mat);
 
-            PrimitiveData pointData = PrimitiveData.FromPoints(KeyframePositions);
+            PrimitiveData pointData = PrimitiveData.FromPoints(KeyframeInOutPositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
             mat.RenderParams = renderParams;
             _pointPrimitive = new PrimitiveManager(pointData, mat);
@@ -292,24 +295,18 @@ void main()
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
             mat.RenderParams = renderParams;
             _keyframeLinesPrimitive = new PrimitiveManager(kfLineData, mat);
-
-            PrimitiveData timePointData = PrimitiveData.FromPoints(Vec3.Zero);
-            mat = TMaterial.CreateUnlitColorMaterialForward(Color.White);
-            mat.RenderParams = renderParams;
-            _timePointPrimitive = new PrimitiveManager(timePointData, mat);
             
             _rcPoints.Mesh = _pointPrimitive;
             _rcTangents.Mesh = _tangentPositionPrimitive;
             _rcSpline.Mesh = _splinePrimitive;
             _rcKfLines.Mesh = _keyframeLinesPrimitive;
-            _rcCurrentPoint.Mesh = _timePointPrimitive;
 
             _regenerating = false;
         }
 
-        private readonly RenderCommandMethod2D _rcSelectionArea;
+        private readonly RenderCommandMethod2D _rcMethod;
         private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D();
-        private readonly RenderCommandMesh2D _rcCurrentPoint = new RenderCommandMesh2D();
+        //private readonly RenderCommandMesh2D _rcCurrentPoint = new RenderCommandMesh2D();
         private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D();
         private readonly RenderCommandMesh2D _rcPoints = new RenderCommandMesh2D();
         private readonly RenderCommandMesh2D _rcTangents = new RenderCommandMesh2D();
@@ -318,24 +315,25 @@ void main()
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
 
+        //[TSerialize]
+        //public bool RenderSpline { get; set; } = true;
+        //[TSerialize]
+        //public bool RenderKeyframeTangentLines { get; set; } = true;
+        //[TSerialize]
+        //public bool RenderKeyframeTangentPoints { get; set; } = true;
+        //[TSerialize]
+        //public bool RenderKeyframePoints { get; set; } = true;
         [TSerialize]
-        public bool RenderSpline { get; set; } = true;
-        [TSerialize]
-        public bool RenderKeyframeTangentLines { get; set; } = true;
-        [TSerialize]
-        public bool RenderKeyframeTangentPoints { get; set; } = true;
-        [TSerialize]
-        public bool RenderKeyframePoints { get; set; } = true;
-        [TSerialize]
-        public bool RenderCurrentTimePoint { get; set; } = true;
-        [TSerialize]
-        public bool RenderSelectionArea { get; set; } = true;
-        
+        public bool RenderAnimPosition { get; set; } = true;
+        //[TSerialize]
+        //public bool RenderSelectionArea { get; set; } = true;
+        public Vec2 AnimPosition { get; private set; }
+
         private PrimitiveManager _splinePrimitive;
         private PrimitiveManager _pointPrimitive;
         private PrimitiveManager _tangentPositionPrimitive;
         private PrimitiveManager _keyframeLinesPrimitive;
-        private PrimitiveManager _timePointPrimitive;
+        //private PrimitiveManager _timePointPrimitive;
 
         private PropAnimFloat _targetAnimation;
         private Vec2 _minScale = new Vec2(0.01f), _maxScale = new Vec2(1.0f);
@@ -344,7 +342,7 @@ void main()
         private bool _rightClickDown = false;
         private FloatKeyframe _selectedKf;
         private FloatKeyframe _highlightedKf;
-        private List<DraggedKeyframeInfo> _draggedKeyframes = new List<DraggedKeyframeInfo>();
+        private Dictionary<int, DraggedKeyframeInfo> _draggedKeyframes = new Dictionary<int, DraggedKeyframeInfo>();
 
         protected override UICanvasComponent OnConstructRoot()
         {
@@ -354,7 +352,7 @@ void main()
         }
         private void _position_CurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
         {
-            _rcCurrentPoint.WorldMatrix = _baseTransformComponent.WorldMatrix * Matrix4.CreateTranslation(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
+            AnimPosition = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), _baseTransformComponent.WorldMatrix).Xy;
         }
         private void BaseWorldTransformChanged()
         {
@@ -367,11 +365,11 @@ void main()
 
             if (_targetAnimation != null)
             {
-                Matrix4 pointMtx = Matrix4.CreateTranslation(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
-                _rcCurrentPoint.WorldMatrix = mtx * pointMtx;
+                RenderAnimPosition = true;
+                AnimPosition = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), mtx).Xy;
             }
             else
-                _rcCurrentPoint.WorldMatrix = mtx;
+                RenderAnimPosition = false;
 
             UpdateBackgroundMaterial();
         }
@@ -386,7 +384,7 @@ void main()
             mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
             mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
             float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
-            float inc = 10.0f / bound;
+            float inc = 1.0f;
             //float fraction = inc - (int)Math.Floor(inc);
             //Engine.PrintLine($"Increment: {inc.ToString()}");
             mat.Parameter<ShaderVec2>(5).Value = inc;
@@ -451,21 +449,33 @@ void main()
                 {
                     foreach (int index in ClosestKeyframeIndices)
                     {
-                        _draggedKeyframes = new List<DraggedKeyframeInfo>();
-                        var kf = _targetAnimation.Keyframes[index >> 1];
+                        _draggedKeyframes.Clear();
+
+                        int kfIndex = index >> 1;
+                        var kf = _targetAnimation.Keyframes[kfIndex];
                         bool draggingInValue = (index & 1) == 0 || kf.SyncInOutValues;
                         bool draggingOutValue = (index & 1) == 1 || kf.SyncInOutValues;
-                        _draggedKeyframes.Add(new DraggedKeyframeInfo()
+
+                        if (_draggedKeyframes.ContainsKey(kfIndex))
                         {
-                            Keyframe = kf,
-                            DraggingInValue = draggingInValue,
-                            DraggingOutValue = draggingOutValue
-                        });
+                            DraggedKeyframeInfo info = _draggedKeyframes[kfIndex];
+                            info.DraggingInValue = info.DraggingInValue || draggingInValue;
+                            info.DraggingOutValue = info.DraggingOutValue || draggingOutValue;
+                        }
+                        else
+                        {
+                            _draggedKeyframes.Add(kfIndex, new DraggedKeyframeInfo()
+                            {
+                                Keyframe = kf,
+                                DraggingInValue = draggingInValue,
+                                DraggingOutValue = draggingOutValue
+                            });
+                        }
                     }
                 }
                 else
                 {
-                    _draggedKeyframes = null;
+                    //_draggedKeyframes = null;
 
                     float length = TMath.Max(_targetAnimation.LengthInSeconds, sec);
                     var track = _targetAnimation.Keyframes;
@@ -515,7 +525,8 @@ void main()
         }
         internal void LeftClickUp()
         {
-            _draggedKeyframes = null;
+            if (_draggedKeyframes.Count > 0)
+                _draggedKeyframes.Clear();
         }
         private void RightClickDown()
         {
@@ -530,7 +541,7 @@ void main()
         protected override void MouseMove(float x, float y)
         {
             Vec2 pos = CursorPosition();
-            if (_draggedKeyframes != null && _draggedKeyframes.Count > 0)
+            if (_draggedKeyframes.Count > 0)
                 HandleDragKf(pos);
             else if (_rightClickDown)
                 HandleDragView(pos);
@@ -555,10 +566,10 @@ void main()
         private class DraggedKeyframeInfo
         {
             public FloatKeyframe Keyframe { get; set; }
-            public bool DraggingInValue { get; set; }
-            public bool DraggingOutValue { get; set; }
-            public bool DraggingInTangent { get; set; }
-            public bool DraggingOutTangent { get; set; }
+            public bool DraggingInValue { get; set; } = false;
+            public bool DraggingOutValue { get; set; } = false;
+            public bool DraggingInTangent { get; set; } = false;
+            public bool DraggingOutTangent { get; set; } = false;
         }
         private void HandleDragKf(Vec2 cursorPosScreen)
         {
@@ -566,11 +577,11 @@ void main()
             Vec3 pos = CursorPositionTransformRelative();
             foreach (var kf in _draggedKeyframes)
             {
-                kf.Keyframe.Second = pos.X;
-                if (kf.DraggingInValue)
-                    kf.Keyframe.InValue = pos.Y;
-                if (kf.DraggingOutValue)
-                    kf.Keyframe.OutValue = pos.Y;
+                kf.Value.Keyframe.Second = pos.X;
+                if (kf.Value.DraggingInValue)
+                    kf.Value.Keyframe.InValue = pos.Y;
+                if (kf.Value.DraggingOutValue)
+                    kf.Value.Keyframe.OutValue = pos.Y;
             }
             UpdateSplinePrimitive();
             //if (_draggingInValue)
@@ -601,11 +612,11 @@ void main()
         private void HighlightGraph()
         {
             ClosestKeyframeIndices = null;
-            if (KeyframePositions == null)
+            if (KeyframeInOutPositions == null)
                 return;
 
             Vec2 cursorPos = CursorPositionTransformRelative();
-            ClosestKeyframeIndices = KeyframePositions.FindAllMatchIndices(x => x.DistanceToFast(cursorPos) < SelectionRadius / _baseTransformComponent.ScaleX);
+            ClosestKeyframeIndices = KeyframeInOutPositions.FindAllMatchIndices(x => x.DistanceToFast(cursorPos) < SelectionRadius / _baseTransformComponent.ScaleX);
 
             //float minDist = float.MaxValue;
             //ClosestKeyframeIndices = new List<int>(pts.Length);
@@ -624,35 +635,29 @@ void main()
             Vec3 worldPoint = CursorPositionWorld();
             _baseTransformComponent.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
             //Engine.PrintLine($"UI scale: {_baseTransformComponent.Scale.X.ToString()}");
+            UpdateSplinePrimitive();
         }
         public void AddRenderables(RenderPasses passes)
         {
             if (_targetAnimation == null)
                 return;
-
-            if (RenderSpline)
-                passes.Add(_rcSpline, RenderInfo.RenderPass);
-            if (RenderKeyframePoints)
-                passes.Add(_rcPoints, RenderInfo.RenderPass);
-            if (RenderKeyframeTangentPoints)
-                passes.Add(_rcTangents, RenderInfo.RenderPass);
-            if (RenderKeyframeTangentLines)
-                passes.Add(_rcKfLines, RenderInfo.RenderPass);
-            if (RenderCurrentTimePoint)
-                passes.Add(_rcCurrentPoint, RenderInfo.RenderPass);
-            if (RenderSelectionArea)
-                passes.Add(_rcSelectionArea, RenderInfo.RenderPass);
+            
+            passes.Add(_rcSpline, RenderInfo.RenderPass);
+            passes.Add(_rcPoints, RenderInfo.RenderPass);
+            passes.Add(_rcTangents, RenderInfo.RenderPass);
+            passes.Add(_rcKfLines, RenderInfo.RenderPass);
+            passes.Add(_rcMethod, RenderInfo.RenderPass);
         }
         public float SelectionRadius { get; set; } = 10.0f;
-        private void RenderSelectionAreaMethod()
+        private void RenderMethod()
         {
             Vec2 pos = CursorPositionWorld();
             Vec2 wh = _backgroundComponent.Size;
 
             if (ClosestKeyframeIndices != null)
                 foreach (int index in ClosestKeyframeIndices)
-                    if (KeyframePositions?.IndexInArrayRange(index) ?? false)
-                        Engine.Renderer.RenderPoint(Vec3.TransformPosition(KeyframePositions[index], _baseTransformComponent.WorldMatrix), Color.Yellow, false, 10.0f);
+                    if (KeyframeInOutPositions?.IndexInArrayRange(index) ?? false)
+                        Engine.Renderer.RenderPoint(Vec3.TransformPosition(KeyframeInOutPositions[index], _baseTransformComponent.WorldMatrix), Color.Yellow, false, 10.0f);
             
             //Cursor
             Engine.Renderer.RenderCircle(pos + AbstractRenderer.UIPositionBias, AbstractRenderer.UIRotation, SelectionRadius /** _baseTransformComponent.ScaleX*/, false, Editor.TurquoiseColor, 10.0f);
@@ -670,6 +675,9 @@ void main()
                 Vec3 end = Vec3.TransformPosition(new Vec2(_targetAnimation.LengthInSeconds, 0.0f), _baseTransformComponent.WorldMatrix);
                 Engine.Renderer.RenderLine(new Vec2(end.X, 0.0f), new Vec2(end.X, wh.Y), new ColorF4(0.7f, 0.3f, 0.3f), false, 10.0f);
             }
+
+            if (RenderAnimPosition)
+                Engine.Renderer.RenderPoint(AnimPosition, new ColorF4(), false, 10.0f);
         }
     }
 }

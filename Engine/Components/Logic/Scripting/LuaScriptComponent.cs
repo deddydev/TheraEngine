@@ -11,6 +11,7 @@ namespace TheraEngine.Components.Logic.Scripting
         public DynValue ReturnValue { get; private set; }
         protected override void OnLoaded(LuaScript script)
         {
+            script.TextChanged += Script_TextChanged;
             string code = script?.Text;
             if (code != null)
             {
@@ -19,8 +20,15 @@ namespace TheraEngine.Components.Logic.Scripting
                 LuaScript.Globals["Component"] = this;
             }
         }
+
+        private void Script_TextChanged()
+        {
+            LuaScript.DoString(ScriptFile?.Text);
+        }
+
         protected override void OnUnloaded(LuaScript script)
         {
+            script.TextChanged -= Script_TextChanged;
             LuaScript = null;
         }
         public override bool Execute(string methodName, params object[] args)

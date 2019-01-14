@@ -54,9 +54,10 @@ namespace TheraEngine.Core.Extensions
         }
         public static bool ThreadSafeBlockingInvoke<T>(this Control c, Delegate method, out T result, params object[] args)
         {
-            if (c != null && c.InvokeRequired)
+            if (c != null && c.InvokeRequired && !(c.IsDisposed || c.Disposing))
             {
                 IAsyncResult async = c.BeginInvoke(method, args);
+
                 //if (!async.CompletedSynchronously)
                 //{
                 //    while (!async.IsCompleted)
@@ -77,9 +78,10 @@ namespace TheraEngine.Core.Extensions
         /// </summary>
         public static bool ThreadSafeBlockingInvoke(this Control c, Delegate method, params object[] args)
         {
-            if (c != null && c.InvokeRequired)
+            if (c != null && c.InvokeRequired && !(c.IsDisposed || c.Disposing))
             {
                 IAsyncResult async = c.BeginInvoke(method, args);
+
                 //if (!async.CompletedSynchronously)
                 //{
                 //    while (!async.IsCompleted)

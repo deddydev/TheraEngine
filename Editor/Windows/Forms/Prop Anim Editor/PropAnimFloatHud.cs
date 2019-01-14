@@ -91,18 +91,21 @@ namespace TheraEditor.Windows.Forms
         {
             await RegenerateSplinePrimitiveAsync();
         }
-        private async void Keyframes_Changed(BaseKeyframeTrack obj)
+        private void Keyframes_Changed(BaseKeyframeTrack obj)
         {
-            if (AnimLength != obj.LengthInSeconds || 
-                KeyCount != obj.Count ||
-                _splinePrimitive == null)
-                await RegenerateSplinePrimitiveAsync();
-            else
-                UpdateSplinePrimitive();
+            UpdateSplinePrimitive();
         }
 
-        public void UpdateSplinePrimitive()
+        public async void UpdateSplinePrimitive()
         {
+            if (AnimLength != _targetAnimation.LengthInSeconds ||
+                KeyCount != _targetAnimation.Keyframes.Count ||
+                _splinePrimitive == null)
+            {
+                await RegenerateSplinePrimitiveAsync();
+                return;
+            }
+
             if (DisplayFPS <= 0.0f)
                 return;
 
@@ -384,7 +387,7 @@ void main()
             mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
             mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
             float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
-            float inc = 1.0f;
+            float inc = 10.0f;
             //float fraction = inc - (int)Math.Floor(inc);
             //Engine.PrintLine($"Increment: {inc.ToString()}");
             mat.Parameter<ShaderVec2>(5).Value = inc;
@@ -583,7 +586,13 @@ void main()
                 if (kf.Value.DraggingOutValue)
                     kf.Value.Keyframe.OutValue = pos.Y;
             }
+
+            //This will update the animation position
+            _targetAnimation.Progress(0.0f);
+            //AnimPosition = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), _baseTransformComponent.WorldMatrix).Xy;
+            
             UpdateSplinePrimitive();
+
             //if (_draggingInValue)
             //{
             //    if (_draggingTangent)
@@ -677,7 +686,7 @@ void main()
             }
 
             if (RenderAnimPosition)
-                Engine.Renderer.RenderPoint(AnimPosition, new ColorF4(), false, 10.0f);
+                Engine.Renderer.RenderPoint(AnimPosition, new ColorF4(1.0f), false, 10.0f);
         }
     }
 }

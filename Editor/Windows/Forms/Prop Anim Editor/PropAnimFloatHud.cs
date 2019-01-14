@@ -346,7 +346,8 @@ void main()
         private FloatKeyframe _selectedKf;
         private FloatKeyframe _highlightedKf;
         private Dictionary<int, DraggedKeyframeInfo> _draggedKeyframes = new Dictionary<int, DraggedKeyframeInfo>();
-
+        private Vec2 _selectionStartPosAnimRelative;
+        
         protected override UICanvasComponent OnConstructRoot()
         {
             var root = base.OnConstructRoot();
@@ -418,14 +419,21 @@ void main()
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterKeyPressed(EKey.AltLeft, b => _altDown = b, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ControlLeft, b => _ctrlDown = b, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.AltLeft, AltPressed, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.AltRight, AltPressed, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ControlLeft, CtrlPressed, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ControlRight, CtrlPressed, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ShiftLeft, ShiftPressed, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ShiftRight, ShiftPressed, EInputPauseType.TickAlways);
+
             input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Pressed, LeftClickDown, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Released, LeftClickUp, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Released, RightClickUp, EInputPauseType.TickAlways);
+
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
             input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
+
             input.RegisterKeyEvent(EKey.Space, EButtonInputType.Pressed, TogglePlay, EInputPauseType.TickAlways);
         }
         public void TogglePlay()
@@ -438,8 +446,21 @@ void main()
             else
                 _targetAnimation.State = EAnimationState.Playing;
         }
+
+        private void AltPressed(bool pressed) => _altDown = pressed;
+        private void CtrlPressed(bool pressed) => _ctrlDown = pressed;
+        private void ShiftPressed(bool pressed)
+        {
+            _shiftDown = pressed;
+            if (IsDraggingKeyframes)
+                HandleDraggingKeyframes();
+        }
+        public bool IsDraggingKeyframes => _draggedKeyframes.Count > 0;
+
         private bool _altDown = false;
         private bool _ctrlDown = false;
+        private bool _shiftDown = false;
+
         internal void LeftClickDown()
         {
             if (_targetAnimation != null)
@@ -450,6 +471,7 @@ void main()
 
                 if (ClosestKeyframeIndices != null && ClosestKeyframeIndices.Length > 0)
                 {
+                    _selectionStartPosAnimRelative = animPos;
                     foreach (int index in ClosestKeyframeIndices)
                     {
                         _draggedKeyframes.Clear();
@@ -470,8 +492,13 @@ void main()
                             _draggedKeyframes.Add(kfIndex, new DraggedKeyframeInfo()
                             {
                                 Keyframe = kf,
+
                                 DraggingInValue = draggingInValue,
-                                DraggingOutValue = draggingOutValue
+                                DraggingOutValue = draggingOutValue,
+
+                                SecondOffset = kf.Second - animPos.X,
+                                InValueOffset = kf.InValue - animPos.Y,
+                                OutValueOffset = kf.OutValue - animPos.Y,
                             });
                         }
                     }
@@ -543,14 +570,13 @@ void main()
         }
         protected override void MouseMove(float x, float y)
         {
-            Vec2 pos = CursorPosition();
             if (_draggedKeyframes.Count > 0)
-                HandleDragKf(pos);
+                HandleDraggingKeyframes();
             else if (_rightClickDown)
-                HandleDragView(pos);
+                HandleDragView();
             else
                 HighlightGraph();
-            _cursorPos = pos;
+            _cursorPos = CursorPosition();
         }
         private Vec2 GetWorldCursorDiff(Vec2 cursorPosScreen)
         {
@@ -561,35 +587,73 @@ void main()
             _lastWorldPos = newFocusPoint;
             return diff;
         }
-        private void HandleDragView(Vec2 cursorPosScreen)
+        private void HandleDragView()
         {
-            Vec2 diff = GetWorldCursorDiff(cursorPosScreen);
+            Vec2 diff = GetWorldCursorDiff(CursorPosition());
             _baseTransformComponent.LocalTranslation += diff;
         }
         private class DraggedKeyframeInfo
         {
             public FloatKeyframe Keyframe { get; set; }
+
             public bool DraggingInValue { get; set; } = false;
             public bool DraggingOutValue { get; set; } = false;
             public bool DraggingInTangent { get; set; } = false;
             public bool DraggingOutTangent { get; set; } = false;
+
+            public float SecondOffset { get; set; }
+            public float InValueOffset { get; set; }
+            public float OutValueOffset { get; set; }
+            public float InTangentOffset { get; set; }
+            public float OutTangentOffset { get; set; }
         }
-        private void HandleDragKf(Vec2 cursorPosScreen)
+        private void HandleDraggingKeyframes()
         {
-            //Vec2 diff = GetWorldCursorDiff(cursorPosScreen);
             Vec3 pos = CursorPositionTransformRelative();
-            foreach (var kf in _draggedKeyframes)
+            if (_shiftDown)
             {
-                kf.Value.Keyframe.Second = pos.X;
-                if (kf.Value.DraggingInValue)
-                    kf.Value.Keyframe.InValue = pos.Y;
-                if (kf.Value.DraggingOutValue)
-                    kf.Value.Keyframe.OutValue = pos.Y;
+                //Ortho mode
+                float xDist = Math.Abs(pos.X - _selectionStartPosAnimRelative.X);
+                float yDist = Math.Abs(pos.Y - _selectionStartPosAnimRelative.Y);
+                if (xDist > yDist)
+                {
+                    //Drag left and right only
+                    foreach (var kf in _draggedKeyframes)
+                    {
+                        kf.Value.Keyframe.Second = pos.X;
+                        if (kf.Value.DraggingInValue)
+                            kf.Value.Keyframe.InValue = pos.Y;
+                        if (kf.Value.DraggingOutValue)
+                            kf.Value.Keyframe.OutValue = pos.Y;
+                    }
+                }
+                else
+                {
+                    //Drag up and down only
+                    foreach (var kf in _draggedKeyframes)
+                    {
+                        kf.Value.Keyframe.Second = pos.X;
+                        if (kf.Value.DraggingInValue)
+                            kf.Value.Keyframe.InValue = pos.Y;
+                        if (kf.Value.DraggingOutValue)
+                            kf.Value.Keyframe.OutValue = pos.Y;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var kf in _draggedKeyframes)
+                {
+                    kf.Value.Keyframe.Second = pos.X + kf.Value.SecondOffset;
+                    if (kf.Value.DraggingInValue)
+                        kf.Value.Keyframe.InValue = pos.Y + kf.Value.InValueOffset;
+                    if (kf.Value.DraggingOutValue)
+                        kf.Value.Keyframe.OutValue = pos.Y + kf.Value.OutValueOffset;
+                }
             }
 
             //This will update the animation position
             _targetAnimation.Progress(0.0f);
-            //AnimPosition = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), _baseTransformComponent.WorldMatrix).Xy;
             
             UpdateSplinePrimitive();
 
@@ -641,10 +705,17 @@ void main()
         }
         protected override void OnScrolledInput(bool down)
         {
-            Vec3 worldPoint = CursorPositionWorld();
-            _baseTransformComponent.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
-            //Engine.PrintLine($"UI scale: {_baseTransformComponent.Scale.X.ToString()}");
-            UpdateSplinePrimitive();
+            if (_altDown)
+            {
+                SelectionRadius *= down ? 1.5f : 0.6666667f;
+            }
+            else
+            {
+                Vec3 worldPoint = CursorPositionWorld();
+                _baseTransformComponent.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
+                //Engine.PrintLine($"UI scale: {_baseTransformComponent.Scale.X.ToString()}");
+                UpdateSplinePrimitive();
+            }
         }
         public void AddRenderables(RenderPasses passes)
         {

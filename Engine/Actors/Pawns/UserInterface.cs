@@ -325,10 +325,16 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
             Point absolute = Cursor.Position;
-            BaseRenderPanel panel = v.OwningPanel;
-            absolute = panel.PointToClient(absolute);
-            Vec2 result = new Vec2(absolute.X, absolute.Y);
-            result = v.AbsoluteToRelative(result);
+            Vec2 result;
+            if (v != null)
+            {
+                BaseRenderPanel panel = v.OwningPanel;
+                absolute = panel.PointToClient(absolute);
+                result = new Vec2(absolute.X, absolute.Y);
+                result = v.AbsoluteToRelative(result);
+            }
+            else
+                result = new Vec2(absolute.X, absolute.Y);
             return result;
         }
         /// <summary>

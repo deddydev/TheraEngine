@@ -37,7 +37,7 @@ namespace TheraEngine.Core.Shapes
     {
         public Shape()
         {
-            _rc = new RenderCommandMethod3D(Render);
+            _rc = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
         }
 
         public Action VisibilityChanged;
@@ -71,7 +71,7 @@ namespace TheraEngine.Core.Shapes
         public IOctreeNode OctreeNode { get; set; }
         
         [Category("Rendering")]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
         [Category("Rendering")]
         public bool RenderSolid
         {
@@ -155,6 +155,6 @@ namespace TheraEngine.Core.Shapes
 
         private readonly RenderCommandMethod3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera) 
-            => passes.Add(_rc, RenderInfo.RenderPass);
+            => passes.Add(_rc);
     }
 }

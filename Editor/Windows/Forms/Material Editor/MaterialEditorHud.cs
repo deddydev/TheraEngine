@@ -23,9 +23,9 @@ namespace TheraEditor.Windows.Forms
     public class UIMaterialEditor : EditorUserInterface, I2DRenderable
     {
         public UIMaterialEditor() : base()
-            => _rc = new RenderCommandMethod2D(Render);
+            => _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, Render);
         public UIMaterialEditor(Vec2 bounds) : base(bounds)
-            => _rc = new RenderCommandMethod2D(Render);
+            => _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, Render);
         
         public event DelSelectedFunctionChanged SelectedFunctionChanged;
         
@@ -60,7 +60,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass.OnTopForward, 0, 0);
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
 
@@ -390,7 +390,7 @@ namespace TheraEditor.Windows.Forms
         private readonly RenderCommandMethod2D _rc;
         public void AddRenderables(RenderPasses passes)
         {
-            passes.Add(_rc, RenderInfo.RenderPass);
+            passes.Add(_rc);
         }
         #endregion
     }

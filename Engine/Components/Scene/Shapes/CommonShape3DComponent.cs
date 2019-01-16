@@ -19,11 +19,11 @@ namespace TheraEngine.Components.Scene.Shapes
             : base()
         {
             Shape = shape;
-            _renderCommand = new RenderCommandMethod3D(Render);
+            RenderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
             GenerateRigidBody(info);
         }
 
-        private readonly RenderCommandMethod3D _renderCommand;
+        public RenderCommandMethod3D RenderCommand { get; }
         protected T _shape;
 
         [TSerialize]
@@ -38,7 +38,7 @@ namespace TheraEngine.Components.Scene.Shapes
         public override Shape CullingVolume => _shape;
 
         protected virtual void Render() => _shape?.Render();
-        protected override RenderCommand3D GetRenderCommand() => _renderCommand;
+        protected override RenderCommand3D GetRenderCommand() => RenderCommand;
 
         protected override void OnWorldTransformChanged()
         {

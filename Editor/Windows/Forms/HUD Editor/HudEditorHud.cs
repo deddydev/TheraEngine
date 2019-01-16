@@ -57,7 +57,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(ERenderPass.OnTopForward, 99, 0);
+        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(99, 0);
         [Browsable(false)]
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         [Browsable(false)]
@@ -176,18 +176,18 @@ namespace TheraEditor.Windows.Forms
             mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
         }
 
-        private RenderCommandMesh2D _highlightMesh = new RenderCommandMesh2D();
-        private RenderCommandMesh2D _uiBoundsMesh = new RenderCommandMesh2D();
+        private RenderCommandMesh2D _highlightMesh = new RenderCommandMesh2D(ERenderPass.TransparentForward);
+        private RenderCommandMesh2D _uiBoundsMesh = new RenderCommandMesh2D(ERenderPass.TransparentForward);
         public void AddRenderables(RenderPasses passes)
         {
             if (_highlightedComp != null)
             {
                 _highlightMesh.WorldMatrix = _highlightedComp.WorldMatrix;
-                passes.Add(_highlightMesh, ERenderPass.TransparentForward);
+                passes.Add(_highlightMesh);
             }
 
             _uiBoundsMesh.WorldMatrix = Matrix4.CreateScale(TargetHUD.Bounds);
-            passes.Add(_uiBoundsMesh, ERenderPass.TransparentForward);
+            passes.Add(_uiBoundsMesh);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace TheraEngine.Actors.Types.BSP
 {
     public class BSPMeshComponent : TRSComponent, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.Background);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D();
         [Browsable(false)]
         public Shape CullingVolume => _cullingVolume;
         [Browsable(false)]

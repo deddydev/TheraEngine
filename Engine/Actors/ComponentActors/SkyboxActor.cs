@@ -113,15 +113,14 @@ namespace TheraEngine.Actors.Types
             StaticRigidSubMesh mesh = new StaticRigidSubMesh(
                 "Mesh",
                 null,
+                ERenderPass.Background,
                 BoundingBox.FromMinMax(min, max),
                 BoundingBox.SolidMesh(min, max, true, uvType),
                 _material);
 
             foreach (LOD lod in mesh.LODs)
                 lod.TransformFlags = ETransformFlags.ConstrainTranslations;
-
-            mesh.RenderInfo.RenderPass = ERenderPass.Background;
-
+            
             skybox.RigidChildren.Add(mesh);
 
             return new StaticMeshComponent() { ModelRef = skybox };

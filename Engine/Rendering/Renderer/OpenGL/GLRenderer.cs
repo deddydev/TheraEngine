@@ -974,7 +974,8 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void PushBufferSubData(DataBuffer buffer, int offset, int length)
         {
-            GL.NamedBufferSubData(buffer.BindingId, (IntPtr)offset, length, buffer._data.Address);
+            int id = buffer.BindingId;
+            GL.NamedBufferSubData(id, (IntPtr)offset, length, buffer._data.Address);
         }
         /// <summary>
         /// Specifies attribute usage in a vertex shader.

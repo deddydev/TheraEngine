@@ -151,12 +151,36 @@ namespace TheraEngine.Rendering.Models
         }
 
         #region Buffers
+        public DataBuffer this[EBufferType type, int index]
+        {
+            get
+            {
+                var matches = _buffers.Where(x => x.BufferType == type).ToArray();
+                if (matches.IndexInArrayRange(index))
+                    return matches[index];
+                throw new IndexOutOfRangeException();
+            }
+            set
+            {
+                value.BufferType = type;
+
+                var matches = _buffers.Where(x => x.BufferType == type).ToArray();
+                if (matches.IndexInArrayRange(index))
+                {
+                    var buf = matches[index];
+                    value.Index = buf.Index;
+                    buf.Dispose();
+                    _buffers[buf.Index] = value;
+                }
+                else
+                    throw new IndexOutOfRangeException();
+            }
+        }
         public DataBuffer this[EBufferType type]
         {
             get => _buffers.FirstOrDefault(x => x.BufferType == type);
             set
             {
-                //value.Name = _type.ToString();
                 value.BufferType = type;
                 var buf = _buffers.FirstOrDefault(x => x.BufferType == type);
                 if (buf != null)

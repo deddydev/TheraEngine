@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering.Models
     public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(ERenderPass.OnTopForward, false, false) { CastsShadows = false, ReceivesShadows = false };
+            = new RenderInfo3D(false, false) { CastsShadows = false, ReceivesShadows = false };
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -26,11 +26,11 @@ namespace TheraEngine.Rendering.Models
 
         public Skeleton() : base()
         {
-            _rc = new RenderCommandMethod3D(Render);
+            _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
         }
         public Skeleton(params Bone[] rootBones) : base()
         {
-            _rc = new RenderCommandMethod3D(Render);
+            _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
             RootBones = rootBones;
             foreach (Bone b in RootBones)
             {
@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.Models
         }
         public Skeleton(Bone rootBone) : base()
         {
-            _rc = new RenderCommandMethod3D(Render);
+            _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
             RootBones = new Bone[1] { rootBone };
             rootBone.CalcBindMatrix(true);
             rootBone.TriggerFrameMatrixUpdate();
@@ -167,7 +167,7 @@ namespace TheraEngine.Rendering.Models
         private readonly RenderCommandMethod3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            passes.Add(_rc, ERenderPass.OpaqueForward);
+            passes.Add(_rc);
         }
 
         private Dictionary<int, IPrimitiveManager> _managers = new Dictionary<int, IPrimitiveManager>();

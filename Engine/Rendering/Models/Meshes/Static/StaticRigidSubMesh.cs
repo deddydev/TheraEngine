@@ -13,18 +13,21 @@ namespace TheraEngine.Rendering.Models
         public StaticRigidSubMesh(
             string name,
             RenderInfo3D renderInfo,
+            ERenderPass renderPass,
             Shape cullingVolume,
             PrimitiveData primitives,
-            TMaterial material) : base(name, renderInfo, cullingVolume, primitives, material) { }
+            TMaterial material) : base(name, renderInfo, renderPass, cullingVolume, primitives, material) { }
         public StaticRigidSubMesh(
             string name,
             RenderInfo3D renderInfo,
+            ERenderPass renderPass,
             Shape cullingVolume,
-            List<LOD> lods) : base(name, renderInfo, cullingVolume, lods) { }
+            List<LOD> lods) : base(name, renderInfo, renderPass, cullingVolume, lods) { }
         public StaticRigidSubMesh(
             string name,
             RenderInfo3D renderInfo,
+            ERenderPass renderPass,
             Shape cullingVolume,
-            params LOD[] lods) : base(name, renderInfo, cullingVolume, lods) { }
+            params LOD[] lods) : base(name, renderInfo, renderPass, cullingVolume, lods) { }
     }
 }

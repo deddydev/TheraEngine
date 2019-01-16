@@ -36,13 +36,13 @@ namespace TheraEngine.Components.Scene.Transforms
         [TSerialize]
         public LocalFileRef<TCollisionObject> IgnoreCast { get; set; } = null;
         [TSerialize]
-        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true);
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        public BoomComponent() : base() { _rc = new RenderCommandMethod3D(Render); }
+        public BoomComponent() : base() { _rc = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render); }
 
         private void Render()
         {
@@ -113,7 +113,7 @@ namespace TheraEngine.Components.Scene.Transforms
         private RenderCommandMethod3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            passes.Add(_rc, RenderInfo.RenderPass);
+            passes.Add(_rc);
         }
     }
 }

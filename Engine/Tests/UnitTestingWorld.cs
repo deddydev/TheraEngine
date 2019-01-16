@@ -363,7 +363,7 @@ namespace TheraEngine.Tests
     {
         public SphereTraceActor()
         {
-            _renderCommand = new RenderCommandMethod3D(Render);
+            _renderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
             _sphere = TCollisionSphere.New(2.0f);
             _shapeCast = new ShapeTraceClosest(_sphere, Matrix4.Identity, Matrix4.Identity,
                 (ushort)(TCollisionGroup.DynamicWorld), (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
@@ -392,7 +392,7 @@ namespace TheraEngine.Tests
             set => _sphere.Radius = value;
         }
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, true, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -447,7 +447,7 @@ namespace TheraEngine.Tests
         private readonly RenderCommandMethod3D _renderCommand;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            passes.Add(_renderCommand, RenderInfo.RenderPass);
+            passes.Add(_renderCommand);
         }
     }
 }

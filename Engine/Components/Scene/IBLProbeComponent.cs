@@ -28,7 +28,7 @@ namespace TheraEngine.Actors.Types
         public TexRefCube PrefilterTex { get; private set; }
 
         [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, false, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
        
         private bool _showPrefilterTexture = false;
         [Category(RenderingCategoryName)]
@@ -163,7 +163,7 @@ namespace TheraEngine.Actors.Types
                 new ShaderVar[] { new ShaderVec3(Vec3.Zero, "SphereCenter") }, new BaseTexRef[] { _showPrefilterTexture ? PrefilterTex : IrradianceTex }, shader);
             _irradianceSphere = new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 1.0f, 20u), mat);
 
-            _rc = new RenderCommandMesh3D
+            _rc = new RenderCommandMesh3D(ERenderPass.OnTopForward)
             {
                 NormalMatrix = Matrix3.Identity,
                 Mesh = _irradianceSphere,
@@ -181,7 +181,7 @@ namespace TheraEngine.Actors.Types
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             if (_rc != null)
-                passes.Add(_rc, RenderInfo.RenderPass);
+                passes.Add(_rc);
         }
     }
 }

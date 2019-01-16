@@ -24,11 +24,11 @@ namespace TheraEditor.Windows.Forms
     {
         public UIPropAnimFloatEditor() : base()
         {
-            _rcMethod = new RenderCommandMethod2D(RenderMethod);
+            _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
         }
         public UIPropAnimFloatEditor(Vec2 bounds) : base(bounds)
         {
-            _rcMethod = new RenderCommandMethod2D(RenderMethod);
+            _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
         }
 
         public event DelSelectedKeyframeChanged SelectedKeyframeChanged;
@@ -305,16 +305,28 @@ void main()
             _rcSpline.Mesh = _splinePrimitive;
             _rcKfLines.Mesh = _keyframeLinesPrimitive;
 
+            var posBuf = _splinePrimitive.Data[EBufferType.Position];
+            var colBuf = _splinePrimitive.Data[EBufferType.Color];
+            var kfPosBuf = _pointPrimitive.Data[EBufferType.Position];
+            var tanPosBuf = _tangentPositionPrimitive.Data[EBufferType.Position];
+            var keyLinesBuf = _keyframeLinesPrimitive.Data[EBufferType.Position];
+
+            posBuf.Usage = EBufferUsage.DynamicDraw;
+            colBuf.Usage = EBufferUsage.DynamicDraw;
+            kfPosBuf.Usage = EBufferUsage.DynamicDraw;
+            tanPosBuf.Usage = EBufferUsage.DynamicDraw;
+            keyLinesBuf.Usage = EBufferUsage.DynamicDraw;
+
             _regenerating = false;
         }
 
         private readonly RenderCommandMethod2D _rcMethod;
-        private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D();
-        private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D();
-        private readonly RenderCommandMesh2D _rcPoints = new RenderCommandMesh2D();
-        private readonly RenderCommandMesh2D _rcTangents = new RenderCommandMesh2D();
+        private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+        private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+        private readonly RenderCommandMesh2D _rcPoints = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+        private readonly RenderCommandMesh2D _rcTangents = new RenderCommandMesh2D(ERenderPass.OnTopForward);
 
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(ERenderPass.OnTopForward, 0, 0);
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
 
@@ -389,26 +401,29 @@ void main()
                      ) * multiple;
             return (float)nearestMultiple;
         }
+        public float LineIncrement { get; set; } = 2.0f;
+        public const int InitialVisibleBoxes = 10;
         private void UpdateBackgroundMaterial()
         {
             TMaterial mat = _backgroundComponent.InterfaceMaterial;
             mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
             mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
             float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
-            float inc = 2.0f; //Initial display max dim should be to 10
+            //float LineIncrement = 2.0f; //Initial display max dim should be to 10
             float maxDisplayBoundAnimRelative = TMath.Max(Bounds.X, Bounds.Y) * 0.5f / _baseTransformComponent.ScaleX;
             
             //float[] incs = new float[] { 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100 };
             float scale = _baseTransformComponent.ScaleX;
-            float scaledInc = scale * inc;
+            float scaledInc = scale * LineIncrement;
             //float fraction = inc - (int)Math.Floor(inc);
             //Engine.PrintLine($"UI scale: { _baseTransformComponent.ScaleX.ToString()} Nearest2: {nearest2} Nearest5: {nearest5} Nearest10: {nearest10}");
-            mat.Parameter<ShaderFloat>(5).Value = inc;
+            mat.Parameter<ShaderFloat>(5).Value = LineIncrement;
         }
         protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
             ScreenSpaceUIScene.Add(this);
+            _baseTransformComponent.Scale = TMath.Min(Bounds.X, Bounds.Y) / (LineIncrement * InitialVisibleBoxes);
         }
         protected override void OnDespawned()
         {
@@ -425,7 +440,7 @@ void main()
                 new ShaderFloat(_baseTransformComponent.ScaleX, "Scale"),
                 new ShaderFloat(3.0f, "LineWidth"),
                 new ShaderVec2(_baseTransformComponent.LocalTranslation, "Translation"),
-                new ShaderFloat(10.0f, "XYIncrement"),
+                new ShaderFloat(LineIncrement, "XYIncrement"),
             },
             frag);
         }
@@ -544,6 +559,9 @@ void main()
                         {
                             FloatKeyframe kf = new FloatKeyframe(sec, val, 0.0f, EVectorInterpType.CubicHermite);
                             track.Add(kf);
+
+                            //This will update the animation position
+                            _targetAnimation.Progress(0.0f);
                         }
                     }
                 }
@@ -727,13 +745,12 @@ void main()
         protected override void OnScrolledInput(bool down)
         {
             if (_altDown)
-            {
                 SelectionRadius *= down ? 1.1f : 0.91f;
-            }
             else
             {
                 Vec3 worldPoint = CursorPositionWorld();
-                _baseTransformComponent.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
+                float increment = _baseTransformComponent.ScaleX * 0.05f;
+                _baseTransformComponent.Zoom(down ? increment : -increment, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
                 //Engine.PrintLine($"UI scale: {_baseTransformComponent.Scale.X.ToString()}");
                 UpdateSplinePrimitive();
             }
@@ -743,11 +760,11 @@ void main()
             if (_targetAnimation == null)
                 return;
             
-            passes.Add(_rcSpline, RenderInfo.RenderPass);
-            passes.Add(_rcPoints, RenderInfo.RenderPass);
-            passes.Add(_rcTangents, RenderInfo.RenderPass);
-            passes.Add(_rcKfLines, RenderInfo.RenderPass);
-            passes.Add(_rcMethod, RenderInfo.RenderPass);
+            passes.Add(_rcSpline);
+            passes.Add(_rcPoints);
+            passes.Add(_rcTangents);
+            passes.Add(_rcKfLines);
+            passes.Add(_rcMethod);
         }
         public float SelectionRadius { get; set; } = 10.0f;
         private void RenderMethod()

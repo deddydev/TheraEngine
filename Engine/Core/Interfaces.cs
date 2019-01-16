@@ -45,6 +45,7 @@ namespace TheraEngine
     public interface IBaseSubMesh : IObject
     {
         List<LOD> LODs { get; }
+        ERenderPass RenderPass { get; set; }
         RenderInfo3D RenderInfo { get; set; }
         Shape CullingVolume { get; set; }
     }

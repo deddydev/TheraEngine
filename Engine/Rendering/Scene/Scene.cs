@@ -82,37 +82,31 @@ namespace TheraEngine.Rendering
             int IComparer<RenderCommand>.Compare(RenderCommand x, RenderCommand y) => x.CompareTo(y);
         }
 
-        public void Render(ERenderPass pass)
+        public void Add(RenderCommand item)
+            => _updatingPasses[(int)item.RenderPass].Add(item);
+
+        internal void Render(ERenderPass pass)
         {
             var list = _renderingPasses[(int)pass];
             list.ForEach(x => x.Render());
             list.Clear();
         }
-        public void ClearRendering(ERenderPass pass)
+        internal void ClearRendering(ERenderPass pass)
         {
             var list = _renderingPasses[(int)pass];
             list.Clear();
         }
-        public void ClearUpdating(ERenderPass pass)
+        internal void ClearUpdating(ERenderPass pass)
         {
             var list = _updatingPasses[(int)pass];
             list.Clear();
         }
-
-        public void Add(RenderCommand item, ERenderPass pass)
-            => _updatingPasses[(int)pass].Add(item);
-
-        public void SwapBuffers()
+        internal void SwapBuffers()
             => THelpers.Swap(ref _updatingPasses, ref _renderingPasses);
-
-        public void ClearRenderList()
-        {
-            _renderingPasses.ForEach(x => x.Clear());
-        }
-        public void ClearUpdateList()
-        {
-            _updatingPasses.ForEach(x => x.Clear());
-        }
+        internal void ClearRenderList()
+            => _renderingPasses.ForEach(x => x.Clear());
+        internal void ClearUpdateList()
+            => _updatingPasses.ForEach(x => x.Clear());
     }
     /// <summary>
     /// Use for calculating something right before *anything* in the scene is rendered.

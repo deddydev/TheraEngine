@@ -5,6 +5,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Physics;
 using System.Collections.Generic;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Actors.Types.ComponentActors.Shapes
 {
@@ -29,7 +30,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
         {
             _name = name;
             StaticModel model = new StaticModel(_name + "_Model") { CollisionShape = collisionShape };
-            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", null, shape, lods));
+            model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", null, ERenderPass.OpaqueDeferredLit, shape, lods));
             RootComponent = new StaticMeshComponent(model, translation, rotation, Vec3.One, info);
             Initialize();
         }

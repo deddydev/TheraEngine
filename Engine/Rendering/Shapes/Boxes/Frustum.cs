@@ -40,7 +40,7 @@ namespace TheraEngine.Core.Shapes
     /// </summary>
     public class Frustum : I3DRenderable, IEnumerable<Plane>, IVolume
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];
@@ -66,7 +66,7 @@ namespace TheraEngine.Core.Shapes
         public Frustum()
         {
             _boundingSphere = new Sphere() { RenderSolid = false };
-            _renderCommand = new RenderCommandMethod3D(Render);
+            _renderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
         }
         public Frustum(
             float fovY,
@@ -637,7 +637,7 @@ namespace TheraEngine.Core.Shapes
         private RenderCommandMethod3D _renderCommand;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            passes.Add(_renderCommand, RenderInfo.RenderPass);
+            passes.Add(_renderCommand);
         }
     }
 }

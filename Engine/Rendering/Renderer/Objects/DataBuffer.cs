@@ -405,7 +405,7 @@ namespace TheraEngine.Rendering.Models
         public void PushSubData() => PushSubData(0, DataLength);
         public void PushSubData(int offset, int length)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PushSubData, BaseRenderPanel.PanelType.Rendering, offset, length))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PushSubData, BaseRenderPanel.PanelType.Rendering, offset, length))
                 return;
 
             if (!IsActive)

@@ -20,7 +20,7 @@ namespace TheraEngine.Components.Scene.Volumes
         {
             RenderInfo.CastsShadows = false;
             RenderInfo.ReceivesShadows = false;
-            RenderInfo.RenderPass = ERenderPass.OpaqueForward;
+            RenderCommand.RenderPass = ERenderPass.OpaqueForward;
             //RenderParams.DepthTest.Enabled = false;
 
             Translation.Raw = translation;

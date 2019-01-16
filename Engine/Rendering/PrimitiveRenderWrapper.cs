@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering
             Transform = Matrix4.Identity;
         }
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D();
         
         public Matrix4 Transform
         {
@@ -50,10 +50,10 @@ namespace TheraEngine.Rendering
 
         public Scene3D OwningScene3D { get; set; }
 
-        private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
+        private RenderCommandMesh3D _rc = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            passes.Add(_rc, RenderInfo.RenderPass);
+            passes.Add(_rc);
         }
     }
 }

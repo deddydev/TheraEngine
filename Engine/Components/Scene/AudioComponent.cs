@@ -45,7 +45,7 @@ namespace TheraEngine.Components.Scene
             _instances.Clear();
         }
         
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPass.OnTopForward, false, true);
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(false, true);
         public Shape CullingVolume { get; } = null;
         public IOctreeNode OctreeNode { get; set; }
         public bool PreRenderEnabled { get; set; }

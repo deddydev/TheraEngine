@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.Cameras
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
     public abstract class Camera : TFileObject, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
         [Browsable(false)]
         public Shape CullingVolume => _transformedFrustum.CullingVolume;
@@ -37,7 +37,7 @@ namespace TheraEngine.Rendering.Cameras
             : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
         public Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
         {
-            _renderCommand = new RenderCommandMethod3D(Render);
+            _renderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
             _postProcessSettingsRef = new PostProcessSettings();
             _transformedFrustum = new Frustum();
             _localRotation = rotation;
@@ -561,7 +561,7 @@ namespace TheraEngine.Rendering.Cameras
         RenderCommandMethod3D _renderCommand;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            passes.Add(_renderCommand, RenderInfo.RenderPass);
+            passes.Add(_renderCommand);
         }
     }
 }

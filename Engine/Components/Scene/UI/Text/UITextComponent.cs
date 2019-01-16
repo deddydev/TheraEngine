@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering.UI
         {
             _textDrawer = new TextDrawer();
             _textDrawer.NeedsRedraw += Redraw;
-            RenderInfo.RenderPass = ERenderPass.TransparentForward;
+            RenderCommand.RenderPass = ERenderPass.TransparentForward;
         }
 
         [TSerialize(nameof(TextQuality))]

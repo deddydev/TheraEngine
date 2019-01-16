@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueForward, true, true) { CastsShadows = false, ReceivesShadows = false };
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
         
         [Browsable(false)]
         public Shape CullingVolume { get; set; } = null;
@@ -317,34 +317,34 @@ void main()
             base.OnWorldTransformChanged();
         }
         
-        private readonly RenderCommandMesh3D _rcKfLines = new RenderCommandMesh3D();
-        private readonly RenderCommandMesh3D _rcCurrentPoint = new RenderCommandMesh3D();
-        private readonly RenderCommandMesh3D _rcSpline = new RenderCommandMesh3D();
-        private readonly RenderCommandMesh3D _rcVelocityTangents = new RenderCommandMesh3D();
-        private readonly RenderCommandMesh3D _rcPoints = new RenderCommandMesh3D();
-        private readonly RenderCommandMesh3D _rcKeyframeTangents = new RenderCommandMesh3D();
-        private readonly RenderCommandMesh3D _rcExtrema = new RenderCommandMesh3D();
+        private readonly RenderCommandMesh3D _rcKfLines = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
+        private readonly RenderCommandMesh3D _rcCurrentPoint = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
+        private readonly RenderCommandMesh3D _rcSpline = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
+        private readonly RenderCommandMesh3D _rcVelocityTangents = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
+        private readonly RenderCommandMesh3D _rcPoints = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
+        private readonly RenderCommandMesh3D _rcKeyframeTangents = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
+        private readonly RenderCommandMesh3D _rcExtrema = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             if (_position == null)
                 return;
 
             if (RenderSpline)
-                passes.Add(_rcSpline, RenderInfo.RenderPass);
+                passes.Add(_rcSpline);
             if (RenderTangents)
-                passes.Add(_rcVelocityTangents, RenderInfo.RenderPass);
+                passes.Add(_rcVelocityTangents);
             if (RenderKeyframePoints)
-                passes.Add(_rcPoints, RenderInfo.RenderPass);
+                passes.Add(_rcPoints);
             if (RenderKeyframeTangentPoints)
-                passes.Add(_rcKeyframeTangents, RenderInfo.RenderPass);
+                passes.Add(_rcKeyframeTangents);
             if (RenderKeyframeTangentLines)
-                passes.Add(_rcKfLines, RenderInfo.RenderPass);
+                passes.Add(_rcKfLines);
             if (RenderExtrema)
-                passes.Add(_rcExtrema, RenderInfo.RenderPass);
+                passes.Add(_rcExtrema);
             if (RenderBounds)
                 CullingVolume?.AddRenderables(passes, camera);
             if (RenderCurrentTimePoint)
-                passes.Add(_rcCurrentPoint, RenderInfo.RenderPass);
+                passes.Add(_rcCurrentPoint);
         }
     }
 }

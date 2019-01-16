@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
@@ -32,8 +31,7 @@ namespace TheraEngine.Components.Scene.Shapes
 
         [TSerialize]
         [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; protected set; }
-            = new RenderInfo3D(ERenderPass.OpaqueForward, false, true);
+        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true);
 
         protected override void OnWorldTransformChanged()
         {
@@ -42,6 +40,6 @@ namespace TheraEngine.Components.Scene.Shapes
         }
         protected abstract RenderCommand3D GetRenderCommand();
         public virtual void AddRenderables(RenderPasses passes, Camera camera)
-            => passes.Add(GetRenderCommand(), RenderInfo.RenderPass);
+            => passes.Add(GetRenderCommand());
     }
 }

@@ -18,7 +18,7 @@ namespace TheraEngine.Actors.Types
     {
         public LandscapeComponent()
         {
-            RenderInfo = new RenderInfo3D(ERenderPass.OpaqueDeferredLit) { CastsShadows = true, ReceivesShadows = true };
+            RenderInfo = new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
         }
 
         private IVec2 _dimensions = new IVec2(100, 100);
@@ -299,7 +299,7 @@ namespace TheraEngine.Actors.Types
 
         public override TCollisionShape GetCollisionShape() => _heightFieldShape;
 
-        private RenderCommandMesh3D _rc = new RenderCommandMesh3D();
+        private RenderCommandMesh3D _rc = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);
         protected override RenderCommand3D GetRenderCommand() => _rc;
     }
 }

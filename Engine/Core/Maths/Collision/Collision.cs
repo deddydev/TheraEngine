@@ -83,7 +83,7 @@ namespace System
         public static Vec3 ClosestPointSpherePoint(Vec3 center, float radius, Vec3 point)
         {
             Vec3 dir = point - center;
-            dir.NormalizeFast();
+            dir.Normalize();
             return dir * radius + center;
         }
 
@@ -100,22 +100,15 @@ namespace System
         /// intersection.
         /// </remarks>
         public static Vec3 ClosestPointSphereSphere(Vec3 sphere1Center, float sphere1Radius, Vec3 sphere2Center)
-        {
-            return ClosestPointSpherePoint(sphere1Center, sphere1Radius, sphere2Center);
-        }
+            => ClosestPointSpherePoint(sphere1Center, sphere1Radius, sphere2Center);
+        
         public static float DistancePlanePoint(Plane plane, Vec3 point)
-        {
-            return DistancePlanePoint(plane.Normal, plane.Distance, point);
-        }
+            => DistancePlanePoint(plane.Normal, plane.Distance, point);
         public static float DistancePlanePoint(Vec3 planeNormal, float planeOriginDistance, Vec3 point)
-        {
-            return Vec3.Dot(planeNormal, point) + planeOriginDistance;
-        }
+            => Vec3.Dot(planeNormal, point) + planeOriginDistance;
         public static Vec3 ClosestPlanePointToPoint(Vec3 planeNormal, float planeOriginDistance, Vec3 point)
-        {
-            return point - (planeNormal * DistancePlanePoint(planeNormal, planeOriginDistance, point));
-        }
-
+            => point - (planeNormal * DistancePlanePoint(planeNormal, planeOriginDistance, point));
+        
         public static EContainment SphereContainsAABB(Vec3 center, float radius, Vec3 minimum, Vec3 maximum)
         {
             float r2 = radius * radius;

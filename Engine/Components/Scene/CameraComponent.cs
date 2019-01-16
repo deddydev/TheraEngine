@@ -253,7 +253,7 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OpaqueDeferredLit, false, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
         [Browsable(false)]
         public Shape CullingVolume { get; } = new Sphere(1.0f);
@@ -278,7 +278,7 @@ namespace TheraEngine.Components.Scene
             Rotation.AddRotations(pitch, yaw, 0.0f);
         }
 
-        //private readonly RenderCommandMesh3D _previewMesh = new RenderCommandMesh3D();
+        //private readonly RenderCommandMesh3D _previewMesh = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);
         //public void AddRenderables(RenderPasses passes, Camera camera)
         //{
         //    //passes.Add(_previewMesh, RenderInfo.RenderPass);

@@ -491,14 +491,16 @@ namespace System
             float t = 1.0f - cos;
 
             // do the conversion math once
-            float tXX = t * axisX * axisX,
+            float 
+                tXX = t * axisX * axisX,
                 tXY = t * axisX * axisY,
                 tXZ = t * axisX * axisZ,
                 tYY = t * axisY * axisY,
                 tYZ = t * axisY * axisZ,
                 tZZ = t * axisZ * axisZ;
 
-            float sinX = sin * axisX,
+            float 
+                sinX = sin * axisX,
                 sinY = sin * axisY,
                 sinZ = sin * axisZ;
 

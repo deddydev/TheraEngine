@@ -22,7 +22,7 @@ namespace TheraEngine.Components.Scene.Mesh
     /// </summary>
     public abstract class BaseRenderableMesh3D : I3DRenderable
     {
-        public BaseRenderableMesh3D(List<LOD> lods, RenderInfo3D renderInfo, SceneComponent component)
+        public BaseRenderableMesh3D(List<LOD> lods, ERenderPass renderPass, RenderInfo3D renderInfo, SceneComponent component)
         {
             _component = component;
 
@@ -44,6 +44,7 @@ namespace TheraEngine.Components.Scene.Mesh
             _currentLOD = LODs.Last;
 
             RenderInfo = renderInfo;
+            RenderCommand.RenderPass = renderPass;
         }
 
         public BaseRenderableMesh3D() { }
@@ -96,17 +97,17 @@ namespace TheraEngine.Components.Scene.Mesh
             }
         }
         
-        private RenderCommandMesh3D _renderCommand = new RenderCommandMesh3D();
+        public RenderCommandMesh3D RenderCommand { get; } = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             float distance = camera?.DistanceFromWorldPointFast(_component?.WorldPoint ?? Vec3.Zero) ?? 0.0f;
             if (!passes.ShadowPass)
                 UpdateLOD(distance);
-            _renderCommand.Mesh = _currentLOD.Value.Manager;
-            _renderCommand.WorldMatrix = _component.WorldMatrix;
-            _renderCommand.NormalMatrix = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
-            _renderCommand.RenderDistance = distance;
-            passes.Add(_renderCommand, RenderInfo.RenderPass);
+            RenderCommand.Mesh = _currentLOD.Value.Manager;
+            RenderCommand.WorldMatrix = _component.WorldMatrix;
+            RenderCommand.NormalMatrix = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
+            RenderCommand.RenderDistance = distance;
+            passes.Add(RenderCommand);
         }
     }
     public class StaticRenderableMesh : BaseRenderableMesh3D
@@ -145,7 +146,7 @@ namespace TheraEngine.Components.Scene.Mesh
         private Matrix4 _initialCullingVolumeMatrix;
         
         public StaticRenderableMesh(IStaticSubMesh mesh, SceneComponent component)
-            : base(mesh.LODs, mesh.RenderInfo, component)
+            : base(mesh.LODs, mesh.RenderPass, mesh.RenderInfo, component)
         {
             Mesh = mesh;
             SetCullingVolume(mesh.CullingVolume);
@@ -160,7 +161,7 @@ namespace TheraEngine.Components.Scene.Mesh
     public class SkeletalRenderableMesh : BaseRenderableMesh3D
     {
         public SkeletalRenderableMesh(ISkeletalSubMesh mesh, Skeleton skeleton, SceneComponent component)
-            : base(mesh.LODs, mesh.RenderInfo, component)
+            : base(mesh.LODs, mesh.RenderPass, mesh.RenderInfo, component)
         {
             Mesh = mesh;
             Skeleton = skeleton;

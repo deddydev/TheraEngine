@@ -670,7 +670,7 @@ namespace TheraEditor.Windows.Forms
             public const int CirclePrecision = 20;
             public static readonly Color Color = Color.LimeGreen;
 
-            public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.OnTopForward, false, true);
+            public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
             public Shape CullingVolume => null;
             public IOctreeNode OctreeNode { get; set; }
             public SceneComponent HighlightedComponent { get; set; }
@@ -682,8 +682,8 @@ namespace TheraEditor.Windows.Forms
             private readonly PrimitiveManager _normalPrimitive;
 
             private RenderCommandMesh3D
-                _circleRC = new RenderCommandMesh3D(),
-                _normalRC = new RenderCommandMesh3D();
+                _circleRC = new RenderCommandMesh3D(ERenderPass.OnTopForward),
+                _normalRC = new RenderCommandMesh3D(ERenderPass.OnTopForward);
 
             public HighlightPoint()
             {
@@ -702,9 +702,9 @@ namespace TheraEditor.Windows.Forms
                 if (HighlightedComponent != null && HighlightedComponent != TransformTool3D.Instance?.RootComponent)
                 {
                     _circleRC.WorldMatrix = Transform;
-                    passes.Add(_circleRC, RenderInfo.RenderPass);
+                    passes.Add(_circleRC);
                     _normalRC.WorldMatrix = Transform;
-                    passes.Add(_normalRC, RenderInfo.RenderPass);
+                    passes.Add(_normalRC);
                 }
             }
         }

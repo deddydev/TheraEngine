@@ -155,7 +155,7 @@ namespace TheraEngine.Rendering
         }
 
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
-        private readonly IPrimitiveManager[] _debugPrims = new IPrimitiveManager[12];
+        private readonly IPrimitiveManager[] _debugPrims = new IPrimitiveManager[14];
 
         public IPrimitiveManager GetDebugPrimitive(DebugPrimitiveType type)
         {

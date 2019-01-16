@@ -21,7 +21,7 @@ namespace TheraEngine.Actors
         private bool _showCaptureSpheres = false;
 
         [Category(SceneComponent.RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(ERenderPass.TransparentForward, false, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
         [Browsable(false)]
         public Shape CullingVolume => null;
@@ -57,7 +57,7 @@ namespace TheraEngine.Actors
             Initialize();
             RootComponent.ChildComponents.PostAddedRange += ChildComponents_PostAddedRange;
             RootComponent.ChildComponents.PostAdded += ChildComponents_PostAdded;
-            _rc = new RenderCommandMethod3D(Render);
+            _rc = new RenderCommandMethod3D(ERenderPass.TransparentForward, Render);
         }
 
         private void ChildComponents_PostAdded(SceneComponent item) => Link();
@@ -219,7 +219,7 @@ namespace TheraEngine.Actors
         private readonly RenderCommandMethod3D _rc;
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            passes.Add(_rc, RenderInfo.RenderPass);
+            passes.Add(_rc);
         }
         private void Render()
         {

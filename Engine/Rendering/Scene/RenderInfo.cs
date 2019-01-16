@@ -6,11 +6,6 @@ namespace TheraEngine.Rendering
 {
     public abstract class RenderInfo : TFileObject
     {
-        /// <summary>
-        /// Used by the engine for proper order of rendering.
-        /// </summary> 
-        [TSerialize]
-        public ERenderPass RenderPass { get; set; } = ERenderPass.OpaqueForward;
         [TSerialize]
         public virtual bool VisibleByDefault { get; set; } = true;
         [TSerialize]
@@ -40,9 +35,8 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         public Scene2D Scene { get; internal set; }
 
-        public RenderInfo2D(ERenderPass pass, int layerIndex, int orderInLayer)
+        public RenderInfo2D(int layerIndex, int orderInLayer)
         {
-            RenderPass = pass;
             LayerIndex = layerIndex;
             IndexWithinLayer = orderInLayer;
         }
@@ -133,11 +127,10 @@ namespace TheraEngine.Rendering
 
         public RenderInfo3D()
         {
-            RenderPass = ERenderPass.OpaqueDeferredLit;
+
         }
-        public RenderInfo3D(ERenderPass pass, bool visibleByDefault = true, bool visibleInEditorOnly = false)
+        public RenderInfo3D(bool visibleByDefault = true, bool visibleInEditorOnly = false)
         {
-            RenderPass = pass;
             VisibleByDefault = visibleByDefault;
             VisibleInEditorOnly = visibleInEditorOnly;
         }

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props" Condition="Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -181,8 +182,8 @@
     <Reference Include="Octokit, Version=0.32.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.0.32.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
-    <Reference Include="Svg, Version=2.2.1.39233, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
-      <HintPath>..\packages\Svg.2.3.0\lib\net35\Svg.dll</HintPath>
+    <Reference Include="Svg, Version=2.4.0.42491, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
+      <HintPath>..\packages\Svg.2.4.0\lib\Svg.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -213,6 +214,7 @@
     <Reference Include="System.Threading.Tasks.Dataflow, Version=4.6.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Dataflow.4.9.0\lib\netstandard2.0\System.Threading.Tasks.Dataflow.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -346,22 +348,22 @@
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableMSBuildTree.Designer.cs">
       <DependentUpon>DockableMSBuildTree.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockingHostToolStripPanel.cs">
+    <Compile Include="Windows\Forms\Dockable Text Editor\DockingHostToolStripPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockingHostToolStripPanel.designer.cs">
+    <Compile Include="Windows\Forms\Dockable Text Editor\DockingHostToolStripPanel.designer.cs">
       <DependentUpon>DockingHostToolStripPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\FloatingForm.cs">
+    <Compile Include="Windows\Forms\Dockable Text Editor\FloatingForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\FloatingForm.designer.cs">
+    <Compile Include="Windows\Forms\Dockable Text Editor\FloatingForm.designer.cs">
       <DependentUpon>FloatingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\TearOffToolStrip.cs">
+    <Compile Include="Windows\Forms\Dockable Text Editor\TearOffToolStrip.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\TearOffToolStrip.designer.cs">
+    <Compile Include="Windows\Forms\Dockable Text Editor\TearOffToolStrip.designer.cs">
       <DependentUpon>TearOffToolStrip.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Material Editor\Sub Forms\DockableMatProps.cs">
@@ -542,10 +544,10 @@
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableContentCreator.Designer.cs">
       <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockableTextEditor.cs">
+    <Compile Include="Windows\Forms\Dockable Text Editor\DockableTextEditor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockableTextEditor.Designer.cs">
+    <Compile Include="Windows\Forms\Dockable Text Editor\DockableTextEditor.Designer.cs">
       <DependentUpon>DockableTextEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Main Window\Sub Forms\DockableOutputWindow.cs">
@@ -853,10 +855,10 @@
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableProjectCreator.resx">
       <DependentUpon>DockableProjectCreator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\FloatingForm.resx">
+    <EmbeddedResource Include="Windows\Forms\Dockable Text Editor\FloatingForm.resx">
       <DependentUpon>FloatingForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\TearOffToolStrip.resx">
+    <EmbeddedResource Include="Windows\Forms\Dockable Text Editor\TearOffToolStrip.resx">
       <DependentUpon>TearOffToolStrip.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Model Editor\Materials\MaterialControlOld.resx">
@@ -1067,7 +1069,7 @@
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableContentCreator.resx">
       <DependentUpon>DockableContentCreator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableTextEditor\DockableTextEditor.resx">
+    <EmbeddedResource Include="Windows\Forms\Dockable Text Editor\DockableTextEditor.resx">
       <DependentUpon>DockableTextEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\Sub Forms\DockableOutputWindow.resx">
@@ -1283,6 +1285,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props'))" />
   </Target>
   <Import Project="..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets" Condition="Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -165,6 +165,7 @@ namespace TheraEditor.Windows.Forms
                 ++i;
             }
 
+            kfPosBuf.PushData();
             tanPosBuf.PushData();
             keyLinesBuf.PushData();
         }
@@ -309,7 +310,6 @@ void main()
 
         private readonly RenderCommandMethod2D _rcMethod;
         private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D();
-        //private readonly RenderCommandMesh2D _rcCurrentPoint = new RenderCommandMesh2D();
         private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D();
         private readonly RenderCommandMesh2D _rcPoints = new RenderCommandMesh2D();
         private readonly RenderCommandMesh2D _rcTangents = new RenderCommandMesh2D();
@@ -336,12 +336,10 @@ void main()
         private PrimitiveManager _pointPrimitive;
         private PrimitiveManager _tangentPositionPrimitive;
         private PrimitiveManager _keyframeLinesPrimitive;
-        //private PrimitiveManager _timePointPrimitive;
 
         private PropAnimFloat _targetAnimation;
         private Vec2 _minScale = new Vec2(0.01f), _maxScale = new Vec2(1.0f);
         private Vec2 _lastWorldPos = Vec2.Zero;
-        //private Vec2 _lastFocusPoint = Vec2.Zero;
         private bool _rightClickDown = false;
         private FloatKeyframe _selectedKf;
         private FloatKeyframe _highlightedKf;
@@ -382,16 +380,30 @@ void main()
             base.Resize(bounds);
             UpdateBackgroundMaterial();
         }
+        private float RoundNearestMultiple(float value, int multiple)
+        {
+            double nearestMultiple =
+                    Math.Round(
+                         (value / (double)multiple),
+                         MidpointRounding.AwayFromZero
+                     ) * multiple;
+            return (float)nearestMultiple;
+        }
         private void UpdateBackgroundMaterial()
         {
             TMaterial mat = _backgroundComponent.InterfaceMaterial;
             mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
             mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
             float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
-            float inc = 10.0f;
+            float inc = 2.0f; //Initial display max dim should be to 10
+            float maxDisplayBoundAnimRelative = TMath.Max(Bounds.X, Bounds.Y) * 0.5f / _baseTransformComponent.ScaleX;
+            
+            //float[] incs = new float[] { 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100 };
+            float scale = _baseTransformComponent.ScaleX;
+            float scaledInc = scale * inc;
             //float fraction = inc - (int)Math.Floor(inc);
-            //Engine.PrintLine($"Increment: {inc.ToString()}");
-            mat.Parameter<ShaderVec2>(5).Value = inc;
+            //Engine.PrintLine($"UI scale: { _baseTransformComponent.ScaleX.ToString()} Nearest2: {nearest2} Nearest5: {nearest5} Nearest10: {nearest10}");
+            mat.Parameter<ShaderFloat>(5).Value = inc;
         }
         protected override void OnSpawnedPostComponentSpawn()
         {
@@ -411,9 +423,9 @@ void main()
                 new ShaderVec3(new Vec3(0.15f, 0.15f, 0.15f), "LineColor"),
                 new ShaderVec3(new Vec3(0.08f, 0.08f, 0.08f), "BGColor"),
                 new ShaderFloat(_baseTransformComponent.ScaleX, "Scale"),
-                new ShaderFloat(0.3f, "LineWidth"),
+                new ShaderFloat(3.0f, "LineWidth"),
                 new ShaderVec2(_baseTransformComponent.LocalTranslation, "Translation"),
-                new ShaderVec2(new Vec2(10.0f), "XYIncrements"),
+                new ShaderFloat(10.0f, "XYIncrement"),
             },
             frag);
         }
@@ -471,11 +483,10 @@ void main()
 
                 if (ClosestKeyframeIndices != null && ClosestKeyframeIndices.Length > 0)
                 {
+                    _draggedKeyframes.Clear();
                     _selectionStartPosAnimRelative = animPos;
                     foreach (int index in ClosestKeyframeIndices)
                     {
-                        _draggedKeyframes.Clear();
-
                         int kfIndex = index >> 1;
                         var kf = _targetAnimation.Keyframes[kfIndex];
                         bool draggingInValue = (index & 1) == 0 || kf.SyncInOutValues;
@@ -499,6 +510,10 @@ void main()
                                 SecondOffset = kf.Second - animPos.X,
                                 InValueOffset = kf.InValue - animPos.Y,
                                 OutValueOffset = kf.OutValue - animPos.Y,
+
+                                SecondInitial = kf.Second,
+                                InValueInitial = kf.InValue,
+                                OutValueInitial = kf.OutValue,
                             });
                         }
                     }
@@ -606,6 +621,12 @@ void main()
             public float OutValueOffset { get; set; }
             public float InTangentOffset { get; set; }
             public float OutTangentOffset { get; set; }
+            
+            public float SecondInitial { get; set; }
+            public float InValueInitial { get; set; }
+            public float OutValueInitial { get; set; }
+            public float InTangentInitial { get; set; }
+            public float OutTangentInitial { get; set; }
         }
         private void HandleDraggingKeyframes()
         {
@@ -620,11 +641,11 @@ void main()
                     //Drag left and right only
                     foreach (var kf in _draggedKeyframes)
                     {
-                        kf.Value.Keyframe.Second = pos.X;
+                        kf.Value.Keyframe.Second = pos.X + kf.Value.SecondOffset;
                         if (kf.Value.DraggingInValue)
-                            kf.Value.Keyframe.InValue = pos.Y;
+                            kf.Value.Keyframe.InValue = kf.Value.InValueInitial;
                         if (kf.Value.DraggingOutValue)
-                            kf.Value.Keyframe.OutValue = pos.Y;
+                            kf.Value.Keyframe.OutValue = kf.Value.OutValueInitial;
                     }
                 }
                 else
@@ -632,11 +653,11 @@ void main()
                     //Drag up and down only
                     foreach (var kf in _draggedKeyframes)
                     {
-                        kf.Value.Keyframe.Second = pos.X;
+                        kf.Value.Keyframe.Second = kf.Value.SecondInitial;
                         if (kf.Value.DraggingInValue)
-                            kf.Value.Keyframe.InValue = pos.Y;
+                            kf.Value.Keyframe.InValue = pos.Y + kf.Value.InValueOffset;
                         if (kf.Value.DraggingOutValue)
-                            kf.Value.Keyframe.OutValue = pos.Y;
+                            kf.Value.Keyframe.OutValue = pos.Y + kf.Value.OutValueOffset;
                     }
                 }
             }
@@ -707,7 +728,7 @@ void main()
         {
             if (_altDown)
             {
-                SelectionRadius *= down ? 1.5f : 0.6666667f;
+                SelectionRadius *= down ? 1.1f : 0.91f;
             }
             else
             {
@@ -757,7 +778,11 @@ void main()
             }
 
             if (RenderAnimPosition)
+            {
                 Engine.Renderer.RenderPoint(AnimPosition, new ColorF4(1.0f), false, 10.0f);
+                Engine.Renderer.RenderLine(new Vec2(AnimPosition.X, 0.0f), new Vec2(AnimPosition.X, wh.Y), new ColorF4(1.0f), false, 10.0f);
+                Engine.Renderer.RenderLine(new Vec2(0.0f, AnimPosition.Y), new Vec2(wh.X, AnimPosition.Y), new ColorF4(1.0f), false, 10.0f);
+            }
         }
     }
 }

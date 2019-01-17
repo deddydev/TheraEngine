@@ -24,6 +24,7 @@ namespace TheraEngine.Rendering
                 context?.States.Add(this);
             }
 
+            public int ThreadID { get; set; }
             public DateTime? GenerationTime { get; internal set; } = null;
             public string GenerationStackTrace { get; internal set; }
             public int ContextIndex { get; internal set; }
@@ -163,6 +164,7 @@ namespace TheraEngine.Rendering
                 CurrentBind.BindingId = id;
                 CurrentBind.GenerationStackTrace = Engine.GetStackTrace();
                 CurrentBind.GenerationTime = DateTime.Now;
+                CurrentBind.ThreadID = Thread.CurrentThread.ManagedThreadId;
                 PostGenerated();
                 Generated?.Invoke();
             }

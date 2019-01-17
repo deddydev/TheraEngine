@@ -100,7 +100,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (AnimLength != _targetAnimation.LengthInSeconds ||
                 KeyCount != _targetAnimation.Keyframes.Count ||
-                _splinePrimitive == null)
+                _rcSpline.Mesh == null)
             {
                 await RegenerateSplinePrimitiveAsync();
                 return;
@@ -109,8 +109,8 @@ namespace TheraEditor.Windows.Forms
             if (DisplayFPS <= 0.0f)
                 return;
 
-            var posBuf = _splinePrimitive.Data[EBufferType.Position];
-            var colBuf = _splinePrimitive.Data[EBufferType.Color];
+            var posBuf = _rcSpline.Mesh.Data[EBufferType.Position];
+            var colBuf = _rcSpline.Mesh.Data[EBufferType.Color];
 
             int i;
             float sec = 0.0f;
@@ -131,9 +131,9 @@ namespace TheraEditor.Windows.Forms
             posBuf.PushData();
             colBuf.PushData();
             
-            var kfPosBuf = _pointPrimitive.Data[EBufferType.Position];
-            var tanPosBuf = _tangentPositionPrimitive.Data[EBufferType.Position];
-            var keyLinesBuf = _keyframeLinesPrimitive.Data[EBufferType.Position];
+            var kfPosBuf = _rcKeyframeInOutPositions.Mesh.Data[EBufferType.Position];
+            var tanPosBuf = _rcTangentPositions.Mesh.Data[EBufferType.Position];
+            var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
             
             i = 0;
             Vec3 p0, p1;
@@ -177,7 +177,7 @@ namespace TheraEditor.Windows.Forms
 
         private bool _regenerating = false;
         public async Task RegenerateSplinePrimitiveAsync()
-            => await Task.Run(RegenerateSplinePrimitive);
+            => await Task.Run((Action)RegenerateSplinePrimitive);
         public void RegenerateSplinePrimitive()
         {
             while (_regenerating) { }
@@ -185,12 +185,12 @@ namespace TheraEditor.Windows.Forms
             const float Resolution = 0.1f;
 
             _regenerating = true;
-            _splinePrimitive?.Dispose();
-            _splinePrimitive = null;
-            _pointPrimitive?.Dispose();
-            _pointPrimitive = null;
-            _tangentPositionPrimitive?.Dispose();
-            _tangentPositionPrimitive = null;
+            _rcKeyframeInOutPositions.Mesh?.Dispose();
+            _rcKeyframeInOutPositions.Mesh = null;
+            _rcTangentPositions.Mesh?.Dispose();
+            _rcTangentPositions.Mesh = null;
+            _rcKfLines.Mesh?.Dispose();
+            _rcKfLines.Mesh = null;
 
             if (_targetAnimation == null || (AnimLength = _targetAnimation.LengthInSeconds) <= 0.0f)
             {
@@ -264,7 +264,7 @@ namespace TheraEditor.Windows.Forms
                 PointSize = 5.0f
             };
 
-            PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.PosColor(), strip);
+            PrimitiveData splinePosColor = PrimitiveData.FromLineStrips(VertexShaderDesc.PosColor(), strip);
             TMaterial mat = new TMaterial("SplineColor", new GLSLScript(EGLSLType.Fragment,
 @"
 #version 450
@@ -278,38 +278,28 @@ void main()
 }
 ")) { RenderParams = renderParams };
 
-            _splinePrimitive = new PrimitiveManager(splineData, mat);
-
-            //PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
-            //mat = TMaterial.CreateUnlitColorMaterialForward(Color.Blue);
-            //mat.RenderParams = renderParams;
-            //_velocityPrimitive = new PrimitiveManager(velocityData, mat);
-
-            PrimitiveData pointData = PrimitiveData.FromPoints(KeyframeInOutPositions);
+            _rcSpline.Mesh = new PrimitiveManager(splinePosColor, mat);
+            
+            PrimitiveData kfInOutPos = PrimitiveData.FromPoints(KeyframeInOutPositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Green);
             mat.RenderParams = renderParams;
-            _pointPrimitive = new PrimitiveManager(pointData, mat);
+            _rcKeyframeInOutPositions.Mesh = new PrimitiveManager(kfInOutPos, mat);
 
-            PrimitiveData tangentData = PrimitiveData.FromPoints(tangentPositions);
+            PrimitiveData tanPos = PrimitiveData.FromPoints(tangentPositions);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Purple);
             mat.RenderParams = renderParams;
-            _tangentPositionPrimitive = new PrimitiveManager(tangentData, mat);
+            _rcTangentPositions.Mesh = new PrimitiveManager(tanPos, mat);
 
-            PrimitiveData kfLineData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), keyframeLines);
+            PrimitiveData kfLines = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), keyframeLines);
             mat = TMaterial.CreateUnlitColorMaterialForward(Color.Orange);
             mat.RenderParams = renderParams;
-            _keyframeLinesPrimitive = new PrimitiveManager(kfLineData, mat);
+            _rcKfLines.Mesh = new PrimitiveManager(kfLines, mat);
             
-            _rcPoints.Mesh = _pointPrimitive;
-            _rcTangents.Mesh = _tangentPositionPrimitive;
-            _rcSpline.Mesh = _splinePrimitive;
-            _rcKfLines.Mesh = _keyframeLinesPrimitive;
-
-            var posBuf = _splinePrimitive.Data[EBufferType.Position];
-            var colBuf = _splinePrimitive.Data[EBufferType.Color];
-            var kfPosBuf = _pointPrimitive.Data[EBufferType.Position];
-            var tanPosBuf = _tangentPositionPrimitive.Data[EBufferType.Position];
-            var keyLinesBuf = _keyframeLinesPrimitive.Data[EBufferType.Position];
+            var posBuf = _rcSpline.Mesh.Data[EBufferType.Position];
+            var colBuf = _rcSpline.Mesh.Data[EBufferType.Color];
+            var kfPosBuf = _rcKeyframeInOutPositions.Mesh.Data[EBufferType.Position];
+            var tanPosBuf = _rcTangentPositions.Mesh.Data[EBufferType.Position];
+            var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
 
             posBuf.Usage = EBufferUsage.DynamicDraw;
             colBuf.Usage = EBufferUsage.DynamicDraw;
@@ -323,8 +313,8 @@ void main()
         private readonly RenderCommandMethod2D _rcMethod;
         private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);
         private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D(ERenderPass.OnTopForward);
-        private readonly RenderCommandMesh2D _rcPoints = new RenderCommandMesh2D(ERenderPass.OnTopForward);
-        private readonly RenderCommandMesh2D _rcTangents = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+        private readonly RenderCommandMesh2D _rcKeyframeInOutPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+        private readonly RenderCommandMesh2D _rcTangentPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
 
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
@@ -344,10 +334,10 @@ void main()
         //public bool RenderSelectionArea { get; set; } = true;
         public Vec2 AnimPosition { get; private set; }
 
-        private PrimitiveManager _splinePrimitive;
-        private PrimitiveManager _pointPrimitive;
-        private PrimitiveManager _tangentPositionPrimitive;
-        private PrimitiveManager _keyframeLinesPrimitive;
+        //private PrimitiveManager _splinePrimitive;
+        //private PrimitiveManager _pointPrimitive;
+        //private PrimitiveManager _tangentPositionPrimitive;
+        //private PrimitiveManager _keyframeLinesPrimitive;
 
         private PropAnimFloat _targetAnimation;
         private Vec2 _minScale = new Vec2(0.01f), _maxScale = new Vec2(1.0f);
@@ -374,8 +364,8 @@ void main()
 
             _rcKfLines.WorldMatrix =
             _rcSpline.WorldMatrix =
-            _rcPoints.WorldMatrix =
-            _rcTangents.WorldMatrix = mtx;
+            _rcKeyframeInOutPositions.WorldMatrix =
+            _rcTangentPositions.WorldMatrix = mtx;
 
             if (_targetAnimation != null)
             {
@@ -761,8 +751,8 @@ void main()
                 return;
             
             passes.Add(_rcSpline);
-            passes.Add(_rcPoints);
-            passes.Add(_rcTangents);
+            passes.Add(_rcKeyframeInOutPositions);
+            passes.Add(_rcTangentPositions);
             passes.Add(_rcKfLines);
             passes.Add(_rcMethod);
         }

@@ -971,7 +971,7 @@
     <Compile Include="Wrappers\Models\SkeletalModelWrapper.cs" />
     <Compile Include="Wrappers\Models\StaticModelWrapper.cs" />
     <Compile Include="Wrappers\Scripting\PythonWrapper.cs" />
-    <Compile Include="Wrappers\Animation\PropertyAnimationWrapper.cs" />
+    <Compile Include="Wrappers\Animation\PropAnimFloatWrapper.cs" />
     <Compile Include="Wrappers\Models\MaterialWrapper.cs" />
     <Compile Include="Wrappers\ProjectWrapper.cs" />
     <Compile Include="Wrappers\WorldWrapper.cs" />

@@ -26,18 +26,18 @@ namespace TheraEngine.Animation
             => (key2.InValue - key1.OutValue) / time;
         
         public override Vec3 CubicBezier(VectorKeyframe<Vec3> key1, VectorKeyframe<Vec3> key2, float time)
-            => Interp.CubicBezier(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+            => Interp.CubicBezier(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue - key2.InTangent, key2.InValue, time);
         public override Vec3 CubicBezierVelocity(VectorKeyframe<Vec3> key1, VectorKeyframe<Vec3> key2, float time)
-            => Interp.CubicBezierVelocity(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+            => Interp.CubicBezierVelocity(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue - key2.InTangent, key2.InValue, time);
         public override Vec3 CubicBezierAcceleration(VectorKeyframe<Vec3> key1, VectorKeyframe<Vec3> key2, float time)
-            => Interp.CubicBezierAcceleration(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
+            => Interp.CubicBezierAcceleration(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue - key2.InTangent, key2.InValue, time);
         
         public override Vec3 CubicHermite(VectorKeyframe<Vec3> key1, VectorKeyframe<Vec3> key2, float time)
-            => Interp.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => Interp.CubicHermite(key1.OutValue, key1.OutTangent, -key2.InTangent, key2.InValue, time);
         public override Vec3 CubicHermiteVelocity(VectorKeyframe<Vec3> key1, VectorKeyframe<Vec3> key2, float time)
-            => Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, -key2.InTangent, key2.InValue, time);
         public override Vec3 CubicHermiteAcceleration(VectorKeyframe<Vec3> key1, VectorKeyframe<Vec3> key2, float time)
-            => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, -key2.InTangent, key2.InValue, time);
         
         public override string WriteToString()
             => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);

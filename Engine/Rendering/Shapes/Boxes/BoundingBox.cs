@@ -354,12 +354,25 @@ namespace TheraEngine.Core.Shapes
         /// </summary>
         /// <param name="includeTranslation">If true, makes mesh with minimum and maximum coordinates.
         /// If false, makes the mesh about the origin.</param>
-        public PrimitiveData GetMesh(bool includeTranslation)
+        public PrimitiveData GetSolidMesh(bool includeTranslation)
         {
             if (includeTranslation)
                 return SolidMesh(Minimum, Maximum);
             else
                 return SolidMesh(-HalfExtents.Raw, HalfExtents.Raw);
+        }
+
+        /// <summary>
+        /// Creates a mesh representing this bounding box.
+        /// </summary>
+        /// <param name="includeTranslation">If true, makes mesh with minimum and maximum coordinates.
+        /// If false, makes the mesh about the origin.</param>
+        public PrimitiveData GetWireframeMesh(bool includeTranslation)
+        {
+            if (includeTranslation)
+                return WireframeMesh(Minimum, Maximum);
+            else
+                return WireframeMesh(-HalfExtents.Raw, HalfExtents.Raw);
         }
         #endregion
 

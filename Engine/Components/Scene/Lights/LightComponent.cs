@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
@@ -63,36 +62,11 @@ namespace TheraEngine.Components.Scene.Lights
         {
             _color = color;
             _diffuseIntensity = diffuseIntensity;
-#if EDITOR
-            PreviewRenderCommand = new RenderCommandMesh3D(ERenderPass.TransparentForward);
-            VertexQuad quad = VertexQuad.PosZQuad();
-            PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
-            string texPath = Engine.Files.TexturePath("LightIcon.png");
-            TexRef2D tex = new TexRef2D("PreviewTexture", texPath)
-            {
-                SamplerName = "Texture0"
-            };
-            TMaterial mat = TMaterial.CreateUnlitTextureMaterialForward(tex, new RenderingParameters() { DepthTest = new DepthTest()
-            {
-                Enabled = ERenderParamUsage.Disabled,
-                Function = EComparison.Always,
-                UpdateDepth = false,
-            }});
-            PreviewRenderCommand.Mesh = new PrimitiveManager(data, mat);
-#endif
         }
         internal void SwapBuffers()
         {
             _passes.SwapBuffers();
         }
-        //public override void OnSpawned()
-        //{
-        //    base.OnSpawned();
-        //}
-        //public override void OnDespawned()
-        //{
-        //    base.OnDespawned();
-        //}
         public virtual void SetShadowMapResolution(int width, int height)
         {
             _region.Width = width;
@@ -134,20 +108,39 @@ namespace TheraEngine.Components.Scene.Lights
             return EPixelInternalFormat.DepthComponent32f;
         }
 #if EDITOR
-        public bool ScalePreviewByDistance { get; set; }
-        public float PreviewScale { get; set; } = 0.5f;
-        public RenderCommandMesh3D PreviewRenderCommand { get; }
+        protected abstract string GetPreviewTextureName();
+        public override void OnSpawned()
+        {
+            base.OnSpawned();
+
+            PreviewRenderCommand = new RenderCommandMesh3D(ERenderPass.TransparentForward);
+            VertexQuad quad = VertexQuad.PosZQuad();
+            PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
+            string texPath = Engine.Files.TexturePath(GetPreviewTextureName());
+            TexRef2D tex = new TexRef2D("LightPreviewIcon", texPath)
+            {
+                SamplerName = "Texture0"
+            };
+            TMaterial mat = TMaterial.CreateUnlitAlphaTextureMaterialForward(tex);
+            mat.RenderParams = new RenderingParameters()
+            {
+                DepthTest = new DepthTest { Enabled = ERenderParamUsage.Disabled },
+            };
+            PreviewRenderCommand.Mesh = new PrimitiveManager(data, mat);
+        }
+        public bool ScalePreviewByDistance { get; set; } = true;
+        public float PreviewScale { get; set; } = 0.08f;
+        public RenderCommandMesh3D PreviewRenderCommand { get; private set; }
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            Vec3 forward = camera.ForwardVector;
-            float planeOriginDistance = Plane.ComputeDistance(camera.WorldPoint, forward);
-            float camDist = Collision.DistancePlanePoint(forward, planeOriginDistance, WorldPoint);
-            Vec3 camPlanePoint = WorldPoint - (forward * camDist);
-            Quat rotation = Quat.LookAt(WorldPoint, camPlanePoint, Vec3.UnitZ);
-            Vec3 scale = new Vec3(ScalePreviewByDistance ? camDist * PreviewScale : 1.0f);
-            
-            PreviewRenderCommand.WorldMatrix = Matrix4.CreateFromQuaternion(rotation) * scale.AsScaleMatrix();
+            float camDist = camera.DistanceFromScreenPlane(WorldPoint);
+            Vec3 scale = new Vec3(ScalePreviewByDistance ? camDist * PreviewScale : PreviewScale);
+
             PreviewRenderCommand.RenderDistance = camDist;
+            PreviewRenderCommand.WorldMatrix = Matrix4.CreateSpacialTransform(WorldPoint, 
+                camera.RightVector * scale, camera.UpVector * scale, camera.ForwardVector * scale);
+
+            passes.Add(PreviewRenderCommand);
         }
 #endif
     }

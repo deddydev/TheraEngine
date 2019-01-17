@@ -13,6 +13,9 @@ namespace TheraEngine.Rendering.Models.Materials
         public static readonly string Frag_Nothing = @"
 #version 100
 void main() { }";
+        /// <summary>
+        /// Writes gl_FragCoord.z to out float Depth in layout location 0.
+        /// </summary>
         public static readonly string Frag_DepthOutput = @"
 #version 450
 layout(location = 0) out float Depth;
@@ -110,6 +113,8 @@ void main()
             => Engine.Files.LoadEngineShader(Path.Combine("Common", "ColoredDeferred.fs"), EGLSLType.Fragment);
         public static GLSLScript UnlitTextureFragForward()
              => Engine.Files.LoadEngineShader(Path.Combine("Common", "UnlitTexturedForward.fs"), EGLSLType.Fragment);
+        public static GLSLScript UnlitAlphaTextureFragForward()
+            => Engine.Files.LoadEngineShader(Path.Combine("Common", "UnlitAlphaTexturedForward.fs"), EGLSLType.Fragment);
         public static GLSLScript UnlitColorFragForward()
              => Engine.Files.LoadEngineShader(Path.Combine("Common", "UnlitColoredForward.fs"), EGLSLType.Fragment);
         public static GLSLScript LitColorFragForward()

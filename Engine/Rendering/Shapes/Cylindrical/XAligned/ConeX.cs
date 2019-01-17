@@ -7,6 +7,8 @@ namespace TheraEngine.Core.Shapes
     [TFileDef("X-Aligned Cone")]
     public class ConeX : Cone
     {
+        [Browsable(false)]
+        public override Vec3 UpAxis => base.UpAxis;
         public ConeX()
             : this(1.0f, 1.0f) { }
         public ConeX(float radius, float height)

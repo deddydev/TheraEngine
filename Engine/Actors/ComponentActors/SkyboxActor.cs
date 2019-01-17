@@ -99,7 +99,8 @@ namespace TheraEngine.Actors.Types
                     MagFilter = ETexMagFilter.Nearest,
                     MinFilter = ETexMinFilter.Nearest
                 };
-                _material = TMaterial.CreateUnlitTextureMaterialForward(texRef, renderParams);
+                _material = TMaterial.CreateUnlitTextureMaterialForward(texRef);
+                _material.RenderParams = renderParams;
                 uvType = tex == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
                     BoundingBox.ECubemapTextureUVs.WidthLarger :
                     BoundingBox.ECubemapTextureUVs.HeightLarger;

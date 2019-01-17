@@ -587,16 +587,16 @@ namespace System
         /// 
         /// </summary>
         /// <param name="translation"></param>
-        /// <param name="rightDir"></param>
-        /// <param name="upDir"></param>
-        /// <param name="forwardDir"></param>
+        /// <param name="rightVector"></param>
+        /// <param name="upVector"></param>
+        /// <param name="forwardVector"></param>
         /// <returns></returns>
-        public static Matrix4 CreateSpacialTransform(Vec3 translation, Vec3 rightDir, Vec3 upDir, Vec3 forwardDir)
+        public static Matrix4 CreateSpacialTransform(Vec3 translation, Vec3 rightVector, Vec3 upVector, Vec3 forwardVector)
             => new Matrix4(
-                    new Vec4(rightDir, 0.0f),
-                    new Vec4(upDir, 0.0f),
-                    new Vec4(forwardDir, 0.0f),
-                    new Vec4(translation, 1.0f));
+                new Vec4(rightVector, 0.0f),
+                new Vec4(upVector, 0.0f),
+                new Vec4(forwardVector, 0.0f),
+                new Vec4(translation, 1.0f));
         
         public static Matrix4 CreateTranslation(float x, float y, float z)
         {
@@ -959,23 +959,21 @@ namespace System
             Vec3 scale,
             Quat rotate,
             Vec3 translate,
-            TransformOrder order = TransformOrder.SRT)
-        {
-            return TransformMatrix(scale, CreateFromQuaternion(rotate), translate, order);
-        }
+            TransformOrder order = TransformOrder.TRS)
+            => TransformMatrix(scale, CreateFromQuaternion(rotate), translate, order);
+        
         public static Matrix4 TransformMatrix(
             Vec3 scale,
             Rotator rotate,
             Vec3 translate,
-            TransformOrder order = TransformOrder.SRT)
-        {
-            return TransformMatrix(scale, CreateFromRotator(rotate), translate, order);
-        }
+            TransformOrder order = TransformOrder.TRS)
+            => TransformMatrix(scale, CreateFromRotator(rotate), translate, order);
+        
         public static Matrix4 TransformMatrix(
             Vec3 scale,
             Matrix4 rotate,
             Vec3 translate,
-            TransformOrder order = TransformOrder.SRT)
+            TransformOrder order = TransformOrder.TRS)
         {
             Matrix4 s = CreateScale(scale);
             Matrix4 r = rotate;

@@ -540,6 +540,10 @@ namespace System
                             {
                                 r.RenderInfo.LastRenderedTime = DateTime.Now;
                                 r.AddRenderables(passes, camera);
+                                if (passes.GetCommandsAddedCount() == 0)
+                                {
+                                    //Engine.LogWarning($"{nameof(I3DRenderable)} type {r.GetType().GetFriendlyName()} added no commands in {nameof(I3DRenderable.AddRenderables)}.");
+                                }
                             }
                         }
                         IsLoopingItems = false;
@@ -569,6 +573,10 @@ namespace System
                     {
                         r.RenderInfo.LastRenderedTime = DateTime.Now;
                         r.AddRenderables(passes, camera);
+                        if (passes.GetCommandsAddedCount() == 0)
+                        {
+                            //Engine.LogWarning($"{nameof(I3DRenderable)} type {r.GetType().GetFriendlyName()} added no commands in {nameof(I3DRenderable.AddRenderables)}.");
+                        }
                     }
                 }
                 IsLoopingItems = false;

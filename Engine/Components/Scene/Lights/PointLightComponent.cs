@@ -185,6 +185,7 @@ namespace TheraEngine.Components.Scene.Lights
             return mat;
         }
 #if EDITOR
+        protected override string GetPreviewTextureName() => "LightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
         {
             _influenceVolume.RenderInfo.Visible = selected;

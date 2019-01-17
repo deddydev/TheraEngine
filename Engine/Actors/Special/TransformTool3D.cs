@@ -151,7 +151,7 @@ namespace TheraEngine.Actors.Types
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Axis", new RenderInfo3D(!isRotate, true), ERenderPass.OnTopForward, null, axisPrim, axisMat));
 
                 float coneHeight = _axisLength - _coneDistance;
-                PrimitiveData arrowPrim = Cone.SolidMesh(unit * (_coneDistance + coneHeight / 2.0f), unit, coneHeight, _coneRadius, 6, false);
+                PrimitiveData arrowPrim = Cone.SolidMesh(unit * (_coneDistance + coneHeight * 0.5f), unit, coneHeight, _coneRadius, 6, false);
                 arrowPrim.SingleBindBone = rootBoneName;
                 mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Arrow", new RenderInfo3D(!isRotate, true), ERenderPass.OnTopForward, null, arrowPrim, axisMat));
                 

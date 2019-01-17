@@ -7,6 +7,8 @@ namespace TheraEngine.Core.Shapes
     [TFileDef("Y-Aligned Cone")]
     public class ConeY : Cone
     {
+        [Browsable(false)]
+        public override Vec3 UpAxis => base.UpAxis;
         public ConeY()
             : this(1.0f, 1.0f) { }
         public ConeY(float radius, float height)

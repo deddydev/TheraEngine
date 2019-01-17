@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System;
 using TheraEngine.Core.Maths.Transforms;
 using System.ComponentModel;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
-    public abstract class Cone : Shape
+    public class Cone : Shape
     {
         public override Shape CullingVolume => null;
 
@@ -49,8 +50,12 @@ namespace TheraEngine.Core.Shapes
             get => _height;
             set => _height = value;
         }
-        [Browsable(false)]
-        public Vec3 UpAxis => _localUpAxis;
+        [Category("Cone")]
+        public virtual Vec3 UpAxis
+        {
+            get => _localUpAxis;
+            set => _localUpAxis = value;
+        }
         
         public override void Render()
             => Engine.Renderer.RenderCone(_center.AsTranslationMatrix(), _localUpAxis, _radius, _height, _renderSolid, Color.Magenta);
@@ -175,5 +180,13 @@ namespace TheraEngine.Core.Shapes
         {
             Center.Raw = matrix.Translation;
         }
+
+        public override TCollisionShape GetCollisionShape() 
+            => throw new InvalidOperationException(
+                "A cone with an arbitrary up axis cannot be used as a collision shape. " +
+                $"Use {nameof(ConeX)}, {nameof(ConeY)}, or {nameof(ConeZ)} instead.");
+
+        public override Shape HardCopy() 
+            => new Cone(Center.Raw, UpAxis, Radius, Height);
     }
 }

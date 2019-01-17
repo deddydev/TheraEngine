@@ -36,22 +36,10 @@ namespace TheraEngine.Components.Scene.Lights
             set
             {
                 _distance = value;
-
-                Vec3 translation = _translation + _direction * (_distance / 2.0f);
-
-                OuterCone.Center.Raw = translation;
-                OuterCone.Height = _distance;
-                OuterCone.Radius = (float)Math.Tan(TMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
-
-                InnerCone.Center.Raw = translation;
-                InnerCone.Height = _distance;
-                InnerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
-
-                ShadowCamera.FarZ = _distance;
-
-                RecalcLocalTransform();
+                UpdateCones();
             }
         }
+
         [TSerialize]
         [Category("Spot Light Component")]
         public Vec3 Direction
@@ -61,6 +49,7 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 _direction = value.Normalized();
                 _rotation.SetDirection(_direction);
+                RecalcLocalTransform();
             }
         }
         [TSerialize]
@@ -106,17 +95,17 @@ namespace TheraEngine.Components.Scene.Lights
             
             ((PerspectiveCamera)ShadowCamera).VerticalFieldOfView = Math.Max(outerDegrees, innerDegrees) * 2.0f;
 
-            RecalcLocalTransform();
+            UpdateCones();
         }
 
         [Browsable(false)]
         [ReadOnly(true)]
         [Category("Spotlight Component")]
-        public ConeZ OuterCone { get; }
+        public Cone OuterCone { get; }
         [Browsable(false)]
         [ReadOnly(true)]
         [Category("Spotlight Component")]
-        public ConeZ InnerCone { get; }
+        public Cone InnerCone { get; }
         
         [Browsable(false)]
         public override Shape CullingVolume => OuterCone;
@@ -134,8 +123,8 @@ namespace TheraEngine.Components.Scene.Lights
             Vec3 direction, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent) 
             : base(color, diffuseIntensity)
         {
-            OuterCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
-            InnerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
+            OuterCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            InnerCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
 
             _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
             _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
@@ -154,8 +143,8 @@ namespace TheraEngine.Components.Scene.Lights
             Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
             : base(color, diffuseIntensity)
         {
-            OuterCone = new ConeZ((float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
-            InnerCone = new ConeZ((float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
+            OuterCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            InnerCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
 
             _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
             _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
@@ -180,35 +169,41 @@ namespace TheraEngine.Components.Scene.Lights
             
             localTransform = t * r;
             inverseLocalTransform = ir * it;
-        }
-        protected override void OnWorldTransformChanged()
-        {
+
             _direction = _rotation.GetDirection();
-
-            Vec3 coneOrigin = _translation + _direction * (_distance * 0.5f);
-
-            if (OuterCone != null)
-            {
-                //OuterCone.UpAxis = _direction;
-                //OuterCone.Transform.Translation.Raw = coneOrigin;
-            }
-            if (InnerCone != null)
-            {
-                //InnerCone.Transform.Rotation.SetDirection(_direction);
-                //InnerCone.Transform.Translation.Raw = coneOrigin;
-            }
             if (ShadowCamera != null)
             {
                 ShadowCamera.LocalRotation.SetRotations(_rotation);
                 ShadowCamera.LocalPoint.Raw = _translation;
             }
+        }
+        protected override void OnWorldTransformChanged()
+        {
+            UpdateCones();
+            base.OnWorldTransformChanged();
+        }
 
-            Vec3 lightMeshOrigin = _direction * (_distance / 2.0f);
+        private void UpdateCones()
+        {
+            Vec3 coneOrigin = _translation + _direction * (_distance * 0.5f);
+            
+            OuterCone.UpAxis = -_direction;
+            OuterCone.Center.Raw = coneOrigin;
+            OuterCone.Height = _distance;
+            OuterCone.Radius = (float)Math.Tan(TMath.DegToRad(OuterCutoffAngleDegrees)) * _distance;
+
+            InnerCone.UpAxis = -_direction;
+            InnerCone.Center.Raw = coneOrigin;
+            InnerCone.Height = _distance;
+            InnerCone.Radius = (float)Math.Tan(TMath.DegToRad(InnerCutoffAngleDegrees)) * _distance;
+
+            if (ShadowCamera != null)
+                ShadowCamera.FarZ = _distance;
+
+            Vec3 lightMeshOrigin = _direction * (_distance * 0.5f);
             Matrix4 t = lightMeshOrigin.AsTranslationMatrix();
             Matrix4 s = Matrix4.CreateScale(OuterCone.Radius, OuterCone.Radius, OuterCone.Height);
             LightMatrix = t * WorldMatrix * s;
-
-            base.OnWorldTransformChanged();
         }
 
         public override void OnSpawned()
@@ -304,6 +299,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
 
 #if EDITOR
+        protected override string GetPreviewTextureName() => "LightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
         {
             OuterCone.RenderInfo.Visible = selected;

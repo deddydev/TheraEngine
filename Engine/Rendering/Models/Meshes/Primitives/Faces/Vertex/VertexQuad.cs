@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models
                     new Vertex(topLeft,     new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
         }
         public static VertexQuad MakeQuad(
-            Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, bool flipVerticalUVCoord = false)
+            Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, bool flipVerticalUVCoord = true)
         {
             return new VertexQuad(
                 new Vertex(bottomLeft,  normal, new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
@@ -314,12 +314,12 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosZQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false, float z = 0.0f, bool flipVerticalUVCoord = false)
+        public static VertexQuad PosZQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false, float z = 0.0f, bool flipVerticalUVCoord = true)
             => PosZQuad(uniformScale, uniformScale, z, bottomLeftOrigin, flipVerticalUVCoord);
         /// <summary>
         /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad PosZQuad(float xScale, float yScale, float z, bool bottomLeftOrigin, bool flipVerticalUVCoord = false)
+        public static VertexQuad PosZQuad(float xScale, float yScale, float z, bool bottomLeftOrigin, bool flipVerticalUVCoord = true)
         {
             if (bottomLeftOrigin)
             {

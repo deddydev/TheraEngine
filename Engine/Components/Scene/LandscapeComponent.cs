@@ -152,6 +152,8 @@ namespace TheraEngine.Actors.Types
                         int heightIndex = x + y * _dimensions.X;
                         if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(double))
                             throw new IndexOutOfRangeException();
+
+                        //TODO: support double precision?
                         return (float)heightPtr[heightIndex];
                     }
             }

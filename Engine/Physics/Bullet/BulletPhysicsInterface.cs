@@ -45,8 +45,8 @@ namespace TheraEngine.Physics.Bullet
             rigidBody.CollisionEnabled = info.CollisionEnabled;
             rigidBody.CollisionGroup = info.CollisionGroup;
             rigidBody.CollidesWith = info.CollidesWith;
-            rigidBody.SimulatingPhysics = info.SimulatePhysics;
             rigidBody.SleepingEnabled = info.SleepingEnabled;
+            rigidBody.SimulatingPhysics = info.SimulatePhysics;
             rigidBody.IsKinematic = info.IsKinematic;
             rigidBody.CustomMaterialCallback = info.CustomMaterialCallback;
             rigidBody.CcdMotionThreshold = info.CcdMotionThreshold;

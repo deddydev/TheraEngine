@@ -170,14 +170,49 @@ namespace TheraEditor.Windows.Forms
             keyLinesBuf.PushData();
         }
 
+        [TSerialize]
+        public bool RenderExtrema { get; set; } = true;
         private Vec3[] KeyframeInOutPositions { get; set; }
         private float DisplayFPS { get; set; } = 0.0f;
         private float AnimLength { get; set; } = 0.0f;
         private int KeyCount { get; set; } = 0;
 
+        private readonly RenderCommandMethod2D _rcMethod;
+        private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+        private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+        private readonly RenderCommandMesh2D _rcKeyframeInOutPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+        private readonly RenderCommandMesh2D _rcTangentPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
+
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+        public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
+        public IQuadtreeNode QuadtreeNode { get; set; }
+
+        //[TSerialize]
+        //public bool RenderSpline { get; set; } = true;
+        //[TSerialize]
+        //public bool RenderKeyframeTangentLines { get; set; } = true;
+        //[TSerialize]
+        //public bool RenderKeyframeTangentPoints { get; set; } = true;
+        //[TSerialize]
+        //public bool RenderKeyframePoints { get; set; } = true;
+        [TSerialize]
+        public bool RenderAnimPosition { get; set; } = true;
+        //[TSerialize]
+        //public bool RenderSelectionArea { get; set; } = true;
+        public Vec2 AnimPosition { get; private set; }
+        
+        private PropAnimFloat _targetAnimation;
+        private Vec2 _minScale = new Vec2(0.01f), _maxScale = new Vec2(1.0f);
+        private Vec2 _lastWorldPos = Vec2.Zero;
+        private bool _rightClickDown = false;
+        private FloatKeyframe _selectedKf;
+        private FloatKeyframe _highlightedKf;
+        private Dictionary<int, DraggedKeyframeInfo> _draggedKeyframes = new Dictionary<int, DraggedKeyframeInfo>();
+        private Vec2 _selectionStartPosAnimRelative;
+
         private bool _regenerating = false;
         public async Task RegenerateSplinePrimitiveAsync()
-            => await Task.Run((Action)RegenerateSplinePrimitive);
+            => await Task.Run(RegenerateSplinePrimitive);
         public void RegenerateSplinePrimitive()
         {
             while (_regenerating) { }
@@ -310,44 +345,6 @@ void main()
             _regenerating = false;
         }
 
-        private readonly RenderCommandMethod2D _rcMethod;
-        private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);
-        private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D(ERenderPass.OnTopForward);
-        private readonly RenderCommandMesh2D _rcKeyframeInOutPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
-        private readonly RenderCommandMesh2D _rcTangentPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
-
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
-        public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
-        public IQuadtreeNode QuadtreeNode { get; set; }
-
-        //[TSerialize]
-        //public bool RenderSpline { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderKeyframeTangentLines { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderKeyframeTangentPoints { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderKeyframePoints { get; set; } = true;
-        [TSerialize]
-        public bool RenderAnimPosition { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderSelectionArea { get; set; } = true;
-        public Vec2 AnimPosition { get; private set; }
-
-        //private PrimitiveManager _splinePrimitive;
-        //private PrimitiveManager _pointPrimitive;
-        //private PrimitiveManager _tangentPositionPrimitive;
-        //private PrimitiveManager _keyframeLinesPrimitive;
-
-        private PropAnimFloat _targetAnimation;
-        private Vec2 _minScale = new Vec2(0.01f), _maxScale = new Vec2(1.0f);
-        private Vec2 _lastWorldPos = Vec2.Zero;
-        private bool _rightClickDown = false;
-        private FloatKeyframe _selectedKf;
-        private FloatKeyframe _highlightedKf;
-        private Dictionary<int, DraggedKeyframeInfo> _draggedKeyframes = new Dictionary<int, DraggedKeyframeInfo>();
-        private Vec2 _selectionStartPosAnimRelative;
-        
         protected override UICanvasComponent OnConstructRoot()
         {
             var root = base.OnConstructRoot();

@@ -139,7 +139,16 @@ namespace TheraEngine.Physics
                     LinearFactor = _previousLinearFactor;
                     AngularFactor = _previousAngularFactor;
                     WorldTransform = Owner?.WorldMatrix ?? Matrix4.Identity;
-                    ActivationState = SleepingEnabled ? EBodyActivationState.Active : EBodyActivationState.DisableSleep;
+                    if (_sleepingEnabled)
+                    {
+                        if (ActivationState == EBodyActivationState.DisableSleep)
+                            ActivationState = EBodyActivationState.Active;
+                    }
+                    else
+                    {
+                        if (ActivationState != EBodyActivationState.DisableSimulation)
+                            ActivationState = EBodyActivationState.DisableSleep;
+                    }
                 }
             }
         }

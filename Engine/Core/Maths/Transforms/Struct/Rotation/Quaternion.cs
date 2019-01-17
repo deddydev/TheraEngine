@@ -302,8 +302,8 @@ namespace System
             AxisAngleBetween(initialVector, finalVector, out Vec3 axis, out float angle);
             return FromAxisAngleDeg(axis, angle);
         }
-        public static Quat LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
-            => BetweenVectors(initialDirection, destPoint - sourcePoint);
+        public static Quat LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 up)
+            => BetweenVectors(up, destPoint - sourcePoint);
         public static Quat FromAxisAngleDeg(Vec3 axis, float degrees)
             => FromAxisAngleRad(axis, DegToRad(degrees));
         public static Quat FromAxisAngleRad(Vec3 axis, float radians)

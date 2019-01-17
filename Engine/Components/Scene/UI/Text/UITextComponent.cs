@@ -16,9 +16,9 @@ namespace TheraEngine.Rendering.UI
                 UWrap = ETexWrapMode.ClampToEdge,
                 VWrap = ETexWrapMode.ClampToEdge,
                 Resizable = true
-            },
-            new RenderingParameters(true)), true)
+            }), true)
         {
+            _quad.Material.RenderParams = new RenderingParameters(true);
             _textDrawer = new TextDrawer();
             _textDrawer.NeedsRedraw += Redraw;
             RenderCommand.RenderPass = ERenderPass.TransparentForward;

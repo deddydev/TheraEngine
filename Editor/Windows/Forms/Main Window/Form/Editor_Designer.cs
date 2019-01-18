@@ -388,50 +388,9 @@ namespace TheraEditor.Windows.Forms
 
             base.OnFormClosing(e);
         }
-        private void GenerateInitialActorList()
-        {
-            if (InvokeRequired)
-            {
-                BeginInvoke(new Action(GenerateInitialActorList));
-                return;
-            }
-            ActorTreeForm.ActorTree.Nodes.Clear();
-            if (Engine.World != null)
-                ActorTreeForm.ActorTree.Nodes.AddRange(Engine.World.State.SpawnedActors.Select(x => x.EditorState.TreeNode = new TreeNode(x.ToString()) { Tag = x }).ToArray());
-        }
-        private void SpawnedActors_PostAdded(IActor item)
-        {
-            if (Engine.World != null && !Engine.ShuttingDown)
-            {
-                if (InvokeRequired)
-                {
-                    BeginInvoke(new Action<IActor>(SpawnedActors_PostAdded), item);
-                    return;
-                }
-                TreeNode t = new TreeNode(item.ToString()) { Tag = item };
-                item.EditorState.TreeNode = t;
-                ActorTreeForm.ActorTree.Nodes.Add(t);
-            }
-        }
-        private void SpawnedActors_PostRemoved(IActor item)
-        {
-            if (Engine.World != null && !Engine.ShuttingDown)
-            {
-                if (InvokeRequired)
-                {
-                    BeginInvoke(new Action<IActor>(SpawnedActors_PostRemoved), item);
-                    return;
-                }
-                if (item?.EditorState?.TreeNode != null)
-                {
-                    if (_actorTreeForm != null &&
-                        !_actorTreeForm.IsDisposed &&
-                        _actorTreeForm.ActorTree.Nodes.Count > 0)
-                        ActorTreeForm.ActorTree.Nodes.Remove(item.EditorState.TreeNode);
-                    item.EditorState.TreeNode = null;
-                }
-            }
-        }
+        private void GenerateInitialActorList() => ActorTreeForm.GenerateInitialActorList();
+        private void SpawnedActors_PostAdded(IActor item) => ActorTreeForm.ActorAdded(item);
+        private void SpawnedActors_PostRemoved(IActor item) => ActorTreeForm.ActorRemoved(item);
 
         private void UpdateTick(object sender, FrameEventArgs e)
         {

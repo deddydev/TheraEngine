@@ -67,7 +67,7 @@ namespace TheraEngine.Rendering
 
         public bool ShadowPass { get; internal set; }
         public bool HasItemsToRender => _renderingPasses.Any(x => x.Count > 0);
-        public int NumTotalCommandsAdded { get; private set; }
+        //public int NumTotalCommandsAdded { get; private set; }
         private int _numCommandsRecentlyAdded = 0;
 
         private readonly RenderSortNearToFar _nearToFarSorter;
@@ -90,7 +90,7 @@ namespace TheraEngine.Rendering
             var set = _updatingPasses[index];
             set.Add(item);
             ++_numCommandsRecentlyAdded;
-            ++NumTotalCommandsAdded;
+            //++NumTotalCommandsAdded;
         }
         internal int GetCommandsAddedCount()
         {
@@ -114,7 +114,7 @@ namespace TheraEngine.Rendering
             var list = _updatingPasses[(int)pass];
             list.Clear();
             _numCommandsRecentlyAdded = 0;
-            NumTotalCommandsAdded = 0;
+            //NumTotalCommandsAdded = 0;
         }
         internal void SwapBuffers()
             => THelpers.Swap(ref _updatingPasses, ref _renderingPasses);

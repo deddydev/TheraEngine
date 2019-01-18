@@ -55,8 +55,7 @@ namespace TheraEngine.Components.Scene.Lights
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
         [Browsable(false)]
         public virtual Shape CullingVolume { get; } = null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
+        IOctreeNode I3DBoundable.OctreeNode { get; set; }
 
         public LightComponent(ColorF3 color, float diffuseIntensity) : base()
         {

@@ -917,27 +917,15 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void MapBufferData(DataBuffer buffer)
         {
-            //GL.BufferStorage(_target, _data.Length, _data.Address,
-            //    BufferStorageFlags.MapWriteBit |
-            //    BufferStorageFlags.MapReadBit |
-            //    BufferStorageFlags.MapPersistentBit |
-            //    BufferStorageFlags.MapCoherentBit |
-            //    BufferStorageFlags.ClientStorageBit);
-            //_data.Dispose();
-            //_data = new DataSource(GL.MapBufferRange(_target, IntPtr.Zero, DataLength,
-            //    BufferAccessMask.MapPersistentBit |
-            //    BufferAccessMask.MapCoherentBit |
-            //    BufferAccessMask.MapReadBit |
-            //    BufferAccessMask.MapWriteBit), DataLength);
-            
             if (buffer.IsMapped)
             {
-                //UnmapBufferData(buffer);
+                UnmapBufferData(buffer);
                 return;
             }
 
+            int id = buffer.BindingId;
             int length = buffer._data.Length;
-            GL.NamedBufferStorage(buffer.BindingId, length, buffer._data.Address,
+            GL.NamedBufferStorage(id, length, buffer._data.Address,
                 BufferStorageFlags.MapWriteBit |
                 BufferStorageFlags.MapReadBit |
                 BufferStorageFlags.MapPersistentBit |
@@ -946,13 +934,13 @@ namespace TheraEngine.Rendering.OpenGL
 
             buffer.IsMapped = true;
 
-            //buffer._data.Dispose();
-            //buffer._data = new DataSource(GL.MapNamedBufferRange(buffer.BindingId, IntPtr.Zero, length,
-            //    BufferAccessMask.MapPersistentBit |
-            //    BufferAccessMask.MapCoherentBit |
-            //    BufferAccessMask.MapReadBit |
-            //    BufferAccessMask.MapWriteBit), length);
-            //buffer._data = new DataSource(GL.MapNamedBuffer(buffer.BindingId, BufferAccess.ReadWrite), length);
+            buffer._data.Dispose();
+            buffer._data = new DataSource(GL.MapNamedBufferRange(id, IntPtr.Zero, length,
+                BufferAccessMask.MapPersistentBit |
+                BufferAccessMask.MapCoherentBit |
+                BufferAccessMask.MapReadBit |
+                BufferAccessMask.MapWriteBit), length);
+            //buffer._data = new DataSource(GL.MapNamedBuffer(id, BufferAccess.ReadWrite), length);
         }
         /// <summary>
         /// Requires 4.5 or ARB_direct_state_access

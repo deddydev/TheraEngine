@@ -7,7 +7,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(CSharpScript), nameof(Resources.CSharpScript))]
+    [NodeWrapper(nameof(Resources.CSharpScript))]
     public class CSharpWrapper : FileWrapper<CSharpScript>
     {
         #region Menu

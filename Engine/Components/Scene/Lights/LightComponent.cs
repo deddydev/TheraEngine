@@ -81,7 +81,8 @@ namespace TheraEngine.Components.Scene.Lights
         public abstract TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32);
         public void UpdateShadowMap(BaseScene scene)
         {
-            scene.CollectVisible(_passes, GetShadowVolume(), ShadowCamera, true);
+            IVolume volume = GetShadowVolume();
+            scene.CollectVisible(_passes, volume, ShadowCamera, true);
         }
         public void RenderShadowMap(BaseScene scene)
         {
@@ -117,10 +118,7 @@ namespace TheraEngine.Components.Scene.Lights
             VertexQuad quad = VertexQuad.PosZQuad();
             PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
             string texPath = Engine.Files.TexturePath(GetPreviewTextureName());
-            TexRef2D tex = new TexRef2D("LightPreviewIcon", texPath)
-            {
-                SamplerName = "Texture0"
-            };
+            TexRef2D tex = new TexRef2D("LightPreviewIcon", texPath) { SamplerName = "Texture0" };
             TMaterial mat = TMaterial.CreateUnlitAlphaTextureMaterialForward(tex);
             mat.RenderParams = new RenderingParameters()
             {

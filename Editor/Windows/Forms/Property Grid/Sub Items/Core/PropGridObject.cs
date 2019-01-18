@@ -76,14 +76,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _categories.Clear();
             base.DestroyHandle();
         }
-
+        private object GetObject() => _object;
+        private object GetNull() => null;
         private async void LoadProperties(bool notNull)
         {
             var propGridSettings = Editor.GetSettings().PropertyGrid;
             await TheraPropertyGrid.LoadPropertiesToPanel(
                 pnlProps, _categories,
                 notNull ? _object : null,
-                notNull ? (Func<object>)(() => _object) : (() => null), 
+                notNull ? (Func<object>)GetObject : GetNull, 
                 DataChangeHandler, ReadOnly, 
                 true, propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
         }

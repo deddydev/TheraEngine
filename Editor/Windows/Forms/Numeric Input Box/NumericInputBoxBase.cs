@@ -11,11 +11,8 @@ namespace TheraEditor.Windows.Forms
         public delegate void BoxValueChanged(NumericInputBoxBase<T> box, T? previous, T? current);
         public event BoxValueChanged ValueChanged;
 
-        public NumericInputBoxBase()
-        {
-            UpdateTextWithValue();
-        }
-        
+        public NumericInputBoxBase() => UpdateTextWithValue();
+                
         public T? _previousValue = null;
         public T? _currentValue = null;
         private bool _nullable = false;
@@ -289,9 +286,9 @@ namespace TheraEditor.Windows.Forms
         protected string GetTextValue()
         {
             string textValue = Text;
-            if (textValue.StartsWith(_prefix))
+            if (_prefix != null && textValue.StartsWith(_prefix))
                 textValue = textValue.Substring(_prefix.Length, textValue.Length - _prefix.Length);
-            if (textValue.EndsWith(_suffix))
+            if (_suffix != null && textValue.EndsWith(_suffix))
                 textValue = textValue.Substring(0, textValue.Length - _suffix.Length);
             return textValue;
         }

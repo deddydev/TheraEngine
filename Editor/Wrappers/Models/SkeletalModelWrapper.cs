@@ -6,7 +6,7 @@ using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(SkeletalModel), nameof(Resources.GenericFile))]
+    [NodeWrapper(nameof(Resources.GenericFile))]
     public class SkeletalModelWrapper : FileWrapper<SkeletalModel>
     {
         #region Menu

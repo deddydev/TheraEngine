@@ -36,7 +36,7 @@ namespace TheraEngine.Animation
 
         protected override BaseKeyframeTrack InternalKeyframes => _keyframes;
 
-        [Category(PropAnimCategory)]
+        [Category("Keyframed Property Animation")]
         public KeyframeTrack<T> Keyframes => _keyframes;
 
         /// <summary>

@@ -194,7 +194,7 @@ namespace TheraEngine.Animation
                         {
                             Keyframe sibling = key.Prev ?? key.Next;
                             key.Remove();
-                            sibling.Link(value);
+                            sibling.UpdateLink(value);
                             break;
                         }
                         ++i;
@@ -230,7 +230,7 @@ namespace TheraEngine.Animation
                         {
                             Keyframe sibling = key.Prev ?? key.Next;
                             key.Remove();
-                            sibling.Link(keyValue);
+                            sibling.UpdateLink(keyValue);
                             break;
                         }
                         ++i;
@@ -240,42 +240,26 @@ namespace TheraEngine.Animation
         }
 
         public void Add(IEnumerable<T> keys)
-        {
-            keys.ForEach(x => Add(x));
-        }
+            => keys.ForEach(x => Add(x));
         public void Add(params T[] keys)
-        {
-            keys.ForEach(x => Add(x));
-        }
+            => keys.ForEach(x => Add(x));
+        
         public void Add(T key)
         {
             if (key == null)
                 return;
-
-            //Reset key location before adding
-            key.Remove();
-
+            
             if (First == null)
             {
-                Count = 1;
+                //Reset key location before adding
+                key.Remove();
                 First = key;
                 Last = key;
+                Count = 1;
                 OnChanged();
             }
-            else if (key.Second < First.Second)
-            {
-                T temp = First;
-                First = key;
-                temp.Link(key);
-            }
-            else if (key.Second > Last.Second)
-            {
-                T temp = Last;
-                Last = key;
-                temp.Link(key);
-            }
             else
-                First.Link(key);
+                First.UpdateLink(key);
         }
         public void RemoveLast()
         {
@@ -315,7 +299,7 @@ namespace TheraEngine.Animation
                 temp.Remove();
             }
         }
-        public T GetKeyBefore(float second)
+        public T GetKeyBefore(float second, bool returnLastBeforeFirst, bool returnLastBeforeAnimEnd)
         {
             T bestKey = null;
             foreach (T key in this)
@@ -323,7 +307,17 @@ namespace TheraEngine.Animation
                     bestKey = key;
                 else
                     break;
-            return bestKey;
+            if (returnLastBeforeFirst)
+            {
+                if (bestKey != null)
+                    return bestKey;
+                else if (returnLastBeforeAnimEnd)
+                    return GetKeyBefore(LengthInSeconds, false, false);
+                else
+                    return Last;
+            }
+            else
+                return bestKey;
         }
         public override IEnumerator<Keyframe> GetEnumerator()
         {
@@ -605,7 +599,9 @@ namespace TheraEngine.Animation
                 _second = value.ClampMin(0.0f);
                 if (float.IsNaN(_second))
                     _second = 0.0f;
-                Prev?.Relink(this);
+                Keyframe kf = Prev ?? Next;
+                kf?.UpdateLink(this, false);
+                OwningTrack?.OnChanged();
             }
         }
 
@@ -637,83 +633,104 @@ namespace TheraEngine.Animation
         public abstract Type ValueType { get; }
 
         private BaseKeyframeTrack _owningTrack = null;
-        private void Relink(Keyframe key)
+        public void UpdateLink(Keyframe key, bool notifyChange = true)
         {
             if (key == null || key == this)
                 return;
-            
+
             //if (_next == key)
             //    return;
 
             //resize track length if second is outside of range
             //if (key.Second > OwningTrack.LengthInSeconds)
             //    OwningTrack.LengthInSeconds = key.Second;
+            
+            key.Remove(key.OwningTrack != OwningTrack);
+            key.Second = key.Second.RemapToRange(0.0f, OwningTrack.LengthInSeconds);
 
             //Second is within this keyframe and the next?
-            if (key.Second >= Second && (Next == null || key.Second < Next.Second))
+            if (key.Second >= Second)
             {
-                //Set new key's next and prev
-                if (_next != key)
+                //After current key
+                if (Next == null || key.Second < Next.Second)
                 {
-                    key._next = _next;
-                    if (_next != null)
-                        _next._prev = key;
-                }
+                    if (_next != key)
+                    {
+                        key._next = _next;
+                        if (_next != null)
+                            _next._prev = key;
+                    }
 
-                key._prev = this;
-                _next = key;
+                    key._prev = this;
+                    _next = key;
 
-                //Get owning track from next or prev
-                if (!key.IsFirst)
-                {
-                    key.OwningTrack = key.Prev.OwningTrack;
+                    PostKeyLinkUpdate(key, notifyChange);
                 }
                 else
                 {
-                    if (!key.IsLast)
-                    {
-                        key.OwningTrack = key.Next.OwningTrack;
-                    }
-                    else
-                        throw new Exception();
+                    //Recursive link to next key
+                    //next not null, greater than next, and next is not before this
+                    if (_next != null && key.Second >= _next.Second && _next.Second >= Second)
+                        _next.UpdateLink(key, notifyChange);
                 }
-
-                //Update owning track first and last references
-                if (key.IsFirst)
-                    key.OwningTrack.FirstKey = key;
-                if (key.IsLast)
-                    key.OwningTrack.LastKey = key;
-                
-                OwningTrack?.OnChanged();
             }
             else
             {
-                //next not null, greater than next, and next is not before this
-                if (_next != null && key.Second > _next.Second && _next.Second >= Second)
+                //Before current key
+                if (Prev == null || key.Second >= Prev.Second)
                 {
-                    _next.Relink(key);
-                    return;
+                    if (_prev != key)
+                    {
+                        key._prev = _prev;
+                        if (_prev != null)
+                            _prev._next = key;
+                    }
+
+                    key._next = this;
+                    _prev = key;
+
+                    PostKeyLinkUpdate(key, notifyChange);
                 }
-                //prev not null, less than this, and prev is not after this
-                if (_prev != null && key.Second < Second && _prev.Second < Second)
+                else 
                 {
-                    _prev.Relink(key);
-                    return;
+                    //Recursive link to prev key
+                    //prev not null, less than this, and prev is not after this
+                    if (_prev != null && _prev.Second < Second)
+                        _prev.UpdateLink(key, notifyChange);
                 }
+            }
+        }
+
+        private void PostKeyLinkUpdate(Keyframe key, bool notifyChange)
+        {
+            //Get owning track from next or prev
+            if (!key.IsFirst)
+                key.OwningTrack = key.Prev.OwningTrack;
+            else
+            {
+                if (!key.IsLast)
+                    key.OwningTrack = key.Next.OwningTrack;
+                else
+                    throw new Exception();
+            }
+
+            //Update owning track first and last references
+            if (key.IsFirst)
+                key.OwningTrack.FirstKey = key;
+            if (key.IsLast)
+                key.OwningTrack.LastKey = key;
+
+            if (OwningTrack != null)
+            {
+                ++OwningTrack.Count;
+                if (notifyChange)
+                    OwningTrack.OnChanged();
             }
 
             if (key._prev == key ||
                 key._next == key ||
                 (key._next == key._prev && key._next != null))
                 throw new Exception();
-        }
-
-        public Keyframe Link(Keyframe key)
-        {
-            if (OwningTrack != null)
-                ++OwningTrack.Count;
-            Relink(key);
-            return key;
         }
 
         public abstract string WriteToString();
@@ -735,7 +752,8 @@ namespace TheraEngine.Animation
                     OwningTrack.LastKey = _prev;
 
                 --OwningTrack.Count;
-                OwningTrack.OnChanged();
+                if (notifyChange)
+                    OwningTrack.OnChanged();
             }
 
             _next = _prev = null;

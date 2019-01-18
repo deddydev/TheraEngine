@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Core.Attributes;
 
 namespace TheraEngine.Animation
 {
@@ -12,7 +13,6 @@ namespace TheraEngine.Animation
         public BasePropAnimKeyframed(int frameCount, float framesPerSecond, bool looped, bool isBaked = false)
             : base(frameCount, framesPerSecond, looped, isBaked) { }
         
-        [Category(PropAnimCategory)]
         protected abstract BaseKeyframeTrack InternalKeyframes { get; }
 
         public override void SetLength(float lengthInSeconds, bool stretchAnimation, bool notifyChanged = true)
@@ -23,8 +23,12 @@ namespace TheraEngine.Animation
             base.SetLength(lengthInSeconds, stretchAnimation, notifyChanged);
         }
     }
+    [TFileExt("bpanm")]
+    [TFileDef("Bakeable Property Animation")]
     public abstract class BasePropAnimBakeable : BasePropAnim
     {
+        public const string BakeablePropAnimCategory = "Bakeable Property Animation";
+
         public event Action<BasePropAnimBakeable> BakedFPSChanged;
         public event Action<BasePropAnimBakeable> BakedFrameCountChanged;
         public event Action<BasePropAnimBakeable> IsBakedChanged;
@@ -60,7 +64,8 @@ namespace TheraEngine.Animation
         /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
         /// Baked takes up more memory but requires no calculations. However, the animation cannot be sped up at all, nor slowed down without artifacts.
         /// </summary>
-        [Category("Animation"), TSerialize(NodeType = ENodeType.Attribute, Order = 2)]
+        [Category(BakeablePropAnimCategory)]
+        [TSerialize(NodeType = ENodeType.Attribute, Order = 2)]
         public bool IsBaked
         {
             get => _isBaked;
@@ -76,7 +81,8 @@ namespace TheraEngine.Animation
         /// For example, if the animation is 30fps, and the game is running at 60fps,
         /// Only one frame of this animation will show for every two game frames (the animation won't be sped up).
         /// </summary>
-        [Category("Animation")]
+        [TNumericPrefixSuffix(null, " hz")]
+        [Category(BakeablePropAnimCategory)]
         public float BakedFramesPerSecond
         {
             get => _bakedFPS;
@@ -92,7 +98,8 @@ namespace TheraEngine.Animation
         /// <summary>
         /// How many frames this animation contains.
         /// </summary>
-        [Category("Animation")]
+        [TNumericPrefixSuffix(null, " frames")]
+        [Category(BakeablePropAnimCategory)]
         public int BakedFrameCount
         {
             get => _bakedFrameCount;

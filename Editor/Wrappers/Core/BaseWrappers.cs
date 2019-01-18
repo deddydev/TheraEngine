@@ -14,14 +14,8 @@ namespace TheraEditor.Wrappers
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     sealed class NodeWrapperAttribute : Attribute
     {
-        public NodeWrapperAttribute(Type type, string imageName)
+        public NodeWrapperAttribute(string imageName, string selectedImageName)
         {
-            FileType = type;
-            ImageName = SelectedImageName = imageName;
-        }
-        public NodeWrapperAttribute(Type type, string imageName, string selectedImageName)
-        {
-            FileType = type;
             ImageName = imageName;
             SelectedImageName = selectedImageName;
         }
@@ -30,7 +24,7 @@ namespace TheraEditor.Wrappers
             ThirdPartyExtension = thirdPartyExtension;
         }
 
-        public Type FileType { get; }
+        //public Type FileType { get; }
         public string ImageName { get; }
         public string SelectedImageName { get; }
         public string ThirdPartyExtension { get; }
@@ -38,46 +32,41 @@ namespace TheraEditor.Wrappers
         /// <summary>
         /// Key is file type, Value is tree node wrapper type
         /// </summary>
-        public static Dictionary<Type, Type> Wrappers
-        {
-            get
-            {
-                if (_wrappers == null)
-                {
-                    LoadWrappers(Assembly.GetExecutingAssembly());
-                }
-                return _wrappers;
-            }
-        }
-        public static Dictionary<string, Type> ThirdPartyWrappers
-        {
-            get
-            {
-                if (_thirdPartyWrappers == null)
-                {
-                    LoadWrappers(Assembly.GetExecutingAssembly());
-                }
-                return _thirdPartyWrappers;
-            }
-        }
+        public static Dictionary<Type, Type> Wrappers { get; private set; }
+        public static Dictionary<string, Type> ThirdPartyWrappers { get; private set; }
 
-        public static void LoadWrappers(Assembly assembly)
+        static NodeWrapperAttribute()
         {
-            _wrappers = new Dictionary<Type, Type>();
-            _thirdPartyWrappers = new Dictionary<string, Type>();
-            if (assembly != null)
-                foreach (Type asmType in assembly.GetTypes())
-                    foreach (NodeWrapperAttribute attr in asmType.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
-                    {
-                        if (!string.IsNullOrWhiteSpace(attr.ThirdPartyExtension))
-                            _thirdPartyWrappers[attr.ThirdPartyExtension] = asmType;
-                        else
-                            _wrappers[attr.FileType] = asmType;
-                    }
+            //Load all nodewrapper types from editor assembly
+            //Supports loading nodewrappers from multiple assemblies for the future possibility of file type plugins
+            LoadWrappers(Assembly.GetExecutingAssembly());
         }
-        
-        private static Dictionary<Type, Type> _wrappers;
-        private static Dictionary<string, Type> _thirdPartyWrappers;
+        public static void LoadWrappers(params Assembly[] assemblies)
+        {
+            Wrappers = new Dictionary<Type, Type>();
+            ThirdPartyWrappers = new Dictionary<string, Type>();
+
+            if (assemblies != null)
+                foreach (Assembly asm in assemblies)
+                    foreach (Type asmType in asm.GetTypes())
+                        foreach (NodeWrapperAttribute attr in asmType.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
+                        {
+                            if (asmType.BaseType == typeof(ThirdPartyFileWrapper))
+                            {
+                                if (!string.IsNullOrWhiteSpace(attr.ThirdPartyExtension))
+                                    ThirdPartyWrappers[attr.ThirdPartyExtension] = asmType;
+                            }
+                            else if (asmType.BaseType.IsGenericType && asmType.BaseType.GetGenericTypeDefinition() == typeof(FileWrapper<>))
+                            {
+                                Type fileType = asmType.BaseType.GetGenericArguments()[0];
+                                Wrappers[fileType] = asmType;
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException($"{nameof(NodeWrapperAttribute)} must be an attribute on a class that inherits directly from {nameof(FileWrapper<IFileObject>)} or {nameof(ThirdPartyFileWrapper)}.");
+                            }
+                        }
+        }
     }
     public abstract class BaseWrapper : TreeNode
     {

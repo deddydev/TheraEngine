@@ -6,7 +6,7 @@ using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(TWorld), nameof(Resources.GenericFile))]
+    [NodeWrapper(nameof(Resources.GenericFile))]
     public class WorldWrapper : FileWrapper<TWorld>
     {
         #region Menu

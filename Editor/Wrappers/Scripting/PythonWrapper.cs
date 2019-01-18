@@ -1,17 +1,13 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Threading;
+﻿using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
-using TheraEngine.Core.Files;
 using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(PythonScript), nameof(Resources.PythonIcon))]
+    [NodeWrapper(nameof(Resources.PythonIcon))]
     public class PythonWrapper : FileWrapper<PythonScript>
     {
         #region Menu

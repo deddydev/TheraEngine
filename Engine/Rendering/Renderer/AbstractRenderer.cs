@@ -259,14 +259,9 @@ namespace TheraEngine.Rendering
             m.Material.RenderParams.LineWidth = lineWidth;
             m.Material.RenderParams.DepthTest.Enabled = depthTestEnabled ? ERenderParamUsage.Enabled : ERenderParamUsage.Disabled;
             //((Vec3*)m.Data[0].Address)[1] = end - start;
-            Matrix4 modelMatrix = Matrix4.CreateTranslation(start) * end.LookatAngles(start).GetMatrix() * Matrix4.CreateScale(end.DistanceToFast(start));
-            //if (Engine.MainThreadID != Thread.CurrentThread.ManagedThreadId)
-            //    Engine.Scene.AddDebugPrimitive(new DebugPrimitive() { Manager = m, ModelMatrix = modelMatrix, Color = color, Type = DebugPrimitiveType.Line });
-            //else
-            //{
-                SetLineSize(lineWidth);
-                m.Render(modelMatrix, Matrix3.Identity);
-            //}
+            Matrix4 modelMatrix = Matrix4.CreateTranslation(start) * end.LookatAngles(start).GetMatrix() * Matrix4.CreateScale(end.DistanceTo(start));
+            SetLineSize(lineWidth);
+            m.Render(modelMatrix, Matrix3.Identity);
         }
         public static readonly Vec3 UIPositionBias = new Vec3(0.0f, 0.0f, 0.1f);
         public static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, RotationOrder.YPR);

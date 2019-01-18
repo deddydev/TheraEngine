@@ -52,7 +52,7 @@ namespace TheraEngine.Input
         {
             _input.WantsInputsRegistered -= RegisterInput;
             int index = (int)LocalPlayerIndex;
-            if (index >= 0 && index < Engine.LocalPlayers.Count)
+            if (Engine.LocalPlayers.IndexInRange(index) && Engine.LocalPlayers[index] == this)
                 Engine.LocalPlayers.RemoveAt(index);
         }
 

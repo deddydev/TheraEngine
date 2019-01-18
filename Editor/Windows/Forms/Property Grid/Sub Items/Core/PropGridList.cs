@@ -13,10 +13,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private IList _list = null;
         private Type _elementType;
+        private int _displayedCount = 0;
 
         protected override void UpdateDisplayInternal(object value)
         {
             _list = value as IList;
+
             if (Editor.GetSettings().PropertyGrid.ShowTypeNames)
             {
                 string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
@@ -34,10 +36,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 lblObjectTypeName.Enabled = _list.Count > 0;
                 btnAdd.Visible = !_list.IsFixedSize;
                 _elementType = _list.DetermineElementType();
+
+                if (propGridListItems.Visible && _list.Count != _displayedCount)
+                    LoadList(_list);
             }
             else
             {
                 lblObjectTypeName.Enabled = false;
+                if (propGridListItems.Visible)
+                {
+                    propGridListItems.Visible = false;
+                    LoadList(null);
+                }
                 btnAdd.Visible = false;
             }
         }
@@ -68,10 +78,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void LoadList(IList list)
         {
-            if (list == null)
-                propGridListItems.DestroyProperties();
-            else
+            propGridListItems.DestroyProperties();
+            if (list != null)
             {
+                _displayedCount = list.Count;
                 propGridListItems.tblProps.SuspendLayout();
                 for (int i = 0; i < list.Count; ++i)
                 {
@@ -82,8 +92,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     label.MouseLeave += Label_MouseLeave;
                     label.MouseDown += Label_MouseDown;
                     label.MouseUp += Label_MouseUp;
+                    label.HandleDestroyed += Label_HandleDestroyed;
                 }
                 propGridListItems.tblProps.ResumeLayout(true);
+            }
+            else
+                _displayedCount = 0;
+        }
+
+        private void Label_HandleDestroyed(object sender, EventArgs e)
+        {
+            if (sender is Label label)
+            {
+                label.MouseEnter -= Label_MouseEnter;
+                label.MouseLeave -= Label_MouseLeave;
+                label.MouseDown -= Label_MouseDown;
+                label.MouseUp -= Label_MouseUp;
             }
         }
 
@@ -91,7 +115,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
 
         }
-
         private void Label_MouseDown(object sender, MouseEventArgs e)
         {
 

@@ -240,7 +240,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(targetStructName + "Direction", _direction);
             program.Uniform(targetStructName + "OuterCutoff", _outerCutoff);
             program.Uniform(targetStructName + "InnerCutoff", _innerCutoff);
-            program.Uniform(targetStructName + "Position", WorldMatrix.Translation);
+            program.Uniform(targetStructName + "Position", WorldPoint);
             program.Uniform(targetStructName + "Radius", _distance);
             program.Uniform(targetStructName + "Brightness", Brightness);
             program.Uniform(targetStructName + "Exponent", Exponent);

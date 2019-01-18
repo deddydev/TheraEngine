@@ -112,9 +112,9 @@ namespace TheraEngine.Rendering
                 //throw new Exception("No context bound.");
                 return false;
             }
-            else if (_currentBind == null || _currentBind._context != RenderContext.Captured)
+            else if (_currentBind == null || _currentBind.ThreadID != Thread.CurrentThread.ManagedThreadId)
             {
-                int index = _owners.FindIndex(x => x._context == RenderContext.Captured);
+                int index = _owners.FindIndex(x => x.ThreadID != Thread.CurrentThread.ManagedThreadId);
                 if (index >= 0)
                     _currentBind = _owners[index];
                 else
@@ -164,7 +164,6 @@ namespace TheraEngine.Rendering
                 CurrentBind.BindingId = id;
                 CurrentBind.GenerationStackTrace = Engine.GetStackTrace();
                 CurrentBind.GenerationTime = DateTime.Now;
-                CurrentBind.ThreadID = Thread.CurrentThread.ManagedThreadId;
                 PostGenerated();
                 Generated?.Invoke();
             }

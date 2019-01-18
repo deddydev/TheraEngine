@@ -2,6 +2,7 @@
 
 namespace TheraEngine.Core.Attributes
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class TNumericPrefixSuffixAttribute : Attribute
     {
         public string Prefix { get; }

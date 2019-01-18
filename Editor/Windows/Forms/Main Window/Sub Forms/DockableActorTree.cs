@@ -18,7 +18,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (ActorTree.SelectedNode == null)
                 {
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World.Settings;
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World?.Settings;
                 }
                 else
                 {

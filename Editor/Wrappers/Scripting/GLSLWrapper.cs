@@ -12,7 +12,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(GLSLScript), nameof(Resources.GenericFile))]
+    [NodeWrapper(nameof(Resources.GenericFile))]
     public class GLSLWrapper : FileWrapper<GLSLScript>
     {
         #region Menu

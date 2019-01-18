@@ -201,6 +201,7 @@ namespace TheraEngine.Animation
 
             return _keyframes.First.Interpolate(second);
         }
+        [Category(AnimCategory)]
         public override float CurrentTime
         {
             get => base.CurrentTime;

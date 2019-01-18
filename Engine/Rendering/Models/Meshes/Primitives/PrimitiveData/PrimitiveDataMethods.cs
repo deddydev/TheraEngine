@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Files;
+using System.Collections;
 
 namespace TheraEngine.Rendering.Models
 {
-    public partial class PrimitiveData : TFileObject, IDisposable
+    public partial class PrimitiveData : TFileObject, IDisposable, IEnumerable<DataBuffer>
     {
         public VertexTriangle GetFace(int index)
         {
@@ -465,6 +466,16 @@ namespace TheraEngine.Rendering.Models
         public void Dispose()
         {
             _buffers?.ForEach(x => x.Dispose());
+        }
+
+        public IEnumerator<DataBuffer> GetEnumerator()
+        {
+            return ((IEnumerable<DataBuffer>)_buffers).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<DataBuffer>)_buffers).GetEnumerator();
         }
     }
 }

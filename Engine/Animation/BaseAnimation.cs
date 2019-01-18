@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Files;
 using TheraEngine.Input.Devices;
+using TheraEngine.Core.Attributes;
 
 namespace TheraEngine.Animation
 {
@@ -29,6 +30,8 @@ namespace TheraEngine.Animation
     [TFileDef("Animation")]
     public abstract class BaseAnimation : TFileObject
     {
+        protected const string AnimCategory = "Animation";
+
         public event Action<BaseAnimation> AnimationStarted;
         public event Action<BaseAnimation> AnimationEnded;
         public event Action<BaseAnimation> AnimationPaused;
@@ -72,7 +75,7 @@ namespace TheraEngine.Animation
             Looped = looped;
         }
 
-        [Category("Animation")]
+        [Category(AnimCategory)]
         public ETickGroup Group
         {
             get => _group;
@@ -88,7 +91,7 @@ namespace TheraEngine.Animation
                 _group = value;
             }
         }
-        [Category("Animation")]
+        [Category(AnimCategory)]
         public ETickOrder Order
         {
             get => _order;
@@ -104,7 +107,7 @@ namespace TheraEngine.Animation
                 _order = value;
             }
         }
-        [Category("Animation")]
+        [Category(AnimCategory)]
         public EInputPauseType PausedBehavior
         {
             get => _pausedBehavior;
@@ -125,7 +128,8 @@ namespace TheraEngine.Animation
         /// If false, <see cref="Progress(float)"/> must be called to progress the animation.
         /// </summary>
         [Browsable(false)]
-        [Category("Animation"), TSerialize(NodeType = ENodeType.Attribute)]
+        [Category(AnimCategory)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public bool TickSelf
         {
             get => _tickSelf;
@@ -153,7 +157,9 @@ namespace TheraEngine.Animation
                 OnLengthChanged();
         }
 
-        [Category("Animation")]
+        [DisplayName("Length")]
+        [TNumericPrefixSuffix(null, " sec")]
+        [Category(AnimCategory)]
         public float LengthInSeconds
         {
             get => _lengthInSeconds;
@@ -165,7 +171,7 @@ namespace TheraEngine.Animation
         /// A speed of 2.0f would shorten the animation to play in half the time, where 0.5f would be lengthen the animation to play two times slower.
         /// CAN be negative to play the animation in reverse.
         /// </summary>
-        [Category("Animation")]
+        [Category(AnimCategory)]
         public float Speed
         {
             get => _speed;
@@ -175,7 +181,7 @@ namespace TheraEngine.Animation
                 OnSpeedChanged();
             }
         }
-        [Category("Animation")]
+        [Category(AnimCategory)]
         public bool Looped
         {
             get => _looped;
@@ -189,7 +195,8 @@ namespace TheraEngine.Animation
         /// Sets the current time within the animation.
         /// Do not use to progress forward or backward every frame, instead use Progress().
         /// </summary>
-        [Category("Animation")]
+        [TNumericPrefixSuffix(null, " sec")]
+        [Category(AnimCategory)]
         public virtual float CurrentTime
         {
             get => _currentTime;
@@ -200,7 +207,7 @@ namespace TheraEngine.Animation
             }
         }
 
-        [Category("Animation")]
+        [Category(AnimCategory)]
         public EAnimationState State
         {
             get => _state;

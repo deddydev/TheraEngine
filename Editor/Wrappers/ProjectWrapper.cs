@@ -6,7 +6,7 @@ using TheraEditor.Windows.Forms;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(TProject), nameof(Resources.ProjectFile))]
+    [NodeWrapper(nameof(Resources.ProjectFile))]
     public class ProjectWrapper : FileWrapper<TProject>
     {
         #region Menu

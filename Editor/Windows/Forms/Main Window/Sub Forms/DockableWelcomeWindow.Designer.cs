@@ -108,7 +108,7 @@
             // 
             // panel2
             // 
-            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(86)))), ((int)(((byte)(94)))));
+            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(70)))), ((int)(((byte)(68)))), ((int)(((byte)(76)))));
             this.panel2.Controls.Add(this.btnOpen);
             this.panel2.Controls.Add(this.btnNew);
             this.panel2.Controls.Add(this.pnlCreateProj);
@@ -211,7 +211,7 @@
             this.panel4.Location = new System.Drawing.Point(0, 40);
             this.panel4.Margin = new System.Windows.Forms.Padding(0);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(320, 32);
+            this.panel4.Size = new System.Drawing.Size(320, 27);
             this.panel4.TabIndex = 2;
             // 
             // txtProjectDir
@@ -249,7 +249,7 @@
             this.btnBrowseProjectDir.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBrowseProjectDir.Location = new System.Drawing.Point(281, 0);
             this.btnBrowseProjectDir.Name = "btnBrowseProjectDir";
-            this.btnBrowseProjectDir.Size = new System.Drawing.Size(39, 32);
+            this.btnBrowseProjectDir.Size = new System.Drawing.Size(39, 27);
             this.btnBrowseProjectDir.TabIndex = 1;
             this.btnBrowseProjectDir.Text = "...";
             this.btnBrowseProjectDir.UseVisualStyleBackColor = false;

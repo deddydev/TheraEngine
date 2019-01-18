@@ -394,6 +394,9 @@ namespace TheraEngine.Rendering.Models
             => Engine.Renderer.InitializeBuffer(this);
         public void PushData()
         {
+            if (IsMapped)
+                return;
+
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PushData, BaseRenderPanel.PanelType.Rendering))
                 return;
 
@@ -405,6 +408,9 @@ namespace TheraEngine.Rendering.Models
         public void PushSubData() => PushSubData(0, DataLength);
         public void PushSubData(int offset, int length)
         {
+            if (IsMapped)
+                return;
+
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PushSubData, BaseRenderPanel.PanelType.Rendering, offset, length))
                 return;
 
@@ -571,7 +577,7 @@ namespace TheraEngine.Rendering.Models
         }
         protected override void PreDeleted()
         {
-            if (MapData)
+            if (IsMapped)
                 Engine.Renderer.UnmapBufferData(this);
         }
 

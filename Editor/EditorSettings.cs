@@ -72,7 +72,7 @@ namespace TheraEditor
                 set => _expandedCategories = value ?? new List<string>();
             }
             [TSerialize]
-            public bool ShowTypeNames { get; set; } = false;
+            public bool ShowTypeNames { get; set; } = true;
             [TSerialize]
             public bool DisplayMethods { get; set; } = false;
             [TSerialize]

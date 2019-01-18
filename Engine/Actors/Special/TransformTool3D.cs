@@ -490,7 +490,7 @@ namespace TheraEngine.Actors.Types
         private const float _scaleHalf2LDist = _orbRadius * 1.2f;
         
         Vec3 _lastPointWorld;
-        Vec3 _dragPlaneNormal;
+        Vec3 _localDragPlaneNormal;
 
         private Action _mouseUp, _mouseDown;
         private DelDrag _drag;
@@ -564,12 +564,12 @@ namespace TheraEngine.Actors.Types
         /// <param name="camera">The camera viewing this tool, used for camera space drag clamping.</param>
         /// <param name="localRay">The mouse ray, transformed into the socket's local space.</param>
         /// <returns></returns>
-        private Vec3 GetDragPoint(Camera camera, Ray localRay)
+        private Vec3 GetLocalDragPoint(Camera camera, Ray localRay)
         {
             //Convert all coordinates to local space
 
             Vec3 localCamPoint = camera.WorldPoint * RootComponent.InverseWorldMatrix;
-            Vec3 dragPoint, unit;
+            Vec3 localDragPoint, unit;
 
             switch (_mode)
             {
@@ -578,92 +578,92 @@ namespace TheraEngine.Actors.Types
                     {
                         if (_hiCam)
                         {
-                            _dragPlaneNormal = localCamPoint;
-                            _dragPlaneNormal.NormalizeFast();
+                            _localDragPlaneNormal = localCamPoint;
+                            _localDragPlaneNormal.Normalize();
                         }
                         else if (_hiAxis.X)
                         {
                             if (_hiAxis.Y)
                             {
-                                _dragPlaneNormal = Vec3.UnitZ;
+                                _localDragPlaneNormal = Vec3.UnitZ;
                             }
                             else if (_hiAxis.Z)
                             {
-                                _dragPlaneNormal = Vec3.UnitY;
+                                _localDragPlaneNormal = Vec3.UnitY;
                             }
                             else
                             {
                                 unit = Vec3.UnitX;
                                 Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
-                                _dragPlaneNormal = localCamPoint - perpPoint;
-                                _dragPlaneNormal.NormalizeFast();
+                                _localDragPlaneNormal = localCamPoint - perpPoint;
+                                _localDragPlaneNormal.Normalize();
 
-                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _localDragPlaneNormal, out localDragPoint))
                                     return _lastPointWorld;
 
-                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
+                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, localDragPoint);
                             }
                         }
                         else if (_hiAxis.Y)
                         {
                             if (_hiAxis.X)
                             {
-                                _dragPlaneNormal = Vec3.UnitZ;
+                                _localDragPlaneNormal = Vec3.UnitZ;
                             }
                             else if (_hiAxis.Z)
                             {
-                                _dragPlaneNormal = Vec3.UnitX;
+                                _localDragPlaneNormal = Vec3.UnitX;
                             }
                             else
                             {
                                 unit = Vec3.UnitY;
                                 Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
-                                _dragPlaneNormal = localCamPoint - perpPoint;
-                                _dragPlaneNormal.NormalizeFast();
+                                _localDragPlaneNormal = localCamPoint - perpPoint;
+                                _localDragPlaneNormal.Normalize();
 
-                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _localDragPlaneNormal, out localDragPoint))
                                     return _lastPointWorld;
 
-                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
+                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, localDragPoint);
                             }
                         }
                         else if (_hiAxis.Z)
                         {
                             if (_hiAxis.X)
                             {
-                                _dragPlaneNormal = Vec3.UnitY;
+                                _localDragPlaneNormal = Vec3.UnitY;
                             }
                             else if (_hiAxis.Y)
                             {
-                                _dragPlaneNormal = Vec3.UnitX;
+                                _localDragPlaneNormal = Vec3.UnitX;
                             }
                             else
                             {
                                 unit = Vec3.UnitZ;
                                 Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
-                                _dragPlaneNormal = localCamPoint - perpPoint;
-                                _dragPlaneNormal.NormalizeFast();
+                                _localDragPlaneNormal = localCamPoint - perpPoint;
+                                _localDragPlaneNormal.Normalize();
 
-                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
+                                if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _localDragPlaneNormal, out localDragPoint))
                                     return _lastPointWorld;
 
-                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
+                                return Ray.GetClosestColinearPoint(Vec3.Zero, unit, localDragPoint);
                             }
                         }
 
-                        if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                            return dragPoint;
+                        if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _localDragPlaneNormal, out localDragPoint))
+                            return localDragPoint;
                     }
                     break;
                 case TransformType.Rotate:
                     {
                         if (_hiCam)
                         {
-                            _dragPlaneNormal = localCamPoint;
-                            _dragPlaneNormal.NormalizeFast();
+                            _localDragPlaneNormal = localCamPoint;
+                            _localDragPlaneNormal.Normalize();
 
-                            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                                return dragPoint;
+                            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _localDragPlaneNormal, out localDragPoint))
+                                return localDragPoint;
                         }
                         else if (_hiAxis.Any)
                         {
@@ -674,21 +674,21 @@ namespace TheraEngine.Actors.Types
                             else// if (_hiAxis.Z)
                                 unit = Vec3.UnitZ;
 
-                            _dragPlaneNormal = unit;
-                            _dragPlaneNormal.NormalizeFast();
+                            _localDragPlaneNormal = unit;
+                            _localDragPlaneNormal.Normalize();
 
-                            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
-                                return dragPoint;
+                            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _localDragPlaneNormal, out localDragPoint))
+                                return localDragPoint;
                         }
                         else if (_hiSphere)
                         {
                             Vec3 worldPoint = RootComponent.WorldPoint;
                             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
-                            if (Collision.RayIntersectsSphere(localRay.StartPoint, localRay.Direction, Vec3.Zero, radius * _circOrbScale, out dragPoint))
+                            if (Collision.RayIntersectsSphere(localRay.StartPoint, localRay.Direction, Vec3.Zero, radius * _circOrbScale, out localDragPoint))
                             {
-                                _dragPlaneNormal = (dragPoint * RootComponent.WorldMatrix - worldPoint).Normalized();
-                                return dragPoint;
+                                _localDragPlaneNormal = localDragPoint.Normalized();
+                                return localDragPoint;
                             }
                         }
                     }
@@ -889,11 +889,11 @@ namespace TheraEngine.Actors.Types
                     OnPressed();
 
                 Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
-                Vec3 dragPoint = GetDragPoint(camera, localRay);
-                dragPoint = dragPoint * RootComponent.WorldMatrix;
-                _drag(dragPoint);
+                Vec3 localDragPoint = GetLocalDragPoint(camera, localRay);
+                Vec3 worldDragPoint = Vec3.TransformPosition(localDragPoint, RootComponent.WorldMatrix);
+                _drag(worldDragPoint);
 
-                _lastPointWorld = dragPoint;
+                _lastPointWorld = worldDragPoint;
             }
             else
             {
@@ -914,8 +914,8 @@ namespace TheraEngine.Actors.Types
 
                 GetDependentColors();
 
-                Vec3 dragPoint = GetDragPoint(camera, localRay);
-                _lastPointWorld = dragPoint * RootComponent.WorldMatrix;
+                Vec3 localDragPoint = GetLocalDragPoint(camera, localRay);
+                _lastPointWorld = Vec3.TransformPosition(localDragPoint, RootComponent.WorldMatrix);
             }
             return snapFound;
         }
@@ -970,7 +970,8 @@ namespace TheraEngine.Actors.Types
             if (_hiCam || _hiSphere || _hiAxis.Any)
             {
                 Engine.Renderer.RenderPoint(_lastPointWorld, Color.Black, false);
-                Engine.Renderer.RenderLine(_lastPointWorld, _lastPointWorld + _dragPlaneNormal * Engine.Renderer.CurrentCamera.DistanceScale(RootComponent.WorldPoint, 2.0f), Color.Black, false);
+                Vec3 worldNormal = Vec3.TransformVector(_localDragPlaneNormal, RootComponent.WorldMatrix);
+                Engine.Renderer.RenderLine(_lastPointWorld, _lastPointWorld + worldNormal * Engine.Renderer.CurrentCamera.DistanceScale(RootComponent.WorldPoint, 2.0f), Color.Black, false);
             }
         }
 

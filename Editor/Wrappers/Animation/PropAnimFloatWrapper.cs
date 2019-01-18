@@ -6,7 +6,7 @@ using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(PropAnimFloat), nameof(Resources.GenericFile))]
+    [NodeWrapper(nameof(Resources.GenericFile))]
     public class PropAnimFloatWrapper : FileWrapper<PropAnimFloat>
     {
         #region Menu

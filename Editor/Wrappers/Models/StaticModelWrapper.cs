@@ -6,7 +6,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(typeof(StaticModel), nameof(Resources.GenericFile))]
+    [NodeWrapper(nameof(Resources.GenericFile))]
     public class StaticModelWrapper : FileWrapper<StaticModel>
     {
         #region Menu

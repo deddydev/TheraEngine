@@ -235,6 +235,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public event Action<object> PropertiesLoaded;
 
+        private object GetObject() => _subObject;
         private async void LoadProperties(bool showProperties = true, bool showEvents = false, bool showMethods = false)
         {
             if (Disposing || IsDisposed)
@@ -243,7 +244,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var propGridSettings = Editor.GetSettings().PropertyGrid;
             await LoadPropertiesToPanel(
                 pnlProps, _categories,
-                _subObject, () => _subObject,
+                _subObject, GetObject,
                 this,
                 false, true, propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
 

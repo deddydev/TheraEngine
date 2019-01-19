@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEngine;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -154,14 +155,14 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnDeactivate(EventArgs e)
         {
-            Program.FocusChanged();
+            Engine.FocusChanged();
             SetBorderColor(InactiveBorderColor);
             SetTextColor(InactiveTextColor);
             base.OnDeactivate(e);
         }
         protected override void OnActivated(EventArgs e)
         {
-            Program.FocusChanged();
+            Engine.FocusChanged();
             SetBorderColor(ActiveBorderColor);
             SetTextColor(ActiveTextColor);
             base.OnActivated(e);

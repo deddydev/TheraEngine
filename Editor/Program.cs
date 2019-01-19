@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
@@ -30,7 +29,7 @@ namespace TheraEditor
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            //AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
@@ -39,7 +38,7 @@ namespace TheraEditor
 
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
-            List<EditorState> dirty = Editor.Instance.GetDirtyFiles();
+            List<EditorState> dirty = EditorState.DirtyStates;
             Exception ex = e.Exception;
             using (IssueDialog d = new IssueDialog(ex, dirty))
                 d.ShowDialog();
@@ -49,27 +48,13 @@ namespace TheraEditor
         {
             if (e.ExceptionObject is Exception)
             {
-                List<EditorState> dirty = Editor.Instance.GetDirtyFiles();
+                List<EditorState> dirty = EditorState.DirtyStates;
                 Exception ex = e.ExceptionObject as Exception;
                 using (IssueDialog d = new IssueDialog(ex, dirty))
                     d.ShowDialog();
             }
         }
 
-        /// <summary>
-        /// Returns true if any editor window has focus.
-        /// </summary>
-        private static bool CheckFocus()
-        {
-            var activatedHandle = NativeMethods.GetForegroundWindow();
-            if (activatedHandle == IntPtr.Zero)
-                return false; //No window is currently activated
-
-            int procId = Process.GetCurrentProcess().Id;
-            NativeMethods.GetWindowThreadProcessId(activatedHandle, out int activeProcId);
-
-            return activeProcId == procId;
-        }
         /// <summary>
         /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
         /// </summary>
@@ -157,37 +142,7 @@ namespace TheraEditor
                 node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);
             }
         }
-
-        public static bool IsFocused { get; private set; } = true;
-        public static event Action GotFocus;
-        public static event Action LostFocus;
-        internal static void FocusChanged()
-        {
-            //if (CheckFocus())
-            //{
-            //    if (!IsFocused)
-            //    {
-            //        IsFocused = true;
-            //        Project p = Editor.Instance.Project;
-            //        bool? capFPS = p.EngineSettings?.File?.CapFPS;
-            //        bool? capUPS = p.EngineSettings?.File?.CapUPS;
-            //        Engine.TargetRenderFreq = p != null && capFPS != null && capFPS.Value ? p.EngineSettings.File.TargetFPS : 0.0f;
-            //        Engine.TargetUpdateFreq = p != null && capUPS != null && capUPS.Value ? p.EngineSettings.File.TargetUPS : 0.0f;
-            //        GotFocus?.Invoke();
-            //    }
-            //}
-            //else
-            //{
-            //    if (IsFocused)
-            //    {
-            //        IsFocused = false;
-            //        Engine.TargetRenderFreq = 3.0f;
-            //        Engine.TargetUpdateFreq = 30.0f;
-            //        LostFocus?.Invoke();
-            //    }
-            //}
-        }
-
+        
         //TODO: loop through all loaded assemblies and delete individually
         //internal static void DeleteSelf()
         //{

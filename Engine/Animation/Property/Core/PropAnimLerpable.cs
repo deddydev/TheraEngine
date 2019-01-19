@@ -165,18 +165,8 @@ namespace TheraEngine.Animation
             => LerpConstrainedFPSChanged?.Invoke(this);
 
         protected override void BakedChanged()
-        {
-            if (IsBaked)
-            {
-                Bake(_bakedFPS);
-                _getValue = GetValueBakedBySecond;
-            }
-            else
-            {
-                _baked = null;
-                _getValue = GetValueKeyframed;
-            }
-        }
+            => _getValue = !IsBaked ? (DelGetValue<TValue>)GetValueKeyframed : GetValueBakedBySecond;
+        
         public TValue GetValueBaked(int frameIndex)
             => _baked == null || _baked.Length == 0 ? new TValue() :
             _baked[frameIndex.Clamp(0, _baked.Length - 1)];

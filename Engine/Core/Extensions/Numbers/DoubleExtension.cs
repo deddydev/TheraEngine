@@ -2,6 +2,9 @@
 {
     public static class DoubleExtension
     {
+        public static double RoundToNearestMultiple(this double value, double multiple)
+            => Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
+        
         public const Double ZeroTolerance = 1e-6f;
         public static bool IsZero(this Double value)
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
 using static System.Windows.Forms.Control;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -22,6 +23,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private const string MiscName = "Miscellaneous";
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
         protected object _object;
+        protected Type _currentType;
+        public Type CurrentType => _currentType ?? DataType;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
@@ -44,6 +47,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //    LoadProperties(value);
 
             _object = value;
+            Type type = _object?.GetType();
+            if (type != CurrentType)
+            {
+                _currentType = type;
+                UpdateMouseDown();
+            }
 
             if (Editor.GetSettings().PropertyGrid.ShowTypeNames)
             {
@@ -115,18 +124,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void UpdateMouseDown()
         {
             _mouseDown = MouseDownProperties;
-            if (!DataType.IsValueType)
+            Type type = CurrentType;
+            if (!type.IsValueType)
             {
-                Type t = DataType;
-                while (t != null && t != typeof(object))
+                while (type != null && type != typeof(object))
                 {
-                    if (TheraPropertyGrid.FullEditorTypes.ContainsKey(t))
+                    if (TheraPropertyGrid.FullEditorTypes.ContainsKey(type))
                     {
-                        _editorType = TheraPropertyGrid.FullEditorTypes[t];
+                        _editorType = TheraPropertyGrid.FullEditorTypes[type];
                         _mouseDown = MouseDownEditor;
                         return;
                     }
-                    foreach (Type intfType in t.GetInterfaces())
+                    foreach (Type intfType in type.GetInterfaces())
                     {
                         if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
                         {
@@ -135,7 +144,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             return;
                         }
                     }
-                    t = t.BaseType;
+                    type = type.BaseType;
                 }
             }
         }
@@ -144,7 +153,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Action _mouseDown;
         private void MouseDownEditor()
         {
-            using (Form f = Activator.CreateInstance(_editorType, GetValue()) as Form)
+            Form f = Activator.CreateInstance(_editorType, GetValue()) as Form;
+            if (f is DockContent dc)
+                dc.Show(Editor.Instance.DockPanel, DockState.Document);
+            else
                 f?.ShowDialog(this);
         }
         private void MouseDownProperties()

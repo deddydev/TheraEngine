@@ -14,6 +14,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Input.Devices;
 using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
@@ -39,6 +40,8 @@ namespace TheraEngine.Tests
 
         public override async void BeginPlay()
         {
+            bool testDeferredDecal = true;
+            bool testShapeTracer = true;
             bool testLandscape = true;
             bool createWalls = true;
             int pointLights = 0;
@@ -238,6 +241,7 @@ namespace TheraEngine.Tests
             }
             #endregion
 
+            #region Landscape
             if (testLandscape)
             {
                 int wh = 401;
@@ -280,25 +284,16 @@ namespace TheraEngine.Tests
                 landscape.RootComponent.Translation.Y -= 25.0f;
                 actors.Add(landscape);
             }
+            #endregion
 
-            //Create shape tracer
-            //actor = new SphereTraceActor();
-            //actors.Add(actor);
+            #region Shape Tracer
+            if (testShapeTracer)
+            {
+                actors.Add(new SphereTraceActor());
+            }
+            #endregion
 
-            //float rotationsPerSecond = 0.2f, testRadius = 15.0f, testHeight = 20.0f;
-            //PropAnimMethod<Vec3> animMethod = new PropAnimMethod<Vec3>(
-            //    1.0f / rotationsPerSecond, true, second =>
-            //{
-            //    float theta = (rotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
-            //    //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
-            //    Vec2 coord = TMath.PolarToCartesianDeg(theta, testRadius/* * mult*/);
-            //    return new Vec3(coord.X, testHeight, -coord.Y);
-            //});
-            //AnimationContainer anim = new AnimationContainer(
-            //    "RotationTrace", "Translation.Raw", false, animMethod);
-            //actor.RootComponent.AddAnimation(anim, true, false,
-            //    ETickGroup.PostPhysics, ETickOrder.Animation, Input.Devices.EInputPauseType.TickAlways);
-
+            #region Camera Shake
             //Create camera shake test
             TranslationComponent posComp = new TranslationComponent(new Vec3(0.0f, 50.0f, 0.0f));
             ScreenShake3DComponent shakeComp = new ScreenShake3DComponent()
@@ -312,39 +307,47 @@ namespace TheraEngine.Tests
             shakeComp.ChildComponents.Add(camComp);
             Actor<TranslationComponent> testScreenshake = new Actor<TranslationComponent>(posComp);
             actors.Add(testScreenshake);
+            #endregion
 
+            #region Skybox
             TextureFile2D skyTex = await Engine.Files.LoadEngineTexture2DAsync("modelviewerbg1.png");
             SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
             actors.Add(skyboxActor);
+            #endregion
 
-            TextureFile2D decalTex = await Engine.Files.LoadEngineTexture2DAsync("decal guide.png");
-            var bmp = decalTex.GetLargestBitmap();
-            DecalActor decal = new DecalActor();
-            decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);
-            int maxDim = Math.Max(bmp.Width, bmp.Height) / 2;
-            decal.RootComponent.Shape.HalfExtents = new Vec3(bmp.Width * 0.5f / maxDim, 1.0f, bmp.Height * 0.5f / maxDim);
-            actors.Add(decal);
-
-            IBLProbeGridActor iblProbes = new IBLProbeGridActor();
-            //iblProbes.RootComponent.Translation.Y += 3.0f;
-            Random random = new Random();
-            for (int i = 0; i < 1; ++i)
+            #region Decal
+            if (testDeferredDecal)
             {
-                iblProbes.AddProbe(new Vec3(
-                    ((float)random.NextDouble() - 0.5f) * 200.0f,
-                    ((float)random.NextDouble() - 0.5f) * 200.0f,
-                    ((float)random.NextDouble() - 0.5f) * 200.0f));
+                TextureFile2D decalTex = await Engine.Files.LoadEngineTexture2DAsync("decal guide.png");
+                var bmp = decalTex.GetLargestBitmap();
+                DecalActor decal = new DecalActor();
+                decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);
+                int maxDim = Math.Max(bmp.Width, bmp.Height) / 2;
+                decal.RootComponent.Shape.HalfExtents = new Vec3(bmp.Width * 0.5f / maxDim, 1.0f, bmp.Height * 0.5f / maxDim);
+                actors.Add(decal);
             }
-            //iblProbes.AddProbe(new Vec3(50.0f, 0.0f, 0.0f));
-            //iblProbes.AddProbe(new Vec3(-51.0f, 0.0f, 0.0f));
-            //iblProbes.AddProbe(new Vec3(0.0f, 52.0f, 0.0f));
-            //iblProbes.AddProbe(new Vec3(0.0f, -53.0f, 0.0f));
-            //iblProbes.AddProbe(new Vec3(10.0f, 0.0f, 54.0f));
-            //iblProbes.AddProbe(new Vec3(0.0f, 0.0f, -55.0f));
-            //iblProbes.AddProbe(new Vec3(0.0f, -70.0f, 154.0f));
-            //iblProbes.AddProbe(new Vec3(0.0f, 60.0f, -155.0f));
-            //iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
-            actors.Add(iblProbes);
+            #endregion
+
+            //IBLProbeGridActor iblProbes = new IBLProbeGridActor();
+            ////iblProbes.RootComponent.Translation.Y += 3.0f;
+            //Random random = new Random();
+            //for (int i = 0; i < 1; ++i)
+            //{
+            //    iblProbes.AddProbe(new Vec3(
+            //        ((float)random.NextDouble() - 0.5f) * 200.0f,
+            //        ((float)random.NextDouble() - 0.5f) * 200.0f,
+            //        ((float)random.NextDouble() - 0.5f) * 200.0f));
+            //}
+            ////iblProbes.AddProbe(new Vec3(50.0f, 0.0f, 0.0f));
+            ////iblProbes.AddProbe(new Vec3(-51.0f, 0.0f, 0.0f));
+            ////iblProbes.AddProbe(new Vec3(0.0f, 52.0f, 0.0f));
+            ////iblProbes.AddProbe(new Vec3(0.0f, -53.0f, 0.0f));
+            ////iblProbes.AddProbe(new Vec3(10.0f, 0.0f, 54.0f));
+            ////iblProbes.AddProbe(new Vec3(0.0f, 0.0f, -55.0f));
+            ////iblProbes.AddProbe(new Vec3(0.0f, -70.0f, 154.0f));
+            ////iblProbes.AddProbe(new Vec3(0.0f, 60.0f, -155.0f));
+            ////iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
+            //actors.Add(iblProbes);
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {
@@ -355,7 +358,7 @@ namespace TheraEngine.Tests
 
             base.BeginPlay();
 
-            iblProbes.InitAndCaptureAll(256);
+            //iblProbes.InitAndCaptureAll(256);
         }
     }
 
@@ -399,6 +402,43 @@ namespace TheraEngine.Tests
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
+        private PropAnimMethod<Vec3> _methodAnim;
+        private AnimationTree _animTree;
+        private float _rotationsPerSecond = 0.2f;
+        public float RotationsPerSecond
+        {
+            get => _rotationsPerSecond;
+            set
+            {
+                _rotationsPerSecond = value;
+                float length = 1.0f / RotationsPerSecond;
+                _methodAnim?.SetLength(length, false);
+                _animTree?.SetLength(length, false);
+            }
+        }
+        public float TestRadius { get; set; } = 15.0f;
+        public float TestHeight { get; set; } = 20.0f;
+        
+        private Vec3 AnimTick(float second)
+        {
+            float theta = (RotationsPerSecond * second).RemapToRange(0.0f, 1.0f) * 360.0f;
+            //float mult = 1.5f - 4.0f * TMath.Cosdf(theta);
+            Vec2 coord = TMath.PolarToCartesianDeg(theta, TestRadius/* * mult*/);
+            return new Vec3(coord.X, TestHeight, -coord.Y);
+        }
+        protected override void OnSpawnedPreComponentSpawn()
+        {
+            float length = 1.0f / RotationsPerSecond;
+            _methodAnim = new PropAnimMethod<Vec3>(1.0f / RotationsPerSecond, true, AnimTick);
+            _animTree = new AnimationTree("RotationTrace", "Translation.Raw", EAnimationMemberType.Property, _methodAnim);
+            RootComponent.Animations = new EventList<AnimationTree>();
+            _animTree.Group = ETickGroup.PostPhysics;
+            _animTree.Order = ETickOrder.Animation;
+            _animTree.PausedBehavior = EInputPauseType.TickAlways;
+            _animTree.BeginOnSpawn = true;
+            _animTree.TickSelf = true;
+            RootComponent.Animations.Add(_animTree);
+        }
         protected override void OnSpawnedPostComponentSpawn()
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);

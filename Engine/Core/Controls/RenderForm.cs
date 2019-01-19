@@ -10,7 +10,7 @@ namespace TheraEngine
         {
             Engine.SetGame(game);
             InitializeComponent();
-            Engine.SetWorldPanel(renderPanel1);
+            Engine.SetWorldPanel(renderPanel);
             Engine.Initialize();
 
             Text = game.Name;
@@ -61,7 +61,17 @@ namespace TheraEngine
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            renderPanel1.UnregisterTick();
+            renderPanel.UnregisterTick();
+        }
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            Engine.FocusChanged();
+        }
+        protected override void OnDeactivate(EventArgs e)
+        {
+            base.OnDeactivate(e);
+            Engine.FocusChanged();
         }
     }
 }

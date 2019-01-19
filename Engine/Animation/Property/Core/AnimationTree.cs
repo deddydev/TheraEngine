@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace TheraEngine.Animation
@@ -8,6 +7,10 @@ namespace TheraEngine.Animation
     [TFileDef("Property Animation Tree")]
     public class AnimationTree : BaseAnimation
     {
+        [Browsable(true)]
+        [Category("Object")]
+        public override string Name { get => base.Name; set => base.Name = value; }
+
         public AnimationTree()
             : base(0.0f, false) { }
         public AnimationTree(AnimationMember rootFolder)
@@ -31,8 +34,14 @@ namespace TheraEngine.Animation
 
                 last = member;
             }
-            
-            last?.SetAnimation(anim, memberType);
+
+            LengthInSeconds = anim.LengthInSeconds;
+            Looped = anim.Looped;
+            if (last != null)
+            {
+                last.Animation.File = anim;
+                last.MemberType = memberType;
+            }
         }
 
         private int _totalAnimCount = 0;
@@ -43,6 +52,8 @@ namespace TheraEngine.Animation
         [TSerialize("EndedAnimations", Config = false, State = true)]
         private int _endedAnimations = 0;
 
+        [TSerialize]
+        public bool RemoveOnEnd { get; set; }
         [TSerialize]
         public bool BeginOnSpawn { get; set; }
 

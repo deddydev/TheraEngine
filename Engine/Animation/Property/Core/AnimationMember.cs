@@ -8,8 +8,8 @@ namespace TheraEngine.Animation
 {
     public enum EAnimationMemberType
     {
-        Field,
         Property,
+        Field,
         Method,
     }
     public class AnimationMember
@@ -32,7 +32,8 @@ namespace TheraEngine.Animation
             if (children != null)
                 _children.AddRange(children);
             _memberName = memberName;
-            SetAnimation(null, EAnimationMemberType.Field);
+            Animation.File = null;
+            MemberType = EAnimationMemberType.Property;
         }
         /// <summary>
         /// Constructor to create a subtree with an animation attached at this level.
@@ -53,16 +54,14 @@ namespace TheraEngine.Animation
                 }
             }
             _memberName = memberName;
-            SetAnimation(animation, memberType);
+            Animation.File = animation;
+            MemberType = memberType;
         }
 
         //Cached at runtime
         private PropertyInfo _propertyCache;
         private MethodInfo _methodCache;
         private FieldInfo _fieldCache;
-
-        //TODO: need <object, bool> dictionary because multiple objs might tick in this anim
-        private bool _memberNotFound = false;
         internal Action<object, float> _tick = null;
 
         [TSerialize("MemberType")]
@@ -92,7 +91,7 @@ namespace TheraEngine.Animation
             set
             {
                 _memberType = value;
-                _memberNotFound = false;
+                MemberNotFound = false;
                 switch (_memberType)
                 {
                     case EAnimationMemberType.Field:
@@ -107,6 +106,11 @@ namespace TheraEngine.Animation
                 }
             }
         }
+
+        [ReadOnly(true)]
+        [Category("Animation Member")]
+        public bool MemberNotFound { get; private set; } = false;
+
         public void CollectAnimations(string path, Dictionary<string, BasePropAnim> animations)
         {
             if (!string.IsNullOrEmpty(path))
@@ -120,14 +124,12 @@ namespace TheraEngine.Animation
             foreach (AnimationMember member in _children)
                 member.CollectAnimations(path, animations);
         }
-        public void SetAnimation(BasePropAnim anim, EAnimationMemberType memberType)
-        {
-            Animation.File = anim;
-            MemberType = memberType;
-        }
+
+        //TODO: determine if member is field, property or method once the object is applied
+        //No two members can share the same name
         internal void MethodTick(object obj, float delta)
         {
-            if (obj == null || _memberNotFound)
+            if (obj == null || MemberNotFound)
                 return;
 
             if (_methodCache == null)
@@ -140,7 +142,7 @@ namespace TheraEngine.Animation
                     else
                         break;
                 }
-                if (_memberNotFound = _methodCache == null)
+                if (MemberNotFound = _methodCache == null)
                     return;
             }
 
@@ -148,7 +150,7 @@ namespace TheraEngine.Animation
         }
         internal void PropertyTick(object obj, float delta)
         {
-            if (obj == null || _memberNotFound)
+            if (obj == null || MemberNotFound)
                 return;
 
             if (_propertyCache == null)
@@ -161,7 +163,7 @@ namespace TheraEngine.Animation
                     else
                         break;
                 }
-                if (_memberNotFound = _propertyCache == null)
+                if (MemberNotFound = _propertyCache == null)
                     return;
             }
 
@@ -176,7 +178,7 @@ namespace TheraEngine.Animation
         }
         internal void FieldTick(object obj, float delta)
         {
-            if (obj == null || _memberNotFound)
+            if (obj == null || MemberNotFound)
                 return;
 
             if (_fieldCache == null)
@@ -189,7 +191,7 @@ namespace TheraEngine.Animation
                     else
                         break;
                 }
-                if (_memberNotFound = _fieldCache == null)
+                if (MemberNotFound = _fieldCache == null)
                     return;
             }
 
@@ -224,7 +226,7 @@ namespace TheraEngine.Animation
         }
         internal void StartAnimations()
         {
-            _memberNotFound = false;
+            MemberNotFound = false;
             _fieldCache = null;
             _propertyCache = null;
             _methodCache = null;
@@ -235,7 +237,7 @@ namespace TheraEngine.Animation
         }
         internal void StopAnimations()
         {
-            _memberNotFound = false;
+            MemberNotFound = false;
             _fieldCache = null;
             _propertyCache = null;
             _methodCache = null;

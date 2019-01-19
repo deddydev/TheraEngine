@@ -71,6 +71,11 @@ namespace TheraEngine.Animation
             get => _isBaked;
             set
             {
+                if (value)
+                    Bake(BakedFramesPerSecond);
+                else
+                    Bake(0.0f);
+
                 _isBaked = value;
                 BakedChanged();
                 OnBakedChanged();

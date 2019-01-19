@@ -266,7 +266,7 @@ For example, a logic component could give any actor health and/or allow it to ta
         }
         [Browsable(false)]
         public bool IsConstructing { get; private set; }
-
+        
         public T1 FindFirstLogicComponentOfType<T1>() where T1 : LogicComponent
             => LogicComponents.FirstOrDefault(x => x is T1) as T1;
         public T1[] FindLogicComponentsOfType<T1>() where T1 : LogicComponent

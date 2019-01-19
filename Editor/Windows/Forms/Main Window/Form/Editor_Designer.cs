@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -14,7 +12,6 @@ using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Core.Files;
-using TheraEngine.Editor;
 using TheraEngine.GameModes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Networking;
@@ -93,22 +90,22 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
+        public Dictionary<Keys, Func<bool>> MappableActions { get; private set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
+        public ResourceTree ContentTree => FileTreeForm.ContentTree;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
+        public TreeView ActorTree => ActorTreeForm.ActorTree;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public UndoManager UndoManager { get; } = new UndoManager();
 
         private TProject _project;
         private EditorGameMode _editorGameMode;
         private DeserializeDockContent _deserializeDockContent;
-        //private AppDomain _gameDomain;
-
-        //private void UnloadGameAssembly()
-        //{
-
-        //}
-        //private void LoadGameAssembly()
-        //{
-        //    _gameDomain = AppDomain.CreateDomain(Name);
-        //    //_gameDomain.Load();
-        //}
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
@@ -192,105 +189,7 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
-        public ResourceTree ContentTree => FileTreeForm.ContentTree;
-        public TreeView ActorTree => ActorTreeForm.ActorTree;
-        public TProject Project
-        {
-            get => _project;
-            set
-            {
-                if (value != null && _project == value)
-                    return;
-                
-                if (!CloseProject())
-                    return;
-
-                GameState = EEditorGameplayState.Editing;
-                _project = value;
-
-                Engine.ShutDown();
-                Engine.SetGame(_project);
-
-                bool projectOpened = _project != null;
-                btnEngineSettings.Enabled =
-                btnProjectSettings.Enabled =
-                btnUserSettings.Enabled =
-                btnPlay.Enabled =
-                btnPlayDetached.Enabled =
-                btnCompile.Enabled =
-                projectOpened;
-
-                ClearDockPanel();
-
-                if (projectOpened)
-                {
-                    string configFile = _project.EditorSettings?.GetFullDockConfigPath();
-                    //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
-
-                    if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
-                        DockPanel.LoadFromXml(configFile, _deserializeDockContent);
-                    else
-                    {
-                        DockPanel.SuspendLayout(true);
-                        OutputForm.Show(DockPanel, DockState.DockBottom);
-                        ActorTreeForm.Show(DockPanel, DockState.DockRight);
-                        FileTreeForm.Show(DockPanel, DockState.DockLeft);
-                        PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
-                        RenderForm1.Show(DockPanel, DockState.Document);
-                        DockPanel.ResumeLayout(true, true);
-                    }
-
-                    if (string.IsNullOrEmpty(_project.FilePath))
-                        Text = string.Empty;
-                    else
-                    {
-                        Text = _project.FilePath;
-                        ContentTree.OpenPath(_project.FilePath);
-                    }
-
-                    Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
-                    Engine.SetActiveGameMode(_editorGameMode);
-                    Engine.Initialize(false);
-                    SetRenderTicking(true);
-                    Engine.SetPaused(true, LocalPlayerIndex.One, true);
-
-                    CurrentWorld = _project.OpeningWorldRef?.File;
-                }
-                else
-                {
-                    Text = string.Empty;
-
-                    DockPanel.SuspendLayout(true);
-                    OutputForm.Show(DockPanel, DockState.DockBottom);
-                    WelcomeForm.Show(DockPanel, DockState.Document);
-                    DockPanel.ResumeLayout(true, true);
-                }
-            }
-        }
-
-        protected override void OnTextChanged(EventArgs e)
-        {
-            if (FormTitle2 != null)
-                FormTitle2.Text = Text;
-
-            base.OnTextChanged(e);
-        }
-
-        public bool IsRenderTicking { get; private set; }
-        public void SetRenderTicking(bool isRendering)
-        {
-            if (isRendering && !IsRenderTicking)
-            {
-                IsRenderTicking = true;
-                Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
-            }
-            else if (!isRendering && IsRenderTicking)
-            {
-                IsRenderTicking = false;
-                Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
-            }
-        }
-
+        #region World Management
         /// <summary>
         /// The world that the editor is currently editing.
         /// </summary>
@@ -325,19 +224,60 @@ namespace TheraEditor.Windows.Forms
             }
             PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World?.Settings;
         }
-        private bool Undo()
+        public bool CloseWorld()
         {
-            bool canUndo = UndoManager.CanUndo;
-            UndoManager.Undo();
-            return canUndo;
+            if (CurrentWorld != null)
+            {
+                if (CurrentWorld.EditorState != null && CurrentWorld.EditorState.HasChanges)
+                {
+                    DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                    if (r == DialogResult.Cancel)
+                        return false;
+                    else if (r == DialogResult.Yes)
+                        SaveFile(CurrentWorld);
+                }
+
+                CurrentWorld.EditorState = null;
+                CurrentWorld = null;
+            }
+            return true;
         }
-        private bool Redo()
+        /// <summary>
+        /// Creates and loads a new world for editing.
+        /// Closes the currently opened world if there is one.
+        /// </summary>
+        public void CreateNewWorld()
         {
-            bool canRedo = UndoManager.CanRedo;
-            UndoManager.Redo();
-            return canRedo;
+            if (!CloseWorld())
+                return;
+
+            CurrentWorld = new TWorld();
         }
-        
+        public async void OpenWorld()
+        {
+            if (!CloseWorld())
+                return;
+
+            using (OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = TFileObject.GetFilter<TWorld>(),
+                Multiselect = false
+            })
+            {
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                    CurrentWorld = await TFileObject.LoadAsync<TWorld>(ofd.FileName);
+            }
+        }
+        #endregion
+
+        #region Overrides
+        protected override void OnTextChanged(EventArgs e)
+        {
+            if (FormTitle2 != null)
+                FormTitle2.Text = Text;
+
+            base.OnTextChanged(e);
+        }
         protected override async void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -388,10 +328,56 @@ namespace TheraEditor.Windows.Forms
 
             base.OnFormClosing(e);
         }
-        private void GenerateInitialActorList() => ActorTreeForm.GenerateInitialActorList();
-        private void SpawnedActors_PostAdded(IActor item) => ActorTreeForm.ActorAdded(item);
-        private void SpawnedActors_PostRemoved(IActor item) => ActorTreeForm.ActorRemoved(item);
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (MappableActions.ContainsKey(e.KeyData))
+            {
+                e.SuppressKeyPress = false;
+                var func = MappableActions[e.KeyData];
+                e.Handled = func();
+                if (e.Handled)
+                    Engine.PrintLine(e.KeyData.ToString().Replace(", ", "+") + ": " + func.Method.Name);
+                return;
+            }
+            base.OnKeyDown(e);
+        }
+        protected override void OnDeactivate(EventArgs e)
+        {
+            TheraEngineText.ForeColor = InactiveTextColor;
+            base.OnDeactivate(e);
+        }
+        protected override void OnActivated(EventArgs e)
+        {
+            TheraEngineText.ForeColor = TurquoiseColorLight;
+            base.OnActivated(e);
+        }
+        //protected override void OnResizeBegin(EventArgs e)
+        //{
+        //    RenderForm.RenderPanel.BeginResize();
+        //    base.OnResizeBegin(e);
+        //}
+        //protected override void OnResizeEnd(EventArgs e)
+        //{
+        //    RenderForm.RenderPanel.EndResize();
+        //    base.OnResizeEnd(e);
+        //}
+        #endregion
 
+        #region Ticking
+        public bool IsRenderTicking { get; private set; }
+        public void SetRenderTicking(bool isRendering)
+        {
+            if (isRendering && !IsRenderTicking)
+            {
+                IsRenderTicking = true;
+                Engine.RegisterTick(RenderTick, UpdateTick, SwapBuffers);
+            }
+            else if (!isRendering && IsRenderTicking)
+            {
+                IsRenderTicking = false;
+                Engine.UnregisterTick(RenderTick, UpdateTick, SwapBuffers);
+            }
+        }
         private void UpdateTick(object sender, FrameEventArgs e)
         {
             Engine.Scene?.GlobalUpdate();
@@ -417,25 +403,14 @@ namespace TheraEditor.Windows.Forms
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
         }
-        //protected override void OnResizeBegin(EventArgs e)
-        //{
-        //    RenderForm.RenderPanel.BeginResize();
-        //    base.OnResizeBegin(e);
-        //}
-        //protected override void OnResizeEnd(EventArgs e)
-        //{
-        //    RenderForm.RenderPanel.EndResize();
-        //    base.OnResizeEnd(e);
-        //}
-        public void ClearDockPanel()
-        {
-            foreach (IDockContent document in DockPanel.Contents.ToArray())
-            {
-                document.DockHandler.DockPanel = null;
-                document.DockHandler.Close();
-            }
-        }
+        #endregion
 
+        #region Project Management
+        public TProject Project
+        {
+            get => _project;
+            set => SetProject(value);
+        }
         private bool CloseProject()
         {
             if (_project != null)
@@ -460,7 +435,6 @@ namespace TheraEditor.Windows.Forms
             }
             return true;
         }
-        
         /// <summary>
         /// Asks the user to select a folder to create a new project in, creates it there, and then loads it for editing.
         /// Closes the currently opened project if there is one.
@@ -473,13 +447,11 @@ namespace TheraEditor.Windows.Forms
             ProjectCreatorForm.Focus();
             ProjectCreatorForm.ProjectCreated += ProjectCreatorForm_ProjectCreated;
         }
-
         private void ProjectCreatorForm_ProjectCreated()
         {
             Project = ProjectCreatorForm.Project;
             PropertyGridForm.PropertyGrid.TargetFileObject = Project;
         }
-
         public async void OpenProject()
         {
             using (OpenFileDialog ofd = new OpenFileDialog()
@@ -491,25 +463,82 @@ namespace TheraEditor.Windows.Forms
                     Project = await TFileObject.LoadAsync<TProject>(ofd.FileName);
             }
         }
-        private void CboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
+        private void SetProject(TProject value)
         {
+            if (value != null && _project == value)
+                return;
 
+            if (!CloseProject())
+                return;
+
+            GameState = EEditorGameplayState.Editing;
+            _project = value;
+
+            Engine.ShutDown();
+            Engine.SetGame(_project);
+
+            bool projectOpened = _project != null;
+            btnEngineSettings.Enabled =
+            btnProjectSettings.Enabled =
+            btnUserSettings.Enabled =
+            btnPlay.Enabled =
+            btnPlayDetached.Enabled =
+            btnCompile.Enabled =
+            projectOpened;
+
+            ClearDockPanel();
+
+            if (projectOpened)
+            {
+                string configFile = _project.EditorSettings?.GetFullDockConfigPath();
+                //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
+
+                if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
+                    DockPanel.LoadFromXml(configFile, _deserializeDockContent);
+                else
+                {
+                    DockPanel.SuspendLayout(true);
+                    OutputForm.Show(DockPanel, DockState.DockBottom);
+                    ActorTreeForm.Show(DockPanel, DockState.DockRight);
+                    FileTreeForm.Show(DockPanel, DockState.DockLeft);
+                    PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
+                    RenderForm1.Show(DockPanel, DockState.Document);
+                    DockPanel.ResumeLayout(true, true);
+                }
+
+                if (string.IsNullOrEmpty(_project.FilePath))
+                    Text = string.Empty;
+                else
+                {
+                    Text = _project.FilePath;
+                    ContentTree.OpenPath(_project.FilePath);
+                }
+
+                Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
+                Engine.SetActiveGameMode(_editorGameMode);
+                Engine.Initialize(false);
+                SetRenderTicking(true);
+                Engine.SetPaused(true, LocalPlayerIndex.One, true);
+
+                CurrentWorld = _project.OpeningWorldRef?.File;
+            }
+            else
+            {
+                Text = string.Empty;
+
+                DockPanel.SuspendLayout(true);
+                OutputForm.Show(DockPanel, DockState.DockBottom);
+                WelcomeForm.Show(DockPanel, DockState.Document);
+                DockPanel.ResumeLayout(true, true);
+            }
         }
+        #endregion
 
-        private DockableWorldRenderForm FocusViewport(int index)
-        {
-            DockableWorldRenderForm form = GetRenderForm(index);
-            if (form.IsHidden)
-                form.Show(DockPanel, DockState.Document);
-            form.Focus();
-            return form;
-        }
-
+        #region Game Mode
         private void RegisterInput(InputInterface input)
         {
-            input.RegisterKeyEvent(EKey.Escape, EButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.F1, EButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
         }
-
         public enum EEditorGameplayState
         {
             /// <summary>
@@ -527,7 +556,6 @@ namespace TheraEditor.Windows.Forms
             /// </summary>
             Attached,
         }
-        
         private Rectangle _prevClip;
         private void CaptureMouse(BaseRenderPanel panel)
         {
@@ -546,7 +574,6 @@ namespace TheraEditor.Windows.Forms
             //ShowCursor();
             Cursor.Clip = _prevClip;
         }
-
         private EEditorGameplayState _gameState = EEditorGameplayState.Editing;
         public EEditorGameplayState GameState
         {
@@ -566,7 +593,6 @@ namespace TheraEditor.Windows.Forms
                 _gameState = value;
             }
         }
-
         private void SetEditingGameState()
         {
             btnPlay.Text = "Play";
@@ -582,10 +608,9 @@ namespace TheraEditor.Windows.Forms
             }
 
             SetEditorGameMode();
-            
+
             Engine.Pause(LocalPlayerIndex.One, true);
         }
-
         private void SetDetachedGameState()
         {
             btnPlay.Text = "Stop";
@@ -602,7 +627,6 @@ namespace TheraEditor.Windows.Forms
 
             Engine.Unpause(LocalPlayerIndex.One, true);
         }
-
         private void SetAttachedGameState()
         {
             btnPlay.Text = "Stop";
@@ -636,12 +660,42 @@ namespace TheraEditor.Windows.Forms
             InputInterface.GlobalRegisters.Remove(RegisterInput);
             _editorGameMode.BeginGameplay();
         }
+        #endregion
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        [Browsable(false)]
-        public Dictionary<Keys, Func<bool>> MappableActions { get; private set; }
+        private bool Undo()
+        {
+            bool canUndo = UndoManager.CanUndo;
+            UndoManager.Undo();
+            return canUndo;
+        }
+        private bool Redo()
+        {
+            bool canRedo = UndoManager.CanRedo;
+            UndoManager.Redo();
+            return canRedo;
+        }
 
-        //internal bool DoEvents { get; set; } = true;
+        private void GenerateInitialActorList() => ActorTreeForm.GenerateInitialActorList();
+        private void SpawnedActors_PostAdded(IActor item) => ActorTreeForm.ActorAdded(item);
+        private void SpawnedActors_PostRemoved(IActor item) => ActorTreeForm.ActorRemoved(item);
+
+        public void ClearDockPanel()
+        {
+            foreach (IDockContent document in DockPanel.Contents.ToArray())
+            {
+                document.DockHandler.DockPanel = null;
+                document.DockHandler.Close();
+            }
+        }
+        
+        private DockableWorldRenderForm FocusViewport(int index)
+        {
+            DockableWorldRenderForm form = GetRenderForm(index);
+            if (form.IsHidden)
+                form.Show(DockPanel, DockState.Document);
+            form.Focus();
+            return form;
+        }
 
         private IDockContent GetContentFromPersistString(string persistString)
         {
@@ -676,68 +730,6 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        private void Updater_ErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(e.Data))
-                Engine.PrintLine(e.Data);
-        }
-
-        private void Updater_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(e.Data))
-                Engine.PrintLine(e.Data);
-        }
-
-        public List<EditorState> GetDirtyFiles()
-        {
-            //throw new NotImplementedException();
-            return new List<EditorState>();
-        }
-
-        public bool CloseWorld()
-        {
-            if (CurrentWorld != null)
-            {
-                if (CurrentWorld.EditorState != null && CurrentWorld.EditorState.HasChanges)
-                {
-                    DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                    if (r == DialogResult.Cancel)
-                        return false;
-                    else if (r == DialogResult.Yes)
-                        SaveFile(CurrentWorld);
-                }
-
-                CurrentWorld.EditorState = null;
-                CurrentWorld = null;
-            }
-            return true;
-        }
-        /// <summary>
-        /// Creates and loads a new world for editing.
-        /// Closes the currently opened world if there is one.
-        /// </summary>
-        public void CreateNewWorld()
-        {
-            if (!CloseWorld())
-                return;
-
-            CurrentWorld = new TWorld();
-        }
-        public async void OpenWorld()
-        {
-            if (!CloseWorld())
-                return;
-
-            using (OpenFileDialog ofd = new OpenFileDialog()
-            {
-                Filter = TFileObject.GetFilter<TWorld>(),
-                Multiselect = false
-            })
-            {
-                if (ofd.ShowDialog(this) == DialogResult.OK)
-                    CurrentWorld = await TFileObject.LoadAsync<TWorld>(ofd.FileName);
-            }
-        }
         private void connectAsServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Server s = Engine.ServerConnection;
@@ -824,29 +816,6 @@ namespace TheraEditor.Windows.Forms
             return new IPAddress(ip);
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            if (MappableActions.ContainsKey(e.KeyData))
-            {
-                e.SuppressKeyPress = false;
-                var func = MappableActions[e.KeyData];
-                e.Handled = func();
-                if (e.Handled)
-                    Engine.PrintLine(e.KeyData.ToString().Replace(", ", "+") + ": " + func.Method.Name);
-                return;
-            }
-            base.OnKeyDown(e);
-        }
-        protected override void OnDeactivate(EventArgs e)
-        {
-            TheraEngineText.ForeColor = InactiveTextColor;
-            base.OnDeactivate(e);
-        }
-        protected override void OnActivated(EventArgs e)
-        {
-            TheraEngineText.ForeColor = TurquoiseColorLight;
-            base.OnActivated(e);
-        }
         public void SaveFile(TFileObject file)
         {
             if (file == null)
@@ -871,9 +840,7 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)
-                {
                     SaveFile(file, sfd.FileName);
-                }
             }
         }
         private async void SaveFile(TFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)

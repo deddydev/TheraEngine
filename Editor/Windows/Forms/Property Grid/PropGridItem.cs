@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Animation;
+using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -232,12 +234,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _updating = false;
         }
         protected virtual void UpdateDisplayInternal(object value) { }
-        protected virtual void OnLabelSet() { }
 
         /// <summary>
         /// List of all visible PropGridItems that need to be updated.
         /// </summary>
         private static List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
+        public virtual bool CanAnimate => false;
+
         private static bool UpdatingVisibleItems = false;
         internal static void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
@@ -284,5 +287,72 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public override string ToString()
             => DataType?.ToString() + " - " + ParentInfo?.ToString();
+        protected virtual void OnLabelSet()
+        {
+            if (CanAnimate)
+            {
+                PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
+                if (propInfo.GetOwner() is TObject obj)
+                {
+                    var anims = obj.Animations?.
+                        Where(x => x.RootMember?.MemberName == propInfo.Property.Name && x.RootMember?.Animation.File != null).
+                        Select(x => new ToolStripMenuItem(x.Name, null, EditAnimation) { Tag = x }).
+                        ToArray();
+
+                    ContextMenuStrip strip = new ContextMenuStrip();
+                    if (anims != null && anims.Length > 0)
+                    {
+                        ToolStripMenuItem animsBtn = new ToolStripMenuItem("Animations...");
+                        animsBtn.DropDownItems.AddRange(anims);
+                        ToolStripMenuItem[] m = new ToolStripMenuItem[]
+                        {
+                            new ToolStripMenuItem("New Animation", null, CreateAnimation),
+                            animsBtn,
+                        };
+                        strip.Items.AddRange(m);
+                    }
+                    else
+                    {
+                        strip.Items.Add(new ToolStripMenuItem("New Animation", null, CreateAnimation));
+                    }
+
+                    strip.RenderMode = ToolStripRenderMode.Professional;
+                    strip.Renderer = new TheraToolstripRenderer();
+                    Label.ContextMenuStrip = strip;
+                }
+            }
+        }
+        private void EditAnimation(object sender, EventArgs e)
+        {
+            if (sender is ToolStripMenuItem item && item.Tag is AnimationTree anim)
+            {
+
+            }
+        }
+        protected virtual BasePropAnim CreateAnimation() => throw new NotImplementedException($"{nameof(CreateAnimation)} must be overloaded when {nameof(CanAnimate)} is true.");
+        private void CreateAnimation(object sender, EventArgs e)
+        {
+            PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
+            if (propInfo.GetOwner() is TObject obj)
+            {
+                string memberName = propInfo.Property.Name;
+                var anim = new AnimationTree(memberName, memberName, EAnimationMemberType.Property, CreateAnimation());
+
+                if (obj.Animations == null)
+                    obj.Animations = new EventList<AnimationTree>();
+                obj.Animations.Add(anim);
+
+                var menu = Label.ContextMenuStrip.Items;
+                var menuItem = new ToolStripMenuItem(anim.Name, null, EditAnimation) { Tag = anim };
+                if (menu.Count == 1)
+                {
+                    ToolStripMenuItem item = new ToolStripMenuItem("Animations...");
+                    item.DropDownItems.Add(menuItem);
+                    menu.Add(item);
+                }
+                else
+                    ((ToolStripMenuItem)menu[1]).DropDownItems.Add(menuItem);
+            }
+        }
     }
 }

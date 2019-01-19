@@ -1,4 +1,5 @@
-﻿using mscoree;
+﻿using Core.Win32.Native;
+using mscoree;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -750,7 +751,45 @@ namespace TheraEngine
 
         public delegate int DelBeginOperation(string operationMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null);
         public delegate void DelEndOperation(int operationId);
-        
+
+        public static bool IsFocused { get; private set; } = true;
+        public static event Action GotFocus;
+        public static event Action LostFocus;
+
+        /// <summary>
+        /// Returns true if any window has focus.
+        /// </summary>
+        private static bool CheckFocus()
+        {
+            var activatedHandle = NativeMethods.GetForegroundWindow();
+            if (activatedHandle == IntPtr.Zero)
+                return false; //No window is currently activated
+
+            int procId = Process.GetCurrentProcess().Id;
+            NativeMethods.GetWindowThreadProcessId(activatedHandle, out int activeProcId);
+
+            return activeProcId == procId;
+        }
+        public static void FocusChanged()
+        {
+            if (CheckFocus())
+            {
+                if (!IsFocused)
+                {
+                    IsFocused = true;
+                    GotFocus?.Invoke();
+                }
+            }
+            else
+            {
+                if (IsFocused)
+                {
+                    IsFocused = false;
+                    LostFocus?.Invoke();
+                }
+            }
+        }
+
         /// <summary>
         /// Static class for accessing engine files.
         /// </summary>

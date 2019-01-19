@@ -1,5 +1,4 @@
-﻿//using ComponentOwl.BetterListView;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
@@ -9,30 +8,35 @@ using TheraEngine.Animation;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
-using TheraEngine.Rendering.Models.Materials.Functions;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
+    [EditorFor(typeof(PropAnimFloat))]
     public partial class DockablePropAnimFloatGraph : DockContent, IEditorControl
     {
         public DockablePropAnimFloatGraph()
         {
             InitializeComponent();
+
             RenderPanel.AllowDrop = false;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
             RenderPanel.MouseEnter += RenderPanel_MouseEnter;
             RenderPanel.MouseLeave += RenderPanel_MouseLeave;
             GameMode = new PropAnimFloatEditorGameMode() { RenderPanel = RenderPanel };
         }
-
-        private void RenderPanel_MouseLeave(object sender, EventArgs e)
+        public DockablePropAnimFloatGraph(PropAnimFloat anim) : this()
         {
-            Cursor.Show();
+            TargetAnimation = anim;
         }
+
         private void RenderPanel_MouseEnter(object sender, EventArgs e)
         {
             Cursor.Hide();
+        }
+        private void RenderPanel_MouseLeave(object sender, EventArgs e)
+        {
+            Cursor.Show();
         }
 
         private void RenderPanel_GotFocus(object sender, EventArgs e)

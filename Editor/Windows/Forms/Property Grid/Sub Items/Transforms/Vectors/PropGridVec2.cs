@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
@@ -76,7 +77,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (propInfo.GetOwner() is TObject obj)
             {
                 var anim = new AnimationTree("NewAnimVec2", propInfo.Property.Name, EAnimationMemberType.Property, new PropAnimVec2(0.0f, true, true));
-                obj.AddAnimation(anim);
+                if (obj.Animations == null)
+                    obj.Animations = new EventList<AnimationTree>();
+                obj.Animations.Add(anim);
                 var menu = Label.ContextMenu.MenuItems;
                 var menuItem = new MenuItem(anim.Name, EditAnimation) { Tag = anim };
                 if (menu.Count == 1)

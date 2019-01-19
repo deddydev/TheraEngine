@@ -109,11 +109,11 @@ namespace TheraEngine.Core.Shapes
 
         public override void SetTransformMatrix(Matrix4 matrix)
         {
-            throw new NotImplementedException();
+            Center.Raw = matrix.Translation;
         }
         public override Matrix4 GetTransformMatrix()
         {
-            throw new NotImplementedException();
+            return Center.AsTranslationMatrix();
         }
     }
 }

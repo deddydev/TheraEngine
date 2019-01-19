@@ -108,11 +108,15 @@ namespace TheraEditor.Windows.Forms
                         out (float Time, float Value)[] min,
                         out (float Time, float Value)[] max);
 
-                    //float minVal = min[0].Value;
-                    //float maxVal = max[0].Value;
+                    float minVal = min[0].Value;
+                    float maxVal = max[0].Value;
+                    float yBound = maxVal - minVal;
+                    float xBound = _targetAnimation.LengthInSeconds;
+                    float xScale = xBound == 0.0f ? 1.0f : Bounds.X / xBound;
+                    float yScale = yBound == 0.0f ? 1.0f : Bounds.Y / yBound;
+                    _baseTransformComponent.Scale = Math.Max(xScale, yScale);
                     //float midPoint = (maxVal + minVal) * 0.5f;
-                    ////_rootTransform.LocalTranslation = new Vec2(_targetAnimation.LengthInSeconds * 0.5f, midPoint);
-                    //_rootTransform.Scale = new Vec2(_targetAnimation.LengthInSeconds, maxVal - minVal);
+                    _baseTransformComponent.LocalTranslation = Vec2.Zero;//new Vec2(_targetAnimation.LengthInSeconds * 0.5f, midPoint);
                 }
                 RegenerateSplinePrimitive();
             }
@@ -135,6 +139,16 @@ namespace TheraEditor.Windows.Forms
             UpdateSplinePrimitive();
         }
 
+        private void GetKeyframeInfo(FloatKeyframe kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos)
+        {
+            float tangentScale = 1.0f; //50.0f / _baseTransformComponent.ScaleX;
+
+            inPos = new Vec3(kf.Second, kf.InValue, 0.0f);
+            inTanPos = new Vec3(kf.Second - tangentScale, kf.InValue + kf.InTangent * tangentScale, 0.0f);
+
+            outPos = new Vec3(kf.Second, kf.OutValue, 0.0f);
+            outTanPos = new Vec3(kf.Second + tangentScale, kf.OutValue + kf.OutTangent * tangentScale, 0.0f);
+        }
         public async void UpdateSplinePrimitive()
         {
             if (AnimLength != _targetAnimation.LengthInSeconds ||
@@ -162,46 +176,38 @@ namespace TheraEditor.Windows.Forms
                 colBuf.Set(i * colBuf.Stride, color);
             }
 
-            posBuf.PushSubData();
-            colBuf.PushSubData();
+            //posBuf.PushSubData();
+            //colBuf.PushSubData();
             
             var kfPosBuf = _rcKeyframeInOutPositions.Mesh.Data[EBufferType.Position];
             var tanPosBuf = _rcTangentPositions.Mesh.Data[EBufferType.Position];
             var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
             
             i = 0;
-            Vec3 p0, p1;
-            float tangentScale = 50.0f / _baseTransformComponent.ScaleX;
             foreach (FloatKeyframe kf in _targetAnimation)
             {
-                //In value and backward tangent
-                p0 = new Vec3(kf.Second, kf.InValue, 0.0f);
-                p1 = new Vec3(kf.Second - tangentScale, kf.InValue + kf.InTangent * tangentScale, 0.0f);
-
-                KeyframeInOutPositions[i] = p0;
-                kfPosBuf.Set(i * kfPosBuf.Stride, p0);
-                tanPosBuf.Set(i * tanPosBuf.Stride, p1);
-                keyLinesBuf.Set(((i << 1) + 0) * keyLinesBuf.Stride, p0);
-                keyLinesBuf.Set(((i << 1) + 1) * keyLinesBuf.Stride, p1);
+                GetKeyframeInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
+                
+                KeyframeInOutPositions[i] = inPos;
+                kfPosBuf.Set(i * kfPosBuf.Stride, inPos);
+                tanPosBuf.Set(i * tanPosBuf.Stride, inTanPos);
+                keyLinesBuf.Set(((i << 1) + 0) * keyLinesBuf.Stride, inPos);
+                keyLinesBuf.Set(((i << 1) + 1) * keyLinesBuf.Stride, inTanPos);
 
                 ++i;
-
-                //Out value and forward tangent
-                p0 = new Vec3(kf.Second, kf.OutValue, 0.0f);
-                p1 = new Vec3(kf.Second + tangentScale, kf.OutValue + kf.OutTangent * tangentScale, 0.0f);
-
-                KeyframeInOutPositions[i] = p0;
-                kfPosBuf.Set(i * kfPosBuf.Stride, p0);
-                tanPosBuf.Set(i * tanPosBuf.Stride, p1);
-                keyLinesBuf.Set(((i << 1) + 0) * keyLinesBuf.Stride, p0);
-                keyLinesBuf.Set(((i << 1) + 1) * keyLinesBuf.Stride, p1);
+                
+                KeyframeInOutPositions[i] = outPos;
+                kfPosBuf.Set(i * kfPosBuf.Stride, outPos);
+                tanPosBuf.Set(i * tanPosBuf.Stride, outTanPos);
+                keyLinesBuf.Set(((i << 1) + 0) * keyLinesBuf.Stride, outPos);
+                keyLinesBuf.Set(((i << 1) + 1) * keyLinesBuf.Stride, outTanPos);
 
                 ++i;
             }
 
-            kfPosBuf.PushSubData();
-            tanPosBuf.PushSubData();
-            keyLinesBuf.PushSubData();
+            //kfPosBuf.PushSubData();
+            //tanPosBuf.PushSubData();
+            //keyLinesBuf.PushSubData();
         }
 
         public async Task RegenerateSplinePrimitiveAsync()
@@ -255,26 +261,18 @@ namespace TheraEditor.Windows.Forms
             }
 
             i = 0;
-            Vec3 p0, p1;
-            float tangentScale = 50.0f / _baseTransformComponent.ScaleX;
             foreach (FloatKeyframe kf in _targetAnimation)
             {
-                KeyframeInOutPositions[i] = p0 = new Vec3(kf.Second, kf.InValue, 0.0f);
-                tangentPositions[i] = p1 = new Vec3(kf.Second - tangentScale, kf.InValue + kf.InTangent * tangentScale, 0.0f);
-                keyframeLines[i] = new VertexLine(p0, p1);
+                GetKeyframeInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
+
+                KeyframeInOutPositions[i] = inPos;
+                tangentPositions[i] = inTanPos;
+                keyframeLines[i] = new VertexLine(inPos, inTanPos);
                 ++i;
 
-                KeyframeInOutPositions[i] = p0 = new Vec3(kf.Second, kf.OutValue, 0.0f);
-                tangentPositions[i] = p1 = new Vec3(kf.Second + tangentScale, kf.OutValue + kf.OutTangent * tangentScale, 0.0f);
-                keyframeLines[i] = new VertexLine(p0, p1);
-                ++i;
-            }
-            //Fill the rest in case of non-matching keyframe counts
-            while (i < posCount)
-            {
-                KeyframeInOutPositions[i] = p0 = Vec3.Zero;
-                tangentPositions[i] = p1 = Vec3.Zero;
-                keyframeLines[i] = new VertexLine(p0, p1);
+                KeyframeInOutPositions[i] = outPos;
+                tangentPositions[i] = outTanPos;
+                keyframeLines[i] = new VertexLine(outPos, outTanPos);
                 ++i;
             }
 
@@ -385,15 +383,7 @@ void main()
             base.Resize(bounds);
             UpdateBackgroundMaterial();
         }
-        private float RoundNearestMultiple(float value, int multiple)
-        {
-            double nearestMultiple =
-                    Math.Round(
-                         (value / (double)multiple),
-                         MidpointRounding.AwayFromZero
-                     ) * multiple;
-            return (float)nearestMultiple;
-        }
+
         public float LineIncrement { get; set; } = 2.0f;
         public const int InitialVisibleBoxes = 10;
         private void UpdateBackgroundMaterial()
@@ -479,6 +469,7 @@ void main()
         public float SelectionRadius { get; set; } = 10.0f;
         public float ZoomIncrement { get; set; } = 0.05f;
         public int[] ClosestKeyframeIndices { get; private set; }
+        public bool SnapToIncrement { get; set; } = false;
 
         private bool _altDown = false;
         private bool _ctrlDown = false;
@@ -486,6 +477,10 @@ void main()
 
         internal void LeftClickDown()
         {
+            Vec2 v = CursorPosition();
+            if (!Bounds.Contains(v))
+                return;
+
             if (_targetAnimation != null)
             {
                 Vec2 animPos = CursorPositionTransformRelative();
@@ -601,6 +596,10 @@ void main()
         }
         protected override void MouseMove(float x, float y)
         {
+            Vec2 v = CursorPosition();
+            if (!Bounds.Contains(v))
+                return;
+
             if (_draggedKeyframes.Count > 0)
                 HandleDraggingKeyframes();
             else if (_rightClickDown)
@@ -647,6 +646,7 @@ void main()
         private void HandleDraggingKeyframes()
         {
             Vec3 pos = CursorPositionTransformRelative();
+
             if (_shiftDown)
             {
                 //Ortho mode
@@ -657,7 +657,11 @@ void main()
                     //Drag left and right only
                     foreach (var kf in _draggedKeyframes)
                     {
-                        kf.Value.Keyframe.Second = pos.X + kf.Value.SecondOffset;
+                        float sec = pos.X + kf.Value.SecondOffset;
+                        if (SnapToIncrement)
+                            sec = sec.RoundToNearestMultiple(LineIncrement);
+                        kf.Value.Keyframe.Second = sec;
+
                         if (kf.Value.DraggingInValue)
                             kf.Value.Keyframe.InValue = kf.Value.InValueInitial;
                         if (kf.Value.DraggingOutValue)
@@ -670,10 +674,22 @@ void main()
                     foreach (var kf in _draggedKeyframes)
                     {
                         kf.Value.Keyframe.Second = kf.Value.SecondInitial;
+
                         if (kf.Value.DraggingInValue)
-                            kf.Value.Keyframe.InValue = pos.Y + kf.Value.InValueOffset;
+                        {
+                            float inPos = pos.Y + kf.Value.InValueOffset;
+                            if (SnapToIncrement)
+                                inPos = inPos.RoundToNearestMultiple(LineIncrement);
+                            kf.Value.Keyframe.InValue = inPos;
+                        }
+
                         if (kf.Value.DraggingOutValue)
-                            kf.Value.Keyframe.OutValue = pos.Y + kf.Value.OutValueOffset;
+                        {
+                            float outPos = pos.Y + kf.Value.OutValueOffset;
+                            if (SnapToIncrement)
+                                outPos = outPos.RoundToNearestMultiple(LineIncrement);
+                            kf.Value.Keyframe.OutValue = outPos;
+                        }
                     }
                 }
             }
@@ -681,11 +697,26 @@ void main()
             {
                 foreach (var kf in _draggedKeyframes)
                 {
-                    kf.Value.Keyframe.Second = pos.X + kf.Value.SecondOffset;
+                    float sec = pos.X + kf.Value.SecondOffset;
+                    if (SnapToIncrement)
+                        sec = sec.RoundToNearestMultiple(LineIncrement);
+                    kf.Value.Keyframe.Second = sec;
+
                     if (kf.Value.DraggingInValue)
-                        kf.Value.Keyframe.InValue = pos.Y + kf.Value.InValueOffset;
+                    {
+                        float inPos = pos.Y + kf.Value.InValueOffset;
+                        if (SnapToIncrement)
+                            inPos = inPos.RoundToNearestMultiple(LineIncrement);
+                        kf.Value.Keyframe.InValue = inPos;
+                    }
+
                     if (kf.Value.DraggingOutValue)
-                        kf.Value.Keyframe.OutValue = pos.Y + kf.Value.OutValueOffset;
+                    {
+                        float outPos = pos.Y + kf.Value.OutValueOffset;
+                        if (SnapToIncrement)
+                            outPos = outPos.RoundToNearestMultiple(LineIncrement);
+                        kf.Value.Keyframe.OutValue = outPos;
+                    }
                 }
             }
 

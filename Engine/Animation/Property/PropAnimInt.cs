@@ -365,20 +365,20 @@ namespace TheraEngine.Animation
             InterpolationType = parts[5].AsEnum<EVectorInterpType>();
         }
         
-        void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
-        {
-            InValue = int.Parse(inValue);
-            OutValue = int.Parse(outValue);
-            InTangent = float.Parse(inTangent);
-            OutTangent = float.Parse(outTangent);
-        }
-        void IPlanarKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
-        {
-            inValue = InValue.ToString();
-            outValue = OutValue.ToString();
-            inTangent = InTangent.ToString();
-            outTangent = OutTangent.ToString();
-        }
+        //void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
+        //{
+        //    InValue = int.Parse(inValue);
+        //    OutValue = int.Parse(outValue);
+        //    InTangent = float.Parse(inTangent);
+        //    OutTangent = float.Parse(outTangent);
+        //}
+        //void IPlanarKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
+        //{
+        //    inValue = InValue.ToString();
+        //    outValue = OutValue.ToString();
+        //    inTangent = InTangent.ToString();
+        //    outTangent = OutTangent.ToString();
+        //}
         public void UnifyTangentDirections(EUnifyBias bias) => UnifyTangents(bias);
         public void UnifyTangentMagnitudes(EUnifyBias bias) => UnifyTangents(bias);
         public void UnifyTangents(EUnifyBias bias)

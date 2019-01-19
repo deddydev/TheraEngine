@@ -29,25 +29,25 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.renderPanel1 = new TheraEngine.WorldRenderPanel();
+            this.renderPanel = new TheraEngine.WorldRenderPanel();
             this.SuspendLayout();
             // 
             // renderPanel1
             // 
-            this.renderPanel1.Location = new System.Drawing.Point(11, -1);
-            this.renderPanel1.Margin = new System.Windows.Forms.Padding(2);
-            this.renderPanel1.Name = "renderPanel1";
-            this.renderPanel1.Size = new System.Drawing.Size(341, 300);
-            this.renderPanel1.TabIndex = 0;
-            this.renderPanel1.Text = "renderPanel1";
-            this.renderPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.renderPanel.Location = new System.Drawing.Point(11, -1);
+            this.renderPanel.Margin = new System.Windows.Forms.Padding(2);
+            this.renderPanel.Name = "renderPanel1";
+            this.renderPanel.Size = new System.Drawing.Size(341, 300);
+            this.renderPanel.TabIndex = 0;
+            this.renderPanel.Text = "renderPanel1";
+            this.renderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             // 
             // RenderForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(380, 310);
-            this.Controls.Add(this.renderPanel1);
+            this.Controls.Add(this.renderPanel);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "RenderForm";
             this.Text = "RenderForm";
@@ -57,6 +57,6 @@
 
         #endregion
 
-        private WorldRenderPanel renderPanel1;
+        private WorldRenderPanel renderPanel;
     }
 }

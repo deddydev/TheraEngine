@@ -6,7 +6,6 @@ using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
-using TheraEngine.Scripting;
 
 namespace TheraEngine
 {
@@ -34,15 +33,15 @@ namespace TheraEngine
         #endregion
         
         #region Animation
-        IReadOnlyList<AnimationTree> Animations { get; }
-        void AddAnimation(
-            AnimationTree anim,
-            bool startNow = false,
-            bool removeOnEnd = true,
-            ETickGroup group = ETickGroup.PostPhysics,
-            ETickOrder order = ETickOrder.Animation,
-            EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
-        bool RemoveAnimation(AnimationTree anim);
+        EventList<AnimationTree> Animations { get; set; }
+        //void AddAnimation(
+        //    AnimationTree anim,
+        //    bool startNow = false,
+        //    bool removeOnEnd = true,
+        //    ETickGroup group = ETickGroup.PostPhysics,
+        //    ETickOrder order = ETickOrder.Animation,
+        //    EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
+        //bool RemoveAnimation(AnimationTree anim);
         #endregion
     }
 
@@ -166,10 +165,41 @@ namespace TheraEngine
         #region Animation
         
         [TSerialize(nameof(Animations))]
-        private List<AnimationTree> _animations = null;
+        private EventList<AnimationTree> _animations = null;
 
-        [Browsable(false)]
-        public IReadOnlyList<AnimationTree> Animations => _animations;
+        [Category("Object")]
+        [Browsable(true)]
+        public EventList<AnimationTree> Animations
+        {
+            get => _animations;
+            set
+            {
+                if (_animations != null)
+                {
+                    _animations.PostAnythingAdded -= _animations_PostAnythingAdded;
+                    _animations.PostAnythingRemoved -= _animations_PostAnythingRemoved;
+                }
+                _animations = value;
+                if (_animations != null)
+                {
+                    _animations.PostAnythingAdded += _animations_PostAnythingAdded;
+                    _animations.PostAnythingRemoved += _animations_PostAnythingRemoved;
+                }
+            }
+        }
+
+        private void _animations_PostAnythingAdded(AnimationTree item)
+        {
+            if (item.RemoveOnEnd)
+                item.AnimationEnded += RemoveAnimationSelf;
+            item.Owners.Add(this);
+        }
+        private void _animations_PostAnythingRemoved(AnimationTree item)
+        {
+            if (item.RemoveOnEnd)
+                item.AnimationEnded -= RemoveAnimationSelf;
+            item.Owners.Remove(this);
+        }
 
         /// <summary>
         /// Adds a property animation tree to this TObject.
@@ -180,46 +210,40 @@ namespace TheraEngine
         /// <param name="group">The group to tick this animation in.</param>
         /// <param name="order">The order within the group to tick this animation in.</param>
         /// <param name="pausedBehavior">Ticking behavior of the animation while paused.</param>
-        public void AddAnimation(
-            AnimationTree anim,
-            bool startNow = false,
-            bool removeOnEnd = true,
-            ETickGroup group = ETickGroup.PostPhysics,
-            ETickOrder order = ETickOrder.Animation,
-            EInputPauseType pausedBehavior = EInputPauseType.TickOnlyWhenUnpaused)
-        {
-            if (anim == null)
-                return;
-            if (removeOnEnd)
-                anim.AnimationEnded += RemoveAnimationSelf;
-            if (_animations == null)
-                _animations = new List<AnimationTree>();
-            _animations.Add(anim);
-            anim.Owners.Add(this);
-            anim.Group = group;
-            anim.Order = order;
-            anim.PausedBehavior = pausedBehavior;
-            if (startNow)
-                anim.Start();
-        }
-        public bool RemoveAnimation(AnimationTree anim)
-        {
-            if (anim == null)
-                return false;
-            anim.AnimationEnded -= RemoveAnimationSelf;
-            anim.Owners.Remove(this);
-            bool removed = _animations.Remove(anim);
-            if (_animations.Count == 0)
-                _animations = null;
-            return removed;
-        }
+        //public void AddAnimation(
+        //    AnimationTree anim,
+        //    bool startNow = false,
+        //    bool removeOnEnd = true,
+        //    ETickGroup group = ETickGroup.PostPhysics,
+        //    ETickOrder order = ETickOrder.Animation,
+        //    EInputPauseType pausedBehavior = EInputPauseType.TickOnlyWhenUnpaused)
+        //{
+        //    if (anim == null)
+        //        return;
+        //    if (removeOnEnd)
+        //        anim.AnimationEnded += RemoveAnimationSelf;
+        //    if (_animations == null)
+        //        _animations = new EventList<AnimationTree>();
+        //    _animations.Add(anim);
+        //    anim.Group = group;
+        //    anim.Order = order;
+        //    anim.PausedBehavior = pausedBehavior;
+        //    anim.TickSelf = true;
+        //    if (startNow)
+        //        anim.Start();
+        //}
+        //public bool RemoveAnimation(AnimationTree anim)
+        //{
+        //    if (anim == null)
+        //        return false;
+        //    anim.Owners.Remove(this);
+        //    bool removed = _animations.Remove(anim);
+        //    if (_animations.Count == 0)
+        //        _animations = null;
+        //    return removed;
+        //}
         private void RemoveAnimationSelf(BaseAnimation anim)
-        {
-            anim.AnimationEnded -= RemoveAnimationSelf;
-            AnimationTree cont = anim as AnimationTree;
-            cont.Owners.Remove(this);
-            _animations.Remove(cont);
-        }
+            => _animations.Remove((AnimationTree)anim);
         #endregion
 
         /// <summary>

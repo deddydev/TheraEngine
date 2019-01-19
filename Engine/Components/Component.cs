@@ -36,7 +36,15 @@ namespace TheraEngine.Components
         [Browsable(false)]
         public bool IsSpawned => OwningActor?.IsSpawned ?? false;
 
-        public virtual void OnSpawned() { }
+        public virtual void OnSpawned()
+        {
+            if (Animations != null && Animations.Count > 0)
+                Animations.ForEach(anim =>
+                {
+                    if (anim.BeginOnSpawn)
+                        anim.Start();
+                });
+        }
         public virtual void OnDespawned() { }
     }
 }

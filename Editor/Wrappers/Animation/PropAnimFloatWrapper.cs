@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Animation;
 using TheraEditor.Properties;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
 {
@@ -36,7 +37,7 @@ namespace TheraEditor.Wrappers
             {
                 _graph = new DockablePropAnimFloatGraph();
                 _graph.FormClosed += _graph_FormClosed;
-                _graph.Show(Editor.Instance.DockPanel);
+                _graph.Show(Editor.Instance.DockPanel, DockState.Document);
             }
             PropAnimFloat anim = await ResourceRef.GetInstanceAsync();
             _graph.TargetAnimation = anim;

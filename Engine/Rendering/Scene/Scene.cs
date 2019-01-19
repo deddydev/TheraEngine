@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
@@ -63,6 +60,12 @@ namespace TheraEngine.Rendering
                 new SortedSet<RenderCommand>(_farToNearSorter),
                 new SortedSet<RenderCommand>(_nearToFarSorter),
             };
+            Engine.LostFocus += Engine_LostFocus;
+        }
+
+        private void Engine_LostFocus()
+        {
+
         }
 
         public bool ShadowPass { get; internal set; }
@@ -117,7 +120,10 @@ namespace TheraEngine.Rendering
             //NumTotalCommandsAdded = 0;
         }
         internal void SwapBuffers()
-            => THelpers.Swap(ref _updatingPasses, ref _renderingPasses);
+        {
+            ClearRenderList();
+            THelpers.Swap(ref _updatingPasses, ref _renderingPasses);
+        }
         internal void ClearRenderList()
             => _renderingPasses.ForEach(x => x.Clear());
         internal void ClearUpdateList()

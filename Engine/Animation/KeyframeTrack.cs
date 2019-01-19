@@ -27,8 +27,8 @@ namespace TheraEngine.Animation
         void UnifyTangentMagnitudes(EUnifyBias bias);
         void MakeOutLinear();
         void MakeInLinear();
-        void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent);
-        void WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent);
+        //void ParsePlanar(string inValue, string outValue, string inTangent, string outTangent);
+        //void WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent);
     }
     public interface IPlanarKeyframe<T> : IPlanarKeyframe where T : unmanaged
     {
@@ -812,22 +812,22 @@ namespace TheraEngine.Animation
             }
             return count;
         }
-        public static bool operator ==(Keyframe left, Keyframe right)
-            => left?.Equals(right) ?? right is null;
-        public static bool operator !=(Keyframe left, Keyframe right)
-            => left is null ? !(right is null) : !left.Equals(right);
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-            if (obj.GetType() != GetType())
-                return false;
+        //public static bool operator ==(Keyframe left, Keyframe right)
+        //    => left?.Equals(right) ?? right is null;
+        //public static bool operator !=(Keyframe left, Keyframe right)
+        //    => left is null ? !(right is null) : !left.Equals(right);
+        //public override bool Equals(object obj)
+        //{
+        //    if (obj is null)
+        //        return false;
+        //    if (obj.GetType() != GetType())
+        //        return false;
 
-            return Second == ((Keyframe)obj).Second;
-        }
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+        //    return Second == ((Keyframe)obj).Second;
+        //}
+        //public override int GetHashCode()
+        //{
+        //    return base.GetHashCode();
+        //}
     }
 }

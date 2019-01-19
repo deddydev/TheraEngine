@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using TheraEngine.Animation;
 using TheraEngine.Core.Attributes;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -7,6 +8,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     [PropGridControlFor(typeof(Single))]
     public partial class PropGridSingle : PropGridItem
     {
+        public override bool CanAnimate => true;
+
         public PropGridSingle()
         {
             InitializeComponent();
@@ -15,19 +18,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void NumericInputBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void NumericInputBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
-        
+
         protected override void UpdateDisplayInternal(object value)
         {
             numericInputBox1.Value = (Single)value;
             numericInputBox1.Enabled = IsEditable();
         }
-
-        protected override void OnLabelSet()
-        {
-            Label.MouseDown += LabelMouseDown;
-            Label.MouseUp += LabelMouseUp;
-        }
-
+        
         private int _y = 0;
         private void LabelMouseDown(object sender, MouseEventArgs e)
         {
@@ -74,5 +71,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             base.SetReferenceHolder(parentInfo);
         }
+        protected override void OnLabelSet()
+        {
+            Label.MouseDown += LabelMouseDown;
+            Label.MouseUp += LabelMouseUp;
+            base.OnLabelSet();
+        }
+        protected override BasePropAnim CreateAnimation() => new PropAnimFloat(0.0f, true, true);
     }
 }

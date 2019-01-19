@@ -2,6 +2,11 @@
 {
     public static class SingleExtension
     {
+        public static float RoundToNearestMultiple(this float value, float multiple)
+        {
+            double nearestMultiple = Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
+            return (float)nearestMultiple;
+        }
         public const Single ZeroTolerance = 1e-6f;
         public static bool IsZero(this Single value, Single errorMargin = ZeroTolerance)
             => Math.Abs(value) < errorMargin;

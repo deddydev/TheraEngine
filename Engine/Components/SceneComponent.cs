@@ -447,6 +447,8 @@ namespace TheraEngine.Components
 
         public override void OnSpawned()
         {
+            base.OnSpawned();
+
             if (this is IRigidBodyCollidable p)
                 p.RigidBodyCollision?.Spawn(OwningWorld);
 
@@ -458,7 +460,7 @@ namespace TheraEngine.Components
 
             if (this is I2DRenderable r2d)
                 r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
-
+            
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
         }

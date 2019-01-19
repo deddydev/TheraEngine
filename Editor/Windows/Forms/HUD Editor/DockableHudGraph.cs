@@ -14,6 +14,7 @@ namespace TheraEditor.Windows.Forms
         public DockableHudGraph()
         {
             InitializeComponent();
+
             RenderPanel.AllowDrop = false;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
             GameMode = new HudEditorGameMode() { RenderPanel = RenderPanel };

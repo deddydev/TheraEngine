@@ -1,20 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
-using TheraEngine.Worlds.Maps;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.IO;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds;
+using TheraEngine.Worlds.Maps;
 
 namespace TheraEngine.Tests
 {
@@ -56,7 +54,7 @@ namespace TheraEngine.Tests
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
                     new Rotator(x, y, z, RotationOrder.YPR),
                     TMaterial.CreateLitColorMaterial(Color.Purple), physicsInfo);
-                box.RootComponent.RigidBodyCollision.Collided += RigidBodyCollision_Collided1;
+                box.RootComponent.RigidBodyCollision.Collided += OnBoxHit;
                 array[i] = box;
             }
             actors.AddRange(array);
@@ -282,7 +280,7 @@ namespace TheraEngine.Tests
             base.BeginPlay();
         }
 
-        private void RigidBodyCollision_Collided1(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)
+        private void OnBoxHit(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)
         {
             ShaderVec3 color = (ShaderVec3)((StaticMeshComponent)@this.Owner).ModelRef.File.RigidChildren[0].LODs[0].MaterialRef.File.Parameters[0];
             color.Value = (ColorF3)Color.Green;

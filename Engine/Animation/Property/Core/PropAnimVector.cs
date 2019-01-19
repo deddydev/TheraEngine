@@ -213,18 +213,8 @@ namespace TheraEngine.Animation
             => LerpConstrainedFPSChanged?.Invoke(this);
 
         protected override void BakedChanged()
-        {
-            if (IsBaked)
-            {
-                Bake(_bakedFPS);
-                _getValue = GetValueBakedBySecond;
-            }
-            else
-            {
-                _baked = null;
-                _getValue = GetValueKeyframed;
-            }
-        }
+            => _getValue = !IsBaked ? (DelGetValue<TValue>)GetValueKeyframed : GetValueBakedBySecond;
+
         public TValue GetValueBaked(int frameIndex)
             => _baked == null || _baked.Length == 0 ? new TValue() :
             _baked[frameIndex.Clamp(0, _baked.Length - 1)];
@@ -566,8 +556,18 @@ namespace TheraEngine.Animation
         Out,
         Average,
     }
-    public abstract class VectorKeyframe<T> : Keyframe where T : unmanaged
+    public abstract class VectorKeyframe<T> : Keyframe, IPlanarKeyframe<T> where T : unmanaged
     {
+        //T IPlanarKeyframe<T>.InValue { get => InValue; set => InValue = value; }
+        //T IPlanarKeyframe<T>.OutValue { get => OutValue; set => OutValue = value; }
+        //T IPlanarKeyframe<T>.InTangent { get => InTangent; set => InTangent = value; }
+        //T IPlanarKeyframe<T>.OutTangent { get => OutTangent; set => OutTangent = value; }
+        object IPlanarKeyframe.InValue { get => InValue; set => InValue = (T)value; }
+        object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (T)value; }
+        object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (T)value; }
+        object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (T)value; }
+        //EVectorInterpType IPlanarKeyframe.InterpolationType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public VectorKeyframe()
             : this(0.0f, new T(), new T(), EVectorInterpType.CubicBezier) { }
         public VectorKeyframe(int frameIndex, float FPS, T inValue, T outValue, T inTangent, T outTangent, EVectorInterpType type)

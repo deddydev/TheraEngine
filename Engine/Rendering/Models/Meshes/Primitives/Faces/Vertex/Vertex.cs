@@ -79,22 +79,22 @@ namespace TheraEngine.Rendering.Models
                 switch (type)
                 {
                     case EBufferType.Position:
-                        b.Set(index * 12, Position);
+                        b.Set(index, Position);
                         break;
                     case EBufferType.Normal:
-                        b.Set(index * 12, Normal);
+                        b.Set(index, Normal);
                         break;
                     case EBufferType.Binormal:
-                        b.Set(index * 12, Binormal);
+                        b.Set(index, Binormal);
                         break;
                     case EBufferType.Tangent:
-                        b.Set(index * 12, Tangent);
+                        b.Set(index, Tangent);
                         break;
                     case EBufferType.Color:
-                        b.Set(index << 4, Color);
+                        b.Set(index, Color);
                         break;
                     case EBufferType.TexCoord:
-                        b.Set(index << 3, TexCoord);
+                        b.Set(index, TexCoord);
                         break;
                 }
             }

@@ -388,10 +388,17 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
+        /// <summary>
+        /// If the buffer is mapped, this means any updates to the buffer will be shown by the GPU immediately.
+        /// If the buffer is not mapped, any updates will have to be pushed to the GPU using PushData or PushSubData.
+        /// </summary>
         public bool IsMapped { get; internal set; } = false;
 
         protected override void PostGenerated()
             => Engine.Renderer.InitializeBuffer(this);
+        /// <summary>
+        /// Allocates and pushes the buffer to the GPU.
+        /// </summary>
         public void PushData()
         {
             if (IsMapped)
@@ -405,7 +412,13 @@ namespace TheraEngine.Rendering.Models
             else
                 Engine.Renderer.PushBufferData(this);
         }
+        /// <summary>
+        /// Pushes the entire buffer to the GPU. Assumes the buffer has already been allocated using PushData.
+        /// </summary>
         public void PushSubData() => PushSubData(0, DataLength);
+        /// <summary>
+        /// Pushes the a portion of the buffer to the GPU. Assumes the buffer has already been allocated using PushData.
+        /// </summary>
         public void PushSubData(int offset, int length)
         {
             if (IsMapped)
@@ -431,15 +444,15 @@ namespace TheraEngine.Rendering.Models
             => (T)Marshal.PtrToStructure(_data.Address + offset, typeof(T));
 
         /// <summary>
-        /// Writes the struct value into the buffer at the given offset.
-        /// Offset is in bytes; NOT relative to the size of the struct.
-        /// This will not update the data in GPU memory. To do that, call PushData or PushSubData after this call.
+        /// Writes the struct value into the buffer at the given index.
+        /// This will not update the data in GPU memory unless this buffer is mapped.
+        /// To update the GPU data, call PushData or PushSubData after this call.
         /// </summary>
         /// <typeparam name="T">The type of value to write.</typeparam>
-        /// <param name="offset">The offset into the buffer, in bytes.</param>
+        /// <param name="index">The index of the value in the buffer.</param>
         /// <param name="value">The value to write.</param>
-        public void Set<T>(int offset, T value) where T : struct
-            => Marshal.StructureToPtr(value, _data.Address + offset, true);
+        public void Set<T>(int index, T value) where T : struct
+            => Marshal.StructureToPtr(value, _data.Address[index, Stride], true);
         
         public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = false) where T : struct
         {

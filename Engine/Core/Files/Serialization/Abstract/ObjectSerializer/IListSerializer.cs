@@ -70,9 +70,9 @@ namespace TheraEngine.Core.Files.Serialization
             if (ser == null)
                 return null;
             
-            char separator = ' ';
-            if (!SerializationCommon.IsPrimitiveType(elementType))
-                separator = ',';
+            char separator = '|';
+            //if (!SerializationCommon.IsPrimitiveType(elementType))
+            //    separator = '|';
 
             string[] values = value.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -107,10 +107,10 @@ namespace TheraEngine.Core.Files.Serialization
             var ser = DetermineObjectSerializer(elementType, true);
             if (ser == null)
                 return false;
-            
-            string separator = " ";
-            if (!SerializationCommon.IsPrimitiveType(elementType))
-                separator = ",";
+
+            string separator = "|";
+            //if (!SerializationCommon.IsPrimitiveType(elementType))
+            //    separator = "|";
             
             string convert(object elem)
             {

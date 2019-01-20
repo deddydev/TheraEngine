@@ -24,7 +24,7 @@ namespace TheraEngine.Actors.Types.Pawns
         Vec2 CursorPosition();
         Vec2 CursorPositionWorld();
         Vec2 CursorPositionWorld(Vec2 viewportPosition);
-        Vec2 CursorPosition(Viewport v);
+        Vec2 CursorPositionViewport(Viewport v);
         Vec2 CursorPositionWorld(Viewport v);
         Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition);
 
@@ -338,13 +338,22 @@ namespace TheraEngine.Actors.Types.Pawns
             return result;
         }
         /// <summary>
+        /// Returns a position in the world using a position relative to the viewport
+        /// controlling this UI or the owning pawn's viewport which uses this UI as its HUD.
+        /// </summary>
+        public Vec2 ViewportPositionToWorld(Vec2 viewportPosition)
+        {
+            Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
+            return v?.ScreenToWorld(viewportPosition).Xy ?? Vec2.Zero;
+        }
+        /// <summary>
         /// Returns the cursor position in the world relative to the the viewport 
         /// controlling this UI or the owning pawn's viewport which uses this UI as its HUD.
         /// </summary>
         public Vec2 CursorPositionWorld()
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
-            return v?.ScreenToWorld(CursorPosition(v)).Xy ?? Vec2.Zero;
+            return v?.ScreenToWorld(CursorPositionViewport(v)).Xy ?? Vec2.Zero;
         }
         public Vec2 CursorPositionWorld(Vec2 viewportPosition)
         {
@@ -354,7 +363,7 @@ namespace TheraEngine.Actors.Types.Pawns
         /// <summary>
         /// Returns the cursor position relative to the the viewport.
         /// </summary>
-        public Vec2 CursorPosition(Viewport v)
+        public Vec2 CursorPositionViewport(Viewport v)
         {
             Point absolute = Cursor.Position;
             if (v == null)
@@ -367,7 +376,7 @@ namespace TheraEngine.Actors.Types.Pawns
         }
 
         public Vec2 CursorPositionWorld(Viewport v)
-            => v.ScreenToWorld(CursorPosition(v)).Xy;
+            => v.ScreenToWorld(CursorPositionViewport(v)).Xy;
         public Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition)
             => v.ScreenToWorld(viewportPosition).Xy;
 

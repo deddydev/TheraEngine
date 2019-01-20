@@ -24,8 +24,6 @@ namespace TheraEngine.Animation
         /// </summary>
         public void Tick(object obj, FieldInfo field, float delta)
         {
-            if (_state != EAnimationState.Playing)
-                return;
             field.SetValue(obj, GetCurrentValueGeneric());
             Progress(delta);
         }
@@ -34,19 +32,17 @@ namespace TheraEngine.Animation
         /// </summary>
         public void Tick(object obj, PropertyInfo property, float delta)
         {
-            if (_state != EAnimationState.Playing)
-                return;
             property.SetValue(obj, GetCurrentValueGeneric());
             Progress(delta);
         }
+        private readonly object[] _memberParamCache = new object[1];
         /// <summary>
         /// Call to set this animation's current value to an object's method that takes it as a single argument and then advance the animation by the given delta.
         /// </summary>
         public void Tick(object obj, MethodInfo method, float delta)
         {
-            if (_state != EAnimationState.Playing)
-                return;
-            method.Invoke(obj, new object[] { GetCurrentValueGeneric() });
+            _memberParamCache[0] = GetCurrentValueGeneric();
+            method.Invoke(obj, _memberParamCache);
             Progress(delta);
         }
 

@@ -205,8 +205,8 @@
     <AssemblyOriginatorKeyFile>TheraDevKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
-      <HintPath>..\packages\AngleSharp.0.9.11\lib\net45\AngleSharp.dll</HintPath>
+    <Reference Include="AngleSharp, Version=0.10.1.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.0.10.1\lib\net46\AngleSharp.dll</HintPath>
     </Reference>
     <Reference Include="Ayx.BitIO, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ayx.BitIO.1.0.0\lib\net20\Ayx.BitIO.dll</HintPath>
@@ -215,10 +215,13 @@
       <HintPath>$(SolutionDir)Libraries\$(Platform)\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="CsvHelper, Version=12.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
-      <HintPath>..\packages\CsvHelper.12.1.0\lib\net45\CsvHelper.dll</HintPath>
+      <HintPath>..\packages\CsvHelper.12.1.1\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
     <Reference Include="Enums.NET">
       <HintPath>..\Libraries\Enums.NET.2.2.0\Bin\Net45\Enums.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="FastMember.Signed, Version=1.4.1.0, Culture=neutral, PublicKeyToken=9e8f22703bef9a29, processorArchitecture=MSIL">
+      <HintPath>..\packages\FastMember.Signed.1.4.1\lib\net461\FastMember.Signed.dll</HintPath>
     </Reference>
     <Reference Include="FreeImageNET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\FreeImageNET.dll</HintPath>

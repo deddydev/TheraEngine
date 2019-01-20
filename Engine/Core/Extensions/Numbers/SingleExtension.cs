@@ -2,11 +2,6 @@
 {
     public static class SingleExtension
     {
-        public static float RoundToNearestMultiple(this float value, float multiple)
-        {
-            double nearestMultiple = Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
-            return (float)nearestMultiple;
-        }
         public const Single ZeroTolerance = 1e-6f;
         public static bool IsZero(this Single value, Single errorMargin = ZeroTolerance)
             => Math.Abs(value) < errorMargin;
@@ -120,6 +115,11 @@
         {
             float f2 = value.Clamp(0.0f, 1.0f);
             return (byte)Math.Floor(f2 == 1.0f ? 4294967295.0f : f2 * 4294967296.0f);
+        }
+        public static float RoundToNearestMultiple(this float value, float multiple)
+        {
+            double nearestMultiple = Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
+            return (float)nearestMultiple;
         }
         public static Single RoundToNearest(this Single value, Single intervalBias, Single interval)
         {

@@ -66,7 +66,6 @@ namespace TheraEngine.Animation
         protected bool _looped = false;
         [TSerialize("State")]
         protected EAnimationState _state = EAnimationState.Stopped;
-        //[TSerialize("TickSelf")]
         protected bool _tickSelf = true;
 
         public BaseAnimation(float lengthInSeconds, bool looped)
@@ -129,7 +128,7 @@ namespace TheraEngine.Animation
         /// </summary>
         [Browsable(false)]
         [Category(AnimCategory)]
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize]
         public bool TickSelf
         {
             get => _tickSelf;

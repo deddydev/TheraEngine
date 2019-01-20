@@ -47,17 +47,13 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(513, 262);
-            this.CloseButton = false;
-            this.CloseButtonVisible = false;
+            this.CloseButton = true;
+            this.CloseButtonVisible = true;
             this.Controls.Add(this.RenderPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "DockablePropAnimFloatGraph";
             this.Text = "Float Animation Editor";
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
-            this.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);
-            this.DragLeave += new System.EventHandler(this.RenderPanel_DragLeave_1);
             this.ResumeLayout(false);
 
         }

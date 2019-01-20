@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
@@ -26,6 +27,12 @@ namespace TheraEditor.Windows.Forms
             => _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
         public UIPropAnimFloatEditor(Vec2 bounds) : base(bounds)
             =>_rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
+        protected override UICanvasComponent OnConstructRoot()
+        {
+            var root = base.OnConstructRoot();
+            _baseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
+            return root;
+        }
 
         private Vec3[] KeyframeInOutPositions { get; set; }
         public float VelocitySigmoidScale { get; set; } = 0.002f;
@@ -45,19 +52,23 @@ namespace TheraEditor.Windows.Forms
         public IQuadtreeNode QuadtreeNode { get; set; }
 
         [TSerialize]
+        public float SelectionRadius { get; set; } = 10.0f;
+        [TSerialize]
+        public float ZoomIncrement { get; set; } = 0.05f;
+        [TSerialize]
+        public bool SnapToIncrement { get; set; } = false;
+        [TSerialize]
         public bool RenderExtrema { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderSpline { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderKeyframeTangentLines { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderKeyframeTangentPoints { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderKeyframePoints { get; set; } = true;
+        [TSerialize]
+        public bool RenderKeyframeTangents { get; set; } = true;
         [TSerialize]
         public bool RenderAnimPosition { get; set; } = true;
-        //[TSerialize]
-        //public bool RenderSelectionArea { get; set; } = true;
+
+        public bool IsDraggingKeyframes => _draggedKeyframes.Count > 0;
+        public int[] ClosestKeyframeIndices { get; private set; }
+        
+        private bool _ctrlDown = false;
+        private bool _shiftDown = false;
 
         private PropAnimFloat _targetAnimation;
         private Vec2 _minScale = new Vec2(0.01f), _maxScale = new Vec2(1.0f);
@@ -79,50 +90,31 @@ namespace TheraEditor.Windows.Forms
             {
                 if (_targetAnimation != null)
                 {
-                    _targetAnimation.Keyframes.Changed -= Keyframes_Changed;
-                    _targetAnimation.ConstrainKeyframedFPSChanged -= _position_ConstrainKeyframedFPSChanged;
-                    _targetAnimation.BakedFPSChanged -= _position_BakedFPSChanged1;
+                    _targetAnimation.Keyframes.Changed -= OnChanged;
+                    _targetAnimation.SpeedChanged -= OnSpeedChanged;
+                    _targetAnimation.ConstrainKeyframedFPSChanged -= OnConstrainKeyframedFPSChanged;
+                    _targetAnimation.BakedFPSChanged -= OnBakedFPSChanged;
                     _targetAnimation.LengthChanged -= _position_LengthChanged;
-                    //_position.AnimationStarted -= _spline_AnimationStarted;
-                    //_position.AnimationPaused -= _spline_AnimationEnded;
-                    //_position.AnimationEnded -= _spline_AnimationEnded;
-                    _targetAnimation.CurrentPositionChanged -= _position_CurrentPositionChanged;
-                    //_spline_AnimationEnded();
+                    _targetAnimation.CurrentPositionChanged -= OnCurrentPositionChanged;
                 }
                 _targetAnimation = value;
                 if (_targetAnimation != null)
                 {
-                    _targetAnimation.Keyframes.Changed += Keyframes_Changed;
-                    _targetAnimation.ConstrainKeyframedFPSChanged += _position_ConstrainKeyframedFPSChanged;
-                    _targetAnimation.BakedFPSChanged += _position_BakedFPSChanged1;
+                    _targetAnimation.Keyframes.Changed += OnChanged;
+                    _targetAnimation.SpeedChanged += OnSpeedChanged;
+                    _targetAnimation.ConstrainKeyframedFPSChanged += OnConstrainKeyframedFPSChanged;
+                    _targetAnimation.BakedFPSChanged += OnBakedFPSChanged;
                     _targetAnimation.LengthChanged += _position_LengthChanged;
-                    //_position.AnimationStarted += _spline_AnimationStarted;
-                    //_position.AnimationPaused += _spline_AnimationEnded;
-                    //_position.AnimationEnded += _spline_AnimationEnded;
-                    _targetAnimation.CurrentPositionChanged += _position_CurrentPositionChanged;
+                    _targetAnimation.CurrentPositionChanged += OnCurrentPositionChanged;
                     _targetAnimation.TickSelf = true;
-                    //if (_position.State == EAnimationState.Playing)
-                    //    _spline_AnimationStarted();
 
-                    _targetAnimation.GetMinMax(
-                        out (float Time, float Value)[] min,
-                        out (float Time, float Value)[] max);
-
-                    float minVal = min[0].Value;
-                    float maxVal = max[0].Value;
-                    float yBound = maxVal - minVal;
-                    float xBound = _targetAnimation.LengthInSeconds;
-                    float xScale = xBound == 0.0f ? 1.0f : Bounds.X / xBound;
-                    float yScale = yBound == 0.0f ? 1.0f : Bounds.Y / yBound;
-                    _baseTransformComponent.Scale = Math.Max(xScale, yScale);
-                    //float midPoint = (maxVal + minVal) * 0.5f;
-                    _baseTransformComponent.LocalTranslation = Vec2.Zero;//new Vec2(_targetAnimation.LengthInSeconds * 0.5f, midPoint);
+                    ZoomExtents();
                 }
                 RegenerateSplinePrimitive();
             }
         }
 
-        private async void _position_BakedFPSChanged1(BasePropAnimBakeable obj)
+        private async void OnBakedFPSChanged(BasePropAnimBakeable obj)
         {
             await RegenerateSplinePrimitiveAsync();
         }
@@ -130,24 +122,35 @@ namespace TheraEditor.Windows.Forms
         {
             await RegenerateSplinePrimitiveAsync();
         }
-        private async void _position_ConstrainKeyframedFPSChanged(PropAnimVector<float, FloatKeyframe> obj)
+        private async void OnConstrainKeyframedFPSChanged(PropAnimVector<float, FloatKeyframe> obj)
         {
             await RegenerateSplinePrimitiveAsync();
         }
-        private void Keyframes_Changed(BaseKeyframeTrack obj)
+        private void OnChanged(BaseKeyframeTrack obj)
+        {
+            UpdateSplinePrimitive();
+        }
+        private void OnSpeedChanged(BaseAnimation obj)
         {
             UpdateSplinePrimitive();
         }
 
         private void GetKeyframeInfo(FloatKeyframe kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos)
         {
-            float tangentScale = 1.0f; //50.0f / _baseTransformComponent.ScaleX;
+            float tangentScale = 50.0f / _baseTransformComponent.ScaleX;
+            float velOut = kf.OutTangent;
+            float velIn = kf.InTangent;
+
+            Vec2 tangentInVector = new Vec2(-tangentScale, velIn * tangentScale);
+            Vec2 tangentOutVector = new Vec2(tangentScale, velOut * tangentScale);
+            //tangentInVector.Normalize();
+            //tangentOutVector.Normalize();
 
             inPos = new Vec3(kf.Second, kf.InValue, 0.0f);
-            inTanPos = new Vec3(kf.Second - tangentScale, kf.InValue + kf.InTangent * tangentScale, 0.0f);
+            inTanPos = new Vec3(kf.Second + tangentInVector.X, kf.InValue + tangentInVector.Y, 0.0f);
 
             outPos = new Vec3(kf.Second, kf.OutValue, 0.0f);
-            outTanPos = new Vec3(kf.Second + tangentScale, kf.OutValue + kf.OutTangent * tangentScale, 0.0f);
+            outTanPos = new Vec3(kf.Second + tangentOutVector.X, kf.OutValue + tangentOutVector.Y, 0.0f);
         }
         public async void UpdateSplinePrimitive()
         {
@@ -164,50 +167,45 @@ namespace TheraEditor.Windows.Forms
 
             var posBuf = _rcSpline.Mesh.Data[EBufferType.Position];
             var colBuf = _rcSpline.Mesh.Data[EBufferType.Color];
-
-            int i;
-            float sec = 0.0f;
-            float invFps = 1.0f / DisplayFPS;
-            for (i = 0; i < posBuf.ElementCount; ++i, sec = i * invFps)
-            {
-                GetSplineVertex(sec, out Vec3 pos, out ColorF4 color);
-
-                posBuf.Set(i * posBuf.Stride, pos);
-                colBuf.Set(i * colBuf.Stride, color);
-            }
-
-            //posBuf.PushSubData();
-            //colBuf.PushSubData();
-            
             var kfPosBuf = _rcKeyframeInOutPositions.Mesh.Data[EBufferType.Position];
             var tanPosBuf = _rcTangentPositions.Mesh.Data[EBufferType.Position];
             var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
-            
+
+            int i;
+            float sec = 0.0f;
+            float timeIncrement = 1.0f / DisplayFPS;
+            for (i = 0; i < posBuf.ElementCount; ++i, sec = i * timeIncrement)
+            {
+                GetSplineVertex(sec, out Vec3 pos, out ColorF4 color);
+
+                posBuf.Set(i, pos);
+                colBuf.Set(i, color);
+            }
+
             i = 0;
+            int i2;
             foreach (FloatKeyframe kf in _targetAnimation)
             {
+                i2 = i << 1;
                 GetKeyframeInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
                 
                 KeyframeInOutPositions[i] = inPos;
-                kfPosBuf.Set(i * kfPosBuf.Stride, inPos);
-                tanPosBuf.Set(i * tanPosBuf.Stride, inTanPos);
-                keyLinesBuf.Set(((i << 1) + 0) * keyLinesBuf.Stride, inPos);
-                keyLinesBuf.Set(((i << 1) + 1) * keyLinesBuf.Stride, inTanPos);
+                kfPosBuf.Set(i, inPos);
+                tanPosBuf.Set(i, inTanPos);
+                keyLinesBuf.Set(i2, inPos);
+                keyLinesBuf.Set(i2 + 1, inTanPos);
 
                 ++i;
-                
+                i2 = i << 1;
+
                 KeyframeInOutPositions[i] = outPos;
-                kfPosBuf.Set(i * kfPosBuf.Stride, outPos);
-                tanPosBuf.Set(i * tanPosBuf.Stride, outTanPos);
-                keyLinesBuf.Set(((i << 1) + 0) * keyLinesBuf.Stride, outPos);
-                keyLinesBuf.Set(((i << 1) + 1) * keyLinesBuf.Stride, outTanPos);
+                kfPosBuf.Set(i, outPos);
+                tanPosBuf.Set(i, outTanPos);
+                keyLinesBuf.Set(i2, outPos);
+                keyLinesBuf.Set(i2 + 1, outTanPos);
 
                 ++i;
             }
-
-            //kfPosBuf.PushSubData();
-            //tanPosBuf.PushSubData();
-            //keyLinesBuf.PushSubData();
         }
 
         public async Task RegenerateSplinePrimitiveAsync()
@@ -342,20 +340,57 @@ void main()
         private void GetSplineVertex(float sec, out Vec3 pos, out ColorF4 color)
         {
             float val = _targetAnimation.GetValue(sec);
-            float vel = _targetAnimation.GetVelocityKeyframed(sec);
+            float vel = _targetAnimation.GetVelocityKeyframed(sec) * _targetAnimation.Speed;
 
             float sigmoid = 1.0f / (1.0f + VelocitySigmoidScale * (vel * vel));
             color = Vec3.Lerp(Vec3.UnitX, Vec3.UnitZ, sigmoid);
             pos = new Vec3(sec, val, 0.0f);
         }
 
-        protected override UICanvasComponent OnConstructRoot()
+        public void ZoomExtents()
         {
-            var root = base.OnConstructRoot();
-            _baseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
-            return root;
+            if (_targetAnimation == null)
+                return;
+
+            _targetAnimation.GetMinMax(
+                out (float Time, float Value)[] min,
+                out (float Time, float Value)[] max);
+
+            float minVal = min[0].Value;
+            float maxVal = max[0].Value;
+
+            float xBound = _targetAnimation.LengthInSeconds;
+            float yBound = maxVal - minVal;
+
+            if (xBound == 0.0f)
+                xBound = LineIncrement * InitialVisibleBoxes;
+            if (yBound == 0.0f)
+                yBound = LineIncrement * InitialVisibleBoxes;
+
+            float xScale = Bounds.X / xBound;
+            float yScale = Bounds.Y / yBound;
+
+            Vec2 animPos = _baseTransformComponent.LocalTranslation / _baseTransformComponent.Scale;
+            Vec2 visibleAnimRange = Bounds / _baseTransformComponent.Scale;
+
+            if (xScale < yScale)
+            {
+                _baseTransformComponent.Scale = xScale;
+                //_baseTransformComponent.LocalTranslation = new Vec2(0.0f, minVal * yScale);
+            }
+            else
+            {
+                float animCoordX = _baseTransformComponent.LocalTranslation.X / _baseTransformComponent.Scale.X;
+
+                _baseTransformComponent.Scale = yScale;
+
+                float halfXTrans = xBound * 0.5f;
+                float halfXWorld = _baseTransformComponent.Scale.X * halfXTrans;
+                float boundHalfXWorld = Bounds.X / 0.5f;
+                _baseTransformComponent.LocalTranslation = new Vec2(-halfXWorld, 0.0f);
+            }
         }
-        private void _position_CurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
+        private void OnCurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
         {
             AnimPosition = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), _baseTransformComponent.WorldMatrix).Xy;
         }
@@ -383,30 +418,83 @@ void main()
             base.Resize(bounds);
             UpdateBackgroundMaterial();
         }
+        public float MaxIncrementExclusive = 10.0f;
+        public float[] IncrementsRange = new float[] { 1.0f, 2.0f, 5.0f };
+        public void UpdateLineIncrement()
+        {
+            Vec2 visibleAnimRange = Bounds / _baseTransformComponent.Scale;
+            float range = TMath.Min(visibleAnimRange.X, visibleAnimRange.Y);
+            if (range == 0.0f)
+                return;
 
-        public float LineIncrement { get; set; } = 2.0f;
+            float invMax = 1.0f / MaxIncrementExclusive;
+
+            int divs = 0;
+            int mults = 0;
+            while (range >= MaxIncrementExclusive)
+            {
+                ++divs;
+                range *= invMax;
+            }
+            while (range < 1.0f)
+            {
+                ++mults;
+                range *= MaxIncrementExclusive;
+            }
+            
+            float[] dists = IncrementsRange.Select(x => Math.Abs(range - x)).ToArray();
+            float minDist = MaxIncrementExclusive;
+            int minDistIndex = 0;
+            for (int i = 0; i < dists.Length; ++i)
+            {
+                if (dists[i] < minDist)
+                {
+                    minDist = dists[i];
+                    minDistIndex = i;
+                }
+            }
+
+            float inc = IncrementsRange[minDistIndex];
+            if (divs > 0)
+                inc *= (float)Math.Pow(MaxIncrementExclusive, divs);
+            if (mults > 0)
+                inc *= (float)Math.Pow(invMax, mults);
+
+            LineIncrement = inc / MaxIncrementExclusive;
+
+            //float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
+            //float LineIncrement = 2.0f; //Initial display max dim should be to 10
+            //float maxDisplayBoundAnimRelative = TMath.Max(Bounds.X, Bounds.Y) * 0.5f / _baseTransformComponent.ScaleX;
+
+            //float[] incs = new float[] { 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100 };
+            //float scale = _baseTransformComponent.ScaleX;
+            //float scaledInc = scale * LineIncrement;
+            //float fraction = inc - (int)Math.Floor(inc);
+            //Engine.PrintLine($"UI scale: { _baseTransformComponent.ScaleX.ToString()} Nearest2: {nearest2} Nearest5: {nearest5} Nearest10: {nearest10}");
+        }
+
+        public float LineIncrement { get; set; } = 1.0f;
         public const int InitialVisibleBoxes = 10;
         private void UpdateBackgroundMaterial()
         {
+            UpdateLineIncrement();
+
             TMaterial mat = _backgroundComponent.InterfaceMaterial;
             mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
             mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
-            //float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
-            //float LineIncrement = 2.0f; //Initial display max dim should be to 10
-            float maxDisplayBoundAnimRelative = TMath.Max(Bounds.X, Bounds.Y) * 0.5f / _baseTransformComponent.ScaleX;
-            
-            //float[] incs = new float[] { 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100 };
-            float scale = _baseTransformComponent.ScaleX;
-            float scaledInc = scale * LineIncrement;
-            //float fraction = inc - (int)Math.Floor(inc);
-            //Engine.PrintLine($"UI scale: { _baseTransformComponent.ScaleX.ToString()} Nearest2: {nearest2} Nearest5: {nearest5} Nearest10: {nearest10}");
             mat.Parameter<ShaderFloat>(5).Value = LineIncrement;
         }
         protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
             ScreenSpaceUIScene.Add(this);
-            _baseTransformComponent.Scale = TMath.Min(Bounds.X, Bounds.Y) / (LineIncrement * InitialVisibleBoxes);
+
+            if (_targetAnimation != null)
+                ZoomExtents();
+            else
+                _baseTransformComponent.Scale = TMath.Min(Bounds.X, Bounds.Y) / (LineIncrement * InitialVisibleBoxes);
+
+            UpdateBackgroundMaterial();
         }
         protected override void OnDespawned()
         {
@@ -429,24 +517,27 @@ void main()
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterKeyPressed(EKey.AltLeft, AltPressed, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.AltRight, AltPressed, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ControlLeft, CtrlPressed, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ControlRight, CtrlPressed, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ShiftLeft, ShiftPressed, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ShiftRight, ShiftPressed, EInputPauseType.TickAlways);
-
-            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Pressed, LeftClickDown, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Released, LeftClickUp, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Released, RightClickUp, EInputPauseType.TickAlways);
+            //input.RegisterKeyPressed(EKey.AltLeft,      AltPressed,     EInputPauseType.TickAlways);
+            //input.RegisterKeyPressed(EKey.AltRight,     AltPressed,     EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ControlLeft,  CtrlPressed,    EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ControlRight, CtrlPressed,    EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ShiftLeft,    ShiftPressed,   EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.ShiftRight,   ShiftPressed,   EInputPauseType.TickAlways);
+            
+            input.RegisterKeyEvent(EKey.Number1,                EButtonInputType.Pressed,   ToggleSnap,     EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick,   EButtonInputType.Pressed,   LeftClickDown,  EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick,   EButtonInputType.Released,  LeftClickUp,    EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.RightClick,  EButtonInputType.Pressed,   RightClickDown, EInputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.RightClick,  EButtonInputType.Released,  RightClickUp,   EInputPauseType.TickAlways);
 
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
             input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
 
             input.RegisterKeyEvent(EKey.Space, EButtonInputType.Pressed, TogglePlay, EInputPauseType.TickAlways);
         }
-        public void TogglePlay()
+
+        private void ToggleSnap() => SnapToIncrement = !SnapToIncrement;
+        private void TogglePlay()
         {
             if (_targetAnimation == null)
                 return;
@@ -457,7 +548,7 @@ void main()
                 _targetAnimation.State = EAnimationState.Playing;
         }
 
-        private void AltPressed(bool pressed) => _altDown = pressed;
+        //private void AltPressed(bool pressed) => _altDown = pressed;
         private void CtrlPressed(bool pressed) => _ctrlDown = pressed;
         private void ShiftPressed(bool pressed)
         {
@@ -465,16 +556,6 @@ void main()
             if (IsDraggingKeyframes)
                 HandleDraggingKeyframes();
         }
-        public bool IsDraggingKeyframes => _draggedKeyframes.Count > 0;
-        public float SelectionRadius { get; set; } = 10.0f;
-        public float ZoomIncrement { get; set; } = 0.05f;
-        public int[] ClosestKeyframeIndices { get; private set; }
-        public bool SnapToIncrement { get; set; } = false;
-
-        private bool _altDown = false;
-        private bool _ctrlDown = false;
-        private bool _shiftDown = false;
-
         internal void LeftClickDown()
         {
             Vec2 v = CursorPosition();
@@ -756,19 +837,8 @@ void main()
                 return;
 
             Vec2 cursorPos = CursorPositionTransformRelative();
-            ClosestKeyframeIndices = KeyframeInOutPositions.FindAllMatchIndices(x => x.DistanceToFast(cursorPos) < SelectionRadius / _baseTransformComponent.ScaleX);
-
-            //float minDist = float.MaxValue;
-            //ClosestKeyframeIndices = new List<int>(pts.Length);
-            //for (int i = 0; i < pts.Length; ++i)
-            //{
-            //    float dist = KeyframePositions[pts[i]].DistanceToFast(cursorPos);
-            //    if (dist < minDist)
-            //    {
-            //        ClosestKeyframeIndices.Add(pts[i]);
-            //        minDist = dist;
-            //    }
-            //}
+            float radius = SelectionRadius / _baseTransformComponent.ScaleX;
+            ClosestKeyframeIndices = KeyframeInOutPositions.FindAllMatchIndices(x => x.DistanceToFast(cursorPos) < radius);
         }
         protected override void OnScrolledInput(bool down)
         {
@@ -779,7 +849,8 @@ void main()
                 Vec3 worldPoint = CursorPositionWorld();
                 float increment = _baseTransformComponent.ScaleX * ZoomIncrement;
                 _baseTransformComponent.Zoom(down ? increment : -increment, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
-                //Engine.PrintLine($"UI scale: {_baseTransformComponent.Scale.X.ToString()}");
+                
+                UpdateBackgroundMaterial();
                 UpdateSplinePrimitive();
             }
         }
@@ -799,6 +870,7 @@ void main()
             Vec2 pos = CursorPositionWorld();
             Vec2 wh = _backgroundComponent.Size;
 
+            //TODO: if a keyframe is dragged past another, its index changes but these indices are not updated
             if (ClosestKeyframeIndices != null)
                 foreach (int index in ClosestKeyframeIndices)
                     if (KeyframeInOutPositions?.IndexInArrayRange(index) ?? false)

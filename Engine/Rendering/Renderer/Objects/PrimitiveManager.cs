@@ -447,7 +447,7 @@ namespace TheraEngine.Rendering.Models
                             //to account for the identity matrix at index 0
                             ++boneIndex;
 
-                            _boneMatrixBuffer.Set(boneIndex * Matrix4.Size, vtxMtx);
+                            _boneMatrixBuffer.Set(boneIndex, vtxMtx);
                         }
                         //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
                     }

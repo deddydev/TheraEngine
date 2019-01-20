@@ -404,7 +404,7 @@ namespace TheraEditor.Windows.Forms
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
             if (v != null)
             {
-                Vec2 viewportPoint = /*gamepad ? v.Center : */CursorPosition(v);
+                Vec2 viewportPoint = /*gamepad ? v.Center : */CursorPositionViewport(v);
                 MouseMove(v, viewportPoint);
             }
         }

@@ -137,7 +137,7 @@ namespace TheraEngine.Components.Scene.Lights
             PreviewRenderCommand.WorldMatrix = Matrix4.CreateSpacialTransform(WorldPoint, 
                 camera.RightVector * scale, camera.UpVector * scale, camera.ForwardVector * scale);
 
-            passes.Add(PreviewRenderCommand);
+            //passes.Add(PreviewRenderCommand);
         }
 #endif
     }

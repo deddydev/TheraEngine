@@ -134,6 +134,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 if (isObj)
                     obj.EditorState.Selected = true;
+                
+                if (_subObject is SceneComponent sc)
+                {
+                    sc.EditorState.Selected = true;
+                    if (Engine.LocalPlayers.Count > 0)
+                    {
+                        EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
+                        hud?.SetSelectedComponent(false, sc);
+                    }
+                }
 
                 //Load the properties of the object
                 LoadProperties();

@@ -179,7 +179,8 @@
             this.lblObjectName.Name = "lblObjectName";
             this.lblObjectName.Size = new System.Drawing.Size(543, 33);
             this.lblObjectName.TabIndex = 6;
-            this.lblObjectName.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblObjectName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblObjectName.AutoEllipsis = true;
             this.lblObjectName.Click += new System.EventHandler(this.lblObjectName_Click);
             this.lblObjectName.MouseEnter += new System.EventHandler(this.lblObjectName_MouseEnter);
             this.lblObjectName.MouseLeave += new System.EventHandler(this.lblObjectName_MouseLeave);

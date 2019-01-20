@@ -663,7 +663,13 @@ void main()
         internal void LeftClickUp()
         {
             if (_draggedKeyframes.Count > 0)
+            {
+                //foreach (var kf in _draggedKeyframes)
+                //{
+                //    Editor.Instance.UndoManager.AddChange(DragComponent.EditorState, _prevDragMatrix, DragComponent.WorldMatrix, DragComponent, DragComponent.GetType().GetProperty(nameof(DragComponent.WorldMatrix)));
+                //}
                 _draggedKeyframes.Clear();
+            }
         }
         private void RightClickDown()
         {

@@ -1,21 +1,20 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Editor;
 using TheraEngine.Rendering.Models.Materials;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class MaterialControl2 : UserControl, IDataChangeHandler
+    public partial class MaterialControl : UserControl, IDataChangeHandler
     {
-        public MaterialControl2()
+        public MaterialControl()
         {
             InitializeComponent();
             comboBox1.DataSource = Enum.GetNames(typeof(EGLSLType));
@@ -38,26 +37,38 @@ namespace TheraEditor.Windows.Forms
                 tblUniforms.RowCount = 0;
                 lstTextures.Clear();
                 lstShaders.Clear();
+                theraPropertyGrid1.TargetObject = null;
 
                 if (_material != null)
                 {
                     lblMatName.Text = _material.Name;
                     
-                    theraPropertyGrid1.TargetFileObject = _material.RenderParamsRef;
+                    theraPropertyGrid1.TargetObject = _material.RenderParamsRef;
                     
                     for (int i = 0; i < _material.Parameters.Length; ++i)
-                    //foreach (ShaderVar shaderVar in _material.Parameters)
                     {
                         ShaderVar shaderVar = _material.Parameters[i];
                         Type valType = ShaderVar.AssemblyTypeAssociations[shaderVar.TypeName];
                         Type varType = shaderVar.GetType();
 
-                        PropGridItem textCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
-                            typeof(PropGridText), new PropGridItemRefPropertyInfo(() => shaderVar, varType.GetProperty(nameof(ShaderVar.Name))), this);
-                        textCtrl.ValueChanged += RedrawPreview;
+                        //PropGridItem textCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
+                        //    typeof(PropGridText), new PropGridItemRefPropertyInfo(shaderVar, varType.GetProperty(nameof(ShaderVar.Name))), this);
+                        //textCtrl.ValueChanged += RedrawPreview;
+                        Label textCtrl = new Label()
+                        {
+                            Text = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ?
+                                shaderVar.Name.SplitCamelCase() : shaderVar.Name,
+                            TextAlign = ContentAlignment.MiddleRight,
+                            Dock = DockStyle.Top,
+                            AutoSize = false,
+                        };
+                        shaderVar.Renamed += ShaderVar_Renamed;
 
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
-                            TheraPropertyGrid.GetControlTypes(valType)[0], new PropGridItemRefPropertyInfo(() => _material.Parameters[i], varType.GetProperty("Value")), this);
+                            TheraPropertyGrid.GetControlTypes(valType)[0], 
+                            new PropGridItemRefPropertyInfo(() => shaderVar, 
+                            varType.GetProperty("Value")), this);
+
                         valueCtrl.ValueChanged += RedrawPreview;
 
                         tblUniforms.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -67,10 +78,29 @@ namespace TheraEditor.Windows.Forms
                         tblUniforms.Controls.Add(valueCtrl, 1, tblUniforms.RowCount - 1);
                     }
 
-                    foreach (BaseTexRef tref in _material.Textures)
+                    ImageList images = new ImageList();
+                    lstTextures.LargeImageList = lstTextures.SmallImageList = lstTextures.StateImageList = images;
+                    for (int i = 0; i < _material.Textures.Length; ++i)
                     {
+                        BaseTexRef tref = _material.Textures[i];
                         var item = new ListViewItem(string.Format("{0} [{1}]",
                             tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
+                        if (tref is TexRef2D t2d)
+                        {
+                            if (t2d.Mipmaps.Length > 0)
+                            {
+                                var file = t2d.Mipmaps[0]?.File;
+                                if (file != null)
+                                {
+                                    if (file.Bitmaps.Length > 0 && file.Bitmaps[0] != null)
+                                    {
+                                        string samplerName = tref.ResolveSamplerName(i);
+                                        images.Images.Add(samplerName, file.Bitmaps[0].GetThumbnailImage(128, 128, null, IntPtr.Zero));
+                                        item.ImageKey = samplerName;
+                                    }
+                                }
+                            }
+                        }
                         lstTextures.Items.Add(item);
                         tref.Renamed += Tref_Renamed;
                     }
@@ -97,6 +127,16 @@ namespace TheraEditor.Windows.Forms
 
                 RedrawPreview();
             }
+        }
+
+        private void ShaderVar_Renamed(TObject node, string oldName)
+        {
+            if (!(node is ShaderVar svar))
+                return;
+            int index = Material.Parameters.IndexOf(svar);
+            if (index < 0 || index >= tblUniforms.RowCount)
+                return;
+            tblUniforms.GetControlFromPosition(0, index).Text = svar.Name;
         }
 
         private void Tref_Renamed(TObject node, string oldName)
@@ -148,15 +188,9 @@ namespace TheraEditor.Windows.Forms
             //lblMatName.Text = _material.Name;
         }
         
-        public void PropertyObjectChanged(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
-        {
-            Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, propertyOwner, propertyInfo);
-        }
-        public void IListObjectChanged(object oldValue, object newValue, IList listOwner, int listIndex)
-        {
-            Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, listOwner, listIndex);
-        }
-
+        public void HandleChange(params LocalValueChange[] changes)
+            => Editor.Instance.UndoManager.AddChange(Material.EditorState, changes);
+        
         private void lstTextures_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -176,24 +210,14 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             if (_textEditors.ContainsKey(file))
-            {
                 _textEditors[file].Focus();
-            }
             else
             {
                 DockContent form = FindForm() as DockContent;
                 DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
-
-                DockableTextEditor textEditor = new DockableTextEditor
-                {
-                    Tag = fileRef
-                };
-                textEditor.Show(p, DockState.DockLeft);
-                textEditor.TargetFile = file;
-                //textEditor.Saved += M_Saved;
+                var textEditor = DockableTextEditor.ShowNew(p, DockState.DockLeft, fileRef.File);
                 textEditor.CompileGLSL = M_CompileGLSL;
                 textEditor.FormClosed += TextEditor_FormClosed;
-
                 _textEditors.Add(file, textEditor);
             }
         }
@@ -214,18 +238,21 @@ namespace TheraEditor.Windows.Forms
             return (true, null);
         }
 
-        //private void M_Saved(DockableTextEditor editor)
+        //private async void M_Saved(DockableTextEditor editor)
         //{
         //    GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;
         //    fileRef.File.Text = editor.GetText();
+
         //    Editor.Instance.ContentTree.WatchProjectDirectory = false;
-        //    //WfileRef.ExportReference();
+        //    int op = Editor.Instance.BeginOperation("Saving text...", out Progress<float> progress, out System.Threading.CancellationTokenSource cancel);
+        //    await fileRef.File.ExportAsync(fileRef.Path.Absolute, ESerializeFlags.Default, progress, cancel.Token);
+        //    Editor.Instance.EndOperation(op);
         //    Editor.Instance.ContentTree.WatchProjectDirectory = true;
         //}
-        public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
-        {
-            Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, dicOwner, key, isKey);
-        }
+        //public void IDictionaryObjectChanged(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
+        //{
+        //    Editor.Instance.UndoManager.AddChange(Material.EditorState, oldValue, newValue, dicOwner, key, isKey);
+        //}
 
         private void lstTextures_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -237,8 +264,15 @@ namespace TheraEditor.Windows.Forms
 
             DockContent form = FindForm() as DockContent;
             DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
-            ModelEditorForm editor = p.FindForm() as ModelEditorForm;
-            editor.TexRefForm.texRefControl1.SetTexRef(tref);
+            var editor = p.FindForm();
+            if (editor is MaterialEditorForm me)
+            {
+                me.TexRefForm?.texRefControl1?.SetTexRef(tref);
+            }
+            else if (editor is ModelEditorForm mdl)
+            {
+                mdl.TexRefForm?.texRefControl1?.SetTexRef(tref);
+            }
         }
 
         private void tabControl1_Selected(object sender, TabControlEventArgs e)

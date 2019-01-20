@@ -87,206 +87,58 @@ namespace TheraEngine.Editor
             Object?.OnHighlightChanged(_highlighted);
             HighlightingChanged?.Invoke(highlighted);
         }
-
-        public abstract class LocalValueChange
+        public GlobalValueChange AddChanges(params LocalValueChange[] changes)
         {
-            public GlobalValueChange GlobalChange { get; set; }
-            public object OldValue { get; set; }
-            public object NewValue { get; set; }
-
-            public abstract void ApplyNewValue();
-            public abstract void ApplyOldValue();
-            public abstract string DisplayChangeAsUndo();
-            public abstract string DisplayChangeAsRedo();
-        }
-        public class ListValueChange : LocalValueChange
-        {
-            public IList List { get; set; }
-            public int Index { get; set; }
-
-            public override void ApplyNewValue()
-                => List[Index] = NewValue;
-            public override void ApplyOldValue()
-                => List[Index] = OldValue;
-
-            public override string DisplayChangeAsRedo()
+            GlobalValueChange globalChange = new GlobalValueChange
             {
-                return string.Format("{0}[{1}] {2} -> {3}",
-                    List.ToString(), Index.ToString(),
-                  OldValue?.ToString() ?? "null", NewValue?.ToString() ?? "null");
+                ChangedStates = new List<(EditorState State, int ChangeIndex)>()
+            };
+            foreach (LocalValueChange change in changes)
+            {
+                globalChange.ChangedStates.Add((this, ChangedValues.Count));
+                change.GlobalChange = globalChange;
+                ChangedValues.Add(change);
             }
-
-            public override string DisplayChangeAsUndo()
-            {
-                return string.Format("{0}[{1}] {2} <- {3}",
-                    List.ToString(), Index.ToString(),
-                    OldValue?.ToString() ?? "null", NewValue?.ToString() ?? "null");
-            }
-
-            public override string ToString()
-                => DisplayChangeAsRedo();
-        }
-        public class PropertyValueChange : LocalValueChange
-        {
-            public object PropertyOwner { get; set; }
-            public PropertyInfo PropertyInfo { get; set; }
-
-            public override void ApplyNewValue()
-                => PropertyInfo.SetValue(PropertyOwner, NewValue);
-            public override void ApplyOldValue()
-                => PropertyInfo.SetValue(PropertyOwner, OldValue);
-
-            public override string DisplayChangeAsRedo()
-            {
-                return string.Format("{0}.{1} {2} -> {3}",
-                  PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
-                  OldValue == null ? "null" : OldValue.ToString(),
-                  NewValue == null ? "null" : NewValue.ToString());
-            }
-
-            public override string DisplayChangeAsUndo()
-            {
-                return string.Format("{0}.{1} {2} <- {3}",
-                  PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
-                  OldValue == null ? "null" : OldValue.ToString(),
-                  NewValue == null ? "null" : NewValue.ToString());
-            }
-
-            public override string ToString() => DisplayChangeAsRedo();
-        }
-        public class DictionaryValueChange : LocalValueChange
-        {
-            public IDictionary DictionaryOwner { get; set; }
-            public object Key { get; set; }
-            public bool IsKey { get; set; }
-
-            public override void ApplyNewValue()
-            {
-                if (!IsKey)
-                    DictionaryOwner[Key] = NewValue;
-                else
-                {
-                    if (!DictionaryOwner.Contains(OldValue))
-                        return;
-                    object value = DictionaryOwner[OldValue];
-                    if (DictionaryOwner.Contains(NewValue))
-                        DictionaryOwner[NewValue] = value;
-                    else
-                        DictionaryOwner.Add(NewValue, value);
-                    DictionaryOwner.Remove(OldValue);
-                }
-            }
-            public override void ApplyOldValue()
-            {
-                if (!IsKey)
-                    DictionaryOwner[Key] = OldValue;
-                else
-                {
-                    if (!DictionaryOwner.Contains(NewValue))
-                        return;
-                    object value = DictionaryOwner[NewValue];
-                    if (DictionaryOwner.Contains(OldValue))
-                        DictionaryOwner[OldValue] = value;
-                    else
-                        DictionaryOwner.Add(OldValue, value);
-                    DictionaryOwner.Remove(NewValue);
-                }
-            }
-
-            public override string DisplayChangeAsRedo()
-            {
-                return string.Format("{0}.{1} {2} -> {3}",
-                  DictionaryOwner.ToString(), Key.ToString(),
-                  OldValue == null ? "null" : OldValue.ToString(),
-                  NewValue == null ? "null" : NewValue.ToString());
-            }
-
-            public override string DisplayChangeAsUndo()
-            {
-                return string.Format("{0}.{1} {2} <- {3}",
-                  DictionaryOwner.ToString(), Key.ToString(),
-                  OldValue == null ? "null" : OldValue.ToString(),
-                  NewValue == null ? "null" : NewValue.ToString());
-            }
-
-            public override string ToString() => DisplayChangeAsRedo();
-        }
-        public class GlobalValueChange
-        {
-            public EditorState State { get; set; }
-            public int ChangeIndex { get; set; }
-
-            public void ApplyNewValue()
-                => State.ChangedValues[ChangeIndex].ApplyNewValue();
-            public void ApplyOldValue()
-                => State.ChangedValues[ChangeIndex].ApplyOldValue();
-
-            public void DestroySelf()
-            {
-                State.ChangedValues.RemoveAt(ChangeIndex);
-
-                //Update all local changes after the one that was just removed
-                //Their global state's change index needs to be decremented to match the new index
-                for (int i = ChangeIndex; i < State.ChangedValues.Count; ++i)
-                {
-                    --State.ChangedValues[i].GlobalChange.ChangeIndex;
-                }
-
-                if (State.ChangedValues.Count == 0)
-                    State.IsDirty = false;
-            }
-
-            public string AsUndoString()
-            {
-                return State.ChangedValues[ChangeIndex].DisplayChangeAsUndo();
-            }
-            public string AsRedoString()
-            {
-                return State.ChangedValues[ChangeIndex].DisplayChangeAsRedo();
-            }
-            public override string ToString()
-            {
-                return State.ChangedValues[ChangeIndex].DisplayChangeAsRedo();
-            }
-        }
-
-        public void AddChange(object oldValue, object newValue, IList list, int index, GlobalValueChange change)
-        {
-            ChangedValues.Add(new ListValueChange()
-            {
-                GlobalChange = change,
-                OldValue = oldValue,
-                NewValue = newValue,
-                List = list,
-                Index = index,
-            });
             IsDirty = true;
+            return globalChange;
         }
-        public void AddChange(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo, GlobalValueChange change)
-        {
-            ChangedValues.Add(new PropertyValueChange()
-            {
-                GlobalChange = change,
-                OldValue = oldValue,
-                NewValue = newValue,
-                PropertyOwner = propertyOwner,
-                PropertyInfo = propertyInfo,
-            });
-            IsDirty = true;
-        }
-        public void AddChange(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey, GlobalValueChange change)
-        {
-            ChangedValues.Add(new DictionaryValueChange()
-            {
-                GlobalChange = change,
-                OldValue = oldValue,
-                NewValue = newValue,
-                DictionaryOwner = dicOwner,
-                Key = key,
-                IsKey = isKey,
-            });
-            IsDirty = true;
-        }
+        //public void AddChange(object oldValue, object newValue, IList list, int index, GlobalValueChange change)
+        //{
+        //    ChangedValues.Add(new ListValueChange()
+        //    {
+        //        GlobalChange = change,
+        //        OldValue = oldValue,
+        //        NewValue = newValue,
+        //        List = list,
+        //        Index = index,
+        //    });
+        //    IsDirty = true;
+        //}
+        //public void AddChange(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo, GlobalValueChange change)
+        //{
+        //    ChangedValues.Add(new PropertyValueChange()
+        //    {
+        //        GlobalChange = change,
+        //        OldValue = oldValue,
+        //        NewValue = newValue,
+        //        PropertyOwner = propertyOwner,
+        //        PropertyInfo = propertyInfo,
+        //    });
+        //    IsDirty = true;
+        //}
+        //public void AddChange(object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey, GlobalValueChange change)
+        //{
+        //    ChangedValues.Add(new DictionaryValueChange()
+        //    {
+        //        GlobalChange = change,
+        //        OldValue = oldValue,
+        //        NewValue = newValue,
+        //        DictionaryOwner = dicOwner,
+        //        Key = key,
+        //        IsKey = isKey,
+        //    });
+        //    IsDirty = true;
+        //}
 
         private static Dictionary<int, StencilTest> 
             _highlightedMaterials = new Dictionary<int, StencilTest>(), 
@@ -424,6 +276,249 @@ namespace TheraEngine.Editor
         /// Used to determine if the editor is editing the game currently instead of simulating gameplay.
         /// </summary>
         public bool InEditMode { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Contains information pertaining to a change in a global setting.
+    /// </summary>
+    public class GlobalValueChange
+    {
+        public List<(EditorState State, int ChangeIndex)> ChangedStates { get; set; }
+        //public EditorState State { get; set; }
+        //public int ChangeIndex { get; set; }
+
+        public void ApplyNewValue()
+        {
+            foreach (var (State, ChangeIndex) in ChangedStates)
+                State.ChangedValues[ChangeIndex].ApplyNewValue();
+        }
+        public void ApplyOldValue()
+        {
+            foreach (var (State, ChangeIndex) in ChangedStates)
+                State.ChangedValues[ChangeIndex].ApplyOldValue();
+        }
+
+        public void DestroySelf()
+        {
+            for (int i = 0; i < ChangedStates.Count; ++i)
+            {
+                var (State, ChangeIndex) = ChangedStates[i];
+
+                State.ChangedValues.RemoveAt(ChangeIndex);
+
+                //Update all local changes after the one that was just removed
+                //Their global state's change index needs to be decremented to match the new index
+                for (int x = ChangeIndex; x < State.ChangedValues.Count; ++x)
+                    --ChangeIndex;
+
+                if (State.ChangedValues.Count == 0)
+                    State.IsDirty = false;
+            }
+        }
+
+        public string AsUndoString()
+        {
+            string s = "";
+            for (int i = 0; i < ChangedStates.Count; ++i)
+            {
+                var (State, ChangeIndex) = ChangedStates[i];
+                if (i > 0)
+                    s += ", ";
+                s += $"({State.ChangedValues[ChangeIndex].DisplayChangeAsUndo()}";
+            }
+            return s;
+        }
+        public string AsRedoString()
+        {
+            string s = "";
+            for (int i = 0; i < ChangedStates.Count; ++i)
+            {
+                var (State, ChangeIndex) = ChangedStates[i];
+                if (i > 0)
+                    s += ", ";
+                s += $"({State.ChangedValues[ChangeIndex].DisplayChangeAsRedo()}";
+            }
+            return s;
+        }
+        public override string ToString() => AsRedoString();
+    }
+    /// <summary>
+    /// Contains information pertaining to a change on a specific object.
+    /// </summary>
+    public abstract class LocalValueChange
+    {
+        public LocalValueChange(object oldValue, object newValue)
+        {
+            OldValue = oldValue;
+            NewValue = newValue;
+        }
+
+        public GlobalValueChange GlobalChange { get; set; }
+        public object OldValue { get; set; }
+        public object NewValue { get; set; }
+
+        public abstract void ApplyNewValue();
+        public abstract void ApplyOldValue();
+        public abstract string DisplayChangeAsUndo();
+        public abstract string DisplayChangeAsRedo();
+
+        public override string ToString() => DisplayChangeAsRedo();
+    }
+    public class LocalValueChangeIList : LocalValueChange
+    {
+        public LocalValueChangeIList(object oldValue, object newValue, IList list, int index) : base(oldValue, newValue)
+        {
+            List = list;
+            Index = index;
+        }
+
+        public IList List { get; set; }
+        public int Index { get; set; }
+
+        public override void ApplyNewValue()
+            => List[Index] = NewValue;
+        public override void ApplyOldValue()
+            => List[Index] = OldValue;
+
+        public override string DisplayChangeAsRedo()
+        {
+            return string.Format("{0}[{1}] {2} -> {3}",
+                List.ToString(), Index.ToString(),
+              OldValue?.ToString() ?? "null", NewValue?.ToString() ?? "null");
+        }
+
+        public override string DisplayChangeAsUndo()
+        {
+            return string.Format("{0}[{1}] {2} <- {3}",
+                List.ToString(), Index.ToString(),
+                OldValue?.ToString() ?? "null", NewValue?.ToString() ?? "null");
+        }
+    }
+    public class LocalValueChangeField : LocalValueChange
+    {
+        public LocalValueChangeField(object oldValue, object newValue, object fieldOwner, FieldInfo fieldInfo) : base(oldValue, newValue)
+        {
+            FieldOwner = fieldOwner;
+            FieldInfo = fieldInfo;
+        }
+
+        public object FieldOwner { get; set; }
+        public FieldInfo FieldInfo { get; set; }
+
+        public override void ApplyNewValue()
+            => FieldInfo.SetValue(FieldOwner, NewValue);
+        public override void ApplyOldValue()
+            => FieldInfo.SetValue(FieldOwner, OldValue);
+
+        public override string DisplayChangeAsRedo()
+        {
+            return string.Format("{0}.{1} {2} -> {3}",
+              FieldOwner.ToString(), FieldInfo.Name.ToString(),
+              OldValue == null ? "null" : OldValue.ToString(),
+              NewValue == null ? "null" : NewValue.ToString());
+        }
+
+        public override string DisplayChangeAsUndo()
+        {
+            return string.Format("{0}.{1} {2} <- {3}",
+              FieldOwner.ToString(), FieldInfo.Name.ToString(),
+              OldValue == null ? "null" : OldValue.ToString(),
+              NewValue == null ? "null" : NewValue.ToString());
+        }
+    }
+    public class LocalValueChangeProperty : LocalValueChange
+    {
+        public LocalValueChangeProperty(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo) : base(oldValue, newValue)
+        {
+            PropertyOwner = propertyOwner;
+            PropertyInfo = propertyInfo;
+        }
+
+        public object PropertyOwner { get; set; }
+        public PropertyInfo PropertyInfo { get; set; }
+
+        public override void ApplyNewValue()
+            => PropertyInfo.SetValue(PropertyOwner, NewValue);
+        public override void ApplyOldValue()
+            => PropertyInfo.SetValue(PropertyOwner, OldValue);
+
+        public override string DisplayChangeAsRedo()
+        {
+            return string.Format("{0}.{1} {2} -> {3}",
+              PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
+              OldValue == null ? "null" : OldValue.ToString(),
+              NewValue == null ? "null" : NewValue.ToString());
+        }
+
+        public override string DisplayChangeAsUndo()
+        {
+            return string.Format("{0}.{1} {2} <- {3}",
+              PropertyOwner.ToString(), PropertyInfo.Name.ToString(),
+              OldValue == null ? "null" : OldValue.ToString(),
+              NewValue == null ? "null" : NewValue.ToString());
+        }
+    }
+    public class LocalValueChangeIDictionary : LocalValueChange
+    {
+        public IDictionary DictionaryOwner { get; set; }
+        public object KeyForValue { get; set; }
+        public bool ValueIsKey { get; set; }
+
+        public LocalValueChangeIDictionary(object oldValue, object newValue, IDictionary dictionary, object keyForValue, bool valueIsKey) : base(oldValue, newValue)
+        {
+            DictionaryOwner = dictionary;
+            KeyForValue = keyForValue;
+            ValueIsKey = valueIsKey;
+        }
+
+        public override void ApplyNewValue()
+        {
+            if (!ValueIsKey)
+                DictionaryOwner[KeyForValue] = NewValue;
+            else
+            {
+                if (!DictionaryOwner.Contains(OldValue))
+                    return;
+                object value = DictionaryOwner[OldValue];
+                if (DictionaryOwner.Contains(NewValue))
+                    DictionaryOwner[NewValue] = value;
+                else
+                    DictionaryOwner.Add(NewValue, value);
+                DictionaryOwner.Remove(OldValue);
+            }
+        }
+        public override void ApplyOldValue()
+        {
+            if (!ValueIsKey)
+                DictionaryOwner[KeyForValue] = OldValue;
+            else
+            {
+                if (!DictionaryOwner.Contains(NewValue))
+                    return;
+                object value = DictionaryOwner[NewValue];
+                if (DictionaryOwner.Contains(OldValue))
+                    DictionaryOwner[OldValue] = value;
+                else
+                    DictionaryOwner.Add(OldValue, value);
+                DictionaryOwner.Remove(NewValue);
+            }
+        }
+
+        public override string DisplayChangeAsRedo()
+        {
+            return string.Format("{0}.{1} {2} -> {3}",
+              DictionaryOwner.ToString(), KeyForValue.ToString(),
+              OldValue == null ? "null" : OldValue.ToString(),
+              NewValue == null ? "null" : NewValue.ToString());
+        }
+
+        public override string DisplayChangeAsUndo()
+        {
+            return string.Format("{0}.{1} {2} <- {3}",
+              DictionaryOwner.ToString(), KeyForValue.ToString(),
+              OldValue == null ? "null" : OldValue.ToString(),
+              NewValue == null ? "null" : NewValue.ToString());
+        }
     }
 #endif
 }

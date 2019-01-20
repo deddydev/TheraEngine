@@ -43,7 +43,7 @@ namespace TheraEditor.Windows.Forms
             {
                 RenderPanel.UI.TargetAnimation = value;
                 if (value != null)
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = value;
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = value;
             }
         }
 
@@ -59,7 +59,7 @@ namespace TheraEditor.Windows.Forms
         {
             Editor.SetActiveEditorControl(this);
             if (TargetAnimation != null)
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = TargetAnimation;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = TargetAnimation;
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {

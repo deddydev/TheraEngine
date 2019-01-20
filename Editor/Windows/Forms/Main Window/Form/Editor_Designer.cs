@@ -222,7 +222,7 @@ namespace TheraEditor.Windows.Forms
                 Engine.World.State.SpawnedActors.PostAnythingAdded += SpawnedActors_PostAdded;
                 Engine.World.State.SpawnedActors.PostAnythingRemoved += SpawnedActors_PostRemoved;
             }
-            PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World?.Settings;
+            PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
         }
         public bool CloseWorld()
         {
@@ -450,7 +450,7 @@ namespace TheraEditor.Windows.Forms
         private void ProjectCreatorForm_ProjectCreated()
         {
             Project = ProjectCreatorForm.Project;
-            PropertyGridForm.PropertyGrid.TargetFileObject = Project;
+            PropertyGridForm.PropertyGrid.TargetObject = Project;
         }
         public async void OpenProject()
         {

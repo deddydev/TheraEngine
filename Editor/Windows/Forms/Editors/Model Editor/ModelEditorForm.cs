@@ -210,7 +210,7 @@ namespace TheraEditor.Windows.Forms
             TargetActor = actor;
             World.SpawnActor(TargetActor);
 
-            PropGrid.PropertyGrid.TargetFileObject = TargetActor;
+            PropGrid.PropertyGrid.TargetObject = TargetActor;
         }
         public async void SetModel(StaticModel stm)
         {

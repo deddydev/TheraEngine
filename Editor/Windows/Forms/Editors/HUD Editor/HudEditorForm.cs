@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms
             set
             {
                 HUDGraph.Form.RenderPanel.UI.TargetHUD = value;
-                HUDProps.Form.PropertyGrid.TargetFileObject = value;
+                HUDProps.Form.PropertyGrid.TargetObject = value;
                 FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
             }
         }

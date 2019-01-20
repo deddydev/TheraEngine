@@ -65,7 +65,7 @@
             this.PropertyGrid.Name = "theraPropertyGrid1";
             this.PropertyGrid.Size = new System.Drawing.Size(728, 585);
             this.PropertyGrid.TabIndex = 1;
-            this.PropertyGrid.TargetFileObject = null;
+            this.PropertyGrid.TargetObject = null;
             // 
             // DockablePropertyGrid
             // 

@@ -13,7 +13,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void SetTexRef(BaseTexRef texture)
         {
-            if (theraPropertyGrid1.TargetFileObject == texture)
+            if (theraPropertyGrid1.TargetObject == texture)
                 return;
 
             lblTexName.Text = texture?.Name;
@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms
             }
             else
                 texThumbnail.Image = null;
-            theraPropertyGrid1.TargetFileObject = texture;
+            theraPropertyGrid1.TargetObject = texture;
         }
         private void OnMipLoaded(TextureFile2D obj)
         {

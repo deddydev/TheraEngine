@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -37,7 +38,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
         {
-            dataChangeHandler?.IListObjectChanged(oldValue, newValue, OwnerIList, Index);
+            dataChangeHandler?.HandleChange(new LocalValueChangeIList(oldValue, newValue, OwnerIList, Index));
         }
         public override object MemberValue
         {

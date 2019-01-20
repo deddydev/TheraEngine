@@ -36,7 +36,7 @@ namespace TheraEditor.Wrappers
                 if (t.Result != null)
                 {
                     Editor.Instance.CurrentWorld = t.Result;
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = t.Result.Settings;
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = t.Result.Settings;
                 }
             });
             int i = 0;

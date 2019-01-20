@@ -39,7 +39,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             AnimStateMachineComponent machine = form.TargetActor.FindFirstLogicComponentOfType<AnimStateMachineComponent>();
             machine.InitialState = new AnimState(new GlobalFileRef<SkelAnimPoseGenBase>(new SkelAnimDirectPose(anim)));
-            theraPropertyGrid1.TargetFileObject = anim;
+            theraPropertyGrid1.TargetObject = anim;
         }
 
         private async void openToolStripMenuItem_Click(object sender, System.EventArgs e)

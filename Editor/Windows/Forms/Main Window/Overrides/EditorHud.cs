@@ -14,6 +14,7 @@ using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
@@ -40,10 +41,11 @@ namespace TheraEditor.Windows.Forms
             {
                 Editor.Instance.UndoManager.AddChange(
                     ((TObject)socket).EditorState,
-                    TransformTool3D.Instance.PrevRootWorldMatrix,
-                    socket.WorldMatrix,
-                    socket,
-                    socket.GetType().GetProperty(nameof(ISocket.WorldMatrix)));
+                    new LocalValueChangeProperty(
+                        TransformTool3D.Instance.PrevRootWorldMatrix,
+                        socket.WorldMatrix,
+                        socket,
+                        socket.GetType().GetProperty(nameof(ISocket.WorldMatrix))));
             }
         }
 
@@ -492,8 +494,8 @@ namespace TheraEditor.Windows.Forms
                 if (comp is UIViewportComponent subViewport)
                 {
                     //Convert viewport point to the sub viewport's local space
-                    viewportPoint = UIComponent.ScreenToLocalPoint(viewportPoint, subViewport);
-                    HighlightScene(subViewport.Viewport, viewportPoint);
+                    Vec2 subViewportPoint = UIComponent.ScreenToLocalPoint(viewportPoint, subViewport);
+                    HighlightScene(subViewport.Viewport, subViewportPoint);
 
                     //ICameraTransformable camComp = SelectedComponent as ICameraTransformable;
                     //pawn.CameraComp = camComp.RootComponent.ChildComponents[0] as CameraComponent;
@@ -555,7 +557,8 @@ namespace TheraEditor.Windows.Forms
 
             if (DragComponent != null)
             {
-                Editor.Instance.UndoManager.AddChange(DragComponent.EditorState, _prevDragMatrix, DragComponent.WorldMatrix, DragComponent, DragComponent.GetType().GetProperty(nameof(DragComponent.WorldMatrix)));
+                LocalValueChangeProperty change = new LocalValueChangeProperty(_prevDragMatrix, DragComponent.WorldMatrix, DragComponent, DragComponent.GetType().GetProperty(nameof(DragComponent.WorldMatrix)));
+                Editor.Instance.UndoManager.AddChange(DragComponent.EditorState, change);
                 //_selectedComponent = null;
                 DragComponent = null;
             }

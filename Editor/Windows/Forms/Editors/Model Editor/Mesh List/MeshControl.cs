@@ -39,7 +39,7 @@ namespace TheraEditor.Windows.Forms
             {
                 DropDownName = "<null>";
             }
-            theraPropertyGrid1.TargetFileObject = mesh;
+            theraPropertyGrid1.TargetObject = mesh;
         }
         public void SetMesh(StaticSoftSubMesh mesh)
         {
@@ -64,7 +64,7 @@ namespace TheraEditor.Windows.Forms
             {
                 DropDownName = "<null>";
             }
-            theraPropertyGrid1.TargetFileObject = mesh;
+            theraPropertyGrid1.TargetObject = mesh;
         }
         public void SetMesh(SkeletalRigidSubMesh mesh)
         {
@@ -89,7 +89,7 @@ namespace TheraEditor.Windows.Forms
             {
                 DropDownName = "<null>";
             }
-            theraPropertyGrid1.TargetFileObject = mesh;
+            theraPropertyGrid1.TargetObject = mesh;
         }
         public void SetMesh(SkeletalSoftSubMesh mesh)
         {
@@ -114,7 +114,7 @@ namespace TheraEditor.Windows.Forms
             {
                 DropDownName = "<null>";
             }
-            theraPropertyGrid1.TargetFileObject = mesh;
+            theraPropertyGrid1.TargetObject = mesh;
         }
 
         private void InitializeComponent()

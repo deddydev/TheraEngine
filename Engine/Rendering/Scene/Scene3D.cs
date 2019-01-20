@@ -198,19 +198,7 @@ namespace TheraEngine.Rendering
                     //Enable internal resolution
                     Engine.Renderer.PushRenderArea(viewport.InternalResolution);
                     {
-                        //Render to deferred framebuffer.
-                        viewport.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-                        {
-                            Engine.Renderer.StencilMask(~0);
-                            Engine.Renderer.ClearStencil(0);
-                            Engine.Renderer.Clear(EFBOTextureType.Color | EFBOTextureType.Depth | EFBOTextureType.Stencil);
-                            Engine.Renderer.EnableDepthTest(true);
-                            Engine.Renderer.ClearDepth(1.0f);
-                            renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
-                            renderingPasses.Render(ERenderPass.DeferredDecals);
-                            Engine.Renderer.EnableDepthTest(false);
-                        }
-                        viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+                        RenderDeferredPass(viewport, renderingPasses);
 
                         viewport.SSAOBlurFBO.Bind(EFramebufferTarget.DrawFramebuffer);
                         viewport.SSAOFBO.RenderFullscreen();
@@ -220,18 +208,15 @@ namespace TheraEngine.Rendering
                         viewport.SSAOBlurFBO.RenderFullscreen();
                         viewport.GBufferFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
 
-                        RenderLights(viewport);
+                        RenderLightPass(viewport);
                         RenderForwardPass(viewport, renderingPasses);
-                        RenderBloom(viewport);
+                        RenderBloomPass(viewport);
 
-                        camera.PostProcessRef.File.ColorGrading.UpdateExposure(viewport.HDRSceneTexture);
+                        camera.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
 
-                        //TODO: Apply camera post process material pass here
                         TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
                         if (post != null)
-                        {
-
-                        }
+                            RenderPostProcessPass(viewport, post);
                     }
                     Engine.Renderer.PopRenderArea();
 
@@ -279,49 +264,29 @@ namespace TheraEngine.Rendering
             //_renderFPS = 1.0f / (_timeQuery.EndAndGetQueryInt() * 1e-9f);
             //Engine.PrintLine(_renderMS.ToString() + " ms");
         }
-        public override void Add(IRenderable obj) => Add(obj as I3DRenderable);
-        public override void Remove(IRenderable obj) => Remove(obj as I3DRenderable);
-        public void Add(I3DRenderable obj)
-        {
-            if (obj == null || RenderTree?.Add(obj) != true)
-                return;
 
-            obj.RenderInfo.EnforceVisibility(true);
-            if (obj is I3DRenderable r && r.CullingVolume != null)
-                RegisterCullingVolume(r.CullingVolume);
-            //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
-        }
-        public void Remove(I3DRenderable obj)
+        private void RenderPostProcessPass(Viewport viewport, TMaterial post)
         {
-            if (obj == null || RenderTree?.Remove(obj) != true)
-                return;
-            
-            obj.RenderInfo.EnforceVisibility(false);
-            if (obj is I3DRenderable r && r.CullingVolume != null)
-                UnregisterCullingVolume(r.CullingVolume);
-            //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
-        }
-        private void RegisterCullingVolume(Shape cullingVolume)
-        {
+            //TODO: Apply camera post process material pass here
 
         }
-        private void UnregisterCullingVolume(Shape cullingVolume)
-        {
-
-        }
-
-        /// <summary>
-        /// Clears all items from the scene and sets the bounds.
-        /// </summary>
-        /// <param name="sceneBounds">The total extent of the items in the scene.</param>
-        public void Clear(BoundingBoxStruct sceneBounds)
-        {
-            RenderTree = new Octree(sceneBounds);
-            Lights = new LightManager();
-        }
-
         private float _renderFPS;
         private RenderQuery _timeQuery = new RenderQuery();
+        private void RenderDeferredPass(Viewport viewport, RenderPasses renderingPasses)
+        {
+            viewport.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
+            {
+                Engine.Renderer.StencilMask(~0);
+                Engine.Renderer.ClearStencil(0);
+                Engine.Renderer.Clear(EFBOTextureType.Color | EFBOTextureType.Depth | EFBOTextureType.Stencil);
+                Engine.Renderer.EnableDepthTest(true);
+                Engine.Renderer.ClearDepth(1.0f);
+                renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
+                renderingPasses.Render(ERenderPass.DeferredDecals);
+                Engine.Renderer.EnableDepthTest(false);
+            }
+            viewport.SSAOFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
+        }
         private void RenderForwardPass(Viewport viewport, RenderPasses renderingPasses)
         {
             viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
@@ -349,7 +314,7 @@ namespace TheraEngine.Rendering
             }
             viewport.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
-        private void RenderLights(Viewport viewport)
+        private void RenderLightPass(Viewport viewport)
         {
             viewport.LightCombineFBO.Bind(EFramebufferTarget.DrawFramebuffer);
             {
@@ -364,11 +329,6 @@ namespace TheraEngine.Rendering
             }
             viewport.LightCombineFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
-        //private void RenderDeferredDecals(Viewport viewport)
-        //{
-        //    foreach (DecalComponent c in Decals)
-        //        viewport.RenderDecal(c);
-        //}
         private void BloomBlur(QuadFrameBuffer fbo, BoundingRectangle rect, int mipmap, float dir)
         {
             fbo.Bind(EFramebufferTarget.DrawFramebuffer);
@@ -379,7 +339,7 @@ namespace TheraEngine.Rendering
             }
             fbo.Unbind(EFramebufferTarget.DrawFramebuffer);
         }
-        private void BloomPass(QuadFrameBuffer fbo, BoundingRectangle rect, int mipmap)
+        private void BloomScaledPass(QuadFrameBuffer fbo, BoundingRectangle rect, int mipmap)
         {
             Engine.Renderer.PushRenderArea(rect);
             {
@@ -388,7 +348,7 @@ namespace TheraEngine.Rendering
             }
             Engine.Renderer.PopRenderArea();
         }
-        private void RenderBloom(Viewport viewport)
+        private void RenderBloomPass(Viewport viewport)
         {
             viewport.BloomBlurFBO1.Bind(EFramebufferTarget.DrawFramebuffer);
             viewport.ForwardPassFBO.RenderFullscreen();
@@ -398,10 +358,10 @@ namespace TheraEngine.Rendering
             tex.Bind();
             tex.GenerateMipmaps();
 
-            BloomPass(viewport.BloomBlurFBO16, viewport.BloomRect16, 4);
-            BloomPass(viewport.BloomBlurFBO8, viewport.BloomRect8, 3);
-            BloomPass(viewport.BloomBlurFBO4, viewport.BloomRect4, 2);
-            BloomPass(viewport.BloomBlurFBO2, viewport.BloomRect2, 1);
+            BloomScaledPass(viewport.BloomBlurFBO16, viewport.BloomRect16, 4);
+            BloomScaledPass(viewport.BloomBlurFBO8, viewport.BloomRect8, 3);
+            BloomScaledPass(viewport.BloomBlurFBO4, viewport.BloomRect4, 2);
+            BloomScaledPass(viewport.BloomBlurFBO2, viewport.BloomRect2, 1);
             //Don't blur original image, barely makes a difference to result
         }
 
@@ -422,6 +382,45 @@ namespace TheraEngine.Rendering
         public override void GlobalUpdate()
         {
             UpdateShadowMaps();
+        }
+        public override void Add(IRenderable obj) => Add(obj as I3DRenderable);
+        public override void Remove(IRenderable obj) => Remove(obj as I3DRenderable);
+        public void Add(I3DRenderable obj)
+        {
+            if (obj == null || RenderTree?.Add(obj) != true)
+                return;
+
+            obj.RenderInfo.EnforceVisibility(true);
+            if (obj is I3DRenderable r && r.CullingVolume != null)
+                RegisterCullingVolume(r.CullingVolume);
+            //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
+        }
+        public void Remove(I3DRenderable obj)
+        {
+            if (obj == null || RenderTree?.Remove(obj) != true)
+                return;
+
+            obj.RenderInfo.EnforceVisibility(false);
+            if (obj is I3DRenderable r && r.CullingVolume != null)
+                UnregisterCullingVolume(r.CullingVolume);
+            //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
+        }
+        private void RegisterCullingVolume(Shape cullingVolume)
+        {
+
+        }
+        private void UnregisterCullingVolume(Shape cullingVolume)
+        {
+
+        }
+        /// <summary>
+        /// Clears all items from the scene and sets the bounds.
+        /// </summary>
+        /// <param name="sceneBounds">The total extent of the items in the scene.</param>
+        public void Clear(BoundingBoxStruct sceneBounds)
+        {
+            RenderTree = new Octree(sceneBounds);
+            Lights = new LightManager();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -26,12 +27,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         public override bool IsReadOnly()
-        {
-            return Property == null || !Property.CanWrite;
-        }
+            => Property == null || !Property.CanWrite;
+        
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
         {
-            dataChangeHandler?.PropertyObjectChanged(oldValue, newValue, GetOwner, Property);
+            dataChangeHandler?.HandleChange(new LocalValueChangeProperty(oldValue, newValue, GetOwner(), Property));
         }
         public override object MemberValue
         {

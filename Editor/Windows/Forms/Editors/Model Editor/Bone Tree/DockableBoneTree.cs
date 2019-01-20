@@ -129,7 +129,7 @@ namespace TheraEditor.Windows.Forms
         private void NodeTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             BoneTreeNode b = NodeTree.SelectedNode as BoneTreeNode;
-            theraPropertyGrid1.TargetFileObject = b is BoneNode bn ? (IFileObject)bn.Bone : b is MeshSocketNode mn ? (IFileObject)mn.Socket : null;
+            theraPropertyGrid1.TargetObject = b is BoneNode bn ? (IFileObject)bn.Bone : b is MeshSocketNode mn ? (IFileObject)mn.Socket : null;
         }
 
         public void SetSkeleton(Skeleton skel)

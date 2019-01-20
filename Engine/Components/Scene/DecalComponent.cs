@@ -21,23 +21,31 @@ namespace TheraEngine.Components.Scene
         [TSerialize]
         [Category("Decal")]
         public TMaterial Material { get; set; }
-        [TSerialize]
-        [Category("Decal")]
-        public bool RenderIntersectionWireframe { get; set; } = false;
-        //[TSerialize]
-        //[Category("Decal")]
-        //public override Vec3 HalfExtents
-        //{
-        //    get => base.HalfExtents;
-        //    set
-        //    {
-        //        base.HalfExtents = value;
-        //        //Vec3 halfExtents = Box.HalfExtents.Raw * UniformScale;
-        //        //DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
-        //        //InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
-        //    }
-        //}
 
+        [TSerialize(nameof(AlwaysRenderIntersectionWireframe))]
+        private bool _alwaysRenderIntersectionWireframe = false;
+        [Category("Editor Traits")]
+        [Description("If true, the intersection wireframe will always be rendered in edit mode even if the decal is not selected.")]
+        public bool AlwaysRenderIntersectionWireframe
+        {
+            get => _alwaysRenderIntersectionWireframe;
+            set
+            {
+                if (_alwaysRenderIntersectionWireframe == value)
+                    return;
+
+                _alwaysRenderIntersectionWireframe = value;
+
+                if (IsSpawned)
+                {
+                    if (_alwaysRenderIntersectionWireframe)
+                        RenderInfo.Visible = true;
+                    else if (!EditorState.Selected)
+                        RenderInfo.Visible = false;
+                }
+            }
+        }
+        
         public DecalComponent() 
             : base()
         {
@@ -110,6 +118,7 @@ namespace TheraEngine.Components.Scene
         {
             if (Material == null)
                 return;
+
             PrimitiveData decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
             DecalManager = new PrimitiveManager(decalMesh, Material);
             DecalManager.SettingUniforms += DecalManager_SettingUniforms;
@@ -118,6 +127,7 @@ namespace TheraEngine.Components.Scene
         {
             if (materialProgram == null)
                 return;
+
             Viewport v = Engine.Renderer.CurrentlyRenderingViewport;
             materialProgram.Sampler("Texture0", v.AlbedoOpacityTexture.RenderTextureGeneric, 0);
             materialProgram.Sampler("Texture1", v.NormalTexture.RenderTextureGeneric, 1);
@@ -135,8 +145,12 @@ namespace TheraEngine.Components.Scene
         protected override void Render()
         {
             DecalManager?.Render(DecalRenderMatrix);
-            if (RenderIntersectionWireframe)
+            if (AlwaysRenderIntersectionWireframe)
                 base.Render();
+        }
+        protected internal override void OnSelectedChanged(bool selected)
+        {
+            RenderInfo.Visible = selected || AlwaysRenderIntersectionWireframe;
         }
     }
 }

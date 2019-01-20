@@ -105,7 +105,7 @@ namespace TheraEditor.Windows.Forms
         }
         public static void SetPropertyGridObject(IFileObject obj)
         {
-            Instance.PropertyGridForm.PropertyGrid.TargetFileObject = obj;
+            Instance.PropertyGridForm.PropertyGrid.TargetObject = obj;
         }
 
         [DllImport("user32.dll")]

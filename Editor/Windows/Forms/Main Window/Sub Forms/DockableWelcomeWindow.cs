@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEditor.Core.Extensions;
@@ -122,7 +121,7 @@ namespace TheraEditor.Windows.Forms
                 new UserSettings(),
                 new EngineSettings(),
                 new EditorSettings());
-            Editor.Instance.PropertyGridForm.PropertyGrid.TargetFileObject = Editor.Instance.Project;
+            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Editor.Instance.Project;
         }
         private void btnBrowseProjectDir_Click(object sender, EventArgs e)
         {

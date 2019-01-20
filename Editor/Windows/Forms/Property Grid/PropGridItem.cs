@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Animation;
+using TheraEngine.Editor;
 using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -165,7 +166,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _newValue = info.GetValue(classObject);
             if (_newValue != _oldValue)
             {
-                DataChangeHandler.PropertyObjectChanged(_oldValue, _newValue, classObject, info);
+                DataChangeHandler?.HandleChange(new LocalValueChangeProperty(_oldValue, _newValue, classObject, info));
                 DoneEditing?.Invoke();
                 //PropertyGrid.btnSave.Visible = true;
                 //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,

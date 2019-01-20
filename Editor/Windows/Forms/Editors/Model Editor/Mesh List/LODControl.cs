@@ -15,7 +15,7 @@ namespace TheraEditor.Windows.Forms
         private LOD _lod;
         public void SetLOD(LOD lod, int i, int maxLods)
         {
-            theraPropertyGrid1.TargetFileObject = lod;
+            theraPropertyGrid1.TargetObject = lod;
             if ((_lod = lod) != null)
             {
                 DropDownName = $"[{i}] LOD";

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -45,7 +46,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public override bool IsReadOnly() => OwnerDictionary?.IsReadOnly ?? false;
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
-            => dataChangeHandler?.IDictionaryObjectChanged(oldValue, newValue, OwnerDictionary, Key, IsKey);
+            => dataChangeHandler?.HandleChange(new LocalValueChangeIDictionary(oldValue, newValue, OwnerDictionary, Key, IsKey));
         
         public override object MemberValue
         {

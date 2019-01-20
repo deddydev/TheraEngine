@@ -91,7 +91,7 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.MaterialOverride = ShadowMap.Material;
             Engine.Renderer.PushRenderArea(_region);
 
-            //scene.PreRender(null, ShadowCamera);
+            scene.PreRender(null, ShadowCamera);
             scene.Render(_passes, ShadowCamera, null, ShadowMap);
             
             Engine.Renderer.PopRenderArea();
@@ -137,7 +137,7 @@ namespace TheraEngine.Components.Scene.Lights
             PreviewRenderCommand.WorldMatrix = Matrix4.CreateSpacialTransform(WorldPoint, 
                 camera.RightVector * scale, camera.UpVector * scale, camera.ForwardVector * scale);
 
-            //passes.Add(PreviewRenderCommand);
+            passes.Add(PreviewRenderCommand);
         }
 #endif
     }

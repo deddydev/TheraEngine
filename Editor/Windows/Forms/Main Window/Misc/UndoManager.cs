@@ -29,36 +29,41 @@ namespace TheraEditor.Windows.Forms
             while (Changes.Count > _maxChanges)
                 Changes.PopFront().DestroySelf();
         }
-        public void AddChange(EditorState editorState, object oldValue, object newValue, IList listOwner, int listIndex)
+        public void AddChange(EditorState state, params LocalValueChange[] changes)
         {
-            GlobalValueChange change = new GlobalValueChange()
-            {
-                State = editorState,
-                ChangeIndex = editorState.ChangedValues.Count,
-            };
-            editorState.AddChange(oldValue, newValue, listOwner, listIndex, change);
-            OnChangeAdded(change);
+            GlobalValueChange globalChange = state.AddChanges(changes);
+            OnChangeAdded(globalChange);
         }
-        public void AddChange(EditorState editorState, object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
-        {
-            GlobalValueChange change = new GlobalValueChange()
-            {
-                State = editorState,
-                ChangeIndex = editorState.ChangedValues.Count,
-            };
-            editorState.AddChange(oldValue, newValue, propertyOwner, propertyInfo, change);
-            OnChangeAdded(change);
-        }
-        public void AddChange(EditorState editorState, object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
-        {
-            GlobalValueChange change = new GlobalValueChange()
-            {
-                State = editorState,
-                ChangeIndex = editorState.ChangedValues.Count,
-            };
-            editorState.AddChange(oldValue, newValue, dicOwner, key, isKey, change);
-            OnChangeAdded(change);
-        }
+        //public void AddChange(EditorState editorState, object oldValue, object newValue, IList listOwner, int listIndex)
+        //{
+        //    GlobalValueChange change = new GlobalValueChange()
+        //    {
+        //        State = editorState,
+        //        ChangeIndex = editorState.ChangedValues.Count,
+        //    };
+        //    editorState.AddChange(oldValue, newValue, listOwner, listIndex, change);
+        //    OnChangeAdded(change);
+        //}
+        //public void AddChange(EditorState editorState, object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo)
+        //{
+        //    GlobalValueChange change = new GlobalValueChange()
+        //    {
+        //        State = editorState,
+        //        ChangeIndex = editorState.ChangedValues.Count,
+        //    };
+        //    editorState.AddChange(oldValue, newValue, propertyOwner, propertyInfo, change);
+        //    OnChangeAdded(change);
+        //}
+        //public void AddChange(EditorState editorState, object oldValue, object newValue, IDictionary dicOwner, object key, bool isKey)
+        //{
+        //    GlobalValueChange change = new GlobalValueChange()
+        //    {
+        //        State = editorState,
+        //        ChangeIndex = editorState.ChangedValues.Count,
+        //    };
+        //    editorState.AddChange(oldValue, newValue, dicOwner, key, isKey, change);
+        //    OnChangeAdded(change);
+        //}
         private void OnChangeAdded(GlobalValueChange change)
         {
             Editor.Instance.ThreadSafeBlockingInvoke((Action)(() => 
@@ -69,15 +74,15 @@ namespace TheraEditor.Windows.Forms
                 redoColl.Clear();
 
                 Changes.PushBack(change);
-                (++_stateIndex).ClampMax(_maxChanges);
+
+                _stateIndex = (_stateIndex + 1).ClampMax(_maxChanges);
+
                 CheckChangeSize();
                 _moveToOldVal = true;
                 Editor.Instance.btnRedo.Enabled = false;
                 Editor.Instance.btnUndo.Enabled = true;
 
-                ToolStripButton item = new ToolStripButton(
-                    change.AsUndoString(), null, UndoStateClicked)
-                { Tag = change };
+                ToolStripButton item = new ToolStripButton(change.AsUndoString(), null, UndoStateClicked) { Tag = change };
                 Editor.Instance.btnUndo.DropDownItems.Insert(0, item);
             }));
         }

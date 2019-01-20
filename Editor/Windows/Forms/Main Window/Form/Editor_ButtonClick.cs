@@ -128,15 +128,15 @@ namespace TheraEditor.Windows.Forms
         private void EndGameplay() 
             => GameState = EEditorGameplayState.Editing;
         private void BtnProjectSettings_Click(object sender, EventArgs e)
-            => PropertyGridForm.PropertyGrid.TargetFileObject = Project;
+            => PropertyGridForm.PropertyGrid.TargetObject = Project;
         private void BtnEngineSettings_Click(object sender, EventArgs e) 
-            => PropertyGridForm.PropertyGrid.TargetFileObject = Project?.EngineSettingsOverrideRef;
+            => PropertyGridForm.PropertyGrid.TargetObject = Project?.EngineSettingsOverrideRef;
         private void BtnEditorSettings_Click(object sender, EventArgs e)
-            => PropertyGridForm.PropertyGrid.TargetFileObject = DefaultSettingsRef;
+            => PropertyGridForm.PropertyGrid.TargetObject = DefaultSettingsRef;
         private void BtnUserSettings_Click(object sender, EventArgs e) 
-            => PropertyGridForm.PropertyGrid.TargetFileObject = Project?.UserSettingsRef;
+            => PropertyGridForm.PropertyGrid.TargetObject = Project?.UserSettingsRef;
         private void BtnWorldSettings_Click(object sender, EventArgs e) 
-            => PropertyGridForm.PropertyGrid.TargetFileObject = Engine.World?.SettingsRef;
+            => PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.SettingsRef;
         private void BtnNewMaterial_Click(object sender, EventArgs e) 
             => new MaterialEditorForm().Show();
         private async void btnUploadNewRelease_Click(object sender, EventArgs e)

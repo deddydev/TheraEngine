@@ -671,11 +671,11 @@
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridNullableWrapper.Designer.cs">
       <DependentUpon>PropGridNullableWrapper.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDictionary.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIDictionary.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDictionary.Designer.cs">
-      <DependentUpon>PropGridDictionary.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIDictionary.Designer.cs">
+      <DependentUpon>PropGridIDictionary.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefInfo.cs" />
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridMethod.cs">
@@ -756,11 +756,11 @@
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridBool.Designer.cs">
       <DependentUpon>PropGridBool.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridList.cs">
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIList.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridList.Designer.cs">
-      <DependentUpon>PropGridList.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIList.Designer.cs">
+      <DependentUpon>PropGridIList.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridObject.cs">
       <SubType>UserControl</SubType>
@@ -1128,8 +1128,8 @@
     <EmbeddedResource Include="Windows\Forms\Property Grid\PropGridCategory.resx">
       <DependentUpon>PropGridCategory.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDictionary.resx">
-      <DependentUpon>PropGridDictionary.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIDictionary.resx">
+      <DependentUpon>PropGridIDictionary.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridMethod.resx">
       <DependentUpon>PropGridMethod.cs</DependentUpon>
@@ -1170,8 +1170,8 @@
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridBool.resx">
       <DependentUpon>PropGridBool.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridList.resx">
-      <DependentUpon>PropGridList.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIList.resx">
+      <DependentUpon>PropGridIList.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridObject.resx">
       <DependentUpon>PropGridObject.cs</DependentUpon>
@@ -1269,10 +1269,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\OS\Win32\" />
+    <Folder Include="Windows\Forms\Cutscene Editor\" />
     <Folder Include="Windows\Forms\Editors\Cutscene Editor\" />
     <Folder Include="Windows\Forms\Editors\Keyframe Timeline Editor\" />
     <Folder Include="Windows\Forms\Editors\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Editors\Model Animation State Table Editor\" />
+    <Folder Include="Windows\Forms\Keyframe Timeline Editor\" />
+    <Folder Include="Windows\Forms\Model Animation Editor\" />
+    <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\PythonIcon.png" />

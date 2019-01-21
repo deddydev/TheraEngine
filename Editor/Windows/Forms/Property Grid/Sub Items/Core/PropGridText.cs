@@ -33,7 +33,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             bool editable = IsEditable();
             chkNull.Checked = !notNull;
 
-            PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
+            PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
             if (propInfo?.Property != null)
             {
                 object[] attribs = propInfo.Property.GetCustomAttributes(true);

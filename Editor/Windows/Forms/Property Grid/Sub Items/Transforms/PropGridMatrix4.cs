@@ -56,67 +56,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
         }
 
-        protected override void OnLabelSet()
-        {
-            //Label.MouseDown += LabelMouseDown;
-            //Label.MouseUp += LabelMouseUp;
-
-            PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
-            if (propInfo.GetOwner() is TObject obj)
-            {
-                var anims = obj.Animations?.
-                    Where(x => x.RootMember?.MemberName == propInfo.Property.Name && x.RootMember?.Animation.File != null).
-                    Select(x => new MenuItem(x.Name, EditAnimation) { Tag = x }).
-                    ToArray();
-
-                if (anims != null && anims.Length > 0)
-                {
-                    MenuItem[] m = new MenuItem[]
-                    {
-                        new MenuItem("New Animation", CreateAnimation),
-                        new MenuItem("Animations...", anims),
-                    };
-                    Label.ContextMenu = new ContextMenu(m);
-                }
-                else
-                {
-                    MenuItem[] m = new MenuItem[]
-                    {
-                        new MenuItem("New Animation", CreateAnimation),
-                    };
-                    Label.ContextMenu = new ContextMenu(m);
-                }
-            }
-        }
-
-        private void EditAnimation(object sender, EventArgs e)
-        {
-            if (sender is MenuItem item && item.Tag is AnimationTree anim)
-            {
-
-            }
-        }
-        private void CreateAnimation(object sender, EventArgs e)
-        {
-            PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
-            if (propInfo.GetOwner() is TObject obj)
-            {
-                var anim = new AnimationTree("NewAnimMatrix4", propInfo.Property.Name, EAnimationMemberType.Property, new PropAnimMatrix4(0.0f, true, true));
-                if (obj.Animations == null)
-                    obj.Animations = new EventList<AnimationTree>();
-                obj.Animations.Add(anim);
-                var menu = Label.ContextMenu.MenuItems;
-                var menuItem = new MenuItem(anim.Name, EditAnimation) { Tag = anim };
-                if (menu.Count == 1)
-                    menu.Add(new MenuItem("Animations...", new MenuItem[] { menuItem }));
-                else
-                    menu[1].MenuItems.Add(menuItem);
-            }
-        }
-        
-        private void LabelMouseDown(object sender, MouseEventArgs e)
-        {
-
-        }
+        public override bool CanAnimate => true;
+        protected override BasePropAnim CreateAnimation() => new PropAnimMatrix4(0.0f, true, true);
     }
 }

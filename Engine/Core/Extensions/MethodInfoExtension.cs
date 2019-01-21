@@ -4,38 +4,43 @@ namespace System
 {
     public static class MethodInfoExtension
     {
-        public static string GetFriendlyName(this MethodBase method, string openBracket = "<", string closeBracket = ">")
+        public static string GetFriendlyName(this MethodBase method, bool nameOnly = false, string openBracket = "<", string closeBracket = ">")
         {
             if (method == null)
                 return "null";
             
-            MethodInfo realMethod = method as MethodInfo;
-
             string friendlyName = "";
-            if (method.IsPublic)
-                friendlyName += "public ";
-            if (method.IsPrivate)
-                friendlyName += "private ";
-            if (method.IsFamily)
-                friendlyName += "protected ";
-            if (method.IsAssembly)
-                friendlyName += "internal ";
-            if (method.IsFinal)
-                friendlyName += "sealed ";
-            if (method.IsStatic)
-                friendlyName += "static ";
-            
-            //if (method.IsHideBySig && method.DeclaringType.IsAssignableFrom(method.ReflectedType))
-            //    friendlyName += "new ";
-            if (method.IsVirtual)
-                friendlyName += "virtual ";
-            if (realMethod != null && realMethod.GetBaseDefinition() != realMethod)
-                friendlyName += "override ";
-            if (method.IsAbstract)
-                friendlyName += "abstract ";
 
-            if (realMethod != null)
-                friendlyName += realMethod.ReturnType.GetFriendlyName() + " ";
+            if (!nameOnly)
+            {
+                if (method.IsPublic)
+                    friendlyName += "public ";
+                if (method.IsPrivate)
+                    friendlyName += "private ";
+                if (method.IsFamily)
+                    friendlyName += "protected ";
+                if (method.IsAssembly)
+                    friendlyName += "internal ";
+                if (method.IsFinal)
+                    friendlyName += "sealed ";
+                if (method.IsStatic)
+                    friendlyName += "static ";
+
+                MethodInfo realMethod = method as MethodInfo;
+
+                //if (method.IsHideBySig && method.DeclaringType.IsAssignableFrom(method.ReflectedType))
+                //    friendlyName += "new ";
+                if (method.IsVirtual)
+                    friendlyName += "virtual ";
+                if (realMethod != null && realMethod.GetBaseDefinition() != realMethod)
+                    friendlyName += "override ";
+                if (method.IsAbstract)
+                    friendlyName += "abstract ";
+
+                if (realMethod != null)
+                    friendlyName += realMethod.ReturnType.GetFriendlyName() + " ";
+            }
+
             if (!method.IsSpecialName)
                 friendlyName += method.Name;
             else 

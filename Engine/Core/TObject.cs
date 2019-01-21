@@ -168,7 +168,7 @@ namespace TheraEngine
         private EventList<AnimationTree> _animations = null;
 
         [Category("Object")]
-        [Browsable(true)]
+        [BrowsableIf("_animations != null")] // && _animations.Count > 0
         public EventList<AnimationTree> Animations
         {
             get => _animations;

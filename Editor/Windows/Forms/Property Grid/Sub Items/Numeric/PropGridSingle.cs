@@ -54,9 +54,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             UpdateValue(current.Value, false);
         }
-        protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        protected internal override void SetReferenceHolder(PropGridMemberInfo parentInfo)
         {
-            if (parentInfo is PropGridItemRefPropertyInfo propInfo)
+            if (parentInfo is PropGridMemberInfoProperty propInfo)
             {
                 object[] attribs = propInfo.Property.GetCustomAttributes(true);
                 foreach (object attrib in attribs)

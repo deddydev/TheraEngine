@@ -345,20 +345,20 @@ namespace TheraEngine.Core.Files.Serialization
         /// <returns></returns>
         public bool TryInvokeManualSerializeAsync()
         {
-            if (Object is TFileObject tobj)
+            if (!(Object is TFileObject tobj))
+                return false;
+            
+            TFileExt ext = TFileObject.GetFileExtension(ObjectType);
+            if (ext == null)
+                return false;
+
+            bool serConfig = ext.ManualXmlConfigSerialize;
+            bool serState = ext.ManualXmlStateSerialize;
+
+            if (serConfig || serState)
             {
-                TFileExt ext = TFileObject.GetFileExtension(ObjectType);
-                if (ext == null)
-                    return false;
-
-                bool serConfig = ext.ManualXmlConfigSerialize;
-                bool serState = ext.ManualXmlStateSerialize;
-
-                if (serConfig || serState)
-                {
-                    tobj.ManualWrite(this);
-                    return true;
-                }
+                tobj.ManualWrite(this);
+                return true;
             }
 
             return false;

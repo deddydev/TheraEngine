@@ -4,8 +4,11 @@ using System.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public class PropGridItemRefMethodInfo : PropGridItemRefInfo
+    public class PropGridMemberInfoMethod : PropGridMemberInfo
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override string MemberAccessor => "." + Method?.GetFriendlyName(true) ?? "<null>";
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override string DisplayName => Method?.Name;
@@ -14,18 +17,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public MethodInfo Method { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> GetOwner { get; set; }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
         public override Type DataType => Method?.ReturnType;
         
-        public PropGridItemRefMethodInfo(Func<object> owner, MethodInfo method)
+        public PropGridMemberInfoMethod(IPropGridMemberOwner owner, MethodInfo method) : base(owner)
         {
-            GetOwner = owner;
             Method = method;
         }
-
-        public override bool IsReadOnly() => false;
+        
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler) { }
         public override object MemberValue { get { return null; } set { } }
     }

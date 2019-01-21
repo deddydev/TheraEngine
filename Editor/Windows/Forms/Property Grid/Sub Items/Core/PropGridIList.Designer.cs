@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    partial class PropGridList
+    partial class PropGridIList
     {
         /// <summary> 
         /// Required designer variable.

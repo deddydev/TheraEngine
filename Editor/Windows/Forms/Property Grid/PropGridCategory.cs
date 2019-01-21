@@ -144,7 +144,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var displayNameAttrib = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
             
             string displayName = displayNameAttrib?.DisplayName;
-            var parentInfo = editor.ParentInfo;
+            var parentInfo = editor.MemberInfo;
             string propName = parentInfo.DisplayName; //editors[0].GetParentInfo<PropGridItemRefPropertyInfo>()?.Property?.Name;
             string name;
 
@@ -163,7 +163,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             public Point StartLocation { get; set; }
             public Point EndLocation { get; set; }
             public EventHandler<FrameEventArgs> LerpMethod;
-            public PropGridItemRefInfo ParentInfo { get; set; }
+            public PropGridMemberInfo ParentInfo { get; set; }
 
             public MemberLabelInfo(string description, Point startLocation, Point endLocation)
             {
@@ -337,7 +337,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 cats.Add(CategoryName);
 
-            Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
+            //Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
         }
         //private void PropGridCategory_Resize(object sender, EventArgs e)
         //{

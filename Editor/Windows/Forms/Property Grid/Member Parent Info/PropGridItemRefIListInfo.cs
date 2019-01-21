@@ -6,8 +6,11 @@ using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public class PropGridItemRefIListInfo : PropGridItemRefInfo
+    public class PropGridMemberInfoIList : PropGridMemberInfo
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override string MemberAccessor => "." + Owner.MemberInfo.DisplayName + DisplayName;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override string DisplayName => string.Format("[{0}]", Index);
@@ -16,42 +19,35 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public int Index { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> GetOwner { get; set; }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public IList OwnerIList => GetOwner() as IList;
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public override Type DataType => GetOwner() == null ? null : (Index >= 0 && Index < OwnerIList.Count ? OwnerIList[Index]?.GetType() ?? _dataType : _dataType);
+        public override Type DataType => List == null ? null : (Index >= 0 && Index < List.Count ? List[Index]?.GetType() ?? _dataType : _dataType);
         private readonly Type _dataType;
 
-        public PropGridItemRefIListInfo(Func<object> owner, int index)
+        public IList List => Owner.Value as IList;
+
+        public PropGridMemberInfoIList(IPropGridMemberOwner owner, int index) : base(owner)
         {
-            GetOwner = owner;
             Index = index;
-            _dataType = OwnerIList?.DetermineElementType();
+            _dataType = List?.DetermineElementType();
         }
 
-        public override bool IsReadOnly()
-        {
-            return OwnerIList == null || OwnerIList.IsReadOnly;
-        }
+        public override bool IsReadOnly() 
+            => base.IsReadOnly() || List == null || List.IsReadOnly;
+        
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
-        {
-            dataChangeHandler?.HandleChange(new LocalValueChangeIList(oldValue, newValue, OwnerIList, Index));
-        }
+            => dataChangeHandler?.HandleChange(new LocalValueChangeIList(oldValue, newValue, List, Index));
+        
         public override object MemberValue
         {
             get
             {
-                if (OwnerIList == null || Index < 0 || Index >= OwnerIList.Count)
+                if (List == null || Index < 0 || Index >= List.Count)
                     return DataType.GetDefaultValue();
-                return OwnerIList[Index];
+                return List[Index];
             }
             set
             {
-                if (OwnerIList != null && Index >= 0 && Index < OwnerIList.Count)
-                    OwnerIList[Index] = value;
+                if (List != null && Index >= 0 && Index < List.Count)
+                    List[Index] = value;
             }
         }
     }

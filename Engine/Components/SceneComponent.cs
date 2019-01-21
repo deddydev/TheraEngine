@@ -223,6 +223,8 @@ namespace TheraEngine.Components
             }
         }
         [Browsable(false)]
+        public int CacheIndex { get; private set; }
+        [Browsable(false)]
         protected bool SimulatingPhysics => _simulatingPhysics;
 
         private BaseScene _owningScene;
@@ -511,6 +513,7 @@ namespace TheraEngine.Components
         }
         protected virtual void GenerateChildCache(List<SceneComponent> cache)
         {
+            CacheIndex = cache.Count;
             cache.Add(this);
             foreach (SceneComponent c in _children)
                 c.GenerateChildCache(cache);
@@ -680,6 +683,7 @@ namespace TheraEngine.Components
         public virtual bool IsRotatable => false;
         [Browsable(false)]
         public virtual bool IsScalable => false;
+
         public virtual void HandleWorldTranslation(Vec3 delta)
         {
             if (!IsTranslatable)

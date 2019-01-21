@@ -64,8 +64,10 @@ namespace TheraEngine.Animation
         private FieldInfo _fieldCache;
         internal Action<object, float> _tick = null;
 
+        //TODO: resolve _memberType as a new object animated
         [TSerialize("MemberType")]
         private EAnimationMemberType _memberType = EAnimationMemberType.Property;
+
         [TSerialize("MemberName")]
         private string _memberName = null;
         [TSerialize("Animation")]

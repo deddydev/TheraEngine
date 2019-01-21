@@ -21,6 +21,17 @@ namespace TheraEditor.Windows.Forms
             comboBox2.DataSource = Enum.GetNames(typeof(ETextureType));
         }
 
+        public class ShaderVarMemberWrapper : IPropGridMemberOwner
+        {
+            public MaterialControl Control { get; set; }
+            public int ParameterIndex { get; set; }
+
+            public object Value => Control.Material.Parameters[ParameterIndex];
+            public bool ReadOnly => false;
+            public PropGridMemberInfo MemberInfo => throw new NotImplementedException();
+        }
+        private ShaderVarMemberWrapper[] _paramWrappers;
+
         private TMaterial _material;
         public TMaterial Material
         {
@@ -44,9 +55,13 @@ namespace TheraEditor.Windows.Forms
                     lblMatName.Text = _material.Name;
                     
                     theraPropertyGrid1.TargetObject = _material.RenderParamsRef;
-                    
-                    for (int i = 0; i < _material.Parameters.Length; ++i)
+
+                    int count = _material.Parameters.Length;
+                    _paramWrappers = new ShaderVarMemberWrapper[count];
+                    for (int i = 0; i < count; ++i)
                     {
+                        _paramWrappers[i] = new ShaderVarMemberWrapper() { Control = this, ParameterIndex = i };
+
                         ShaderVar shaderVar = _material.Parameters[i];
                         Type valType = ShaderVar.AssemblyTypeAssociations[shaderVar.TypeName];
                         Type varType = shaderVar.GetType();
@@ -66,7 +81,7 @@ namespace TheraEditor.Windows.Forms
 
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
                             TheraPropertyGrid.GetControlTypes(valType)[0], 
-                            new PropGridItemRefPropertyInfo(() => shaderVar, 
+                            new PropGridMemberInfoProperty(_paramWrappers[i], 
                             varType.GetProperty("Value")), this);
 
                         valueCtrl.ValueChanged += RedrawPreview;

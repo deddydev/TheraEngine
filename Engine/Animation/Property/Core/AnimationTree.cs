@@ -16,14 +16,14 @@ namespace TheraEngine.Animation
         public AnimationTree(AnimationMember rootFolder)
             : this() => RootMember = rootFolder;
         
-        public AnimationTree(string animationName, string memberName, EAnimationMemberType memberType, BasePropAnim anim) : this()
+        public AnimationTree(string animationName, string memberPath, BasePropAnim anim) : this()
         {
             Name = animationName;
 
-            string[] memberPath = memberName.Split('.');
+            string[] memberPathParts = memberPath.Split('.');
             AnimationMember last = null;
 
-            foreach (string childMemberName in memberPath)
+            foreach (string childMemberName in memberPathParts)
             {
                 AnimationMember member = new AnimationMember(childMemberName);
 
@@ -38,10 +38,7 @@ namespace TheraEngine.Animation
             LengthInSeconds = anim.LengthInSeconds;
             Looped = anim.Looped;
             if (last != null)
-            {
                 last.Animation.File = anim;
-                last.MemberType = memberType;
-            }
         }
 
         private int _totalAnimCount = 0;

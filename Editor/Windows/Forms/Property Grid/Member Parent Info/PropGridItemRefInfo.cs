@@ -2,8 +2,19 @@
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public abstract class PropGridItemRefInfo
+    public interface IPropGridMemberOwner
     {
+        object Value { get; }
+        bool ReadOnly { get; }
+        PropGridMemberInfo MemberInfo { get; }
+    }
+    public abstract class PropGridMemberInfo
+    {
+        public PropGridMemberInfo(IPropGridMemberOwner owner)
+        {
+            Owner = owner;
+        }
+
         /// <summary>
         /// The type that is expected of this instance's <see cref="MemberValue"/>.
         /// </summary>
@@ -11,7 +22,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// False if the <see cref="MemberValue"/> can be set.
         /// </summary>
-        public abstract bool IsReadOnly();
+        public virtual bool IsReadOnly() => Owner?.ReadOnly ?? false;
         /// <summary>
         /// 
         /// </summary>
@@ -28,8 +39,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// </summary>
         public abstract string DisplayName { get; }
         /// <summary>
-        /// Call to retrieve a boxed version of the member's current state from its owner.
+        /// The accessor that is written as code to get to this member.
         /// </summary>
-        public abstract Func<object> GetOwner { get; set; }
+        public abstract string MemberAccessor { get; }
+        /// <summary>
+        /// This is the object that owns this member.
+        /// </summary>
+        public IPropGridMemberOwner Owner { get; set; }
     }
 }

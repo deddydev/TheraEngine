@@ -186,7 +186,7 @@ namespace TheraEngine.Components.Scene
 
             VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 
-            _position.GetMinMax(
+            _position.GetMinMax(false,
                 out (float Time, float Value)[] min, 
                 out (float Time, float Value)[] max);
 

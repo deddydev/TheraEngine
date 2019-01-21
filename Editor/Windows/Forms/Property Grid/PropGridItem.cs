@@ -13,7 +13,7 @@ using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public partial class PropGridItem : UserControl
+    public partial class PropGridItem : UserControl, IPropGridMemberOwner
     {
         private bool _isEditing = false;
         private object _oldValue, _newValue;
@@ -27,18 +27,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public event Action DoneEditing;
         public event Action ValueChanged;
 
-        public T GetParentInfo<T>() where T : PropGridItemRefInfo
-            => ParentInfo as T;
+        public T GetParentInfo<T>() where T : PropGridMemberInfo
+            => MemberInfo as T;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public PropGridCategory ParentCategory { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public PropGridItemRefInfo ParentInfo { get; set; }
+        public PropGridMemberInfo MemberInfo { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public Type DataType => ParentInfo?.DataType;
+        public Type DataType => MemberInfo?.DataType;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Label Label { get; set; }
@@ -46,7 +46,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [Browsable(false)]
         public virtual bool ReadOnly { get; set; } = false;
 
-        protected bool IsEditable() => !ReadOnly && (ParentInfo == null || !ParentInfo.IsReadOnly()) && (!(ParentCategory?.ReadOnly ?? false));
+        protected bool IsEditable() => !ReadOnly && (MemberInfo == null || !MemberInfo.IsReadOnly()) && (!(ParentCategory?.ReadOnly ?? false));
 
         /// <summary>
         /// When true, disallows UpdateDisplay() from doing anything until set to false.
@@ -97,7 +97,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// </summary>
         protected void SubmitStateChange(object oldValue, object newValue)
         {
-            ParentInfo?.SubmitStateChange(oldValue, newValue, DataChangeHandler);
+            MemberInfo?.SubmitStateChange(oldValue, newValue, DataChangeHandler);
             DoneEditing?.Invoke();
         }
 
@@ -105,7 +105,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             //try
             //{
-                return ParentInfo?.MemberValue;
+                return MemberInfo?.MemberValue;
             //}
             //catch (Exception ex)
             //{
@@ -116,7 +116,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public void OnValueChanged() => ValueChanged?.Invoke();
         public void UpdateValue(object newValue, bool submitStateChange)
         {
-            if (_updating || ParentInfo.IsReadOnly())
+            if (_updating || MemberInfo.IsReadOnly())
                 return;
 
             //if (IsReferenceType && ReferenceEquals(newValue, GetValue()))
@@ -127,17 +127,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (submitStateChange)
             {
-                object oldValue = ParentInfo.MemberValue;
+                object oldValue = MemberInfo.MemberValue;
 
-                ParentInfo.MemberValue = newValue;
-                newValue = ParentInfo.MemberValue;
+                MemberInfo.MemberValue = newValue;
+                newValue = MemberInfo.MemberValue;
 
                 SubmitStateChange(oldValue, newValue);
             }
             else
             {
-                ParentInfo.MemberValue = newValue;
-                newValue = ParentInfo.MemberValue;
+                MemberInfo.MemberValue = newValue;
+                newValue = MemberInfo.MemberValue;
             }
             if (_isEditing)
                 _newValue = newValue;
@@ -195,9 +195,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// Designates where this item gets and sets its value.
         /// </summary>
-        internal protected virtual void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        internal protected virtual void SetReferenceHolder(PropGridMemberInfo memberInfo)
         {
-            ParentInfo = parentInfo;
+            MemberInfo = memberInfo;
             if (DataType != null)
             {
                 //Double check that this control is valid for the given type
@@ -223,7 +223,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public void UpdateDisplay()
         {
-            if (IsEditing || ParentInfo == null)
+            if (IsEditing || MemberInfo == null)
                 return;
 
             _updating = true;
@@ -241,6 +241,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// </summary>
         private static List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
         public virtual bool CanAnimate => false;
+
+        object IPropGridMemberOwner.Value => GetValue();
 
         private static bool UpdatingVisibleItems = false;
         internal static void BeginUpdatingVisibleItems(float updateRateInSeconds)
@@ -287,13 +289,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.OnHandleDestroyed(e);
         }
         public override string ToString()
-            => DataType?.ToString() + " - " + ParentInfo?.ToString();
+            => DataType?.ToString() + " - " + MemberInfo?.ToString();
         protected virtual void OnLabelSet()
         {
             if (CanAnimate)
             {
-                PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
-                if (propInfo.GetOwner() is TObject obj)
+                PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
+                if (propInfo.Owner.Value is TObject obj)
                 {
                     var anims = obj.Animations?.
                         Where(x => x.RootMember?.MemberName == propInfo.Property.Name && x.RootMember?.Animation.File != null).
@@ -331,13 +333,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
         protected virtual BasePropAnim CreateAnimation() => throw new NotImplementedException($"{nameof(CreateAnimation)} must be overloaded when {nameof(CanAnimate)} is true.");
+        protected virtual string GetAnimationMemberPath()
+        {
+            PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
+            return propInfo.Property.Name;
+        }
         private void CreateAnimation(object sender, EventArgs e)
         {
-            PropGridItemRefPropertyInfo propInfo = GetParentInfo<PropGridItemRefPropertyInfo>();
-            if (propInfo.GetOwner() is TObject obj)
+            PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
+            if (propInfo.Owner.Value is TObject obj)
             {
-                string memberName = propInfo.Property.Name;
-                var anim = new AnimationTree(memberName, memberName, EAnimationMemberType.Property, CreateAnimation());
+                var anim = new AnimationTree(propInfo.Property.Name, GetAnimationMemberPath(), CreateAnimation());
 
                 if (obj.Animations == null)
                     obj.Animations = new EventList<AnimationTree>();

@@ -93,9 +93,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             await TheraPropertyGrid.LoadPropertiesToPanel(
                 pnlProps, _categories,
                 notNull ? _object : null,
-                notNull ? (Func<object>)GetObject : GetNull, 
-                DataChangeHandler, ReadOnly, 
-                true, propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
+                this, DataChangeHandler,
+                ReadOnly, true,
+                propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
         }
         
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
@@ -110,7 +110,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 lblObjectTypeName.BackColor = chkNull.BackColor = Color.Transparent;
         }
         
-        internal protected override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        internal protected override void SetReferenceHolder(PropGridMemberInfo parentInfo)
         {
             base.SetReferenceHolder(parentInfo);
             UpdateMouseDown();
@@ -161,9 +161,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void MouseDownProperties()
         {
-            pnlProps.Visible = !pnlProps.Visible;
+            //pnlProps.Visible = !pnlProps.Visible;
             //Form f = FindForm();
-            //Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(pnlProps);
+            Editor.Instance.PropertyGridForm.PropertyGrid.SetObject(_object, MemberInfo.MemberAccessor);
         }
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {

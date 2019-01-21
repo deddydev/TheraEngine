@@ -25,10 +25,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         public PropGridMethod() => InitializeComponent();
 
-        protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        protected internal override void SetReferenceHolder(PropGridMemberInfo parentInfo)
         {
             base.SetReferenceHolder(parentInfo);
-            if (parentInfo is PropGridItemRefMethodInfo methodInfo)
+            if (parentInfo is PropGridMemberInfoMethod methodInfo)
             {
                 Method = methodInfo.Method;
             }
@@ -47,7 +47,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void lblMethod_MouseDown(object sender, MouseEventArgs e)
         {
             if (Method.GetParameters().Length == 0)
-                Method.Invoke(GetParentInfo<PropGridItemRefMethodInfo>().GetOwner(), new object[0]);
+                Method.Invoke(GetParentInfo<PropGridMemberInfoMethod>().Owner.Value, new object[0]);
             else
             {
                 //TODO: retrieve parameters from the user

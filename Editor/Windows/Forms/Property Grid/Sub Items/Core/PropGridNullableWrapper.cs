@@ -39,11 +39,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             object o = chkNull.Checked ? null : Editor.UserCreateInstanceOf(ValueType, true, this);
             UpdateValue(o, true);
         }
-        protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        protected internal override void SetReferenceHolder(PropGridMemberInfo parentInfo)
         {
             base.SetReferenceHolder(parentInfo);
+
             ValueType = DataType?.GetGenericArguments()[0];
             pnlEditors.Controls.Clear();
+
             if (DataType != null)
             {
                 ValueType = DataType.GetGenericArguments()[0];
@@ -54,9 +56,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.Dock = System.Windows.Forms.DockStyle.Top;
                     item.AutoSize = true;
                     pnlEditors.Controls.Add(item);
-                    item.SetReferenceHolder(new PropGridItemRefNullableInfo(ParentInfo, ValueType));
+                    item.SetReferenceHolder(new PropGridItemRefNullableInfo(this, MemberInfo, ValueType));
                 }
             }
+
             pnlEditors.Enabled = false;
         }
     }

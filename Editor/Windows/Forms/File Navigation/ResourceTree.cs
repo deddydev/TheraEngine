@@ -25,16 +25,18 @@ namespace TheraEditor.Windows.Forms
     {
         Dictionary<Keys, Func<bool>> MappableActions { get; }
     }
+
     [Flags]
     public enum KeyStateFlags : int
     {
-        LeftMouse = 0b000001,
-        RightMouse = 0b000010,
-        Shift = 0b000100,
-        Ctrl = 0b001000,
+        LeftMouse   = 0b000001,
+        RightMouse  = 0b000010,
+        Shift       = 0b000100,
+        Ctrl        = 0b001000,
         MiddleMouse = 0b010000,
-        Alt = 0b100000,
+        Alt         = 0b100000,
     }
+
     /// <summary>
     /// Extended TreeView made specifically for synchronization with file directories.
     /// </summary>

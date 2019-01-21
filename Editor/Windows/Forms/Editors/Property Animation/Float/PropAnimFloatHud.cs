@@ -91,7 +91,7 @@ namespace TheraEditor.Windows.Forms
                 if (_targetAnimation != null)
                 {
                     _targetAnimation.Keyframes.Changed -= OnChanged;
-                    _targetAnimation.SpeedChanged -= OnSpeedChanged;
+                    //_targetAnimation.SpeedChanged -= OnSpeedChanged;
                     _targetAnimation.ConstrainKeyframedFPSChanged -= OnConstrainKeyframedFPSChanged;
                     _targetAnimation.BakedFPSChanged -= OnBakedFPSChanged;
                     _targetAnimation.LengthChanged -= _position_LengthChanged;
@@ -101,7 +101,7 @@ namespace TheraEditor.Windows.Forms
                 if (_targetAnimation != null)
                 {
                     _targetAnimation.Keyframes.Changed += OnChanged;
-                    _targetAnimation.SpeedChanged += OnSpeedChanged;
+                    //_targetAnimation.SpeedChanged += OnSpeedChanged;
                     _targetAnimation.ConstrainKeyframedFPSChanged += OnConstrainKeyframedFPSChanged;
                     _targetAnimation.BakedFPSChanged += OnBakedFPSChanged;
                     _targetAnimation.LengthChanged += _position_LengthChanged;
@@ -152,6 +152,13 @@ namespace TheraEditor.Windows.Forms
             outPos = new Vec3(kf.Second, kf.OutValue, 0.0f);
             outTanPos = new Vec3(kf.Second + tangentOutVector.X, kf.OutValue + tangentOutVector.Y, 0.0f);
         }
+        public float GetMaxSpeed()
+        {
+            _targetAnimation.GetMinMax(true,
+              out (float Time, float Value)[] min,
+              out (float Time, float Value)[] max);
+            return TMath.Max(Math.Abs(min[0].Value), Math.Abs(max[0].Value));
+        }
         public async void UpdateSplinePrimitive()
         {
             if (AnimLength != _targetAnimation.LengthInSeconds ||
@@ -165,6 +172,8 @@ namespace TheraEditor.Windows.Forms
             if (DisplayFPS <= 0.0f)
                 return;
 
+            float maxVel = GetMaxSpeed();
+
             var posBuf = _rcSpline.Mesh.Data[EBufferType.Position];
             var colBuf = _rcSpline.Mesh.Data[EBufferType.Color];
             var kfPosBuf = _rcKeyframeInOutPositions.Mesh.Data[EBufferType.Position];
@@ -176,7 +185,7 @@ namespace TheraEditor.Windows.Forms
             float timeIncrement = 1.0f / DisplayFPS;
             for (i = 0; i < posBuf.ElementCount; ++i, sec = i * timeIncrement)
             {
-                GetSplineVertex(sec, out Vec3 pos, out ColorF4 color);
+                GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
 
                 posBuf.Set(i, pos);
                 colBuf.Set(i, color);
@@ -241,6 +250,8 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
+            float maxVel = GetMaxSpeed();
+
             int frameCount = (int)Math.Ceiling(_targetAnimation.LengthInSeconds * DisplayFPS) + 1;
             float invFps = 1.0f / DisplayFPS;
             int posCount = (KeyCount = _targetAnimation.Keyframes.Count) << 1;
@@ -254,7 +265,7 @@ namespace TheraEditor.Windows.Forms
             float sec = 0.0f;
             for (i = 0; i < splinePoints.Length; ++i, sec = i * invFps)
             {
-                GetSplineVertex(sec, out Vec3 pos, out ColorF4 color);
+                GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
                 splinePoints[i] = new Vertex(pos, color);
             }
 
@@ -337,13 +348,15 @@ void main()
             _regenerating = false;
         }
 
-        private void GetSplineVertex(float sec, out Vec3 pos, out ColorF4 color)
+        private void GetSplineVertex(float sec, float maxVelocity, out Vec3 pos, out ColorF4 color)
         {
             float val = _targetAnimation.GetValue(sec);
-            float vel = _targetAnimation.GetVelocityKeyframed(sec) * _targetAnimation.Speed;
+            float vel = _targetAnimation.GetVelocityKeyframed(sec);
 
-            float sigmoid = 1.0f / (1.0f + VelocitySigmoidScale * (vel * vel));
-            color = Vec3.Lerp(Vec3.UnitX, Vec3.UnitZ, sigmoid);
+            //float time = 1.0f - 1.0f / (1.0f + VelocitySigmoidScale * (vel * vel));
+            float time = Math.Abs(vel) / maxVelocity;
+
+            color = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, time);
             pos = new Vec3(sec, val, 0.0f);
         }
 
@@ -352,7 +365,7 @@ void main()
             if (_targetAnimation == null)
                 return;
 
-            _targetAnimation.GetMinMax(
+            _targetAnimation.GetMinMax(false,
                 out (float Time, float Value)[] min,
                 out (float Time, float Value)[] max);
 

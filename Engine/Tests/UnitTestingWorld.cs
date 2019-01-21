@@ -347,7 +347,7 @@ namespace TheraEngine.Tests
             //iblProbes.AddProbe(new Vec3(0.0f, -70.0f, 154.0f));
             //iblProbes.AddProbe(new Vec3(0.0f, 60.0f, -155.0f));
             //iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
-            actors.Add(iblProbes);
+            //actors.Add(iblProbes);
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {
@@ -358,7 +358,7 @@ namespace TheraEngine.Tests
 
             base.BeginPlay();
 
-            iblProbes.InitAndCaptureAll(256);
+            //iblProbes.InitAndCaptureAll(256);
         }
     }
 
@@ -430,7 +430,7 @@ namespace TheraEngine.Tests
         {
             float length = 1.0f / RotationsPerSecond;
             _methodAnim = new PropAnimMethod<Vec3>(1.0f / RotationsPerSecond, true, AnimTick);
-            _animTree = new AnimationTree("RotationTrace", "Translation.Raw", EAnimationMemberType.Property, _methodAnim);
+            _animTree = new AnimationTree("RotationTrace", "Translation.Raw", _methodAnim);
             RootComponent.Animations = new EventList<AnimationTree>();
             _animTree.Group = ETickGroup.PostPhysics;
             _animTree.Order = ETickOrder.Animation;

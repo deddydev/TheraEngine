@@ -5,8 +5,11 @@ using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public class PropGridItemRefPropertyInfo : PropGridItemRefInfo
+    public class PropGridMemberInfoProperty : PropGridMemberInfo
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override string MemberAccessor => "." + Property?.Name ?? "<null>";
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override string DisplayName => Property?.Name;
@@ -15,24 +18,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropertyInfo Property { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> GetOwner { get; set; }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
         public override Type DataType => Property?.PropertyType;
 
-        public PropGridItemRefPropertyInfo(Func<object> owner, PropertyInfo property)
+        public PropGridMemberInfoProperty(IPropGridMemberOwner owner, PropertyInfo property) : base(owner)
         {
-            GetOwner = owner;
             Property = property;
         }
 
         public override bool IsReadOnly()
-            => Property == null || !Property.CanWrite;
+            => base.IsReadOnly() || Property == null || !Property.CanWrite;
         
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
-        {
-            dataChangeHandler?.HandleChange(new LocalValueChangeProperty(oldValue, newValue, GetOwner(), Property));
-        }
+            => dataChangeHandler?.HandleChange(new LocalValueChangeProperty(oldValue, newValue, Owner.Value, Property));
+        
         public override object MemberValue
         {
             get
@@ -43,7 +41,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (!Property.CanRead)
                     return DataType.GetDefaultValue();
 
-                object o = GetOwner();
+                object o = Owner.Value;
 
                 //If the owner is null or does not own this property,
                 //return the default value for the data type.
@@ -62,7 +60,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (!Property.CanWrite)
                     return;
 
-                object o = GetOwner();
+                object o = Owner.Value;
 
                 if (o != null && Property.DeclaringType.IsAssignableFrom(o.GetType()))
                     Property.SetValue(o, value);

@@ -6,11 +6,14 @@ using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public class PropGridItemRefIDictionaryInfo : PropGridItemRefInfo
+    public class PropGridItemRefIDictionaryInfo : PropGridMemberInfo
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override string DisplayName => string.Format("[{0}]", MemberValue?.ToString());
+        public override string MemberAccessor => IsKey ? $".Keys[{MemberValue}]" : $"[{MemberValue}]";
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Browsable(false)]
+        public override string DisplayName => string.Format("[{0}]", MemberValue?.ToString() ?? "<null>");
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override Type DataType => MemberValue?.GetType();
@@ -22,31 +25,27 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public bool IsKey { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Func<object> GetOwner { get; set; }
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public IDictionary OwnerDictionary => GetOwner() as IDictionary;
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Browsable(false)]
-        public Type ValueType => OwnerDictionary.Contains(Key) ? (OwnerDictionary[Key]?.GetType() ?? _valueType) : _valueType;
+        public Type ValueType => Dictionary.Contains(Key) ? (Dictionary[Key]?.GetType() ?? _valueType) : _valueType;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type KeyType => Key?.GetType() ?? _keyType;
 
-        private Type _valueType, _keyType;
+        public IDictionary Dictionary => Owner.Value as IDictionary;
 
-        public PropGridItemRefIDictionaryInfo(Func<object> owner, object key, bool isKey)
+        private readonly Type _valueType;
+        private readonly Type _keyType;
+
+        public PropGridItemRefIDictionaryInfo(IPropGridMemberOwner owner, object key, bool isKey) : base(owner)
         {
-            GetOwner = owner;
             Key = key;
             IsKey = isKey;
-            _valueType = OwnerDictionary?.DetermineValueType();
-            _keyType = OwnerDictionary?.DetermineKeyType();
+            _valueType = Dictionary?.DetermineValueType();
+            _keyType = Dictionary?.DetermineKeyType();
         }
 
-        public override bool IsReadOnly() => OwnerDictionary?.IsReadOnly ?? false;
+        public override bool IsReadOnly() => base.IsReadOnly() || (Dictionary?.IsReadOnly ?? false);
         internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
-            => dataChangeHandler?.HandleChange(new LocalValueChangeIDictionary(oldValue, newValue, OwnerDictionary, Key, IsKey));
+            => dataChangeHandler?.HandleChange(new LocalValueChangeIDictionary(oldValue, newValue, Dictionary, Key, IsKey));
         
         public override object MemberValue
         {
@@ -56,7 +55,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     return Key;
                 else
                 {
-                    IDictionary dic = OwnerDictionary;
+                    IDictionary dic = Dictionary;
                     if (dic == null)
                         return null;
                     return dic[Key];
@@ -64,7 +63,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             set
             {
-                IDictionary dic = OwnerDictionary;
+                IDictionary dic = Dictionary;
                 if (dic == null)
                     return;
 

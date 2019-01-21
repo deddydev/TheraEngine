@@ -17,16 +17,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 _event = value;
                 lblEvent.Text = _event.EventHandlerType.GetFriendlyName().ToString();
-                lblEvent.Text += $" ({_event.GetSubscribedMethods(ParentInfo.GetOwner()).Length})";
+                lblEvent.Text += $" ({_event.GetSubscribedMethods(MemberInfo.Owner.Value).Length})";
             }
         }
         
         public PropGridEvent() => InitializeComponent();
 
-        protected internal override void SetReferenceHolder(PropGridItemRefInfo parentInfo)
+        protected internal override void SetReferenceHolder(PropGridMemberInfo parentInfo)
         {
             base.SetReferenceHolder(parentInfo);
-            if (parentInfo is PropGridItemRefEventInfo eventInfo)
+            if (parentInfo is PropGridMemberInfoEvent eventInfo)
             {
                 Event = eventInfo.Event;
             }
@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             MethodInfo raiseMethod = Event.GetRaiseMethod();
             if (raiseMethod != null)
-                raiseMethod.Invoke(ParentInfo.GetOwner(), new object[] { });
+                raiseMethod.Invoke(MemberInfo.Owner.Value, new object[] { });
         }
         public void AddMethod(MethodInfo method)
         {
@@ -44,7 +44,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Delegate del = Delegate.CreateDelegate(tDelegate, this, method);
             MethodInfo addHandler = Event.GetAddMethod();
             object[] addHandlerArgs = { del };
-            addHandler.Invoke(ParentInfo.MemberValue, addHandlerArgs);
+            addHandler.Invoke(MemberInfo.MemberValue, addHandlerArgs);
         }
         public void RemoveMethod(MethodInfo method)
         {
@@ -52,14 +52,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Delegate del = Delegate.CreateDelegate(tDelegate, this, method);
             MethodInfo removeHandler = Event.GetRemoveMethod();
             object[] removeHandlerArgs = { del };
-            removeHandler.Invoke(ParentInfo.MemberValue, removeHandlerArgs);
+            removeHandler.Invoke(MemberInfo.MemberValue, removeHandlerArgs);
         }
 
         protected override void UpdateDisplayInternal(object value)
         {
             if (pnlSubscribed.Visible)
             {
-                if (pnlSubscribed.Controls.Count != Event.GetSubscribedMethods(ParentInfo.GetOwner()).Length)
+                if (pnlSubscribed.Controls.Count != Event.GetSubscribedMethods(MemberInfo.Owner.Value).Length)
                 {
                     LoadSubscribedMethods();
                 }
@@ -81,7 +81,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void LoadSubscribedMethods()
         {
             pnlSubscribed.Controls.Clear();
-            Delegate[] m = Event.GetSubscribedMethods(ParentInfo.GetOwner());
+            Delegate[] m = Event.GetSubscribedMethods(MemberInfo.Owner.Value);
             foreach (Delegate d in m)
             {
                 Label l = new Label

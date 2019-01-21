@@ -8,25 +8,26 @@ using System.Collections.Concurrent;
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     [PropGridControlFor(typeof(IDictionary))]
-    public partial class PropGridDictionary : PropGridItem, ICollapsible
+    public partial class PropGridIDictionary : PropGridItem, ICollapsible
     {
-        public PropGridDictionary() => InitializeComponent();
+        public PropGridIDictionary() => InitializeComponent();
 
-        private IDictionary _dictionary = null;
+        public IDictionary Dictionary { get; private set; }
+
         private Type _valueType, _keyType;
         protected override void UpdateDisplayInternal(object value)
         {
             lblObjectTypeName.Text = DataType.GetFriendlyName();
             chkNull.Visible = DataType.IsValueType;
 
-            _dictionary = value as IDictionary;
+            Dictionary = value as IDictionary;
             chkNull.Visible = DataType.IsClass;
-            if (!(chkNull.Checked = _dictionary == null))
+            if (!(chkNull.Checked = Dictionary == null))
             {
-                lblObjectTypeName.Enabled = _dictionary.Count > 0;
-                btnAdd.Visible = !_dictionary.IsFixedSize;
-                _valueType = _dictionary.DetermineValueType();
-                _keyType = _dictionary.DetermineKeyType();
+                lblObjectTypeName.Enabled = Dictionary.Count > 0;
+                btnAdd.Visible = !Dictionary.IsFixedSize;
+                _valueType = Dictionary.DetermineValueType();
+                _keyType = Dictionary.DetermineKeyType();
             }
             else
             {
@@ -40,7 +41,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (propGridDicItems.Visible)
             {
                 if (propGridDicItems.tblProps.Controls.Count == 0)
-                    LoadDictionary(_dictionary);
+                    LoadDictionary(Dictionary);
             }
             else
             {
@@ -83,9 +84,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (kt != null && kt.IsSubclassOf(_keyType))
                         valueTypes2 = TheraPropertyGrid.GetControlTypes(kt);
 
-                    List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyTypes2, new PropGridItemRefIDictionaryInfo(() => _dictionary, key, true), DataChangeHandler);
-                    List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valueTypes2, new PropGridItemRefIDictionaryInfo(() => _dictionary, key, false), DataChangeHandler);
+                    List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyTypes2, new PropGridItemRefIDictionaryInfo(this, key, true), DataChangeHandler);
+                    List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valueTypes2, new PropGridItemRefIDictionaryInfo(this, key, false), DataChangeHandler);
 
+                    //TODO: don't interlace, put key editor in place of label
                     int count = keys.Count + values.Count;
                     List<PropGridItem> interlaced = new List<PropGridItem>(count);
                     int valueIndex = -1;
@@ -114,7 +116,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Color _prevLabelColor;
         private void Label_MouseLeave(object sender, EventArgs e)
         {
-            if (_dictionary == null || _dictionary.Count == 0)
+            if (Dictionary == null || Dictionary.Count == 0)
                 return;
             Label label = (Label)sender;
             label.BackColor = _prevLabelColor;
@@ -122,7 +124,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void Label_MouseEnter(object sender, EventArgs e)
         {
-            if (_dictionary == null || _dictionary.Count == 0)
+            if (Dictionary == null || Dictionary.Count == 0)
                 return;
             Label label = (Label)sender;
             _prevLabelColor = label.BackColor;
@@ -131,7 +133,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            int i = _dictionary.Count;
+            int i = Dictionary.Count;
             object key = Editor.UserCreateInstanceOf(_keyType, true, this);
             if (key == null)
                 return;
@@ -139,16 +141,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (value == null)
                 return;
             
-            _dictionary.Add(key, value);
+            Dictionary.Add(key, value);
 
             var keys = TheraPropertyGrid.InstantiatePropertyEditors(
                 TheraPropertyGrid.GetControlTypes(key?.GetType()),
-                new PropGridItemRefIDictionaryInfo(() => _dictionary,
+                new PropGridItemRefIDictionaryInfo(this,
                 key, true), DataChangeHandler);
 
             var values = TheraPropertyGrid.InstantiatePropertyEditors(
                 TheraPropertyGrid.GetControlTypes(value?.GetType()),
-                new PropGridItemRefIDictionaryInfo(() => _dictionary,
+                new PropGridItemRefIDictionaryInfo(this,
                 key, false), DataChangeHandler);
 
             int count = keys.Count + values.Count;
@@ -169,18 +171,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {
-            if (_dictionary != null)
+            if (Dictionary != null)
                 pnlHeader.BackColor = Color.FromArgb(14, 18, 34);
         }
         private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
         {
-            if (_dictionary != null)
+            if (Dictionary != null)
                 pnlHeader.BackColor = Color.FromArgb(75, 120, 160);
         }
         
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {
-            if (_dictionary != null)
+            if (Dictionary != null)
             {
                 propGridDicItems.Visible = !propGridDicItems.Visible;
                 Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);

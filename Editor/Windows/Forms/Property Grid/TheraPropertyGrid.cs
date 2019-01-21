@@ -20,8 +20,12 @@ using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public partial class TheraPropertyGrid : UserControl, IDataChangeHandler
+    public partial class TheraPropertyGrid : UserControl, IDataChangeHandler, IPropGridMemberOwner
     {
+        object IPropGridMemberOwner.Value => _targetObject;
+        bool IPropGridMemberOwner.ReadOnly => false;
+        PropGridMemberInfo IPropGridMemberOwner.MemberInfo { get; }
+
         public TheraPropertyGrid()
         {
             InitializeComponent();
@@ -59,81 +63,101 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
         private bool _updating;
         //private IFileObject _targetFileObject;
-        private object _subObject;
+        private object _targetObject;
 
-        public Stack<object> TargetObjects { get; } = new Stack<object>();
+        public Stack<(object, string)> TargetObjects { get; } = new Stack<(object, string)>();
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object TargetObject
         {
-            get => _subObject;
-            set
+            get => _targetObject;
+            set => SetObject(value, null);
+        }
+
+        private void lblObjectName_Click(object sender, EventArgs e)
+        {
+            if (TargetObjects.Count > 1)
             {
-                if (InvokeRequired)
-                {
-                    Invoke((Action)(() => TargetObject = value));
-                    return;
-                }
-
-                //Do nothing if target object is the same
-                if (_subObject == value)
-                    return;
-
-                if (_subObject != null)
-                {
-                    pnlProps.Controls.Clear();
-                    foreach (var category in _categories.Values)
-                        category.DestroyProperties();
-                    _categories.Clear();
-                }
-
-                _subObject = value;
-                bool notNull = _subObject != null;
-                IObject obj = _subObject as IObject;
-                bool isObj = obj != null;
-
-                treeViewSceneComps.Nodes.Clear();
-                lstLogicComps.DataSource = null;
-                btnSave.Visible = isObj && obj.EditorState.IsDirty;
-                pnlHeader.Visible = pnlProps2.Visible = notNull;
-                if (Enabled = notNull)
-                {
-                    IActor actor = _subObject as IActor;
-                    tableLayoutPanel1.Visible = actor != null;
-                    PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
-                    PopulateLogicComponentList(actor?.LogicComponents);
-
-                    lblProperties.Visible = actor != null && ShowPropertiesHeader;
-                    CalcSceneCompTreeHeight();
-
-                    lblProperties.Text = string.Format("Properties: {0} [{1}]",
-                   _subObject.ToString(),
-                   _subObject.GetType().GetFriendlyName());
-
-                    if (TargetObjects.Count == 0 || TargetObjects.Peek() != _subObject)
-                        TargetObjects.Push(_subObject);
-                }
-                else
-                {
-                    lblProperties.Text = "Properties";
-                    lblProperties.Visible = false;
-                    tableLayoutPanel1.Visible = false;
-                }
-
+                TargetObjects.Pop();
+                var current = TargetObjects.Peek();
+                SetObject(current.Item1, current.Item2);
                 UpdateLabel();
-                
-                if (isObj)
-                    obj.EditorState.Selected = true;
-                
-                if (_subObject is SceneComponent sc && Engine.LocalPlayers.Count > 0)
-                {
-                    EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
-                    hud?.SetSelectedComponent(false, sc);
-                }
-                
-                //Load the properties of the object
-                LoadProperties();
             }
+        }
+        internal void SetObject(object value, string memberAccessor)
+        {
+            if (InvokeRequired)
+            {
+                Invoke((Action)(() => SetObject(value, memberAccessor)));
+                return;
+            }
+
+            //Do nothing if target object is the same
+            if (_targetObject == value)
+                return;
+
+            if (_targetObject != null)
+            {
+                pnlProps.Controls.Clear();
+                foreach (var category in _categories.Values)
+                    category.DestroyProperties();
+                _categories.Clear();
+            }
+
+            _targetObject = value;
+            bool notNull = _targetObject != null;
+            IObject obj = _targetObject as IObject;
+            bool isObj = obj != null;
+
+            treeViewSceneComps.Nodes.Clear();
+            lstLogicComps.DataSource = null;
+            btnSave.Visible = isObj && obj.EditorState.IsDirty;
+            pnlHeader.Visible = pnlProps2.Visible = notNull;
+            if (Enabled = notNull)
+            {
+                IActor actor = _targetObject as IActor;
+                tableLayoutPanel1.Visible = actor != null;
+                PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
+                PopulateLogicComponentList(actor?.LogicComponents);
+
+                lblProperties.Visible = actor != null && ShowPropertiesHeader;
+                CalcSceneCompTreeHeight();
+
+                lblProperties.Text = string.Format("Properties: {0} [{1}]",
+               _targetObject.ToString(),
+               _targetObject.GetType().GetFriendlyName());
+            }
+            else
+            {
+                lblProperties.Text = "Properties";
+                lblProperties.Visible = false;
+                tableLayoutPanel1.Visible = false;
+            }
+
+            if (isObj)
+                obj.EditorState.Selected = true;
+
+            if (_targetObject is SceneComponent sc && Engine.LocalPlayers.Count > 0)
+            {
+                EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
+                hud?.SetSelectedComponent(false, sc);
+            }
+
+            //Load the properties of the object
+            LoadProperties();
+
+            if (memberAccessor != null)
+            {
+                if (TargetObjects.Count == 0 || TargetObjects.Peek().Item1 != _targetObject)
+                    TargetObjects.Push((_targetObject, memberAccessor));
+            }
+            else
+            {
+                TargetObjects.Clear();
+                TargetObjects.Push((_targetObject, memberAccessor));
+            }
+
+            UpdateLabel();
         }
 
         private void UpdateLabel()
@@ -142,15 +166,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 string s = "";
                 string add;
-                int i = 0;
                 foreach (var obj in TargetObjects)
                 {
-                    add = obj.ToString();
-                    if (++i != TargetObjects.Count)
-                        add = " > " + add;
+                    add = obj.Item2?.ToString() ?? obj.Item1.ToString();
                     s = add + s;
                 }
-                lblObjectName.Text = s;
+                lblObjectName.Text = $"[{TargetObject.GetType().GetFriendlyName()}] - " + s;
             }
             else
             {
@@ -241,19 +262,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (!Engine.DesignMode)
                 PropGridItem.BeginUpdatingVisibleItems(Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
+
             base.OnHandleCreated(e);
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {
             if (!Engine.DesignMode)
-            {
                 PropGridItem.StopUpdatingVisibleItems();
-            }
+            
             base.OnHandleDestroyed(e);
         }
         public event Action<object> PropertiesLoaded;
 
-        private object GetObject() => _subObject;
+        private object GetObject() => _targetObject;
         private async void LoadProperties(bool showProperties = true, bool showEvents = false, bool showMethods = false)
         {
             if (Disposing || IsDisposed)
@@ -262,17 +283,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var propGridSettings = Editor.GetSettings().PropertyGrid;
             await LoadPropertiesToPanel(
                 pnlProps, _categories,
-                _subObject, GetObject,
-                this,
-                false, true, propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
+                _targetObject,
+                this, this,
+                false, true,
+                propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
 
-            PropertiesLoaded?.Invoke(_subObject);
+            PropertiesLoaded?.Invoke(_targetObject);
         }
         public static async Task LoadPropertiesToPanel(
             Panel pnlProps,
             Dictionary<string, PropGridCategory> categories,
             object obj,
-            Func<object> getOwnerMethod,
+            IPropGridMemberOwner memberOwner,
             IDataChangeHandler changeHandler,
             bool readOnly,
             bool showProperties = true,
@@ -297,12 +319,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             ConcurrentDictionary<int, MethodData> methodInfo = new ConcurrentDictionary<int, MethodData>();
             ConcurrentDictionary<int, EventData> eventInfo = new ConcurrentDictionary<int, EventData>();
 
+            //DateTime startTime = DateTime.Now;
+
             await Task.Run(() =>
             {
                 Type targetObjectType = obj.GetType();
-                props = showProperties ? targetObjectType.GetProperties(BindingFlags.Public | BindingFlags.Instance) : new PropertyInfo[0];
-                methods = showMethods ? targetObjectType.GetMethods(BindingFlags.Public | BindingFlags.Instance) : new MethodInfo[0];
-                events = showEvents ? targetObjectType.GetEvents(BindingFlags.Public | BindingFlags.Instance) : new EventInfo[0];
+
+                BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
+                props   = showProperties    ? targetObjectType.GetProperties(flags) : new PropertyInfo[0];
+                methods = showMethods       ? targetObjectType.GetMethods(flags)    : new MethodInfo[0];
+                events  = showEvents        ? targetObjectType.GetEvents(flags)     : new EventInfo[0];
+
                 Parallel.For(0, props.Length, i =>
                 {
                     PropertyInfo prop = props[i];
@@ -313,17 +340,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     var attribs = prop.GetCustomAttributes(true);
                     foreach (var attrib in attribs)
                     {
-                        if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
-                            return;
                         if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(obj))
                             return;
+
+                        if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
+                            return;
+
                         if (attrib is ReadOnlyAttribute readOnlyAttrib)
                             readOnly = readOnlyAttrib.IsReadOnly || readOnly;
                     }
 
                     object propObj = prop.GetValue(obj);
                     Type subType = propObj?.GetType() ?? prop.PropertyType;
-                    PropertyData p = new PropertyData()
+                    PropertyData propData = new PropertyData()
                     {
                         ControlTypes = GetControlTypes(subType),
                         Property = prop,
@@ -331,38 +360,40 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         ReadOnly = readOnly,
                     };
 
-                    propInfo.TryAdd(i, p);
+                    propInfo.TryAdd(i, propData);
                 });
+
                 Parallel.For(0, methods.Length, i =>
                 {
                     MethodInfo method = methods[i];
                     if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
                     {
                         object[] attribs = method.GetCustomAttributes(true);
-                        MethodData m = new MethodData()
+                        MethodData methodData = new MethodData()
                         {
                             Method = method,
                             Attribs = attribs,
                             DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? method.Name,
                         };
 
-                        methodInfo.TryAdd(i, m);
+                        methodInfo.TryAdd(i, methodData);
                     }
                 });
+
                 Parallel.For(0, events.Length, i =>
                 {
                     EventInfo @event = events[i];
                     if (!@event.IsSpecialName/* && (@event.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false)*/)
                     {
                         object[] attribs = @event.GetCustomAttributes(true);
-                        EventData m = new EventData()
+                        EventData eventData = new EventData()
                         {
                             Event = @event,
                             Attribs = attribs,
                             DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? @event.Name,
                         };
 
-                        eventInfo.TryAdd(i, m);
+                        eventInfo.TryAdd(i, eventData);
                     }
                 });
             });
@@ -371,44 +402,47 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 pnlProps.SuspendLayout();
 
-                //DateTime startTime = DateTime.Now;
                 for (int i = 0; i < props.Length; ++i)
                 {
                     if (!propInfo.ContainsKey(i))
                         continue;
+
                     PropertyData p = propInfo[i];
-                    CreateControls(p.ControlTypes, new PropGridItemRefPropertyInfo(getOwnerMethod, p.Property), pnlProps, categories, p.Attribs, p.ReadOnly, changeHandler);
+                    CreateControls(p.ControlTypes, new PropGridMemberInfoProperty(memberOwner, p.Property), pnlProps, categories, p.Attribs, p.ReadOnly, changeHandler);
                 }
-                //TimeSpan elapsed = DateTime.Now - startTime;
-                //Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
 
                 for (int i = 0; i < methods.Length; ++i)
                 {
                     if (!methodInfo.ContainsKey(i))
                         continue;
+
                     MethodData m = methodInfo[i];
                     var deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridMethod));
-                    CreateControls(deque, new PropGridItemRefMethodInfo(getOwnerMethod, m.Method), pnlProps, categories, m.Attribs, false, changeHandler);
+                    CreateControls(deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Attribs, false, changeHandler);
                 }
 
                 for (int i = 0; i < events.Length; ++i)
                 {
                     if (!eventInfo.ContainsKey(i))
                         continue;
+
                     EventData e = eventInfo[i];
                     var deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridEvent));
-                    CreateControls(deque, new PropGridItemRefEventInfo(getOwnerMethod, e.Event), pnlProps, categories, e.Attribs, false, changeHandler);
+                    CreateControls(deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Attribs, false, changeHandler);
                 }
 
                 bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
                 if (ignoreLoneSubCats && categories.Count == 1)
                     categories.Values.ToArray()[0].CategoryName = null;
 
-                //Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
                 pnlProps.ResumeLayout(true);
             }
+
+            //Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
+            //TimeSpan elapsed = DateTime.Now - startTime;
+            //Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
         }
         public void ExpandAll()
         {
@@ -478,7 +512,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             return controlTypes;
         }
-        public static PropGridItem InstantiatePropertyEditor(Type controlType, PropGridItemRefInfo info, IDataChangeHandler dataChangeHandler)
+        public static PropGridItem InstantiatePropertyEditor(Type controlType, PropGridMemberInfo info, IDataChangeHandler dataChangeHandler)
         {
             PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
 
@@ -497,7 +531,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// Instantiates the given PropGridItem-derived control types for the given object in a list.
         /// </summary>
         public static List<PropGridItem> InstantiatePropertyEditors(
-            Deque<Type> controlTypes, PropGridItemRefInfo info, IDataChangeHandler dataChangeHandler)
+            Deque<Type> controlTypes, PropGridMemberInfo info, IDataChangeHandler dataChangeHandler)
             => controlTypes.Select(x => InstantiatePropertyEditor(x, info, dataChangeHandler)).ToList();
 
         //public static PropGridMethod CreateMethodControl(
@@ -579,7 +613,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="dataChangeHandler"></param>
         public static void CreateControls(
             Deque<Type> controlTypes,
-            PropGridItemRefInfo info,
+            PropGridMemberInfo info,
             Panel panel,
             Dictionary<string, PropGridCategory> categories,
             object[] attribs,
@@ -589,9 +623,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var controls = InstantiatePropertyEditors(controlTypes, info, dataChangeHandler);
             string GetDefaultCatName()
             {
-                if (info is PropGridItemRefEventInfo)
+                if (info is PropGridMemberInfoEvent)
                     return "Events";
-                if (info is PropGridItemRefMethodInfo)
+                if (info is PropGridMemberInfoMethod)
                     return "Methods";
                 return MiscName;
             }
@@ -703,22 +737,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
         }
-        private void lblObjectName_Click(object sender, EventArgs e)
-        {
-            if (TargetObjects.Count > 1)
-            {
-                TargetObjects.Pop();
-                TargetObject = TargetObjects.Peek();
-                UpdateLabel();
-            }
-        }
         private void lstLogicComps_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            TargetObject = lstLogicComps.SelectedItem as LogicComponent;
+            LogicComponent comp = lstLogicComps.SelectedItem as LogicComponent;
+            SetObject(comp, $".LogicComponents[{(lstLogicComps.SelectedIndex).ToString()}]");
         }
         private void treeViewSceneComps_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            TargetObject = _selectedSceneComp.Tag as SceneComponent;
+            SceneComponent comp = _selectedSceneComp.Tag as SceneComponent;
+            SetObject(comp, $".SceneComponentCache[{(comp?.CacheIndex ?? -1).ToString()}]");
         }
 
         private void treeViewSceneComps_BeforeSelect(object sender, TreeViewCancelEventArgs e)

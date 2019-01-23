@@ -45,12 +45,13 @@ namespace TheraEditor.Windows.Forms
                 //LineAlignment = StringAlignment.Near
             };
 
-            string t = "X: ";
+            string t = "0000.000";
             Size s = TextRenderer.MeasureText(t, f);
-            _xCoord = new UITextComponent() { Width = s.Width, Height = s.Height };
+            _xCoord = new UITextComponent() { Width = s.Width / 10.0f, Height = s.Height / 10.0f };
             _xCoord.RenderInfo.VisibleByDefault = true;
             _xCoord.SizeableHeight.SetSizingPixels(s.Height);
             _xCoord.SizeableWidth .SetSizingPixels(s.Width);
+            //_xCoord.TextureResolutionMultiplier = 1.0f;
             _xCoord.TextDrawer.Add(true, _xString = new UIString2D()
             {
                 Font = f,
@@ -59,12 +60,13 @@ namespace TheraEditor.Windows.Forms
                 TextColor = new ColorF4(1.0f),
             });
 
-            t = "Y: ";
+            t = "0000.000";
             s = TextRenderer.MeasureText(t, f);
-            _yCoord = new UITextComponent() { Width = s.Width, Height= s.Height };
+            _yCoord = new UITextComponent() { Width = s.Width / 10.0f, Height= s.Height / 10.0f };
             _yCoord.RenderInfo.VisibleByDefault = true;
             _yCoord.SizeableHeight.SetSizingPixels(s.Height);
             _yCoord.SizeableWidth.SetSizingPixels(s.Width);
+            //_yCoord.TextureResolutionMultiplier = 1.0f;
             _yCoord.TextDrawer.Add(true, _yString = new UIString2D()
             {
                 Font = f,
@@ -456,11 +458,8 @@ void main()
             _xCoord.LocalTranslationX = pos.X;
             _yCoord.LocalTranslationY = pos.Y;
 
-            _xString.Text = /*"Sec: " + */pos.X.ToString();
-            _yString.Text = /*"Value: " + */pos.Y.ToString();
-
-            //_xCoord.Redraw(true);
-            //_yCoord.Redraw(true);
+            _xString.Text = pos.X.ToString("###0.0##");
+            _yString.Text = pos.Y.ToString("###0.0##");
         }
         private void BaseWorldTransformChanged()
         {
@@ -474,13 +473,15 @@ void main()
             if (_targetAnimation != null)
             {
                 RenderAnimPosition = true;
-                AnimPositionWorld = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), mtx).Xy;
 
-                _xCoord.LocalTranslationX = AnimPositionWorld.X;
-                _yCoord.LocalTranslationY = AnimPositionWorld.Y;
+                Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
+                AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
 
-                _xString.Text = /*"Sec: " + */AnimPositionWorld.X.ToString();
-                _yString.Text = /*"Value: " + */AnimPositionWorld.Y.ToString();
+                _xCoord.LocalTranslationX = pos.X;
+                _yCoord.LocalTranslationY = pos.Y;
+
+                _xString.Text = pos.X.ToString("###0.0##");
+                _yString.Text = pos.Y.ToString("###0.0##");
             }
             else
                 RenderAnimPosition = false;

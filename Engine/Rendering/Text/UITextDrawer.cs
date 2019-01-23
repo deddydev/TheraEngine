@@ -97,64 +97,71 @@ namespace TheraEngine.Rendering.Text
             //and only redraw the previous and new regions. Repeat for any other overlapping texts.
             //Then textsubimage2d using the min and max values of all updated texts.
 
-            //Draw text information onto the bitmap
-            using (Graphics g = Graphics.FromImage(b))
+            try
             {
-                //Set quality modes
-                g.TextRenderingHint = textQuality;
-                g.SmoothingMode = SmoothingMode.HighQuality;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-                //Get drawing bounds
-                RectangleF rect = new RectangleF(0, 0, b.Width, b.Height);
-
-                if (forceFullRedraw)
+                //Draw text information onto the bitmap
+                using (Graphics g = Graphics.FromImage(b))
                 {
-                    //Reset canvas
-                    g.ResetClip();
-                    //g.Clear(Color.Transparent);
+                    //Set quality modes
+                    g.TextRenderingHint = textQuality;
+                    g.SmoothingMode = SmoothingMode.HighQuality;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-                    foreach (UIString2D text in _text.OrderBy(x => x.Order))
+                    //Get drawing bounds
+                    RectangleF rect = new RectangleF(0, 0, b.Width, b.Height);
+
+                    if (forceFullRedraw)
                     {
-                        var bounds = text.Region;
-                        if (!bounds.DisjointWith(b.Width, b.Height))
-                        {
-                            PointF pos = bounds.OriginTranslation;
+                        //Reset canvas
+                        g.ResetClip();
+                        g.Clear(Color.Transparent);
 
-                            g.ResetTransform();
-                            g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
-                            g.RotateTransformAt(text.Rotation, pos);
-                            g.ScaleTransformAt(texRes.X, texRes.Y, pos);
-                            g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
+                        foreach (UIString2D text in _text.OrderBy(x => x.Order))
+                        {
+                            var bounds = text.Region;
+                            if (!bounds.DisjointWith(b.Width, b.Height))
+                            {
+                                PointF pos = bounds.OriginTranslation;
+
+                                g.ResetTransform();
+                                g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
+                                g.RotateTransformAt(text.Rotation, pos);
+                                g.ScaleTransformAt(texRes.X, texRes.Y, pos);
+                                g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    foreach (UIString2D text in _modified)
+                    else
                     {
-                        var bounds = text.Region;
-                        if (!bounds.DisjointWith(b.Width, b.Height))
+                        foreach (UIString2D text in _modified)
                         {
-                            PointF pos = bounds.OriginTranslation;
+                            var bounds = text.Region;
+                            if (!bounds.DisjointWith(b.Width, b.Height))
+                            {
+                                PointF pos = bounds.OriginTranslation;
 
-                            g.ResetClip();
-                            g.SetClip(bounds.AsRectangleF(b.Height));
-                            g.Clear(Color.Transparent);
+                                g.ResetClip();
+                                g.SetClip(bounds.AsRectangleF(b.Height));
+                                g.Clear(Color.Transparent);
 
-                            g.ResetTransform();
-                            g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
-                            g.RotateTransformAt(text.Rotation, pos);
-                            g.ScaleTransformAt(texRes.X, texRes.Y, pos);
-                            g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
+                                g.ResetTransform();
+                                g.TranslateTransform(bounds.Translation.X, bounds.Translation.Y);
+                                g.RotateTransformAt(text.Rotation, pos);
+                                g.ScaleTransformAt(texRes.X, texRes.Y, pos);
+                                g.DrawString(text.Text, text.Font, text.Brush, rect, text.Format);
+                            }
                         }
                     }
-                }
 
-                g.Flush();
+                    g.Flush();
+                }
             }
-            
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+
             _modified.Clear();
             tex.PushData();
         }

@@ -434,7 +434,10 @@ namespace TheraEditor.Windows.Forms
             else if (dragComp != null)
             {
                 IRigidBodyCollidable p = dragComp as IRigidBodyCollidable;
-                SceneComponent comp = v.PickScene(viewportPoint, true, true, true, out _hitNormal, out _hitPoint, out float dist, p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
+                SceneComponent comp = v.PickScene(
+                    viewportPoint, true, true, true,
+                    out _hitNormal, out _hitPoint, out float dist,
+                    p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
 
                 if (dist > DraggingTestDistance)
                     comp = null;

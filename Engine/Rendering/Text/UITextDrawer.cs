@@ -90,7 +90,8 @@ namespace TheraEngine.Rendering.Text
             if (!forceFullRedraw && _modified.Count == 0)
                 return;
 
-            Bitmap b = texture.Mipmaps[0].File.Bitmaps[0];
+            var tex = texture.GetTexture(true);
+            Bitmap b = tex.Mipmaps[0];
 
             //TODO: instead of redrawing the whole image, keep track of overlapping text
             //and only redraw the previous and new regions. Repeat for any other overlapping texts.
@@ -112,7 +113,7 @@ namespace TheraEngine.Rendering.Text
                 {
                     //Reset canvas
                     g.ResetClip();
-                    g.Clear(Color.Transparent);
+                    //g.Clear(Color.Transparent);
 
                     foreach (UIString2D text in _text.OrderBy(x => x.Order))
                     {
@@ -155,6 +156,7 @@ namespace TheraEngine.Rendering.Text
             }
             
             _modified.Clear();
+            tex.PushData();
         }
         internal void TextChanged(UIString2D textData)
         {

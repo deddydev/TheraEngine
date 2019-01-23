@@ -297,7 +297,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         public void Resize(int width, int height, bool resizeRenderTexture = true)
         {
-            if (!Resizable)
+            if (!Resizable || (_width == width && _height == height))
                 return;
 
             _width = width;

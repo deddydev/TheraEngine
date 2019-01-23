@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using TheraEngine.Actors;
-using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Textures;
 using TheraEngine.Rendering.Particles;
 
 namespace TheraEngine.Rendering
@@ -389,20 +385,20 @@ namespace TheraEngine.Rendering
         {
             if (obj == null || RenderTree?.Add(obj) != true)
                 return;
+            
+            //if (obj.CullingVolume != null)
+            //    RegisterCullingVolume(obj.CullingVolume);
 
-            obj.RenderInfo.EnforceVisibility(true);
-            if (obj is I3DRenderable r && r.CullingVolume != null)
-                RegisterCullingVolume(r.CullingVolume);
             //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
         }
         public void Remove(I3DRenderable obj)
         {
             if (obj == null || RenderTree?.Remove(obj) != true)
                 return;
+            
+            //if (obj.CullingVolume != null)
+            //    UnregisterCullingVolume(obj.CullingVolume);
 
-            obj.RenderInfo.EnforceVisibility(false);
-            if (obj is I3DRenderable r && r.CullingVolume != null)
-                UnregisterCullingVolume(r.CullingVolume);
             //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
         }
         private void RegisterCullingVolume(Shape cullingVolume)

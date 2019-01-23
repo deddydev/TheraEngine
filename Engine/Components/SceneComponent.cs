@@ -16,7 +16,7 @@ namespace TheraEngine.Components
         Matrix4 LocalMatrix { get; }
         Matrix4 InverseLocalMatrix { get; }
 
-        BaseScene OwningScene { get; set; }
+        BaseScene OwningScene { get; }
         Scene3D OwningScene3D { get; }
         Scene2D OwningScene2D { get; }
         TWorld OwningWorld { get; }
@@ -226,14 +226,9 @@ namespace TheraEngine.Components
         public int CacheIndex { get; private set; }
         [Browsable(false)]
         protected bool SimulatingPhysics => _simulatingPhysics;
-
-        private BaseScene _owningScene;
+        
         [Browsable(false)]
-        public BaseScene OwningScene
-        {
-            get => OwningWorld?.Scene ?? _owningScene;
-            set => _owningScene = value;
-        }
+        public BaseScene OwningScene => (OwningActor as IActor_Internal)?.OwningScene;
         [Browsable(false)]
         public Scene3D OwningScene3D => OwningScene as Scene3D;
         [Browsable(false)]
@@ -457,10 +452,10 @@ namespace TheraEngine.Components
             if (this is IPreRendered r)
                 OwningScene?.AddPreRenderedObject(r);
 
-            if (this is I3DRenderable r3d)
+            if (this is I3DRenderable r3d && OwningScene3D != null)
                 r3d.RenderInfo.LinkScene(r3d, OwningScene3D);
 
-            if (this is I2DRenderable r2d)
+            if (this is I2DRenderable r2d && OwningScene2D != null)
                 r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
             
             foreach (SceneComponent c in _children)

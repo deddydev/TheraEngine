@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Animation;
@@ -13,6 +14,8 @@ using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Text;
+using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -27,10 +30,52 @@ namespace TheraEditor.Windows.Forms
             => _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
         public UIPropAnimFloatEditor(Vec2 bounds) : base(bounds)
             =>_rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
+
+        protected UITextComponent _xCoord, _yCoord;
+        protected UIString2D _xString, _yString;
         protected override UICanvasComponent OnConstructRoot()
         {
             var root = base.OnConstructRoot();
             _baseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
+
+            Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
+            StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
+            {
+                //Alignment = StringAlignment.Center,
+                //LineAlignment = StringAlignment.Near
+            };
+
+            string t = "X: ";
+            Size s = TextRenderer.MeasureText(t, f);
+            _xCoord = new UITextComponent() { Width = s.Width, Height = s.Height };
+            _xCoord.RenderInfo.VisibleByDefault = true;
+            _xCoord.SizeableHeight.SetSizingPixels(s.Height);
+            _xCoord.SizeableWidth .SetSizingPixels(s.Width);
+            _xCoord.TextDrawer.Add(true, _xString = new UIString2D()
+            {
+                Font = f,
+                Format = sf,
+                Text = t,
+                TextColor = new ColorF4(1.0f),
+            });
+
+            t = "Y: ";
+            s = TextRenderer.MeasureText(t, f);
+            _yCoord = new UITextComponent() { Width = s.Width, Height= s.Height };
+            _yCoord.RenderInfo.VisibleByDefault = true;
+            _yCoord.SizeableHeight.SetSizingPixels(s.Height);
+            _yCoord.SizeableWidth.SetSizingPixels(s.Width);
+            _yCoord.TextDrawer.Add(true, _yString = new UIString2D()
+            {
+                Font = f,
+                Format = sf,
+                Text = t,
+                TextColor = new ColorF4(1.0f),
+            });
+
+            _baseTransformComponent.ChildComponents.Add(_xCoord);
+            _baseTransformComponent.ChildComponents.Add(_yCoord);
+
             return root;
         }
 
@@ -39,7 +84,7 @@ namespace TheraEditor.Windows.Forms
         private float DisplayFPS { get; set; } = 0.0f;
         private float AnimLength { get; set; } = 0.0f;
         private int KeyCount { get; set; } = 0;
-        public Vec2 AnimPosition { get; private set; }
+        public Vec2 AnimPositionWorld { get; private set; }
 
         private readonly RenderCommandMethod2D _rcMethod;
         private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);
@@ -405,7 +450,17 @@ void main()
         }
         private void OnCurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
         {
-            AnimPosition = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), _baseTransformComponent.WorldMatrix).Xy;
+            Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
+            AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
+
+            _xCoord.LocalTranslationX = pos.X;
+            _yCoord.LocalTranslationY = pos.Y;
+
+            _xString.Text = /*"Sec: " + */pos.X.ToString();
+            _yString.Text = /*"Value: " + */pos.Y.ToString();
+
+            //_xCoord.Redraw(true);
+            //_yCoord.Redraw(true);
         }
         private void BaseWorldTransformChanged()
         {
@@ -419,7 +474,13 @@ void main()
             if (_targetAnimation != null)
             {
                 RenderAnimPosition = true;
-                AnimPosition = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), mtx).Xy;
+                AnimPositionWorld = Vec3.TransformPosition(new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f), mtx).Xy;
+
+                _xCoord.LocalTranslationX = AnimPositionWorld.X;
+                _yCoord.LocalTranslationY = AnimPositionWorld.Y;
+
+                _xString.Text = /*"Sec: " + */AnimPositionWorld.X.ToString();
+                _yString.Text = /*"Value: " + */AnimPositionWorld.Y.ToString();
             }
             else
                 RenderAnimPosition = false;
@@ -508,6 +569,8 @@ void main()
                 _baseTransformComponent.Scale = TMath.Min(Bounds.X, Bounds.Y) / (LineIncrement * InitialVisibleBoxes);
 
             UpdateBackgroundMaterial();
+            _xCoord.RenderInfo.LinkScene(_xCoord, ScreenSpaceUIScene, true);
+            _yCoord.RenderInfo.LinkScene(_yCoord, ScreenSpaceUIScene, true);
         }
         protected override void OnDespawned()
         {
@@ -677,8 +740,12 @@ void main()
         {
             if (_draggedKeyframes.Count > 0)
             {
+                //LocalValueChange[] changes = new LocalValueChange[_draggedKeyframes.Count];
+                //int i = 0;
                 //foreach (var kf in _draggedKeyframes)
                 //{
+                //    var info = kf.Value;
+                //    LocalValueChange change = new LocalValueChangeProperty();
                 //    Editor.Instance.UndoManager.AddChange(DragComponent.EditorState, _prevDragMatrix, DragComponent.WorldMatrix, DragComponent, DragComponent.GetType().GetProperty(nameof(DragComponent.WorldMatrix)));
                 //}
                 _draggedKeyframes.Clear();
@@ -914,9 +981,9 @@ void main()
 
             if (RenderAnimPosition)
             {
-                Engine.Renderer.RenderPoint(AnimPosition, new ColorF4(1.0f), false, 10.0f);
-                Engine.Renderer.RenderLine(new Vec2(AnimPosition.X, 0.0f), new Vec2(AnimPosition.X, wh.Y), new ColorF4(1.0f), false, 10.0f);
-                Engine.Renderer.RenderLine(new Vec2(0.0f, AnimPosition.Y), new Vec2(wh.X, AnimPosition.Y), new ColorF4(1.0f), false, 10.0f);
+                Engine.Renderer.RenderPoint(AnimPositionWorld, new ColorF4(1.0f), false, 10.0f);
+                Engine.Renderer.RenderLine(new Vec2(AnimPositionWorld.X, 0.0f), new Vec2(AnimPositionWorld.X, wh.Y), new ColorF4(1.0f), false, 10.0f);
+                Engine.Renderer.RenderLine(new Vec2(0.0f, AnimPositionWorld.Y), new Vec2(wh.X, AnimPositionWorld.Y), new ColorF4(1.0f), false, 10.0f);
             }
         }
     }

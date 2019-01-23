@@ -5,6 +5,7 @@ using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
@@ -13,55 +14,52 @@ namespace TheraEngine.Components.Scene
 {
     public class DecalComponent : BoxComponent, I3DRenderable
     {
-        protected PrimitiveManager DecalManager { get; set; }
         internal Matrix4 DecalRenderMatrix { get; private set; }
         internal Matrix4 InverseDecalRenderMatrix { get; private set; }
-        protected float _uniformScale = 1.0f;
         
         [TSerialize]
         [Category("Decal")]
         public TMaterial Material { get; set; }
 
-        [TSerialize(nameof(AlwaysRenderIntersectionWireframe))]
-        private bool _alwaysRenderIntersectionWireframe = false;
-        [Category("Editor Traits")]
-        [Description("If true, the intersection wireframe will always be rendered in edit mode even if the decal is not selected.")]
-        public bool AlwaysRenderIntersectionWireframe
-        {
-            get => _alwaysRenderIntersectionWireframe;
-            set
-            {
-                if (_alwaysRenderIntersectionWireframe == value)
-                    return;
+        //[TSerialize(nameof(AlwaysRenderIntersectionWireframe))]
+        //private bool _alwaysRenderIntersectionWireframe = false;
+        //[Category("Editor Traits")]
+        //[Description("If true, the intersection wireframe will always be rendered in edit mode even if the decal is not selected.")]
+        //public bool AlwaysRenderIntersectionWireframe
+        //{
+        //    get => _alwaysRenderIntersectionWireframe;
+        //    set
+        //    {
+        //        if (_alwaysRenderIntersectionWireframe == value)
+        //            return;
 
-                _alwaysRenderIntersectionWireframe = value;
+        //        _alwaysRenderIntersectionWireframe = value;
 
-                if (IsSpawned)
-                {
-                    if (_alwaysRenderIntersectionWireframe)
-                        RenderInfo.Visible = true;
-                    else if (!EditorState.Selected)
-                        RenderInfo.Visible = false;
-                }
-            }
-        }
-        
+        //        if (IsSpawned)
+        //        {
+        //            if (_alwaysRenderIntersectionWireframe)
+        //                RenderInfo.Visible = true;
+        //            else if (!EditorState.Selected)
+        //                RenderInfo.Visible = false;
+        //        }
+        //    }
+        //}
+
+        public RenderCommandMesh3D RenderCommandDecal { get; } = new RenderCommandMesh3D(ERenderPass.DeferredDecals);
+
         public DecalComponent() 
             : base()
         {
-            RenderCommand.RenderPass = ERenderPass.DeferredDecals;
             RenderInfo.VisibleByDefault = true;
         }
         public DecalComponent(Vec3 halfExtents) 
             : base(halfExtents, null)
         {
-            RenderCommand.RenderPass = ERenderPass.DeferredDecals;
             RenderInfo.VisibleByDefault = true;
         }
         public DecalComponent(Vec3 halfExtents, TextureFile2D texture)
             : base(halfExtents, null)
         {
-            RenderCommand.RenderPass = ERenderPass.DeferredDecals;
             RenderInfo.VisibleByDefault = true;
             if (texture != null)
                 Material = CreateDefaultMaterial(texture);
@@ -69,7 +67,6 @@ namespace TheraEngine.Components.Scene
         public DecalComponent(float height, TextureFile2D texture)
             : base(new Vec3(1.0f, height, 1.0f), null)
         {
-            RenderCommand.RenderPass = ERenderPass.DeferredDecals;
             RenderInfo.VisibleByDefault = true;
             if (texture != null)
             {
@@ -85,8 +82,12 @@ namespace TheraEngine.Components.Scene
         protected override void OnWorldTransformChanged()
         {
             Vec3 halfExtents = _shape.HalfExtents.Raw;
+
             DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
             InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
+
+            RenderCommandDecal.WorldMatrix = DecalRenderMatrix;
+
             base.OnWorldTransformChanged();
         }
         /// <summary>
@@ -120,8 +121,8 @@ namespace TheraEngine.Components.Scene
                 return;
 
             PrimitiveData decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
-            DecalManager = new PrimitiveManager(decalMesh, Material);
-            DecalManager.SettingUniforms += DecalManager_SettingUniforms;
+            RenderCommandDecal.Mesh = new PrimitiveManager(decalMesh, Material);
+            RenderCommandDecal.Mesh.SettingUniforms += DecalManager_SettingUniforms;
         }
         protected virtual void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
@@ -142,15 +143,16 @@ namespace TheraEngine.Components.Scene
             Initialize();
             base.OnSpawned();
         }
-        protected override void Render()
+        //TODO: separate visibility of the decal mesh and wireframe intersection
+        public override void AddRenderables(RenderPasses passes, Camera camera)
         {
-            DecalManager?.Render(DecalRenderMatrix);
-            if (AlwaysRenderIntersectionWireframe)
-                base.Render();
+            passes.Add(RenderCommandDecal);
+            if (Engine.EditorState.InEditMode)
+                base.AddRenderables(passes, camera);
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            RenderInfo.Visible = selected || AlwaysRenderIntersectionWireframe;
+            RenderInfo.Visible = selected;
         }
     }
 }

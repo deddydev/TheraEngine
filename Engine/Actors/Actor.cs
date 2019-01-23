@@ -14,6 +14,8 @@ namespace TheraEngine.Actors
     public delegate void DelRootComponentChanged(OriginRebasableComponent oldRoot, OriginRebasableComponent newRoot);
     internal interface IActor_Internal : IActor
     {
+        BaseScene OwningScene { get; set; }
+
         void RebaseOrigin(Vec3 newOrigin);
         void GenerateSceneComponentCache();
         void Spawned(TWorld world);
@@ -37,6 +39,7 @@ namespace TheraEngine.Actors
         OriginRebasableComponent RootComponent { get; }
 
         EventList<LogicComponent> LogicComponents { get; }
+
         T1 FindFirstLogicComponentOfType<T1>() where T1 : LogicComponent;
         T1[] FindLogicComponentsOfType<T1>() where T1 : LogicComponent;
         LogicComponent FindFirstLogicComponentOfType(Type type);
@@ -123,36 +126,10 @@ namespace TheraEngine.Actors
         public float CurrentLife { get; private set; }
         public int _spawnIndex = -1;
         private T _rootComponent;
+        private BaseScene _scene;
 
         private EventList<LogicComponent> _logicComponents;
 
-        //Do not call Initialize when deserializing!
-        //The constructor is run before deserializing, so set defaults there.
-        /// <summary>
-        /// Sets all defaults, creates the root component, and generates the scene component cache.
-        /// </summary>
-        public virtual void Initialize()
-        {
-            IsConstructing = true;
-            PreConstruct();
-            RootComponent = OnConstructRoot();
-            PostConstruct();
-            IsConstructing = false;
-            GenerateSceneComponentCache();
-        }
-        /// <summary>
-        /// Called before OnConstruct.
-        /// </summary>
-        protected virtual void PreConstruct() { }
-        /// <summary>
-        /// Called after OnConstruct.
-        /// </summary>
-        protected virtual void PostConstruct() { }
-        /// <summary>
-        /// Sets the root component (and usually any logic components as well).
-        /// </summary>
-        /// <returns>The root scene component for this actor.</returns>
-        protected virtual T OnConstructRoot() => RootComponent ?? Activator.CreateInstance<T>();
         [Browsable(false)]
         public DateTime SpawnTime { get; private set; }
         [Browsable(false)]
@@ -186,7 +163,11 @@ namespace TheraEngine.Actors
         [Browsable(false)]
         public TWorld OwningWorld { get; private set; } = null;
         [Browsable(false)]
-        public BaseScene OwningScene => OwningWorld?.Scene;
+        public BaseScene OwningScene
+        {
+            get => _scene ?? OwningWorld?.Scene;
+            set => _scene = value;
+        }
         [Browsable(false)]
         public Scene3D OwningScene3D => OwningScene as Scene3D;
         [Browsable(false)]
@@ -266,7 +247,7 @@ For example, a logic component could give any actor health and/or allow it to ta
         }
         [Browsable(false)]
         public bool IsConstructing { get; private set; }
-        
+
         public T1 FindFirstLogicComponentOfType<T1>() where T1 : LogicComponent
             => LogicComponents.FirstOrDefault(x => x is T1) as T1;
         public T1[] FindLogicComponentsOfType<T1>() where T1 : LogicComponent
@@ -280,6 +261,34 @@ For example, a logic component could give any actor health and/or allow it to ta
         //public List<I3DRenderable> RenderableComponentCache => _renderableComponentCache;
         //[Browsable(false)]
         //public bool HasRenderableComponents => RenderableComponentCache.Count > 0;
+
+        //Do not call Initialize when deserializing!
+        //The constructor is run before deserializing, so set defaults there.
+        /// <summary>
+        /// Sets all defaults, creates the root component, and generates the scene component cache.
+        /// </summary>
+        public virtual void Initialize()
+        {
+            IsConstructing = true;
+            PreConstruct();
+            RootComponent = OnConstructRoot();
+            PostConstruct();
+            IsConstructing = false;
+            GenerateSceneComponentCache();
+        }
+        /// <summary>
+        /// Called before OnConstruct.
+        /// </summary>
+        protected virtual void PreConstruct() { }
+        /// <summary>
+        /// Called after OnConstruct.
+        /// </summary>
+        protected virtual void PostConstruct() { }
+        /// <summary>
+        /// Sets the root component (and usually any logic components as well).
+        /// </summary>
+        /// <returns>The root scene component for this actor.</returns>
+        protected virtual T OnConstructRoot() => RootComponent ?? Activator.CreateInstance<T>();
 
         void IActor_Internal.GenerateSceneComponentCache() => GenerateSceneComponentCache();
         internal void GenerateSceneComponentCache()

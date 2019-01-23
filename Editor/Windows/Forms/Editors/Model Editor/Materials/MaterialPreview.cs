@@ -160,7 +160,7 @@ namespace TheraEditor.Windows.Forms
                         IBLProbeGridActor probes = new IBLProbeGridActor();
                         probes.AddProbe(Vec3.Zero);
                         //probes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
-                        probes.SceneComponentCache.ForEach(x => x.OwningScene = basicRenderPanel1.Scene);
+                        probes.OwningScene = basicRenderPanel1.Scene;
                         probes.InitAndCaptureAll(128);
                         basicRenderPanel1.Scene.IBLProbeActor = probes;
                     }

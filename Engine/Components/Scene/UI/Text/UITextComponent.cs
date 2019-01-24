@@ -59,8 +59,15 @@ namespace TheraEngine.Rendering.UI
         public override Vec2 Resize(Vec2 parentBounds)
         {
             Vec2 rect = base.Resize(parentBounds);
-            TextTexture.Resize((int)(Width * TextureResolutionMultiplier.X), (int)(Height * TextureResolutionMultiplier.Y));
-            Redraw(true);
+
+            int w = (int)(Width * TextureResolutionMultiplier.X);
+            int h = (int)(Height * TextureResolutionMultiplier.Y);
+            if (w != TextTexture.Width || h != TextTexture.Height)
+            {
+                TextTexture.Resize(w, h);
+                Redraw(true);
+            }
+
             return rect;
         }
     }

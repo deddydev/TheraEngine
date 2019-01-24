@@ -176,12 +176,12 @@ namespace TheraEngine.Rendering.UI
         //        base.LocalTranslationY = value;
         //    }
         //}
-        public UIDockableComponent()
+        public UIDockableComponent() : base()
         {
             SizeableHeight.ParameterChanged += SizingParameterChanged;
             SizeableWidth.ParameterChanged += SizingParameterChanged;
-            //SizeablePosX.ParameterChanged += SizingParameterChanged;
-            //SizeablePosY.ParameterChanged += SizingParameterChanged;
+            SizeablePosX.ParameterChanged += SizingParameterChanged;
+            SizeablePosY.ParameterChanged += SizingParameterChanged;
             _sizeableElements = new ISizeable[]
             {
                 SizeableWidth,

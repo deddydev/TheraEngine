@@ -38,45 +38,48 @@ namespace TheraEditor.Windows.Forms
             var root = base.OnConstructRoot();
             _baseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
 
-            Font f = new Font("Segoe UI", 10.0f, FontStyle.Regular);
-            StringFormat sf = new StringFormat(StringFormatFlags.NoWrap | StringFormatFlags.NoClip)
-            {
-                //Alignment = StringAlignment.Center,
-                //LineAlignment = StringAlignment.Near
-            };
+            Font font = new Font("Segoe UI", 14.0f, FontStyle.Regular);
+            StringFormatFlags flags = StringFormatFlags.NoWrap | StringFormatFlags.NoClip;
+            StringFormat format = new StringFormat(flags);
 
-            string t = "0000.000";
-            Size s = TextRenderer.MeasureText(t, f);
-            _xCoord = new UITextComponent() { Width = s.Width / 10.0f, Height = s.Height / 10.0f };
+            //Measure the size of the maximum possible displayed string size
+            Size size = TextRenderer.MeasureText("-0000.000", font);
+            float width = size.Width;
+            float height = size.Height;
+
+            _xCoord = new UITextComponent();
             _xCoord.RenderInfo.VisibleByDefault = true;
-            _xCoord.SizeableHeight.SetSizingPixels(s.Height);
-            _xCoord.SizeableWidth .SetSizingPixels(s.Width);
-            //_xCoord.TextureResolutionMultiplier = 1.0f;
-            _xCoord.TextDrawer.Add(true, _xString = new UIString2D()
+            _xCoord.SizeableHeight.SetSizingPixels(height);
+            _xCoord.SizeableWidth.SetSizingPixels(width);
+            _xCoord.TextureResolutionMultiplier = font.Size / 1.5f;
+            _xString = new UIString2D()
             {
-                Font = f,
-                Format = sf,
-                Text = t,
-                TextColor = new ColorF4(1.0f),
-            });
+                Font = font,
+                Format = format,
+                Text = "0.0",
+                TextColor = ColorF4.White,
+            };
+            _xCoord.TextDrawer.Add(true, _xString);
 
-            t = "0000.000";
-            s = TextRenderer.MeasureText(t, f);
-            _yCoord = new UITextComponent() { Width = s.Width / 10.0f, Height= s.Height / 10.0f };
+            _yCoord = new UITextComponent();
             _yCoord.RenderInfo.VisibleByDefault = true;
-            _yCoord.SizeableHeight.SetSizingPixels(s.Height);
-            _yCoord.SizeableWidth.SetSizingPixels(s.Width);
-            //_yCoord.TextureResolutionMultiplier = 1.0f;
-            _yCoord.TextDrawer.Add(true, _yString = new UIString2D()
+            _yCoord.SizeableHeight.SetSizingPixels(height);
+            _yCoord.SizeableWidth.SetSizingPixels(width);
+            _yCoord.TextureResolutionMultiplier = font.Size / 1.5f;
+            _yString = new UIString2D()
             {
-                Font = f,
-                Format = sf,
-                Text = t,
-                TextColor = new ColorF4(1.0f),
-            });
+                Font = font,
+                Format = format,
+                Text = "0.0",
+                TextColor = ColorF4.White,
+            };
+            _yCoord.TextDrawer.Add(true, _yString);
 
             _baseTransformComponent.ChildComponents.Add(_xCoord);
             _baseTransformComponent.ChildComponents.Add(_yCoord);
+
+            _xCoord.Scale = 1.0f / _baseTransformComponent.Scale;
+            _yCoord.Scale = 1.0f / _baseTransformComponent.Scale;
 
             return root;
         }
@@ -455,8 +458,16 @@ void main()
             Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
             AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
 
-            _xCoord.LocalTranslationX = pos.X;
-            _yCoord.LocalTranslationY = pos.Y;
+            _xCoord.SizeablePosX.ModificationValue = pos.X;
+            _yCoord.SizeablePosY.ModificationValue = pos.Y;
+            
+            if (DisplayMode != EVectorInterpValueType.Position)
+            {
+                if (DisplayMode == EVectorInterpValueType.Velocity)
+                    pos.Y = _targetAnimation.CurrentVelocity;
+                else
+                    pos.Y = _targetAnimation.CurrentAcceleration;
+            }
 
             _xString.Text = pos.X.ToString("###0.0##");
             _yString.Text = pos.Y.ToString("###0.0##");
@@ -477,11 +488,11 @@ void main()
                 Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
                 AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
 
-                _xCoord.LocalTranslationX = pos.X;
-                _yCoord.LocalTranslationY = pos.Y;
+                //_xCoord.LocalTranslationX = pos.X;
+                //_yCoord.LocalTranslationY = pos.Y;
 
-                _xString.Text = pos.X.ToString("###0.0##");
-                _yString.Text = pos.Y.ToString("###0.0##");
+                //_xString.Text = pos.X.ToString("###0.0##");
+                //_yString.Text = pos.Y.ToString("###0.0##");
             }
             else
                 RenderAnimPosition = false;
@@ -549,6 +560,8 @@ void main()
         }
 
         public float LineIncrement { get; set; } = 1.0f;
+        public EVectorInterpValueType DisplayMode { get; private set; } = EVectorInterpValueType.Position;
+
         public const int InitialVisibleBoxes = 10;
         private void UpdateBackgroundMaterial()
         {
@@ -939,6 +952,9 @@ void main()
                 
                 UpdateBackgroundMaterial();
                 UpdateSplinePrimitive();
+
+                _xCoord.Scale = 1.0f / _baseTransformComponent.Scale;
+                _yCoord.Scale = 1.0f / _baseTransformComponent.Scale;
             }
         }
         public void AddRenderables(RenderPasses passes)

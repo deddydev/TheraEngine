@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Text

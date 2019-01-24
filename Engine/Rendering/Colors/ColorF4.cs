@@ -11,6 +11,10 @@ namespace TheraEngine.Rendering.Models.Materials
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ColorF4 : IUniformable4Float, IBufferable, IByteColor
     {
+        public static readonly ColorF4 White = new ColorF4(1.0f);
+        public static readonly ColorF4 Gray = new ColorF4(0.5f);
+        public static readonly ColorF4 Black = new ColorF4(0.0f);
+
         public float R, G, B, A;
         
         [Browsable(false)]

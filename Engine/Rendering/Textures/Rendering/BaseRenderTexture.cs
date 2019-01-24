@@ -55,18 +55,22 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public virtual void Bind()
         {
             if (OnPreBind())
-                Engine.Renderer.BindTexture(TextureTarget, BindingId);
+            {
+                int id = BindingId;
+                if (id != 0)
+                    Engine.Renderer.BindTexture(TextureTarget, id);
+            }
         }
         public void Clear(ColorF4 clearColor, int level = 0)
             => Engine.Renderer.ClearTexImage(BindingId, level, clearColor);
 
         public abstract int MaxDimension { get; }
 
-        //3.321928f is approx 1 / (log base 10 of 2)
         /// <summary>
         /// Returns the level of the smallest allowed mipmap based on the maximum dimension of the base texture.
         /// </summary>
-        public int SmallestMipmapLevel => Math.Min((int)Math.Floor(Math.Log10(MaxDimension) * 3.321928f), SmallestAllowedMipmapLevel);
+        public int SmallestMipmapLevel => //Note: 3.321928f is approx 1 / (log base 10 of 2)
+            Math.Min((int)Math.Floor(Math.Log10(MaxDimension) * 3.321928f), SmallestAllowedMipmapLevel); 
 
         public int MinLOD { get; set; } = -1000;
         public int MaxLOD { get; set; } = 1000;

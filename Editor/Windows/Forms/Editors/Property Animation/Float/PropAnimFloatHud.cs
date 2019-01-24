@@ -33,63 +33,53 @@ namespace TheraEditor.Windows.Forms
 
         protected UITextComponent _xCoord, _yCoord;
         protected UIString2D _xString, _yString;
-        protected override UICanvasComponent OnConstructRoot()
-        {
-            var root = base.OnConstructRoot();
-            _baseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
 
-            Font font = new Font("Segoe UI", 14.0f, FontStyle.Regular);
+        protected UITextComponent _originText;
+        private List<(UITextComponent, UIString2D)> _textCacheX = new List<(UITextComponent, UIString2D)>();
+        private List<(UITextComponent, UIString2D)> _textCacheY = new List<(UITextComponent, UIString2D)>();
+        private UITextComponent ConstructText(out UIString2D str)
+        {
             StringFormatFlags flags = StringFormatFlags.NoWrap | StringFormatFlags.NoClip;
             StringFormat format = new StringFormat(flags);
 
             //Measure the size of the maximum possible displayed string size
-            Size size = TextRenderer.MeasureText("-0000.000", font);
+            Size size = TextRenderer.MeasureText("-0000.000", UIFont);
             float width = size.Width;
             float height = size.Height;
 
-            _xCoord = new UITextComponent();
-            _xCoord.RenderInfo.VisibleByDefault = true;
-            _xCoord.SizeableHeight.SetSizingPixels(height);
-            _xCoord.SizeableWidth.SetSizingPixels(width);
-            _xCoord.TextureResolutionMultiplier = font.Size / 1.5f;
-            _xString = new UIString2D()
+            UITextComponent comp = new UITextComponent();
+            comp.RenderInfo.VisibleByDefault = true;
+            comp.SizeableHeight.SetSizingPixels(height);
+            comp.SizeableWidth.SetSizingPixels(width);
+            comp.TextureResolutionMultiplier = UIFont.Size / 1.5f;
+            str = new UIString2D()
             {
-                Font = font,
+                Font = UIFont,
                 Format = format,
                 Text = "0.0",
                 TextColor = ColorF4.White,
             };
-            _xCoord.TextDrawer.Add(true, _xString);
+            comp.TextDrawer.Add(true, str);
 
-            _yCoord = new UITextComponent();
-            _yCoord.RenderInfo.VisibleByDefault = true;
-            _yCoord.SizeableHeight.SetSizingPixels(height);
-            _yCoord.SizeableWidth.SetSizingPixels(width);
-            _yCoord.TextureResolutionMultiplier = font.Size / 1.5f;
-            _yString = new UIString2D()
-            {
-                Font = font,
-                Format = format,
-                Text = "0.0",
-                TextColor = ColorF4.White,
-            };
-            _yCoord.TextDrawer.Add(true, _yString);
+            _baseTransformComponent.ChildComponents.Add(comp);
+            comp.Scale = 1.0f / _baseTransformComponent.Scale * TextScale;
 
-            _baseTransformComponent.ChildComponents.Add(_xCoord);
-            _baseTransformComponent.ChildComponents.Add(_yCoord);
+            return comp;
+        }
 
-            _xCoord.Scale = 1.0f / _baseTransformComponent.Scale;
-            _yCoord.Scale = 1.0f / _baseTransformComponent.Scale;
+        public Font UIFont { get; set; } = new Font("Segoe UI", 14.0f, FontStyle.Regular);
+        protected override UICanvasComponent OnConstructRoot()
+        {
+            var root = base.OnConstructRoot();
+
+            _baseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
+            
+            _xCoord = ConstructText(out _xString);
+            _yCoord = ConstructText(out _yString);
+            _originText = ConstructText(out UIString2D originStr);
 
             return root;
         }
-
-        private Vec3[] KeyframeInOutPositions { get; set; }
-        public float VelocitySigmoidScale { get; set; } = 0.002f;
-        private float DisplayFPS { get; set; } = 0.0f;
-        private float AnimLength { get; set; } = 0.0f;
-        private int KeyCount { get; set; } = 0;
-        public Vec2 AnimPositionWorld { get; private set; }
 
         private readonly RenderCommandMethod2D _rcMethod;
         private readonly RenderCommandMesh2D _rcKfLines = new RenderCommandMesh2D(ERenderPass.OnTopForward);
@@ -101,6 +91,27 @@ namespace TheraEditor.Windows.Forms
         public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
         public IQuadtreeNode QuadtreeNode { get; set; }
 
+        public bool IsDraggingKeyframes => _draggedKeyframes.Count > 0;
+        public int[] ClosestKeyframeIndices { get; private set; }
+        private Vec3[] KeyframeInOutPositions { get; set; }
+        //public float VelocitySigmoidScale { get; set; } = 0.002f;
+        private float DisplayFPS { get; set; } = 0.0f;
+        private float AnimLength { get; set; } = 0.0f;
+        private int KeyCount { get; set; } = 0;
+        public Vec2 AnimPositionWorld { get; private set; }
+        public float LineIncrement { get; set; } = 1.0f;
+
+        [TSerialize]
+        public float MaxIncrementExclusive { get; set; } = 10.0f;
+        [TSerialize]
+        public float[] IncrementsRange = new float[] { 1.0f, 2.0f, 5.0f };
+        [TSerialize]
+        public EVectorInterpValueType ValueDisplayMode { get; private set; } = EVectorInterpValueType.Position;
+        [TSerialize]
+        public float TextScale { get; set; } = 1.0f;
+        [TSerialize]
+        public int InitialVisibleBoxes { get; set; } = 10;
+
         [TSerialize]
         public float SelectionRadius { get; set; } = 10.0f;
         [TSerialize]
@@ -111,12 +122,20 @@ namespace TheraEditor.Windows.Forms
         public bool RenderExtrema { get; set; } = true;
         [TSerialize]
         public bool RenderKeyframeTangents { get; set; } = true;
-        [TSerialize]
-        public bool RenderAnimPosition { get; set; } = true;
 
-        public bool IsDraggingKeyframes => _draggedKeyframes.Count > 0;
-        public int[] ClosestKeyframeIndices { get; private set; }
-        
+        private bool _renderAnimPosition = true;
+        [TSerialize]
+        public bool RenderAnimPosition
+        {
+            get => _renderAnimPosition;
+            set
+            {
+                _renderAnimPosition = value;
+                _xCoord.RenderInfo.Visible = _renderAnimPosition;
+                _yCoord.RenderInfo.Visible = _renderAnimPosition;
+            }
+        }
+
         private bool _ctrlDown = false;
         private bool _shiftDown = false;
 
@@ -457,13 +476,17 @@ void main()
         {
             Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
             AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
+            
+            Vec2 origin = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
 
             _xCoord.SizeablePosX.ModificationValue = pos.X;
             _yCoord.SizeablePosY.ModificationValue = pos.Y;
-            
-            if (DisplayMode != EVectorInterpValueType.Position)
+            _xCoord.SizeablePosY.ModificationValue = origin.Y;
+            _yCoord.SizeablePosX.ModificationValue = origin.X;
+
+            if (ValueDisplayMode != EVectorInterpValueType.Position)
             {
-                if (DisplayMode == EVectorInterpValueType.Velocity)
+                if (ValueDisplayMode == EVectorInterpValueType.Velocity)
                     pos.Y = _targetAnimation.CurrentVelocity;
                 else
                     pos.Y = _targetAnimation.CurrentAcceleration;
@@ -487,15 +510,13 @@ void main()
 
                 Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
                 AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
-
-                //_xCoord.LocalTranslationX = pos.X;
-                //_yCoord.LocalTranslationY = pos.Y;
-
-                //_xString.Text = pos.X.ToString("###0.0##");
-                //_yString.Text = pos.Y.ToString("###0.0##");
             }
             else
                 RenderAnimPosition = false;
+
+            Vec2 origin = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
+            _xCoord.SizeablePosY.ModificationValue = origin.Y;
+            _yCoord.SizeablePosX.ModificationValue = origin.X;
 
             UpdateBackgroundMaterial();
         }
@@ -504,8 +525,6 @@ void main()
             base.Resize(bounds);
             UpdateBackgroundMaterial();
         }
-        public float MaxIncrementExclusive = 10.0f;
-        public float[] IncrementsRange = new float[] { 1.0f, 2.0f, 5.0f };
         public void UpdateLineIncrement()
         {
             Vec2 visibleAnimRange = Bounds / _baseTransformComponent.Scale;
@@ -546,7 +565,57 @@ void main()
             if (mults > 0)
                 inc *= (float)Math.Pow(invMax, mults);
 
-            LineIncrement = inc / MaxIncrementExclusive;
+            inc /= MaxIncrementExclusive;
+            if (inc != LineIncrement)
+            {
+                //UITextComponent comp;
+                //UIString2D str;
+                //Vec2 unitCounts = Bounds / LineIncrement;
+                //for (int i = 0; i < Math.Max(unitCounts.X, _textCacheX.Count); ++i)
+                //{
+                //    if (i >= _textCacheX.Count)
+                //    {
+                //        comp = ConstructText(out str);
+                //        _textCacheX.Add((comp, str));
+                //    }
+                //    else
+                //    {
+                //        var cache = _textCacheX[i];
+                //        comp = cache.Item1;
+                //        str = cache.Item2;
+                //    }
+
+                //    float pos = (i + 1) * inc;
+                //    str.Text = pos.ToString("###0.0##");
+                //    comp.SizeablePosX.ModificationValue = pos;
+                //    comp.RenderInfo.Visible = true;
+                //}
+                //for (int i = 0; i < Math.Max(unitCounts.Y, _textCacheY.Count); ++i)
+                //{
+                //    if (i >= _textCacheY.Count)
+                //    {
+                //        comp = ConstructText(out str);
+                //        _textCacheY.Add((comp, str));
+                //    }
+                //    else
+                //    {
+                //        if (i >= unitCounts.Y)
+                //        {
+                //            _textCacheY[i].Item1.RenderInfo.Visible = false;
+                //            continue;
+                //        }
+                //        var cache = _textCacheY[i];
+                //        comp = cache.Item1;
+                //        str = cache.Item2;
+                //    }
+
+                //    float pos = (i + 1) * inc;
+                //    str.Text = pos.ToString("###0.0##");
+                //    comp.SizeablePosY.ModificationValue = pos;
+                //    comp.RenderInfo.Visible = true;
+                //}
+                LineIncrement = inc;
+            }
 
             //float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
             //float LineIncrement = 2.0f; //Initial display max dim should be to 10
@@ -559,10 +628,6 @@ void main()
             //Engine.PrintLine($"UI scale: { _baseTransformComponent.ScaleX.ToString()} Nearest2: {nearest2} Nearest5: {nearest5} Nearest10: {nearest10}");
         }
 
-        public float LineIncrement { get; set; } = 1.0f;
-        public EVectorInterpValueType DisplayMode { get; private set; } = EVectorInterpValueType.Position;
-
-        public const int InitialVisibleBoxes = 10;
         private void UpdateBackgroundMaterial()
         {
             UpdateLineIncrement();
@@ -953,8 +1018,14 @@ void main()
                 UpdateBackgroundMaterial();
                 UpdateSplinePrimitive();
 
-                _xCoord.Scale = 1.0f / _baseTransformComponent.Scale;
-                _yCoord.Scale = 1.0f / _baseTransformComponent.Scale;
+                Vec2 scale = 1.0f / _baseTransformComponent.Scale;
+                _xCoord.Scale = scale;
+                _yCoord.Scale = scale;
+                _originText.Scale = scale;
+                foreach (var comp in _textCacheX)
+                    comp.Item1.Scale = scale;
+                foreach (var comp in _textCacheY)
+                    comp.Item1.Scale = scale;
             }
         }
         public void AddRenderables(RenderPasses passes)

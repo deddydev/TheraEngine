@@ -112,7 +112,7 @@ namespace TheraEngine.Rendering.UI
                 Height = -Height;
             }
         }
-        
+
         //[Category("Transform")]
         //public override Vec2 Size
         //{
@@ -145,37 +145,37 @@ namespace TheraEngine.Rendering.UI
         //        base.Height = value;
         //    }
         //}
-        //[Category("Transform")]
-        //public override Vec2 LocalTranslation
-        //{
-        //    get => base.LocalTranslation;
-        //    set
-        //    {
-        //        SizeablePosX.CurrentValue = value.X;
-        //        SizeablePosY.CurrentValue = value.Y;
-        //        base.LocalTranslation = value;
-        //    }
-        //}
-        //[Browsable(false)]
-        //public override float LocalTranslationX
-        //{
-        //    get => base.LocalTranslationX;
-        //    set
-        //    {
-        //        SizeablePosX.CurrentValue = value;
-        //        base.LocalTranslationX = value;
-        //    }
-        //}
-        //[Browsable(false)]
-        //public override float LocalTranslationY
-        //{
-        //    get => base.LocalTranslationY;
-        //    set
-        //    {
-        //        SizeablePosY.CurrentValue = value;
-        //        base.LocalTranslationY = value;
-        //    }
-        //}
+        [Category("Transform")]
+        public override Vec2 LocalTranslation
+        {
+            get => new Vec2(SizeablePosX.ModificationValue, SizeablePosY.ModificationValue);
+            set
+            {
+                SizeablePosX.ModificationValue = value.X;
+                SizeablePosY.ModificationValue = value.Y;
+                base.LocalTranslation = value;
+            }
+        }
+        [Browsable(false)]
+        public override float LocalTranslationX
+        {
+            get => SizeablePosX.ModificationValue;
+            set
+            {
+                SizeablePosX.ModificationValue = value;
+                base.LocalTranslationX = value;
+            }
+        }
+        [Browsable(false)]
+        public override float LocalTranslationY
+        {
+            get => SizeablePosY.ModificationValue;
+            set
+            {
+                SizeablePosY.ModificationValue = value;
+                base.LocalTranslationY = value;
+            }
+        }
         public UIDockableComponent() : base()
         {
             SizeableHeight.ParameterChanged += SizingParameterChanged;

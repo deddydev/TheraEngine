@@ -14,7 +14,7 @@ uniform float XYIncrement;
 
 void main()
 {
-    float incScaled = Scale * XYIncrement;
+    float incScaled = Scale * XYIncrement * 0.5f;
     vec2 scaledUV = (FragPos.xy - Translation) / incScaled;
     vec2 fractUV = fract(scaledUV);
     fractUV = (fractUV - 0.5f) * 2.0f;

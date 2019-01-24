@@ -23,7 +23,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         Vec2 CursorPosition();
         Vec2 CursorPositionWorld();
-        Vec2 CursorPositionWorld(Vec2 viewportPosition);
+        Vec2 ViewportPositionToWorld(Vec2 viewportPosition);
         Vec2 CursorPositionViewport(Viewport v);
         Vec2 CursorPositionWorld(Viewport v);
         Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition);
@@ -354,11 +354,6 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
             return v?.ScreenToWorld(CursorPositionViewport(v)).Xy ?? Vec2.Zero;
-        }
-        public Vec2 CursorPositionWorld(Vec2 viewportPosition)
-        {
-            Viewport v = OwningPawn?.LocalPlayerController?.Viewport ?? Viewport;
-            return v?.ScreenToWorld(viewportPosition).Xy ?? Vec2.Zero;
         }
         /// <summary>
         /// Returns the cursor position relative to the the viewport.

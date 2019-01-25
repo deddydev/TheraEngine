@@ -57,7 +57,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
             if (OnPreBind())
             {
                 int id = BindingId;
-                if (id != 0)
+                if (id != NullBindingId)
                     Engine.Renderer.BindTexture(TextureTarget, id);
             }
         }

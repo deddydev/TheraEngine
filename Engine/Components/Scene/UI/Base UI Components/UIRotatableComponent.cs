@@ -46,12 +46,13 @@ namespace TheraEngine.Rendering.UI
                 Matrix4.CreateTranslation(-LocalTranslationX, -LocalTranslationY, 0.0f);
         }
 
-        protected override void PerformResize()
+        public override void PerformResize()
         {
             //TODO: calculate min max x and y by transforming quad corner points
             //_axisAlignedBounds.Translation = Vec3.TransformPosition(WorldPoint, GetInvActorTransform()).Xy;
             //_axisAlignedBounds.Bounds = Size;
-            RecalcLocalTransform();
+            base.PerformResize();
+            //RecalcLocalTransform();
         }
     }
 }

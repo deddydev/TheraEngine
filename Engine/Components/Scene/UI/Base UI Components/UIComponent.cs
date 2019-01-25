@@ -186,26 +186,28 @@ namespace TheraEngine.Rendering.UI
                 -LocalTranslation,
                 TransformOrder.SRT);
         }
-        protected bool _resizing = false;
+        public bool IgnoreResizes { get; set; } = false;
         public Vec2 ParentBounds { get; protected set; }
         public virtual Vec2 Resize(Vec2 parentBounds)
         {
-            if (_resizing)
+            if (IgnoreResizes)
                 return parentBounds;
-            _resizing = true;
+
+            IgnoreResizes = true;
             ParentBounds = parentBounds;
             foreach (UIComponent c in _children)
                 c.Resize(parentBounds);
             RecalcLocalTransform();
-            _resizing = false;
+            IgnoreResizes = false;
+
             return parentBounds;
         }
         /// <summary>
         /// Resizes self depending on the parent component.
         /// </summary>
-        protected virtual void PerformResize()
+        public virtual void PerformResize()
         {
-            if (_resizing)
+            if (IgnoreResizes)
                 return;
 
             if (ParentSocket is UIBoundableComponent comp)

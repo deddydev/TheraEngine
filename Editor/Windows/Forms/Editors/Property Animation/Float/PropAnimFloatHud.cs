@@ -35,8 +35,8 @@ namespace TheraEditor.Windows.Forms
         protected UIString2D _xString, _yString;
 
         protected UITextComponent _originText;
-        private List<(UITextComponent, UIString2D)> _textCacheX = new List<(UITextComponent, UIString2D)>();
-        private List<(UITextComponent, UIString2D)> _textCacheY = new List<(UITextComponent, UIString2D)>();
+        private Deque<(UITextComponent, UIString2D)> _textCacheX = new Deque<(UITextComponent, UIString2D)>();
+        private Deque<(UITextComponent, UIString2D)> _textCacheY = new Deque<(UITextComponent, UIString2D)>();
         private UITextComponent ConstructText(out UIString2D str)
         {
             StringFormatFlags flags = StringFormatFlags.NoWrap | StringFormatFlags.NoClip;
@@ -67,7 +67,7 @@ namespace TheraEditor.Windows.Forms
             return comp;
         }
 
-        public Font UIFont { get; set; } = new Font("Segoe UI", 14.0f, FontStyle.Regular);
+        public Font UIFont { get; set; } = new Font("Segoe UI", 12.0f, FontStyle.Regular);
         protected override UICanvasComponent OnConstructRoot()
         {
             var root = base.OnConstructRoot();
@@ -568,53 +568,8 @@ void main()
             inc /= MaxIncrementExclusive;
             if (inc != LineIncrement)
             {
-                //UITextComponent comp;
-                //UIString2D str;
-                //Vec2 unitCounts = Bounds / LineIncrement;
-                //for (int i = 0; i < Math.Max(unitCounts.X, _textCacheX.Count); ++i)
-                //{
-                //    if (i >= _textCacheX.Count)
-                //    {
-                //        comp = ConstructText(out str);
-                //        _textCacheX.Add((comp, str));
-                //    }
-                //    else
-                //    {
-                //        var cache = _textCacheX[i];
-                //        comp = cache.Item1;
-                //        str = cache.Item2;
-                //    }
-
-                //    float pos = (i + 1) * inc;
-                //    str.Text = pos.ToString("###0.0##");
-                //    comp.SizeablePosX.ModificationValue = pos;
-                //    comp.RenderInfo.Visible = true;
-                //}
-                //for (int i = 0; i < Math.Max(unitCounts.Y, _textCacheY.Count); ++i)
-                //{
-                //    if (i >= _textCacheY.Count)
-                //    {
-                //        comp = ConstructText(out str);
-                //        _textCacheY.Add((comp, str));
-                //    }
-                //    else
-                //    {
-                //        if (i >= unitCounts.Y)
-                //        {
-                //            _textCacheY[i].Item1.RenderInfo.Visible = false;
-                //            continue;
-                //        }
-                //        var cache = _textCacheY[i];
-                //        comp = cache.Item1;
-                //        str = cache.Item2;
-                //    }
-
-                //    float pos = (i + 1) * inc;
-                //    str.Text = pos.ToString("###0.0##");
-                //    comp.SizeablePosY.ModificationValue = pos;
-                //    comp.RenderInfo.Visible = true;
-                //}
                 LineIncrement = inc;
+                UpdateIncrementTexts();
             }
 
             //float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
@@ -626,6 +581,72 @@ void main()
             //float scaledInc = scale * LineIncrement;
             //float fraction = inc - (int)Math.Floor(inc);
             //Engine.PrintLine($"UI scale: { _baseTransformComponent.ScaleX.ToString()} Nearest2: {nearest2} Nearest5: {nearest5} Nearest10: {nearest10}");
+        }
+
+        private async Task UpdateIncrementTextsAsync()
+            => await Task.Run(() => UpdateIncrementTexts());
+        private void UpdateIncrementTexts()
+        {
+            _baseTransformComponent.IgnoreResizes = true;
+
+            UITextComponent comp;
+            UIString2D str;
+            Vec2 unitCounts = Bounds / (LineIncrement * _baseTransformComponent.ScaleX);
+            for (int i = 0; i < Math.Max(unitCounts.X, _textCacheX.Count); ++i)
+            {
+                if (i >= _textCacheX.Count)
+                {
+                    //Need more cached text components
+                    comp = ConstructText(out str);
+                    _textCacheX.PushBack((comp, str));
+                }
+                else
+                {
+                    var cache = _textCacheX[(uint)i];
+                    comp = cache.Item1;
+                    if (i >= unitCounts.X)
+                    {
+                        comp.RenderInfo.Visible = false;
+                        continue;
+                    }
+                    str = cache.Item2;
+                }
+
+                float pos = (i + 1) * LineIncrement;
+                str.Text = pos.ToString("###0.0##");
+                comp.SizeablePosX.ModificationValue = pos;
+                comp.SizeablePosY.ModificationValue = 0.0f;
+                comp.RenderInfo.Visible = true;
+            }
+            for (int i = 0; i < Math.Max(unitCounts.Y, _textCacheY.Count); ++i)
+            {
+                if (i >= _textCacheY.Count)
+                {
+                    //Need more cached text components
+                    comp = ConstructText(out str);
+                    _textCacheY.PushBack((comp, str));
+                }
+                else
+                {
+                    var cache = _textCacheY[(uint)i];
+                    comp = cache.Item1;
+                    if (i >= unitCounts.Y)
+                    {
+                        comp.RenderInfo.Visible = false;
+                        continue;
+                    }
+                    str = cache.Item2;
+                }
+
+                float pos = (i + 1) * LineIncrement;
+                str.Text = pos.ToString("###0.0##");
+                comp.SizeablePosX.ModificationValue = 0.0f;
+                comp.SizeablePosY.ModificationValue = pos;
+                comp.RenderInfo.Visible = true;
+            }
+
+            _baseTransformComponent.IgnoreResizes = false;
+            _baseTransformComponent.PerformResize();
         }
 
         private void UpdateBackgroundMaterial()

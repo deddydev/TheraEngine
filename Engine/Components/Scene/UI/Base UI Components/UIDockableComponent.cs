@@ -344,9 +344,9 @@ namespace TheraEngine.Rendering.UI
 
         public override unsafe Vec2 Resize(Vec2 parentBounds)
         {
-            if (_resizing)
+            if (IgnoreResizes)
                 return parentBounds;
-            _resizing = true;
+            IgnoreResizes = true;
 
             ParentBounds = parentBounds;
             Vec2 leftOver = parentBounds;
@@ -428,7 +428,7 @@ namespace TheraEngine.Rendering.UI
             foreach (UIComponent c in _children)
                 bounds = c.Resize(bounds);
 
-            _resizing = false;
+            IgnoreResizes = false;
 
             return leftOver;
         }

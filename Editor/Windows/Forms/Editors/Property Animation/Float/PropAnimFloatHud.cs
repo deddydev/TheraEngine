@@ -35,9 +35,9 @@ namespace TheraEditor.Windows.Forms
         protected UIString2D _xString, _yString;
 
         protected UITextComponent _originText;
-        private Deque<(UITextComponent, UIString2D)> _textCacheX = new Deque<(UITextComponent, UIString2D)>();
-        private Deque<(UITextComponent, UIString2D)> _textCacheY = new Deque<(UITextComponent, UIString2D)>();
-        private UITextComponent ConstructText(out UIString2D str)
+        private Deque<(UITextComponent, UIString2D, float)> _textCacheX = new Deque<(UITextComponent, UIString2D, float)>();
+        private Deque<(UITextComponent, UIString2D, float)> _textCacheY = new Deque<(UITextComponent, UIString2D, float)>();
+        private UITextComponent ConstructText(ColorF4 color, out UIString2D str)
         {
             StringFormatFlags flags = StringFormatFlags.NoWrap | StringFormatFlags.NoClip;
             StringFormat format = new StringFormat(flags);
@@ -51,13 +51,13 @@ namespace TheraEditor.Windows.Forms
             comp.RenderInfo.VisibleByDefault = true;
             comp.SizeableHeight.SetSizingPixels(height);
             comp.SizeableWidth.SetSizingPixels(width);
-            comp.TextureResolutionMultiplier = UIFont.Size / 1.5f;
+            comp.TextureResolutionMultiplier = UIFont.Size / 2.0f;
             str = new UIString2D()
             {
                 Font = UIFont,
                 Format = format,
-                Text = "0.0",
-                TextColor = ColorF4.White,
+                Text = "0",
+                TextColor = color,
             };
             comp.TextDrawer.Add(true, str);
 
@@ -67,16 +67,16 @@ namespace TheraEditor.Windows.Forms
             return comp;
         }
 
-        public Font UIFont { get; set; } = new Font("Segoe UI", 12.0f, FontStyle.Regular);
+        public Font UIFont { get; set; } = new Font("Segoe UI", 10.0f, FontStyle.Regular);
         protected override UICanvasComponent OnConstructRoot()
         {
             var root = base.OnConstructRoot();
 
             _baseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
             
-            _xCoord = ConstructText(out _xString);
-            _yCoord = ConstructText(out _yString);
-            _originText = ConstructText(out UIString2D originStr);
+            _xCoord = ConstructText(ColorF4.White, out _xString);
+            _yCoord = ConstructText(ColorF4.White, out _yString);
+            _originText = ConstructText(new ColorF4(0.3f), out UIString2D originStr);
 
             return root;
         }
@@ -99,7 +99,7 @@ namespace TheraEditor.Windows.Forms
         private float AnimLength { get; set; } = 0.0f;
         private int KeyCount { get; set; } = 0;
         public Vec2 AnimPositionWorld { get; private set; }
-        public float LineIncrement { get; set; } = 1.0f;
+        public float UnitIncrement { get; set; } = 1.0f;
 
         [TSerialize]
         public float MaxIncrementExclusive { get; set; } = 10.0f;
@@ -115,7 +115,11 @@ namespace TheraEditor.Windows.Forms
         [TSerialize]
         public float SelectionRadius { get; set; } = 10.0f;
         [TSerialize]
-        public float ZoomIncrement { get; set; } = 0.05f;
+        public float MoveIncrementPerSec { get; set; } = 150.0f;
+        [TSerialize]
+        public float ZoomTickIncrementPerSec { get; set; } = 0.3f;
+        [TSerialize]
+        public float ZoomScrollIncrement { get; set; } = 0.05f;
         [TSerialize]
         public bool SnapToIncrement { get; set; } = false;
         [TSerialize]
@@ -292,7 +296,7 @@ namespace TheraEditor.Windows.Forms
         {
             while (_regenerating) { }
             
-            const float Resolution = 0.1f;
+            const float Resolution = 1.0f;
 
             _regenerating = true;
             _rcKeyframeInOutPositions.Mesh?.Dispose();
@@ -309,9 +313,9 @@ namespace TheraEditor.Windows.Forms
             }
 
             //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-            DisplayFPS = (_targetAnimation.ConstrainKeyframedFPS ?
+            DisplayFPS = (_targetAnimation.ConstrainKeyframedFPS || _targetAnimation.IsBaked ?
                 _targetAnimation.BakedFramesPerSecond :
-                (Engine.TargetFramesPerSecond == 0 ? 60.0f : Engine.TargetFramesPerSecond)) * Resolution;
+                (Engine.TargetFramesPerSecond == 0 ? 30.0f : Engine.TargetFramesPerSecond)) * Resolution;
 
             if (DisplayFPS <= 0.0f)
             {
@@ -445,9 +449,9 @@ void main()
             float yBound = maxVal - minVal;
 
             if (xBound == 0.0f)
-                xBound = LineIncrement * InitialVisibleBoxes;
+                xBound = UnitIncrement * InitialVisibleBoxes;
             if (yBound == 0.0f)
-                yBound = LineIncrement * InitialVisibleBoxes;
+                yBound = UnitIncrement * InitialVisibleBoxes;
 
             float xScale = Bounds.X / xBound;
             float yScale = Bounds.Y / yBound;
@@ -462,14 +466,14 @@ void main()
             }
             else
             {
-                float animCoordX = _baseTransformComponent.LocalTranslation.X / _baseTransformComponent.Scale.X;
+                //float animCoordX = _baseTransformComponent.LocalTranslation.X / _baseTransformComponent.Scale.X;
 
                 _baseTransformComponent.Scale = yScale;
 
-                float halfXTrans = xBound * 0.5f;
-                float halfXWorld = _baseTransformComponent.Scale.X * halfXTrans;
-                float boundHalfXWorld = Bounds.X / 0.5f;
-                _baseTransformComponent.LocalTranslation = new Vec2(-halfXWorld, 0.0f);
+                //float halfXTrans = xBound * 0.5f;
+                //float halfXWorld = _baseTransformComponent.Scale.X * halfXTrans;
+                //float boundHalfXWorld = Bounds.X / 0.5f;
+                //_baseTransformComponent.LocalTranslation = new Vec2(-halfXWorld, 0.0f);
             }
         }
         private void OnCurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
@@ -566,45 +570,50 @@ void main()
                 inc *= (float)Math.Pow(invMax, mults);
 
             inc /= MaxIncrementExclusive;
-            if (inc != LineIncrement)
-            {
-                LineIncrement = inc;
-                UpdateIncrementTexts();
-            }
-
-            //float bound = _targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f ? 1.0f : _targetAnimation.LengthInSeconds;
-            //float LineIncrement = 2.0f; //Initial display max dim should be to 10
-            //float maxDisplayBoundAnimRelative = TMath.Max(Bounds.X, Bounds.Y) * 0.5f / _baseTransformComponent.ScaleX;
-
-            //float[] incs = new float[] { 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100 };
-            //float scale = _baseTransformComponent.ScaleX;
-            //float scaledInc = scale * LineIncrement;
-            //float fraction = inc - (int)Math.Floor(inc);
-            //Engine.PrintLine($"UI scale: { _baseTransformComponent.ScaleX.ToString()} Nearest2: {nearest2} Nearest5: {nearest5} Nearest10: {nearest10}");
+            inc *= 0.5f; //half the result
+            if (inc != UnitIncrement)
+                UnitIncrement = inc;
         }
 
-        private async Task UpdateIncrementTextsAsync()
-            => await Task.Run(() => UpdateIncrementTexts());
-        private void UpdateIncrementTexts()
+        //private async Task UpdateIncrementTextsAsync()
+        //    => await Task.Run(() => UpdateTextIncrements());
+        private void UpdateTextIncrements()
         {
             _baseTransformComponent.IgnoreResizes = true;
+            float inc = UnitIncrement * 2.0f;
 
+            Vec2 min = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
+            min.X = min.X.RoundToNearestMultiple(inc);
+            min.Y = min.Y.RoundToNearestMultiple(inc);
+
+            Vec2 unitCounts = Bounds / (inc * _baseTransformComponent.ScaleX);
+
+            UpdateTextIncPass(unitCounts.X, _textCacheX, min.X, inc, true);
+            UpdateTextIncPass(unitCounts.Y, _textCacheY, min.Y, inc, false);
+            
+            _baseTransformComponent.IgnoreResizes = false;
+        }
+
+        private void UpdateTextIncPass(float unitCount, Deque<(UITextComponent, UIString2D, float)> textCache, float minimum, float increment, bool xCoord)
+        {
             UITextComponent comp;
             UIString2D str;
-            Vec2 unitCounts = Bounds / (LineIncrement * _baseTransformComponent.ScaleX);
-            for (int i = 0; i < Math.Max(unitCounts.X, _textCacheX.Count); ++i)
+            float pos = minimum;
+            float max = minimum + increment * unitCount;
+
+            for (int i = 0; i < Math.Max(unitCount, textCache.Count); ++i, pos += increment)
             {
-                if (i >= _textCacheX.Count)
+                if (i >= textCache.Count)
                 {
                     //Need more cached text components
-                    comp = ConstructText(out str);
-                    _textCacheX.PushBack((comp, str));
+                    comp = ConstructText(new ColorF4(0.3f), out str);
+                    textCache.PushBack((comp, str, pos));
                 }
                 else
                 {
-                    var cache = _textCacheX[(uint)i];
+                    var cache = textCache[(uint)i];
                     comp = cache.Item1;
-                    if (i >= unitCounts.X)
+                    if (i >= unitCount)
                     {
                         comp.RenderInfo.Visible = false;
                         continue;
@@ -612,41 +621,24 @@ void main()
                     str = cache.Item2;
                 }
 
-                float pos = (i + 1) * LineIncrement;
-                str.Text = pos.ToString("###0.0##");
-                comp.SizeablePosX.ModificationValue = pos;
-                comp.SizeablePosY.ModificationValue = 0.0f;
-                comp.RenderInfo.Visible = true;
-            }
-            for (int i = 0; i < Math.Max(unitCounts.Y, _textCacheY.Count); ++i)
-            {
-                if (i >= _textCacheY.Count)
+                if (pos != 0.0f)
                 {
-                    //Need more cached text components
-                    comp = ConstructText(out str);
-                    _textCacheY.PushBack((comp, str));
+                    str.Text = pos.ToString();//"###0.0##"
+                    if (xCoord)
+                    {
+                        comp.SizeablePosX.ModificationValue = pos;
+                        comp.SizeablePosY.ModificationValue = 0.0f;
+                    }
+                    else
+                    {
+                        comp.SizeablePosX.ModificationValue = 0.0f;
+                        comp.SizeablePosY.ModificationValue = pos;
+                    }
+                    comp.RenderInfo.Visible = true;
                 }
                 else
-                {
-                    var cache = _textCacheY[(uint)i];
-                    comp = cache.Item1;
-                    if (i >= unitCounts.Y)
-                    {
-                        comp.RenderInfo.Visible = false;
-                        continue;
-                    }
-                    str = cache.Item2;
-                }
-
-                float pos = (i + 1) * LineIncrement;
-                str.Text = pos.ToString("###0.0##");
-                comp.SizeablePosX.ModificationValue = 0.0f;
-                comp.SizeablePosY.ModificationValue = pos;
-                comp.RenderInfo.Visible = true;
+                    comp.RenderInfo.Visible = false;
             }
-
-            _baseTransformComponent.IgnoreResizes = false;
-            _baseTransformComponent.PerformResize();
         }
 
         private void UpdateBackgroundMaterial()
@@ -656,7 +648,9 @@ void main()
             TMaterial mat = _backgroundComponent.InterfaceMaterial;
             mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
             mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
-            mat.Parameter<ShaderFloat>(5).Value = LineIncrement;
+            mat.Parameter<ShaderFloat>(5).Value = UnitIncrement;
+
+            UpdateTextIncrements();
         }
         protected override void OnSpawnedPostComponentSpawn()
         {
@@ -666,11 +660,9 @@ void main()
             if (_targetAnimation != null)
                 ZoomExtents();
             else
-                _baseTransformComponent.Scale = TMath.Min(Bounds.X, Bounds.Y) / (LineIncrement * InitialVisibleBoxes);
-
+                _baseTransformComponent.Scale = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrement * InitialVisibleBoxes);
+            
             UpdateBackgroundMaterial();
-            _xCoord.RenderInfo.LinkScene(_xCoord, ScreenSpaceUIScene, true);
-            _yCoord.RenderInfo.LinkScene(_yCoord, ScreenSpaceUIScene, true);
         }
         protected override void OnDespawned()
         {
@@ -687,14 +679,12 @@ void main()
                 new ShaderFloat(_baseTransformComponent.ScaleX, "Scale"),
                 new ShaderFloat(3.0f, "LineWidth"),
                 new ShaderVec2(_baseTransformComponent.LocalTranslation, "Translation"),
-                new ShaderFloat(LineIncrement, "XYIncrement"),
+                new ShaderFloat(UnitIncrement, "XYIncrement"),
             },
             frag);
         }
         public override void RegisterInput(InputInterface input)
         {
-            //input.RegisterKeyPressed(EKey.AltLeft,      AltPressed,     EInputPauseType.TickAlways);
-            //input.RegisterKeyPressed(EKey.AltRight,     AltPressed,     EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.ControlLeft,  CtrlPressed,    EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.ControlRight, CtrlPressed,    EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.ShiftLeft,    ShiftPressed,   EInputPauseType.TickAlways);
@@ -706,10 +696,88 @@ void main()
             input.RegisterButtonEvent(EMouseButton.RightClick,  EButtonInputType.Pressed,   RightClickDown, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.RightClick,  EButtonInputType.Released,  RightClickUp,   EInputPauseType.TickAlways);
 
+            input.RegisterKeyPressed(EKey.Left, MoveLeft, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.Down, MoveDown, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.Right, MoveRight, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.Up, MoveUp, EInputPauseType.TickAlways);
+
+            input.RegisterKeyPressed(EKey.A, MoveLeft, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.S, MoveDown, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.D, MoveRight, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.W, MoveUp, EInputPauseType.TickAlways);
+
+            input.RegisterKeyPressed(EKey.PageDown, ZoomOut, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.PageUp, ZoomIn, EInputPauseType.TickAlways);
+
+            input.RegisterKeyPressed(EKey.Q, ZoomOut, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.E, ZoomIn, EInputPauseType.TickAlways);
+
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
             input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
 
             input.RegisterKeyEvent(EKey.Space, EButtonInputType.Pressed, TogglePlay, EInputPauseType.TickAlways);
+        }
+
+        private float _zoomIn, _zoomOut, _moveUp, _moveDown, _moveLeft, _moveRight;
+        private bool _ticking = false;
+        private bool ShouldTick =>
+            (_zoomIn + _zoomOut) != 0.0f || 
+            (_moveUp + _moveDown) != 0.0f ||
+            (_moveLeft + _moveRight) != 0.0f;
+
+        private void UpdateTick()
+        {
+            bool should = ShouldTick;
+            if (should != _ticking)
+            {
+                if (should)
+                    Engine.RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+                else
+                    Engine.UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+            }
+        }
+        private void Tick(float delta)
+        {
+            float zoom = _zoomIn + _zoomOut;
+            float moveX = _moveLeft + _moveRight;
+            float moveY = _moveUp + _moveDown;
+            if (zoom != 0.0f)
+                Zoom(zoom * delta);
+            if (moveX != 0.0f || moveY != 0.0f)
+            {
+                Vec2 move = new Vec2(moveX * delta, moveY * delta);
+                _baseTransformComponent.LocalTranslation += move;
+            }
+        }
+        private void ZoomIn(bool pressed)
+        {
+            _zoomIn = pressed ? ZoomTickIncrementPerSec : 0.0f;
+            UpdateTick();
+        }
+        private void ZoomOut(bool pressed)
+        {
+            _zoomOut = pressed ? -ZoomTickIncrementPerSec : 0.0f;
+            UpdateTick();
+        }
+        private void MoveUp(bool pressed)
+        {
+            _moveUp = pressed ? -MoveIncrementPerSec : 0.0f;
+            UpdateTick();
+        }
+        private void MoveRight(bool pressed)
+        {
+            _moveRight = pressed ? -MoveIncrementPerSec : 0.0f;
+            UpdateTick();
+        }
+        private void MoveDown(bool pressed)
+        {
+            _moveDown = pressed ? MoveIncrementPerSec : 0.0f;
+            UpdateTick();
+        }
+        private void MoveLeft(bool pressed)
+        {
+            _moveLeft = pressed ? MoveIncrementPerSec : 0.0f;
+            UpdateTick();
         }
 
         private void ToggleSnap() => SnapToIncrement = !SnapToIncrement;
@@ -926,7 +994,7 @@ void main()
                     {
                         float sec = pos.X + kf.Value.SecondOffset;
                         if (SnapToIncrement)
-                            sec = sec.RoundToNearestMultiple(LineIncrement);
+                            sec = sec.RoundToNearestMultiple(UnitIncrement);
                         kf.Value.Keyframe.Second = sec;
 
                         if (kf.Value.DraggingInValue)
@@ -946,7 +1014,7 @@ void main()
                         {
                             float inPos = pos.Y + kf.Value.InValueOffset;
                             if (SnapToIncrement)
-                                inPos = inPos.RoundToNearestMultiple(LineIncrement);
+                                inPos = inPos.RoundToNearestMultiple(UnitIncrement);
                             kf.Value.Keyframe.InValue = inPos;
                         }
 
@@ -954,7 +1022,7 @@ void main()
                         {
                             float outPos = pos.Y + kf.Value.OutValueOffset;
                             if (SnapToIncrement)
-                                outPos = outPos.RoundToNearestMultiple(LineIncrement);
+                                outPos = outPos.RoundToNearestMultiple(UnitIncrement);
                             kf.Value.Keyframe.OutValue = outPos;
                         }
                     }
@@ -966,14 +1034,14 @@ void main()
                 {
                     float sec = pos.X + kf.Value.SecondOffset;
                     if (SnapToIncrement)
-                        sec = sec.RoundToNearestMultiple(LineIncrement);
+                        sec = sec.RoundToNearestMultiple(UnitIncrement);
                     kf.Value.Keyframe.Second = sec;
 
                     if (kf.Value.DraggingInValue)
                     {
                         float inPos = pos.Y + kf.Value.InValueOffset;
                         if (SnapToIncrement)
-                            inPos = inPos.RoundToNearestMultiple(LineIncrement);
+                            inPos = inPos.RoundToNearestMultiple(UnitIncrement);
                         kf.Value.Keyframe.InValue = inPos;
                     }
 
@@ -981,7 +1049,7 @@ void main()
                     {
                         float outPos = pos.Y + kf.Value.OutValueOffset;
                         if (SnapToIncrement)
-                            outPos = outPos.RoundToNearestMultiple(LineIncrement);
+                            outPos = outPos.RoundToNearestMultiple(UnitIncrement);
                         kf.Value.Keyframe.OutValue = outPos;
                     }
                 }
@@ -1031,23 +1099,24 @@ void main()
             if (_ctrlDown)
                 SelectionRadius *= down ? 1.1f : 0.91f;
             else
-            {
-                Vec3 worldPoint = CursorPositionWorld();
-                float increment = _baseTransformComponent.ScaleX * ZoomIncrement;
-                _baseTransformComponent.Zoom(down ? increment : -increment, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
-                
-                UpdateBackgroundMaterial();
-                UpdateSplinePrimitive();
+                Zoom(down ? ZoomScrollIncrement : -ZoomScrollIncrement);
+        }
+        private void Zoom(float increment)
+        {
+            Vec3 worldPoint = CursorPositionWorld();
+            _baseTransformComponent.Zoom(_baseTransformComponent.ScaleX * increment, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
 
-                Vec2 scale = 1.0f / _baseTransformComponent.Scale;
-                _xCoord.Scale = scale;
-                _yCoord.Scale = scale;
-                _originText.Scale = scale;
-                foreach (var comp in _textCacheX)
-                    comp.Item1.Scale = scale;
-                foreach (var comp in _textCacheY)
-                    comp.Item1.Scale = scale;
-            }
+            UpdateBackgroundMaterial();
+            UpdateSplinePrimitive();
+
+            Vec2 scale = 1.0f / _baseTransformComponent.Scale;
+            _xCoord.Scale = scale;
+            _yCoord.Scale = scale;
+            _originText.Scale = scale;
+            foreach (var comp in _textCacheX)
+                comp.Item1.Scale = scale;
+            foreach (var comp in _textCacheY)
+                comp.Item1.Scale = scale;
         }
         public void AddRenderables(RenderPasses passes)
         {

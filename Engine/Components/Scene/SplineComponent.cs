@@ -134,9 +134,9 @@ namespace TheraEngine.Components.Scene
                 return;
 
             //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-            float fps = _position.ConstrainKeyframedFPS ?
+            float fps = _position.ConstrainKeyframedFPS || _position.IsBaked ?
                 _position.BakedFramesPerSecond :
-                (Engine.TargetFramesPerSecond == 0 ? 60.0f : Engine.TargetFramesPerSecond);
+                (Engine.TargetFramesPerSecond == 0 ? 30.0f : Engine.TargetFramesPerSecond);
 
             int frameCount = (int)Math.Ceiling(_position.LengthInSeconds * fps) + 1;
             float invFps = 1.0f / fps;

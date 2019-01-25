@@ -306,7 +306,7 @@ namespace TheraEngine
         /// <param name="order">The order to execute the function within its group.</param>
         /// <param name="function">The function to execute per update tick.</param>
         /// <param name="pausedBehavior">If the function should even execute at all, depending on the pause state.</param>
-        internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
+        public static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
             if (function != null)
             {
@@ -324,7 +324,7 @@ namespace TheraEngine
         /// <summary>
         /// Stops running a tick method that was previously registered with the same parameters.
         /// </summary>
-        internal static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
+        public static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
             if (function != null)
             {

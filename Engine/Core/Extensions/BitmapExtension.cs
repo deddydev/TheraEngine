@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using TheraEngine;
 using TheraEngine.Core.Memory;
 
 namespace System
@@ -72,18 +73,25 @@ namespace System
             }
             else
             {
-                using (Graphics graphics = Graphics.FromImage(dst))
+                try
                 {
-                    graphics.InterpolationMode = mode;
-                    graphics.CompositingQuality = CompositingQuality.HighQuality;
-                    graphics.CompositingMode = CompositingMode.SourceCopy;
-                    graphics.SmoothingMode = SmoothingMode.HighQuality;
-                    using (ImageAttributes wrapMode = new ImageAttributes())
+                    using (Graphics graphics = Graphics.FromImage(dst))
                     {
-                        //This fixes the transparent anti-aliasing on the edges of the image
-                        wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                        graphics.DrawImage(bmp, new Rectangle(0, 0, desiredWidth, desiredHeight), 0, 0, bmp.Width, bmp.Height, GraphicsUnit.Pixel, wrapMode);
+                        graphics.InterpolationMode = mode;
+                        graphics.CompositingQuality = CompositingQuality.HighQuality;
+                        graphics.CompositingMode = CompositingMode.SourceCopy;
+                        graphics.SmoothingMode = SmoothingMode.HighQuality;
+                        using (ImageAttributes wrapMode = new ImageAttributes())
+                        {
+                            //This fixes the transparent anti-aliasing on the edges of the image
+                            wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                            graphics.DrawImage(bmp, new Rectangle(0, 0, desiredWidth, desiredHeight), 0, 0, bmp.Width, bmp.Height, GraphicsUnit.Pixel, wrapMode);
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
                 }
             }
             return dst;

@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.UI
         }
 
         [TSerialize(nameof(TextQuality))]
-        private TextRenderingHint _textQuality = TextRenderingHint.AntiAliasGridFit;
+        private TextRenderingHint _textQuality = TextRenderingHint.ClearTypeGridFit;
         [TSerialize(nameof(TextureResolutionMultiplier))]
         private Vec2 _texRes = new Vec2(3.0f);
         [TSerialize(nameof(TextDrawer))]

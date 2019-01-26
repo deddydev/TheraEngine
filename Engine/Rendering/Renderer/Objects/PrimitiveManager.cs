@@ -287,7 +287,7 @@ namespace TheraEngine.Rendering.Models
             _boneRemap = null;
             if (skeleton != null)
             {
-                if (_data._utilizedBones == null || _data._utilizedBones.Length == 1)
+                if (_data._utilizedBones == null || _data._utilizedBones.Length <= 1)
                 {
                     if (!string.IsNullOrEmpty(_data.SingleBindBone) &&
                         skeleton.BoneNameCache.ContainsKey(_data.SingleBindBone))
@@ -298,7 +298,7 @@ namespace TheraEngine.Rendering.Models
 
                     _cpuSkinInfo = null;
                 }
-                else if (_data._influences != null)
+                else if (_data._influences != null && _data._influences.Length > 0)
                 {
                     int facePointCount = _data._facePoints.Count;
                     if (Engine.Settings.UseIntegerWeightingIds || !Engine.Settings.SkinOnGPU)

@@ -57,128 +57,44 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        RenderInfo2D I2DRenderable.RenderInfo { get; } = new RenderInfo2D(99, 0);
-        [Browsable(false)]
-        public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
-        [Browsable(false)]
-        public IQuadtreeNode QuadtreeNode { get; set; }
+        protected override bool IsDragging => _dragComp != null;
+
         private UIComponent _dragComp, _highlightedComp;
         private IUserInterface _targetHud;
-        private Vec2 _minScale = new Vec2(0.1f), _maxScale = new Vec2(4.0f);
-        private Vec2 _lastWorldPos = Vec2.Zero;
-        //private Vec2 _lastFocusPoint = Vec2.Zero;
-        private bool _rightClickDown = false;
-        
-        protected override void OnSpawnedPostComponentSpawn()
-        {
-            base.OnSpawnedPostComponentSpawn();
-            ScreenSpaceUIScene.Add(this);
-        }
-        protected override void OnDespawned()
-        {
-            base.OnDespawned();
-            ScreenSpaceUIScene.Remove(this);
-        }
-        protected override TMaterial GetBackgroundMaterial()
-        {
-            GLSLScript frag = Engine.Files.LoadEngineShader("MaterialEditorGraphBG.fs", EGLSLType.Fragment);
-            return new TMaterial("MatEditorGraphBG", new ShaderVar[]
-            {
-                new ShaderVec3(new Vec3(0.15f, 0.18f, 0.23f), "LineColor"),
-                new ShaderVec3(new Vec3(0.20f, 0.25f, 0.3f), "BGColor"),
-                new ShaderFloat(1.0f, "Scale"),
-                new ShaderFloat(0.1f, "LineWidth"),
-                new ShaderVec2(new Vec2(0.0f), "Translation"),
-            },
-            frag);
-        }
         
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterKeyPressed(EKey.AltLeft, b => _altDown = b, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.ControlLeft, b => _ctrlDown = b, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Pressed, LeftClickDown, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, EButtonInputType.Released, LeftClickUp, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Pressed, RightClickDown, EInputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.RightClick, EButtonInputType.Released, RightClickUp, EInputPauseType.TickAlways);
-            input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
-            input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
+            base.RegisterInput(input);
         }
-        private bool _altDown = false;
-        private bool _ctrlDown = false;
-        internal void LeftClickDown()
+        protected override void OnLeftClickDown()
         {
             _dragComp = _highlightedComp;
         }
-        internal void LeftClickUp()
+        protected override void OnLeftClickUp()
         {
             _dragComp = null;
         }
-        private void RightClickDown()
-        {
-            _rightClickDown = true;
-            //_lastWorldPos = Camera.LocalPoint.Xy;
-            _lastWorldPos = CursorPositionWorld();
-        }
-        private void RightClickUp()
-        {
-            _rightClickDown = false;
-        }
-
-        protected override void MouseMove(float x, float y)
-        {
-            Vec2 pos = CursorPosition();
-            if (_rightClickDown)
-                HandleDragView(pos);
-            else if (_dragComp != null)
-                HandleDragHudComp(pos, _dragComp);
-            else
-                HighlightHud();
-            _cursorPos = pos;
-        }
         
-        #region Dragging
+        private RenderCommandMesh2D _highlightMesh = new RenderCommandMesh2D(ERenderPass.TransparentForward);
+        private RenderCommandMesh2D _uiBoundsMesh = new RenderCommandMesh2D(ERenderPass.TransparentForward);
 
-        private Vec2 GetWorldCursorDiff(Vec2 cursorPosScreen)
+        protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
         {
-            Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
-            screenPoint += cursorPosScreen - _cursorPos;
-            Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
-            Vec2 diff = newFocusPoint - _lastWorldPos;
-            _lastWorldPos = newFocusPoint;
-            return diff;
+            min = Vec2.Zero;
+            max = Vec2.Zero;
+            return false;
         }
-        private void HandleDragView(Vec2 cursorPosScreen)
-        {
-            _baseTransformComponent.LocalTranslation += GetWorldCursorDiff(cursorPosScreen);
-
-            TMaterial mat = _backgroundComponent.InterfaceMaterial;
-            mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
-        }
-        private void HandleDragHudComp(Vec2 cursorPosScreen, UIComponent draggedComp)
-        {
-            Vec2 diff = GetWorldCursorDiff(cursorPosScreen);
-            draggedComp.LocalTranslation += Vec3.TransformVector(diff, draggedComp.InverseWorldMatrix).Xy;
-        }
-        #endregion
-
-        private void HighlightHud()
+        protected override void HighlightScene()
         {
             _highlightedComp = FindComponent();
         }
-        protected override void OnScrolledInput(bool down)
+
+        protected override void HandleDragItem()
         {
-            Vec3 worldPoint = CursorPositionWorld();
-            _baseTransformComponent.Zoom(down ? 0.1f : -0.1f, worldPoint.Xy, _minScale, _maxScale);
-
-            TMaterial mat = _backgroundComponent.InterfaceMaterial;
-            mat.Parameter<ShaderFloat>(2).Value = _baseTransformComponent.ScaleX;
-            mat.Parameter<ShaderVec2>(4).Value = _baseTransformComponent.LocalTranslation;
+            Vec2 diff = GetWorldCursorDiff(CursorPosition());
+            _dragComp.LocalTranslation += diff;
         }
-
-        private RenderCommandMesh2D _highlightMesh = new RenderCommandMesh2D(ERenderPass.TransparentForward);
-        private RenderCommandMesh2D _uiBoundsMesh = new RenderCommandMesh2D(ERenderPass.TransparentForward);
-        public void AddRenderables(RenderPasses passes)
+        protected override void AddRenderables(RenderPasses passes)
         {
             if (_highlightedComp != null)
             {

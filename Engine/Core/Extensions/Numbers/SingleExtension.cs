@@ -116,7 +116,7 @@
             float f2 = value.Clamp(0.0f, 1.0f);
             return (byte)Math.Floor(f2 == 1.0f ? 4294967295.0f : f2 * 4294967296.0f);
         }
-        public static float RoundToNearestMultiple(this float value, float multiple)
+        public static Single RoundToNearestMultiple(this Single value, Single multiple)
         {
             double nearestMultiple = Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
             return (float)nearestMultiple;

@@ -131,6 +131,7 @@
             this.dgvObjectExplorer.Size = new System.Drawing.Size(120, 666);
             this.dgvObjectExplorer.TabIndex = 6;
             this.dgvObjectExplorer.VirtualMode = true;
+            this.dgvObjectExplorer.Visible = false;
             this.dgvObjectExplorer.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvObjectExplorer_CellMouseDoubleClick);
             this.dgvObjectExplorer.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvObjectExplorer_CellValueNeeded);
             // 
@@ -651,6 +652,7 @@
             this.lblSplitFileObjects.Size = new System.Drawing.Size(15, 666);
             this.lblSplitFileObjects.TabIndex = 0;
             this.lblSplitFileObjects.Text = "<";
+            this.lblSplitFileObjects.Visible = false;
             this.lblSplitFileObjects.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblSplitFileObjects.Click += new System.EventHandler(this.lblSplitFileObjects_Click);
             this.lblSplitFileObjects.MouseEnter += new System.EventHandler(this.lblSplitFileObjects_MouseEnter);

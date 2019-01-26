@@ -61,39 +61,6 @@ namespace TheraEngine.Actors.Types.Pawns
         public UserInterface() : base() { }
         public UserInterface(Vec2 bounds) : base(bounds) { }
     }
-    public abstract class EditorUserInterface : UserInterface
-    {
-        public EditorUserInterface() : base() { }
-        public EditorUserInterface(Vec2 bounds) : base(bounds) { }
-
-        protected UIComponent _baseTransformComponent;
-        protected UIMaterialRectangleComponent _backgroundComponent;
-
-        protected override UICanvasComponent OnConstructRoot()
-        {
-            _baseTransformComponent = new UIComponent();
-            _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial())
-            {
-                DockStyle = UIDockStyle.Fill,
-                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
-            };
-            _backgroundComponent.ChildComponents.Add(_baseTransformComponent);
-
-            UICanvasComponent baseUI = new UICanvasComponent();
-            baseUI.ChildComponents.Add(_backgroundComponent);
-
-            return baseUI;
-        }
-
-        protected abstract TMaterial GetBackgroundMaterial();
-
-        /// <summary>
-        /// Cursor position relative to the space of whatever is being rendered as a child of the base transform component.
-        /// </summary>
-        /// <returns></returns>
-        public Vec2 CursorPositionTransformRelative()
-            => Vec3.TransformPosition(CursorPositionWorld(), _baseTransformComponent.InverseWorldMatrix).Xy;
-    }
     /// <summary>
     /// Each viewport has a HUD that manages 2D user interface elements.
     /// </summary>

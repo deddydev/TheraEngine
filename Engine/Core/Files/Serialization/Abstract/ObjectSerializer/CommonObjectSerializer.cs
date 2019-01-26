@@ -27,7 +27,10 @@ namespace TheraEngine.Core.Files.Serialization
                 return;
             }
 
-            TreeNode.Object = SerializationCommon.CreateObject(TreeNode.ObjectType);
+            if (TreeNode.ObjectType.IsAbstract || TreeNode.ObjectType.IsInterface)
+                TreeNode.Object = null;
+            else
+                TreeNode.Object = SerializationCommon.CreateObject(TreeNode.ObjectType);
             
             if (TreeNode.Object is TFileObject fobj)
             {
@@ -86,7 +89,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                         else
                         {
-                            Engine.LogWarning("Unable to parse attribute " + attrib.Name + " as " + member.MemberType.GetFriendlyName());
+                            //Engine.LogWarning("Unable to parse attribute " + attrib.Name + " as " + member.MemberType.GetFriendlyName());
                         }
                     }
                 }
@@ -101,7 +104,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                         else
                         {
-                            Engine.LogWarning("Unable to parse element content " + member.Name + " as " + member.MemberType.GetFriendlyName());
+                            //Engine.LogWarning("Unable to parse element content " + member.Name + " as " + member.MemberType.GetFriendlyName());
                         }
                     }
                 }
@@ -127,7 +130,7 @@ namespace TheraEngine.Core.Files.Serialization
                 var parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(typeof(T)))
                 {
-                    Engine.PrintLine($"Deserializing {member.MemberType.GetFriendlyName()} {member.Name} manually as {member.NodeType.ToString()} via parent.");
+                    //Engine.PrintLine($"Deserializing {member.MemberType.GetFriendlyName()} {member.Name} manually as {member.NodeType.ToString()} via parent.");
 
                     if (customMethod.ReturnType == typeof(Task))
                         await (Task)customMethod.Invoke(parent.Object, new object[] { data });
@@ -147,7 +150,7 @@ namespace TheraEngine.Core.Files.Serialization
         #endregion
 
         #region Writing
-        public bool IsObjectDefault(object obj, object defObj)
+        public static bool IsObjectDefault(object obj, object defObj)
         {
             //Deep compare the current object with the default object
             CompareLogic comp = new CompareLogic(new ComparisonConfig()
@@ -160,13 +163,25 @@ namespace TheraEngine.Core.Files.Serialization
                 CompareStaticFields = false,
                 CompareStaticProperties = false,
                 CompareReadOnly = false,
-                ComparePredicate = x => x.GetCustomAttribute<TSerialize>() != null
+                SkipInvalidIndexers = true,
+                ComparePredicate = x => IsComparable(x)
             });
             ComparisonResult result = comp.Compare(defObj, obj);
             //if (!result.AreEqual)
             //    Engine.PrintLine(result.DifferencesString);
             return result.AreEqual;
         }
+
+        private static bool IsComparable(MemberInfo x)
+        {
+            bool isSerializable = x.GetCustomAttribute<TSerialize>() != null;
+            if (x is FieldInfo fieldInfo)
+                isSerializable = isSerializable || fieldInfo.FieldType.IsValueType;
+            else if (x is PropertyInfo propInfo)
+                isSerializable = isSerializable || propInfo.PropertyType.IsValueType;
+            return isSerializable;
+        }
+
         public override async void SerializeTreeFromObject()
         {
             TSerializeMemberInfo[] members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
@@ -343,7 +358,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (type.IsEnum)
             {
-                value = value.ReplaceWhitespace("").Replace("|", ", ");
+                value = value.ReplaceWhitespace("").Replace("/", ", ");
                 return Enum.Parse(type, value);
             }
             switch (type.Name)
@@ -367,12 +382,42 @@ namespace TheraEngine.Core.Files.Serialization
                 return SerializationCommon.ParseStructBytesString(type, value);
             throw new InvalidOperationException();
         }
+
+        public override bool CanWriteAsString(Type type)
+        {
+            if (type.IsEnum)
+                return true;
+            
+            switch (type.Name)
+            {
+                case "Boolean":
+                case "SByte":
+                case "Byte":
+                case "Char":
+                case "Int16":
+                case "UInt16":
+                case "Int32":
+                case "UInt32":
+                case "Int64":
+                case "UInt64":
+                case "Single":
+                case "Double":
+                case "Decimal":
+                case "String":
+                    return true;
+            }
+
+            if (type.IsValueType)
+                return true;
+
+            return false;
+        }
         public override bool ObjectToString(object obj, out string str)
         {
             Type type = obj.GetType();
             if (type.IsEnum)
             {
-                str = obj.ToString().Replace(",", "|").ReplaceWhitespace("");
+                str = obj.ToString().Replace(",", "/").ReplaceWhitespace("");
                 return true;
             }
             switch (type.Name)

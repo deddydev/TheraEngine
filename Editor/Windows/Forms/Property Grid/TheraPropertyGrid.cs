@@ -282,6 +282,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             var propGridSettings = Editor.GetSettings().PropertyGrid;
             await LoadPropertiesToPanel(
+                this,
                 pnlProps, _categories,
                 _targetObject,
                 this, this,
@@ -291,6 +292,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             PropertiesLoaded?.Invoke(_targetObject);
         }
         public static async Task LoadPropertiesToPanel(
+            TheraPropertyGrid grid,
             Panel pnlProps,
             Dictionary<string, PropGridCategory> categories,
             object obj,
@@ -408,7 +410,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         continue;
 
                     PropertyData p = propInfo[i];
-                    CreateControls(p.ControlTypes, new PropGridMemberInfoProperty(memberOwner, p.Property), pnlProps, categories, p.Attribs, p.ReadOnly, changeHandler);
+                    CreateControls(grid, p.ControlTypes, new PropGridMemberInfoProperty(memberOwner, p.Property), pnlProps, categories, p.Attribs, p.ReadOnly, changeHandler);
                 }
 
                 for (int i = 0; i < methods.Length; ++i)
@@ -419,7 +421,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     MethodData m = methodInfo[i];
                     var deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridMethod));
-                    CreateControls(deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Attribs, false, changeHandler);
+                    CreateControls(grid, deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Attribs, false, changeHandler);
                 }
 
                 for (int i = 0; i < events.Length; ++i)
@@ -430,7 +432,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     EventData e = eventInfo[i];
                     var deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridEvent));
-                    CreateControls(deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Attribs, false, changeHandler);
+                    CreateControls(grid, deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Attribs, false, changeHandler);
                 }
 
                 bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
@@ -612,6 +614,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="readOnly"></param>
         /// <param name="dataChangeHandler"></param>
         public static void CreateControls(
+            TheraPropertyGrid grid,
             Deque<Type> controlTypes,
             PropGridMemberInfo info,
             Panel panel,
@@ -638,6 +641,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 {
                     CategoryName = catName,
                     Dock = DockStyle.Top,
+                    PropertyGrid = grid,
                 };
                 misc.AddMember(controls, attribs, readOnly);
                 categories.Add(catName, misc);

@@ -126,7 +126,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
                         else
                         {
-                            Engine.LogWarning($"Cannot write attribute as string.");
+                            //Engine.LogWarning($"Cannot write attribute as string.");
                         }
                     }
 

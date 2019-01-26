@@ -379,6 +379,9 @@ namespace TheraEditor.Windows.Forms
             DrawBezier(start, end, BaseFuncValue.NoTypeColor);
         }
         public float BezierTangentDist { get; set; } = 100.0f;
+
+        protected override bool IsDragging => throw new NotImplementedException();
+
         private void DrawBezier(Vec2 start, Vec2 end, ColorF4 color)
         {
             float dist = start.DistanceToFast(end).ClampMax(BezierTangentDist);
@@ -388,7 +391,33 @@ namespace TheraEditor.Windows.Forms
                 Engine.Renderer.RenderLine(points[i - 1], points[i], color, true, 1.0f);
         }
         private readonly RenderCommandMethod2D _rc;
-        public void AddRenderables(RenderPasses passes)
+
+        protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnLeftClickDown()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void OnLeftClickUp()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void HighlightScene()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void HandleDragItem()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void AddRenderables(RenderPasses passes)
         {
             passes.Add(_rc);
         }

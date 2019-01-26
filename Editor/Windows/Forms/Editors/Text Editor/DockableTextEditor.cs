@@ -95,7 +95,7 @@ namespace TheraEditor.Windows.Forms
             Action<DockableTextEditor> onSave = null)
         {
             DockableTextEditor editor;
-            if (!string.IsNullOrWhiteSpace(file?.FilePath))
+            if (file.RootFile == file && !string.IsNullOrWhiteSpace(file?.FilePath))
             {
                 if (TextEditorInstances.ContainsKey(file.FilePath))
                 {
@@ -138,7 +138,7 @@ namespace TheraEditor.Windows.Forms
             get => _targetFile;
             set
             {
-                string path = _targetFile?.FilePath;
+                string path = _targetFile == null || _targetFile.RootFile != _targetFile ? null : _targetFile.FilePath;
                 if (!string.IsNullOrWhiteSpace(path))
                 {
                     if (TextEditorInstances.ContainsKey(path))
@@ -149,7 +149,7 @@ namespace TheraEditor.Windows.Forms
 
                 _targetFile = value;
 
-                path = _targetFile?.FilePath ?? string.Empty;
+                path = _targetFile == null || _targetFile.RootFile != _targetFile ? string.Empty : _targetFile.FilePath ?? string.Empty;
                 if (_isStreaming = !string.IsNullOrWhiteSpace(path))
                 {
                     if (!TextEditorInstances.ContainsKey(path))
@@ -269,7 +269,8 @@ namespace TheraEditor.Windows.Forms
         }
         private void UnInitText()
         {
-
+            dgvObjectExplorer.Visible = false;
+            lblSplitFileObjects.Visible = false;
         }
         private void InitPython()
         {
@@ -285,13 +286,49 @@ namespace TheraEditor.Windows.Forms
         }
         private void InitGLSL()
         {
-            TextBox.CommentPrefix = "//";
-            //TextBox.DescriptionFile = Engine.Files.ScriptPath("GLSLHighlighting.xml");
+            dgvObjectExplorer.Visible = true;
+            lblSplitFileObjects.Visible = true;
+            CurrentKeywords = GLSLKeywords;
+            HighlightScriptSyntax = GLSLSyntaxHighlight;
+            
+            TextBox.AutoIndent = true;
+            TextBox.AutoIndentChars = true;
+            TextBox.AutoCompleteBrackets = true;
+            TextBox.DelayedTextChangedInterval = 1000;
+            TextBox.DelayedEventsInterval = 500;
+
+            //TextBox.VisibleRangeChanged += TextBox_VisibleRangeChanged;
+            TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
+            TextBox.TextChanged += TextBox_TextChanged;
+            TextBox.SelectionChangedDelayed += TextBox_SelectionChangedDelayed;
+            TextBox.KeyDown += TextBox_KeyDown;
+            TextBox.MouseMove += TextBox_MouseMove;
             TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded_GLSL;
+            TextBox.SelectionChanged += TextBox_SelectionChanged;
+
+            TextBox.ChangedLineColor = ChangedLineColor;
+            //if (btnHighlightCurrentLine.Checked)
+            TextBox.CurrentLineColor = CurrentLineColor;
+            TextBox.ShowFoldingLines = btnShowFoldingLines.Checked;
+
+            //create autocomplete popup menu
+            AutoCompleteMenu = new AutocompleteMenu(TextBox);
+            //popupMenu.Items.ImageList = ilAutocomplete;
+            AutoCompleteMenu.Opening += popupMenu_Opening;
+            AutoCompleteMenu.SearchPattern = @"[\w\.:=!<>]";
+            BuildAutocompleteMenu();
+            //TextBox.Tag = new TextBoxInfo() { PopupMenu = AutoCompleteMenu };
         }
         private void UnInitGLSL()
         {
+            TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
+            TextBox.TextChanged -= TextBox_TextChanged;
+            TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
+            TextBox.KeyDown -= TextBox_KeyDown;
+            TextBox.MouseMove -= TextBox_MouseMove;
             TextBox.AutoIndentNeeded -= TextBox_AutoIndentNeeded_GLSL;
+            TextBox.SelectionChanged -= TextBox_SelectionChanged;
+            AutoCompleteMenu.Opening -= popupMenu_Opening;
         }
         private void InitLua()
         {
@@ -336,7 +373,6 @@ namespace TheraEditor.Windows.Forms
             BuildAutocompleteMenu();
             //TextBox.Tag = new TextBoxInfo() { PopupMenu = AutoCompleteMenu };
         }
-
         private void UnInitCSharp()
         {
             dgvObjectExplorer.Visible = false;
@@ -348,6 +384,7 @@ namespace TheraEditor.Windows.Forms
             TextBox.MouseMove -= TextBox_MouseMove;
             TextBox.AutoIndentNeeded -= TextBox_AutoIndentNeeded_CSharp;
             TextBox.SelectionChanged -= TextBox_SelectionChanged;
+            AutoCompleteMenu.Opening -= popupMenu_Opening;
         }
 
         void popupMenu_Opening(object sender, CancelEventArgs e)
@@ -1098,7 +1135,47 @@ namespace TheraEditor.Windows.Forms
             "exp",
             "exp2",
             "faceforward", "findLSB", "findMSB", "floatBitsToInt", "floatBitsToUint", "floor", "fma", "fract", "frexp", "fwidth", "fwidthCoarse", "fwidthFine", "gl_ClipDistance", "gl_CullDistance", "gl_FragCoord", "gl_FragDepth", "gl_FrontFacing", "gl_GlobalInvocationID", "gl_HelperInvocation", "gl_InstanceID", "gl_InvocationID", "gl_Layer", "gl_LocalInvocationID", "gl_LocalInvocationIndex", "gl_NumSamples", "gl_NumWorkGroups", "gl_PatchVerticesIn", "gl_PointCoord", "gl_PointSize", "gl_Position", "gl_PrimitiveID", "gl_PrimitiveIDIn", "gl_SampleID", "gl_SampleMask", "gl_SampleMaskIn", "gl_SamplePosition", "gl_TessCoord", "gl_TessLevelInner", "gl_TessLevelOuter", "gl_VertexID", "gl_ViewportIndex", "gl_WorkGroupID", "gl_WorkGroupSize", "greaterThan", "greaterThanEqual", "groupMemoryBarrier", "imageAtomicAdd", "imageAtomicAnd", "imageAtomicCompSwap", "imageAtomicExchange", "imageAtomicMax", "imageAtomicMin", "imageAtomicOr", "imageAtomicXor", "imageLoad", "imageSamples", "imageSize", "imageStore", "imulExtended", "intBitsToFloat", "interpolateAtCentroid", "interpolateAtOffset", "interpolateAtSample", "inverse", "inversesqrt", "isinf", "isnan", "ldexp", "length", "lessThan", "lessThanEqual", "log", "log2", "matrixCompMult", "max", "memoryBarrier", "memoryBarrierAtomicCounter", "memoryBarrierBuffer", "memoryBarrierImage", "memoryBarrierShared", "min", "mix", "mod", "modf", "noise", "noise1", "noise2", "noise3", "noise4", "normalize", "not", "notEqual", "outerProduct", "packDouble2x32", "packHalf2x16", "packSnorm2x16", "packSnorm4x8", "packUnorm", "packUnorm2x16", "packUnorm4x8", "pow", "radians", "reflect", "refract", "round", "roundEven", "sign", "sin", "sinh", "smoothstep", "sqrt", "step", "tan", "tanh", "texelFetch", "texelFetchOffset", "texture", "textureGather", "textureGatherOffset", "textureGatherOffsets", "textureGrad", "textureGradOffset", "textureLod", "textureLodOffset", "textureOffset", "textureProj", "textureProjGrad", "textureProjGradOffset", "textureProjLod", "textureProjLodOffset", "textureProjOffset", "textureQueryLevels", "textureQueryLod", "textureSamples", "textureSize", "transpose", "trunc", "uaddCarry", "uintBitsToFloat", "umulExtended", "unpackDouble2x32", "unpackHalf2x16", "unpackSnorm2x16", "unpackSnorm4x8", "unpackUnorm", "unpackUnorm2x16", "unpackUnorm4x8", "usubBorrow" };
-        
+
+        public static readonly string GLSLKeywordsRegex = string.Join("|", GLSLKeywords);
+        private void GLSLSyntaxHighlight(Range e)
+        {
+            TextBox.LeftBracket = '(';
+            TextBox.RightBracket = ')';
+            TextBox.LeftBracket2 = '\x0';
+            TextBox.RightBracket2 = '\x0';
+
+            //clear style of changed range
+            e.ClearStyle(KeywordStyle, NumberStyle, ClassNameStyle, PreprocessorStyle, CommentStyle, StringStyle);
+
+            //string highlighting
+            e.SetStyle(StringStyle, StringRegex);
+
+            //keyword highlighting
+            e.SetStyle(KeywordStyle, @"\b(attribute|const|uniform|varying|buffer|shared|coherent|volatile|restrict|readonly|writeonly|atomic_uint|layout|centroid|flat|smooth|noperspective|patch|sample|break|continue|do|for|while|switch|case|default|if|else|subroutine|in|out|inout|void|true|false|invariant|precise|discard|return|lowp|mediump|highp|precision|sampler1D|sampler2D|sampler3D|samplerCube|sampler1DShadow|sampler2DShadow|samplerCubeShadow|sampler1DArray|sampler2DArray|sampler1DArrayShadow|sampler2DArrayShadow|isampler1D|isampler2D|isampler3D|isamplerCube|isampler1DArray|isampler2DArray|usampler1D|usampler2D|usampler3D|usamplerCube|usampler1DArray|usampler2DArray|sampler2DRect|sampler2DRectShadow|isampler2DRect|usampler2DRect|samplerBuffer|isamplerBuffer|usamplerBuffer|sampler2DMS|isampler2DMS|usampler2DMS|sampler2DMSArray|isampler2DMSArray|usampler2DMSArray|samplerCubeArray|samplerCubeArrayShadow|isamplerCubeArray|usamplerCubeArray|image1D|iimage1D|uimage1D|image2D|iimage2D|uimage2D|image3D|iimage3D|uimage3D|image2DRect|iimage2DRect|uimage2DRect|imageCube|iimageCube|uimageCube|imageBuffer|iimageBuffer|uimageBuffer|image1DArray|iimage1DArray|uimage1DArray|image2DArray|iimage2DArray|uimage2DArray|imageCubeArray|iimageCubeArray|uimageCubeArray|image2DMS|iimage2DMS|uimage2DMS|image2DMSArray|iimage2DMSArray|uimage2DMSArray|struct)\b");
+
+            //comment highlighting
+            e.SetStyle(CommentStyle, @"//.*$", RegexOptions.Multiline);
+            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(/\*.*)", RegexOptions.Singleline);
+            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(.*\*/)", RegexOptions.Singleline | RegexOptions.RightToLeft);
+
+            //number highlighting
+            e.SetStyle(NumberStyle, NumberRegex);
+
+            //attribute highlighting
+            //e.SetStyle(AttributeStyle, @"^\s*(?<range>\[.+?\])\s*$", RegexOptions.Multiline);
+            e.SetStyle(PreprocessorStyle, @"^#(version|pragma)\b");
+
+            //class name highlighting
+            e.SetStyle(ClassNameStyle, @"\b(mat2|mat3|mat4|dmat2|dmat3|dmat4|mat2x2|mat2x3|mat2x4|dmat2x2|dmat2x3|dmat2x4|mat3x2|mat3x3|mat3x4|dmat3x2|dmat3x3|dmat3x4|mat4x2|mat4x3|mat4x4|dmat4x2|dmat4x3|dmat4x4|float|vec2|vec3|vec4|int|ivec2|ivec3|ivec4|bool|bvec2|bvec3|bvec4|double|dvec2|dvec3|dvec4|uint|uvec2|uvec3|uvec4)\b");
+
+            //clear folding markers
+            e.ClearFoldingMarkers();
+
+            //set folding markers
+            e.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
+            e.SetFoldingMarkers(@"/\*", @"\*/"); //allow to collapse comment block
+        }
+
         public static string[] PythonKeywords =
         {
             "False",

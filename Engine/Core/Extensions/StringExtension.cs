@@ -25,12 +25,12 @@ namespace System
         /// Converts the elements of an array into a well-formatted list.
         /// </summary>
         /// <typeparam name="T">The type of elements in the array.</typeparam>
-        /// <param name="a">The array to format into a list.</param>
+        /// <param name="list">The array to format into a list.</param>
         /// <param name="separator">The separator to use to separate items in the list.</param>
         /// <param name="lastSeparator">The separator to use in the list between the last two elements.</param>
         /// <param name="elementToString">The method for converting individual array elements to strings.</param>
         /// <returns>A list of the elements in the array as a string.</returns>
-        public static string ToStringList(this IList a, string separator, string lastSeparator, Func<object, string> elementToString)
+        public static string ToStringList(this IList list, string separator, string lastSeparator, Func<object, string> elementToString)
         {
             //if (a.Length == 0)
             //    return string.Empty;
@@ -41,103 +41,119 @@ namespace System
             //if (a.Length == 2)
             //    return elementToString(a[0]) + separator + elementToString(a[1]);
 
-            string str = string.Empty;
-            string sep = separator;
-            for (int i = 0; i < a.Count; ++i)
-            {
-                if (i == a.Count - 2)
-                    sep = lastSeparator;
-                else if (i == a.Count - 1)
-                    sep = string.Empty;
-                str += elementToString(a[i]) + sep;
-            }
+            return list.Cast<object>().Aggregate(new StringBuilder(),
+                (builder, obj) => builder.Append(separator + elementToString(obj)),
+                (builder) => builder.Remove(0, separator.Length).ToString());
 
-            return str;
+            //string str = string.Empty;
+            //string sep = separator;
+            //for (int i = 0; i < list.Count; ++i)
+            //{
+            //    if (i == list.Count - 2)
+            //        sep = lastSeparator;
+            //    else if (i == list.Count - 1)
+            //        sep = string.Empty;
+            //    str += elementToString(list[i]) + sep;
+            //}
+
+            //return str;
         }
         /// <summary>
         /// Converts the elements of an array into a well-formatted list.
         /// </summary>
         /// <typeparam name="T">The type of elements in the array.</typeparam>
-        /// <param name="a">The array to format into a list.</param>
+        /// <param name="list">The array to format into a list.</param>
         /// <param name="separator">The separator to use to separate items in the list.</param>
         /// <param name="lastSeparator">The separator to use in the list between the last two elements.</param>
         /// <returns>A list of the elements in the array as a string.</returns>
-        public static string ToStringList(this IList a, string separator, string lastSeparator)
+        public static string ToStringList(this IList list, string separator, string lastSeparator)
         {
-            if (a.Count == 0)
+            if (list.Count == 0)
                 return string.Empty;
 
-            if (a.Count == 1)
-                return a[0].ToString();
+            if (list.Count == 1)
+                return list[0].ToString();
 
-            if (a.Count == 2)
-                return a[0].ToString() + separator + a[1].ToString();
+            if (list.Count == 2)
+                return list[0].ToString() + separator + list[1].ToString();
 
-            string str = "";
-            string sep = separator;
-            for (int i = 0; i < a.Count; ++i)
-            {
-                if (i == a.Count - 2)
-                    sep = lastSeparator;
-                else if (i == a.Count - 1)
-                    sep = string.Empty;
-                str += a[i].ToString() + sep;
-            }
+            return list.Cast<object>().Aggregate(new StringBuilder(),
+                (builder, obj) => builder.Append(separator + obj.ToString()),
+                (builder) => builder.Remove(0, separator.Length).ToString());
 
-            return str;
+            //string str = "";
+            //string sep = separator;
+            //for (int i = 0; i < a.Count; ++i)
+            //{
+            //    if (i == a.Count - 2)
+            //        sep = lastSeparator;
+            //    else if (i == a.Count - 1)
+            //        sep = string.Empty;
+            //    str += a[i].ToString() + sep;
+            //}
+
+            //return str;
         }
         /// <summary>
         /// Converts the elements of an array into a well-formatted list.
         /// </summary>
         /// <typeparam name="T">The type of elements in the array.</typeparam>
-        /// <param name="a">The array to format into a list.</param>
+        /// <param name="list">The array to format into a list.</param>
         /// <param name="separator">The separator to use to separate items in the list.</param>
         /// <param name="elementToString">The method for converting individual array elements to strings.</param>
         /// <returns>A list of the elements in the array as a string.</returns>
-        public static string ToStringList(this IList a, string separator, Func<object, string> elementToString)
+        public static string ToStringList(this IList list, string separator, Func<object, string> elementToString)
         {
-            if (a.Count == 0)
+            if (list.Count == 0)
                 return string.Empty;
 
-            if (a.Count == 1)
-                return elementToString(a[0]);
+            if (list.Count == 1)
+                return elementToString(list[0]);
 
-            string str = "";
-            string sep = separator;
-            for (int i = 0; i < a.Count; ++i)
-            {
-                if (i == a.Count - 1)
-                    sep = string.Empty;
-                str += elementToString(a[i]) + sep;
-            }
+            return list.Cast<object>().Aggregate(new StringBuilder(),
+                (builder, obj) => builder.Append(separator + elementToString(obj)),
+                (builder) => builder.Remove(0, separator.Length).ToString());
 
-            return str;
+            //string str = "";
+            //string sep = separator;
+            //for (int i = 0; i < a.Count; ++i)
+            //{
+            //    if (i == a.Count - 1)
+            //        sep = string.Empty;
+            //    str += elementToString(a[i]) + sep;
+            //}
+
+            //return str;
         }
         /// <summary>
         /// Converts the elements of an array into a well-formatted list.
         /// </summary>
         /// <typeparam name="T">The type of elements in the array.</typeparam>
-        /// <param name="a">The array to format into a list.</param>
+        /// <param name="list">The array to format into a list.</param>
         /// <param name="separator">The separator to use to separate items in the list.</param>
         /// <returns>A list of the elements in the array as a string.</returns>
-        public static string ToStringList(this IList a, string separator)
+        public static string ToStringList(this IList list, string separator)
         {
-            if (a.Count == 0)
+            if (list.Count == 0)
                 return string.Empty;
 
-            if (a.Count == 1)
-                return a[0].ToString();
+            if (list.Count == 1)
+                return list[0].ToString();
 
-            string str = "";
-            string sep = separator;
-            for (int i = 0; i < a.Count; ++i)
-            {
-                if (i == a.Count - 1)
-                    sep = string.Empty;
-                str += a[i].ToString() + sep;
-            }
+            return list.Cast<object>().Aggregate(new StringBuilder(),
+                (builder, obj) => builder.Append(separator + obj.ToString()),
+                (builder) => builder.Remove(0, separator.Length).ToString());
 
-            return str;
+            //string str = "";
+            //string sep = separator;
+            //for (int i = 0; i < list.Count; ++i)
+            //{
+            //    if (i == list.Count - 1)
+            //        sep = string.Empty;
+            //    str += list[i].ToString() + sep;
+            //}
+
+            //return str;
         }
         public static string GetExtensionLowercase(this string path)
         {

@@ -63,11 +63,17 @@ namespace TheraEngine.Core.Files.Serialization
         #endregion
 
         #region String
+        public override bool CanWriteAsString(Type type)
+        {
+            Type elementType = type.DetermineElementType();
+            var ser = DetermineObjectSerializer(elementType, true);
+            return ser != null && ser.CanWriteAsString(elementType);
+        }
         public override object ObjectFromString(Type type, string value)
         {
             Type elementType = type.DetermineElementType();
             var ser = DetermineObjectSerializer(elementType, true);
-            if (ser == null)
+            if (ser == null || !ser.CanWriteAsString(elementType))
                 return null;
             
             char separator = '|';
@@ -105,7 +111,7 @@ namespace TheraEngine.Core.Files.Serialization
             Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
             var ser = DetermineObjectSerializer(elementType, true);
-            if (ser == null)
+            if (ser == null || !ser.CanWriteAsString(elementType))
                 return false;
 
             string separator = "|";

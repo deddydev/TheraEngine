@@ -85,12 +85,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _categories.Clear();
             base.DestroyHandle();
         }
-        private object GetObject() => _object;
-        private object GetNull() => null;
         private async void LoadProperties(bool notNull)
         {
             var propGridSettings = Editor.GetSettings().PropertyGrid;
             await TheraPropertyGrid.LoadPropertiesToPanel(
+                ParentCategory?.PropertyGrid,
                 pnlProps, _categories,
                 notNull ? _object : null,
                 this, DataChangeHandler,
@@ -162,8 +161,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void MouseDownProperties()
         {
             //pnlProps.Visible = !pnlProps.Visible;
-            //Form f = FindForm();
-            Editor.Instance.PropertyGridForm.PropertyGrid.SetObject(_object, MemberInfo.MemberAccessor);
+            ParentCategory?.PropertyGrid?.SetObject(_object, MemberInfo.MemberAccessor);
         }
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {

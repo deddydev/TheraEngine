@@ -240,8 +240,8 @@ namespace TheraEditor.Windows.Forms
         private void TextEditor_FormClosed(object sender, FormClosedEventArgs e)
         {
             DockableTextEditor editor = sender as DockableTextEditor;
-            GlobalFileRef<GLSLScript> fileRef = editor.Tag as GlobalFileRef<GLSLScript>;
-            _textEditors.Remove(fileRef.File);
+            GLSLScript fileRef = editor.TargetFile as GLSLScript;
+            _textEditors.Remove(fileRef);
         }
 
         private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)

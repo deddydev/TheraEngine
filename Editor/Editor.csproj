@@ -254,6 +254,7 @@
       <DependentUpon>HudEditorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Editors\HUD Editor\HudEditorHud.cs" />
+    <Compile Include="Windows\Forms\Editors\UIEditorBase.cs" />
     <Compile Include="Windows\Forms\Main Window\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -405,7 +406,7 @@
     <Compile Include="Windows\Forms\Editors\Property Animation\Float\DockablePropAnimFloatGraph.Designer.cs">
       <DependentUpon>DockablePropAnimFloatGraph.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\Property Animation\Float\PropAnimFloatHud.cs" />
+    <Compile Include="Windows\Forms\Editors\Property Animation\Float\UIPropAnimFloatEditor.cs" />
     <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefEventInfo.cs" />
     <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefIListInfo.cs" />
     <Compile Include="Windows\Forms\Property Grid\Member Parent Info\PropGridItemRefIDictionaryInfo.cs" />

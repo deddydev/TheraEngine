@@ -166,7 +166,7 @@ namespace TheraEngine.Animation
         }
 
         /// <summary>
-        /// How fast the animation plays back.
+        /// How fast the animation plays back, in meters per second.
         /// A speed of 2.0f would shorten the animation to play in half the time, where 0.5f would be lengthen the animation to play two times slower.
         /// CAN be negative to play the animation in reverse.
         /// </summary>
@@ -291,7 +291,7 @@ namespace TheraEngine.Animation
         /// Progresses this animation forward (or backward) by the specified change in seconds.
         /// </summary>
         /// <param name="delta">The change in seconds to add to the current time. Negative values are allowed.</param>
-        public void Progress(float delta)
+        public virtual void Progress(float delta)
         {
             //Modify delta with speed
             delta *= Speed;

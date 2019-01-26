@@ -105,8 +105,10 @@ namespace TheraEditor.Windows.Forms
                         Mode = EObjectCreatorMode.Char;
                         break;
                     case "String":
-                        Mode = EObjectCreatorMode.String;
-                        break;
+                        //Mode = EObjectCreatorMode.String;
+                        ConstructedObject = string.Empty;
+                        return false;
+                        //break;
                     case "Boolean":
                         Mode = EObjectCreatorMode.Boolean;
                         break;

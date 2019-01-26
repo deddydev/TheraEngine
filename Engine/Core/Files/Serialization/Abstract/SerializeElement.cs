@@ -186,26 +186,8 @@ namespace TheraEngine.Core.Files.Serialization
         private bool _isRoot = false;
         
         public bool IsObjectDefault()
-        {
-            //Deep compare the current object with the default object
-            CompareLogic comp = new CompareLogic(new ComparisonConfig()
-            {
-                CompareChildren = true,
-                CompareFields = true,
-                CompareProperties = true,
-                ComparePrivateFields = true,
-                ComparePrivateProperties = true,
-                CompareStaticFields = false,
-                CompareStaticProperties = false,
-                CompareReadOnly = false,
-                ComparePredicate = x => x.GetCustomAttribute<TSerialize>() != null
-            });
-            ComparisonResult result = comp.Compare(DefaultMemberObject, Object);
-            //if (!result.AreEqual)
-            //    Engine.PrintLine(result.DifferencesString);
-            return result.AreEqual;
-        }
-
+            => CommonObjectSerializer.IsObjectDefault(Object, DefaultMemberObject);
+        
         public SerializeElement()
         {
             Parent = null;
@@ -257,7 +239,7 @@ namespace TheraEngine.Core.Files.Serialization
                 var parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
                 {
-                    Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} manually via parent.");
+                    //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} manually via parent.");
 
                     if (customMethod.ReturnType == typeof(Task))
                         await (Task)customMethod.Invoke(Parent.Object, new object[] { this });
@@ -294,7 +276,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 if (serConfig || serState)
                 {
-                    Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} manually via self.");
+                    //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} manually via self.");
                     Object = SerializationCommon.CreateObject(ObjectType);
                     ((TFileObject)Object).ManualRead(this);
                     ApplyObjectToParent();
@@ -392,12 +374,13 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (ObjectType != MemberInfo.MemberType || IsRoot)
                 AddAttribute(SerializationCommon.TypeIdent, ObjectType.AssemblyQualifiedName);
-            else if (ObjectType.IsAbstract || ObjectType.IsInterface)
-                throw new Exception();
 
             if (Object == null || IsObjectDefault())
                 return;
-            
+
+            if (ObjectType.IsAbstract || ObjectType.IsInterface)
+                throw new Exception();
+
             bool custom = await TryInvokeManualParentSerializeAsync();
             if (!custom)
                 custom = TryInvokeManualSerializeAsync();

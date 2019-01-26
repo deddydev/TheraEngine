@@ -98,6 +98,9 @@ namespace TheraEngine.Core.Files.Serialization
                 ObjectSerializers = null;
             }
         }
+
+        public abstract bool CanWriteAsString(Type type);
+
         /// <summary>
         /// Finds the class to use to read and write the given type.
         /// </summary>

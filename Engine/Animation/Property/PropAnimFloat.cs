@@ -11,10 +11,27 @@ namespace TheraEngine.Animation
         public PropAnimFloat(int frameCount, float FPS, bool looped, bool useKeyframes)
             : base(frameCount, FPS, looped, useKeyframes) { }
 
+        //public bool UseConstantVelocity { get; set; } = true;
+        //public float ConstantVelocitySpeed { get; set; } = 1.0f;
+
         protected override float LerpValues(float t1, float t2, float time) => Interp.Lerp(t1, t2, time);
         protected override float[] GetComponents(float value) => new float[] { value };
         protected override float GetMaxValue() => float.MaxValue;
         protected override float GetMinValue() => float.MinValue;
+        //public override void Progress(float delta)
+        //{
+        //    if (UseConstantVelocity)
+        //    {
+        //        float b = CurrentVelocity;
+        //        float a = 1.0f;
+        //        Vec2 start = new Vec2(0.0f, 0.0f);
+        //        Vec2 end = new Vec2(a, b);
+        //        float c = start.DistanceTo(end);
+        //        float triangleSizeRatio = ConstantVelocitySpeed / c;
+        //        Speed = triangleSizeRatio;
+        //    }
+        //    base.Progress(delta);
+        //}
     }
     public class FloatKeyframe : VectorKeyframe<float>
     {

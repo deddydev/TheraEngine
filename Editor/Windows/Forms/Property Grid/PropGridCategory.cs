@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEditor.Core.Extensions;
-using TheraEngine;
 using TheraEngine.Core.Maths;
 using TheraEngine.Timers;
 
@@ -30,6 +29,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public void Toggle() => tblProps.Visible = !tblProps.Visible;
         public ControlCollection ChildControls => tblProps.Controls;
 
+        public TheraPropertyGrid PropertyGrid { get; internal set; }
         public string CategoryName
         {
             get => lblCategoryName.Text;
@@ -222,6 +222,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.Dock = DockStyle.Fill;
                 item.Margin = new Padding(0);
                 item.Padding = new Padding(0);
+                item.ReadOnly = readOnly;
+                item.ParentCategory = this;
                 tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
             }
             tblProps.EndUpdate();

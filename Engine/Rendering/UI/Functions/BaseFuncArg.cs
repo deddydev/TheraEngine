@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions

@@ -145,7 +145,7 @@ namespace TheraEngine.Animation
         public TValue GetValue(float second) => _getValue(second);
         public TValue GetValueBakedBySecond(float second)
         {
-            float frameTime = second * BakedFramesPerSecond;
+            float frameTime = second.RemapToRange(0, LengthInSeconds) * BakedFramesPerSecond;
             int frame = (int)frameTime;
             if (LerpConstrainedFPS)
             {

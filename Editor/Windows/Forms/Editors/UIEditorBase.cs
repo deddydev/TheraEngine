@@ -95,6 +95,15 @@ namespace TheraEditor.Windows.Forms
 
             return baseUI;
         }
+        public Vec2 GetViewportBottomLeftWorldSpace()
+            => Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
+        public Vec2 GetViewportTopRightWorldSpace()
+            => Vec3.TransformPosition(Bounds, _baseTransformComponent.InverseWorldMatrix).Xy;
+        public void GetViewportBoundsWorldSpace(out Vec2 min, out Vec2 max)
+        {
+            min = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
+            max = Vec3.TransformPosition(Bounds, _baseTransformComponent.InverseWorldMatrix).Xy;
+        }
         protected virtual TMaterial GetBackgroundMaterial()
         {
             GLSLScript frag = Engine.Files.LoadEngineShader("MaterialEditorGraphBG.fs", EGLSLType.Fragment);
@@ -123,7 +132,7 @@ namespace TheraEditor.Windows.Forms
             comp.RenderInfo.VisibleByDefault = true;
             comp.SizeableHeight.SetSizingPixels(height);
             comp.SizeableWidth.SetSizingPixels(width);
-            comp.TextureResolutionMultiplier = UIFont.Size / 2.0f;
+            comp.TextureResolutionMultiplier = UIFont.Size * 0.5f;
             str = new UIString2D()
             {
                 Font = UIFont,

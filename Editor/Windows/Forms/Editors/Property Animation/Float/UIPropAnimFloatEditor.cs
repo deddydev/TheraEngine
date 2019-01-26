@@ -401,8 +401,8 @@ void main()
         {
             Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
             AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
-            
-            Vec2 origin = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
+
+            Vec2 origin = GetViewportBottomLeftWorldSpace();
 
             _xCoord.SizeablePosX.ModificationValue = pos.X;
             _yCoord.SizeablePosY.ModificationValue = pos.Y;
@@ -439,7 +439,7 @@ void main()
             else
                 RenderAnimPosition = false;
 
-            Vec2 origin = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 origin = GetViewportBottomLeftWorldSpace();
             _xCoord.SizeablePosY.ModificationValue = origin.Y;
             _yCoord.SizeablePosX.ModificationValue = origin.X;
 

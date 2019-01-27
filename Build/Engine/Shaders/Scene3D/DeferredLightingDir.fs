@@ -28,6 +28,10 @@ uniform mat4 InvProjMatrix;
 
 uniform float MinFade = 500.0f;
 uniform float MaxFade = 1000.0f;
+uniform float ShadowBase = 1.0f;
+uniform float ShadowMult = 1.0f;
+uniform float ShadowBiasMin = 0.00001f;
+uniform float ShadowBiasMax = 0.004f;
 
 struct DirLight
 {
@@ -36,17 +40,16 @@ struct DirLight
     mat4 WorldToLightSpaceProjMatrix;
     vec3 Direction;
 };
-uniform DirLight DirLightData;
-
-uniform float ShadowBase = 1.0f;
-uniform float ShadowMult = 1.0f;
-uniform float ShadowBiasMin = 0.00001f;
-uniform float ShadowBiasMax = 0.004f;
+uniform DirLight LightData;
 
 float GetShadowBias(in float NoL)
 {
     float mapped = pow(ShadowBase * (1.0f - NoL), ShadowMult);
     return mix(ShadowBiasMin, ShadowBiasMax, mapped);
+}
+float Attenuate(in float dist, in float radius)
+{
+    return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
 }
 //0 is fully in shadow, 1 is fully lit
 float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in mat4 lightMatrix)
@@ -83,10 +86,6 @@ float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in mat4 lightM
 
 	return shadow;
 }
-float Attenuate(in float dist, in float radius)
-{
-    return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
-}
 //Trowbridge-Reitz GGX
 float SpecD_TRGGX(in float NoH2, in float a2)
 {
@@ -120,6 +119,17 @@ vec3 SpecF_SchlickApprox(in float VoH, in vec3 F0)
 	float pow = exp2((-5.55473f * VoH - 6.98316f) * VoH);
 	return F0 + (1.0f - F0) * pow;
 }
+//vec3 SpecF_SchlickRoughness(in float VoH, in vec3 F0, in float roughness)
+//{
+//	float pow = pow(1.0f - VoH, 5.0f);
+//	return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow;
+//}
+//vec3 SpecF_SchlickRoughnessApprox(in float VoH, in vec3 F0, in float roughness)
+//{
+//	//Spherical Gaussian Approximation
+//	float pow = exp2((-5.55473f * VoH - 6.98316f) * VoH);
+//	return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow;
+//}
 vec3 CalcColor(
 in float NoL,
 in float NoH,
@@ -146,14 +156,13 @@ in vec3 F0)
 	float denom = 4.0f * NoV * NoL + 0.0001f;
 	vec3 spec =  specular * D * G * F / denom;
 
-	vec3 kS = F;
-	vec3 kD = 1.0f - kS;
+  vec3 kD = 1.0f - F;
 	kD *= 1.0f - metallic;
 
-	vec3 radiance = lightAttenuation * DirLightData.Color * DirLightData.DiffuseIntensity;
+	vec3 radiance = lightAttenuation * LightData.Color * LightData.DiffuseIntensity;
 	return (kD * albedo / PI + spec) * radiance * NoL;
 }
-vec3 CalcDirLight(
+vec3 CalcLight(
 in vec3 N,
 in vec3 V,
 in vec3 fragPosWS,
@@ -161,7 +170,7 @@ in vec3 albedo,
 in vec3 rms,
 in vec3 F0)
 {
-	vec3 L = -DirLightData.Direction;
+	vec3 L = -LightData.Direction;
 	vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
 	float NoH = max(dot(N, H), 0.0f);
@@ -174,7 +183,7 @@ in vec3 F0)
 
 	float shadow = ReadShadowMap2D(
 		fragPosWS, N, NoL,
-		DirLightData.WorldToLightSpaceProjMatrix);
+		LightData.WorldToLightSpaceProjMatrix);
 
 	return color * shadow;
 }
@@ -187,7 +196,7 @@ in vec3 rms)
 	float metallic = rms.y;
 	vec3 V = normalize(CameraPosition - fragPosWS);
 	vec3 F0 = mix(vec3(0.04f), albedo, metallic);
-	return CalcDirLight(normal, V, fragPosWS, albedo, rms, F0);
+	return CalcLight(normal, V, fragPosWS, albedo, rms, F0);
 }
 vec3 WorldPosFromDepth(in float depth, in vec2 uv)
 {

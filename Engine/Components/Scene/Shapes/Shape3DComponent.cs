@@ -31,13 +31,8 @@ namespace TheraEngine.Components.Scene.Shapes
 
         [TSerialize]
         [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true);
-
-        protected override void OnWorldTransformChanged()
-        {
-            base.OnWorldTransformChanged();
-            OctreeNode?.ItemMoved(this);
-        }
+        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(true, true);
+        
         protected abstract RenderCommand3D GetRenderCommand();
         public virtual void AddRenderables(RenderPasses passes, Camera camera)
             => passes.Add(GetRenderCommand());

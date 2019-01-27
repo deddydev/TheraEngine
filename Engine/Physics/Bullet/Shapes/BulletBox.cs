@@ -25,6 +25,11 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public BulletBox(Vec3 halfExtents)
             => Shape = new BoxShape(halfExtents);
 
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {

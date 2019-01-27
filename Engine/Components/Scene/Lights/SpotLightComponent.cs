@@ -15,19 +15,6 @@ namespace TheraEngine.Components.Scene.Lights
         private float _outerCutoff, _innerCutoff, _distance;
         private Vec3 _direction;
 
-        [Category("Spot Light Component")]
-        public int ShadowMapResolutionWidth
-        {
-            get => _region.Width;
-            set => SetShadowMapResolution(value, _region.Height);
-        }
-        [Category("Spot Light Component")]
-        public int ShadowMapResolutionHeight
-        {
-            get => _region.Height;
-            set => SetShadowMapResolution(_region.Width, value);
-        }
-
         [TSerialize]
         [Category("Spot Light Component")]
         public float Distance
@@ -39,7 +26,6 @@ namespace TheraEngine.Components.Scene.Lights
                 UpdateCones();
             }
         }
-
         [TSerialize]
         [Category("Spot Light Component")]
         public Vec3 Direction
@@ -49,7 +35,6 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 _direction = value.Normalized();
                 _rotation.SetDirection(_direction);
-                RecalcLocalTransform();
             }
         }
         [TSerialize]
@@ -92,101 +77,16 @@ namespace TheraEngine.Components.Scene.Lights
             float radInner = TMath.DegToRad(innerDegrees);
             _innerCutoff = TMath.Cosf(radInner);
             InnerCone.Radius = TMath.Tanf(radInner) * _distance;
-            
-            ((PerspectiveCamera)ShadowCamera).VerticalFieldOfView = Math.Max(outerDegrees, innerDegrees) * 2.0f;
 
-            UpdateCones();
-        }
-
-        [Browsable(false)]
-        [ReadOnly(true)]
-        [Category("Spotlight Component")]
-        public Cone OuterCone { get; }
-        [Browsable(false)]
-        [ReadOnly(true)]
-        [Category("Spotlight Component")]
-        public Cone InnerCone { get; }
-        
-        [Browsable(false)]
-        public override Shape CullingVolume => OuterCone;
-
-        //public void Render()
-        //{
-        //    Engine.Renderer.RenderPoint(WorldMatrix.Translation, Color.Orange, 10.0f);
-        //}
-
-        public SpotLightComponent()
-            : this(100.0f, new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, Vec3.Down, 60.0f, 30.0f, 1.0f, 1.0f) { }
-
-        public SpotLightComponent(
-            float distance, ColorF3 color, float diffuseIntensity,
-            Vec3 direction, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent) 
-            : base(color, diffuseIntensity)
-        {
-            OuterCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
-            InnerCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
-
-            _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
-            _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
-            _distance = distance;
-            Brightness = brightness;
-            Exponent = exponent;
-            Direction = direction;
-
-            SetShadowMapResolution(1024, 1024);
-
-            //_cullingVolume.State.Rotation.SyncFrom(_rotation);
-            //_cullingVolume.State.Translation.SyncFrom(_translation);
-        }
-        public SpotLightComponent(
-            float distance, ColorF3 color, float diffuseIntensity,
-            Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
-            : base(color, diffuseIntensity)
-        {
-            OuterCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
-            InnerCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
-
-            _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
-            _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
-            _distance = distance;
-            Brightness = brightness;
-            Exponent = exponent;
-            _rotation.SetRotations(rotation);
-
-            //_cullingVolume.State.Rotation.SyncFrom(_rotation);
-            //_cullingVolume.State.Translation.SyncFrom(_translation);
-        }
-
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        {
-            Matrix4
-                r = _rotation.GetMatrix(),
-                ir = _rotation.Inverted().GetMatrix();
-
-            Matrix4
-                t = _translation.AsTranslationMatrix(),
-                it = (-_translation).AsTranslationMatrix();
-            
-            localTransform = t * r;
-            inverseLocalTransform = ir * it;
-
-            _direction = _rotation.GetDirection();
             if (ShadowCamera != null)
-            {
-                ShadowCamera.LocalRotation.SetRotations(_rotation);
-                ShadowCamera.LocalPoint.Raw = _translation;
-            }
-        }
-        protected override void OnWorldTransformChanged()
-        {
-            UpdateCones();
-            base.OnWorldTransformChanged();
-        }
+                ((PerspectiveCamera)ShadowCamera).VerticalFieldOfView = Math.Max(outerDegrees, innerDegrees) * 2.0f;
 
+            UpdateCones();
+        }
         private void UpdateCones()
         {
             Vec3 coneOrigin = _translation + _direction * (_distance * 0.5f);
-            
+
             OuterCone.UpAxis = -_direction;
             OuterCone.Center.Raw = coneOrigin;
             OuterCone.Height = _distance;
@@ -206,6 +106,62 @@ namespace TheraEngine.Components.Scene.Lights
             LightMatrix = t * WorldMatrix * s;
         }
 
+        [Browsable(false)]
+        [ReadOnly(true)]
+        [Category("Spotlight Component")]
+        public Cone OuterCone { get; }
+        [Browsable(false)]
+        [ReadOnly(true)]
+        [Category("Spotlight Component")]
+        public Cone InnerCone { get; }
+        
+        [Browsable(false)]
+        public override Shape CullingVolume => OuterCone;
+        
+        public SpotLightComponent()
+            : this(100.0f, new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, Vec3.Down, 60.0f, 30.0f, 1.0f, 1.0f) { }
+
+        public SpotLightComponent(
+            float distance, ColorF3 color, float diffuseIntensity,
+            Vec3 direction, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent) 
+            : base(color, diffuseIntensity)
+        {
+            OuterCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            InnerCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
+
+            _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
+            _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
+            _distance = distance;
+            Brightness = brightness;
+            Exponent = exponent;
+            Direction = direction;
+        }
+        public SpotLightComponent(
+            float distance, ColorF3 color, float diffuseIntensity,
+            Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
+            : base(color, diffuseIntensity)
+        {
+            OuterCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(outerCutoffDeg)) * distance, distance);
+            InnerCone = new Cone(Vec3.Zero, Vec3.UnitZ, (float)Math.Tan(TMath.DegToRad(innerCutoffDeg)) * distance, distance);
+
+            _outerCutoff = (float)Math.Cos(TMath.DegToRad(outerCutoffDeg));
+            _innerCutoff = (float)Math.Cos(TMath.DegToRad(innerCutoffDeg));
+            _distance = distance;
+            Brightness = brightness;
+            Exponent = exponent;
+            _rotation.SetRotations(rotation);
+        }
+
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        {
+            _direction = _rotation.GetDirection();
+            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
+        }
+        protected override void OnWorldTransformChanged()
+        {
+            UpdateCones();
+            base.OnWorldTransformChanged();
+        }
         public override void OnSpawned()
         {
             Scene3D s3d = OwningScene3D;
@@ -216,6 +172,9 @@ namespace TheraEngine.Components.Scene.Lights
                     s3d.Lights.Add(this);
                     if (ShadowMap == null)
                         SetShadowMapResolution(_region.Width, _region.Height);
+
+                    //ShadowCamera.LocalPoint.Raw = WorldPoint;
+                    //ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
                 InnerCone.RenderInfo.LinkScene(InnerCone, s3d);
                 OuterCone.RenderInfo.LinkScene(OuterCone, s3d);
@@ -224,17 +183,20 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnDespawned()
         {
-            if (Type == ELightType.Dynamic)
-                OwningScene3D?.Lights?.Remove(this);
+            Scene3D s3d = OwningScene3D;
+            if (s3d != null)
+            {
+                if (Type == ELightType.Dynamic)
+                    s3d.Lights.Remove(this);
                 
-            InnerCone.RenderInfo.UnlinkScene();
-            OuterCone.RenderInfo.UnlinkScene();
-            
+                InnerCone.RenderInfo.UnlinkScene();
+                OuterCone.RenderInfo.UnlinkScene();
+            }
             base.OnDespawned();
         }
         public override void SetUniforms(RenderProgram program, string targetStructName)
         {
-            targetStructName = targetStructName ?? Uniform.SpotLightsName;
+            targetStructName = targetStructName ?? Uniform.LightsStructName;
             targetStructName += ".";
 
             program.Uniform(targetStructName + "Direction", _direction);
@@ -258,12 +220,12 @@ namespace TheraEngine.Components.Scene.Lights
             {
                 float cutoff = Math.Max(OuterCutoffAngleDegrees, InnerCutoffAngleDegrees);
                 ShadowCamera = new PerspectiveCamera(1.0f, _distance, cutoff * 2.0f, 1.0f);
-                //ShadowCamera.LocalRotation.SyncFrom(_rotation);
-                //ShadowCamera.LocalPoint.SyncFrom(_translation);
+                ShadowCamera.LocalRotation.SyncFrom(_rotation);
+                ShadowCamera.LocalPoint.SyncFrom(_translation);
             }
         }
         
-        public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int16)
+        public override TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
             TexRef2D[] refs = new TexRef2D[]
             {
@@ -277,7 +239,7 @@ namespace TheraEngine.Components.Scene.Lights
                     FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                 },
                 new TexRef2D("SpotShadowColor", width, height, 
-                EPixelInternalFormat.R16f, EPixelFormat.Red, EPixelType.HalfFloat)
+                EPixelInternalFormat.R32f, EPixelFormat.Red, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -299,7 +261,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
 
 #if EDITOR
-        protected override string GetPreviewTextureName() => "LightIcon.png";
+        protected override string PreviewIconName => "SpotLightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
         {
             OuterCone.RenderInfo.Visible = selected;

@@ -14,11 +14,9 @@ namespace TheraEngine.Rendering
         [TSerialize]
         public virtual bool VisibleInEditorOnly { get; set; } = false;
 #endif
-
+        [Browsable(false)]
         public DateTime LastRenderedTime { get; internal set; }
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
-
-        internal void EnforceVisibility(bool visible) => Visible = visible;
     }
     public class RenderInfo2D : RenderInfo
     {
@@ -117,7 +115,9 @@ namespace TheraEngine.Rendering
         public bool ReceivesShadows { get; set; } = false;
         [TSerialize]
         public bool CastsShadows { get; set; } = false;
-
+        [TSerialize]
+        public bool VisibleInIBLCapture { get; set; } = true;
+        
         [Browsable(false)]
         public int SceneID { get; internal set; } = -1;
         [Browsable(false)]

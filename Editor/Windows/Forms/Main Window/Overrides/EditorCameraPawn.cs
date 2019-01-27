@@ -125,7 +125,7 @@ namespace TheraEditor.Actors.Types.Pawns
         protected override void Tick(float delta)
         {
             bool moving = Moving;
-            CursorManager.WrapCursorWithinClip = moving;
+            CursorManager.GlobalWrapCursorWithinClip = moving;
             //if (!moving)
             //{
             //    Viewport v = LocalPlayerController?.Viewport;

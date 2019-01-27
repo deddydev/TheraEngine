@@ -1,12 +1,9 @@
 ﻿using BulletSharp;
 using System;
 using System.ComponentModel;
-using System.IO;
-using System.Xml;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Files;
-using TheraEngine.Physics.Bullet.Shapes;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Physics.Bullet.Shapes;
 
 namespace TheraEngine.Physics.Bullet
 {
@@ -27,6 +24,11 @@ namespace TheraEngine.Physics.Bullet
         }
 
         CollisionObject IBulletCollisionObject.CollisionObject => Body;
+        public override void Dispose()
+        {
+            base.Dispose();
+            Body?.Dispose();
+        }
 
         public BulletRigidBody() : base()
         {
@@ -60,7 +62,7 @@ namespace TheraEngine.Physics.Bullet
             Body = new RigidBody(bulletInfo);
             Body.Activate();
 
-            base.CollisionShape = info.CollisionShape;
+            CollisionShape = info.CollisionShape;
 
             Constraints.PostAnythingAdded += Constraints_PostAnythingAdded;
             Constraints.PostAnythingRemoved += Constraints_PostAnythingRemoved;
@@ -202,6 +204,7 @@ namespace TheraEngine.Physics.Bullet
             set
             {
                 base.CollisionShape = value;
+                //Body.CollisionShape?.Dispose();
                 Body.CollisionShape = ((IBulletShape)value).Shape;
             }
         }

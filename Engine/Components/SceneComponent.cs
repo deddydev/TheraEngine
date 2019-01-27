@@ -8,9 +8,22 @@ using TheraEngine.Physics;
 using TheraEngine.Actors;
 using TheraEngine.Worlds;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Rendering.Cameras;
+using System.IO;
 
 namespace TheraEngine.Components
 {
+    internal interface IEditorPreviewIconRenderable : I3DRenderable
+    {
+#if EDITOR
+        string PreviewIconName { get; }
+        bool ScalePreviewIconByDistance { get; set; }
+        float PreviewIconScale { get; set; }
+        RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+#endif
+    }
     public interface ISceneComponent : ISocket
     {
         Matrix4 LocalMatrix { get; }
@@ -453,7 +466,15 @@ namespace TheraEngine.Components
                 OwningScene?.AddPreRenderedObject(r);
 
             if (this is I3DRenderable r3d && OwningScene3D != null)
+            {
                 r3d.RenderInfo.LinkScene(r3d, OwningScene3D);
+#if EDITOR
+                if (this is IEditorPreviewIconRenderable icon)
+                {
+                    icon.PreviewIconRenderCommand = CreatePreviewRenderCommand(icon.PreviewIconName);
+                }
+#endif
+            }
 
             if (this is I2DRenderable r2d && OwningScene2D != null)
                 r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
@@ -695,8 +716,38 @@ namespace TheraEngine.Components
                 throw new InvalidOperationException();
         }
         #endregion
-
+        
 #if EDITOR
+        protected void AddPreviewRenderCommand(RenderCommandMesh3D renderCommand, RenderPasses passes, Camera camera, bool scaleByDistance, float scale)
+        {
+            float camDist = camera.DistanceFromScreenPlane(WorldPoint);
+            if (scaleByDistance)
+                scale *= camDist;
+
+            renderCommand.RenderDistance = camDist;
+            renderCommand.WorldMatrix = Matrix4.CreateSpacialTransform(WorldPoint,
+                camera.RightVector * scale, camera.UpVector * scale, camera.ForwardVector * scale);
+
+            passes.Add(renderCommand);
+        }
+        private RenderCommandMesh3D CreatePreviewRenderCommand(string textureName)
+        {
+            RenderCommandMesh3D rc = new RenderCommandMesh3D(ERenderPass.TransparentForward);
+            VertexQuad quad = VertexQuad.PosZQuad();
+            PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
+            string texPath = Engine.Files.TexturePath(textureName);
+            TexRef2D tex = new TexRef2D("PreviewIcon", texPath) { SamplerName = "Texture0" };
+            GLSLScript shader = Engine.Files.LoadEngineShader("EditorPreviewIcon.fs", EGLSLType.Fragment);
+            TMaterial mat = new TMaterial("EditorPreviewIconMaterial", new BaseTexRef[] { tex }, shader)
+            {
+                RenderParams = new RenderingParameters()
+                {
+                    DepthTest = new DepthTest { Enabled = ERenderParamUsage.Disabled },
+                }
+            };
+            rc.Mesh = new PrimitiveManager(data, mat);
+            return rc;
+        }
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             //foreach (SceneComponent comp in ChildComponents)

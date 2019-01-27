@@ -153,6 +153,8 @@ namespace TheraEngine.Core.Shapes
             => Collision.SphereContainsPoint(Center, Radius, point);
         public override EContainment Contains(BoundingBox box)
             => Collision.SphereContainsAABB(Center, Radius, box.Minimum, box.Maximum);
+        public override EContainment Contains(BoundingBoxStruct box)
+            => Collision.SphereContainsAABB(Center, Radius, box.Minimum, box.Maximum);
         public override EContainment Contains(Box box)
             => Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.Transform.InverseMatrix);
         public override EContainment Contains(Sphere sphere)
@@ -211,10 +213,5 @@ namespace TheraEngine.Core.Shapes
             => Center.Raw = matrix.Translation;
         public override Matrix4 GetTransformMatrix() 
             => Center.AsTranslationMatrix();
-
-        public override EContainment Contains(BoundingBoxStruct box)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

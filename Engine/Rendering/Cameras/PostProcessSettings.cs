@@ -87,33 +87,6 @@ namespace TheraEngine.Rendering.Cameras
 
         }
     }
-    public class ShadowSettings : PostSettings
-    {
-        [TSerialize]
-        [DisplayName("Multiplier")]
-        [Category("Shadow Map Settings")]
-        public float ShadowBase { get; set; } = 0.04f;
-        [TSerialize]
-        [DisplayName("Exponent")]
-        [Category("Shadow Map Settings")]
-        public float ShadowMult { get; set; } = 1.0f;
-        [TSerialize]
-        [DisplayName("Minimum")]
-        [Category("Shadow Map Settings")]
-        public float ShadowBiasMin { get; set; } = 0.001f;
-        [TSerialize]
-        [DisplayName("Maximum")]
-        [Category("Shadow Map Settings")]
-        public float ShadowBiasMax { get; set; } = 0.1f;
-
-        internal void SetUniforms(RenderProgram program)
-        {
-            program.Uniform("ShadowBase", ShadowBase);
-            program.Uniform("ShadowMult", ShadowMult);
-            program.Uniform("ShadowBiasMin", ShadowBiasMin);
-            program.Uniform("ShadowBiasMax", ShadowBiasMax);
-        }
-    }
     public class AmbientOcclusionSettings : PostSettings
     {
         [TSerialize]

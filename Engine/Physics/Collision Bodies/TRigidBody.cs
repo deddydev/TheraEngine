@@ -123,6 +123,8 @@ namespace TheraEngine.Physics
             get => _simulatingPhysics;
             set
             {
+                if (_simulatingPhysics == value)
+                    return;
                 _simulatingPhysics = value;
                 if (!_simulatingPhysics)
                 {

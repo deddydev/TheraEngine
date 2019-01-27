@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
@@ -22,8 +23,14 @@ namespace TheraEditor.Windows.Forms
         Text,
         Python,
         Lua,
+        [Description("C#")]
         CSharp,
         GLSL,
+        XML,
+        JSON,
+        //C,
+        //[Description("C++")]
+        //CPlusPlus,
     }
     public partial class DockableTextEditor : DockContent
     {
@@ -31,7 +38,8 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
 
-            cboMode.Items.AddRange(Enum.GetNames(typeof(ETextEditorMode)));
+            foreach (ETextEditorMode e in Enum.GetValues(typeof(ETextEditorMode)))
+                cboMode.Items.Add(e.GetDescription());
             cboMode.SelectedIndex = 0;
 
             TextBox.CustomAction += TextBox_CustomAction;
@@ -70,7 +78,6 @@ namespace TheraEditor.Windows.Forms
         }
         
         private AutocompleteMenu AutoCompleteMenu { get; set; }
-        public Func<string, DockableTextEditor, (bool, string)> CompileGLSL;
         
         private Range HoveredWordRange { get; set; }
         private Style InvisibleCharsStyle { get; } = new InvisibleCharsRenderer(Pens.Gray);
@@ -92,7 +99,7 @@ namespace TheraEditor.Windows.Forms
             DockPanel dockPanel,
             DockState document,
             TextFile file,
-            Action<DockableTextEditor> onSave = null)
+            Action<DockableTextEditor> onSavedOverride = null)
         {
             DockableTextEditor editor;
             if (file.RootFile == file && !string.IsNullOrWhiteSpace(file?.FilePath))
@@ -117,8 +124,8 @@ namespace TheraEditor.Windows.Forms
             editor.Show(dockPanel, document);
             editor.TargetFile = file;
 
-            if (onSave != null)
-                editor.Saved += onSave;
+            if (onSavedOverride != null)
+                editor.SavedOverride += onSavedOverride;
 
             return editor;
         }
@@ -190,32 +197,7 @@ namespace TheraEditor.Windows.Forms
                 TextBox.ClearUndo();
             }
         }
-        public void Save()
-        {
-            TargetFile.Text = GetText();
-            if (!string.IsNullOrWhiteSpace(TargetFile.FilePath))
-                SaveAs(TargetFile.FilePath);
-            Saved?.Invoke(this);
-        }
-        public async void SaveAs(string path)
-        {
-            TextBox.CloseBindingFile();
-            Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving text...", out Progress<float> progress, out CancellationTokenSource cancel);
-            await TargetFile.ExportAsync(path, progress, cancel.Token);
-            Editor.Instance.ContentTree.EndFileSave(path);
-            TextBox.OpenBindingFile(path, TargetFile.Encoding);
 
-            TextBox.OnTextChanged();
-            TextBox.OnSyntaxHighlight(new TextChangedEventArgs(TextBox.Range));
-        }
-        protected override void OnClosed(EventArgs e)
-        {
-            TextBox.CloseBindingFile();
-            if (!string.IsNullOrWhiteSpace(TargetFile?.FilePath))
-                TextEditorInstances.Remove(TargetFile.FilePath);
-            base.OnClosed(e);
-        }
-        
         private ETextEditorMode _mode = ETextEditorMode.Text;
         public ETextEditorMode Mode
         {
@@ -232,6 +214,8 @@ namespace TheraEditor.Windows.Forms
                     case ETextEditorMode.CSharp:    UnInitCSharp(); break;
                     case ETextEditorMode.Lua:       UnInitLua();    break;
                     case ETextEditorMode.GLSL:      UnInitGLSL();   break;
+                    case ETextEditorMode.XML:       UnInitXML();    break;
+                    case ETextEditorMode.JSON:      UnInitJSON();   break;
                 }
                 _mode = value;
                 cboMode.SelectedIndex = (int)_mode;
@@ -242,6 +226,8 @@ namespace TheraEditor.Windows.Forms
                     case ETextEditorMode.CSharp:    InitCSharp();   break;
                     case ETextEditorMode.Lua:       InitLua();      break;
                     case ETextEditorMode.GLSL:      InitGLSL();     break;
+                    case ETextEditorMode.XML:       InitXML();      break;
+                    case ETextEditorMode.JSON:      InitJSON();     break;
                 }
                 
                 TextBox.OnTextChanged();
@@ -254,14 +240,20 @@ namespace TheraEditor.Windows.Forms
         {
             switch (_mode)
             {
-                case ETextEditorMode.Text: UnInitText(); InitText(); break;
-                case ETextEditorMode.Python: UnInitPython(); InitPython(); break;
-                case ETextEditorMode.CSharp: UnInitCSharp(); InitCSharp(); break;
-                case ETextEditorMode.Lua: UnInitLua(); InitLua(); break;
-                case ETextEditorMode.GLSL: UnInitGLSL(); InitGLSL(); break;
+                case ETextEditorMode.Text:      UnInitText();   InitText();     break;
+                case ETextEditorMode.Python:    UnInitPython(); InitPython();   break;
+                case ETextEditorMode.CSharp:    UnInitCSharp(); InitCSharp();   break;
+                case ETextEditorMode.Lua:       UnInitLua();    InitLua();      break;
+                case ETextEditorMode.GLSL:      UnInitGLSL();   InitGLSL();     break;
+                case ETextEditorMode.XML:       UnInitXML();    InitXML();      break;
+                case ETextEditorMode.JSON:      UnInitJSON();   InitJSON();     break;
             }
         }
 
+        private static readonly string StringRegex = @"""""|@""""|''|@"".*?""|(?<!@)(?<range>"".*?[^\\]"")|'.*?[^\\]'";
+        private static readonly string NumberRegex = @"\b\d+[\.]?\d*([eE]\-?\d+)?[lLdDfF]?\b|\b0x[a-fA-F\d]+\b";
+
+        #region Text Init
         private void InitText()
         {
             dgvObjectExplorer.Visible = false;
@@ -272,6 +264,9 @@ namespace TheraEditor.Windows.Forms
             dgvObjectExplorer.Visible = false;
             lblSplitFileObjects.Visible = false;
         }
+        #endregion
+
+        #region Python Init
         private void InitPython()
         {
             TextBox.CommentPrefix = "#";
@@ -284,10 +279,67 @@ namespace TheraEditor.Windows.Forms
         {
             TextBox.AutoIndentNeeded -= TextBox_AutoIndentNeeded_Python;
         }
+        public static string[] PythonKeywords =
+        {
+            "False",
+            "class",
+            "finally",
+            "is",
+            "return",
+            "None",
+            "continue",
+            "for",
+            "lambda",
+            "try",
+            "True",
+            "def",
+            "from",
+            "nonlocal",
+            "while",
+            "and",
+            "del",
+            "global",
+            "not",
+            "with",
+            "as",
+            "elif",
+            "if",
+            "or",
+            "yield",
+            "assert",
+            "else",
+            "import",
+            "pass",
+            "break",
+            "except",
+            "in",
+            "raise"
+        };
+        public static readonly string PythonKeywordsRegex = string.Join("|", PythonKeywords);
+        private void TextBox_AutoIndentNeeded_Python(object sender, AutoIndentEventArgs e)
+        {
+            string line = e.LineText.Trim();
+            if (line.EndsWith(":"))
+            {
+                e.ShiftNextLines = e.TabLength;
+                return;
+            }
+        }
+        #endregion
+
+        #region GLSL Init
+        private RenderShader _glslShader;
         private void InitGLSL()
         {
+            if (_targetFile is GLSLScript script)
+            {
+                _glslShader = new RenderShader(script);
+                _glslShader.GenerateSafe();
+            }
+
             dgvObjectExplorer.Visible = true;
             lblSplitFileObjects.Visible = true;
+
             CurrentKeywords = GLSLKeywords;
             HighlightScriptSyntax = GLSLSyntaxHighlight;
             
@@ -321,6 +373,12 @@ namespace TheraEditor.Windows.Forms
         }
         private void UnInitGLSL()
         {
+            _glslShader?.Dispose();
+            _glslShader = null;
+
+            dgvObjectExplorer.Visible = false;
+            lblSplitFileObjects.Visible = false;
+
             TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
             TextBox.TextChanged -= TextBox_TextChanged;
             TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
@@ -330,6 +388,210 @@ namespace TheraEditor.Windows.Forms
             TextBox.SelectionChanged -= TextBox_SelectionChanged;
             AutoCompleteMenu.Opening -= popupMenu_Opening;
         }
+        public static readonly char[] GLSLSyntax = { '(', ')', '[', ']', '{', '}', ',', ';' };
+        public static readonly string[] GLSLKeywords =
+        {
+            "attribute",
+            "const",
+            "uniform",
+            "varying",
+            "buffer",
+            "shared",
+            "coherent",
+            "volatile",
+            "restrict",
+            "readonly",
+            "writeonly",
+            "atomic_uint",
+            "layout",
+            "centroid",
+            "flat",
+            "smooth",
+            "noperspective",
+            "patch",
+            "sample",
+            "break",
+            "continue",
+            "do",
+            "for",
+            "while",
+            "switch",
+            "case",
+            "default",
+            "if",
+            "else",
+            "subroutine",
+            "in",
+            "out",
+            "inout",
+            "float",
+            "double",
+            "int",
+            "void",
+            "bool",
+            "true",
+            "false",
+            "invariant",
+            "precise",
+            "discard",
+            "return",
+            "mat2",
+            "mat3",
+            "mat4",
+            "dmat2",
+            "dmat3",
+            "dmat4",
+            "mat2x2",
+            "mat2x3",
+            "mat2x4",
+            "dmat2x2",
+            "dmat2x3",
+            "dmat2x4",
+            "mat3x2",
+            "mat3x3",
+            "mat3x4",
+            "dmat3x2",
+            "dmat3x3",
+            "dmat3x4",
+            "mat4x2",
+            "mat4x3",
+            "mat4x4",
+            "dmat4x2",
+            "dmat4x3",
+            "dmat4x4",
+            "vec2",
+            "vec3",
+            "vec4",
+            "ivec2",
+            "ivec3",
+            "ivec4",
+            "bvec2",
+            "bvec3",
+            "bvec4",
+            "dvec2",
+            "dvec3",
+            "dvec4",
+            "uint",
+            "uvec2",
+            "uvec3",
+            "uvec4",
+            "lowp",
+            "mediump",
+            "highp",
+            "precision",
+            "sampler1D", "sampler2D", "sampler3D", "samplerCube", "sampler1DShadow", "sampler2DShadow", "samplerCubeShadow", "sampler1DArray", "sampler2DArray", "sampler1DArrayShadow", "sampler2DArrayShadow", "isampler1D", "isampler2D", "isampler3D", "isamplerCube", "isampler1DArray", "isampler2DArray", "usampler1D", "usampler2D", "usampler3D", "usamplerCube", "usampler1DArray", "usampler2DArray", "sampler2DRect", "sampler2DRectShadow", "isampler2DRect", "usampler2DRect", "samplerBuffer", "isamplerBuffer", "usamplerBuffer", "sampler2DMS", "isampler2DMS", "usampler2DMS", "sampler2DMSArray", "isampler2DMSArray", "usampler2DMSArray", "samplerCubeArray", "samplerCubeArrayShadow", "isamplerCubeArray", "usamplerCubeArray", "image1D", "iimage1D", "uimage1D", "image2D", "iimage2D", "uimage2D", "image3D", "iimage3D", "uimage3D", "image2DRect", "iimage2DRect", "uimage2DRect", "imageCube", "iimageCube", "uimageCube", "imageBuffer", "iimageBuffer", "uimageBuffer", "image1DArray", "iimage1DArray", "uimage1DArray", "image2DArray", "iimage2DArray", "uimage2DArray", "imageCubeArray", "iimageCubeArray", "uimageCubeArray", "image2DMS", "iimage2DMS", "uimage2DMS", "image2DMSArray", "iimage2DMSArray", "uimage2DMSArray", "struct" };
+
+        public static string[] GLSLBuiltInMethods =
+        {
+            "abs",
+            "acos",
+            "acosh",
+            "all",
+            "any",
+            "asin",
+            "asinh",
+            "atan",
+            "atanh",
+            "atomicAdd",
+            "atomicAnd",
+            "atomicCompSwap",
+            "atomicCounter",
+            "atomicCounterDecrement",
+            "atomicCounterIncrement",
+            "atomicExchange",
+            "atomicMax",
+            "atomicMin",
+            "atomicOr",
+            "atomicXor",
+            "barrier",
+            "bitCount",
+            "bitfieldExtract",
+            "bitfieldInsert",
+            "bitfieldReverse",
+            "ceil",
+            "clamp",
+            "cos",
+            "cosh",
+            "cross",
+            "degrees",
+            "determinant",
+            "dFdx",
+            "dFdxCoarse",
+            "dFdxFine",
+            "dFdy",
+            "dFdyCoarse",
+            "dFdyFine",
+            "distance",
+            "dot",
+            "EmitStreamVertex",
+            "EmitVertex",
+            "EndPrimitive",
+            "EndStreamPrimitive",
+            "equal",
+            "exp",
+            "exp2",
+            "faceforward",
+            "findLSB",
+            "findMSB",
+            "floatBitsToInt",
+            "floatBitsToUint", "floor", "fma", "fract", "frexp", "fwidth", "fwidthCoarse", "fwidthFine", "gl_ClipDistance", "gl_CullDistance", "gl_FragCoord", "gl_FragDepth", "gl_FrontFacing", "gl_GlobalInvocationID", "gl_HelperInvocation", "gl_InstanceID", "gl_InvocationID", "gl_Layer", "gl_LocalInvocationID", "gl_LocalInvocationIndex", "gl_NumSamples", "gl_NumWorkGroups", "gl_PatchVerticesIn", "gl_PointCoord", "gl_PointSize", "gl_Position", "gl_PrimitiveID", "gl_PrimitiveIDIn", "gl_SampleID", "gl_SampleMask", "gl_SampleMaskIn", "gl_SamplePosition", "gl_TessCoord", "gl_TessLevelInner", "gl_TessLevelOuter", "gl_VertexID", "gl_ViewportIndex", "gl_WorkGroupID", "gl_WorkGroupSize", "greaterThan", "greaterThanEqual", "groupMemoryBarrier", "imageAtomicAdd", "imageAtomicAnd", "imageAtomicCompSwap", "imageAtomicExchange", "imageAtomicMax", "imageAtomicMin", "imageAtomicOr", "imageAtomicXor", "imageLoad", "imageSamples", "imageSize", "imageStore", "imulExtended", "intBitsToFloat", "interpolateAtCentroid", "interpolateAtOffset", "interpolateAtSample", "inverse", "inversesqrt", "isinf", "isnan", "ldexp", "length", "lessThan", "lessThanEqual", "log", "log2", "matrixCompMult", "max", "memoryBarrier", "memoryBarrierAtomicCounter", "memoryBarrierBuffer", "memoryBarrierImage", "memoryBarrierShared", "min", "mix", "mod", "modf", "noise", "noise1", "noise2", "noise3", "noise4", "normalize", "not", "notEqual", "outerProduct", "packDouble2x32", "packHalf2x16", "packSnorm2x16", "packSnorm4x8", "packUnorm", "packUnorm2x16", "packUnorm4x8", "pow", "radians", "reflect", "refract", "round", "roundEven", "sign", "sin", "sinh", "smoothstep", "sqrt", "step", "tan", "tanh", "texelFetch", "texelFetchOffset", "texture", "textureGather", "textureGatherOffset", "textureGatherOffsets", "textureGrad", "textureGradOffset", "textureLod", "textureLodOffset", "textureOffset", "textureProj", "textureProjGrad", "textureProjGradOffset", "textureProjLod", "textureProjLodOffset", "textureProjOffset", "textureQueryLevels", "textureQueryLod", "textureSamples", "textureSize", "transpose", "trunc", "uaddCarry", "uintBitsToFloat", "umulExtended", "unpackDouble2x32", "unpackHalf2x16", "unpackSnorm2x16", "unpackSnorm4x8", "unpackUnorm", "unpackUnorm2x16", "unpackUnorm4x8", "usubBorrow" };
+
+        public static readonly string GLSLKeywordsRegex = string.Join("|", GLSLKeywords);
+        private void GLSLSyntaxHighlight(Range e)
+        {
+            TextBox.LeftBracket = '(';
+            TextBox.RightBracket = ')';
+            TextBox.LeftBracket2 = '\x0';
+            TextBox.RightBracket2 = '\x0';
+
+            //clear style of changed range
+            e.ClearStyle(KeywordStyle, NumberStyle, ClassNameStyle, PreprocessorStyle, CommentStyle, StringStyle);
+
+            //string highlighting
+            e.SetStyle(StringStyle, StringRegex);
+
+            //keyword highlighting
+            e.SetStyle(KeywordStyle, @"\b(attribute|const|uniform|varying|buffer|shared|coherent|volatile|restrict|readonly|writeonly|atomic_uint|layout|centroid|flat|smooth|noperspective|patch|sample|break|continue|do|for|while|switch|case|default|if|else|subroutine|in|out|inout|void|true|false|invariant|precise|discard|return|lowp|mediump|highp|precision|sampler1D|sampler2D|sampler3D|samplerCube|sampler1DShadow|sampler2DShadow|samplerCubeShadow|sampler1DArray|sampler2DArray|sampler1DArrayShadow|sampler2DArrayShadow|isampler1D|isampler2D|isampler3D|isamplerCube|isampler1DArray|isampler2DArray|usampler1D|usampler2D|usampler3D|usamplerCube|usampler1DArray|usampler2DArray|sampler2DRect|sampler2DRectShadow|isampler2DRect|usampler2DRect|samplerBuffer|isamplerBuffer|usamplerBuffer|sampler2DMS|isampler2DMS|usampler2DMS|sampler2DMSArray|isampler2DMSArray|usampler2DMSArray|samplerCubeArray|samplerCubeArrayShadow|isamplerCubeArray|usamplerCubeArray|image1D|iimage1D|uimage1D|image2D|iimage2D|uimage2D|image3D|iimage3D|uimage3D|image2DRect|iimage2DRect|uimage2DRect|imageCube|iimageCube|uimageCube|imageBuffer|iimageBuffer|uimageBuffer|image1DArray|iimage1DArray|uimage1DArray|image2DArray|iimage2DArray|uimage2DArray|imageCubeArray|iimageCubeArray|uimageCubeArray|image2DMS|iimage2DMS|uimage2DMS|image2DMSArray|iimage2DMSArray|uimage2DMSArray|struct)\b");
+
+            //comment highlighting
+            e.SetStyle(CommentStyle, @"//.*$", RegexOptions.Multiline);
+            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(/\*.*)", RegexOptions.Singleline);
+            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(.*\*/)", RegexOptions.Singleline | RegexOptions.RightToLeft);
+
+            //number highlighting
+            e.SetStyle(NumberStyle, NumberRegex);
+
+            //attribute highlighting
+            //e.SetStyle(AttributeStyle, @"^\s*(?<range>\[.+?\])\s*$", RegexOptions.Multiline);
+            e.SetStyle(PreprocessorStyle, @"^#(version|pragma|include)\b");
+
+            //class name highlighting
+            e.SetStyle(ClassNameStyle, @"\b(mat2|mat3|mat4|dmat2|dmat3|dmat4|mat2x2|mat2x3|mat2x4|dmat2x2|dmat2x3|dmat2x4|mat3x2|mat3x3|mat3x4|dmat3x2|dmat3x3|dmat3x4|mat4x2|mat4x3|mat4x4|dmat4x2|dmat4x3|dmat4x4|float|vec2|vec3|vec4|int|ivec2|ivec3|ivec4|bool|bvec2|bvec3|bvec4|double|dvec2|dvec3|dvec4|uint|uvec2|uvec3|uvec4)\b");
+
+            //clear folding markers
+            e.ClearFoldingMarkers();
+
+            //set folding markers
+            e.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
+            e.SetFoldingMarkers(@"/\*", @"\*/"); //allow to collapse comment block
+        }
+        private void TextBox_AutoIndentNeeded_GLSL(object sender, AutoIndentEventArgs e)
+        {
+            string line = e.LineText.Trim();
+            if (line.EndsWith("{"))
+            {
+                e.ShiftNextLines = e.TabLength;
+                return;
+            }
+            else if (line.EndsWith("}"))
+            {
+                e.ShiftNextLines = -e.TabLength;
+                return;
+            }
+        }
+        #endregion
+
+        #region Lua Init
         private void InitLua()
         {
 
@@ -338,6 +600,9 @@ namespace TheraEditor.Windows.Forms
         {
 
         }
+        #endregion
+
+        #region C# Init
         private void InitCSharp()
         {
             dgvObjectExplorer.Visible = true;
@@ -386,6 +651,278 @@ namespace TheraEditor.Windows.Forms
             TextBox.SelectionChanged -= TextBox_SelectionChanged;
             AutoCompleteMenu.Opening -= popupMenu_Opening;
         }
+        public static readonly string[] CSharpPreprocessDirectives =
+        {
+            "region",
+            "endregion",
+            "if",
+            "elif",
+            "else",
+            "endif",
+            "error",
+            "warning",
+            "pragma",
+            "line",
+        };
+        public static readonly string CSharpPreprocessDirectivesRegex = string.Join("|", CSharpPreprocessDirectives);
+        public static readonly string[] CSharpKeywords =
+        {
+            "abstract",
+            "as",
+            "base",
+            "bool",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "checked",
+            "class",
+            "const",
+            "continue",
+            "decimal",
+            "default",
+            "delegate",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "event",
+            "explicit",
+            "extern",
+            "false",
+            "finally",
+            "fixed",
+            "float",
+            "for",
+            "foreach",
+            "goto",
+            "if",
+            "implicit",
+            "in",
+            "int",
+            "interface",
+            "internal",
+            "is",
+            "lock",
+            "long",
+            "namespace",
+            "new",
+            "null",
+            "object",
+            "operator",
+            "out",
+            "override",
+            "params",
+            "private",
+            "protected",
+            "public",
+            "readonly",
+            "ref",
+            "return",
+            "sbyte",
+            "sealed",
+            "short",
+            "sizeof",
+            "stackalloc",
+            "static",
+            "string",
+            "struct",
+            "switch",
+            "this",
+            "throw",
+            "true",
+            "try",
+            "typeof",
+            "uint",
+            "ulong",
+            "unchecked",
+            "unsafe",
+            "ushort",
+            "using",
+            "virtual",
+            "void",
+            "volatile",
+            "while",
+            "add",
+            "alias",
+            "ascending",
+            "descending",
+            "dynamic",
+            "from",
+            "get",
+            "global",
+            "group",
+            "into",
+            "join",
+            "let",
+            "orderby",
+            "partial",
+            "remove",
+            "select",
+            "set",
+            "value",
+            "var",
+            "where",
+            "yield",
+            "nameof"
+        };
+        public static readonly string CSharpKeywordsRegex = string.Join("|", CSharpKeywords);
+
+        public string[] CurrentKeywords;
+
+        public static readonly string[] CSharpObjectMethods =
+        {
+            "Equals()", "GetHashCode()", "GetType()", "ToString()"
+        };
+        public static readonly string[] CSharpSnippets =
+        {
+            "if (^)\n{\n\n}",
+            "if (^)\n{\n\n}\nelse\n{\n\n}",
+            "for (^;;)\n{\n\n}",
+            "while (^)\n{\n\n}",
+            "do\n{\n^;\n} ",
+            "while (^);",
+            "switch (^)\n{\n\n}",
+            "case ^:",
+            "case ^:\nbreak;",
+            "case ^:\n{\n\n}\nbreak;",
+        };
+        public static readonly string[] CSharpDecSnippets =
+        {
+            "public class ^\n{\n\n}",
+            "private class ^\n{\n\n}",
+            "internal class ^\n{\n\n}",
+
+            "public struct ^\n{\n\n}",
+            "private struct ^\n{\n\n}",
+            "internal struct ^\n{\n\n}",
+
+            "public void ^()\n{\nthrow new NotImplementedException();\n}",
+            "private void ^()\n{\nthrow new NotImplementedException();\n}",
+            "internal void ^()\n{\nthrow new NotImplementedException();\n}",
+            "internal protected void ^()\n{\nthrow new NotImplementedException();\n}",
+            "protected void ^()\n{\nthrow new NotImplementedException();\n}",
+
+            "public static void ^()\n{\nthrow new NotImplementedException();\n}",
+            "private static  void ^()\n{\nthrow new NotImplementedException();\n}",
+            "internal static void ^()\n{\nthrow new NotImplementedException();\n}",
+            "internal protected static void ^()\n{\nthrow new NotImplementedException();\n}",
+            "protected static void ^()\n{\nthrow new NotImplementedException();\n}",
+
+            "public ^{ get; set; }",
+            "private ^{ get; set; }",
+            "internal ^{ get; set; }",
+            "internal protected ^{ get; set; }",
+            "protected ^{ get; set; }",
+        };
+
+        private void CSharpSyntaxHighlight(Range e)
+        {
+            TextBox.LeftBracket = '(';
+            TextBox.RightBracket = ')';
+            TextBox.LeftBracket2 = '\x0';
+            TextBox.RightBracket2 = '\x0';
+
+            //clear style of changed range
+            e.ClearStyle(KeywordStyle, ClassNameStyle, PreprocessorStyle, NumberStyle, CommentStyle, StringStyle);
+
+            //string highlighting
+            e.SetStyle(StringStyle, StringRegex);
+
+            //keyword highlighting
+            e.SetStyle(KeywordStyle, @"\b(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while|add|alias|ascending|descending|dynamic|from|get|global|group|into|join|let|orderby|partial|remove|select|set|value|var|where|yield|nameof)\b");
+
+            //comment highlighting
+            e.SetStyle(CommentStyle, @"//.*$", RegexOptions.Multiline);
+            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(/\*.*)", RegexOptions.Singleline);
+            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(.*\*/)", RegexOptions.Singleline | RegexOptions.RightToLeft);
+
+            //number highlighting
+            e.SetStyle(NumberStyle, NumberRegex);
+
+            //attribute highlighting
+            //e.SetStyle(AttributeStyle, @"^\s*(?<range>\[.+?\])\s*$", RegexOptions.Multiline);
+            e.SetStyle(PreprocessorStyle, @"^#(region|endregion|if|elif|else|endif|error|warning|pragma|line)\b");
+
+            //class name highlighting
+            e.SetStyle(ClassNameStyle, @"\b(class|struct|enum|interface)\s+(?<range>\w+?)\b");
+
+            //clear folding markers
+            e.ClearFoldingMarkers();
+
+            //set folding markers
+            e.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
+            e.SetFoldingMarkers(@"#region\b", @"#endregion\b"); //allow to collapse #region blocks
+            e.SetFoldingMarkers(@"/\*", @"\*/"); //allow to collapse comment block
+        }
+        private void TextBox_AutoIndentNeeded_CSharp(object sender, AutoIndentEventArgs args)
+        {
+            //block {}
+            if (Regex.IsMatch(args.LineText, @"^[^""']*\{.*\}[^""']*$"))
+                return;
+
+            //start of block {}
+            if (Regex.IsMatch(args.LineText, @"^[^""']*\{"))
+            {
+                args.ShiftNextLines = args.TabLength;
+                return;
+            }
+
+            //end of block {}
+            if (Regex.IsMatch(args.LineText, @"}[^""']*$"))
+            {
+                args.Shift = -args.TabLength;
+                args.ShiftNextLines = -args.TabLength;
+                return;
+            }
+
+            //label
+            if (Regex.IsMatch(args.LineText, @"^\s*\w+\s*:\s*($|//)") &&
+                !Regex.IsMatch(args.LineText, @"^\s*default\s*:"))
+            {
+                args.Shift = -args.TabLength;
+                return;
+            }
+
+            //some statements: case, default
+            if (Regex.IsMatch(args.LineText, @"^\s*(case|default)\b.*:\s*($|//)"))
+            {
+                args.Shift = -args.TabLength / 2;
+                return;
+            }
+
+            //is unclosed operator in previous line ?
+            if (Regex.IsMatch(args.PrevLineText, @"^\s*(if|for|foreach|while|[\}\s]*else)\b[^{]*$"))
+                if (!Regex.IsMatch(args.PrevLineText, @"(;\s*$)|(;\s*//)")) //operator is unclosed
+                {
+                    args.Shift = args.TabLength;
+                    return;
+                }
+        }
+        #endregion
+
+        #region XML Init
+        private void InitXML()
+        {
+
+        }
+        private void UnInitXML()
+        {
+
+        }
+        #endregion
+
+        #region JSON Init
+        private void InitJSON()
+        {
+            
+        }
+        private void UnInitJSON()
+        {
+
+        }
+        #endregion
 
         void popupMenu_Opening(object sender, CancelEventArgs e)
         {
@@ -528,9 +1065,87 @@ namespace TheraEditor.Windows.Forms
         {
             HighlightRange(e.ChangedRange);
         }
+        private (bool Success, string Output) CompileGLSL()
+        {
+            string ext = string.IsNullOrEmpty(_targetFile.FilePath) ? string.Empty : Path.GetExtension(_targetFile.FilePath).Substring(1);
+            EGLSLType mode = _glslShader.ShaderMode;
+            switch (ext)
+            {
+                case "fs":
+                case "frag":
+                    mode = EGLSLType.Fragment;
+                    break;
+                case "vs":
+                case "vert":
+                    mode = EGLSLType.Vertex;
+                    break;
+                case "gs":
+                case "geom":
+                    mode = EGLSLType.Geometry;
+                    break;
+                case "tcs":
+                case "tesc":
+                    mode = EGLSLType.TessControl;
+                    break;
+                case "tes":
+                case "tese":
+                    mode = EGLSLType.TessEvaluation;
+                    break;
+                case "cs":
+                case "comp":
+                    mode = EGLSLType.Compute;
+                    break;
+            }
+            _glslShader.SetSource(TextBox.Text, mode, false);
+            bool success = _glslShader.Compile(out string info, false);
+            return (success, info);
+        }
         private void TextBox_TextChangedDelayed(object sender, TextChangedEventArgs e)
         {
             ThreadPool.QueueUserWorkItem((o) => ReBuildObjectExplorer(TextBox.Text));
+
+            if (Mode == ETextEditorMode.GLSL)
+            {
+                var (Success, Output) = CompileGLSL();
+                if (!Success)
+                {
+                    Engine.PrintLine(Output);
+
+                    //int[] errorLines = output.FindAllOccurrences(0, ") : ");
+                    //foreach (int i in errorLines)
+                    //{
+                    //    int start = output.FindFirstReverse(i - 1, '(');
+                    //    int lineIndex = int.Parse(output.Substring(start + 1, i - start - 1)) - 1;
+                    //    if (lineIndex >= 0 && lineIndex < TextBox.LinesCount)
+                    //    {
+                    //        Line lineInfo = TextBox[lineIndex];
+                    //        _errorLines.Add(lineInfo);
+                    //        lineInfo.BackgroundBrush = _errorBrush;
+
+                    //        string line = lineInfo.Text;
+                    //        int errorStart = i + 4;//errors.FindFirst(i + 3, ':') + 2;
+                    //        int errorEnd = output.FindFirst(errorStart, "\n");
+                    //        string errorMsg = output.Substring(errorStart, errorEnd - errorStart);
+
+                    //        lineInfo.AddRange((" // " + errorMsg).Select(x => new FastColoredTextBoxNS.Char(x)));
+                    //    }
+                    //    //Match m = Regex.Match(errorMsg, "(?<= \").*(?=\")");
+                    //    //int tokenStart = line.IndexOf(m.Value);
+                    //    //if (tokenStart < 0)
+                    //    //    continue;
+                    //    //Place px;
+                    //    //for (int x = 0; x < m.Length; ++x)
+                    //    //{
+                    //    //    px = new Place(tokenStart + x, lineIndex);
+                    //    //    FastColoredTextBoxNS.Char cx = TextBox[px];
+                    //    //    cx.style = TextBox.GetStyleIndexMask(new Style[] { _errorStyle });
+                    //    //    TextBox[px] = cx;
+                    //    //}
+                    //    //0(line#) : error CXXXX: <message>
+                    //    //at token "<token>"
+                    //}
+                }
+            }
         }
         public void HighlightRange(Range range)
         {
@@ -548,8 +1163,8 @@ namespace TheraEditor.Windows.Forms
                 range.SetStyle(InvisibleCharsStyle, @".$|.\r\n|\s");
         }
 
-        List<ExplorerItem> _explorerList = new List<ExplorerItem>();
-
+        #region Item Explorer
+        private List<ExplorerItem> _explorerList = new List<ExplorerItem>();
         private void ReBuildObjectExplorer(string text)
         {
             try
@@ -625,7 +1240,6 @@ namespace TheraEditor.Windows.Forms
             }
             catch { }
         }
-
         private enum EExplorerItemType
         {
             Class,
@@ -645,7 +1259,46 @@ namespace TheraEditor.Windows.Forms
             public int Compare(ExplorerItem x, ExplorerItem y)
                 => x.Title.CompareTo(y.Title);
         }
-        
+        private void dgvObjectExplorer_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (TextBox != null)
+            {
+                var item = _explorerList[e.RowIndex];
+                TextBox.GoEnd();
+                TextBox.SelectionStart = item.Position;
+                TextBox.SelectionLength = item.Length;
+                TextBox.DoSelectionVisible();
+                TextBox.Focus();
+            }
+        }
+        private void dgvObjectExplorer_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        {
+            try
+            {
+                ExplorerItem item = _explorerList[e.RowIndex];
+                if (e.ColumnIndex == 1)
+                    e.Value = item.Title;
+                else
+                    switch (item.Type)
+                    {
+                        case EExplorerItemType.Class:
+                            e.Value = ClassImage;
+                            return;
+                        case EExplorerItemType.Method:
+                            e.Value = MethodImage;
+                            return;
+                        case EExplorerItemType.Event:
+                            e.Value = EventImage;
+                            return;
+                        case EExplorerItemType.Property:
+                            e.Value = PropertyImage;
+                            return;
+                    }
+            }
+            catch { }
+        }
+        #endregion
+
         private void btnCut_Click(object sender, EventArgs e) => TextBox.Cut();
         private void btnCopy_Click(object sender, EventArgs e) => TextBox.Copy();
         private void btnPaste_Click(object sender, EventArgs e) => TextBox.Paste();
@@ -742,19 +1395,6 @@ namespace TheraEditor.Windows.Forms
                     match.SetStyle(SearchMatchStyle);
         }
 
-        private void dgvObjectExplorer_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            if (TextBox != null)
-            {
-                var item = _explorerList[e.RowIndex];
-                TextBox.GoEnd();
-                TextBox.SelectionStart = item.Position;
-                TextBox.SelectionLength = item.Length;
-                TextBox.DoSelectionVisible();
-                TextBox.Focus();
-            }
-        }
-
         private static Bitmap ClassImage;
         private static Bitmap MethodImage;
         private static Bitmap EventImage;
@@ -778,32 +1418,6 @@ namespace TheraEditor.Windows.Forms
             EventImage = eventSVG.Draw(WidthHeight, WidthHeight);
             PropertyImage = propertySVG.Draw(WidthHeight, WidthHeight);
             FieldImage = fieldSVG.Draw(WidthHeight, WidthHeight);
-        }
-        private void dgvObjectExplorer_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
-        {
-            try
-            {
-                ExplorerItem item = _explorerList[e.RowIndex];
-                if (e.ColumnIndex == 1)
-                    e.Value = item.Title;
-                else
-                    switch (item.Type)
-                    {
-                        case EExplorerItemType.Class:
-                            e.Value = ClassImage;
-                            return;
-                        case EExplorerItemType.Method:
-                            e.Value = MethodImage;
-                            return;
-                        case EExplorerItemType.Event:
-                            e.Value = EventImage;
-                            return;
-                        case EExplorerItemType.Property:
-                            e.Value = PropertyImage;
-                            return;
-                    }
-            }
-            catch { }
         }
         
         /// <summary>
@@ -1008,489 +1622,60 @@ namespace TheraEditor.Windows.Forms
             TextBox.Invalidate();
         }
 
-        public static readonly char[] GLSLSyntax = { '(', ')', '[', ']', '{', '}', ',', ';' };
-        public static readonly string[] GLSLKeywords =
+        public class SelectionStyle : Style
         {
-            "attribute",
-            "const",
-            "uniform",
-            "varying",
-            "buffer",
-            "shared",
-            "coherent",
-            "volatile",
-            "restrict",
-            "readonly",
-            "writeonly",
-            "atomic_uint",
-            "layout",
-            "centroid",
-            "flat",
-            "smooth",
-            "noperspective",
-            "patch",
-            "sample",
-            "break",
-            "continue",
-            "do",
-            "for",
-            "while",
-            "switch",
-            "case",
-            "default",
-            "if",
-            "else",
-            "subroutine",
-            "in",
-            "out",
-            "inout",
-            "float",
-            "double",
-            "int",
-            "void",
-            "bool",
-            "true",
-            "false",
-            "invariant",
-            "precise",
-            "discard",
-            "return",
-            "mat2",
-            "mat3",
-            "mat4",
-            "dmat2",
-            "dmat3",
-            "dmat4",
-            "mat2x2",
-            "mat2x3",
-            "mat2x4",
-            "dmat2x2",
-            "dmat2x3",
-            "dmat2x4",
-            "mat3x2",
-            "mat3x3",
-            "mat3x4",
-            "dmat3x2",
-            "dmat3x3",
-            "dmat3x4",
-            "mat4x2",
-            "mat4x3",
-            "mat4x4",
-            "dmat4x2",
-            "dmat4x3",
-            "dmat4x4",
-            "vec2",
-            "vec3",
-            "vec4",
-            "ivec2",
-            "ivec3", "ivec4", "bvec2", "bvec3", "bvec4", "dvec2", "dvec3", "dvec4", "uint", "uvec2", "uvec3", "uvec4", "lowp", "mediump", "highp", "precision", "sampler1D", "sampler2D", "sampler3D", "samplerCube", "sampler1DShadow", "sampler2DShadow", "samplerCubeShadow", "sampler1DArray", "sampler2DArray", "sampler1DArrayShadow", "sampler2DArrayShadow", "isampler1D", "isampler2D", "isampler3D", "isamplerCube", "isampler1DArray", "isampler2DArray", "usampler1D", "usampler2D", "usampler3D", "usamplerCube", "usampler1DArray", "usampler2DArray", "sampler2DRect", "sampler2DRectShadow", "isampler2DRect", "usampler2DRect", "samplerBuffer", "isamplerBuffer", "usamplerBuffer", "sampler2DMS", "isampler2DMS", "usampler2DMS", "sampler2DMSArray", "isampler2DMSArray", "usampler2DMSArray", "samplerCubeArray", "samplerCubeArrayShadow", "isamplerCubeArray", "usamplerCubeArray", "image1D", "iimage1D", "uimage1D", "image2D", "iimage2D", "uimage2D", "image3D", "iimage3D", "uimage3D", "image2DRect", "iimage2DRect", "uimage2DRect", "imageCube", "iimageCube", "uimageCube", "imageBuffer", "iimageBuffer", "uimageBuffer", "image1DArray", "iimage1DArray", "uimage1DArray", "image2DArray", "iimage2DArray", "uimage2DArray", "imageCubeArray", "iimageCubeArray", "uimageCubeArray", "image2DMS", "iimage2DMS", "uimage2DMS", "image2DMSArray", "iimage2DMSArray", "uimage2DMSArray", "struct" };
+            Pen Pen { get; set; }
 
-        public static string[] GLSLBuiltInMethods =
-        {
-            "abs",
-            "acos",
-            "acosh",
-            "all",
-            "any",
-            "asin",
-            "asinh",
-            "atan",
-            "atanh",
-            "atomicAdd",
-            "atomicAnd",
-            "atomicCompSwap",
-            "atomicCounter",
-            "atomicCounterDecrement",
-            "atomicCounterIncrement",
-            "atomicExchange",
-            "atomicMax",
-            "atomicMin",
-            "atomicOr",
-            "atomicXor",
-            "barrier",
-            "bitCount",
-            "bitfieldExtract",
-            "bitfieldInsert",
-            "bitfieldReverse",
-            "ceil",
-            "clamp",
-            "cos",
-            "cosh",
-            "cross",
-            "degrees",
-            "determinant",
-            "dFdx",
-            "dFdxCoarse",
-            "dFdxFine",
-            "dFdy",
-            "dFdyCoarse",
-            "dFdyFine",
-            "distance",
-            "dot",
-            "EmitStreamVertex",
-            "EmitVertex",
-            "EndPrimitive",
-            "EndStreamPrimitive",
-            "equal",
-            "exp",
-            "exp2",
-            "faceforward", "findLSB", "findMSB", "floatBitsToInt", "floatBitsToUint", "floor", "fma", "fract", "frexp", "fwidth", "fwidthCoarse", "fwidthFine", "gl_ClipDistance", "gl_CullDistance", "gl_FragCoord", "gl_FragDepth", "gl_FrontFacing", "gl_GlobalInvocationID", "gl_HelperInvocation", "gl_InstanceID", "gl_InvocationID", "gl_Layer", "gl_LocalInvocationID", "gl_LocalInvocationIndex", "gl_NumSamples", "gl_NumWorkGroups", "gl_PatchVerticesIn", "gl_PointCoord", "gl_PointSize", "gl_Position", "gl_PrimitiveID", "gl_PrimitiveIDIn", "gl_SampleID", "gl_SampleMask", "gl_SampleMaskIn", "gl_SamplePosition", "gl_TessCoord", "gl_TessLevelInner", "gl_TessLevelOuter", "gl_VertexID", "gl_ViewportIndex", "gl_WorkGroupID", "gl_WorkGroupSize", "greaterThan", "greaterThanEqual", "groupMemoryBarrier", "imageAtomicAdd", "imageAtomicAnd", "imageAtomicCompSwap", "imageAtomicExchange", "imageAtomicMax", "imageAtomicMin", "imageAtomicOr", "imageAtomicXor", "imageLoad", "imageSamples", "imageSize", "imageStore", "imulExtended", "intBitsToFloat", "interpolateAtCentroid", "interpolateAtOffset", "interpolateAtSample", "inverse", "inversesqrt", "isinf", "isnan", "ldexp", "length", "lessThan", "lessThanEqual", "log", "log2", "matrixCompMult", "max", "memoryBarrier", "memoryBarrierAtomicCounter", "memoryBarrierBuffer", "memoryBarrierImage", "memoryBarrierShared", "min", "mix", "mod", "modf", "noise", "noise1", "noise2", "noise3", "noise4", "normalize", "not", "notEqual", "outerProduct", "packDouble2x32", "packHalf2x16", "packSnorm2x16", "packSnorm4x8", "packUnorm", "packUnorm2x16", "packUnorm4x8", "pow", "radians", "reflect", "refract", "round", "roundEven", "sign", "sin", "sinh", "smoothstep", "sqrt", "step", "tan", "tanh", "texelFetch", "texelFetchOffset", "texture", "textureGather", "textureGatherOffset", "textureGatherOffsets", "textureGrad", "textureGradOffset", "textureLod", "textureLodOffset", "textureOffset", "textureProj", "textureProjGrad", "textureProjGradOffset", "textureProjLod", "textureProjLodOffset", "textureProjOffset", "textureQueryLevels", "textureQueryLod", "textureSamples", "textureSize", "transpose", "trunc", "uaddCarry", "uintBitsToFloat", "umulExtended", "unpackDouble2x32", "unpackHalf2x16", "unpackSnorm2x16", "unpackSnorm4x8", "unpackUnorm", "unpackUnorm2x16", "unpackUnorm4x8", "usubBorrow" };
+            public SelectionStyle(Pen pen)
+            {
+                Pen = pen;
+            }
 
-        public static readonly string GLSLKeywordsRegex = string.Join("|", GLSLKeywords);
-        private void GLSLSyntaxHighlight(Range e)
-        {
-            TextBox.LeftBracket = '(';
-            TextBox.RightBracket = ')';
-            TextBox.LeftBracket2 = '\x0';
-            TextBox.RightBracket2 = '\x0';
-
-            //clear style of changed range
-            e.ClearStyle(KeywordStyle, NumberStyle, ClassNameStyle, PreprocessorStyle, CommentStyle, StringStyle);
-
-            //string highlighting
-            e.SetStyle(StringStyle, StringRegex);
-
-            //keyword highlighting
-            e.SetStyle(KeywordStyle, @"\b(attribute|const|uniform|varying|buffer|shared|coherent|volatile|restrict|readonly|writeonly|atomic_uint|layout|centroid|flat|smooth|noperspective|patch|sample|break|continue|do|for|while|switch|case|default|if|else|subroutine|in|out|inout|void|true|false|invariant|precise|discard|return|lowp|mediump|highp|precision|sampler1D|sampler2D|sampler3D|samplerCube|sampler1DShadow|sampler2DShadow|samplerCubeShadow|sampler1DArray|sampler2DArray|sampler1DArrayShadow|sampler2DArrayShadow|isampler1D|isampler2D|isampler3D|isamplerCube|isampler1DArray|isampler2DArray|usampler1D|usampler2D|usampler3D|usamplerCube|usampler1DArray|usampler2DArray|sampler2DRect|sampler2DRectShadow|isampler2DRect|usampler2DRect|samplerBuffer|isamplerBuffer|usamplerBuffer|sampler2DMS|isampler2DMS|usampler2DMS|sampler2DMSArray|isampler2DMSArray|usampler2DMSArray|samplerCubeArray|samplerCubeArrayShadow|isamplerCubeArray|usamplerCubeArray|image1D|iimage1D|uimage1D|image2D|iimage2D|uimage2D|image3D|iimage3D|uimage3D|image2DRect|iimage2DRect|uimage2DRect|imageCube|iimageCube|uimageCube|imageBuffer|iimageBuffer|uimageBuffer|image1DArray|iimage1DArray|uimage1DArray|image2DArray|iimage2DArray|uimage2DArray|imageCubeArray|iimageCubeArray|uimageCubeArray|image2DMS|iimage2DMS|uimage2DMS|image2DMSArray|iimage2DMSArray|uimage2DMSArray|struct)\b");
-
-            //comment highlighting
-            e.SetStyle(CommentStyle, @"//.*$", RegexOptions.Multiline);
-            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(/\*.*)", RegexOptions.Singleline);
-            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(.*\*/)", RegexOptions.Singleline | RegexOptions.RightToLeft);
-
-            //number highlighting
-            e.SetStyle(NumberStyle, NumberRegex);
-
-            //attribute highlighting
-            //e.SetStyle(AttributeStyle, @"^\s*(?<range>\[.+?\])\s*$", RegexOptions.Multiline);
-            e.SetStyle(PreprocessorStyle, @"^#(version|pragma)\b");
-
-            //class name highlighting
-            e.SetStyle(ClassNameStyle, @"\b(mat2|mat3|mat4|dmat2|dmat3|dmat4|mat2x2|mat2x3|mat2x4|dmat2x2|dmat2x3|dmat2x4|mat3x2|mat3x3|mat3x4|dmat3x2|dmat3x3|dmat3x4|mat4x2|mat4x3|mat4x4|dmat4x2|dmat4x3|dmat4x4|float|vec2|vec3|vec4|int|ivec2|ivec3|ivec4|bool|bvec2|bvec3|bvec4|double|dvec2|dvec3|dvec4|uint|uvec2|uvec3|uvec4)\b");
-
-            //clear folding markers
-            e.ClearFoldingMarkers();
-
-            //set folding markers
-            e.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
-            e.SetFoldingMarkers(@"/\*", @"\*/"); //allow to collapse comment block
+            public override void Draw(Graphics graphics, Point position, Range range)
+            {
+                var tb = range.tb;
+                graphics.DrawRectangle(Pen, new Rectangle(position, new Size(range.TextLength * tb.CharWidth, tb.CharHeight)));
+            }
         }
 
-        public static string[] PythonKeywords =
+        public class InvisibleCharsRenderer : Style
         {
-            "False",
-            "class",
-            "finally",
-            "is",
-            "return",
-            "None",
-            "continue",
-            "for",
-            "lambda",
-            "try",
-            "True",
-            "def",
-            "from",
-            "nonlocal",
-            "while",
-            "and",
-            "del",
-            "global",
-            "not",
-            "with",
-            "as",
-            "elif",
-            "if",
-            "or",
-            "yield",
-            "assert",
-            "else",
-            "import",
-            "pass",
-            "break",
-            "except",
-            "in",
-            "raise"
-        };
-        public static readonly string PythonKeywordsRegex = string.Join("|", PythonKeywords);
-        public static readonly string[] CSharpPreprocessDirectives =
-        {
-            "region",
-            "endregion",
-            "if",
-            "elif",
-            "else",
-            "endif",
-            "error",
-            "warning",
-            "pragma",
-            "line",
-        };
-        public static readonly string CSharpPreprocessDirectivesRegex = string.Join("|", CSharpPreprocessDirectives);
-        public static readonly string[] CSharpKeywords =
-        {
-            "abstract",
-            "as",
-            "base",
-            "bool",
-            "break",
-            "byte",
-            "case",
-            "catch",
-            "char",
-            "checked",
-            "class",
-            "const",
-            "continue",
-            "decimal",
-            "default",
-            "delegate",
-            "do",
-            "double",
-            "else",
-            "enum",
-            "event",
-            "explicit",
-            "extern",
-            "false",
-            "finally",
-            "fixed",
-            "float",
-            "for",
-            "foreach",
-            "goto",
-            "if",
-            "implicit",
-            "in",
-            "int",
-            "interface",
-            "internal",
-            "is",
-            "lock",
-            "long",
-            "namespace",
-            "new",
-            "null",
-            "object",
-            "operator",
-            "out",
-            "override",
-            "params",
-            "private",
-            "protected",
-            "public",
-            "readonly",
-            "ref",
-            "return",
-            "sbyte",
-            "sealed",
-            "short",
-            "sizeof",
-            "stackalloc",
-            "static",
-            "string",
-            "struct",
-            "switch",
-            "this",
-            "throw",
-            "true",
-            "try",
-            "typeof",
-            "uint",
-            "ulong",
-            "unchecked",
-            "unsafe",
-            "ushort",
-            "using",
-            "virtual",
-            "void",
-            "volatile",
-            "while",
-            "add",
-            "alias",
-            "ascending",
-            "descending",
-            "dynamic",
-            "from",
-            "get",
-            "global",
-            "group",
-            "into",
-            "join",
-            "let",
-            "orderby",
-            "partial",
-            "remove",
-            "select",
-            "set",
-            "value",
-            "var",
-            "where",
-            "yield",
-            "nameof"
-        };
-        public static readonly string CSharpKeywordsRegex = string.Join("|", CSharpKeywords);
+            Pen Pen { get; set; }
 
-        public string[] CurrentKeywords;
-
-        public static readonly string[] CSharpObjectMethods =
-        {
-            "Equals()", "GetHashCode()", "GetType()", "ToString()"
-        };
-        public static readonly string[] CSharpSnippets = 
-        {
-            "if (^)\n{\n\n}",
-            "if (^)\n{\n\n}\nelse\n{\n\n}",
-            "for (^;;)\n{\n\n}",
-            "while (^)\n{\n\n}",
-            "do\n{\n^;\n} ",
-            "while (^);",
-            "switch (^)\n{\n\n}",
-            "case ^:",
-            "case ^:\nbreak;",
-            "case ^:\n{\n\n}\nbreak;",
-        };
-        public static readonly string[] CSharpDecSnippets = 
-        {
-            "public class ^\n{\n\n}",
-            "private class ^\n{\n\n}",
-            "internal class ^\n{\n\n}",
-
-            "public struct ^\n{\n\n}",
-            "private struct ^\n{\n\n}",
-            "internal struct ^\n{\n\n}",
-
-            "public void ^()\n{\nthrow new NotImplementedException();\n}",
-            "private void ^()\n{\nthrow new NotImplementedException();\n}",
-            "internal void ^()\n{\nthrow new NotImplementedException();\n}",
-            "internal protected void ^()\n{\nthrow new NotImplementedException();\n}",
-            "protected void ^()\n{\nthrow new NotImplementedException();\n}",
-
-            "public static void ^()\n{\nthrow new NotImplementedException();\n}",
-            "private static  void ^()\n{\nthrow new NotImplementedException();\n}",
-            "internal static void ^()\n{\nthrow new NotImplementedException();\n}",
-            "internal protected static void ^()\n{\nthrow new NotImplementedException();\n}",
-            "protected static void ^()\n{\nthrow new NotImplementedException();\n}",
-
-            "public ^{ get; set; }",
-            "private ^{ get; set; }",
-            "internal ^{ get; set; }",
-            "internal protected ^{ get; set; }",
-            "protected ^{ get; set; }",
-        };
-
-        private static readonly string StringRegex = @"""""|@""""|''|@"".*?""|(?<!@)(?<range>"".*?[^\\]"")|'.*?[^\\]'";
-        private static readonly string NumberRegex = @"\b\d+[\.]?\d*([eE]\-?\d+)?[lLdDfF]?\b|\b0x[a-fA-F\d]+\b";
-        private void CSharpSyntaxHighlight(Range e)
-        {
-            TextBox.LeftBracket = '(';
-            TextBox.RightBracket = ')';
-            TextBox.LeftBracket2 = '\x0';
-            TextBox.RightBracket2 = '\x0';
-
-            //clear style of changed range
-            e.ClearStyle(KeywordStyle, ClassNameStyle, PreprocessorStyle, NumberStyle, CommentStyle, StringStyle);
-
-            //string highlighting
-            e.SetStyle(StringStyle, StringRegex);
-
-            //keyword highlighting
-            e.SetStyle(KeywordStyle, @"\b(abstract|as|base|bool|break|byte|case|catch|char|checked|class|const|continue|decimal|default|delegate|do|double|else|enum|event|explicit|extern|false|finally|fixed|float|for|foreach|goto|if|implicit|in|int|interface|internal|is|lock|long|namespace|new|null|object|operator|out|override|params|private|protected|public|readonly|ref|return|sbyte|sealed|short|sizeof|stackalloc|static|string|struct|switch|this|throw|true|try|typeof|uint|ulong|unchecked|unsafe|ushort|using|virtual|void|volatile|while|add|alias|ascending|descending|dynamic|from|get|global|group|into|join|let|orderby|partial|remove|select|set|value|var|where|yield|nameof)\b");
-
-            //comment highlighting
-            e.SetStyle(CommentStyle, @"//.*$", RegexOptions.Multiline);
-            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(/\*.*)", RegexOptions.Singleline);
-            e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(.*\*/)", RegexOptions.Singleline | RegexOptions.RightToLeft);
-            
-            //number highlighting
-            e.SetStyle(NumberStyle, NumberRegex);
-            
-            //attribute highlighting
-            //e.SetStyle(AttributeStyle, @"^\s*(?<range>\[.+?\])\s*$", RegexOptions.Multiline);
-            e.SetStyle(PreprocessorStyle, @"^#(region|endregion|if|elif|else|endif|error|warning|pragma|line)\b");
-
-            //class name highlighting
-            e.SetStyle(ClassNameStyle, @"\b(class|struct|enum|interface)\s+(?<range>\w+?)\b");
-
-            //clear folding markers
-            e.ClearFoldingMarkers();
-
-            //set folding markers
-            e.SetFoldingMarkers("{", "}"); //allow to collapse brackets block
-            e.SetFoldingMarkers(@"#region\b", @"#endregion\b"); //allow to collapse #region blocks
-            e.SetFoldingMarkers(@"/\*", @"\*/"); //allow to collapse comment block
-        }
-
-        private void TextBox_AutoIndentNeeded_CSharp(object sender, AutoIndentEventArgs args)
-        {
-            //block {}
-            if (Regex.IsMatch(args.LineText, @"^[^""']*\{.*\}[^""']*$"))
-                return;
-
-            //start of block {}
-            if (Regex.IsMatch(args.LineText, @"^[^""']*\{"))
+            public InvisibleCharsRenderer(Pen pen)
             {
-                args.ShiftNextLines = args.TabLength;
-                return;
+                Pen = pen;
             }
 
-            //end of block {}
-            if (Regex.IsMatch(args.LineText, @"}[^""']*$"))
+            public override void Draw(Graphics graphics, Point position, Range range)
             {
-                args.Shift = -args.TabLength;
-                args.ShiftNextLines = -args.TabLength;
-                return;
-            }
-
-            //label
-            if (Regex.IsMatch(args.LineText, @"^\s*\w+\s*:\s*($|//)") &&
-                !Regex.IsMatch(args.LineText, @"^\s*default\s*:"))
-            {
-                args.Shift = -args.TabLength;
-                return;
-            }
-
-            //some statements: case, default
-            if (Regex.IsMatch(args.LineText, @"^\s*(case|default)\b.*:\s*($|//)"))
-            {
-                args.Shift = -args.TabLength / 2;
-                return;
-            }
-
-            //is unclosed operator in previous line ?
-            if (Regex.IsMatch(args.PrevLineText, @"^\s*(if|for|foreach|while|[\}\s]*else)\b[^{]*$"))
-                if (!Regex.IsMatch(args.PrevLineText, @"(;\s*$)|(;\s*//)")) //operator is unclosed
+                var tb = range.tb;
+                using (Brush brush = new SolidBrush(Pen.Color))
                 {
-                    args.Shift = args.TabLength;
-                    return;
+                    foreach (var place in range)
+                    {
+                        switch (tb[place].c)
+                        {
+                            case ' ':
+                                var point = tb.PlaceToPoint(place);
+                                point.Offset(tb.CharWidth / 2, tb.CharHeight / 2);
+                                graphics.DrawLine(Pen, point.X, point.Y, point.X + 1, point.Y);
+                                break;
+                        }
+
+                        if (tb[place.iLine].Count - 1 == place.iChar)
+                        {
+                            var point = tb.PlaceToPoint(place);
+                            point.Offset(tb.CharWidth, 0);
+                            graphics.DrawString("¶", tb.Font, brush, point);
+                        }
+                    }
                 }
-        }
-        private void TextBox_AutoIndentNeeded_GLSL(object sender, AutoIndentEventArgs e)
-        {
-            string line = e.LineText.Trim();
-            if (line.EndsWith("{"))
-            {
-                e.ShiftNextLines = e.TabLength;
-                return;
-            }
-            else if (line.EndsWith("}"))
-            {
-                e.ShiftNextLines = -e.TabLength;
-                return;
-            }
-        }
-        private void TextBox_AutoIndentNeeded_Python(object sender, AutoIndentEventArgs e)
-        {
-            string line = e.LineText.Trim();
-            if (line.EndsWith(":"))
-            {
-                e.ShiftNextLines = e.TabLength;
-                return;
             }
         }
 
         public string GetText() => TextBox.Text;
-        public event Action<DockableTextEditor> Saved;
+        public event Action<DockableTextEditor> SavedOverride;
 
         private bool _updating = false;
         private void cboMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -1498,6 +1683,8 @@ namespace TheraEditor.Windows.Forms
             if (!_updating)
                 Mode = (ETextEditorMode)cboMode.SelectedIndex;
         }
+
+        #region Click
         private void btnFont_Click(object sender, EventArgs e)
         {
             Font prevFont = TextBox.Font;
@@ -1551,18 +1738,9 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            if (TargetFile == null)
-                return;
-
-            if (TextBox.IsChanged)
-            {
-                Save();
-                TextBox.IsChanged = false;
-            }
-        }
-        private void btnSaveAs_Click(object sender, EventArgs e)
+        private void btnSave_Click(object sender, EventArgs e) => Save();
+        private void btnSaveAs_Click(object sender, EventArgs e) => SaveAs();
+        public void SaveAs()
         {
             if (TargetFile == null)
                 return;
@@ -1573,10 +1751,39 @@ namespace TheraEditor.Windows.Forms
             })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)
+                    SaveToPath(sfd.FileName);
+            }
+        }
+        public void Save()
+        {
+            if (TargetFile == null)
+                return;
+
+            if (TextBox.IsChanged)
+            {
+                if (SavedOverride != null)
+                    SavedOverride(this);
+                else
                 {
-                    SaveAs(sfd.FileName);
+                    TargetFile.Text = GetText();
+                    if (!string.IsNullOrWhiteSpace(TargetFile.FilePath))
+                        SaveToPath(TargetFile.FilePath);
+                    else
+                        SaveAs();
                 }
             }
+        }
+        public async void SaveToPath(string path)
+        {
+            TextBox.CloseBindingFile();
+            Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving text...", out Progress<float> progress, out CancellationTokenSource cancel);
+            await TargetFile.ExportAsync(path, progress, cancel.Token);
+            Editor.Instance.ContentTree.EndFileSave(path);
+            TextBox.OpenBindingFile(path, TargetFile.Encoding);
+
+            TextBox.OnTextChanged();
+            TextBox.OnSyntaxHighlight(new TextChangedEventArgs(TextBox.Range));
+            TextBox.IsChanged = false;
         }
         private void btnSelectPaths_Click(object sender, EventArgs e)
         {
@@ -1657,23 +1864,6 @@ namespace TheraEditor.Windows.Forms
             if (form.ShowDialog() == DialogResult.OK)
                 TextBox.HotkeysMapping = form.GetHotkeys();
         }
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            if (TextBox.IsChanged)
-            {
-                DialogResult result = MessageBox.Show(this, 
-                    "Do you want to save your changes before closing?", 
-                    "Save changes?",
-                    MessageBoxButtons.YesNoCancel, 
-                    MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button3);
-
-                e.Cancel = result == DialogResult.Cancel;
-                if (result == DialogResult.Yes)
-                    Save();
-            }
-            base.OnClosing(e);
-        }
         private void btnStartStopRecording_Click(object sender, EventArgs e)
         {
             TextBox.MacrosManager.IsRecording = !TextBox.MacrosManager.IsRecording;
@@ -1706,110 +1896,6 @@ namespace TheraEditor.Windows.Forms
             TextBox.MacrosManager.ExecuteMacros();
             TextBox.MacrosManager.Macros = null;
         }
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            bool processed = base.ProcessCmdKey(ref msg, keyData);
-            if (keyData == Keys.Insert)
-                TextBox_SelectionChanged(null, null);
-            return processed;
-        }
-
-        private Range _currentLine;
-        private SelectionStyle SelStyle = new SelectionStyle(new Pen(new SolidBrush(Color.Gray), 1.2f));
-        private void TextBox_SelectionChanged(object sender, EventArgs e)
-        {
-            bool insert = IsKeyLocked(Keys.Insert);
-            Range newSelection = TextBox.Selection;
-            lblStatusText.Text = string.Format("Ln {0} Col {1} {2}", 
-                newSelection.Start.iLine + 1, newSelection.Start.iChar + 1, insert ? "OVR" : "INS");
-            
-            //_currentLine?.ClearStyle(SelStyle);
-            //if (newSelection.Start.iLine == newSelection.End.iLine)
-            //    newSelection.SetStyle(SelStyle);
-            //_currentLine = newSelection;
-
-            //bool open = AutoCompleteOpen;
-            //if (open)
-            //{
-            //    string prevAuto = _autoCompleteStr;
-            //    FindAutocompleteString(TextBox.Selection.Start);
-            //    if (string.IsNullOrWhiteSpace(_autoCompleteStr) ||
-            //        !string.Equals(_autoCompleteStr, prevAuto))
-            //    {
-            //        open = false;
-            //    }
-            //}
-
-            //Range sel = TextBox.Selection;
-            //Place start = sel.Start;
-            //FindAutocompleteString(start);
-            //int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
-            //if (selCount > 1)
-            //{
-            //    open = true;
-            //}
-
-            //if (AutoCompleteOpen != open)
-            //    AutoCompleteOpen = open;
-        }
-
-        public class SelectionStyle : Style
-        {
-            Pen Pen { get; set; }
-
-            public SelectionStyle(Pen pen)
-            {
-                Pen = pen;
-            }
-
-            public override void Draw(Graphics graphics, Point position, Range range)
-            {
-                var tb = range.tb;
-                graphics.DrawRectangle(Pen, new Rectangle(position, new Size(range.TextLength * tb.CharWidth, tb.CharHeight)));
-            }
-        }
-
-        public class InvisibleCharsRenderer : Style
-        {
-            Pen Pen { get; set; }
-
-            public InvisibleCharsRenderer(Pen pen)
-            {
-                Pen = pen;
-            }
-
-            public override void Draw(Graphics graphics, Point position, Range range)
-            {
-                var tb = range.tb;
-                using (Brush brush = new SolidBrush(Pen.Color))
-                {
-                    foreach (var place in range)
-                    {
-                        switch (tb[place].c)
-                        {
-                            case ' ':
-                                var point = tb.PlaceToPoint(place);
-                                point.Offset(tb.CharWidth / 2, tb.CharHeight / 2);
-                                graphics.DrawLine(Pen, point.X, point.Y, point.X + 1, point.Y);
-                                break;
-                        }
-
-                        if (tb[place.iLine].Count - 1 == place.iChar)
-                        {
-                            var point = tb.PlaceToPoint(place);
-                            point.Offset(tb.CharWidth, 0);
-                            graphics.DrawString("¶", tb.Font, brush, point);
-                        }
-                    }
-                }
-            }
-        }
-        //public class TextBoxInfo
-        //{
-        //    public AutocompleteMenu PopupMenu { get; set; }
-        //}
-
         private void btnGoToDef_Click(object sender, EventArgs e)
         {
 
@@ -1823,6 +1909,59 @@ namespace TheraEditor.Windows.Forms
             dgvObjectExplorer.Visible = !dgvObjectExplorer.Visible;
             lblSplitFileObjects.Text = dgvObjectExplorer.Visible ? "<" : ">";
         }
+        private void btnFindAllRefs_Click(object sender, EventArgs e)
+        {
+
+        }
+        #endregion
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (TextBox.IsChanged)
+            {
+                DialogResult result = MessageBox.Show(this, 
+                    "Do you want to save your changes before closing?", 
+                    "Save changes?",
+                    MessageBoxButtons.YesNoCancel, 
+                    MessageBoxIcon.Warning,
+                    MessageBoxDefaultButton.Button3);
+
+                e.Cancel = result == DialogResult.Cancel;
+                if (result == DialogResult.Yes)
+                    Save();
+            }
+            base.OnClosing(e);
+        }
+        protected override void OnClosed(EventArgs e)
+        {
+            TextBox.CloseBindingFile();
+            if (!string.IsNullOrWhiteSpace(TargetFile?.FilePath))
+                TextEditorInstances.Remove(TargetFile.FilePath);
+            base.OnClosed(e);
+        }
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            bool processed = base.ProcessCmdKey(ref msg, keyData);
+            if (keyData == Keys.Insert)
+                TextBox_SelectionChanged(null, null);
+            return processed;
+        }
+
+        //private Range _currentLine;
+        //private SelectionStyle SelStyle = new SelectionStyle(new Pen(new SolidBrush(Color.Gray), 1.2f));
+        private void TextBox_SelectionChanged(object sender, EventArgs e)
+        {
+            bool insert = IsKeyLocked(Keys.Insert);
+            Range newSelection = TextBox.Selection;
+            lblStatusText.Text = string.Format("Ln {0} Col {1} {2}", 
+                newSelection.Start.iLine + 1, newSelection.Start.iChar + 1, insert ? "OVR" : "INS");
+            
+            //_currentLine?.ClearStyle(SelStyle);
+            //if (newSelection.Start.iLine == newSelection.End.iLine)
+            //    newSelection.SetStyle(SelStyle);
+            //_currentLine = newSelection;
+        }
+        
         private void lblSplitFileObjects_MouseEnter(object sender, EventArgs e)
         {
             lblSplitFileObjects.BackColor = Color.FromArgb(40, 40, 50);
@@ -1831,267 +1970,5 @@ namespace TheraEditor.Windows.Forms
         {
             lblSplitFileObjects.BackColor = Color.FromArgb(30, 30, 40);
         }
-        private void btnFindAllRefs_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        //private bool AutoCompleteOpen
-        //{
-        //    get => pnlAutocomplete.Visible;
-        //    set => pnlAutocomplete.Visible = value;
-        //}
-        //private int RemakeAutoCompleteSelections(string str)
-        //{
-        //    if (string.IsNullOrWhiteSpace(str))
-        //        return 0;
-        //    int i = lstAutocomplete.SelectedIndex;
-        //    var matches = 
-        //        GLSLKeywords.Where(x => x.IndexOf(str, StringComparison.InvariantCultureIgnoreCase) >= 0).Union(
-        //        GLSLBuiltInMethods.Where(x => x.IndexOf(str, StringComparison.InvariantCultureIgnoreCase) >= 0)).ToArray();
-        //    Array.Sort(matches);
-        //    lstAutocomplete.Items.Clear();
-        //    if (matches.Length == 0)
-        //        return 0;
-        //    lstAutocomplete.Items.AddRange(matches);
-        //    int match = Array.FindIndex(matches, x => string.Equals(str, x, StringComparison.InvariantCultureIgnoreCase));
-        //    if (match >= 0)
-        //        lstAutocomplete.SelectedIndex = match;
-        //    else
-        //    {
-        //        match = Array.FindIndex(matches, x => x.StartsWith(str, StringComparison.InvariantCultureIgnoreCase));
-        //        if (match >= 0)
-        //            lstAutocomplete.SelectedIndex = match;
-        //        else
-        //            lstAutocomplete.SelectedIndex = i.Clamp(0, lstAutocomplete.Items.Count - 1);
-        //    }
-        //    pnlAutocomplete.Height = (matches.Length * lstAutocomplete.ItemHeight).Clamp(0, 264);
-        //    return matches.Length;
-        //}
-        //private void FillAutoCompleteSelection()
-        //{
-        //    TextBox.Selection = _autoCompleteStrRange;
-        //    TextBox.ClearSelected();
-        //    string str = (string)lstAutocomplete.SelectedItem;
-        //    TextBox.InsertText(str);
-        //    _autoCompleteStrRange.End = new Place(_autoCompleteStrRange.Start.iChar + str.Length, _autoCompleteStrRange.End.iLine);
-        //    _autoCompleteStr = str;
-        //    AutoCompleteOpen = false;
-        //}
-
-        //private string _autoCompleteStr = null;
-        //private Range _autoCompleteStrRange = null;
-        //private void FindAutocompleteString(Place p)
-        //{
-        //    //int pos = TextBox.PlaceToPosition(p), start = pos, end = pos;
-        //    //bool onBadChar = true;
-        //    //char c;
-        //    //if (pos < TextBox.Text.Length && pos >= 0)
-        //    //{
-        //    //    c = TextBox.Text[pos];
-        //    //    onBadChar = char.IsWhiteSpace(c) || GLSLSyntax.Contains(c);
-        //    //}
-        //    //for (; start > 0;)
-        //    //{
-        //    //    c = TextBox.Text[start - 1];
-        //    //    if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
-        //    //        break;
-        //    //    --start;
-        //    //}
-        //    //if (!onBadChar)
-        //    //{
-        //    //    for (; end < TextBox.Text.Length - 1;)
-        //    //    {
-        //    //        c = TextBox.Text[end + 1];
-        //    //        if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
-        //    //            break;
-        //    //        ++end;
-        //    //    }
-        //    //}
-        //    //else
-        //    //{
-        //    //    if (start == pos)
-        //    //    {
-        //    //        _autoCompleteStr = null;
-        //    //        return;
-        //    //    }
-        //    //    else
-        //    //    {
-        //    //        --end;
-        //    //    }
-        //    //}
-        //    //_autoCompleteStr = "";
-        //    //for (int i = start; i <= end; ++i)
-        //    //    _autoCompleteStr += TextBox.Text[i].ToString();
-        //    //_autoCompleteStrRange = new Range(TextBox, TextBox.PositionToPlace(start), TextBox.PositionToPlace(end + 1));
-        //}
-
-        //private void lstAutocomplete_MouseDoubleClick(object sender, MouseEventArgs e)
-        //{
-        //    FillAutoCompleteSelection();
-        //}
-        //private void TextBox_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    if (e.Modifiers != Keys.None)
-        //        return;
-
-        //    char c = (char)e.KeyData;
-        //    if (AutoCompleteOpen)
-        //    {
-        //        if (e.KeyData == Keys.Up)
-        //        {
-        //            lstAutocomplete.SelectedIndex = (lstAutocomplete.SelectedIndex - 1).ClampMin(0);
-        //            e.Handled = true;
-        //            e.SuppressKeyPress = true;
-        //        }
-        //        else if (e.KeyData == Keys.Down)
-        //        {
-        //            lstAutocomplete.SelectedIndex = (lstAutocomplete.SelectedIndex + 1).ClampMax(lstAutocomplete.Items.Count - 1);
-        //            e.Handled = true;
-        //            e.SuppressKeyPress = true;
-        //        }
-        //        else if (e.KeyData == Keys.Return)
-        //        {
-        //            FillAutoCompleteSelection();
-        //            e.Handled = true;
-        //            e.SuppressKeyPress = true;
-        //        }
-        //    }
-        //}
-        //SolidBrush _errorBrush;
-        //private List<Line> _errorLines = new List<Line>();
-        //private void TextBox_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    foreach (Line line in _errorLines)
-        //    {
-        //        line.BackgroundBrush = TextBox.BackBrush;
-        //        int startRemove = line.Text.IndexOf(" // error");
-        //        if (startRemove >= 0)
-        //            line.RemoveRange(startRemove, line.Count - startRemove);
-        //        startRemove = line.Text.IndexOf(" // warning");
-        //        if (startRemove >= 0)
-        //            line.RemoveRange(startRemove, line.Count - startRemove);
-        //    }
-
-        //    if (e.Modifiers != Keys.None)
-        //        return;
-
-        //    char c = (char)e.KeyData;
-        //    if (AutoCompleteOpen)
-        //    {
-        //        if (e.KeyData == Keys.Up)
-        //        {
-        //            e.Handled = true;
-        //            e.SuppressKeyPress = true;
-        //        }
-        //        else if (e.KeyData == Keys.Down)
-        //        {
-        //            e.Handled = true;
-        //            e.SuppressKeyPress = true;
-        //        }
-        //        else if (e.KeyData == Keys.Return)
-        //        {
-        //            e.Handled = true;
-        //            e.SuppressKeyPress = true;
-        //        }
-        //        else if (e.KeyData == Keys.Left ||
-        //            e.KeyData == Keys.Right)
-        //        {
-        //            string prevAuto = _autoCompleteStr;
-        //            Range sel = TextBox.Selection;
-        //            Place start = sel.Start;
-        //            FindAutocompleteString(start);
-        //            if (string.IsNullOrWhiteSpace(_autoCompleteStr) ||
-        //                !string.Equals(_autoCompleteStr, prevAuto))
-        //            {
-        //                AutoCompleteOpen = false;
-        //            }
-        //            e.Handled = true;
-        //        }
-        //        else if (e.KeyData == Keys.Back ||
-        //            e.KeyData == Keys.Delete ||
-        //            char.IsLetterOrDigit(c))
-        //        {
-        //            //e.Handled = false;
-        //            Range sel = TextBox.Selection;
-        //            Place start = sel.Start;
-        //            FindAutocompleteString(start);
-        //            int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
-        //            if (selCount == 0)
-        //            {
-        //                AutoCompleteOpen = false;
-        //                lstAutocomplete.Items.Clear();
-        //            }
-        //        }
-        //        else if (char.IsWhiteSpace(c) || GLSLSyntax.Contains(c))
-        //        {
-        //            AutoCompleteOpen = false;
-        //            lstAutocomplete.Items.Clear();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (char.IsLetterOrDigit(c))
-        //        {
-        //            Range sel = TextBox.Selection;
-        //            Place start = sel.Start;
-        //            FindAutocompleteString(start);
-        //            int selCount = RemakeAutoCompleteSelections(_autoCompleteStr);
-        //            if (selCount > 0)
-        //            {
-        //                AutoCompleteOpen = true;
-        //                --start.iChar;
-        //                Point p = TextBox.PlaceToPoint(start);
-        //                p = PointToClient(TextBox.PointToScreen(p));
-        //                p.Y += TextBox.CharHeight;
-        //                //p.X -= TextBox.CharWidth;
-        //                pnlAutocomplete.Location = p;
-        //                //e.Handled = true;
-        //            }
-        //        }
-        //    }
-
-        //    if (Mode == ETextEditorMode.GLSL)
-        //    {
-        //        var result = CompileGLSL?.Invoke(TextBox.Text, this);
-        //        if (result != null && !result.Value.Item1)
-        //        {
-        //            string errors = result.Value.Item2;
-        //            int[] errorLines = errors.FindAllOccurrences(0, ") : ");
-        //            foreach (int i in errorLines)
-        //            {
-        //                int start = errors.FindFirstReverse(i - 1, '(');
-        //                int lineIndex = int.Parse(errors.Substring(start + 1, i - start - 1)) - 1;
-        //                if (lineIndex >= 0 && lineIndex < TextBox.LinesCount)
-        //                {
-        //                    Line lineInfo = TextBox[lineIndex];
-        //                    _errorLines.Add(lineInfo);
-        //                    lineInfo.BackgroundBrush = _errorBrush;
-
-        //                    string line = lineInfo.Text;
-        //                    int errorStart = i + 4;//errors.FindFirst(i + 3, ':') + 2;
-        //                    int errorEnd = errors.FindFirst(errorStart, "\n");
-        //                    string errorMsg = errors.Substring(errorStart, errorEnd - errorStart);
-
-        //                    lineInfo.AddRange((" // " + errorMsg).Select(x => new FastColoredTextBoxNS.Char(x)));
-        //                }
-        //                //Match m = Regex.Match(errorMsg, "(?<= \").*(?=\")");
-        //                //int tokenStart = line.IndexOf(m.Value);
-        //                //if (tokenStart < 0)
-        //                //    continue;
-        //                //Place px;
-        //                //for (int x = 0; x < m.Length; ++x)
-        //                //{
-        //                //    px = new Place(tokenStart + x, lineIndex);
-        //                //    FastColoredTextBoxNS.Char cx = TextBox[px];
-        //                //    cx.style = TextBox.GetStyleIndexMask(new Style[] { _errorStyle });
-        //                //    TextBox[px] = cx;
-        //                //}
-        //                //0(line#) : error CXXXX: <message>
-        //                //at token "<token>"
-        //            }
-        //        }
-        //    }
-        //}
     }
 }

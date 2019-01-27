@@ -31,19 +31,6 @@ namespace TheraEngine.Components.Scene.Lights
                 }
             }
         }
-
-        [Category("Directional Light Component")]
-        public int ShadowMapResolutionWidth
-        {
-            get => _region.Width;
-            set => SetShadowMapResolution(value, _region.Height);
-        }
-        [Category("Directional Light Component")]
-        public int ShadowMapResolutionHeight
-        {
-            get => _region.Height;
-            set => SetShadowMapResolution(_region.Width, value);
-        }
         [Category("Directional Light Component")]
         public Vec3 Direction
         {
@@ -90,7 +77,7 @@ namespace TheraEngine.Components.Scene.Lights
                 {
                     s3d.Lights.Add(this);
                     if (ShadowMap == null)
-                        SetShadowMapResolution(1024, 1024);
+                        SetShadowMapResolution(_region.Width, _region.Height);
 
                     ShadowCamera.LocalPoint.Raw = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
@@ -105,16 +92,15 @@ namespace TheraEngine.Components.Scene.Lights
             if (s3d != null)
             {
                 if (Type == ELightType.Dynamic)
-                {
                     s3d.Lights.Remove(this);
-                }
+                
                 ShadowCamera.RenderInfo.UnlinkScene();
             }
             base.OnDespawned();
         }
         public override void SetUniforms(RenderProgram program, string targetStructName)
         {
-            targetStructName = targetStructName ?? Uniform.DirectionalLightsName;
+            targetStructName = targetStructName ?? Uniform.LightsStructName;
             targetStructName += ".";
 
             program.Uniform(targetStructName + "Direction", _direction);
@@ -139,7 +125,8 @@ namespace TheraEngine.Components.Scene.Lights
         {
             TexRef2D[] refs = new TexRef2D[]
             {
-                new TexRef2D("DirShadowDepth", width, height, GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                new TexRef2D("DirShadowDepth", width, height,
+                GetShadowDepthMapFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -147,7 +134,8 @@ namespace TheraEngine.Components.Scene.Lights
                     VWrap = ETexWrapMode.ClampToEdge,
                     FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                 },
-                new TexRef2D("DirShadowColor", width, height, EPixelInternalFormat.R32f, EPixelFormat.Red, EPixelType.Float)
+                new TexRef2D("DirShadowColor", width, height,
+                EPixelInternalFormat.R32f, EPixelFormat.Red, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -167,8 +155,9 @@ namespace TheraEngine.Components.Scene.Lights
 
             return mat;
         }
+
 #if EDITOR
-        protected override string GetPreviewTextureName() => "LightIcon.png";
+        protected override string PreviewIconName => "PointLightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
         {
             ShadowCamera.RenderInfo.Visible = selected;

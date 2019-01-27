@@ -6,7 +6,7 @@ using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Physics
 {
-    public abstract class TCollisionShape
+    public abstract class TCollisionShape : IDisposable
     {
         public abstract float Margin { get; set; }
         public abstract Vec3 LocalScaling { get; set; }
@@ -24,6 +24,8 @@ namespace TheraEngine.Physics
         }
         public abstract void GetAabb(Matrix4 transform, out Vec3 aabbMin, out Vec3 aabbMax);
         public abstract Vec3 CalculateLocalInertia(float mass);
+
+        public abstract void Dispose();
     }
     public abstract class TCollisionSphere : TCollisionShape
     {

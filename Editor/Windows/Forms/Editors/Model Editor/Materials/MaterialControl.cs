@@ -231,7 +231,6 @@ namespace TheraEditor.Windows.Forms
                 DockContent form = FindForm() as DockContent;
                 DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
                 var textEditor = DockableTextEditor.ShowNew(p, DockState.DockLeft, fileRef.File);
-                textEditor.CompileGLSL = M_CompileGLSL;
                 textEditor.FormClosed += TextEditor_FormClosed;
                 _textEditors.Add(file, textEditor);
             }
@@ -243,16 +242,7 @@ namespace TheraEditor.Windows.Forms
             GLSLScript fileRef = editor.TargetFile as GLSLScript;
             _textEditors.Remove(fileRef);
         }
-
-        private (bool, string) M_CompileGLSL(string text, DockableTextEditor editor)
-        {
-            GlobalFileRef<GLSLScript> fileRef = editor.Tag as GlobalFileRef<GLSLScript>;
-            EGLSLType mode = fileRef.File.Type;
-            fileRef.File.Text = text;
-            //bool success = _shader.Compile(out string info, false);
-            return (true, null);
-        }
-
+        
         //private async void M_Saved(DockableTextEditor editor)
         //{
         //    GlobalFileRef<GLSLShaderFile> fileRef = editor.Tag as GlobalFileRef<GLSLShaderFile>;

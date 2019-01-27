@@ -27,8 +27,13 @@ namespace TheraEngine.Physics.Bullet.Shapes
             if (shapes != null)
                 foreach (var shape in shapes)
                     Shape.AddChildShape(shape.localTransform, ((IBulletShape)shape.shape).Shape);
-            
         }
+
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {

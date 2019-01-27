@@ -28,6 +28,10 @@ uniform mat4 InvProjMatrix;
 
 uniform float MinFade = 500.0f;
 uniform float MaxFade = 1000.0f;
+uniform float ShadowBase = 1.0f;
+uniform float ShadowMult = 2.5f;
+uniform float ShadowBiasMin = 0.05f;
+uniform float ShadowBiasMax = 10.0f;
 
 struct PointLight
 {
@@ -37,23 +41,17 @@ struct PointLight
     float Radius;
     float Brightness;
 };
+uniform PointLight LightData;
 
-uniform float ShadowBase = 2.0f;
-uniform float ShadowMult = 3.0f;
-uniform float ShadowBiasMin = 0.00001f;
-uniform float ShadowBiasMax = 0.004f;
-
-uniform PointLight PointLightData;
-
-float GetShadowBias(in float NoL, in float base, in float power, in float minBias, in float maxBias)
+float GetShadowBias(in float NoL)
 {
-    float mapped = pow(base, -NoL * power);
-    return mix(minBias, maxBias, mapped);
+    float mapped = pow(ShadowBase * (1.0f - NoL), ShadowMult);
+    return mix(ShadowBiasMin, ShadowBiasMax, mapped);
 }
 //0 is fully in shadow, 1 is fully lit
 float ReadPointShadowMap(in float farPlaneDist, in vec3 fragToLightWS, in float lightDist, in float NoL)
 {
-    float bias = GetShadowBias(NoL, 10.0f, 2.5f, 0.15f, 5.0f);
+    float bias = GetShadowBias(NoL);
 
     //Hard shadow
     float closestDepth = texture(ShadowMap, fragToLightWS).r * farPlaneDist;
@@ -155,7 +153,7 @@ in vec3 F0)
 	vec3 kD = 1.0f - kS;
 	kD *= 1.0f - metallic;
 
-	vec3 radiance = lightAttenuation * PointLightData.Color * PointLightData.DiffuseIntensity;
+	vec3 radiance = lightAttenuation * LightData.Color * LightData.DiffuseIntensity;
 	return (kD * albedo / PI + spec) * radiance * NoL;
 }
 vec3 CalcPointLight(
@@ -166,9 +164,9 @@ in vec3 albedo,
 in vec3 rms,
 in vec3 F0)
 {
-	vec3 L = PointLightData.Position - fragPosWS;
-	float lightDist = length(L) / PointLightData.Brightness;
-	float radius = PointLightData.Radius / PointLightData.Brightness;
+	vec3 L = LightData.Position - fragPosWS;
+	float lightDist = length(L) / LightData.Brightness;
+	float radius = LightData.Radius / LightData.Brightness;
 	float attn = Attenuate(lightDist, radius);
 	L = normalize(L);
 	vec3 H = normalize(V + L);

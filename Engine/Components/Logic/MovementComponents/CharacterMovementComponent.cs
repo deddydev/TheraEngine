@@ -39,15 +39,15 @@ namespace TheraEngine.Components.Logic.Movement
         #endregion
 
         #region Properties
-        [TNumericPrefixSuffixAttribute("", "m")]
+        [TNumericPrefixSuffix("", "m")]
         public float VerticalStepUpHeight { get; set; } = 1.0f;
-        [TNumericPrefixSuffixAttribute("", "°")]
+        [TNumericPrefixSuffix("", "°")]
         public float MaxWalkAngle { get; set; } = 50.0f;
-        [TNumericPrefixSuffixAttribute("", "m/s")]
+        [TNumericPrefixSuffix("", "m/s")]
         public float WalkingMovementSpeed { get; set; } = 0.17f;
-        [TNumericPrefixSuffixAttribute("", "m/s")]
+        [TNumericPrefixSuffix("", "m/s")]
         public float JumpSpeed { get; set; } = 8.0f;
-        [TNumericPrefixSuffixAttribute("", "m/s")]
+        [TNumericPrefixSuffix("", "m/s")]
         public float FallingMovementSpeed { get; set; } = 10.0f;
         public bool IsCrouched { get; set; } = false;
         public Quat UpToGroundNormalRotation { get; set; } = Quat.Identity;
@@ -71,14 +71,15 @@ namespace TheraEngine.Components.Logic.Movement
                     return;
                 if (OwningActor.RootComponent is CapsuleYComponent root)
                 {
+                    root.RigidBodyCollision.SimulatingPhysics = true;
                     switch (value)
                     {
                         case MovementMode.Walking:
 
                             _justJumped = false;
                             //_velocity = root.PhysicsDriver.CollisionObject.LinearVelocity;
-                            root.RigidBodyCollision.SimulatingPhysics = false;
-                            //root.PhysicsDriver.Kinematic = true;
+                            //root.RigidBodyCollision.SimulatingPhysics = false;
+                            root.RigidBodyCollision.IsKinematic = true;
                             //Physics simulation updates the world matrix, but not its components (translation, for example)
                             //Do that now
                             root.Translation = root.WorldPoint;
@@ -92,9 +93,8 @@ namespace TheraEngine.Components.Logic.Movement
                                 AllowJumpTimeDelta = 0.0f;
                                 _velocity.Y = 0.0f;
                             }
-
-                            //root.PhysicsDriver.Kinematic = false;
-                            root.RigidBodyCollision.SimulatingPhysics = true;
+                            
+                            root.RigidBodyCollision.IsKinematic = false;
                             root.RigidBodyCollision.LinearVelocity = _velocity;
                             CurrentWalkingSurface = null;
 
@@ -196,7 +196,7 @@ namespace TheraEngine.Components.Logic.Movement
                     _closestTrace.Start = stepUpMatrix * root.WorldMatrix;
                     _closestTrace.End = stepUpMatrix * inputTransform * root.WorldMatrix;
                     
-                    if (_closestTrace.Trace())
+                    if (_closestTrace.Trace(OwningActor?.OwningWorld))
                     {
                         if (_closestTrace.HitFraction.IsZero())
                         {
@@ -271,7 +271,7 @@ namespace TheraEngine.Components.Logic.Movement
             _closestTrace.Start = stepUpMatrix * root.WorldMatrix;
             _closestTrace.End = stepUpMatrix * inputTransform * root.WorldMatrix;
 
-            if (!_closestTrace.Trace() || !IsSurfaceNormalWalkable(_closestTrace.HitNormalWorld))
+            if (!_closestTrace.Trace(OwningActor?.OwningWorld) || !IsSurfaceNormalWalkable(_closestTrace.HitNormalWorld))
             {
                 CurrentMovementMode = MovementMode.Falling;
                 return;

@@ -26,6 +26,11 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public BulletCylinderX(float radius, float height)
             => Shape = new CylinderShapeX(new Vector3(height, radius, 0.0f));
 
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {
@@ -65,6 +70,11 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public BulletCylinderY(float radius, float height)
             => Shape = new CylinderShape(new Vector3(radius, height, 0.0f));
 
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {
@@ -103,6 +113,11 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public BulletCylinderZ() : this(0.5f, 1.0f) { }
         public BulletCylinderZ(float radius, float height)
             => Shape = new CylinderShapeZ(new Vector3(radius, 0.0f, height));
+
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
 
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)

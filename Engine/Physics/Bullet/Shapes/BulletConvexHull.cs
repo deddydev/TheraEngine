@@ -30,6 +30,12 @@ namespace TheraEngine.Physics.Bullet.Shapes
         {
             Shape = new ConvexHullShape(points.Select(x => (Vector3)x));
         }
+
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {

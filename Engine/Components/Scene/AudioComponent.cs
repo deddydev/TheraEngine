@@ -15,7 +15,7 @@ namespace TheraEngine.Components.Scene
         AudioParameters Parameters { get; }
         int Priority { get; set; }
     }
-    public class AudioComponent : TranslationComponent, IAudioSource, I3DRenderable, IPreRendered
+    public class AudioComponent : TranslationComponent, IAudioSource, IEditorPreviewIconRenderable
     {
         public AudioComponent()
         {
@@ -45,10 +45,9 @@ namespace TheraEngine.Components.Scene
             _instances.Clear();
         }
         
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(false, true);
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(true, true);
         public Shape CullingVolume { get; } = null;
         public IOctreeNode OctreeNode { get; set; }
-        public bool PreRenderEnabled { get; set; }
 
         AudioFile IAudioSource.Audio => AudioFileRef?.File;
         AudioParameters IAudioSource.Parameters => ParametersRef?.File;
@@ -77,20 +76,24 @@ namespace TheraEngine.Components.Scene
             ParametersRef.File.Position.OverrideValue = WorldPoint;
         }
 
-        private RenderCommandMesh3D _rc;
-        public void AddRenderables(RenderPasses passes, Camera camera) => throw new NotImplementedException();
+#if EDITOR
+        public bool ScalePreviewIconByDistance { get; set; } = true;
+        public float PreviewIconScale { get; set; } = 0.08f;
 
-        public void PreRenderUpdate(Camera camera)
+        string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
+        protected string PreviewIconName { get; } = "AudioIcon.png";
+
+        RenderCommandMesh3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
         {
-            throw new NotImplementedException();
+            get => PreviewIconRenderCommand;
+            set => PreviewIconRenderCommand = value;
         }
-        public void PreRenderSwap()
+        private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+
+        public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            throw new NotImplementedException();
+            AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
         }
-        public void PreRender(Viewport viewport, Camera camera)
-        {
-            throw new NotImplementedException();
-        }
+#endif
     }
 }

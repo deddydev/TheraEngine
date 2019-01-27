@@ -166,6 +166,13 @@ namespace System
 
             return ext.ToLowerInvariant();
         }
+        public static bool IsAbsolutePath(this string path)
+        {
+            return !String.IsNullOrWhiteSpace(path)
+                && path.IndexOfAny(Path.GetInvalidPathChars().ToArray()) == -1
+                && Path.IsPathRooted(path)
+                && !Path.GetPathRoot(path).Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
+        }
         public static bool StartsWithDirectorySeparator(this string str)
             => !string.IsNullOrEmpty(str) && str[0] == Path.DirectorySeparatorChar;
         public static bool EndsWithDirectorySeparator(this string str)
@@ -400,6 +407,16 @@ namespace System
         {
             for (int i = begin; i < str.Length; ++i)
                 if (str[i] == chr)
+                    return i;
+            return -1;
+        }
+        /// <summary>
+        /// Finds the first instance that is the character passed.
+        /// </summary>
+        public static int FindFirst(this string str, int begin, Predicate<char> matchPredicate)
+        {
+            for (int i = begin; i < str.Length; ++i)
+                if (matchPredicate(str[i]))
                     return i;
             return -1;
         }

@@ -2,11 +2,9 @@
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene.Lights
@@ -20,7 +18,7 @@ namespace TheraEngine.Components.Scene.Lights
         //Does not move. Allows baking light into shadow maps.
         Static,
     }
-    public abstract class LightComponent : TRComponent, I3DRenderable
+    public abstract class LightComponent : TRComponent, IEditorPreviewIconRenderable
     {
         protected EventColorF3 _color = (ColorF3)Color.White;
         protected float _diffuseIntensity = 1.0f;
@@ -33,10 +31,46 @@ namespace TheraEngine.Components.Scene.Lights
         public MaterialFrameBuffer ShadowMap;
         [Browsable(false)]
         public Camera ShadowCamera { get; protected set; }
-        public ShadowSettings ShadowSettings { get; } = new ShadowSettings();
+
+        [TSerialize]
+        [DisplayName("Exponent Base")]
+        [Category("Shadow Map Settings")]
+        public float ShadowExponentBase { get; set; } = 0.04f;
+        [TSerialize]
+        [DisplayName("Exponent")]
+        [Category("Shadow Map Settings")]
+        public float ShadowExponent { get; set; } = 1.0f;
+        [TSerialize]
+        [DisplayName("Minimum Bias")]
+        [Category("Shadow Map Settings")]
+        public float ShadowMinBias { get; set; } = 0.001f;
+        [TSerialize]
+        [DisplayName("Maximum Bias")]
+        [Category("Shadow Map Settings")]
+        public float ShadowMaxBias { get; set; } = 0.1f;
+
+        internal void SetShadowUniforms(RenderProgram program)
+        {
+            program.Uniform("ShadowBase", ShadowExponentBase);
+            program.Uniform("ShadowMult", ShadowExponent);
+            program.Uniform("ShadowBiasMin", ShadowMinBias);
+            program.Uniform("ShadowBiasMax", ShadowMaxBias);
+        }
 
         protected BoundingRectangle _region = new BoundingRectangle(0, 0, 1024, 1024);
-        
+
+        [Category("Light Component")]
+        public int ShadowMapResolutionWidth
+        {
+            get => _region.Width;
+            set => SetShadowMapResolution(value, _region.Height);
+        }
+        [Category("Light Component")]
+        public int ShadowMapResolutionHeight
+        {
+            get => _region.Height;
+            set => SetShadowMapResolution(_region.Width, value);
+        }
         [Category("Light Component")]
         public EventColorF3 LightColor
         {
@@ -49,10 +83,10 @@ namespace TheraEngine.Components.Scene.Lights
             get => _diffuseIntensity;
             set => _diffuseIntensity = value;
         }
-        protected ELightType Type { get; set; } = ELightType.Dynamic;
+        public ELightType Type { get; set; } = ELightType.Dynamic;
 
         [Browsable(false)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { VisibleInIBLCapture = false };
         [Browsable(false)]
         public virtual Shape CullingVolume { get; } = null;
         IOctreeNode I3DBoundable.OctreeNode { get; set; }
@@ -91,7 +125,7 @@ namespace TheraEngine.Components.Scene.Lights
             Engine.Renderer.MaterialOverride = ShadowMap.Material;
             Engine.Renderer.PushRenderArea(_region);
 
-            scene.PreRender(null, ShadowCamera);
+            //scene.PreRender(null, ShadowCamera);
             scene.Render(_passes, ShadowCamera, null, ShadowMap);
             
             Engine.Renderer.PopRenderArea();
@@ -107,37 +141,24 @@ namespace TheraEngine.Components.Scene.Lights
             }
             return EPixelInternalFormat.DepthComponent32f;
         }
-#if EDITOR
-        protected abstract string GetPreviewTextureName();
-        public override void OnSpawned()
-        {
-            base.OnSpawned();
 
-            PreviewRenderCommand = new RenderCommandMesh3D(ERenderPass.TransparentForward);
-            VertexQuad quad = VertexQuad.PosZQuad();
-            PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), quad.ToTriangles());
-            string texPath = Engine.Files.TexturePath(GetPreviewTextureName());
-            TexRef2D tex = new TexRef2D("LightPreviewIcon", texPath) { SamplerName = "Texture0" };
-            TMaterial mat = TMaterial.CreateUnlitAlphaTextureMaterialForward(tex);
-            mat.RenderParams = new RenderingParameters()
-            {
-                DepthTest = new DepthTest { Enabled = ERenderParamUsage.Disabled },
-            };
-            PreviewRenderCommand.Mesh = new PrimitiveManager(data, mat);
+#if EDITOR
+        public bool ScalePreviewIconByDistance { get; set; } = true;
+        public float PreviewIconScale { get; set; } = 0.08f;
+
+        string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
+        protected abstract string PreviewIconName { get; }
+
+        RenderCommandMesh3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
+        {
+            get => PreviewIconRenderCommand;
+            set => PreviewIconRenderCommand = value;
         }
-        public bool ScalePreviewByDistance { get; set; } = true;
-        public float PreviewScale { get; set; } = 0.08f;
-        public RenderCommandMesh3D PreviewRenderCommand { get; private set; }
+        private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            float camDist = camera.DistanceFromScreenPlane(WorldPoint);
-            Vec3 scale = new Vec3(ScalePreviewByDistance ? camDist * PreviewScale : PreviewScale);
-
-            PreviewRenderCommand.RenderDistance = camDist;
-            PreviewRenderCommand.WorldMatrix = Matrix4.CreateSpacialTransform(WorldPoint, 
-                camera.RightVector * scale, camera.UpVector * scale, camera.ForwardVector * scale);
-
-            passes.Add(PreviewRenderCommand);
+            AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
         }
 #endif
     }

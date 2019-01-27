@@ -18,13 +18,12 @@ namespace TheraEngine.Actors.Types
     {
         public LandscapeComponent()
         {
-            RenderInfo = new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
+            RenderInfo = new RenderInfo3D(true, false) { CastsShadows = true, ReceivesShadows = true };
         }
 
         private IVec2 _dimensions = new IVec2(100, 100);
         private Vec2 _minMaxHeight = new Vec2(0.0f, 1.0f);
         private TCollisionHeightField _heightFieldShape;
-        private DataSource _heightData;
         private TCollisionHeightField.EHeightValueType _heightValueType 
             = TCollisionHeightField.EHeightValueType.Single;
         //private Matrix4 _heightOffsetTransform, _heightOffsetTransformInv;
@@ -41,6 +40,8 @@ namespace TheraEngine.Actors.Types
 
         public Box Bounds { get; private set; }
         public override Shape CullingVolume => Bounds;
+        public DataSource DataSource { get; private set; }
+        public Stream Stream { get; private set; }
 
         protected override void OnWorldTransformChanged()
         {
@@ -50,19 +51,6 @@ namespace TheraEngine.Actors.Types
             _rc.NormalMatrix = WorldMatrix.GetRotationMatrix3(); //WorldMatrix.Transposed().Inverted().GetRotationMatrix3();
             base.OnWorldTransformChanged();
         }
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        {
-            Matrix4
-               r = _rotation.GetMatrix(),
-               ir = _rotation.Inverted().GetMatrix();
-
-            Matrix4
-                t = _translation.AsTranslationMatrix(),
-                it = (-_translation).AsTranslationMatrix();
-
-            localTransform = t * r;
-            inverseLocalTransform = ir * it;
-        }
 
         public void GenerateHeightFieldCollision(
             VoidPtr heightDataPtr, int dataLength,
@@ -70,11 +58,23 @@ namespace TheraEngine.Actors.Types
             float minHeight, float maxHeight,
             TCollisionHeightField.EHeightValueType valueType,
             TRigidBodyConstructionInfo bodyInfo)
-            => GenerateHeightFieldCollision(new DataSource(heightDataPtr, dataLength, true),
-                width, length, minHeight, maxHeight, valueType, bodyInfo);
-        
+            => GenerateHeightFieldCollision(
+                new DataSource(heightDataPtr, dataLength, true), width, length, minHeight, maxHeight, valueType, bodyInfo);
+
         public void GenerateHeightFieldCollision(
             DataSource heightData,
+            int width, int length,
+            float minHeight, float maxHeight,
+            TCollisionHeightField.EHeightValueType valueType,
+            TRigidBodyConstructionInfo bodyInfo)
+        {
+            DataSource = heightData;
+            GenerateHeightFieldCollision(
+                  DataSource.AsStream(), width, length, minHeight, maxHeight, valueType, bodyInfo);
+        }
+
+        public void GenerateHeightFieldCollision(
+            Stream heightData,
             int width, int length,
             float minHeight, float maxHeight,
             TCollisionHeightField.EHeightValueType valueType,
@@ -84,12 +84,10 @@ namespace TheraEngine.Actors.Types
             _minMaxHeight = new Vec2(minHeight, maxHeight);
             _heightValueType = valueType;
 
-            _heightData = heightData;
-            UnmanagedMemoryStream stream = _heightData.AsStream();
+            Stream = heightData;
 
             float heightScale = 1.0f;
-            _heightFieldShape = TCollisionHeightField.New(
-                _dimensions.X, _dimensions.Y, stream, heightScale, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
+            _heightFieldShape = TCollisionHeightField.New(_dimensions.X, _dimensions.Y, Stream, heightScale, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
             Bounds = new Box(_dimensions.X * 0.5f, (_minMaxHeight.Y - _minMaxHeight.X) * heightScale, _dimensions.Y * 0.5f);
             Bounds.Transform.Matrix = WorldMatrix;
 
@@ -108,31 +106,32 @@ namespace TheraEngine.Actors.Types
                 GenerateRigidBody(bodyInfo);
             }
         }
+
         public unsafe float GetHeight(int x, int y)
         {
             switch (_heightValueType)
             {
                 case TCollisionHeightField.EHeightValueType.Byte:
                     {
-                        byte* heightPtr = (byte*)_heightData.Address;
+                        byte* heightPtr = (byte*)DataSource.Address;
                         int heightIndex = x + y * _dimensions.X;
-                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(byte))
+                        if (heightIndex < 0 || heightIndex >= DataSource.Length / sizeof(byte))
                             throw new IndexOutOfRangeException();
                         return heightPtr[heightIndex];
                     }
                 case TCollisionHeightField.EHeightValueType.Int16:
                     {
-                        short* heightPtr = (short*)_heightData.Address;
+                        short* heightPtr = (short*)DataSource.Address;
                         int heightIndex = x + y * _dimensions.X;
-                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(short))
+                        if (heightIndex < 0 || heightIndex >= DataSource.Length / sizeof(short))
                             throw new IndexOutOfRangeException();
                         return heightPtr[heightIndex];
                     }
                 case TCollisionHeightField.EHeightValueType.Int32:
                     {
-                        int* heightPtr = (int*)_heightData.Address;
+                        int* heightPtr = (int*)DataSource.Address;
                         int heightIndex = x + y * _dimensions.X;
-                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(int))
+                        if (heightIndex < 0 || heightIndex >= DataSource.Length / sizeof(int))
                             throw new IndexOutOfRangeException();
                         return heightPtr[heightIndex];
                     }
@@ -140,17 +139,17 @@ namespace TheraEngine.Actors.Types
                 //case TCollisionHeightField.EHeightValueType.FixedPoint88:
                 case TCollisionHeightField.EHeightValueType.Single:
                     {
-                        float* heightPtr = (float*)_heightData.Address;
+                        float* heightPtr = (float*)DataSource.Address;
                         int heightIndex = x + y * _dimensions.X;
-                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(float))
+                        if (heightIndex < 0 || heightIndex >= DataSource.Length / sizeof(float))
                             throw new IndexOutOfRangeException();
                         return heightPtr[heightIndex];
                     }
                 case TCollisionHeightField.EHeightValueType.Double:
                     {
-                        double* heightPtr = (double*)_heightData.Address;
+                        double* heightPtr = (double*)DataSource.Address;
                         int heightIndex = x + y * _dimensions.X;
-                        if (heightIndex < 0 || heightIndex >= _heightData.Length / sizeof(double))
+                        if (heightIndex < 0 || heightIndex >= DataSource.Length / sizeof(double))
                             throw new IndexOutOfRangeException();
 
                         //TODO: support double precision?
@@ -158,11 +157,13 @@ namespace TheraEngine.Actors.Types
                     }
             }
         }
+        public int Stride { get; private set; }
         public unsafe void GenerateHeightFieldMesh(TMaterial material, int stride = 1)
         {
             if (_heightFieldShape == null)
                 throw new InvalidOperationException();
 
+            Stride = stride;
             List<VertexTriangle> list = new List<VertexTriangle>();
             Vertex[] vertexNormals = new Vertex[6];
             
@@ -175,76 +176,7 @@ namespace TheraEngine.Actors.Types
             
             float halfX = xDim * 0.5f, halfY = yDim * 0.5f;
             float yOffset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
-            Vec3 GetPosition(int x, int y) => new Vec3(x - halfX, GetHeight(x, y) - yOffset, y - halfY);
-            bool GetQuad(int x, int y, out Vec3 topLeft, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight)
-            {
-                if (x < 0 || y < 0 || x + xInc >= _dimensions.X || y + yInc >= _dimensions.Y)
-                {
-                    topLeft = Vec3.Zero;
-                    topRight = Vec3.Zero;
-                    bottomLeft = Vec3.Zero;
-                    bottomRight = Vec3.Zero;
-                    return false;
-                }
-                else
-                {
-                    topLeft = GetPosition(x, y);
-                    topRight = GetPosition(x + xInc, y);
-                    bottomLeft = GetPosition(x, y + yInc);
-                    bottomRight = GetPosition(x + xInc, y + yInc);
-                    return true;
-                }
-            }
-            Vec3? GetNormal(int quadX, int quadY, bool tri2)
-            {
-                if (!GetQuad(quadX, quadY, out Vec3 topLeft, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight))
-                    return null;
-                return tri2 ? 
-                    Vec3.CalculateNormal(topLeft, bottomRight, topRight) : 
-                    Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
-            }
-            Vec3 GetSmoothedNormal(int x, int y)
-            {
-                int xPrev = x - xInc;
-                int yPrev = y - yInc;
 
-                /*
-                 ________
-                |\2|\ |\ |
-                |1\|_\|_\|
-                |\ |\ |\ |
-                |_\|_\|_\|
-                |\ |\ |\ |
-                |_\|_\|_\|
-
-                */
-
-                Vec3? leftQuadTri2 = GetNormal(xPrev, y, true);
-                Vec3? topQuadTri1 = GetNormal(x, yPrev, false);
-
-                Vec3? thisQuadTri1 = GetNormal(x, y, false);
-                Vec3? thisQuadTri2 = GetNormal(x, y, true);
-
-                Vec3? topLeftQuadTri1 = GetNormal(xPrev, yPrev, false);
-                Vec3? topLeftQuadTri2 = GetNormal(xPrev, yPrev, true);
-
-                Vec3 normal = Vec3.Zero;
-
-                if (thisQuadTri1.HasValue)
-                    normal += thisQuadTri1.Value;
-                if (thisQuadTri2.HasValue)
-                    normal += thisQuadTri2.Value;
-                if (leftQuadTri2.HasValue)
-                    normal += leftQuadTri2.Value;
-                if (topQuadTri1.HasValue)
-                    normal += topQuadTri1.Value;
-                if (topLeftQuadTri1.HasValue)
-                    normal += topLeftQuadTri1.Value;
-                if (topLeftQuadTri2.HasValue)
-                    normal += topLeftQuadTri2.Value;
-
-                return normal.Normalized();
-            }
             for (int thisY = 0; thisY < yDim; thisY += yInc)
             {
                 nextY = thisY + yInc;
@@ -255,20 +187,20 @@ namespace TheraEngine.Actors.Types
                     nextX = thisX + xInc;
                     prevX = thisX - xInc;
 
-                    Vec3 topLeftPos = GetPosition(thisX, thisY);
-                    Vec3 topRightPos = GetPosition(nextX, thisY);
-                    Vec3 bottomLeftPos = GetPosition(thisX, nextY);
-                    Vec3 bottomRightPos = GetPosition(nextX, nextY);
+                    Vec3 topLeftPos = GetPosition(thisX, thisY, halfX, halfY, yOffset);
+                    Vec3 topRightPos = GetPosition(nextX, thisY, halfX, halfY, yOffset);
+                    Vec3 bottomLeftPos = GetPosition(thisX, nextY, halfX, halfY, yOffset);
+                    Vec3 bottomRightPos = GetPosition(nextX, nextY, halfX, halfY, yOffset);
 
-                    Vec3 topLeftNorm = GetSmoothedNormal(thisX, thisY);
-                    Vec3 bottomLeftNorm = GetSmoothedNormal(thisX, nextY);
-                    Vec3 bottomRightNorm = GetSmoothedNormal(nextX, nextY);
-                    Vec3 topRightNorm = GetSmoothedNormal(nextX, thisY);
+                    Vec3 topLeftNorm = GetSmoothedNormal(thisX, thisY, halfX, halfY, yOffset);
+                    Vec3 bottomLeftNorm = GetSmoothedNormal(thisX, nextY, halfX, halfY, yOffset);
+                    Vec3 bottomRightNorm = GetSmoothedNormal(nextX, nextY, halfX, halfY, yOffset);
+                    Vec3 topRightNorm = GetSmoothedNormal(nextX, thisY, halfX, halfY, yOffset);
 
-                    Vec2 topLeftUV      = new Vec2(thisX * uInc, thisY * vInc);
-                    Vec2 topRightUV     = new Vec2(nextX * uInc, thisY * vInc);
-                    Vec2 bottomLeftUV   = new Vec2(thisX * uInc, nextY * vInc);
-                    Vec2 bottomRightUV  = new Vec2(nextX * uInc, nextY * vInc);
+                    Vec2 topLeftUV = new Vec2(thisX * uInc, thisY * vInc);
+                    Vec2 topRightUV = new Vec2(nextX * uInc, thisY * vInc);
+                    Vec2 bottomLeftUV = new Vec2(thisX * uInc, nextY * vInc);
+                    Vec2 bottomRightUV = new Vec2(nextX * uInc, nextY * vInc);
 
                     list.Add(new VertexTriangle(
                         new Vertex(topLeftPos, topLeftNorm, topLeftUV),
@@ -283,10 +215,179 @@ namespace TheraEngine.Actors.Types
             }
 
             PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), list);
+            data[EBufferType.Position].MapData = true;
+            data[EBufferType.Normal].MapData = true;
+            data[EBufferType.TexCoord].MapData = true;
             material.RenderParams.CullMode = ECulling.Back;
             _rc.Mesh = new PrimitiveManager(data, material);
         }
-        
+        public unsafe void UpdateHeightFieldMesh()
+        {
+            if (_heightFieldShape == null)
+                throw new InvalidOperationException();
+            
+            var pos = _rc.Mesh.Data[EBufferType.Position];
+            var nrm = _rc.Mesh.Data[EBufferType.Normal];
+            var tex = _rc.Mesh.Data[EBufferType.TexCoord];
+
+            Vertex[] vertexNormals = new Vertex[6];
+            
+            int xDim = _dimensions.X - 1, yDim = _dimensions.Y - 1;
+            float uInc = 1.0f / xDim, vInc = 1.0f / yDim;
+            int nextX, nextY, prevX, prevY;
+            int xTriStride = _dimensions.X / Stride * 2;
+            int triCount = 0;
+
+            float halfX = xDim * 0.5f, halfY = yDim * 0.5f;
+            float yOffset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
+            
+            int i = 0;
+            for (int thisY = 0; thisY < yDim; thisY += Stride)
+            {
+                nextY = thisY + Stride;
+                prevY = thisY - Stride;
+
+                for (int thisX = 0; thisX < xDim; thisX += Stride)
+                {
+                    nextX = thisX + Stride;
+                    prevX = thisX - Stride;
+
+                    Vec3 topLeftPos = GetPosition(thisX, thisY, halfX, halfY, yOffset);
+                    Vec3 topRightPos = GetPosition(nextX, thisY, halfX, halfY, yOffset);
+                    Vec3 bottomLeftPos = GetPosition(thisX, nextY, halfX, halfY, yOffset);
+                    Vec3 bottomRightPos = GetPosition(nextX, nextY, halfX, halfY, yOffset);
+
+                    Vec3 topLeftNorm = GetSmoothedNormal(thisX, thisY, halfX, halfY, yOffset);
+                    Vec3 bottomLeftNorm = GetSmoothedNormal(thisX, nextY, halfX, halfY, yOffset);
+                    Vec3 bottomRightNorm = GetSmoothedNormal(nextX, nextY, halfX, halfY, yOffset);
+                    Vec3 topRightNorm = GetSmoothedNormal(nextX, thisY, halfX, halfY, yOffset);
+
+                    Vec2 topLeftUV = new Vec2(thisX * uInc, thisY * vInc);
+                    Vec2 topRightUV = new Vec2(nextX * uInc, thisY * vInc);
+                    Vec2 bottomLeftUV = new Vec2(thisX * uInc, nextY * vInc);
+                    Vec2 bottomRightUV = new Vec2(nextX * uInc, nextY * vInc);
+
+                    pos.Set(i, topLeftPos);
+                    nrm.Set(i, topLeftNorm);
+                    tex.Set(i, topLeftUV);
+                    ++i;
+
+                    pos.Set(i, bottomLeftPos);
+                    nrm.Set(i, bottomLeftNorm);
+                    tex.Set(i, bottomLeftUV);
+                    ++i;
+
+                    pos.Set(i, bottomRightPos);
+                    nrm.Set(i, bottomRightNorm);
+                    tex.Set(i, bottomRightUV);
+                    ++i;
+
+                    pos.Set(i, topLeftPos);
+                    nrm.Set(i, topLeftNorm);
+                    tex.Set(i, topLeftUV);
+                    ++i;
+
+                    pos.Set(i, bottomRightPos);
+                    nrm.Set(i, bottomRightNorm);
+                    tex.Set(i, bottomRightUV);
+                    ++i;
+
+                    pos.Set(i, topRightPos);
+                    nrm.Set(i, topRightNorm);
+                    tex.Set(i, topRightUV);
+                    ++i;
+
+                    //list.Add(new VertexTriangle(
+                    //    new Vertex(topLeftPos, topLeftNorm, topLeftUV),
+                    //    new Vertex(bottomLeftPos, bottomLeftNorm, bottomLeftUV),
+                    //    new Vertex(bottomRightPos, bottomRightNorm, bottomRightUV)));
+                    //list.Add(new VertexTriangle(
+                    //    new Vertex(topLeftPos, topLeftNorm, topLeftUV),
+                    //    new Vertex(bottomRightPos, bottomRightNorm, bottomRightUV),
+                    //    new Vertex(topRightPos, topRightNorm, topRightUV)));
+
+                    triCount += 2;
+                }
+            }
+
+            Stream.Dispose();
+            Stream = DataSource.AsStream();
+
+            RigidBodyCollision.CollisionShape = _heightFieldShape = TCollisionHeightField.New(_dimensions.X, _dimensions.Y, Stream, 1.0f, _minMaxHeight.X, _minMaxHeight.Y, 1, _heightValueType, false);
+            RigidBodyUpdated();
+        }
+        private Vec3 GetPosition(int x, int y, float halfX, float halfY, float yOffset) => new Vec3(x - halfX, GetHeight(x, y) - yOffset, y - halfY);
+        private bool GetQuad(int x, int y, float halfX, float halfY, float yOffset, out Vec3 topLeft, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight)
+        {
+            if (x < 0 || y < 0 || x + Stride >= _dimensions.X || y + Stride >= _dimensions.Y)
+            {
+                topLeft = Vec3.Zero;
+                topRight = Vec3.Zero;
+                bottomLeft = Vec3.Zero;
+                bottomRight = Vec3.Zero;
+                return false;
+            }
+            else
+            {
+                topLeft = GetPosition(x, y, halfX, halfY, yOffset);
+                topRight = GetPosition(x + Stride, y, halfX, halfY, yOffset);
+                bottomLeft = GetPosition(x, y + Stride, halfX, halfY, yOffset);
+                bottomRight = GetPosition(x + Stride, y + Stride, halfX, halfY, yOffset);
+                return true;
+            }
+        }
+        private Vec3? GetNormal(int quadX, int quadY, bool tri2, float halfX, float halfY, float yOffset)
+        {
+            if (!GetQuad(quadX, quadY, halfX, halfY, yOffset, out Vec3 topLeft, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight))
+                return null;
+
+            return tri2 ?
+                Vec3.CalculateNormal(topLeft, bottomRight, topRight) :
+                Vec3.CalculateNormal(topLeft, bottomLeft, bottomRight);
+        }
+        private Vec3 GetSmoothedNormal(int x, int y, float halfX, float halfY, float yOffset)
+        {
+            int xPrev = x - Stride;
+            int yPrev = y - Stride;
+
+            /*
+             ________
+            |\2|\ |\ |
+            |1\|_\|_\|
+            |\ |\ |\ |
+            |_\|_\|_\|
+            |\ |\ |\ |
+            |_\|_\|_\|
+
+            */
+
+            Vec3? leftQuadTri2 = GetNormal(xPrev, y, true, halfX, halfY, yOffset);
+            Vec3? topQuadTri1 = GetNormal(x, yPrev, false, halfX, halfY, yOffset);
+
+            Vec3? thisQuadTri1 = GetNormal(x, y, false, halfX, halfY, yOffset);
+            Vec3? thisQuadTri2 = GetNormal(x, y, true, halfX, halfY, yOffset);
+
+            Vec3? topLeftQuadTri1 = GetNormal(xPrev, yPrev, false, halfX, halfY, yOffset);
+            Vec3? topLeftQuadTri2 = GetNormal(xPrev, yPrev, true, halfX, halfY, yOffset);
+
+            Vec3 normal = Vec3.Zero;
+
+            if (thisQuadTri1.HasValue)
+                normal += thisQuadTri1.Value;
+            if (thisQuadTri2.HasValue)
+                normal += thisQuadTri2.Value;
+            if (leftQuadTri2.HasValue)
+                normal += leftQuadTri2.Value;
+            if (topQuadTri1.HasValue)
+                normal += topQuadTri1.Value;
+            if (topLeftQuadTri1.HasValue)
+                normal += topLeftQuadTri1.Value;
+            if (topLeftQuadTri2.HasValue)
+                normal += topLeftQuadTri2.Value;
+
+            return normal.NormalizedFast();
+        }
+
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             base.OnHighlightChanged(highlighted);

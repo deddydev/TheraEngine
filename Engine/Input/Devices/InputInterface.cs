@@ -58,6 +58,12 @@ namespace TheraEngine.Input.Devices
         private int _playerIndex;
         private bool _unregister = false;
 
+        /// <summary>
+        /// IsRegistering is true when the controller has gained focus and is currently adding inputs to handle.
+        /// IsRegistering is false when the controller has lost focus and inputs are being removed.
+        /// </summary>
+        public bool IsRegistering => !_unregister;
+
         //Dictionary<string, List<EKey>> _namedKeys = new Dictionary<string, List<EKey>>();
         //Dictionary<string, List<GamePadButton>> _namedGamepadButtons = new Dictionary<string, List<GamePadButton>>();
         //Dictionary<string, List<GamePadAxis>> _namedGamepadAxes = new Dictionary<string, List<GamePadAxis>>();

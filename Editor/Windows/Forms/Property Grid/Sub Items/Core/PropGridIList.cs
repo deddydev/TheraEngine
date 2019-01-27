@@ -16,10 +16,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Type _elementType;
         private int _displayedCount = 0;
 
+        public override PropGridCategory ParentCategory
+        {
+            get => base.ParentCategory;
+            set
+            {
+                base.ParentCategory = value;
+                propGridListItems.PropertyGrid = ParentCategory?.PropertyGrid;
+            }
+        }
         protected override void UpdateDisplayInternal(object value)
         {
             List = value as IList;
-
+            
             if (Editor.GetSettings().PropertyGrid.ShowTypeNames)
             {
                 string typeName = (value?.GetType() ?? DataType).GetFriendlyName();

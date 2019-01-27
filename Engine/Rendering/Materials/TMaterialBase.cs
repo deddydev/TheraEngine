@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             get
             {
-                if (_program != null && (!_program.IsActive || !_program.IsValid))
+                if (_program != null && !_program.IsActive)
                     _program.GenerateSafe();
                 return _program;
             }

@@ -94,7 +94,7 @@ namespace TheraEngine.Components.Scene.Transforms
             ShapeTraceClosest result = new ShapeTraceClosest(_traceShape, startMatrix, endMatrix, (ushort)TCollisionGroup.Camera, (ushort)TCollisionGroup.All, IgnoreCast);
 
             Vec3 newEndPoint;
-            if (result.Trace())
+            if (result.Trace(OwningWorld))
                 newEndPoint = result.HitPointWorld;
             else
                 newEndPoint = testEnd;

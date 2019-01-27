@@ -24,13 +24,15 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(SkeletalModel), typeof(StaticModel), typeof(IActor))]
-    public partial class ModelEditorForm : TheraForm
+    public partial class ModelEditorForm : TheraForm, IDockPanelOwner
     {
+        DockPanel IDockPanelOwner.DockPanelRef => DockPanel1;
+
         public ModelEditorForm()
         {
             InitializeComponent();
             ModelEditorText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
-            DockPanel.Theme = new TheraEditorTheme();
+            DockPanel1.Theme = new TheraEditorTheme();
             AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
             formMenu.Renderer = new TheraToolstripRenderer();
@@ -55,7 +57,7 @@ namespace TheraEditor.Windows.Forms
             {
                 Engine.PrintLine("Created model editor viewport " + (i + 1).ToString());
                 form = _renderForms[i] = new DockableModelEditorRenderForm(LocalPlayerIndex.One, i, this);
-                form.Show(DockPanel, DockState.Document);
+                form.Show(DockPanel1, DockState.Document);
             }
             return form;
         }
@@ -84,7 +86,7 @@ namespace TheraEditor.Windows.Forms
             {
                 value = new T();
                 //Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
-                value.Show(DockPanel, state);
+                value.Show(DockPanel1, state);
             }
             return value;
         }
@@ -285,6 +287,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         public bool IsRenderTicking { get; private set; }
+
         public void SetRenderTicking(bool isRendering)
         {
             if (isRendering && !IsRenderTicking)

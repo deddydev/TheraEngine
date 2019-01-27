@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.DockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.formMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnExport = new System.Windows.Forms.ToolStripMenuItem();
@@ -71,7 +71,7 @@ namespace TheraEditor.Windows.Forms
             // 
             // BodyPanel
             // 
-            this.BodyPanel.Controls.Add(this.DockPanel);
+            this.BodyPanel.Controls.Add(this.DockPanel1);
             this.BodyPanel.Size = new System.Drawing.Size(1027, 1200);
             // 
             // MainPanel
@@ -97,14 +97,14 @@ namespace TheraEditor.Windows.Forms
             // 
             // DockPanel
             // 
-            this.DockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DockPanel.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
-            this.DockPanel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.DockPanel.Location = new System.Drawing.Point(0, 0);
-            this.DockPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.DockPanel.Name = "DockPanel";
-            this.DockPanel.Size = new System.Drawing.Size(1027, 1200);
-            this.DockPanel.TabIndex = 15;
+            this.DockPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DockPanel1.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
+            this.DockPanel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.DockPanel1.Location = new System.Drawing.Point(0, 0);
+            this.DockPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.DockPanel1.Name = "DockPanel";
+            this.DockPanel1.Size = new System.Drawing.Size(1027, 1200);
+            this.DockPanel1.TabIndex = 15;
             // 
             // formMenu
             // 
@@ -387,7 +387,7 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
-        public DockPanel DockPanel;
+        public DockPanel DockPanel1;
         private System.Windows.Forms.MenuStrip formMenu;
         private System.Windows.Forms.ToolStripMenuItem btnWindow;
         private System.Windows.Forms.ToolStripMenuItem viewport1ToolStripMenuItem;

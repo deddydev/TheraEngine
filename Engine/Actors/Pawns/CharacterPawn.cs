@@ -137,19 +137,18 @@ namespace TheraEngine.Actors.Types.Pawns
                 _movement.AddMovementInput(input * delta * _gamePadMovementInputMultiplier);
             }
             if (gamepadMovement || keyboardMovement)
-            {
                 _meshComp.Rotation.Yaw = _movement.FrameInputDirection.LookatAngles().Yaw + 180.0f;
-            }
         }
         public override void RegisterInput(InputInterface input)
         {
+            input.Mouse.WrapCursorWithinClip = input.IsRegistering;
+            input.RegisterMouseMove(Look, EMouseMoveType.Relative);
+
             input.RegisterAxisUpdate(EGamePadAxis.LeftThumbstickX, MoveRight, true);
             input.RegisterAxisUpdate(EGamePadAxis.LeftThumbstickY, MoveForward, true);
             input.RegisterAxisUpdate(EGamePadAxis.RightThumbstickX, LookRight, true);
             input.RegisterAxisUpdate(EGamePadAxis.RightThumbstickY, LookUp, true);
             input.RegisterButtonEvent(EGamePadButton.FaceDown, EButtonInputType.Pressed, Jump);
-
-            input.RegisterMouseMove(Look, EMouseMoveType.Relative);
             input.RegisterKeyPressed(EKey.W, MoveForward);
             input.RegisterKeyPressed(EKey.A, MoveLeft);
             input.RegisterKeyPressed(EKey.S, MoveBackward);

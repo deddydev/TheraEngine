@@ -116,6 +116,7 @@
             this.lblProperties.Visible = false;
             this.lblProperties.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lblProperties_MouseDown);
             this.lblProperties.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lblProperties_MouseUp);
+            lblProperties.AutoEllipsis = true;
             // 
             // treeViewSceneComps
             // 

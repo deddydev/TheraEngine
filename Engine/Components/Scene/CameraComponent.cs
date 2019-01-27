@@ -14,7 +14,7 @@ using TheraEngine.Rendering;
 namespace TheraEngine.Components.Scene
 {
     [TFileDef("Camera Component")]
-    public class CameraComponent : OriginRebasableComponent, ICameraTransformable/*, I3DRenderable*/
+    public class CameraComponent : OriginRebasableComponent, ICameraTransformable, IEditorPreviewIconRenderable
     {
         #region Constructors
         public CameraComponent() : this(null) { }
@@ -144,6 +144,26 @@ namespace TheraEngine.Components.Scene
                 pawn.CurrentCameraComponent = this;
         }
 
+#if EDITOR
+        public bool ScalePreviewIconByDistance { get; set; } = true;
+        public float PreviewIconScale { get; set; } = 0.08f;
+
+        string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
+        protected string PreviewIconName { get; } = "CameraIcon.png";
+
+        RenderCommandMesh3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
+        {
+            get => PreviewIconRenderCommand;
+            set => PreviewIconRenderCommand = value;
+        }
+        private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
+        }
+#endif
+
         #region Overrides
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
@@ -255,10 +275,10 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
 
         [Browsable(false)]
-        public Shape CullingVolume { get; } = new Sphere(1.0f);
+        public Shape CullingVolume { get; } = null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
@@ -279,14 +299,7 @@ namespace TheraEngine.Components.Scene
             Translation.Raw = TMath.ArcballTranslation(pitch, yaw, origin, Translation.Raw, LocalRightDir);
             Rotation.AddRotations(pitch, yaw, 0.0f);
         }
-
-        //private readonly RenderCommandMesh3D _previewMesh = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);
-        //public void AddRenderables(RenderPasses passes, Camera camera)
-        //{
-        //    //passes.Add(_previewMesh, RenderInfo.RenderPass);
-        //    _cameraRef?.File?.AddRenderables(passes, camera);
-        //}
-
+        
         #endregion
     }
 }

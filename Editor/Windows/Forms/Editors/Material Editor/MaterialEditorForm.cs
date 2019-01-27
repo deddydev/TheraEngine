@@ -7,8 +7,10 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(TMaterial))]
-    public partial class MaterialEditorForm : TheraForm
+    public partial class MaterialEditorForm : TheraForm, IDockPanelOwner
     {
+        DockPanel IDockPanelOwner.DockPanelRef => dockPanel1;
+
         public MaterialEditorForm()
         {
             InitializeComponent();

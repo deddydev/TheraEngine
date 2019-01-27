@@ -123,9 +123,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 lblProperties.Visible = actor != null && ShowPropertiesHeader;
                 CalcSceneCompTreeHeight();
 
-                lblProperties.Text = string.Format("Properties: {0} [{1}]",
-               _targetObject.ToString(),
-               _targetObject.GetType().GetFriendlyName());
+                lblProperties.Text = "Properties";
+                // lblProperties.Text = string.Format("Properties: {0} [{1}]",
+                //_targetObject.ToString(),
+                //_targetObject.GetType().GetFriendlyName());
             }
             else
             {

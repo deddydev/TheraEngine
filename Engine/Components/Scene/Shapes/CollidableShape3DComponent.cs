@@ -12,6 +12,15 @@ namespace TheraEngine.Components.Scene.Shapes
         
         protected TRigidBody _rigidBodyCollision;
 
+        public void RigidBodyUpdated()
+        {
+            if (IsSpawned && OwningWorld?.PhysicsWorld != null && _rigidBodyCollision != null)
+            {
+                OwningWorld.PhysicsWorld.RemoveCollisionObject(_rigidBodyCollision);
+                OwningWorld.PhysicsWorld.AddCollisionObject(_rigidBodyCollision);
+            }
+        }
+
         [Category(PhysicsCategoryName)]
         [TSerialize]
         public TRigidBody RigidBodyCollision
@@ -29,6 +38,7 @@ namespace TheraEngine.Components.Scene.Shapes
                     _rigidBodyCollision.Owner = null;
                     _rigidBodyCollision.TransformChanged -= BodyMoved;
                     WorldTransformChanged -= ThisMoved;
+                    _rigidBodyCollision.Dispose();
                 }
                 _rigidBodyCollision = value;
                 if (_rigidBodyCollision != null)

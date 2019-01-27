@@ -29,6 +29,11 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public BulletSphere(float radius)
             => Shape = new SphereShape(radius);
 
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {

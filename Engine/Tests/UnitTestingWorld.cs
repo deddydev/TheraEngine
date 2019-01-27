@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Threading.Tasks;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
@@ -19,7 +21,6 @@ using TheraEngine.Physics;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.ThirdParty;
@@ -37,16 +38,46 @@ namespace TheraEngine.Tests
             color.Value = new Vec3((float)_rand.NextDouble(), (float)_rand.NextDouble(), (float)_rand.NextDouble());
             //_collideSound.Play(_param);
         }
-
+        private float _time = 0.0f;
+        private FastNoise _noise;
+        private LandscapeComponent _landscape;
+        private int _landscapeWH;
+        Stopwatch _watch = new Stopwatch();
+        private unsafe void TickLandscape(float delta)
+        {
+            //_watch.Reset();
+            //_watch.Start();
+            _time += delta * 5.0f;
+            float* data = (float*)_landscape.DataSource.Address;
+            //float temp;
+            Parallel.For(0, _landscapeWH * _landscapeWH, i =>
+            {
+                *(data + i) = _noise.GetPerlin(i % _landscapeWH, i / _landscapeWH, _time) * 100.0f;
+            });
+            //for (int r = 0; r < _landscapeWH; ++r)
+            //    for (int x = 0; x < _landscapeWH; ++x)
+            //    {
+            //        temp = _noise.GetPerlin(x, r, _time) * 100.0f;
+            //        *data++ = temp;
+            //    }
+            //_watch.Stop();
+            //long loopMs = _watch.ElapsedMilliseconds;
+            //_watch.Reset();
+            //_watch.Start();
+            _landscape.UpdateHeightFieldMesh();
+            //_watch.Stop();
+            //long meshMs = _watch.ElapsedMilliseconds;
+            //Engine.PrintLine($"{loopMs} loop, {meshMs} update");
+        }
         public override async void BeginPlay()
         {
             bool testDeferredDecal = true;
-            bool testShapeTracer = true;
+            bool testShapeTracer = false;
             bool testLandscape = true;
             bool createWalls = true;
             int pointLights = 0;
-            int dirLights = 1;
-            int spotLights = 0;
+            int dirLights = 0;
+            int spotLights = 1;
 
             float margin = 2.0f;
             float radius = 1.0f;
@@ -245,7 +276,9 @@ namespace TheraEngine.Tests
             if (testLandscape)
             {
                 int wh = 401;
+                _landscapeWH = wh;
                 FastNoise noise = new FastNoise();
+                _noise = noise;
                 //noise.SetFrequency(10.0f);
                 DataSource source = new DataSource(wh * wh * 4);
                 unsafe
@@ -255,7 +288,7 @@ namespace TheraEngine.Tests
                     for (int r = 0; r < wh; ++r)
                         for (int x = 0; x < wh; ++x)
                         {
-                            temp = noise.GetPerlin(x, r) * 100.0f;
+                            temp = noise.GetPerlin(x, r, 0.0f) * 100.0f;
                             *data++ = temp;
                         }
                 }
@@ -280,8 +313,9 @@ namespace TheraEngine.Tests
                 //mat.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
                 mat.Parameter<ShaderFloat>("Roughness").Value = 1.0f;
                 mat.Parameter<ShaderFloat>("Metallic").Value = 0.0f;
-                landscape.RootComponent.GenerateHeightFieldMesh(mat, 5);
+                landscape.RootComponent.GenerateHeightFieldMesh(mat, 10);
                 landscape.RootComponent.Translation.Y -= 25.0f;
+                _landscape = landscape.RootComponent;
                 actors.Add(landscape);
             }
             #endregion
@@ -331,7 +365,7 @@ namespace TheraEngine.Tests
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
             //iblProbes.RootComponent.Translation.Y += 3.0f;
             Random random = new Random();
-            for (int i = 0; i < 1; ++i)
+            for (int i = 0; i < 0; ++i)
             {
                 iblProbes.AddProbe(new Vec3(
                     ((float)random.NextDouble() - 0.5f) * 200.0f,
@@ -347,7 +381,7 @@ namespace TheraEngine.Tests
             //iblProbes.AddProbe(new Vec3(0.0f, -70.0f, 154.0f));
             //iblProbes.AddProbe(new Vec3(0.0f, 60.0f, -155.0f));
             //iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
-            //actors.Add(iblProbes);
+            actors.Add(iblProbes);
 
             Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
             {
@@ -359,6 +393,7 @@ namespace TheraEngine.Tests
             base.BeginPlay();
 
             //iblProbes.InitAndCaptureAll(256);
+            //RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickLandscape, EInputPauseType.TickOnlyWhenUnpaused);
         }
     }
 
@@ -460,7 +495,7 @@ namespace TheraEngine.Tests
         {
             _shapeCast.Start = RootComponent.WorldMatrix;
             _shapeCast.End = _endTraceTransform;
-            if (_hasHit = _shapeCast.Trace())
+            if (_hasHit = _shapeCast.Trace(OwningWorld))
             {
                 _hitPoint = _shapeCast.HitPointWorld;
                 _hitNormal = _shapeCast.HitNormalWorld;

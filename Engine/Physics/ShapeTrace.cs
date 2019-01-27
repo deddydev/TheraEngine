@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Physics.ShapeTracing
 {
@@ -69,10 +70,10 @@ namespace TheraEngine.Physics.ShapeTracing
         /// <summary>
         /// Performs the trace in the world and returns true if there are any collision results.
         /// </summary>
-        public bool Trace()
+        public bool Trace(TWorld world)
         {
             Reset();
-            return Engine.ShapeTrace(this);
+            return Engine.ShapeTrace(this, world);
         }
 
         protected abstract void Reset();

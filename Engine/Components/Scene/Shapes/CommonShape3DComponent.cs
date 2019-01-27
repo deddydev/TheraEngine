@@ -11,10 +11,8 @@ namespace TheraEngine.Components.Scene.Shapes
     {
         public CommonShape3DComponent()
             : this(null, null) { }
-
         public CommonShape3DComponent(T shape)
             : this(shape, null) { }
-
         public CommonShape3DComponent(T shape, TRigidBodyConstructionInfo info)
             : base()
         {

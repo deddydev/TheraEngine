@@ -24,11 +24,14 @@ namespace TheraEngine.Rendering.Models.Materials
     public class GLSLScript : TextFile
     {
         [TSerialize(NodeType = ENodeType.Attribute)]
-        public EGLSLType Type { get; set; }
+        public EGLSLType Type { get; set; } = EGLSLType.Fragment;
 
         #region Constructors
         public GLSLScript() { }
-        public GLSLScript(string path) : base(path) { }
+        public GLSLScript(string path, EGLSLType type) : base(path)
+        {
+            Type = type;
+        }
         public GLSLScript(EGLSLType type)
         {
             Type = type;

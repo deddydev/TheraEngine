@@ -1,8 +1,7 @@
-﻿using System;
+﻿using BulletSharp;
+using System;
 using System.IO;
-using BulletSharp;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Physics.Bullet.Shapes
 {
@@ -45,7 +44,12 @@ namespace TheraEngine.Physics.Bullet.Shapes
                   flipQuadEdges);
             Shape.SetUseDiamondSubdivision();
         }
-        
+
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {

@@ -409,7 +409,7 @@ namespace TheraEngine.Rendering
                 Segment cursor = GetWorldSegment(viewportPoint);
 
                 RayTraceClosest c = new RayTraceClosest(cursor.StartPoint, cursor.EndPoint, 0, 0xFFFF, ignored);
-                if (c.Trace())
+                if (c.Trace(_worldCamera?.OwningComponent?.OwningWorld))
                 {
                     hitNormal = c.HitNormalWorld;
                     hitPoint = c.HitPointWorld;
@@ -1055,7 +1055,7 @@ namespace TheraEngine.Rendering
             if (RenderingCamera == null)
                 return;
             //RenderingCamera.PostProcessRef.File.Shadows.SetUniforms(materialProgram);
-            _lightComp.ShadowSettings.SetUniforms(materialProgram);
+            _lightComp.SetShadowUniforms(materialProgram);
             _lightComp.SetUniforms(materialProgram, null);
         }
         private void LightCombineFBO_SettingUniforms(RenderProgram program)
@@ -1066,7 +1066,7 @@ namespace TheraEngine.Rendering
             RenderingCamera.SetUniforms(program);
 
             var probeActor = RenderingCamera.OwningComponent?.OwningScene3D?.IBLProbeActor;
-            if (probeActor == null)
+            if (probeActor == null || probeActor.RootComponent.ChildComponents.Count == 0)
                 return;
 
             IBLProbeComponent probe = (IBLProbeComponent)probeActor.RootComponent.ChildComponents[0];

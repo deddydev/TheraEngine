@@ -28,6 +28,10 @@ uniform mat4 InvProjMatrix;
 
 uniform float MinFade = 500.0f;
 uniform float MaxFade = 1000.0f;
+uniform float ShadowBase = 2.0f;
+uniform float ShadowMult = 3.0f;
+uniform float ShadowBiasMin = 0.00001f;
+uniform float ShadowBiasMax = 0.004f;
 
 struct SpotLight
 {
@@ -44,52 +48,51 @@ struct SpotLight
     float InnerCutoff;
     float OuterCutoff;
 };
+uniform SpotLight LightData;
 
-uniform float ShadowBase = 2.0f;
-uniform float ShadowMult = 3.0f;
-uniform float ShadowBiasMin = 0.00001f;
-uniform float ShadowBiasMax = 0.004f;
-
-uniform SpotLight SpotLightData;
-
-float GetShadowBias(in float NoL, in float base, in float power, in float minBias, in float maxBias)
+float GetShadowBias(in float NoL)
 {
-    float mapped = pow(base, -NoL * power);
-    return mix(minBias, maxBias, mapped);
+    float mapped = pow(ShadowBase * (1.0f - NoL), ShadowMult);
+    return mix(ShadowBiasMin, ShadowBiasMax, mapped);
+}
+float Attenuate(in float dist, in float radius)
+{
+    return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
 }
 //0 is fully in shadow, 1 is fully lit
 float ReadShadowMap2D(in vec3 fragPosWS, in vec3 N, in float NoL, in mat4 lightMatrix)
 {
-	//Move the fragment position into light space
+  //Move the fragment position into light space
 	vec4 fragPosLightSpace = lightMatrix * vec4(fragPosWS, 1.0f);
 	vec3 fragCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
 	fragCoord = fragCoord * 0.5f + 0.5f;
 
 	//Create bias depending on angle of normal to the light
-	float bias = GetShadowBias(NoL, ShadowBase, ShadowMult, ShadowBiasMin, ShadowBiasMax);
+	float bias = GetShadowBias(NoL);
 
 	//Hard shadow
 	float depth = texture(ShadowMap, fragCoord.xy).r;
-	float shadow = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
+	float shadow1 = (fragCoord.z - bias) > depth ? 0.0f : 1.0f;
 
 	//PCF shadow
-	//float shadow = 0.0;
-	//vec2 texelSize = 1.0f / textureSize(shadowMap, 0);
-	//for (int x = -1; x <= 1; ++x)
-	//{
-	//    for (int y = -1; y <= 1; ++y)
-	//    {
-	//        float pcfDepth = texture(shadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
-	//        shadow += fragCoord.z - bias > pcfDepth ? 0.0f : 1.0f;
-	//    }
-	//}
-	//shadow *= 0.111111111f; //divided by 9
+	float shadow = 0.0f;
+	vec2 texelSize = 1.0f / textureSize(ShadowMap, 0);
+	for (int x = -1; x <= 1; ++x)
+	{
+	    for (int y = -1; y <= 1; ++y)
+	    {
+	        float pcfDepth = texture(ShadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
+	        shadow += (fragCoord.z - bias > pcfDepth) ? 0.0f : 1.0f;
+	    }
+	}
+	shadow *= 0.111111111f; //divided by 9
+
+  float dist = fragCoord.z - depth;
+  float maxBlurDist = 0.1f;
+  float normDist = clamp(dist, 0.0f, maxBlurDist) / maxBlurDist;
+  shadow = mix(shadow1, shadow, normDist);
 
 	return shadow;
-}
-float Attenuate(in float dist, in float radius)
-{
-    return pow(clamp(1.0f - pow(dist / radius, 4.0f), 0.0f, 1.0f), 2.0f) / (dist * dist + 1.0f);
 }
 //Trowbridge-Reitz GGX
 float SpecD_TRGGX(in float NoH2, in float a2)
@@ -124,6 +127,17 @@ vec3 SpecF_SchlickApprox(in float VoH, in vec3 F0)
 	float pow = exp2((-5.55473f * VoH - 6.98316f) * VoH);
 	return F0 + (1.0f - F0) * pow;
 }
+//vec3 SpecF_SchlickRoughness(in float VoH, in vec3 F0, in float roughness)
+//{
+//	float pow = pow(1.0f - VoH, 5.0f);
+//	return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow;
+//}
+//vec3 SpecF_SchlickRoughnessApprox(in float VoH, in vec3 F0, in float roughness)
+//{
+//	//Spherical Gaussian Approximation
+//	float pow = exp2((-5.55473f * VoH - 6.98316f) * VoH);
+//	return F0 + (max(vec3(1.0f - roughness), F0) - F0) * pow;
+//}
 vec3 CalcColor(
 in float NoL,
 in float NoH,
@@ -144,7 +158,7 @@ in vec3 F0)
 
 	float D = SpecD_TRGGX(NoH * NoH, a * a);
 	float G = SpecG_Smith(NoV, NoL, k);
-	vec3  F = SpecF_Schlick(HoV, F0);
+	vec3  F = SpecF_SchlickApprox(HoV, F0);
 
 	//Cook-Torrance Specular
 	float denom = 4.0f * NoV * NoL + 0.0001f;
@@ -153,10 +167,10 @@ in vec3 F0)
 	vec3 kD = 1.0f - F;
 	kD *= 1.0f - metallic;
 
-	vec3 radiance = lightAttenuation * SpotLightData.Color * SpotLightData.DiffuseIntensity;
+	vec3 radiance = lightAttenuation * LightData.Color * LightData.DiffuseIntensity;
 	return (kD * albedo / PI + spec) * radiance * NoL;
 }
-vec3 CalcSpotLight(
+vec3 CalcLight(
 in vec3 N,
 in vec3 V,
 in vec3 fragPosWS,
@@ -164,7 +178,7 @@ in vec3 albedo,
 in vec3 rms,
 in vec3 F0)
 {
-	vec3 L = SpotLightData.Position - fragPosWS;
+	vec3 L = LightData.Position - fragPosWS;
 	float lightDist = length(L);
 	L = normalize(L);
 
@@ -172,20 +186,20 @@ in vec3 F0)
 	//cos(90) == 0
 	//cos(0) == 1
 
-	float cosine = dot(L, -normalize(SpotLightData.Direction));
+	float cosine = dot(L, -normalize(LightData.Direction));
 
-	if (cosine <= SpotLightData.OuterCutoff)
+	if (cosine <= LightData.OuterCutoff)
 		return vec3(0.0f);
 
-	float clampedCosine = clamp(cosine, SpotLightData.OuterCutoff, SpotLightData.InnerCutoff);
+	float clampedCosine = clamp(cosine, LightData.OuterCutoff, LightData.InnerCutoff);
 
 	//Subtract smaller value and divide by range to normalize value
-	float time = (clampedCosine - SpotLightData.OuterCutoff) / (SpotLightData.InnerCutoff - SpotLightData.OuterCutoff);
+	float time = (clampedCosine - LightData.OuterCutoff) / (LightData.InnerCutoff - LightData.OuterCutoff);
 
 	//Make transition smooth rather than linear
 	float spotAmt = smoothstep(0.0f, 1.0f, time);
-	float distAttn = Attenuate(lightDist / SpotLightData.Brightness, SpotLightData.Radius / SpotLightData.Brightness);
-	float attn = spotAmt * distAttn * pow(clampedCosine, SpotLightData.Exponent);
+	float distAttn = Attenuate(lightDist / LightData.Brightness, LightData.Radius / LightData.Brightness);
+	float attn = spotAmt * distAttn * pow(clampedCosine, LightData.Exponent);
 
 	vec3 H = normalize(V + L);
 	float NoL = max(dot(N, L), 0.0f);
@@ -199,7 +213,7 @@ in vec3 F0)
 
 	float shadow = ReadShadowMap2D(
 		fragPosWS, N, NoL,
-		SpotLightData.WorldToLightSpaceProjMatrix);
+		LightData.WorldToLightSpaceProjMatrix);
 
 	return color * shadow;
 }
@@ -212,7 +226,7 @@ in vec3 rms)
 	float metallic = rms.y;
 	vec3 V = normalize(CameraPosition - fragPosWS);
 	vec3 F0 = mix(vec3(0.04f), albedo, metallic);
-	return CalcSpotLight(normal, V, fragPosWS, albedo, rms, F0);
+	return CalcLight(normal, V, fragPosWS, albedo, rms, F0);
 }
 vec3 WorldPosFromDepth(in float depth, in vec2 uv)
 {

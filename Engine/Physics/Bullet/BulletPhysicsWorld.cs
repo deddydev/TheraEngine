@@ -25,23 +25,23 @@ namespace TheraEngine.Physics
             }
         }
 
-        private DiscreteDynamicsWorld _dynamicsWorld;
-        private BroadphaseInterface _physicsBroadphase;
-        private CollisionConfiguration _collisionConfig;
-        private CollisionDispatcher _collisionDispatcher;
-        private MultiBodyConstraintSolver _constraintSolver;
-        private BulletDebugDrawer _physicsDebugDrawer;
+        internal DiscreteDynamicsWorld _dynamicsWorld;
+        internal BroadphaseInterface _broadphaseInterface;
+        internal CollisionConfiguration _collisionConfig;
+        internal CollisionDispatcher _collisionDispatcher;
+        internal MultiBodyConstraintSolver _constraintSolver;
+        internal BulletDebugDrawer _physicsDebugDrawer;
 
         public BulletPhysicsWorld()
         {
-            _physicsBroadphase = new DbvtBroadphase();
+            _broadphaseInterface = new DbvtBroadphase();
             _collisionConfig = new SoftBodyRigidBodyCollisionConfiguration();
             _collisionDispatcher = new CollisionDispatcher(_collisionConfig)
             {
                 NearCallback = NearCallback
             };
             _constraintSolver = new MultiBodyConstraintSolver() { RandSeed = Seed, };
-            _dynamicsWorld = new MultiBodyDynamicsWorld(_collisionDispatcher, _physicsBroadphase, _constraintSolver, _collisionConfig)
+            _dynamicsWorld = new MultiBodyDynamicsWorld(_collisionDispatcher, _broadphaseInterface, _constraintSolver, _collisionConfig)
             {
                 Gravity = Gravity,
                 DebugDrawer = _physicsDebugDrawer = new BulletDebugDrawer()
@@ -306,8 +306,8 @@ namespace TheraEngine.Physics
             _constraintSolver?.Dispose();
             _constraintSolver = null;
 
-            _physicsBroadphase?.Dispose();
-            _physicsBroadphase = null;
+            _broadphaseInterface?.Dispose();
+            _broadphaseInterface = null;
 
             _collisionDispatcher?.Dispose();
             _collisionDispatcher = null;

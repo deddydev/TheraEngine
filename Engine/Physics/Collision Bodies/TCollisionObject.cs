@@ -39,7 +39,7 @@ namespace TheraEngine.Physics
 
     [TFileExt("coll")]
     [TFileDef("Collision Object", "Defines a collision object used by the physics engine for collision simulation.")]
-    public abstract class TCollisionObject : TFileObject
+    public abstract class TCollisionObject : TFileObject, IDisposable
     {
         public event DelMatrixUpdate TransformChanged;
         protected internal void OnTransformChanged(Matrix4 worldTransform)
@@ -149,5 +149,10 @@ namespace TheraEngine.Physics
         public abstract void SetAnisotropicFriction(Vec3 anisotropicFriction);
         public abstract void SetAnisotropicFriction(Vec3 anisotropicFriction, EAnisotropicFrictionFlags frictionMode);
         public abstract void SetIgnoreCollisionCheck(TCollisionObject collisionObject, bool ignoreCollisionCheck);
+
+        public virtual void Dispose()
+        {
+            CollisionShape?.Dispose();
+        }
     }
 }

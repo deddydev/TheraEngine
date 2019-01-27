@@ -26,6 +26,11 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public BulletConeX(float radius, float height)
             => Shape = new ConeShapeX(radius, height);
 
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {
@@ -65,6 +70,11 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public BulletConeY(float radius, float height)
             => Shape = new ConeShape(radius, height);
 
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {
@@ -103,6 +113,11 @@ namespace TheraEngine.Physics.Bullet.Shapes
         public BulletConeZ() : this(0.5f, 1.0f) { }
         public BulletConeZ(float radius, float height)
             => Shape = new ConeShapeZ(radius, height);
+
+        public override void Dispose()
+        {
+            Shape.Dispose();
+        }
 
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)

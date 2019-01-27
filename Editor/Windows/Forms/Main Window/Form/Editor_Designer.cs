@@ -40,8 +40,10 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         BaseGameMode GameMode { get; }
     }
-    public partial class Editor : TheraForm, IMappableShortcutControl
+    public partial class Editor : TheraForm, IMappableShortcutControl, IDockPanelOwner
     {
+        DockPanel IDockPanelOwner.DockPanelRef => DockPanel;
+
         public Editor() : base()
         {
             Instance = this;
@@ -75,7 +77,7 @@ namespace TheraEditor.Windows.Forms
             TheraEngineText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
 
             lblYourIpPort.Text = "Your IP: " + NetworkConnection.GetLocalIPAddressV4();
-            CursorManager.WrapCursorWithinClip = false;
+            CursorManager.GlobalWrapCursorWithinClip = false;
 
             if (lblVersion != null)
             {
@@ -559,7 +561,7 @@ namespace TheraEditor.Windows.Forms
         private Rectangle _prevClip;
         private void CaptureMouse(BaseRenderPanel panel)
         {
-            CursorManager.WrapCursorWithinClip = true;
+            CursorManager.GlobalWrapCursorWithinClip = true;
             Engine.EditorState.InEditMode = false;
             panel.Focus();
             //panel.Capture = true;
@@ -569,7 +571,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void ReleaseMouse()
         {
-            CursorManager.WrapCursorWithinClip = false;
+            CursorManager.GlobalWrapCursorWithinClip = false;
             Engine.EditorState.InEditMode = true;
             //ShowCursor();
             Cursor.Clip = _prevClip;

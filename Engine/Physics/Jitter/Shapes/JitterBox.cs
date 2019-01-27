@@ -19,6 +19,11 @@ namespace TheraEngine.Physics.Jitter
         public JitterBox(Vec3 halfExtents)
             => Shape = new BoxShape(halfExtents * 2.0f);
 
+        public override void Dispose()
+        {
+            //Shape.Dispose();
+        }
+
         #region Collision Shape Methods
         public override void GetBoundingSphere(out Vec3 center, out float radius)
         {

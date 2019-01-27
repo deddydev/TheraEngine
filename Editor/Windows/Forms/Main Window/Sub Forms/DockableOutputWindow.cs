@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Scripting;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -16,6 +16,11 @@ namespace TheraEditor.Windows.Forms
             base.OnShown(e);
             OutputTextBox.Text = Engine.OutputString;
             Engine.DebugOutput += Engine_DebugOutput;
+            if (!OutputTextBox.Focused)
+            {
+                OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
+                OutputTextBox.ScrollToCaret();
+            }
         }
         protected override void OnHandleDestroyed(EventArgs e)
         {
@@ -38,8 +43,20 @@ namespace TheraEditor.Windows.Forms
 
                 OutputTextBox.Text += message;
 
-                //Don't scroll to end if user is reading something
-                if (!OutputTextBox.Focused)
+                Form activeForm = ActiveForm ?? Application.OpenForms[Application.OpenForms.Count - 1];
+                if (activeForm is DockContent c && c.DockPanel != null && c.DockPanel != DockPanel)
+                {
+                    Show(c.DockPanel);
+                    OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
+                    OutputTextBox.ScrollToCaret();
+                }
+                else if (activeForm is IDockPanelOwner dockable && dockable.DockPanelRef != DockPanel)
+                {
+                    Show(dockable.DockPanelRef);
+                    OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
+                    OutputTextBox.ScrollToCaret();
+                }
+                else if (!OutputTextBox.Focused) //Don't scroll to end if user is reading something
                 {
                     OutputTextBox.SelectionStart = OutputTextBox.Text.Length;
                     OutputTextBox.ScrollToCaret();
@@ -50,5 +67,10 @@ namespace TheraEditor.Windows.Forms
 
             }
         }
+    }
+
+    public interface IDockPanelOwner
+    {
+        DockPanel DockPanelRef { get; }
     }
 }

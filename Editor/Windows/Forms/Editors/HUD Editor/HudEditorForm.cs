@@ -1,5 +1,4 @@
 ﻿using System;
-using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Rendering.UI;
 using WeifenLuo.WinFormsUI.Docking;
@@ -7,8 +6,10 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(IUserInterface))]
-    public partial class HudEditorForm : TheraForm
+    public partial class HudEditorForm : TheraForm, IDockPanelOwner
     {
+        DockPanel IDockPanelOwner.DockPanelRef => dockPanel1;
+
         public HudEditorForm()
         {
             InitializeComponent();

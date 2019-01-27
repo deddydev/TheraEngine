@@ -10,6 +10,15 @@ namespace TheraEngine.Input.Devices
     {
         public BaseMouse(int index) : base(index) { }
 
+        /// <summary>
+        /// Determines if the mouse cursor will jump to the other side of the Cursor.Clip rectangle.
+        /// </summary>
+        public bool WrapCursorWithinClip
+        {
+            get => _cursor.WrapCursorWithinClip;
+            set => _cursor.WrapCursorWithinClip = value;
+        }
+
         protected CursorManager _cursor = new CursorManager();
         protected ScrollWheelManager _wheel = new ScrollWheelManager();
 
@@ -55,9 +64,15 @@ namespace TheraEngine.Input.Devices
     public class CursorManager
     {
         /// <summary>
-        /// Determines if the mouse will jump to the other side of the Cursor.Clip rectangle.
+        /// Determines if the mouse cursor will jump to the other side of the Cursor.Clip rectangle.
+        /// Affects all cursors.
         /// </summary>
-        public static bool WrapCursorWithinClip { get; set; } = true;
+        public static bool GlobalWrapCursorWithinClip { get; set; } = false;
+        /// <summary>
+        /// Determines if the mouse cursor will jump to the other side of the Cursor.Clip rectangle.
+        /// Affects only this cursor.
+        /// </summary>
+        public bool WrapCursorWithinClip { get; set; } = false;
 
         private float _lastX, _lastY;
         readonly List<DelCursorUpdate>[] _onCursorUpdate = new List<DelCursorUpdate>[9];
@@ -70,7 +85,7 @@ namespace TheraEngine.Input.Devices
             Rectangle bounds = Cursor.Clip;
             float relX = 0.0f, relY = 0.0f;
 
-            if (WrapCursorWithinClip)
+            if (GlobalWrapCursorWithinClip || WrapCursorWithinClip)
             {
                 //Wrap the X-coord of the cursor
                 if (absPt.X >= bounds.Right - 1)

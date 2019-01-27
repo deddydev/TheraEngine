@@ -5,9 +5,7 @@
         public static readonly string BoneTransformsName = "Transforms";
         //public static readonly string BoneNrmMtxName = "BoneNrmMtx";
         public static readonly string MorphWeightsName = "MorphWeights";
-        public static readonly string PointLightsName = "PointLightData";
-        public static readonly string SpotLightsName = "SpotLightData";
-        public static readonly string DirectionalLightsName = "DirLightData";
+        public static readonly string LightsStructName = "LightData";
         
         //public static int GetLocation(VertexAttribInfo info)
         //{

@@ -1,15 +1,13 @@
-﻿using System;
-using TheraEngine;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Models.Materials.Functions;
-using TheraEngine.Rendering.Textures;
+﻿using TheraEngine.Rendering.Textures;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
     //[EditorFor(typeof(ITextureFile))]
-    public partial class TextureViewerForm : TheraForm
+    public partial class TextureViewerForm : TheraForm, IDockPanelOwner
     {
+        DockPanel IDockPanelOwner.DockPanelRef => dockPanel1;
+
         public TextureViewerForm()
         {
             InitializeComponent();

@@ -123,6 +123,7 @@ namespace TheraEngine.Actors
         }
         
         public float _lifeSpan = -1.0f;
+        [Category("Actor")]
         public float CurrentLife { get; private set; }
         public int _spawnIndex = -1;
         private T _rootComponent;
@@ -134,6 +135,7 @@ namespace TheraEngine.Actors
         public DateTime SpawnTime { get; private set; }
         [Browsable(false)]
         public TimeSpan ActiveTime => DateTime.Now - SpawnTime;
+        [Category("Actor")]
         public float LifeSpan
         {
             get => _lifeSpan;

@@ -1,11 +1,11 @@
 ﻿using System;
-using TheraEngine.Rendering.Models.Materials;
 using System.ComponentModel;
-using TheraEngine.Rendering;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Rendering.Cameras;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene.Lights
 {
@@ -57,19 +57,10 @@ namespace TheraEngine.Components.Scene.Lights
                 new Rotator(  0.0f,   0.0f, 180.0f), //-Z
             };
             ShadowCameras.FillWith(i => new PerspectiveCamera(Vec3.Zero, rotations[i], 0.01f, radius, 90.0f, 1.0f));
-        }
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
-        {
-            Matrix4
-                 r = _rotation.GetMatrix(),
-                 ir = _rotation.Inverted().GetMatrix();
-
-            Matrix4
-                t = _translation.AsTranslationMatrix(),
-                it = (-_translation).AsTranslationMatrix();
-
-            localTransform = t * r;
-            inverseLocalTransform = ir * it;
+            ShadowExponentBase = 1.0f;
+            ShadowExponent = 2.5f;
+            ShadowMinBias = 0.05f;
+            ShadowMaxBias = 10.0f;
         }
         protected override void OnWorldTransformChanged()
         {
@@ -88,6 +79,7 @@ namespace TheraEngine.Components.Scene.Lights
                 if (Type == ELightType.Dynamic)
                 {
                     s3d.Lights.Add(this);
+
                     if (ShadowMap == null)
                         SetShadowMapResolution(512, 512);
                 }
@@ -101,9 +93,8 @@ namespace TheraEngine.Components.Scene.Lights
             if (s3d != null)
             {
                 if (Type == ELightType.Dynamic)
-                {
                     s3d.Lights.Remove(this);
-                }
+                
                 _influenceVolume.RenderInfo.UnlinkScene();
             }
             base.OnDespawned();
@@ -117,7 +108,7 @@ namespace TheraEngine.Components.Scene.Lights
         /// </summary>
         public override void SetUniforms(RenderProgram program, string targetStructName)
         {
-            targetStructName = targetStructName ?? Uniform.PointLightsName;
+            targetStructName = targetStructName ?? Uniform.LightsStructName;
             targetStructName += ".";
 
             program.Uniform(targetStructName + "Color", _color.Raw);
@@ -185,7 +176,7 @@ namespace TheraEngine.Components.Scene.Lights
             return mat;
         }
 #if EDITOR
-        protected override string GetPreviewTextureName() => "LightIcon.png";
+        protected override string PreviewIconName => "PointLightIcon.png";
         protected internal override void OnSelectedChanged(bool selected)
         {
             _influenceVolume.RenderInfo.Visible = selected;

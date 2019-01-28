@@ -145,7 +145,11 @@ namespace TheraEditor.Windows.Forms
               out (float Time, float Value)[] max);
             return TMath.Max(Math.Abs(min[0].Value), Math.Abs(max[0].Value));
         }
-        public async void UpdateSplinePrimitive()
+        const float Resolution = 1.0f;
+        private float MinSec { get; set; }
+        private float VisibleSecRange { get; set; }
+        private int FrameCount { get; set; }
+        public void UpdateSplinePrimitive()
         {
             if (_targetAnimation == null)
                 return;
@@ -154,12 +158,44 @@ namespace TheraEditor.Windows.Forms
                 KeyCount != _targetAnimation.Keyframes.Count ||
                 _rcSpline.Mesh == null)
             {
-                await RegenerateSplinePrimitiveAsync();
+                RegenerateSplinePrimitive();
                 return;
             }
 
             if (DisplayFPS <= 0.0f)
                 return;
+
+            float displayFPS;
+            GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
+            Vec2 bounds = Bounds;
+            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, _baseTransformComponent.InverseWorldMatrix).Xy;
+            float maxSec = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
+            float minSec = TMath.Max(boundsMinAnimRelative.X, animMin.X);
+            float maxVal = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
+            float minVal = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
+            float visibleAnimSecRange = maxSec - minSec;
+            float visibleAnimValRange = maxVal - minVal;
+            //if (_targetAnimation.ConstrainKeyframedFPS || _targetAnimation.IsBaked)
+            //{
+            //    displayFPS = _targetAnimation.BakedFramesPerSecond * Resolution;
+            //    minSec = 0.0f;
+            //    visibleAnimSecRange = maxSec = _targetAnimation.LengthInSeconds;
+            //}
+            //else
+            {
+                //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
+                displayFPS = Bounds.X / visibleAnimSecRange * Resolution;
+            }
+            float secondsPerFrame = 1.0f / displayFPS;
+
+            int frameCount = (int)Math.Ceiling(visibleAnimSecRange * displayFPS) + 1;
+
+            if (frameCount != FrameCount)
+            {
+                RegenerateSplinePrimitive();
+                return;
+            }
 
             float maxVel = GetMaxSpeed();
 
@@ -170,9 +206,9 @@ namespace TheraEditor.Windows.Forms
             var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
 
             int i;
-            float sec = MinSec;
-            float timeIncrement = 1.0f / DisplayFPS;
-            for (i = 0; i < posBuf.ElementCount; ++i, sec = i * timeIncrement)
+            float sec = minSec;
+            float timeIncrement = 1.0f / displayFPS;
+            for (i = 0; i < posBuf.ElementCount; ++i, sec += timeIncrement)
             {
                 GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
 
@@ -209,15 +245,12 @@ namespace TheraEditor.Windows.Forms
                 ++i;
             }
         }
-        private float MinSec { get; set; }
         public async Task RegenerateSplinePrimitiveAsync()
             => await Task.Run((Action)RegenerateSplinePrimitive);
         public void RegenerateSplinePrimitive()
         {
             while (_regenerating) { }
-
-            const float Resolution = 1.0f;
-
+            
             _regenerating = true;
             _rcKeyframeInOutPositions.Mesh?.Dispose();
             _rcKeyframeInOutPositions.Mesh = null;
@@ -242,22 +275,25 @@ namespace TheraEditor.Windows.Forms
             float minVal = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
             float visibleAnimSecRange = maxSec - minSec;
             float visibleAnimValRange = maxVal - minVal;
-            if (_targetAnimation.ConstrainKeyframedFPS || _targetAnimation.IsBaked)
+            //if (_targetAnimation.ConstrainKeyframedFPS || _targetAnimation.IsBaked)
+            //{
+            //    DisplayFPS = _targetAnimation.BakedFramesPerSecond * Resolution;
+            //    minSec = 0.0f;
+            //    visibleAnimSecRange = maxSec = _targetAnimation.LengthInSeconds;
+            //}
+            //else
             {
-                DisplayFPS = _targetAnimation.BakedFramesPerSecond * Resolution;
-                minSec = 0.0f;
-                maxSec = _targetAnimation.LengthInSeconds;
-                visibleAnimSecRange = maxSec - minSec;
+                DisplayFPS = Bounds.X / visibleAnimSecRange * Resolution;
             }
-            else
-            {
-                //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-                DisplayFPS = visibleAnimSecRange * Resolution;
-            }
+
             float secondsPerFrame = 1.0f / DisplayFPS;
 
-            int frameCount = (int)Math.Ceiling(visibleAnimSecRange * DisplayFPS);
-            
+            int frameCount = (int)Math.Ceiling(visibleAnimSecRange * DisplayFPS) + 1;
+
+            MinSec = minSec;
+            VisibleSecRange = visibleAnimSecRange;
+            FrameCount = frameCount;
+
             int posCount = (KeyCount = _targetAnimation.Keyframes.Count) << 1;
             Vertex[] splinePoints = new Vertex[frameCount];
             VertexLine[] keyframeLines = new VertexLine[posCount];
@@ -268,8 +304,7 @@ namespace TheraEditor.Windows.Forms
             float maxVel = GetMaxSpeed();
             int i;
             float sec = minSec;
-            MinSec = minSec;
-            for (i = 0; i < splinePoints.Length; ++i, sec += i * secondsPerFrame)
+            for (i = 0; i < splinePoints.Length; ++i, sec += secondsPerFrame)
             {
                 GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
                 splinePoints[i] = new Vertex(pos, color);
@@ -468,6 +503,7 @@ void main()
             _yCoord.SizeablePosX.ModificationValue = origin.X;
 
             base.BaseWorldTransformChanged();
+            UpdateSplinePrimitive();
         }
         public override void RegisterInput(InputInterface input)
         {
@@ -799,11 +835,6 @@ void main()
                 SelectionRadius *= down ? 1.1f : 0.91f;
             else
                 Zoom(down ? ZoomScrollIncrement : -ZoomScrollIncrement);
-        }
-        protected override void Zoom(float increment)
-        {
-            base.Zoom(increment);
-            UpdateSplinePrimitive();
         }
         protected override void AddRenderables(RenderPasses passes)
         {

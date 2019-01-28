@@ -170,7 +170,7 @@ namespace TheraEditor.Windows.Forms
             var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
 
             int i;
-            float sec = 0.0f;
+            float sec = MinSec;
             float timeIncrement = 1.0f / DisplayFPS;
             for (i = 0; i < posBuf.ElementCount; ++i, sec = i * timeIncrement)
             {
@@ -209,13 +209,13 @@ namespace TheraEditor.Windows.Forms
                 ++i;
             }
         }
-
+        private float MinSec { get; set; }
         public async Task RegenerateSplinePrimitiveAsync()
             => await Task.Run((Action)RegenerateSplinePrimitive);
         public void RegenerateSplinePrimitive()
         {
             while (_regenerating) { }
-            
+
             const float Resolution = 1.0f;
 
             _regenerating = true;
@@ -232,32 +232,44 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-            DisplayFPS = (_targetAnimation.ConstrainKeyframedFPS || _targetAnimation.IsBaked ?
-                _targetAnimation.BakedFramesPerSecond :
-                (Engine.TargetFramesPerSecond == 0 ? 30.0f : Engine.TargetFramesPerSecond)) * Resolution;
-
-            if (DisplayFPS <= 0.0f)
+            GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
+            Vec2 bounds = Bounds;
+            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, _baseTransformComponent.InverseWorldMatrix).Xy;
+            float maxSec = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
+            float minSec = TMath.Max(boundsMinAnimRelative.X, animMin.X);
+            float maxVal = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
+            float minVal = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
+            float visibleAnimSecRange = maxSec - minSec;
+            float visibleAnimValRange = maxVal - minVal;
+            if (_targetAnimation.ConstrainKeyframedFPS || _targetAnimation.IsBaked)
             {
-                _regenerating = false;
-                return;
+                DisplayFPS = _targetAnimation.BakedFramesPerSecond * Resolution;
+                minSec = 0.0f;
+                maxSec = _targetAnimation.LengthInSeconds;
+                visibleAnimSecRange = maxSec - minSec;
             }
+            else
+            {
+                //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
+                DisplayFPS = visibleAnimSecRange * Resolution;
+            }
+            float secondsPerFrame = 1.0f / DisplayFPS;
 
-            float maxVel = GetMaxSpeed();
-
-            int frameCount = (int)Math.Ceiling(_targetAnimation.LengthInSeconds * DisplayFPS) + 1;
-            float invFps = 1.0f / DisplayFPS;
+            int frameCount = (int)Math.Ceiling(visibleAnimSecRange * DisplayFPS);
+            
             int posCount = (KeyCount = _targetAnimation.Keyframes.Count) << 1;
-
             Vertex[] splinePoints = new Vertex[frameCount];
             VertexLine[] keyframeLines = new VertexLine[posCount];
             Vec3[] kfInOutPositions = new Vec3[posCount];
             Vec3[] kfInOutTangents = new Vec3[posCount];
             KeyframeInOutPosInOutTan = new Vec3[posCount << 1];
 
+            float maxVel = GetMaxSpeed();
             int i;
-            float sec = 0.0f;
-            for (i = 0; i < splinePoints.Length; ++i, sec = i * invFps)
+            float sec = minSec;
+            MinSec = minSec;
+            for (i = 0; i < splinePoints.Length; ++i, sec += i * secondsPerFrame)
             {
                 GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
                 splinePoints[i] = new Vertex(pos, color);
@@ -542,6 +554,7 @@ void main()
                                 SecondOffset = kf.Second - animPos.X,
                                 InValueOffset = kf.InValue - animPos.Y,
                                 OutValueOffset = kf.OutValue - animPos.Y,
+
                                 InTangentOffset = kf.InValue + kf.InTangent - animPos.Y,
                                 OutTangentOffset = kf.OutValue + kf.OutTangent - animPos.Y,
 
@@ -692,14 +705,14 @@ void main()
                         {
                             if (kf.Value.DraggingInTangent)
                             {
-                                float inPos = pos.Y + kf.Value.InTangentOffset;
+                                float inPos = pos.Y + kf.Value.InValueOffset;
                                 if (SnapToIncrement)
                                     inPos = inPos.RoundToNearestMultiple(UnitIncrement);
                                 kf.Value.Keyframe.InTangent = inPos;
                             }
                             if (kf.Value.DraggingOutTangent)
                             {
-                                float outPos = pos.Y + kf.Value.OutTangentOffset;
+                                float outPos = pos.Y + kf.Value.OutValueOffset;
                                 if (SnapToIncrement)
                                     outPos = outPos.RoundToNearestMultiple(UnitIncrement);
                                 kf.Value.Keyframe.OutTangent = outPos;
@@ -738,26 +751,28 @@ void main()
                     else
                     {
                         float tangentScale = 50.0f / _baseTransformComponent.ScaleX;
-
+                     
                         if (kf.Value.DraggingInTangent)
                         {
-                            float tanSec = kfSec - tangentScale;
-                            float tanSecInitial = kf.Value.SecondInitial - tangentScale;
-
-                            float inPos = (pos.Y + kf.Value.InTangentOffset);
+                            float inTanY = pos.Y + kf.Value.InTangentOffset;
+                            
                             if (SnapToIncrement)
-                                inPos = inPos.RoundToNearestMultiple(UnitIncrement);
-                            kf.Value.Keyframe.InTangent = (inPos - kf.Value.InTangentInitial * tangentScale) / ((tanSec - tanSecInitial) + 0.00001f);
+                                inTanY = inTanY.RoundToNearestMultiple(UnitIncrement);
+
+                            float inTanYDiff = inTanY - kf.Value.InValueInitial;
+
+                            kf.Value.Keyframe.InTangent = inTanYDiff / (kfSec - kf.Value.SecondInitial);
                         }
                         if (kf.Value.DraggingOutTangent)
                         {
-                            float tanSec = kfSec + tangentScale;
-                            float tanSecInitial = kf.Value.SecondInitial + tangentScale;
-
-                            float outPos = pos.Y + kf.Value.OutTangentOffset;
+                            float outTanY = pos.Y + kf.Value.OutTangentOffset;
+                            
                             if (SnapToIncrement)
-                                outPos = outPos.RoundToNearestMultiple(UnitIncrement);
-                            kf.Value.Keyframe.OutTangent = (outPos - kf.Value.OutTangentInitial * tangentScale) / ((tanSec - tanSecInitial) + 0.00001f);
+                                outTanY = outTanY.RoundToNearestMultiple(UnitIncrement);
+
+                            float outTanYDiff = outTanY - kf.Value.OutValueInitial;
+
+                            kf.Value.Keyframe.OutTangent = outTanYDiff / (kfSec - kf.Value.SecondInitial);
                         }
                     }
                 }

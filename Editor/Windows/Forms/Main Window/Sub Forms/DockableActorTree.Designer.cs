@@ -30,12 +30,12 @@
         {
             this.components = new System.ComponentModel.Container();
             this.ActorTree = new System.Windows.Forms.TreeView();
-            this.ctxSingleActor = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxActorTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newActorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ctxSingleActor.SuspendLayout();
+            this.ctxSingleActor = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxActorTree.SuspendLayout();
+            this.ctxSingleActor.SuspendLayout();
             this.SuspendLayout();
             // 
             // ActorTree
@@ -54,21 +54,6 @@
             this.ActorTree.TabIndex = 2;
             this.ActorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
             // 
-            // ctxSingleActor
-            // 
-            this.ctxSingleActor.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.ctxSingleActor.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.deleteToolStripMenuItem});
-            this.ctxSingleActor.Name = "ctxSingleActor";
-            this.ctxSingleActor.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.ctxSingleActor.Size = new System.Drawing.Size(135, 34);
-            // 
-            // deleteToolStripMenuItem
-            // 
-            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(134, 30);
-            this.deleteToolStripMenuItem.Text = "Delete";
-            // 
             // ctxActorTree
             // 
             this.ctxActorTree.ImageScalingSize = new System.Drawing.Size(24, 24);
@@ -76,13 +61,29 @@
             this.newActorToolStripMenuItem});
             this.ctxActorTree.Name = "ctxActorTree";
             this.ctxActorTree.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.ctxActorTree.Size = new System.Drawing.Size(168, 34);
+            this.ctxActorTree.Size = new System.Drawing.Size(211, 56);
             // 
             // newActorToolStripMenuItem
             // 
             this.newActorToolStripMenuItem.Name = "newActorToolStripMenuItem";
-            this.newActorToolStripMenuItem.Size = new System.Drawing.Size(167, 30);
+            this.newActorToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.newActorToolStripMenuItem.Text = "New Actor";
+            this.newActorToolStripMenuItem.Click += new System.EventHandler(this.newActorToolStripMenuItem_Click);
+            // 
+            // ctxSingleActor
+            // 
+            this.ctxSingleActor.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.ctxSingleActor.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.deleteToolStripMenuItem});
+            this.ctxSingleActor.Name = "ctxSingleActor";
+            this.ctxSingleActor.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
+            this.ctxSingleActor.Size = new System.Drawing.Size(123, 28);
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
+            this.deleteToolStripMenuItem.Text = "Delete";
             // 
             // DockableActorTree
             // 
@@ -90,8 +91,8 @@
             this.Controls.Add(this.ActorTree);
             this.Name = "DockableActorTree";
             this.Text = "Scene Actors";
-            this.ctxSingleActor.ResumeLayout(false);
             this.ctxActorTree.ResumeLayout(false);
+            this.ctxSingleActor.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

@@ -80,5 +80,11 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
+
+        private void newActorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            IActor actor = Editor.UserCreateInstanceOf<IActor>(true);
+            Engine.World.SpawnActor(actor);
+        }
     }
 }

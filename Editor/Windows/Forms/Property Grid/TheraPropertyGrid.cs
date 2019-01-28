@@ -765,7 +765,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private async void btnSave_Click(object sender, EventArgs e)
         {
-            if (!(TargetObject is IFileObject fobj))
+            var o = TargetObjects.Count == 0 ? (null, null) : TargetObjects.Peek();
+            if (!(o.Item1 is IFileObject fobj))
                 return;
 
             IFileObject file = fobj?.RootFile ?? fobj;

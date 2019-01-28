@@ -63,7 +63,7 @@ namespace TheraEngine.Components.Scene
         {
             var file = AudioFileRef?.File;
             if (file is null)
-                return new AudioInstance(0, null);
+                return null;
 
             AudioInstance instance = Engine.Audio.Play(this);
             _instances.Add(instance);

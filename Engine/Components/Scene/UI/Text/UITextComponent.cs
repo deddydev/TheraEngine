@@ -18,10 +18,11 @@ namespace TheraEngine.Rendering.UI
                 Resizable = true
             }), true)
         {
-            _quad.Material.RenderParams = new RenderingParameters(true);
             _textDrawer = new TextDrawer();
             _textDrawer.NeedsRedraw += Redraw;
+
             RenderCommand.RenderPass = ERenderPass.TransparentForward;
+            RenderCommand.Mesh.Material.RenderParams = new RenderingParameters(true);
         }
 
         [TSerialize(nameof(TextQuality))]

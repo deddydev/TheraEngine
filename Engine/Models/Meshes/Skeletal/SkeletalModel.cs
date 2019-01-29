@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Core.Files;
-using TheraEngine.ThirdParty.PMX;
-using System;
 using System.Threading;
-using System.IO;
+using System.Threading.Tasks;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Shapes;
+using TheraEngine.ThirdParty.PMX;
 
 namespace TheraEngine.Rendering.Models
 {

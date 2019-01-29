@@ -231,20 +231,20 @@ namespace TheraEngine.Rendering
             int parentWidth,
             int parentHeight,
             bool setInternalResolution = true,
-            float internalResolutionWidthScale = 1.0f,
-            float internalResolutionHeightScale = 1.0f)
+            int internalResolutionWidth = -1,
+            int internalResolutionHeight = -1)
         {
             float w = parentWidth.ClampMin(1);
             float h = parentHeight.ClampMin(1);
-
+            
             _region.X = (int)(_leftPercentage * w);
             _region.Y = (int)(_bottomPercentage * h);
             _region.Width = (int)(_rightPercentage * w - _region.X);
             _region.Height = (int)(_topPercentage * h - _region.Y);
             
             if (setInternalResolution) SetInternalResolution(
-                (int)(_region.Width * internalResolutionWidthScale),
-                (int)(_region.Height * internalResolutionHeightScale));
+                internalResolutionWidth <= 0 ? _region.Width : internalResolutionWidth,
+                internalResolutionHeight <= 0 ? _region.Height : internalResolutionHeight);
 
             HUD?.Resize(_region.Extents);
             if (Camera is PerspectiveCamera p)

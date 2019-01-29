@@ -78,8 +78,8 @@ namespace TheraEngine.Core.Files.Serialization
                 Type t = ObjectType;
                 if (_memberInfo != null)
                     _memberInfo.MemberTypeChanged -= _memberInfo_MemberTypeChanged;
-                _memberInfo = value;
-                if (_memberInfo != null)
+                _memberInfo = value ?? new TSerializeMemberInfo(null, "null");
+                //if (_memberInfo != null)
                     _memberInfo.MemberTypeChanged += _memberInfo_MemberTypeChanged;
                 if (ObjectType != t)
                     ObjectTypeChanged();

@@ -34,7 +34,7 @@
             this.lblProperties = new System.Windows.Forms.Label();
             this.treeViewSceneComps = new System.Windows.Forms.TreeView();
             this.lstLogicComps = new System.Windows.Forms.ListBox();
-            this.pnlProps = new System.Windows.Forms.Panel();
+            this.pnlProps = new BetterTableLayoutPanel();
             this.lblObjectName = new System.Windows.Forms.Label();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.btnSave = new System.Windows.Forms.Button();
@@ -56,7 +56,7 @@
             this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlSide = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel1 = new BetterTableLayoutPanel();
             this.pnlScene = new System.Windows.Forms.Panel();
             this.pnlLogic = new System.Windows.Forms.Panel();
             this.pnlProps2 = new System.Windows.Forms.Panel();
@@ -496,7 +496,7 @@
         private System.Windows.Forms.Label lblProperties;
         private System.Windows.Forms.TreeView treeViewSceneComps;
         private System.Windows.Forms.ListBox lstLogicComps;
-        public System.Windows.Forms.Panel pnlProps;
+        public BetterTableLayoutPanel pnlProps;
         private System.Windows.Forms.Label lblObjectName;
         private System.Windows.Forms.Panel pnlHeader;
         public System.Windows.Forms.Button btnSave;
@@ -518,7 +518,7 @@
         private System.Windows.Forms.Panel pnlSide;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private BetterTableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Panel pnlProps2;
         private System.Windows.Forms.Panel pnlScene;
         private System.Windows.Forms.Panel pnlLogic;

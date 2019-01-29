@@ -39,11 +39,11 @@ namespace TheraEngine.Components.Scene.Lights
         [TSerialize]
         [DisplayName("Exponent")]
         [Category("Shadow Map Settings")]
-        public float ShadowExponent { get; set; } = 1.0f;
+        public float ShadowExponent { get; set; } = 2.0f;
         [TSerialize]
         [DisplayName("Minimum Bias")]
         [Category("Shadow Map Settings")]
-        public float ShadowMinBias { get; set; } = 0.001f;
+        public float ShadowMinBias { get; set; } = 0.00001f;
         [TSerialize]
         [DisplayName("Maximum Bias")]
         [Category("Shadow Map Settings")]

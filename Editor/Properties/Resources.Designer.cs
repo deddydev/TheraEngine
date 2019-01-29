@@ -123,16 +123,6 @@ namespace TheraEditor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ProjectFile {
-            get {
-                object obj = ResourceManager.GetObject("ProjectFile", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap PythonIcon {
             get {
                 object obj = ResourceManager.GetObject("PythonIcon", resourceCulture);

@@ -13,97 +13,62 @@ namespace TheraEngine.Core.Files
 {
     public abstract partial class TFileObject : TObject, IFileObject
     {
+        private static void ReadLoaders(Dictionary<string, Dictionary<Type, Delegate>> loaders, Type type, string[] extensions)
+        {
+            foreach (string ext3rd in extensions)
+            {
+                string extLower = ext3rd.ToLowerInvariant();
+                Dictionary<Type, Delegate> extensionLoaders;
+                if (loaders.ContainsKey(extLower))
+                    extensionLoaders = loaders[extLower];
+                else
+                    loaders.Add(extLower, extensionLoaders = new Dictionary<Type, Delegate>());
+                if (!extensionLoaders.ContainsKey(type))
+                {
+                    var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                        .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
+                        .ToArray();
+                    if (methods.Length > 0)
+                    {
+                        MethodInfo m = methods[0];
+                        var loader = m.GetCustomAttribute<ThirdPartyLoader>();
+                        bool async = loader.Async;
+                        Type t;
+                        if (async)
+                            t = typeof(Del3rdPartyImportFileMethodAsync<>);
+                        else
+                            t = typeof(Del3rdPartyImportFileMethod<>);
+                        try
+                        {
+                            Type delType = t.MakeGenericType(m.DeclaringType);
+                            Delegate d = Delegate.CreateDelegate(delType, m);
+                            extensionLoaders.Add(type, d);
+                        }
+                        catch
+                        {
+                            Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party loader for {m.DeclaringType.GetFriendlyName()}.");
+                        }
+                    }
+                }
+                else
+                    throw new Exception(type.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
+            }
+        }
         static TFileObject()
         {
             _3rdPartyLoaders = new Dictionary<string, Dictionary<Type, Delegate>>();
-            //_3rdPartyExporters = new Dictionary<string, Dictionary<Type, Delegate>>();
+            _3rdPartyExporters = new Dictionary<string, Dictionary<Type, Delegate>>();
             try
             {
                 var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
                 foreach (Type type in types)
                 {
-                    TFile3rdPartyExt attrib = GetFile3rdPartyExtensions(type);
-                    if (attrib == null)
-                        continue;
-
-                    foreach (string ext3rd in attrib.Extensions)
+                    TFileExt attrib = GetFileExtension(type);
+                    if (attrib != null)
                     {
-                        string extLower = ext3rd.ToLowerInvariant();
-                        Dictionary<Type, Delegate> extensionLoaders;
-                        if (_3rdPartyLoaders.ContainsKey(extLower))
-                            extensionLoaders = _3rdPartyLoaders[extLower];
-                        else
-                            _3rdPartyLoaders.Add(extLower, extensionLoaders = new Dictionary<Type, Delegate>());
-                        if (!extensionLoaders.ContainsKey(type))
-                        {
-                            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                                .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
-                                .ToArray();
-                            if (methods.Length > 0)
-                            {
-                                MethodInfo m = methods[0];
-                                var loader = m.GetCustomAttribute<ThirdPartyLoader>();
-                                bool async = loader.Async;
-                                Type t;
-                                if (async)
-                                    t = typeof(Del3rdPartyImportFileMethodAsync<>);
-                                else
-                                    t = typeof(Del3rdPartyImportFileMethod<>);
-                                try
-                                {
-                                    Type delType = t.MakeGenericType(m.DeclaringType);
-                                    Delegate d = Delegate.CreateDelegate(delType, m);
-                                    extensionLoaders.Add(type, d);
-                                }
-                                catch
-                                {
-                                    Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party loader for {m.DeclaringType.GetFriendlyName()}.");
-                                }
-                            }
-                        }
-                        else
-                            throw new Exception(type.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
+                        ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
+                        ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
                     }
-                    _3rdPartyExporters = _3rdPartyLoaders;
-
-                    //foreach (string ext3rd in attrib.ExportableExtensions)
-                    //{
-                    //    string extLower = ext3rd.ToLowerInvariant();
-                    //    Dictionary<Type, Delegate> extensionExporters;
-                    //    if (_3rdPartyExporters.ContainsKey(extLower))
-                    //        extensionExporters = _3rdPartyExporters[extLower];
-                    //    else
-                    //        _3rdPartyExporters.Add(extLower, extensionExporters = new Dictionary<Type, Delegate>());
-                    //    if (!extensionExporters.ContainsKey(type))
-                    //    {
-                    //        var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                    //            .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyExporter>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
-                    //            .ToArray();
-                    //        if (methods.Length > 0)
-                    //        {
-                    //            MethodInfo m = methods[0];
-                    //            var loader = m.GetCustomAttribute<ThirdPartyExporter>();
-                    //            bool async = loader.Async;
-                    //            Type t;
-                    //            if (async)
-                    //                t = typeof(Del3rdPartyExportFileMethodAsync<>);
-                    //            else
-                    //                t = typeof(Del3rdPartyExportFileMethod<>);
-                    //            try
-                    //            {
-                    //                Type delType = t.MakeGenericType(m.DeclaringType);
-                    //                Delegate d = Delegate.CreateDelegate(delType, m);
-                    //                extensionExporters.Add(type, d);
-                    //            }
-                    //            catch
-                    //            {
-                    //                Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party exporter for {m.DeclaringType.GetFriendlyName()}.");
-                    //            }
-                    //        }
-                    //    }
-                    //    else
-                    //        throw new Exception(type.GetFriendlyName() + " has already been added to the third party exporter list for " + extLower);
-                    //}
                 }
             }
             catch { }

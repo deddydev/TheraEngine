@@ -177,25 +177,50 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
             string name = ResolveMemberName(editors[0], attributes);
+            
+            Label label = null;
+            if (tblProps.InvokeRequired)
+            {
+                tblProps.Invoke((Action)(() =>
+                {
+                    tblProps.BeginUpdate();
+                    tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    tblProps.RowCount = tblProps.RowStyles.Count;
+                    label = UpdateTable(editors, readOnly, name, desc);
+                    tblProps.EndUpdate();
+                }));
+            }
+            else
+            {
+                tblProps.BeginUpdate();
+                tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                tblProps.RowCount = tblProps.RowStyles.Count;
+                label = UpdateTable(editors, readOnly, name, desc);
+                tblProps.EndUpdate();
+            }
+
+            return label;
+        }
+
+        private Label UpdateTable(List<PropGridItem> editors, bool readOnly, string name, string desc)
+        {
             Label label = new Label()
             {
-                Text = name,
                 TextAlign = ContentAlignment.MiddleRight,
                 AutoSize = true,
                 ForeColor = Color.FromArgb(200, 200, 220),
                 Dock = DockStyle.Fill,
                 Padding = new Padding(3, 2, 3, 4),
                 Margin = new Padding(0),
+                Text = name,
             };
             label.MouseEnter += Label_MouseEnter;
             label.MouseLeave += Label_MouseLeave;
-            tblProps.BeginUpdate();
-            tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tblProps.RowCount = tblProps.RowStyles.Count;
             tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
+            label.Tag = new MemberLabelInfo(desc, label.Location, new Point(label.Location.X + 10, label.Location.Y));
             if (editors.Count > 1)
             {
-                Panel p = new Panel()
+                BetterTableLayoutPanel p = new BetterTableLayoutPanel()
                 {
                     Dock = DockStyle.Fill,
                     Margin = new Padding(0),
@@ -203,6 +228,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     AutoSize = true,
                     AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 };
+                p.ColumnStyles.Clear();
+                p.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+                p.ColumnCount = 1;
                 foreach (PropGridItem item in editors)
                 {
                     item.SetLabel(label);
@@ -211,7 +239,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.Padding = new Padding(0);
                     item.ReadOnly = readOnly;
                     item.ParentCategory = this;
-                    p.Controls.Add(item);
+
+                    p.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    p.RowCount = tblProps.RowStyles.Count;
+                    p.Controls.Add(item, 0, p.RowCount - 1);
                 }
                 tblProps.Controls.Add(p, 1, tblProps.RowCount - 1);
             }
@@ -226,12 +257,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.ParentCategory = this;
                 tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
             }
-            tblProps.EndUpdate();
-
-            label.Tag = new MemberLabelInfo(desc, label.Location, new Point(label.Location.X + 10, label.Location.Y));
-
             return label;
         }
+
         //public TextBox AddTextMember(List<PropGridItem> editors, object[] attributes, bool readOnly)
         //{
         //    //var parentInfo = editors[0].ParentInfo;

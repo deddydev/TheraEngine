@@ -294,7 +294,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public static async Task LoadPropertiesToPanel(
             TheraPropertyGrid grid,
-            Panel pnlProps,
+            BetterTableLayoutPanel pnlProps,
             Dictionary<string, PropGridCategory> categories,
             object obj,
             IPropGridMemberOwner memberOwner,
@@ -313,6 +313,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (obj == null)
                 return;
+
+            pnlProps.RowStyles.Clear();
+            pnlProps.ColumnStyles.Clear();
+            pnlProps.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            pnlProps.ColumnCount = 1;
 
             PropertyInfo[] props = null;
             MethodInfo[] methods = null;
@@ -517,16 +522,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public static PropGridItem InstantiatePropertyEditor(Type controlType, PropGridMemberInfo info, IDataChangeHandler dataChangeHandler)
         {
-            PropGridItem control = Activator.CreateInstance(controlType) as PropGridItem;
+            PropGridItem control = (PropGridItem)Editor.Instance.Invoke((Func<PropGridItem>)(() => 
+            {
+                PropGridItem item = Activator.CreateInstance(controlType) as PropGridItem;
+                if (item != null)
+                {
+                    item.SetReferenceHolder(info);
+                    item.Dock = DockStyle.Fill;
+                    item.Visible = true;
+                    if (dataChangeHandler != null)
+                        item.DataChangeHandler = dataChangeHandler;
+                }
+                return item;
 
-            control.SetReferenceHolder(info);
-            control.Dock = DockStyle.Fill;
-            control.Visible = true;
-
-            if (dataChangeHandler != null)
-                control.DataChangeHandler = dataChangeHandler;
-
-            control.Show();
+            }));
             return control;
         }
 
@@ -618,7 +627,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             TheraPropertyGrid grid,
             Deque<Type> controlTypes,
             PropGridMemberInfo info,
-            Panel panel,
+            BetterTableLayoutPanel panel,
             Dictionary<string, PropGridCategory> categories,
             object[] attribs,
             bool readOnly,
@@ -646,7 +655,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 };
                 misc.AddMember(controls, attribs, readOnly);
                 categories.Add(catName, misc);
-                panel.Controls.Add(misc);
+
+                panel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                panel.RowCount = panel.RowStyles.Count;
+                panel.Controls.Add(misc, 0, panel.RowCount - 1);
             }
         }
         #endregion

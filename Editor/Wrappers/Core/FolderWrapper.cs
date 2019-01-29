@@ -277,7 +277,7 @@ namespace TheraEditor.Wrappers
             }
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = TFileObject.GetFilter(fileType, true, true, false),
+                Filter = TFileObject.GetFilter(fileType, true, true, true, false),
                 Title = "Import File"
             })
             {

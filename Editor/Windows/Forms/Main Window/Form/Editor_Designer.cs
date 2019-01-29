@@ -838,7 +838,7 @@ namespace TheraEditor.Windows.Forms
 
             using (SaveFileDialog sfd = new SaveFileDialog()
             {
-                Filter = TFileObject.GetFilter(file.GetType()),
+                Filter = TFileObject.GetFilter(file.GetType(), true, true, false, true),
             })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)

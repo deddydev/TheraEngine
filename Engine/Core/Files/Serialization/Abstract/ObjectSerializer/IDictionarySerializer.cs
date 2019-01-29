@@ -25,7 +25,12 @@ namespace TheraEngine.Core.Files.Serialization
 
                 for (int i = 0; i < keyValCount; ++i)
                 {
+                    if (i >= TreeNode.ChildElements.Count)
+                        break;
+
                     var keyValNode = TreeNode.ChildElements[i];
+                    if (keyValNode.ChildElements.Count < 2)
+                        continue;
 
                     var keyNode = keyValNode.ChildElements[0];
                     var valNode = keyValNode.ChildElements[1];
@@ -54,12 +59,12 @@ namespace TheraEngine.Core.Files.Serialization
             dic.Keys.CopyTo(keys, 0);
             dic.Values.CopyTo(vals, 0);
 
-            SerializeElement[] keyNodes = keys.Select(obj => new SerializeElement(obj, new TSerializeMemberInfo(keyType, SerializationCommon.GetTypeName(keyType)))).ToArray();
-            SerializeElement[] valNodes = vals.Select(obj => new SerializeElement(obj, new TSerializeMemberInfo(valType, SerializationCommon.GetTypeName(valType)))).ToArray();
+            SerializeElement[] keyNodes = keys.Select(obj => new SerializeElement(obj, new TSerializeMemberInfo(keyType, "Key"/*SerializationCommon.GetTypeName(keyType)*/))).ToArray();
+            SerializeElement[] valNodes = vals.Select(obj => new SerializeElement(obj, new TSerializeMemberInfo(valType, "Value"/*SerializationCommon.GetTypeName(valType)*/))).ToArray();
             
             for (int i = 0; i < keyNodes.Length; ++i)
             {
-                SerializeElement pairNode = new SerializeElement(null, null);
+                SerializeElement pairNode = new SerializeElement(null, new TSerializeMemberInfo(null, "KV" + i.ToString()));
                 TreeNode.ChildElements.Add(pairNode);
 
                 SerializeElement keyNode = keyNodes[i];

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -14,14 +15,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public IDictionary Dictionary { get; private set; }
 
+        public override PropGridCategory ParentCategory
+        {
+            get => base.ParentCategory;
+            set
+            {
+                base.ParentCategory = value;
+                propGridDicItems.PropertyGrid = ParentCategory?.PropertyGrid;
+            }
+        }
+
         private Type _valueType, _keyType;
         protected override void UpdateDisplayInternal(object value)
         {
-            lblObjectTypeName.Text = DataType.GetFriendlyName();
-            chkNull.Visible = DataType.IsValueType;
-
             Dictionary = value as IDictionary;
-            chkNull.Visible = DataType.IsClass;
+            Type type = value?.GetType() ?? DataType;
+
+            lblObjectTypeName.Text = type.GetFriendlyName();
+            chkNull.Visible = !type.IsValueType;
+
             if (!(chkNull.Checked = Dictionary == null))
             {
                 lblObjectTypeName.Enabled = Dictionary.Count > 0;
@@ -55,59 +67,72 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.DestroyHandle();
         }
 
-        private void LoadDictionary(IDictionary dic)
+        private async void LoadDictionary(IDictionary dic)
         {
+            propGridDicItems.tblProps.SuspendLayout();
+
             if (dic == null)
                 propGridDicItems.DestroyProperties();
             else
-            {
-                ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
-               
-                object[] dicKeys = new object[dic.Keys.Count];
-                dic.Keys.CopyTo(dicKeys, 0);
-                Array.Sort(dicKeys);
-
-                Deque<Type> valueTypes = TheraPropertyGrid.GetControlTypes(_valueType);
-                Deque<Type> keyTypes = TheraPropertyGrid.GetControlTypes(_keyType);
-
-                //await Task.Run(() => Parallel.For(0, dic.Count, i =>
-                int r = 0;
-                foreach (var key in dicKeys)
+                await Task.Run(() =>
                 {
-                    Type vt = dic[key]?.GetType();
-                    Deque<Type> valueTypes2 = valueTypes;
-                    if (vt != null && vt.IsSubclassOf(_valueType))
-                        valueTypes2 = TheraPropertyGrid.GetControlTypes(vt);
+                    ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
+                    ConcurrentDictionary<Type, Deque<Type>> editorTypeCaches = new ConcurrentDictionary<Type, Deque<Type>>();
 
-                    Type kt = key?.GetType();
-                    Deque<Type> keyTypes2 = keyTypes;
-                    if (kt != null && kt.IsSubclassOf(_keyType))
-                        valueTypes2 = TheraPropertyGrid.GetControlTypes(kt);
+                    object[] dicKeys = new object[dic.Keys.Count];
+                    dic.Keys.CopyTo(dicKeys, 0);
+                    Array.Sort(dicKeys);
 
-                    List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyTypes2, new PropGridItemRefIDictionaryInfo(this, key, true), DataChangeHandler);
-                    List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valueTypes2, new PropGridItemRefIDictionaryInfo(this, key, false), DataChangeHandler);
+                    Deque<Type> valueTypes = TheraPropertyGrid.GetControlTypes(_valueType);
+                    Deque<Type> keyTypes = TheraPropertyGrid.GetControlTypes(_keyType);
 
-                    //TODO: don't interlace, put key editor in place of label
-                    int count = keys.Count + values.Count;
-                    List<PropGridItem> interlaced = new List<PropGridItem>(count);
-                    int valueIndex = -1;
-                    int keyIndex = -1;
-                    for (int x = 0; x < count; ++x)
-                        interlaced.Add(((x & 1) == 0) ? keys[++keyIndex] : values[++valueIndex]);
+                    Parallel.For(0, dic.Count, i =>
+                    {
+                        var key = dicKeys[i];
+                        Type keyType = key?.GetType();
+                        Type valType = dic[key]?.GetType() ?? _valueType;
 
-                    controls.TryAdd(r++, interlaced);
-                }//));
-                propGridDicItems.tblProps.SuspendLayout();
-                for (int i = 0; i < controls.Count; ++i)
-                {
-                    Label label = propGridDicItems.AddMember(controls[i], new object[0], false);
-                    label.MouseEnter += Label_MouseEnter;
-                    label.MouseLeave += Label_MouseLeave;
-                    label.MouseDown += Label_MouseDown;
-                    label.MouseUp += Label_MouseUp;
-                }
-                propGridDicItems.tblProps.ResumeLayout(true);
-            }
+                        Deque<Type> keyControlTypes;
+                        if (editorTypeCaches.ContainsKey(keyType))
+                            keyControlTypes = editorTypeCaches[keyType];
+                        else
+                        {
+                            keyControlTypes = TheraPropertyGrid.GetControlTypes(keyType);
+                            editorTypeCaches.TryAdd(keyType, keyControlTypes);
+                        }
+                        Deque<Type> valControlTypes;
+                        if (editorTypeCaches.ContainsKey(valType))
+                            valControlTypes = editorTypeCaches[valType];
+                        else
+                        {
+                            valControlTypes = TheraPropertyGrid.GetControlTypes(valType);
+                            editorTypeCaches.TryAdd(valType, valControlTypes);
+                        }
+                        
+                        List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyControlTypes, new PropGridItemRefIDictionaryInfo(this, key, true), DataChangeHandler);
+                        List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valControlTypes, new PropGridItemRefIDictionaryInfo(this, key, false), DataChangeHandler);
+
+                        //TODO: don't interlace, put key editor in place of label
+                        int count = keys.Count + values.Count;
+                        List<PropGridItem> interlaced = new List<PropGridItem>(count);
+                        int valueIndex = -1;
+                        int keyIndex = -1;
+                        for (int x = 0; x < count; ++x)
+                            interlaced.Add(((x & 1) == 0) ? keys[++keyIndex] : values[++valueIndex]);
+
+                        controls.TryAdd(i, interlaced);
+                    });
+                    for (int i = 0; i < controls.Count; ++i)
+                    {
+                        Label label = propGridDicItems.AddMember(controls[i], new object[0], false);
+                        label.MouseEnter += Label_MouseEnter;
+                        label.MouseLeave += Label_MouseLeave;
+                        label.MouseDown += Label_MouseDown;
+                        label.MouseUp += Label_MouseUp;
+                    }
+                });
+
+            propGridDicItems.tblProps.ResumeLayout(true);
         }
 
         private void Label_MouseUp(object sender, MouseEventArgs e) { }
@@ -161,7 +186,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 interlaced.Add(((x & 1) == 0) ? keys[++keyIndex] : values[++valueIndex]);
             
             propGridDicItems.AddMember(interlaced, new object[0], false);
-            Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(interlaced[interlaced.Count - 1]);
+            //Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(interlaced[interlaced.Count - 1]);
         }
 
         public void Expand() => propGridDicItems.Visible = true;
@@ -185,7 +210,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (Dictionary != null)
             {
                 propGridDicItems.Visible = !propGridDicItems.Visible;
-                Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
+                //Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(this);
             }
         }
         private void chkNull_CheckedChanged(object sender, EventArgs e)

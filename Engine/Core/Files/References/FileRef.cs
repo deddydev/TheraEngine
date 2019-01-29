@@ -101,6 +101,7 @@ namespace TheraEngine.Core.Files
             get => _file != null;
             set
             {
+                LoadAttempted = false;
                 if (value)
                     GetInstance();
                 else

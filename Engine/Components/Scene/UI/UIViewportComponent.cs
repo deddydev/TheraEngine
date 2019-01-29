@@ -26,15 +26,7 @@ namespace TheraEngine.Rendering.UI
         public UIViewportComponent() : base(GetViewportMaterial())
         {
             _fbo = new MaterialFrameBuffer(InterfaceMaterial);
-            _quad.SettingUniforms += SetUniforms;
-            //_rc = new RenderCommandViewport
-            //{
-            //    Primitives = _quad,
-            //    NormalMatrix = Matrix3.Identity,
-            //    Viewport = Viewport,
-            //    ZIndex = 0,
-            //    Framebuffer = _fbo
-            //};
+            RenderCommand.Mesh.SettingUniforms += SetUniforms;
         }
 
         private static TMaterial GetViewportMaterial()
@@ -72,19 +64,12 @@ namespace TheraEngine.Rendering.UI
                 w = (int)Width.ClampMin(1.0f), 
                 h = (int)Height.ClampMin(1.0f);
 
-            Viewport.Resize(w, h, true, 1.0f, 1.0f);
+            Viewport.Resize(w, h);
             _fbo.Resize(w, h);
 
             return r;
         }
-        //private RenderCommandViewport _rc;
-        //public override void AddRenderables(RenderPasses passes)
-        //{
-        //    if (!IsVisible)
-        //        return;
-        //    _rc.WorldMatrix = WorldMatrix;
-        //    passes.Add(_rc, RenderInfo.RenderPass);
-        //}
+
         public void PreRenderUpdate(Camera camera)
         {
             if (_updating)
@@ -105,6 +90,10 @@ namespace TheraEngine.Rendering.UI
         public void PreRenderSwap()
         {
             if (_swapping)
+                return;
+
+            Camera c = ViewportCamera;
+            if (!IsVisible || c == null)
                 return;
 
             _swapping = true;

@@ -18,11 +18,10 @@ namespace TheraEngine.Rendering.UI
         {
             VertexQuad quad = VertexQuad.PosZQuad(1.0f, 1.0f, 0.0f, true, flipVerticalUVCoord);
             PrimitiveData quadData = PrimitiveData.FromQuads(VertexShaderDesc.PosTex(), quad);
-            _quad = new PrimitiveManager(quadData, material);
+            RenderCommand.Mesh = new PrimitiveManager(quadData, material);
+            RenderCommand.ZIndex = 0;
         }
-
-        protected PrimitiveManager _quad;
-
+        
         [Category("Rendering")]
         public override int LayerIndex
         {
@@ -50,20 +49,20 @@ namespace TheraEngine.Rendering.UI
         [Category("Rendering")]
         public TMaterial InterfaceMaterial
         {
-            get => _quad.Material;
-            set => _quad.Material = value;
+            get => RenderCommand.Mesh.Material;
+            set => RenderCommand.Mesh.Material = value;
         }
 
         public BaseTexRef Texture(int index)
         {
-            if (_quad.Material.Textures.IndexInRange(index))
-                return _quad.Material.Textures[index];
+            if (RenderCommand.Mesh.Material.Textures.IndexInRange(index))
+                return RenderCommand.Mesh.Material.Textures[index];
             return null;
         }
         public T Texture<T>(int index) where T : BaseTexRef
         {
-            if (_quad.Material.Textures.IndexInRange(index))
-                return _quad.Material.Textures[index] as T;
+            if (RenderCommand.Mesh.Material.Textures.IndexInRange(index))
+                return RenderCommand.Mesh.Material.Textures[index] as T;
             return null;
         }
 
@@ -72,13 +71,13 @@ namespace TheraEngine.Rendering.UI
         /// Use this to set uniform values to be passed to the shader.
         /// </summary>
         public T2 Parameter<T2>(int index) where T2 : ShaderVar
-            => _quad.Parameter<T2>(index);
+            => RenderCommand.Mesh.Parameter<T2>(index);
         /// <summary>
         /// Retrieves the linked material's uniform parameter with the given name.
         /// Use this to set uniform values to be passed to the shader.
         /// </summary>
         public T2 Parameter<T2>(string name) where T2 : ShaderVar
-            => _quad.Parameter<T2>(name);
+            => RenderCommand.Mesh.Parameter<T2>(name);
 
         // 3--2
         // |\ |
@@ -110,17 +109,13 @@ namespace TheraEngine.Rendering.UI
 
         protected override void OnWorldTransformChanged()
         {
-            _renderMatrix = WorldMatrix * Matrix4.CreateScale(Width, Height, 1.0f);
+            RenderCommand.WorldMatrix = WorldMatrix * Matrix4.CreateScale(Width, Height, 1.0f);
             base.OnWorldTransformChanged();
         }
-
-        private Matrix4 _renderMatrix;
+        
         public RenderCommandMesh2D RenderCommand { get; } = new RenderCommandMesh2D(ERenderPass.OpaqueForward);
         public virtual void AddRenderables(RenderPasses passes)
         {
-            RenderCommand.Mesh = _quad;
-            RenderCommand.WorldMatrix = _renderMatrix;
-            RenderCommand.ZIndex = 0;
             passes.Add(RenderCommand);
         }
 

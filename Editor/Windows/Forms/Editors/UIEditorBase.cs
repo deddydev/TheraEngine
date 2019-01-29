@@ -195,9 +195,12 @@ namespace TheraEditor.Windows.Forms
         }
         public void UpdateLineIncrement()
         {
+            if (_baseTransformComponent.ScaleX.EqualTo(0.0f, 0.00001f))
+                return;
+
             Vec2 visibleAnimRange = Bounds / _baseTransformComponent.Scale;
             float range = TMath.Min(visibleAnimRange.X, visibleAnimRange.Y);
-            if (range == 0.0f)
+            if (range == 0.0f || float.IsInfinity(range) || float.IsNaN(range))
                 return;
 
             float invMax = 1.0f / MaxIncrementExclusive;

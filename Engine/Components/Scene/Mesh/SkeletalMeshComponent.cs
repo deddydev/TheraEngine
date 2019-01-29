@@ -225,8 +225,11 @@ namespace TheraEngine.Components.Scene.Mesh
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
                 {
-                    m.RenderInfo.Visible = false;
-                    m.Destroy();
+                    if (m != null)
+                    {
+                        m.RenderInfo.Visible = false;
+                        m.Destroy();
+                    }
                 }
 
             if (_targetSkeleton != null)

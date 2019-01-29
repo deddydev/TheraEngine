@@ -249,7 +249,7 @@ namespace TheraEditor.Windows.Forms
             => await Task.Run((Action)RegenerateSplinePrimitive);
         public void RegenerateSplinePrimitive()
         {
-            while (_regenerating) { }
+            //while (_regenerating) { }
             
             _regenerating = true;
             _rcKeyframeInOutPositions.Mesh?.Dispose();
@@ -275,17 +275,10 @@ namespace TheraEditor.Windows.Forms
             float minVal = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
             float visibleAnimSecRange = maxSec - minSec;
             float visibleAnimValRange = maxVal - minVal;
-            //if (_targetAnimation.ConstrainKeyframedFPS || _targetAnimation.IsBaked)
-            //{
-            //    DisplayFPS = _targetAnimation.BakedFramesPerSecond * Resolution;
-            //    minSec = 0.0f;
-            //    visibleAnimSecRange = maxSec = _targetAnimation.LengthInSeconds;
-            //}
-            //else
-            {
-                DisplayFPS = Bounds.X / visibleAnimSecRange * Resolution;
-            }
-
+            if (visibleAnimSecRange <= 0.0f)
+                visibleAnimSecRange = Bounds.X;
+            DisplayFPS = Bounds.X / visibleAnimSecRange * Resolution;
+            
             float secondsPerFrame = 1.0f / DisplayFPS;
 
             int frameCount = (int)Math.Ceiling(visibleAnimSecRange * DisplayFPS) + 1;
@@ -432,6 +425,13 @@ void main()
 
             float minY = minResult[0].Value;
             float maxY = maxResult[0].Value;
+            if (minY > maxY)
+            {
+                min = Vec2.Zero;
+                max = Vec2.Zero;
+                return false;
+            }
+
             float minX = 0.0f;
             float maxX = _targetAnimation.LengthInSeconds;
 

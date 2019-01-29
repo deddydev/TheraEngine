@@ -382,7 +382,7 @@ namespace TheraEngine.Animation
                         continue;
                         
                     PropAnimFloat track = _tracks[trackIndex];
-                    if (node.GetAttributeValue("Count", out int keyCount))
+                    if (targetTrackElement.GetAttributeValue("Count", out int keyCount))
                     {
                         float[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null;
                         EVectorInterpType[] interpolation = null;

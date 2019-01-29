@@ -255,7 +255,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 while (UpdatingVisibleItems)
                 {
-                    if (VisibleItems.Count > 0)
+                    if (Engine.CurrentFramesPerSecond > 30.0f)
                         Parallel.For(0, VisibleItems.Count, i =>
                         {
                             try
@@ -263,7 +263,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                                 if (!VisibleItems.IndexInRange(i))
                                     return;
                                 var item = VisibleItems[i];
-                                if (!item.Disposing && !item.IsDisposed && Engine.CurrentFramesPerSecond > 30.0f)
+                                //Panel p = item.ParentCategory?.PropertyGrid?.pnlProps;
+                                //if (p != null)
+                                //{
+                                //    var screenItemRect = item.RectangleToScreen(item.ClientRectangle);
+                                //    var screenBoundsRect = p.RectangleToScreen(item.ClientRectangle);
+                                //    if (!screenItemRect.IntersectsWith(screenBoundsRect))
+                                //        return;
+                                //}
+                                if (!item.Disposing && !item.IsDisposed)
                                     BaseRenderPanel.ThreadSafeBlockingInvoke((Action)item.UpdateDisplay, BaseRenderPanel.PanelType.Rendering);
                             }
                             catch { }

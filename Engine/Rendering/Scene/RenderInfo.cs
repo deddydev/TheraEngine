@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering
     {
         [TSerialize]
         public virtual bool VisibleByDefault { get; set; } = true;
-        [TSerialize]
+        [TSerialize(State = true, Config = false)]
         public virtual bool Visible { get; set; } = true;
 #if EDITOR
         [TSerialize]
@@ -86,7 +86,7 @@ namespace TheraEngine.Rendering
         public bool HiddenFromOwner { get; set; } = false;
         [TSerialize]
         public bool VisibleToOwnerOnly { get; set; } = false;
-        [TSerialize(State = true, Config = false)]
+        
         public override bool Visible
         {
             get => Scene != null && base.Visible;

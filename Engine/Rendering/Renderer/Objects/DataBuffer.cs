@@ -86,7 +86,7 @@ namespace TheraEngine.Rendering.Models
     }
     public class DataBuffer : BaseRenderObject, IDisposable, ISerializablePointer
     {
-        public enum ComponentType
+        public enum EComponentType
         {
             SByte   = 0,
             Byte    = 1,
@@ -108,7 +108,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("BindLocation", NodeType = ENodeType.Attribute)]
         internal int _location;
         [TSerialize("ComponentType", NodeType = ENodeType.Attribute)]
-        internal ComponentType _componentType;
+        internal EComponentType _componentType;
         [TSerialize("Normalize", NodeType = ENodeType.Attribute)]
         internal bool _normalize;
         [TSerialize("Integral", NodeType = ENodeType.Attribute)]
@@ -133,7 +133,7 @@ namespace TheraEngine.Rendering.Models
             VoidPtr address = _data.Address;
             switch (_componentType)
             {
-                case ComponentType.SByte:
+                case EComponentType.SByte:
                     {
                         sbyte[] values = new sbyte[count];
                         for (int i = 0; i < count; ++i)
@@ -141,7 +141,7 @@ namespace TheraEngine.Rendering.Models
                         array = values;
                     }
                     break;
-                case ComponentType.Byte:
+                case EComponentType.Byte:
                     {
                         byte[] values = new byte[count];
                         for (int i = 0; i < count; ++i)
@@ -149,7 +149,7 @@ namespace TheraEngine.Rendering.Models
                         array = values;
                     }
                     break;
-                case ComponentType.Short:
+                case EComponentType.Short:
                     {
                         short[] values = new short[count];
                         for (int i = 0; i < count; ++i)
@@ -157,7 +157,7 @@ namespace TheraEngine.Rendering.Models
                         array = values;
                     }
                     break;
-                case ComponentType.UShort:
+                case EComponentType.UShort:
                     {
                         ushort[] values = new ushort[count];
                         for (int i = 0; i < count; ++i)
@@ -165,7 +165,7 @@ namespace TheraEngine.Rendering.Models
                         array = values;
                     }
                     break;
-                case ComponentType.Int:
+                case EComponentType.Int:
                     {
                         int[] values = new int[count];
                         for (int i = 0; i < count; ++i)
@@ -173,7 +173,7 @@ namespace TheraEngine.Rendering.Models
                         array = values;
                     }
                     break;
-                case ComponentType.UInt:
+                case EComponentType.UInt:
                     {
                         uint[] values = new uint[count];
                         for (int i = 0; i < count; ++i)
@@ -181,7 +181,7 @@ namespace TheraEngine.Rendering.Models
                         array = values;
                     }
                     break;
-                case ComponentType.Float:
+                case EComponentType.Float:
                     {
                         float[] values = new float[count];
                         for (int i = 0; i < count; ++i)
@@ -189,7 +189,7 @@ namespace TheraEngine.Rendering.Models
                         array = values;
                     }
                     break;
-                case ComponentType.Double:
+                case EComponentType.Double:
                     {
                         double[] values = new double[count];
                         for (int i = 0; i < count; ++i)
@@ -210,7 +210,7 @@ namespace TheraEngine.Rendering.Models
             VoidPtr address;
             switch (_componentType)
             {
-                case ComponentType.SByte:
+                case EComponentType.SByte:
                     {
                         node.GetObjectAs(out sbyte[] values);
                         _data = DataSource.Allocate(count * sizeof(sbyte));
@@ -219,7 +219,7 @@ namespace TheraEngine.Rendering.Models
                             address.WriteSByte(values[k]);
                     }
                     break;
-                case ComponentType.Byte:
+                case EComponentType.Byte:
                     {
                         node.GetObjectAs(out byte[] values);
                         _data = DataSource.Allocate(count * sizeof(byte));
@@ -228,7 +228,7 @@ namespace TheraEngine.Rendering.Models
                             address.WriteByte(values[k]);
                     }
                     break;
-                case ComponentType.Short:
+                case EComponentType.Short:
                     {
                         node.GetObjectAs(out short[] values);
                         _data = DataSource.Allocate(count * sizeof(short));
@@ -237,7 +237,7 @@ namespace TheraEngine.Rendering.Models
                             address.WriteShort(values[k]);
                     }
                     break;
-                case ComponentType.UShort:
+                case EComponentType.UShort:
                     {
                         node.GetObjectAs(out ushort[] values);
                         _data = DataSource.Allocate(count * sizeof(ushort));
@@ -246,7 +246,7 @@ namespace TheraEngine.Rendering.Models
                             address.WriteUShort(values[k]);
                     }
                     break;
-                case ComponentType.Int:
+                case EComponentType.Int:
                     {
                         node.GetObjectAs(out int[] values);
                         _data = DataSource.Allocate(count * sizeof(int));
@@ -255,7 +255,7 @@ namespace TheraEngine.Rendering.Models
                             address.WriteInt(values[k]);
                     }
                     break;
-                case ComponentType.UInt:
+                case EComponentType.UInt:
                     {
                         node.GetObjectAs(out uint[] values);
                         _data = DataSource.Allocate(count * sizeof(uint));
@@ -264,7 +264,7 @@ namespace TheraEngine.Rendering.Models
                             address.WriteUInt(values[k]);
                     }
                     break;
-                case ComponentType.Float:
+                case EComponentType.Float:
                     {
                         node.GetObjectAs(out float[] values);
                         _data = DataSource.Allocate(count * sizeof(float));
@@ -273,7 +273,7 @@ namespace TheraEngine.Rendering.Models
                             address.WriteFloat(values[k]);
                     }
                     break;
-                case ComponentType.Double:
+                case EComponentType.Double:
                     {
                         node.GetObjectAs(out double[] values);
                         _data = DataSource.Allocate(count * sizeof(double));
@@ -308,7 +308,7 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             EBufferTarget target,
             int elementCount,
-            ComponentType componentType,
+            EComponentType componentType,
             int componentCount,
             bool normalize,
             bool integral) : base(EObjectType.Buffer)
@@ -375,14 +375,14 @@ namespace TheraEngine.Rendering.Models
             {
                 switch (_componentType)
                 {
-                    case ComponentType.SByte: return sizeof(sbyte);
-                    case ComponentType.Byte: return sizeof(byte);
-                    case ComponentType.Short: return sizeof(short);
-                    case ComponentType.UShort: return sizeof(ushort);
-                    case ComponentType.Int: return sizeof(int);
-                    case ComponentType.UInt: return sizeof(uint);
-                    case ComponentType.Float: return sizeof(float);
-                    case ComponentType.Double: return sizeof(double);
+                    case EComponentType.SByte: return sizeof(sbyte);
+                    case EComponentType.Byte: return sizeof(byte);
+                    case EComponentType.Short: return sizeof(short);
+                    case EComponentType.UShort: return sizeof(ushort);
+                    case EComponentType.Int: return sizeof(int);
+                    case EComponentType.UInt: return sizeof(uint);
+                    case EComponentType.Float: return sizeof(float);
+                    case EComponentType.Double: return sizeof(double);
                 }
                 return -1;
             }
@@ -457,21 +457,21 @@ namespace TheraEngine.Rendering.Models
         public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = false) where T : struct
         {
             if (typeof(T) == typeof(sbyte))
-                _componentType = ComponentType.SByte;
+                _componentType = EComponentType.SByte;
             else if (typeof(T) == typeof(byte))
-                _componentType = ComponentType.Byte;
+                _componentType = EComponentType.Byte;
             else if (typeof(T) == typeof(short))
-                _componentType = ComponentType.Short;
+                _componentType = EComponentType.Short;
             else if (typeof(T) == typeof(ushort))
-                _componentType = ComponentType.UShort;
+                _componentType = EComponentType.UShort;
             else if (typeof(T) == typeof(int))
-                _componentType = ComponentType.Int;
+                _componentType = EComponentType.Int;
             else if (typeof(T) == typeof(uint))
-                _componentType = ComponentType.UInt;
+                _componentType = EComponentType.UInt;
             else if (typeof(T) == typeof(float))
-                _componentType = ComponentType.Float;
+                _componentType = EComponentType.Float;
             else if (typeof(T) == typeof(double))
-                _componentType = ComponentType.Double;
+                _componentType = EComponentType.Double;
             else
                 throw new InvalidOperationException("Not a proper numeric data type.");
 

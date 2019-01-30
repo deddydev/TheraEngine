@@ -45,26 +45,26 @@ using FN_DECIMAL = System.Double;
         private const Int16 FN_INLINE = 256; //(Int16)MethodImplOptions.AggressiveInlining;
         private const int FN_CELLULAR_INDEX_MAX = 3;
 
-        public enum NoiseType { Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise, Cubic, CubicFractal };
-        public enum Interp { Linear, Hermite, Quintic };
-        public enum FractalType { FBM, Billow, RigidMulti };
-        public enum CellularDistanceFunction { Euclidean, Manhattan, Natural };
-        public enum CellularReturnType { CellValue, NoiseLookup, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
+        public enum ENoiseType { Value, ValueFractal, Perlin, PerlinFractal, Simplex, SimplexFractal, Cellular, WhiteNoise, Cubic, CubicFractal };
+        public enum EInterp { Linear, Hermite, Quintic };
+        public enum EFractalType { FBM, Billow, RigidMulti };
+        public enum ECellularDistanceFunction { Euclidean, Manhattan, Natural };
+        public enum ECellularReturnType { CellValue, NoiseLookup, Distance, Distance2, Distance2Add, Distance2Sub, Distance2Mul, Distance2Div };
 
         private int m_seed = 1337;
         private FN_DECIMAL m_frequency = (FN_DECIMAL)0.01;
-        private Interp m_interp = Interp.Quintic;
-        private NoiseType m_noiseType = NoiseType.Simplex;
+        private EInterp m_interp = EInterp.Quintic;
+        private ENoiseType m_noiseType = ENoiseType.Simplex;
 
         private int m_octaves = 3;
         private FN_DECIMAL m_lacunarity = (FN_DECIMAL)2.0;
         private FN_DECIMAL m_gain = (FN_DECIMAL)0.5;
-        private FractalType m_fractalType = FractalType.FBM;
+        private EFractalType m_fractalType = EFractalType.FBM;
 
         private FN_DECIMAL m_fractalBounding;
 
-        private CellularDistanceFunction m_cellularDistanceFunction = CellularDistanceFunction.Euclidean;
-        private CellularReturnType m_cellularReturnType = CellularReturnType.CellValue;
+        private ECellularDistanceFunction m_cellularDistanceFunction = ECellularDistanceFunction.Euclidean;
+        private ECellularReturnType m_cellularReturnType = ECellularReturnType.CellValue;
         private FastNoise m_cellularNoiseLookup = null;
         private int m_cellularDistanceIndex0 = 0;
         private int m_cellularDistanceIndex1 = 1;
@@ -99,11 +99,11 @@ using FN_DECIMAL = System.Double;
         // - Quintic
         // Used in Value, Gradient Noise and Position Perturbing
         // Default: Quintic
-        public void SetInterp(Interp interp) { m_interp = interp; }
+        public void SetInterp(EInterp interp) { m_interp = interp; }
 
         // Sets noise return type of GetNoise(...)
         // Default: Simplex
-        public void SetNoiseType(NoiseType noiseType) { m_noiseType = noiseType; }
+        public void SetNoiseType(ENoiseType noiseType) { m_noiseType = noiseType; }
 
 
         // Sets octave count for all fractal noise types
@@ -120,17 +120,17 @@ using FN_DECIMAL = System.Double;
 
         // Sets method for combining octaves in all fractal noise types
         // Default: FBM
-        public void SetFractalType(FractalType fractalType) { m_fractalType = fractalType; }
+        public void SetFractalType(EFractalType fractalType) { m_fractalType = fractalType; }
 
 
         // Sets return type from cellular noise calculations
         // Note: NoiseLookup requires another FastNoise object be set with SetCellularNoiseLookup() to function
         // Default: CellValue
-        public void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) { m_cellularDistanceFunction = cellularDistanceFunction; }
+        public void SetCellularDistanceFunction(ECellularDistanceFunction cellularDistanceFunction) { m_cellularDistanceFunction = cellularDistanceFunction; }
 
         // Sets distance function used in cellular noise calculations
         // Default: Euclidean
-        public void SetCellularReturnType(CellularReturnType cellularReturnType) { m_cellularReturnType = cellularReturnType; }
+        public void SetCellularReturnType(ECellularReturnType cellularReturnType) { m_cellularReturnType = cellularReturnType; }
 
         // Sets the 2 distance indicies used for distance2 return types
         // Default: 0, 1
@@ -441,70 +441,70 @@ using FN_DECIMAL = System.Double;
 
             switch (m_noiseType)
             {
-                case NoiseType.Value:
+                case ENoiseType.Value:
                     return SingleValue(m_seed, x, y, z);
-                case NoiseType.ValueFractal:
+                case ENoiseType.ValueFractal:
                     switch (m_fractalType)
                     {
-                        case FractalType.FBM:
+                        case EFractalType.FBM:
                             return SingleValueFractalFBM(x, y, z);
-                        case FractalType.Billow:
+                        case EFractalType.Billow:
                             return SingleValueFractalBillow(x, y, z);
-                        case FractalType.RigidMulti:
+                        case EFractalType.RigidMulti:
                             return SingleValueFractalRigidMulti(x, y, z);
                         default:
                             return 0;
                     }
-                case NoiseType.Perlin:
+                case ENoiseType.Perlin:
                     return SinglePerlin(m_seed, x, y, z);
-                case NoiseType.PerlinFractal:
+                case ENoiseType.PerlinFractal:
                     switch (m_fractalType)
                     {
-                        case FractalType.FBM:
+                        case EFractalType.FBM:
                             return SinglePerlinFractalFBM(x, y, z);
-                        case FractalType.Billow:
+                        case EFractalType.Billow:
                             return SinglePerlinFractalBillow(x, y, z);
-                        case FractalType.RigidMulti:
+                        case EFractalType.RigidMulti:
                             return SinglePerlinFractalRigidMulti(x, y, z);
                         default:
                             return 0;
                     }
-                case NoiseType.Simplex:
+                case ENoiseType.Simplex:
                     return SingleSimplex(m_seed, x, y, z);
-                case NoiseType.SimplexFractal:
+                case ENoiseType.SimplexFractal:
                     switch (m_fractalType)
                     {
-                        case FractalType.FBM:
+                        case EFractalType.FBM:
                             return SingleSimplexFractalFBM(x, y, z);
-                        case FractalType.Billow:
+                        case EFractalType.Billow:
                             return SingleSimplexFractalBillow(x, y, z);
-                        case FractalType.RigidMulti:
+                        case EFractalType.RigidMulti:
                             return SingleSimplexFractalRigidMulti(x, y, z);
                         default:
                             return 0;
                     }
-                case NoiseType.Cellular:
+                case ENoiseType.Cellular:
                     switch (m_cellularReturnType)
                     {
-                        case CellularReturnType.CellValue:
-                        case CellularReturnType.NoiseLookup:
-                        case CellularReturnType.Distance:
+                        case ECellularReturnType.CellValue:
+                        case ECellularReturnType.NoiseLookup:
+                        case ECellularReturnType.Distance:
                             return SingleCellular(x, y, z);
                         default:
                             return SingleCellular2Edge(x, y, z);
                     }
-                case NoiseType.WhiteNoise:
+                case ENoiseType.WhiteNoise:
                     return GetWhiteNoise(x, y, z);
-                case NoiseType.Cubic:
+                case ENoiseType.Cubic:
                     return SingleCubic(m_seed, x, y, z);
-                case NoiseType.CubicFractal:
+                case ENoiseType.CubicFractal:
                     switch (m_fractalType)
                     {
-                        case FractalType.FBM:
+                        case EFractalType.FBM:
                             return SingleCubicFractalFBM(x, y, z);
-                        case FractalType.Billow:
+                        case EFractalType.Billow:
                             return SingleCubicFractalBillow(x, y, z);
-                        case FractalType.RigidMulti:
+                        case EFractalType.RigidMulti:
                             return SingleCubicFractalRigidMulti(x, y, z);
                         default:
                             return 0;
@@ -521,70 +521,70 @@ using FN_DECIMAL = System.Double;
 
             switch (m_noiseType)
             {
-                case NoiseType.Value:
+                case ENoiseType.Value:
                     return SingleValue(m_seed, x, y);
-                case NoiseType.ValueFractal:
+                case ENoiseType.ValueFractal:
                     switch (m_fractalType)
                     {
-                        case FractalType.FBM:
+                        case EFractalType.FBM:
                             return SingleValueFractalFBM(x, y);
-                        case FractalType.Billow:
+                        case EFractalType.Billow:
                             return SingleValueFractalBillow(x, y);
-                        case FractalType.RigidMulti:
+                        case EFractalType.RigidMulti:
                             return SingleValueFractalRigidMulti(x, y);
                         default:
                             return 0;
                     }
-                case NoiseType.Perlin:
+                case ENoiseType.Perlin:
                     return SinglePerlin(m_seed, x, y);
-                case NoiseType.PerlinFractal:
+                case ENoiseType.PerlinFractal:
                     switch (m_fractalType)
                     {
-                        case FractalType.FBM:
+                        case EFractalType.FBM:
                             return SinglePerlinFractalFBM(x, y);
-                        case FractalType.Billow:
+                        case EFractalType.Billow:
                             return SinglePerlinFractalBillow(x, y);
-                        case FractalType.RigidMulti:
+                        case EFractalType.RigidMulti:
                             return SinglePerlinFractalRigidMulti(x, y);
                         default:
                             return 0;
                     }
-                case NoiseType.Simplex:
+                case ENoiseType.Simplex:
                     return SingleSimplex(m_seed, x, y);
-                case NoiseType.SimplexFractal:
+                case ENoiseType.SimplexFractal:
                     switch (m_fractalType)
                     {
-                        case FractalType.FBM:
+                        case EFractalType.FBM:
                             return SingleSimplexFractalFBM(x, y);
-                        case FractalType.Billow:
+                        case EFractalType.Billow:
                             return SingleSimplexFractalBillow(x, y);
-                        case FractalType.RigidMulti:
+                        case EFractalType.RigidMulti:
                             return SingleSimplexFractalRigidMulti(x, y);
                         default:
                             return 0;
                     }
-                case NoiseType.Cellular:
+                case ENoiseType.Cellular:
                     switch (m_cellularReturnType)
                     {
-                        case CellularReturnType.CellValue:
-                        case CellularReturnType.NoiseLookup:
-                        case CellularReturnType.Distance:
+                        case ECellularReturnType.CellValue:
+                        case ECellularReturnType.NoiseLookup:
+                        case ECellularReturnType.Distance:
                             return SingleCellular(x, y);
                         default:
                             return SingleCellular2Edge(x, y);
                     }
-                case NoiseType.WhiteNoise:
+                case ENoiseType.WhiteNoise:
                     return GetWhiteNoise(x, y);
-                case NoiseType.Cubic:
+                case ENoiseType.Cubic:
                     return SingleCubic(m_seed, x, y);
-                case NoiseType.CubicFractal:
+                case ENoiseType.CubicFractal:
                     switch (m_fractalType)
                     {
-                        case FractalType.FBM:
+                        case EFractalType.FBM:
                             return SingleCubicFractalFBM(x, y);
-                        case FractalType.Billow:
+                        case EFractalType.Billow:
                             return SingleCubicFractalBillow(x, y);
-                        case FractalType.RigidMulti:
+                        case EFractalType.RigidMulti:
                             return SingleCubicFractalRigidMulti(x, y);
                         default:
                             return 0;
@@ -654,11 +654,11 @@ using FN_DECIMAL = System.Double;
 
             switch (m_fractalType)
             {
-                case FractalType.FBM:
+                case EFractalType.FBM:
                     return SingleValueFractalFBM(x, y, z);
-                case FractalType.Billow:
+                case EFractalType.Billow:
                     return SingleValueFractalBillow(x, y, z);
-                case FractalType.RigidMulti:
+                case EFractalType.RigidMulti:
                     return SingleValueFractalRigidMulti(x, y, z);
                 default:
                     return 0;
@@ -740,17 +740,17 @@ using FN_DECIMAL = System.Double;
             switch (m_interp)
             {
                 default:
-                case Interp.Linear:
+                case EInterp.Linear:
                     xs = x - x0;
                     ys = y - y0;
                     zs = z - z0;
                     break;
-                case Interp.Hermite:
+                case EInterp.Hermite:
                     xs = InterpHermiteFunc(x - x0);
                     ys = InterpHermiteFunc(y - y0);
                     zs = InterpHermiteFunc(z - z0);
                     break;
-                case Interp.Quintic:
+                case EInterp.Quintic:
                     xs = InterpQuinticFunc(x - x0);
                     ys = InterpQuinticFunc(y - y0);
                     zs = InterpQuinticFunc(z - z0);
@@ -775,11 +775,11 @@ using FN_DECIMAL = System.Double;
 
             switch (m_fractalType)
             {
-                case FractalType.FBM:
+                case EFractalType.FBM:
                     return SingleValueFractalFBM(x, y);
-                case FractalType.Billow:
+                case EFractalType.Billow:
                     return SingleValueFractalBillow(x, y);
-                case FractalType.RigidMulti:
+                case EFractalType.RigidMulti:
                     return SingleValueFractalRigidMulti(x, y);
                 default:
                     return 0;
@@ -855,15 +855,15 @@ using FN_DECIMAL = System.Double;
             switch (m_interp)
             {
                 default:
-                case Interp.Linear:
+                case EInterp.Linear:
                     xs = x - x0;
                     ys = y - y0;
                     break;
-                case Interp.Hermite:
+                case EInterp.Hermite:
                     xs = InterpHermiteFunc(x - x0);
                     ys = InterpHermiteFunc(y - y0);
                     break;
-                case Interp.Quintic:
+                case EInterp.Quintic:
                     xs = InterpQuinticFunc(x - x0);
                     ys = InterpQuinticFunc(y - y0);
                     break;
@@ -884,11 +884,11 @@ using FN_DECIMAL = System.Double;
 
             switch (m_fractalType)
             {
-                case FractalType.FBM:
+                case EFractalType.FBM:
                     return SinglePerlinFractalFBM(x, y, z);
-                case FractalType.Billow:
+                case EFractalType.Billow:
                     return SinglePerlinFractalBillow(x, y, z);
-                case FractalType.RigidMulti:
+                case EFractalType.RigidMulti:
                     return SinglePerlinFractalRigidMulti(x, y, z);
                 default:
                     return 0;
@@ -970,17 +970,17 @@ using FN_DECIMAL = System.Double;
             switch (m_interp)
             {
                 default:
-                case Interp.Linear:
+                case EInterp.Linear:
                     xs = x - x0;
                     ys = y - y0;
                     zs = z - z0;
                     break;
-                case Interp.Hermite:
+                case EInterp.Hermite:
                     xs = InterpHermiteFunc(x - x0);
                     ys = InterpHermiteFunc(y - y0);
                     zs = InterpHermiteFunc(z - z0);
                     break;
-                case Interp.Quintic:
+                case EInterp.Quintic:
                     xs = InterpQuinticFunc(x - x0);
                     ys = InterpQuinticFunc(y - y0);
                     zs = InterpQuinticFunc(z - z0);
@@ -1012,11 +1012,11 @@ using FN_DECIMAL = System.Double;
 
             switch (m_fractalType)
             {
-                case FractalType.FBM:
+                case EFractalType.FBM:
                     return SinglePerlinFractalFBM(x, y);
-                case FractalType.Billow:
+                case EFractalType.Billow:
                     return SinglePerlinFractalBillow(x, y);
-                case FractalType.RigidMulti:
+                case EFractalType.RigidMulti:
                     return SinglePerlinFractalRigidMulti(x, y);
                 default:
                     return 0;
@@ -1093,15 +1093,15 @@ using FN_DECIMAL = System.Double;
             switch (m_interp)
             {
                 default:
-                case Interp.Linear:
+                case EInterp.Linear:
                     xs = x - x0;
                     ys = y - y0;
                     break;
-                case Interp.Hermite:
+                case EInterp.Hermite:
                     xs = InterpHermiteFunc(x - x0);
                     ys = InterpHermiteFunc(y - y0);
                     break;
-                case Interp.Quintic:
+                case EInterp.Quintic:
                     xs = InterpQuinticFunc(x - x0);
                     ys = InterpQuinticFunc(y - y0);
                     break;
@@ -1127,11 +1127,11 @@ using FN_DECIMAL = System.Double;
 
             switch (m_fractalType)
             {
-                case FractalType.FBM:
+                case EFractalType.FBM:
                     return SingleSimplexFractalFBM(x, y, z);
-                case FractalType.Billow:
+                case EFractalType.Billow:
                     return SingleSimplexFractalBillow(x, y, z);
-                case FractalType.RigidMulti:
+                case EFractalType.RigidMulti:
                     return SingleSimplexFractalRigidMulti(x, y, z);
                 default:
                     return 0;
@@ -1304,11 +1304,11 @@ using FN_DECIMAL = System.Double;
 
             switch (m_fractalType)
             {
-                case FractalType.FBM:
+                case EFractalType.FBM:
                     return SingleSimplexFractalFBM(x, y);
-                case FractalType.Billow:
+                case EFractalType.Billow:
                     return SingleSimplexFractalBillow(x, y);
-                case FractalType.RigidMulti:
+                case EFractalType.RigidMulti:
                     return SingleSimplexFractalRigidMulti(x, y);
                 default:
                     return 0;
@@ -1558,11 +1558,11 @@ using FN_DECIMAL = System.Double;
 
             switch (m_fractalType)
             {
-                case FractalType.FBM:
+                case EFractalType.FBM:
                     return SingleCubicFractalFBM(x, y, z);
-                case FractalType.Billow:
+                case EFractalType.Billow:
                     return SingleCubicFractalBillow(x, y, z);
-                case FractalType.RigidMulti:
+                case EFractalType.RigidMulti:
                     return SingleCubicFractalRigidMulti(x, y, z);
                 default:
                     return 0;
@@ -1692,11 +1692,11 @@ using FN_DECIMAL = System.Double;
 
             switch (m_fractalType)
             {
-                case FractalType.FBM:
+                case EFractalType.FBM:
                     return SingleCubicFractalFBM(x, y);
-                case FractalType.Billow:
+                case EFractalType.Billow:
                     return SingleCubicFractalBillow(x, y);
-                case FractalType.RigidMulti:
+                case EFractalType.RigidMulti:
                     return SingleCubicFractalRigidMulti(x, y);
                 default:
                     return 0;
@@ -1806,9 +1806,9 @@ using FN_DECIMAL = System.Double;
 
             switch (m_cellularReturnType)
             {
-                case CellularReturnType.CellValue:
-                case CellularReturnType.NoiseLookup:
-                case CellularReturnType.Distance:
+                case ECellularReturnType.CellValue:
+                case ECellularReturnType.NoiseLookup:
+                case ECellularReturnType.Distance:
                     return SingleCellular(x, y, z);
                 default:
                     return SingleCellular2Edge(x, y, z);
@@ -1826,7 +1826,7 @@ using FN_DECIMAL = System.Double;
 
             switch (m_cellularDistanceFunction)
             {
-                case CellularDistanceFunction.Euclidean:
+                case ECellularDistanceFunction.Euclidean:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1852,7 +1852,7 @@ using FN_DECIMAL = System.Double;
                         }
                     }
                     break;
-                case CellularDistanceFunction.Manhattan:
+                case ECellularDistanceFunction.Manhattan:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1878,7 +1878,7 @@ using FN_DECIMAL = System.Double;
                         }
                     }
                     break;
-                case CellularDistanceFunction.Natural:
+                case ECellularDistanceFunction.Natural:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1908,14 +1908,14 @@ using FN_DECIMAL = System.Double;
 
             switch (m_cellularReturnType)
             {
-                case CellularReturnType.CellValue:
+                case ECellularReturnType.CellValue:
                     return ValCoord3D(m_seed, xc, yc, zc);
 
-                case CellularReturnType.NoiseLookup:
+                case ECellularReturnType.NoiseLookup:
                     Float3 vec = CELL_3D[Hash3D(m_seed, xc, yc, zc) & 255];
                     return m_cellularNoiseLookup.GetNoise(xc + vec.x * m_cellularJitter, yc + vec.y * m_cellularJitter, zc + vec.z * m_cellularJitter);
 
-                case CellularReturnType.Distance:
+                case ECellularReturnType.Distance:
                     return distance;
                 default:
                     return 0;
@@ -1932,7 +1932,7 @@ using FN_DECIMAL = System.Double;
 
             switch (m_cellularDistanceFunction)
             {
-                case CellularDistanceFunction.Euclidean:
+                case ECellularDistanceFunction.Euclidean:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1954,7 +1954,7 @@ using FN_DECIMAL = System.Double;
                         }
                     }
                     break;
-                case CellularDistanceFunction.Manhattan:
+                case ECellularDistanceFunction.Manhattan:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -1976,7 +1976,7 @@ using FN_DECIMAL = System.Double;
                         }
                     }
                     break;
-                case CellularDistanceFunction.Natural:
+                case ECellularDistanceFunction.Natural:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -2004,15 +2004,15 @@ using FN_DECIMAL = System.Double;
 
             switch (m_cellularReturnType)
             {
-                case CellularReturnType.Distance2:
+                case ECellularReturnType.Distance2:
                     return distance[m_cellularDistanceIndex1];
-                case CellularReturnType.Distance2Add:
+                case ECellularReturnType.Distance2Add:
                     return distance[m_cellularDistanceIndex1] + distance[m_cellularDistanceIndex0];
-                case CellularReturnType.Distance2Sub:
+                case ECellularReturnType.Distance2Sub:
                     return distance[m_cellularDistanceIndex1] - distance[m_cellularDistanceIndex0];
-                case CellularReturnType.Distance2Mul:
+                case ECellularReturnType.Distance2Mul:
                     return distance[m_cellularDistanceIndex1] * distance[m_cellularDistanceIndex0];
-                case CellularReturnType.Distance2Div:
+                case ECellularReturnType.Distance2Div:
                     return distance[m_cellularDistanceIndex0] / distance[m_cellularDistanceIndex1];
                 default:
                     return 0;
@@ -2026,9 +2026,9 @@ using FN_DECIMAL = System.Double;
 
             switch (m_cellularReturnType)
             {
-                case CellularReturnType.CellValue:
-                case CellularReturnType.NoiseLookup:
-                case CellularReturnType.Distance:
+                case ECellularReturnType.CellValue:
+                case ECellularReturnType.NoiseLookup:
+                case ECellularReturnType.Distance:
                     return SingleCellular(x, y);
                 default:
                     return SingleCellular2Edge(x, y);
@@ -2046,7 +2046,7 @@ using FN_DECIMAL = System.Double;
             switch (m_cellularDistanceFunction)
             {
                 default:
-                case CellularDistanceFunction.Euclidean:
+                case ECellularDistanceFunction.Euclidean:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -2067,7 +2067,7 @@ using FN_DECIMAL = System.Double;
                         }
                     }
                     break;
-                case CellularDistanceFunction.Manhattan:
+                case ECellularDistanceFunction.Manhattan:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -2088,7 +2088,7 @@ using FN_DECIMAL = System.Double;
                         }
                     }
                     break;
-                case CellularDistanceFunction.Natural:
+                case ECellularDistanceFunction.Natural:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -2113,14 +2113,14 @@ using FN_DECIMAL = System.Double;
 
             switch (m_cellularReturnType)
             {
-                case CellularReturnType.CellValue:
+                case ECellularReturnType.CellValue:
                     return ValCoord2D(m_seed, xc, yc);
 
-                case CellularReturnType.NoiseLookup:
+                case ECellularReturnType.NoiseLookup:
                     Float2 vec = CELL_2D[Hash2D(m_seed, xc, yc) & 255];
                     return m_cellularNoiseLookup.GetNoise(xc + vec.x * m_cellularJitter, yc + vec.y * m_cellularJitter);
 
-                case CellularReturnType.Distance:
+                case ECellularReturnType.Distance:
                     return distance;
                 default:
                     return 0;
@@ -2137,7 +2137,7 @@ using FN_DECIMAL = System.Double;
             switch (m_cellularDistanceFunction)
             {
                 default:
-                case CellularDistanceFunction.Euclidean:
+                case ECellularDistanceFunction.Euclidean:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -2155,7 +2155,7 @@ using FN_DECIMAL = System.Double;
                         }
                     }
                     break;
-                case CellularDistanceFunction.Manhattan:
+                case ECellularDistanceFunction.Manhattan:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -2173,7 +2173,7 @@ using FN_DECIMAL = System.Double;
                         }
                     }
                     break;
-                case CellularDistanceFunction.Natural:
+                case ECellularDistanceFunction.Natural:
                     for (int xi = xr - 1; xi <= xr + 1; xi++)
                     {
                         for (int yi = yr - 1; yi <= yr + 1; yi++)
@@ -2195,15 +2195,15 @@ using FN_DECIMAL = System.Double;
 
             switch (m_cellularReturnType)
             {
-                case CellularReturnType.Distance2:
+                case ECellularReturnType.Distance2:
                     return distance[m_cellularDistanceIndex1];
-                case CellularReturnType.Distance2Add:
+                case ECellularReturnType.Distance2Add:
                     return distance[m_cellularDistanceIndex1] + distance[m_cellularDistanceIndex0];
-                case CellularReturnType.Distance2Sub:
+                case ECellularReturnType.Distance2Sub:
                     return distance[m_cellularDistanceIndex1] - distance[m_cellularDistanceIndex0];
-                case CellularReturnType.Distance2Mul:
+                case ECellularReturnType.Distance2Mul:
                     return distance[m_cellularDistanceIndex1] * distance[m_cellularDistanceIndex0];
-                case CellularReturnType.Distance2Div:
+                case ECellularReturnType.Distance2Div:
                     return distance[m_cellularDistanceIndex0] / distance[m_cellularDistanceIndex1];
                 default:
                     return 0;
@@ -2248,17 +2248,17 @@ using FN_DECIMAL = System.Double;
             switch (m_interp)
             {
                 default:
-                case Interp.Linear:
+                case EInterp.Linear:
                     xs = xf - x0;
                     ys = yf - y0;
                     zs = zf - z0;
                     break;
-                case Interp.Hermite:
+                case EInterp.Hermite:
                     xs = InterpHermiteFunc(xf - x0);
                     ys = InterpHermiteFunc(yf - y0);
                     zs = InterpHermiteFunc(zf - z0);
                     break;
-                case Interp.Quintic:
+                case EInterp.Quintic:
                     xs = InterpQuinticFunc(xf - x0);
                     ys = InterpQuinticFunc(yf - y0);
                     zs = InterpQuinticFunc(zf - z0);
@@ -2337,15 +2337,15 @@ using FN_DECIMAL = System.Double;
             switch (m_interp)
             {
                 default:
-                case Interp.Linear:
+                case EInterp.Linear:
                     xs = xf - x0;
                     ys = yf - y0;
                     break;
-                case Interp.Hermite:
+                case EInterp.Hermite:
                     xs = InterpHermiteFunc(xf - x0);
                     ys = InterpHermiteFunc(yf - y0);
                     break;
-                case Interp.Quintic:
+                case EInterp.Quintic:
                     xs = InterpQuinticFunc(xf - x0);
                     ys = InterpQuinticFunc(yf - y0);
                     break;

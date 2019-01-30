@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public byte* Data => (byte*)Address;
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Byte;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Byte;
         public int ComponentCount => 4;
         bool IBufferable.Normalize => true;
         public void Write(VoidPtr address) { this = *(RGBAPixel*)address; }
@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public byte* Data { get { return (byte*)Address; } }
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-        public DataBuffer.ComponentType ComponentType { get { return DataBuffer.ComponentType.Byte; } }
+        public DataBuffer.EComponentType ComponentType { get { return DataBuffer.EComponentType.Byte; } }
         public int ComponentCount { get { return 3; } }
         bool IBufferable.Normalize { get { return true; } }
         public void Write(VoidPtr address) { this = *(RGBPixel*)address; }

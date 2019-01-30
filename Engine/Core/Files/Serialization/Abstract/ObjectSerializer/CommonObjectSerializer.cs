@@ -203,10 +203,11 @@ namespace TheraEngine.Core.Files.Serialization
                 if (!string.IsNullOrWhiteSpace(member.Category))
                 {
                     if (!categoryNodes.ContainsKey(member.Category))
-                        categoryNodes.Add(member.Category, 
-                            parent = new SerializeElement(null, new TSerializeMemberInfo(null, member.Category)));
+                        categoryNodes.Add(member.Category, parent = new SerializeElement(null, new TSerializeMemberInfo(null, member.Category)));
                     else
                         parent = categoryNodes[member.Category];
+                    parent.Owner = TreeNode.Owner;
+                    parent.Parent = TreeNode.Parent;
                 }
 
                 switch (member.NodeType)

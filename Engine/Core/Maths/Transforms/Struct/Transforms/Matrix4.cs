@@ -310,7 +310,7 @@ namespace System
         /// </summary>
         public float Trace => Row0.X + Row1.Y + Row2.Z + Row3.W;
 
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Float;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Float;
         public int ComponentCount => 16;
         bool IBufferable.Normalize => false;
 

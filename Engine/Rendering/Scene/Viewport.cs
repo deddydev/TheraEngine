@@ -432,7 +432,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Viewport layout preference for when only two people are playing.
         /// </summary>
-        public enum TwoPlayerPreference
+        public enum ETwoPlayerPreference
         {
             /// <summary>
             /// 1st player is on the top of the screen, 2nd player is on bottom.
@@ -446,7 +446,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Viewport layout preference for when only three people are playing.
         /// </summary>
-        public enum ThreePlayerPreference
+        public enum EThreePlayerPreference
         {
             /// <summary>
             /// Top left, top right, and bottom left quadrants of the screen are used for viewports.
@@ -466,7 +466,7 @@ namespace TheraEngine.Rendering
             /// </summary>
             PreferThirdPlayer,
         }
-        public void ViewportCountChanged(int newIndex, int total, TwoPlayerPreference twoPlayerPref, ThreePlayerPreference threePlayerPref)
+        public void ViewportCountChanged(int newIndex, int total, ETwoPlayerPreference twoPlayerPref, EThreePlayerPreference threePlayerPref)
         {
             Index = newIndex;
             switch (total)
@@ -478,13 +478,13 @@ namespace TheraEngine.Rendering
                     switch (newIndex)
                     {
                         case 0:
-                            if (twoPlayerPref == TwoPlayerPreference.SplitHorizontally)
+                            if (twoPlayerPref == ETwoPlayerPreference.SplitHorizontally)
                                 SetTop();
                             else
                                 SetLeft();
                             break;
                         case 1:
-                            if (twoPlayerPref == TwoPlayerPreference.SplitHorizontally)
+                            if (twoPlayerPref == ETwoPlayerPreference.SplitHorizontally)
                                 SetBottom();
                             else
                                 SetRight();
@@ -497,16 +497,16 @@ namespace TheraEngine.Rendering
                         case 0:
                             switch (threePlayerPref)
                             {
-                                case ThreePlayerPreference.BlankBottomRight:
+                                case EThreePlayerPreference.BlankBottomRight:
                                     SetTopLeft();
                                     break;
-                                case ThreePlayerPreference.PreferFirstPlayer:
+                                case EThreePlayerPreference.PreferFirstPlayer:
                                     SetTop();
                                     break;
-                                case ThreePlayerPreference.PreferSecondPlayer:
+                                case EThreePlayerPreference.PreferSecondPlayer:
                                     SetBottomLeft();
                                     break;
-                                case ThreePlayerPreference.PreferThirdPlayer:
+                                case EThreePlayerPreference.PreferThirdPlayer:
                                     SetTopLeft();
                                     break;
                             }
@@ -514,16 +514,16 @@ namespace TheraEngine.Rendering
                         case 1:
                             switch (threePlayerPref)
                             {
-                                case ThreePlayerPreference.BlankBottomRight:
+                                case EThreePlayerPreference.BlankBottomRight:
                                     SetTopRight();
                                     break;
-                                case ThreePlayerPreference.PreferFirstPlayer:
+                                case EThreePlayerPreference.PreferFirstPlayer:
                                     SetBottomLeft();
                                     break;
-                                case ThreePlayerPreference.PreferSecondPlayer:
+                                case EThreePlayerPreference.PreferSecondPlayer:
                                     SetTop();
                                     break;
-                                case ThreePlayerPreference.PreferThirdPlayer:
+                                case EThreePlayerPreference.PreferThirdPlayer:
                                     SetTopRight();
                                     break;
                             }
@@ -531,16 +531,16 @@ namespace TheraEngine.Rendering
                         case 2:
                             switch (threePlayerPref)
                             {
-                                case ThreePlayerPreference.BlankBottomRight:
+                                case EThreePlayerPreference.BlankBottomRight:
                                     SetBottomLeft();
                                     break;
-                                case ThreePlayerPreference.PreferFirstPlayer:
+                                case EThreePlayerPreference.PreferFirstPlayer:
                                     SetBottomRight();
                                     break;
-                                case ThreePlayerPreference.PreferSecondPlayer:
+                                case EThreePlayerPreference.PreferSecondPlayer:
                                     SetBottomRight();
                                     break;
-                                case ThreePlayerPreference.PreferThirdPlayer:
+                                case EThreePlayerPreference.PreferThirdPlayer:
                                     SetBottom();
                                     break;
                             }
@@ -694,7 +694,7 @@ namespace TheraEngine.Rendering
         public TexRefView2D DepthViewTexture { get; private set; }
         public TexRefView2D StencilViewTexture { get; private set; }
 
-        public enum DepthStencilUse
+        public enum EDepthStencilUse
         {
             None,
             Depth24,

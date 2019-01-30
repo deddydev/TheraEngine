@@ -37,7 +37,7 @@ namespace TheraEngine.Core.Maths.Transforms
         [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Float;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Float;
         [Browsable(false)]
         public int ComponentCount => 4;
         [Browsable(false)]

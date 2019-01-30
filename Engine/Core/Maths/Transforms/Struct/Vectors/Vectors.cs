@@ -18,7 +18,7 @@ namespace System
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Byte;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Byte;
         [Browsable(false)]
         public int ComponentCount => 2;
         [Browsable(false)]
@@ -73,7 +73,7 @@ namespace System
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Int;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Int;
         [Browsable(false)]
         public int ComponentCount => 2;
         [Browsable(false)]
@@ -218,7 +218,7 @@ namespace System
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.UInt;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.UInt;
         [Browsable(false)]
         public int ComponentCount => 2;
         [Browsable(false)]
@@ -270,7 +270,7 @@ namespace System
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Double;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Double;
         [Browsable(false)]
         public int ComponentCount => 2;
         [Browsable(false)]
@@ -323,7 +323,7 @@ namespace System
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Byte;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Byte;
         [Browsable(false)]
         public int ComponentCount => 3;
         [Browsable(false)]
@@ -381,7 +381,7 @@ namespace System
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Int;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Int;
         [Browsable(false)]
         public int ComponentCount => 3;
         [Browsable(false)]
@@ -435,7 +435,7 @@ namespace System
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.UInt;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.UInt;
         [Browsable(false)]
         public int ComponentCount => 3;
         [Browsable(false)]
@@ -489,7 +489,7 @@ namespace System
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Double;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Double;
         [Browsable(false)]
         public int ComponentCount => 3;
         [Browsable(false)]
@@ -544,7 +544,7 @@ namespace System
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Byte;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Byte;
         [Browsable(false)]
         public int ComponentCount => 4;
         [Browsable(false)]
@@ -600,7 +600,7 @@ namespace System
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Int;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Int;
         [Browsable(false)]
         public int ComponentCount => 4;
         [Browsable(false)]
@@ -661,7 +661,7 @@ namespace System
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.UInt;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.UInt;
         [Browsable(false)]
         public int ComponentCount => 4;
         [Browsable(false)]
@@ -717,7 +717,7 @@ namespace System
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Double;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Double;
         [Browsable(false)]
         public int ComponentCount => 4;
         [Browsable(false)]

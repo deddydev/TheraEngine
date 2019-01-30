@@ -10,6 +10,7 @@ using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Worlds;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Files;
 
 namespace TheraEngine.Actors
 {
@@ -65,7 +66,7 @@ namespace TheraEngine.Actors
             : base(root, logicComponents) { QueuePossession(possessor); }
 
         private CameraComponent _currentCameraComponent;
-        private IUserInterface _hud = null;
+        private LocalFileRef<IUserInterface> _hud = null;
 
         /// <summary>
         /// The interface that is managing and providing input to this pawn.
@@ -115,22 +116,36 @@ namespace TheraEngine.Actors
         /// <summary>
         /// The HUD for this pawn.
         /// </summary>
+        [TSerialize]
         [Category("Pawn")]
-        public IUserInterface HUD
+        public LocalFileRef<IUserInterface> HUD
         {
             get => _hud;
             set
             {
-                if (_hud != null && _hud.OwningPawn == this)
+                if (_hud != null)
                 {
-                    _hud.OwningPawn = null;
+                    if (_hud.IsLoaded)
+                        HudUnloaded(_hud.File);
+                    _hud.UnregisterLoadEvent(HudLoaded);
+                    _hud.UnregisterUnloadEvent(HudUnloaded);
                 }
                 _hud = value;
                 if (_hud != null)
                 {
-                    _hud.OwningPawn = this;
+                    _hud.RegisterLoadEvent(HudLoaded);
+                    _hud.RegisterUnloadEvent(HudUnloaded);
                 }
             }
+        }
+
+        private void HudUnloaded(IUserInterface obj)
+        {
+            obj.OwningPawn = null;
+        }
+        private void HudLoaded(IUserInterface obj)
+        {
+            obj.OwningPawn = this;
         }
 
         protected override void OnSpawnedPreComponentSpawn()

@@ -2,30 +2,25 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
-using TheraEngine;
-using System.Text;
-using System.IO.Compression;
-using System.ComponentModel;
-using System.Threading;
-using TheraEditor.Core.Extensions;
-using TheraEngine.Core;
-using System.Net.Http.Headers;
-using System.Globalization;
-using TheraEngine.Core.Files.Serialization;
 using TheraEditor.Windows.Forms;
+using TheraEngine;
+using TheraEngine.Core;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEditor
 {
     public static class Github
     {
-        public enum UpdaterCode
+        public enum EUpdaterCode
         {
             NoError,
             OctokitNotFound,

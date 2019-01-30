@@ -327,7 +327,7 @@ uniform float BloomThreshold = 1.0f;";
     }
     public class AntiAliasSettings : PostSettings
     {
-        public enum AntiAliasType
+        public enum EAntiAliasType
         {
             FXAA,
             SMAA,

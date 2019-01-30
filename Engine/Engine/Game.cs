@@ -103,11 +103,11 @@ namespace TheraEngine
 
         [Category("Viewports")]
         [TSerialize]
-        public Viewport.TwoPlayerPreference TwoPlayerPref { get; set; } = Viewport.TwoPlayerPreference.SplitHorizontally;
+        public Viewport.ETwoPlayerPreference TwoPlayerPref { get; set; } = Viewport.ETwoPlayerPreference.SplitHorizontally;
 
         [Category("Viewports")]
         [TSerialize]
-        public Viewport.ThreePlayerPreference ThreePlayerPref { get; set; } = Viewport.ThreePlayerPreference.PreferFirstPlayer;
+        public Viewport.EThreePlayerPreference ThreePlayerPref { get; set; } = Viewport.EThreePlayerPreference.PreferFirstPlayer;
 
         [TSerialize]
         [Category("Text")]

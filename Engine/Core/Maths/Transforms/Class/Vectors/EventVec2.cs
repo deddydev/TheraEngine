@@ -56,7 +56,7 @@ namespace System
         [Browsable(false)]
         public VoidPtr Address => _data.Address;
         [Browsable(false)]
-        public DataBuffer.ComponentType ComponentType => DataBuffer.ComponentType.Float;
+        public DataBuffer.EComponentType ComponentType => DataBuffer.EComponentType.Float;
         [Browsable(false)]
         public int ComponentCount => 2;
         [Browsable(false)]

@@ -173,7 +173,7 @@ namespace TheraEngine.Rendering.Models
             
             return data;
         }
-        private enum InterpType
+        private enum EInterpType
         {
             STEP,
             LINEAR,
@@ -619,7 +619,7 @@ namespace TheraEngine.Rendering.Models
                                         {
                                             float second = inputData[i];
                                             float value = outputData[i];
-                                            InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                            EInterpType type = interpTypeData[i].AsEnum<EInterpType>();
                                             EVectorInterpType pType = (EVectorInterpType)(int)type;
 
                                             float inTan = 0.0f, outTan = 0.0f;
@@ -684,7 +684,7 @@ namespace TheraEngine.Rendering.Models
                                     {
                                         float second = inputData[i];
                                         float value = outputData[i];
-                                        InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                        EInterpType type = interpTypeData[i].AsEnum<EInterpType>();
                                         EVectorInterpType pType = (EVectorInterpType)(int)type;
 
                                         float inTan = 0.0f, outTan = 0.0f;
@@ -738,7 +738,7 @@ namespace TheraEngine.Rendering.Models
                                     {
                                         float second = inputData[i];
                                         float value = outputData[i];
-                                        InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                        EInterpType type = interpTypeData[i].AsEnum<EInterpType>();
                                         EVectorInterpType pType = (EVectorInterpType)(int)type;
 
                                         float inTan = 0.0f, outTan = 0.0f;
@@ -803,7 +803,7 @@ namespace TheraEngine.Rendering.Models
                             for (int i = 0; i < inputData.Length; ++i, x += 16)
                             {
                                 float second = inputData[i];
-                                InterpType type = interpTypeData[i].AsEnum<InterpType>();
+                                EInterpType type = interpTypeData[i].AsEnum<EInterpType>();
                                 EVectorInterpType pType = (EVectorInterpType)(int)type;
 
                                 float inTan = 0.0f, outTan = 0.0f;

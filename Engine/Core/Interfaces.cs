@@ -133,7 +133,7 @@ namespace TheraEngine
     }
     public interface IBufferable
     {
-        DataBuffer.ComponentType ComponentType { get; }
+        DataBuffer.EComponentType ComponentType { get; }
         int ComponentCount { get; }
         bool Normalize { get; }
         void Write(VoidPtr address);

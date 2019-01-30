@@ -92,7 +92,8 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor, Vec3 position)
         {
-            if (actor is IActor_Internal internalActor && State.SpawnedActors.Add(internalActor))
+            if (actor is IActor_Internal internalActor && 
+                State.SpawnedActors.Add(internalActor))
             {
                 internalActor.Spawned(this);
                 internalActor.RebaseOrigin(-position);
@@ -103,7 +104,8 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void DespawnActor(IActor actor)
         {
-            if (!(actor is IActor_Internal internalActor) || !State.SpawnedActors.Contains(actor))
+            if (!(actor is IActor_Internal internalActor) || 
+                !State.SpawnedActors.Contains(actor))
                 return;
 
             State.SpawnedActors.Remove(internalActor);

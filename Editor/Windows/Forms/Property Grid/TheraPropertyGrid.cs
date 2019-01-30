@@ -282,13 +282,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             var propGridSettings = Editor.GetSettings().PropertyGrid;
-            await LoadPropertiesToPanel(
-                this,
-                pnlProps, _categories,
-                _targetObject,
-                this, this,
-                false, true,
-                propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
+            try
+            {
+                await LoadPropertiesToPanel(
+                    this,
+                    pnlProps, _categories,
+                    _targetObject,
+                    this, this,
+                    false, true,
+                    propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
 
             PropertiesLoaded?.Invoke(_targetObject);
         }

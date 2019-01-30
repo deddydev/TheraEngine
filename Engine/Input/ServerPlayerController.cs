@@ -101,8 +101,8 @@ namespace TheraEngine.Input
                     _input.TryUnregisterInput();
 
                     _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
-                    if (_controlledPawn.HUD != null && _controlledPawn != _controlledPawn.HUD)
-                        _input.WantsInputsRegistered -= _controlledPawn.HUD.RegisterInput;
+                    if (_controlledPawn.HUD?.IsLoaded ?? false && _controlledPawn != _controlledPawn.HUD.File)
+                        _input.WantsInputsRegistered -= _controlledPawn.HUD.File.RegisterInput;
                 }
 
                 _controlledPawn = value;
@@ -117,8 +117,8 @@ namespace TheraEngine.Input
                     UpdateViewport(SetViewportHUD, SetViewportCamera);
 
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
-                    if (_controlledPawn.HUD != null && _controlledPawn != _controlledPawn.HUD)
-                        _input.WantsInputsRegistered += _controlledPawn.HUD.RegisterInput;
+                    if (_controlledPawn.HUD?.IsLoaded ?? false && _controlledPawn != _controlledPawn.HUD.File)
+                        _input.WantsInputsRegistered += _controlledPawn.HUD.File.RegisterInput;
 
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
@@ -166,7 +166,7 @@ namespace TheraEngine.Input
                 return;
 
             if (setHUD)
-                _viewport.HUD = _controlledPawn.HUD;
+                _viewport.HUD = _controlledPawn.HUD?.File;
 
             if (setCamera)
                 _viewport.Camera = _controlledPawn.CurrentCameraComponent?.Camera;

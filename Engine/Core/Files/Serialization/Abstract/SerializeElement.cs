@@ -577,6 +577,7 @@ namespace TheraEngine.Core.Files.Serialization
                             {
                                 string fileName = SerializationCommon.ResolveFileName(
                                     Owner.FileDirectory, file.Name, file.FileExtension.GetFullExtension(EProprietaryFileFormat.XML));
+
                                 await file.ExportAsync(dir, fileName, EFileFormat.XML, null, Owner.Flags, null, CancellationToken.None);
                             }
                             else

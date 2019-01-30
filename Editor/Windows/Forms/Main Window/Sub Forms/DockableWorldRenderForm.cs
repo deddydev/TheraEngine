@@ -140,7 +140,7 @@ namespace TheraEditor.Windows.Forms
                 //Engine.TargetUpdateFreq = 20.0f;
                 BaseRenderPanel.HoveredPanel = RenderPanel;
                 RenderPanel.Focus();
-                EditorHud hud = EditorPawn.HUD as EditorHud;
+                EditorHud hud = EditorPawn.HUD.File as EditorHud;
                 Engine.World.SpawnActor(actor, EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance);
                 _prevTransformType = hud.TransformMode;
                 hud.TransformMode = TransformType.DragDrop;
@@ -151,7 +151,7 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_DragLeave(object sender, EventArgs e)
         {
-            EditorHud hud = EditorPawn.HUD as EditorHud;
+            EditorHud hud = EditorPawn.HUD.File as EditorHud;
             if (hud.DragComponent != null)
             {
                 Engine.World.DespawnActor(hud.DragComponent.OwningActor);
@@ -174,7 +174,7 @@ namespace TheraEditor.Windows.Forms
             DragHelper.ImageList_DragLeave(Handle);
             _dragInstance = null;
             _lastDraggedNode = null;
-            EditorHud hud = EditorPawn.HUD as EditorHud;
+            EditorHud hud = EditorPawn.HUD.File as EditorHud;
             if (hud.DragComponent != null)
             {
                 hud.DoMouseUp();

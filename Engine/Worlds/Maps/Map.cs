@@ -2,6 +2,10 @@
 using TheraEngine.Core.Files;
 using TheraEngine.Actors;
 using System.ComponentModel;
+using System.Collections.Generic;
+using TheraEngine.Core.Maths.Transforms;
+using System.Linq;
+using TheraEngine.GameModes;
 
 namespace TheraEngine.Worlds
 {
@@ -9,34 +13,69 @@ namespace TheraEngine.Worlds
     [TFileDef("Map")]
     public class Map : TFileObject
     {
-        public Map() :this(new MapSettings()) { }
-        public Map(MapSettings settings)
-        {
-            _settings = settings;
-        }
-
         public TWorld OwningWorld { get; private set; }
 
-        private MapSettings _settings;
+        protected bool _visibleByDefault;
+        protected List<IActor> _actors = new List<IActor>();
+        protected Vec3 _spawnPosition;
+        protected BaseGameMode _defaultGameMode;
 
-        [TSerialize]
-        public MapSettings Settings
+        [Browsable(true)]
+        public override string Name { get => base.Name; set => base.Name = value; }
+
+        public Map() : this(null) { }
+        public Map(IEnumerable<IActor> actors) : this(true, Vec3.Zero, actors) { }
+        public Map(params IActor[] actors) : this(true, Vec3.Zero, actors) { }
+        public Map(bool visibleAtSpawn, Vec3 spawnOrigin, params IActor[] actors)
+            : this(visibleAtSpawn, spawnOrigin, actors as IEnumerable<IActor>) { }
+        public Map(bool visibleAtSpawn, Vec3 spawnOrigin, IEnumerable<IActor> actors)
         {
-            get => _settings;
-            set => _settings = value;
+            _visibleByDefault = visibleAtSpawn;
+            _spawnPosition = spawnOrigin;
+            _actors = actors == null ? new List<IActor>() : actors.ToList();
         }
 
+        [TSerialize]
+        public bool VisibleByDefault
+        {
+            get => _visibleByDefault;
+            set => _visibleByDefault = value;
+        }
+        [TSerialize]
+        public Vec3 SpawnPosition
+        {
+            get => _spawnPosition;
+            set => _spawnPosition = value;
+        }
+        [TSerialize]
+        public List<IActor> Actors
+        {
+            get => _actors;
+            set => _actors = value;
+        }
+        [TSerialize]
+        public BaseGameMode DefaultGameMode
+        {
+            get => _defaultGameMode;
+            set => _defaultGameMode = value;
+        }
         public virtual void EndPlay()
         {
-            foreach (IActor actor in Settings.StaticActors)
+            foreach (IActor actor in Actors)
+            {
                 OwningWorld.DespawnActor(actor);
+                actor.MapAttachment = null;
+            }
             OwningWorld = null;
         }
         public virtual void BeginPlay(TWorld world)
         {
             OwningWorld = world;
-            foreach (IActor actor in Settings.StaticActors)
-                OwningWorld.SpawnActor(actor, Settings.SpawnPosition);
+            foreach (IActor actor in Actors)
+            {
+                actor.MapAttachment = this;
+                OwningWorld.SpawnActor(actor, SpawnPosition);
+            }
         }
     }
 }

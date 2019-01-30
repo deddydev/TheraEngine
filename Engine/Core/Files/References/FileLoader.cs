@@ -210,7 +210,7 @@ namespace TheraEngine.Core.Files
         {
             string absolutePath = Path.Absolute;
 
-            if (string.IsNullOrWhiteSpace(absolutePath))
+            if (!absolutePath.IsAbsolutePath())
             {
                 if (AllowDynamicConstruction)
                     return DynamicConstruct(DefaultConstructionArguments, absolutePath);

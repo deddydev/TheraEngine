@@ -65,7 +65,7 @@ namespace TheraEditor.Windows.Forms
         public static EditorSettings GetSettings() => Instance.Project?.EditorSettingsOverrideRef?.File ?? DefaultSettingsRef?.File;
         
         /// <summary>
-        /// Creates an instance of T using user-chosen derived type, constructor and parameters.
+        /// Promps the user to create an instance of T using user-chosen derived type, constructor and parameters.
         /// </summary>
         /// <typeparam name="T">The object type to create.</typeparam>
         /// <returns>A newly created instance of T.</returns>

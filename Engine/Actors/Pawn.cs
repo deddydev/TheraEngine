@@ -31,7 +31,7 @@ namespace TheraEngine.Actors
         AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
         CameraComponent CurrentCameraComponent { get; set; }
-        IUserInterface HUD { get; set; }
+        LocalFileRef<IUserInterface> HUD { get; set; }
 
         void QueuePossession(LocalPlayerIndex possessor);
         void OnUnPossessed();

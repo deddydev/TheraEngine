@@ -28,6 +28,11 @@ namespace TheraEditor.Windows.Forms
 {
     public class EditorHud : UserInterface
     {
+        public EditorHud() : base()
+        {
+            TransformTool3D.Instance.MouseDown += Instance_MouseDown;
+            TransformTool3D.Instance.MouseUp += Instance_MouseUp;
+        }
         public EditorHud(Vec2 bounds) : base(bounds)
         {
             TransformTool3D.Instance.MouseDown += Instance_MouseDown;

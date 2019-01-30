@@ -95,7 +95,10 @@ namespace TheraEngine.Components.Scene.Mesh
                 if (Meshes != null)
                 {
                     foreach (SkeletalRenderableMesh mesh in Meshes)
+                    {
+                        mesh.RenderInfo.UnlinkScene();
                         mesh.RenderInfo.Visible = false;
+                    }
                     Meshes = null;
                 }
 
@@ -158,6 +161,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
                 {
+                    m.RenderInfo.UnlinkScene();
                     m.RenderInfo.Visible = false;
                     m.Destroy();
                 }

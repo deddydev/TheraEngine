@@ -94,26 +94,28 @@ namespace TheraEngine.Rendering.Models.Materials
             }
 
             if (_shaders != null)
-                foreach (GLSLScript s in _shaders)
+                foreach (var shaderRef in _shaders)
                 {
-                    switch (s.Type)
-                    {
-                        case EGLSLType.Vertex:
-                            VertexShaders.Add(s);
-                            break;
-                        case EGLSLType.Fragment:
-                            FragmentShaders.Add(s);
-                            break;
-                        case EGLSLType.Geometry:
-                            GeometryShaders.Add(s);
-                            break;
-                        case EGLSLType.TessControl:
-                            TessCtrlShaders.Add(s);
-                            break;
-                        case EGLSLType.TessEvaluation:
-                            TessEvalShaders.Add(s);
-                            break;
-                    }
+                    GLSLScript s = shaderRef.File;
+                    if (s != null)
+                        switch (s.Type)
+                        {
+                            case EGLSLType.Vertex:
+                                VertexShaders.Add(shaderRef);
+                                break;
+                            case EGLSLType.Fragment:
+                                FragmentShaders.Add(shaderRef);
+                                break;
+                            case EGLSLType.Geometry:
+                                GeometryShaders.Add(shaderRef);
+                                break;
+                            case EGLSLType.TessControl:
+                                TessCtrlShaders.Add(shaderRef);
+                                break;
+                            case EGLSLType.TessEvaluation:
+                                TessEvalShaders.Add(shaderRef);
+                                break;
+                        }
                 }
 
             if (Engine.Settings != null && Engine.Settings.AllowShaderPipelines)

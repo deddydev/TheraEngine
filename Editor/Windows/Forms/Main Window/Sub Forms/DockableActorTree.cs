@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
@@ -13,7 +14,9 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
         }
-        
+
+        private Dictionary<int, TreeNode> _mapTreeNodes = new Dictionary<int, TreeNode>();
+
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (Editor.Instance.PropertyGridFormActive)
@@ -60,6 +63,9 @@ namespace TheraEditor.Windows.Forms
             }
             ActorTree.Nodes.Clear();
             if (Engine.World != null)
+            {
+
+            }
                 ActorTree.Nodes.AddRange(Engine.World.State.SpawnedActors.
                     Select(x => x.EditorState.TreeNode = new TreeNode(x.ToString()) { Tag = x }).ToArray());
         }
@@ -84,7 +90,8 @@ namespace TheraEditor.Windows.Forms
         private void newActorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             IActor actor = Editor.UserCreateInstanceOf<IActor>(true);
-            Engine.World.SpawnActor(actor);
+            if (actor != null)
+                Engine.World.SpawnActor(actor);
         }
     }
 }

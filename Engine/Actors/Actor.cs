@@ -29,7 +29,7 @@ namespace TheraEngine.Actors
     {
         event DelRootComponentChanged RootComponentChanged;
 
-        bool AttachedToMap { get; set; }
+        Map MapAttachment { get; set; }
         bool IsConstructing { get; }
         TWorld OwningWorld { get; }
 
@@ -212,13 +212,9 @@ namespace TheraEngine.Actors
                 RootComponentChanged?.Invoke(oldRoot, _rootComponent);
             }
         }
-
-        /// <summary>
-        /// Determines if this actor is loaded and unloaded with the map that owns it.
-        /// </summary>
-        [TSerialize]
+        
         [Category("Actor")]
-        public bool AttachedToMap { get; set; } = false;
+        public Map MapAttachment { get; set; } = null;
         /// <summary>
         /// Logic components handle plug-n-play code for certain features.
         /// For example, a logic component could give any actor health and/or allow it to take damage.

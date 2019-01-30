@@ -31,7 +31,7 @@ namespace TheraEditor.Windows.Forms
 
         public HudEditorGameMode GameMode { get; set; }
 
-        LocalPlayerIndex IEditorControl.PlayerIndex => LocalPlayerIndex.One;
+        ELocalPlayerIndex IEditorControl.PlayerIndex => ELocalPlayerIndex.One;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => RenderPanel.UI;
         BaseGameMode IEditorControl.GameMode => GameMode;
@@ -55,8 +55,8 @@ namespace TheraEditor.Windows.Forms
     }
     public class HudEditorController : LocalPlayerController
     {
-        public HudEditorController(LocalPlayerIndex index) : this(index, null) { }
-        public HudEditorController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+        public HudEditorController(ELocalPlayerIndex index) : this(index, null) { }
+        public HudEditorController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
     }
     public class HudGraphRenderPanel : UIRenderPanel<UIHudEditor, HudEditorGameMode, HudEditorController> { }

@@ -19,7 +19,7 @@ namespace TheraEngine
             get => _viewports.Count == 0 ? null : _viewports [0].Camera;
             set
             {
-                GetOrAddViewport(Actors.LocalPlayerIndex.One).Camera = value;
+                GetOrAddViewport(Actors.ELocalPlayerIndex.One).Camera = value;
                 value.Resize(Width, Height);
             }
         }

@@ -33,37 +33,38 @@ namespace KellermanSoftware.CompareNetObjects
         {
             _rootComparer = new RootComparer();
 
-            _rootComparer.TypeComparers = new List<BaseTypeComparer>();
-
-            _rootComparer.TypeComparers.Add(new RuntimeTypeComparer(_rootComparer));
+            _rootComparer.TypeComparers = new List<BaseTypeComparer>
+            {
+                new RuntimeTypeComparer(_rootComparer),
 #if !NETSTANDARD
-            _rootComparer.TypeComparers.Add(new FontComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new IpEndPointComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DatasetComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DataTableComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DataRowComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DataColumnComparer(_rootComparer));
+                new FontComparer(_rootComparer),
+                new IpEndPointComparer(_rootComparer),
+                new DatasetComparer(_rootComparer),
+                new DataTableComparer(_rootComparer),
+                new DataRowComparer(_rootComparer),
+                new DataColumnComparer(_rootComparer),
 #endif
-            _rootComparer.TypeComparers.Add(new EnumerableComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new ByteArrayComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DictionaryComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new ListComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new HashSetComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new CollectionComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new EnumComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new PointerComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new UriComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new StringBuilderComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new StringComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DateComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DateTimeOffSetComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DoubleComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new DecimalComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new SimpleTypeComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new ClassComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new TimespanComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new StructComparer(_rootComparer));
-            _rootComparer.TypeComparers.Add(new ImmutableArrayComparer(_rootComparer));
+                new EnumerableComparer(_rootComparer),
+                new ByteArrayComparer(_rootComparer),
+                new DictionaryComparer(_rootComparer),
+                new ListComparer(_rootComparer),
+                new HashSetComparer(_rootComparer),
+                new CollectionComparer(_rootComparer),
+                new EnumComparer(_rootComparer),
+                new PointerComparer(_rootComparer),
+                new UriComparer(_rootComparer),
+                new StringBuilderComparer(_rootComparer),
+                new StringComparer(_rootComparer),
+                new DateComparer(_rootComparer),
+                new DateTimeOffSetComparer(_rootComparer),
+                new DoubleComparer(_rootComparer),
+                new DecimalComparer(_rootComparer),
+                new SimpleTypeComparer(_rootComparer),
+                new ClassComparer(_rootComparer),
+                new TimespanComparer(_rootComparer),
+                new StructComparer(_rootComparer),
+                new ImmutableArrayComparer(_rootComparer)
+            };
             return _rootComparer;
         }
         #endregion

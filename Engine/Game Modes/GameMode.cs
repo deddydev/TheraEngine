@@ -130,14 +130,14 @@ namespace TheraEngine.GameModes
         /// </summary>
         /// <param name="index">The player that will provide input to the controller.</param>
         /// <returns>The new local player controller.</returns>
-        protected internal abstract void CreateLocalController(LocalPlayerIndex index);
+        protected internal abstract void CreateLocalController(ELocalPlayerIndex index);
         /// <summary>
         /// Creates a local player controller with methods and properties that may pertain to this specific game mode.
         /// </summary>
         /// <param name="index">The player that will provide input to the controller.</param>
         /// <param name="possessionQueue">The queue of pawns that want to be possessed by the controller.</param>
         /// <returns>The new local player controller.</returns>
-        protected internal abstract void CreateLocalController(LocalPlayerIndex index, Queue<IPawn> possessionQueue);
+        protected internal abstract void CreateLocalController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue);
 
         protected virtual void OnBeginGameplay() { }
         public void BeginGameplay()
@@ -169,13 +169,13 @@ namespace TheraEngine.GameModes
                 mice.Any(x => x != null) ||
                 gamepads.Any(x => x != null && x.Index == 0))
             {
-                CreateLocalController(LocalPlayerIndex.One);
+                CreateLocalController(ELocalPlayerIndex.One);
             }
             for (int i = 0; i < 4; ++i)
             {
                 InputDevice gp = gamepads[i];
                 if (gp != null && gp.Index > 0)
-                    CreateLocalController(LocalPlayerIndex.One + gp.Index);
+                    CreateLocalController(ELocalPlayerIndex.One + gp.Index);
             }
         }
     }
@@ -201,11 +201,11 @@ namespace TheraEngine.GameModes
             item.EnqueuePosession(pawn);
             Engine.World.SpawnActor(pawn);
         }
-        protected internal override void CreateLocalController(LocalPlayerIndex index, Queue<IPawn> queue)
+        protected internal override void CreateLocalController(ELocalPlayerIndex index, Queue<IPawn> queue)
         {
             InitController(ClassCreator<ControllerType>.New(index, queue));
         }
-        protected internal override void CreateLocalController(LocalPlayerIndex index)
+        protected internal override void CreateLocalController(ELocalPlayerIndex index)
         {
             InitController(ClassCreator<ControllerType>.New(index));
         }

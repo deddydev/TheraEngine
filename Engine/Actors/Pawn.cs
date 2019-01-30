@@ -1,20 +1,18 @@
-﻿using TheraEngine.Input;
-using TheraEngine.Input.Devices;
-using System;
-using TheraEngine.Rendering;
-using System.ComponentModel;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Components.Scene;
-using TheraEngine.Components;
+﻿using System.ComponentModel;
 using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Worlds;
+using TheraEngine.Components;
+using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Input;
+using TheraEngine.Input.Devices;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Actors
 {
-    public enum LocalPlayerIndex
+    public enum ELocalPlayerIndex
     {
         One     = 0,
         Two     = 1,
@@ -33,7 +31,7 @@ namespace TheraEngine.Actors
         CameraComponent CurrentCameraComponent { get; set; }
         LocalFileRef<IUserInterface> HUD { get; set; }
 
-        void QueuePossession(LocalPlayerIndex possessor);
+        void QueuePossession(ELocalPlayerIndex possessor);
         void OnUnPossessed();
         void OnPossessed(PawnController possessor);
         void RegisterInput(InputInterface input);
@@ -58,11 +56,11 @@ namespace TheraEngine.Actors
             : this(false) { }
         public Pawn(bool deferInitialization)
             : base(deferInitialization) { }
-        public Pawn(bool deferInitialization, LocalPlayerIndex possessor)
+        public Pawn(bool deferInitialization, ELocalPlayerIndex possessor)
             : base(deferInitialization) { QueuePossession(possessor); }
         public Pawn(T root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
-        public Pawn(LocalPlayerIndex possessor, T root, params LogicComponent[] logicComponents)
+        public Pawn(ELocalPlayerIndex possessor, T root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { QueuePossession(possessor); }
 
         private CameraComponent _currentCameraComponent;
@@ -166,7 +164,7 @@ namespace TheraEngine.Actors
             if (HUD is IActor_Internal actor)
                 actor.Despawned();
         }
-        public void QueuePossession(LocalPlayerIndex possessor)
+        public void QueuePossession(ELocalPlayerIndex possessor)
             => Engine.QueuePossession(this, possessor);
         
         public virtual void OnPossessed(PawnController possessor)

@@ -92,11 +92,11 @@ namespace TheraEngine.Worlds
         /// </summary>
         public void SpawnActor(IActor actor, Vec3 position)
         {
-            if (actor is IActor_Internal internalActor && 
-                State.SpawnedActors.Add(internalActor))
+            if (actor is IActor_Internal internalActor)
             {
                 internalActor.Spawned(this);
                 internalActor.RebaseOrigin(-position);
+                State.SpawnedActors.Add(internalActor);
             }
         }
         /// <summary>
@@ -189,13 +189,8 @@ namespace TheraEngine.Worlds
             Engine.TimeDilation = Settings.TimeDilation;
 
             foreach (Map m in Settings.Maps)
-            {
-                if (m.Settings.VisibleByDefault)
-                {
-                    //m.State.Visible = true;
+                if (m.VisibleByDefault)
                     m.BeginPlay(this);
-                }
-            }
 
 //#if DEBUG
 //            if (Settings.EnableOriginRebasing)

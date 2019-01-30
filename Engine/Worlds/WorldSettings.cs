@@ -94,7 +94,7 @@ namespace TheraEngine.Worlds
         private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
 
         [TSerialize(nameof(Maps))]
-        private List<LocalFileRef<Map>> _maps = new List<LocalFileRef<Map>>();
+        private EventList<LocalFileRef<Map>> _maps = new EventList<LocalFileRef<Map>>();
 
         [TSerialize(nameof(AmbientSound))]
         private AudioFile _ambientSound;
@@ -153,11 +153,31 @@ namespace TheraEngine.Worlds
             set => _ambientSound = value;
         }
         [Category("World")]
-        public List<LocalFileRef<Map>> Maps
+        public EventList<LocalFileRef<Map>> Maps
         {
             get => _maps;
-            set => _maps = value;
+            set
+            {
+                if (_maps != null)
+                {
+                    _maps.PostAnythingAdded -= _maps_PostAnythingAdded;
+                    _maps.PostAnythingRemoved -= _maps_PostAnythingRemoved;
+                }
+                _maps = value ?? new EventList<LocalFileRef<Map>>();
+                _maps.PostAnythingAdded += _maps_PostAnythingAdded;
+                _maps.PostAnythingRemoved += _maps_PostAnythingRemoved;
+            }
         }
+
+        private void _maps_PostAnythingRemoved(LocalFileRef<Map> item)
+        {
+
+        }
+        private void _maps_PostAnythingAdded(LocalFileRef<Map> item)
+        {
+
+        }
+
         [Browsable(false)]
         public AudioParameters AmbientParams
         {
@@ -168,7 +188,7 @@ namespace TheraEngine.Worlds
         {
             foreach (Map m in _maps)
             {
-                if (m.Settings.VisibleByDefault)
+                if (m.VisibleByDefault)
                 {
 
                 }
@@ -182,9 +202,10 @@ namespace TheraEngine.Worlds
         }
         public WorldSettings(string name, params Map[] maps)
         {
-            _maps = maps.Select(x => new LocalFileRef<Map>(x)).ToList();
-            _originRebaseBounds = _bounds;
             _name = name;
+            _originRebaseBounds = _bounds;
+
+            Maps = new EventList<LocalFileRef<Map>>(maps.Select(x => new LocalFileRef<Map>(x)));
         }
         public void SetOriginRebaseDistance(float distance)
         {

@@ -56,7 +56,7 @@ namespace TheraEditor.Windows.Forms
             if (form == null || form.IsDisposed)
             {
                 Engine.PrintLine("Created model editor viewport " + (i + 1).ToString());
-                form = _renderForms[i] = new DockableModelEditorRenderForm(LocalPlayerIndex.One, i, this);
+                form = _renderForms[i] = new DockableModelEditorRenderForm(ELocalPlayerIndex.One, i, this);
                 form.Show(DockPanel1, DockState.Document);
             }
             return form;
@@ -170,7 +170,7 @@ namespace TheraEditor.Windows.Forms
 
                 ModelEditorWorld.File = world = new TWorld()
                 {
-                    Settings = new WorldSettings("ModelEditorWorld", new Map(new MapSettings(actors))),
+                    Settings = new WorldSettings("ModelEditorWorld", new Map(actors)),
                 };
 
                 world.BeginPlay();

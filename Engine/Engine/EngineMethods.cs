@@ -426,7 +426,7 @@ namespace TheraEngine
         /// Toggles the pause state. If currently paused, will unpause. If currently unpaused, will pause.
         /// </summary>
         /// <param name="toggler">The player that's pausing the game.</param>
-        public static void TogglePause(LocalPlayerIndex toggler)
+        public static void TogglePause(ELocalPlayerIndex toggler)
         {
             SetPaused(!IsPaused, toggler);
         }
@@ -435,7 +435,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="wantsPause">The desired pause state.</param>
         /// <param name="toggler">The player that's pausing the game.</param>
-        public static void SetPaused(bool wantsPause, LocalPlayerIndex toggler, bool force = false)
+        public static void SetPaused(bool wantsPause, ELocalPlayerIndex toggler, bool force = false)
         {
             if ((!force && wantsPause && ActiveGameMode.DisallowPausing) || IsPaused == wantsPause)
                 return;
@@ -443,9 +443,9 @@ namespace TheraEngine
             PauseChanged?.Invoke(IsPaused, toggler);
             PrintLine("Engine{0}paused.", IsPaused ? " " : " un");
         }
-        public static void Pause(LocalPlayerIndex toggler, bool force = false)
+        public static void Pause(ELocalPlayerIndex toggler, bool force = false)
             => SetPaused(true, toggler, force);
-        public static void Unpause(LocalPlayerIndex toggler, bool force = false)
+        public static void Unpause(ELocalPlayerIndex toggler, bool force = false)
             => SetPaused(false, toggler, force);
         #endregion
 
@@ -650,7 +650,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="pawn">The pawn to possess.</param>
         /// <param name="possessor">The controller to possess the pawn.</param>
-        public static void QueuePossession(IPawn pawn, LocalPlayerIndex possessor)
+        public static void QueuePossession(IPawn pawn, ELocalPlayerIndex possessor)
         {
             int index = (int)possessor;
             if (index < LocalPlayers.Count)
@@ -668,7 +668,7 @@ namespace TheraEngine
         /// <summary>
         /// Retrieves the world viewport with the same index.
         /// </summary>
-        public static Viewport GetViewport(LocalPlayerIndex index)
+        public static Viewport GetViewport(ELocalPlayerIndex index)
             => BaseRenderPanel.WorldPanel?.GetViewport(index);
 
         /// <summary>
@@ -921,7 +921,7 @@ namespace TheraEngine
                 {
                     if (LocalPlayers.Count == 0)
                     {
-                        LocalPlayerIndex index = LocalPlayerIndex.One;
+                        ELocalPlayerIndex index = ELocalPlayerIndex.One;
                         if (_possessionQueues.ContainsKey(index))
                         {
                             //Transfer possession queue to the controller itself
@@ -938,7 +938,7 @@ namespace TheraEngine
                 {
                     if (device.Index >= LocalPlayers.Count)
                     {
-                        LocalPlayerIndex index = (LocalPlayerIndex)LocalPlayers.Count;
+                        ELocalPlayerIndex index = (ELocalPlayerIndex)LocalPlayers.Count;
                         if (_possessionQueues.ContainsKey(index))
                         {
                             //Transfer possession queue to the controller itself

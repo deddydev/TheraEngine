@@ -80,7 +80,7 @@ namespace TheraEngine
         /// <summary>
         /// Event for when the engine is paused or unpaused and by which player.
         /// </summary>
-        public static event Action<bool, LocalPlayerIndex> PauseChanged;
+        public static event Action<bool, ELocalPlayerIndex> PauseChanged;
         /// <summary>
         /// Event for sending debug console output text.
         /// </summary>
@@ -181,7 +181,7 @@ namespace TheraEngine
         private static InputAwaiter _inputAwaiter;
 
         //Queue of what pawns should be possessed next for each player index when they either first join the game, or have their controlled pawn set to null.
-        private static Dictionary<LocalPlayerIndex, Queue<IPawn>> _possessionQueues = new Dictionary<LocalPlayerIndex, Queue<IPawn>>();
+        private static Dictionary<ELocalPlayerIndex, Queue<IPawn>> _possessionQueues = new Dictionary<ELocalPlayerIndex, Queue<IPawn>>();
 
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
         private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();

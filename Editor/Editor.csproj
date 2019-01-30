@@ -300,15 +300,6 @@
       <DependentUpon>SelectCurvesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ThirdParty\Graphing\Utils.cs" />
-    <Compile Include="ThirdParty\Text Editor\AutoCompleteForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ThirdParty\Text Editor\HighlightDescriptor.cs" />
-    <Compile Include="ThirdParty\Text Editor\HighlightDescriptorCollection.cs" />
-    <Compile Include="ThirdParty\Text Editor\SeparatorCollection.cs" />
-    <Compile Include="ThirdParty\Text Editor\SyntaxHighlightingTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ThirdParty\Github\Github.cs" />
     <Compile Include="Windows\Forms\Borderless Form\TheraForm.cs">
       <SubType>Form</SubType>
@@ -988,12 +979,6 @@
     <EmbeddedResource Include="ThirdParty\Graphing\PlotterGraphPaneEx.resx">
       <DependentUpon>PlotterGraphPaneEx.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ThirdParty\Text Editor\AutoCompleteForm.resx">
-      <DependentUpon>AutoCompleteForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ThirdParty\Text Editor\SyntaxHighlightingTextBox.resx">
-      <DependentUpon>SyntaxHighlightingTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Borderless Form\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>

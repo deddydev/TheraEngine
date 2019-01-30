@@ -26,7 +26,7 @@ namespace TheraEditor.Windows.Forms
         /// <summary>
         /// The player index this control allows input from.
         /// </summary>
-        LocalPlayerIndex PlayerIndex { get; }
+        ELocalPlayerIndex PlayerIndex { get; }
         /// <summary>
         /// The render panel with the viewport that will be possessed by the desired player.
         /// </summary>
@@ -123,7 +123,7 @@ namespace TheraEditor.Windows.Forms
             if (form == null || form.IsDisposed)
             {
                 Engine.PrintLine("Created viewport " + (i + 1).ToString());
-                form = _renderForms[i] = new DockableWorldRenderForm(LocalPlayerIndex.One, i);
+                form = _renderForms[i] = new DockableWorldRenderForm(ELocalPlayerIndex.One, i);
                 form.Show(DockPanel);
             }
             return form;
@@ -520,7 +520,7 @@ namespace TheraEditor.Windows.Forms
                 Engine.SetActiveGameMode(_editorGameMode);
                 Engine.Initialize(false);
                 SetRenderTicking(true);
-                Engine.SetPaused(true, LocalPlayerIndex.One, true);
+                Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
                 CurrentWorld = _project.OpeningWorldRef?.File;
             }
@@ -611,7 +611,7 @@ namespace TheraEditor.Windows.Forms
 
             SetEditorGameMode();
 
-            Engine.Pause(LocalPlayerIndex.One, true);
+            Engine.Pause(ELocalPlayerIndex.One, true);
         }
         private void SetDetachedGameState()
         {
@@ -627,7 +627,7 @@ namespace TheraEditor.Windows.Forms
                 SetProjectGameMode();
             }
 
-            Engine.Unpause(LocalPlayerIndex.One, true);
+            Engine.Unpause(ELocalPlayerIndex.One, true);
         }
         private void SetAttachedGameState()
         {
@@ -647,7 +647,7 @@ namespace TheraEditor.Windows.Forms
                 //TODO: reattach the user to the pawn it is supposed to be controlling
             }
 
-            Engine.Unpause(LocalPlayerIndex.One, true);
+            Engine.Unpause(ELocalPlayerIndex.One, true);
         }
         private void SetProjectGameMode()
         {
@@ -678,8 +678,8 @@ namespace TheraEditor.Windows.Forms
         }
 
         private void GenerateInitialActorList() => ActorTreeForm.GenerateInitialActorList();
-        private void SpawnedActors_PostAdded(IActor item) => ActorTreeForm.ActorAdded(item);
-        private void SpawnedActors_PostRemoved(IActor item) => ActorTreeForm.ActorRemoved(item);
+        private void SpawnedActors_PostAdded(IActor item) => ActorTreeForm.ActorSpawned(item);
+        private void SpawnedActors_PostRemoved(IActor item) => ActorTreeForm.ActorDespawned(item);
 
         public void ClearDockPanel()
         {

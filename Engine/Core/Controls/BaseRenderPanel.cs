@@ -30,8 +30,8 @@ namespace TheraEngine
         void UnregisterTick();
         void CaptureContext();
         void CreateContext();
-        Viewport GetOrAddViewport(LocalPlayerIndex index);
-        Viewport GetViewport(LocalPlayerIndex index);
+        Viewport GetOrAddViewport(ELocalPlayerIndex index);
+        Viewport GetViewport(ELocalPlayerIndex index);
         Viewport AddViewport();
         void UnregisterController(LocalPlayerController controller);
     }
@@ -434,7 +434,7 @@ namespace TheraEngine
         #endregion
 
         #region Viewports
-        public Viewport GetOrAddViewport(LocalPlayerIndex index)
+        public Viewport GetOrAddViewport(ELocalPlayerIndex index)
         {
             //Sometimes this method is accessed by separate threads at the same time.
             //Lock to ensure one viewport is added before the other thread checks for its existence.
@@ -444,7 +444,7 @@ namespace TheraEngine
                 return GetViewport(index) ?? AddViewport();
             //}
         }
-        public Viewport GetViewport(LocalPlayerIndex index)
+        public Viewport GetViewport(ELocalPlayerIndex index)
         {
             int i = (int)index;
             return _viewports.IndexInRange(i) ? _viewports[i] : null;

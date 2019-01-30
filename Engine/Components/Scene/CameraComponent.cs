@@ -78,7 +78,7 @@ namespace TheraEngine.Components.Scene
         /// The provided local player will see through this camera.
         /// </summary>
         /// <param name="playerIndex">The index of the local player to assign this camera to.</param>
-        public void SetCurrentForPlayer(LocalPlayerIndex playerIndex)
+        public void SetCurrentForPlayer(ELocalPlayerIndex playerIndex)
         {
             Camera c = Camera;
             if (c == null)

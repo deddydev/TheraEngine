@@ -15,9 +15,9 @@ namespace TheraEngine.GameModes
     }
     public class CharacterPlayerController : LocalPlayerController
     {
-        public CharacterPlayerController(LocalPlayerIndex index)
+        public CharacterPlayerController(ELocalPlayerIndex index)
             : base(index) { }
-        public CharacterPlayerController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+        public CharacterPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue) { }
 
         [TSerialize]

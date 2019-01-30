@@ -21,7 +21,7 @@ namespace TheraEngine.Actors.Types
         {
         }
 
-        public Vehicle(bool deferInitialization, LocalPlayerIndex possessor)
+        public Vehicle(bool deferInitialization, ELocalPlayerIndex possessor)
             : base(deferInitialization, possessor)
         {
         }
@@ -31,7 +31,7 @@ namespace TheraEngine.Actors.Types
         {
         }
 
-        public Vehicle(LocalPlayerIndex possessor, SkeletalMeshComponent root, params LogicComponent[] logicComponents)
+        public Vehicle(ELocalPlayerIndex possessor, SkeletalMeshComponent root, params LogicComponent[] logicComponents)
             : base(possessor, root, logicComponents)
         {
         }

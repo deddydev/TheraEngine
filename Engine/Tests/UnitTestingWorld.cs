@@ -383,7 +383,7 @@ namespace TheraEngine.Tests
             //iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
             actors.Add(iblProbes);
 
-            Settings = new WorldSettings("UnitTestingWorld", new Map(new MapSettings(true, Vec3.Zero, actors)))
+            Settings = new WorldSettings("UnitTestingWorld", new Map(true, Vec3.Zero, actors))
             {
                 Bounds = bounds,
                 OriginRebaseBounds = new BoundingBox(50.0f),

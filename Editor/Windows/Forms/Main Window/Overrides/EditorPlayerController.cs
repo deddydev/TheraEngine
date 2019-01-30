@@ -6,12 +6,12 @@ namespace TheraEditor
 {
     public class EditorPlayerController : LocalPlayerController
     {
-        public EditorPlayerController(LocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base(index, possessionQueue)
+        public EditorPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null) : base(index, possessionQueue)
         {
             SetViewportCamera = true;
             SetViewportHUD = true;
         }
-        public EditorPlayerController(LocalPlayerIndex index) : base(index)
+        public EditorPlayerController(ELocalPlayerIndex index) : base(index)
         {
             SetViewportCamera = true;
             SetViewportHUD = true;

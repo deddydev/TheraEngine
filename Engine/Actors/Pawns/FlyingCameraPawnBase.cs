@@ -11,7 +11,7 @@ namespace TheraEngine.Actors.Types.Pawns
     public abstract class FlyingCameraPawnBase<T> : Pawn<T> where T : OriginRebasableComponent
     {
         public FlyingCameraPawnBase() : base() { }
-        public FlyingCameraPawnBase(LocalPlayerIndex possessor) : base(false, possessor) { }
+        public FlyingCameraPawnBase(ELocalPlayerIndex possessor) : base(false, possessor) { }
         
         public Camera Camera
         {

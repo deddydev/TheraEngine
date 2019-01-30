@@ -12,7 +12,7 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class DockableModelEditorRenderForm : DockContent, IEditorControl
     {
-        public DockableModelEditorRenderForm(LocalPlayerIndex playerIndex, int formIndex, ModelEditorForm form)
+        public DockableModelEditorRenderForm(ELocalPlayerIndex playerIndex, int formIndex, ModelEditorForm form)
         {
             Form = form;
             FormIndex = formIndex;
@@ -74,10 +74,10 @@ namespace TheraEditor.Windows.Forms
         public EditorGameMode GameMode { get; set; }
         public ModelEditorForm Form { get; private set; }
         public int FormIndex { get; private set; }
-        public LocalPlayerIndex PlayerIndex { get; private set; } = LocalPlayerIndex.One;
+        public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
         public EditorCameraPawn EditorPawn { get; private set; }
 
-        LocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
+        ELocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => EditorPawn;
         BaseGameMode IEditorControl.GameMode => GameMode;

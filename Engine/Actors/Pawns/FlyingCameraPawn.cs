@@ -9,7 +9,7 @@ namespace TheraEngine.Actors.Types.Pawns
     public class FlyingCameraPawn : FlyingCameraPawnBase<TRComponent>
     {
         public FlyingCameraPawn() : base() { }
-        public FlyingCameraPawn(LocalPlayerIndex possessor) : base(possessor) { }
+        public FlyingCameraPawn(ELocalPlayerIndex possessor) : base(possessor) { }
         protected override TRComponent OnConstructRoot()
         {
             TRComponent root = new TRComponent();

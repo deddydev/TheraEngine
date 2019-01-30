@@ -146,7 +146,7 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
         private static List<PropertyEntity> AddPropertyInfos(object objectValue, Type objectType, IEnumerable<PropertyInfo> properties)
         {
             List<PropertyEntity> currentProperties = new List<PropertyEntity>();
-            foreach (var property in properties)
+            foreach (PropertyInfo property in properties)
             {
                 PropertyEntity propertyEntity = new PropertyEntity();
                 propertyEntity.IsDynamic = false;
@@ -166,8 +166,9 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
                     {
                         propertyEntity.Value = property.GetValue(objectValue, null);
                     }
-                    catch (System.Reflection.TargetInvocationException)
+                    catch (TargetInvocationException)
                     {
+
                     }
                 }
 

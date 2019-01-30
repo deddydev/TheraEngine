@@ -44,11 +44,8 @@ namespace KellermanSoftware.CompareNetObjects
                 return false;
 
             if (IsDynamicObject(objectValue.GetType()))
-            {
-                IDictionary<string, object> expandoPropertyValues = objectValue as IDictionary<string, object>;
-                return expandoPropertyValues != null;
-            }
-
+                return objectValue is IDictionary<string, object> expandoPropertyValues;
+            
             return false;
         }
 

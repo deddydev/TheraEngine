@@ -30,9 +30,9 @@ namespace TheraEngine.Actors.Types.Pawns
     {
         public CharacterPawn()
             : base() { }
-        public CharacterPawn(LocalPlayerIndex possessor)
+        public CharacterPawn(ELocalPlayerIndex possessor)
             : base(possessor) { }
-        public CharacterPawn(LocalPlayerIndex possessor, SkeletalModel mesh, Skeleton skeleton)
+        public CharacterPawn(ELocalPlayerIndex possessor, SkeletalModel mesh, Skeleton skeleton)
             : base(possessor, mesh, skeleton) { }
     }
     /// <summary>
@@ -44,9 +44,9 @@ namespace TheraEngine.Actors.Types.Pawns
     {
         public CharacterPawn()
             : base() { }
-        public CharacterPawn(LocalPlayerIndex possessor)
+        public CharacterPawn(ELocalPlayerIndex possessor)
             : base(false, possessor) { }
-        public CharacterPawn(LocalPlayerIndex possessor, SkeletalModel mesh, Skeleton skeleton)
+        public CharacterPawn(ELocalPlayerIndex possessor, SkeletalModel mesh, Skeleton skeleton)
             : base(false, possessor)
         {
             _meshComp.SkeletonOverrideRef = skeleton;

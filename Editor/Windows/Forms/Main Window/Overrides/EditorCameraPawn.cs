@@ -14,7 +14,7 @@ namespace TheraEditor.Actors.Types.Pawns
     public class EditorCameraPawn : FlyingCameraPawn
     {
         public EditorCameraPawn() : base() { }
-        public EditorCameraPawn(LocalPlayerIndex possessor) : base(possessor) { }
+        public EditorCameraPawn(ELocalPlayerIndex possessor) : base(possessor) { }
 
         private ICameraTransformable _targetComponent = null;
         public ICameraTransformable TargetComponent

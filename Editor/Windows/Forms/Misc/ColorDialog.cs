@@ -37,8 +37,7 @@ namespace System.Windows.Forms
 
         void goodColorControl21_ColorChanged(Color c)
         {
-            if (OnColorChanged != null)
-                OnColorChanged(c);
+            OnColorChanged?.Invoke(c);
         }
 
         void goodColorControl21_Closed(object sender, EventArgs e)

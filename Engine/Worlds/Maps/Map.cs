@@ -59,6 +59,7 @@ namespace TheraEngine.Worlds
             get => _defaultGameMode;
             set => _defaultGameMode = value;
         }
+        public int Index { get; set; }
         public virtual void EndPlay()
         {
             foreach (IActor actor in Actors)

@@ -21,12 +21,14 @@ namespace TheraEngine.Core.Shapes
         private EventVec3 _scale = Vec3.Half;
         private EventVec3 _translation = Vec3.Zero;
 
+        [TSerialize]
         [Category("Bounding Box")]
         public EventVec3 HalfExtents
         {
             get => _scale;
             set => _scale = value ?? Vec3.Half;
         }
+        [TSerialize]
         [Category("Bounding Box")]
         public EventVec3 Translation
         {

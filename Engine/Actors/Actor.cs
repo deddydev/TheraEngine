@@ -28,6 +28,8 @@ namespace TheraEngine.Actors
     public interface IActor : IFileObject
     {
         event DelRootComponentChanged RootComponentChanged;
+        event Action<IActor> SceneComponentCacheRegenerated;
+        event Action<IActor> LogicComponentsChanged;
 
         Map MapAttachment { get; set; }
         bool IsConstructing { get; }
@@ -69,6 +71,8 @@ namespace TheraEngine.Actors
     public class Actor<T> : TFileObject, IActor_Internal where T : OriginRebasableComponent
     {
         public event DelRootComponentChanged RootComponentChanged;
+        public event Action<IActor> SceneComponentCacheRegenerated;
+        public event Action<IActor> LogicComponentsChanged;
 
         static Actor()
         {
@@ -296,6 +300,7 @@ For example, a logic component could give any actor health and/or allow it to ta
                 //_renderableComponentCache = new List<I3DRenderable>();
                 _sceneComponentCache = _rootComponent?.GenerateChildCache() ?? new List<SceneComponent>();
             }
+            SceneComponentCacheRegenerated?.Invoke(this);
         }
         void IActor_Internal.RebaseOrigin(Vec3 newOrigin) => RebaseOrigin(newOrigin);
         internal void RebaseOrigin(Vec3 newOrigin)
@@ -422,10 +427,12 @@ For example, a logic component could give any actor health and/or allow it to ta
         {
             if (item.OwningActor == this)
                 item.OwningActor = null;
+            LogicComponentsChanged?.Invoke(this);
         }
         private void _logicComponents_PostAnythingAdded(LogicComponent item)
         {
             item.OwningActor = this;
+            LogicComponentsChanged?.Invoke(this);
         }
     }
 }

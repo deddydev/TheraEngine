@@ -186,8 +186,12 @@ namespace TheraEngine.Rendering.UI
                 -LocalTranslation,
                 TransformOrder.SRT);
         }
+
+        [Category("Transform")]
         public bool IgnoreResizes { get; set; } = false;
+        [Category("Transform")]
         public Vec2 ParentBounds { get; protected set; }
+
         public virtual Vec2 Resize(Vec2 parentBounds)
         {
             if (IgnoreResizes)

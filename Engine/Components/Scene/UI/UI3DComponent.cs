@@ -1,28 +1,23 @@
 ﻿using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI
 {
     /// <summary>
     /// Houses a self-contained 3D scene within a 2D user interface.
     /// </summary>
-    public class UI3DComponent : UIMaterialRectangleComponent
+    public class UI3DComponent : UIViewportComponent
     {
-        public UI3DComponent() : base(TMaterial.CreateUnlitTextureMaterialForward())
+        public UI3DComponent() : base()
         {
-            _camera = new PerspectiveCamera();
+
+        }
+
+        public override Camera ViewportCamera
+        {
+            get => base.ViewportCamera;
+            set => base.ViewportCamera = value;
         }
 
         private BaseScene _scene;
-        private Camera _camera;
-        
-        public override void OnSpawned()
-        {
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            base.OnDespawned();
-        }
     }
 }

@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering
 
         private BoundingRectangle _region;
         private BoundingRectangle _internalResolution = new BoundingRectangle();
-        private Camera _worldCamera;
+        private Camera _camera;
         private SSAOInfo _ssaoInfo = new SSAOInfo();
 
         internal QuadFrameBuffer SSAOFBO;
@@ -62,23 +62,23 @@ namespace TheraEngine.Rendering
 
         public Camera Camera
         {
-            get => _worldCamera;
+            get => _camera;
             set
             {
-                _worldCamera?.Viewports?.Remove(this);
+                _camera?.Viewports?.Remove(this);
                 
-                _worldCamera = value;
+                _camera = value;
 
                 //Engine.PrintLine("Updated viewport " + _index + " camera: " + (_worldCamera == null ? "null" : _worldCamera.GetType().GetFriendlyName()));
 
-                if (_worldCamera != null)
+                if (_camera != null)
                 {
-                    _worldCamera.Viewports.Add(this);
+                    _camera.Viewports.Add(this);
                     
                     //TODO: what if the same camera is used by multiple viewports?
                     //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
-                    _worldCamera.Resize(_internalResolution.Width, _internalResolution.Height);
-                    if (_worldCamera is PerspectiveCamera p)
+                    _camera.Resize(_internalResolution.Width, _internalResolution.Height);
+                    if (_camera is PerspectiveCamera p)
                         p.Aspect = (float)Width / Height;
                 }
             }
@@ -175,7 +175,7 @@ namespace TheraEngine.Rendering
             //BloomRect1.Height = height;
             InitFBOs();
 
-            _worldCamera?.Resize(width, height);
+            _camera?.Resize(width, height);
         }
 
         private void ClearFBOs()
@@ -308,14 +308,14 @@ namespace TheraEngine.Rendering
 
         #region Coordinate conversion
         public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
-            => _worldCamera?.ScreenToWorld(ToInternalResCoords(viewportPoint), depth) ?? new Vec3(viewportPoint, depth);
+            => _camera?.ScreenToWorld(ToInternalResCoords(viewportPoint), depth) ?? new Vec3(viewportPoint, depth);
         public Vec3 ScreenToWorld(Vec3 viewportPoint)
-            => _worldCamera?.ScreenToWorld(ToInternalResCoords(viewportPoint.Xy), viewportPoint.Z) ?? viewportPoint;
+            => _camera?.ScreenToWorld(ToInternalResCoords(viewportPoint.Xy), viewportPoint.Z) ?? viewportPoint;
         public Vec3 WorldToScreen(Vec3 worldPoint)
         {
-            if (_worldCamera == null)
+            if (_camera == null)
                 return Vec3.Zero;
-            Vec3 screenPoint = _worldCamera.WorldToScreen(worldPoint);
+            Vec3 screenPoint = _camera.WorldToScreen(worldPoint);
             screenPoint.Xy = FromInternalResCoords(screenPoint.Xy);
             return screenPoint;
         }
@@ -372,13 +372,13 @@ namespace TheraEngine.Rendering
         /// Returns a ray projected from the given screen location.
         /// </summary>
         public Ray GetWorldRay(Vec2 viewportPoint)
-            => _worldCamera.GetWorldRay(ToInternalResCoords(viewportPoint));
+            => _camera.GetWorldRay(ToInternalResCoords(viewportPoint));
         /// <summary>
         /// Returns a segment projected from the given screen location.
         /// Endpoints are located on the NearZ and FarZ planes.
         /// </summary>
         public Segment GetWorldSegment(Vec2 viewportPoint)
-            => _worldCamera.GetWorldSegment(ToInternalResCoords(viewportPoint));
+            => _camera.GetWorldSegment(ToInternalResCoords(viewportPoint));
         public SceneComponent PickScene(
             Vec2 viewportPoint,
             bool testHud,
@@ -409,7 +409,7 @@ namespace TheraEngine.Rendering
                 Segment cursor = GetWorldSegment(viewportPoint);
 
                 RayTraceClosest c = new RayTraceClosest(cursor.StartPoint, cursor.EndPoint, 0, 0xFFFF, ignored);
-                if (c.Trace(_worldCamera?.OwningComponent?.OwningWorld))
+                if (c.Trace(_camera?.OwningComponent?.OwningWorld))
                 {
                     hitNormal = c.HitNormalWorld;
                     hitPoint = c.HitPointWorld;

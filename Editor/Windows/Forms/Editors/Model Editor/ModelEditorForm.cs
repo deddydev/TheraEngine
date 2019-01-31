@@ -39,9 +39,11 @@ namespace TheraEditor.Windows.Forms
             FormTitle2.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
             ModelEditorText.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
         }
-        public ModelEditorForm(SkeletalModel m) : this() => SetModel(m);
-        public ModelEditorForm(StaticModel m) : this() => SetModel(m);
-        
+
+        public ModelEditorForm(SkeletalModel model) : this() => SetModel(model);
+        public ModelEditorForm(StaticModel model) : this() => SetModel(model);
+        public ModelEditorForm(IActor actor) : this() => SetActor(actor);
+
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
         private DockableModelEditorRenderForm[] _renderForms = new DockableModelEditorRenderForm[4];

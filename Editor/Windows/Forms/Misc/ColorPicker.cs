@@ -210,7 +210,7 @@ namespace System.Windows.Forms
             ARGBPixel p = _rgba.Inverse();
             p.A = 255;
 
-            using (Pen pen = new Pen((Color)p))
+            using (Pen pen = new Pen(p))
                 g.DrawEllipse(pen, r);
 
             r.X -= 1;
@@ -219,7 +219,7 @@ namespace System.Windows.Forms
             r.Height += 2;
             p = p.Lighten(64);
 
-            using (Pen pen = new Pen((Color)p))
+            using (Pen pen = new Pen(p))
                 g.DrawEllipse(pen, r);
         }
         #endregion

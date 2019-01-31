@@ -68,7 +68,7 @@
             this.newActorToolStripMenuItem.Name = "newActorToolStripMenuItem";
             this.newActorToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
             this.newActorToolStripMenuItem.Text = "New Actor";
-            this.newActorToolStripMenuItem.Click += new System.EventHandler(this.newActorToolStripMenuItem_Click);
+            this.newActorToolStripMenuItem.Click += new System.EventHandler(this.NewActor_Click);
             // 
             // ctxSingleActor
             // 

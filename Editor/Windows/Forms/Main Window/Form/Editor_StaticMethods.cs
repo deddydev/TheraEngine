@@ -69,7 +69,7 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         /// <typeparam name="T">The object type to create.</typeparam>
         /// <returns>A newly created instance of T.</returns>
-        public static T UserCreateInstanceOf<T>(bool allowDerivedTypes)
+        public static T UserCreateInstanceOf<T>(bool allowDerivedTypes = true)
             => (T)UserCreateInstanceOf(typeof(T), allowDerivedTypes);
         /// <summary>
         /// Creates an instance of elementType using user-chosen derived type, constructor and parameters.

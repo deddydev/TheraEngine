@@ -33,7 +33,7 @@ namespace TheraEngine.Timers
         /// <summary>
         /// Runs the timer until Stop() is called.
         /// </summary>
-        public void Run(bool singleThreaded = true)
+        public void Run(bool singleThreaded = false)
         {
             if (IsRunning)
                 return;

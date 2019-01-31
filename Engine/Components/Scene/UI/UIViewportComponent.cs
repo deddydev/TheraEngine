@@ -49,11 +49,13 @@ namespace TheraEngine.Rendering.UI
 
         [Browsable(false)]
         public bool PreRenderEnabled { get; set; } = true;
-        public Camera ViewportCamera
+        [Browsable(false)]
+        public virtual Camera ViewportCamera
         {
             get => Viewport.Camera;
             set => Viewport.Camera = value;
         }
+        [Category("Rendering")]
         public Viewport Viewport { get; private set; } = new Viewport(1, 1);
 
         public override Vec2 Resize(Vec2 parentBounds)

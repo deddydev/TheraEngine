@@ -277,6 +277,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             catch { }
                         });
                     Thread.Sleep(sleepTime);
+                    break;
                 }
             });
         }

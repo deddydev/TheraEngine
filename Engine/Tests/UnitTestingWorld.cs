@@ -25,7 +25,6 @@ using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.ThirdParty;
 using TheraEngine.Worlds;
-using TheraEngine.Worlds.Maps;
 
 namespace TheraEngine.Tests
 {
@@ -352,12 +351,17 @@ namespace TheraEngine.Tests
             #region Decal
             if (testDeferredDecal)
             {
-                TextureFile2D decalTex = await Engine.Files.LoadEngineTexture2DAsync("decal guide.png");
-                var bmp = decalTex.GetLargestBitmap();
                 DecalActor decal = new DecalActor();
+                TextureFile2D decalTex = await Engine.Files.LoadEngineTexture2DAsync("decal guide.png");
                 decal.RootComponent.Material = DecalComponent.CreateDefaultMaterial(decalTex);
-                int maxDim = Math.Max(bmp.Width, bmp.Height) / 2;
-                decal.RootComponent.Shape.HalfExtents = new Vec3(bmp.Width * 0.5f / maxDim, 1.0f, bmp.Height * 0.5f / maxDim);
+
+                var bmp = decalTex.GetLargestBitmap();
+                float maxDim = Math.Max(bmp.Width, bmp.Height);
+                decal.RootComponent.Shape.HalfExtents = new Vec3(
+                    bmp.Width / maxDim * 0.5f,
+                    1.0f, 
+                    bmp.Height / maxDim * 0.5f);
+
                 actors.Add(decal);
             }
             #endregion

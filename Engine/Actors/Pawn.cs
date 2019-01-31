@@ -139,16 +139,20 @@ namespace TheraEngine.Actors
 
         private void HudUnloaded(IUserInterface obj)
         {
+            if (IsSpawned  && obj is IActor_Internal actor && actor.OwningWorld == OwningWorld)
+                actor.Despawned();
             obj.OwningPawn = null;
         }
         private void HudLoaded(IUserInterface obj)
         {
             obj.OwningPawn = this;
+            if (IsSpawned && OwningWorld != null && obj is IActor_Internal actor)
+                actor.Spawned(OwningWorld);
         }
 
         protected override void OnSpawnedPreComponentSpawn()
         {
-            if (HUD is IActor_Internal actor)
+            if (HUD?.File is IActor_Internal actor)
                 actor.Spawned(OwningWorld);
         }
         protected override void OnSpawnedPostComponentSpawn()
@@ -161,7 +165,7 @@ namespace TheraEngine.Actors
             if (OwningWorld.Settings.EnableOriginRebasing)
                 RootComponent.WorldTransformChanged -= QueueWorldRebase;
 
-            if (HUD is IActor_Internal actor)
+            if (HUD?.File is IActor_Internal actor)
                 actor.Despawned();
         }
         public void QueuePossession(ELocalPlayerIndex possessor)

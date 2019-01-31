@@ -9,9 +9,6 @@ namespace TheraEngine.Rendering.UI
 {
     public class UIMaterialRectangleComponent : UIDockableComponent, I2DRenderable
     {
-        [Category("Rendering")]
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
-
         public UIMaterialRectangleComponent() 
             : this(TMaterial.CreateUnlitColorMaterialForward(Color.Magenta)) { }
         public UIMaterialRectangleComponent(TMaterial material, bool flipVerticalUVCoord = false)
@@ -21,7 +18,10 @@ namespace TheraEngine.Rendering.UI
             RenderCommand.Mesh = new PrimitiveManager(quadData, material);
             RenderCommand.ZIndex = 0;
         }
-        
+
+        [Category("Rendering")]
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+
         [Category("Rendering")]
         public override int LayerIndex
         {
@@ -112,8 +112,10 @@ namespace TheraEngine.Rendering.UI
             RenderCommand.WorldMatrix = WorldMatrix * Matrix4.CreateScale(Width, Height, 1.0f);
             base.OnWorldTransformChanged();
         }
-        
+
+        [Category("Rendering")]
         public RenderCommandMesh2D RenderCommand { get; } = new RenderCommandMesh2D(ERenderPass.OpaqueForward);
+
         public virtual void AddRenderables(RenderPasses passes)
         {
             passes.Add(RenderCommand);

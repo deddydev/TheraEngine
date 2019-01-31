@@ -13,14 +13,8 @@ namespace TheraEngine.Rendering.Models
     [TFileExt("stmdl", new string[] { "dae", "obj" }, null)]
     public class StaticModel : TFileObject, IModelFile
     {
-        public StaticModel() : base()
-        {
-
-        }
-        public StaticModel(string name)
-        {
-            _name = name;
-        }
+        public StaticModel() : base() { }
+        public StaticModel(string name) { _name = name; }
 
         public List<StaticRigidSubMesh> RigidChildren => _rigidChildren;
         public List<StaticSoftSubMesh> SoftChildren => _softChildren;

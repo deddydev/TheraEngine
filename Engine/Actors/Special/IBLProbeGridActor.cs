@@ -202,13 +202,7 @@ namespace TheraEngine.Actors
                 return;
 
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)
-            {
-                comp.SetCaptureResolution(colorResolution, captureDepth, depthResolution);
-                comp.Capture();
-                comp.GenerateIrradianceMap();
-                comp.GeneratePrefilterMap();
-                comp.FinalizeCapture();
-            }
+                comp.FullCapture(colorResolution, captureDepth, depthResolution);
         }
 
         public async Task InitAndCaptureAllAsync(int colorResolution, bool captureDepth = false, int depthResolution = 1)

@@ -83,6 +83,7 @@ namespace TheraEngine.Components.Scene.Lights
             get => _diffuseIntensity;
             set => _diffuseIntensity = value;
         }
+        [Category("Light Component")]
         public ELightType Type { get; set; } = ELightType.Dynamic;
 
         [Browsable(false)]
@@ -143,7 +144,9 @@ namespace TheraEngine.Components.Scene.Lights
         }
 
 #if EDITOR
+        [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
+        [Category("Editor Traits")]
         public float PreviewIconScale { get; set; } = 0.08f;
 
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;

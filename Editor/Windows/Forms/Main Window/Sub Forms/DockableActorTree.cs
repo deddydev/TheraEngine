@@ -22,34 +22,38 @@ namespace TheraEditor.Windows.Forms
 
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (Editor.Instance.PropertyGridFormActive)
+            if (!Editor.Instance.PropertyGridFormActive)
+                return;
+            
+            if (ActorTree.SelectedNode == null)
             {
-                if (ActorTree.SelectedNode == null)
-                {
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
-                }
-                else if (e.Node.Tag is IActor actor)
-                {
-                    actor.EditorState.Selected = true;
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = actor;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
+            }
+            else if (e.Node.Tag is IActor actor)
+            {
+                actor.EditorState.Selected = true;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = actor;
 
-                    if (Engine.LocalPlayers.Count > 0)
-                    {
-                        EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
-                        hud?.SetSelectedComponent(false, actor.RootComponent);
-                    }
-                }
-                else if (e.Node.Tag is Component component)
+                if (Engine.LocalPlayers.Count > 0)
                 {
-                    component.EditorState.Selected = true;
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = component;
-
-                    if (component is SceneComponent sceneComp && Engine.LocalPlayers.Count > 0)
-                    {
-                        EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
-                        hud?.SetSelectedComponent(false, sceneComp);
-                    }
+                    EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
+                    hud?.SetSelectedComponent(false, actor.RootComponent);
                 }
+            }
+            else if (e.Node.Tag is Component component)
+            {
+                component.EditorState.Selected = true;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = component;
+
+                if (component is SceneComponent sceneComp && Engine.LocalPlayers.Count > 0)
+                {
+                    EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
+                    hud?.SetSelectedComponent(false, sceneComp);
+                }
+            }
+            else if (e.Node.Tag is Map map)
+            {
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = map;
             }
         }
         internal void GenerateInitialActorList()
@@ -177,11 +181,39 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void newActorToolStripMenuItem_Click(object sender, EventArgs e)
+        private void NewActor_Click(object sender, EventArgs e)
         {
-            IActor actor = Editor.UserCreateInstanceOf<IActor>(true);
-            if (actor != null)
-                Engine.World.SpawnActor(actor);
+            TreeNode node = ActorTree.SelectedNode;
+            Map targetMap = null;
+
+            if (node.Tag is Map map)
+            {
+                targetMap = map;
+            }
+            else if (node.Tag is IActor actor)
+            {
+                targetMap = actor.MapAttachment;
+            }
+            else if (node.Tag is IComponent comp)
+            {
+                targetMap = comp.OwningActor?.MapAttachment;
+            }
+
+            if (targetMap == null)
+            {
+                var mapList = Engine.World?.Settings?.Maps;
+                if (mapList != null && mapList.Count > 0)
+                    targetMap = mapList[0];
+                else
+                    targetMap = new Map();
+            }
+
+            IActor newActor = Editor.UserCreateInstanceOf<IActor>();
+            if (newActor != null)
+            {
+                newActor.MapAttachment = targetMap;
+                Engine.World.SpawnActor(newActor);
+            }
         }
     }
 }

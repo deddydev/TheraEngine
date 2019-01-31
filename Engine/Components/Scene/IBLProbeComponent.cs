@@ -101,6 +101,14 @@ namespace TheraEngine.Actors.Types
             _irradianceFBO = new CubeFrameBuffer(irrMat, 0.1f, 3.0f, false);
             _prefilterFBO = new CubeFrameBuffer(prefMat, 0.1f, 3.0f, false);
         }
+        public void FullCapture(int colorResolution, bool captureDepth, int depthResolution)
+        {
+            SetCaptureResolution(colorResolution, captureDepth, depthResolution);
+            Capture();
+            GenerateIrradianceMap();
+            GeneratePrefilterMap();
+            CreatePreviewSphere();
+        }
         public void GenerateIrradianceMap()
         {
             int res = IrradianceTex.CubeExtent;
@@ -156,7 +164,7 @@ namespace TheraEngine.Actors.Types
             }
         }
 
-        internal void FinalizeCapture()
+        internal void CreatePreviewSphere()
         {
             var shader = Engine.Files.LoadEngineShader("CubeMapSphereMesh.fs", EGLSLType.Fragment);
             TMaterial mat = new TMaterial("IrradianceMat",

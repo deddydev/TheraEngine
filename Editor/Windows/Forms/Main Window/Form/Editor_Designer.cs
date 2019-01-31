@@ -202,6 +202,9 @@ namespace TheraEditor.Windows.Forms
         }
         private async void SetWorld(TWorld world)
         {
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<TWorld>)SetWorld, BaseRenderPanel.PanelType.Rendering, world))
+                return;
+
             if (Engine.World?.EditorState?.HasChanges ?? false)
             {
                 DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);

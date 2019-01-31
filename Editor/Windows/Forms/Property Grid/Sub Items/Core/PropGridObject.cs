@@ -126,24 +126,34 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Type type = CurrentType;
             if (!type.IsValueType)
             {
+                Type compareType;
+                Type bestType = null;
                 while (type != null && type != typeof(object))
                 {
                     if (TheraPropertyGrid.FullEditorTypes.ContainsKey(type))
                     {
-                        _editorType = TheraPropertyGrid.FullEditorTypes[type];
-                        _mouseDown = MouseDownEditor;
-                        return;
+                        bestType = type;
+                        break;
                     }
+
                     foreach (Type intfType in type.GetInterfaces())
                     {
                         if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
                         {
-                            _editorType = TheraPropertyGrid.FullEditorTypes[intfType];
-                            _mouseDown = MouseDownEditor;
-                            return;
+                            compareType = intfType;
+                            if (bestType == null || compareType.IsAssignableTo(bestType))
+                                bestType = compareType;
                         }
                     }
+                    if (bestType != null)
+                        break;
                     type = type.BaseType;
+                }
+                if (bestType != null)
+                {
+                    _editorType = TheraPropertyGrid.FullEditorTypes[bestType];
+                    _mouseDown = MouseDownEditor;
+                    return;
                 }
             }
         }
@@ -152,11 +162,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Action _mouseDown;
         private void MouseDownEditor()
         {
-            Form f = Activator.CreateInstance(_editorType, GetValue()) as Form;
-            if (f is DockContent dc)
+            object value = GetValue();
+            Form form = Activator.CreateInstance(_editorType, value) as Form;
+            if (form is DockContent dc && !(form is TheraForm))
                 dc.Show(Editor.Instance.DockPanel, DockState.Document);
             else
-                f?.ShowDialog(this);
+                form?.ShowDialog(this);
         }
         private void MouseDownProperties()
         {

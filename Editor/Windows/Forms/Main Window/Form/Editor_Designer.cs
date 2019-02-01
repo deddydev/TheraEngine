@@ -286,8 +286,8 @@ namespace TheraEditor.Windows.Forms
         protected override async void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            
-            EditorSettings settings = GetSettings();
+
+            EditorSettings settings = await DefaultSettingsRef.GetInstanceAsync();
             var recentFiles = settings?.RecentlyOpenedProjectPaths; //Properties.Settings.Default.RecentFiles;
             if (recentFiles != null && recentFiles.Count > 0)
             {
@@ -324,7 +324,7 @@ namespace TheraEditor.Windows.Forms
             string projectPath = Project?.FilePath;
             if (!string.IsNullOrWhiteSpace(projectPath))
             {
-                EditorSettings settings = GetSettings();
+                EditorSettings settings = await DefaultSettingsRef.GetInstanceAsync();
                 var list = settings.RecentlyOpenedProjectPaths; //Properties.Settings.Default.RecentFiles;
                 if (list != null)
                 {

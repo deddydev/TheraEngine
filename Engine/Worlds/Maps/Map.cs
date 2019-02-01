@@ -18,7 +18,6 @@ namespace TheraEngine.Worlds
         protected bool _visibleByDefault;
         protected List<IActor> _actors = new List<IActor>();
         protected Vec3 _spawnPosition;
-        protected BaseGameMode _defaultGameMode;
 
         [Browsable(true)]
         public override string Name { get => base.Name; set => base.Name = value; }
@@ -53,13 +52,6 @@ namespace TheraEngine.Worlds
             get => _actors;
             set => _actors = value;
         }
-        [TSerialize]
-        public BaseGameMode DefaultGameMode
-        {
-            get => _defaultGameMode;
-            set => _defaultGameMode = value;
-        }
-        public int Index { get; set; }
         public virtual void EndPlay()
         {
             foreach (IActor actor in Actors)

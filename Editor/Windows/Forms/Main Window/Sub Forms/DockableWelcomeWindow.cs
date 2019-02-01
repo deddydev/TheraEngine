@@ -84,11 +84,11 @@ namespace TheraEditor.Windows.Forms
             TitleHoverLoc.Y += 20;
         }
 
-        protected override void OnLoad(EventArgs e)
+        protected override async void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
-            EditorSettings settings = Editor.GetSettings();
+            EditorSettings settings = await Editor.DefaultSettingsRef.GetInstanceAsync();
             var recentFiles = settings?.RecentlyOpenedProjectPaths;
             //var recentFiles = Properties.Settings.Default.RecentFiles;
             if (recentFiles != null)

@@ -216,7 +216,8 @@ namespace TheraEngine.Actors
                 RootComponentChanged?.Invoke(oldRoot, _rootComponent);
             }
         }
-        
+
+        [Browsable(false)]
         [Category("Actor")]
         public Map MapAttachment { get; set; } = null;
         /// <summary>

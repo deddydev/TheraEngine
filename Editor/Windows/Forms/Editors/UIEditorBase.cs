@@ -499,7 +499,7 @@ namespace TheraEditor.Windows.Forms
             foreach (var comp in _textCacheY)
                 comp.Item1.Scale = scale;
         }
-        protected abstract void AddRenderables(RenderPasses passes);
+        protected virtual void AddRenderables(RenderPasses passes) { }
         void I2DRenderable.AddRenderables(RenderPasses passes)
         {
             AddRenderables(passes);

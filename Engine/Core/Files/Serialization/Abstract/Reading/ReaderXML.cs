@@ -55,22 +55,32 @@ namespace TheraEngine.Core.Files.Serialization
             }
             protected override async Task ReadTreeAsync()
             {
-                long currentBytes = 0L;
-                using (_stream = new ProgressStream(new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read), null, null))
-                using (_reader = XmlReader.Create(_stream, _settings))
+                try
                 {
-                    if (Progress != null)
+                    long currentBytes = 0L;
+                    using (_stream = new ProgressStream(new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read), null, null))
                     {
-                        float length = _stream.Length;
-                        _stream.SetReadProgress(new BasicProgress<int>(i =>
+                        _reader = XmlReader.Create(_stream, _settings);
+                        
+                        if (Progress != null)
                         {
-                            currentBytes += i;
-                            Progress.Report(currentBytes / length);
-                        }));
-                    }
+                            float length = _stream.Length;
+                            _stream.SetReadProgress(new BasicProgress<int>(i =>
+                            {
+                                currentBytes += i;
+                                Progress.Report(currentBytes / length);
+                            }));
+                        }
 
-                    await _reader.MoveToContentAsync();
-                    RootNode = await ReadElementAsync();
+                        await _reader.MoveToContentAsync();
+                        RootNode = await ReadElementAsync();
+                        
+                        _reader.Dispose();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
                 }
             }
             private async Task<SerializeElement> ReadElementAsync()

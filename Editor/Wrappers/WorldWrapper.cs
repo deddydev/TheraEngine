@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheraEngine.Worlds;
 using TheraEditor.Windows.Forms;
 using TheraEditor.Properties;
+using System;
 
 namespace TheraEditor.Wrappers
 {
@@ -37,20 +38,19 @@ namespace TheraEditor.Wrappers
                 {
                     Editor.Instance.CurrentWorld = t.Result;
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = t.Result.Settings;
+                    //int i = 0;
+                    //for (; i < 4; ++i)
+                    //{
+                    //    if (Editor.Instance.RenderFormActive(i))
+                    //    {
+                    //        Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.GetRenderForm(i).Focus()));
+                    //        break;
+                    //    }
+                    //}
+                    //if (i == 4)
+                    //    Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.RenderForm1.Focus()));
                 }
             });
-            int i = 0;
-            for (; i < 4; ++i)
-            {
-                if (Editor.Instance.RenderFormActive(i))
-                {
-                    Editor.Instance.GetRenderForm(i).Focus();
-                    break;
-                }
-            }
-            if (i == 4)
-                Editor.Instance.RenderForm1.Focus();
-
         }
     }
 }

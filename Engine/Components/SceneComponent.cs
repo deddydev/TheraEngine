@@ -469,10 +469,11 @@ namespace TheraEngine.Components
             {
                 r3d.RenderInfo.LinkScene(r3d, OwningScene3D);
 #if EDITOR
+                if (Engine.EditorState.InEditMode && r3d.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleAlways)
+                    r3d.RenderInfo.Visible = true;
+
                 if (this is IEditorPreviewIconRenderable icon)
-                {
                     icon.PreviewIconRenderCommand = CreatePreviewRenderCommand(icon.PreviewIconName);
-                }
 #endif
             }
 
@@ -755,10 +756,10 @@ namespace TheraEngine.Components
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            //if (this is I3DRenderable r3d)
-            //    r3d.RenderInfo.Visible = selected;
-            //if (this is I2DRenderable r2d)
-            //    r2d.RenderInfo.Visible = selected;
+            if (this is I3DRenderable r3d && r3d.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected)
+                r3d.RenderInfo.Visible = selected;
+            if (this is I2DRenderable r2d && r2d.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected)
+                r2d.RenderInfo.Visible = selected;
 
             //foreach (SceneComponent comp in ChildComponents)
             //    comp.OnSelectedChanged(selected);

@@ -13,6 +13,13 @@ namespace TheraEngine.Rendering
 #if EDITOR
         [TSerialize]
         public virtual bool VisibleInEditorOnly { get; set; } = false;
+        public EEditorVisibility EditorVisibilityMode { get; set; } = EEditorVisibility.Unchanged;
+        public enum EEditorVisibility
+        {
+            Unchanged,
+            VisibleAlways,
+            VisibleOnlyWhenSelected,
+        }
 #endif
         [Browsable(false)]
         public DateTime LastRenderedTime { get; internal set; }

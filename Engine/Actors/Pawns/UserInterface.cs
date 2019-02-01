@@ -65,7 +65,7 @@ namespace TheraEngine.Actors.Types.Pawns
     /// </summary>
     [TFileExt("ui")]
     [TFileDef("User Interface")]
-    public class UserInterface<T> : Pawn<T>, IUserInterface, I2DRenderable where T : UICanvasComponent, new()
+    public class UserInterface<T> : Pawn<T>, IUserInterface where T : UICanvasComponent, new()
     {
         public UserInterface() : base()
         {
@@ -134,19 +134,12 @@ namespace TheraEngine.Actors.Types.Pawns
                 }
             }
         }
-
-        public RenderCommandMethod2D _rc;
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
-        public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
-        public IQuadtreeNode QuadtreeNode { get; set; }
-        public void AddRenderables(RenderPasses passes) => passes.Add(_rc);
-
+        
         protected override T OnConstructRoot() => new T() { };
         public override void RegisterInput(InputInterface input)
         {
             RootComponent.RegisterInputs(input);
-
-            input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickOnlyWhenPaused);
+            
             input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickOnlyWhenPaused);
             //input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
 

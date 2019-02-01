@@ -88,7 +88,9 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
-            var recentFiles = Properties.Settings.Default.RecentFiles;
+            EditorSettings settings = Editor.GetSettings();
+            var recentFiles = settings?.RecentlyOpenedProjectPaths;
+            //var recentFiles = Properties.Settings.Default.RecentFiles;
             if (recentFiles != null)
             {
                 bool hasRecentFiles = recentFiles.Count > 0;

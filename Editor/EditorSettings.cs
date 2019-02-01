@@ -40,12 +40,15 @@ namespace TheraEditor
 
         [TSerialize]
         public string DockConfigPath { get; set; }
-
-        [TSerialize(nameof(RecentlyOpenedProjectPaths))]
-        private List<string> _recentlyOpenedProjectPaths = new List<string>();
-
+        
+        [TSerialize]
         [Browsable(false)]
-        public List<string> RecentlyOpenedProjectPaths => _recentlyOpenedProjectPaths;
+        public List<string> RecentlyOpenedProjectPaths
+        {
+            get => _recentlyOpenedProjectPaths;
+            set => _recentlyOpenedProjectPaths = value;
+        }
+        private List<string> _recentlyOpenedProjectPaths;
 
         [TFileDef("Property Grid Settings")]
         public class PropertyGridSettings : TSettings

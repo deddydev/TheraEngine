@@ -121,11 +121,11 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_DragLeave_1(object sender, EventArgs e)
         {
-            if (_dragged == null)
-                return;
-            RenderPanel.UI.LeftClickUp();
-            RenderPanel.UI.RemoveMaterialFunction(_dragged);
-            _dragged = null;
+            //if (_dragged == null)
+            //    return;
+            //RenderPanel.UI.LeftClickUp();
+            //RenderPanel.UI.RemoveMaterialFunction(_dragged);
+            //_dragged = null;
         }
     }
     public class MaterialEditorController : LocalPlayerController

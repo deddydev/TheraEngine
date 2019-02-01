@@ -12,41 +12,12 @@ using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine.Components.Scene
 {
-    public class DecalComponent : BoxComponent, I3DRenderable
+    public class DecalComponent : BoxComponent, I3DRenderable, IEditorPreviewIconRenderable
     {
-        internal Matrix4 DecalRenderMatrix { get; private set; }
-        internal Matrix4 InverseDecalRenderMatrix { get; private set; }
-        
         [TSerialize]
         [Category("Decal")]
         public TMaterial Material { get; set; }
-
-        //[TSerialize(nameof(AlwaysRenderIntersectionWireframe))]
-        //private bool _alwaysRenderIntersectionWireframe = false;
-        //[Category("Editor Traits")]
-        //[Description("If true, the intersection wireframe will always be rendered in edit mode even if the decal is not selected.")]
-        //public bool AlwaysRenderIntersectionWireframe
-        //{
-        //    get => _alwaysRenderIntersectionWireframe;
-        //    set
-        //    {
-        //        if (_alwaysRenderIntersectionWireframe == value)
-        //            return;
-
-        //        _alwaysRenderIntersectionWireframe = value;
-
-        //        if (IsSpawned)
-        //        {
-        //            if (_alwaysRenderIntersectionWireframe)
-        //                RenderInfo.Visible = true;
-        //            else if (!EditorState.Selected)
-        //                RenderInfo.Visible = false;
-        //        }
-        //    }
-        //}
-
-        public RenderCommandMesh3D RenderCommandDecal { get; } = new RenderCommandMesh3D(ERenderPass.DeferredDecals);
-
+        
         public DecalComponent() 
             : base()
         {
@@ -64,6 +35,12 @@ namespace TheraEngine.Components.Scene
             if (texture != null)
                 Material = CreateDefaultMaterial(texture);
         }
+        public DecalComponent(Vec3 halfExtents, TMaterial material)
+            : base(halfExtents, null)
+        {
+            RenderInfo.VisibleByDefault = true;
+            Material = material;
+        }
         public DecalComponent(float height, TextureFile2D texture)
             : base(new Vec3(1.0f, height, 1.0f), null)
         {
@@ -73,7 +50,7 @@ namespace TheraEngine.Components.Scene
                 var bmp = texture.GetLargestBitmap();
                 if (bmp != null)
                 {
-                    _shape.HalfExtents = new Vec3(bmp.Width * 0.5f, height, bmp.Height * 0.5f);
+                    _shape.HalfExtents.Raw = new Vec3(bmp.Width * 0.5f, height, bmp.Height * 0.5f);
                     Material = CreateDefaultMaterial(texture);
                 }
             }
@@ -83,10 +60,10 @@ namespace TheraEngine.Components.Scene
         {
             Vec3 halfExtents = _shape.HalfExtents.Raw;
 
-            DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
-            InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
+            //DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
+            //InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
 
-            RenderCommandDecal.WorldMatrix = DecalRenderMatrix;
+            RenderCommandDecal.WorldMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
 
             base.OnWorldTransformChanged();
         }
@@ -99,10 +76,10 @@ namespace TheraEngine.Components.Scene
         {
             TexRef2D[] decalRefs = new TexRef2D[]
             {
-                null,
-                null,
-                null,
-                null,
+                null, //Viewport's Albedo/Opacity texture
+                null, //Viewport's Normal texture
+                null, //Viewport's RMSI texture
+                null, //Viewport's Depth texture
                 new TexRef2D("DecalTexture", texture)
             };
             GLSLScript decalShader = Engine.Files.LoadEngineShader(Path.Combine(Viewport.SceneShaderPath, "DeferredDecal.fs"), EGLSLType.Fragment);
@@ -115,7 +92,7 @@ namespace TheraEngine.Components.Scene
             };
             return new TMaterial("DecalMat", decalRenderParams, decalVars, decalRefs, decalShader);
         }
-        public void Initialize()
+        public override void OnSpawned()
         {
             if (Material == null)
                 return;
@@ -123,6 +100,8 @@ namespace TheraEngine.Components.Scene
             PrimitiveData decalMesh = BoundingBox.SolidMesh(-Vec3.One, Vec3.One);
             RenderCommandDecal.Mesh = new PrimitiveManager(decalMesh, Material);
             RenderCommandDecal.Mesh.SettingUniforms += DecalManager_SettingUniforms;
+
+            base.OnSpawned();
         }
         protected virtual void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
         {
@@ -138,21 +117,37 @@ namespace TheraEngine.Components.Scene
             materialProgram.Uniform("InvBoxWorldMatrix", InverseWorldMatrix);
             materialProgram.Uniform("BoxHalfScale", _shape.HalfExtents.Raw);
         }
-        public override void OnSpawned()
+
+        public RenderCommandMesh3D RenderCommandDecal { get; } = new RenderCommandMesh3D(ERenderPass.DeferredDecals);
+
+#if EDITOR
+        [Category("Editor Traits")]
+        public bool ScalePreviewIconByDistance { get; set; } = true;
+        [Category("Editor Traits")]
+        public float PreviewIconScale { get; set; } = 0.08f;
+
+        string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
+        protected string PreviewIconName { get; } = "CameraIcon.png";
+
+        RenderCommandMesh3D IEditorPreviewIconRenderable.PreviewIconRenderCommand
         {
-            Initialize();
-            base.OnSpawned();
+            get => PreviewIconRenderCommand;
+            set => PreviewIconRenderCommand = value;
         }
+        private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
+#endif
+
         //TODO: separate visibility of the decal mesh and wireframe intersection
         public override void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(RenderCommandDecal);
+#if EDITOR
             if (Engine.EditorState.InEditMode)
+            {
                 base.AddRenderables(passes, camera);
-        }
-        protected internal override void OnSelectedChanged(bool selected)
-        {
-            RenderInfo.Visible = selected;
+                AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
+            }
+#endif
         }
     }
 }

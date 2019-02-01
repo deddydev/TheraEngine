@@ -90,8 +90,9 @@ namespace TheraEngine.Actors.Types
                 new ShaderFloat(0.0f, "Roughness"),
                 new ShaderInt(_colorRes, "CubemapDim"),
             };
-            GLSLScript irrShader = Engine.Files.LoadEngineShader(Path.Combine("Scene3D", "IrradianceConvolution.fs"), EGLSLType.Fragment);
-            GLSLScript prefShader = Engine.Files.LoadEngineShader(Path.Combine("Scene3D", "Prefilter.fs"), EGLSLType.Fragment);
+
+            GLSLScript irrShader = Engine.Files.LoadEngineShader(Path.Combine(Viewport.SceneShaderPath, "IrradianceConvolution.fs"), EGLSLType.Fragment);
+            GLSLScript prefShader = Engine.Files.LoadEngineShader(Path.Combine(Viewport.SceneShaderPath, "Prefilter.fs"), EGLSLType.Fragment);
 
             RenderingParameters r = new RenderingParameters();
             r.DepthTest.Enabled = ERenderParamUsage.Disabled;

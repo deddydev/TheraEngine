@@ -286,9 +286,9 @@ namespace TheraEditor.Windows.Forms
         protected override async void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
-            //TODO: read editor state file instead
-            var recentFiles = Properties.Settings.Default.RecentFiles;
+            
+            EditorSettings settings = GetSettings();
+            var recentFiles = settings?.RecentlyOpenedProjectPaths; //Properties.Settings.Default.RecentFiles;
             if (recentFiles != null && recentFiles.Count > 0)
             {
                 string lastOpened = recentFiles[recentFiles.Count - 1];
@@ -306,21 +306,7 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            string projectPath = Project?.FilePath;
-            if (!string.IsNullOrWhiteSpace(projectPath))
-            {
-                var list = Properties.Settings.Default.RecentFiles;
-                if (list != null)
-                {
-                    if (list.Contains(projectPath))
-                        list.Remove(projectPath);
-                    list.Add(projectPath);
-                }
-                else
-                    Properties.Settings.Default.RecentFiles = new StringCollection() { projectPath };
-                
-                Properties.Settings.Default.Save();
-            }
+            UpdateRecentProjectPaths();
 
             if (CloseProject())
             {
@@ -332,6 +318,29 @@ namespace TheraEditor.Windows.Forms
                 e.Cancel = true;
 
             base.OnFormClosing(e);
+        }
+        public async void UpdateRecentProjectPaths()
+        {
+            string projectPath = Project?.FilePath;
+            if (!string.IsNullOrWhiteSpace(projectPath))
+            {
+                EditorSettings settings = GetSettings();
+                var list = settings.RecentlyOpenedProjectPaths; //Properties.Settings.Default.RecentFiles;
+                if (list != null)
+                {
+                    if (list.Contains(projectPath))
+                        list.Remove(projectPath);
+                    list.Add(projectPath);
+                }
+                else
+                {
+                    //Properties.Settings.Default.RecentFiles = new StringCollection() { projectPath };
+                    settings.RecentlyOpenedProjectPaths = new List<string>() { projectPath };
+                }
+
+                await settings.ExportAsync();
+                //Properties.Settings.Default.Save();
+            }
         }
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -526,6 +535,8 @@ namespace TheraEditor.Windows.Forms
                 Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
                 CurrentWorld = _project.OpeningWorldRef?.File;
+
+                UpdateRecentProjectPaths();
             }
             else
             {

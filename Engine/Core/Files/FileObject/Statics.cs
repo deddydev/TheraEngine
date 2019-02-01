@@ -156,9 +156,19 @@ namespace TheraEngine.Core.Files
         /// <param name="fileType">The type of file object.</param>
         /// <returns>An absolute path to the file.</returns>
         public static string GetFilePath(string dir, string name, EProprietaryFileFormat format, Type fileType)
-            => Path.Combine(dir, name + "." + GetFileExtension(fileType).GetFullExtension(format));
+            => Path.Combine(dir, GetFileName(name, format, fileType));
+        public static string GetFileName(string name, EProprietaryFileFormat format, Type fileType)
+            => name + "." + GetFileExtension(format, fileType);
+        public static string GetFileExtension(EProprietaryFileFormat format, Type fileType)
+            => GetFileExtension(fileType)?.GetFullExtension(format) ?? throw new InvalidOperationException();
+
         public static string GetFilePath<T>(string dir, string name, EProprietaryFileFormat format) where T : TFileObject
-            => Path.Combine(dir, name + "." + GetFileExtension(typeof(T)).GetFullExtension(format));
+            => Path.Combine(dir, GetFileName<T>(name, format));
+        public static string GetFileName<T>(string name, EProprietaryFileFormat format) where T : TFileObject
+            => name + "." + GetFileExtension<T>(format);
+        public static string GetFileExtension<T>(EProprietaryFileFormat format) where T : TFileObject
+            => GetFileExtension<T>().GetFullExtension(format);
+
         public static string GetFilePath(string dir, string name, string thirdPartyExtension)
         {
             if (thirdPartyExtension[0] != '.')

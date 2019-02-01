@@ -1,12 +1,6 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
+﻿using System.Drawing;
 using System.Windows.Forms;
-using TheraEngine;
 using TheraEngine.Core.Files;
-using TheraEngine.Input;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -22,8 +16,12 @@ namespace TheraEditor.Windows.Forms
 
         public static IEditorControl ActiveRenderForm { get; private set; } = null;
 
-        public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; }
-            = new GlobalFileRef<EditorSettings>(Path.Combine(Application.StartupPath, "..", "..", "..", "Editor", "Config.xset"), () => new EditorSettings());
+        public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; } = new GlobalFileRef<EditorSettings>(
+            TFileObject.GetFilePath<EditorSettings>(Application.StartupPath, "EditorConfig", EProprietaryFileFormat.XML))
+        {
+            CreateFileIfNonExistent = true,
+            AllowDynamicConstruction = true
+        };
         
         public static Color BackgroundColor => Color.FromArgb(92, 93, 100);
         public static Color TitleBarColor => Color.FromArgb(92, 93, 100);

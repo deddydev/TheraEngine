@@ -145,7 +145,9 @@ namespace TheraEngine.Components.Scene
         }
 
 #if EDITOR
+        [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
+        [Category("Editor Traits")]
         public float PreviewIconScale { get; set; } = 0.08f;
 
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;

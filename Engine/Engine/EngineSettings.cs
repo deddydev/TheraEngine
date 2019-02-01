@@ -12,61 +12,61 @@ namespace TheraEngine
     [TFileExt("set", "txt")]
     public abstract class TSettings : TFileObject
     {
-        public override void ManualRead3rdParty(string filePath)
-        {
-            //string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
-            //if (ext == "txt")
-            //{
-            //    List<VarInfo> props = SerializationCommon.CollectSerializedMembers(GetType());
-            //    string[] lines = File.ReadAllLines(filePath);
-            //    string modLine;
-            //    foreach (string line in lines)
-            //    {
-            //        modLine = line.Trim();
-            //        if (modLine.StartsWith("[") && modLine.EndsWith("]"))
-            //        {
-            //            //Category; ignore
-            //        }
-            //        else
-            //        {
-            //            string[] parts = modLine.Split('=');
-            //            if (parts.Length == 2)
-            //            {
-            //                string name = parts[0].TrimEnd();
-            //                string value = parts[1].TrimStart();
-            //                int propIndex = props.FindIndex(x => string.Equals(name, x.Name));
-            //                if (props.IndexInRange(propIndex))
-            //                {
-            //                    VarInfo prop = props[propIndex];
-            //                    if (SerializationCommon.CanParseAsString(prop.VariableType))
-            //                    {
-            //                        prop.SetValue(this, SerializationCommon.ParseString(value, prop.VariableType));
-            //                        props.RemoveAt(propIndex);
-            //                    }
-            //                    else
-            //                        Engine.LogWarning("Problem reading line: " + line);
-            //                }
-            //                else
-            //                    Engine.LogWarning("Problem reading line: " + line);
-            //            }
-            //            else
-            //                Engine.LogWarning("Problem reading line: " + line);
-            //        }
-            //    }
-            //}
-        }
-        public override void ManualWrite3rdParty(string filePath)
-        {
-            //string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
-            //if (ext == "txt")
-            //{
-            //    PropertyInfo[] properties = GetType().
-            //      GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
-            //      Where(x => x.GetCustomAttributes<TSerialize>() != null).
-            //      OrderBy(x => x.GetCustomAttribute<TSerialize>().Order).
-            //      ToArray();
-            //}
-        }
+        //public override void ManualRead3rdParty(string filePath)
+        //{
+        //    //string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
+        //    //if (ext == "txt")
+        //    //{
+        //    //    List<VarInfo> props = SerializationCommon.CollectSerializedMembers(GetType());
+        //    //    string[] lines = File.ReadAllLines(filePath);
+        //    //    string modLine;
+        //    //    foreach (string line in lines)
+        //    //    {
+        //    //        modLine = line.Trim();
+        //    //        if (modLine.StartsWith("[") && modLine.EndsWith("]"))
+        //    //        {
+        //    //            //Category; ignore
+        //    //        }
+        //    //        else
+        //    //        {
+        //    //            string[] parts = modLine.Split('=');
+        //    //            if (parts.Length == 2)
+        //    //            {
+        //    //                string name = parts[0].TrimEnd();
+        //    //                string value = parts[1].TrimStart();
+        //    //                int propIndex = props.FindIndex(x => string.Equals(name, x.Name));
+        //    //                if (props.IndexInRange(propIndex))
+        //    //                {
+        //    //                    VarInfo prop = props[propIndex];
+        //    //                    if (SerializationCommon.CanParseAsString(prop.VariableType))
+        //    //                    {
+        //    //                        prop.SetValue(this, SerializationCommon.ParseString(value, prop.VariableType));
+        //    //                        props.RemoveAt(propIndex);
+        //    //                    }
+        //    //                    else
+        //    //                        Engine.LogWarning("Problem reading line: " + line);
+        //    //                }
+        //    //                else
+        //    //                    Engine.LogWarning("Problem reading line: " + line);
+        //    //            }
+        //    //            else
+        //    //                Engine.LogWarning("Problem reading line: " + line);
+        //    //        }
+        //    //    }
+        //    //}
+        //}
+        //public override void ManualWrite3rdParty(string filePath)
+        //{
+        //    //string ext = Path.GetExtension(filePath).ToLowerInvariant().Substring(1);
+        //    //if (ext == "txt")
+        //    //{
+        //    //    PropertyInfo[] properties = GetType().
+        //    //      GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+        //    //      Where(x => x.GetCustomAttributes<TSerialize>() != null).
+        //    //      OrderBy(x => x.GetCustomAttribute<TSerialize>().Order).
+        //    //      ToArray();
+        //    //}
+        //}
     }
     [TFileDef("Engine Settings")]
     public class EngineSettings : TSettings

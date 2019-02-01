@@ -154,6 +154,10 @@ namespace TheraEngine.Rendering.UI
                     PerformResize();
             }
         }
+        /// <summary>
+        /// Recursively registers (or unregisters) inputs on this and all child UI components.
+        /// </summary>
+        /// <param name="input"></param>
         internal protected virtual void RegisterInputs(InputInterface input)
         {
             foreach (SceneComponent comp in ChildComponents)

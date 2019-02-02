@@ -40,8 +40,9 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
             }
-            public Dictionary<Guid, SerializeElement> SharedObjects { get; internal set; }
-            public Dictionary<Guid, int> SharedObjectIndices { get; set; }
+            public Dictionary<Guid, SerializeElement> SharedObjects { get; internal set; } = new Dictionary<Guid, SerializeElement>();
+            public Dictionary<Guid, int> SharedObjectIndices { get; set; } = new Dictionary<Guid, int>();
+
             internal int CurrentCount { get; set; }
             public ESerializeFlags Flags { get; internal set; }
             public abstract EProprietaryFileFormatFlag Format { get; }
@@ -62,12 +63,7 @@ namespace TheraEngine.Core.Files.Serialization
             /// </summary>
             /// <returns>True if the caller wants to cancel the operation;
             /// false if the operation should continue.</returns>
-            public virtual bool ReportProgress()
-            {
-                float progress = (float)(++CurrentCount) / RootNode.ProgressionCount;
-                Progress?.Report(progress);
-                return Cancel.IsCancellationRequested;
-            }
+            public bool CancelRequested => Cancel.IsCancellationRequested;
         }
     }
 }

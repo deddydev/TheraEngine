@@ -38,7 +38,7 @@ namespace TheraEngine.Actors.Types
         private BoundingBox.ECubemapTextureUVs _uvType = BoundingBox.ECubemapTextureUVs.WidthLarger;
         
         [TSerialize]
-        public float TexCoordBias
+        public float TexCoordEdgeBias
         {
             get => _bias;
             set
@@ -129,7 +129,7 @@ namespace TheraEngine.Actors.Types
                 if (lod?.PrimitivesRef != null)
                 {
                     lod.PrimitivesRef.File?.Dispose();
-                    lod.PrimitivesRef.File = BoundingBox.SolidMesh(-HalfExtents, HalfExtents, true, _uvType, TexCoordBias);
+                    lod.PrimitivesRef.File = BoundingBox.SolidMesh(-HalfExtents, HalfExtents, true, _uvType, TexCoordEdgeBias);
                 }
             }
 
@@ -141,7 +141,7 @@ namespace TheraEngine.Actors.Types
 
                 var lod = m.LODs.First.Value;
                 lod.Manager.Data?.Dispose();
-                lod.Manager.Data = BoundingBox.SolidMesh(-HalfExtents, HalfExtents, true, _uvType, TexCoordBias);
+                lod.Manager.Data = BoundingBox.SolidMesh(-HalfExtents, HalfExtents, true, _uvType, TexCoordEdgeBias);
                 lod.Manager.BufferInfo.BillboardMode = ETransformFlags.ConstrainTranslations;
             }
         }
@@ -168,32 +168,24 @@ namespace TheraEngine.Actors.Types
                     Function = EComparison.Less
                 }
             };
-
-            //if (tex != null)
-            //{
-                TexRef2D texRef = new TexRef2D("SkyboxTexture", tex)
-                {
-                    MagFilter = ETexMagFilter.Nearest,
-                    MinFilter = ETexMinFilter.Nearest
-                };
-                _material = TMaterial.CreateUnlitTextureMaterialForward(texRef);
-                _material.RenderParams = renderParams;
-                _uvType = tex == null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
-                    BoundingBox.ECubemapTextureUVs.WidthLarger :
-                    BoundingBox.ECubemapTextureUVs.HeightLarger;
-            //}
-            //else
-            //{
-            //    _material = TMaterial.CreateUnlitColorMaterialForward(Color.Magenta);
-            //    _material.RenderParams = renderParams;
-            //}
-
+          
+            TexRef2D texRef = new TexRef2D("SkyboxTexture", tex)
+            {
+                MagFilter = ETexMagFilter.Nearest,
+                MinFilter = ETexMinFilter.Nearest
+            };
+            _material = TMaterial.CreateUnlitTextureMaterialForward(texRef);
+            _material.RenderParams = renderParams;
+            _uvType = tex == null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
+                BoundingBox.ECubemapTextureUVs.WidthLarger :
+                BoundingBox.ECubemapTextureUVs.HeightLarger;
+            
             StaticRigidSubMesh mesh = new StaticRigidSubMesh(
                 "Mesh",
                 null,
                 ERenderPass.Background,
                 BoundingBox.FromMinMax(min, max),
-                BoundingBox.SolidMesh(min, max, true, _uvType, TexCoordBias),
+                BoundingBox.SolidMesh(min, max, true, _uvType, TexCoordEdgeBias),
                 _material);
 
             foreach (LOD lod in mesh.LODs)

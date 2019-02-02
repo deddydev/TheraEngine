@@ -50,7 +50,7 @@ namespace TheraEngine.Audio
                 get
                 {
                     fixed (sbyte* ptr = _value)
-                        return new string(ptr);
+                        return new string(ptr, 0, 4);
                 }
                 set
                 {
@@ -91,7 +91,7 @@ namespace TheraEngine.Audio
                 public bint _byteRate;
                 public bshort _blockAlign;
                 public bshort _bitsPerSample;
-                //public bshort _extraParamSize; //Nonexistant if PCM
+                public bshort _extraParamSize; //Nonexistant if PCM
 
                 //Extra params here
 
@@ -122,9 +122,14 @@ namespace TheraEngine.Audio
                 throw new ArgumentNullException(nameof(waveFileStream));
             
             RIFFHeader riff = waveFileStream.Read<RIFFHeader>();
-            
-            if (riff._riffMagic != RIFFHeader.RIFFLittleMagic)
+
+            bool littleEndian = riff._riffMagic == RIFFHeader.RIFFLittleMagic;
+            bool bigEndian = riff._riffMagic == RIFFHeader.RIFFBigMagic;
+
+            if (!littleEndian && !bigEndian)
                 throw new NotSupportedException("Specified stream is not a wave file.");
+
+            Endian.SerializeOrder = bigEndian ? Endian.EOrder.Big : Endian.EOrder.Little;
 
             if (riff._waveMagic != RIFFHeader.WAVEMagic)
                 throw new NotSupportedException("Specified stream is not a wave file.");

@@ -96,7 +96,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         [Description("Returns true if the file object is not null, even if it was set using code rather than from a file.\n" +
             "If set to false when true, the file object will be fully unloaded and set to null.")]
-        [Category("Loading")]
+        [Category("File Reference")]
         public bool IsLoaded
         {
             get => _file != null;
@@ -115,7 +115,7 @@ namespace TheraEngine.Core.Files
         /// and loaded with the parent file instead of being loaded on demand from the external file.
         /// </summary>
         //[Browsable(false)]
-        [Category("Loading")]
+        [Category("File Reference")]
         public bool StoredInternally => string.IsNullOrWhiteSpace(Path.Absolute);
 
         [Browsable(false)]

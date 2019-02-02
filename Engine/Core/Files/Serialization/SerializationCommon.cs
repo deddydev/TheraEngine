@@ -745,7 +745,7 @@ namespace TheraEngine.Core.Files.Serialization
                         Type[] types = TFileObject.DetermineThirdPartyTypes(ext);
 
                         if (types.Length > 1)
-                            Engine.LogWarning($"Multiple possible file types found for 3rd party extension '{ext}': {types.ToStringList(", ")}. Assuming the first.");
+                            Engine.PrintLine($"Multiple possible file types found for 3rd party extension '{ext}': {types.ToStringList(", ")}. Assuming the first.");
 
                         fileType = types.Length > 0 ? types[0] : null;
 

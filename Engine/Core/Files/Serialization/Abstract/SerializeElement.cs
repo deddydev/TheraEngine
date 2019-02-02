@@ -120,10 +120,29 @@ namespace TheraEngine.Core.Files.Serialization
             get => _object;
             set
             {
-                Type t = ObjectType;
+                Type oldObjType = ObjectType;
+
+                if (_object is TObject tobj && tobj.Guid != Guid.Empty)
+                {
+                    if (Owner != null && Owner.SharedObjectIndices.ContainsKey(tobj.Guid))
+                    {
+                        --Owner.SharedObjectIndices[tobj.Guid];
+                        if (Owner.SharedObjectIndices[tobj.Guid] <= 0)
+                            Owner.SharedObjectIndices.Remove(tobj.Guid);
+                    }
+                }
+
                 _object = value;
-                if (ObjectType != t)
+                if (ObjectType != oldObjType)
                     ObjectTypeChanged();
+
+                if (Owner != null && _object is TObject tobj2 && tobj2.Guid != Guid.Empty)
+                {
+                    if (Owner.SharedObjectIndices.ContainsKey(tobj2.Guid))
+                        ++Owner.SharedObjectIndices[tobj2.Guid];
+                    else
+                        Owner.SharedObjectIndices.Add(tobj2.Guid, 1);
+                }
             }
         }
 
@@ -215,8 +234,8 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (item.Parent != null)
                 item.Parent.ChildElements.Remove(item);
-            item.Parent = this;
             item.Owner = Owner;
+            item.Parent = this;
         }
         /// <summary>
         /// Parent deserializes this node

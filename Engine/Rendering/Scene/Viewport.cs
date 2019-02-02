@@ -379,6 +379,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public Segment GetWorldSegment(Vec2 viewportPoint)
             => _camera.GetWorldSegment(ToInternalResCoords(viewportPoint));
+        private RayTraceClosest _closestPick = new RayTraceClosest(Vec3.Zero, Vec3.Zero, 0, 0xFFFF);
         public SceneComponent PickScene(
             Vec2 viewportPoint,
             bool testHud,
@@ -408,13 +409,16 @@ namespace TheraEngine.Rendering
             {
                 Segment cursor = GetWorldSegment(viewportPoint);
 
-                RayTraceClosest c = new RayTraceClosest(cursor.StartPoint, cursor.EndPoint, 0, 0xFFFF, ignored);
-                if (c.Trace(_camera?.OwningComponent?.OwningWorld))
+                _closestPick.StartPointWorld = cursor.StartPoint;
+                _closestPick.EndPointWorld = cursor.EndPoint;
+                _closestPick.Ignored = ignored;
+                
+                if (_closestPick.Trace(_camera?.OwningComponent?.OwningWorld))
                 {
-                    hitNormal = c.HitNormalWorld;
-                    hitPoint = c.HitPointWorld;
+                    hitNormal = _closestPick.HitNormalWorld;
+                    hitPoint = _closestPick.HitPointWorld;
                     distance = hitPoint.DistanceToFast(cursor.StartPoint);
-                    TCollisionObject coll = c.CollisionObject;
+                    TCollisionObject coll = _closestPick.CollisionObject;
                     return coll.Owner as SceneComponent;
                 }
 

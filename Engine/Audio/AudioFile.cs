@@ -11,8 +11,10 @@ namespace TheraEngine.Audio
     /// </summary>
     [TFileDef("Audio File")]
     [TFileExt("aud", new string[] { "wav"/*, "mp3", "ogg", "flac"*/ }, null)]
+    [TFile3rdPartyExt("wav")]
     public class AudioFile : TFileObject
     {
+        [Browsable(false)]
         [TSerialize(IsElementString = true)]
         public byte[] Samples { get; private set; }
         [TSerialize(IsAttribute = true)]

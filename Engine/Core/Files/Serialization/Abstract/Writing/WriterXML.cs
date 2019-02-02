@@ -95,15 +95,29 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                     
                     await _writer.WriteStartDocumentAsync();
+                    if (SharedObjects.Count > 0)
+                    {
+                        await _writer.WriteStartElementAsync(null, "Shared", null);
+                        int i = 0;
+                        foreach (var shared in SharedObjects)
+                        {
+                            await WriteElementAsync(shared.Value);
+                            SharedObjectIndices.Add(shared.Key, i++);
+                        }
+                        await _writer.WriteEndElementAsync();
+                    }
+
                     await WriteElementAsync(RootNode);
                     await _writer.WriteEndDocumentAsync();
                 }
             }
             private async Task WriteElementAsync(SerializeElement node)
             {
+                if (SharedObjectIndices.ContainsKey(node.Object))
+
                 await _writer.WriteStartElementAsync(null, SerializationCommon.FixElementName(node.Name), null);
                 {
-                    if (ReportProgress())
+                    if (CancelRequested)
                     {
                         await _writer.WriteEndElementAsync();
                         return;
@@ -118,7 +132,7 @@ namespace TheraEngine.Core.Files.Serialization
                         if (attribute.GetString(out string value))
                         {
                             await _writer.WriteAttributeStringAsync(null, attribute.Name, null, value);
-                            if (ReportProgress())
+                            if (CancelRequested)
                             {
                                 await _writer.WriteEndElementAsync();
                                 return;
@@ -133,22 +147,24 @@ namespace TheraEngine.Core.Files.Serialization
                     if (hasChildStringData)
                     {
                         await _writer.WriteStringAsync(childStringData);
-                        if (ReportProgress())
+                        if (CancelRequested)
                         {
                             await _writer.WriteEndElementAsync();
                             return;
                         }
                     }
                     else
+                    {
                         foreach (SerializeElement childNode in childElements)
                         {
                             await WriteElementAsync(childNode);
-                            if (ReportProgress())
+                            if (CancelRequested)
                             {
                                 await _writer.WriteEndElementAsync();
                                 return;
                             }
                         }
+                    }
                 }
                 await _writer.WriteEndElementAsync();
             }

@@ -251,19 +251,21 @@ namespace TheraEngine.Physics
         {
             _dynamicsWorld.UpdateSingleAabb(((IBulletCollisionObject)collision).CollisionObject);
         }
+        private TRayResultCallback _rayCallback = new TRayResultCallback(null);
         public override bool RayTrace(RayTrace trace)
         {
-            TRayResultCallback callback = new TRayResultCallback(trace);
-            _dynamicsWorld.RayTest(trace.StartPointWorld, trace.EndPointWorld, callback);
+            _rayCallback.Handler = trace;
+            _dynamicsWorld.RayTest(trace.StartPointWorld, trace.EndPointWorld, _rayCallback);
             return trace.HasHit;
         }
+        private TConvexResultCallback _convexCallback = new TConvexResultCallback(null);
         public override bool ShapeTrace(ShapeTrace trace)
         {
-            TConvexResultCallback callback = new TConvexResultCallback(trace);
+            _convexCallback.Handler = trace;
             if (trace.AllowedCcdPenetration >= 0.0f)
-                _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, callback, trace.AllowedCcdPenetration);
+                _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback, trace.AllowedCcdPenetration);
             else
-                _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, callback);
+                _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback);
             return trace.HasHit;
         }
         public override void AddConstraint(TConstraint constraint)

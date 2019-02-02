@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Core.Files
@@ -70,14 +68,14 @@ namespace TheraEngine.Core.Files
 
         protected virtual PathReference InternalPath { get; set; }
 
-        [Category("Loading")]
+        [Category("Construction")]
         [TSerialize]
         public (Type Type, object Value)[] DefaultConstructionArguments { get; set; } = null;
 
-        [Category("Loading")]
+        [Category("Construction")]
         [TSerialize]
         public bool CreateFileIfNonExistent { get; set; } = false;
-        [Category("Loading")]
+        [Category("Construction")]
         [TSerialize]
         public bool AllowDynamicConstruction { get; set; } = false;
 

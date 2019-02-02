@@ -7,9 +7,9 @@ namespace TheraEngine.Physics.Bullet
 {
     internal class TRayResultCallback : RayResultCallback
     {
-        private RayTrace _handler;
+        public RayTrace Handler { get; set; }
 
-        public TRayResultCallback(RayTrace handler) => _handler = handler;
+        public TRayResultCallback(RayTrace handler) => Handler = handler;
         
         public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
         {
@@ -24,11 +24,11 @@ namespace TheraEngine.Physics.Bullet
                 triangleIndex = rayResult.LocalShapeInfo.TriangleIndex;
             }
 
-            _handler.AddResult(obj, hitNormalLocal, normalInWorldSpace, hitFraction, shapePart, triangleIndex);
+            Handler.AddResult(obj, hitNormalLocal, normalInWorldSpace, hitFraction, shapePart, triangleIndex);
 
             return hitFraction;
         }
         public override bool NeedsCollision(BroadphaseProxy proxy0)
-            => _handler.TestApproxCollision(proxy0.UniqueID, (ushort)proxy0.CollisionFilterGroup, (ushort)proxy0.CollisionFilterMask, proxy0.AabbMin, proxy0.AabbMax, proxy0.ClientObject);
+            => Handler.TestApproxCollision(proxy0.UniqueID, (ushort)proxy0.CollisionFilterGroup, (ushort)proxy0.CollisionFilterMask, proxy0.AabbMin, proxy0.AabbMax, proxy0.ClientObject);
     }
 }

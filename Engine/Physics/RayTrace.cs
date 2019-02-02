@@ -40,11 +40,11 @@ namespace TheraEngine.Physics.RayTracing
     /// </summary>
     public abstract class RayTrace
     {
-        public Vec3 StartPointWorld { get; private set; }
-        public Vec3 EndPointWorld { get; private set; }
-        public ushort CollisionGroup { get; private set; }
-        public ushort CollidesWith { get; private set; }
-        public TCollisionObject[] Ignored { get; private set; }
+        public Vec3 StartPointWorld { get; set; }
+        public Vec3 EndPointWorld { get; set; }
+        public ushort CollisionGroup { get; set; }
+        public ushort CollidesWith { get; set; }
+        public TCollisionObject[] Ignored { get; set; }
         public abstract bool HasHit { get; }
 
         public RayTrace(

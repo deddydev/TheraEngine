@@ -1071,7 +1071,7 @@
     <Compile Include="Core\Memory\VoidPtr.cs" />
     <Compile Include="Actors\Actor.cs" />
     <Compile Include="Actors\ComponentActors\SplineActor.cs" />
-    <Compile Include="Actors\ComponentActors\SoundActor.cs" />
+    <Compile Include="Actors\ComponentActors\AudioActor.cs" />
     <Compile Include="Actors\Special\TransformTool2D.cs" />
     <Compile Include="Actors\Pawns\CharacterPawn.cs" />
     <Compile Include="Actors\Pawns\UserInterface.cs" />

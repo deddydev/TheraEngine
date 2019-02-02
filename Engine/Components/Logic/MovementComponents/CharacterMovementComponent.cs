@@ -7,7 +7,7 @@ using TheraEngine.Physics.ShapeTracing;
 
 namespace TheraEngine.Components.Logic.Movement
 {
-    public enum MovementMode
+    public enum EMovementMode
     {
         Walking,
         Falling,
@@ -17,7 +17,7 @@ namespace TheraEngine.Components.Logic.Movement
     public class CharacterMovement3DComponent : MovementComponent
     {
         #region Fields
-        private MovementMode _currentMovementMode = MovementMode.Falling;
+        private EMovementMode _currentMovementMode = EMovementMode.Falling;
         private Vec3 _worldGroundContactPoint;
         private TCollisionObject _currentWalkingSurface;
         private Vec3 _groundNormal;
@@ -62,7 +62,7 @@ namespace TheraEngine.Components.Logic.Movement
                 UpToGroundNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
             }
         }
-        public MovementMode CurrentMovementMode
+        public EMovementMode CurrentMovementMode
         {
             get => _currentMovementMode;
             protected set
@@ -74,7 +74,7 @@ namespace TheraEngine.Components.Logic.Movement
                     root.RigidBodyCollision.SimulatingPhysics = true;
                     switch (value)
                     {
-                        case MovementMode.Walking:
+                        case EMovementMode.Walking:
 
                             _justJumped = false;
                             //_velocity = root.PhysicsDriver.CollisionObject.LinearVelocity;
@@ -86,9 +86,9 @@ namespace TheraEngine.Components.Logic.Movement
                             
                             _subUpdateTick = TickWalking;
                             break;
-                        case MovementMode.Falling:
+                        case EMovementMode.Falling:
 
-                            if (_postWalkAllowJump = _currentMovementMode == MovementMode.Walking && !_justJumped)
+                            if (_postWalkAllowJump = _currentMovementMode == EMovementMode.Walking && !_justJumped)
                             {
                                 AllowJumpTimeDelta = 0.0f;
                                 _velocity.Y = 0.0f;
@@ -165,7 +165,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             Matrix4 inputTransform;
             CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
-            TCollisionShape shape = root.CullingVolume.GetCollisionShape();
+            TCollisionShape shape = root.RenderInfo.CullingVolume.GetCollisionShape();
             TRigidBody body = root.RigidBodyCollision;
             
             _prevPosition = root.Translation.Raw;
@@ -273,7 +273,7 @@ namespace TheraEngine.Components.Logic.Movement
 
             if (!_closestTrace.Trace(OwningActor?.OwningWorld) || !IsSurfaceNormalWalkable(_closestTrace.HitNormalWorld))
             {
-                CurrentMovementMode = MovementMode.Falling;
+                CurrentMovementMode = EMovementMode.Falling;
                 return;
             }
 
@@ -310,7 +310,7 @@ namespace TheraEngine.Components.Logic.Movement
                 return;
 
             //Nothing to jump OFF of?
-            if (_currentMovementMode != MovementMode.Walking && !_postWalkAllowJump)
+            if (_currentMovementMode != EMovementMode.Walking && !_postWalkAllowJump)
                 return;
 
             //Get root component of the character
@@ -328,7 +328,7 @@ namespace TheraEngine.Components.Logic.Movement
             up.NormalizeFast();
             up = -up;
 
-            if (_postWalkAllowJump = _currentMovementMode == MovementMode.Walking && !_justJumped)
+            if (_postWalkAllowJump = _currentMovementMode == EMovementMode.Walking && !_justJumped)
             {
                 AllowJumpTimeDelta = 0.0f;
                 _velocity.Y = 0.0f;
@@ -367,7 +367,7 @@ namespace TheraEngine.Components.Logic.Movement
                 chara.ApplyCentralImpulse(up * (JumpSpeed * chara.Mass));
             }
 
-            _currentMovementMode = MovementMode.Falling;
+            _currentMovementMode = EMovementMode.Falling;
             CurrentWalkingSurface = null;
         }
         public void EndJump()
@@ -401,16 +401,16 @@ namespace TheraEngine.Components.Logic.Movement
                 normal = -point.NormalWorldOnB;
             }
             normal.NormalizeFast();
-            if (CurrentMovementMode == MovementMode.Falling)
+            if (CurrentMovementMode == EMovementMode.Falling)
             {
                 if (IsSurfaceNormalWalkable(normal))
                 {
                     CurrentWalkingSurface = other;
-                    CurrentMovementMode = MovementMode.Walking;
+                    CurrentMovementMode = EMovementMode.Walking;
                     ((CapsuleYComponent)OwningActor.RootComponent).Translation.Raw += normal * -point.Distance;
                 }
             }
-            else if (CurrentMovementMode == MovementMode.Walking)
+            else if (CurrentMovementMode == EMovementMode.Walking)
             {
                 //other.Activate();
             }

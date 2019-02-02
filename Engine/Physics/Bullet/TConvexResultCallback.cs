@@ -8,14 +8,30 @@ namespace TheraEngine.Physics.Bullet
     internal class TConvexResultCallback : ConvexResultCallback
     {
         private ShapeTrace _handler;
+        public ShapeTrace Handler
+        {
+            get => _handler;
+            set
+            {
+                _handler = value;
+
+                //Because we call base.NeedsCollision, we need to set base properties
+                if (Handler != null)
+                {
+                    CollisionFilterMask = (CollisionFilterGroups)Handler.CollidesWith;
+                    CollisionFilterGroup = (CollisionFilterGroups)Handler.CollisionGroup;
+                }
+                else
+                {
+                    CollisionFilterMask = (CollisionFilterGroups)0xFFFF;
+                    CollisionFilterGroup = 0;
+                }
+            }
+        }
 
         public TConvexResultCallback(ShapeTrace handler)
         {
-            _handler = handler;
-
-            //Because we call base.NeedsCollision, we need to set base properties
-            CollisionFilterMask = (CollisionFilterGroups)_handler.CollidesWith;
-            CollisionFilterGroup = (CollisionFilterGroups)_handler.CollisionGroup;
+            Handler = handler;
         }
         
         public override float AddSingleResult(LocalConvexResult convexResult, bool normalInWorldSpace)
@@ -32,7 +48,7 @@ namespace TheraEngine.Physics.Bullet
                 triangleIndex = convexResult.LocalShapeInfo.TriangleIndex;
             }
 
-            _handler.AddResult(obj, hitNormal, normalInWorldSpace, hitPointLocal, hitFraction, shapePart, triangleIndex);
+            Handler.AddResult(obj, hitNormal, normalInWorldSpace, hitPointLocal, hitFraction, shapePart, triangleIndex);
 
             return hitFraction;
         }

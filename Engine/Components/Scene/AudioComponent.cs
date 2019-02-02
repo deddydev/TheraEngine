@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Audio;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 
@@ -18,18 +16,22 @@ namespace TheraEngine.Components.Scene
     }
     public class AudioComponent : TranslationComponent, IAudioSource, IEditorPreviewIconRenderable
     {
-        public AudioComponent()
-        {
-
-        }
-        
         protected HashSet<AudioInstance> _instances = new HashSet<AudioInstance>();
 
+        //[Browsable(false)]
         public IReadOnlyCollection<AudioInstance> Instances => _instances;
 
+        [Category("Audio")]
+        [TSerialize]
         public bool PlayOnSpawn { get; set; }
+        [Category("Audio")]
+        [TSerialize]
         public int Priority { get; set; } = 0;
+        [Category("Audio")]
+        [TSerialize]
         public GlobalFileRef<AudioFile> AudioFileRef { get; set; }
+        [Category("Audio")]
+        [TSerialize]
         public LocalFileRef<AudioParameters> ParametersRef { get; set; }
 
         public override void OnSpawned()
@@ -45,10 +47,6 @@ namespace TheraEngine.Components.Scene
                 Engine.Audio.Stop(instance);
             _instances.Clear();
         }
-        
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(true, true);
-        public TShape CullingVolume { get; } = null;
-        public IOctreeNode OctreeNode { get; set; }
 
         AudioFile IAudioSource.Audio => AudioFileRef?.File;
         AudioParameters IAudioSource.Parameters => ParametersRef?.File;
@@ -74,10 +72,15 @@ namespace TheraEngine.Components.Scene
         protected override void OnWorldTransformChanged()
         {
             base.OnWorldTransformChanged();
-            ParametersRef.File.Position.OverrideValue = WorldPoint;
+            var file = ParametersRef?.File;
+            if (file != null)
+                file.Position.OverrideValue = WorldPoint;
         }
 
 #if EDITOR
+        [Category("Audio")]
+        [TSerialize]
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(true, true);
         [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]

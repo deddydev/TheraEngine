@@ -146,7 +146,7 @@ namespace TheraEngine.Core.Files.Serialization
                 *attributeCount = 0;
                 address += 4;
                 
-                if (ReportProgress())
+                if (CancelRequested())
                 {
                     WriteEndElement();
                     return;
@@ -155,7 +155,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (node.IsDerivedType)
                 {
                     WriteAttribute(SerializationCommon.TypeIdent, node.ObjectType.AssemblyQualifiedName, attributeCount);
-                    if (ReportProgress())
+                    if (CancelRequested())
                     {
                         WriteEndElement();
                         return;
@@ -171,7 +171,7 @@ namespace TheraEngine.Core.Files.Serialization
                     if (attribute.GetObject(null, out object value))
                     {
                         WriteAttribute(attribute.Name, value, attributeCount);
-                        if (ReportProgress())
+                        if (CancelRequested())
                         {
                             WriteEndElement();
                             return;
@@ -182,7 +182,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (hasElementContent)
                 {
                     WriteObject(elementContent);
-                    if (ReportProgress())
+                    if (CancelRequested())
                     {
                         WriteEndElement();
                         return;
@@ -192,7 +192,7 @@ namespace TheraEngine.Core.Files.Serialization
                     foreach (SerializeElement childNode in childElements)
                     {
                         WriteElement(childNode, ref address);
-                        if (ReportProgress())
+                        if (CancelRequested())
                         {
                             WriteEndElement();
                             return;

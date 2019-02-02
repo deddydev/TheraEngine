@@ -206,6 +206,17 @@ namespace TheraEngine.Rendering.Models
                     }
                     break;
             }
+
+            bottomLeftUV.X += bias;
+            topLeftUV.X += bias;
+            bottomRightUV.X -= bias;
+            topRightUV.X -= bias;
+
+            bottomLeftUV.Y += bias;
+            bottomRightUV.Y += bias;
+            topLeftUV.Y -= bias;
+            topRightUV.Y -= bias;
+
             if (flipVerticalUVCoord)
             {
                 bottomLeftUV.Y = 1.0f - bottomLeftUV.Y;
@@ -213,6 +224,7 @@ namespace TheraEngine.Rendering.Models
                 topRightUV.Y = 1.0f - topRightUV.Y;
                 topLeftUV.Y = 1.0f - topLeftUV.Y;
             }
+
             return new VertexQuad(
                 new Vertex(bottomLeft, normal, bottomLeftUV),
                 new Vertex(bottomRight, normal, bottomRightUV),

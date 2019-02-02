@@ -13,7 +13,10 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Components
 {
-    internal interface IEditorPreviewIconRenderable : I3DRenderable
+    internal interface IEditorPreviewIconRenderable
+#if EDITOR
+        : I3DRenderable
+#endif
     {
 #if EDITOR
         string PreviewIconName { get; }

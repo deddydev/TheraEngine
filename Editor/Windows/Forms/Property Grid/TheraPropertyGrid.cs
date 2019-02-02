@@ -169,10 +169,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 string add;
                 foreach (var obj in TargetObjects)
                 {
-                    add = obj.Item2?.ToString() ?? obj.Item1.ToString();
+                    add = obj.Item2?.ToString() ?? obj.Item1?.ToString() ?? "<null>";
                     s = add + s;
                 }
-                lblObjectName.Text = $"[{TargetObject.GetType().GetFriendlyName()}] - " + s;
+                lblObjectName.Text = $"[{TargetObject?.GetType()?.GetFriendlyName() ?? "<null>"}] - " + s;
             }
             else
             {
@@ -259,10 +259,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 btnRemoveLogicComp.Visible = false;
             }
         }
-        protected override void OnHandleCreated(EventArgs e)
+        protected override async void OnHandleCreated(EventArgs e)
         {
             if (!Engine.DesignMode)
-                PropGridItem.BeginUpdatingVisibleItems(Editor.GetSettings().PropertyGridRef.File.UpdateRateInSeconds);
+            {
+                var sref = Editor.GetSettingsRef();
+                var inst = await sref.GetInstanceAsync();
+                PropGridItem.BeginUpdatingVisibleItems(inst.PropertyGridRef.File.UpdateRateInSeconds);
+            }
 
             base.OnHandleCreated(e);
         }

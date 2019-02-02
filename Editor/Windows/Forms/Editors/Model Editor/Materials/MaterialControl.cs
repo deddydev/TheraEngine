@@ -26,7 +26,7 @@ namespace TheraEditor.Windows.Forms
             public MaterialControl Control { get; set; }
             public int ParameterIndex { get; set; }
 
-            public object Value => Control.Material.Parameters[ParameterIndex];
+            public object Value => Control.Material.Parameters.IndexInArrayRange(ParameterIndex) ? Control.Material.Parameters[ParameterIndex] : null;
             public bool ReadOnly => false;
             public PropGridMemberInfo MemberInfo => throw new NotImplementedException();
         }

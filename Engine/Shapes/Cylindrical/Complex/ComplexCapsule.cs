@@ -4,7 +4,7 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
-    public class ComplexCapsule : Shape
+    public class ComplexCapsule : TShape
     {
         protected Vec3 _upAxis, _center;
         protected float _topRadius, _bottomRadius, _topHeight, _bottomHeight;
@@ -87,7 +87,7 @@ namespace TheraEngine.Core.Shapes
         {
             throw new NotImplementedException();
         }
-        public override Shape HardCopy()
+        public override TShape HardCopy()
             => new ComplexCapsule(Center, UpAxis, TopRadius, BottomRadius, TopHeight, BottomHeight);
         
         public override Vec3 ClosestPoint(Vec3 point)

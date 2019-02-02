@@ -289,7 +289,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
                 {
-                    var cull = m?.CullingVolume;
+                    var cull = m?.RenderInfo?.CullingVolume;
                     if (cull != null)
                         cull.RenderInfo.Visible = selected;
                     

@@ -47,7 +47,7 @@ namespace TheraEngine.Components.Scene
         }
         
         public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(true, true);
-        public Shape CullingVolume { get; } = null;
+        public TShape CullingVolume { get; } = null;
         public IOctreeNode OctreeNode { get; set; }
 
         AudioFile IAudioSource.Audio => AudioFileRef?.File;
@@ -81,7 +81,7 @@ namespace TheraEngine.Components.Scene
         [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]
-        public float PreviewIconScale { get; set; } = 0.08f;
+        public float PreviewIconScale { get; set; } = 0.05f;
 
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
         protected string PreviewIconName { get; } = "AudioIcon.png";

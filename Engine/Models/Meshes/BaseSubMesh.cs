@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models
         public RenderInfo3D RenderInfo { get; set; }
 
         [TSerialize(Order = 1)]
-        public Shape CullingVolume { get; set; }
+        public TShape CullingVolume { get; set; }
 
         [DisplayName("Levels Of Detail")]
         [Browsable(false)]
@@ -28,7 +28,7 @@ namespace TheraEngine.Rendering.Models
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            Shape cullingVolume,
+            TShape cullingVolume,
             PrimitiveData primitives,
             TMaterial material)
         {
@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.Models
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            Shape cullingVolume,
+            TShape cullingVolume,
             List<LOD> lods)
         {
             _name = name;
@@ -55,7 +55,7 @@ namespace TheraEngine.Rendering.Models
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            Shape cullingVolume,
+            TShape cullingVolume,
             params LOD[] lods)
         {
             _name = name;

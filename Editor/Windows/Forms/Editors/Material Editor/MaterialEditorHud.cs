@@ -66,7 +66,6 @@ namespace TheraEditor.Windows.Forms
         private BaseFuncArg _draggedArg = null;
         private List<MaterialFunction> _materialFuncCache = new List<MaterialFunction>();
 
-
         private ResultFunc Decompile(TMaterial mat)
         {
             return new ResultPBRFunc() { Material = _targetMaterial };
@@ -282,7 +281,16 @@ namespace TheraEditor.Windows.Forms
         }
         protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
         {
-            throw new NotImplementedException();
+            if (_targetMaterial == null)
+            {
+                min = Vec2.Zero;
+                max = Vec2.Zero;
+                return false;
+            }
+
+            min = Vec2.Zero;
+            max = Vec2.Zero;
+            return true;
         }
         protected override void RenderMethod()
         {

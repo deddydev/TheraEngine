@@ -1,5 +1,4 @@
 ﻿using System;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -44,10 +43,7 @@ namespace TheraEngine.Rendering
                     Primitives.Material = value;
             }
         }
-
-        IOctreeNode I3DBoundable.OctreeNode { get; set; }
-        Shape I3DBoundable.CullingVolume => null;
-
+        
         public Scene3D OwningScene3D { get; set; }
 
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);

@@ -42,14 +42,26 @@ namespace TheraEngine.Components.Scene.Lights
             }
         }
 
-        public DirectionalLightComponent() 
+        public DirectionalLightComponent()
             : this(new ColorF3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f) { }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity)
-            : base(color, diffuseIntensity) => _rotation.Pitch = -90.0f;
+            : base(color, diffuseIntensity)
+        {
+            _rotation.Pitch = -90.0f;
+            ShadowExponent = 1.0f;
+        }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Rotator rotation)
-            : base(color, diffuseIntensity) => _rotation.SetRotations(rotation);
-        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Vec3 direction) 
-            : base(color, diffuseIntensity) => Direction = direction;
+            : base(color, diffuseIntensity)
+        {
+            _rotation.SetRotations(rotation);
+            ShadowExponent = 1.0f;
+        }
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, Vec3 direction)
+            : base(color, diffuseIntensity)
+        {
+            Direction = direction;
+            ShadowExponent = 1.0f;
+        }
         
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {

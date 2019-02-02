@@ -9,7 +9,7 @@ using TheraEngine.Core.Maths.Transforms;
 namespace TheraEngine.Core.Shapes
 {
     [TFileDef("Box")]
-    public class Box : Shape
+    public class Box : TShape
     {
         public EventVec3 _halfExtents;
 
@@ -98,7 +98,7 @@ namespace TheraEngine.Core.Shapes
         }
         public override void Render()
         {
-            Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix, _renderSolid, Color.Black);
+            Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix, RenderSolid, Color.Black);
         }
         public static PrimitiveData Mesh(Vec3 halfExtents, Matrix4 transform)
         {
@@ -193,7 +193,7 @@ namespace TheraEngine.Core.Shapes
         {
             return TCollisionBox.New(_halfExtents);
         }
-        public override Shape HardCopy()
+        public override TShape HardCopy()
         {
             return new Box(_halfExtents, _transform);
         }

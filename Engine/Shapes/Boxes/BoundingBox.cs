@@ -13,7 +13,7 @@ namespace TheraEngine.Core.Shapes
     /// Axis-Aligned Bounding Box (AABB)
     /// </summary>
     [TFileDef("Axis-Aligned Bounding Box")]
-    public class BoundingBox : Shape
+    public class BoundingBox : TShape
     {
         //public static List<BoundingBox> Active = new List<BoundingBox>();
         public static BoundingBox ExpandableBox() => FromMinMax(float.MaxValue, float.MinValue);
@@ -545,11 +545,25 @@ namespace TheraEngine.Core.Shapes
             => FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
         #endregion
 
-        public static bool operator ==(BoundingBox left, BoundingBox right) => left.Equals(ref right);
-        public static bool operator !=(BoundingBox left, BoundingBox right) => !left.Equals(ref right);
+        public static bool operator ==(BoundingBox left, BoundingBox right)
+        {
+            if (left is null)
+                return right is null;
+            return left.Equals(ref right);
+        }
+        public static bool operator !=(BoundingBox left, BoundingBox right)
+        {
+            if (left is null)
+                return !(right is null);
+            return !left.Equals(ref right);
+        }
 
         public bool Equals(ref BoundingBox value)
-            => Minimum == value.Minimum && Maximum == value.Maximum;
+        {
+            if (value is null)
+                return false;
+            return Minimum == value.Minimum && Maximum == value.Maximum;
+        }
 
         #region Overrides
         public override string ToString()
@@ -575,14 +589,14 @@ namespace TheraEngine.Core.Shapes
             => _translation.Raw = matrix.Translation;
         public override Matrix4 GetTransformMatrix()
             => _translation.AsTranslationMatrix();
-        public override Shape HardCopy()
+        public override TShape HardCopy()
             => FromHalfExtentsTranslation(HalfExtents.Raw, Translation.Raw);
         public override Vec3 ClosestPoint(Vec3 point)
             => Collision.ClosestPointAABBPoint(Minimum, Maximum, point);
         public override TCollisionShape GetCollisionShape()
             => TCollisionBox.New(HalfExtents);
         public override void Render()
-            => Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid, Color.Blue);
+            => Engine.Renderer.RenderAABB(HalfExtents, Translation, RenderSolid, Color.Blue);
         public override BoundingBox GetAABB() => this;
         #endregion
     }

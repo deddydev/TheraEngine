@@ -14,6 +14,8 @@ namespace TheraEngine.Actors.Types
     {
         public SkyboxActor() : base(true)
         {
+            SkyboxTextureRef = new GlobalFileRef<TextureFile2D>();
+            HalfExtents = 5000.0f;
             Initialize();
         }
         public SkyboxActor(TextureFile2D skyboxTexture, Vec3 halfExtents) : base(true)
@@ -29,11 +31,34 @@ namespace TheraEngine.Actors.Types
             Initialize();
         }
 
-        private GlobalFileRef<TextureFile2D> _skyboxTextureRef = new GlobalFileRef<TextureFile2D>();
+        private GlobalFileRef<TextureFile2D> _skyboxTextureRef;
         private TMaterial _material;
-
+        private Vec3 _halfExtents = 5000.0f;
+        private float _bias = 0.0f;
+        private BoundingBox.ECubemapTextureUVs _uvType = BoundingBox.ECubemapTextureUVs.WidthLarger;
+        
         [TSerialize]
-        public Vec3 HalfExtents { get; set; } = 5000.0f;
+        public float TexCoordBias
+        {
+            get => _bias;
+            set
+            {
+                _bias = value;
+
+                Remake();
+            }
+        }
+        [TSerialize]
+        public Vec3 HalfExtents
+        {
+            get => _halfExtents;
+            set
+            {
+                _halfExtents = value;
+
+                Remake();
+            }
+        }
         [TSerialize]
         public GlobalFileRef<TextureFile2D> SkyboxTextureRef
         {
@@ -55,17 +80,69 @@ namespace TheraEngine.Actors.Types
         }
         private void TextureLoaded(TextureFile2D tex)
         {
-            if (_material != null && _material.Textures.Length > 0)
+            if (_material == null || _material.Textures.Length == 0)
+                return;
+
+            TexRef2D tref = (TexRef2D)_material.Textures[0];
+            if (tref.Mipmaps.Length == 0)
+                return;
+            
+            if (tref.Mipmaps[0] != null)
+                tref.Mipmaps[0].File = tex;
+            else
+                tref.Mipmaps[0] = new GlobalFileRef<TextureFile2D>(tex);
+
+            tref.OnMipLoaded(tex);
+            tref.GetRenderTextureGeneric(true).PushData();
+
+            var uvType = tex == null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
+                BoundingBox.ECubemapTextureUVs.WidthLarger :
+                BoundingBox.ECubemapTextureUVs.HeightLarger;
+
+            if (_uvType != uvType)
             {
-                TexRef2D tref = (TexRef2D)_material.Textures[0];
-                if (tref.Mipmaps.Length > 0)
+                _uvType = uvType;
+
+                Remake();
+            }
+        }
+        private void Remake()
+        {
+            var model = RootComponent?.ModelRef?.File;
+            if (model == null || model.RigidChildren.Count == 0)
+                return;
+
+            var mesh = model.RigidChildren[0];
+            if (mesh == null)
+                return;
+
+            BoundingBox box = mesh.CullingVolume as BoundingBox;
+            if (box != null)
+            {
+                box.Minimum = -HalfExtents;
+                box.Maximum = HalfExtents;
+            }
+
+            if (mesh.LODs.Count > 0)
+            {
+                LOD lod = mesh.LODs[0];
+                if (lod?.PrimitivesRef != null)
                 {
-                    if (tref.Mipmaps[0] != null)
-                        tref.Mipmaps[0].File = tex;
-                    else
-                        tref.Mipmaps[0] = new GlobalFileRef<TextureFile2D>(tex);
-                    tref.OnMipLoaded(tex);
+                    lod.PrimitivesRef.File?.Dispose();
+                    lod.PrimitivesRef.File = BoundingBox.SolidMesh(-HalfExtents, HalfExtents, true, _uvType, TexCoordBias);
                 }
+            }
+
+            var renderMeshes = RootComponent?.Meshes;
+            if (renderMeshes != null && renderMeshes.Length > 0)
+            {
+                var m = renderMeshes[0];
+                m?.SetCullingVolume(box);
+
+                var lod = m.LODs.First.Value;
+                lod.Manager.Data?.Dispose();
+                lod.Manager.Data = BoundingBox.SolidMesh(-HalfExtents, HalfExtents, true, _uvType, TexCoordBias);
+                lod.Manager.BufferInfo.BillboardMode = ETransformFlags.ConstrainTranslations;
             }
         }
         private void TextureUnloaded(TextureFile2D tex)
@@ -81,7 +158,7 @@ namespace TheraEngine.Actors.Types
             Vec3 min = -max;
 
             StaticModel skybox = new StaticModel("Skybox");
-            BoundingBox.ECubemapTextureUVs uvType = BoundingBox.ECubemapTextureUVs.WidthLarger;
+
             RenderingParameters renderParams = new RenderingParameters()
             {
                 DepthTest = new DepthTest()
@@ -101,7 +178,7 @@ namespace TheraEngine.Actors.Types
                 };
                 _material = TMaterial.CreateUnlitTextureMaterialForward(texRef);
                 _material.RenderParams = renderParams;
-                uvType = tex == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
+                _uvType = tex == null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
                     BoundingBox.ECubemapTextureUVs.WidthLarger :
                     BoundingBox.ECubemapTextureUVs.HeightLarger;
             //}
@@ -116,7 +193,7 @@ namespace TheraEngine.Actors.Types
                 null,
                 ERenderPass.Background,
                 BoundingBox.FromMinMax(min, max),
-                BoundingBox.SolidMesh(min, max, true, uvType),
+                BoundingBox.SolidMesh(min, max, true, _uvType, TexCoordBias),
                 _material);
 
             foreach (LOD lod in mesh.LODs)

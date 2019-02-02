@@ -168,7 +168,7 @@ namespace System
                 return EContainment.Disjoint;
             return EContainment.Intersects;
         }
-        public EContainment Contains(Shape shape)
+        public EContainment Contains(TShape shape)
         {
             if (shape != null)
             {
@@ -254,7 +254,7 @@ namespace System
         /// Call this when an item that this node contains has moved,
         /// otherwise the octree will not be updated.
         /// </summary>
-        void ItemMoved(I3DBoundable item);
+        void ItemMoved(I3DRenderable item);
         void DebugRender(bool recurse, bool onlyContainingItems, Frustum f, float lineWidth);
         void DebugRender(Color color, float lineWidth);
     }
@@ -352,7 +352,7 @@ namespace System
 
         public ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment)
             => FindAll(new Sphere(radius, point), containment);
-        public ThreadSafeList<T> FindAll(Shape shape, EContainment containment)
+        public ThreadSafeList<T> FindAll(TShape shape, EContainment containment)
         {
             ThreadSafeList<T> list = new ThreadSafeList<T>();
             _head.FindAll(shape, list, containment);
@@ -434,18 +434,18 @@ namespace System
             }
 
             #region Child movement
-            public void ItemMoved(I3DBoundable item) => ItemMoved(item as T);
+            public void ItemMoved(I3DRenderable item) => ItemMoved(item as T);
             public void ItemMoved(T item)
             {
                 //TODO: if the item is the only item within its volume, no need to subdivide more!!!
                 //However, if the item is inserted into a volume with at least one other item in it, 
                 //need to try subdividing for all items at that point.
 
-                if (item == null || item.CullingVolume == null)
+                if (item == null || item.RenderInfo.CullingVolume == null)
                     return;
 
                 //Still within the same volume?
-                if (item.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
+                if (item.RenderInfo.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
                 {
                     //Try subdividing
                     for (int i = 0; i < MaxChildNodeCount; ++i)
@@ -453,7 +453,7 @@ namespace System
                         BoundingBoxStruct? bounds = GetSubdivision(i);
                         if (bounds is null)
                             return;
-                        if (item.CullingVolume.ContainedWithin(bounds.Value) == EContainment.Contains)
+                        if (item.RenderInfo.CullingVolume.ContainedWithin(bounds.Value) == EContainment.Contains)
                         {
                             bool shouldDestroy = Remove(item);
                             if (shouldDestroy)
@@ -536,7 +536,7 @@ namespace System
                                 continue;
 #endif
                             bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
-                            if (allowRender && (r.CullingVolume == null || (c = cullingVolume.Contains(r.CullingVolume)) != EContainment.Disjoint))
+                            if (allowRender && (r.RenderInfo.CullingVolume == null || (c = cullingVolume.Contains(r.RenderInfo.CullingVolume)) != EContainment.Disjoint))
                             {
                                 r.RenderInfo.LastRenderedTime = DateTime.Now;
                                 r.AddRenderables(passes, camera);
@@ -634,9 +634,9 @@ namespace System
                 if (item == null)
                     return false;
 
-                if (item.CullingVolume != null)
+                if (item.RenderInfo.CullingVolume != null)
                 {
-                    if (item.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
+                    if (item.RenderInfo.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
                         return false;
 
                     for (int i = 0; i < MaxChildNodeCount; ++i)
@@ -649,7 +649,7 @@ namespace System
                         {
                             return QueueAdd(item);
                         }
-                        if (item.CullingVolume.ContainedWithin(bounds.Value) == EContainment.Contains)
+                        if (item.RenderInfo.CullingVolume.ContainedWithin(bounds.Value) == EContainment.Contains)
                         {
                             CreateSubNode(bounds.Value, i)?.Add(item);
                             return true;
@@ -711,7 +711,7 @@ namespace System
                     if (Owner.Cache(item))
                     {
                         _items.Add(item);
-                        item.OctreeNode = this;
+                        item.RenderInfo.OctreeNode = this;
                     }
                     return true;
                 }
@@ -731,7 +731,7 @@ namespace System
                     if (Owner.Uncache(item))
                     {
                         _items.Remove(item);
-                        item.OctreeNode = null;
+                        item.RenderInfo.OctreeNode = null;
                     }
                     return true;
                 }
@@ -761,9 +761,9 @@ namespace System
 
                 IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.CullingVolume != null)
+                    if (item.RenderInfo.CullingVolume != null)
                     {
-                        float dist = item.CullingVolume.ClosestPoint(point).DistanceToFast(point);
+                        float dist = item.RenderInfo.CullingVolume.ClosestPoint(point).DistanceToFast(point);
                         if (dist < closestDistance)
                         {
                             closestDistance = dist;
@@ -774,7 +774,7 @@ namespace System
 
                 return closest;
             }
-            public void FindAll(Shape shape, ThreadSafeList<T> list, EContainment containment)
+            public void FindAll(TShape shape, ThreadSafeList<T> list, EContainment containment)
             {
                 EContainment c = shape.ContainedWithin(Bounds);
                 if (c == EContainment.Intersects)
@@ -782,9 +782,9 @@ namespace System
                     //Compare each item separately
                     IsLoopingItems = true;
                     foreach (T item in _items)
-                        if (item.CullingVolume != null)
+                        if (item.RenderInfo.CullingVolume != null)
                         {
-                            c = shape.Contains(item.CullingVolume);
+                            c = shape.Contains(item.RenderInfo.CullingVolume);
                             if (c == containment)
                                 list.Add(item);
                         }

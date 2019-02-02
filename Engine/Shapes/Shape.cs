@@ -33,9 +33,9 @@ namespace TheraEngine.Core.Shapes
         ConeComplex,
     }
     [TFileExt("shape")]
-    public abstract class Shape : TFileObject, I3DRenderable, IVolume
+    public abstract class TShape : TFileObject, I3DRenderable, IVolume
     {
-        public Shape()
+        public TShape()
         {
             _rc = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
         }
@@ -56,31 +56,21 @@ namespace TheraEngine.Core.Shapes
         //    }
         //}
 
-        [TSerialize("RenderSolid", NodeType = ENodeType.Attribute)]
         protected bool _renderSolid = false;
         [TSerialize("RenderColor")]
         protected ColorF3 _renderColor = ColorF3.Red;
 
         //protected Transform _transform = Transform.GetIdentity();
 
-        [Browsable(false)]
-        public Scene3D OwningScene3D { get; set; }
-        [Browsable(false)]
-        public virtual Shape CullingVolume => this;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-        
+        [TSerialize]
         [Category("Rendering")]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(false, true);
+        [TSerialize(NodeType = ENodeType.Attribute)]
         [Category("Rendering")]
-        public bool RenderSolid
-        {
-            get => _renderSolid;
-            set => _renderSolid = value;
-        }
+        public bool RenderSolid { get; set; }
 
         private void TransformChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
-            => OctreeNode?.ItemMoved(this);
+            => RenderInfo.OctreeNode?.ItemMoved(this);
 
         public abstract TCollisionShape GetCollisionShape();
         public abstract BoundingBox GetAABB();
@@ -96,7 +86,7 @@ namespace TheraEngine.Core.Shapes
         public abstract EContainment Contains(Cone cone);
         public abstract EContainment Contains(Cylinder cylinder);
         public abstract EContainment Contains(Capsule capsule);
-        public EContainment Contains(Shape shape)
+        public EContainment Contains(TShape shape)
         {
             if (shape != null)
             {
@@ -120,37 +110,19 @@ namespace TheraEngine.Core.Shapes
         public EContainment ContainedWithin(Box box) => box?.Contains(this) ?? EContainment.Contains;
         public EContainment ContainedWithin(Sphere sphere) => sphere?.Contains(this) ?? EContainment.Contains;
         public EContainment ContainedWithin(Frustum frustum) => frustum?.Contains(this) ?? EContainment.Contains;
-        public EContainment ContainedWithin(Shape shape) => shape?.Contains(this) ?? EContainment.Contains;
+        public EContainment ContainedWithin(TShape shape) => shape?.Contains(this) ?? EContainment.Contains;
         #endregion
-
-        ///// <summary>
-        ///// Returns a hard copy of this shape, transformed by the given transform.
-        ///// </summary>
-        ///// <param name="matrix"></param>
-        ///// <returns></returns>
-        //public Shape PostTransformedBy(Matrix4 matrix)
-        //{
-        //    var obj = HardCopy();
-        //    obj.Transform.Matrix = Transform.Matrix * matrix;
-        //    return obj;
-        //}
-        ///// <summary>
-        ///// Returns a hard copy of this shape, transformed by the given transform.
-        ///// </summary>
-        ///// <param name="matrix"></param>
-        ///// <returns></returns>
-        //public Shape PreTransformedBy(Matrix4 matrix)
-        //{
-        //    var obj = HardCopy();
-        //    obj.Transform.Matrix = matrix * Transform.Matrix;
-        //    return obj;
-        //}
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="matrix"></param>
+        public abstract void SetTransformMatrix(Matrix4 matrix);
         /// <summary>
         /// Returns a completely unique copy of this shape (nothing shares the same memory location).
         /// </summary>
-        public abstract void SetTransformMatrix(Matrix4 matrix);
         public abstract Matrix4 GetTransformMatrix();
-        public abstract Shape HardCopy();
+        public abstract TShape HardCopy();
         public abstract void Render();
 
         private readonly RenderCommandMethod3D _rc;

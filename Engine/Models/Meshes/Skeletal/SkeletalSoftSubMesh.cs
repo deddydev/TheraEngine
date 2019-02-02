@@ -14,20 +14,20 @@ namespace TheraEngine.Rendering.Models
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            Shape cullingVolume,
+            TShape cullingVolume,
             PrimitiveData primitives,
             TMaterial material) : base(name, renderInfo, renderPass, cullingVolume, primitives, material) { }
         public SkeletalSoftSubMesh(
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            Shape cullingVolume,
+            TShape cullingVolume,
             List<LOD> lods) : base(name, renderInfo, renderPass, cullingVolume, lods) { }
         public SkeletalSoftSubMesh(
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            Shape cullingVolume,
+            TShape cullingVolume,
             params LOD[] lods) : base(name, renderInfo, renderPass, cullingVolume, lods) { }
     }
 }

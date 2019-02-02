@@ -123,6 +123,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, new PropGridMemberInfoIList(this, i), DataChangeHandler);
                         controls.TryAdd(i, items);
                     });
+                    //TODO: wrap editors in a control that contains a minus button to remove the item from the list
                     for (int i = 0; i < controls.Count; ++i)
                     {
                         Label label = propGridListItems.AddMember(controls[i], new object[0], false);
@@ -183,9 +184,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             List.Add(value);
-            var items = TheraPropertyGrid.InstantiatePropertyEditors(
-                TheraPropertyGrid.GetControlTypes(value?.GetType()), new PropGridMemberInfoIList(this, i), DataChangeHandler);
-            propGridListItems.AddMember(items, new object[0], false);
+
+            //Don't add to the grid manually right now, because the UpdateDisplayInternal method will do it automatically on the next update.
+            //var items = TheraPropertyGrid.InstantiatePropertyEditors(
+            //    TheraPropertyGrid.GetControlTypes(value?.GetType()), new PropGridMemberInfoIList(this, i), DataChangeHandler);
+            //propGridListItems.AddMember(items, new object[0], false);
             //Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(items[items.Count - 1]);
         }
         

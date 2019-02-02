@@ -17,7 +17,7 @@ namespace TheraEngine.Components.Scene
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
         
         [Browsable(false)]
-        public Shape CullingVolume { get; set; } = null;
+        public TShape CullingVolume { get; set; } = null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
         [TSerialize]

@@ -36,9 +36,9 @@ namespace TheraEngine.Components.Scene.Transforms
         [TSerialize]
         public LocalFileRef<TCollisionObject> IgnoreCast { get; set; } = null;
         [TSerialize]
-        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true);
+        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true) { EditorVisibilityMode = Rendering.RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected };
         [Browsable(false)]
-        public Shape CullingVolume => null;
+        public TShape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 

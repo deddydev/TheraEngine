@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering
 {
@@ -39,6 +40,13 @@ namespace TheraEngine.Rendering
         public I2DRenderable Owner { get; internal set; }
         [Browsable(false)]
         public Scene2D Scene { get; internal set; }
+        /// <summary>
+        /// The axis-aligned bounding box for this UI component.
+        /// </summary>
+        [Browsable(false)]
+        public BoundingRectangleF AxisAlignedRegion;
+        [Browsable(false)]
+        public IQuadtreeNode QuadtreeNode { get; set; }
 
         public RenderInfo2D(int layerIndex, int orderInLayer)
         {
@@ -93,7 +101,17 @@ namespace TheraEngine.Rendering
         public bool HiddenFromOwner { get; set; } = false;
         [TSerialize]
         public bool VisibleToOwnerOnly { get; set; } = false;
-        
+        /// <summary>
+        /// The shape the rendering octree will use to determine occlusion and offscreen culling (visibility).
+        /// </summary>
+        [TSerialize]
+        public TShape CullingVolume { get; set; }
+        /// <summary>
+        /// The octree bounding box this object is currently located in.
+        /// </summary>   
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+
         public override bool Visible
         {
             get => Scene != null && base.Visible;
@@ -159,6 +177,8 @@ namespace TheraEngine.Rendering
 #endif
             if (Visible)
                 Scene.Add(Owner);
+
+            CullingVolume?.RenderInfo?.LinkScene(CullingVolume, scene);
         }
 
         public void UnlinkScene()
@@ -169,6 +189,8 @@ namespace TheraEngine.Rendering
             Scene.Remove(Owner);
             Scene = null;
             Owner = null;
+
+            CullingVolume?.RenderInfo?.UnlinkScene();
         }
     }
 }

@@ -632,18 +632,17 @@ namespace TheraEditor
             else
             {
                 PrintLine(SolutionPath + " : Build failed.");
+                if (Editor.Instance.InvokeRequired)
+                    Editor.Instance.Invoke((Action<EngineLogger>)ShowErrorForm, logger);
+                else
+                    ShowErrorForm(logger);
             }
-
-            if (Editor.Instance.InvokeRequired)
-                Editor.Instance.Invoke((Action<EngineLogger>)ShowErrorForm, logger);
-            else
-                ShowErrorForm(logger);
-
+            
             pc.UnregisterAllLoggers();
         }
         private void ShowErrorForm(EngineLogger logger)
         {
-            Editor.Instance.ErrorListForm.Focus();
+            Editor.Instance.ErrorListForm.Show(Editor.Instance.DockPanel, WeifenLuo.WinFormsUI.Docking.DockState.Document);
             Editor.Instance.ErrorListForm.SetLog(logger);
         }
 

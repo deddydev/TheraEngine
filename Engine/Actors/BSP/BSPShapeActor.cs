@@ -12,11 +12,11 @@ namespace TheraEngine.Actors.Types.BSP
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D();
         [Browsable(false)]
-        public Shape CullingVolume => _cullingVolume;
+        public TShape CullingVolume => _cullingVolume;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        private Shape _cullingVolume;
+        private TShape _cullingVolume;
         private PrimitiveManager _manager;
 
         public void Render()

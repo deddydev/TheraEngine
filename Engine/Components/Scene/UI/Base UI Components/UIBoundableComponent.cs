@@ -16,18 +16,12 @@ namespace TheraEngine.Rendering.UI
         Vec2 LocalOriginTranslation { get; set; }
         Vec2 BottomLeftTranslation { get; set; }
     }
-    public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, I2DBoundable, IEnumerable<UIComponent>
+    public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, I2DRenderable, IEnumerable<UIComponent>
     {
         public UIBoundableComponent() : base() { }
         
-        [Browsable(false)]
-        public IQuadtreeNode QuadtreeNode { get; set; }
-
-        protected IQuadtreeNode _renderNode;
-
         protected Vec2 _localOriginPercentage = Vec2.Zero;
         protected Vec2 _size = Vec2.Zero;
-        protected BoundingRectangleF _axisAlignedRegion = new BoundingRectangleF();
         
         #region Bounds
         [Category("Transform")]
@@ -90,9 +84,8 @@ namespace TheraEngine.Rendering.UI
             set => LocalTranslation = value + LocalOriginTranslation;
         }
         
-        [Browsable(false)]
-        public BoundingRectangleF AxisAlignedRegion => _axisAlignedRegion;
-        
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+
         public bool Contains(Vec2 viewportPoint)
         {
             Vec3 localPoint = viewportPoint * GetInvComponentTransform();
@@ -138,8 +131,8 @@ namespace TheraEngine.Rendering.UI
         }
         protected virtual void RemakeAxisAlignedRegion()
         {
-            _axisAlignedRegion.Translation = WorldPoint.Xy;
-            _axisAlignedRegion.Extents = Size * WorldScale.Xy;
+            RenderInfo.AxisAlignedRegion.Translation = WorldPoint.Xy;
+            RenderInfo.AxisAlignedRegion.Extents = Size * WorldScale.Xy;
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
         public override UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint)
@@ -155,6 +148,11 @@ namespace TheraEngine.Rendering.UI
             base.HandleSingleChildAdded(item);
             if (item is UIComponent c)
                 c.LayerIndex = LayerIndex;
+        }
+
+        public void AddRenderables(RenderPasses passes)
+        {
+
         }
     }
 }

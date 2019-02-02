@@ -47,7 +47,7 @@ namespace TheraEngine
         List<LOD> LODs { get; }
         ERenderPass RenderPass { get; set; }
         RenderInfo3D RenderInfo { get; set; }
-        Shape CullingVolume { get; set; }
+        TShape CullingVolume { get; set; }
     }
     public interface IStaticSubMesh : IBaseSubMesh
     {
@@ -58,29 +58,13 @@ namespace TheraEngine
     /// <summary>
     /// Use this interface for objects you want to be able to render in 3D world space with the engine.
     /// </summary>
-    public interface I3DRenderable : I3DBoundable, IRenderable
+    public interface I3DRenderable : IRenderable
     {
         /// <summary>
-        /// Used to determine when to render this object.
+        /// Used to determine when and how to render this object.
         /// </summary>
         RenderInfo3D RenderInfo { get; }
-        Scene3D OwningScene3D { get; }
         void AddRenderables(RenderPasses passes, Camera camera);
-    }
-    /// <summary>
-    /// Used by octrees to set the visibility of this object on camera. Does not need to be renderable necessarily (use I3DRenderable for that).
-    /// </summary>
-    public interface I3DBoundable
-    {
-        /// <summary>
-        /// The shape the rendering octree will use to determine occlusion and offscreen culling (visibility).
-        /// </summary>
-        Shape CullingVolume { get; }
-        /// <summary>
-        /// The octree bounding box this object is currently located in.
-        /// </summary>   
-        [Browsable(false)]
-        IOctreeNode OctreeNode { get; set; }
     }
     public enum ERenderPass2D
     {
@@ -104,7 +88,7 @@ namespace TheraEngine
     /// <summary>
     /// Use this interface for objects you want to be able to render in 2D HUD space with the engine.
     /// </summary>
-    public interface I2DRenderable : I2DBoundable, IRenderable
+    public interface I2DRenderable : IRenderable
     {
         /// <summary>
         /// Used to determine when to render this object.
@@ -112,17 +96,6 @@ namespace TheraEngine
         RenderInfo2D RenderInfo { get; }
         Scene2D OwningScene2D { get; }
         void AddRenderables(RenderPasses passes);
-    }
-    public interface I2DBoundable
-    {
-        /// <summary>
-        /// The axis-aligned bounding box for this UI component.
-        /// </summary>
-        [Browsable(false)]
-        BoundingRectangleF AxisAlignedRegion { get; }
-        [Browsable(false)]
-        IQuadtreeNode QuadtreeNode { get; set; }
-        //bool Contains(Vec2 point);
     }
     public interface IRenderable
     {

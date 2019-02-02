@@ -23,7 +23,7 @@ namespace TheraEngine.Core.Shapes
 
         public override void Render()
         {
-            Engine.Renderer.RenderCapsule(_center.AsTranslationMatrix(), _upAxis, _radius, _halfHeight, _renderSolid, Color.Red);
+            Engine.Renderer.RenderCapsule(_center.AsTranslationMatrix(), _upAxis, _radius, _halfHeight, RenderSolid, Color.Red);
         }
 
         /// <summary>

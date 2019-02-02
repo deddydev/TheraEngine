@@ -7,7 +7,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Components.Scene.Shapes
 {
-    public abstract class CommonShape3DComponent<T> : CollidableShape3DComponent where T : Shape, new()
+    public abstract class CommonShape3DComponent<T> : CollidableShape3DComponent where T : TShape, new()
     {
         public CommonShape3DComponent()
             : this(null, null) { }
@@ -24,17 +24,27 @@ namespace TheraEngine.Components.Scene.Shapes
         public RenderCommandMethod3D RenderCommand { get; }
         protected T _shape;
 
+        public override RenderInfo3D RenderInfo
+        {
+            get => base.RenderInfo;
+            protected set
+            {
+                base.RenderInfo = value;
+                RenderInfo.CullingVolume = _shape;
+            }
+        }
         [TSerialize]
         [Category(RenderingCategoryName)]
         public T Shape
         {
             get => _shape;
-            set => _shape = value ?? new T();
+            set
+            {
+                _shape = value ?? new T();
+                RenderInfo.CullingVolume = _shape;
+            }
         }
-
-        [Browsable(false)]
-        public override Shape CullingVolume => _shape;
-
+        
         protected virtual void Render() => _shape?.Render();
         protected override RenderCommand3D GetRenderCommand() => RenderCommand;
 

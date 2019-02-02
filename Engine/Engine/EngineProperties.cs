@@ -24,6 +24,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace TheraEngine
 {
@@ -99,7 +100,7 @@ namespace TheraEngine
         /// <summary>
         /// Instances of files that are loaded only once and are accessable by all global references to that file.
         /// </summary>
-        public static ConcurrentDictionary<string, IGlobalFileRef> GlobalFileInstances { get; } = new ConcurrentDictionary<string, IGlobalFileRef>();
+        public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, IFileObject>();
         /// <summary>
         /// Instances of files that are loaded locally in a class. A single file may be loaded independently in multiple local contexts.
         /// </summary>
@@ -131,6 +132,23 @@ namespace TheraEngine
             Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
             DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
             _engineSettings.Value; //Fall back to truly default engine settings
+        public static async Task<EngineSettings> GetSettingsAsync()
+        {
+            EngineSettings settings;
+            if (Game?.EngineSettingsOverrideRef != null)
+            {
+                settings = await Game.EngineSettingsOverrideRef.GetInstanceAsync();
+                if (settings != null)
+                    return settings;
+            }
+            if (DefaultEngineSettingsOverrideRef != null)
+            {
+                settings = await DefaultEngineSettingsOverrideRef.GetInstanceAsync();
+                if (settings != null)
+                    return settings;
+            }
+            return _engineSettings.Value;
+        }
 
         internal static int RenderThreadId;
         public static bool IsInRenderThread() => Thread.CurrentThread.ManagedThreadId == RenderThreadId;
@@ -362,6 +380,8 @@ namespace TheraEngine
                 return _audioManager;
             }
         }
+
+        public static bool IsSingleThreaded => _timer.IsSingleThreaded;
 
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;

@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering.Cameras
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
         [Browsable(false)]
-        public Shape CullingVolume => _transformedFrustum.CullingVolume;
+        public TShape CullingVolume => _transformedFrustum.CullingVolume;
         [Browsable(false)]
         public IOctreeNode OctreeNode
         {

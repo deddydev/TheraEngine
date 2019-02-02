@@ -24,7 +24,7 @@ namespace TheraEngine.Actors
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
         [Browsable(false)]
-        public Shape CullingVolume => null;
+        public TShape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
         [Category(SceneComponent.RenderingCategoryName)]

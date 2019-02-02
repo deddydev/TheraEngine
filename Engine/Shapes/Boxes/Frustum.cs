@@ -30,7 +30,7 @@ namespace TheraEngine.Core.Shapes
         EContainment Contains(BoundingBox box);
         EContainment Contains(BoundingBoxStruct box);
         EContainment Contains(Sphere sphere);
-        EContainment Contains(Shape shape);
+        EContainment Contains(TShape shape);
         EContainment Contains(Cone cone);
         //Vec3 ClosestPoint(Vec3 point);
         bool Contains(Vec3 point);
@@ -325,7 +325,7 @@ namespace TheraEngine.Core.Shapes
         [Browsable(false)]
         public IEnumerable<Vec3> Points => _points;
         [Browsable(false)]
-        public Shape CullingVolume => null;
+        public TShape CullingVolume => null;
 
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
@@ -483,7 +483,7 @@ namespace TheraEngine.Core.Shapes
         }
         public bool Contains(Vec3 point)
             => Collision.FrustumContainsPoint(this, point);
-        public EContainment Contains(Shape shape)
+        public EContainment Contains(TShape shape)
         {
             switch (shape.GetType().GetFriendlyName())
             {

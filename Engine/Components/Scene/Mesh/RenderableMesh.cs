@@ -59,12 +59,7 @@ namespace TheraEngine.Components.Scene.Mesh
         [DisplayName("Levels Of Detail")]
         public LinkedList<RenderableLOD> LODs { get; private set; }
         public RenderInfo3D RenderInfo { get; protected set; }
-
-        [Browsable(false)]
-        public virtual Shape CullingVolume => null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-
+        
         [Browsable(false)]
         public Scene3D OwningScene3D => _component?.OwningScene3D;
         
@@ -92,15 +87,13 @@ namespace TheraEngine.Components.Scene.Mesh
         public void Destroy()
         {
             foreach (var lod in LODs)
-            {
                 lod.Manager.Destroy();
-            }
         }
         
         public RenderCommandMesh3D RenderCommand { get; } = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            float distance = camera?.DistanceFromWorldPointFast(_component?.WorldPoint ?? Vec3.Zero) ?? 0.0f;
+            float distance = camera?.DistanceFromScreenPlane(_component?.WorldPoint ?? Vec3.Zero) ?? 0.0f;
             if (!passes.ShadowPass)
                 UpdateLOD(distance);
             RenderCommand.Mesh = _currentLOD.Value.Manager;
@@ -114,17 +107,15 @@ namespace TheraEngine.Components.Scene.Mesh
     {
         [Browsable(false)]
         public IStaticSubMesh Mesh { get; set; }
-
-        public override Shape CullingVolume => _cullingVolume;
-
-        public void SetCullingVolume(Shape shape)
+        
+        public void SetCullingVolume(TShape shape)
         {
-            if (_cullingVolume != null)
+            if (RenderInfo.CullingVolume != null)
                 _component.WorldTransformChanged -= _component_WorldTransformChanged;
-            _cullingVolume = shape?.HardCopy();
-            if (_cullingVolume != null)
+            RenderInfo.CullingVolume = shape?.HardCopy();
+            if (RenderInfo.CullingVolume != null)
             {
-                _initialCullingVolumeMatrix = _cullingVolume.GetTransformMatrix();
+                _initialCullingVolumeMatrix = RenderInfo.CullingVolume.GetTransformMatrix();
                 _component.WorldTransformChanged += _component_WorldTransformChanged;
                 //_cullingVolume.VisibilityChanged += () => 
                 //{
@@ -141,8 +132,7 @@ namespace TheraEngine.Components.Scene.Mesh
             else
                 _initialCullingVolumeMatrix = Matrix4.Identity;
         }
-
-        private Shape _cullingVolume;
+        
         private Matrix4 _initialCullingVolumeMatrix;
         
         public StaticRenderableMesh(IStaticSubMesh mesh, SceneComponent component)
@@ -153,8 +143,8 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         private void _component_WorldTransformChanged()
         {
-            _cullingVolume.SetTransformMatrix(_component.WorldMatrix * _initialCullingVolumeMatrix);
-            OctreeNode?.ItemMoved(this);
+            RenderInfo.CullingVolume.SetTransformMatrix(_component.WorldMatrix * _initialCullingVolumeMatrix);
+            RenderInfo.OctreeNode?.ItemMoved(this);
         }
         public override string ToString() => Mesh.Name;
     }

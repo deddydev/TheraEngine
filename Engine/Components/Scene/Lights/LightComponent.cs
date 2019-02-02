@@ -20,15 +20,22 @@ namespace TheraEngine.Components.Scene.Lights
     }
     public abstract class LightComponent : TRComponent, IEditorPreviewIconRenderable
     {
+        public LightComponent(ColorF3 color, float diffuseIntensity) : base()
+        {
+            _color = color;
+            _diffuseIntensity = diffuseIntensity;
+        }
+
         protected EventColorF3 _color = (ColorF3)Color.White;
         protected float _diffuseIntensity = 1.0f;
         protected int _lightIndex = -1;
         protected RenderPasses _passes = new RenderPasses();
+        protected BoundingRectangle _region = new BoundingRectangle(0, 0, 1024, 1024);
 
         [Browsable(false)]
         public Matrix4 LightMatrix { get; protected set; }
-        //[Browsable(false)]
-        public MaterialFrameBuffer ShadowMap;
+        [Browsable(false)]
+        public MaterialFrameBuffer ShadowMap { get; protected set; }
         [Browsable(false)]
         public Camera ShadowCamera { get; protected set; }
 
@@ -48,16 +55,6 @@ namespace TheraEngine.Components.Scene.Lights
         [DisplayName("Maximum Bias")]
         [Category("Shadow Map Settings")]
         public float ShadowMaxBias { get; set; } = 0.1f;
-
-        internal void SetShadowUniforms(RenderProgram program)
-        {
-            program.Uniform("ShadowBase", ShadowExponentBase);
-            program.Uniform("ShadowMult", ShadowExponent);
-            program.Uniform("ShadowBiasMin", ShadowMinBias);
-            program.Uniform("ShadowBiasMax", ShadowMaxBias);
-        }
-
-        protected BoundingRectangle _region = new BoundingRectangle(0, 0, 1024, 1024);
 
         [Category("Light Component")]
         public int ShadowMapResolutionWidth
@@ -87,20 +84,20 @@ namespace TheraEngine.Components.Scene.Lights
         public ELightType Type { get; set; } = ELightType.Dynamic;
 
         [Browsable(false)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { VisibleInIBLCapture = false };
-        [Browsable(false)]
-        public virtual Shape CullingVolume { get; } = null;
-        IOctreeNode I3DBoundable.OctreeNode { get; set; }
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true)
+        {
+            VisibleInIBLCapture = false,
+            EditorVisibilityMode = Rendering.RenderInfo.EEditorVisibility.VisibleAlways
+        };
 
-        public LightComponent(ColorF3 color, float diffuseIntensity) : base()
+        internal void SetShadowUniforms(RenderProgram program)
         {
-            _color = color;
-            _diffuseIntensity = diffuseIntensity;
+            program.Uniform("ShadowBase", ShadowExponentBase);
+            program.Uniform("ShadowMult", ShadowExponent);
+            program.Uniform("ShadowBiasMin", ShadowMinBias);
+            program.Uniform("ShadowBiasMax", ShadowMaxBias);
         }
-        internal void SwapBuffers()
-        {
-            _passes.SwapBuffers();
-        }
+
         public virtual void SetShadowMapResolution(int width, int height)
         {
             _region.Width = width;
@@ -117,6 +114,10 @@ namespace TheraEngine.Components.Scene.Lights
         {
             IVolume volume = GetShadowVolume();
             scene.CollectVisible(_passes, volume, ShadowCamera, true);
+        }
+        internal void SwapBuffers()
+        {
+            _passes.SwapBuffers();
         }
         public void RenderShadowMap(BaseScene scene)
         {
@@ -147,7 +148,7 @@ namespace TheraEngine.Components.Scene.Lights
         [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]
-        public float PreviewIconScale { get; set; } = 0.08f;
+        public float PreviewIconScale { get; set; } = 0.05f;
 
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
         protected abstract string PreviewIconName { get; }

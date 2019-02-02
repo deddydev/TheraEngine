@@ -90,6 +90,7 @@ namespace TheraEditor.Windows.Forms
         private TextStyle NumberStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(181, 206, 168)), null, FontStyle.Regular);
         private TextStyle CommentStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(86, 166, 74)), null, FontStyle.Regular);
         private TextStyle StringStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(214, 157, 133)), null, FontStyle.Regular);
+        private TextStyle MethodStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(200, 107, 83)), null, FontStyle.Regular);
         private TextStyle MaroonStyle { get; } = new TextStyle(Brushes.Maroon, null, FontStyle.Regular);
         private MarkerStyle SameWordsStyle { get; } = new MarkerStyle(new SolidBrush(Color.FromArgb(150, Color.Teal)));
 
@@ -163,7 +164,16 @@ namespace TheraEditor.Windows.Forms
                         TextEditorInstances.Add(path, this);
 
                     Text = Path.GetFileName(path);
-                    TextBox.OpenBindingFile(path, _targetFile.Encoding);
+                    try
+                    {
+                        TextBox.OpenBindingFile(path, _targetFile.Encoding);
+                    }
+                    catch (Exception ex)
+                    {
+                        Engine.LogException(ex);
+                        _isStreaming = false;
+                        TextBox.Text = _targetFile.Text;
+                    }
                 }
                 else
                 {
@@ -187,6 +197,10 @@ namespace TheraEditor.Windows.Forms
                     TFileObject.GetFile3rdPartyExtensions<GLSLScript>().Extensions, StringComparison.InvariantCultureIgnoreCase))
                 {
                     Mode = ETextEditorMode.GLSL;
+                }
+                else if (_targetFile.Text.StartsWith("<?xml"))
+                {
+                    Mode = ETextEditorMode.XML;
                 }
                 else
                 {
@@ -342,7 +356,11 @@ namespace TheraEditor.Windows.Forms
 
             CurrentKeywords = GLSLKeywords;
             HighlightScriptSyntax = GLSLSyntaxHighlight;
-            
+
+            TextBox.LeftBracket = '(';
+            TextBox.RightBracket = ')';
+            TextBox.LeftBracket2 = '\x0';
+            TextBox.RightBracket2 = '\x0';
             TextBox.AutoIndent = true;
             TextBox.AutoIndentChars = true;
             TextBox.AutoCompleteBrackets = true;
@@ -379,6 +397,11 @@ namespace TheraEditor.Windows.Forms
             dgvObjectExplorer.Visible = false;
             lblSplitFileObjects.Visible = false;
 
+            TextBox.LeftBracket = '\x0';
+            TextBox.RightBracket = '\x0';
+            TextBox.LeftBracket2 = '\x0';
+            TextBox.RightBracket2 = '\x0';
+
             TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
             TextBox.TextChanged -= TextBox_TextChanged;
             TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
@@ -388,164 +411,13 @@ namespace TheraEditor.Windows.Forms
             TextBox.SelectionChanged -= TextBox_SelectionChanged;
             AutoCompleteMenu.Opening -= popupMenu_Opening;
         }
-        public static readonly char[] GLSLSyntax = { '(', ')', '[', ']', '{', '}', ',', ';' };
-        public static readonly string[] GLSLKeywords =
-        {
-            "attribute",
-            "const",
-            "uniform",
-            "varying",
-            "buffer",
-            "shared",
-            "coherent",
-            "volatile",
-            "restrict",
-            "readonly",
-            "writeonly",
-            "atomic_uint",
-            "layout",
-            "centroid",
-            "flat",
-            "smooth",
-            "noperspective",
-            "patch",
-            "sample",
-            "break",
-            "continue",
-            "do",
-            "for",
-            "while",
-            "switch",
-            "case",
-            "default",
-            "if",
-            "else",
-            "subroutine",
-            "in",
-            "out",
-            "inout",
-            "float",
-            "double",
-            "int",
-            "void",
-            "bool",
-            "true",
-            "false",
-            "invariant",
-            "precise",
-            "discard",
-            "return",
-            "mat2",
-            "mat3",
-            "mat4",
-            "dmat2",
-            "dmat3",
-            "dmat4",
-            "mat2x2",
-            "mat2x3",
-            "mat2x4",
-            "dmat2x2",
-            "dmat2x3",
-            "dmat2x4",
-            "mat3x2",
-            "mat3x3",
-            "mat3x4",
-            "dmat3x2",
-            "dmat3x3",
-            "dmat3x4",
-            "mat4x2",
-            "mat4x3",
-            "mat4x4",
-            "dmat4x2",
-            "dmat4x3",
-            "dmat4x4",
-            "vec2",
-            "vec3",
-            "vec4",
-            "ivec2",
-            "ivec3",
-            "ivec4",
-            "bvec2",
-            "bvec3",
-            "bvec4",
-            "dvec2",
-            "dvec3",
-            "dvec4",
-            "uint",
-            "uvec2",
-            "uvec3",
-            "uvec4",
-            "lowp",
-            "mediump",
-            "highp",
-            "precision",
-            "sampler1D", "sampler2D", "sampler3D", "samplerCube", "sampler1DShadow", "sampler2DShadow", "samplerCubeShadow", "sampler1DArray", "sampler2DArray", "sampler1DArrayShadow", "sampler2DArrayShadow", "isampler1D", "isampler2D", "isampler3D", "isamplerCube", "isampler1DArray", "isampler2DArray", "usampler1D", "usampler2D", "usampler3D", "usamplerCube", "usampler1DArray", "usampler2DArray", "sampler2DRect", "sampler2DRectShadow", "isampler2DRect", "usampler2DRect", "samplerBuffer", "isamplerBuffer", "usamplerBuffer", "sampler2DMS", "isampler2DMS", "usampler2DMS", "sampler2DMSArray", "isampler2DMSArray", "usampler2DMSArray", "samplerCubeArray", "samplerCubeArrayShadow", "isamplerCubeArray", "usamplerCubeArray", "image1D", "iimage1D", "uimage1D", "image2D", "iimage2D", "uimage2D", "image3D", "iimage3D", "uimage3D", "image2DRect", "iimage2DRect", "uimage2DRect", "imageCube", "iimageCube", "uimageCube", "imageBuffer", "iimageBuffer", "uimageBuffer", "image1DArray", "iimage1DArray", "uimage1DArray", "image2DArray", "iimage2DArray", "uimage2DArray", "imageCubeArray", "iimageCubeArray", "uimageCubeArray", "image2DMS", "iimage2DMS", "uimage2DMS", "image2DMSArray", "iimage2DMSArray", "uimage2DMSArray", "struct" };
-
-        public static string[] GLSLBuiltInMethods =
-        {
-            "abs",
-            "acos",
-            "acosh",
-            "all",
-            "any",
-            "asin",
-            "asinh",
-            "atan",
-            "atanh",
-            "atomicAdd",
-            "atomicAnd",
-            "atomicCompSwap",
-            "atomicCounter",
-            "atomicCounterDecrement",
-            "atomicCounterIncrement",
-            "atomicExchange",
-            "atomicMax",
-            "atomicMin",
-            "atomicOr",
-            "atomicXor",
-            "barrier",
-            "bitCount",
-            "bitfieldExtract",
-            "bitfieldInsert",
-            "bitfieldReverse",
-            "ceil",
-            "clamp",
-            "cos",
-            "cosh",
-            "cross",
-            "degrees",
-            "determinant",
-            "dFdx",
-            "dFdxCoarse",
-            "dFdxFine",
-            "dFdy",
-            "dFdyCoarse",
-            "dFdyFine",
-            "distance",
-            "dot",
-            "EmitStreamVertex",
-            "EmitVertex",
-            "EndPrimitive",
-            "EndStreamPrimitive",
-            "equal",
-            "exp",
-            "exp2",
-            "faceforward",
-            "findLSB",
-            "findMSB",
-            "floatBitsToInt",
-            "floatBitsToUint", "floor", "fma", "fract", "frexp", "fwidth", "fwidthCoarse", "fwidthFine", "gl_ClipDistance", "gl_CullDistance", "gl_FragCoord", "gl_FragDepth", "gl_FrontFacing", "gl_GlobalInvocationID", "gl_HelperInvocation", "gl_InstanceID", "gl_InvocationID", "gl_Layer", "gl_LocalInvocationID", "gl_LocalInvocationIndex", "gl_NumSamples", "gl_NumWorkGroups", "gl_PatchVerticesIn", "gl_PointCoord", "gl_PointSize", "gl_Position", "gl_PrimitiveID", "gl_PrimitiveIDIn", "gl_SampleID", "gl_SampleMask", "gl_SampleMaskIn", "gl_SamplePosition", "gl_TessCoord", "gl_TessLevelInner", "gl_TessLevelOuter", "gl_VertexID", "gl_ViewportIndex", "gl_WorkGroupID", "gl_WorkGroupSize", "greaterThan", "greaterThanEqual", "groupMemoryBarrier", "imageAtomicAdd", "imageAtomicAnd", "imageAtomicCompSwap", "imageAtomicExchange", "imageAtomicMax", "imageAtomicMin", "imageAtomicOr", "imageAtomicXor", "imageLoad", "imageSamples", "imageSize", "imageStore", "imulExtended", "intBitsToFloat", "interpolateAtCentroid", "interpolateAtOffset", "interpolateAtSample", "inverse", "inversesqrt", "isinf", "isnan", "ldexp", "length", "lessThan", "lessThanEqual", "log", "log2", "matrixCompMult", "max", "memoryBarrier", "memoryBarrierAtomicCounter", "memoryBarrierBuffer", "memoryBarrierImage", "memoryBarrierShared", "min", "mix", "mod", "modf", "noise", "noise1", "noise2", "noise3", "noise4", "normalize", "not", "notEqual", "outerProduct", "packDouble2x32", "packHalf2x16", "packSnorm2x16", "packSnorm4x8", "packUnorm", "packUnorm2x16", "packUnorm4x8", "pow", "radians", "reflect", "refract", "round", "roundEven", "sign", "sin", "sinh", "smoothstep", "sqrt", "step", "tan", "tanh", "texelFetch", "texelFetchOffset", "texture", "textureGather", "textureGatherOffset", "textureGatherOffsets", "textureGrad", "textureGradOffset", "textureLod", "textureLodOffset", "textureOffset", "textureProj", "textureProjGrad", "textureProjGradOffset", "textureProjLod", "textureProjLodOffset", "textureProjOffset", "textureQueryLevels", "textureQueryLod", "textureSamples", "textureSize", "transpose", "trunc", "uaddCarry", "uintBitsToFloat", "umulExtended", "unpackDouble2x32", "unpackHalf2x16", "unpackSnorm2x16", "unpackSnorm4x8", "unpackUnorm", "unpackUnorm2x16", "unpackUnorm4x8", "usubBorrow" };
-
-        public static readonly string GLSLKeywordsRegex = string.Join("|", GLSLKeywords);
         private void GLSLSyntaxHighlight(Range e)
         {
-            TextBox.LeftBracket = '(';
-            TextBox.RightBracket = ')';
-            TextBox.LeftBracket2 = '\x0';
-            TextBox.RightBracket2 = '\x0';
-
             //clear style of changed range
-            e.ClearStyle(KeywordStyle, NumberStyle, ClassNameStyle, PreprocessorStyle, CommentStyle, StringStyle);
+            e.ClearStyle(KeywordStyle, NumberStyle, ClassNameStyle, PreprocessorStyle, CommentStyle, StringStyle, MethodStyle);
+
+            //method highlighting
+            e.SetStyle(MethodStyle, @"\b(abs|acos|acosh|all|any|asin|asinh|atan|atanh|atomicAdd|atomicAnd|atomicCompSwap|atomicCounter|atomicCounterDecrement|atomicCounterIncrement|atomicExchange|atomicMax|atomicMin|atomicOr|atomicXor|barrier|bitCount|bitfieldExtract|bitfieldInsert|bitfieldReverse|ceil|clamp|cos|cosh|cross|degrees|determinant|dFdx|dFdxCoarse|dFdxFine|dFdy|dFdyCoarse|dFdyFine|distance|dot|EmitStreamVertex|EmitVertex|EndPrimitive|EndStreamPrimitive|equal|exp|exp2|faceforward|findLSB|findMSB|floatBitsToInt|floatBitsToUint|floor|fma|fract|frexp|fwidth|fwidthCoarse|fwidthFine|gl_ClipDistance|gl_CullDistance|gl_FragCoord|gl_FragDepth|gl_FrontFacing|gl_GlobalInvocationID|gl_HelperInvocation|gl_InstanceID|gl_InvocationID|gl_Layer|gl_LocalInvocationID|gl_LocalInvocationIndex|gl_NumSamples|gl_NumWorkGroups|gl_PatchVerticesIn|gl_PointCoord|gl_PointSize|gl_Position|gl_PrimitiveID|gl_PrimitiveIDIn|gl_SampleID|gl_SampleMask|gl_SampleMaskIn|gl_SamplePosition|gl_TessCoord|gl_TessLevelInner|gl_TessLevelOuter|gl_VertexID|gl_ViewportIndex|gl_WorkGroupID|gl_WorkGroupSize|greaterThan|greaterThanEqual|groupMemoryBarrier|imageAtomicAdd|imageAtomicAnd|imageAtomicCompSwap|imageAtomicExchange|imageAtomicMax|imageAtomicMin|imageAtomicOr|imageAtomicXor|imageLoad|imageSamples|imageSize|imageStore|imulExtended|intBitsToFloat|interpolateAtCentroid|interpolateAtOffset|interpolateAtSample|inverse|inversesqrt|isinf|isnan|ldexp|length|lessThan|lessThanEqual|log|log2|matrixCompMult|max|memoryBarrier|memoryBarrierAtomicCounter|memoryBarrierBuffer|memoryBarrierImage|memoryBarrierShared|min|mix|mod|modf|noise|noise1|noise2|noise3|noise4|normalize|not|notEqual|outerProduct|packDouble2x32|packHalf2x16|packSnorm2x16|packSnorm4x8|packUnorm|packUnorm2x16|packUnorm4x8|pow|radians|reflect|refract|round|roundEven|sign|sin|sinh|smoothstep|sqrt|step|tan|tanh|texelFetch|texelFetchOffset|texture|textureGather|textureGatherOffset|textureGatherOffsets|textureGrad|textureGradOffset|textureLod|textureLodOffset|textureOffset|textureProj|textureProjGrad|textureProjGradOffset|textureProjLod|textureProjLodOffset|textureProjOffset|textureQueryLevels|textureQueryLod|textureSamples|textureSize|transpose|trunc|uaddCarry|uintBitsToFloat|umulExtended|unpackDouble2x32|unpackHalf2x16|unpackSnorm2x16|unpackSnorm4x8|unpackUnorm|unpackUnorm2x16|unpackUnorm4x8|usubBorrow)\b");
 
             //string highlighting
             e.SetStyle(StringStyle, StringRegex);
@@ -589,6 +461,36 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
         }
+        public static readonly string[] GLSLKeywords =
+        {
+            "attribute",
+            "const",
+            "uniform",
+            "varying",
+            "buffer",
+            "shared",
+            "coherent",
+            "volatile",
+            "restrict",
+            "readonly",
+            "writeonly",
+            "atomic_uint",
+            "layout",
+            "centroid",
+            "flat",
+            "smooth",
+            "noperspective",
+            "patch",
+            "sample",
+            "break",
+            "continue",
+            "do",
+            "for",
+            "while",
+            "switch",
+            "case",
+            "default", "if", "else", "subroutine", "in", "out", "inout", "float", "double", "int", "void", "bool", "true", "false", "invariant", "precise", "discard", "return", "mat2", "mat3", "mat4", "dmat2", "dmat3", "dmat4", "mat2x2", "mat2x3", "mat2x4", "dmat2x2", "dmat2x3", "dmat2x4", "mat3x2", "mat3x3", "mat3x4", "dmat3x2", "dmat3x3", "dmat3x4", "mat4x2", "mat4x3", "mat4x4", "dmat4x2", "dmat4x3", "dmat4x4", "vec2", "vec3", "vec4", "ivec2", "ivec3", "ivec4", "bvec2", "bvec3", "bvec4", "dvec2", "dvec3", "dvec4", "uint", "uvec2", "uvec3", "uvec4", "lowp", "mediump", "highp", "precision", "sampler1D", "sampler2D", "sampler3D", "samplerCube", "sampler1DShadow", "sampler2DShadow", "samplerCubeShadow", "sampler1DArray", "sampler2DArray", "sampler1DArrayShadow", "sampler2DArrayShadow", "isampler1D", "isampler2D", "isampler3D", "isamplerCube", "isampler1DArray", "isampler2DArray", "usampler1D", "usampler2D", "usampler3D", "usamplerCube", "usampler1DArray", "usampler2DArray", "sampler2DRect", "sampler2DRectShadow", "isampler2DRect", "usampler2DRect", "samplerBuffer", "isamplerBuffer", "usamplerBuffer", "sampler2DMS", "isampler2DMS", "usampler2DMS", "sampler2DMSArray", "isampler2DMSArray", "usampler2DMSArray", "samplerCubeArray", "samplerCubeArrayShadow", "isamplerCubeArray", "usamplerCubeArray", "image1D", "iimage1D", "uimage1D", "image2D", "iimage2D", "uimage2D", "image3D", "iimage3D", "uimage3D", "image2DRect", "iimage2DRect", "uimage2DRect", "imageCube", "iimageCube", "uimageCube", "imageBuffer", "iimageBuffer", "uimageBuffer", "image1DArray", "iimage1DArray", "uimage1DArray", "image2DArray", "iimage2DArray", "uimage2DArray", "imageCubeArray", "iimageCubeArray", "uimageCubeArray", "image2DMS", "iimage2DMS", "uimage2DMS", "image2DMSArray", "iimage2DMSArray", "uimage2DMSArray", "struct" };
+
         #endregion
 
         #region Lua Init

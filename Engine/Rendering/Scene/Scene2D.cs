@@ -119,7 +119,7 @@ namespace TheraEngine.Rendering
         {
             foreach (I2DRenderable r in _renderables)
             {
-                if (r.AxisAlignedRegion.Contains(viewportPoint))
+                if (r.RenderInfo.AxisAlignedRegion.Contains(viewportPoint))
                     return r;
             }
             return null;

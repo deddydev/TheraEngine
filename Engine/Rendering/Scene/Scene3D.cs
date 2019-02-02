@@ -401,11 +401,11 @@ namespace TheraEngine.Rendering
 
             //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
         }
-        private void RegisterCullingVolume(Shape cullingVolume)
+        private void RegisterCullingVolume(TShape cullingVolume)
         {
 
         }
-        private void UnregisterCullingVolume(Shape cullingVolume)
+        private void UnregisterCullingVolume(TShape cullingVolume)
         {
 
         }

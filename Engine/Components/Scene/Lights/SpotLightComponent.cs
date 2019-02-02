@@ -115,9 +115,6 @@ namespace TheraEngine.Components.Scene.Lights
         [Category("Spotlight Component")]
         public Cone InnerCone { get; }
         
-        [Browsable(false)]
-        public override Shape CullingVolume => OuterCone;
-        
         public SpotLightComponent()
             : this(100.0f, new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, Vec3.Down, 60.0f, 30.0f, 1.0f, 1.0f) { }
 
@@ -266,6 +263,7 @@ namespace TheraEngine.Components.Scene.Lights
         {
             OuterCone.RenderInfo.Visible = selected;
             InnerCone.RenderInfo.Visible = selected;
+            base.OnSelectedChanged(selected);
         }
 #endif
     }

@@ -149,8 +149,14 @@ namespace TheraEditor.Windows.Forms
         private float MinSec { get; set; }
         private float VisibleSecRange { get; set; }
         private int FrameCount { get; set; }
-        public void UpdateSplinePrimitive()
+        public void UpdateSplinePrimitive(bool renderPass = false)
         {
+            if (!Engine.IsSingleThreaded && !renderPass)
+            {
+                QueueSplineUpdate = true;
+                return;
+            }
+
             if (_targetAnimation == null)
                 return;
 
@@ -657,6 +663,9 @@ void main()
             }
         }
         protected override bool IsDragging => _draggedKeyframes.Count > 0;
+
+        public bool QueueSplineUpdate { get; private set; }
+
         private class DraggedKeyframeInfo
         {
             public FloatKeyframe Keyframe { get; set; }

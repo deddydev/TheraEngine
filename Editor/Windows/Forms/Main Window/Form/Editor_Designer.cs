@@ -155,7 +155,7 @@ namespace TheraEditor.Windows.Forms
 
         private DockableErrorList _errorListForm;
         public bool DockableErrorListFormActive => GetFormActive(_errorListForm);
-        public DockableErrorList ErrorListForm => GetForm(ref _errorListForm, DockState.DockBottomAutoHide);
+        public DockableErrorList ErrorListForm => GetForm(ref _errorListForm, DockState.DockBottom);
         
         private DockableProjectCreator _projectCreatorForm;
         public bool ProjectCreatorFormActive => GetFormActive(_projectCreatorForm);
@@ -287,8 +287,8 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
-            EditorSettings settings = await DefaultSettingsRef.GetInstanceAsync();
-            var recentFiles = settings?.RecentlyOpenedProjectPaths; //Properties.Settings.Default.RecentFiles;
+            EditorSettings defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
+            var recentFiles = defaultSettings?.RecentlyOpenedProjectPaths;
             if (recentFiles != null && recentFiles.Count > 0)
             {
                 string lastOpened = recentFiles[recentFiles.Count - 1];
@@ -299,7 +299,7 @@ namespace TheraEditor.Windows.Forms
             }
             else
                 Project = null;
-
+            
             Engine.Run();
 
             CheckUpdates();
@@ -324,8 +324,8 @@ namespace TheraEditor.Windows.Forms
             string projectPath = Project?.FilePath;
             if (!string.IsNullOrWhiteSpace(projectPath))
             {
-                EditorSettings settings = await DefaultSettingsRef.GetInstanceAsync();
-                var list = settings.RecentlyOpenedProjectPaths; //Properties.Settings.Default.RecentFiles;
+                EditorSettings defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
+                var list = defaultSettings.RecentlyOpenedProjectPaths;
                 if (list != null)
                 {
                     if (list.Contains(projectPath))
@@ -333,13 +333,9 @@ namespace TheraEditor.Windows.Forms
                     list.Add(projectPath);
                 }
                 else
-                {
-                    //Properties.Settings.Default.RecentFiles = new StringCollection() { projectPath };
-                    settings.RecentlyOpenedProjectPaths = new List<string>() { projectPath };
-                }
-
-                await settings.ExportAsync();
-                //Properties.Settings.Default.Save();
+                    defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { projectPath };
+                
+                await defaultSettings.ExportAsync();
             }
         }
         protected override void OnKeyDown(KeyEventArgs e)

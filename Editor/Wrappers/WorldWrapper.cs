@@ -30,27 +30,25 @@ namespace TheraEditor.Wrappers
 
         public WorldWrapper() : base() { }
 
-        public override void EditResource()
+        public override async void EditResource()
         {
-            ResourceRef.GetInstanceAsync().ContinueWith(t => 
+            TWorld world = await ResourceRef.GetInstanceAsync();
+            if (world != null)
             {
-                if (t.Result != null)
-                {
-                    Editor.Instance.CurrentWorld = t.Result;
-                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = t.Result.Settings;
-                    //int i = 0;
-                    //for (; i < 4; ++i)
-                    //{
-                    //    if (Editor.Instance.RenderFormActive(i))
-                    //    {
-                    //        Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.GetRenderForm(i).Focus()));
-                    //        break;
-                    //    }
-                    //}
-                    //if (i == 4)
-                    //    Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.RenderForm1.Focus()));
-                }
-            });
+                Editor.Instance.CurrentWorld = world;
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = world.Settings;
+            }
+            //int i = 0;
+            //for (; i < 4; ++i)
+            //{
+            //    if (Editor.Instance.RenderFormActive(i))
+            //    {
+            //        Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.GetRenderForm(i).Focus()));
+            //        break;
+            //    }
+            //}
+            //if (i == 4)
+            //    Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.RenderForm1.Focus()));
         }
     }
 }

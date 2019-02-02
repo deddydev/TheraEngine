@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using TheraEngine.Animation;
-using TheraEngine.Core.Maths;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Models;
 
@@ -36,8 +33,8 @@ namespace TheraEngine.Components.Logic.Animation
             }
         }
         [TSerialize("Animations")]
-        internal ConcurrentDictionary<string, GlobalFileRef<SkeletalAnimation>> AnimationTable { get; set; }
-        ConcurrentDictionary<string, GlobalFileRef<SkeletalAnimation>> IGlobalFilesContext<SkeletalAnimation>.GlobalFileInstances => AnimationTable;
+        internal ConcurrentDictionary<string, SkeletalAnimation> AnimationTable { get; set; }
+        ConcurrentDictionary<string, SkeletalAnimation> IGlobalFilesContext<SkeletalAnimation>.GlobalFileInstances => AnimationTable;
 
         public AnimState InitialState
         {

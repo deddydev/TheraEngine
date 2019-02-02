@@ -198,7 +198,18 @@ namespace TheraEditor.Windows.Forms
 
         private async void OpenLocation(string filePath, FileLocation loc)
         {
+            if (!File.Exists(filePath))
+            {
+                Engine.PrintLine("Unable to open " + filePath);
+                return;
+            }
             TextFile text = await TFileObject.LoadAsync<TextFile>(filePath);
+            if (text == null)
+            {
+                Engine.PrintLine("Unable to open " + filePath);
+                return;
+            }
+
             DockableTextEditor e = DockableTextEditor.ShowNew(
                 Editor.Instance.DockPanel, DockState.Document, text);
 

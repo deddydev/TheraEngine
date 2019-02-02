@@ -13,7 +13,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
     {
         public ShapeActor(
             string name,
-            Shape shape,
+            TShape shape,
             Vec3 translation,
             Rotator rotation,
             List<LOD> lods)
@@ -21,7 +21,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
 
         public ShapeActor(
             string name,
-            Shape shape,
+            TShape shape,
             Vec3 translation,
             Rotator rotation,
             List<LOD> lods,

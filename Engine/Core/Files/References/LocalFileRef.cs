@@ -51,8 +51,13 @@ namespace TheraEngine.Core.Files
                 return _file;
 
             LoadAttempted = true;
+            IsLoading = true;
+
             T value = await LoadNewInstanceAsync(progress, cancel);
             File = value;
+
+            IsLoading = false;
+
             return value;
         }
         

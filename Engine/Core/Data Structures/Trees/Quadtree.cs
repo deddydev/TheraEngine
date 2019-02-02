@@ -208,13 +208,13 @@ namespace System
                     return;
 
                 //Still within the same volume?
-                if (item.AxisAlignedRegion.ContainmentWithin(_bounds) == EContainment.Contains)
+                if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(_bounds) == EContainment.Contains)
                 {
                     //Try subdividing
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         BoundingRectangleF bounds = GetSubdivision(i);
-                        if (item.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
+                        if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                         {
                             QueueRemove(item);
                             CreateSubNode(bounds, i)?.Add(item);
@@ -272,7 +272,7 @@ namespace System
                     //bool anyVisible = false;
                     for (int i = 0; i < _items.Count; ++i)
                     {
-                        region = _items[i].AxisAlignedRegion;
+                        region = _items[i].RenderInfo.AxisAlignedRegion;
                         Engine.Renderer.RenderQuad(region.Center + AbstractRenderer.UIPositionBias, AbstractRenderer.UIRotation, region.Extents, false, Color.Orange, lineWidth);
                     }
                     //if (anyVisible)
@@ -297,7 +297,7 @@ namespace System
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I2DRenderable r = _items[i] as I2DRenderable;
-                            if (r.AxisAlignedRegion.ContainmentWithin(bounds) != EContainment.Disjoint)
+                            if (r.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) != EContainment.Disjoint)
                                 r.AddRenderables(passes);
                         }
                         IsLoopingItems = false;
@@ -370,10 +370,10 @@ namespace System
                 if (item == null)
                     return false;
 
-                if (item.AxisAlignedRegion.IsEmpty())
+                if (item.RenderInfo.AxisAlignedRegion.IsEmpty())
                     return QueueAdd(item);
 
-                if (item.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
+                if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
                     return false;
 
                 for (int i = 0; i < MaxChildNodeCount; ++i)
@@ -382,7 +382,7 @@ namespace System
                         continue;
 
                     BoundingRectangleF bounds = GetSubdivision(i);
-                    if (item.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
+                    if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                     {
                         CreateSubNode(bounds, i)?.Add(item);
                         return true;
@@ -446,7 +446,7 @@ namespace System
                     if (Owner.AllItems.Add(item))
                     {
                         _items.Add(item);
-                        item.QuadtreeNode = this;
+                        item.RenderInfo.QuadtreeNode = this;
                     }
                     return true;
                 }
@@ -463,7 +463,7 @@ namespace System
                     if (Owner.AllItems.Remove(item))
                     {
                         _items.Remove(item);
-                        item.QuadtreeNode = null;
+                        item.RenderInfo.QuadtreeNode = null;
                     }
                     return true;
                 }
@@ -494,7 +494,7 @@ namespace System
                 IsLoopingItems = true;
                 foreach (T item in _items)
                 {
-                    float dist = item.AxisAlignedRegion.ClosestPoint(point).DistanceToFast(point);
+                    float dist = item.RenderInfo.AxisAlignedRegion.ClosestPoint(point).DistanceToFast(point);
                     if (dist < closestDistance)
                     {
                         closestDistance = dist;
@@ -520,7 +520,7 @@ namespace System
 
                 IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.AxisAlignedRegion.Contains(point) && 
+                    if (item.RenderInfo.AxisAlignedRegion.Contains(point) && 
                         item.RenderInfo.DeeperThan(currentDeepest?.RenderInfo))
                         currentDeepest = item;
                 IsLoopingItems = false;
@@ -540,7 +540,7 @@ namespace System
                 
                 IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.AxisAlignedRegion.Contains(point))
+                    if (item.RenderInfo.AxisAlignedRegion.Contains(point))
                         intersecting.Add(item);
                 IsLoopingItems = false;
             }
@@ -559,7 +559,7 @@ namespace System
 
                 IsLoopingItems = true;
                 foreach (T item in _items)
-                    if (item.AxisAlignedRegion.Contains(point))
+                    if (item.RenderInfo.AxisAlignedRegion.Contains(point))
                         intersecting.Add(item);
                 IsLoopingItems = false;
             }

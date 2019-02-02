@@ -1,17 +1,15 @@
-﻿using TheraEngine.Rendering.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Rendering;
-using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Physics;
 using TheraEngine.Actors;
-using TheraEngine.Worlds;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Components.Scene.Lights;
+using TheraEngine.Physics;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
-using System.IO;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Components
 {
@@ -91,10 +89,10 @@ namespace TheraEngine.Components
             }
 
             if (this is I2DRenderable r2d)
-                r2d.QuadtreeNode?.ItemMoved(r2d);
+                r2d.RenderInfo?.QuadtreeNode?.ItemMoved(r2d);
 
-            if (this is I3DBoundable r3d)
-                r3d.OctreeNode?.ItemMoved(r3d);
+            if (this is I3DRenderable r3d)
+                r3d.RenderInfo?.OctreeNode?.ItemMoved(r3d);
 
             foreach (SceneComponent c in _children)
                 c.RecalcWorldTransform();

@@ -38,6 +38,7 @@ namespace TheraEngine.Timers
             if (IsRunning)
                 return;
 
+            IsSingleThreaded = singleThreaded;
             Engine.PrintLine("Started game loop.");
             IsRunning = true;
             _watch.Start();
@@ -372,6 +373,7 @@ namespace TheraEngine.Timers
         /// </summary>
         public float UpdateTime { get; private set; }
         public float TimeDilation { get; set; } = 1.0f;
+        public bool IsSingleThreaded { get; private set; } = false;
 
         public event Action SwapBuffers;
     }

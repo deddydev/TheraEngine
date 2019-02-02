@@ -209,19 +209,15 @@ namespace TheraEngine.Components.Scene.Mesh
                 return;
 
             foreach (StaticRenderableMesh m in Meshes)
-            {
                 foreach (var lod in m.LODs)
-                {
                     Editor.EditorState.RegisterHighlightedMaterial(lod.Manager.Material, highlighted, OwningScene);
-                }
-            }
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
             if (Meshes != null)
                 foreach (StaticRenderableMesh m in Meshes)
                 {
-                    var cull = m?.CullingVolume;
+                    var cull = m?.RenderInfo?.CullingVolume;
                     if (cull != null)
                         cull.RenderInfo.Visible = selected;
 

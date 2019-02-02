@@ -18,20 +18,21 @@ namespace TheraEngine.Components.Scene.Shapes
     }
     public interface ICommonShape3DComponent : ICollidableShape3DComponent
     {
-        Shape Shape { get; }
+        TShape Shape { get; }
     }
     public abstract class Shape3DComponent : TRComponent, IShape3DComponent
     {
         public Shape3DComponent() { }
-
-        [Browsable(false)]
-        public abstract Shape CullingVolume { get; }
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
+        
+        private RenderInfo3D _renderInfo = new RenderInfo3D(true, true);
 
         [TSerialize]
         [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(true, true);
+        public virtual RenderInfo3D RenderInfo
+        {
+            get => _renderInfo;
+            protected set => _renderInfo = value ?? new RenderInfo3D(true, true);
+        }
         
         protected abstract RenderCommand3D GetRenderCommand();
         public virtual void AddRenderables(RenderPasses passes, Camera camera)

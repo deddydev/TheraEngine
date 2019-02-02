@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
@@ -36,6 +37,7 @@ namespace TheraEngine
 
         #region Startup/Shutdown
 
+        public static bool FontsLoaded { get; private set; } = false;
         static Engine()
         {
             _timer = new EngineTimer();
@@ -101,10 +103,10 @@ namespace TheraEngine
 
             if (assemblies == null || assemblies.Length == 0)
             {
-                PrintLine("FindTypes; returning assemblies from domains:");
+                //PrintLine("FindTypes; returning assemblies from domains:");
                 search = EnumAppDomains().SelectMany(x =>
                 {
-                    PrintLine(x.FriendlyName);
+                    //PrintLine(x.FriendlyName);
                     return x.GetAssemblies();
                 });
             }
@@ -263,7 +265,12 @@ namespace TheraEngine
         /// <summary>
         /// Starts deployment of update and render ticks.
         /// </summary>
-        public static void Run() => _timer.Run();
+        public static void Run()
+        {
+            //EngineSettings settings = await SettingsRef.GetInstanceAsync();
+
+            _timer.Run(Settings?.SingleThreaded ?? false);
+        }
         /// <summary>
         /// HALTS update and render ticks. Not recommended for use as this literally halts all visuals and user input.
         /// </summary>
@@ -458,7 +465,12 @@ namespace TheraEngine
         /// <param name="style"></param>
         /// <returns></returns>
         public static Font MakeFont(string fontName, float size, FontStyle style)
-            => new Font(GetCustomFontFamily(fontName), size, style);
+        {
+            FontFamily family = GetCustomFontFamily(fontName);
+            if (family == null)
+                return new Font("Segoe UI", size, style);
+            return new Font(family, size, style);
+        }
         /// <summary>
         /// Loads a ttf or otf font from the given path and adds it to the collection of fonts.
         /// </summary>
@@ -477,24 +489,29 @@ namespace TheraEngine
             _fontIndexMatching.Add(fontFamilyName.ToLowerInvariant(), _fontCollection.Families.Length);
             _fontCollection.AddFontFile(path);
         }
+
         /// <summary>
         /// Gets a custom font family using its name.
         /// </summary>
         /// <param name="fontFamilyName">The name of the font family.</param>
         public static FontFamily GetCustomFontFamily(string fontFamilyName)
             => _fontIndexMatching.ContainsKey(fontFamilyName.ToLowerInvariant()) ? GetCustomFontFamily(_fontIndexMatching[fontFamilyName]) : null;
+
         /// <summary>
         /// Gets a custom font family using its load index.
         /// </summary>
         /// <param name="fontFamilyIndex">The index of the font, in the order it was loaded in.</param>
         public static FontFamily GetCustomFontFamily(int fontFamilyIndex)
             => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
-        private static void LoadCustomFonts()
+        private static async Task LoadCustomFonts()
         {
             //if (DesignMode)
             //    return;
-            string[] ttf = Directory.GetFiles(Settings.FontsFolder, "*.ttf");
-            string[] otf = Directory.GetFiles(Settings.FontsFolder, "*.otf");
+            FontsLoaded = true;
+            EngineSettings s = await GetSettingsAsync();
+            string folder = Path.GetFullPath(s.FontsFolder);
+            string[] ttf = Directory.GetFiles(folder, "*.ttf");
+            string[] otf = Directory.GetFiles(folder, "*.otf");
             foreach (string path in ttf) LoadCustomFont(path);
             foreach (string path in otf) LoadCustomFont(path);
         }
@@ -847,12 +864,12 @@ namespace TheraEngine
 
             //    return true;
             //}
-            internal static bool AddGlobalFileInstance<T>(GlobalFileRef<T> gref) where T : class, IFileObject
+            internal static bool AddGlobalFileInstance<T>(T file, string path) where T : class, IFileObject
             {
-                if (string.IsNullOrEmpty(gref.Path.Absolute) || !gref.IsLoaded)
+                if (string.IsNullOrEmpty(path))
                     return false;
 
-                GlobalFileInstances.AddOrUpdate(gref.Path.Absolute, gref, (key, oldValue) => gref);
+                GlobalFileInstances.AddOrUpdate(path, file, (key, oldValue) => file);
 
                 return true;
             }
@@ -861,7 +878,7 @@ namespace TheraEngine
                 if (string.IsNullOrEmpty(absRefPath))
                     return false;
 
-                return GlobalFileInstances.TryRemove(absRefPath, out IGlobalFileRef value);
+                return GlobalFileInstances.TryRemove(absRefPath, out IFileObject value);
             }
         }
         /// <summary>

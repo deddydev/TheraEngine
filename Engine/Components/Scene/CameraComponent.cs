@@ -148,7 +148,7 @@ namespace TheraEngine.Components.Scene
         [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]
-        public float PreviewIconScale { get; set; } = 0.08f;
+        public float PreviewIconScale { get; set; } = 0.05f;
 
         string IEditorPreviewIconRenderable.PreviewIconName => PreviewIconName;
         protected string PreviewIconName { get; } = "CameraIcon.png";
@@ -280,7 +280,7 @@ namespace TheraEngine.Components.Scene
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
 
         [Browsable(false)]
-        public Shape CullingVolume { get; } = null;
+        public TShape CullingVolume { get; } = null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 

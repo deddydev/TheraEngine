@@ -172,8 +172,8 @@ namespace TheraEditor.Windows.Forms
                     }
                     else if (types.Length == 1)
                         type = types[0];
-                    else
-                        return false;
+                    //else
+                    //    return false;
                 }
 
                 if (type.IsAbstract || type.IsInterface)
@@ -446,7 +446,16 @@ namespace TheraEditor.Windows.Forms
                     if (ConstructorIndex < PublicInstanceConstructors.Length)
                     {
                         if (paramData == null || paramData.Length == 0)
-                            ConstructedObject = Activator.CreateInstance(ClassType);
+                        {
+                            bool hasParameterlessConstructor = ClassType.GetConstructors().FirstOrDefault(x => x.GetParameters().Length == 0) != null;
+                            if (hasParameterlessConstructor)
+                                ConstructedObject = Activator.CreateInstance(ClassType);
+                            else
+                            {
+                                ConstructedObject = null;
+                                Engine.PrintLine($"Unable to create {ClassType.GetFriendlyName()}; no valid constructor available.");
+                            }
+                        }
                         else
                         {
                             var parameters = FinalArguments[ConstructorIndex];

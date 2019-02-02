@@ -21,6 +21,8 @@ namespace TheraEngine.Actors.Types
             RenderInfo = new RenderInfo3D(true, false) { CastsShadows = true, ReceivesShadows = true };
         }
 
+        private int _stride;
+        private Box _bounds;
         private IVec2 _dimensions = new IVec2(100, 100);
         private Vec2 _minMaxHeight = new Vec2(0.0f, 1.0f);
         private TCollisionHeightField _heightFieldShape;
@@ -28,6 +30,7 @@ namespace TheraEngine.Actors.Types
             = TCollisionHeightField.EHeightValueType.Single;
         //private Matrix4 _heightOffsetTransform, _heightOffsetTransformInv;
 
+        [Category("Landscape")]
         public TMaterial Material
         {
             get => _rc.Mesh?.Material;
@@ -37,10 +40,29 @@ namespace TheraEngine.Actors.Types
                     _rc.Mesh.Material = value;
             }
         }
-
-        public Box Bounds { get; private set; }
-        public override Shape CullingVolume => Bounds;
+        public override RenderInfo3D RenderInfo
+        {
+            get => base.RenderInfo;
+            protected set
+            {
+                base.RenderInfo = value;
+                RenderInfo.CullingVolume = _bounds;
+            }
+        }
+        [ReadOnly(true)]
+        [Category("Landscape")]
+        public Box Bounds
+        {
+            get => _bounds;
+            private set
+            {
+                _bounds = value;
+                RenderInfo.CullingVolume = _bounds;
+            }
+        }
+        [Browsable(false)]
         public DataSource DataSource { get; private set; }
+        [Browsable(false)]
         public Stream Stream { get; private set; }
 
         protected override void OnWorldTransformChanged()
@@ -157,13 +179,12 @@ namespace TheraEngine.Actors.Types
                     }
             }
         }
-        public int Stride { get; private set; }
         public unsafe void GenerateHeightFieldMesh(TMaterial material, int stride = 1)
         {
             if (_heightFieldShape == null)
                 throw new InvalidOperationException();
 
-            Stride = stride;
+            _stride = stride;
             List<VertexTriangle> list = new List<VertexTriangle>();
             Vertex[] vertexNormals = new Vertex[6];
             
@@ -219,9 +240,15 @@ namespace TheraEngine.Actors.Types
             data[EBufferType.Normal].MapData = true;
             data[EBufferType.TexCoord].MapData = true;
             material.RenderParams.CullMode = ECulling.Back;
+
+            _rc.Mesh?.Dispose();
             _rc.Mesh = new PrimitiveManager(data, material);
         }
-        public unsafe void UpdateHeightFieldMesh()
+
+        /// <summary>
+        /// Pushes the updated height mesh to the GPU and updates the collision object.
+        /// </summary>
+        public void HeightDataChanged()
         {
             if (_heightFieldShape == null)
                 throw new InvalidOperationException();
@@ -235,22 +262,22 @@ namespace TheraEngine.Actors.Types
             int xDim = _dimensions.X - 1, yDim = _dimensions.Y - 1;
             float uInc = 1.0f / xDim, vInc = 1.0f / yDim;
             int nextX, nextY, prevX, prevY;
-            int xTriStride = _dimensions.X / Stride * 2;
+            int xTriStride = _dimensions.X / _stride * 2;
             int triCount = 0;
 
             float halfX = xDim * 0.5f, halfY = yDim * 0.5f;
             float yOffset = (_minMaxHeight.X + _minMaxHeight.Y) * 0.5f/* * _heightFieldCollision.LocalScaling.Y*/;
             
             int i = 0;
-            for (int thisY = 0; thisY < yDim; thisY += Stride)
+            for (int thisY = 0; thisY < yDim; thisY += _stride)
             {
-                nextY = thisY + Stride;
-                prevY = thisY - Stride;
+                nextY = thisY + _stride;
+                prevY = thisY - _stride;
 
-                for (int thisX = 0; thisX < xDim; thisX += Stride)
+                for (int thisX = 0; thisX < xDim; thisX += _stride)
                 {
-                    nextX = thisX + Stride;
-                    prevX = thisX - Stride;
+                    nextX = thisX + _stride;
+                    prevX = thisX - _stride;
 
                     Vec3 topLeftPos = GetPosition(thisX, thisY, halfX, halfY, yOffset);
                     Vec3 topRightPos = GetPosition(nextX, thisY, halfX, halfY, yOffset);
@@ -296,16 +323,7 @@ namespace TheraEngine.Actors.Types
                     nrm.Set(i, topRightNorm);
                     tex.Set(i, topRightUV);
                     ++i;
-
-                    //list.Add(new VertexTriangle(
-                    //    new Vertex(topLeftPos, topLeftNorm, topLeftUV),
-                    //    new Vertex(bottomLeftPos, bottomLeftNorm, bottomLeftUV),
-                    //    new Vertex(bottomRightPos, bottomRightNorm, bottomRightUV)));
-                    //list.Add(new VertexTriangle(
-                    //    new Vertex(topLeftPos, topLeftNorm, topLeftUV),
-                    //    new Vertex(bottomRightPos, bottomRightNorm, bottomRightUV),
-                    //    new Vertex(topRightPos, topRightNorm, topRightUV)));
-
+                    
                     triCount += 2;
                 }
             }
@@ -319,7 +337,7 @@ namespace TheraEngine.Actors.Types
         private Vec3 GetPosition(int x, int y, float halfX, float halfY, float yOffset) => new Vec3(x - halfX, GetHeight(x, y) - yOffset, y - halfY);
         private bool GetQuad(int x, int y, float halfX, float halfY, float yOffset, out Vec3 topLeft, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight)
         {
-            if (x < 0 || y < 0 || x + Stride >= _dimensions.X || y + Stride >= _dimensions.Y)
+            if (x < 0 || y < 0 || x + _stride >= _dimensions.X || y + _stride >= _dimensions.Y)
             {
                 topLeft = Vec3.Zero;
                 topRight = Vec3.Zero;
@@ -330,9 +348,9 @@ namespace TheraEngine.Actors.Types
             else
             {
                 topLeft = GetPosition(x, y, halfX, halfY, yOffset);
-                topRight = GetPosition(x + Stride, y, halfX, halfY, yOffset);
-                bottomLeft = GetPosition(x, y + Stride, halfX, halfY, yOffset);
-                bottomRight = GetPosition(x + Stride, y + Stride, halfX, halfY, yOffset);
+                topRight = GetPosition(x + _stride, y, halfX, halfY, yOffset);
+                bottomLeft = GetPosition(x, y + _stride, halfX, halfY, yOffset);
+                bottomRight = GetPosition(x + _stride, y + _stride, halfX, halfY, yOffset);
                 return true;
             }
         }
@@ -347,8 +365,8 @@ namespace TheraEngine.Actors.Types
         }
         private Vec3 GetSmoothedNormal(int x, int y, float halfX, float halfY, float yOffset)
         {
-            int xPrev = x - Stride;
-            int yPrev = y - Stride;
+            int xPrev = x - _stride;
+            int yPrev = y - _stride;
 
             /*
              ________
@@ -394,14 +412,10 @@ namespace TheraEngine.Actors.Types
 
             Editor.EditorState.RegisterHighlightedMaterial(_rc.Mesh.Material, highlighted, OwningScene);
         }
-
-        protected internal override void OnSelectedChanged(bool selected)
-        {
-            base.OnSelectedChanged(selected);
-        }
-
+        
         public override TCollisionShape GetCollisionShape() => _heightFieldShape;
 
+        [TSerialize("RenderCommand")]
         private RenderCommandMesh3D _rc = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);
         protected override RenderCommand3D GetRenderCommand() => _rc;
     }

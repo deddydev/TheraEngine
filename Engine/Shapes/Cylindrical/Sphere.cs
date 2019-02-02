@@ -12,7 +12,7 @@ using static System.Math;
 namespace TheraEngine.Core.Shapes
 {
     [TFileDef("Sphere")]
-    public class Sphere : Shape
+    public class Sphere : TShape
     {
         private float _radius = 1.0f;
         private EventVec3 _center = Vec3.Zero;
@@ -191,7 +191,7 @@ namespace TheraEngine.Core.Shapes
         }
         #endregion
 
-        public override Shape HardCopy()
+        public override TShape HardCopy()
             => new Sphere(Radius, Center);
         
         public override Vec3 ClosestPoint(Vec3 point)
@@ -207,7 +207,7 @@ namespace TheraEngine.Core.Shapes
             => new BoundingBox(Radius, Center);
         
         public override void Render()
-            => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);
+            => Engine.Renderer.RenderSphere(Center, Radius, RenderSolid, Color.Red);
 
         public override void SetTransformMatrix(Matrix4 matrix) 
             => Center.Raw = matrix.Translation;

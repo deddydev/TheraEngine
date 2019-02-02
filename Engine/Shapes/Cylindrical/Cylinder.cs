@@ -7,7 +7,7 @@ using TheraEngine.Physics;
 namespace TheraEngine.Core.Shapes
 {
     [TFileExt("cylinder")]
-    public abstract class Cylinder : Shape
+    public abstract class Cylinder : TShape
     {
         public Cylinder(
             EventVec3 center,
@@ -96,11 +96,11 @@ namespace TheraEngine.Core.Shapes
         public float GetTotalHeight() => GetTotalHalfHeight() * 2.0f;
         public override void Render()
         {
-            Engine.Renderer.RenderCylinder(_center.AsTranslationMatrix(), _upAxis, _radius, _halfHeight, _renderSolid, Color.Black);
+            Engine.Renderer.RenderCylinder(_center.AsTranslationMatrix(), _upAxis, _radius, _halfHeight, RenderSolid, Color.Black);
         }
 
         public override TCollisionShape GetCollisionShape() => throw new NotImplementedException();
-        public override Shape HardCopy() => throw new NotImplementedException();
+        public override TShape HardCopy() => throw new NotImplementedException();
 
         public override EContainment Contains(BoundingBoxStruct box)
         {

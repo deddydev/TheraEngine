@@ -16,7 +16,7 @@ namespace TheraEngine.Core.Files
     /// <typeparam name="T"></typeparam>
     public interface IGlobalFilesContext<T> where T : class, IFileObject
     {
-        ConcurrentDictionary<string, GlobalFileRef<T>> GlobalFileInstances { get; }
+        ConcurrentDictionary<string, T> GlobalFileInstances { get; }
     }
     /// <summary>
     /// 
@@ -57,17 +57,18 @@ namespace TheraEngine.Core.Files
 
         protected override bool RegisterInstance()
         {
+            T file = IsLoaded ? File : null;
             if (Context != null)
             {
                 if (string.IsNullOrEmpty(Path.Absolute) || IsLoaded)
                     return false;
 
-                Context.GlobalFileInstances.AddOrUpdate(Path.Absolute, this, (key, oldValue) => this);
+                Context.GlobalFileInstances.AddOrUpdate(Path.Absolute, file, (key, oldValue) => file);
 
                 return true;
             }
             else
-                return Engine.Files.AddGlobalFileInstance(this);
+                return Engine.Files.AddGlobalFileInstance(file, Path.Absolute);
         }
 
         protected override void OnAbsoluteRefPathChanged(string oldPath, string newPath)
@@ -78,9 +79,12 @@ namespace TheraEngine.Core.Files
                 if (Context != null)
                 {
                     if (!string.IsNullOrEmpty(oldPath))
-                        Context.GlobalFileInstances.TryRemove(oldPath, out GlobalFileRef<T> value);
+                        Context.GlobalFileInstances.TryRemove(oldPath, out T value);
                     if (!string.IsNullOrEmpty(newPath))
-                        Context.GlobalFileInstances.AddOrUpdate(newPath, this, (key, oldValue) => this);
+                    {
+                        T file = File;
+                        Context.GlobalFileInstances.AddOrUpdate(newPath, file, (key, oldValue) => file);
+                    }
                 }
             }
             else
@@ -88,7 +92,7 @@ namespace TheraEngine.Core.Files
                 if (!string.IsNullOrEmpty(oldPath))
                     Engine.Files.RemoveGlobalFileInstance(oldPath);
                 if (!string.IsNullOrEmpty(newPath))
-                    Engine.Files.AddGlobalFileInstance(this);
+                    Engine.Files.AddGlobalFileInstance(default(T), Path.Absolute);
             }
         }
 
@@ -105,33 +109,56 @@ namespace TheraEngine.Core.Files
                 return _file;
 
             LoadAttempted = true;
+            IsLoading = true;
+
             string absolutePath = Path.Absolute;
             if (absolutePath != null)
             {
                 if (Context == null)
                 {
-                    if (Engine.GlobalFileInstances.TryGetValue(absolutePath, out IGlobalFileRef fileRef))
+                    if (Engine.GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
                     {
-                        if (fileRef.File is T casted)
+                        if (file != null)
                         {
-                            //casted.References.Add(this);
-                            File = casted;
+                            if (file is T casted)
+                            {
+                                //casted.References.Add(this);
+                                File = casted;
+                                IsLoading = false;
+                                return casted;
+                            }
+                            else
+                                Engine.LogWarning(file.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
                         }
-                        else
-                            Engine.LogWarning(fileRef.File.GetType().GetFriendlyName() + " cannot be casted to " + typeof(T).GetFriendlyName());
                     }
                 }
                 else
                 {
-                    if (Context.GlobalFileInstances.TryGetValue(absolutePath, out GlobalFileRef<T> fileRef))
+                    if (Context.GlobalFileInstances.TryGetValue(absolutePath, out T file))
                     {
-                        File = fileRef.File;
+                        File = file;
+                        IsLoading = false;
+                        return file;
                     }
                 }
             }
 
             T value = await LoadNewInstanceAsync(progress, cancel);
             File = value;
+
+            if (absolutePath != null)
+            {
+                if (Context == null)
+                {
+                    Engine.GlobalFileInstances.AddOrUpdate(absolutePath, value, (key, oldValue) => value);
+                }
+                else
+                {
+                    Context.GlobalFileInstances.AddOrUpdate(absolutePath, value, (key, oldValue) => value);
+                }
+            }
+
+            IsLoading = false;
             return value;
         }
         

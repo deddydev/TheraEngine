@@ -15,7 +15,7 @@ namespace TheraEngine.Core.Shapes
             : this(Vec3.Zero, radius, height) { }
         public ConeY(EventVec3 center, float radius, float height)
             : base(center, Vec3.UnitY, radius, height) { }
-        public override Shape HardCopy()
+        public override TShape HardCopy()
             => new ConeY(Center, Radius, Height);
         public override TCollisionShape GetCollisionShape()
             => TCollisionConeY.New(Radius, Height);

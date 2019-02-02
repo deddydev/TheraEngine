@@ -236,14 +236,28 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         protected virtual void UpdateDisplayInternal(object value) { }
 
-        /// <summary>
-        /// List of all visible PropGridItems that need to be updated.
-        /// </summary>
-        private static List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
         public virtual bool CanAnimate => false;
 
         object IPropGridMemberOwner.Value => GetValue();
 
+        internal static void AddVisibleItem(PropGridItem item)
+        {
+            VisibleItemsAdditionQueue.Enqueue(item);
+        }
+        internal static void RemoveVisibleItem(PropGridItem item)
+        {
+            VisibleItemsRemovalQueue.Enqueue(item);
+        }
+        internal static void StopUpdatingVisibleItems()
+        {
+            UpdatingVisibleItems = false;
+        }
+        /// <summary>
+        /// List of all visible PropGridItems that need to be updated.
+        /// </summary>
+        private static List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
+        private static Queue<PropGridItem> VisibleItemsRemovalQueue { get; } = new Queue<PropGridItem>();
+        private static Queue<PropGridItem> VisibleItemsAdditionQueue { get; } = new Queue<PropGridItem>();
         private static bool UpdatingVisibleItems = false;
         internal static void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
@@ -256,47 +270,44 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 while (UpdatingVisibleItems)
                 {
                     if (Engine.CurrentFramesPerSecond > 30.0f)
+                    {
                         Parallel.For(0, VisibleItems.Count, i =>
                         {
                             try
                             {
-                                if (!VisibleItems.IndexInRange(i))
-                                    return;
                                 var item = VisibleItems[i];
-                                //Panel p = item.ParentCategory?.PropertyGrid?.pnlProps;
-                                //if (p != null)
-                                //{
-                                //    var screenItemRect = item.RectangleToScreen(item.ClientRectangle);
-                                //    var screenBoundsRect = p.RectangleToScreen(item.ClientRectangle);
-                                //    if (!screenItemRect.IntersectsWith(screenBoundsRect))
-                                //        return;
-                                //}
                                 if (!item.Disposing && !item.IsDisposed)
                                     BaseRenderPanel.ThreadSafeBlockingInvoke((Action)item.UpdateDisplay, BaseRenderPanel.PanelType.Rendering);
+                                else
+                                    RemoveVisibleItem(item);
                             }
-                            catch { }
+                            catch (Exception ex)
+                            {
+                                Engine.LogException(ex);
+                            }
                         });
+                        while (VisibleItemsRemovalQueue.Count > 0)
+                            VisibleItems.Remove(VisibleItemsRemovalQueue.Dequeue());
+                        while (VisibleItemsAdditionQueue.Count > 0)
+                            VisibleItems.Add(VisibleItemsAdditionQueue.Dequeue());
+                    }
                     Thread.Sleep(sleepTime);
-                    break;
                 }
             });
         }
-        internal static void StopUpdatingVisibleItems()
-        {
-            UpdatingVisibleItems = false;
-        }
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            if (!Engine.DesignMode)
-                VisibleItems.Add(this);
-        }
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            if (!Engine.DesignMode)
-                VisibleItems.Remove(this);
-            base.OnHandleDestroyed(e);
-        }
+
+        //protected override void OnHandleCreated(EventArgs e)
+        //{
+        //    base.OnHandleCreated(e);
+        //    if (!Engine.DesignMode)
+        //        VisibleItems.Add(this);
+        //}
+        //protected override void OnHandleDestroyed(EventArgs e)
+        //{
+        //    if (!Engine.DesignMode)
+        //        VisibleItems.Remove(this);
+        //    base.OnHandleDestroyed(e);
+        //}
         public override string ToString()
             => DataType?.ToString() + " - " + MemberInfo?.ToString();
         protected virtual void OnLabelSet()

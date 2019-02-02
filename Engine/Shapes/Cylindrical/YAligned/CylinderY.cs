@@ -15,7 +15,7 @@ namespace TheraEngine.Core.Shapes
             : base(center, Vec3.UnitY, radius, halfHeight) { }
         public override TCollisionShape GetCollisionShape()
             => TCollisionCylinderY.New(Radius, HalfHeight * 2.0f);
-        public override Shape HardCopy()
+        public override TShape HardCopy()
             => new CylinderY(Center, Radius, HalfHeight);
     }
 }

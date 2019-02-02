@@ -65,11 +65,35 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public void DestroyProperties()
         {
-            foreach (Control control in tblProps.Controls)
-                control.Dispose();
-            tblProps.Controls.Clear();
-            tblProps.RowStyles.Clear();
-            tblProps.RowCount = 0;
+            if (tblProps != null)
+            {
+                for (int i = 0; i < tblProps.ColumnCount; ++i)
+                {
+                    for (int x = 0; x < tblProps.RowCount; ++x)
+                    {
+                        Control control = tblProps.GetControlFromPosition(i, x);
+                        if (control is PropGridItem item)
+                        {
+                            PropGridItem.RemoveVisibleItem(item);
+                        }
+                        else if (control is BetterTableLayoutPanel tbl)
+                        {
+                            for (int r = 0; r < tbl.RowCount; ++r)
+                            {
+                                Control control2 = tbl.GetControlFromPosition(0, r);
+                                if (control2 is PropGridItem item2)
+                                {
+                                    PropGridItem.RemoveVisibleItem(item2);
+                                }
+                            }
+                        }
+                        control?.Dispose();
+                    }
+                }
+                tblProps.Controls.Clear();
+                tblProps.RowStyles.Clear();
+                tblProps.RowCount = 0;
+            }
         }
         //public Label AddMethod(PropGridMethod methodControl, object[] attributes, string displayName)
         //{
@@ -186,7 +210,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     tblProps.BeginUpdate();
                     tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                     tblProps.RowCount = tblProps.RowStyles.Count;
-                    label = UpdateTable(editors, readOnly, name, desc);
+                    label = AddRowToTable(editors, readOnly, name, desc);
                     tblProps.EndUpdate();
                 }));
             }
@@ -195,14 +219,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 tblProps.BeginUpdate();
                 tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 tblProps.RowCount = tblProps.RowStyles.Count;
-                label = UpdateTable(editors, readOnly, name, desc);
+                label = AddRowToTable(editors, readOnly, name, desc);
                 tblProps.EndUpdate();
             }
 
             return label;
         }
 
-        private Label UpdateTable(List<PropGridItem> editors, bool readOnly, string name, string desc)
+        private Label AddRowToTable(List<PropGridItem> editors, bool readOnly, string name, string desc)
         {
             Label label = new Label()
             {
@@ -220,7 +244,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             label.Tag = new MemberLabelInfo(desc, label.Location, new Point(label.Location.X + 10, label.Location.Y));
             if (editors.Count > 1)
             {
-                BetterTableLayoutPanel p = new BetterTableLayoutPanel()
+                BetterTableLayoutPanel tbl = new BetterTableLayoutPanel()
                 {
                     Dock = DockStyle.Fill,
                     Margin = new Padding(0),
@@ -228,9 +252,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     AutoSize = true,
                     AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 };
-                p.ColumnStyles.Clear();
-                p.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-                p.ColumnCount = 1;
+                tbl.ColumnStyles.Clear();
+                tbl.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+                tbl.ColumnCount = 1;
                 foreach (PropGridItem item in editors)
                 {
                     item.SetLabel(label);
@@ -240,11 +264,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.ReadOnly = readOnly;
                     item.ParentCategory = this;
 
-                    p.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                    p.RowCount = tblProps.RowStyles.Count;
-                    p.Controls.Add(item, 0, p.RowCount - 1);
+                    tbl.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    tbl.RowCount = tblProps.RowStyles.Count;
+                    tbl.Controls.Add(item, 0, tbl.RowCount - 1);
+                    PropGridItem.AddVisibleItem(item);
                 }
-                tblProps.Controls.Add(p, 1, tblProps.RowCount - 1);
+                tblProps.Controls.Add(tbl, 1, tblProps.RowCount - 1);
             }
             else
             {
@@ -256,6 +281,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.ReadOnly = readOnly;
                 item.ParentCategory = this;
                 tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
+                PropGridItem.AddVisibleItem(item);
             }
             return label;
         }

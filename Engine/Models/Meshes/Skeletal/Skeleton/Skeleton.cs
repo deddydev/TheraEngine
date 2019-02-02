@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Models
             = new RenderInfo3D(false, false) { CastsShadows = false, ReceivesShadows = false };
 
         [Browsable(false)]
-        public Shape CullingVolume => null;
+        public TShape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 

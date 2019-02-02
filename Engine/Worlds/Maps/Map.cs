@@ -1,11 +1,9 @@
-﻿using TheraEngine.Worlds.Maps;
-using TheraEngine.Core.Files;
-using TheraEngine.Actors;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Collections.Generic;
-using TheraEngine.Core.Maths.Transforms;
 using System.Linq;
-using TheraEngine.GameModes;
+using TheraEngine.Actors;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Worlds
 {

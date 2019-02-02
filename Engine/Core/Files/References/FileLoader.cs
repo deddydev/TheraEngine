@@ -70,17 +70,33 @@ namespace TheraEngine.Core.Files
 
         protected virtual PathReference InternalPath { get; set; }
 
-        [Category("File Reference")]
+        [Category("Loading")]
         [TSerialize]
         public (Type Type, object Value)[] DefaultConstructionArguments { get; set; } = null;
 
-        [Category("File Reference")]
+        [Category("Loading")]
         [TSerialize]
         public bool CreateFileIfNonExistent { get; set; } = false;
-        [Category("File Reference")]
+        [Category("Loading")]
         [TSerialize]
         public bool AllowDynamicConstruction { get; set; } = false;
 
+        [Category("Loading")]
+        public EPathType PathType
+        {
+            get => Path.Type;
+            set => Path.Type = value;
+        }
+        [TString(false, true, false, true)]
+        [Category("Loading")]
+        [DisplayName("Path")]
+        public string AbsolutePath
+        {
+            get => Path.Absolute;
+            set => Path.Absolute = value;
+        }
+
+        [Browsable(false)]
         [Category("File Reference")]
         [DisplayName("Reference Path")]
         [TSerialize]
@@ -156,6 +172,7 @@ namespace TheraEngine.Core.Files
 
             Loaded += onLoaded;
         }
+        protected void OnLoaded(T file) => Loaded?.Invoke(file);
         public virtual void UnregisterLoadEvent(Action<T> onLoaded)
         {
             if (onLoaded == null)

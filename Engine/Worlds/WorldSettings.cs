@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Animation.Cutscenes;
-using TheraEngine.Audio;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
@@ -95,18 +93,7 @@ namespace TheraEngine.Worlds
 
         [TSerialize(nameof(Maps))]
         private EventList<LocalFileRef<Map>> _maps = new EventList<LocalFileRef<Map>>();
-
-        [TSerialize(nameof(AmbientSound))]
-        private AudioFile _ambientSound;
-
-        [TSerialize(nameof(AmbientParams))]
-        private AudioParameters _ambientParams = new AudioParameters()
-        {
-            ListenerRelative = new UsableValue<bool>(true, false, true),
-            Gain = new UsableValue<float>(0.6f, 1.0f, true),
-            Loop = new UsableValue<bool>(true, false, true),
-        };
-
+        
         /// <summary>
         /// Determines if the origin of the world should be moved to keep the local players closest to it.
         /// This is useful for open-world games as the player will be moving far from the original origin
@@ -146,12 +133,6 @@ namespace TheraEngine.Worlds
                 }
             }
         }
-        [Category("Audio")]
-        public AudioFile AmbientSound
-        {
-            get => _ambientSound;
-            set => _ambientSound = value;
-        }
         [Category("World")]
         public EventList<LocalFileRef<Map>> Maps
         {
@@ -177,13 +158,7 @@ namespace TheraEngine.Worlds
         {
 
         }
-
-        [Browsable(false)]
-        public AudioParameters AmbientParams
-        {
-            get => _ambientParams;
-            set => _ambientParams = value;
-        }
+        
         public List<TMaterial> CollectDefaultMaterials()
         {
             foreach (Map m in _maps)

@@ -19,7 +19,7 @@ namespace TheraEngine.Actors.Types
         private CubeFrameBuffer _prefilterFBO;
 
         [Browsable(false)]
-        public Shape CullingVolume => null;
+        public TShape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
         [Browsable(false)]

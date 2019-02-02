@@ -680,7 +680,7 @@ namespace TheraEditor.Windows.Forms
             public static readonly Color Color = Color.LimeGreen;
 
             public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
-            public Shape CullingVolume => null;
+            public TShape CullingVolume => null;
             public IOctreeNode OctreeNode { get; set; }
             public SceneComponent HighlightedComponent { get; set; }
             public Matrix4 Transform { get; set; } = Matrix4.Identity;

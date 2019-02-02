@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace TheraEngine.Core.Files
 {
@@ -95,7 +96,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         [Description("Returns true if the file object is not null, even if it was set using code rather than from a file.\n" +
             "If set to false when true, the file object will be fully unloaded and set to null.")]
-        [Category("File Reference")]
+        [Category("Loading")]
         public bool IsLoaded
         {
             get => _file != null;
@@ -108,17 +109,17 @@ namespace TheraEngine.Core.Files
                     UnloadReference();
             }
         }
-        
+
         /// <summary>
         /// If true, the referenced file will be written within the parent file's data
         /// and loaded with the parent file instead of being loaded on demand from the external file.
         /// </summary>
         //[Browsable(false)]
-        [Category("File Reference")]
+        [Category("Loading")]
         public bool StoredInternally => string.IsNullOrWhiteSpace(Path.Absolute);
 
         [Browsable(false)]
-        public override bool FileExists => File != null || base.FileExists;
+        public override bool FileExists => IsLoaded || base.FileExists;
 
         IFileObject IFileRef.File => File;
         
@@ -129,8 +130,8 @@ namespace TheraEngine.Core.Files
             get => GetInstance();
             set
             {
-                if (_file == value)
-                    return;
+                //if (_file == value)
+                //    return;
 
                 if (_file != null)
                 {
@@ -146,20 +147,21 @@ namespace TheraEngine.Core.Files
                     if (!string.IsNullOrEmpty(path) && path.IsExistingDirectoryPath() == false)
                     {
                         Path.Absolute = path;
-                        RegisterInstance();
                     }
                     else
                     {
-                        Path.Absolute = null;// Path.DirectorySeparatorChar.ToString();
+                        //Path.Absolute = null;// Path.DirectorySeparatorChar.ToString();
                     }
                     //if (!_file.References.Contains(this))
                     //    _file.References.Add(this);
                     LoadAttempted = true;
+                    OnLoaded(_file);
                 }
                 else
                 {
-                    Path.Absolute = null;
+                    //Path.Absolute = null;
                 }
+                RegisterInstance();
             }
         }
 
@@ -200,26 +202,33 @@ namespace TheraEngine.Core.Files
         //{
         //    if (_file == null)
         //        return;
-            
+
         //    await _file.ExportAsync(dir, name, format, thirdPartyExt, flags, progress, cancel);
         //    if (setPath)
         //        ReferencePathAbsolute = _file.FilePath;
         //}
 
-        [Browsable(false)]
+        //[Browsable(false)]
+        [Category("Loading")]
         public bool LoadAttempted { get; protected set; } = false;
+        //[Browsable(false)]
+        [Category("Loading")]
+        public bool IsLoading { get; protected set; } = false;
+
         protected override void OnAbsoluteRefPathChanged(string oldPath, string newPath)
         {
             LoadAttempted = false;
             base.OnAbsoluteRefPathChanged(oldPath, newPath);
         }
+
         IFileObject IFileRef.GetInstance() => GetInstance();
         public T GetInstance()
         {
             if (_file != null || LoadAttempted)
                 return _file;
-            
-            GetInstanceAsync().ContinueWith(task => LoadAttempted = true);
+
+            LoadAttempted = false;
+            GetInstanceAsync().ContinueWith(x => LoadAttempted = true);
             while (!LoadAttempted) ;
             return _file;
         }

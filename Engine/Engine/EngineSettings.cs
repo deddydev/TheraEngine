@@ -83,6 +83,9 @@ namespace TheraEngine
         [Category("Performance")]
         [TSerialize]
         public bool EnableDeferredPass { get; set; }
+        [Category("Performance")]
+        [TSerialize]
+        public bool SingleThreaded { get; set; } = true;
 
         //[Category("Debug")]
         //[TSerialize]

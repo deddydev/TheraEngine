@@ -63,7 +63,7 @@ namespace TheraEngine.Tests
             //long loopMs = _watch.ElapsedMilliseconds;
             //_watch.Reset();
             //_watch.Start();
-            _landscape.UpdateHeightFieldMesh();
+            _landscape.HeightDataChanged();
             //_watch.Stop();
             //long meshMs = _watch.ElapsedMilliseconds;
             //Engine.PrintLine($"{loopMs} loop, {meshMs} update");
@@ -437,7 +437,7 @@ namespace TheraEngine.Tests
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
 
         [Browsable(false)]
-        public Shape CullingVolume => null;
+        public TShape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 

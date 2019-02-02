@@ -8,10 +8,8 @@ using TheraEngine.Physics;
 
 namespace TheraEngine.Core.Shapes
 {
-    public class Cone : Shape
+    public class Cone : TShape
     {
-        public override Shape CullingVolume => null;
-
         public Cone(EventVec3 center, Vec3 upAxis, float radius, float height)
         {
             _center = center ?? Vec3.Zero;
@@ -58,7 +56,7 @@ namespace TheraEngine.Core.Shapes
         }
         
         public override void Render()
-            => Engine.Renderer.RenderCone(_center.AsTranslationMatrix(), _localUpAxis, _radius, _height, _renderSolid, Color.Magenta);
+            => Engine.Renderer.RenderCone(_center.AsTranslationMatrix(), _localUpAxis, _radius, _height, RenderSolid, Color.Magenta);
 
         public static PrimitiveData WireMesh(Vec3 center, Vec3 up, float height, float radius, int sides)
         {
@@ -186,7 +184,7 @@ namespace TheraEngine.Core.Shapes
                 "A cone with an arbitrary up axis cannot be used as a collision shape. " +
                 $"Use {nameof(ConeX)}, {nameof(ConeY)}, or {nameof(ConeZ)} instead.");
 
-        public override Shape HardCopy() 
+        public override TShape HardCopy() 
             => new Cone(Center.Raw, UpAxis, Radius, Height);
     }
 }

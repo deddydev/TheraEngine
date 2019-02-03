@@ -128,11 +128,16 @@ namespace TheraEngine.Core.Files.Serialization
                     {
                         --Owner.SharedObjectIndices[tobj.Guid];
                         if (Owner.SharedObjectIndices[tobj.Guid] <= 0)
+                        {
                             Owner.SharedObjectIndices.Remove(tobj.Guid);
+                            if (Owner.SharedObjects.ContainsKey(tobj.Guid))
+                                Owner.SharedObjects.Remove(tobj.Guid);
+                        }
                     }
                 }
 
                 _object = value;
+
                 if (ObjectType != oldObjType)
                     ObjectTypeChanged();
 
@@ -141,7 +146,11 @@ namespace TheraEngine.Core.Files.Serialization
                     if (Owner.SharedObjectIndices.ContainsKey(tobj2.Guid))
                         ++Owner.SharedObjectIndices[tobj2.Guid];
                     else
+                    {
                         Owner.SharedObjectIndices.Add(tobj2.Guid, 1);
+                        if (!Owner.SharedObjects.ContainsKey(tobj2.Guid))
+                            Owner.SharedObjects.Add(tobj2.Guid, this);
+                    }
                 }
             }
         }
@@ -232,8 +241,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private void ChildElements_PostAnythingAdded(SerializeElement item)
         {
-            if (item.Parent != null)
-                item.Parent.ChildElements.Remove(item);
+            item.Parent?.ChildElements?.Remove(item);
             item.Owner = Owner;
             item.Parent = this;
         }
@@ -246,15 +254,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (MemberInfo == null || Parent?.CustomDeserializeMethods == null)
                 return false;
 
-            var customMethods = Parent.CustomDeserializeMethods.Where(
-                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<TCustomMemberDeserializeMethod>().Name));
+            IEnumerable<MethodInfo> customMethods = Parent.CustomDeserializeMethods.Where(
+                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomMemberDeserializeMethod>().Name));
 
-            foreach (var customMethod in customMethods)
+            foreach (MethodInfo customMethod in customMethods)
             {
-                if (customMethod == null)
-                    continue;
-
-                var parameters = customMethod.GetParameters();
+                ParameterInfo[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
                 {
                     //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} manually via parent.");
@@ -271,7 +276,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(TCustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
                 }
             }
 
@@ -313,15 +318,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (MemberInfo == null || Parent?.CustomSerializeMethods == null)
                 return false;
 
-            var customMethods = Parent.CustomSerializeMethods.Where(
-                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<TCustomMemberSerializeMethod>().Name));
+            IEnumerable<MethodInfo> customMethods = Parent.CustomSerializeMethods.Where(
+                x => string.Equals(MemberInfo.Name, x.GetCustomAttribute<CustomMemberSerializeMethod>().Name));
 
-            foreach (var customMethod in customMethods)
+            foreach (MethodInfo customMethod in customMethods)
             {
-                if (customMethod == null)
-                    continue;
-
-                var parameters = customMethod.GetParameters();
+                ParameterInfo[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(GetType()))
                 {
                     if (customMethod.ReturnType == typeof(Task))
@@ -333,7 +335,7 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
-                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(TCustomMemberSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
+                    Engine.LogWarning($"Method {customMethod.GetFriendlyName()} is marked with a {nameof(CustomMemberSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {nameof(SerializeElement)}.");
                 }
             }
 
@@ -355,13 +357,12 @@ namespace TheraEngine.Core.Files.Serialization
             bool serConfig = ext.ManualXmlConfigSerialize;
             bool serState = ext.ManualXmlStateSerialize;
 
-            if (serConfig || serState)
-            {
-                tobj.ManualWrite(this);
-                return true;
-            }
+            if (!serConfig && !serState)
+                return false;
 
-            return false;
+            tobj.ManualWrite(this);
+            return true;
+
         }
         /// <summary>
         /// Creates this object for this element 
@@ -371,20 +372,19 @@ namespace TheraEngine.Core.Files.Serialization
         /// </summary>
         public async void DeserializeTreeToObject()
         {
-            if (GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration))
-                DesiredDerivedObjectType = SerializationCommon.CreateType(typeDeclaration);
-            else
-                DesiredDerivedObjectType = null;
+            DesiredDerivedObjectType = 
+                GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration) ? 
+                    SerializationCommon.CreateType(typeDeclaration) : 
+                    null;
             
             bool custom = await TryInvokeManualParentDeserializeAsync();
             if (!custom)
                 custom = TryInvokeManualDeserializeAsync();
-            if (!custom)
-            {
-                //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} normally.");
-                ObjectSerializer?.DeserializeTreeToObject();
-                ApplyObjectToParent();
-            }
+            if (custom)
+                return;
+            //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} normally.");
+            ObjectSerializer?.DeserializeTreeToObject();
+            ApplyObjectToParent();
         }
         public async void SerializeTreeFromObject()
         {
@@ -398,6 +398,13 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (ObjectType.IsAbstract || ObjectType.IsInterface)
                 throw new Exception();
+
+            if (Owner != null && 
+                Object is TObject tobj && 
+                tobj.Guid != Guid.Empty &&
+                Owner.SharedObjectIndices.ContainsKey(tobj.Guid) &&
+                Owner.SharedObjectIndices[tobj.Guid] > 1)
+                return;
 
             bool custom = await TryInvokeManualParentSerializeAsync();
             if (!custom)
@@ -426,33 +433,31 @@ namespace TheraEngine.Core.Files.Serialization
                     BindingFlags.FlattenHierarchy);
                 foreach (MethodInfo m in methods)
                 {
-                    var attribs = m.GetCustomAttributes();
-                    foreach (var attrib in attribs)
+                    IEnumerable<Attribute> attribs = m.GetCustomAttributes();
+                    foreach (Attribute attrib in attribs)
                     {
-                        if (attrib is SerializationAttribute serAttrib &&
-                            (Owner != null ? serAttrib.RunForFormats.HasFlag(Owner.Format) : true))
+                        if (!(attrib is SerializationAttribute serAttrib) || (Owner != null && !serAttrib.RunForFormats.HasFlag(Owner.Format)))
+                            continue;
+                        switch (attrib)
                         {
-                            switch (attrib.GetType().Name)
-                            {
-                                case nameof(TPreDeserialize):
-                                    PreDeserializeMethods.Add(m);
-                                    break;
-                                case nameof(TPostDeserialize):
-                                    PostDeserializeMethods.Add(m);
-                                    break;
-                                case nameof(TPreSerialize):
-                                    PreSerializeMethods.Add(m);
-                                    break;
-                                case nameof(TPostSerialize):
-                                    PostSerializeMethods.Add(m);
-                                    break;
-                                case nameof(TCustomMemberSerializeMethod):
-                                    CustomSerializeMethods.Add(m);
-                                    break;
-                                case nameof(TCustomMemberDeserializeMethod):
-                                    CustomDeserializeMethods.Add(m);
-                                    break;
-                            }
+                            case TPreDeserialize _:
+                                PreDeserializeMethods.Add(m);
+                                break;
+                            case TPostDeserialize _:
+                                PostDeserializeMethods.Add(m);
+                                break;
+                            case TPreSerialize _:
+                                PreSerializeMethods.Add(m);
+                                break;
+                            case TPostSerialize _:
+                                PostSerializeMethods.Add(m);
+                                break;
+                            case CustomMemberSerializeMethod _:
+                                CustomSerializeMethods.Add(m);
+                                break;
+                            case CustomMemberDeserializeMethod _:
+                                CustomDeserializeMethods.Add(m);
+                                break;
                         }
                     }
                 }
@@ -540,56 +545,42 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     //Make some last minute adjustments to external file refs
                     //First, update file relative paths using the new file location
-                    if (fref.Path.Type == EPathType.FileRelative)
-                    {
-                        string root = Path.GetPathRoot(fref.Path.Absolute);
-                        int colonIndex = root.IndexOf(":");
-                        if (colonIndex > 0)
-                            root = root.Substring(0, colonIndex);
-                        else
-                            root = string.Empty;
+                    //if (fref.Path.Type == EPathType.FileRelative)
+                    //{
+                    //    string root = Path.GetPathRoot(fref.Path.Path);
+                    //    int colonIndex = root.IndexOf(":");
+                    //    if (colonIndex > 0)
+                    //        root = root.Substring(0, colonIndex);
+                    //    else
+                    //        root = string.Empty;
 
-                        string root2 = Path.GetPathRoot(Owner.FileDirectory);
-                        colonIndex = root2.IndexOf(":");
-                        if (colonIndex > 0)
-                            root2 = root2.Substring(0, colonIndex);
-                        else
-                            root2 = string.Empty;
+                    //    string root2 = Path.GetPathRoot(Owner.FileDirectory);
+                    //    colonIndex = root2.IndexOf(":");
+                    //    if (colonIndex > 0)
+                    //        root2 = root2.Substring(0, colonIndex);
+                    //    else
+                    //        root2 = string.Empty;
 
-                        if (!string.Equals(root, root2))
-                        {
-                            //Totally different drives, cannot be relative in any way
-                            fref.Path.Type = EPathType.Absolute;
-                        }
-                    }
+                    //    if (!string.Equals(root, root2))
+                    //    {
+                    //        //Totally different drives, cannot be relative in any way
+                    //        fref.Path.Type = EPathType.Absolute;
+                    //    }
+                    //}
                     if (fref.IsLoaded)
                     {
-                        string path = fref.Path.Absolute;
-                        bool fileExists =
-                            !string.IsNullOrWhiteSpace(path) &&
-                            path.IsExistingDirectoryPath() == false &&
-                            File.Exists(path);
+                        string path = fref.Path.Path;
 
                         //TODO: export even if the file exists,
                         //however only if the file has changed
-                        if (!fileExists)
+                        if (path.IsValidPath() && !File.Exists(path))
                         {
                             if (fref is IGlobalFileRef && !Owner.Flags.HasFlag(ESerializeFlags.ExportGlobalRefs))
                                 return;
                             if (fref is ILocalFileRef && !Owner.Flags.HasFlag(ESerializeFlags.ExportLocalRefs))
                                 return;
 
-                            string absPath;
-                            if (fref.Path.Type == EPathType.FileRelative)
-                            {
-                                string rel = fref.Path.Absolute.MakeAbsolutePathRelativeTo(Owner.FileDirectory);
-                                absPath = Path.GetFullPath(Path.Combine(Owner.FileDirectory, rel));
-                                //fref.ReferencePathRelative = absPath.MakePathRelativeTo(_fileDir);
-                            }
-                            else
-                                absPath = fref.Path.Absolute;
-
-                            string dir = absPath.Contains(".") ? Path.GetDirectoryName(absPath) : absPath;
+                            string dir = path.Contains(".") ? Path.GetDirectoryName(path) : path;
 
                             IFileObject file = fref.File;
                             if (file.FileExtension != null)
@@ -601,8 +592,8 @@ namespace TheraEngine.Core.Files.Serialization
                             }
                             else
                             {
-                                var f = file.FileExtension;
-                                if (f != null && f.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
+                                TFileExt f = file.FileExtension;
+                                if (f?.ExportableExtensions != null && f.ExportableExtensions.Length > 0)
                                 {
                                     string ext = f.ExportableExtensions[0];
                                     string fileName = SerializationCommon.ResolveFileName(Owner.FileDirectory, file.Name, ext);

@@ -168,10 +168,13 @@ namespace System
         }
         public static bool IsAbsolutePath(this string path)
         {
-            return !String.IsNullOrWhiteSpace(path)
-                && path.IndexOfAny(Path.GetInvalidPathChars().ToArray()) == -1
+            return path.IsValidPath()
                 && Path.IsPathRooted(path)
                 && !Path.GetPathRoot(path).Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
+        }
+        public static bool IsValidPath(this string path)
+        {
+            return !string.IsNullOrWhiteSpace(path) && path.IndexOfAny(Path.GetInvalidPathChars().ToArray()) == -1;
         }
         public static bool StartsWithDirectorySeparator(this string str)
             => !string.IsNullOrEmpty(str) && str[0] == Path.DirectorySeparatorChar;

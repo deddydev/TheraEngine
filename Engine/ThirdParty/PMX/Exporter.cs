@@ -58,7 +58,7 @@ namespace TheraEngine.ThirdParty.PMX
                             TMaterial mat = mref?.File;
                             if (mat != null)
                             {
-                                string refPathAbs = mref.Path.Absolute;
+                                string refPathAbs = mref.Path.Path;
                                 if (!string.IsNullOrEmpty(refPathAbs) && 
                                     refPathAbs.IsExistingDirectoryPath() == false)
                                 {
@@ -73,9 +73,9 @@ namespace TheraEngine.ThirdParty.PMX
                                     {
                                         if (tex is TexRef2D tex2D)
                                             foreach (var mip in tex2D.Mipmaps)
-                                                if (!string.IsNullOrEmpty(mip.Path.Absolute) &&
-                                                    mip.Path.Absolute.IsExistingDirectoryPath() == false)
-                                                    texNames.Add(mip.Path.Absolute.MakeAbsolutePathRelativeTo(path));
+                                                if (!string.IsNullOrEmpty(mip.Path.Path) &&
+                                                    mip.Path.Path.IsExistingDirectoryPath() == false)
+                                                    texNames.Add(mip.Path.Path.MakeAbsolutePathRelativeTo(path));
                                     }
                             }
                         }

@@ -1,17 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.ComponentModel;
-using TheraEngine.Rendering;
-using TheraEngine.Maths;
-using System.Xml;
-using System.IO;
-using System;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Core.Files;
-using TheraEngine.Rendering.Cameras;
-using TheraEngine.Core.Maths.Transforms;
+using System.Drawing;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Maths;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Core.Shapes
 {
@@ -35,6 +32,7 @@ namespace TheraEngine.Core.Shapes
         //Vec3 ClosestPoint(Vec3 point);
         bool Contains(Vec3 point);
     }
+    
     /// <summary>
     /// Contains the points and planes at the edges and near/far of a camera's view.
     /// </summary>
@@ -49,12 +47,12 @@ namespace TheraEngine.Core.Shapes
         [TSerialize("UseBoundingSphere", NodeType = ENodeType.Attribute)]
         private Sphere _boundingSphere;
 
-        [TCustomMemberSerializeMethod("UseBoundingSphere")]
+        [CustomMemberSerializeMethod("UseBoundingSphere")]
         private void SerializeBoundingSphere(SerializeElement node)
         {
             node.AddAttribute("UseBoundingSphere", UseBoundingSphere);
         }
-        [TCustomMemberDeserializeMethod("BoundingSphere")]
+        [CustomMemberDeserializeMethod("BoundingSphere")]
         private void DeserializeBoundingSphere(SerializeElement node)
         {
             if (node.GetAttributeValue("UseBoundingSphere", out bool result) && result)

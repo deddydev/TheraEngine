@@ -72,7 +72,7 @@ namespace TheraEngine.Rendering.Models
         /// <param name="topRight">The top right position of the quad.</param>
         /// <param name="topLeft">The top left position of the quad.</param>
         /// <param name="normal">The normal value for the quad.</param>
-        /// <param name="cubeMapFace">The face to retrieve UV coordiantes for.</param>
+        /// <param name="cubeMapFace">The face to retrieve UV coordinates for.</param>
         /// <param name="widthLarger">If the cubemap cross texture has a width larger than height for a sideways-oriented cross.
         /// Assumes +Y and -Y are on the left half of the image (top of the cross is on the left side).</param>
         /// <param name="bias">How much to shrink the UV coordinates inward into the cross sections
@@ -93,18 +93,18 @@ namespace TheraEngine.Rendering.Models
             bool flipVerticalUVCoord = true)
         {
             Vec2 
-                bottomLeftUV = Vec2.Zero, 
-                bottomRightUV = Vec2.Zero, 
-                topRightUV = Vec2.Zero, 
-                topLeftUV = Vec2.Zero;
+                bottomLeftUV, 
+                bottomRightUV, 
+                topRightUV, 
+                topLeftUV;
             
-            float zero = 0.0f;
-            float fourth = 0.25f;
-            float half = 0.5f;
-            float threeFourths = 0.75f;
-            float third = (float)(1.0 / 3.0);
-            float twoThirds = (float)(2.0 / 3.0);
-            float one = 1.0f;
+            const float zero = 0.0f;
+            const float fourth = 0.25f;
+            const float half = 0.5f;
+            const float threeFourths = 0.75f;
+            const float third = (float)(1.0 / 3.0);
+            const float twoThirds = (float)(2.0 / 3.0);
+            const float one = 1.0f;
 
             switch (cubeMapFace)
             {
@@ -205,6 +205,8 @@ namespace TheraEngine.Rendering.Models
                         topLeftUV = new Vec2(third, zero);
                     }
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(cubeMapFace), cubeMapFace, null);
             }
 
             bottomLeftUV.X += bias;

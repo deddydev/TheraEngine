@@ -217,6 +217,7 @@ namespace TheraEngine.Actors
             }
         }
 
+        [TSerialize]
         [Browsable(false)]
         [Category("Actor")]
         public Map MapAttachment { get; set; } = null;
@@ -254,11 +255,11 @@ For example, a logic component could give any actor health and/or allow it to ta
         public T1 FindFirstLogicComponentOfType<T1>() where T1 : LogicComponent
             => LogicComponents.FirstOrDefault(x => x is T1) as T1;
         public T1[] FindLogicComponentsOfType<T1>() where T1 : LogicComponent
-            => LogicComponents.Where(x => x is T1).Select(x => (T1)x).ToArray();
+            => LogicComponents.OfType<T1>().ToArray();
         public LogicComponent FindFirstLogicComponentOfType(Type type)
-            => LogicComponents.FirstOrDefault(x => type.IsAssignableFrom(x.GetType()));
+            => LogicComponents.FirstOrDefault(type.IsInstanceOfType);
         public LogicComponent[] FindLogicComponentsOfType(Type type)
-            => LogicComponents.Where(x => type.IsAssignableFrom(x.GetType())).ToArray();
+            => LogicComponents.Where(type.IsInstanceOfType).ToArray();
 
         //[Browsable(false)]
         //public List<I3DRenderable> RenderableComponentCache => _renderableComponentCache;
@@ -313,8 +314,8 @@ For example, a logic component could give any actor health and/or allow it to ta
         #region Spawning
         public void Despawn()
         {
-            if (IsSpawned && OwningWorld != null)
-                OwningWorld.DespawnActor(this);
+            if (IsSpawned)
+                OwningWorld?.DespawnActor(this);
         }
 
         void IActor_Internal.Spawned(TWorld world) => Spawned(world);
@@ -332,11 +333,11 @@ For example, a logic component could give any actor health and/or allow it to ta
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnSpawned();
 
-            if (this is I3DRenderable r3d)
-                r3d.RenderInfo.LinkScene(r3d, OwningScene3D);
+            if (this is I3DRenderable r3D)
+                r3D.RenderInfo.LinkScene(r3D, OwningScene3D);
 
-            if (this is I2DRenderable r2d)
-                r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
+            if (this is I2DRenderable r2D)
+                r2D.RenderInfo.LinkScene(r2D, OwningScene2D);
 
             OnSpawnedPostComponentSpawn();
 
@@ -361,11 +362,10 @@ For example, a logic component could give any actor health and/or allow it to ta
         private void DespawnTimer(float delta)
         {
             CurrentLife -= delta;
-            if (CurrentLife <= 0.0f)
-            {
-                UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
-                OnLifeSpanOver();
-            }
+            if (CurrentLife > 0.0f)
+                return;
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
+            OnLifeSpanOver();
         }
 
         /// <summary>
@@ -380,11 +380,11 @@ For example, a logic component could give any actor health and/or allow it to ta
             if (!IsSpawned)
                 return;
 
-            if (this is I3DRenderable r3d)
-                r3d.RenderInfo.UnlinkScene();
+            if (this is I3DRenderable r3D)
+                r3D.RenderInfo.UnlinkScene();
 
-            if (this is I2DRenderable r2d)
-                r2d.RenderInfo.UnlinkScene();
+            if (this is I2DRenderable r2D)
+                r2D.RenderInfo.UnlinkScene();
 
             OnDespawned();
 

@@ -35,7 +35,7 @@ namespace TheraEngine.Core.Files
         public FileRef(string filePath, T file) : this(filePath)
         {
             if (file != null)
-                file.FilePath = Path.Absolute;
+                file.FilePath = Path.Path;
             File = file;
             //if (exportNow && File != null)
             //    ExportReference();
@@ -47,8 +47,8 @@ namespace TheraEngine.Core.Files
         /// <param name="createIfNotFound"></param>
         public FileRef(string filePath, Func<T> createIfNotFound) : this(filePath)
         {
-            string absPath = Path.Absolute;
-            if (!System.IO.File.Exists(absPath) || DetermineType(Path.Absolute, out EFileFormat format) != typeof(T))
+            string absPath = Path.Path;
+            if (!System.IO.File.Exists(absPath) || DetermineType(Path.Path, out EFileFormat format) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
                 if (file != null)
@@ -62,14 +62,14 @@ namespace TheraEngine.Core.Files
         public FileRef(string dir, string name, EProprietaryFileFormat format, T file) : this(dir, name, format)
         {
             if (file != null)
-                file.FilePath = Path.Absolute;
+                file.FilePath = Path.Path;
             File = file;
             //if (exportNow && File != null)
             //    ExportReference();
         }
         public FileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound) : this(dir, name, format)
         {
-            string absPath = Path.Absolute;
+            string absPath = Path.Path;
             if (!System.IO.File.Exists(absPath) || DetermineType(absPath) != typeof(T))
             {
                 T file = createIfNotFound?.Invoke();
@@ -116,7 +116,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         //[Browsable(false)]
         [Category("File Reference")]
-        public bool StoredInternally => string.IsNullOrWhiteSpace(Path.Absolute);
+        public bool StoredInternally => string.IsNullOrWhiteSpace(Path.Path);
 
         [Browsable(false)]
         public override bool FileExists => IsLoaded || base.FileExists;
@@ -146,7 +146,7 @@ namespace TheraEngine.Core.Files
                     string path = _file.FilePath;
                     if (!string.IsNullOrEmpty(path) && path.IsExistingDirectoryPath() == false)
                     {
-                        Path.Absolute = path;
+                        Path.Path = path;
                     }
                     else
                     {

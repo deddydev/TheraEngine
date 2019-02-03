@@ -104,8 +104,8 @@ namespace TheraEngine.Core.Files
         public static Encoding GetEncoding(string filename)
         {
             // Read the BOM
-            var bom = new byte[4];
-            using (var file = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            byte[] bom = new byte[4];
+            using (FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read))
                 file.Read(bom, 0, 4);
 
             // Analyze the BOM

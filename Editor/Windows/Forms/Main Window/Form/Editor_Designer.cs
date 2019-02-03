@@ -54,15 +54,15 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             DockPanel.Theme = new TheraEditorTheme();
 
-            FormTitle2.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
-            TheraEngineText.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
-            PaddingPanel.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
-            lblVersion.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
+            FormTitle2.MouseDown += TitleBar_MouseDown;
+            TheraEngineText.MouseDown += TitleBar_MouseDown;
+            PaddingPanel.MouseDown += TitleBar_MouseDown;
+            lblVersion.MouseDown += TitleBar_MouseDown;
 
             FormTitle2.Text = Text;
 
             menuStrip1.Renderer = new TheraToolstripRenderer();
-            _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
+            _deserializeDockContent = GetContentFromPersistString;
 
             AutoScaleMode = AutoScaleMode.None;
             DoubleBuffered = false;
@@ -79,17 +79,17 @@ namespace TheraEditor.Windows.Forms
             lblYourIpPort.Text = "Your IP: " + NetworkConnection.GetLocalIPAddressV4();
             CursorManager.GlobalWrapCursorWithinClip = false;
 
-            if (lblVersion != null)
-            {
+            if (lblVersion == null)
+                return;
+
 #if DEBUG
-                lblVersion.Visible = true;
-                Version version = Assembly.GetExecutingAssembly().GetName().Version;
-                DateTime buildDate = new DateTime(2000, 1, 1).AddDays(version.Build).AddSeconds(version.Revision * 2);
-                lblVersion.Text = $"Editor Debug Ver {version} --- Built {buildDate}";
+            lblVersion.Visible = true;
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            DateTime buildDate = new DateTime(2000, 1, 1).AddDays(version.Build).AddSeconds(version.Revision * 2);
+            lblVersion.Text = $"Editor Debug Ver {version} --- Built {buildDate}";
 #else
-                lblVersion.Visible = false;
+            lblVersion.Visible = false;
 #endif
-            }
         }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -133,23 +133,23 @@ namespace TheraEditor.Windows.Forms
         public DockableWorldRenderForm RenderForm3 => GetRenderForm(2);
         public DockableWorldRenderForm RenderForm4 => GetRenderForm(3);
         
-        private bool GetFormActive<T>(T value) where T : DockContent
+        private static bool GetFormActive<T>(T value) where T : DockContent
             => value != null && !value.IsDisposed;
         
         public T GetForm<T>(ref T value, DockState defaultDockState = DockState.Document) where T : DockContent, new()
         {
-            if (value == null || value.IsDisposed)
+            if (value != null && !value.IsDisposed)
+                return value;
+
+            value = new T();
+            Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
+            if (InvokeRequired)
             {
-                value = new T();
-                Engine.PrintLine("Created " + value.GetType().GetFriendlyName());
-                if (InvokeRequired)
-                {
-                    T value2 = value;
-                    Invoke((Action)(() => value2.Show(DockPanel, defaultDockState)));
-                }
-                else
-                    value.Show(DockPanel);
+                T value2 = value;
+                Invoke((Action)(() => value2.Show(DockPanel, defaultDockState)));
             }
+            else
+                value.Show(DockPanel);
             return value;
         }
 

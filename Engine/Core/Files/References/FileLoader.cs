@@ -44,7 +44,7 @@ namespace TheraEngine.Core.Files
             //    throw new InvalidOperationException("Extension does not match type");
             Path = new PathReference
             {
-                Absolute = filePath
+                Path = filePath
             };
         }
         public FileLoader(string filePath, Type type)
@@ -57,7 +57,7 @@ namespace TheraEngine.Core.Files
             //    throw new InvalidOperationException("Extension does not match type");
             Path = new PathReference
             {
-                Absolute = filePath
+                Path = filePath
             };
         }
         public FileLoader(string dir, string name, EProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
@@ -90,8 +90,8 @@ namespace TheraEngine.Core.Files
         [DisplayName("Path")]
         public string AbsolutePath
         {
-            get => Path.Absolute;
-            set => Path.Absolute = value;
+            get => Path.Path;
+            set => Path.Path = value;
         }
 
         [Browsable(false)]
@@ -105,37 +105,37 @@ namespace TheraEngine.Core.Files
             {
                 if (InternalPath != null)
                 {
-                    InternalPath.RelativePathChanged -= OnRelativeRefPathChanged;
+                    //InternalPath.RelativePathChanged -= OnRelativeRefPathChanged;
                     InternalPath.AbsolutePathChanged -= OnAbsoluteRefPathChanged;
                 }
 
                 InternalPath = value ?? new PathReference();
 
-                InternalPath.RelativePathChanged += OnRelativeRefPathChanged;
+                //InternalPath.RelativePathChanged += OnRelativeRefPathChanged;
                 InternalPath.AbsolutePathChanged += OnAbsoluteRefPathChanged;
             }
         }
 
-        [Browsable(false)]
-        [TString(false, true, false)]
-        [Category("Object")]
-        public override string FilePath
-        {
-            get => base.FilePath;
-            set
-            {
-                base.FilePath = value;
-                if (Path.Type == EPathType.FileRelative)
-                {
-                    if (!string.IsNullOrWhiteSpace(RootFile.DirectoryPath) && 
-                        !string.IsNullOrWhiteSpace(Path.Absolute) &&
-                        Path.Absolute.IsValidExistingPath())
-                    {
-                        Path.Relative = Path.Absolute.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
-                    }
-                }
-            }
-        }
+        //[Browsable(false)]
+        //[TString(false, true, false)]
+        //[Category("Object")]
+        //public override string FilePath
+        //{
+        //    get => base.FilePath;
+        //    set
+        //    {
+        //        base.FilePath = value;
+        //        if (Path.Type == EPathType.FileRelative)
+        //        {
+        //            if (!string.IsNullOrWhiteSpace(RootFile.DirectoryPath) && 
+        //                !string.IsNullOrWhiteSpace(Path.Path) &&
+        //                Path.Path.IsValidExistingPath())
+        //            {
+        //                Path.Relative = Path.Path.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
+        //            }
+        //        }
+        //    }
+        //}
         
         /// <summary>
         /// Returns true if a file exists at the path that this reference points to.
@@ -148,11 +148,8 @@ namespace TheraEngine.Core.Files
                 if (!Path.FileExists)
                     return false;
 
-                Type fileType = DetermineType(Path.Absolute);
-                if (fileType == null)
-                    return false;
-
-                return _subType.IsAssignableFrom(fileType);
+                Type fileType = DetermineType(Path.Path);
+                return fileType != null && _subType.IsAssignableFrom(fileType);
             }
         }
 
@@ -198,11 +195,9 @@ namespace TheraEngine.Core.Files
         /// <summary>
         /// Loads a new instance synchronously.
         /// </summary>
-        /// <param name="allowConstruct"></param>
-        /// <param name="constructionArgs"></param>
         public T LoadNewInstance()
         {
-            Func<Task<T>> func = async () => { return await LoadNewInstanceAsync(); };
+            Func<Task<T>> func = async () => await LoadNewInstanceAsync();
             return func.RunSync();
         }
         
@@ -212,8 +207,6 @@ namespace TheraEngine.Core.Files
         /// <summary>
         /// Loads a new instance asynchronously.
         /// </summary>
-        /// <param name="allowConstruct"></param>
-        /// <param name="constructionArgs"></param>
         /// <param name="onLoaded"></param>
         public void LoadNewInstanceAsync(Action<T> onLoaded)
             => LoadNewInstanceAsync().ContinueWith(t => onLoaded?.Invoke(t.Result));
@@ -223,16 +216,11 @@ namespace TheraEngine.Core.Files
         
         public virtual async Task<T> LoadNewInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
-            string absolutePath = Path.Absolute;
+            string absolutePath = Path.Path;
 
             if (!absolutePath.IsAbsolutePath())
-            {
-                if (AllowDynamicConstruction)
-                    return DynamicConstruct(DefaultConstructionArguments, absolutePath);
-                
-                return null;
-            }
-
+                return AllowDynamicConstruction ? DynamicConstruct(DefaultConstructionArguments, absolutePath) : null;
+            
             if (!File.Exists(absolutePath))
             {
                 if (CreateFileIfNonExistent)
@@ -257,7 +245,7 @@ namespace TheraEngine.Core.Files
 
             try
             {
-                if (IsThirdPartyImportableExt(System.IO.Path.GetExtension(absolutePath).Substring(1)))
+                if (IsThirdPartyImportableExt(System.IO.Path.GetExtension(absolutePath)?.Substring(1)))
                 {
                     T file = Activator.CreateInstance<T>();
                     file.FilePath = absolutePath;
@@ -278,7 +266,7 @@ namespace TheraEngine.Core.Files
                             file = await FromBinaryAsync(_subType, absolutePath, progress, cancel) as T;
                             break;
                         default:
-                            Engine.LogWarning(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
+                            Engine.LogWarning($"Could not load file at \"{absolutePath}\". Invalid file format.");
                             break;
                     }
                     if (file != null)
@@ -291,7 +279,7 @@ namespace TheraEngine.Core.Files
             }
             catch (Exception e)
             {
-                Engine.LogWarning(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
+                Engine.LogWarning($"Could not load file at \"{absolutePath}\".\nException:\n\n{e}");
             }
 
             return null;
@@ -306,8 +294,7 @@ namespace TheraEngine.Core.Files
         /// Retrieves the extension from the reference path.
         /// Returns lowercase WITHOUT a period as the first char.
         /// </summary>
-        public string Extension() => Path.Absolute == null ? null :
-            System.IO.Path.GetExtension(Path.Absolute).ToLowerInvariant().Substring(1);
+        public string Extension() => System.IO.Path.GetExtension(Path.Path)?.ToLowerInvariant().Substring(1);
 
         /// <summary>
         /// Retrieves the proprietary file format type from the extension.
@@ -397,7 +384,7 @@ namespace TheraEngine.Core.Files
         //    var header = GetFileExtension(_subType);
         //    return header?.ExportableExtensions?.Contains(ext, StringComparison.InvariantCultureIgnoreCase) ?? false;
         //}
-        public override string ToString() => Path.Absolute;
+        public override string ToString() => Path.Path;
 
         public static implicit operator Task<T>(FileLoader<T> fileRef) => fileRef?.LoadNewInstanceAsync();
         public static implicit operator FileLoader<T>(string filePath) => new FileLoader<T>(filePath);

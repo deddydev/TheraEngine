@@ -16,7 +16,7 @@ namespace TheraEngine.Core.Files.Serialization
         #region Reading
         public override void DeserializeTreeToObject()
         {
-            var members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType).ToList();
+            List<TSerializeMemberInfo> members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType).ToList();
 
             if (members.Count == 0)
             {
@@ -77,36 +77,36 @@ namespace TheraEngine.Core.Files.Serialization
             }
             else
             {
-                var attrib = parentNode.GetAttribute(member.Name);
+                SerializeAttribute attrib = parentNode.GetAttribute(member.Name);
                 if (attrib != null)
                 {
                     bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, attrib);
-                    if (!customInvoked)
+                    if (customInvoked)
+                        return;
+
+                    if (attrib.GetObject(member.MemberType, out object value))
                     {
-                        if (attrib.GetObject(member.MemberType, out object value))
-                        {
-                            member.SetObject(o, value);
-                        }
-                        else
-                        {
-                            //Engine.LogWarning("Unable to parse attribute " + attrib.Name + " as " + member.MemberType.GetFriendlyName());
-                        }
+                        member.SetObject(o, value);
                     }
+                    //else
+                    //{
+                        //Engine.LogWarning("Unable to parse attribute " + attrib.Name + " as " + member.MemberType.GetFriendlyName());
+                    //}
                 }
                 else if (member.NodeType == ENodeType.ElementContent)
                 {
                     bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, parentNode._elementContent);
-                    if (!customInvoked)
+                    if (customInvoked)
+                        return;
+
+                    if (parentNode.GetElementContent(member.MemberType, out object value))
                     {
-                        if (parentNode.GetElementContent(member.MemberType, out object value))
-                        {
-                            member.SetObject(o, value);
-                        }
-                        else
-                        {
-                            //Engine.LogWarning("Unable to parse element content " + member.Name + " as " + member.MemberType.GetFriendlyName());
-                        }
+                        member.SetObject(o, value);
                     }
+                    //else
+                    //{
+                        //Engine.LogWarning("Unable to parse element content " + member.Name + " as " + member.MemberType.GetFriendlyName());
+                    //}
                 }
                 else
                 {
@@ -119,15 +119,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomDeserializeMethods == null)
                 return false;
 
-            var customMethods = parent.CustomDeserializeMethods.Where(
-                x => string.Equals(member.Name, x.GetCustomAttribute<TCustomMemberDeserializeMethod>().Name));
+            IEnumerable<MethodInfo> customMethods = parent.CustomDeserializeMethods.Where(
+                x => string.Equals(member.Name, x.GetCustomAttribute<CustomMemberDeserializeMethod>().Name));
 
-            foreach (var customMethod in customMethods)
+            foreach (MethodInfo customMethod in customMethods)
             {
-                if (customMethod == null)
-                    continue;
-
-                var parameters = customMethod.GetParameters();
+                ParameterInfo[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(typeof(T)))
                 {
                     //Engine.PrintLine($"Deserializing {member.MemberType.GetFriendlyName()} {member.Name} manually as {member.NodeType.ToString()} via parent.");
@@ -139,10 +136,8 @@ namespace TheraEngine.Core.Files.Serialization
 
                     return true;
                 }
-                else
-                {
-                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(TCustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
-                }
+
+                Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
             }
 
             return false;
@@ -164,7 +159,7 @@ namespace TheraEngine.Core.Files.Serialization
                 CompareStaticProperties = false,
                 CompareReadOnly = false,
                 SkipInvalidIndexers = true,
-                ComparePredicate = x => IsComparable(x)
+                ComparePredicate = IsComparable
             });
             ComparisonResult result = comp.Compare(defObj, obj);
             //if (!result.AreEqual)
@@ -175,10 +170,15 @@ namespace TheraEngine.Core.Files.Serialization
         private static bool IsComparable(MemberInfo x)
         {
             bool isSerializable = x.GetCustomAttribute<TSerialize>() != null;
-            if (x is FieldInfo fieldInfo)
-                isSerializable = isSerializable || fieldInfo.FieldType.IsValueType;
-            else if (x is PropertyInfo propInfo)
-                isSerializable = isSerializable || propInfo.PropertyType.IsValueType;
+            switch (x)
+            {
+                case FieldInfo fieldInfo:
+                    isSerializable = isSerializable || fieldInfo.FieldType.IsValueType;
+                    break;
+                case PropertyInfo propInfo:
+                    isSerializable = isSerializable || propInfo.PropertyType.IsValueType;
+                    break;
+            }
             return isSerializable;
         }
 
@@ -206,6 +206,7 @@ namespace TheraEngine.Core.Files.Serialization
                         categoryNodes.Add(member.Category, parent = new SerializeElement(null, new TSerializeMemberInfo(null, member.Category)));
                     else
                         parent = categoryNodes[member.Category];
+
                     parent.Owner = TreeNode.Owner;
                     parent.Parent = TreeNode.Parent;
                 }
@@ -277,15 +278,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomSerializeMethods == null)
                 return false;
 
-            var customMethods = parent.CustomSerializeMethods.Where(
-                x => string.Equals(memberName, x.GetCustomAttribute<TCustomMemberSerializeMethod>().Name));
+            IEnumerable<MethodInfo> customMethods = parent.CustomSerializeMethods.Where(
+                x => string.Equals(memberName, x.GetCustomAttribute<CustomMemberSerializeMethod>().Name));
 
-            foreach (var customMethod in customMethods)
+            foreach (MethodInfo customMethod in customMethods)
             {
-                if (customMethod == null)
-                    continue;
-
-                var parameters = customMethod.GetParameters();
+                ParameterInfo[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(typeof(SerializeElement)))
                 {
                     if (customMethod.ReturnType == typeof(Task))
@@ -294,10 +292,8 @@ namespace TheraEngine.Core.Files.Serialization
                         customMethod.Invoke(parent.Object, new object[] { element });
                     return true;
                 }
-                else
-                {
-                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(TCustomMemberSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(SerializeElement).GetFriendlyName()}.");
-                }
+
+                Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberSerializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(SerializeElement).GetFriendlyName()}.");
             }
 
             return false;
@@ -311,15 +307,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomSerializeMethods == null)
                 return (false, null);
 
-            var customMethods = parent.CustomSerializeMethods.Where(
-                x => string.Equals(memberName, x.GetCustomAttribute<TCustomMemberSerializeMethod>().Name));
+            IEnumerable<MethodInfo> customMethods = parent.CustomSerializeMethods.Where(
+                x => string.Equals(memberName, x.GetCustomAttribute<CustomMemberSerializeMethod>().Name));
 
-            foreach (var customMethod in customMethods)
+            foreach (MethodInfo customMethod in customMethods)
             {
-                if (customMethod == null)
-                    continue;
-
-                var parameters = customMethod.GetParameters();
+                ParameterInfo[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 0)
                 {
                     object o;
@@ -329,10 +322,8 @@ namespace TheraEngine.Core.Files.Serialization
                         o = customMethod.Invoke(parent.Object, null);
                     return (true, o);
                 }
-                else
-                {
-                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(TCustomMemberSerializeMethod)} attribute, but the definition is not correct. There must be no arguments and the method should return an object.");
-                }
+
+                Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberSerializeMethod)} attribute, but the definition is not correct. There must be no arguments and the method should return an object.");
             }
             
             return (false, null);

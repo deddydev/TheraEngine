@@ -123,7 +123,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("Data", IsElementString = true)]
         internal DataSource _data;
 
-        [TCustomMemberSerializeMethod("Data")]
+        [CustomMemberSerializeMethod("Data")]
         private object CustomDataSerialize()
         {
             Endian.EOrder prevOrder = Endian.SerializeOrder;
@@ -201,7 +201,7 @@ namespace TheraEngine.Rendering.Models
             Endian.SerializeOrder = prevOrder;
             return array;
         }
-        [TCustomMemberDeserializeMethod("Data")]
+        [CustomMemberDeserializeMethod("Data")]
         private void CustomDataDeserialize(SerializeElementContent node)
         {
             Endian.EOrder prevOrder = Endian.SerializeOrder;
@@ -454,7 +454,7 @@ namespace TheraEngine.Rendering.Models
         public void Set<T>(int index, T value) where T : struct
             => Marshal.StructureToPtr(value, _data.Address[index, Stride], true);
         
-        public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = false) where T : struct
+        public Remapper SetDataNumeric<T>(IList<T> list, bool remap = false) where T : struct
         {
             if (typeof(T) == typeof(sbyte))
                 _componentType = EComponentType.SByte;
@@ -486,7 +486,6 @@ namespace TheraEngine.Rendering.Models
                 _elementCount = remapper.ImplementationLength;
                 _data = DataSource.Allocate(DataLength);
                 int stride = Stride;
-                int elementSize = ComponentSize;
                 for (int i = 0; i < remapper.ImplementationLength; ++i)
                 {
                     VoidPtr addr = _data.Address[i, stride];
@@ -502,7 +501,6 @@ namespace TheraEngine.Rendering.Models
                 _elementCount = list.Count;
                 _data = DataSource.Allocate(DataLength);
                 int stride = Stride;
-                int elementSize = ComponentSize;
                 for (int i = 0; i < list.Count; ++i)
                 {
                     VoidPtr addr = _data.Address[i, stride];
@@ -514,7 +512,7 @@ namespace TheraEngine.Rendering.Models
                 return null;
             }
         }
-        public Remapper SetData<T>(IList<T> list, bool remap = false) where T : IBufferable
+        public Remapper SetData<T>(IList<T> list, bool remap = false) where T : unmanaged, IBufferable
         {
             //Engine.DebugPrint("\nSetting vertex data for buffer " + Index + " - " + Name);
 
@@ -562,7 +560,7 @@ namespace TheraEngine.Rendering.Models
             Engine.Renderer.BindBufferBase((EBufferRangeTarget)(int)Target, blockIndex, BindingId);
         }
 
-        public Remapper GetData<T>(out T[] array, bool remap = true) where T : IBufferable
+        public Remapper GetData<T>(out T[] array, bool remap = true) where T : unmanaged, IBufferable
         {
             //Engine.DebugPrint("\nGetting vertex data from buffer " + Index + " - " + Name);
 
@@ -580,13 +578,12 @@ namespace TheraEngine.Rendering.Models
                 array[i] = value;
             }
 
-            if (remap)
-            {
-                Remapper remapper = new Remapper();
-                remapper.Remap(array);
-                return remapper;
-            }
-            return null;
+            if (!remap)
+                return null;
+
+            Remapper remapper = new Remapper();
+            remapper.Remap(array);
+            return remapper;
         }
         protected override void PreDeleted()
         {
@@ -602,22 +599,20 @@ namespace TheraEngine.Rendering.Models
         }
         protected override void Dispose(bool disposing)
         {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    Destroy();
-                }
+            if (_disposedValue)
+                return;
 
-                //Engine.DebugPrint("Disposing of " + BufferType + " buffer");
-                if (_data != null)
-                {
-                    _data.Dispose();
-                    _data = null;
-                }
-                _vaoId = 0;
-                _disposedValue = true;
+            if (disposing)
+                Destroy();
+            
+            if (_data != null)
+            {
+                _data.Dispose();
+                _data = null;
             }
+
+            _vaoId = 0;
+            _disposedValue = true;
         }
 
         public static implicit operator VoidPtr(DataBuffer b) => b.Address;

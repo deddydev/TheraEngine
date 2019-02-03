@@ -315,7 +315,7 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
-            EBufferTarget target = EBufferTarget.ArrayBuffer) where T : IBufferable
+            EBufferTarget target = EBufferTarget.ArrayBuffer) where T : unmanaged, IBufferable
         {
             if (_buffers == null)
                 _buffers = new List<DataBuffer>();
@@ -343,7 +343,7 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
-            EBufferTarget target = EBufferTarget.ArrayBuffer) where T : IBufferable
+            EBufferTarget target = EBufferTarget.ArrayBuffer) where T : unmanaged, IBufferable
         {
             if (_buffers == null)
                 throw new InvalidOperationException();
@@ -367,7 +367,7 @@ namespace TheraEngine.Rendering.Models
             return buffer;
         }
 
-        public Remapper GetBuffer<T>(int bufferIndex, out T[] array, bool remap = false) where T : IBufferable
+        public Remapper GetBuffer<T>(int bufferIndex, out T[] array, bool remap = false) where T : unmanaged, IBufferable
         {
             if (_buffers == null || bufferIndex < 0 || bufferIndex >= _buffers.Count)
             {

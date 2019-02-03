@@ -29,10 +29,10 @@ namespace TheraEditor.Wrappers
         public override bool IsLoaded => ResourceRef.IsLoaded;
         public override string FilePath
         {
-            get => ResourceRef.Path.Absolute;
+            get => ResourceRef.Path.Path;
             set
             {
-                ResourceRef.Path.Absolute = value;
+                ResourceRef.Path.Path = value;
                 Name = value;
             }
         }

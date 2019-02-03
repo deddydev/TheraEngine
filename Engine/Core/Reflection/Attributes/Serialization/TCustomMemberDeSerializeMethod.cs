@@ -9,10 +9,10 @@ namespace System
     /// with the same name and this method will be called to serialize that field/property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class TCustomMemberSerializeMethod : SerializationAttribute
+    public class CustomMemberSerializeMethod : SerializationAttribute
     {
         public string Name { get; set; }
-        public TCustomMemberSerializeMethod(string name, EProprietaryFileFormatFlag runForFormats = EProprietaryFileFormatFlag.All)
+        public CustomMemberSerializeMethod(string name, EProprietaryFileFormatFlag runForFormats = EProprietaryFileFormatFlag.All)
             : base(runForFormats) => Name = name;
     }
     /// <summary>
@@ -21,10 +21,10 @@ namespace System
     /// with the same name and this method will be called to deserialize that field/property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class TCustomMemberDeserializeMethod : SerializationAttribute
+    public class CustomMemberDeserializeMethod : SerializationAttribute
     {
         public string Name { get; set; }
-        public TCustomMemberDeserializeMethod(string name, EProprietaryFileFormatFlag runForFormats = EProprietaryFileFormatFlag.All)
+        public CustomMemberDeserializeMethod(string name, EProprietaryFileFormatFlag runForFormats = EProprietaryFileFormatFlag.All)
             : base(runForFormats) => Name = name;
         
     }

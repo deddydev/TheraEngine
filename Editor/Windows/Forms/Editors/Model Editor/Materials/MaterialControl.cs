@@ -123,8 +123,8 @@ namespace TheraEditor.Windows.Forms
                     foreach (var shaderRef in _material.Shaders)
                     {
                         string text = string.Empty;
-                        if (!string.IsNullOrWhiteSpace(shaderRef.Path.Absolute))
-                            text = Path.GetFileNameWithoutExtension(shaderRef.Path.Absolute) + " ";
+                        if (!string.IsNullOrWhiteSpace(shaderRef.Path.Path))
+                            text = Path.GetFileNameWithoutExtension(shaderRef.Path.Path) + " ";
                         else if (!string.IsNullOrWhiteSpace(shaderRef.File?.Name))
                             text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
 
@@ -303,8 +303,8 @@ namespace TheraEditor.Windows.Forms
             GlobalFileRef<GLSLScript> shaderRef = f;
 
             string text = string.Empty;
-            if (!string.IsNullOrWhiteSpace(shaderRef.Path.Absolute))
-                text = Path.GetFileNameWithoutExtension(shaderRef.Path.Absolute) + " ";
+            if (!string.IsNullOrWhiteSpace(shaderRef.Path.Path))
+                text = Path.GetFileNameWithoutExtension(shaderRef.Path.Path) + " ";
             else if (!string.IsNullOrWhiteSpace(shaderRef.File?.Name))
                 text = Path.GetFileNameWithoutExtension(shaderRef.File.Name) + " ";
             text += "[" + shaderRef.File.Type.ToString() + "]";

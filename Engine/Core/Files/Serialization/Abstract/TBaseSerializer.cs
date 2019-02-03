@@ -40,7 +40,8 @@ namespace TheraEngine.Core.Files.Serialization
                     }
                 }
             }
-            public Dictionary<Guid, SerializeElement> SharedObjects { get; internal set; } = new Dictionary<Guid, SerializeElement>();
+
+            public Dictionary<Guid, SerializeElement> SharedObjects { get; internal set; }
             public Dictionary<Guid, int> SharedObjectIndices { get; set; } = new Dictionary<Guid, int>();
 
             internal int CurrentCount { get; set; }
@@ -48,7 +49,7 @@ namespace TheraEngine.Core.Files.Serialization
             public abstract EProprietaryFileFormatFlag Format { get; }
             public bool IsBinary => Format == EProprietaryFileFormatFlag.Binary;
 
-            public TBaseAbstractReaderWriter(string filePath, IProgress<float> progress, CancellationToken cancel)
+            protected TBaseAbstractReaderWriter(string filePath, IProgress<float> progress, CancellationToken cancel)
             {
                 FilePath = filePath;
                 Progress = progress;

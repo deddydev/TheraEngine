@@ -478,7 +478,7 @@ namespace TheraEngine.Physics.Bullet
             OnTransformChanged(worldTransform);
         }
 
-        [TCustomMemberSerializeMethod(nameof(Body))]
+        [CustomMemberSerializeMethod(nameof(Body))]
         private void SerializeBody(SerializeElement node)
         {
             TBulletMotionState state = Body.MotionState as TBulletMotionState;
@@ -588,7 +588,7 @@ namespace TheraEngine.Physics.Bullet
             //writer.WriteElementString("AdditionalAngularDampingFactor", AdditionalAngularDampingFactor.ToString());
             //writer.WriteElementString("AdditionalAngularDampingThresholdSqr", AdditionalAngularDampingThresholdSqr.ToString());
         }
-        [TCustomMemberDeserializeMethod(nameof(Body))]
+        [CustomMemberDeserializeMethod(nameof(Body))]
         private void DeserializeBody(SerializeElement node)
         {
             float mass = 0.0f;

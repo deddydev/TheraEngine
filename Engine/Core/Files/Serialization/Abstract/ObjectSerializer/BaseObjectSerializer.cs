@@ -36,7 +36,7 @@ namespace TheraEngine.Core.Files.Serialization
         public bool WriteChangedMembersOnly
             => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteChangedMembersOnly) ?? false;
 
-        public SerializeElement TreeNode { get; internal protected set; } = null;
+        public SerializeElement TreeNode { get; protected internal set; } = null;
         public int TreeSize { get; private set; }
         
         protected abstract int OnGetTreeSize(TSerializer.WriterBinary binWriter);
@@ -85,12 +85,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (reloadNow)
             {
                 Type baseObjSerType = typeof(BaseObjectSerializer);
-                var typeList = Engine.FindTypes(type =>
+                IEnumerable<Type> typeList = Engine.FindTypes(type =>
                    baseObjSerType.IsAssignableFrom(type) &&
                    (type.GetCustomAttributeExt<ObjectSerializerFor>() != null));
 
                 ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
-                foreach (var type in typeList)
+                foreach (Type type in typeList)
                     ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectSerializerFor>(), type);
             }
             else
@@ -105,7 +105,8 @@ namespace TheraEngine.Core.Files.Serialization
         /// Finds the class to use to read and write the given type.
         /// </summary>
         /// <param name="objectType"></param>
-        /// <param name="node"></param>
+        /// <param name="mustAllowStringSerialize"></param>
+        /// <param name="mustAllowBinarySerialize"></param>
         /// <returns></returns>
         public static BaseObjectSerializer DetermineObjectSerializer(
             Type objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
@@ -127,21 +128,24 @@ namespace TheraEngine.Core.Files.Serialization
             Type[] types = temp.Select(x => x.Value).ToArray();
             
             Type serType;
-            if (types == null || types.Length == 0)
-                serType = typeof(CommonObjectSerializer);
-            else
+            switch (types.Length)
             {
-                if (types.Length == 1)
+                case 0:
+                    serType = typeof(CommonObjectSerializer);
+                    break;
+                case 1:
                     serType = types[0];
-                else
+                    break;
+                default:
                 {
-                    var counts = types.Select(x => types.Count(v => x.IsSubclassOf(v))).ToArray();
+                    int[] counts = types.Select(x => types.Count(x.IsSubclassOf)).ToArray();
                     int min = counts.Min();
                     int[] mins = counts.FindAllMatchIndices(x => x == min);
                     string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
                     msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
                     Engine.PrintLine(msg);
                     serType = types[mins[0]];
+                    break;
                 }
             }
             return (BaseObjectSerializer)Activator.CreateInstance(serType);

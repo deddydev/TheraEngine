@@ -60,15 +60,15 @@ namespace TheraEngine.Core.Files
             T file = IsLoaded ? File : null;
             if (Context != null)
             {
-                if (string.IsNullOrEmpty(Path.Absolute) || IsLoaded)
+                if (string.IsNullOrEmpty(Path.Path) || IsLoaded)
                     return false;
 
-                Context.GlobalFileInstances.AddOrUpdate(Path.Absolute, file, (key, oldValue) => file);
+                Context.GlobalFileInstances.AddOrUpdate(Path.Path, file, (key, oldValue) => file);
 
                 return true;
             }
             else
-                return Engine.Files.AddGlobalFileInstance(file, Path.Absolute);
+                return Engine.Files.AddGlobalFileInstance(file, Path.Path);
         }
 
         protected override void OnAbsoluteRefPathChanged(string oldPath, string newPath)
@@ -92,7 +92,7 @@ namespace TheraEngine.Core.Files
                 if (!string.IsNullOrEmpty(oldPath))
                     Engine.Files.RemoveGlobalFileInstance(oldPath);
                 if (!string.IsNullOrEmpty(newPath))
-                    Engine.Files.AddGlobalFileInstance(default(T), Path.Absolute);
+                    Engine.Files.AddGlobalFileInstance(default(T), Path.Path);
             }
         }
 
@@ -111,7 +111,7 @@ namespace TheraEngine.Core.Files
             LoadAttempted = true;
             IsLoading = true;
 
-            string absolutePath = Path.Absolute;
+            string absolutePath = Path.Path;
             if (absolutePath != null)
             {
                 if (Context == null)
@@ -168,7 +168,7 @@ namespace TheraEngine.Core.Files
 
         public override string ToString()
         {
-            return $"Global File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(Path.Absolute) ? "<null path>" : Path.Absolute)}";
+            return $"Global File Ref [{(IsLoaded ? "Loaded" : "Unloaded")}]: {(string.IsNullOrWhiteSpace(Path.Path) ? "<null path>" : Path.Path)}";
         }
     }
 }

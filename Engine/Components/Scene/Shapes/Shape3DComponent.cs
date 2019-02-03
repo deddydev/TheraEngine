@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
@@ -22,8 +21,6 @@ namespace TheraEngine.Components.Scene.Shapes
     }
     public abstract class Shape3DComponent : TRComponent, IShape3DComponent
     {
-        public Shape3DComponent() { }
-        
         private RenderInfo3D _renderInfo = new RenderInfo3D(true, true);
 
         [TSerialize]

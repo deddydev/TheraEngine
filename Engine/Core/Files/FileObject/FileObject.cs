@@ -64,7 +64,7 @@ namespace TheraEngine.Core.Files
         [Category("Object")]
         public string Original3rdPartyPath { get; set; }
         [Browsable(false)]
-        public string DirectoryPath => !string.IsNullOrEmpty(FilePath) && FilePath.IsValidExistingPath() ? Path.GetDirectoryName(FilePath) : string.Empty;
+        public string DirectoryPath => !string.IsNullOrEmpty(FilePath) && FilePath.IsValidPath() ? Path.GetDirectoryName(FilePath) : string.Empty;
         [Browsable(false)]
         public List<IFileRef> References { get; set; } = new List<IFileRef>();
 

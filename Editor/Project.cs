@@ -268,7 +268,7 @@ namespace TheraEditor
                 }
                 else
                 {
-                    gref.Path.Absolute = GetFilePath<T>(
+                    gref.Path.Path = GetFilePath<T>(
                         directory, gref.File?.Name ?? defaultName, EProprietaryFileFormat.XML);
                 }
             }

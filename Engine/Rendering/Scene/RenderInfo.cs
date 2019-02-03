@@ -67,15 +67,15 @@ namespace TheraEngine.Rendering
             return false;
         }
 
-        public void LinkScene(I2DRenderable r2d, Scene2D scene, bool forceVisible = false)
+        public void LinkScene(I2DRenderable r2D, Scene2D scene, bool forceVisible = false)
         {
-            if (r2d == null || scene == null)
+            if (r2D == null || scene == null)
                 return;
 
             Scene = scene;
-            Owner = r2d;
+            Owner = r2D;
 
-            Visible = r2d.RenderInfo.VisibleByDefault || forceVisible;
+            Visible = r2D.RenderInfo.VisibleByDefault || forceVisible;
 #if EDITOR
             if (VisibleInEditorOnly)
                 Visible = Visible && Engine.EditorState.InEditMode;
@@ -95,7 +95,7 @@ namespace TheraEngine.Rendering
         }
     }
     public delegate float DelGetSortOrder(bool shadowPass);
-    public class RenderInfo3D : RenderInfo
+    public sealed class RenderInfo3D : RenderInfo
     {
         [TSerialize]
         public bool HiddenFromOwner { get; set; } = false;
@@ -119,14 +119,16 @@ namespace TheraEngine.Rendering
             {
                 if (Visible == value)
                     return;
+
                 base.Visible = value;
-                if (Scene != null)
-                {
-                    if (value)
-                        Scene.Add(Owner);
-                    else
-                        Scene.Remove(Owner);
-                }
+
+                if (Scene == null)
+                    return;
+
+                if (value)
+                    Scene.Add(Owner);
+                else
+                    Scene.Remove(Owner);
             }
         }
 
@@ -150,10 +152,7 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         public I3DRenderable Owner { get; internal set; }
 
-        public RenderInfo3D()
-        {
-
-        }
+        public RenderInfo3D() { }
         public RenderInfo3D(bool visibleByDefault = true, bool visibleInEditorOnly = false)
         {
             VisibleByDefault = visibleByDefault;

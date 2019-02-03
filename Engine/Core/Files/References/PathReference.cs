@@ -1,7 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
-using System.Windows.Forms;
+using System.Reflection;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Core.Files
@@ -35,206 +36,139 @@ namespace TheraEngine.Core.Files
     {
         public delegate void DelPathChange(string oldPath, string newPath);
         public event DelPathChange AbsolutePathChanged;
-        public event DelPathChange RelativePathChanged;
         public void OnAbsolutePathChanged(string oldPath)
-            => AbsolutePathChanged?.Invoke(oldPath, Absolute);
-        public void OnRelativePathChanged(string oldPath)
-            => RelativePathChanged?.Invoke(oldPath, Relative);
+            => AbsolutePathChanged?.Invoke(oldPath, Path);
 
-        [TSerialize(nameof(Type), Order = 0, NodeType = ENodeType.Attribute)]
-        protected EPathType _pathType = EPathType.FileRelative;
-        protected string _relative;
-        protected string _absolute;
+        [TSerialize("Type", Order = 0, NodeType = ENodeType.Attribute)]
+        protected EPathType _type = EPathType.FileRelative;
+        [TSerialize("Path", Order = 1, NodeType = ENodeType.Attribute)]
+        protected string _path;
 
         [Category("File Reference")]
         public EPathType Type
         {
-            get => _pathType;
-            set
-            {
-                if (_pathType == value)
-                    return;
-
-                _pathType = value;
-
-                string oldRelative = _relative;
-
-                if (_pathType == EPathType.Absolute)
-                    _relative = _absolute;
-                else if (!string.IsNullOrWhiteSpace(_absolute) && _absolute.IsValidExistingPath())
-                {
-                    if (Type == EPathType.EngineRelative)
-                        _relative = _absolute.MakeAbsolutePathRelativeTo(Application.StartupPath);
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(RootFile.DirectoryPath))
-                            _relative = _absolute.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
-                        else
-                            _relative = Path.GetFileName(_absolute);
-                    }
-                }
-                else
-                    _relative = null;
-
-                OnRelativePathChanged(oldRelative);
-            }
+            get => _type;
+            set => _type = value;
         }
 
-        [TString(false, true, false)]
-        [Category("File Reference")]
-        public virtual string Absolute
+        [CustomMemberSerializeMethod("Path")]
+        private void SerializePath(SerializeElement node)
         {
-            get => _absolute;
-            set
+            string path = Path;
+            if (path.IsValidPath())
             {
-                string oldAbsolute = _absolute;
-                string oldRelative = _relative;
-
-                if (value != null)
+                path = System.IO.Path.GetFullPath(Path);
+                switch (Type)
                 {
-                    bool validPath = value.IsExistingDirectoryPath() == false;
-                    if (validPath)
+                    case EPathType.FileRelative:
                     {
-                        _absolute = Path.GetFullPath(value);
-                        if (Type == EPathType.Absolute)
-                            _relative = _absolute;
-                        else
-                        {
-                            string refDrive = Path.GetPathRoot(value);
-                            int colonIndex = refDrive.IndexOf(":");
-                            if (colonIndex > 0)
-                                refDrive = refDrive.Substring(0, colonIndex);
-                            else
-                                refDrive = string.Empty;
-
-                            if (Type == EPathType.EngineRelative)
-                            {
-                                string appDrive = Path.GetPathRoot(Application.StartupPath);
-                                colonIndex = appDrive.IndexOf(":");
-                                if (colonIndex > 0)
-                                    appDrive = appDrive.Substring(0, colonIndex);
-                                else
-                                    appDrive = string.Empty;
-                                if (!string.Equals(refDrive, appDrive))
-                                {
-                                    Type = EPathType.Absolute;
-                                    _relative = _absolute;
-                                }
-                                else
-                                    _relative = _absolute.MakeAbsolutePathRelativeTo(Application.StartupPath);
-                            }
-                            else //Absolute or File Relative
-                            {
-                                if (!string.IsNullOrEmpty(RootFile.DirectoryPath))
-                                {
-                                    string root2 = Path.GetPathRoot(RootFile.DirectoryPath);
-                                    colonIndex = root2.IndexOf(":");
-                                    if (colonIndex > 0)
-                                        root2 = root2.Substring(0, colonIndex);
-                                    else
-                                        root2 = string.Empty;
-                                    if (!string.Equals(refDrive, root2))
-                                    {
-                                        Type = EPathType.Absolute;
-                                        _relative = _absolute;
-                                    }
-                                    else
-                                        _relative = _absolute.MakeAbsolutePathRelativeTo(RootFile.DirectoryPath);
-                                }
-                                else
-                                    _relative = null;
-                            }
-                        }
+                        string dir = DirectoryPath;
+                        path = path.MakeAbsolutePathRelativeTo(dir);
+                        break;
                     }
-                    else
+                    case EPathType.EngineRelative:
                     {
-                        _absolute = value;
-                        _relative = value;
+                        string relPath = Assembly.GetExecutingAssembly().CodeBase;
+                        string dir = System.IO.Path.GetDirectoryName(relPath);
+                        path = path.MakeAbsolutePathRelativeTo(dir);
+                        break;
+                    }
+                    case EPathType.GameRelative:
+                    {
+                        string dir = Engine.Game?.DirectoryPath;
+                        if (!string.IsNullOrWhiteSpace(dir))
+                            path = path.MakeAbsolutePathRelativeTo(dir);
+                        break;
                     }
                 }
-                else
-                {
-                    _relative = null;
-                    _absolute = null;
-                }
-
-                OnRelativePathChanged(oldRelative);
-                OnAbsolutePathChanged(oldRelative);
             }
+            node.AddAttribute("Path", path);
         }
-        [TString(false, true, false)]
-        [Category("File Reference")]
-        [TSerialize("Path", Order = 1, NodeType = ENodeType.Attribute)]
-        public virtual string Relative
+        [CustomMemberDeserializeMethod("Path")]
+        private void DeserializePath(SerializeElement node)
         {
-            get => _relative;
+            if (!node.GetAttributeValue("Path", out string result))
+                return;
+
+
+        }
+
+        [TString(false, true)]
+        [Category("File Reference")]
+        public virtual string Path
+        {
+            get => _path;
             set
             {
-                string oldAbsolute = _absolute;
-                string oldRelative = _relative;
-
-                if (value != null)
-                {
-                    _relative = value;
-                    bool isAbsolute = _relative.Contains(":");
-
-                    if (!isAbsolute && !_relative.StartsWith("\\"))
-                        _relative = "\\" + _relative;
-                    else
-                        _pathType = EPathType.Absolute;
-
-                    if (Type == EPathType.Absolute)
-                    {
-                        _absolute = Path.GetFullPath(_relative);
-                    }
-                    else
-                    {
-                        bool fileRelative = Type == EPathType.FileRelative;
-                        if (fileRelative)
-                        {
-                            if (string.IsNullOrWhiteSpace(RootFile.DirectoryPath))
-                            {
-                                _absolute = Path.GetFileName(_relative);
-                            }
-                            else
-                            {
-                                string combinedPath = RootFile.DirectoryPath + _relative;
-                                _absolute = Path.GetFullPath(combinedPath);
-                            }
-                        }
-                        else
-                        {
-                            string relPath = _relative.MakeAbsolutePathRelativeTo(Application.StartupPath);
-                            string combinedPath = Path.Combine(Application.StartupPath, _relative);
-                            _absolute = Path.GetFullPath(combinedPath);
-                        }
-                    }
-                }
-                else
-                {
-                    _relative = null;
-                    _absolute = null;
-                }
-
-                OnRelativePathChanged(oldRelative);
-                OnAbsolutePathChanged(oldAbsolute);
+                string oldPath = _path;
+                _path = value.IsValidPath() ? System.IO.Path.GetFullPath(value) : value;
+                OnAbsolutePathChanged(oldPath);
             }
         }
+
+        //[TString(false, true, false)]
+        //[Category("File Reference")]
+        //[TSerialize("Path", Order = 1, NodeType = ENodeType.Attribute)]
+        //public virtual string Relative
+        //{
+        //    get => _relative;
+        //    set
+        //    {
+        //        //string oldAbsolute = _absolute;
+        //        //string oldRelative = _relative;
+
+        //        //if (value != null)
+        //        //{
+        //            _relative = value;
+        //        //    bool isAbsolute = _relative.IsAbsolutePath();
+
+        //        //    if (!isAbsolute)
+        //        //        _relative = "\\" + _relative;
+        //        //    //else
+        //        //    //    _pathType = EPathType.Absolute;
+
+        //        //    if (Type == EPathType.Absolute)
+        //        //    {
+        //        //        _absolute = Path.GetFullPath(_relative);
+        //        //    }
+        //        //    else
+        //        //    {
+        //        //        bool fileRelative = Type == EPathType.FileRelative;
+        //        //        if (fileRelative)
+        //        //        {
+        //        //            if (string.IsNullOrWhiteSpace(RootFile.DirectoryPath))
+        //        //            {
+        //        //                _absolute = Path.GetFileName(_relative);
+        //        //            }
+        //        //            else
+        //        //            {
+        //        //                string combinedPath = RootFile.DirectoryPath + _relative;
+        //        //                _absolute = Path.GetFullPath(combinedPath);
+        //        //            }
+        //        //        }
+        //        //        else
+        //        //        {
+        //        //            string relPath = _relative.MakeAbsolutePathRelativeTo(Application.StartupPath);
+        //        //            string combinedPath = Path.Combine(Application.StartupPath, _relative);
+        //        //            _absolute = Path.GetFullPath(combinedPath);
+        //        //        }
+        //        //    }
+        //        //}
+        //        //else
+        //        //{
+        //        //    _relative = null;
+        //        //    _absolute = null;
+        //        //}
+
+        //        //OnRelativePathChanged(oldRelative);
+        //        //OnAbsolutePathChanged(oldAbsolute);
+        //    }
+        //}
 
         /// <summary>
         /// Returns true if a file exists at the path that this reference points to.
         /// </summary>
         [Browsable(false)]
-        public virtual bool FileExists
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(Absolute))
-                    return false;
-                if (!File.Exists(Absolute))
-                    return false;
-                return true;
-            }
-        }
+        public virtual bool FileExists => Path.IsAbsolutePath() && File.Exists(Path);
     }
 }

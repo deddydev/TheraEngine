@@ -9,11 +9,13 @@ namespace TheraEngine.Components.Scene.Shapes
 {
     public abstract class CommonShape3DComponent<T> : CollidableShape3DComponent where T : TShape, new()
     {
-        public CommonShape3DComponent()
+        protected CommonShape3DComponent()
             : this(null, null) { }
-        public CommonShape3DComponent(T shape)
+
+        protected CommonShape3DComponent(T shape)
             : this(shape, null) { }
-        public CommonShape3DComponent(T shape, TRigidBodyConstructionInfo info)
+
+        protected CommonShape3DComponent(T shape, TRigidBodyConstructionInfo info)
             : base()
         {
             Shape = shape;

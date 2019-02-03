@@ -52,7 +52,7 @@ namespace TheraEngine.Core.Files
         }
 
         [CustomMemberSerializeMethod("Path")]
-        private void SerializePath(SerializeElement node)
+        private object SerializePath()
         {
             string path = Path;
             if (path.IsValidPath())
@@ -82,7 +82,7 @@ namespace TheraEngine.Core.Files
                     }
                 }
             }
-            node.AddAttribute("Path", path);
+            return path;
         }
         [CustomMemberDeserializeMethod("Path")]
         private void DeserializePath(SerializeElement node)

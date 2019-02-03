@@ -323,7 +323,7 @@ namespace TheraEngine.Core.Files.Serialization
                     return (true, o);
                 }
 
-                Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberSerializeMethod)} attribute, but the definition is not correct. There must be no arguments and the method should return an object.");
+                Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberSerializeMethod)} attribute, but the definition is not correct. There must be no arguments and the method should return an object that can be serialized as a string.");
             }
             
             return (false, null);

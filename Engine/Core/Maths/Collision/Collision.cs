@@ -5,6 +5,9 @@ using TheraEngine.Core.Shapes;
 
 namespace System
 {
+    /// <summary>
+    /// Helper class to handle all intersections, containment, distances, and closest point situations between various types of goemetry.
+    /// </summary>
     public static class Collision
     {
         /// <summary>

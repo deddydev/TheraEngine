@@ -11,7 +11,7 @@ namespace TheraEngine.Worlds
     [TFileDef("Map")]
     public class Map : TFileObject
     {
-        public TWorld OwningWorld { get; private set; }
+        public TWorld OwningWorld { get; internal set; }
 
         protected bool _visibleByDefault;
         protected EventList<IActor> _actors = new EventList<IActor>();
@@ -79,20 +79,14 @@ namespace TheraEngine.Worlds
         public virtual void EndPlay()
         {
             foreach (IActor actor in Actors)
-            {
                 OwningWorld.DespawnActor(actor);
-                actor.MapAttachment = null;
-            }
             OwningWorld = null;
         }
         public virtual void BeginPlay(TWorld world)
         {
             OwningWorld = world;
             foreach (IActor actor in Actors)
-            {
-                actor.MapAttachment = this;
                 OwningWorld.SpawnActor(actor, SpawnPosition);
-            }
         }
     }
 }

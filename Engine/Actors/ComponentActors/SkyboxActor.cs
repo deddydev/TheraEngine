@@ -2,6 +2,7 @@
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
@@ -57,6 +58,21 @@ namespace TheraEngine.Actors.Types
                 _halfExtents = value;
 
                 Remake();
+            }
+        }
+        [TString(false, true)]
+        [TSerialize]
+        public string TexturePath
+        {
+            get => SkyboxTextureRef.AbsolutePath;
+            set
+            {
+                var tref = SkyboxTextureRef;
+                if (tref != null)
+                {
+                    tref.AbsolutePath = value;
+                    tref.Reload();
+                }
             }
         }
         [TSerialize]

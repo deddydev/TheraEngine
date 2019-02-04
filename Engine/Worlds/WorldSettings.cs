@@ -28,6 +28,8 @@ namespace TheraEngine.Worlds
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(this, oldMult);
         public void OnEnableOriginRebasingChanged() => EnableOriginRebasingChanged?.Invoke(this);
 
+        public TWorld OwningWorld { get; internal set; }
+
         //[TypeConverter(typeof(Vec3StringConverter))]
         [Category("World")]
         public Vec3 Gravity
@@ -150,16 +152,29 @@ namespace TheraEngine.Worlds
                 _maps = value ?? new EventList<LocalFileRef<Map>>();
                 _maps.PostAnythingAdded += _maps_PostAnythingAdded;
                 _maps.PostAnythingRemoved += _maps_PostAnythingRemoved;
+                foreach (var map in _maps)
+                    _maps_PostAnythingAdded(map);
             }
         }
 
         private void _maps_PostAnythingRemoved(LocalFileRef<Map> item)
         {
-
+            item.UnregisterLoadEvent(MapLoaded);
+            item.UnregisterUnloadEvent(MapUnloaded);
         }
         private void _maps_PostAnythingAdded(LocalFileRef<Map> item)
         {
-
+            item.RegisterLoadEvent(MapLoaded);
+            item.RegisterUnloadEvent(MapUnloaded);
+        }
+        private void MapUnloaded(Map map)
+        {
+            map.OwningWorld = OwningWorld;
+        }
+        private void MapLoaded(Map map)
+        {
+            if (map.OwningWorld == OwningWorld)
+                map.OwningWorld = null;
         }
         
         public List<TMaterial> CollectDefaultMaterials()

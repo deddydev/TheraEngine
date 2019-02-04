@@ -109,6 +109,12 @@ namespace TheraEngine.Core.Files
                     UnloadReference();
             }
         }
+        public async void Reload()
+        {
+            LoadAttempted = false;
+            UnloadReference();
+            await GetInstanceAsync();
+        }
 
         /// <summary>
         /// If true, the referenced file will be written within the parent file's data

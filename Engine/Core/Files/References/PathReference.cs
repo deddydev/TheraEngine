@@ -55,31 +55,30 @@ namespace TheraEngine.Core.Files
         private object SerializePath()
         {
             string path = Path;
-            if (path.IsValidPath())
+            if (!path.IsValidPath())
+                return path;
+            path = System.IO.Path.GetFullPath(Path);
+            switch (Type)
             {
-                path = System.IO.Path.GetFullPath(Path);
-                switch (Type)
+                case EPathType.FileRelative:
                 {
-                    case EPathType.FileRelative:
-                    {
-                        string dir = DirectoryPath;
+                    string dir = DirectoryPath;
+                    path = path.MakeAbsolutePathRelativeTo(dir);
+                    break;
+                }
+                case EPathType.EngineRelative:
+                {
+                    string relPath = Assembly.GetExecutingAssembly().CodeBase;
+                    string dir = System.IO.Path.GetDirectoryName(relPath);
+                    path = path.MakeAbsolutePathRelativeTo(dir);
+                    break;
+                }
+                case EPathType.GameRelative:
+                {
+                    string dir = Engine.Game?.DirectoryPath;
+                    if (!string.IsNullOrWhiteSpace(dir))
                         path = path.MakeAbsolutePathRelativeTo(dir);
-                        break;
-                    }
-                    case EPathType.EngineRelative:
-                    {
-                        string relPath = Assembly.GetExecutingAssembly().CodeBase;
-                        string dir = System.IO.Path.GetDirectoryName(relPath);
-                        path = path.MakeAbsolutePathRelativeTo(dir);
-                        break;
-                    }
-                    case EPathType.GameRelative:
-                    {
-                        string dir = Engine.Game?.DirectoryPath;
-                        if (!string.IsNullOrWhiteSpace(dir))
-                            path = path.MakeAbsolutePathRelativeTo(dir);
-                        break;
-                    }
+                    break;
                 }
             }
             return path;

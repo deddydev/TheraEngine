@@ -190,7 +190,7 @@ namespace TheraEditor.Windows.Forms
 
         private void NewActor_Click(object sender, EventArgs e)
         {
-            if (Engine.World == null)
+            if (Engine.World?.Settings == null)
                 return;
 
             TreeNode node = ActorTree.SelectedNode;
@@ -209,7 +209,7 @@ namespace TheraEditor.Windows.Forms
                     break;
             }
 
-            if (targetMap == null && Engine.World?.Settings != null)
+            if (targetMap == null)
             {
                 EventList<LocalFileRef<Map>> mapList = Engine.World.Settings.Maps;
                 if (mapList != null)
@@ -232,8 +232,8 @@ namespace TheraEditor.Windows.Forms
             IActor newActor = Editor.UserCreateInstanceOf<IActor>();
             if (newActor == null)
                 return;
-
-            newActor.MapAttachment = targetMap;
+            
+            targetMap.Actors.Add(newActor);
             Engine.World.SpawnActor(newActor);
         }
     }

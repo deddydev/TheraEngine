@@ -14,7 +14,7 @@ namespace TheraEngine.Worlds
         public TWorld OwningWorld { get; private set; }
 
         protected bool _visibleByDefault;
-        protected List<IActor> _actors = new List<IActor>();
+        protected EventList<IActor> _actors = new EventList<IActor>();
         protected Vec3 _spawnPosition;
 
         [Browsable(true)]
@@ -29,7 +29,8 @@ namespace TheraEngine.Worlds
         {
             _visibleByDefault = visibleAtSpawn;
             _spawnPosition = spawnOrigin;
-            _actors = actors == null ? new List<IActor>() : actors.ToList();
+
+            Actors = actors == null ? new EventList<IActor>(false, false) : new EventList<IActor>(actors.ToList(), false, false);
         }
 
         [TSerialize]
@@ -44,12 +45,37 @@ namespace TheraEngine.Worlds
             get => _spawnPosition;
             set => _spawnPosition = value;
         }
+
         [TSerialize]
-        public List<IActor> Actors
+        public EventList<IActor> Actors
         {
             get => _actors;
-            set => _actors = value;
+            set
+            {
+                if (_actors != null)
+                {
+                    _actors.PostAnythingAdded -= _actors_PostAnythingAdded;
+                    _actors.PostAnythingRemoved -= _actors_PostAnythingRemoved;
+                }
+                _actors = value;
+                if (_actors != null)
+                {
+                    _actors.PostAnythingAdded += _actors_PostAnythingAdded;
+                    _actors.PostAnythingRemoved += _actors_PostAnythingRemoved;
+                }
+            }
         }
+
+        private void _actors_PostAnythingAdded(IActor item)
+        {
+            item.MapAttachment = this;
+        }
+        private void _actors_PostAnythingRemoved(IActor item)
+        {
+            if (item.MapAttachment == this)
+                item.MapAttachment = null;
+        }
+
         public virtual void EndPlay()
         {
             foreach (IActor actor in Actors)

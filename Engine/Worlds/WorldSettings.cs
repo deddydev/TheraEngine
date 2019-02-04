@@ -28,7 +28,7 @@ namespace TheraEngine.Worlds
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(this, oldMult);
         public void OnEnableOriginRebasingChanged() => EnableOriginRebasingChanged?.Invoke(this);
 
-        public TWorld OwningWorld { get; internal set; }
+        public World OwningWorld { get; internal set; }
 
         //[TypeConverter(typeof(Vec3StringConverter))]
         [Category("World")]
@@ -89,12 +89,6 @@ namespace TheraEngine.Worlds
 
         [TSerialize(nameof(Cutscenes))]
         private EventDictionary<string, Cutscene> _cutscenes;
-        
-        [TSerialize(nameof(Bounds))]
-        private BoundingBox _bounds = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
-
-        [TSerialize(nameof(OriginRebaseRadius))]
-        private float _originRebaseRadius = 500.0f;
 
         [TSerialize(nameof(Maps))]
         private EventList<LocalFileRef<Map>> _maps = new EventList<LocalFileRef<Map>>();
@@ -110,17 +104,18 @@ namespace TheraEngine.Worlds
         [Category("World Origin Rebasing")]
         public bool EnableOriginRebasing { get; set; } = false;
         [Category("World Origin Rebasing")]
-        public float OriginRebaseRadius
-        {
-            get => _originRebaseRadius;
-            set => _originRebaseRadius = value;
-        }
+        [TSerialize]
+        public float OriginRebaseRadius { get; set; } = 500.0f;
+        [Category("Editor Traits")]
+        public bool PreviewOctrees { get; set; } = false;
+        [Category("Editor Traits")]
+        public bool PreviewQuadtrees { get; set; } = false;
+        [Category("Editor Traits")]
+        public bool PreviewPhysics { get; set; } = false;
         [Category("World")]
-        public BoundingBox Bounds
-        {
-            get => _bounds;
-            set => _bounds = value;
-        }
+        [TSerialize]
+        public BoundingBox Bounds { get; set; } = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
+
         [Category("World")]
         public EventDictionary<string, Cutscene> Cutscenes
         {
@@ -196,9 +191,9 @@ namespace TheraEngine.Worlds
         public WorldSettings(string name, params Map[] maps)
         {
             _name = name;
-            _originRebaseRadius = TMath.Min(
-                _bounds.Maximum.X, _bounds.Maximum.Y, _bounds.Maximum.Z,
-                _bounds.Minimum.X, _bounds.Minimum.Y, _bounds.Minimum.Z);
+            OriginRebaseRadius = TMath.Min(
+                Bounds.Maximum.X, Bounds.Maximum.Y, Bounds.Maximum.Z,
+                Bounds.Minimum.X, Bounds.Minimum.Y, Bounds.Minimum.Z);
 
             Maps = new EventList<LocalFileRef<Map>>(maps.Select(x => new LocalFileRef<Map>(x)));
         }

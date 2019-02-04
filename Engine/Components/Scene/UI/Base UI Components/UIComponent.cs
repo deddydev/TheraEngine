@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
@@ -148,7 +149,7 @@ namespace TheraEngine.Rendering.UI
                     OwningActor?.RemoveRenderableComponent(r);
                     value?.AddRenderableComponent(r);
                 }
-                base.OwningActor = value;
+                base.OwningActor = value as BaseActor;
 
                 //if (ParentSocket == null)
                     PerformResize();

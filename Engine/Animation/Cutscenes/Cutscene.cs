@@ -39,7 +39,7 @@ namespace TheraEngine.Animation.Cutscenes
 
         public List<GlobalFileRef<IActor>> InvolvedActors { get; set; }
         private Camera CurrentCamera { get; set; }
-        public GlobalFileRef<TWorld> WorldRef { get; set; }
+        public GlobalFileRef<World> WorldRef { get; set; }
         public Cutscene CurrentScene { get; private set; }
         private int CurrentSceneIndex { get; set; } = -1;
 

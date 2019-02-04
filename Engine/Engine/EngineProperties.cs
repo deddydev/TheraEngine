@@ -163,9 +163,9 @@ namespace TheraEngine
         /// </summary>
         private static int _currentTickList = -1;
 
-        private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<TWorld, Vec3>();
-        private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<TWorld, Vec3>();
-        public static void QueueRebaseOrigin(TWorld world, Vec3 point)
+        private static ConcurrentDictionary<World, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<World, Vec3>();
+        private static ConcurrentDictionary<World, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<World, Vec3>();
+        public static void QueueRebaseOrigin(World world, Vec3 point)
             => RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
         
         public static bool Assert(bool condition, string message, bool throwException = true)
@@ -210,14 +210,14 @@ namespace TheraEngine
         /// <summary>
         /// The world that is currently being rendered and played in.
         /// </summary>
-        public static TWorld World { get; private set; } = null;
+        public static World World { get; private set; } = null;
         public static bool IsPaused { get; private set; } = false;
 
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine performance accordingly.
         /// </summary>
         public static ComputerInfo ComputerInfo => _computerInfo.Value;
-        private static Lazy<ComputerInfo> _computerInfo = new Lazy<ComputerInfo>(() => ComputerInfo.Analyze());
+        private static readonly Lazy<ComputerInfo> _computerInfo = new Lazy<ComputerInfo>(ComputerInfo.Analyze);
 
 #if EDITOR
         public static EngineEditorState EditorState = new EngineEditorState();

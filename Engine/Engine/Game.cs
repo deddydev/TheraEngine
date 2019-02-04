@@ -25,12 +25,12 @@ namespace TheraEngine
         protected LocalizedStringTable _localizedStringTable;
 
         [TSerialize(nameof(TransitionWorldRef))]
-        protected GlobalFileRef<TWorld> _transitionWorldRef
-            = new GlobalFileRef<TWorld>("TransitionWorld.xworld");
+        protected GlobalFileRef<World> _transitionWorldRef
+            = new GlobalFileRef<World>("TransitionWorld.xworld");
 
         [TSerialize(nameof(OpeningWorldRef))]
-        protected GlobalFileRef<TWorld> _openingWorldRef
-            = new GlobalFileRef<TWorld>("OpeningWorld.xworld");
+        protected GlobalFileRef<World> _openingWorldRef
+            = new GlobalFileRef<World>("OpeningWorld.xworld");
 
         [TSerialize(nameof(UserSettingsRef))]
         protected GlobalFileRef<UserSettings> _userSettingsRef;
@@ -41,18 +41,18 @@ namespace TheraEngine
         [TSerialize(nameof(DefaultGameModeRef))]
         protected GlobalFileRef<BaseGameMode> _gameModeRef;
 
-        private List<GlobalFileRef<TWorld>> _worldCollection;
-        public List<GlobalFileRef<TWorld>> WorldCollection
+        private List<GlobalFileRef<World>> _worldCollection;
+        public List<GlobalFileRef<World>> WorldCollection
         {
             get => _worldCollection;
-            set => _worldCollection = value ?? new List<GlobalFileRef<TWorld>>();
+            set => _worldCollection = value ?? new List<GlobalFileRef<World>>();
         }
 
         /// <summary>
         /// The world the engine uses as a loading screen.
         /// </summary>
         [Category("Game")]
-        public GlobalFileRef<TWorld> TransitionWorldRef
+        public GlobalFileRef<World> TransitionWorldRef
         {
             get => _transitionWorldRef;
             set => _transitionWorldRef = value;
@@ -61,7 +61,7 @@ namespace TheraEngine
         /// The world the game starts with.
         /// </summary>
         [Category("Game")]
-        public GlobalFileRef<TWorld> OpeningWorldRef
+        public GlobalFileRef<World> OpeningWorldRef
         {
             get => _openingWorldRef;
             set => _openingWorldRef = value;
@@ -134,11 +134,11 @@ namespace TheraEngine
     [TFileDef("Game State")]
     public class GameState : TFileObject
     {
-        private GlobalFileRef<TWorld> _worldRef = new GlobalFileRef<TWorld>();
+        private GlobalFileRef<World> _worldRef = new GlobalFileRef<World>();
         private GlobalFileRef<BaseGameMode> _gameModeRef = new GlobalFileRef<BaseGameMode>();
 
         [Browsable(false)]
-        public TWorld World
+        public World World
         {
             get => _worldRef.File;
             set => _worldRef.File = value;
@@ -150,10 +150,10 @@ namespace TheraEngine
             set => _gameModeRef.File = value;
         }
 
-        public GlobalFileRef<TWorld> WorldRef
+        public GlobalFileRef<World> WorldRef
         {
             get => _worldRef;
-            set => _worldRef = value ?? new GlobalFileRef<TWorld>();
+            set => _worldRef = value ?? new GlobalFileRef<World>();
         }
         public GlobalFileRef<BaseGameMode> GameModeRef
         {

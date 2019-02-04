@@ -38,12 +38,6 @@ namespace TheraEditor
             TotalTimeSpentWorking += SessionElapsedTime;
         }
 
-        private TWorld _currentWorld;
-
-        public TWorld CurrentWorld
-        {
-            get => _currentWorld;
-            set => _currentWorld = value;
-        }
+        public World CurrentWorld { get; set; }
     }
 }

@@ -8,7 +8,7 @@ using System;
 namespace TheraEditor.Wrappers
 {
     [NodeWrapper(nameof(Resources.GenericFile))]
-    public class WorldWrapper : FileWrapper<TWorld>
+    public class WorldWrapper : FileWrapper<World>
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -32,12 +32,13 @@ namespace TheraEditor.Wrappers
 
         public override async void EditResource()
         {
-            TWorld world = await ResourceRef.GetInstanceAsync();
-            if (world != null)
-            {
-                Editor.Instance.CurrentWorld = world;
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = world.Settings;
-            }
+            World world = await ResourceRef.GetInstanceAsync();
+            if (world == null)
+                return;
+
+            Editor.Instance.CurrentWorld = world;
+            Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = world.Settings;
+
             //int i = 0;
             //for (; i < 4; ++i)
             //{

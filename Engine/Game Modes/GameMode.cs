@@ -180,7 +180,7 @@ namespace TheraEngine.GameModes
         }
     }
     public class GameMode<PawnType, ControllerType> : BaseGameMode
-        where PawnType : class, IPawn, new()
+        where PawnType : BaseActor, IPawn, new()
         where ControllerType : LocalPlayerController
     {
         public int _numSpectators, _numPlayers, _numComputers;
@@ -189,7 +189,7 @@ namespace TheraEngine.GameModes
         {
             item.Viewport.HUD = null;
             BaseRenderPanel.WorldPanel?.UnregisterController(item);
-            Engine.World.DespawnActor(item.ControlledPawn);
+            Engine.World.DespawnActor(item.ControlledPawn as BaseActor);
             item.UnlinkControlledPawn();
         }
         protected internal virtual void HandleLocalPlayerJoined(ControllerType item)

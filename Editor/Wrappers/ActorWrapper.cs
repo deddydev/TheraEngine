@@ -7,7 +7,7 @@ using TheraEngine.Actors;
 namespace TheraEditor.Wrappers
 {
     [NodeWrapper(nameof(Resources.GenericFile))]
-    public class ActorWrapper : FileWrapper<IActor>
+    public class ActorWrapper : FileWrapper<BaseActor>
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -26,14 +26,12 @@ namespace TheraEditor.Wrappers
             ActorWrapper w = GetInstance<ActorWrapper>();
         }
         #endregion
-        
-        public ActorWrapper() : base() { }
 
         public override async void EditResource()
         {
             ModelEditorForm d = new ModelEditorForm();
             d.Show();
-            var actor = await ResourceRef.GetInstanceAsync();
+            BaseActor actor = await ResourceRef.GetInstanceAsync();
             d.SetActor(actor);
         }
     }

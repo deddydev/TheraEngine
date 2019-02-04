@@ -25,7 +25,7 @@ namespace TheraEngine.GameModes
     }
     public class CharacterGameMode<PawnType, ControllerType> 
         : GameMode<PawnType, ControllerType>, ICharacterGameMode 
-        where PawnType : class, ICharacterPawn, new()
+        where PawnType : BaseActor, ICharacterPawn, new()
         where ControllerType : CharacterPlayerController
     {
         public CharacterGameMode() : base() { }

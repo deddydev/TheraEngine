@@ -4,7 +4,7 @@ using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.Components.Scene
 {
-    public class SubActorComponent<T> : TRSComponent where T : class, IActor
+    public class SubActorComponent<T> : TRSComponent where T : BaseActor
     {
         private T _actor;
 
@@ -14,22 +14,21 @@ namespace TheraEngine.Components.Scene
             get => _actor;
             set
             {
-                var oldRoot = _actor?.RootComponent;
+                OriginRebasableComponent oldRoot = _actor?.RootComponentGeneric;
                 if (_actor != null)
                     _actor.RootComponentChanged -= RootComponentChanged;
                 _actor = value;
-                var newRoot = _actor?.RootComponent;
                 if (_actor != null)
                     _actor.RootComponentChanged += RootComponentChanged;
-                RootComponentChanged(oldRoot, newRoot);
+                RootComponentChanged(_actor, oldRoot);
             }
         }
-        private void RootComponentChanged(OriginRebasableComponent oldRoot, OriginRebasableComponent newRoot)
+        protected void RootComponentChanged(BaseActor actor, OriginRebasableComponent oldRoot)
         {
             if (oldRoot != null && oldRoot.ParentSocket == this)
                 oldRoot.ParentSocket = null;
-            if (newRoot != null)
-                newRoot.ParentSocket = this;
+            if (actor.RootComponentGeneric != null)
+                actor.RootComponentGeneric.ParentSocket = this;
         }
     }
 }

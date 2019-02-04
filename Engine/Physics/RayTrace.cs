@@ -88,7 +88,7 @@ namespace TheraEngine.Physics.RayTracing
         /// Performs the trace in the world and returns true if there are any collision results.
         /// </summary>
         //public bool Trace() => Engine.RayTrace(this, null);
-        public bool Trace(TWorld world)
+        public bool Trace(World world)
         {
             Reset();
             return Engine.RayTrace(this, world);

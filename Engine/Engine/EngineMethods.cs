@@ -625,13 +625,13 @@ namespace TheraEngine
         /// Performs a ray trace in the current world referenced by the engine.
         /// To perform a ray trace in a specific world, use World.PhysicsWorld.RayTrace(ShapeTrace result); 
         /// </summary>
-        public static bool RayTrace(RayTrace result, TWorld world) => (world ?? World)?.PhysicsWorld?.RayTrace(result) ?? false;
+        public static bool RayTrace(RayTrace result, World world) => (world ?? World)?.PhysicsWorld?.RayTrace(result) ?? false;
 
         /// <summary>
         /// Performs a shape trace in the current world referenced by the engine.
         /// To perform a shape trace in a specific world, use World.PhysicsWorld.ShapeTrace(ShapeTrace result); 
         /// </summary>
-        public static bool ShapeTrace(ShapeTrace result, TWorld world) => (world ?? World)?.PhysicsWorld?.ShapeTrace(result) ?? false;
+        public static bool ShapeTrace(ShapeTrace result, World world) => (world ?? World)?.PhysicsWorld?.ShapeTrace(result) ?? false;
         
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
@@ -694,7 +694,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="world">The world to play in.</param>
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(TWorld world, bool unloadPrevious = true, bool loadWorldGameMode = true)
+        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool loadWorldGameMode = true)
         {
             if (World == world)
                 return;
@@ -702,7 +702,7 @@ namespace TheraEngine
             PreWorldChanged?.Invoke();
 
             //bool wasRunning = _timer.IsRunning;
-            TWorld previous = World;
+            World previous = World;
 
             ActiveGameMode?.EndGameplay();
             World?.EndPlay();
@@ -815,8 +815,8 @@ namespace TheraEngine
         {
             public static string WorldPath(string fileName)
                 => Path.Combine(Settings.WorldsFolder ?? string.Empty, fileName);
-            public static async Task<TWorld> LoadEngineWorldAsync(string fileName)
-                => await TFileObject.LoadAsync<TWorld>(WorldPath(fileName));
+            public static async Task<World> LoadEngineWorldAsync(string fileName)
+                => await TFileObject.LoadAsync<World>(WorldPath(fileName));
 
             public static string ShaderPath(string fileName)
                 => Path.Combine(Settings.ShadersFolder ?? string.Empty, fileName);

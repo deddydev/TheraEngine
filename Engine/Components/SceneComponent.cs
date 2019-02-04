@@ -33,9 +33,9 @@ namespace TheraEngine.Components
         BaseScene OwningScene { get; }
         Scene3D OwningScene3D { get; }
         Scene2D OwningScene2D { get; }
-        TWorld OwningWorld { get; }
-        IActor OwningActor { get; set; }
-
+        World OwningWorld { get; }
+        BaseActor OwningActor { get; set; }
+        
         Vec3 LocalRightDir { get; }
         Vec3 LocalUpDir { get; }
         Vec3 LocalForwardDir { get; }
@@ -60,15 +60,15 @@ namespace TheraEngine.Components
     }
 
     /// <summary>
-    /// Scene components define how an <see cref="Actor"/> should appear in the scene.
+    /// Scene components define how an <see cref="Actor{T}"/> should appear in the scene.
     /// </summary>
     [TFileExt("scomp")]
-    public abstract class SceneComponent : Component, ISocket, ISceneComponent
+    public abstract class SceneComponent : Component, ISceneComponent
     {
         public const string RenderingCategoryName = "Rendering";
         public const string PhysicsCategoryName = "Physics";
 
-        public SceneComponent()
+        protected SceneComponent()
         {
             ChildComponents = new EventList<SceneComponent>();
         }
@@ -242,16 +242,16 @@ namespace TheraEngine.Components
         protected bool SimulatingPhysics => _simulatingPhysics;
         
         [Browsable(false)]
-        public BaseScene OwningScene => (OwningActor as IActor_Internal)?.OwningScene;
+        public BaseScene OwningScene => OwningActor?.OwningScene;
         [Browsable(false)]
         public Scene3D OwningScene3D => OwningScene as Scene3D;
         [Browsable(false)]
         public Scene2D OwningScene2D => OwningScene as Scene2D;
         [Browsable(false)]
-        public TWorld OwningWorld => OwningActor?.OwningWorld;
+        public World OwningWorld => OwningActor?.OwningWorld;
 
         [Browsable(false)]
-        public override IActor OwningActor
+        public override BaseActor OwningActor
         {
             get => base.OwningActor;
             set
@@ -412,12 +412,12 @@ namespace TheraEngine.Components
         /// Gets the transformation of this component's owning actor in the world.
         /// </summary>
         public Matrix4 GetActorTransform()
-            => OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.WorldMatrix;
+            => OwningActor?.RootComponentGeneric.WorldMatrix ?? Matrix4.Identity;
         /// <summary>
         /// Gets the inverse transformation of this component's owning actor in the world.
         /// </summary>
         public Matrix4 GetInvActorTransform() =>
-            OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.InverseWorldMatrix;
+            OwningActor?.RootComponentGeneric.InverseWorldMatrix ?? Matrix4.Identity;
 
         //[Browsable(false)]
         //[Category("Rendering")]
@@ -429,15 +429,13 @@ namespace TheraEngine.Components
             get => _parent;
             set
             {
-                if (_parent != null)
-                    _parent.ChildComponents.Remove(this);
+                _parent?.ChildComponents.Remove(this);
                 if (value != null)
                     value.ChildComponents.Add(this);
                 else
                 {
                     _parent = null;
-                    if (OwningActor is IActor_Internal actor)
-                        actor.GenerateSceneComponentCache();
+                    OwningActor?.GenerateSceneComponentCache();
                     OwningActor = null;
                 }
             }
@@ -466,20 +464,20 @@ namespace TheraEngine.Components
             if (this is IPreRendered r)
                 OwningScene?.AddPreRenderedObject(r);
 
-            if (this is I3DRenderable r3d && OwningScene3D != null)
+            if (this is I3DRenderable r3D && OwningScene3D != null)
             {
-                r3d.RenderInfo.LinkScene(r3d, OwningScene3D);
+                r3D.RenderInfo.LinkScene(r3D, OwningScene3D);
 #if EDITOR
-                if (Engine.EditorState.InEditMode && r3d.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleAlways)
-                    r3d.RenderInfo.Visible = true;
+                if (Engine.EditorState.InEditMode && r3D.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleAlways)
+                    r3D.RenderInfo.Visible = true;
 
                 if (this is IEditorPreviewIconRenderable icon)
                     icon.PreviewIconRenderCommand = CreatePreviewRenderCommand(icon.PreviewIconName);
 #endif
             }
 
-            if (this is I2DRenderable r2d && OwningScene2D != null)
-                r2d.RenderInfo.LinkScene(r2d, OwningScene2D);
+            if (this is I2DRenderable r2D && OwningScene2D != null)
+                r2D.RenderInfo.LinkScene(r2D, OwningScene2D);
             
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
@@ -492,11 +490,11 @@ namespace TheraEngine.Components
             if (this is IPreRendered r)
                 OwningScene?.RemovePreRenderedObject(r);
 
-            if (this is I3DRenderable r3d)
-                r3d.RenderInfo.UnlinkScene();
+            if (this is I3DRenderable r3D)
+                r3D.RenderInfo.UnlinkScene();
 
-            if (this is I2DRenderable r2d)
-                r2d.RenderInfo.UnlinkScene();
+            if (this is I2DRenderable r2D)
+                r2D.RenderInfo.UnlinkScene();
 
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
@@ -549,8 +547,7 @@ namespace TheraEngine.Components
                 item.OwningActor = null;
                 item.RecalcWorldTransform();
             }
-            if (OwningActor is IActor_Internal actor)
-                actor.GenerateSceneComponentCache();
+            OwningActor?.GenerateSceneComponentCache();
         }
         protected virtual void OnChildComponentRemoved(SceneComponent item)
         {
@@ -561,8 +558,7 @@ namespace TheraEngine.Components
             item.OwningActor = null;
             item.RecalcWorldTransform();
 
-            if (OwningActor is IActor_Internal actor)
-                actor.GenerateSceneComponentCache();
+            OwningActor?.GenerateSceneComponentCache();
         }
         protected virtual void OnChildComponentsInserted(IEnumerable<SceneComponent> items, int index)
             => OnChildComponentsAdded(items);
@@ -577,9 +573,8 @@ namespace TheraEngine.Components
         {
             foreach (SceneComponent item in items)
                 HandleSingleChildAdded(item);
-
-            if (OwningActor is IActor_Internal actor)
-                actor.GenerateSceneComponentCache();
+            
+            OwningActor?.GenerateSceneComponentCache();
         }
         /// <summary>
         /// Called when a single child component is added.
@@ -589,9 +584,8 @@ namespace TheraEngine.Components
         protected virtual void OnChildComponentAdded(SceneComponent item)
         {
             HandleSingleChildAdded(item);
-
-            if (OwningActor is IActor_Internal actor)
-                actor.GenerateSceneComponentCache();
+            
+            OwningActor?.GenerateSceneComponentCache();
         }
         protected virtual void HandleSingleChildAdded(SceneComponent item)
         {
@@ -757,10 +751,10 @@ namespace TheraEngine.Components
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (this is I3DRenderable r3d && r3d.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected)
-                r3d.RenderInfo.Visible = selected;
-            if (this is I2DRenderable r2d && r2d.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected)
-                r2d.RenderInfo.Visible = selected;
+            if (this is I3DRenderable r3D && r3D.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected)
+                r3D.RenderInfo.Visible = selected;
+            if (this is I2DRenderable r2D && r2D.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected)
+                r2D.RenderInfo.Visible = selected;
 
             //foreach (SceneComponent comp in ChildComponents)
             //    comp.OnSelectedChanged(selected);

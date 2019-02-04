@@ -127,9 +127,9 @@ namespace TheraEngine.Physics
         [PhysicsSupport(EPhysicsLibrary.Bullet)]
         public abstract Vec3 AabbMax { get; set; }
 
-        public void Spawn(TWorld world)
+        public void Spawn(World world)
             => world.PhysicsWorld.AddCollisionObject(this);
-        public void Despawn(TWorld world)
+        public void Despawn(World world)
             => world.PhysicsWorld.RemoveCollisionObject(this);
         
         public abstract void Activate();

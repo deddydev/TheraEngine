@@ -100,11 +100,11 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnDespawned()
         {
-            Scene3D s3d = OwningScene3D;
-            if (s3d != null)
+            Scene3D s3D = OwningScene3D;
+            if (s3D != null)
             {
                 if (Type == ELightType.Dynamic)
-                    s3d.Lights.Remove(this);
+                    s3D.Lights.Remove(this);
                 
                 ShadowCamera.RenderInfo.UnlinkScene();
             }

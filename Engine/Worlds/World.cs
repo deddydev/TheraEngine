@@ -1,17 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Collections;
-using System;
-using TheraEngine.Core.Files;
+using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.GameModes;
+using System.Drawing;
+using System.Threading.Tasks;
 using TheraEngine.Actors;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
+using TheraEngine.GameModes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
-using System.Threading.Tasks;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Models.Materials;
-using System.Drawing;
 
 namespace TheraEngine.Worlds
 {
@@ -26,22 +26,15 @@ namespace TheraEngine.Worlds
     /// </summary>
     [TFileExt("world")]
     [TFileDef("World")]
-    public class TWorld : TFileObject, I3DRenderable, IEnumerable<IActor>, IDisposable
+    public class World : TFileObject, I3DRenderable, IEnumerable<IActor>, IDisposable
     {
-        public TWorld() : this(new WorldSettings(), new WorldState()) { }
-        public TWorld(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
-        public TWorld(GlobalFileRef<WorldSettings> settings, GlobalFileRef<WorldState> state)
+        public World() : this(new WorldSettings(), new WorldState()) { }
+        public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
+        public World(GlobalFileRef<WorldSettings> settings, GlobalFileRef<WorldState> state)
         {
             StateRef = state;
             SettingsRef = settings;
             _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
-        }
-
-        private void Render()
-        {
-            Engine.Renderer.RenderBox(Settings.Bounds.HalfExtents, Settings.Bounds.Translation.AsTranslationMatrix(), false, Color.Green);
-            if (Settings.EnableOriginRebasing)
-                Engine.Renderer.RenderSphere(Vec3.Zero, Settings.OriginRebaseRadius, false, Color.Aqua);
         }
 
         private GlobalFileRef<WorldSettings> _settingsRef;
@@ -90,65 +83,61 @@ namespace TheraEngine.Worlds
         /// <summary>
         /// Adds an actor to the scene.
         /// </summary>
-        public void SpawnActor(IActor actor)
+        public void SpawnActor(BaseActor actor)
         {
-            if (actor is IActor_Internal internalActor && State.SpawnedActors.Add(internalActor))
+            if (State.SpawnedActors.Add(actor))
             {
-                internalActor.Spawned(this);
+                actor.Spawned(this);
                 //Engine.PrintLine("Spawned " + actor.Name);
             }
         }
         /// <summary>
         /// Adds an actor to the scene.
         /// </summary>
-        public void SpawnActor(IActor actor, Vec3 position)
+        public void SpawnActor(BaseActor actor, Vec3 position)
         {
-            if (actor is IActor_Internal internalActor)
-            {
-                internalActor.Spawned(this);
-                internalActor.RebaseOrigin(-position);
-                State.SpawnedActors.Add(internalActor);
-            }
+            actor.Spawned(this);
+            actor.RebaseOrigin(-position);
+            State.SpawnedActors.Add(actor);
         }
         /// <summary>
         /// Removes an actor from the scene.
         /// </summary>
-        public void DespawnActor(IActor actor)
+        public void DespawnActor(BaseActor actor)
         {
-            if (!(actor is IActor_Internal internalActor) || 
-                !State.SpawnedActors.Contains(actor))
+            if (!State.SpawnedActors.Contains(actor))
                 return;
 
-            State.SpawnedActors.Remove(internalActor);
-            internalActor.Despawned();
+            State.SpawnedActors.Remove(actor);
+            actor.Despawned();
             //Engine.PrintLine("Despawned " + actor.Name);
         }
         
         internal void StepSimulation(float delta)
             => PhysicsWorld?.StepSimulation(delta);
         
-        public IActor this[int index]
+        public BaseActor this[int index]
         {
             get => State.SpawnedActors[index];
             set => State.SpawnedActors[index] = value;
         }
-        /// <summary>
-        /// Moves the origin to preserve float precision when traveling large distances from the origin.
-        /// Provide any world point and that point will become the new (0,0,0).
-        /// </summary>
 
         public bool IsRebasingOrigin { get; private set; } = false;
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
 
+        /// <summary>
+        /// Moves the origin to preserve float precision when traveling large distances from the origin.
+        /// Provide any world point and that point will become the new (0,0,0).
+        /// </summary>
         public async void RebaseOrigin(Vec3 newOrigin)
         {
             if (!Settings.EnableOriginRebasing)
                 return;
 
-            //if (IsRebasingOrigin)
-            //    return;
-                //throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
-            //IsRebasingOrigin = true;
+            if (IsRebasingOrigin)
+                return;
+            //throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
+            IsRebasingOrigin = true;
 
             Engine.PrintLine("Beginning origin rebase.");
 
@@ -156,7 +145,7 @@ namespace TheraEngine.Worlds
                 PhysicsWorld.AllowIndividualAabbUpdates = false;
 
             //Update each actor in parallel; they should not depend on one another
-            await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => ((IActor_Internal)a).RebaseOrigin(newOrigin)));
+            await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
             //foreach (IActor a in State.SpawnedActors)
             //    a.RebaseOrigin(newOrigin);
 
@@ -170,7 +159,7 @@ namespace TheraEngine.Worlds
 
             Engine.PrintLine("Finished origin rebase.");
 
-            //IsRebasingOrigin = false;
+            IsRebasingOrigin = false;
         }
 
         private void CreatePhysicsScene()
@@ -207,27 +196,22 @@ namespace TheraEngine.Worlds
 
             RenderInfo.LinkScene(this, Scene3D);
         }
-
+        
         private readonly RenderCommandMethod3D _rc;
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        private void Render()
         {
-            passes.Add(_rc);
+            if (!(Engine.EditorState?.InEditMode ?? false))
+                return;
+
+            Engine.Renderer.RenderBox(Settings.Bounds.HalfExtents, Settings.Bounds.Translation.AsTranslationMatrix(), false, Color.Green);
+            if (Settings.EnableOriginRebasing)
+                Engine.Renderer.RenderSphere(Vec3.Zero, Settings.OriginRebaseRadius, false, Color.Aqua);
+            Frustum frustum = Engine.Renderer.CurrentCamera?.Frustum;
+            if (Settings.PreviewOctrees && frustum != null)
+                Scene3D?.RenderTree?.DebugRender(frustum, true);
+            if (Settings.PreviewPhysics)
+                PhysicsWorld?.DrawDebugWorld();
         }
-
-        //public event Action<LocalPlayerController> LocalPlayerAdded;
-        //internal protected virtual void OnLocalPlayerAdded(LocalPlayerController controller)
-        //{
-        //    LocalPlayerAdded?.Invoke(controller);
-        //}
+        void I3DRenderable.AddRenderables(RenderPasses passes, Camera camera) => passes.Add(_rc);
     }
-
-    //internal class CustomOvelapFilter : OverlapFilterCallback
-    //{
-    //    public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
-    //    {
-    //        return 
-    //            ((short)proxy0.CollisionFilterGroup & (short)proxy1.CollisionFilterMask) != 0 &&
-    //            ((short)proxy1.CollisionFilterGroup & (short)proxy0.CollisionFilterMask) != 0;
-    //    }
-    //}
 }

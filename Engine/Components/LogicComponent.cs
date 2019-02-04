@@ -8,8 +8,11 @@ namespace TheraEngine.Components
 
     }
     /// <summary>
-    /// Logic components define specific functionality that dictates how an <see cref="Actor"/> should operate.
+    /// Logic components define specific functionality that dictates how an <see cref="Actor{T}"/> should operate.
     /// </summary>
     [TFileExt("lcomp")]
-    public abstract class LogicComponent : Component, ILogicComponent { }
+    public abstract class LogicComponent : Component, ILogicComponent
+    {
+
+    }
 }

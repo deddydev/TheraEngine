@@ -229,7 +229,7 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            IActor newActor = Editor.UserCreateInstanceOf<IActor>();
+            BaseActor newActor = Editor.UserCreateInstanceOf<BaseActor>();
             if (newActor == null)
                 return;
             

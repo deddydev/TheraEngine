@@ -195,14 +195,14 @@ namespace TheraEditor.Windows.Forms
         /// <summary>
         /// The world that the editor is currently editing.
         /// </summary>
-        public TWorld CurrentWorld
+        public World CurrentWorld
         {
             get => Engine.World;
             set => SetWorld(value);
         }
-        private async void SetWorld(TWorld world)
+        private async void SetWorld(World world)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<TWorld>)SetWorld, BaseRenderPanel.PanelType.Rendering, world))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<World>)SetWorld, BaseRenderPanel.PanelType.Rendering, world))
                 return;
 
             if (Engine.World?.EditorState?.HasChanges ?? false)
@@ -256,7 +256,7 @@ namespace TheraEditor.Windows.Forms
             if (!CloseWorld())
                 return;
 
-            CurrentWorld = new TWorld();
+            CurrentWorld = new World();
         }
         public async void OpenWorld()
         {
@@ -265,12 +265,12 @@ namespace TheraEditor.Windows.Forms
 
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = TFileObject.GetFilter<TWorld>(),
+                Filter = TFileObject.GetFilter<World>(),
                 Multiselect = false
             })
             {
                 if (ofd.ShowDialog(this) == DialogResult.OK)
-                    CurrentWorld = await TFileObject.LoadAsync<TWorld>(ofd.FileName);
+                    CurrentWorld = await TFileObject.LoadAsync<World>(ofd.FileName);
             }
         }
         #endregion

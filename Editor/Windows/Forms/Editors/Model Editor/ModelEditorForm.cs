@@ -18,7 +18,6 @@ using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
-using TheraEngine.Worlds.Maps;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -36,13 +35,13 @@ namespace TheraEditor.Windows.Forms
             AutoScaleMode = AutoScaleMode.Font;
             DoubleBuffered = false;
             formMenu.Renderer = new TheraToolstripRenderer();
-            FormTitle2.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
-            ModelEditorText.MouseDown += new MouseEventHandler(TitleBar_MouseDown);
+            FormTitle2.MouseDown += TitleBar_MouseDown;
+            ModelEditorText.MouseDown += TitleBar_MouseDown;
         }
 
         public ModelEditorForm(SkeletalModel model) : this() => SetModel(model);
         public ModelEditorForm(StaticModel model) : this() => SetModel(model);
-        public ModelEditorForm(IActor actor) : this() => SetActor(actor);
+        public ModelEditorForm(BaseActor actor) : this() => SetActor(actor);
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
@@ -140,17 +139,17 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
-        private LocalFileRef<TWorld> ModelEditorWorld
-            = new LocalFileRef<TWorld>(/*Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
+        private LocalFileRef<World> ModelEditorWorld
+            = new LocalFileRef<World>(/*Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
 
         public async Task InitWorldAsync()
         {
             //bool loaded = ModelEditorWorld.IsLoaded;
             //bool fileDoesNotExist = !ModelEditorWorld.FileExists;
-            TWorld world = await ModelEditorWorld.GetInstanceAsync();
+            World world = await ModelEditorWorld.GetInstanceAsync();
             if (world == null)
             {
-                List<IActor> actors = new List<IActor>();
+                List<BaseActor> actors = new List<BaseActor>();
 
                 DirectionalLightActor light = new DirectionalLightActor();
                 DirectionalLightComponent comp = light.RootComponent;
@@ -170,7 +169,7 @@ namespace TheraEditor.Windows.Forms
                 //iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
                 actors.Add(iblProbes);
 
-                ModelEditorWorld.File = world = new TWorld()
+                ModelEditorWorld.File = world = new World()
                 {
                     Settings = new WorldSettings("ModelEditorWorld", new Map(actors)),
                 };
@@ -181,9 +180,9 @@ namespace TheraEditor.Windows.Forms
             else
             {
                 world.BeginPlay();
-                var ibl = world.State.GetSpawnedActorsOfType<IBLProbeGridActor>().ToArray();
-                if (ibl.Length > 0 && ibl[0] != null)
-                    ibl[0].InitAndCaptureAll(256);
+                IBLProbeGridActor[] ibl = world.State.GetSpawnedActorsOfType<IBLProbeGridActor>().ToArray();
+                if (ibl.Length > 0)
+                    ibl[0]?.InitAndCaptureAll(256);
             }
             
             //DirectionalLightActor light = w.State.GetSpawnedActorsOfType<DirectionalLightActor>().ToArray()[0];
@@ -192,11 +191,11 @@ namespace TheraEditor.Windows.Forms
             //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
         }
 
-        public TWorld World => ModelEditorWorld.File;        
-        public IActor TargetActor { get; private set; }
+        public World World => ModelEditorWorld.File;        
+        public BaseActor TargetActor { get; private set; }
         public IModelFile Model { get; private set; }
 
-        public async void SetActor(IActor actor)
+        public async void SetActor(BaseActor actor)
         {
             if (World == null)
             {
@@ -245,9 +244,7 @@ namespace TheraEditor.Windows.Forms
 
             Skeleton skel = skm.SkeletonRef?.File;
 
-            FormTitle2.Text = string.Format("{0} [{1}]", 
-                skm?.FilePath ?? skm?.Name ?? string.Empty,
-                skel?.FilePath ?? skel?.Name ?? string.Empty);
+            FormTitle2.Text = $"{skm?.FilePath ?? skm?.Name ?? string.Empty} [{skel?.FilePath ?? skel?.Name ?? string.Empty}]";
 
             if (TargetActor != null && TargetActor.IsSpawned)
                 World.DespawnActor(TargetActor);
@@ -255,7 +252,7 @@ namespace TheraEditor.Windows.Forms
             Model = skm;
             SkeletalMeshComponent comp = new SkeletalMeshComponent(skm, skel);
             TargetActor = new Actor<SkeletalMeshComponent>(comp);
-            AnimStateMachineComponent machine = new AnimStateMachineComponent(skm.SkeletonRef.File);
+            AnimStateMachineComponent machine = new AnimStateMachineComponent(skm.SkeletonRef?.File);
             TargetActor.LogicComponents.Add(machine);
             World.SpawnActor(TargetActor);
             if (chkViewBones.Checked)

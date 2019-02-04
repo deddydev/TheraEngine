@@ -28,7 +28,7 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Tests
 {
-    public class UnitTestingWorld : TWorld
+    public class UnitTestingWorld : World
     {
         private Random _rand = new Random();
         private void RigidBodyCollision_Collided1(TCollisionObject @this, TCollisionObject other, TContactInfo info, bool thisIsA)
@@ -87,8 +87,8 @@ namespace TheraEngine.Tests
             float originDist = diam + margin;
             BoundingBox bounds = new BoundingBox(1000.0f);
 
-            List<IActor> actors = new List<IActor>();
-            IActor actor;
+            List<BaseActor> actors = new List<BaseActor>();
+            BaseActor actor;
 
             #region Meshes
             int count = 4;

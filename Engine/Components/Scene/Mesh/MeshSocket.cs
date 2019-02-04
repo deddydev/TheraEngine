@@ -33,7 +33,7 @@ namespace TheraEngine.Components.Scene.Mesh
     }
     public class MeshSocket : TObject, ISocket
     {
-        internal MeshSocket(Transform transform, IMeshSocketOwner owner, IActor actor)
+        internal MeshSocket(Transform transform, IMeshSocketOwner owner, BaseActor actor)
         {
             _owner = owner;
             _owningActor = actor;
@@ -48,7 +48,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
 
         private IMeshSocketOwner _owner;
-        private IActor _owningActor;
+        private BaseActor _owningActor;
         private Transform _transform = Transform.GetIdentity();
 
         public Matrix4 WorldMatrix { get=> _transform.Matrix; set => _transform.Matrix = value; }

@@ -7,7 +7,7 @@ namespace TheraEngine.Components
     public interface IComponent : IFileObject
     {
         bool Locked { get; }
-        IActor OwningActor { get; set; }
+        BaseActor OwningActor { get; set; }
         bool IsSpawned { get; }
         void OnSpawned();
         void OnDespawned();
@@ -19,20 +19,15 @@ namespace TheraEngine.Components
     [TFileExt("comp")]
     public abstract class Component : TFileObject
     {
-        private IActor _owner;
-        public bool _locked = true;
-
         /// <summary>
         /// Determines if this component was constructed by code and cannot be removed.
         /// </summary>
         [Browsable(false)]
-        public bool Locked => _locked;
+        public bool Locked { get; } = true;
+
         [Browsable(false)]
-        public virtual IActor OwningActor
-        {
-            get => _owner;
-            set => _owner = value;
-        }
+        public virtual BaseActor OwningActor { get; set; }
+
         [Browsable(false)]
         public bool IsSpawned => OwningActor?.IsSpawned ?? false;
 

@@ -350,6 +350,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actors\IActor.cs" />
+    <Compile Include="Actors\BaseActor.cs" />
     <Compile Include="Animation\Property\Core\AnimationMember.cs" />
     <Compile Include="Animation\Property\Core\AnimationTree.cs" />
     <Compile Include="Animation\Property\Core\BasePropAnim.cs" />
@@ -997,7 +999,6 @@
     <Compile Include="Actors\BSP\BSPShapeActor.cs" />
     <Compile Include="Actors\ComponentActors\Shapes\ShapeActor.cs" />
     <Compile Include="Game Modes\CharacterGameMode.cs" />
-    <Compile Include="Actors\ActorState.cs" />
     <Compile Include="Components\ComponentState.cs" />
     <Compile Include="Components\Scene\Lights\LightComponent.cs" />
     <Compile Include="Components\Scene\Lights\SpotLightComponent.cs" />

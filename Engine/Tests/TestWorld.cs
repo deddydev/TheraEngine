@@ -16,20 +16,20 @@ using TheraEngine.Worlds.Maps;
 
 namespace TheraEngine.Tests
 {
-    public unsafe class TestWorld : TWorld
+    public class TestWorld : World
     {
-        public unsafe override void BeginPlay()
+        public override void BeginPlay()
         {
             Settings = new WorldSettings("TestWorld")
             {
                 Bounds = BoundingBox.FromHalfExtentsTranslation(new Vec3(200.0f), Vec3.Zero),
             };
 
-            List<IActor> actors = new List<IActor>();
-            IActor actor;
+            List<BaseActor> actors = new List<BaseActor>();
+            BaseActor actor;
 
             Random r = new Random();
-            IActor[] array = new IActor[100];
+            BaseActor[] array = new BaseActor[100];
             BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
             for (int i = 0; i < array.Length; ++i)
             {
@@ -139,7 +139,7 @@ namespace TheraEngine.Tests
             //floorActor1.RootComponent.AddAnimation(lightAnimContainer, true, ETickGroup.PostPhysics, ETickOrder.BoneAnimation, InputPauseType.TickOnlyWhenUnpaused);
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                (ColorF3)Color.Beige, 1.0f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR))
+                (ColorF3)Color.Beige, 1.0f, new Rotator(-35.0f, 30.0f, 0.0f))
             {
                 Scale = Settings.Bounds.HalfExtents.LengthFast
             };

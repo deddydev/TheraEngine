@@ -121,32 +121,37 @@ namespace TheraEditor.Windows.Forms
         private async void RenderPanel_DragEnter(object sender, DragEventArgs e)
         {
             BaseWrapper[] dragNodes = Editor.Instance.ContentTree?.DraggedNodes;
+
             if (dragNodes == null || dragNodes.Length != 1)
                 return;
+
             if (!(dragNodes[0] is BaseFileWrapper wrapper))
                 return;
+
             if (_lastDraggedNode != wrapper)
             {
                 _lastDraggedNode = wrapper;
                 _dragInstance = null;
             }
+
             IFileObject instance = _dragInstance ?? (_dragInstance = await wrapper.GetNewInstanceAsync());
-            if (instance is IActor actor)
-            {
-                //Editor.Instance.DoEvents = false;
-                //_preRenderFreq = Engine.TargetRenderFreq;
-                //_preUpdateFreq = Engine.TargetUpdateFreq;
-                //Engine.TargetRenderFreq = 20.0f;
-                //Engine.TargetUpdateFreq = 20.0f;
-                BaseRenderPanel.HoveredPanel = RenderPanel;
-                RenderPanel.Focus();
-                EditorHud hud = EditorPawn.HUD.File as EditorHud;
-                Engine.World.SpawnActor(actor, EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance);
-                _prevTransformType = hud.TransformMode;
-                hud.TransformMode = TransformType.DragDrop;
-                hud.HighlightedComponent = actor.RootComponent;
-                hud.DoMouseDown();
-            }
+            if (!(instance is BaseActor actor))
+                return;
+
+            //Editor.Instance.DoEvents = false;
+            //_preRenderFreq = Engine.TargetRenderFreq;
+            //_preUpdateFreq = Engine.TargetUpdateFreq;
+            //Engine.TargetRenderFreq = 20.0f;
+            //Engine.TargetUpdateFreq = 20.0f;
+
+            BaseRenderPanel.HoveredPanel = RenderPanel;
+            RenderPanel.Focus();
+            EditorHud hud = EditorPawn.HUD.File as EditorHud;
+            Engine.World.SpawnActor(actor, EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance);
+            _prevTransformType = hud.TransformMode;
+            hud.TransformMode = TransformType.DragDrop;
+            hud.HighlightedComponent = actor.RootComponentGeneric;
+            hud.DoMouseDown();
         }
 
         private void RenderPanel_DragLeave(object sender, EventArgs e)

@@ -9,6 +9,9 @@ using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using System.Threading.Tasks;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models.Materials;
+using System.Drawing;
 
 namespace TheraEngine.Worlds
 {
@@ -23,7 +26,7 @@ namespace TheraEngine.Worlds
     /// </summary>
     [TFileExt("world")]
     [TFileDef("World")]
-    public class TWorld : TFileObject, IEnumerable<IActor>, IDisposable
+    public class TWorld : TFileObject, I3DRenderable, IEnumerable<IActor>, IDisposable
     {
         public TWorld() : this(new WorldSettings(), new WorldState()) { }
         public TWorld(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
@@ -31,8 +34,16 @@ namespace TheraEngine.Worlds
         {
             StateRef = state;
             SettingsRef = settings;
+            _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
         }
-        
+
+        private void Render()
+        {
+            Engine.Renderer.RenderBox(Settings.Bounds.HalfExtents, Settings.Bounds.Translation.AsTranslationMatrix(), false, Color.Green);
+            if (Settings.EnableOriginRebasing)
+                Engine.Renderer.RenderSphere(Vec3.Zero, Settings.OriginRebaseRadius, false, Color.Aqua);
+        }
+
         private GlobalFileRef<WorldSettings> _settingsRef;
         private GlobalFileRef<WorldState> _stateRef;
 
@@ -126,16 +137,18 @@ namespace TheraEngine.Worlds
         /// Provide any world point and that point will become the new (0,0,0).
         /// </summary>
 
-        public bool IsRebasingOrigin { get; private set; }
+        public bool IsRebasingOrigin { get; private set; } = false;
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
+
         public async void RebaseOrigin(Vec3 newOrigin)
         {
             if (!Settings.EnableOriginRebasing)
                 return;
 
-            if (IsRebasingOrigin)
-                return;
+            //if (IsRebasingOrigin)
+            //    return;
                 //throw new Exception("Cannot rebase origin while already rebasing. Check to make sure there are no RebaseOrigin calls within rebasing code.");
-            IsRebasingOrigin = true;
+            //IsRebasingOrigin = true;
 
             Engine.PrintLine("Beginning origin rebase.");
 
@@ -157,7 +170,7 @@ namespace TheraEngine.Worlds
 
             Engine.PrintLine("Finished origin rebase.");
 
-            IsRebasingOrigin = false;
+            //IsRebasingOrigin = false;
         }
 
         private void CreatePhysicsScene()
@@ -179,11 +192,11 @@ namespace TheraEngine.Worlds
         {
             foreach (Map m in Settings.Maps)
                 m.EndPlay();
+            RenderInfo.UnlinkScene();
         }
         public virtual void BeginPlay()
         {
             State.Scene = new Scene3D(Settings.Bounds.HalfExtents);
-            //State.Scene.Lights.GlobalAmbient = Settings.GlobalAmbient;
             CreatePhysicsScene();
 
             Engine.TimeDilation = Settings.TimeDilation;
@@ -192,12 +205,13 @@ namespace TheraEngine.Worlds
                 if (m.VisibleByDefault)
                     m.BeginPlay(this);
 
-//#if DEBUG
-//            if (Settings.EnableOriginRebasing)
-//                Scene.Add(Settings.OriginRebaseBounds);
-//#endif
+            RenderInfo.LinkScene(this, Scene3D);
+        }
 
-            //State.Scene.Add(Settings.Bounds);
+        private readonly RenderCommandMethod3D _rc;
+        public void AddRenderables(RenderPasses passes, Camera camera)
+        {
+            passes.Add(_rc);
         }
 
         //public event Action<LocalPlayerController> LocalPlayerAdded;

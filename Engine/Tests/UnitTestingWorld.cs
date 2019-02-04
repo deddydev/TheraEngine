@@ -390,8 +390,8 @@ namespace TheraEngine.Tests
             Settings = new WorldSettings("UnitTestingWorld", new Map(true, Vec3.Zero, actors))
             {
                 Bounds = bounds,
-                OriginRebaseBounds = new BoundingBox(50.0f),
-                EnableOriginRebasing = false,
+                OriginRebaseRadius = 50.0f,
+                EnableOriginRebasing = true,
             };
 
             base.BeginPlay();

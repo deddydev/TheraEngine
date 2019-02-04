@@ -163,10 +163,10 @@ namespace TheraEngine
         /// </summary>
         private static int _currentTickList = -1;
 
-        private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsQueue1 = new ConcurrentDictionary<TWorld, Vec3>();
-        private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsQueue2 = new ConcurrentDictionary<TWorld, Vec3>();
+        private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<TWorld, Vec3>();
+        private static ConcurrentDictionary<TWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<TWorld, Vec3>();
         public static void QueueRebaseOrigin(TWorld world, Vec3 point)
-            => RebaseWorldsQueue2.AddOrUpdate(world, t => point, (t, t2) => point);
+            => RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
         
         public static bool Assert(bool condition, string message, bool throwException = true)
         {

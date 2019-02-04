@@ -1079,7 +1079,8 @@ namespace System
         /// <returns>The type of containment the two objects have.</returns>
         public static bool SphereContainsPoint(Vec3 center, float radius, Vec3 point)
         {
-            return point.DistanceToSquared(center) <= radius * radius;
+            float dist2 = point.DistanceToSquared(center);
+            return dist2 <= radius * radius;
         }
 
         /// <summary>

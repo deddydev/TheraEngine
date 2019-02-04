@@ -165,7 +165,7 @@ namespace TheraEngine.Actors
             }
         }
         [Browsable(false)]
-        public bool IsSpawned => _spawnIndex >= 0;
+        public bool IsSpawned => _spawnIndex >= 0 && OwningWorld != null;
         [Browsable(false)]
         public TWorld OwningWorld { get; private set; } = null;
         [Browsable(false)]

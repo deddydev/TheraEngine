@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Animation.Cutscenes;
@@ -10,20 +11,22 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds
 {
-    public delegate void GravityChange(Vec3 oldGravity);
-    public delegate void GameModeChange(BaseGameMode oldMode);
-    public delegate void TimeMultiplierChange(float oldMult);
+    public delegate void GravityChange(WorldSettings settings, Vec3 oldGravity);
+    public delegate void GameModeChange(WorldSettings settings, BaseGameMode oldMode);
+    public delegate void TimeMultiplierChange(WorldSettings settings, float oldMult);
     [TFileExt("wset")]
     [TFileDef("World Settings")]
     public class WorldSettings : TFileObject
     {
-        public GravityChange GravityChanged;
-        public GameModeChange GameModeOverrideChanged;
-        public TimeMultiplierChange TimeMultiplierChanged;
+        public event GravityChange GravityChanged;
+        public event GameModeChange GameModeOverrideChanged;
+        public event TimeMultiplierChange TimeMultiplierChanged;
+        public event Action<WorldSettings> EnableOriginRebasingChanged;
 
-        public void OnGravityChanged(Vec3 oldGravity) => GravityChanged?.Invoke(oldGravity);
-        public void OnGameModeOverrideChanged(BaseGameMode oldMode) => GameModeOverrideChanged?.Invoke(oldMode);
-        public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
+        public void OnGravityChanged(Vec3 oldGravity) => GravityChanged?.Invoke(this, oldGravity);
+        public void OnGameModeOverrideChanged(BaseGameMode oldMode) => GameModeOverrideChanged?.Invoke(this, oldMode);
+        public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(this, oldMult);
+        public void OnEnableOriginRebasingChanged() => EnableOriginRebasingChanged?.Invoke(this);
 
         //[TypeConverter(typeof(Vec3StringConverter))]
         [Category("World")]
@@ -88,8 +91,8 @@ namespace TheraEngine.Worlds
         [TSerialize(nameof(Bounds))]
         private BoundingBox _bounds = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
 
-        [TSerialize(nameof(OriginRebaseBounds))]
-        private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
+        [TSerialize(nameof(OriginRebaseRadius))]
+        private float _originRebaseRadius = 500.0f;
 
         [TSerialize(nameof(Maps))]
         private EventList<LocalFileRef<Map>> _maps = new EventList<LocalFileRef<Map>>();
@@ -105,10 +108,10 @@ namespace TheraEngine.Worlds
         [Category("World Origin Rebasing")]
         public bool EnableOriginRebasing { get; set; } = false;
         [Category("World Origin Rebasing")]
-        public BoundingBox OriginRebaseBounds
+        public float OriginRebaseRadius
         {
-            get => _originRebaseBounds;
-            set => _originRebaseBounds = value;
+            get => _originRebaseRadius;
+            set => _originRebaseRadius = value;
         }
         [Category("World")]
         public BoundingBox Bounds
@@ -178,13 +181,11 @@ namespace TheraEngine.Worlds
         public WorldSettings(string name, params Map[] maps)
         {
             _name = name;
-            _originRebaseBounds = _bounds;
+            _originRebaseRadius = TMath.Min(
+                _bounds.Maximum.X, _bounds.Maximum.Y, _bounds.Maximum.Z,
+                _bounds.Minimum.X, _bounds.Minimum.Y, _bounds.Minimum.Z);
 
             Maps = new EventList<LocalFileRef<Map>>(maps.Select(x => new LocalFileRef<Map>(x)));
-        }
-        public void SetOriginRebaseDistance(float distance)
-        {
-            _originRebaseBounds = new BoundingBox(distance);
         }
     }
 }

@@ -12,8 +12,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Actors;
+using TheraEngine.Core;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
@@ -354,11 +354,12 @@ namespace TheraEngine
         /// </summary>
         private static void Tick(object sender, FrameEventArgs e)
         {
-            //RebaseWorldsQueue1.Clear();
-            //THelpers.Swap(ref RebaseWorldsQueue1, ref RebaseWorldsQueue2);
-            //RebaseWorldsQueue1.ForEach(x => x.Key.RebaseOrigin(x.Value));
-
             Network?.RecievePackets();
+
+            THelpers.Swap(ref RebaseWorldsProcessing, ref RebaseWorldsQueue);
+            RebaseWorldsProcessing.ForEach(x => x.Key.RebaseOrigin(x.Value));
+            RebaseWorldsProcessing.Clear();
+
             float delta = e.Time * TimeDilation;
             TickGroup(ETickGroup.PrePhysics, delta);
             if (!IsPaused)

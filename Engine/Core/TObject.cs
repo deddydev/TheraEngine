@@ -50,25 +50,12 @@ namespace TheraEngine
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
     public abstract class TObject : IObject
     {
-        //~TObject()
-        //{
-        //    if (!Guid.Equals(Guid.Empty) && Engine.ObjectCache.ContainsKey(Guid))
-        //        Engine.ObjectCache.Remove(Guid);
-        //}
-        
-        //[TPostDeserialize]
-        //private void PostDeserialize()
-        //{
-        //    if (!Guid.Equals(Guid.Empty))
-        //        Engine.ObjectCache.Add(Guid, this);
-        //}
-
         [TString(false, false, false)]
         [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
         protected string _name = null;
 
         [Browsable(false)]
-        //[TSerialize(NodeType = ENodeType.Attribute)]
+        [TSerialize(NodeType = ENodeType.Attribute)]
         public Guid Guid { get; internal set; } = Guid.NewGuid();
         
         [TSerialize]

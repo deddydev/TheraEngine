@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene;
@@ -9,6 +10,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Actors
 {
@@ -157,8 +159,15 @@ namespace TheraEngine.Actors
         }
         protected override void OnSpawnedPostComponentSpawn()
         {
-            if (OwningWorld.Settings.EnableOriginRebasing)
+            OwningWorld.Settings.EnableOriginRebasingChanged += Settings_EnableOriginRebasingChanged;
+            Settings_EnableOriginRebasingChanged(OwningWorld.Settings);
+        }
+        private void Settings_EnableOriginRebasingChanged(WorldSettings settings)
+        {
+            if (settings.EnableOriginRebasing)
                 RootComponent.WorldTransformChanged += QueueWorldRebase;
+            else
+                RootComponent.WorldTransformChanged -= QueueWorldRebase;
         }
         protected override void OnDespawned()
         {
@@ -190,12 +199,12 @@ namespace TheraEngine.Actors
         
         public void QueueWorldRebase()
         {
-            if (OwningWorld == null)
+            if (!IsSpawned)
                 return;
 
-            BoundingBox bounds = OwningWorld.Settings.OriginRebaseBounds;
+            float rebaseRadius = OwningWorld.Settings.OriginRebaseRadius;
             Vec3 point = RootComponent.WorldMatrix.Translation;
-            if (!bounds.Contains(point))
+            if (!Collision.SphereContainsPoint(Vec3.Zero, rebaseRadius, point))
                 Engine.QueueRebaseOrigin(OwningWorld, point);
         }
         public bool IsInWorldBounds()

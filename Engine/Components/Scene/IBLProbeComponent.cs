@@ -17,11 +17,7 @@ namespace TheraEngine.Actors.Types
     {
         private CubeFrameBuffer _irradianceFBO;
         private CubeFrameBuffer _prefilterFBO;
-
-        [Browsable(false)]
-        public TShape CullingVolume => null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
+        
         [Browsable(false)]
         public TexRefCube IrradianceTex { get; private set; }
         [Browsable(false)]

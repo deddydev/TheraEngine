@@ -22,11 +22,7 @@ namespace TheraEngine.Actors
 
         [Category(SceneComponent.RenderingCategoryName)]
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
-
-        [Browsable(false)]
-        public TShape CullingVolume => null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
+        
         [Category(SceneComponent.RenderingCategoryName)]
         public bool ShowPrefilterTexture
         {
@@ -78,7 +74,7 @@ namespace TheraEngine.Actors
             if (r3d != null && r3d.IBLProbeActor == null)
                 r3d.IBLProbeActor = this;
 
-            OwningWorld.Scene.Add(this);
+            //OwningWorld.Scene.Add(this);
         }
         protected override void OnDespawned()
         {
@@ -88,7 +84,7 @@ namespace TheraEngine.Actors
             if (r3d != null && r3d.IBLProbeActor == this)
                 r3d.IBLProbeActor = null;
 
-            OwningWorld.Scene.Remove(this);
+            //OwningWorld.Scene.Remove(this);
         }
 
         public void AddProbe(Vec3 position)

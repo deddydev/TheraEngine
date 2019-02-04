@@ -278,12 +278,7 @@ namespace TheraEngine.Components.Scene
         }
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
-
-        [Browsable(false)]
-        public TShape CullingVolume { get; } = null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-
+        
         public void TranslateRelative(Vec3 delta)
         {
             throw new NotImplementedException();

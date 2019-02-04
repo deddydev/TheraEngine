@@ -46,10 +46,6 @@ namespace TheraEngine.Actors.Types
         private static Lazy<TransformTool3D> _currentInstance = new Lazy<TransformTool3D>(() => new TransformTool3D());
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
-        [Browsable(false)]
-        public TShape CullingVolume => null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
 
         public TransformTool3D() : base()
         {

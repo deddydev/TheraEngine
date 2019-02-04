@@ -435,12 +435,7 @@ namespace TheraEngine.Tests
         }
 
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
-
-        [Browsable(false)]
-        public TShape CullingVolume => null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-
+        
         private PropAnimMethod<Vec3> _methodAnim;
         private AnimationTree _animTree;
         private float _rotationsPerSecond = 0.2f;

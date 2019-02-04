@@ -387,7 +387,6 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnSpawnedPostComponentSpawn();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
-            _highlightPoint.OwningScene3D = OwningScene3D;
             _highlightPoint.RenderInfo.LinkScene(_highlightPoint, OwningScene3D);
             //OwningWorld.Scene.Add(_highlightPoint);
             SubViewport.IsVisible = false;
@@ -398,7 +397,6 @@ namespace TheraEditor.Windows.Forms
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             //OwningWorld.Scene.Remove(_highlightPoint);
             _highlightPoint.RenderInfo.UnlinkScene();
-            _highlightPoint.OwningScene3D = null;
         }
         private void MouseMove(float delta)
         {
@@ -680,11 +678,8 @@ namespace TheraEditor.Windows.Forms
             public static readonly Color Color = Color.LimeGreen;
 
             public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
-            public TShape CullingVolume => null;
-            public IOctreeNode OctreeNode { get; set; }
             public SceneComponent HighlightedComponent { get; set; }
             public Matrix4 Transform { get; set; } = Matrix4.Identity;
-            public Scene3D OwningScene3D { get; set; }
 
             private TMaterial _material;
             private readonly PrimitiveManager _circlePrimitive;

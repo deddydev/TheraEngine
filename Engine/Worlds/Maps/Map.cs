@@ -56,12 +56,14 @@ namespace TheraEngine.Worlds
                 {
                     _actors.PostAnythingAdded -= _actors_PostAnythingAdded;
                     _actors.PostAnythingRemoved -= _actors_PostAnythingRemoved;
+                    _actors.ForEach(_actors_PostAnythingRemoved);
                 }
                 _actors = value;
                 if (_actors != null)
                 {
                     _actors.PostAnythingAdded += _actors_PostAnythingAdded;
                     _actors.PostAnythingRemoved += _actors_PostAnythingRemoved;
+                    _actors.ForEach(_actors_PostAnythingAdded);
                 }
             }
         }

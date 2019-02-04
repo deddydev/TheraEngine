@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.Models
@@ -18,12 +17,7 @@ namespace TheraEngine.Rendering.Models
     {
         public RenderInfo3D RenderInfo { get; }
             = new RenderInfo3D(false, false) { CastsShadows = false, ReceivesShadows = false };
-
-        [Browsable(false)]
-        public TShape CullingVolume => null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-
+        
         public Skeleton() : base()
         {
             _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);

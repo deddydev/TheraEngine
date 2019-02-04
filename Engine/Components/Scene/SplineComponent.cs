@@ -16,10 +16,6 @@ namespace TheraEngine.Components.Scene
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
         
-        [Browsable(false)]
-        public TShape CullingVolume { get; set; } = null;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
         [TSerialize]
         public bool RenderBounds { get; set; } = true;
         [TSerialize]
@@ -208,7 +204,7 @@ namespace TheraEngine.Components.Scene
             TMath.ComponentMinMax(out Vec3 minVal, out Vec3 maxVal, extrema);
             var box = BoundingBox.FromMinMax(minVal, maxVal);
             _cullingVolumeTranslation = box.Translation;
-            CullingVolume = box;
+            RenderInfo.CullingVolume = box;
 
             RenderingParameters p = new RenderingParameters
             {
@@ -312,7 +308,7 @@ void main()
             _rcExtrema.WorldMatrix = mtx;
             _rcCurrentPoint.WorldMatrix = WorldMatrix;
 
-            CullingVolume?.SetTransformMatrix(mtx * _cullingVolumeTranslation.AsTranslationMatrix());
+            RenderInfo.CullingVolume?.SetTransformMatrix(mtx * _cullingVolumeTranslation.AsTranslationMatrix());
 
             base.OnWorldTransformChanged();
         }
@@ -341,8 +337,8 @@ void main()
                 passes.Add(_rcKfLines);
             if (RenderExtrema)
                 passes.Add(_rcExtrema);
-            if (RenderBounds)
-                CullingVolume?.AddRenderables(passes, camera);
+            //if (RenderBounds)
+            //    RenderInfo.CullingVolume?.AddRenderables(passes, camera);
             if (RenderCurrentTimePoint)
                 passes.Add(_rcCurrentPoint);
         }

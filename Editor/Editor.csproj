@@ -1260,9 +1260,6 @@
     <Folder Include="Windows\Forms\Editors\Keyframe Timeline Editor\" />
     <Folder Include="Windows\Forms\Editors\Model Animation Editor\" />
     <Folder Include="Windows\Forms\Editors\Model Animation State Table Editor\" />
-    <Folder Include="Windows\Forms\Keyframe Timeline Editor\" />
-    <Folder Include="Windows\Forms\Model Animation Editor\" />
-    <Folder Include="Windows\Forms\Model Animation State Table Editor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\PythonIcon.png" />

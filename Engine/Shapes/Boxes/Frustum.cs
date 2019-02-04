@@ -323,11 +323,6 @@ namespace TheraEngine.Core.Shapes
         [Browsable(false)]
         public IEnumerable<Vec3> Points => _points;
         [Browsable(false)]
-        public TShape CullingVolume => null;
-
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-        [Browsable(false)]
         public Sphere BoundingSphere
         {
             get => _boundingSphere;

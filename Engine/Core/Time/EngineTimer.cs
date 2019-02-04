@@ -173,7 +173,7 @@ namespace TheraEngine.Timers
 
             // Update UpdateTime property
             _updateTimestamp = timestamp;
-            timestamp = (float)_watch.Elapsed.TotalSeconds * TimeDilation;
+            timestamp = (float)_watch.Elapsed.TotalSeconds/* * TimeDilation*/;
             UpdateTime = timestamp - _updateTimestamp;
         }
         void RaiseRenderFrame(float elapsed, ref float timestamp)

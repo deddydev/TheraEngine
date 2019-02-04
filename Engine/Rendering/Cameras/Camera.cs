@@ -16,14 +16,14 @@ namespace TheraEngine.Rendering.Cameras
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
-        [Browsable(false)]
-        public TShape CullingVolume => _transformedFrustum.CullingVolume;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode
-        {
-            get => _transformedFrustum.OctreeNode;
-            set => _transformedFrustum.OctreeNode = value;
-        }
+        //[Browsable(false)]
+        //public TShape CullingVolume => _transformedFrustum.CullingVolume;
+        //[Browsable(false)]
+        //public IOctreeNode OctreeNode
+        //{
+        //    get => _transformedFrustum.OctreeNode;
+        //    set => _transformedFrustum.OctreeNode = value;
+        //}
 
         public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);

@@ -65,8 +65,7 @@ namespace TheraEngine.Core.Files
         
         protected Type _subType = null;
         protected bool _updating;
-
-        protected virtual PathReference InternalPath { get; set; }
+        private PathReference _path;
 
         [Category("Construction")]
         [TSerialize]
@@ -82,16 +81,15 @@ namespace TheraEngine.Core.Files
         [Category("Loading")]
         public EPathType PathType
         {
-            get => Path.Type;
-            set => Path.Type = value;
+            get => _path.Type;
+            set => _path.Type = value;
         }
-        [TString(false, true, false, true)]
+        [TString(false, true)]
         [Category("Loading")]
-        [DisplayName("Path")]
         public string AbsolutePath
         {
-            get => Path.Path;
-            set => Path.Path = value;
+            get => _path.Path;
+            set => _path.Path = value;
         }
 
         [Browsable(false)]
@@ -100,19 +98,13 @@ namespace TheraEngine.Core.Files
         [TSerialize]
         public PathReference Path
         {
-            get => InternalPath;
+            get => _path;
             set
             {
-                if (InternalPath != null)
-                {
-                    //InternalPath.RelativePathChanged -= OnRelativeRefPathChanged;
-                    InternalPath.AbsolutePathChanged -= OnAbsoluteRefPathChanged;
-                }
-
-                InternalPath = value ?? new PathReference();
-
-                //InternalPath.RelativePathChanged += OnRelativeRefPathChanged;
-                InternalPath.AbsolutePathChanged += OnAbsoluteRefPathChanged;
+                if (_path != null)
+                    _path.AbsolutePathChanged -= OnAbsoluteRefPathChanged;
+                _path = value ?? new PathReference();
+                _path.AbsolutePathChanged += OnAbsoluteRefPathChanged;
             }
         }
 

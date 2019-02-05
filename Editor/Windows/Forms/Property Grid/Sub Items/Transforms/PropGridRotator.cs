@@ -28,7 +28,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override object RefObject => _rotator;
 
         public Rotator _rotator;
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             _rotator = value as Rotator;
             bool notNull = _rotator != null;
@@ -52,40 +52,41 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             chkNull.Checked = !notNull;
             chkNull.Enabled = editable;
             cboOrder.Enabled = numericInputBoxPitch.Enabled = numericInputBoxYaw.Enabled = numericInputBoxRoll.Enabled = editable && notNull;
+            return false;
         }
 
         private void numericInputBoxPitch_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_rotator != null && !_updating)
-            {
-                _rotator.Pitch = current.Value;
-                OnValueChanged();
-            }
+            if (_rotator == null || _updating)
+                return;
+
+            _rotator.Pitch = current.Value;
+            OnValueChanged();
         }
         private void numericInputBoxYaw_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_rotator != null && !_updating)
-            {
-                _rotator.Yaw = current.Value;
-                OnValueChanged();
-            }
+            if (_rotator == null || _updating)
+                return;
+
+            _rotator.Yaw = current.Value;
+            OnValueChanged();
         }
         private void numericInputBoxRoll_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
-            if (_rotator != null && !_updating)
-            {
-                _rotator.Roll = current.Value;
-                OnValueChanged();
-            }
+            if (_rotator == null || _updating)
+                return;
+
+            _rotator.Roll = current.Value;
+            OnValueChanged();
         }
         private void cboOrder_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_rotator != null && !_updating)
-            {
-                SubmitPreManualStateChange(_rotator, nameof(Rotator.Order));
-                _rotator.Order = (RotationOrder)cboOrder.SelectedIndex;
-                SubmitPostManualStateChange(_rotator, nameof(Rotator.Order));
-            }
+            if (_rotator == null || _updating)
+                return;
+
+            SubmitPreManualStateChange(_rotator, nameof(Rotator.Order));
+            _rotator.Order = (RotationOrder)cboOrder.SelectedIndex;
+            SubmitPostManualStateChange(_rotator, nameof(Rotator.Order));
         }
         
         private void checkBox1_CheckedChanged(object sender, EventArgs e)

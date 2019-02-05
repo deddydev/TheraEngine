@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Windows.Forms;
-using TheraEngine;
 using TheraEngine.Animation;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -14,7 +9,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridMatrix4()
         {
             InitializeComponent();
-            _boxes = new NumericInputBoxSingle[,]
+            _boxes = new[,]
             {
                 { r0c0, r0c1, r0c2, r0c3 },
                 { r1c0, r1c1, r1c2, r1c3 },
@@ -41,19 +36,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 r2c0.Value.Value, r2c1.Value.Value, r2c2.Value.Value, r2c3.Value.Value,
                 r3c0.Value.Value, r3c1.Value.Value, r3c2.Value.Value, r3c3.Value.Value), false);
 
-        private NumericInputBoxSingle[,] _boxes;
+        private readonly NumericInputBoxSingle[,] _boxes;
 
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             bool editable = IsEditable();
             Matrix4 m = (Matrix4)value;
             for (int r = 0; r < 4; ++r)
                 for (int c = 0; c < 4; ++c)
                 {
-                    var box = _boxes[r, c];
+                    NumericInputBoxSingle box = _boxes[r, c];
                     box.Value = m[r, c];
                     box.Enabled = editable;
                 }
+
+            return false;
         }
 
         public override bool CanAnimate => true;

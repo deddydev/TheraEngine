@@ -10,10 +10,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// The value type referenced by the nullable object.
         /// </summary>
         public Type ValueType { get; private set; }
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             bool editable = IsEditable();
-            bool notNull = value is null;
+            //bool notNull = value is null;
             if (chkNull.Checked = value is null)
             {
                 if (pnlEditors.Enabled)
@@ -33,6 +33,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
             chkNull.Enabled = editable;
+            return false;
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {

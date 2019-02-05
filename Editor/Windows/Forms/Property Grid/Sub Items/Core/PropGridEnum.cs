@@ -45,62 +45,67 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void comboBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
         private string _value = string.Empty;
         private FieldInfo[] _fields;
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             bool editable = IsEditable();
-            if (value is Enum e)
+            switch (value)
             {
-                _fields = DataType.GetFields(BindingFlags.Static | BindingFlags.Public);
-                
-                string temp = value.ToString();
-                //if (string.Equals(_value, temp, StringComparison.InvariantCulture))
-                //    return;
-                _value = temp;
-                
-                bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
-                tblEnumFlags.Visible = flags;
-                cboEnumNames.Visible = !flags;
-                if (flags)
+                case Enum e:
                 {
-                    //Type valueType = Enum.GetUnderlyingType(DataType);
-                    TypeCode t = e.GetTypeCode();
-                    DelContainsBit contains = _containsBit[t];
-                    object totalValue = Convert.ChangeType(e, t);
-                    object constValue;
-                    for (int i = 0; i < _fields.Length; ++i)
+                    _fields = DataType.GetFields(BindingFlags.Static | BindingFlags.Public);
+                
+                    string temp = value.ToString();
+                    //if (string.Equals(_value, temp, StringComparison.InvariantCulture))
+                    //    return;
+                    _value = temp;
+                
+                    bool flags = DataType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
+                    tblEnumFlags.Visible = flags;
+                    cboEnumNames.Visible = !flags;
+                    if (flags)
                     {
-                        constValue = _fields[i].GetRawConstantValue();
-                        object number = Convert.ChangeType(constValue, t);
-                        if (tblEnumFlags.GetControlFromPosition(0, i) is CheckBox box)
-                            box.Checked = contains(totalValue, number);
+                        //Type valueType = Enum.GetUnderlyingType(DataType);
+                        TypeCode t = e.GetTypeCode();
+                        DelContainsBit contains = _containsBit[t];
+                        object totalValue = Convert.ChangeType(e, t);
+                        object constValue, number;
+                        for (int i = 0; i < _fields.Length; ++i)
+                        {
+                            constValue = _fields[i].GetRawConstantValue();
+                            number = Convert.ChangeType(constValue, t);
+                            if (tblEnumFlags.GetControlFromPosition(0, i) is CheckBox box)
+                                box.Checked = contains(totalValue, number);
+                        }
+                        //panel1.Height = _fields.Length * 21;
+                        tblEnumFlags.Enabled = editable;
                     }
-                    //panel1.Height = _fields.Length * 21;
-                    tblEnumFlags.Enabled = editable;
-                }
-                else
-                {
-                    int selectedIndex = -1;
-                    for (int i = 0; i < _fields.Length; ++i)
+                    else
                     {
-                        string name = _fields[i].Name;
-                        if (string.Equals(name, _value, StringComparison.InvariantCulture))
-                            selectedIndex = i;
+                        int selectedIndex = -1;
+                        string name;
+                        for (int i = 0; i < _fields.Length; ++i)
+                        {
+                            name = _fields[i].Name;
+                            if (string.Equals(name, _value, StringComparison.InvariantCulture))
+                                selectedIndex = i;
+                        }
+                        cboEnumNames.SelectedIndex = selectedIndex;
+                        cboEnumNames.Enabled = editable;
                     }
-                    cboEnumNames.SelectedIndex = selectedIndex;
-                    cboEnumNames.Enabled = editable;
+
+                    break;
                 }
+                case Exception _:
+                    cboEnumNames.Visible = true;
+                    tblEnumFlags.Visible = false;
+                    cboEnumNames.Text = value.ToString();
+                    break;
+                default:
+                    cboEnumNames.Visible = false;
+                    tblEnumFlags.Visible = false;
+                    break;
             }
-            else if (value is Exception)
-            {
-                cboEnumNames.Visible = true;
-                tblEnumFlags.Visible = false;
-                cboEnumNames.Text = value.ToString();
-            }
-            else
-            {
-                cboEnumNames.Visible = false;
-                tblEnumFlags.Visible = false;
-            }
+            return false;
         }
 
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)

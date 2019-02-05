@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void TextBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
         private bool _multiLine = true;
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             bool notNull = value != null;
             bool editable = IsEditable();
@@ -61,6 +61,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 textBox.BackColor = Color.FromArgb(30, 30, 30);
                 textBox.ForeColor = Color.FromArgb(100, 100, 100);
             }
+            return false;
         }
         private void textBox1_TextChanged(object sender, EventArgs e)
         {

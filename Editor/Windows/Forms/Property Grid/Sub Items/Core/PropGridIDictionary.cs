@@ -26,7 +26,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         private Type _valueType, _keyType;
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             Dictionary = value as IDictionary;
             Type type = value?.GetType() ?? DataType;
@@ -46,6 +46,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 lblObjectTypeName.Enabled = false;
                 btnAdd.Visible = false;
             }
+            return false;
         }
         
         private void pnlElements_VisibleChanged(object sender, EventArgs e)

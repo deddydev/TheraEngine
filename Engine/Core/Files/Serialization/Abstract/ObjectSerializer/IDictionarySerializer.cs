@@ -47,14 +47,14 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public override void SerializeTreeFromObject()
         {
-            IDictionary dic = TreeNode.Object as IDictionary;
+            if (!(TreeNode.Object is IDictionary dic))
+                return;
 
             object[] keys = new object[dic.Keys.Count];
             object[] vals = new object[dic.Values.Count];
 
             Type keyType = dic.DetermineKeyType();
             Type valType = dic.DetermineValueType();
-            Type objType = TreeNode.ObjectType;
 
             dic.Keys.CopyTo(keys, 0);
             dic.Values.CopyTo(vals, 0);

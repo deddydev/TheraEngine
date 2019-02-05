@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override object RefObject => _eventVec4;
 
         public EventVec4 _eventVec4;
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             _eventVec4 = value as EventVec4;
             bool notNull = _eventVec4 != null;
@@ -51,6 +51,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             chkNull.Checked = !notNull;
             chkNull.Enabled = editable;
             numericInputBoxX.Enabled = numericInputBoxY.Enabled = numericInputBoxZ.Enabled = numericInputBoxW.Enabled = editable && notNull;
+            return false;
         }
 
         private void numericInputBoxX_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)

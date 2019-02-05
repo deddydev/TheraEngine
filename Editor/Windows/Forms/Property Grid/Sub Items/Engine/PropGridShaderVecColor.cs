@@ -18,37 +18,39 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         ShaderVec3 _vec3;
         ShaderVec4 _vec4;
 
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
-            if (value is ShaderVec3 ecolorF3)
+            switch (value)
             {
-                _vec3 = ecolorF3;
+                case ShaderVec3 ecolorF3:
+                    _vec3 = ecolorF3;
 
-                colorControl.Color = pnlColorPreview.BackColor = _vec3.Color;
+                    colorControl.Color = pnlColorPreview.BackColor = _vec3.Color;
 
-                colorControl.EditAlpha = false;
-                btnShowSelector.Enabled = true;
-                pnlColorPreview.Enabled = true;
+                    colorControl.EditAlpha = false;
+                    btnShowSelector.Enabled = true;
+                    pnlColorPreview.Enabled = true;
+                    break;
+                case ShaderVec4 ecolorF4:
+                    _vec4 = ecolorF4;
+
+                    colorControl.Color = pnlColorPreview.BackColor = _vec4.Color;
+
+                    colorControl.EditAlpha = true;
+                    btnShowSelector.Enabled = true;
+                    pnlColorPreview.Enabled = true;
+                    break;
+                default:
+                    _vec3 = null;
+                    _vec4 = null;
+                    colorControl.Color = pnlColorPreview.BackColor = Color.Black;
+                    colorControl.EditAlpha = false;
+                    btnShowSelector.Enabled = false;
+                    pnlColorPreview.Enabled = false;
+                    break;
             }
-            else if (value is ShaderVec4 ecolorF4)
-            {
-                _vec4 = ecolorF4;
 
-                colorControl.Color = pnlColorPreview.BackColor = _vec4.Color;
-
-                colorControl.EditAlpha = true;
-                btnShowSelector.Enabled = true;
-                pnlColorPreview.Enabled = true;
-            }
-            else
-            {
-                _vec3 = null;
-                _vec4 = null;
-                colorControl.Color = pnlColorPreview.BackColor = Color.Black;
-                colorControl.EditAlpha = false;
-                btnShowSelector.Enabled = false;
-                pnlColorPreview.Enabled = false;
-            }
+            return false;
         }
 
         private void btnShowSelector_Click(object sender, EventArgs e)

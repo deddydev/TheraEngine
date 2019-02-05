@@ -265,30 +265,36 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return _texture;
         }
-        public RenderTex2D GetTexture(bool loadSynchronously = false)
+        public RenderTex2D GetTexture(bool loadSynchronously)
         {
             if (_texture != null)
                 return _texture;
 
-            if (!_isLoading)
+            if (_isLoading)
+                return _texture;
+
+            if (loadSynchronously)
             {
-                if (loadSynchronously)
-                {
-                    LoadMipmaps();
-                    return _texture;
-                }
-                else
-                {
-                    GetTextureAsync().ContinueWith(task => _texture = task.Result);
-                }
+                LoadMipmaps();
+                return _texture;
             }
 
+            GetTextureAsync().ContinueWith(task => _texture = task.Result);
             return _texture;
         }
 
-        public void UpdateTexture() => _texture?.PushData();
-
-        public override BaseRenderTexture GetRenderTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
+        public void UpdateRenderTexture() => _texture?.PushData();
+        
+        /// <summary>
+        /// Converts this texture reference into a texture made for rendering.
+        /// </summary>
+        /// <param name="loadSynchronously"></param>
+        /// <returns></returns>
+        public override BaseRenderTexture GetRenderTextureGeneric(bool loadSynchronously) => GetTexture(loadSynchronously);
+        /// <summary>
+        /// Converts this texture reference into a texture made for rendering.
+        /// </summary>
+        /// <returns></returns>
         public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
 
         /// <summary>
@@ -344,6 +350,12 @@ namespace TheraEngine.Rendering.Models.Materials
             t?.Resize(_width, _height);
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance's render texture has been created.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance's render texture has been created; otherwise, <c>false</c>.
+        /// </value>
         [Browsable(false)]
         public bool IsLoaded => _texture != null;
 
@@ -364,46 +376,47 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <param name="force">If true, sets the formats/type even if the mipmaps are loaded.</param>
         public void DetermineTextureFormat(bool force = true)
         {
-            if (_mipmaps != null && _mipmaps.Length > 0)
+            if (_mipmaps == null || _mipmaps.Length <= 0)
+                return;
+
+            GlobalFileRef<TextureFile2D> tref = _mipmaps[0];
+            //if (!tref.IsLoaded && !force)
+            //    return;
+            TextureFile2D t = tref?.File;
+            if (t == null || t.Bitmaps.Length <= 0)
+                return;
+
+            Bitmap b = t.Bitmaps[0];
+            if (b == null)
+                return;
+
+            switch (b.PixelFormat)
             {
-                var tref = _mipmaps[0];
-                //if (!tref.IsLoaded && !force)
-                //    return;
-                var t = tref.File;
-                if (t != null && t.Bitmaps.Length > 0)
-                {
-                    var b = t.Bitmaps[0];
-                    if (b != null)
-                    {
-                        switch (b.PixelFormat)
-                        {
-                            case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
-                                InternalFormat = EPixelInternalFormat.Rgb8;
-                                PixelFormat = EPixelFormat.Bgr;
-                                PixelType = EPixelType.UnsignedByte;
-                                break;
-                            case System.Drawing.Imaging.PixelFormat.Format32bppRgb:
-                                InternalFormat = EPixelInternalFormat.Rgb8;
-                                PixelFormat = EPixelFormat.Bgra;
-                                PixelType = EPixelType.UnsignedByte;
-                                break;
-                            case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
-                            case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
-                                InternalFormat = EPixelInternalFormat.Rgba8;
-                                PixelFormat = EPixelFormat.Bgra;
-                                PixelType = EPixelType.UnsignedByte;
-                                break;
-                            case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
-                            case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
-                                InternalFormat = EPixelInternalFormat.Rgba16;
-                                PixelFormat = EPixelFormat.Bgra;
-                                PixelType = EPixelType.UnsignedShort;
-                                break;
-                        }
-                    }
-                }
+                case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+                    InternalFormat = EPixelInternalFormat.Rgb8;
+                    PixelFormat = EPixelFormat.Bgr;
+                    PixelType = EPixelType.UnsignedByte;
+                    break;
+                case System.Drawing.Imaging.PixelFormat.Format32bppRgb:
+                    InternalFormat = EPixelInternalFormat.Rgb8;
+                    PixelFormat = EPixelFormat.Bgra;
+                    PixelType = EPixelType.UnsignedByte;
+                    break;
+                case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+                case System.Drawing.Imaging.PixelFormat.Format32bppPArgb:
+                    InternalFormat = EPixelInternalFormat.Rgba8;
+                    PixelFormat = EPixelFormat.Bgra;
+                    PixelType = EPixelType.UnsignedByte;
+                    break;
+                case System.Drawing.Imaging.PixelFormat.Format64bppArgb:
+                case System.Drawing.Imaging.PixelFormat.Format64bppPArgb:
+                    InternalFormat = EPixelInternalFormat.Rgba16;
+                    PixelFormat = EPixelFormat.Bgra;
+                    PixelType = EPixelType.UnsignedShort;
+                    break;
             }
         }
+
         protected virtual void CreateRenderTexture()
         {
             if (_texture != null)
@@ -414,7 +427,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             if (_mipmaps != null && _mipmaps.Length > 0)
                 _texture = new RenderTex2D(InternalFormat, PixelFormat, PixelType,
-                    _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray())
+                    _mipmaps.SelectMany(x => x.File?.Bitmaps ?? new Bitmap[0]).ToArray())
                 {
                     Resizable = Resizable,
                 };
@@ -428,42 +441,73 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         public static Bitmap FillerBitmap => _fillerBitmap.Value;
-
-        private static Lazy<Bitmap> _fillerBitmap = new Lazy<Bitmap>(() => GetFillerBitmap());
-        private unsafe static Bitmap GetFillerBitmap()
+        private static readonly Lazy<Bitmap> _fillerBitmap = new Lazy<Bitmap>(GetFillerBitmap);
+        private static Bitmap GetFillerBitmap()
         {
             TextureFile2D tex = new TextureFile2D(Path.Combine(Engine.Settings.TexturesFolder, "Filler.png"));
-            if (tex?.Bitmaps != null && tex.Bitmaps.Length > 0 && tex.Bitmaps[0] != null)
+            if (tex.Bitmaps != null && tex.Bitmaps.Length > 0 && tex.Bitmaps[0] != null)
                 return tex.Bitmaps[0];
-            else
-            {
-                int squareExtent = 4;
-                int dim = squareExtent * 2;
-                Bitmap bmp = new Bitmap(dim, dim, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                Graphics flagGraphics = Graphics.FromImage(bmp);
-                flagGraphics.FillRectangle(Brushes.Red, 0, 0, squareExtent, squareExtent);
-                flagGraphics.FillRectangle(Brushes.Red, squareExtent, squareExtent, squareExtent, squareExtent);
-                flagGraphics.FillRectangle(Brushes.White, 0, squareExtent, squareExtent, squareExtent);
-                flagGraphics.FillRectangle(Brushes.White, squareExtent, 0, squareExtent, squareExtent);
-                return bmp;
-            }
-        }
 
+            const int squareExtent = 4;
+            const int dim = squareExtent * 2;
+
+            Bitmap bmp = new Bitmap(dim, dim, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Graphics flagGraphics = Graphics.FromImage(bmp);
+
+            flagGraphics.FillRectangle(Brushes.Red, 0, 0, squareExtent, squareExtent);
+            flagGraphics.FillRectangle(Brushes.Red, squareExtent, squareExtent, squareExtent, squareExtent);
+            flagGraphics.FillRectangle(Brushes.White, 0, squareExtent, squareExtent, squareExtent);
+            flagGraphics.FillRectangle(Brushes.White, squareExtent, 0, squareExtent, squareExtent);
+
+            return bmp;
+        }
+        /// <summary>
+        /// Attaches to fbo.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="mipLevel">The mip level.</param>
         public override void AttachToFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 AttachToFBO(target, FrameBufferAttachment.Value, mipLevel);
         }
+        /// <summary>
+        /// Detaches from fbo.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="mipLevel">The mip level.</param>
         public override void DetachFromFBO(EFramebufferTarget target, int mipLevel = 0)
         {
             if (FrameBufferAttachment.HasValue)
                 Engine.Renderer.AttachTextureToFrameBuffer(target, FrameBufferAttachment.Value, ETexTarget.Texture2D, 0, mipLevel);
         }
+        /// <summary>
+        /// Attaches to fbo.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="attachment">The attachment.</param>
+        /// <param name="mipLevel">The mip level.</param>
         public override void AttachToFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
             => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, ETexTarget.Texture2D, _texture.BindingId, mipLevel);
+        /// <summary>
+        /// Detaches from fbo.
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <param name="attachment">The attachment.</param>
+        /// <param name="mipLevel">The mip level.</param>
         public override void DetachFromFBO(EFramebufferTarget target, EFramebufferAttachment attachment, int mipLevel = 0)
             => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, ETexTarget.Texture2D, 0, mipLevel);
-        
+        /// <summary>
+        /// Creates a new texture specifically for attaching to a framebuffer.
+        /// </summary>
+        /// <param name="name">The name of the texture.</param>
+        /// <param name="width">The texture's width.</param>
+        /// <param name="height">The texture's height.</param>
+        /// <param name="internalFmt">The internal texture storage format.</param>
+        /// <param name="fmt">The format of the texture's pixels.</param>
+        /// <param name="pixelType">How pixels are stored.</param>
+        /// <param name="bufAttach">Where to attach to the framebuffer for rendering to.</param>
+        /// <returns>A new 2D texture reference.</returns>
         public static TexRef2D CreateFrameBufferTexture(string name, int width, int height,
             EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType, EFramebufferAttachment bufAttach)
         {
@@ -476,6 +520,16 @@ namespace TheraEngine.Rendering.Models.Materials
                 FrameBufferAttachment = bufAttach,
             };
         }
+        /// <summary>
+        /// Creates a new texture specifically for attaching to a framebuffer.
+        /// </summary>
+        /// <param name="name">The name of the texture.</param>
+        /// <param name="width">The texture's width.</param>
+        /// <param name="height">The texture's height.</param>
+        /// <param name="internalFmt">The internal texture storage format.</param>
+        /// <param name="fmt">The format of the texture's pixels.</param>
+        /// <param name="pixelType">How pixels are stored.</param>
+        /// <returns>A new 2D texture reference.</returns>
         public static TexRef2D CreateFrameBufferTexture(string name, int width, int height,
             EPixelInternalFormat internalFmt, EPixelFormat fmt, EPixelType pixelType)
         {

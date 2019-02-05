@@ -13,13 +13,13 @@ using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public partial class PropGridItem : UserControl, IPropGridMemberOwner
+    public abstract partial class PropGridItem : UserControl, IPropGridMemberOwner
     {
         private bool _isEditing = false;
         private object _oldValue, _newValue;
         protected bool _updating = false;
 
-        public PropGridItem()
+        protected PropGridItem()
         {
             InitializeComponent();
         }
@@ -153,7 +153,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="propertyName"></param>
         protected void SubmitPreManualStateChange(object classObject, string propertyName)
         {
-            _oldValue = DataType.GetProperty(propertyName).GetValue(classObject);
+            _oldValue = DataType?.GetProperty(propertyName)?.GetValue(classObject);
         }
         /// <summary>
         /// Use if DataType is a class and not a string.
@@ -162,16 +162,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="propertyName"></param>
         protected void SubmitPostManualStateChange(object classObject, string propertyName)
         {
-            PropertyInfo info = DataType.GetProperty(propertyName);
-            _newValue = info.GetValue(classObject);
-            if (_newValue != _oldValue)
-            {
-                DataChangeHandler?.HandleChange(new LocalValueChangeProperty(_oldValue, _newValue, classObject, info));
-                DoneEditing?.Invoke();
-                //PropertyGrid.btnSave.Visible = true;
-                //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
-                //    _oldValue, _newValue, classObject, info);
-            }
+            PropertyInfo info = DataType?.GetProperty(propertyName);
+            _newValue = info?.GetValue(classObject);
+            if (_newValue == _oldValue)
+                return;
+
+            DataChangeHandler?.HandleChange(new LocalValueChangeProperty(_oldValue, _newValue, classObject, info));
+            DoneEditing?.Invoke();
+
+            //PropertyGrid.btnSave.Visible = true;
+            //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
+            //    _oldValue, _newValue, classObject, info);
         }
         //internal protected virtual void SetIDictionaryOwner(IDictionary dic, Type dataType, object key, bool isKey)
         //{
@@ -195,7 +196,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// Designates where this item gets and sets its value.
         /// </summary>
-        internal protected virtual void SetReferenceHolder(PropGridMemberInfo memberInfo)
+        protected internal virtual void SetReferenceHolder(PropGridMemberInfo memberInfo)
         {
             MemberInfo = memberInfo;
             if (DataType != null)
@@ -227,15 +228,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             _updating = true;
+            
+            DateTime now = DateTime.Now;
             object value = GetValue();
             //if (value is Exception ex)
             //    Engine.LogWarning(ex.ToString());
             //else
-                UpdateDisplayInternal(value);
+            bool displayChanged = UpdateDisplayInternal(value);
+            if (displayChanged)
+            {
+                //UpdateTimeSpan = now - LastDisplayChangeTime;
+                LastDisplayChangeTime = now;
+            }
+
+            LastUpdateTime = now;
             _updating = false;
         }
-        protected virtual void UpdateDisplayInternal(object value) { }
 
+        protected abstract bool UpdateDisplayInternal(object value);
+        
         public virtual bool CanAnimate => false;
 
         object IPropGridMemberOwner.Value => GetValue();
@@ -250,7 +261,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         internal static void StopUpdatingVisibleItems()
         {
-            UpdatingVisibleItems = false;
+            _updatingVisibleItems = false;
         }
         /// <summary>
         /// List of all visible PropGridItems that need to be updated.
@@ -258,16 +269,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private static List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
         private static Queue<PropGridItem> VisibleItemsRemovalQueue { get; } = new Queue<PropGridItem>();
         private static Queue<PropGridItem> VisibleItemsAdditionQueue { get; } = new Queue<PropGridItem>();
-        private static bool UpdatingVisibleItems = false;
+        public TimeSpan? UpdateTimeSpan { get; set; }
+        public DateTime LastUpdateTime { get; set; }
+        public DateTime LastDisplayChangeTime { get; set; }
+        private static bool _updatingVisibleItems = false;
+        //private static DateTime _timeStartedUpdatingVisibleItems;
         internal static void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
-            if (UpdatingVisibleItems)
+            if (_updatingVisibleItems)
                 return;
+
             int sleepTime = (int)(updateRateInSeconds * 1000.0f);
-            UpdatingVisibleItems = true;
+            _updatingVisibleItems = true;
+            //_timeStartedUpdatingVisibleItems = DateTime.Now;
+
             Task.Run(() =>
             {
-                while (UpdatingVisibleItems)
+                while (_updatingVisibleItems)
                 {
                     if (Engine.CurrentFramesPerSecond > 30.0f)
                     {
@@ -275,11 +293,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         {
                             try
                             {
-                                var item = VisibleItems[i];
-                                if (!item.Disposing && !item.IsDisposed)
-                                    BaseRenderPanel.ThreadSafeBlockingInvoke((Action)item.UpdateDisplay, BaseRenderPanel.PanelType.Rendering);
-                                else
+                                PropGridItem item = VisibleItems[i];
+                                if (item.IsDisposed || item.Disposing)
                                     RemoveVisibleItem(item);
+                                else if (item.UpdateTimeSpan == null || DateTime.Now - item.LastUpdateTime >= item.UpdateTimeSpan.Value)
+                                    BaseRenderPanel.ThreadSafeBlockingInvoke(
+                                        (Action)item.UpdateDisplay,
+                                        BaseRenderPanel.PanelType.Rendering);
                             }
                             catch (Exception ex)
                             {
@@ -295,62 +315,49 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             });
         }
-
-        //protected override void OnHandleCreated(EventArgs e)
-        //{
-        //    base.OnHandleCreated(e);
-        //    if (!Engine.DesignMode)
-        //        VisibleItems.Add(this);
-        //}
-        //protected override void OnHandleDestroyed(EventArgs e)
-        //{
-        //    if (!Engine.DesignMode)
-        //        VisibleItems.Remove(this);
-        //    base.OnHandleDestroyed(e);
-        //}
         public override string ToString()
-            => DataType?.ToString() + " - " + MemberInfo?.ToString();
+            => DataType + " - " + MemberInfo;
         protected virtual void OnLabelSet()
         {
-            if (CanAnimate)
+            if (!CanAnimate)
+                return;
+
+            PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
+            if (!(propInfo.Owner.Value is TObject obj))
+                return;
+
+            ToolStripMenuItem[] anims = obj.Animations?.
+                Where(x => x.RootMember?.MemberName == propInfo.Property.Name && x.RootMember?.Animation.File != null).
+                Select(x => new ToolStripMenuItem(x.Name, null, EditAnimation) { Tag = x }).
+                ToArray();
+
+            ContextMenuStrip strip = new ContextMenuStrip();
+            if (anims != null && anims.Length > 0)
             {
-                PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
-                if (propInfo.Owner.Value is TObject obj)
+                ToolStripMenuItem animsBtn = new ToolStripMenuItem("Animations...");
+                animsBtn.DropDownItems.AddRange(anims);
+                ToolStripMenuItem[] items = 
                 {
-                    var anims = obj.Animations?.
-                        Where(x => x.RootMember?.MemberName == propInfo.Property.Name && x.RootMember?.Animation.File != null).
-                        Select(x => new ToolStripMenuItem(x.Name, null, EditAnimation) { Tag = x }).
-                        ToArray();
-
-                    ContextMenuStrip strip = new ContextMenuStrip();
-                    if (anims != null && anims.Length > 0)
-                    {
-                        ToolStripMenuItem animsBtn = new ToolStripMenuItem("Animations...");
-                        animsBtn.DropDownItems.AddRange(anims);
-                        ToolStripMenuItem[] m = new ToolStripMenuItem[]
-                        {
-                            new ToolStripMenuItem("New Animation", null, CreateAnimation),
-                            animsBtn,
-                        };
-                        strip.Items.AddRange(m);
-                    }
-                    else
-                    {
-                        strip.Items.Add(new ToolStripMenuItem("New Animation", null, CreateAnimation));
-                    }
-
-                    strip.RenderMode = ToolStripRenderMode.Professional;
-                    strip.Renderer = new TheraToolstripRenderer();
-                    Label.ContextMenuStrip = strip;
-                }
+                    new ToolStripMenuItem("New Animation", null, CreateAnimation),
+                    animsBtn,
+                };
+                strip.Items.AddRange(items);
             }
-        }
-        private void EditAnimation(object sender, EventArgs e)
-        {
-            if (sender is ToolStripMenuItem item && item.Tag is AnimationTree anim)
+            else
             {
-
+                strip.Items.Add(new ToolStripMenuItem("New Animation", null, CreateAnimation));
             }
+
+            strip.RenderMode = ToolStripRenderMode.Professional;
+            strip.Renderer = new TheraToolstripRenderer();
+            Label.ContextMenuStrip = strip;
+        }
+        private static void EditAnimation(object sender, EventArgs e)
+        {
+            //if (sender is ToolStripMenuItem item && item.Tag is AnimationTree anim)
+            //{
+
+            //}
         }
         protected virtual BasePropAnim CreateAnimation() => throw new NotImplementedException($"{nameof(CreateAnimation)} must be overloaded when {nameof(CanAnimate)} is true.");
         protected virtual string GetAnimationMemberPath()
@@ -361,25 +368,25 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void CreateAnimation(object sender, EventArgs e)
         {
             PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
-            if (propInfo.Owner.Value is TObject obj)
+            if (!(propInfo.Owner.Value is TObject obj))
+                return;
+
+            AnimationTree anim = new AnimationTree(propInfo.Property.Name, GetAnimationMemberPath(), CreateAnimation());
+
+            if (obj.Animations == null)
+                obj.Animations = new EventList<AnimationTree>();
+            obj.Animations.Add(anim);
+
+            ToolStripItemCollection menu = Label.ContextMenuStrip.Items;
+            ToolStripMenuItem menuItem = new ToolStripMenuItem(anim.Name, null, EditAnimation) { Tag = anim };
+            if (menu.Count == 1)
             {
-                var anim = new AnimationTree(propInfo.Property.Name, GetAnimationMemberPath(), CreateAnimation());
-
-                if (obj.Animations == null)
-                    obj.Animations = new EventList<AnimationTree>();
-                obj.Animations.Add(anim);
-
-                var menu = Label.ContextMenuStrip.Items;
-                var menuItem = new ToolStripMenuItem(anim.Name, null, EditAnimation) { Tag = anim };
-                if (menu.Count == 1)
-                {
-                    ToolStripMenuItem item = new ToolStripMenuItem("Animations...");
-                    item.DropDownItems.Add(menuItem);
-                    menu.Add(item);
-                }
-                else
-                    ((ToolStripMenuItem)menu[1]).DropDownItems.Add(menuItem);
+                ToolStripMenuItem item = new ToolStripMenuItem("Animations...");
+                item.DropDownItems.Add(menuItem);
+                menu.Add(item);
             }
+            else
+                ((ToolStripMenuItem)menu[1]).DropDownItems.Add(menuItem);
         }
     }
 }

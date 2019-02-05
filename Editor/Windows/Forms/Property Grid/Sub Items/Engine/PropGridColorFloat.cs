@@ -21,53 +21,53 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         EventColorF3 _colorF3;
         EventColorF4 _colorF4;
 
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
-            if (value is ColorF3 colorF3)
+            switch (value)
             {
-                pnlColorPreview.BackColor = colorControl.Color = colorF3.Color;
+                case ColorF3 colorF3:
+                    pnlColorPreview.BackColor = colorControl.Color = colorF3.Color;
 
-                colorControl.EditAlpha = false;
-                btnShowSelector.Enabled = true;
-                pnlColorPreview.Enabled = true;
+                    colorControl.EditAlpha = false;
+                    btnShowSelector.Enabled = true;
+                    pnlColorPreview.Enabled = true;
+                    break;
+                case ColorF4 colorF4:
+                    pnlColorPreview.BackColor = colorControl.Color = colorF4.Color;
+
+                    colorControl.EditAlpha = true;
+                    btnShowSelector.Enabled = true;
+                    pnlColorPreview.Enabled = true;
+                    break;
+                case EventColorF3 ecolorF3:
+                    _colorF3 = ecolorF3;
+
+                    colorControl.Color = pnlColorPreview.BackColor = _colorF3.Color;
+
+                    colorControl.EditAlpha = false;
+                    btnShowSelector.Enabled = true;
+                    pnlColorPreview.Enabled = true;
+                    break;
+                case EventColorF4 ecolorF4:
+                    _colorF4 = ecolorF4;
+
+                    colorControl.Color = pnlColorPreview.BackColor = _colorF4.Color;
+
+                    colorControl.EditAlpha = true;
+                    btnShowSelector.Enabled = true;
+                    pnlColorPreview.Enabled = true;
+                    break;
+                default:
+                    _colorF3 = null;
+                    _colorF4 = null;
+                    colorControl.Color = pnlColorPreview.BackColor = Color.Black;
+                    colorControl.EditAlpha = false;
+                    btnShowSelector.Enabled = false;
+                    pnlColorPreview.Enabled = false;
+                    break;
             }
-            else if (value is ColorF4 colorF4)
-            {
-                pnlColorPreview.BackColor = colorControl.Color = colorF4.Color;
 
-                colorControl.EditAlpha = true;
-                btnShowSelector.Enabled = true;
-                pnlColorPreview.Enabled = true;
-            }
-            else if (value is EventColorF3 ecolorF3)
-            {
-                _colorF3 = ecolorF3;
-
-                colorControl.Color = pnlColorPreview.BackColor = _colorF3.Color;
-
-                colorControl.EditAlpha = false;
-                btnShowSelector.Enabled = true;
-                pnlColorPreview.Enabled = true;
-            }
-            else if (value is EventColorF4 ecolorF4)
-            {
-                _colorF4 = ecolorF4;
-
-                colorControl.Color = pnlColorPreview.BackColor = _colorF4.Color;
-
-                colorControl.EditAlpha = true;
-                btnShowSelector.Enabled = true;
-                pnlColorPreview.Enabled = true;
-            }
-            else
-            {
-                _colorF3 = null;
-                _colorF4 = null;
-                colorControl.Color = pnlColorPreview.BackColor = Color.Black;
-                colorControl.EditAlpha = false;
-                btnShowSelector.Enabled = false;
-                pnlColorPreview.Enabled = false;
-            }
+            return false;
         }
 
         private void btnShowSelector_Click(object sender, EventArgs e)

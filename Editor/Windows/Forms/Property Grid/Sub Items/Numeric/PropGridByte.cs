@@ -16,10 +16,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void NumericInputBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void NumericInputBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             numericInputBox1.Value = (Byte)value;
             numericInputBox1.Enabled = IsEditable();
+            return false;
         }
 
         protected override void OnLabelSet()

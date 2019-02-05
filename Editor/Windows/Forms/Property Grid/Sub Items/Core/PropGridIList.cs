@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 propGridListItems.PropertyGrid = ParentCategory?.PropertyGrid;
             }
         }
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             List = value as IList;
             
@@ -39,7 +39,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 lblObjectTypeName.Text = string.Empty;
 
-            lblObjectTypeName.Text += List == null ? "null" : List.Count.ToString() + (List.Count == 1 ? " item" : " items");
+            lblObjectTypeName.Text += List == null ? "null" : List.Count + (List.Count == 1 ? " item" : " items");
             
             chkNull.Visible = !DataType.IsValueType;
             
@@ -62,6 +62,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
                 btnAdd.Visible = false;
             }
+            return false;
         }
 
         public void Expand() => propGridListItems.Visible = true;
@@ -105,8 +106,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
                     ConcurrentDictionary<Type, Deque<Type>> editorTypeCaches = new ConcurrentDictionary<Type, Deque<Type>>();
 
-                    object[] values = new object[list.Count];
-
                     Parallel.For(0, list.Count, i =>
                     {
                         Type elementType = list[i]?.GetType() ?? _elementType;
@@ -123,6 +122,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, new PropGridMemberInfoIList(this, i), DataChangeHandler);
                         controls.TryAdd(i, items);
                     });
+
                     //TODO: wrap editors in a control that contains a minus button to remove the item from the list
                     for (int i = 0; i < controls.Count; ++i)
                     {
@@ -140,13 +140,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void Label_HandleDestroyed(object sender, EventArgs e)
         {
-            if (sender is Label label)
-            {
-                label.MouseEnter -= Label_MouseEnter;
-                label.MouseLeave -= Label_MouseLeave;
-                label.MouseDown -= Label_MouseDown;
-                label.MouseUp -= Label_MouseUp;
-            }
+            if (!(sender is Label label))
+                return;
+
+            label.MouseEnter -= Label_MouseEnter;
+            label.MouseLeave -= Label_MouseLeave;
+            label.MouseDown -= Label_MouseDown;
+            label.MouseUp -= Label_MouseUp;
         }
 
         private void Label_MouseUp(object sender, MouseEventArgs e)
@@ -163,6 +163,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (List == null || List.Count == 0)
                 return;
+
             Label label = (Label)sender;
             label.BackColor = _prevLabelColor;
         }
@@ -171,6 +172,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (List == null || List.Count == 0)
                 return;
+
             Label label = (Label)sender;
             _prevLabelColor = label.BackColor;
             label.BackColor = Color.FromArgb(44, 48, 64);

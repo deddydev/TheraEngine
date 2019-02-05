@@ -34,9 +34,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
-
+            return false;
         }
         
         private void lblMethod_MouseEnter(object sender, EventArgs e)

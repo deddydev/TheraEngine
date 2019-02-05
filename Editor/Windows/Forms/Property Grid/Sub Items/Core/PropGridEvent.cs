@@ -55,7 +55,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             removeHandler.Invoke(MemberInfo.MemberValue, removeHandlerArgs);
         }
 
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             if (pnlSubscribed.Visible)
             {
@@ -64,6 +64,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     LoadSubscribedMethods();
                 }
             }
+            return false;
         }
 
         private void lblMethod_MouseEnter(object sender, EventArgs e)

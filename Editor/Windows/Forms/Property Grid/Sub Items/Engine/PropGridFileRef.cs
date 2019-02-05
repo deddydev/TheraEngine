@@ -15,9 +15,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             AllowDrop = true;
         }
         
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
-            base.UpdateDisplayInternal(value);
             //if (typeof(IFileRef).IsAssignableFrom(DataType))
             //{
             //    //_fileRef = _object as IFileRef;
@@ -26,6 +25,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //}
             //else
             //    throw new Exception(DataType.GetFriendlyName() + " is not an IFileRef type.");
+            return false;
         }
         protected override void OnDragDrop(DragEventArgs e)
         {

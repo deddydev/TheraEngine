@@ -40,7 +40,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             //Value is boxed as object, so this doesn't work
             //if (pnlProps.Visible && !ReferenceEquals(value, _object))
@@ -73,6 +73,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 lblObjectTypeName.Enabled = true;
             }
+            return false;
         }
 
         protected override void DestroyHandle()

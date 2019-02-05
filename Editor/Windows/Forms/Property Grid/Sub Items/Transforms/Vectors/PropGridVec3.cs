@@ -28,7 +28,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void NumericInputBox_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void NumericInputBox_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
-        protected override void UpdateDisplayInternal(object value)
+        protected override bool UpdateDisplayInternal(object value)
         {
             Vec3 v = (Vec3)value;
             numericInputBoxX.Value = v.X;
@@ -36,6 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             numericInputBoxZ.Value = v.Z;
 
             numericInputBoxX.Enabled = numericInputBoxY.Enabled = numericInputBoxZ.Enabled = IsEditable();
+            return false;
         }
         
         private void numericInputBox_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)

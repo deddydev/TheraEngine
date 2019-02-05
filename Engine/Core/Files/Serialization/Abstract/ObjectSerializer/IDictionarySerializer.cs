@@ -64,7 +64,7 @@ namespace TheraEngine.Core.Files.Serialization
             
             for (int i = 0; i < keyNodes.Length; ++i)
             {
-                SerializeElement pairNode = new SerializeElement(null, new TSerializeMemberInfo(null, "KV" + i.ToString()));
+                SerializeElement pairNode = new SerializeElement(null, new TSerializeMemberInfo(null, "KV" + i));
                 TreeNode.ChildElements.Add(pairNode);
 
                 SerializeElement keyNode = keyNodes[i];
@@ -77,15 +77,15 @@ namespace TheraEngine.Core.Files.Serialization
                 valNode.SerializeTreeFromObject();
             }
         }
-        protected override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
+        protected override int OnGetTreeSize(Serializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();
         }
-        public override void DeserializeTreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader)
+        public override void DeserializeTreeFromBinary(ref VoidPtr address, Deserializer.ReaderBinary binReader)
         {
             throw new NotImplementedException();
         }
-        public override void SerializeTreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
+        public override void SerializeTreeToBinary(ref VoidPtr address, Serializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();
         }

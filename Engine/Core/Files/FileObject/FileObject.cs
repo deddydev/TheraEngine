@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Reflection.Attributes;
-using static TheraEngine.Core.Files.Serialization.TDeserializer.ReaderBinary;
-using static TheraEngine.Core.Files.Serialization.TSerializer.WriterBinary;
+using static TheraEngine.Core.Files.Serialization.Deserializer.ReaderBinary;
+using static TheraEngine.Core.Files.Serialization.Serializer.WriterBinary;
 
 namespace TheraEngine.Core.Files
 {
@@ -280,7 +280,7 @@ namespace TheraEngine.Core.Files
             ESerializeFlags flags, 
             IProgress<float> progress,
             CancellationToken cancel)
-            => await TSerializer.ExportXMLAsync(this, directory, fileName, flags, progress, cancel);
+            => await Serializer.ExportXMLAsync(this, directory, fileName, flags, progress, cancel);
         
         public async Task ExportBinaryAsync(
             string directory,
@@ -293,7 +293,7 @@ namespace TheraEngine.Core.Files
             bool compressed = false,
             string encryptionPassword = null,
             ICodeProgress compressionProgress = null)
-            => await TSerializer.ExportBinaryAsync(this,
+            => await Serializer.ExportBinaryAsync(this,
                 directory, fileName, flags, progress, cancel,
                 endian, encrypted, compressed, encryptionPassword, compressionProgress);
         

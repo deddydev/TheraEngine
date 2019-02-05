@@ -7,7 +7,6 @@ using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds
 {
@@ -42,10 +41,10 @@ namespace TheraEngine.Worlds
                 OnGravityChanged(oldGravity);
             }
         }
-        [Category("Gameplay")]
         /// <summary>
         /// Overrides the default game mode specified by the game.
         /// </summary>
+        [Category("Gameplay")]
         public GlobalFileRef<BaseGameMode> GameModeOverrideRef
         {
             get => _gameModeOverrideRef;
@@ -91,7 +90,7 @@ namespace TheraEngine.Worlds
         private EventDictionary<string, Cutscene> _cutscenes;
 
         [TSerialize(nameof(Maps))]
-        private EventList<LocalFileRef<Map>> _maps = new EventList<LocalFileRef<Map>>();
+        private EventList<LocalFileRef<Map>> _maps;
         
         /// <summary>
         /// Determines if the origin of the world should be moved to keep the local players closest to it.
@@ -147,8 +146,8 @@ namespace TheraEngine.Worlds
                 _maps = value ?? new EventList<LocalFileRef<Map>>();
                 _maps.PostAnythingAdded += Maps_PostAnythingAdded;
                 _maps.PostAnythingRemoved += Maps_PostAnythingRemoved;
-                foreach (var map in _maps)
-                    Maps_PostAnythingAdded(map);
+                foreach (LocalFileRef<Map> mapRef in _maps)
+                    Maps_PostAnythingAdded(mapRef);
             }
         }
 
@@ -164,29 +163,30 @@ namespace TheraEngine.Worlds
         }
         private void MapUnloaded(Map map)
         {
-            map.OwningWorld = OwningWorld;
-        }
-        private void MapLoaded(Map map)
-        {
             if (map.OwningWorld == OwningWorld)
                 map.OwningWorld = null;
         }
-        
-        public List<TMaterial> CollectDefaultMaterials()
+        private void MapLoaded(Map map)
         {
-            foreach (Map m in _maps)
-            {
-                if (m.VisibleByDefault)
-                {
-
-                }
-            }
-            return null;
+            map.OwningWorld = OwningWorld;
         }
+        
+        //public List<TMaterial> CollectDefaultMaterials()
+        //{
+        //    foreach (Map m in _maps)
+        //    {
+        //        if (m.VisibleByDefault)
+        //        {
+
+        //        }
+        //    }
+        //    return null;
+        //}
 
         public WorldSettings()
         {
-
+            Maps = new EventList<LocalFileRef<Map>>();
+            Cutscenes = new EventDictionary<string, Cutscene>();
         }
         public WorldSettings(string name, params Map[] maps)
         {
@@ -196,6 +196,7 @@ namespace TheraEngine.Worlds
                 Bounds.Minimum.X, Bounds.Minimum.Y, Bounds.Minimum.Z);
 
             Maps = new EventList<LocalFileRef<Map>>(maps.Select(x => new LocalFileRef<Map>(x)));
+            Cutscenes = new EventDictionary<string, Cutscene>();
         }
     }
 }

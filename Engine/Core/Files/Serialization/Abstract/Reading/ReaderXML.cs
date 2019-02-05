@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class TDeserializer
+    public partial class Deserializer
     {
         /// <summary>
         /// Reads the file at <paramref name="filePath"/> as a binary file.
@@ -14,7 +14,6 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="filePath">The path of the file to write.</param>
         /// <param name="progress">Handler for progress updates.</param>
         /// <param name="cancel">Handler for the caller to cancel the operation.</param>
-        /// <param name="encryptionPassword">If encrypted, this is the password to use to decrypt.</param>
         public async Task<object> DeserializeXMLAsync(
             string filePath,
             IProgress<float> progress,
@@ -40,7 +39,7 @@ namespace TheraEngine.Core.Files.Serialization
             private XmlReader _reader;
 
             public ReaderXML(
-                TDeserializer owner,
+                Deserializer owner,
                 string filePath,
                 IProgress<float> progress,
                 CancellationToken cancel,

@@ -52,15 +52,12 @@ namespace TheraEngine.Components.Scene
         AudioParameters IAudioSource.Parameters => ParametersRef?.File;
 
         /// <summary>
-        /// Plays the sound given a priority value.
-        /// A larger value means a higher priority.
-        /// Low priority audio may be cancelled to play higher priority audio.
+        /// Plays the sound.
         /// </summary>
-        /// <param name="priority">The priority of this audio file.</param>
         /// <returns>A unique identifier for the new instance of this audio.</returns>
         public AudioInstance Play()
         {
-            var file = AudioFileRef?.File;
+            AudioFile file = AudioFileRef?.File;
             if (file is null)
                 return null;
 

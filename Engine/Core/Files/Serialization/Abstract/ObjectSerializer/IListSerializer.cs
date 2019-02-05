@@ -46,17 +46,17 @@ namespace TheraEngine.Core.Files.Serialization
             if (!(TreeNode.Object is IList list))
                 return;
 
-            if (!TreeNode.SetElementContent(list))
+            if (TreeNode.SetElementContent(list))
+                return;
+
+            Type elemType = list.DetermineElementType();
+            foreach (object o in list)
             {
-                Type elemType = list.DetermineElementType();
-                foreach (object o in list)
+                SerializeElement element = new SerializeElement(o, new TSerializeMemberInfo(elemType, null));
+                if (ShouldWriteDefaultMembers || !element.IsObjectDefault())
                 {
-                    SerializeElement element = new SerializeElement(o, new TSerializeMemberInfo(elemType, null));
-                    if (ShouldWriteDefaultMembers || !element.IsObjectDefault())
-                    {
-                        TreeNode.ChildElements.Add(element);
-                        element.SerializeTreeFromObject();
-                    }
+                    TreeNode.ChildElements.Add(element);
+                    element.SerializeTreeFromObject();
                 }
             }
         }
@@ -66,21 +66,21 @@ namespace TheraEngine.Core.Files.Serialization
         public override bool CanWriteAsString(Type type)
         {
             Type elementType = type.DetermineElementType();
-            var ser = DetermineObjectSerializer(elementType, true);
+            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
             return ser != null && ser.CanWriteAsString(elementType);
         }
         public override object ObjectFromString(Type type, string value)
         {
             Type elementType = type.DetermineElementType();
-            var ser = DetermineObjectSerializer(elementType, true);
+            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
             if (ser == null || !ser.CanWriteAsString(elementType))
                 return null;
             
-            char separator = '|';
+            const char separator = '|';
             //if (!SerializationCommon.IsPrimitiveType(elementType))
             //    separator = '|';
 
-            string[] values = value.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+            string[] values = value.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
 
             IList list;
             if (type.IsArray)
@@ -95,8 +95,8 @@ namespace TheraEngine.Core.Files.Serialization
             }
             else
             {
-                for (int i = 0; i < values.Length; ++i)
-                    list.Add(ser.ObjectFromString(elementType, values[i]));
+                foreach (string t in values)
+                    list.Add(ser.ObjectFromString(elementType, t));
             }
 
             return list;
@@ -110,35 +110,35 @@ namespace TheraEngine.Core.Files.Serialization
 
             Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
-            var ser = DetermineObjectSerializer(elementType, true);
+            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
             if (ser == null || !ser.CanWriteAsString(elementType))
                 return false;
 
-            string separator = "|";
+            const string separator = "|";
             //if (!SerializationCommon.IsPrimitiveType(elementType))
             //    separator = "|";
             
-            string convert(object elem)
+            string Convert(object elem)
             {
                 //No if statements for best speed possible
                 ser.ObjectToString(elem, out string subStr);
                 return subStr;
             }
-            str = list.ToStringList(separator, separator, convert);
+            str = list.ToStringList(separator, separator, Convert);
             return true;
         }
         #endregion
 
         #region Binary
-        public override void SerializeTreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter)
+        public override void SerializeTreeToBinary(ref VoidPtr address, Serializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();
         }
-        protected override int OnGetTreeSize(TSerializer.WriterBinary binWriter)
+        protected override int OnGetTreeSize(Serializer.WriterBinary binWriter)
         {
             throw new NotImplementedException();
         }
-        public override void DeserializeTreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader)
+        public override void DeserializeTreeFromBinary(ref VoidPtr address, Deserializer.ReaderBinary binReader)
         {
             throw new NotImplementedException();
         }

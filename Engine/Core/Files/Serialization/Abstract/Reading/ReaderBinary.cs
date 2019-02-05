@@ -12,7 +12,7 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class TDeserializer : TBaseSerializer
+    public partial class Deserializer : TBaseSerializer
     {
         /// <summary>
         /// Reads the file at <paramref name="filePath"/> as a binary file.
@@ -45,7 +45,7 @@ namespace TheraEngine.Core.Files.Serialization
             public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.Binary;
 
             public ReaderBinary(
-                TDeserializer owner,
+                Deserializer owner,
                 string filePath,
                 IProgress<float> progress,
                 CancellationToken cancel,

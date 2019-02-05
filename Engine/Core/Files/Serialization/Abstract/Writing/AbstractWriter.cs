@@ -8,7 +8,7 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class TSerializer : TBaseSerializer
+    public partial class Serializer : TBaseSerializer
     {
         public AbstractWriter Writer { get; private set; }
         public abstract class AbstractWriter : TBaseAbstractReaderWriter
@@ -16,9 +16,9 @@ namespace TheraEngine.Core.Files.Serialization
             /// <summary>
             /// The serializer that is using this writer.
             /// </summary>
-            public TSerializer Owner { get; }
+            public Serializer Owner { get; }
             
-            protected AbstractWriter(TSerializer owner, object rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
+            protected AbstractWriter(Serializer owner, object rootFileObject, string filePath, ESerializeFlags flags, IProgress<float> progress, CancellationToken cancel)
                 : base(filePath, progress, cancel)
             {
                 Flags = flags;
@@ -49,7 +49,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (PreExport(file, directory, fileName, EProprietaryFileFormat.XML, null, out string filePath))
             {
-                TSerializer serializer = new TSerializer();
+                Serializer serializer = new Serializer();
                 await serializer.SerializeXMLAsync(file, filePath, flags, progress, cancel);
             }
         }
@@ -68,7 +68,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (PreExport(file, directory, fileName, EProprietaryFileFormat.Binary, null, out string filePath))
             {
-                TSerializer serializer = new TSerializer();
+                Serializer serializer = new Serializer();
                 await serializer.SerializeBinaryAsync(
                     file, filePath, flags, progress, cancel,
                     endian, encrypted, compressed, encryptionPassword, compressionProgress);

@@ -60,8 +60,10 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 if (_owner != value)
                 {
+                    UnlinkObjectGuidFromOwner();
                     _owner = value;
                     ObjectTypeChanged();
+                    LinkObjectGuidToOwner();
                 }
                 foreach (var child in ChildElements)
                     child.Owner = _owner;
@@ -105,13 +107,42 @@ namespace TheraEngine.Core.Files.Serialization
             get => _desiredDerivedObjectType;
             private set
             {
-                Type t = ObjectType;
+                Type oldObjType = ObjectType;
                 _desiredDerivedObjectType = value;
-                if (ObjectType != t)
+                if (ObjectType != oldObjType)
                     ObjectTypeChanged();
             }
         }
 
+        private void UnlinkObjectGuidFromOwner()
+        {
+            if (!(_object is TObject tobj) || tobj.Guid == Guid.Empty || 
+                Owner == null || !Owner.SharedObjectIndices.ContainsKey(tobj.Guid))
+                return;
+
+            --Owner.SharedObjectIndices[tobj.Guid];
+            if (Owner.SharedObjectIndices[tobj.Guid] > 0)
+                return;
+
+            Owner.SharedObjectIndices.Remove(tobj.Guid);
+            if (Owner.SharedObjects.ContainsKey(tobj.Guid))
+                Owner.SharedObjects.Remove(tobj.Guid);
+        }
+        private void LinkObjectGuidToOwner()
+        {
+            if (Owner == null || !(_object is TObject tobj2) || tobj2.Guid == Guid.Empty)
+                return;
+
+            if (Owner.SharedObjectIndices.ContainsKey(tobj2.Guid))
+                ++Owner.SharedObjectIndices[tobj2.Guid];
+            else
+            {
+                Owner.SharedObjectIndices.Add(tobj2.Guid, 1);
+                if (!Owner.SharedObjects.ContainsKey(tobj2.Guid))
+                    Owner.SharedObjects.Add(tobj2.Guid, this);
+            }
+        }
+        
         /// <summary>
         /// The value assigned to this member.
         /// </summary>
@@ -122,36 +153,11 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Type oldObjType = ObjectType;
 
-                if (_object is TObject tobj && tobj.Guid != Guid.Empty)
-                {
-                    if (Owner != null && Owner.SharedObjectIndices.ContainsKey(tobj.Guid))
-                    {
-                        --Owner.SharedObjectIndices[tobj.Guid];
-                        if (Owner.SharedObjectIndices[tobj.Guid] <= 0)
-                        {
-                            Owner.SharedObjectIndices.Remove(tobj.Guid);
-                            if (Owner.SharedObjects.ContainsKey(tobj.Guid))
-                                Owner.SharedObjects.Remove(tobj.Guid);
-                        }
-                    }
-                }
-
+                UnlinkObjectGuidFromOwner();
                 _object = value;
-
                 if (ObjectType != oldObjType)
                     ObjectTypeChanged();
-
-                if (Owner != null && _object is TObject tobj2 && tobj2.Guid != Guid.Empty)
-                {
-                    if (Owner.SharedObjectIndices.ContainsKey(tobj2.Guid))
-                        ++Owner.SharedObjectIndices[tobj2.Guid];
-                    else
-                    {
-                        Owner.SharedObjectIndices.Add(tobj2.Guid, 1);
-                        if (!Owner.SharedObjects.ContainsKey(tobj2.Guid))
-                            Owner.SharedObjects.Add(tobj2.Guid, this);
-                    }
-                }
+                LinkObjectGuidToOwner();
             }
         }
 

@@ -55,7 +55,7 @@ namespace TheraEngine
         protected string _name = null;
 
         [Browsable(false)]
-        [TSerialize(NodeType = ENodeType.Attribute)]
+        //[TSerialize(NodeType = ENodeType.Attribute)]
         public Guid Guid { get; internal set; } = Guid.NewGuid();
         
         [TSerialize]
@@ -130,8 +130,8 @@ namespace TheraEngine
             }
         }
 
-        internal protected virtual void OnHighlightChanged(bool highlighted) { }
-        internal protected virtual void OnSelectedChanged(bool selected) { }
+        protected internal virtual void OnHighlightChanged(bool highlighted) { }
+        protected internal virtual void OnSelectedChanged(bool selected) { }
 
         //[Browsable(false)]
         //public event PropertyChangedEventHandler PropertyChanged;

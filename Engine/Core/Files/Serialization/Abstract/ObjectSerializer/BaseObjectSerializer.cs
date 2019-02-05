@@ -39,13 +39,13 @@ namespace TheraEngine.Core.Files.Serialization
         public SerializeElement TreeNode { get; protected internal set; } = null;
         public int TreeSize { get; private set; }
         
-        protected abstract int OnGetTreeSize(TSerializer.WriterBinary binWriter);
+        protected abstract int OnGetTreeSize(Serializer.WriterBinary binWriter);
         /// <summary>
         /// Retrieves the size of the serialization tree in bytes.
         /// </summary>
         /// <param name="binWriter"></param>
         /// <returns></returns>
-        public int GetTreeSize(TSerializer.WriterBinary binWriter)
+        public int GetTreeSize(Serializer.WriterBinary binWriter)
             => TreeSize = OnGetTreeSize(binWriter);
 
         /// <summary>
@@ -53,13 +53,13 @@ namespace TheraEngine.Core.Files.Serialization
         /// </summary>
         /// <param name="address"></param>
         /// <param name="binReader"></param>
-        public abstract void DeserializeTreeFromBinary(ref VoidPtr address, TDeserializer.ReaderBinary binReader);
+        public abstract void DeserializeTreeFromBinary(ref VoidPtr address, Deserializer.ReaderBinary binReader);
         /// <summary>
         /// Creates a binary representation of the serialization tree.
         /// </summary>
         /// <param name="address"></param>
         /// <param name="binWriter"></param>
-        public abstract void SerializeTreeToBinary(ref VoidPtr address, TSerializer.WriterBinary binWriter);
+        public abstract void SerializeTreeToBinary(ref VoidPtr address, Serializer.WriterBinary binWriter);
         
         /// <summary>
         /// Creates an object from a string.

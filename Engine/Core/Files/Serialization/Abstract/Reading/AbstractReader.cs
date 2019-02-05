@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class TDeserializer : TBaseSerializer
+    public partial class Deserializer : TBaseSerializer
     {
         public AbstractReader Reader { get; private set; }
         public abstract class AbstractReader : TBaseAbstractReaderWriter
@@ -12,10 +12,10 @@ namespace TheraEngine.Core.Files.Serialization
             /// <summary>
             /// The deserializer that is using this reader.
             /// </summary>
-            public TDeserializer Owner { get; }
+            public Deserializer Owner { get; }
             public Type RootFileType { get; }
 
-            protected AbstractReader(TDeserializer owner, string filePath, IProgress<float> progress, CancellationToken cancel)
+            protected AbstractReader(Deserializer owner, string filePath, IProgress<float> progress, CancellationToken cancel)
                 : base(filePath, progress, cancel)
             {
                 Owner = owner;

@@ -11,11 +11,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
-using static TheraEngine.Core.Files.Serialization.TDeserializer.ReaderBinary;
+using static TheraEngine.Core.Files.Serialization.Deserializer.ReaderBinary;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class TSerializer
+    public partial class Serializer
     {
         /// <summary>
         /// Writes <paramref name="fileObject"/> as an XML file.
@@ -112,7 +112,7 @@ namespace TheraEngine.Core.Files.Serialization
             public override EProprietaryFileFormatFlag Format => EProprietaryFileFormatFlag.Binary;
 
             public WriterBinary(
-                TSerializer owner,
+                Serializer owner,
                 object rootFileObject,
                 string filePath,
                 ESerializeFlags flags,

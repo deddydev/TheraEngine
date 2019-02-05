@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class TSerializer
+    public partial class Serializer
     {
         /// <summary>
         /// Writes <paramref name="fileObject"/> as an XML file.
@@ -67,7 +66,7 @@ namespace TheraEngine.Core.Files.Serialization
             };
 
             public WriterXML(
-                TSerializer owner,
+                Serializer owner,
                 object rootFileObject,
                 string filePath,
                 ESerializeFlags flags,

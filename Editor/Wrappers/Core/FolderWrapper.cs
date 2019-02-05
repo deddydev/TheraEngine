@@ -172,7 +172,7 @@ namespace TheraEditor.Wrappers
 
         }
 
-        internal protected override void OnExpand()
+        protected internal override void OnExpand()
         {
             if (!_isPopulated)
             {
@@ -215,13 +215,11 @@ namespace TheraEditor.Wrappers
                     foreach (string file in files)
                     {
                         BaseWrapper node = Wrap(file);
-                        if (node != null)
-                        {
-                            var tree = GetTree();
-                            string key = tree.GetOrAddIcon(file);
-                            node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
-                            Nodes.Add(node);
-                        }
+                        if (node == null) continue;
+                        ResourceTree tree = GetTree();
+                        string key = tree.GetOrAddIcon(file);
+                        node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
+                        Nodes.Add(node);
                     }
                 }
                 _isPopulated = true;
@@ -246,7 +244,7 @@ namespace TheraEditor.Wrappers
         private static bool IsFileObject(Type t)
             =>  !t.IsAbstract && 
                 !t.IsInterface &&
-                t.GetConstructors().Where(x => x.IsPublic).Count() > 0 &&
+                t.GetConstructors().Any(x => x.IsPublic) &&
                 t.IsSubclassOf(typeof(TFileObject)) &&
                 t.GetCustomAttributeExt<TFileExt>() != null;
 
@@ -265,6 +263,9 @@ namespace TheraEditor.Wrappers
                 return;
             
             Type fileType = button.Tag as Type;
+            if (fileType == null)
+                return;
+
             if (fileType.ContainsGenericParameters)
             {
                 using (GenericsSelector gs = new GenericsSelector(fileType))
@@ -282,31 +283,30 @@ namespace TheraEditor.Wrappers
             })
             {
                 DialogResult r = ofd.ShowDialog(button.Owner);
-                if (r == DialogResult.OK)
-                {
-                    string name = Path.GetFileNameWithoutExtension(ofd.FileName);
-                    ResourceTree tree = Editor.Instance.ContentTree;
-                    string path = ofd.FileName;
-                        
-                    int op = Editor.Instance.BeginOperation($"Importing '{path}'...", out Progress<float> progress, out CancellationTokenSource cancel);
-                    object file = await TFileObject.LoadAsync(fileType, path, progress, cancel.Token);
-                    Editor.Instance.EndOperation(op);
+                if (r != DialogResult.OK)
+                    return;
 
-                    if (file == null)
-                        return;
+                string name = Path.GetFileNameWithoutExtension(ofd.FileName);
+                ResourceTree tree = Editor.Instance.ContentTree;
+                string path = ofd.FileName;
                         
-                    FolderWrapper folderNode = GetInstance<FolderWrapper>();
-                    string dir = folderNode.FilePath as string;
-                        
-                    if (TSerializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
-                    {
-                        TSerializer serializer = new TSerializer();
+                int op = Editor.Instance.BeginOperation($"Importing '{path}'...", out Progress<float> progress, out CancellationTokenSource cancel);
+                object file = await TFileObject.LoadAsync(fileType, path, progress, cancel.Token);
+                Editor.Instance.EndOperation(op);
 
-                        tree.BeginFileSaveWithProgress(filePath, $"Saving...", out progress, out cancel);
-                        await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
-                        tree.EndFileSave(filePath);
-                    }
-                }
+                if (file == null)
+                    return;
+                        
+                FolderWrapper folderNode = GetInstance<FolderWrapper>();
+                string dir = folderNode.FilePath;
+
+                if (!Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
+                    return;
+
+                Serializer serializer = new Serializer();
+                tree.BeginFileSaveWithProgress(filePath, $"Saving...", out progress, out cancel);
+                await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
+                tree.EndFileSave(filePath);
             }
         }
         public static string GetFolderPath() => GetInstance<FolderWrapper>().FilePath;
@@ -323,11 +323,11 @@ namespace TheraEditor.Wrappers
             string dir = GetFolderPath();
 
             //Node will automatically be added to the file tree
-            if (TSerializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
+            if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
             {
                 Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Exporting...", 
                     out Progress<float> progress, out CancellationTokenSource cancel);
-                await TSerializer.ExportXMLAsync(file, dir, file.Name, ESerializeFlags.Default, progress, cancel.Token);
+                await Serializer.ExportXMLAsync(file, dir, file.Name, ESerializeFlags.Default, progress, cancel.Token);
                 Editor.Instance.ContentTree.EndFileSave(path);
             }
         }
@@ -367,22 +367,21 @@ namespace TheraEditor.Wrappers
                     FilePath = Path.GetDirectoryName(FilePath) + Path.DirectorySeparatorChar + value;
                 else
                     FilePath = Path.DirectorySeparatorChar + value;
-                if (_isPopulated)
-                    foreach (BaseWrapper b in Nodes)
-                        b.FixPath(FilePath + Path.DirectorySeparatorChar);
+                if (!_isPopulated) return;
+                foreach (BaseWrapper b in Nodes)
+                    b.FixPath(FilePath + Path.DirectorySeparatorChar);
             }
         }
         protected internal override void FixPath(string parentFolderPath)
         {
             string folderName = Text;
-            if (parentFolderPath != null && 
-                parentFolderPath.Length > 0 && 
+            if (!string.IsNullOrEmpty(parentFolderPath) && 
                 parentFolderPath[parentFolderPath.Length - 1] != Path.DirectorySeparatorChar)
                 parentFolderPath += Path.DirectorySeparatorChar;
             FilePath = parentFolderPath + folderName;
-            if (_isPopulated)
-                foreach (BaseWrapper b in Nodes)
-                    b.FixPath(FilePath + Path.DirectorySeparatorChar);
+            if (!_isPopulated) return;
+            foreach (BaseWrapper b in Nodes)
+                b.FixPath(FilePath + Path.DirectorySeparatorChar);
         }
     }
 }

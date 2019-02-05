@@ -396,7 +396,7 @@ namespace TheraEngine.Core.Files
                 Type fileType = SerializationCommon.DetermineType(filePath, out EFileFormat format);
                 if (type.IsAssignableFrom(fileType))
                 {
-                    TDeserializer deser = new TDeserializer();
+                    Deserializer deser = new Deserializer();
                     TFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as TFileObject;
                     return file;
                 }
@@ -441,7 +441,7 @@ namespace TheraEngine.Core.Files
                 }
                 if (type.IsAssignableFrom(fileType))
                 {
-                    TDeserializer deser = new TDeserializer();
+                    Deserializer deser = new Deserializer();
                     TFileObject file = await deser.DeserializeBinaryAsync(filePath, progress, cancel,  null) as TFileObject;
                     return file;
                 }

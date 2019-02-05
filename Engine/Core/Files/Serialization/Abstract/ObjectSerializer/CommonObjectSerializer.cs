@@ -80,33 +80,27 @@ namespace TheraEngine.Core.Files.Serialization
                 SerializeAttribute attrib = parentNode.GetAttribute(member.Name);
                 if (attrib != null)
                 {
-                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, attrib);
-                    if (customInvoked)
-                        return;
-
-                    if (attrib.GetObject(member.MemberType, out object value))
+                    if (!attrib.GetObject(member.MemberType, out object value))
                     {
-                        member.SetObject(o, value);
+                        Engine.LogWarning($"Unable to deserialize attribute member {member.Name} as {member.MemberType.GetFriendlyName()}.");
+                        return;
                     }
-                    //else
-                    //{
-                        //Engine.LogWarning("Unable to parse attribute " + attrib.Name + " as " + member.MemberType.GetFriendlyName());
-                    //}
+
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, value);
+                    if (!customInvoked)
+                        member.SetObject(o, value);
                 }
                 else if (member.NodeType == ENodeType.ElementContent)
                 {
-                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, parentNode._elementContent);
-                    if (customInvoked)
-                        return;
-
-                    if (parentNode.GetElementContent(member.MemberType, out object value))
+                    if (!parentNode.GetElementContent(member.MemberType, out object value))
                     {
-                        member.SetObject(o, value);
+                        Engine.LogWarning($"Unable to deserialize element {member.Name} content as {member.MemberType.GetFriendlyName()}.");
+                        return;
                     }
-                    //else
-                    //{
-                        //Engine.LogWarning("Unable to parse element content " + member.Name + " as " + member.MemberType.GetFriendlyName());
-                    //}
+
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, value);
+                    if (!customInvoked)
+                        member.SetObject(o, value);
                 }
                 else
                 {

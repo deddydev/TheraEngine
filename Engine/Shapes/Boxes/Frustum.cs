@@ -48,18 +48,11 @@ namespace TheraEngine.Core.Shapes
         private Sphere _boundingSphere;
 
         [CustomMemberSerializeMethod("UseBoundingSphere")]
-        private void SerializeBoundingSphere(SerializeElement node)
-        {
-            node.AddAttribute("UseBoundingSphere", UseBoundingSphere);
-        }
+        private object SerializeBoundingSphere() => UseBoundingSphere;
+
         [CustomMemberDeserializeMethod("BoundingSphere")]
-        private void DeserializeBoundingSphere(SerializeElement node)
-        {
-            if (node.GetAttributeValue("UseBoundingSphere", out bool result) && result)
-                _boundingSphere = new Sphere();
-            else
-                _boundingSphere = null;
-        }
+        private void DeserializeBoundingSphere(object value)
+            => _boundingSphere = value is bool result && result ? new Sphere() : null;
 
         public Frustum()
         {

@@ -21,7 +21,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Owner = owner;
                 RootFileType = SerializationCommon.DetermineType(FilePath, out EFileFormat format);
             }
-                        
+            
             protected abstract Task ReadTreeAsync();
             public async Task<object> CreateObjectAsync()
             {

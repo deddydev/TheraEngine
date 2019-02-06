@@ -64,10 +64,9 @@ namespace TheraEngine.Core.Files.Serialization
 
             public Dictionary<Guid, SerializeElement> WritingSharedObjects { get; } = new Dictionary<Guid, SerializeElement>();
             public Dictionary<Guid, int> WritingSharedObjectIndices { get; } = new Dictionary<Guid, int>();
-
-            public bool ReadingSharedObjects { get; internal set; } = false;
-            public SerializeElement ReadingSharedObjectsElement { get; internal set; } = null;
+            
             public List<SerializeElement> ReadingSharedObjectsList { get; } = new List<SerializeElement>();
+            public Dictionary<int, List<SerializeElement>> ReadingSharedObjectsSetQueue { get; } = new Dictionary<int, List<SerializeElement>>();
         }
     }
 }

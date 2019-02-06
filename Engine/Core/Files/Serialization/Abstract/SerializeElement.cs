@@ -382,40 +382,55 @@ namespace TheraEngine.Core.Files.Serialization
             DesiredDerivedObjectType = 
                 GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration) ? 
                     SerializationCommon.CreateType(typeDeclaration) : null;
-
-            //TODO: read all shared objects first
-            //Cache any references to other shared objects that havent been fully read yet
-            //Do second pass and set those
-            IsSharedObjectsElement = string.Equals(Name, "SharedObjects", StringComparison.InvariantCulture);
-            if (IsSharedObjectsElement)
+            if (GetAttributeValue("SharedIndex", out int sharedObjectIndex))
             {
-                Owner.ReadingSharedObjectsElement = this;
-                Owner.ReadingSharedObjects = true;
+                if (Owner.ReadingSharedObjectsList.IndexInRange(sharedObjectIndex))
+                {
+                    Object = Owner.ReadingSharedObjectsList[sharedObjectIndex];
+                    ApplyObjectToParent();
+                    return;
+                }
+                else
+                {
+                    if (Owner.ReadingSharedObjectsSetQueue.ContainsKey(sharedObjectIndex))
+                        Owner.ReadingSharedObjectsSetQueue[sharedObjectIndex].Add(this);
+                    else
+                        Owner.ReadingSharedObjectsSetQueue.Add(sharedObjectIndex, new List<SerializeElement>() { this });
+                }
             }
-
-            //Parent overrides deserialization for this member?
-            bool success = await TryInvokeManualParentDeserializeAsync();
-
-            //This member manually deserializes itself?
-            if (!success)
-                success = TryInvokeManualDeserializeAsync();
-
-            if (success)
+            else
             {
-                if (IsSharedObjectsElement)
-                    Owner.ReadingSharedObjects = false;
-                return;
+                IsSharedObjectsElement = string.Equals(Name, "SharedObjects", StringComparison.InvariantCulture);
+
+                //Parent overrides deserialization for this member?
+                bool success = await TryInvokeManualParentDeserializeAsync();
+
+                //This member manually deserializes itself?
+                if (!success)
+                    success = TryInvokeManualDeserializeAsync();
+
+                if (!success)
+                {
+                    //Automatic deserialization
+                    ObjectSerializer?.DeserializeTreeToObject();
+                    ApplyObjectToParent();
+                }
+
+                if (Parent != null && Parent.IsSharedObjectsElement)
+                {
+                    Owner.ReadingSharedObjectsList.Add(this);
+                    int index = Owner.ReadingSharedObjectsList.Count - 1;
+                    if (Owner.ReadingSharedObjectsSetQueue.ContainsKey(index))
+                    {
+                        foreach (var elem in Owner.ReadingSharedObjectsSetQueue[index])
+                        {
+                            elem.Object = Object;
+                            elem.ApplyObjectToParent();
+                        }
+                        Owner.ReadingSharedObjectsSetQueue.Remove(index);
+                    }
+                }
             }
-
-            //Automatic deserialization
-            ObjectSerializer?.DeserializeTreeToObject();
-            ApplyObjectToParent();
-
-            if (Parent.IsSharedObjectsElement && Owner.ReadingSharedObjects)
-                Owner.ReadingSharedObjectsList.Add(this);
-
-            if (IsSharedObjectsElement)
-                Owner.ReadingSharedObjects = false;
         }
         public async void SerializeTreeFromObject()
         {

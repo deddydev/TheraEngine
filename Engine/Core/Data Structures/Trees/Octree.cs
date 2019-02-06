@@ -284,7 +284,7 @@ namespace System
         public Octree(BoundingBoxStruct bounds)
         {
             _head = new Node(bounds, 0, 0, null, this);
-            Engine.PrintLine($"Octree array length with {MinimumUnit} minimum unit: {ArrayLength(bounds.HalfExtents).ToString()}");
+            //Engine.PrintLine($"Octree array length with {MinimumUnit} minimum unit: {ArrayLength(bounds.HalfExtents).ToString()}");
         }
         public Octree(BoundingBoxStruct bounds, List<T> items) : this(bounds) => _head.Add(items);
 

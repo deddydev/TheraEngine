@@ -296,7 +296,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                                 PropGridItem item = VisibleItems[i];
                                 if (item.IsDisposed || item.Disposing)
                                     RemoveVisibleItem(item);
-                                else if (item.UpdateTimeSpan == null || DateTime.Now - item.LastUpdateTime >= item.UpdateTimeSpan.Value)
+                                else// if (item.UpdateTimeSpan == null || DateTime.Now - item.LastUpdateTime >= item.UpdateTimeSpan.Value)
                                     BaseRenderPanel.ThreadSafeBlockingInvoke(
                                         (Action)item.UpdateDisplay,
                                         BaseRenderPanel.PanelType.Rendering);

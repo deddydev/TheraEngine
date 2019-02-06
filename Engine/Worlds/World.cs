@@ -200,8 +200,8 @@ namespace TheraEngine.Worlds
         protected override void OnUnload() => Dispose();
         public virtual void EndPlay()
         {
-            foreach (Map m in Settings.Maps)
-                m.EndPlay();
+            foreach (var m in Settings.Maps)
+                m.File.EndPlay();
             RenderInfo.UnlinkScene();
         }
         public virtual void BeginPlay()
@@ -211,9 +211,9 @@ namespace TheraEngine.Worlds
 
             Engine.TimeDilation = Settings.TimeDilation;
 
-            foreach (Map m in Settings.Maps)
-                if (m.VisibleByDefault)
-                    m.BeginPlay(this);
+            foreach (var m in Settings.Maps)
+                if (m.File.VisibleByDefault)
+                    m.File.BeginPlay(this);
 
             RenderInfo.LinkScene(this, Scene3D);
         }

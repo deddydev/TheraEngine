@@ -17,16 +17,16 @@ namespace TheraEngine.Rendering.Models
         
         public LOD()
         {
-            _primitives = new GlobalFileRef<PrimitiveData>(Path.DirectorySeparatorChar.ToString());
-            _material = new GlobalFileRef<TMaterial>(Path.DirectorySeparatorChar.ToString());
+            _primitives = new GlobalFileRef<PrimitiveData>();
+            _material = new GlobalFileRef<TMaterial>();
         }
         public LOD(
             GlobalFileRef<TMaterial> material,
             GlobalFileRef<PrimitiveData> primitives,
             float visibleDistance)
         {
-            _material = material ?? new GlobalFileRef<TMaterial>(Path.DirectorySeparatorChar.ToString());
-            _primitives = primitives ?? new GlobalFileRef<PrimitiveData>(Path.DirectorySeparatorChar.ToString());
+            _material = material ?? new GlobalFileRef<TMaterial>();
+            _primitives = primitives ?? new GlobalFileRef<PrimitiveData>();
             VisibleDistance = visibleDistance;
         }
 

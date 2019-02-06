@@ -80,27 +80,25 @@ namespace TheraEngine.Core.Files.Serialization
                 SerializeAttribute attrib = parentNode.GetAttribute(member.Name);
                 if (attrib != null)
                 {
-                    if (!attrib.GetObject(member.MemberType, out object value))
-                    {
-                        Engine.LogWarning($"Unable to deserialize attribute member {member.Name} as {member.MemberType.GetFriendlyName()}.");
-                        return;
-                    }
-
-                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, value);
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, attrib);
                     if (!customInvoked)
-                        member.SetObject(o, value);
+                    {
+                        if (attrib.GetObject(member.MemberType, out object value))
+                            member.SetObject(o, value);
+                        else
+                            Engine.LogWarning($"Unable to deserialize attribute member {member.Name} as {member.MemberType.GetFriendlyName()}.");
+                    }
                 }
                 else if (member.NodeType == ENodeType.ElementContent)
                 {
-                    if (!parentNode.GetElementContent(member.MemberType, out object value))
-                    {
-                        Engine.LogWarning($"Unable to deserialize element {member.Name} content as {member.MemberType.GetFriendlyName()}.");
-                        return;
-                    }
-
-                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, value);
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, parentNode._elementContent);
                     if (!customInvoked)
-                        member.SetObject(o, value);
+                    {
+                        if (parentNode.GetElementContent(member.MemberType, out object value))
+                            member.SetObject(o, value);
+                        else
+                            Engine.LogWarning($"Unable to deserialize element {member.Name} content as {member.MemberType.GetFriendlyName()}.");
+                    }
                 }
                 else
                 {

@@ -69,6 +69,8 @@ namespace TheraEngine.Core.Files
                 case EPathType.EngineRelative:
                 {
                     string relPath = Assembly.GetExecutingAssembly().CodeBase;
+                    if (relPath.StartsWith("file:///"))
+                        relPath = relPath.Substring(8);
                     string dir = System.IO.Path.GetDirectoryName(relPath);
                     path = path.MakeAbsolutePathRelativeTo(dir);
                     break;
@@ -84,12 +86,39 @@ namespace TheraEngine.Core.Files
             return path;
         }
         [CustomMemberDeserializeMethod("Path")]
-        private void DeserializePath(SerializeElement node)
+        private void DeserializePath(SerializeAttribute node)
         {
-            if (!node.GetAttributeValue("Path", out string result))
+            if (!node.GetObjectAs(out string path))
+            {
+                _path = null;
                 return;
+            }
 
+            switch (Type)
+            {
+                case EPathType.FileRelative:
+                    {
+                        string dir = DirectoryPath;
+                        path = System.IO.Path.Combine(dir, path);
+                        break;
+                    }
+                case EPathType.EngineRelative:
+                    {
+                        string relPath = Assembly.GetExecutingAssembly().CodeBase;
+                        string dir = System.IO.Path.GetDirectoryName(relPath);
+                        path = System.IO.Path.Combine(dir, path);
+                        break;
+                    }
+                case EPathType.GameRelative:
+                    {
+                        string dir = Engine.Game?.DirectoryPath;
+                        if (!string.IsNullOrWhiteSpace(dir))
+                            path = System.IO.Path.Combine(dir, path);
+                        break;
+                    }
+            }
 
+            _path = System.IO.Path.GetFullPath(path);
         }
 
         [TString(false, true)]

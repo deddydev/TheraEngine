@@ -12,7 +12,7 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class Deserializer : TBaseSerializer
+    public partial class Deserializer : BaseSerializer
     {
         /// <summary>
         /// Reads the file at <paramref name="filePath"/> as a binary file.

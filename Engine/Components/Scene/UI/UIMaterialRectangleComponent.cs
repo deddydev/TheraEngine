@@ -19,29 +19,29 @@ namespace TheraEngine.Rendering.UI
             RenderCommand.ZIndex = 0;
         }
 
-        [Category("Rendering")]
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+        //[Category("Rendering")]
+        //public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
 
-        [Category("Rendering")]
-        public override int LayerIndex
-        {
-            get => base.LayerIndex;
-            set
-            {
-                base.LayerIndex = value;
-                RenderInfo.LayerIndex = value;
-            }
-        }
-        [Category("Rendering")]
-        public override int IndexWithinLayer
-        {
-            get => base.IndexWithinLayer;
-            set
-            {
-                base.IndexWithinLayer = value;
-                RenderInfo.IndexWithinLayer = value;
-            }
-        }
+        //[Category("Rendering")]
+        //public override int LayerIndex
+        //{
+        //    get => base.LayerIndex;
+        //    set
+        //    {
+        //        base.LayerIndex = value;
+        //        RenderInfo.LayerIndex = value;
+        //    }
+        //}
+        //[Category("Rendering")]
+        //public override int IndexWithinLayer
+        //{
+        //    get => base.IndexWithinLayer;
+        //    set
+        //    {
+        //        base.IndexWithinLayer = value;
+        //        RenderInfo.IndexWithinLayer = value;
+        //    }
+        //}
 
         /// <summary>
         /// The material used to render on this UI component.
@@ -116,7 +116,7 @@ namespace TheraEngine.Rendering.UI
         [Category("Rendering")]
         public RenderCommandMesh2D RenderCommand { get; } = new RenderCommandMesh2D(ERenderPass.OpaqueForward);
 
-        public virtual void AddRenderables(RenderPasses passes)
+        public override void AddRenderables(RenderPasses passes)
         {
             passes.Add(RenderCommand);
         }

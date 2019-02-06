@@ -233,7 +233,7 @@ namespace TheraEngine.Core.Files.Serialization
                         hdr->Compressed = Compressed;
 
                         hdr->_stringTableLength = stringSize;
-                        hdr->_sharedObjectsCount = SharedObjects.Count;
+                        hdr->_sharedObjectsCount = WritingSharedObjects.Count;
 
                         //SHA256Managed SHhash = new SHA256Managed();
                         //byte[] integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
@@ -242,11 +242,11 @@ namespace TheraEngine.Core.Files.Serialization
                         StringTable.WriteTable(hdr->Strings);
 
                         VoidPtr offsets = hdr->Data;
-                        VoidPtr data = offsets + SharedObjects.Count * sizeof(int);
+                        VoidPtr data = offsets + WritingSharedObjects.Count * sizeof(int);
                         int i = 0;
-                        foreach (var pair in SharedObjects)
+                        foreach (var pair in WritingSharedObjects)
                         {
-                            SharedObjectIndices.Add(pair.Key, i++);
+                            WritingSharedObjectIndices.Add(pair.Key, i++);
                             offsets.WriteInt(data - offsets);
                             WriteObject(pair.Value, ref data);
                         }
@@ -426,7 +426,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             internal int GetSizeObject(SerializeElement node)
             {
-                if (node.Object is TObject tobj && SharedObjects.ContainsKey(tobj.Guid))
+                if (node.Object is TObject tobj && WritingSharedObjects.ContainsKey(tobj.Guid))
                     return 5; //flags byte + object index
 
                 int size = 0;

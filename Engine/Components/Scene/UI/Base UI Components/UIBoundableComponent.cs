@@ -150,9 +150,6 @@ namespace TheraEngine.Rendering.UI
                 c.LayerIndex = LayerIndex;
         }
 
-        public void AddRenderables(RenderPasses passes)
-        {
-
-        }
+        public virtual void AddRenderables(RenderPasses passes) { }
     }
 }

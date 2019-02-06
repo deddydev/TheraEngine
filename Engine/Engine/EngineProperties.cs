@@ -166,8 +166,10 @@ namespace TheraEngine
         private static ConcurrentDictionary<World, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<World, Vec3>();
         private static ConcurrentDictionary<World, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<World, Vec3>();
         public static void QueueRebaseOrigin(World world, Vec3 point)
-            => RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
-        
+        {
+            if (!world.IsRebasingOrigin)
+                RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
+        }
         public static bool Assert(bool condition, string message, bool throwException = true)
         {
             if (!condition)

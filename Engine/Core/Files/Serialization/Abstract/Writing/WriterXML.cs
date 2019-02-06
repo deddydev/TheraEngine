@@ -86,23 +86,12 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     if (Progress != null)
                     {
-                        float length = _stream.Length;
+                        float invLength = 1.0f / _stream.Length;
                         _stream.SetWriteProgress(new BasicProgress<int>(i =>
                         {
                             currentBytes += i;
-                            Progress.Report(currentBytes / length);
+                            Progress.Report(currentBytes * invLength);
                         }));
-                    }
-
-                    if (SharedObjectIndices.Count > 0)
-                    {
-                        foreach (var kv in SharedObjectIndices)
-                            if (kv.Value <= 1)
-                                SharedObjects.Remove(kv.Key);
-                        SharedObjectIndices.Clear();
-                        int index = 0;
-                        foreach (var shared in SharedObjects)
-                            SharedObjectIndices.Add(shared.Key, index++);
                     }
 
                     await _writer.WriteStartDocumentAsync();
@@ -113,9 +102,9 @@ namespace TheraEngine.Core.Files.Serialization
             private async Task WriteElementAsync(SerializeElement node, bool root, bool isSharedObject)
             {
                 string elementName = SerializationCommon.FixElementName(node.Name);
-                if (!root && !isSharedObject && node.Object is TObject tobj && SharedObjectIndices.ContainsKey(tobj.Guid))
+                if (!root && !isSharedObject && node.Object is TObject tobj && WritingSharedObjectIndices.ContainsKey(tobj.Guid))
                 {
-                    int index = SharedObjectIndices[tobj.Guid];
+                    int index = WritingSharedObjectIndices[tobj.Guid];
                     await _writer.WriteStartElementAsync(null, elementName, null);
                     await _writer.WriteAttributeStringAsync(null, "SharedIndex", null, index.ToString());
                     await _writer.WriteEndElementAsync();
@@ -153,9 +142,9 @@ namespace TheraEngine.Core.Files.Serialization
                     {
                         await _writer.WriteStartElementAsync(null, "SharedObjects", null);
                         {
-                            await _writer.WriteAttributeStringAsync(null, "Count", null, SharedObjects.Count.ToString());
+                            await _writer.WriteAttributeStringAsync(null, "Count", null, WritingSharedObjects.Count.ToString());
                             
-                            foreach (var shared in SharedObjects)
+                            foreach (var shared in WritingSharedObjects)
                             {
                                 await WriteElementAsync(shared.Value, false, true);
                                 if (CancelRequested)

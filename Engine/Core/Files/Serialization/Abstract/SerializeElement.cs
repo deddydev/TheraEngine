@@ -12,7 +12,7 @@ namespace TheraEngine.Core.Files.Serialization
 {
     public sealed class SerializeElement
     {
-        private TBaseSerializer.TBaseAbstractReaderWriter _owner;
+        private BaseSerializer.BaseAbstractReaderWriter _owner;
         private object _object;
         private Type _desiredDerivedObjectType;
         private TSerializeMemberInfo _memberInfo;
@@ -53,7 +53,7 @@ namespace TheraEngine.Core.Files.Serialization
                 DetermineDefaultObject();
             }
         }
-        public TBaseSerializer.TBaseAbstractReaderWriter Owner
+        public BaseSerializer.BaseAbstractReaderWriter Owner
         {
             get => _owner;
             internal set
@@ -101,6 +101,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         public object DefaultObject { get; private set; }
         public object DefaultMemberObject { get; private set; }
+        public bool IsSharedObjectsElement { get; private set; }
 
         public Type DesiredDerivedObjectType
         {
@@ -117,29 +118,29 @@ namespace TheraEngine.Core.Files.Serialization
         private void UnlinkObjectGuidFromOwner()
         {
             if (!(_object is TObject tobj) || tobj.Guid == Guid.Empty || 
-                Owner == null || !Owner.SharedObjectIndices.ContainsKey(tobj.Guid))
+                Owner == null || !Owner.WritingSharedObjectIndices.ContainsKey(tobj.Guid))
                 return;
 
-            --Owner.SharedObjectIndices[tobj.Guid];
-            if (Owner.SharedObjectIndices[tobj.Guid] > 0)
+            --Owner.WritingSharedObjectIndices[tobj.Guid];
+            if (Owner.WritingSharedObjectIndices[tobj.Guid] > 0)
                 return;
 
-            Owner.SharedObjectIndices.Remove(tobj.Guid);
-            if (Owner.SharedObjects.ContainsKey(tobj.Guid))
-                Owner.SharedObjects.Remove(tobj.Guid);
+            Owner.WritingSharedObjectIndices.Remove(tobj.Guid);
+            if (Owner.WritingSharedObjects.ContainsKey(tobj.Guid))
+                Owner.WritingSharedObjects.Remove(tobj.Guid);
         }
         private void LinkObjectGuidToOwner()
         {
             if (Owner == null || !(_object is TObject tobj2) || tobj2.Guid == Guid.Empty)
                 return;
 
-            if (Owner.SharedObjectIndices.ContainsKey(tobj2.Guid))
-                ++Owner.SharedObjectIndices[tobj2.Guid];
+            if (Owner.WritingSharedObjectIndices.ContainsKey(tobj2.Guid))
+                ++Owner.WritingSharedObjectIndices[tobj2.Guid];
             else
             {
-                Owner.SharedObjectIndices.Add(tobj2.Guid, 1);
-                if (!Owner.SharedObjects.ContainsKey(tobj2.Guid))
-                    Owner.SharedObjects.Add(tobj2.Guid, this);
+                Owner.WritingSharedObjectIndices.Add(tobj2.Guid, 1);
+                if (!Owner.WritingSharedObjects.ContainsKey(tobj2.Guid))
+                    Owner.WritingSharedObjects.Add(tobj2.Guid, this);
             }
         }
         
@@ -380,17 +381,41 @@ namespace TheraEngine.Core.Files.Serialization
         {
             DesiredDerivedObjectType = 
                 GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration) ? 
-                    SerializationCommon.CreateType(typeDeclaration) : 
-                    null;
-            
-            bool custom = await TryInvokeManualParentDeserializeAsync();
-            if (!custom)
-                custom = TryInvokeManualDeserializeAsync();
-            if (custom)
+                    SerializationCommon.CreateType(typeDeclaration) : null;
+
+            //TODO: read all shared objects first
+            //Cache any references to other shared objects that havent been fully read yet
+            //Do second pass and set those
+            IsSharedObjectsElement = string.Equals(Name, "SharedObjects", StringComparison.InvariantCulture);
+            if (IsSharedObjectsElement)
+            {
+                Owner.ReadingSharedObjectsElement = this;
+                Owner.ReadingSharedObjects = true;
+            }
+
+            //Parent overrides deserialization for this member?
+            bool success = await TryInvokeManualParentDeserializeAsync();
+
+            //This member manually deserializes itself?
+            if (!success)
+                success = TryInvokeManualDeserializeAsync();
+
+            if (success)
+            {
+                if (IsSharedObjectsElement)
+                    Owner.ReadingSharedObjects = false;
                 return;
-            //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} normally.");
+            }
+
+            //Automatic deserialization
             ObjectSerializer?.DeserializeTreeToObject();
             ApplyObjectToParent();
+
+            if (Parent.IsSharedObjectsElement && Owner.ReadingSharedObjects)
+                Owner.ReadingSharedObjectsList.Add(this);
+
+            if (IsSharedObjectsElement)
+                Owner.ReadingSharedObjects = false;
         }
         public async void SerializeTreeFromObject()
         {
@@ -408,8 +433,8 @@ namespace TheraEngine.Core.Files.Serialization
             if (Owner != null && 
                 Object is TObject tobj && 
                 tobj.Guid != Guid.Empty &&
-                Owner.SharedObjectIndices.ContainsKey(tobj.Guid) &&
-                Owner.SharedObjectIndices[tobj.Guid] > 1)
+                Owner.WritingSharedObjectIndices.ContainsKey(tobj.Guid) &&
+                Owner.WritingSharedObjectIndices[tobj.Guid] > 1)
                 return;
 
             bool custom = await TryInvokeManualParentSerializeAsync();

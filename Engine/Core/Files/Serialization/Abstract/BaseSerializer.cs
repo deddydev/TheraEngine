@@ -5,10 +5,10 @@ using System.Threading;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class TBaseSerializer
+    public class BaseSerializer
     {
         public EProprietaryFileFormat Format { get; protected set; }
-        public abstract class TBaseAbstractReaderWriter
+        public abstract class BaseAbstractReaderWriter
         {
             protected ProgressStream _stream;
 
@@ -41,20 +41,16 @@ namespace TheraEngine.Core.Files.Serialization
                 }
             }
 
-            public Dictionary<Guid, SerializeElement> SharedObjects { get; internal set; }
-            public Dictionary<Guid, int> SharedObjectIndices { get; set; } = new Dictionary<Guid, int>();
-
             internal int CurrentCount { get; set; }
             public ESerializeFlags Flags { get; internal set; }
             public abstract EProprietaryFileFormatFlag Format { get; }
             public bool IsBinary => Format == EProprietaryFileFormatFlag.Binary;
 
-            protected TBaseAbstractReaderWriter(string filePath, IProgress<float> progress, CancellationToken cancel)
+            protected BaseAbstractReaderWriter(string filePath, IProgress<float> progress, CancellationToken cancel)
             {
                 FilePath = filePath;
                 Progress = progress;
                 Cancel = cancel;
-                SharedObjects = new Dictionary<Guid, SerializeElement>();
                 FileDirectory = Path.GetDirectoryName(FilePath);
             }
             
@@ -65,6 +61,13 @@ namespace TheraEngine.Core.Files.Serialization
             /// <returns>True if the caller wants to cancel the operation;
             /// false if the operation should continue.</returns>
             public bool CancelRequested => Cancel.IsCancellationRequested;
+
+            public Dictionary<Guid, SerializeElement> WritingSharedObjects { get; } = new Dictionary<Guid, SerializeElement>();
+            public Dictionary<Guid, int> WritingSharedObjectIndices { get; } = new Dictionary<Guid, int>();
+
+            public bool ReadingSharedObjects { get; internal set; } = false;
+            public SerializeElement ReadingSharedObjectsElement { get; internal set; } = null;
+            public List<SerializeElement> ReadingSharedObjectsList { get; } = new List<SerializeElement>();
         }
     }
 }

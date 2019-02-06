@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class Deserializer : TBaseSerializer
+    public partial class Deserializer : BaseSerializer
     {
         public AbstractReader Reader { get; private set; }
-        public abstract class AbstractReader : TBaseAbstractReaderWriter
+        public abstract class AbstractReader : BaseAbstractReaderWriter
         {
             /// <summary>
             /// The deserializer that is using this reader.

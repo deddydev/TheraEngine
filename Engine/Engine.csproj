@@ -455,7 +455,7 @@
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\BaseObjectSerializer.cs" />
     <None Include="Core\Files\Serialization\VarInfo.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\AbstractReader.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\TBaseSerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\BaseSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\AbstractWriter.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\ReaderXML.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterXML.cs" />

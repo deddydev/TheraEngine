@@ -61,7 +61,7 @@ namespace TheraEditor.Wrappers
 
         public ColladaWrapper() : base(_menu) { }
 
-        private async void ImportAsActor()
+        private void ImportAsActor()
         {
             //int op = Editor.Instance.BeginOperation($"Importing {Path.GetFileName(FilePath)} as skeleton...", out Progress<float> progress, out CancellationTokenSource cancel);
             //TFileObject actor = await Actor.LoadDAEAsync(FilePath, progress, cancel.Token);

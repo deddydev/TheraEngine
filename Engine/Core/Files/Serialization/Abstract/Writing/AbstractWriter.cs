@@ -8,10 +8,10 @@ using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public partial class Serializer : TBaseSerializer
+    public partial class Serializer : BaseSerializer
     {
         public AbstractWriter Writer { get; private set; }
-        public abstract class AbstractWriter : TBaseAbstractReaderWriter
+        public abstract class AbstractWriter : BaseAbstractReaderWriter
         {
             /// <summary>
             /// The serializer that is using this writer.
@@ -35,6 +35,18 @@ namespace TheraEngine.Core.Files.Serialization
             public async Task WriteObjectAsync()
             {
                 RootNode.SerializeTreeFromObject();
+
+                if (WritingSharedObjectIndices.Count > 0)
+                {
+                    foreach (var kv in WritingSharedObjectIndices)
+                        if (kv.Value <= 1)
+                            WritingSharedObjects.Remove(kv.Key);
+                    WritingSharedObjectIndices.Clear();
+                    int index = 0;
+                    foreach (var shared in WritingSharedObjects)
+                        WritingSharedObjectIndices.Add(shared.Key, index++);
+                }
+
                 await WriteTreeAsync();
             }
         }

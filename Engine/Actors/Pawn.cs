@@ -199,7 +199,7 @@ namespace TheraEngine.Actors
         
         public void QueueWorldRebase()
         {
-            if (!IsSpawned)
+            if (!IsSpawned || OwningWorld.IsRebasingOrigin)
                 return;
 
             float rebaseRadius = OwningWorld.Settings.OriginRebaseRadius;
@@ -209,7 +209,7 @@ namespace TheraEngine.Actors
         }
         public bool IsInWorldBounds()
         {
-            if (OwningWorld == null)
+            if (!IsSpawned)
                 return true;
 
             return IsInBounds(OwningWorld.Settings.Bounds);

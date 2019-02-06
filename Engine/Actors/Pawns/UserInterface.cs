@@ -73,7 +73,7 @@ namespace TheraEngine.Actors.Types.Pawns
             ScreenOverlayCamera.SetOriginBottomLeft();
             ScreenOverlayCamera.Resize(1, 1);
 
-            _scene = new Scene2D();
+            _screenSpaceUIScene = new Scene2D();
         }
         public UserInterface(Vec2 bounds) : this()
         {
@@ -82,7 +82,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         protected Vec2 _cursorPos = Vec2.Zero;
 
-        internal Scene2D _scene;
+        internal Scene2D _screenSpaceUIScene;
         private IPawn _owningPawn;
 
         [Browsable(false)]
@@ -90,7 +90,7 @@ namespace TheraEngine.Actors.Types.Pawns
         [Browsable(false)]
         public OrthographicCamera ScreenOverlayCamera { get; }
         [Browsable(false)]
-        public Scene2D ScreenSpaceUIScene => _scene;
+        public Scene2D ScreenSpaceUIScene => _screenSpaceUIScene;
         [Browsable(false)]
         public RenderPasses RenderPasses { get; set; } = new RenderPasses();
         [Browsable(false)]
@@ -199,7 +199,7 @@ namespace TheraEngine.Actors.Types.Pawns
             Bounds = bounds;
             if (Bounds == Vec2.Zero)
                 return;
-            _scene.Resize(bounds);
+            _screenSpaceUIScene.Resize(bounds);
             RootComponent.Resize(bounds);
             ScreenOverlayCamera.Resize(bounds.X, bounds.Y);
         }
@@ -229,13 +229,13 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public void RemoveRenderableComponent(I2DRenderable component)
         {
-            _scene.Remove(component);
+            _screenSpaceUIScene.Remove(component);
 
             //_renderables.Remove(component);
         }
         public void AddRenderableComponent(I2DRenderable component)
         {
-            _scene.Add(component);
+            _screenSpaceUIScene.Add(component);
 
             //if (_renderables.Count == 0)
             //{

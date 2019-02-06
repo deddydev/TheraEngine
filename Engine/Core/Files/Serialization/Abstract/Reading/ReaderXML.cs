@@ -72,7 +72,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
 
                         await _reader.MoveToContentAsync();
-                        RootNode = await ReadElementAsync();
+                        RootNode = await ReadElementAsync(true);
                         
                         _reader.Dispose();
                     }
@@ -82,7 +82,7 @@ namespace TheraEngine.Core.Files.Serialization
                     Engine.LogException(ex);
                 }
             }
-            private async Task<SerializeElement> ReadElementAsync()
+            private async Task<SerializeElement> ReadElementAsync(bool isRoot)
             {
                 SerializeElement node = null, childNode;
                 string name, value;
@@ -95,7 +95,7 @@ namespace TheraEngine.Core.Files.Serialization
                             name = _reader.Name;
                             if (node != null)
                             {
-                                childNode = await ReadElementAsync();
+                                childNode = await ReadElementAsync(false);
                                 node.ChildElements.Add(childNode);
                             }
                             else

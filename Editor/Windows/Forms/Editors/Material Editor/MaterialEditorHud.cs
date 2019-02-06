@@ -165,15 +165,6 @@ namespace TheraEditor.Windows.Forms
 
 
         #region Dragging
-        private Vec2 GetWorldCursorDiff(Vec2 cursorPosScreen)
-        {
-            Vec2 screenPoint = Viewport.WorldToScreen(_lastWorldPos).Xy;
-            screenPoint += cursorPosScreen - _cursorPos;
-            Vec2 newFocusPoint = Viewport.ScreenToWorld(screenPoint).Xy;
-            Vec2 diff = newFocusPoint - _lastWorldPos;
-            _lastWorldPos = newFocusPoint;
-            return diff;
-        }
         private void HandleDragArg()
         {
             Vec2 posW = CursorPositionWorld();

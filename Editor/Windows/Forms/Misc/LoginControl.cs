@@ -11,7 +11,7 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             //GitHubClient github = new GitHubClient(new ProductHeaderValue(Github.RepoName));
             //OauthClient client = new OauthClient(github.Connection);

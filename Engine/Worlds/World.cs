@@ -40,13 +40,34 @@ namespace TheraEngine.Worlds
         private GlobalFileRef<WorldSettings> _settingsRef;
         private GlobalFileRef<WorldState> _stateRef;
 
-        [TSerialize("Settings")]
+        [TSerialize]
         public GlobalFileRef<WorldSettings> SettingsRef
         {
             get => _settingsRef;
-            set => _settingsRef = value ?? new GlobalFileRef<WorldSettings>();
+            set
+            {
+                if (_settingsRef != null)
+                {
+                    _settingsRef.UnregisterLoadEvent(SettingsLoaded);
+                    _settingsRef.UnregisterUnloadEvent(SettingsUnloaded);
+                }
+                _settingsRef = value ?? new GlobalFileRef<WorldSettings>();
+                _settingsRef.RegisterLoadEvent(SettingsLoaded);
+                _settingsRef.RegisterUnloadEvent(SettingsUnloaded);
+            }
         }
-        [TSerialize("State", State = true)]
+
+        private void SettingsLoaded(WorldSettings obj)
+        {
+            obj.OwningWorld = this;
+        }
+        private void SettingsUnloaded(WorldSettings obj)
+        {
+            if (obj.OwningWorld == this)
+                obj.OwningWorld = null;
+        }
+
+        [TSerialize(State = true)]
         public GlobalFileRef<WorldState> StateRef
         {
             get => _stateRef;

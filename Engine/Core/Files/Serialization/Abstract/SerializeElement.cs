@@ -295,7 +295,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <returns></returns>
         public bool TryInvokeManualDeserializeAsync()
         {
-            if (ObjectType.IsSubclassOf(typeof(TFileObject)))
+            if (ObjectType?.IsSubclassOf(typeof(TFileObject)) ?? false)
             {
                 TFileExt ext = TFileObject.GetFileExtension(ObjectType);
                 if (ext == null)
@@ -382,13 +382,13 @@ namespace TheraEngine.Core.Files.Serialization
             DesiredDerivedObjectType = 
                 GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration) ? 
                     SerializationCommon.CreateType(typeDeclaration) : null;
+
             if (GetAttributeValue("SharedIndex", out int sharedObjectIndex))
             {
                 if (Owner.ReadingSharedObjectsList.IndexInRange(sharedObjectIndex))
                 {
                     Object = Owner.ReadingSharedObjectsList[sharedObjectIndex];
                     ApplyObjectToParent();
-                    return;
                 }
                 else
                 {
@@ -400,8 +400,6 @@ namespace TheraEngine.Core.Files.Serialization
             }
             else
             {
-                IsSharedObjectsElement = string.Equals(Name, "SharedObjects", StringComparison.InvariantCulture);
-
                 //Parent overrides deserialization for this member?
                 bool success = await TryInvokeManualParentDeserializeAsync();
 
@@ -409,27 +407,12 @@ namespace TheraEngine.Core.Files.Serialization
                 if (!success)
                     success = TryInvokeManualDeserializeAsync();
 
-                if (!success)
-                {
-                    //Automatic deserialization
-                    ObjectSerializer?.DeserializeTreeToObject();
-                    ApplyObjectToParent();
-                }
+                if (success)
+                    return;
 
-                if (Parent != null && Parent.IsSharedObjectsElement)
-                {
-                    Owner.ReadingSharedObjectsList.Add(this);
-                    int index = Owner.ReadingSharedObjectsList.Count - 1;
-                    if (Owner.ReadingSharedObjectsSetQueue.ContainsKey(index))
-                    {
-                        foreach (var elem in Owner.ReadingSharedObjectsSetQueue[index])
-                        {
-                            elem.Object = Object;
-                            elem.ApplyObjectToParent();
-                        }
-                        Owner.ReadingSharedObjectsSetQueue.Remove(index);
-                    }
-                }
+                //Automatic deserialization
+                ObjectSerializer?.DeserializeTreeToObject();
+                ApplyObjectToParent();
             }
         }
         public async void SerializeTreeFromObject()

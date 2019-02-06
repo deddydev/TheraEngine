@@ -19,13 +19,33 @@ namespace TheraEngine.Core.Files.Serialization
                 : base(filePath, progress, cancel)
             {
                 Owner = owner;
-                RootFileType = SerializationCommon.DetermineType(FilePath, out EFileFormat format);
+                RootFileType = SerializationCommon.DetermineType(FilePath, out EFileFormat _);
             }
             
             protected abstract Task ReadTreeAsync();
             public async Task<object> CreateObjectAsync()
             {
                 await ReadTreeAsync();
+
+                SerializeElement sharedObjectsElem = RootNode.GetChildElement("SharedObjects");
+                if (sharedObjectsElem != null)
+                    foreach (SerializeElement sharedObjectElem in sharedObjectsElem.ChildElements)
+                    {
+                        sharedObjectElem.DeserializeTreeToObject();
+
+                        ReadingSharedObjectsList.Add(sharedObjectElem);
+                        int index = ReadingSharedObjectsList.Count - 1;
+                        if (!ReadingSharedObjectsSetQueue.ContainsKey(index))
+                            continue;
+
+                        foreach (SerializeElement elem in ReadingSharedObjectsSetQueue[index])
+                        {
+                            elem.Object = sharedObjectElem.Object;
+                            elem.ApplyObjectToParent();
+                        }
+                        ReadingSharedObjectsSetQueue.Remove(index);
+                    }
+                
                 RootNode.DeserializeTreeToObject();
                 object obj = RootNode.Object;
                 if (obj is TFileObject tobj)

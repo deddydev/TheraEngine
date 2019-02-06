@@ -146,6 +146,13 @@ namespace TheraEngine.Core.Files.Serialization
                             
                             foreach (var shared in WritingSharedObjects)
                             {
+                                //if (isSharedObject)
+                                //{
+                                //    if (node?.ObjectType == null)
+                                //        throw new Exception();
+                                //    await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, node.ObjectType.AssemblyQualifiedName);
+                                //}
+
                                 await WriteElementAsync(shared.Value, false, true);
                                 if (CancelRequested)
                                 {

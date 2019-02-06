@@ -21,13 +21,13 @@ namespace TheraEditor.Windows.Forms
         }
         private void btnCancelOp_ButtonClick(object sender, EventArgs e)
         {
-            for (int i = 0; i < _operations.Count; ++i)
-                _operations[i].Cancel();
-
+            foreach (OperationInfo t in _operations)
+                t.Cancel();
+            
             EndOperation(-1);
             toolStripStatusLabel1.Text = _operations.Count == 1 ?
                 "Operation was canceled." :
-                _operations.Count.ToString() + " operations were canceled.";
+                _operations.Count + " operations were canceled.";
         }
         private void BtnViewAnalytics_Click(object sender, EventArgs e)
             => GPUAnalyticsForm.Focus();

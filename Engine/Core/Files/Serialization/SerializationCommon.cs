@@ -57,35 +57,38 @@ namespace TheraEngine.Core.Files.Serialization
         public TSerializeMemberInfo(MemberInfo member)
         {
             Member = member;
-            TSerialize attrib = member?.GetCustomAttribute<TSerialize>();
-            Config = attrib.Config;
-            State = attrib.State;
-            NodeType = attrib.NodeType;
-            Order = attrib.Order;
-            Condition = attrib.Condition;
-
             MemberType =
                 Member is PropertyInfo propMember ? propMember.PropertyType :
                 Member is FieldInfo fieldMember ? fieldMember.FieldType :
                 null;
 
-            Name = attrib?.NameOverride ?? Member?.Name ?? "null";
+            TSerialize attrib = member?.GetCustomAttribute<TSerialize>();
+            Name = attrib?.NameOverride ?? Member?.Name ?? MemberType?.GetFriendlyName() ?? "Object";
             Name = new string(Name.Where(x => !char.IsWhiteSpace(x)).ToArray());
 
-            if (attrib.UseCategory)
+            if (attrib != null)
             {
-                if (attrib.OverrideCategory != null)
-                    Category = SerializationCommon.FixElementName(attrib.OverrideCategory);
-                else
-                {
-                    CategoryAttribute categoryAttrib = Member.GetCustomAttribute<CategoryAttribute>();
-                    if (categoryAttrib != null)
-                        Category = SerializationCommon.FixElementName(categoryAttrib.Category);
-                }
+                Config = attrib.Config;
+                State = attrib.State;
+                NodeType = attrib.NodeType;
+                Order = attrib.Order;
+                Condition = attrib.Condition;
+            }
+
+            if (attrib == null || !attrib.UseCategory)
+                return;
+
+            if (attrib.OverrideCategory != null)
+                Category = SerializationCommon.FixElementName(attrib.OverrideCategory);
+            else
+            {
+                CategoryAttribute categoryAttrib = Member?.GetCustomAttribute<CategoryAttribute>();
+                if (categoryAttrib != null)
+                    Category = SerializationCommon.FixElementName(categoryAttrib.Category);
             }
         }
         public bool AllowSerialize(object obj)
-            => Condition == null ? true : ExpressionParser.Evaluate<bool>(Condition, obj);
+            => Condition == null || ExpressionParser.Evaluate<bool>(Condition, obj);
 
         public void SetObject(object parentObject, object memberObject)
         {

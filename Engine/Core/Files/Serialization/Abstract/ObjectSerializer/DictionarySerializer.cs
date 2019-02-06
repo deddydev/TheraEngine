@@ -7,7 +7,7 @@ using TheraEngine.Core.Memory;
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectSerializerFor(typeof(IDictionary))]
-    public class IDictionarySerializer : BaseObjectSerializer
+    public class DictionarySerializer : BaseObjectSerializer
     {
         public override void DeserializeTreeToObject()
         {

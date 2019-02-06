@@ -105,6 +105,8 @@ namespace TheraEngine.Core.Files
                 case EPathType.EngineRelative:
                     {
                         string relPath = Assembly.GetExecutingAssembly().CodeBase;
+                        if (relPath.StartsWith("file:///"))
+                            relPath = relPath.Substring(8);
                         string dir = System.IO.Path.GetDirectoryName(relPath);
                         path = System.IO.Path.Combine(dir, path);
                         break;

@@ -6,7 +6,7 @@ using TheraEngine.Core.Memory;
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectSerializerFor(typeof(IList), CanSerializeAsString = true)]
-    public class IListSerializer : BaseObjectSerializer
+    public class ListSerializer : BaseObjectSerializer
     {
         #region Tree
         public override void DeserializeTreeToObject()

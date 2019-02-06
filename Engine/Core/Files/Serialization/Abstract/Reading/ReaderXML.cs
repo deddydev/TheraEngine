@@ -72,7 +72,7 @@ namespace TheraEngine.Core.Files.Serialization
                         }
 
                         await _reader.MoveToContentAsync();
-                        RootNode = await ReadElementAsync(true);
+                        RootNode = await ReadElementAsync();
                         
                         _reader.Dispose();
                     }
@@ -82,7 +82,7 @@ namespace TheraEngine.Core.Files.Serialization
                     Engine.LogException(ex);
                 }
             }
-            private async Task<SerializeElement> ReadElementAsync(bool isRoot)
+            private async Task<SerializeElement> ReadElementAsync()
             {
                 SerializeElement node = null, childNode;
                 string name, value;
@@ -95,7 +95,7 @@ namespace TheraEngine.Core.Files.Serialization
                             name = _reader.Name;
                             if (node != null)
                             {
-                                childNode = await ReadElementAsync(false);
+                                childNode = await ReadElementAsync();
                                 node.ChildElements.Add(childNode);
                             }
                             else
@@ -107,7 +107,7 @@ namespace TheraEngine.Core.Files.Serialization
                                     {
                                         name = _reader.Name;
                                         value = await _reader.GetValueAsync();
-                                        node?.Attributes?.Add(SerializeAttribute.FromString(name, value));
+                                        node.Attributes?.Add(SerializeAttribute.FromString(name, value));
                                     }
                                     await _reader.MoveToContentAsync();
                                 }
@@ -119,8 +119,7 @@ namespace TheraEngine.Core.Files.Serialization
                             break;
                         case XmlNodeType.Text:
                             value = await _reader.GetValueAsync();
-                            if (node != null)
-                                node.SetElementContentAsString(value);
+                            node?.SetElementContentAsString(value);
                             await _reader.ReadAsync();
                             break;
                         case XmlNodeType.EndElement:

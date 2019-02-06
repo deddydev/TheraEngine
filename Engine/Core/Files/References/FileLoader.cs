@@ -33,7 +33,7 @@ namespace TheraEngine.Core.Files
             if (typeof(T).IsAssignableFrom(type))
                 _subType = type;
             else
-                throw new Exception(type.ToString() + " is not assignable to " + typeof(T).ToString());
+                throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());
 
             Path = new PathReference();
         }
@@ -52,7 +52,7 @@ namespace TheraEngine.Core.Files
             if (typeof(T).IsAssignableFrom(type))
                 _subType = type;
             else
-                throw new Exception(type.ToString() + " is not assignable to " + typeof(T).ToString());
+                throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
             Path = new PathReference

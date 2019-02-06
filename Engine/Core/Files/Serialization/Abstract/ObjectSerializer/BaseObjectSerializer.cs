@@ -64,7 +64,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Creates an object from a string.
         /// </summary>
-        public abstract object ObjectFromString(Type type, string value);
+        public abstract bool ObjectFromString(Type type, string value, out object result);
         /// <summary>
         /// Creates a string from an object.
         /// </summary>

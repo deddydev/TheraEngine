@@ -69,13 +69,16 @@ namespace TheraEngine.Core.Files.Serialization
             BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
             return ser != null && ser.CanWriteAsString(elementType);
         }
-        public override object ObjectFromString(Type type, string value)
+        public override bool ObjectFromString(Type type, string value, out object result)
         {
             Type elementType = type.DetermineElementType();
             BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
             if (ser == null || !ser.CanWriteAsString(elementType))
-                return null;
-            
+            {
+                result = null;
+                return false;
+            }
+
             const char separator = '|';
             //if (!SerializationCommon.IsPrimitiveType(elementType))
             //    separator = '|';
@@ -87,19 +90,23 @@ namespace TheraEngine.Core.Files.Serialization
                 list = Activator.CreateInstance(type, values.Length) as IList;
             else
                 list = Activator.CreateInstance(type) as IList;
-            
+
+            object o;
             if (list.IsFixedSize)
             {
                 for (int i = 0; i < values.Length; ++i)
-                    list[i] = ser.ObjectFromString(elementType, values[i]);
+                    if (ser.ObjectFromString(elementType, values[i], out o))
+                        list[i] = o;
             }
             else
             {
                 foreach (string t in values)
-                    list.Add(ser.ObjectFromString(elementType, t));
+                    if (ser.ObjectFromString(elementType, t, out o))
+                        list.Add(o);
             }
 
-            return list;
+            result = list;
+            return true;
         }
         public override bool ObjectToString(object obj, out string str)
         {

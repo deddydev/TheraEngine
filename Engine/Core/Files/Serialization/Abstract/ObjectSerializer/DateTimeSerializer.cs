@@ -28,8 +28,11 @@ namespace TheraEngine.Core.Files.Serialization
 
         #region String
         public override bool CanWriteAsString(Type type) => true;
-        public override object ObjectFromString(Type type, string value)
-            => SerializationCommon.CreateType(value);
+        public override bool ObjectFromString(Type type, string value, out object result)
+        {
+            result = SerializationCommon.CreateType(value);
+            return true;
+        }
         public override bool ObjectToString(object obj, out string str)
         {
             if (obj is Type type)

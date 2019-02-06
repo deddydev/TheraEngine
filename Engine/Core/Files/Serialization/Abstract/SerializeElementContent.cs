@@ -50,17 +50,16 @@ namespace TheraEngine.Core.Files.Serialization
 
         private bool ParseStringToObject(Type type)
         {
-            var serializer = BaseObjectSerializer.DetermineObjectSerializer(type, true);
+            BaseObjectSerializer serializer = BaseObjectSerializer.DetermineObjectSerializer(type, true);
             if (serializer == null)
             {
                 _valueType = null;
                 return false;
             }
 
-            _value = serializer.ObjectFromString(type, _stringValue);
+            IsNonStringObject = !serializer.ObjectFromString(type, _stringValue, out _value);
             _valueType = type;
             
-            IsNonStringObject = false;
             return true;
         }
         public bool GetObject(Type expectedType, out object value)
@@ -71,14 +70,9 @@ namespace TheraEngine.Core.Files.Serialization
                 return _value != null && !IsUnparsedString;
             }
 
-            bool success = IsNotNull && (IsUnparsedString ?
-                ParseStringToObject(expectedType) : 
-                (_value == null ? true : expectedType.IsAssignableFrom(_value.GetType())));
+            bool success = IsNotNull && (IsUnparsedString ? ParseStringToObject(expectedType) : (_value == null || expectedType.IsInstanceOfType(_value)));
 
-            if (success)
-                value = _value;
-            else
-                value = default;
+            value = success ? _value : default;
 
             return success;
         }

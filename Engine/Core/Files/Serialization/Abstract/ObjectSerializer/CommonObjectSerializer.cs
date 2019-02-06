@@ -340,33 +340,41 @@ namespace TheraEngine.Core.Files.Serialization
         #endregion
 
         #region String
-        public override object ObjectFromString(Type type, string value)
+        public override bool ObjectFromString(Type type, string value, out object result)
         {
             if (type.IsEnum)
             {
                 value = value.ReplaceWhitespace("").Replace("/", ", ");
-                return Enum.Parse(type, value);
+                result = Enum.Parse(type, value);
+                return true;
             }
+
             switch (type.Name)
             {
-                case "Boolean": return Boolean.Parse(value);
-                case "SByte":   return SByte.Parse(value);
-                case "Byte":    return Byte.Parse(value);
-                case "Char":    return Char.Parse(value);
-                case "Int16":   return Int16.Parse(value);
-                case "UInt16":  return UInt16.Parse(value);
-                case "Int32":   return Int32.Parse(value);
-                case "UInt32":  return UInt32.Parse(value);
-                case "Int64":   return Int64.Parse(value);
-                case "UInt64":  return UInt64.Parse(value);
-                case "Single":  return Single.Parse(value);
-                case "Double":  return Double.Parse(value);
-                case "Decimal": return Decimal.Parse(value);
-                case "String":  return value;
+                case "Boolean": result = Boolean.Parse(value); return true;
+                case "SByte": result = result = SByte.Parse(value); return true;
+                case "Byte": result = Byte.Parse(value); return true;
+                case "Char":    result =  Char.Parse(value); return true;
+                case "Int16": result = Int16.Parse(value); return true;
+                case "UInt16": result = UInt16.Parse(value); return true;
+                case "Int32": result = Int32.Parse(value); return true;
+                case "UInt32": result = UInt32.Parse(value); return true;
+                case "Int64": result = Int64.Parse(value); return true;
+                case "UInt64": result = UInt64.Parse(value); return true;
+                case "Single": result = Single.Parse(value); return true;
+                case "Double": result = Double.Parse(value); return true;
+                case "Decimal": result = Decimal.Parse(value); return true;
+                case "String": result = value; return true;
             }
+
             if (type.IsValueType)
-                return SerializationCommon.ParseStructBytesString(type, value);
-            throw new InvalidOperationException();
+            {
+                result = SerializationCommon.ParseStructBytesString(type, value);
+                return true;
+            }
+
+            result = null;
+            return false;
         }
 
         public override bool CanWriteAsString(Type type)

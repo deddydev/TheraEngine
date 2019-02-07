@@ -31,7 +31,7 @@ namespace TheraEngine.Core.Files.Serialization
                 if (sharedObjectsElem != null)
                     foreach (SerializeElement sharedObjectElem in sharedObjectsElem.ChildElements)
                     {
-                        sharedObjectElem.DeserializeTreeToObject();
+                        await sharedObjectElem.DeserializeTreeToObject();
 
                         ReadingSharedObjectsList.Add(sharedObjectElem);
                         int index = ReadingSharedObjectsList.Count - 1;
@@ -46,10 +46,12 @@ namespace TheraEngine.Core.Files.Serialization
                         ReadingSharedObjectsSetQueue.Remove(index);
                     }
                 
-                RootNode.DeserializeTreeToObject();
+                await RootNode.DeserializeTreeToObject();
+
                 object obj = RootNode.Object;
                 if (obj is TFileObject tobj)
                     tobj.FilePath = FilePath;
+
                 return obj;
             }
         }

@@ -67,14 +67,15 @@ namespace TheraEngine.Worlds
                 }
             }
         }
-
+        
         private void _actors_PostAnythingAdded(BaseActor item)
         {
-            item.MapAttachment = this;
+            if (item != null)
+                item.MapAttachment = this;
         }
         private void _actors_PostAnythingRemoved(BaseActor item)
         {
-            if (item.MapAttachment == this)
+            if (item != null && item.MapAttachment == this)
                 item.MapAttachment = null;
         }
 

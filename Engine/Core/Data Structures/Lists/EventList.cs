@@ -20,6 +20,9 @@ namespace System.Collections.Generic
         public delegate void MultiInsertHandler(IEnumerable<T> items, int index);
         public delegate bool MultiCancelableInsertHandler(IEnumerable<T> items, int index);
 
+        public delegate bool PreIndexSetHandler(int index, T newItem);
+        public delegate void PostIndexSetHandler(int index, T prevItem);
+        
         /// <summary>
         /// Event called for every individual item just before being added to the list.
         /// </summary>
@@ -92,6 +95,9 @@ namespace System.Collections.Generic
         /// Event called after this list is modified in any way at all.
         /// </summary>
         public event Action PostModified;
+
+        public event PreIndexSetHandler PreIndexSet;
+        public event PostIndexSetHandler PostIndexSet;
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -612,10 +618,20 @@ namespace System.Collections.Generic
                 {
                     if (!(PreModified?.Invoke() ?? true))
                         return;
+                    if (!(PreAdded?.Invoke(value) ?? true))
+                        return;
+                    if (!(PreAnythingAdded?.Invoke(value) ?? true))
+                        return;
+                    if (!(PreIndexSet?.Invoke(index, value) ?? true))
+                        return;
                 }
+                T prev = base[index];
                 base[index] = value;
                 if (!_updating)
                 {
+                    PostAdded?.Invoke(value);
+                    PostAnythingAdded?.Invoke(value);
+                    PostIndexSet?.Invoke(index, prev);
                     PostModified?.Invoke();
                     CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace));
                 }

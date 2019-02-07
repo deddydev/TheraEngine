@@ -122,6 +122,9 @@ namespace TheraEngine.Core.Files.Serialization
                         return;
                     }
                     
+                    if (node.ObjectType != node.MemberInfo.MemberType || root || isSharedObject)
+                        node.InsertAttribute(0, SerializationCommon.TypeIdent, node.ObjectType.AssemblyQualifiedName);
+
                     List<SerializeAttribute> attributes = node.Attributes;
                     List<SerializeElement> childElements = node.ChildElements;
                     bool hasChildStringData = node.GetElementContentAsString(out string childStringData);
@@ -143,17 +146,13 @@ namespace TheraEngine.Core.Files.Serialization
                         await _writer.WriteStartElementAsync(null, "SharedObjects", null);
                         {
                             await _writer.WriteAttributeStringAsync(null, "Count", null, WritingSharedObjects.Count.ToString());
-                            
+
+                            SerializeElement elem;
                             foreach (var shared in WritingSharedObjects)
                             {
-                                //if (isSharedObject)
-                                //{
-                                //    if (node?.ObjectType == null)
-                                //        throw new Exception();
-                                //    await _writer.WriteAttributeStringAsync(null, SerializationCommon.TypeIdent, null, node.ObjectType.AssemblyQualifiedName);
-                                //}
-
-                                await WriteElementAsync(shared.Value, false, true);
+                                elem = shared.Value;
+                                
+                                await WriteElementAsync(elem, false, true);
                                 if (CancelRequested)
                                 {
                                     //Close SharedObjects

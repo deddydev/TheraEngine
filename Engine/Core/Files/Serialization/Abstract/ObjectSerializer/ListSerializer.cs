@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -9,38 +10,48 @@ namespace TheraEngine.Core.Files.Serialization
     public class ListSerializer : BaseObjectSerializer
     {
         #region Tree
-        public override void DeserializeTreeToObject()
+
+        public IList List { get; private set; }
+
+        public override async void DeserializeTreeToObject()
         {
             Type arrayType = TreeNode.ObjectType;
 
             if (!TreeNode.GetElementContent(arrayType, out object array))
             {
                 int count = TreeNode.ChildElements.Count;
-
-                IList list;
+                
                 if (arrayType.IsArray)
-                    list = Activator.CreateInstance(arrayType, count) as IList;
+                    List = Activator.CreateInstance(arrayType, count) as IList;
                 else
-                    list = Activator.CreateInstance(arrayType) as IList;
+                    List = Activator.CreateInstance(arrayType) as IList;
 
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
                 for (int i = 0; i < count; ++i)
                 {
                     SerializeElement node = TreeNode.ChildElements[i];
                     node.MemberInfo.MemberType = elementType;
-                    node.DeserializeTreeToObject();
-
-                    if (list.IsFixedSize)
-                        list[i] = node.Object;
+                    bool objSet = await node.DeserializeTreeToObject();
+                    node.ObjectChanged += Node_ObjectChanged;
+                    
+                    if (List.IsFixedSize)
+                        List[i] = node.Object;
                     else
-                        list.Add(node.Object);
+                        List.Add(node.Object);
                 }
                 
-                array = list;
+                array = List;
             }
 
             TreeNode.Object = array;
         }
+
+        private void Node_ObjectChanged(SerializeElement element, object previousObject)
+        {
+            int index = element.Parent.ChildElements.IndexOf(element);
+            List[index] = element.Object;
+        }
+
         public override void SerializeTreeFromObject()
         {
             if (!(TreeNode.Object is IList list))
@@ -53,11 +64,12 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (object o in list)
             {
                 SerializeElement element = new SerializeElement(o, new TSerializeMemberInfo(elemType, null));
-                if (ShouldWriteDefaultMembers || !element.IsObjectDefault())
-                {
+                //Even default members must be written so the actual array count and indices all match up
+                //if (ShouldWriteDefaultMembers || !element.IsObjectDefault())
+                //{
                     TreeNode.ChildElements.Add(element);
                     element.SerializeTreeFromObject();
-                }
+                //}
             }
         }
         #endregion

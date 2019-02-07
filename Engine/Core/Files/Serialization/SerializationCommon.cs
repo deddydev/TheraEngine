@@ -109,12 +109,12 @@ namespace TheraEngine.Core.Files.Serialization
         {
             if (parentObject is null)
             {
-                Engine.LogWarning($"{parentObject} cannot be null.");
+                Engine.LogWarning($"{nameof(parentObject)} cannot be null.");
                 return null;
             }
             if (Member is null)
             {
-                Engine.LogWarning($"{Member} cannot be null.");
+                Engine.LogWarning($"{nameof(Member)} cannot be null.");
                 return null;
             }
             if (Member.MemberType.HasFlag(MemberTypes.Field))
@@ -122,7 +122,7 @@ namespace TheraEngine.Core.Files.Serialization
                 FieldInfo info = (FieldInfo)Member;
                 return info.GetValue(parentObject);
             }
-            else if (Member.MemberType.HasFlag(MemberTypes.Property))
+            if (Member.MemberType.HasFlag(MemberTypes.Property))
             {
                 PropertyInfo info = (PropertyInfo)Member;
                 if (info.CanRead)

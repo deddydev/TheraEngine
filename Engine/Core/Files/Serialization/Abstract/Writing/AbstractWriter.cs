@@ -40,7 +40,11 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     foreach (var kv in WritingSharedObjectIndices)
                         if (kv.Value <= 1)
+                        {
+                            //WritingSharedObjects[kv.Key].IsSharedObject = false;
                             WritingSharedObjects.Remove(kv.Key);
+                        }
+
                     WritingSharedObjectIndices.Clear();
                     int index = 0;
                     foreach (var shared in WritingSharedObjects)

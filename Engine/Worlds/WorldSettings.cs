@@ -150,14 +150,18 @@ namespace TheraEngine.Worlds
                     Maps_PostAnythingAdded(mapRef);
             }
         }
-
+        
         private void Maps_PostAnythingRemoved(LocalFileRef<Map> item)
         {
+            if (item == null)
+                return;
             item.UnregisterLoadEvent(MapLoaded);
             item.UnregisterUnloadEvent(MapUnloaded);
         }
         private void Maps_PostAnythingAdded(LocalFileRef<Map> item)
         {
+            if (item == null)
+                return;
             item.RegisterLoadEvent(MapLoaded);
             item.RegisterUnloadEvent(MapUnloaded);
         }

@@ -9,42 +9,84 @@ namespace TheraEngine.Core.Files.Serialization
     [ObjectSerializerFor(typeof(IDictionary))]
     public class DictionarySerializer : BaseObjectSerializer
     {
-        public override void DeserializeTreeToObject()
+        public IDictionary Dictionary { get; private set; }
+
+        public override async void DeserializeTreeToObject()
         {
             int keyValCount = TreeNode.ChildElements.Count;
             Type dicType = TreeNode.ObjectType;
 
-            IDictionary dic = Activator.CreateInstance(dicType) as IDictionary;
-            TreeNode.Object = dic;
+            Dictionary = Activator.CreateInstance(dicType) as IDictionary;
+            TreeNode.Object = Dictionary;
 
-            if (keyValCount > 0)
+            if (keyValCount <= 0)
+                return;
+
+            Type[] args = dicType.GetGenericArguments();
+            Type keyType = args[0];
+            Type valType = args[1];
+
+            for (int i = 0; i < keyValCount; ++i)
             {
-                var args = dicType.GetGenericArguments();
-                Type keyType = args[0];
-                Type valType = args[1];
+                if (i >= TreeNode.ChildElements.Count)
+                    break;
 
-                for (int i = 0; i < keyValCount; ++i)
+                SerializeElement keyValNode = TreeNode.ChildElements[i];
+                if (keyValNode.ChildElements.Count < 2)
+                    continue;
+
+                SerializeElement keyNode = keyValNode.ChildElements[0];
+                SerializeElement valNode = keyValNode.ChildElements[1];
+
+                keyNode.MemberInfo.MemberType = keyType;
+                bool keyObjSet = await keyNode.DeserializeTreeToObject();
+                //if (!keyObjSet)
                 {
-                    if (i >= TreeNode.ChildElements.Count)
-                        break;
-
-                    var keyValNode = TreeNode.ChildElements[i];
-                    if (keyValNode.ChildElements.Count < 2)
-                        continue;
-
-                    var keyNode = keyValNode.ChildElements[0];
-                    var valNode = keyValNode.ChildElements[1];
-
-                    keyNode.MemberInfo.MemberType = keyType;
-                    keyNode.DeserializeTreeToObject();
-
-                    valNode.MemberInfo.MemberType = valType;
-                    valNode.DeserializeTreeToObject();
-
-                    dic.Add(keyNode.Object, valNode.Object);
+                    keyNode.ObjectChanged += KeyNode_ObjectChanged;
                 }
+
+                valNode.MemberInfo.MemberType = valType;
+                bool valObjSet = await valNode.DeserializeTreeToObject();
+                //if (!valObjSet)
+                {
+                    valNode.ObjectChanged += ValNode_ObjectChanged;
+                }
+
+                if (keyObjSet && valObjSet)
+                    Dictionary.Add(keyNode.Object, valNode.Object);
             }
         }
+
+        private void ValNode_ObjectChanged(SerializeElement valNode, object prev)
+        {
+            SerializeElement keyNode = valNode.Parent.ChildElements[0];
+            //if (keyNode.Object == null)
+            //    return;
+
+            if (Dictionary.Contains(keyNode.Object))
+                Dictionary[keyNode.Object] = valNode.Object;
+            else
+                Dictionary.Add(keyNode.Object, valNode.Object);
+        }
+
+        private void KeyNode_ObjectChanged(SerializeElement keyNode, object prev)
+        {
+            if (Dictionary.Contains(prev))
+                Dictionary.Remove(prev);
+
+            //if (keyNode.Object == null)
+            //    return;
+            if (Dictionary.Contains(keyNode.Object))
+                return;
+
+            SerializeElement valNode = keyNode.Parent.ChildElements[0];
+
+            if (Dictionary.Contains(keyNode.Object))
+                Dictionary[keyNode.Object] = valNode.Object;
+            else
+                Dictionary.Add(keyNode.Object, valNode.Object);
+        }
+
         public override void SerializeTreeFromObject()
         {
             if (!(TreeNode.Object is IDictionary dic))

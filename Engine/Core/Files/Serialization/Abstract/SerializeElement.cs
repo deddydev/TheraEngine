@@ -10,8 +10,11 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
 {
+    public delegate void DelObjectChange(SerializeElement element, object previousObject);
     public sealed class SerializeElement
     {
+        public event DelObjectChange ObjectChanged;
+
         private BaseSerializer.BaseAbstractReaderWriter _owner;
         private object _object;
         private Type _desiredDerivedObjectType;
@@ -101,7 +104,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         public object DefaultObject { get; private set; }
         public object DefaultMemberObject { get; private set; }
-        public bool IsSharedObjectsElement { get; private set; }
+        //public bool IsSharedObject { get; internal set; }
 
         public Type DesiredDerivedObjectType
         {
@@ -127,7 +130,10 @@ namespace TheraEngine.Core.Files.Serialization
 
             Owner.WritingSharedObjectIndices.Remove(tobj.Guid);
             if (Owner.WritingSharedObjects.ContainsKey(tobj.Guid))
+            {
                 Owner.WritingSharedObjects.Remove(tobj.Guid);
+                //IsSharedObject = false;
+            }
         }
         private void LinkObjectGuidToOwner()
         {
@@ -140,7 +146,10 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Owner.WritingSharedObjectIndices.Add(tobj2.Guid, 1);
                 if (!Owner.WritingSharedObjects.ContainsKey(tobj2.Guid))
+                {
                     Owner.WritingSharedObjects.Add(tobj2.Guid, this);
+                    //IsSharedObject = true;
+                }
             }
         }
         
@@ -154,11 +163,14 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 Type oldObjType = ObjectType;
 
+                object oldValue = _object;
                 UnlinkObjectGuidFromOwner();
                 _object = value;
                 if (ObjectType != oldObjType)
                     ObjectTypeChanged();
                 LinkObjectGuidToOwner();
+
+                ObjectChanged?.Invoke(this, oldValue);
             }
         }
 
@@ -217,6 +229,7 @@ namespace TheraEngine.Core.Files.Serialization
                 DetermineDefaultObject();
             }
         }
+
         private bool _isRoot = false;
         
         public bool IsObjectDefault()
@@ -377,7 +390,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// If this node's MemberInfo is set, 
         /// this method also applies the deserialized object to the parent.
         /// </summary>
-        public async void DeserializeTreeToObject()
+        public async Task<bool> DeserializeTreeToObject()
         {
             DesiredDerivedObjectType = 
                 GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration) ? 
@@ -392,10 +405,12 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else
                 {
+                    //var sharedObjElems = Owner.SharedObjectsElement.ChildElements;
                     if (Owner.ReadingSharedObjectsSetQueue.ContainsKey(sharedObjectIndex))
                         Owner.ReadingSharedObjectsSetQueue[sharedObjectIndex].Add(this);
                     else
                         Owner.ReadingSharedObjectsSetQueue.Add(sharedObjectIndex, new List<SerializeElement>() { this });
+                    return false;
                 }
             }
             else
@@ -407,21 +422,20 @@ namespace TheraEngine.Core.Files.Serialization
                 if (!success)
                     success = TryInvokeManualDeserializeAsync();
 
-                if (success)
-                    return;
-
-                //Automatic deserialization
-                ObjectSerializer?.DeserializeTreeToObject();
-                ApplyObjectToParent();
+                if (!success)
+                {
+                    //Automatic deserialization
+                    ObjectSerializer?.DeserializeTreeToObject();
+                    ApplyObjectToParent();
+                }
             }
+
+            return true;
         }
         public async void SerializeTreeFromObject()
         {
             await FileObjectCheckAsync();
-
-            if (ObjectType != MemberInfo.MemberType || IsRoot)
-                AddAttribute(SerializationCommon.TypeIdent, ObjectType.AssemblyQualifiedName);
-
+            
             if (Object == null || IsObjectDefault())
                 return;
 
@@ -643,6 +657,8 @@ namespace TheraEngine.Core.Files.Serialization
             node.SetElementContent(elementObject);
             ChildElements.Add(node);
         }
+        public void InsertAttribute(int index, string name, object value)
+            => Attributes.Insert(index, new SerializeAttribute(name, value));
         public void AddAttribute(string name, object value)
             => Attributes.Add(new SerializeAttribute(name, value));
         public SerializeAttribute GetAttribute(string name) 

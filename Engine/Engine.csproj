@@ -215,7 +215,7 @@
       <HintPath>$(SolutionDir)Libraries\$(Platform)\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="CsvHelper, Version=12.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
-      <HintPath>..\packages\CsvHelper.12.1.1\lib\net45\CsvHelper.dll</HintPath>
+      <HintPath>..\packages\CsvHelper.12.1.2\lib\net45\CsvHelper.dll</HintPath>
     </Reference>
     <Reference Include="Enums.NET">
       <HintPath>..\Libraries\Enums.NET.2.2.0\Bin\Net45\Enums.NET.dll</HintPath>
@@ -262,8 +262,8 @@
     <Reference Include="NAudio.Flac, Version=1.0.5702.29018, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.Flac.1.0.5702.29018\lib\net45\NAudio.Flac.dll</HintPath>
     </Reference>
-    <Reference Include="NAudio.Lame, Version=1.0.5.22475, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NAudio.Lame.1.0.7\lib\net20\NAudio.Lame.dll</HintPath>
+    <Reference Include="NAudio.Lame, Version=1.0.9.26885, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.Lame.1.0.9\lib\net40\NAudio.Lame.dll</HintPath>
     </Reference>
     <Reference Include="NAudio.Vorbis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.Vorbis.1.0.0.0\lib\net35\NAudio.Vorbis.dll</HintPath>
@@ -1254,12 +1254,6 @@
     <EmbeddedResource Include="Engine\Textures\Property.svg" />
     <EmbeddedResource Include="Engine\Textures\skybox.jpg" />
     <EmbeddedResource Include="Engine\Textures\Warning.svg" />
-    <Content Include="libmp3lame.32.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="libmp3lame.64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="MIConvexHull.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -1298,5 +1292,7 @@ copy /Y "$(SolutionDir)Libraries\$(PlatformName)\Steamworks\CSteamworks.dll" "$(
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.11.0\build\NUnit.props'))" />
     <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.12.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.12.0\build\net35\NUnit3TestAdapter.props'))" />
+    <Error Condition="!Exists('..\packages\NAudio.Lame.1.0.9\build\NAudio.Lame.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NAudio.Lame.1.0.9\build\NAudio.Lame.targets'))" />
   </Target>
+  <Import Project="..\packages\NAudio.Lame.1.0.9\build\NAudio.Lame.targets" Condition="Exists('..\packages\NAudio.Lame.1.0.9\build\NAudio.Lame.targets')" />
 </Project>

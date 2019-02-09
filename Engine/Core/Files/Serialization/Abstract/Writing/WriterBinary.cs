@@ -163,8 +163,8 @@ namespace TheraEngine.Core.Files.Serialization
                 }
 
                 List<SerializeAttribute> attributes = node.Attributes;
-                List<SerializeElement> childElements = node.ChildElements;
-                bool hasElementContent = node.GetElementContent(null, out object elementContent);
+                List<SerializeElement> childElements = node.Children;
+                bool hasElementContent = node.Content.GetObject(null, out object elementContent);
 
                 foreach (SerializeAttribute attribute in attributes)
                 {
@@ -399,7 +399,7 @@ namespace TheraEngine.Core.Files.Serialization
                             WriteFileObjectManually(ref address, fobj, objType, node);
                         }
                         else
-                            foreach (SerializeElement childNode in node.ChildElements)
+                            foreach (SerializeElement childNode in node.Children)
                                 WriteObject(childNode, ref address);
                         
                         break;
@@ -452,9 +452,9 @@ namespace TheraEngine.Core.Files.Serialization
                     size += StringOffsetSize;
                 }
                 
-                if (node.ChildElements.Count > 0)
+                if (node.Children.Count > 0)
                 {
-                    foreach (SerializeElement childNode in node.ChildElements)
+                    foreach (SerializeElement childNode in node.Children)
                         size += GetSizeObject(childNode);
 
                     return size;

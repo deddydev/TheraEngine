@@ -9,34 +9,28 @@ namespace TheraEngine.Rendering.Models
     {
         [CustomMemberSerializeMethod(nameof(Triangles))]
         private void SerializeTriangles(SerializeElement node)
-        {
-            node.SetElementContent(_triangles?.SelectMany(x => x.Points.Select(y => y.VertexIndex)).ToArray());
-        }
+            => node.Content.SetValueAsObject(_triangles?.SelectMany(x => x.Points.Select(y => y.VertexIndex)).ToArray());
+        
         [CustomMemberSerializeMethod(nameof(Lines))]
         private void SerializeLines(SerializeElement node)
-        {
-            node.SetElementContent(_lines?.SelectMany(x => new[] { x.Point0.VertexIndex, x.Point1.VertexIndex }).ToArray());
-        }
+            => node.Content.SetValueAsObject(_lines?.SelectMany(x => new[] { x.Point0.VertexIndex, x.Point1.VertexIndex }).ToArray());
+        
         [CustomMemberSerializeMethod(nameof(Points))]
         private void SerializePoints(SerializeElement node)
-        {
-            node.SetElementContent(_points?.Select(x => x.VertexIndex).ToArray());
-        }
+            => node.Content.SetValueAsObject(_points?.Select(x => x.VertexIndex).ToArray());
+        
         [CustomMemberDeserializeMethod(nameof(Triangles))]
         private void DeserializeTriangles(SerializeElement node)
-        {
-            _triangles = node.GetElementContentAs(out int[] value) ? value.SelectEvery(3, x => new IndexTriangle(x[0], x[1], x[2])).ToList() : null;
-        }
+            => _triangles = node.Content.GetObjectAs(out int[] value) ? value.SelectEvery(3, x => new IndexTriangle(x[0], x[1], x[2])).ToList() : null;
+        
         [CustomMemberDeserializeMethod(nameof(Lines))]
         private void DeserializeLines(SerializeElement node)
-        {
-            _lines = node.GetElementContentAs(out int[] value) ? value.SelectEvery(2, x => new IndexLine(x[0], x[1])).ToList() : null;
-        }
+            => _lines = node.Content.GetObjectAs(out int[] value) ? value.SelectEvery(2, x => new IndexLine(x[0], x[1])).ToList() : null;
+        
         [CustomMemberDeserializeMethod(nameof(Points))]
         private void DeserializePoints(SerializeElement node)
-        {
-            _points = node.GetElementContentAs(out int[] value) ? value.Select(x => new IndexPoint(x)).ToList() : null;
-        }
+            => _points = node.Content.GetObjectAs(out int[] value) ? value.Select(x => new IndexPoint(x)).ToList() : null;
+        
         [CustomMemberSerializeMethod(nameof(FacePoints))]
         public void SerializeFacePoints(SerializeElement node)
         {
@@ -63,7 +57,7 @@ namespace TheraEngine.Rendering.Models
                         indices[x++] = i;
             }
             
-            node.SetElementContent(indices);
+            node.Content.SetValueAsObject(indices);
         }
         [CustomMemberDeserializeMethod(nameof(FacePoints))]
         private void DeserializeFacePoints(SerializeElement node)
@@ -73,23 +67,23 @@ namespace TheraEngine.Rendering.Models
 
             _facePoints = new List<FacePoint>(count);
 
+            if (!node.Content.GetObjectAs(out int[] indices))
+                return;
+
             bool hasInfs = _influences != null && _influences.Length > 0;
-
             int bufferCount = _buffers.Count;
-            if (node.GetElementContentAs(out int[] indices))
+
+            for (int i = 0, m = 0; i < count; ++i)
             {
-                for (int i = 0, m = 0; i < count; ++i)
-                {
-                    FacePoint p = new FacePoint(i, this);
+                FacePoint p = new FacePoint(i, this);
 
-                    if (hasInfs)
-                        p.InfluenceIndex = indices[m++];
+                if (hasInfs)
+                    p.InfluenceIndex = indices[m++];
 
-                    for (int r = 0; r < bufferCount; ++r)
-                        p.BufferIndices.Add(indices[m++]);
+                for (int r = 0; r < bufferCount; ++r)
+                    p.BufferIndices.Add(indices[m++]);
 
-                    _facePoints.Add(p);
-                }
+                _facePoints.Add(p);
             }
         }
         [CustomMemberSerializeMethod(nameof(Influences))]
@@ -120,13 +114,13 @@ namespace TheraEngine.Rendering.Models
                 }
             }
 
-            countsNode.SetElementContent(counts);
-            indicesNode.SetElementContent(indices.ToArray());
-            weightsNode.SetElementContent(weights.ToArray());
+            countsNode.Content.SetValueAsObject(counts);
+            indicesNode.Content.SetValueAsObject(indices.ToArray());
+            weightsNode.Content.SetValueAsObject(weights.ToArray());
 
-            node.ChildElements.Add(countsNode);
-            node.ChildElements.Add(indicesNode);
-            node.ChildElements.Add(weightsNode);
+            node.Children.Add(countsNode);
+            node.Children.Add(indicesNode);
+            node.Children.Add(weightsNode);
         }
         [CustomMemberDeserializeMethod(nameof(Influences))]
         public void CustomInfluencesDeserialize(SerializeElement node)
@@ -144,17 +138,17 @@ namespace TheraEngine.Rendering.Models
             SerializeElement weightsNode = node.GetChildElement("Weights");
 
             if (countsNode != null)
-                countsNode.GetElementContentAs(out boneCounts);
+                countsNode.Content.GetObjectAs(out boneCounts);
             else
                 return;
 
             if (indicesNode != null)
-                indicesNode.GetElementContentAs(out indices);
+                indicesNode.Content.GetObjectAs(out indices);
             else
                 return;
 
             if (weightsNode != null)
-                weightsNode.GetElementContentAs(out weights);
+                weightsNode.Content.GetObjectAs(out weights);
             else
                 return;
 

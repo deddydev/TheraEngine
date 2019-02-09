@@ -22,7 +22,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 //Engine.PrintLine($"Deserializing {TreeNode.ObjectType.GetFriendlyName()} {TreeNode.Name} as {nameof(ENodeType.ElementContent)}.");
 
-                bool success = TreeNode.GetElementContent(TreeNode.ObjectType, out object obj);
+                bool success = TreeNode.Content.GetObject(TreeNode.ObjectType, out object obj);
                 TreeNode.Object = success ? obj : null;
                 return;
             }
@@ -90,10 +90,10 @@ namespace TheraEngine.Core.Files.Serialization
                 }
                 else if (member.NodeType == ENodeType.ElementContent)
                 {
-                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, parentNode._elementContent);
+                    bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, parentNode.Content);
                     if (customInvoked)
                         return;
-                    if (parentNode.GetElementContent(member.MemberType, out object value))
+                    if (parentNode.Content.GetObject(member.MemberType, out object value))
                         member.SetObject(o, value);
                     else
                         Engine.LogWarning($"Unable to deserialize element {member.Name} content as {member.MemberType.GetFriendlyName()}.");
@@ -179,7 +179,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (members.Length == 0)
             {
                 if (ShouldWriteDefaultMembers || !TreeNode.IsObjectDefault())
-                    TreeNode.SetElementContent(TreeNode.Object);
+                    TreeNode.Content.SetValueAsObject(TreeNode.Object);
                 return;
             }
             
@@ -223,14 +223,14 @@ namespace TheraEngine.Core.Files.Serialization
                     case ENodeType.ChildElement:
                         {
                             SerializeElement element = new SerializeElement(null, member);
-                            parent.ChildElements.Add(element);
+                            parent.Children.Add(element);
 
                             bool manuallySerialized = await TryInvokeManualParentSerializeAsync(element.Name, TreeNode, element);
                             if (!manuallySerialized)
                             {
                                 element.Object = member.GetObject(TreeNode.Object);
                                 if (!ShouldWriteDefaultMembers && element.IsObjectDefault())
-                                    parent.ChildElements.RemoveAt(parent.ChildElements.Count - 1);
+                                    parent.Children.RemoveAt(parent.Children.Count - 1);
                                 else
                                     element.SerializeTreeFromObject();
                             }
@@ -249,7 +249,7 @@ namespace TheraEngine.Core.Files.Serialization
                                 ShouldWriteDefaultMembers ||
                                 !IsObjectDefault(resultMemberValue, TreeNode.DefaultObject == null ? null : member.GetObject(TreeNode.DefaultObject)))
                             {
-                                if (!parent.SetElementContent(resultMemberValue))
+                                if (!parent.Content.SetValueAsObject(resultMemberValue))
                                 {
                                     Engine.LogWarning("Unable to set element content.");
                                 }

@@ -98,8 +98,8 @@ namespace TheraEngine.Core.Files
             {
                 case EPathType.FileRelative:
                     {
-                        string dir = DirectoryPath;
-                        path = System.IO.Path.Combine(dir, path);
+                        string dir = System.IO.Path.GetDirectoryName(node.Parent.Owner.FilePath);
+                        path = dir + path;
                         break;
                     }
                 case EPathType.EngineRelative:
@@ -108,14 +108,14 @@ namespace TheraEngine.Core.Files
                         if (relPath.StartsWith("file:///"))
                             relPath = relPath.Substring(8);
                         string dir = System.IO.Path.GetDirectoryName(relPath);
-                        path = System.IO.Path.Combine(dir, path);
+                        path = dir + path;
                         break;
                     }
                 case EPathType.GameRelative:
                     {
                         string dir = Engine.Game?.DirectoryPath;
                         if (!string.IsNullOrWhiteSpace(dir))
-                            path = System.IO.Path.Combine(dir, path);
+                            path = dir + path;
                         break;
                     }
             }

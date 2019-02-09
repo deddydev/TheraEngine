@@ -96,7 +96,7 @@ namespace TheraEngine.Core.Files.Serialization
                             if (node != null)
                             {
                                 childNode = await ReadElementAsync();
-                                node.ChildElements.Add(childNode);
+                                node.Children.Add(childNode);
                             }
                             else
                             {
@@ -119,7 +119,7 @@ namespace TheraEngine.Core.Files.Serialization
                             break;
                         case XmlNodeType.Text:
                             value = await _reader.GetValueAsync();
-                            node?.SetElementContentAsString(value);
+                            node?.Content.SetValueAsString(value);
                             await _reader.ReadAsync();
                             break;
                         case XmlNodeType.EndElement:

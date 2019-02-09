@@ -287,7 +287,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 while (_updatingVisibleItems)
                 {
-                    if (Engine.CurrentFramesPerSecond > 30.0f)
+                    //if (Engine.CurrentFramesPerSecond > 30.0f)
                     {
                         Parallel.For(0, VisibleItems.Count, i =>
                         {

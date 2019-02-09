@@ -126,8 +126,8 @@ namespace TheraEngine.Core.Files.Serialization
                         node.InsertAttribute(0, SerializationCommon.TypeIdent, node.ObjectType.AssemblyQualifiedName);
 
                     List<SerializeAttribute> attributes = node.Attributes;
-                    List<SerializeElement> childElements = node.ChildElements;
-                    bool hasChildStringData = node.GetElementContentAsString(out string childStringData);
+                    List<SerializeElement> childElements = node.Children;
+                    bool hasChildStringData = node.Content.GetString(out string childStringData);
                     
                     foreach (SerializeAttribute attribute in attributes)
                     {

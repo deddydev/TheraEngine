@@ -571,14 +571,26 @@ namespace TheraEditor.Windows.Forms
         }
         public SceneComponent SelectedComponent { get; private set; }
 
-        public void SetSelectedComponent(bool selectedByViewport, SceneComponent comp)
+        public void SetSelectedComponent(bool selectedByViewport, SceneComponent comp, bool fromActorTree = false)
         {
             if (SelectedComponent == comp)
                 return;
-
+            
             PreSelectedComponentChanged(selectedByViewport);
             SelectedComponent = comp;
             PostSelectedComponentChanged(selectedByViewport);
+
+            if (!fromActorTree)
+            {
+                TreeNode t = SelectedComponent?.OwningActor?.EditorState?.TreeNode;
+                if (t == null)
+                    return;
+
+                if (t.TreeView.InvokeRequired)
+                    t.TreeView.BeginInvoke((Action) (() => t.TreeView.SelectedNode = t));
+                else
+                    t.TreeView.SelectedNode = t;
+            }
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {
@@ -655,14 +667,6 @@ namespace TheraEditor.Windows.Forms
                                 DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(DragComponent.WorldPoint) : DraggingTestDistance;
                             }
                         }
-                    }
-                    TreeNode t = SelectedComponent.OwningActor.EditorState.TreeNode;
-                    if (t != null)
-                    {
-                        if (t.TreeView.InvokeRequired)
-                            t.TreeView.BeginInvoke((Action)(() => t.TreeView.SelectedNode = t));
-                        else
-                            t.TreeView.SelectedNode = t;
                     }
                 }
             }

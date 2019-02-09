@@ -375,7 +375,7 @@ namespace TheraEngine.Animation
 
                 ResetKeys();
 
-                foreach (SerializeElement targetTrackElement in node.ChildElements)
+                foreach (SerializeElement targetTrackElement in node.Children)
                 {
                     int trackIndex = TrackNames.IndexOf(targetTrackElement.Name.ToString());
                     if (!_tracks.IndexInRange(trackIndex))
@@ -387,14 +387,14 @@ namespace TheraEngine.Animation
                         float[] seconds = null, inValues = null, outValues = null, inTans = null, outTans = null;
                         EVectorInterpType[] interpolation = null;
 
-                        foreach (SerializeElement keyframePartElement in targetTrackElement.ChildElements)
+                        foreach (SerializeElement keyframePartElement in targetTrackElement.Children)
                         {
                             if (keyframePartElement.MemberInfo.Name == "Interpolation" && 
-                                keyframePartElement.GetElementContentAs(out EVectorInterpType[] array1))
+                                keyframePartElement.Content.GetObjectAs(out EVectorInterpType[] array1))
                             {
                                 interpolation = array1;
                             }
-                            else if (keyframePartElement.GetElementContentAs(out float[] array2))
+                            else if (keyframePartElement.Content.GetObjectAs(out float[] array2))
                             {
                                 switch (keyframePartElement.Name)
                                 {
@@ -445,7 +445,7 @@ namespace TheraEngine.Animation
                     trackElement.AddChildElementObject("InTangents", track.Select(x => x.InTangent).ToArray());
                     trackElement.AddChildElementObject("OutTangents", track.Select(x => x.OutTangent).ToArray());
                     trackElement.AddChildElementObject("Interpolation", track.Select(x => x.InterpolationType).ToArray());
-                    node.ChildElements.Add(trackElement);
+                    node.Children.Add(trackElement);
                 }
             }
         }

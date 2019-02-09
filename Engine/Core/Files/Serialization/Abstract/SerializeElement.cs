@@ -20,32 +20,10 @@ namespace TheraEngine.Core.Files.Serialization
         private Type _desiredDerivedObjectType;
         private TSerializeMemberInfo _memberInfo;
 
-        public List<SerializeAttribute> Attributes { get; } = new List<SerializeAttribute>();
-        public EventList<SerializeElement> ChildElements { get; }
-        internal SerializeElementContent _elementContent = new SerializeElementContent();
-
-        public bool IsElementContentNonStringObject => _elementContent.IsNonStringObject;
-        public bool IsElementContentUnparsedString => _elementContent.IsUnparsedString;
-
-        //public bool ParseElementContentStringToObject(Type type)
-        //    => _elementContent.ParseStringToObject(type);
-        public bool GetElementContent(Type expectedType, out object value)
-            => _elementContent.GetObject(expectedType, out value);
-        public bool GetElementContentAs<T>(out T value)
-            => _elementContent.GetObjectAs(out value);
-        public bool GetElementContentAsString(out string value)
-            => _elementContent.GetString(out value);
-        /// <summary>
-        /// Attempts to set the element content as an object.
-        /// If unable to serialize the object as a string, returns false.
-        /// </summary>
-        public bool SetElementContent(object obj)
-            => _elementContent.SetValueAsObject(obj);
-        internal void SetElementContentAsString(string str)
-            => _elementContent.SetValueAsString(str);
-        internal bool SetElementContentAsString(string str, Type type)
-            => _elementContent.SetValueAsString(str, type);
-
+        public EventList<SerializeAttribute> Attributes { get; }
+        public EventList<SerializeElement> Children { get; }
+        public SerializeElementContent Content { get; }
+        
         private SerializeElement _parent;
         public SerializeElement Parent
         {
@@ -68,7 +46,8 @@ namespace TheraEngine.Core.Files.Serialization
                     ObjectTypeChanged();
                     LinkObjectGuidToOwner();
                 }
-                foreach (var child in ChildElements)
+                
+                foreach (var child in Children)
                     child.Owner = _owner;
             }
         }
@@ -181,7 +160,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// How many checkpoints need to be hit for this node and all child nodes to advance the progression handler.
         /// </summary>
-        public int ProgressionCount => 1 + Attributes.Count + ChildElements.Count + (_elementContent.IsNotNull ? 1 : 0);
+        public int ProgressionCount => 1 + Attributes.Count + Children.Count + (Content.IsNotNull ? 1 : 0);
         /// <summary>
         /// The type of the object assigned to this member.
         /// </summary>
@@ -235,36 +214,49 @@ namespace TheraEngine.Core.Files.Serialization
         public bool IsObjectDefault()
             => CommonObjectSerializer.IsObjectDefault(Object, DefaultMemberObject);
         
-        public SerializeElement()
-        {
-            Parent = null;
-            MemberInfo = null;
-            Object = null;
-            ChildElements = new EventList<SerializeElement>();
-            ChildElements.PostAnythingAdded += ChildElements_PostAnythingAdded;
-            ChildElements.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
-        }
+        public SerializeElement() : this(null, null) { }
         public SerializeElement(string name) : this(null, new TSerializeMemberInfo(null, name)) { }
         public SerializeElement(object obj, TSerializeMemberInfo memberInfo)
         {
             Parent = null;
             MemberInfo = memberInfo;
             Object = obj;
-            ChildElements = new EventList<SerializeElement>();
-            ChildElements.PostAnythingAdded += ChildElements_PostAnythingAdded;
-            ChildElements.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
+
+            Children = new EventList<SerializeElement>();
+            Children.PostAnythingAdded += ChildElements_PostAnythingAdded;
+            Children.PostAnythingRemoved += ChildElements_PostAnythingRemoved;
+
+            Attributes = new EventList<SerializeAttribute>();
+            Attributes.PostAnythingAdded += Attributes_PostAnythingAdded;
+            Attributes.PostAnythingRemoved += Attributes_PostAnythingRemoved;
+
+            Content = new SerializeElementContent { Parent = this };
+        }
+
+        private void Attributes_PostAnythingRemoved(SerializeAttribute item)
+        {
+            if (item?.Parent == this)
+                item.Parent = null;
+        }
+        private void Attributes_PostAnythingAdded(SerializeAttribute item)
+        {
+            if (item != null)
+                item.Parent = this;
         }
         private void ChildElements_PostAnythingRemoved(SerializeElement item)
         {
-            if (item.Parent == this)
+            if (item?.Parent == this)
                 item.Parent = null;
         }
         private void ChildElements_PostAnythingAdded(SerializeElement item)
         {
-            item.Parent?.ChildElements?.Remove(item);
+            if (item == null)
+                return;
+            item.Parent?.Children?.Remove(item);
             item.Owner = Owner;
             item.Parent = this;
         }
+
         /// <summary>
         /// Parent deserializes this node
         /// </summary>
@@ -400,7 +392,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 if (Owner.ReadingSharedObjectsList.IndexInRange(sharedObjectIndex))
                 {
-                    Object = Owner.ReadingSharedObjectsList[sharedObjectIndex];
+                    Object = Owner.ReadingSharedObjectsList[sharedObjectIndex].Object;
                     ApplyObjectToParent();
                 }
                 else
@@ -473,7 +465,7 @@ namespace TheraEngine.Core.Files.Serialization
                     BindingFlags.NonPublic |
                     BindingFlags.Instance |
                     BindingFlags.Public |
-                    BindingFlags.FlattenHierarchy);
+                    BindingFlags.FlattenHierarchy).Where(x => x.GetCustomAttribute<SerializationAttribute>() != null);
                 foreach (MethodInfo m in methods)
                 {
                     IEnumerable<Attribute> attribs = m.GetCustomAttributes();
@@ -654,8 +646,8 @@ namespace TheraEngine.Core.Files.Serialization
         public void AddChildElementObject(string elementName, object elementObject)
         {
             SerializeElement node = new SerializeElement(null, new TSerializeMemberInfo(null, elementName));
-            node.SetElementContent(elementObject);
-            ChildElements.Add(node);
+            node.Content.SetValueAsObject(elementObject);
+            Children.Add(node);
         }
         public void InsertAttribute(int index, string name, object value)
             => Attributes.Insert(index, new SerializeAttribute(name, value));
@@ -694,17 +686,17 @@ namespace TheraEngine.Core.Files.Serialization
             return false;
         }
         public SerializeElement GetChildElement(string name)
-            => ChildElements.FirstOrDefault(x => string.Equals(x.MemberInfo.Name, name));
+            => Children.FirstOrDefault(x => string.Equals(x.MemberInfo.Name, name));
         public override string ToString() => MemberInfo.Name;
         public bool GetChildElementObject<T>(string elementName, out T value)
         {
             SerializeElement node = GetChildElement(elementName);
-            if (node == null)
-            {
-                value = default;
-                return false;
-            }
-            return node.GetElementContentAs(out value);
+
+            if (node != null)
+                return node.Content.GetObjectAs(out value);
+
+            value = default;
+            return false;
         }
     }
 }

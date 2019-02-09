@@ -17,9 +17,9 @@ namespace TheraEngine.Core.Files.Serialization
         {
             Type arrayType = TreeNode.ObjectType;
 
-            if (!TreeNode.GetElementContent(arrayType, out object array))
+            if (!TreeNode.Content.GetObject(arrayType, out object array))
             {
-                int count = TreeNode.ChildElements.Count;
+                int count = TreeNode.Children.Count;
                 
                 if (arrayType.IsArray)
                     List = Activator.CreateInstance(arrayType, count) as IList;
@@ -29,7 +29,7 @@ namespace TheraEngine.Core.Files.Serialization
                 Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
                 for (int i = 0; i < count; ++i)
                 {
-                    SerializeElement node = TreeNode.ChildElements[i];
+                    SerializeElement node = TreeNode.Children[i];
                     node.MemberInfo.MemberType = elementType;
                     bool objSet = await node.DeserializeTreeToObject();
                     node.ObjectChanged += Node_ObjectChanged;
@@ -48,7 +48,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         private void Node_ObjectChanged(SerializeElement element, object previousObject)
         {
-            int index = element.Parent.ChildElements.IndexOf(element);
+            int index = element.Parent.Children.IndexOf(element);
             List[index] = element.Object;
         }
 
@@ -57,7 +57,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (!(TreeNode.Object is IList list))
                 return;
 
-            if (TreeNode.SetElementContent(list))
+            if (TreeNode.Content.SetValueAsObject(list))
                 return;
 
             Type elemType = list.DetermineElementType();
@@ -67,7 +67,7 @@ namespace TheraEngine.Core.Files.Serialization
                 //Even default members must be written so the actual array count and indices all match up
                 //if (ShouldWriteDefaultMembers || !element.IsObjectDefault())
                 //{
-                    TreeNode.ChildElements.Add(element);
+                    TreeNode.Children.Add(element);
                     element.SerializeTreeFromObject();
                 //}
             }

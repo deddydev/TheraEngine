@@ -98,10 +98,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (_targetObject != null)
             {
+                bool visible = pnlProps.Visible;
+                pnlProps.Visible = false;
                 pnlProps.Controls.Clear();
                 foreach (var category in _categories.Values)
                     category.DestroyProperties();
                 _categories.Clear();
+                pnlProps.Visible = visible;
             }
 
             _targetObject = value;

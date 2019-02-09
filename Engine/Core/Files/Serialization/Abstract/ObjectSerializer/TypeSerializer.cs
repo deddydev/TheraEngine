@@ -11,7 +11,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             Type type = TreeNode.ObjectType;
 
-            if (TreeNode.GetElementContent(type, out object literalType))
+            if (TreeNode.Content.GetObject(type, out object literalType))
                 TreeNode.Object = literalType;
             else
                 Engine.LogWarning($"Element {TreeNode.Name} cannot be parsed as {type.GetFriendlyName()}");
@@ -21,7 +21,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (!(TreeNode.Object is Type type))
                 return;
 
-            if (!TreeNode.SetElementContent(type))
+            if (!TreeNode.Content.SetValueAsObject(type))
                 Engine.LogWarning($"{type.GetFriendlyName()} cannot be written as a string.");
         }
         #endregion

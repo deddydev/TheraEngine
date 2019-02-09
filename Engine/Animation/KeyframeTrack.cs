@@ -485,16 +485,16 @@ namespace TheraEngine.Animation
             EVectorInterpType[] interpTypes = new EVectorInterpType[keyCount];
             
             //Read all keyframe information, split into separate element arrays
-            foreach (SerializeElement element in node.ChildElements)
+            foreach (SerializeElement element in node.Children)
             {
                 switch (element.Name)
                 {
-                    case "Seconds": element.GetElementContentAs(out seconds); break;
-                    case "InValues": element.GetElementContent(arrayType, out inValues); break;
-                    case "OutValues": element.GetElementContent(arrayType, out outValues); break;
-                    case "InTangents": element.GetElementContent(arrayType, out inTans); break;
-                    case "OutTangents": element.GetElementContent(arrayType, out outTans); break;
-                    case "InterpTypes": element.GetElementContentAs(out interpTypes); break;
+                    case "Seconds": element.Content.GetObjectAs(out seconds); break;
+                    case "InValues": element.Content.GetObject(arrayType, out inValues); break;
+                    case "OutValues": element.Content.GetObject(arrayType, out outValues); break;
+                    case "InTangents": element.Content.GetObject(arrayType, out inTans); break;
+                    case "OutTangents": element.Content.GetObject(arrayType, out outTans); break;
+                    case "InterpTypes": element.Content.GetObjectAs(out interpTypes); break;
                 }
             }
 

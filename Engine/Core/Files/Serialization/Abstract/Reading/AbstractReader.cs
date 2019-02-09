@@ -29,7 +29,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 SerializeElement sharedObjectsElem = RootNode.GetChildElement("SharedObjects");
                 if (sharedObjectsElem != null)
-                    foreach (SerializeElement sharedObjectElem in sharedObjectsElem.ChildElements)
+                    foreach (SerializeElement sharedObjectElem in sharedObjectsElem.Children)
                     {
                         await sharedObjectElem.DeserializeTreeToObject();
 

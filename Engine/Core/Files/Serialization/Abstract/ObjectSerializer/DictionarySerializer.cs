@@ -13,7 +13,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         public override async void DeserializeTreeToObject()
         {
-            int keyValCount = TreeNode.ChildElements.Count;
+            int keyValCount = TreeNode.Children.Count;
             Type dicType = TreeNode.ObjectType;
 
             Dictionary = Activator.CreateInstance(dicType) as IDictionary;
@@ -28,15 +28,15 @@ namespace TheraEngine.Core.Files.Serialization
 
             for (int i = 0; i < keyValCount; ++i)
             {
-                if (i >= TreeNode.ChildElements.Count)
+                if (i >= TreeNode.Children.Count)
                     break;
 
-                SerializeElement keyValNode = TreeNode.ChildElements[i];
-                if (keyValNode.ChildElements.Count < 2)
+                SerializeElement keyValNode = TreeNode.Children[i];
+                if (keyValNode.Children.Count < 2)
                     continue;
 
-                SerializeElement keyNode = keyValNode.ChildElements[0];
-                SerializeElement valNode = keyValNode.ChildElements[1];
+                SerializeElement keyNode = keyValNode.Children[0];
+                SerializeElement valNode = keyValNode.Children[1];
 
                 keyNode.MemberInfo.MemberType = keyType;
                 bool keyObjSet = await keyNode.DeserializeTreeToObject();
@@ -59,7 +59,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         private void ValNode_ObjectChanged(SerializeElement valNode, object prev)
         {
-            SerializeElement keyNode = valNode.Parent.ChildElements[0];
+            SerializeElement keyNode = valNode.Parent.Children[0];
             //if (keyNode.Object == null)
             //    return;
 
@@ -79,7 +79,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (Dictionary.Contains(keyNode.Object))
                 return;
 
-            SerializeElement valNode = keyNode.Parent.ChildElements[0];
+            SerializeElement valNode = keyNode.Parent.Children[0];
 
             if (Dictionary.Contains(keyNode.Object))
                 Dictionary[keyNode.Object] = valNode.Object;
@@ -107,15 +107,15 @@ namespace TheraEngine.Core.Files.Serialization
             for (int i = 0; i < keyNodes.Length; ++i)
             {
                 SerializeElement pairNode = new SerializeElement(null, new TSerializeMemberInfo(null, "KV" + i));
-                TreeNode.ChildElements.Add(pairNode);
+                TreeNode.Children.Add(pairNode);
 
                 SerializeElement keyNode = keyNodes[i];
                 SerializeElement valNode = valNodes[i];
 
-                pairNode.ChildElements.Add(keyNode);
+                pairNode.Children.Add(keyNode);
                 keyNode.SerializeTreeFromObject();
 
-                pairNode.ChildElements.Add(valNode);
+                pairNode.Children.Add(valNode);
                 valNode.SerializeTreeFromObject();
             }
         }

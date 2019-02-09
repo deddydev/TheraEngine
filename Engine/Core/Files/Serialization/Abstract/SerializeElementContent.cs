@@ -7,6 +7,8 @@ namespace TheraEngine.Core.Files.Serialization
         public SerializeElementContent() { }
         public SerializeElementContent(object value) => SetValueAsObject(value);
         
+        public SerializeElement Parent { get; internal set; }
+
         private object _value;
         private string _stringValue;
         private Type _valueType;
@@ -31,6 +33,7 @@ namespace TheraEngine.Core.Files.Serialization
             
             return !IsNonStringObject;
         }
+
         public void SetValueAsString(string o)
         {
             _stringValue = o;

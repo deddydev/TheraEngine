@@ -25,9 +25,14 @@ namespace TheraEditor.Windows.Forms
         {
             if (!Editor.Instance.PropertyGridFormActive)
                 return;
+
+            EditorHud hud = null;
+            if (Engine.LocalPlayers.Count > 0)
+                hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
             
             if (ActorTree.SelectedNode == null)
             {
+                hud?.SetSelectedComponent(false, null, true);
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
             }
             else switch (e.Node.Tag)
@@ -35,30 +40,19 @@ namespace TheraEditor.Windows.Forms
                 case IActor actor:
                 {
                     actor.EditorState.Selected = true;
+                    hud?.SetSelectedComponent(false, actor.RootComponent, true);
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = actor;
-
-                    if (Engine.LocalPlayers.Count > 0)
-                    {
-                        EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
-                        hud?.SetSelectedComponent(false, actor.RootComponent);
-                    }
-
                     break;
                 }
                 case Component component:
                 {
                     component.EditorState.Selected = true;
+                    hud?.SetSelectedComponent(false, component as SceneComponent, true);
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = component;
-
-                    if (component is SceneComponent sceneComp && Engine.LocalPlayers.Count > 0)
-                    {
-                        EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
-                        hud?.SetSelectedComponent(false, sceneComp);
-                    }
-
                     break;
                 }
                 case Map map:
+                    hud?.SetSelectedComponent(false, null, true);
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = map;
                     break;
             }

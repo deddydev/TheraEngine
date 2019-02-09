@@ -552,7 +552,7 @@ namespace TheraEngine.Physics.Bullet
 
                         break;
                 }
-                node.ChildElements.Add(shapeNode);
+                node.Children.Add(shapeNode);
             }
 
             //RigidBody properties
@@ -565,7 +565,7 @@ namespace TheraEngine.Physics.Bullet
             constrNode.AddChildElementObject("Restitution", Restitution);
             constrNode.AddChildElementObject("RollingFriction", RollingFriction);
             constrNode.AddChildElementObject("LinearSleepingThreshold", LinearSleepingThreshold);
-            node.ChildElements.Add(constrNode);
+            node.Children.Add(constrNode);
 
             //CollisionObject properties
             SerializeElement collNode = new SerializeElement() { Name = "CollisionObject" };
@@ -580,7 +580,7 @@ namespace TheraEngine.Physics.Bullet
             collNode.AddChildElementObject("CollisionGroup", CollisionGroup);
             //collNode.AddChildElementObject("AabbMin", AabbMin);
             //collNode.AddChildElementObject("AabbMax", AabbMax);
-            node.ChildElements.Add(collNode);
+            node.Children.Add(collNode);
 
             //writer.WriteElementString("AdditionalDamping", AdditionalDamping.ToString());
             //writer.WriteElementString("AdditionalDampingFactor", AdditionalDampingFactor.ToString());
@@ -651,44 +651,44 @@ namespace TheraEngine.Physics.Bullet
             if (!useMotionState)
                 Body.WorldTransform = worldTransform;
 
-            foreach (var childElement in childTreeElement.ChildElements)
+            foreach (var childElement in childTreeElement.Children)
             {
                 switch (childElement.Name)
                 {
                     case "CollisionFlags":
-                        hasValue = childElement.GetElementContentAs(out CollisionFlags collFlags);
+                        hasValue = childElement.Content.GetObjectAs(out CollisionFlags collFlags);
                         Body.CollisionFlags = hasValue ? collFlags : CollisionFlags.None;
                         break;
                     case "ActivationState":
-                        hasValue = childElement.GetElementContentAs(out EBodyActivationState activationState);
+                        hasValue = childElement.Content.GetObjectAs(out EBodyActivationState activationState);
                         ActivationState = hasValue ? activationState : EBodyActivationState.DisableSimulation;
                         break;
                     case "DeactivationTime":
-                        hasValue = childElement.GetElementContentAs(out value);
+                        hasValue = childElement.Content.GetObjectAs(out value);
                         Body.DeactivationTime = hasValue ? value : 0.0f;
                         break;
                     case "ContactProcessingThreshold":
-                        hasValue = childElement.GetElementContentAs(out value);
+                        hasValue = childElement.Content.GetObjectAs(out value);
                         Body.ContactProcessingThreshold = hasValue ? value : 0.0f;
                         break;
                     case "CcdMotionThreshold":
-                        hasValue = childElement.GetElementContentAs(out value);
+                        hasValue = childElement.Content.GetObjectAs(out value);
                         Body.CcdMotionThreshold = hasValue ? value : 0.0f;
                         break;
                     case "CcdSweptSphereRadius":
-                        hasValue = childElement.GetElementContentAs(out value);
+                        hasValue = childElement.Content.GetObjectAs(out value);
                         Body.CcdSweptSphereRadius = hasValue ? value : 0.0f;
                         break;
                     case "AnisotropicFriction":
-                        hasValue = childElement.GetElementContentAs(out Vec3 anisoFric);
+                        hasValue = childElement.Content.GetObjectAs(out Vec3 anisoFric);
                         Body.AnisotropicFriction = hasValue ? anisoFric : Vec3.Zero;
                         break;
                     case "CollidesWith":
-                        hasValue = childElement.GetElementContentAs(out ushort collWith);
+                        hasValue = childElement.Content.GetObjectAs(out ushort collWith);
                         CollidesWith = hasValue ? collWith : (ushort)0;
                         break;
                     case "CollisionGroup":
-                        hasValue = childElement.GetElementContentAs(out ushort collGrp);
+                        hasValue = childElement.Content.GetObjectAs(out ushort collGrp);
                         CollisionGroup = hasValue ? collGrp : (ushort)0;
                         break;
                 }
@@ -703,40 +703,40 @@ namespace TheraEngine.Physics.Bullet
             float value;
             bool hasValue;
 
-            foreach (var childElement2 in childElement.ChildElements)
+            foreach (SerializeElement childElement2 in childElement.Children)
             {
                 switch (childElement2.Name)
                 {
                     case "AngularDamping":
-                        hasValue = childElement2.GetElementContentAs(out value);
+                        hasValue = childElement2.Content.GetObjectAs(out value);
                         rbc.AngularDamping = hasValue ? value : 0.0f;
                         break;
                     case "AngularSleepingThreshold":
-                        hasValue = childElement2.GetElementContentAs(out value);
+                        hasValue = childElement2.Content.GetObjectAs(out value);
                         rbc.AngularSleepingThreshold = hasValue ? value : 0.0f;
                         break;
                     case "Friction":
-                        hasValue = childElement2.GetElementContentAs(out value);
+                        hasValue = childElement2.Content.GetObjectAs(out value);
                         rbc.Friction = hasValue ? value : 0.0f;
                         break;
                     case "LinearDamping":
-                        hasValue = childElement2.GetElementContentAs(out value);
+                        hasValue = childElement2.Content.GetObjectAs(out value);
                         rbc.LinearDamping = hasValue ? value : 0.0f;
                         break;
                     case "LocalInertia":
-                        hasValue = childElement2.GetElementContentAs(out Vec3 vec3Value);
+                        hasValue = childElement2.Content.GetObjectAs(out Vec3 vec3Value);
                         rbc.LocalInertia = hasValue ? vec3Value : Vec3.Zero;
                         break;
                     case "Restitution":
-                        hasValue = childElement2.GetElementContentAs(out value);
+                        hasValue = childElement2.Content.GetObjectAs(out value);
                         rbc.Restitution = hasValue ? value : 0.0f;
                         break;
                     case "RollingFriction":
-                        hasValue = childElement2.GetElementContentAs(out value);
+                        hasValue = childElement2.Content.GetObjectAs(out value);
                         rbc.RollingFriction = hasValue ? value : 0.0f;
                         break;
                     case "LinearSleepingThreshold":
-                        hasValue = childElement2.GetElementContentAs(out value);
+                        hasValue = childElement2.Content.GetObjectAs(out value);
                         rbc.LinearSleepingThreshold = hasValue ? value : 0.0f;
                         break;
                 }

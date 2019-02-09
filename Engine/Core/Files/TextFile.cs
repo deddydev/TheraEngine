@@ -80,7 +80,11 @@ namespace TheraEngine.Core.Files
         {
             _text = null;
             if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
-                _text = File.ReadAllText(FilePath, Encoding = GetEncoding(FilePath));
+            {
+                Encoding = GetEncoding(FilePath);
+                _text = File.ReadAllText(FilePath, Encoding);
+            }
+
             return _text;
         }
         public void UnloadText()

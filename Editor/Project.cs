@@ -360,7 +360,7 @@ namespace TheraEditor
 
         //TODO: only have user program in library,
         //generate EXE on full project build to run game as standalone.
-        public void GenerateProgramCS()
+        public void GenerateProgramDotCs()
         {
             //0 = game name
             //1 = game class name
@@ -377,43 +377,46 @@ namespace TheraEditor
                 Name,
                 nameof(TGame),
                 nameof(TFileObject),
-                nameof(TFileObject.LoadAsync),
+                nameof(LoadAsync),
                 nameof(Engine),
                 nameof(Engine.Run),
                 ext,
                 RootNamespace);
+
             File.WriteAllText(SourceDirectory + "Program.cs", progCs.Replace('@', '{').Replace('#', '}'));
         }
 
-        public async void GenerateSolution(bool forceRegenerateProgramCS = false)
+        public async void GenerateSolution(bool forceRegenerateProgramDotCs = false)
         {
             Process[] devenv = Process.GetProcessesByName("DevEnv");
             FileVersionInfo info = null;
-            if (devenv != null && devenv.Length > 0)
+            if (devenv.Length > 0)
             {
                 Process devp = devenv[0];
-                if (devp.Modules != null && devp.Modules.Count > 0)
+                if (devp.Modules.Count > 0)
                     info = devp.Modules[0].FileVersionInfo;
             }
+
             string ver = info?.ProductVersion ?? "15.7";
             int majorVer = info?.FileMajorPart ?? 15;
             int minorVer = info?.FileMinorPart ?? 7;
+
             string solutionGuid = Guid.ToString("B").ToUpperInvariant();
             string projectGuid = _projectGuid.ToString("B").ToUpperInvariant();
 
-            if (forceRegenerateProgramCS || !File.Exists(SourceDirectory + "Program.cs"))
-                GenerateProgramCS();
+            //if (forceRegenerateProgramDotCs || !File.Exists(SourceDirectory + "Program.cs"))
+            //    GenerateProgramDotCs();
 
             #region csproj
             string csprojPath = Path.Combine(DirectoryPath, Name + ".csproj");
             MSBuild.Project p = new MSBuild.Project
             {
-                ToolsVersion = majorVer.ToString() + "." + minorVer.ToString(),
+                ToolsVersion = majorVer + "." + minorVer,
                 DefaultTargets = "Build",
                 Schema = "http://schemas.microsoft.com/developer/msbuild/2003"
             };
 
-            var import = new Import(
+            Import import = new Import(
                 "$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props",
                 "Exists('$(MSBuildExtensionsPath)\\$(MSBuildToolsVersion)\\Microsoft.Common.props')");
 
@@ -422,11 +425,11 @@ namespace TheraEditor
             const string defaultPlatform = "x64";
             const string appPropertiesFolder = "Properties"; //Relative to the csproj
 
-            var mainInfo = PropertyGroup.Create(null,
+            PropertyGroup mainInfo = PropertyGroup.Create(null,
                 ("Configuration", defaultConfig, " '$(Configuration)' == '' "),
                 ("Platform", defaultPlatform, " '$(Configuration)' == '' "),
                 ("ProjectGuid", Guid.ToString("B").ToUpperInvariant(), null),
-                ("OutputType", "WinExe", null),
+                ("OutputType", "Library", null), //("OutputType", "WinExe", null),
                 ("AppDesignerFolder", appPropertiesFolder, null),
                 ("RootNamespace", RootNamespace, null),
                 ("AssemblyName", Name, null),
@@ -453,10 +456,10 @@ namespace TheraEditor
                     ("LangVersion", "latest", null));
             }
 
-            var debugx86 = CreateConfigPropGrp(true, true, true);
-            var debugx64 = CreateConfigPropGrp(true, false, true);
-            var releasex86 = CreateConfigPropGrp(false, true, true);
-            var releasex64 = CreateConfigPropGrp(false, false, true);
+            PropertyGroup debugx86 = CreateConfigPropGrp(true, true, true);
+            PropertyGroup debugx64 = CreateConfigPropGrp(true, false, true);
+            PropertyGroup releasex86 = CreateConfigPropGrp(false, true, true);
+            PropertyGroup releasex64 = CreateConfigPropGrp(false, false, true);
 
             CollectFiles(
                 out List<string> codeFiles,
@@ -466,7 +469,7 @@ namespace TheraEditor
             ItemGroup refGrp = new ItemGroup();
             foreach (string nsRef in usingNamespaces)
             {
-                int end = nsRef.IndexOf(".");
+                int end = nsRef.IndexOf(".", StringComparison.InvariantCulture);
                 string root = end > 0 ? nsRef.Substring(0, end) : nsRef;
                 if (string.Equals(root, "System", StringComparison.InvariantCulture))
                 {
@@ -545,7 +548,7 @@ namespace TheraEditor
                 beforeBuild,
                 afterBuild);
 
-            var def = new XMLSchemeDefinition<MSBuild.Project>();
+            XMLSchemeDefinition<MSBuild.Project> def = new XMLSchemeDefinition<MSBuild.Project>();
             int op = Editor.Instance.BeginOperation("Exporting csproj...", out Progress<float> progress, out CancellationTokenSource cancel);
             await def.ExportAsync(csprojPath, p, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
@@ -612,7 +615,7 @@ namespace TheraEditor
                 { "Configuration",  buildConfiguration  },
                 { "Platform",       buildPlatform       },
             };
-            BuildRequestData request = new BuildRequestData(SolutionPath, props, null, new string[] { "Build" }, null);
+            BuildRequestData request = new BuildRequestData(SolutionPath, props, null, new[] { "Build" }, null);
             EngineLogger logger = new EngineLogger();
             BuildParameters buildParams = new BuildParameters(pc)
             {
@@ -621,7 +624,7 @@ namespace TheraEditor
             BuildResult result = BuildManager.DefaultBuildManager.Build(buildParams, request);
             if (result.OverallResult == BuildResultCode.Success)
             {
-                var buildItems = result.ResultsByTarget["Build"].Items;
+                ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
                 AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
 
                 CreateGameDomain(true);
@@ -632,6 +635,7 @@ namespace TheraEditor
             else
             {
                 PrintLine(SolutionPath + " : Build failed.");
+
                 if (Editor.Instance.InvokeRequired)
                     Editor.Instance.Invoke((Action<EngineLogger>)ShowErrorForm, logger);
                 else

@@ -8,25 +8,19 @@ namespace TheraEditor
     {
         protected override void HandleLocalPlayerJoined(EditorPlayerController item)
         {
-            if (Editor.ActiveRenderForm is DockableWorldRenderForm form)
-            {
-                if (item.LocalPlayerIndex != form.PlayerIndex)
-                    return;
+            if (!(Editor.ActiveRenderForm is DockableWorldRenderForm form) || item.LocalPlayerIndex != form.PlayerIndex)
+                return;
 
-                form.RenderPanel.GetOrAddViewport(0).RegisterController(item);
-                item.ControlledPawn = form.EditorPawn;
-            }
+            form.RenderPanel.GetOrAddViewport(0).RegisterController(item);
+            item.ControlledPawn = form.EditorPawn;
         }
         protected override void HandleLocalPlayerLeft(EditorPlayerController item)
         {
-            if (Editor.ActiveRenderForm is DockableWorldRenderForm form)
-            {
-                if (item.LocalPlayerIndex != form.PlayerIndex)
-                    return;
+            if (!(Editor.ActiveRenderForm is DockableWorldRenderForm form) || item.LocalPlayerIndex != form.PlayerIndex)
+                return;
 
-                form.RenderPanel.UnregisterController(item);
-                item.ControlledPawn = null;
-            }
+            form.RenderPanel.UnregisterController(item);
+            item.ControlledPawn = null;
         }
     }
 }

@@ -208,10 +208,14 @@ namespace TheraEditor.Windows.Forms
             if (Engine.World?.EditorState?.HasChanges ?? false)
             {
                 DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                if (r == DialogResult.Cancel)
-                    return;
-                else if (r == DialogResult.Yes)
-                    await Engine.World.ExportAsync();
+                switch (r)
+                {
+                    case DialogResult.Cancel:
+                        return;
+                    case DialogResult.Yes:
+                        await Engine.World.ExportAsync();
+                        break;
+                }
                 Engine.World.EditorState = null;
             }
 
@@ -231,20 +235,25 @@ namespace TheraEditor.Windows.Forms
         }
         public bool CloseWorld()
         {
-            if (CurrentWorld != null)
-            {
-                if (CurrentWorld.EditorState != null && CurrentWorld.EditorState.HasChanges)
-                {
-                    DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                    if (r == DialogResult.Cancel)
-                        return false;
-                    else if (r == DialogResult.Yes)
-                        SaveFile(CurrentWorld);
-                }
+            if (CurrentWorld == null)
+                return true;
 
-                CurrentWorld.EditorState = null;
-                CurrentWorld = null;
+            if (CurrentWorld.EditorState?.HasChanges ?? false)
+            {
+                DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                switch (r)
+                {
+                    case DialogResult.Cancel:
+                        return false;
+                    case DialogResult.Yes:
+                        SaveFile(CurrentWorld);
+                        break;
+                }
             }
+
+            CurrentWorld.EditorState = null;
+            CurrentWorld = null;
+
             return true;
         }
         /// <summary>
@@ -288,7 +297,7 @@ namespace TheraEditor.Windows.Forms
             base.OnLoad(e);
 
             EditorSettings defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
-            var recentFiles = defaultSettings?.RecentlyOpenedProjectPaths;
+            List<string> recentFiles = defaultSettings?.RecentlyOpenedProjectPaths;
             if (recentFiles != null && recentFiles.Count > 0)
             {
                 string lastOpened = recentFiles[recentFiles.Count - 1];
@@ -423,26 +432,30 @@ namespace TheraEditor.Windows.Forms
         }
         private bool CloseProject()
         {
-            if (_project != null)
+            if (_project == null)
+                return true;
+
+            if (_project.EditorState != null && _project.EditorState.HasChanges)
             {
-                if (_project.EditorState != null && _project.EditorState.HasChanges)
+                DialogResult r = MessageBox.Show(this, "Save changes to current project?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                switch (r)
                 {
-                    DialogResult r = MessageBox.Show(this, "Save changes to current project?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
-                    if (r == DialogResult.Cancel)
+                    case DialogResult.Cancel:
                         return false;
-                    else if (r == DialogResult.Yes)
+                    case DialogResult.Yes:
                         SaveFile(_project);
+                        break;
                 }
-
-                string configFile = _project.EditorSettings?.GetFullDockConfigPath();
-                if (configFile != null && configFile.IsExistingDirectoryPath() == false)
-                    DockPanel.SaveAsXml(configFile);
-
-                ClearDockPanel();
-
-                _project.EditorState = null;
-                _project = null;
             }
+
+            string configFile = _project.EditorSettings?.GetFullDockConfigPath();
+            if (configFile != null && configFile.IsExistingDirectoryPath() == false)
+                DockPanel.SaveAsXml(configFile);
+
+            ClearDockPanel();
+
+            _project.EditorState = null;
+            _project = null;
             return true;
         }
         /// <summary>
@@ -713,32 +726,28 @@ namespace TheraEditor.Windows.Forms
         {
             if (persistString == typeof(DockableActorTree).ToString())
                 return ActorTreeForm;
-            else if (persistString == typeof(DockableFileTree).ToString())
+            if (persistString == typeof(DockableFileTree).ToString())
                 return FileTreeForm;
-            else if (persistString == typeof(DockableOutputWindow).ToString())
+            if (persistString == typeof(DockableOutputWindow).ToString())
                 return OutputForm;
-            else if (persistString == typeof(DockablePropertyGrid).ToString())
+            if (persistString == typeof(DockablePropertyGrid).ToString())
                 return PropertyGridForm;
-            else
-            {
-                string[] parsedStrings = persistString.Split(new char[] { ',' });
-                if (parsedStrings.Length == 0)
-                    return null;
-                string type = parsedStrings[0];
-                if (type == typeof(DockableWorldRenderForm).ToString())
-                {
-                    if (parsedStrings.Length < 2)
-                        return null;
-                    switch (parsedStrings[1])
-                    {
-                        case "0": return RenderForm1;
-                        case "1": return RenderForm2;
-                        case "2": return RenderForm3;
-                        case "3": return RenderForm4;
-                        default: return null;
-                    }
-                }
+
+            string[] parsedStrings = persistString.Split(',');
+            if (parsedStrings.Length == 0)
                 return null;
+            string type = parsedStrings[0];
+            if (type != typeof(DockableWorldRenderForm).ToString())
+                return null;
+            if (parsedStrings.Length < 2)
+                return null;
+            switch (parsedStrings[1])
+            {
+                case "0": return RenderForm1;
+                case "1": return RenderForm2;
+                case "2": return RenderForm3;
+                case "3": return RenderForm4;
+                default: return null;
             }
         }
         

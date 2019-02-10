@@ -9,16 +9,18 @@ namespace TheraEngine.Input.Devices
     public delegate void DelButtonState(bool pressed);
     public class ButtonManager
     {
-        const float TimerMax = 0.5f;
+        private const float TimerMax = 0.5f;
 
         private readonly DelSendButtonPressedState SendStateToServer;
         private readonly DelSendButtonAction SendActionToServer;
 
         public ButtonManager(int index, string name, DelSendButtonPressedState onPressState, DelSendButtonAction onAction)
         {
-            int count = 12;
+            const int count = 12;
+
             _actions = new List<Action>[count];
             _usedActions = new List<int>(count);
+
             Name = name;
             SendStateToServer = onPressState;
             SendActionToServer = onAction;
@@ -188,26 +190,26 @@ namespace TheraEngine.Input.Devices
         private void ExecuteActionList(int listIndex)
         {
             List<Action> list = _actions[listIndex];
-            if (list != null)
-            {
-                SendActionToServer(Index, listIndex);
+            if (list == null)
+                return;
 
-                int i = list.Count;
-                for (int x = 0; x < i; ++x)
-                    list[x]();
-            }
+            SendActionToServer(Index, listIndex);
+
+            int i = list.Count;
+            for (int x = 0; x < i; ++x)
+                list[x]();
         }
         private void ExecutePressedStateList(int listIndex, bool pressed)
         {
             List<DelButtonState> list = _onStateChanged[listIndex];
-            if (list != null)
-            {
-                SendActionToServer(Index, listIndex);
+            if (list == null)
+                return;
 
-                int i = list.Count;
-                for (int x = 0; x < i; ++x)
-                    list[x](pressed);
-            }
+            SendActionToServer(Index, listIndex);
+
+            int i = list.Count;
+            for (int x = 0; x < i; ++x)
+                list[x](pressed);
         }
         #endregion
 

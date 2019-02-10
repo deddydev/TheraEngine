@@ -34,7 +34,7 @@ namespace TheraEngine.Input.Devices
         public abstract EDeviceType DeviceType { get; }
         public InputInterface InputInterface { get; internal set; }
 
-        public InputDevice(int index)
+        protected InputDevice(int index)
         {
             _index = index;
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, UpdateStates);

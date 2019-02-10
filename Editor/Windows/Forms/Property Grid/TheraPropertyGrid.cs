@@ -321,7 +321,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             foreach (Control control in pnlProps.Controls)
                 control.Dispose();
             pnlProps.Controls.Clear();
-            foreach (var category in categories.Values)
+            foreach (PropGridCategory category in categories.Values)
                 category.DestroyProperties();
             categories.Clear();
 
@@ -347,7 +347,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 Type targetObjectType = obj.GetType();
 
-                BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
+                const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
                 props   = showProperties    ? targetObjectType.GetProperties(flags) : new PropertyInfo[0];
                 methods = showMethods       ? targetObjectType.GetMethods(flags)    : new MethodInfo[0];
                 events  = showEvents        ? targetObjectType.GetEvents(flags)     : new EventInfo[0];
@@ -355,21 +355,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Parallel.For(0, props.Length, i =>
                 {
                     PropertyInfo prop = props[i];
-                    var indexParams = prop.GetIndexParameters();
-                    if (indexParams != null && indexParams.Length > 0)
+                    ParameterInfo[] indexParams = prop.GetIndexParameters();
+                    if (indexParams.Length > 0)
                         return;
 
-                    var attribs = prop.GetCustomAttributes(true);
-                    foreach (var attrib in attribs)
+                    object[] attribs = prop.GetCustomAttributes(true);
+                    foreach (object attrib in attribs)
                     {
-                        if (attrib is BrowsableIf browsableIf && !browsableIf.Evaluate(obj))
-                            return;
-
-                        if (attrib is BrowsableAttribute browsable && !browsable.Browsable)
-                            return;
-
-                        if (attrib is ReadOnlyAttribute readOnlyAttrib)
-                            readOnly = readOnlyAttrib.IsReadOnly || readOnly;
+                        switch (attrib)
+                        {
+                            case BrowsableIf browsableIf when !browsableIf.Evaluate(obj):
+                            case BrowsableAttribute browsable when !browsable.Browsable:
+                                return;
+                            case ReadOnlyAttribute readOnlyAttrib:
+                                readOnly = readOnlyAttrib.IsReadOnly || readOnly;
+                                break;
+                        }
                     }
 
                     object propObj = prop.GetValue(obj);
@@ -388,35 +389,35 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Parallel.For(0, methods.Length, i =>
                 {
                     MethodInfo method = methods[i];
-                    if (!method.IsSpecialName && (method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false))
-                    {
-                        object[] attribs = method.GetCustomAttributes(true);
-                        MethodData methodData = new MethodData()
-                        {
-                            Method = method,
-                            Attribs = attribs,
-                            DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? method.Name,
-                        };
+                    if (method.IsSpecialName || (!(method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false)))
+                        return;
 
-                        methodInfo.TryAdd(i, methodData);
-                    }
+                    object[] attribs = method.GetCustomAttributes(true);
+                    MethodData methodData = new MethodData()
+                    {
+                        Method = method,
+                        Attribs = attribs,
+                        DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? method.Name,
+                    };
+
+                    methodInfo.TryAdd(i, methodData);
                 });
 
                 Parallel.For(0, events.Length, i =>
                 {
-                    EventInfo @event = events[i];
-                    if (!@event.IsSpecialName/* && (@event.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false)*/)
-                    {
-                        object[] attribs = @event.GetCustomAttributes(true);
-                        EventData eventData = new EventData()
-                        {
-                            Event = @event,
-                            Attribs = attribs,
-                            DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? @event.Name,
-                        };
+                    EventInfo e = events[i];
+                    if (e.IsSpecialName)
+                        return;
 
-                        eventInfo.TryAdd(i, eventData);
-                    }
+                    object[] attribs = e.GetCustomAttributes(true);
+                    EventData eventData = new EventData()
+                    {
+                        Event = e,
+                        Attribs = attribs,
+                        DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? e.Name,
+                    };
+
+                    eventInfo.TryAdd(i, eventData);
                 });
             });
 
@@ -439,7 +440,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         continue;
 
                     MethodData m = methodInfo[i];
-                    var deque = new Deque<Type>();
+                    Deque<Type> deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridMethod));
                     CreateControls(grid, deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Attribs, false, changeHandler);
                 }
@@ -450,7 +451,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         continue;
 
                     EventData e = eventInfo[i];
-                    var deque = new Deque<Type>();
+                    Deque<Type> deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridEvent));
                     CreateControls(grid, deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Attribs, false, changeHandler);
                 }
@@ -474,18 +475,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             RecursiveExpand(pnlProps.Controls, true);
         }
-        private void RecursiveExpand(ControlCollection collection, bool collapse)
+        private static void RecursiveExpand(ControlCollection collection, bool collapse)
         {
             foreach (Control c in collection)
             {
-                if (c is ICollapsible coll)
-                {
-                    if (collapse)
-                        coll.Collapse();
-                    else
-                        coll.Expand();
-                    RecursiveExpand(coll.ChildControls, collapse);
-                }
+                if (!(c is ICollapsible coll))
+                    continue;
+
+                if (collapse)
+                    coll.Collapse();
+                else
+                    coll.Expand();
+                RecursiveExpand(coll.ChildControls, collapse);
             }
         }
 
@@ -629,11 +630,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// Constructs all given control types and 
         /// </summary>
+        /// <param name="grid"></param>
         /// <param name="controlTypes"></param>
-        /// <param name="prop"></param>
+        /// <param name="info"></param>
         /// <param name="panel"></param>
         /// <param name="categories"></param>
-        /// <param name="obj"></param>
         /// <param name="attribs"></param>
         /// <param name="readOnly"></param>
         /// <param name="dataChangeHandler"></param>
@@ -647,14 +648,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             bool readOnly,
             IDataChangeHandler dataChangeHandler)
         {
-            var controls = InstantiatePropertyEditors(controlTypes, info, dataChangeHandler);
+            List<PropGridItem> controls = InstantiatePropertyEditors(controlTypes, info, dataChangeHandler);
             string GetDefaultCatName()
             {
-                if (info is PropGridMemberInfoEvent)
-                    return "Events";
-                if (info is PropGridMemberInfoMethod)
-                    return "Methods";
-                return MiscName;
+                switch (info)
+                {
+                    case PropGridMemberInfoEvent _:
+                        return "Events";
+                    case PropGridMemberInfoMethod _:
+                        return "Methods";
+                    default:
+                        return MiscName;
+                }
             }
             string catName = !(attribs.FirstOrDefault(x => x is CategoryAttribute) is CategoryAttribute category) ? GetDefaultCatName() : category.Category;
             if (categories.ContainsKey(catName))
@@ -738,8 +743,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             btnRemoveLogicComp.Visible = lstLogicComps.SelectedIndex >= 0 && lstLogicComps.SelectedIndex < lstLogicComps.Items.Count;
         }
 
-        private Color _lblObjectName_StartColor;
-        private Color _lblObjectName_EndColor;
+        private readonly Color _lblObjectName_StartColor;
+        private readonly Color _lblObjectName_EndColor;
         private EventHandler<FrameEventArgs> lblObjectName_FadeMethod;
         private void lblObjectName_MouseEnter(object sender, EventArgs e)
             => lblObjectName.FadeBackColor(_lblObjectName_EndColor, 0.5f, ref lblObjectName_FadeMethod);
@@ -751,22 +756,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (_updating)
                 return;
+
             TreeNode node = treeViewSceneComps.GetNodeAt(e.Location);
-            if (node != null)
-            {
-                Rectangle r = node.Bounds;
-                r.X -= 25; r.Width += 25;
-                if (r.Contains(e.Location))
-                {
-                    _selectedSceneComp = node;
-                    treeViewSceneComps.SelectedNode = node;
-                    if (e.Button == MouseButtons.Right)
-                    {
-                        UpdateCtxSceneComp();
-                        ctxSceneComps.Show(treeViewSceneComps, e.Location);
-                    }
-                }
-            }
+            if (node == null)
+                return;
+
+            Rectangle r = node.Bounds;
+            r.X -= 25; r.Width += 25;
+            if (!r.Contains(e.Location))
+                return;
+
+            _selectedSceneComp = node;
+            treeViewSceneComps.SelectedNode = node;
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            UpdateCtxSceneComp();
+            ctxSceneComps.Show(treeViewSceneComps, e.Location);
         }
         private void lstLogicComps_MouseDoubleClick(object sender, MouseEventArgs e)
         {
@@ -791,13 +797,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private async void btnSave_Click(object sender, EventArgs e)
         {
-            var o = TargetObjects.Count == 0 ? (null, null) : TargetObjects.Peek();
+            (object, string) o = TargetObjects.Count == 0 ? (null, null) : TargetObjects.Peek();
             if (!(o.Item1 is IFileObject fobj))
                 return;
 
             IFileObject file = fobj?.RootFile ?? fobj;
-            if (file == null)
-                return;
 
             Editor editor = Editor.Instance;
             string path = file.FilePath;

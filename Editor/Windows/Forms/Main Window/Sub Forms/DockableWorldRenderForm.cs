@@ -22,9 +22,9 @@ namespace TheraEditor.Windows.Forms
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 HUD = new EditorHud(RenderPanel.ClientSize),
-                Name = string.Format("Viewport{0}_EditorCamera", (FormIndex + 1).ToString())
+                Name = $"Viewport{(FormIndex + 1).ToString()}_EditorCamera"
             };
-            Text = string.Format("Viewport {0}", (FormIndex + 1).ToString());
+            Text = $"Viewport {(FormIndex + 1).ToString()}";
             RenderPanel.AllowDrop = true;
             Engine.PreWorldChanged += Engine_WorldPreChanged;
             Engine.PostWorldChanged += Engine_WorldPostChanged;
@@ -55,12 +55,12 @@ namespace TheraEditor.Windows.Forms
             
             if (Engine.World == null || EditorPawn == null)
             {
-                Text = string.Format("Viewport {0}", (FormIndex + 1).ToString());
+                Text = $"Viewport {(FormIndex + 1).ToString()}";
             }
             else
             {
                 Engine.World.SpawnActor(EditorPawn);
-                Text = string.Format("{0} (Viewport {1})", Engine.World.Name, (FormIndex + 1).ToString());
+                Text = $"{Engine.World.Name} (Viewport {(FormIndex + 1).ToString()})";
             }
         }
         
@@ -76,11 +76,10 @@ namespace TheraEditor.Windows.Forms
         protected override void OnHandleDestroyed(EventArgs e)
         {
             base.OnHandleDestroyed(e);
-            if (Editor.ActiveRenderForm == this)
-            {
-                Engine.SetWorldPanel(null, false);
-                Editor.SetActiveEditorControl(null);
-            }
+            if (Editor.ActiveRenderForm != this)
+                return;
+            Engine.SetWorldPanel(null, false);
+            Editor.SetActiveEditorControl(null);
         }
         protected override void OnShown(EventArgs e)
         {
@@ -112,7 +111,7 @@ namespace TheraEditor.Windows.Forms
         //}
 
         protected override string GetPersistString()
-            => GetType().ToString() + "," + FormIndex;
+            => GetType() + "," + FormIndex;
 
         BaseFileWrapper _lastDraggedNode = null;
         IFileObject _dragInstance = null;
@@ -157,12 +156,12 @@ namespace TheraEditor.Windows.Forms
         private void RenderPanel_DragLeave(object sender, EventArgs e)
         {
             EditorHud hud = EditorPawn.HUD.File as EditorHud;
-            if (hud.DragComponent != null)
-            {
-                Engine.World.DespawnActor(hud.DragComponent.OwningActor);
-                hud.DoMouseUp();
-                hud.TransformMode = _prevTransformType;
-            }
+            if (hud?.DragComponent is null)
+                return;
+
+            Engine.World.DespawnActor(hud.DragComponent.OwningActor);
+            hud.DoMouseUp();
+            hud.TransformMode = _prevTransformType;
             //Engine.TargetUpdateFreq = _preUpdateFreq;
             //Engine.TargetRenderFreq = _preRenderFreq;
             //Editor.Instance.DoEvents = true;
@@ -179,12 +178,13 @@ namespace TheraEditor.Windows.Forms
             DragHelper.ImageList_DragLeave(Handle);
             _dragInstance = null;
             _lastDraggedNode = null;
+
             EditorHud hud = EditorPawn.HUD.File as EditorHud;
-            if (hud.DragComponent != null)
-            {
-                hud.DoMouseUp();
-                hud.TransformMode = _prevTransformType;
-            }
+            if (hud?.DragComponent is null)
+                return;
+
+            hud.DoMouseUp();
+            hud.TransformMode = _prevTransformType;
             //Engine.TargetUpdateFreq = _preUpdateFreq;
             //Engine.TargetRenderFreq = _preRenderFreq;
             //Editor.Instance.DoEvents = true;

@@ -98,9 +98,10 @@ namespace TheraEditor.Actors.Types.Pawns
                 {
                     //This fixes stationary jitter caused by float imprecision
                     //when recalculating the same hit point every update
-                    if (x == 0.0f && y == 0.0f)
+                    if (Math.Abs(x) < 0.00001f && 
+                        Math.Abs(y) < 0.00001f)
                         return;
-
+                    
                     Vec3 oldPoint = HitPoint;
                     Vec3 screenPoint = Camera.WorldToScreen(HitPoint);
                     screenPoint.X += -x;
@@ -126,6 +127,7 @@ namespace TheraEditor.Actors.Types.Pawns
         {
             bool moving = Moving;
             CursorManager.GlobalWrapCursorWithinClip = moving;
+
             //if (!moving)
             //{
             //    Viewport v = LocalPlayerController?.Viewport;

@@ -136,7 +136,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 if (_rigidBodyCollision != null)
                 {
                     if (IsSpawned)
-                        OwningWorld.PhysicsWorld?.RemoveCollisionObject(_rigidBodyCollision);
+                        OwningWorld.PhysicsWorld3D?.RemoveCollisionObject(_rigidBodyCollision);
 
                     _rigidBodyCollision.Owner = null;
                     _rigidBodyCollision.TransformChanged -= RigidBodyTransformUpdated;
@@ -148,7 +148,7 @@ namespace TheraEngine.Components.Scene.Mesh
                     _rigidBodyCollision.TransformChanged += RigidBodyTransformUpdated;
 
                     if (IsSpawned)
-                        OwningWorld.PhysicsWorld?.AddCollisionObject(_rigidBodyCollision);
+                        OwningWorld.PhysicsWorld3D?.AddCollisionObject(_rigidBodyCollision);
                 }
             }
         }

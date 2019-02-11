@@ -15,8 +15,10 @@ namespace TheraEngine.Actors.Types.Pawns
     public interface IUserInterface : IPawn
     {
         IPawn OwningPawn { get; set; }
+
         Scene2D ScreenSpaceUIScene { get; }
         OrthographicCamera ScreenOverlayCamera { get; }
+
         Vec2 Bounds { get; }
         RenderPasses RenderPasses { get; set; }
 

@@ -560,7 +560,7 @@ namespace TheraEditor.Windows.Forms
             MouseDown = false;
             if (_currentConstraint != null)
             {
-                OwningWorld.PhysicsWorld.RemoveConstraint(_currentConstraint);
+                OwningWorld.PhysicsWorld3D.RemoveConstraint(_currentConstraint);
                 //_currentConstraint.Dispose();
                 _currentConstraint = null;
                 _pickedBody.ForceActivationState(EBodyActivationState.Active);
@@ -655,7 +655,7 @@ namespace TheraEditor.Windows.Forms
                         _currentConstraint.ImpulseClamp = 60;
                         _currentConstraint.Tau = 0.6f;
 
-                        OwningWorld.PhysicsWorld.AddConstraint(_currentConstraint);
+                        OwningWorld.PhysicsWorld3D.AddConstraint(_currentConstraint);
                     }
                     else
                     {

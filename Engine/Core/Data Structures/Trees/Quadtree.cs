@@ -7,6 +7,7 @@ using TheraEngine;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace System
 {
@@ -98,12 +99,12 @@ namespace System
         //    _head.FindAll(shape, list, containment);
         //    return list;
         //}
-        public void CollectVisible(BoundingRectangleF? r, RenderPasses passes)
+        public void CollectVisible(BoundingRectangleF? r, RenderPasses passes, Camera camera)
         {
             if (r != null)
-                _head.CollectVisible(r.Value, passes);
+                _head.CollectVisible(r.Value, passes, camera);
             else
-                _head.CollectAll(passes, true);
+                _head.CollectAll(passes, true, camera);
         }
         public T FindDeepest(Vec2 point)
         {
@@ -284,13 +285,13 @@ namespace System
             #endregion
 
             #region Visible collection
-            public void CollectVisible(BoundingRectangleF bounds, RenderPasses passes)
+            public void CollectVisible(BoundingRectangleF bounds, RenderPasses passes, Camera camera)
             {
                 EContainment c = bounds.ContainmentOf(_bounds);
                 if (c != EContainment.Disjoint)
                 {
                     if (c == EContainment.Contains)
-                        CollectAll(passes, true);
+                        CollectAll(passes, true, camera);
                     else
                     {
                         IsLoopingItems = true;
@@ -298,28 +299,28 @@ namespace System
                         {
                             I2DRenderable r = _items[i] as I2DRenderable;
                             if (r.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) != EContainment.Disjoint)
-                                r.AddRenderables(passes);
+                                r.AddRenderables(passes, camera);
                         }
                         IsLoopingItems = false;
 
                         IsLoopingSubNodes = true;
                         for (int i = 0; i < MaxChildNodeCount; ++i)
-                            _subNodes[i]?.CollectVisible(bounds, passes);
+                            _subNodes[i]?.CollectVisible(bounds, passes, camera);
                         IsLoopingSubNodes = false;
                     }
                 }
             }
-            public void CollectAll(RenderPasses passes, bool visibleOnly)
+            public void CollectAll(RenderPasses passes, bool visibleOnly, Camera camera)
             {
                 IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
                     if (_items[i] is I2DRenderable r && (!visibleOnly || r.RenderInfo.Visible))
-                        r.AddRenderables(passes);
+                        r.AddRenderables(passes, camera);
                 IsLoopingItems = false;
 
                 IsLoopingSubNodes = true;
                 for (int i = 0; i < MaxChildNodeCount; ++i)
-                    _subNodes[i]?.CollectAll(passes, visibleOnly);
+                    _subNodes[i]?.CollectAll(passes, visibleOnly, camera);
                 IsLoopingSubNodes = false;
             }
             #endregion

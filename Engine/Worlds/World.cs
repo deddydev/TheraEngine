@@ -26,7 +26,7 @@ namespace TheraEngine.Worlds
     /// </summary>
     [TFileExt("world")]
     [TFileDef("World")]
-    public class World : TFileObject, I3DRenderable, IEnumerable<IActor>, IDisposable
+    public class World : TFileObject, I3DRenderable, I2DRenderable, IEnumerable<IActor>, IDisposable
     {
         public World() : this(new WorldSettings(), new WorldState()) { }
         public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
@@ -34,7 +34,9 @@ namespace TheraEngine.Worlds
         {
             StateRef = state;
             SettingsRef = settings;
-            _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
+
+            _rc3D = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render3D);
+            _rc2D = new RenderCommandMethod2D(ERenderPass.OnTopForward, Render2D);
         }
 
         private GlobalFileRef<WorldSettings> _settingsRef;
@@ -91,7 +93,7 @@ namespace TheraEngine.Worlds
         }
         public Scene3D Scene3D => Scene as Scene3D;
         public Scene2D Scene2D => Scene as Scene2D;
-        public AbstractPhysicsWorld PhysicsWorld { get; private set; }
+        public AbstractPhysicsWorld PhysicsWorld3D { get; private set; }
 
         public BaseGameMode GetGameMode()
             => Settings?.GameModeOverrideRef?.File;
@@ -135,7 +137,7 @@ namespace TheraEngine.Worlds
         }
         
         internal void StepSimulation(float delta)
-            => PhysicsWorld?.StepSimulation(delta);
+            => PhysicsWorld3D?.StepSimulation(delta);
         
         public BaseActor this[int index]
         {
@@ -144,7 +146,14 @@ namespace TheraEngine.Worlds
         }
 
         public bool IsRebasingOrigin { get; private set; } = false;
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
+
+        public RenderInfo3D RenderInfo3D { get; } = new RenderInfo3D(true, true);
+        public RenderInfo2D RenderInfo2D { get; } = new RenderInfo2D(0, 0);
+
+        RenderInfo3D I3DRenderable.RenderInfo => RenderInfo3D;
+        RenderInfo2D I2DRenderable.RenderInfo => RenderInfo2D;
+
+        public Scene2D OwningScene2D { get; }
 
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
@@ -162,18 +171,18 @@ namespace TheraEngine.Worlds
 
             Engine.PrintLine("Beginning origin rebase.");
 
-            if (PhysicsWorld != null)
-                PhysicsWorld.AllowIndividualAabbUpdates = false;
+            if (PhysicsWorld3D != null)
+                PhysicsWorld3D.AllowIndividualAabbUpdates = false;
 
             //Update each actor in parallel; they should not depend on one another
             await Task.Run(() => Parallel.ForEach(State.SpawnedActors, a => a.RebaseOrigin(newOrigin)));
             //foreach (IActor a in State.SpawnedActors)
             //    a.RebaseOrigin(newOrigin);
 
-            if (PhysicsWorld != null)
+            if (PhysicsWorld3D != null)
             {
-                PhysicsWorld.AllowIndividualAabbUpdates = true;
-                PhysicsWorld.UpdateAabbs();
+                PhysicsWorld3D.AllowIndividualAabbUpdates = true;
+                PhysicsWorld3D.UpdateAabbs();
             }
 
             //Scene.RegenerateTree();
@@ -183,15 +192,19 @@ namespace TheraEngine.Worlds
             IsRebasingOrigin = false;
         }
 
-        private void CreatePhysicsScene()
+        private void CreatePhysicsScene3D()
         {
-            PhysicsWorld?.Dispose();
-            PhysicsWorld = Engine.Physics.NewScene();
+            PhysicsWorld3D?.Dispose();
+            PhysicsWorld3D = Engine.Physics.NewScene();
+        }
+        private void CreatePhysicsScene2D()
+        {
+
         }
         public void Dispose()
         {
-            PhysicsWorld?.Dispose();
-            PhysicsWorld = null;
+            PhysicsWorld3D?.Dispose();
+            PhysicsWorld3D = null;
         }
 
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
@@ -202,24 +215,42 @@ namespace TheraEngine.Worlds
         {
             foreach (var m in Settings.Maps)
                 m.File.EndPlay();
-            RenderInfo.UnlinkScene();
+
+            if (Settings.TwoDimensional)
+            {
+                RenderInfo2D.UnlinkScene();
+            }
+            else
+            {
+                RenderInfo3D.UnlinkScene();
+            }
         }
         public virtual void BeginPlay()
         {
-            State.Scene = new Scene3D(Settings.Bounds.HalfExtents);
-            CreatePhysicsScene();
+            if (Settings.TwoDimensional)
+            {
+                State.Scene = new Scene2D(Settings.Bounds.HalfExtents.Xy);
+                CreatePhysicsScene2D();
+                RenderInfo2D.LinkScene(this, Scene2D);
+            }
+            else
+            {
+                State.Scene = new Scene3D(Settings.Bounds.HalfExtents);
+                CreatePhysicsScene3D();
+                RenderInfo3D.LinkScene(this, Scene3D);
+            }
 
             Engine.TimeDilation = Settings.TimeDilation;
 
             foreach (var m in Settings.Maps)
                 if (m.File.VisibleByDefault)
                     m.File.BeginPlay(this);
-
-            RenderInfo.LinkScene(this, Scene3D);
         }
         
-        private readonly RenderCommandMethod3D _rc;
-        private void Render()
+        private readonly RenderCommandMethod3D _rc3D;
+        private readonly RenderCommandMethod2D _rc2D;
+
+        private void Render3D()
         {
             if (!(Engine.EditorState?.InEditMode ?? false))
                 return;
@@ -231,8 +262,16 @@ namespace TheraEngine.Worlds
             if (Settings.PreviewOctrees && frustum != null)
                 Scene3D?.RenderTree?.DebugRender(frustum, true);
             if (Settings.PreviewPhysics)
-                PhysicsWorld?.DrawDebugWorld();
+                PhysicsWorld3D?.DrawDebugWorld();
         }
-        void I3DRenderable.AddRenderables(RenderPasses passes, Camera camera) => passes.Add(_rc);
+        private void Render2D()
+        {
+
+        }
+
+        void I3DRenderable.AddRenderables(RenderPasses passes, Camera camera) 
+            => passes.Add(_rc3D);
+        void I2DRenderable.AddRenderables(RenderPasses passes, Camera camera)
+            => passes.Add(_rc2D);
     }
 }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -150,6 +151,6 @@ namespace TheraEngine.Rendering.UI
                 c.LayerIndex = LayerIndex;
         }
 
-        public virtual void AddRenderables(RenderPasses passes) { }
+        public virtual void AddRenderables(RenderPasses passes, Camera camera) { }
     }
 }

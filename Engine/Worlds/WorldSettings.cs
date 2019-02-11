@@ -91,7 +91,12 @@ namespace TheraEngine.Worlds
 
         [TSerialize(nameof(Maps))]
         private EventList<LocalFileRef<Map>> _maps;
-        
+
+        [TSerialize]
+        [Category("World")]
+        [DisplayName("2D")]
+        public bool TwoDimensional { get; set; } = false;
+
         /// <summary>
         /// Determines if the origin of the world should be moved to keep the local players closest to it.
         /// This is useful for open-world games as the player will be moving far from the original origin
@@ -150,7 +155,7 @@ namespace TheraEngine.Worlds
                     Maps_PostAnythingAdded(mapRef);
             }
         }
-        
+
         private void Maps_PostAnythingRemoved(LocalFileRef<Map> item)
         {
             if (item == null)

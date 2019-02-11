@@ -14,10 +14,10 @@ namespace TheraEngine.Components.Scene.Shapes
 
         public void RigidBodyUpdated()
         {
-            if (IsSpawned && OwningWorld?.PhysicsWorld != null && _rigidBodyCollision != null)
+            if (IsSpawned && OwningWorld?.PhysicsWorld3D != null && _rigidBodyCollision != null)
             {
-                OwningWorld.PhysicsWorld.RemoveCollisionObject(_rigidBodyCollision);
-                OwningWorld.PhysicsWorld.AddCollisionObject(_rigidBodyCollision);
+                OwningWorld.PhysicsWorld3D.RemoveCollisionObject(_rigidBodyCollision);
+                OwningWorld.PhysicsWorld3D.AddCollisionObject(_rigidBodyCollision);
             }
         }
 
@@ -33,7 +33,7 @@ namespace TheraEngine.Components.Scene.Shapes
                 if (_rigidBodyCollision != null)
                 {
                     if (IsSpawned)
-                        OwningWorld.PhysicsWorld?.RemoveCollisionObject(_rigidBodyCollision);
+                        OwningWorld.PhysicsWorld3D?.RemoveCollisionObject(_rigidBodyCollision);
 
                     _rigidBodyCollision.Owner = null;
                     _rigidBodyCollision.TransformChanged -= BodyMoved;
@@ -48,7 +48,7 @@ namespace TheraEngine.Components.Scene.Shapes
                     WorldTransformChanged += ThisMoved;
 
                     if (IsSpawned)
-                        OwningWorld.PhysicsWorld?.AddCollisionObject(_rigidBodyCollision);
+                        OwningWorld.PhysicsWorld3D?.AddCollisionObject(_rigidBodyCollision);
                 }
             }
         }

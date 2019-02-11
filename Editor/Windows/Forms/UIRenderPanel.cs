@@ -27,7 +27,7 @@ namespace TheraEngine
         /// The self-contained world for items displayed by this render panel.
         /// </summary>
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public World World { get; } = new World();
+        public World World { get; } = new World(new WorldSettings() { TwoDimensional = true });
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public UIGameModeType GameMode { get; }
 
@@ -35,7 +35,7 @@ namespace TheraEngine
         World IUIRenderPanel.World => World;
         IUIGameMode IUIRenderPanel.GameMode => GameMode;
 
-        protected override Scene2D GetScene(Viewport v) => UI?.ScreenSpaceUIScene;
+        protected override Scene2D GetScene(Viewport v) => World.Scene2D;
         protected override Camera GetCamera(Viewport v) => UI?.ScreenOverlayCamera;
 
         public UIRenderPanel()
@@ -49,11 +49,13 @@ namespace TheraEngine
         }
         public void FormShown()
         {
+            World.BeginPlay();
             World.SpawnActor(UI);
             RegisterTick();
         }
         public void FormClosed()
         {
+            World.EndPlay();
             World.DespawnActor(UI);
             UnregisterTick();
         }

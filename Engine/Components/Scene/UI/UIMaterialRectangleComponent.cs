@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -116,7 +117,7 @@ namespace TheraEngine.Rendering.UI
         [Category("Rendering")]
         public RenderCommandMesh2D RenderCommand { get; } = new RenderCommandMesh2D(ERenderPass.OpaqueForward);
 
-        public override void AddRenderables(RenderPasses passes)
+        public override void AddRenderables(RenderPasses passes, Camera camera)
         {
             passes.Add(RenderCommand);
         }

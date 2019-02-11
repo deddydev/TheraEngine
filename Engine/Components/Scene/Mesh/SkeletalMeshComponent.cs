@@ -191,7 +191,7 @@ namespace TheraEngine.Components.Scene.Mesh
             }
             if (_targetSkeleton != null)
             {
-                AbstractPhysicsWorld world = OwningWorld.PhysicsWorld;
+                AbstractPhysicsWorld world = OwningWorld.PhysicsWorld3D;
                 foreach (Bone b in _targetSkeleton.GetPhysicsDrivableBones())
                 {
                     TConstraint constraint = b.ParentPhysicsConstraint;
@@ -238,7 +238,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
             if (_targetSkeleton != null)
             {
-                AbstractPhysicsWorld world = OwningWorld.PhysicsWorld;
+                AbstractPhysicsWorld world = OwningWorld.PhysicsWorld3D;
                 foreach (Bone b in _targetSkeleton.GetPhysicsDrivableBones())
                 {
                     TConstraint constraint = b.ParentPhysicsConstraint;

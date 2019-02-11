@@ -10,6 +10,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
 using TheraEngine.Rendering.UI;
@@ -500,7 +501,7 @@ namespace TheraEditor.Windows.Forms
                 comp.Item1.Scale = scale;
         }
         protected virtual void AddRenderables(RenderPasses passes) { }
-        void I2DRenderable.AddRenderables(RenderPasses passes)
+        void I2DRenderable.AddRenderables(RenderPasses passes, Camera camera)
         {
             AddRenderables(passes);
             passes.Add(_rcMethod);

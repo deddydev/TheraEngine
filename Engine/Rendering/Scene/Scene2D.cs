@@ -15,10 +15,11 @@ namespace TheraEngine.Rendering
 
         private List<I2DRenderable> _renderables = new List<I2DRenderable>();
 
-        public Scene2D()
+        public Scene2D() : this(Vec2.Zero) { }
+        public Scene2D(Vec2 bounds)
         {
             Render = DoRender;
-            Clear(Vec2.Zero);
+            Clear(bounds);
         }
 
         //public void CollectVisibleRenderables(Frustum frustum)
@@ -46,7 +47,7 @@ namespace TheraEngine.Rendering
         {
             foreach (I2DRenderable r in _renderables)
                 if (r.RenderInfo.Visible)
-                    r.AddRenderables(populatingPasses);
+                    r.AddRenderables(populatingPasses, camera);
         }
         public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {

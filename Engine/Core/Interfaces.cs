@@ -94,8 +94,7 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         RenderInfo2D RenderInfo { get; }
-        Scene2D OwningScene2D { get; }
-        void AddRenderables(RenderPasses passes);
+        void AddRenderables(RenderPasses passes, Camera camera);
     }
     public interface IRenderable
     {

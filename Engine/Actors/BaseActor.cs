@@ -176,6 +176,9 @@ namespace TheraEngine.Actors
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnSpawned();
 
+            if (this is IPreRendered r)
+                OwningScene?.AddPreRenderedObject(r);
+
             if (this is I3DRenderable r3D)
                 r3D.RenderInfo.LinkScene(r3D, OwningScene3D);
 
@@ -205,6 +208,9 @@ namespace TheraEngine.Actors
         {
             if (!IsSpawned)
                 return;
+
+            if (this is IPreRendered r)
+                OwningScene?.RemovePreRenderedObject(r);
 
             if (this is I3DRenderable r3D)
                 r3D.RenderInfo.UnlinkScene();

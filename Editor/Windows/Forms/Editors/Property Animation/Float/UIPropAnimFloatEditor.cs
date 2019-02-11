@@ -9,6 +9,7 @@ using TheraEngine.Animation;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
@@ -21,7 +22,7 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public class UIPropAnimFloatEditor : EditorUserInterface, I2DRenderable
+    public class UIPropAnimFloatEditor : EditorUserInterface, I2DRenderable, IPreRendered
     {
         public UIPropAnimFloatEditor() : base() { }
         public UIPropAnimFloatEditor(Vec2 bounds) : base(bounds) { }
@@ -485,6 +486,7 @@ void main()
             _xString.Text = pos.X.ToString("###0.0##");
             _yString.Text = pos.Y.ToString("###0.0##");
         }
+        private bool _redrewLastMove = false;
         protected override void BaseWorldTransformChanged()
         {
             Matrix4 mtx = _baseTransformComponent.WorldMatrix;
@@ -509,7 +511,16 @@ void main()
             _yCoord.SizeablePosX.ModificationValue = origin.X;
 
             base.BaseWorldTransformChanged();
-            UpdateSplinePrimitive();
+            
+            Vec2 bl = GetViewportBottomLeftWorldSpace();
+            Vec2 tr = GetViewportTopRightWorldSpace();
+
+            bool shouldRedraw = 0.0f < bl.X || (TargetAnimation?.LengthInSeconds ?? 0.0f) > tr.X;
+            if (shouldRedraw || _redrewLastMove)
+            {
+                UpdateSplinePrimitive();
+                _redrewLastMove = shouldRedraw;
+            }
         }
         public override void RegisterInput(InputInterface input)
         {
@@ -523,10 +534,7 @@ void main()
             if (_targetAnimation == null)
                 return;
 
-            if (_targetAnimation.State == EAnimationState.Playing)
-                _targetAnimation.State = EAnimationState.Paused;
-            else
-                _targetAnimation.State = EAnimationState.Playing;
+            _targetAnimation.State = _targetAnimation.State == EAnimationState.Playing ? EAnimationState.Paused : EAnimationState.Playing;
         }
         
         protected override void OnShiftPressed(bool pressed)
@@ -888,5 +896,17 @@ void main()
                 }
             }
         }
+
+        public bool PreRenderEnabled { get; set; } = true;
+        public void PreRenderUpdate(Camera camera) { }
+        public void PreRenderSwap()
+        {
+            if (!Engine.IsSingleThreaded && QueueSplineUpdate)
+            {
+                QueueSplineUpdate = false;
+                UpdateSplinePrimitive(true);
+            }
+        }
+        public void PreRender(Viewport viewport, Camera camera) { }
     }
 }

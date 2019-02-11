@@ -280,7 +280,10 @@ namespace System
             for (int i = bias; i < mainLen; ++i)
                 newDir += Path.DirectorySeparatorChar + mainParts[i];
 
-            return newDir + Path.DirectorySeparatorChar.ToString() + fileName;
+            if (!string.IsNullOrEmpty(newDir))
+                return newDir + Path.DirectorySeparatorChar.ToString() + fileName;
+            else
+                return fileName;
         }
         /// <summary>
         /// Parses the given string as an enum of the given type.

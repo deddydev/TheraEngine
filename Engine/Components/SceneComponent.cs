@@ -88,7 +88,7 @@ namespace TheraEngine.Components
                 //AABBs are not updated unless the physics world is ticking.
                 //Without an updated AABB, collision against traces will not work properly.
                 if (Engine.IsPaused && OwningWorld != null && !OwningWorld.IsRebasingOrigin)
-                    OwningWorld.PhysicsWorld.UpdateSingleAabb(p.RigidBodyCollision);
+                    OwningWorld.PhysicsWorld3D.UpdateSingleAabb(p.RigidBodyCollision);
             }
 
             if (this is I2DRenderable r2d)

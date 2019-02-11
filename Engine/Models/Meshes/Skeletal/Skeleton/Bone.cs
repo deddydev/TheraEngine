@@ -281,14 +281,14 @@ namespace TheraEngine.Rendering.Models
                     _rigidBodyCollision?.Constraints?.Remove(_parentConstraint);
                     if (Skeleton?.OwningComponent != null &&
                         Skeleton.OwningComponent.IsSpawned)
-                        Skeleton.OwningComponent.OwningWorld.PhysicsWorld?.RemoveConstraint(_parentConstraint);
+                        Skeleton.OwningComponent.OwningWorld.PhysicsWorld3D?.RemoveConstraint(_parentConstraint);
                 }
                 _parentConstraint = value;
                 if (_parentConstraint != null)
                 {
                     if (Skeleton?.OwningComponent != null &&
                         Skeleton.OwningComponent.IsSpawned)
-                        Skeleton.OwningComponent.OwningWorld.PhysicsWorld?.AddConstraint(_parentConstraint);
+                        Skeleton.OwningComponent.OwningWorld.PhysicsWorld3D?.AddConstraint(_parentConstraint);
                     _rigidBodyCollision?.Constraints?.Add(_parentConstraint);
                 }
             }
@@ -308,7 +308,7 @@ namespace TheraEngine.Rendering.Models
                     if (comp != null)
                     {
                         if (comp.IsSpawned)
-                            comp.OwningWorld.PhysicsWorld?.RemoveCollisionObject(_rigidBodyCollision);
+                            comp.OwningWorld.PhysicsWorld3D?.RemoveCollisionObject(_rigidBodyCollision);
                     }
                     _rigidBodyCollision.Owner = null;
                     _rigidBodyCollision.TransformChanged -= _rigidBodyCollision_TransformChanged;
@@ -323,7 +323,7 @@ namespace TheraEngine.Rendering.Models
                     if (comp != null)
                     {
                         if (comp.IsSpawned)
-                            comp.OwningWorld.PhysicsWorld?.AddCollisionObject(_rigidBodyCollision);
+                            comp.OwningWorld.PhysicsWorld3D?.AddCollisionObject(_rigidBodyCollision);
                     }
                 }
             }

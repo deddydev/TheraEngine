@@ -635,13 +635,13 @@ namespace TheraEngine
         /// Performs a ray trace in the current world referenced by the engine.
         /// To perform a ray trace in a specific world, use World.PhysicsWorld.RayTrace(ShapeTrace result); 
         /// </summary>
-        public static bool RayTrace(RayTrace result, World world) => (world ?? World)?.PhysicsWorld?.RayTrace(result) ?? false;
+        public static bool RayTrace(RayTrace result, World world) => (world ?? World)?.PhysicsWorld3D?.RayTrace(result) ?? false;
 
         /// <summary>
         /// Performs a shape trace in the current world referenced by the engine.
         /// To perform a shape trace in a specific world, use World.PhysicsWorld.ShapeTrace(ShapeTrace result); 
         /// </summary>
-        public static bool ShapeTrace(ShapeTrace result, World world) => (world ?? World)?.PhysicsWorld?.ShapeTrace(result) ?? false;
+        public static bool ShapeTrace(ShapeTrace result, World world) => (world ?? World)?.PhysicsWorld3D?.ShapeTrace(result) ?? false;
         
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {

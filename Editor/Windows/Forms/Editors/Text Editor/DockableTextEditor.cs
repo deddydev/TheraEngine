@@ -198,7 +198,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     Mode = ETextEditorMode.GLSL;
                 }
-                else if (_targetFile.Text.StartsWith("<?xml"))
+                else if (TextBox.Text.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase))
                 {
                     Mode = ETextEditorMode.XML;
                 }
@@ -351,8 +351,8 @@ namespace TheraEditor.Windows.Forms
                 _glslShader.GenerateSafe();
             }
 
-            dgvObjectExplorer.Visible = true;
-            lblSplitFileObjects.Visible = true;
+            dgvObjectExplorer.Visible = false;
+            lblSplitFileObjects.Visible = false;
 
             CurrentKeywords = GLSLKeywords;
             HighlightScriptSyntax = GLSLSyntaxHighlight;
@@ -807,12 +807,107 @@ namespace TheraEditor.Windows.Forms
         #region XML Init
         private void InitXML()
         {
+            dgvObjectExplorer.Visible = false;
+            lblSplitFileObjects.Visible = false;
 
+            CurrentKeywords = new string[0];
+            HighlightScriptSyntax = XMLSyntaxHighlight;
+
+            TextBox.LeftBracket = '<';
+            TextBox.RightBracket = '>';
+            TextBox.LeftBracket2 = '\x0';
+            TextBox.RightBracket2 = '\x0';
+            TextBox.AutoIndent = true;
+            TextBox.AutoIndentChars = false;
+            TextBox.AutoCompleteBrackets = true;
+            TextBox.DelayedTextChangedInterval = 1000;
+            TextBox.DelayedEventsInterval = 500;
+
+            //TextBox.VisibleRangeChanged += TextBox_VisibleRangeChanged;
+            TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
+            TextBox.TextChanged += TextBox_TextChanged;
+            TextBox.SelectionChangedDelayed += TextBox_SelectionChangedDelayed;
+            //TextBox.KeyDown += TextBox_KeyDown;
+            TextBox.MouseMove += TextBox_MouseMove;
+            //TextBox.AutoIndentNeeded += TextBox_AutoIndentNeeded_XML;
+            TextBox.SelectionChanged += TextBox_SelectionChanged;
+
+            TextBox.ChangedLineColor = ChangedLineColor;
+            //if (btnHighlightCurrentLine.Checked)
+            TextBox.CurrentLineColor = CurrentLineColor;
+            TextBox.ShowFoldingLines = btnShowFoldingLines.Checked;
         }
         private void UnInitXML()
         {
+            dgvObjectExplorer.Visible = false;
+            lblSplitFileObjects.Visible = false;
 
+            TextBox.LeftBracket = '\x0';
+            TextBox.RightBracket = '\x0';
+            TextBox.LeftBracket2 = '\x0';
+            TextBox.RightBracket2 = '\x0';
+
+            TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
+            TextBox.TextChanged -= TextBox_TextChanged;
+            TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
+            //TextBox.KeyDown -= TextBox_KeyDown;
+            TextBox.MouseMove -= TextBox_MouseMove;
+            //TextBox.AutoIndentNeeded -= TextBox_AutoIndentNeeded_GLSL;
+            TextBox.SelectionChanged -= TextBox_SelectionChanged;
         }
+        private void XMLSyntaxHighlight(Range e)
+        {
+            //clear style of changed range
+            e.ClearStyle(NumberStyle, StringStyle, MethodStyle, ClassNameStyle);
+
+            //attribute highlighting
+            e.SetStyle(MethodStyle, "(?<=\"*\\s*)[a-zA-Z][a-zA-Z0-9.\\-_:]+(?=\\s*=)");
+
+            //string highlighting
+            e.SetStyle(StringStyle, StringRegex);
+
+            //keyword highlighting
+            //e.SetStyle(KeywordStyle, @"\b(attribute|const|uniform|varying|buffer|shared|coherent|volatile|restrict|readonly|writeonly|atomic_uint|layout|centroid|flat|smooth|noperspective|patch|sample|break|continue|do|for|while|switch|case|default|if|else|subroutine|in|out|inout|void|true|false|invariant|precise|discard|return|lowp|mediump|highp|precision|sampler1D|sampler2D|sampler3D|samplerCube|sampler1DShadow|sampler2DShadow|samplerCubeShadow|sampler1DArray|sampler2DArray|sampler1DArrayShadow|sampler2DArrayShadow|isampler1D|isampler2D|isampler3D|isamplerCube|isampler1DArray|isampler2DArray|usampler1D|usampler2D|usampler3D|usamplerCube|usampler1DArray|usampler2DArray|sampler2DRect|sampler2DRectShadow|isampler2DRect|usampler2DRect|samplerBuffer|isamplerBuffer|usamplerBuffer|sampler2DMS|isampler2DMS|usampler2DMS|sampler2DMSArray|isampler2DMSArray|usampler2DMSArray|samplerCubeArray|samplerCubeArrayShadow|isamplerCubeArray|usamplerCubeArray|image1D|iimage1D|uimage1D|image2D|iimage2D|uimage2D|image3D|iimage3D|uimage3D|image2DRect|iimage2DRect|uimage2DRect|imageCube|iimageCube|uimageCube|imageBuffer|iimageBuffer|uimageBuffer|image1DArray|iimage1DArray|uimage1DArray|image2DArray|iimage2DArray|uimage2DArray|imageCubeArray|iimageCubeArray|uimageCubeArray|image2DMS|iimage2DMS|uimage2DMS|image2DMSArray|iimage2DMSArray|uimage2DMSArray|struct)\b");
+
+            //comment highlighting
+            //e.SetStyle(CommentStyle, @"//.*$", RegexOptions.Multiline);
+            //e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(/\*.*)", RegexOptions.Singleline);
+            //e.SetStyle(CommentStyle, @"(/\*.*?\*/)|(.*\*/)", RegexOptions.Singleline | RegexOptions.RightToLeft);
+
+            //number highlighting
+            e.SetStyle(NumberStyle, NumberRegex);
+
+            //attribute highlighting
+            //e.SetStyle(AttributeStyle, @"^\s*(?<range>\[.+?\])\s*$", RegexOptions.Multiline);
+            //e.SetStyle(PreprocessorStyle, @"^#(version|pragma|include)\b");
+
+            //element name highlighting
+            e.SetStyle(ClassNameStyle, @"(?<=<\s*\/?\s*)[a-zA-Z][a-zA-Z0-9.\-_:]+(?=\s*\/*>*)");
+
+            //clear folding markers
+            e.ClearFoldingMarkers();
+
+            //set folding markers
+            e.SetFoldingMarkers("<!--", "-->");
+            //e.SetFoldingMarkers(
+            //    "<\\s*[a-zA-Z][a-zA-Z0-9-.:_\\s\\\"=]*>",
+            //    "<\\s*\\/\\s*[a-zA-Z][a-zA-Z0-9-.:_\\s\\\" =]*> ",
+            //    RegexOptions.Multiline);
+        }
+        //private void TextBox_AutoIndentNeeded_XML(object sender, AutoIndentEventArgs e)
+        //{
+        //    string line = e.LineText.Trim();
+        //    if (line.EndsWith("{"))
+        //    {
+        //        e.ShiftNextLines = e.TabLength;
+        //        return;
+        //    }
+        //    else if (line.EndsWith("}"))
+        //    {
+        //        e.ShiftNextLines = -e.TabLength;
+        //        return;
+        //    }
+        //}
         #endregion
 
         #region JSON Init

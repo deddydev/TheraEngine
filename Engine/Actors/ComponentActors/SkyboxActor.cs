@@ -248,7 +248,7 @@ namespace TheraEngine.Actors.Types
             
             skybox.RigidChildren.Add(mesh);
 
-            return new StaticMeshComponent() { ModelRef = skybox };
+            return new StaticMeshComponent() { ModelRef = skybox, AllowOriginRebase = false };
         }
     }
 }

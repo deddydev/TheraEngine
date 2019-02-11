@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -15,14 +14,14 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class Editor
     {
-        private void languageToolStripMenuItem_Click(object sender, EventArgs e)
+        private void btnLanguage_Click(object sender, EventArgs e)
         {
 
         }
         private void btnCancelOp_ButtonClick(object sender, EventArgs e)
         {
-            foreach (OperationInfo t in _operations)
-                t.Cancel();
+            for (int i = 0; i < _operations.Count; ++i)
+                _operations[i].Cancel();
             
             EndOperation(-1);
             toolStripStatusLabel1.Text = _operations.Count == 1 ?
@@ -90,6 +89,7 @@ namespace TheraEditor.Windows.Forms
         private void btnAbout_Click(object sender, EventArgs e)
         {
             AboutForm about = new AboutForm();
+            about.ShowDialog(this);
         }
         private void BtnViewActorTree_Click(object sender, EventArgs e) 
             => ActorTreeForm.Focus();
@@ -113,17 +113,11 @@ namespace TheraEditor.Windows.Forms
         }
         private void BtPlay_Click(object sender, EventArgs e)
         {
-            if (GameState != EEditorGameplayState.Editing)
-                GameState = EEditorGameplayState.Editing;
-            else
-                GameState = EEditorGameplayState.Attached;
+            GameState = GameState != EEditorGameplayState.Editing ? EEditorGameplayState.Editing : EEditorGameplayState.Attached;
         }
         private void btnPlayDetached_Click(object sender, EventArgs e)
         {
-            if (GameState != EEditorGameplayState.Attached)
-                GameState = EEditorGameplayState.Attached;
-            else
-                GameState = EEditorGameplayState.Detached;
+            GameState = GameState != EEditorGameplayState.Attached ? EEditorGameplayState.Attached : EEditorGameplayState.Detached;
         }
         private void EndGameplay() 
             => GameState = EEditorGameplayState.Editing;
@@ -141,95 +135,7 @@ namespace TheraEditor.Windows.Forms
             => new MaterialEditorForm().Show();
         private async void btnUploadNewRelease_Click(object sender, EventArgs e)
         {
-#if DEBUG
-            string progDir = Application.StartupPath;
-            string[] exts =
-            {
-                ".dll",
-                ".exe",
-                ".config",
-//#if DEBUG
-//                ".pdb", //Debug symbols, not needed for public releases
-//                ".xml", //Library code documentation, also not needed
-//#endif
-            };
-
-            Engine.PrintLine("Creating new release...");
-
-            //TODO: create release creator form
-
-            string[] paths = Directory.EnumerateFileSystemEntries(progDir, "*.*", SearchOption.AllDirectories).
-                Where(x => exts.Contains(Path.GetExtension(x).ToLowerInvariant())).ToArray();
-
-            string tempFolderName = SerializationCommon.ResolveDirectoryName(progDir, "temp");
-            string tempFolderPath = progDir + Path.DirectorySeparatorChar + tempFolderName;
-
-            //if (Directory.Exists(tempFolderPath))
-            //    Directory.Delete(tempFolderPath);
-            Directory.CreateDirectory(tempFolderPath);
-            string newPath;
-            string relativePath;
-            string[] parts;
-            string fileName;
-            foreach (string path in paths)
-            {
-                newPath = tempFolderPath;
-                relativePath = path.Substring(progDir.Length);
-                parts = relativePath.Split(Path.DirectorySeparatorChar);
-                for (int i = 0; i < parts.Length - 1; ++i)
-                {
-                    newPath += Path.DirectorySeparatorChar + parts[i];
-                    if (!Directory.Exists(newPath))
-                        Directory.CreateDirectory(newPath);
-                }
-                fileName = parts[parts.Length - 1];
-                File.Copy(path, newPath + Path.DirectorySeparatorChar + fileName);
-            }
-
-            string tagName = CreateTagName();
-            string zipFilePath = progDir + Path.DirectorySeparatorChar + tagName + ".zip";
-
-            if (File.Exists(zipFilePath))
-                File.Delete(zipFilePath);
-
-            int op = BeginOperation("Creating update zip...", out Progress<float> progress, out CancellationTokenSource cancel);
-            IProgress<float> iProg = progress;
-            await Task.Run(() => ZipFileWithProgress.CreateFromDirectory(tempFolderPath, zipFilePath, iProg));
-            EndOperation(op);
-            
-            DeleteDirectory(tempFolderPath);
-
-            await Github.ReleaseCreator.CreateNewRelease(Assembly.GetExecutingAssembly(), "test release", zipFilePath);
-
-            File.Delete(zipFilePath);
-#endif
-        }
-        public static void DeleteDirectory(string path)
-        {
-            foreach (string directory in Directory.GetDirectories(path))
-                DeleteDirectory(directory);
-
-            try
-            {
-                Directory.Delete(path, true);
-            }
-            catch (IOException)
-            {
-                Directory.Delete(path, true);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                Directory.Delete(path, true);
-            }
-        }
-        private static string[] GetFiles(string sourceFolder, string filters, SearchOption searchOption)
-            => filters.Split('|').SelectMany(filter => Directory.GetFiles(sourceFolder, filter, searchOption)).ToArray();
-        private static string CreateTagName()
-        {
-            Assembly editorAssembly = Assembly.GetExecutingAssembly();
-            AssemblyName name = editorAssembly.GetName();
-            Version ver = name.Version;
-            return $"{name.Name.ReplaceWhitespace("_")}_v{ver.ToString()}";
+            await Github.ReleaseCreator.CreateNewRelease(Assembly.GetExecutingAssembly(), "test release");
         }
     }
 }

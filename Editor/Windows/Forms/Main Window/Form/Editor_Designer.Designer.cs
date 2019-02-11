@@ -54,7 +54,6 @@
             this.btnUserSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnWorldSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEditEditorSettings = new System.Windows.Forms.ToolStripMenuItem();
-            this.vREnabledToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnView = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewViewport = new System.Windows.Forms.ToolStripMenuItem();
             this.viewport1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,15 +78,17 @@
             this.targetIPPortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.txtTargetIPPort = new System.Windows.Forms.ToolStripTextBox();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.extensionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.cubeMapEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.textureGeneratorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnManageExtensions = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnCubemapEditor = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnTextureGenerator = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnVREdit = new System.Windows.Forms.ToolStripMenuItem();
             this.btnPackageNewRelease = new System.Windows.Forms.ToolStripMenuItem();
             this.btnHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnContact = new System.Windows.Forms.ToolStripMenuItem();
             this.btnDocumentation = new System.Windows.Forms.ToolStripMenuItem();
-            this.languageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnLanguage = new System.Windows.Forms.ToolStripMenuItem();
             this.btnCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnViewChangeLog = new System.Windows.Forms.ToolStripMenuItem();
             this.btnAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.TheraEngineText = new System.Windows.Forms.Label();
             this.DecorationToolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -100,7 +101,6 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.btnCancelOp = new System.Windows.Forms.ToolStripSplitButton();
-            this.btnViewChangeLog = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -115,37 +115,32 @@
             // 
             this.BodyPanel.Controls.Add(this.DockPanel);
             this.BodyPanel.Controls.Add(this.panel1);
-            this.BodyPanel.Size = new System.Drawing.Size(965, 673);
+            resources.ApplyResources(this.BodyPanel, "BodyPanel");
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(965, 713);
+            resources.ApplyResources(this.MainPanel, "MainPanel");
             // 
             // TitlePanel
             // 
             this.TitlePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(23)))), ((int)(((byte)(20)))));
-            this.TitlePanel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("TitlePanel.BackgroundImage")));
+            resources.ApplyResources(this.TitlePanel, "TitlePanel");
             this.TitlePanel.Controls.Add(this.PaddingPanel);
-            this.TitlePanel.Size = new System.Drawing.Size(965, 40);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             this.TitlePanel.Controls.SetChildIndex(this.PaddingPanel, 0);
             // 
             // FormTitle
             // 
-            this.FormTitle.Margin = new System.Windows.Forms.Padding(0);
-            this.FormTitle.Padding = new System.Windows.Forms.Padding(0);
-            this.FormTitle.Size = new System.Drawing.Size(794, 40);
-            this.FormTitle.Text = "Title Text";
-            this.FormTitle.TextAlign = System.Drawing.ContentAlignment.TopLeft;
+            resources.ApplyResources(this.FormTitle, "FormTitle");
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(965, 721);
+            resources.ApplyResources(this.MiddlePanel, "MiddlePanel");
             // 
             // menuStrip1
             // 
             this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
-            this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Left;
+            resources.ApplyResources(this.menuStrip1, "menuStrip1");
             this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(0);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -156,14 +151,8 @@
             this.toolsToolStripMenuItem,
             this.btnHelp});
             this.menuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            this.menuStrip1.Location = new System.Drawing.Point(136, 0);
-            this.menuStrip1.MinimumSize = new System.Drawing.Size(0, 28);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(0);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(315, 40);
-            this.menuStrip1.TabIndex = 0;
-            this.menuStrip1.Text = "menuStrip1";
             // 
             // btnFile
             // 
@@ -172,8 +161,7 @@
             this.btnWorld});
             this.btnFile.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnFile.Name = "btnFile";
-            this.btnFile.Size = new System.Drawing.Size(44, 40);
-            this.btnFile.Text = "File";
+            resources.ApplyResources(this.btnFile, "btnFile");
             this.btnFile.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // btnProject
@@ -185,42 +173,36 @@
             this.btnSaveProjectAs,
             this.btnCloseProject});
             this.btnProject.Name = "btnProject";
-            this.btnProject.Size = new System.Drawing.Size(130, 26);
-            this.btnProject.Text = "Project";
+            resources.ApplyResources(this.btnProject, "btnProject");
             // 
             // btnNewProject
             // 
             this.btnNewProject.Name = "btnNewProject";
-            this.btnNewProject.Size = new System.Drawing.Size(135, 26);
-            this.btnNewProject.Text = "New";
+            resources.ApplyResources(this.btnNewProject, "btnNewProject");
             this.btnNewProject.Click += new System.EventHandler(this.BtnNewProject_Click);
             // 
             // btnOpenProject
             // 
             this.btnOpenProject.Name = "btnOpenProject";
-            this.btnOpenProject.Size = new System.Drawing.Size(135, 26);
-            this.btnOpenProject.Text = "Open";
+            resources.ApplyResources(this.btnOpenProject, "btnOpenProject");
             this.btnOpenProject.Click += new System.EventHandler(this.BtnOpenProject_Click);
             // 
             // btnSaveProject
             // 
             this.btnSaveProject.Name = "btnSaveProject";
-            this.btnSaveProject.Size = new System.Drawing.Size(135, 26);
-            this.btnSaveProject.Text = "Save";
+            resources.ApplyResources(this.btnSaveProject, "btnSaveProject");
             this.btnSaveProject.Click += new System.EventHandler(this.BtnSaveProject_Click);
             // 
             // btnSaveProjectAs
             // 
             this.btnSaveProjectAs.Name = "btnSaveProjectAs";
-            this.btnSaveProjectAs.Size = new System.Drawing.Size(135, 26);
-            this.btnSaveProjectAs.Text = "Save As";
+            resources.ApplyResources(this.btnSaveProjectAs, "btnSaveProjectAs");
             this.btnSaveProjectAs.Click += new System.EventHandler(this.BtnSaveProjectAs_Click);
             // 
             // btnCloseProject
             // 
             this.btnCloseProject.Name = "btnCloseProject";
-            this.btnCloseProject.Size = new System.Drawing.Size(135, 26);
-            this.btnCloseProject.Text = "Close";
+            resources.ApplyResources(this.btnCloseProject, "btnCloseProject");
             this.btnCloseProject.Click += new System.EventHandler(this.btnCloseProject_Click);
             // 
             // btnWorld
@@ -232,42 +214,36 @@
             this.btnSaveWorldAs,
             this.btnCloseWorld});
             this.btnWorld.Name = "btnWorld";
-            this.btnWorld.Size = new System.Drawing.Size(130, 26);
-            this.btnWorld.Text = "World";
+            resources.ApplyResources(this.btnWorld, "btnWorld");
             // 
             // btnNewWorld
             // 
             this.btnNewWorld.Name = "btnNewWorld";
-            this.btnNewWorld.Size = new System.Drawing.Size(135, 26);
-            this.btnNewWorld.Text = "New";
+            resources.ApplyResources(this.btnNewWorld, "btnNewWorld");
             this.btnNewWorld.Click += new System.EventHandler(this.BtnNewWorld_Click);
             // 
             // btnOpenWorld
             // 
             this.btnOpenWorld.Name = "btnOpenWorld";
-            this.btnOpenWorld.Size = new System.Drawing.Size(135, 26);
-            this.btnOpenWorld.Text = "Open";
+            resources.ApplyResources(this.btnOpenWorld, "btnOpenWorld");
             this.btnOpenWorld.Click += new System.EventHandler(this.BtnOpenWorld_Click);
             // 
             // btnSaveWorld
             // 
             this.btnSaveWorld.Name = "btnSaveWorld";
-            this.btnSaveWorld.Size = new System.Drawing.Size(135, 26);
-            this.btnSaveWorld.Text = "Save";
+            resources.ApplyResources(this.btnSaveWorld, "btnSaveWorld");
             this.btnSaveWorld.Click += new System.EventHandler(this.BtnSaveWorld_Click);
             // 
             // btnSaveWorldAs
             // 
             this.btnSaveWorldAs.Name = "btnSaveWorldAs";
-            this.btnSaveWorldAs.Size = new System.Drawing.Size(135, 26);
-            this.btnSaveWorldAs.Text = "Save As";
+            resources.ApplyResources(this.btnSaveWorldAs, "btnSaveWorldAs");
             this.btnSaveWorldAs.Click += new System.EventHandler(this.saveAsToolStripMenuItem1_Click);
             // 
             // btnCloseWorld
             // 
             this.btnCloseWorld.Name = "btnCloseWorld";
-            this.btnCloseWorld.Size = new System.Drawing.Size(135, 26);
-            this.btnCloseWorld.Text = "Close";
+            resources.ApplyResources(this.btnCloseWorld, "btnCloseWorld");
             this.btnCloseWorld.Click += new System.EventHandler(this.btnCloseWorld_Click);
             // 
             // btnEdit
@@ -276,29 +252,22 @@
             this.btnUndo,
             this.btnRedo,
             this.btnEditProjectSettings,
-            this.btnEditEditorSettings,
-            this.vREnabledToolStripMenuItem});
+            this.btnWorldSettings,
+            this.btnEditEditorSettings});
             this.btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnEdit.Name = "btnEdit";
-            this.btnEdit.Size = new System.Drawing.Size(47, 40);
-            this.btnEdit.Text = "Edit";
+            resources.ApplyResources(this.btnEdit, "btnEdit");
             // 
             // btnUndo
             // 
-            this.btnUndo.Enabled = false;
+            resources.ApplyResources(this.btnUndo, "btnUndo");
             this.btnUndo.Name = "btnUndo";
-            this.btnUndo.ShortcutKeyDisplayString = "Ctrl + Z";
-            this.btnUndo.Size = new System.Drawing.Size(234, 26);
-            this.btnUndo.Text = "Undo";
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
             // btnRedo
             // 
-            this.btnRedo.Enabled = false;
+            resources.ApplyResources(this.btnRedo, "btnRedo");
             this.btnRedo.Name = "btnRedo";
-            this.btnRedo.ShortcutKeyDisplayString = "Ctrl + Y";
-            this.btnRedo.Size = new System.Drawing.Size(234, 26);
-            this.btnRedo.Text = "Redo";
             this.btnRedo.Click += new System.EventHandler(this.btnRedo_Click);
             // 
             // btnEditProjectSettings
@@ -307,63 +276,45 @@
             this.btnEditorSettings,
             this.btnEngineSettings,
             this.btnProjectSettings,
-            this.btnUserSettings,
-            this.btnWorldSettings});
+            this.btnUserSettings});
             this.btnEditProjectSettings.Name = "btnEditProjectSettings";
-            this.btnEditProjectSettings.Size = new System.Drawing.Size(234, 26);
-            this.btnEditProjectSettings.Text = "Project Settings";
+            resources.ApplyResources(this.btnEditProjectSettings, "btnEditProjectSettings");
             // 
             // btnEditorSettings
             // 
             this.btnEditorSettings.Name = "btnEditorSettings";
-            this.btnEditorSettings.Size = new System.Drawing.Size(187, 26);
-            this.btnEditorSettings.Text = "Editor Settings";
+            resources.ApplyResources(this.btnEditorSettings, "btnEditorSettings");
             this.btnEditorSettings.Click += new System.EventHandler(this.BtnEditorSettings_Click);
             // 
             // btnEngineSettings
             // 
-            this.btnEngineSettings.Enabled = false;
+            resources.ApplyResources(this.btnEngineSettings, "btnEngineSettings");
             this.btnEngineSettings.Name = "btnEngineSettings";
-            this.btnEngineSettings.Size = new System.Drawing.Size(187, 26);
-            this.btnEngineSettings.Text = "Engine Settings";
             this.btnEngineSettings.Click += new System.EventHandler(this.BtnEngineSettings_Click);
             // 
             // btnProjectSettings
             // 
-            this.btnProjectSettings.Enabled = false;
+            resources.ApplyResources(this.btnProjectSettings, "btnProjectSettings");
             this.btnProjectSettings.Name = "btnProjectSettings";
-            this.btnProjectSettings.Size = new System.Drawing.Size(187, 26);
-            this.btnProjectSettings.Text = "Project Settings";
             this.btnProjectSettings.Click += new System.EventHandler(this.BtnProjectSettings_Click);
             // 
             // btnUserSettings
             // 
-            this.btnUserSettings.Enabled = false;
+            resources.ApplyResources(this.btnUserSettings, "btnUserSettings");
             this.btnUserSettings.Name = "btnUserSettings";
-            this.btnUserSettings.Size = new System.Drawing.Size(187, 26);
-            this.btnUserSettings.Text = "User Settings";
             this.btnUserSettings.Click += new System.EventHandler(this.BtnUserSettings_Click);
             // 
             // btnWorldSettings
             // 
-            this.btnWorldSettings.Enabled = false;
             this.btnWorldSettings.Name = "btnWorldSettings";
-            this.btnWorldSettings.Size = new System.Drawing.Size(187, 26);
-            this.btnWorldSettings.Text = "World Settings";
+            resources.ApplyResources(this.btnWorldSettings, "btnWorldSettings");
             this.btnWorldSettings.Click += new System.EventHandler(this.BtnWorldSettings_Click);
             // 
             // btnEditEditorSettings
             // 
             this.btnEditEditorSettings.Name = "btnEditEditorSettings";
-            this.btnEditEditorSettings.Size = new System.Drawing.Size(234, 26);
-            this.btnEditEditorSettings.Text = "Editor Default Settings";
+            resources.ApplyResources(this.btnEditEditorSettings, "btnEditEditorSettings");
             this.btnEditEditorSettings.Click += new System.EventHandler(this.BtnEditorSettings_Click);
-            // 
-            // vREnabledToolStripMenuItem
-            // 
-            this.vREnabledToolStripMenuItem.Name = "vREnabledToolStripMenuItem";
-            this.vREnabledToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
-            this.vREnabledToolStripMenuItem.Text = "VR Editing";
             // 
             // btnView
             // 
@@ -378,8 +329,7 @@
             this.btnOpenVisualStudio});
             this.btnView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnView.Name = "btnView";
-            this.btnView.Size = new System.Drawing.Size(53, 40);
-            this.btnView.Text = "View";
+            resources.ApplyResources(this.btnView, "btnView");
             // 
             // btnViewViewport
             // 
@@ -388,91 +338,73 @@
             this.viewport2ToolStripMenuItem,
             this.viewport3ToolStripMenuItem,
             this.viewport4ToolStripMenuItem});
-            this.btnViewViewport.Image = ((System.Drawing.Image)(resources.GetObject("btnViewViewport.Image")));
+            resources.ApplyResources(this.btnViewViewport, "btnViewViewport");
             this.btnViewViewport.Name = "btnViewViewport";
-            this.btnViewViewport.Size = new System.Drawing.Size(201, 26);
-            this.btnViewViewport.Text = "Viewport";
             // 
             // viewport1ToolStripMenuItem
             // 
             this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
-            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
-            this.viewport1ToolStripMenuItem.Text = "Viewport 1";
+            resources.ApplyResources(this.viewport1ToolStripMenuItem, "viewport1ToolStripMenuItem");
             this.viewport1ToolStripMenuItem.Click += new System.EventHandler(this.Viewport1ToolStripMenuItem_Click);
             // 
             // viewport2ToolStripMenuItem
             // 
             this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
-            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
-            this.viewport2ToolStripMenuItem.Text = "Viewport 2";
+            resources.ApplyResources(this.viewport2ToolStripMenuItem, "viewport2ToolStripMenuItem");
             this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
             // 
             // viewport3ToolStripMenuItem
             // 
             this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
-            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
-            this.viewport3ToolStripMenuItem.Text = "Viewport 3";
+            resources.ApplyResources(this.viewport3ToolStripMenuItem, "viewport3ToolStripMenuItem");
             this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
             // 
             // viewport4ToolStripMenuItem
             // 
             this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
-            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(156, 26);
-            this.viewport4ToolStripMenuItem.Text = "Viewport 4";
+            resources.ApplyResources(this.viewport4ToolStripMenuItem, "viewport4ToolStripMenuItem");
             this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
             // 
             // btnViewActorTree
             // 
-            this.btnViewActorTree.Image = ((System.Drawing.Image)(resources.GetObject("btnViewActorTree.Image")));
+            resources.ApplyResources(this.btnViewActorTree, "btnViewActorTree");
             this.btnViewActorTree.Name = "btnViewActorTree";
-            this.btnViewActorTree.Size = new System.Drawing.Size(201, 26);
-            this.btnViewActorTree.Text = "Scene Actors Tree";
             this.btnViewActorTree.Click += new System.EventHandler(this.BtnViewActorTree_Click);
             // 
             // btnViewFileTree
             // 
-            this.btnViewFileTree.Image = ((System.Drawing.Image)(resources.GetObject("btnViewFileTree.Image")));
+            resources.ApplyResources(this.btnViewFileTree, "btnViewFileTree");
             this.btnViewFileTree.Name = "btnViewFileTree";
-            this.btnViewFileTree.Size = new System.Drawing.Size(201, 26);
-            this.btnViewFileTree.Text = "Project Files Tree";
             this.btnViewFileTree.Click += new System.EventHandler(this.btnViewFileTree_Click);
             // 
             // btnViewTools
             // 
-            this.btnViewTools.Image = ((System.Drawing.Image)(resources.GetObject("btnViewTools.Image")));
+            resources.ApplyResources(this.btnViewTools, "btnViewTools");
             this.btnViewTools.Name = "btnViewTools";
-            this.btnViewTools.Size = new System.Drawing.Size(201, 26);
-            this.btnViewTools.Text = "Tools";
             this.btnViewTools.Click += new System.EventHandler(this.btnViewTools_Click);
             // 
             // btnViewPropertyGrid
             // 
-            this.btnViewPropertyGrid.Image = ((System.Drawing.Image)(resources.GetObject("btnViewPropertyGrid.Image")));
+            resources.ApplyResources(this.btnViewPropertyGrid, "btnViewPropertyGrid");
             this.btnViewPropertyGrid.Name = "btnViewPropertyGrid";
-            this.btnViewPropertyGrid.Size = new System.Drawing.Size(201, 26);
-            this.btnViewPropertyGrid.Text = "Property Grid";
             this.btnViewPropertyGrid.Click += new System.EventHandler(this.btnViewPropertyGrid_Click);
             // 
             // btnViewOutput
             // 
-            this.btnViewOutput.Image = ((System.Drawing.Image)(resources.GetObject("btnViewOutput.Image")));
+            resources.ApplyResources(this.btnViewOutput, "btnViewOutput");
             this.btnViewOutput.Name = "btnViewOutput";
-            this.btnViewOutput.Size = new System.Drawing.Size(201, 26);
-            this.btnViewOutput.Text = "Output";
             this.btnViewOutput.Click += new System.EventHandler(this.btnViewOutput_Click);
             // 
             // btnViewAnalytics
             // 
             this.btnViewAnalytics.Name = "btnViewAnalytics";
-            this.btnViewAnalytics.Size = new System.Drawing.Size(201, 26);
-            this.btnViewAnalytics.Text = "Analytics";
+            resources.ApplyResources(this.btnViewAnalytics, "btnViewAnalytics");
             this.btnViewAnalytics.Click += new System.EventHandler(this.BtnViewAnalytics_Click);
             // 
             // btnOpenVisualStudio
             // 
             this.btnOpenVisualStudio.Name = "btnOpenVisualStudio";
-            this.btnOpenVisualStudio.Size = new System.Drawing.Size(201, 26);
-            this.btnOpenVisualStudio.Text = "Visual Studio";
+            resources.ApplyResources(this.btnOpenVisualStudio, "btnOpenVisualStudio");
             this.btnOpenVisualStudio.Click += new System.EventHandler(this.visualStudioToolStripMenuItem_Click);
             // 
             // btnGame
@@ -484,28 +416,24 @@
             this.networkingToolStripMenuItem});
             this.btnGame.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnGame.Name = "btnGame";
-            this.btnGame.Size = new System.Drawing.Size(60, 40);
-            this.btnGame.Text = "Game";
+            resources.ApplyResources(this.btnGame, "btnGame");
             // 
             // btnPlay
             // 
             this.btnPlay.Name = "btnPlay";
-            this.btnPlay.Size = new System.Drawing.Size(179, 26);
-            this.btnPlay.Text = "Play";
+            resources.ApplyResources(this.btnPlay, "btnPlay");
             this.btnPlay.Click += new System.EventHandler(this.BtPlay_Click);
             // 
             // btnPlayDetached
             // 
             this.btnPlayDetached.Name = "btnPlayDetached";
-            this.btnPlayDetached.Size = new System.Drawing.Size(179, 26);
-            this.btnPlayDetached.Text = "Play Detached";
+            resources.ApplyResources(this.btnPlayDetached, "btnPlayDetached");
             this.btnPlayDetached.Click += new System.EventHandler(this.btnPlayDetached_Click);
             // 
             // btnCompile
             // 
             this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(179, 26);
-            this.btnCompile.Text = "Compile";
+            resources.ApplyResources(this.btnCompile, "btnCompile");
             this.btnCompile.Click += new System.EventHandler(this.btnCompile_Click);
             // 
             // networkingToolStripMenuItem
@@ -517,78 +445,74 @@
             this.targetIPPortToolStripMenuItem,
             this.txtTargetIPPort});
             this.networkingToolStripMenuItem.Name = "networkingToolStripMenuItem";
-            this.networkingToolStripMenuItem.Size = new System.Drawing.Size(179, 26);
-            this.networkingToolStripMenuItem.Text = "Networking";
+            resources.ApplyResources(this.networkingToolStripMenuItem, "networkingToolStripMenuItem");
             // 
             // connectAsServerToolStripMenuItem
             // 
             this.connectAsServerToolStripMenuItem.Name = "connectAsServerToolStripMenuItem";
-            this.connectAsServerToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
-            this.connectAsServerToolStripMenuItem.Text = "Host Server";
+            resources.ApplyResources(this.connectAsServerToolStripMenuItem, "connectAsServerToolStripMenuItem");
             this.connectAsServerToolStripMenuItem.Click += new System.EventHandler(this.connectAsServerToolStripMenuItem_Click);
             // 
             // connectAsClientToolStripMenuItem
             // 
             this.connectAsClientToolStripMenuItem.Name = "connectAsClientToolStripMenuItem";
-            this.connectAsClientToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
-            this.connectAsClientToolStripMenuItem.Text = "Connect To Server";
+            resources.ApplyResources(this.connectAsClientToolStripMenuItem, "connectAsClientToolStripMenuItem");
             this.connectAsClientToolStripMenuItem.Click += new System.EventHandler(this.connectAsClientToolStripMenuItem_Click);
             // 
             // lblYourIpPort
             // 
             this.lblYourIpPort.Name = "lblYourIpPort";
-            this.lblYourIpPort.Size = new System.Drawing.Size(203, 26);
-            this.lblYourIpPort.Text = "Your IP:";
+            resources.ApplyResources(this.lblYourIpPort, "lblYourIpPort");
             // 
             // targetIPPortToolStripMenuItem
             // 
             this.targetIPPortToolStripMenuItem.Name = "targetIPPortToolStripMenuItem";
-            this.targetIPPortToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
-            this.targetIPPortToolStripMenuItem.Text = "Target IP:";
+            resources.ApplyResources(this.targetIPPortToolStripMenuItem, "targetIPPortToolStripMenuItem");
             // 
             // txtTargetIPPort
             // 
             this.txtTargetIPPort.Name = "txtTargetIPPort";
-            this.txtTargetIPPort.Size = new System.Drawing.Size(100, 27);
+            resources.ApplyResources(this.txtTargetIPPort, "txtTargetIPPort");
             // 
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.extensionsToolStripMenuItem,
-            this.cubeMapEditorToolStripMenuItem,
-            this.textureGeneratorToolStripMenuItem,
+            this.btnManageExtensions,
+            this.btnCubemapEditor,
+            this.btnTextureGenerator,
+            this.btnVREdit,
             this.btnPackageNewRelease});
             this.toolsToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(56, 40);
-            this.toolsToolStripMenuItem.Text = "Tools";
+            resources.ApplyResources(this.toolsToolStripMenuItem, "toolsToolStripMenuItem");
             // 
-            // extensionsToolStripMenuItem
+            // btnManageExtensions
             // 
-            this.extensionsToolStripMenuItem.Name = "extensionsToolStripMenuItem";
-            this.extensionsToolStripMenuItem.Size = new System.Drawing.Size(222, 26);
-            this.extensionsToolStripMenuItem.Text = "Manage Extensions";
-            this.extensionsToolStripMenuItem.Click += new System.EventHandler(this.extensionsToolStripMenuItem_Click);
+            this.btnManageExtensions.Name = "btnManageExtensions";
+            resources.ApplyResources(this.btnManageExtensions, "btnManageExtensions");
+            this.btnManageExtensions.Click += new System.EventHandler(this.extensionsToolStripMenuItem_Click);
             // 
-            // cubeMapEditorToolStripMenuItem
+            // btnCubemapEditor
             // 
-            this.cubeMapEditorToolStripMenuItem.Name = "cubeMapEditorToolStripMenuItem";
-            this.cubeMapEditorToolStripMenuItem.Size = new System.Drawing.Size(222, 26);
-            this.cubeMapEditorToolStripMenuItem.Text = "Cube Map Editor";
-            this.cubeMapEditorToolStripMenuItem.Click += new System.EventHandler(this.cubeMapEditorToolStripMenuItem_Click);
+            this.btnCubemapEditor.Name = "btnCubemapEditor";
+            resources.ApplyResources(this.btnCubemapEditor, "btnCubemapEditor");
+            this.btnCubemapEditor.Click += new System.EventHandler(this.cubeMapEditorToolStripMenuItem_Click);
             // 
-            // textureGeneratorToolStripMenuItem
+            // btnTextureGenerator
             // 
-            this.textureGeneratorToolStripMenuItem.Name = "textureGeneratorToolStripMenuItem";
-            this.textureGeneratorToolStripMenuItem.Size = new System.Drawing.Size(222, 26);
-            this.textureGeneratorToolStripMenuItem.Text = "Texture Generator";
-            this.textureGeneratorToolStripMenuItem.Click += new System.EventHandler(this.textureGeneratorToolStripMenuItem_Click);
+            this.btnTextureGenerator.Name = "btnTextureGenerator";
+            resources.ApplyResources(this.btnTextureGenerator, "btnTextureGenerator");
+            this.btnTextureGenerator.Click += new System.EventHandler(this.textureGeneratorToolStripMenuItem_Click);
+            // 
+            // btnVREdit
+            // 
+            this.btnVREdit.Name = "btnVREdit";
+            resources.ApplyResources(this.btnVREdit, "btnVREdit");
             // 
             // btnPackageNewRelease
             // 
             this.btnPackageNewRelease.Name = "btnPackageNewRelease";
-            this.btnPackageNewRelease.Size = new System.Drawing.Size(222, 26);
-            this.btnPackageNewRelease.Text = "Upload New Release";
+            resources.ApplyResources(this.btnPackageNewRelease, "btnPackageNewRelease");
             this.btnPackageNewRelease.Click += new System.EventHandler(this.btnUploadNewRelease_Click);
             // 
             // btnHelp
@@ -596,63 +520,54 @@
             this.btnHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnContact,
             this.btnDocumentation,
-            this.languageToolStripMenuItem,
+            this.btnLanguage,
             this.btnCheckForUpdates,
             this.btnViewChangeLog,
             this.btnAbout});
             this.btnHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.btnHelp.Name = "btnHelp";
-            this.btnHelp.Size = new System.Drawing.Size(53, 40);
-            this.btnHelp.Text = "Help";
+            resources.ApplyResources(this.btnHelp, "btnHelp");
             // 
             // btnContact
             // 
             this.btnContact.Name = "btnContact";
-            this.btnContact.Size = new System.Drawing.Size(216, 26);
-            this.btnContact.Text = "Contact";
+            resources.ApplyResources(this.btnContact, "btnContact");
             this.btnContact.Click += new System.EventHandler(this.btnContact_Click);
             // 
             // btnDocumentation
             // 
             this.btnDocumentation.Name = "btnDocumentation";
-            this.btnDocumentation.Size = new System.Drawing.Size(216, 26);
-            this.btnDocumentation.Text = "Documentation";
+            resources.ApplyResources(this.btnDocumentation, "btnDocumentation");
             this.btnDocumentation.Click += new System.EventHandler(this.btnDocumentation_Click);
             // 
-            // languageToolStripMenuItem
+            // btnLanguage
             // 
-            this.languageToolStripMenuItem.Name = "languageToolStripMenuItem";
-            this.languageToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
-            this.languageToolStripMenuItem.Text = "Language";
-            this.languageToolStripMenuItem.Click += new System.EventHandler(this.languageToolStripMenuItem_Click);
+            this.btnLanguage.Name = "btnLanguage";
+            resources.ApplyResources(this.btnLanguage, "btnLanguage");
+            this.btnLanguage.Click += new System.EventHandler(this.btnLanguage_Click);
             // 
             // btnCheckForUpdates
             // 
             this.btnCheckForUpdates.Name = "btnCheckForUpdates";
-            this.btnCheckForUpdates.Size = new System.Drawing.Size(216, 26);
-            this.btnCheckForUpdates.Text = "Check For Updates";
+            resources.ApplyResources(this.btnCheckForUpdates, "btnCheckForUpdates");
             this.btnCheckForUpdates.Click += new System.EventHandler(this.btnCheckForUpdates_Click);
+            // 
+            // btnViewChangeLog
+            // 
+            this.btnViewChangeLog.Name = "btnViewChangeLog";
+            resources.ApplyResources(this.btnViewChangeLog, "btnViewChangeLog");
             // 
             // btnAbout
             // 
             this.btnAbout.Name = "btnAbout";
-            this.btnAbout.Size = new System.Drawing.Size(216, 26);
-            this.btnAbout.Text = "About";
+            resources.ApplyResources(this.btnAbout, "btnAbout");
             this.btnAbout.Click += new System.EventHandler(this.btnAbout_Click);
             // 
             // TheraEngineText
             // 
-            this.TheraEngineText.Dock = System.Windows.Forms.DockStyle.Left;
-            this.TheraEngineText.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            resources.ApplyResources(this.TheraEngineText, "TheraEngineText");
             this.TheraEngineText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.TheraEngineText.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.TheraEngineText.Location = new System.Drawing.Point(0, 0);
-            this.TheraEngineText.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.TheraEngineText.Name = "TheraEngineText";
-            this.TheraEngineText.Size = new System.Drawing.Size(136, 40);
-            this.TheraEngineText.TabIndex = 1;
-            this.TheraEngineText.Text = "Thera Engine";
-            this.TheraEngineText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // DecorationToolTip
             // 
@@ -662,15 +577,11 @@
             // DockPanel
             // 
             this.DockPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(11)))));
-            this.DockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            resources.ApplyResources(this.DockPanel, "DockPanel");
             this.DockPanel.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
-            this.DockPanel.Location = new System.Drawing.Point(0, 0);
-            this.DockPanel.Margin = new System.Windows.Forms.Padding(2);
             this.DockPanel.Name = "DockPanel";
             this.DockPanel.ShowDocumentIcon = true;
-            this.DockPanel.Size = new System.Drawing.Size(965, 640);
             this.DockPanel.SupportDeeplyNestedContent = true;
-            this.DockPanel.TabIndex = 7;
             // 
             // PaddingPanel
             // 
@@ -679,113 +590,70 @@
             this.PaddingPanel.Controls.Add(this.lblVersion);
             this.PaddingPanel.Controls.Add(this.menuStrip1);
             this.PaddingPanel.Controls.Add(this.TheraEngineText);
-            this.PaddingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PaddingPanel.Location = new System.Drawing.Point(44, 0);
+            resources.ApplyResources(this.PaddingPanel, "PaddingPanel");
             this.PaddingPanel.Name = "PaddingPanel";
-            this.PaddingPanel.Size = new System.Drawing.Size(794, 40);
-            this.PaddingPanel.TabIndex = 9;
             // 
             // FormTitle2
             // 
-            this.FormTitle2.AutoSize = true;
-            this.FormTitle2.Dock = System.Windows.Forms.DockStyle.Left;
-            this.FormTitle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            resources.ApplyResources(this.FormTitle2, "FormTitle2");
             this.FormTitle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.FormTitle2.Location = new System.Drawing.Point(451, 0);
-            this.FormTitle2.MinimumSize = new System.Drawing.Size(0, 40);
             this.FormTitle2.Name = "FormTitle2";
-            this.FormTitle2.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.FormTitle2.Size = new System.Drawing.Size(75, 40);
-            this.FormTitle2.TabIndex = 2;
-            this.FormTitle2.Text = "Title Text";
-            this.FormTitle2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblVersion
             // 
-            this.lblVersion.AutoSize = true;
-            this.lblVersion.Dock = System.Windows.Forms.DockStyle.Right;
-            this.lblVersion.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            resources.ApplyResources(this.lblVersion, "lblVersion");
             this.lblVersion.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(104)))), ((int)(((byte)(104)))), ((int)(((byte)(104)))));
-            this.lblVersion.Location = new System.Drawing.Point(731, 0);
-            this.lblVersion.MinimumSize = new System.Drawing.Size(0, 40);
             this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.lblVersion.Size = new System.Drawing.Size(63, 40);
-            this.lblVersion.TabIndex = 3;
-            this.lblVersion.Text = "Version";
-            this.lblVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panel1
             // 
             this.panel1.Controls.Add(this.statusStrip1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 640);
+            resources.ApplyResources(this.panel1, "panel1");
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(965, 33);
-            this.panel1.TabIndex = 8;
             // 
             // statusStrip1
             // 
             this.statusStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(23)))), ((int)(((byte)(20)))));
-            this.statusStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
+            resources.ApplyResources(this.statusStrip1, "statusStrip1");
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripProgressBar1,
             this.btnCancelOp});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 0);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(965, 33);
-            this.statusStrip1.TabIndex = 0;
-            this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripStatusLabel1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(950, 28);
+            resources.ApplyResources(this.toolStripStatusLabel1, "toolStripStatusLabel1");
             this.toolStripStatusLabel1.Spring = true;
-            this.toolStripStatusLabel1.Text = "Welcome";
-            this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // toolStripProgressBar1
             // 
             this.toolStripProgressBar1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.toolStripProgressBar1.Maximum = 1000;
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(300, 27);
+            resources.ApplyResources(this.toolStripProgressBar1, "toolStripProgressBar1");
             this.toolStripProgressBar1.Step = 1;
             this.toolStripProgressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.toolStripProgressBar1.Visible = false;
             // 
             // btnCancelOp
             // 
             this.btnCancelOp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.btnCancelOp.DropDownButtonWidth = 0;
             this.btnCancelOp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.btnCancelOp.Image = ((System.Drawing.Image)(resources.GetObject("btnCancelOp.Image")));
-            this.btnCancelOp.ImageTransparentColor = System.Drawing.Color.Magenta;
+            resources.ApplyResources(this.btnCancelOp, "btnCancelOp");
             this.btnCancelOp.Name = "btnCancelOp";
-            this.btnCancelOp.Size = new System.Drawing.Size(129, 31);
-            this.btnCancelOp.Text = "Cancel Operation";
-            this.btnCancelOp.Visible = false;
             this.btnCancelOp.ButtonClick += new System.EventHandler(this.btnCancelOp_ButtonClick);
-            // 
-            // btnViewChangeLog
-            // 
-            this.btnViewChangeLog.Name = "btnViewChangeLog";
-            this.btnViewChangeLog.Size = new System.Drawing.Size(216, 26);
-            this.btnViewChangeLog.Text = "Change Log";
             // 
             // Editor
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.ClientSize = new System.Drawing.Size(973, 721);
-            this.Location = new System.Drawing.Point(0, 0);
+            resources.ApplyResources(this, "$this");
             this.MainMenuStrip = this.menuStrip1;
-            this.MinimumSize = new System.Drawing.Size(0, 0);
             this.Name = "Editor";
             this.BodyPanel.ResumeLayout(false);
             this.MainPanel.ResumeLayout(false);
@@ -813,7 +681,6 @@
         private System.Windows.Forms.ToolStripMenuItem btnEngineSettings;
         private System.Windows.Forms.ToolStripMenuItem btnProjectSettings;
         private System.Windows.Forms.ToolStripMenuItem btnUserSettings;
-        private System.Windows.Forms.ToolStripMenuItem btnWorldSettings;
         private System.Windows.Forms.ToolStripMenuItem btnGame;
         private System.Windows.Forms.ToolStripMenuItem btnPlay;
         private System.Windows.Forms.ToolStripMenuItem btnCompile;
@@ -853,7 +720,6 @@
         private System.Windows.Forms.ToolStripMenuItem btnCheckForUpdates;
         private System.Windows.Forms.Panel PaddingPanel;
         private System.Windows.Forms.Label FormTitle2;
-        private System.Windows.Forms.ToolStripMenuItem vREnabledToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem btnViewAnalytics;
         private System.Windows.Forms.ToolStripMenuItem networkingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectAsServerToolStripMenuItem;
@@ -867,15 +733,17 @@
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
         private System.Windows.Forms.ToolStripSplitButton btnCancelOp;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem cubeMapEditorToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem languageToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem extensionsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem textureGeneratorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnCubemapEditor;
+        private System.Windows.Forms.ToolStripMenuItem btnLanguage;
+        private System.Windows.Forms.ToolStripMenuItem btnManageExtensions;
+        private System.Windows.Forms.ToolStripMenuItem btnTextureGenerator;
         private System.Windows.Forms.Label lblVersion;
         private System.Windows.Forms.ToolStripMenuItem btnCloseProject;
         private System.Windows.Forms.ToolStripMenuItem btnCloseWorld;
         private System.Windows.Forms.ToolStripMenuItem btnPackageNewRelease;
         private System.Windows.Forms.ToolStripMenuItem btnViewChangeLog;
+        private System.Windows.Forms.ToolStripMenuItem btnWorldSettings;
+        private System.Windows.Forms.ToolStripMenuItem btnVREdit;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

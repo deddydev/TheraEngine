@@ -149,7 +149,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// The number of renderable items in the scene.
         /// </summary>
-        public abstract int Count { get; }
+        //public abstract int Count { get; }
 
         protected List<IPreRendered> _preRenderList = new List<IPreRendered>();
         protected List<IPreRendered> _preRenderAddWaitList = new List<IPreRendered>();

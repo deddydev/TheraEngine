@@ -89,10 +89,14 @@ namespace TheraEngine.Components.Scene.Transforms
             //Engine.PrintLine("Recalculated T.");
         }
 
-        protected internal override void OriginRebased(Vec3 newOrigin)
+        [Browsable(false)]
+        public bool AllowOriginRebase { get; set; } = true;
+
+        protected internal override void OnOriginRebased(Vec3 newOrigin)
         {
             //Engine.PrintLine("Rebasing {0}.", OwningActor.GetType().GetFriendlyName());
-            HandleWorldTranslation(-newOrigin);
+            if (AllowOriginRebase)
+                HandleWorldTranslation(-newOrigin);
         }
 
         [Browsable(false)]

@@ -41,7 +41,8 @@ namespace TheraEngine
         static Engine()
         {
             _timer = new EngineTimer();
-            _timer.UpdateFrame += Tick;
+            _timer.UpdateFrame += EngineTick;
+            _timer.SwapBuffers += EngineSwapBuffers;
 
             //LocalPlayers.PostAdded += ActivePlayers_Added;
             //LocalPlayers.PostRemoved += ActivePlayers_Removed;
@@ -352,23 +353,30 @@ namespace TheraEngine
         /// Ticks the before, during, and after physics groups. Also steps the physics simulation during the during physics tick group.
         /// Does not tick physics if paused.
         /// </summary>
-        private static void Tick(object sender, FrameEventArgs e)
+        private static void EngineTick(object sender, FrameEventArgs e)
         {
             Network?.RecievePackets();
-
-            THelpers.Swap(ref RebaseWorldsProcessing, ref RebaseWorldsQueue);
-            RebaseWorldsProcessing.ForEach(x => x.Key.RebaseOrigin(x.Value));
-            RebaseWorldsProcessing.Clear();
-
+            
             float delta = e.Time * TimeDilation;
+
             TickGroup(ETickGroup.PrePhysics, delta);
+
             if (!IsPaused)
                 World?.StepSimulation(delta);
+
             TickGroup(ETickGroup.PostPhysics, delta);
+
             Update?.Invoke(sender, e);
+
             Network?.UpdatePacketQueue(e.Time);
 
             //SteamAPI.RunCallbacks();
+        }
+        private static void EngineSwapBuffers()
+        {
+            THelpers.Swap(ref RebaseWorldsProcessing, ref RebaseWorldsQueue);
+            RebaseWorldsProcessing.ForEach(x => x.Key.RebaseOrigin(x.Value));
+            RebaseWorldsProcessing.Clear();
         }
         /// <summary>
         /// Ticks all lists of methods registered to this group.
@@ -380,6 +388,7 @@ namespace TheraEngine
             int start = (int)group;
             for (int i = start; i < start + 15; i += 3)
             {
+                //These need to be processed in order
                 for (int j = 0; j < 3; ++j)
                 //Parallel.For(0, 3, (int j) => 
                 {
@@ -396,8 +405,9 @@ namespace TheraEngine
         {
             List<DelTick> currentList = _tickLists[_currentTickList = index];
 
-            //Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
-            currentList.ForEach(x => x(delta));
+            //These can be processed in parallel, as they are in the same tick list and group
+            Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
+            //currentList.ForEach(x => x(delta));
 
             //Add or remove the list of methods that tried to register to or unregister from this group while it was ticking.
             while (!_tickListQueue.IsEmpty && _tickListQueue.TryDequeue(out Tuple<bool, DelTick> result))

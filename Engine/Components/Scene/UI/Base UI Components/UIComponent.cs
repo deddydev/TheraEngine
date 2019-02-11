@@ -299,7 +299,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        protected internal override void OriginRebased(Vec3 newOrigin) { }
+        protected internal override void OnOriginRebased(Vec3 newOrigin) { }
 
         public IEnumerator<UIComponent> GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();

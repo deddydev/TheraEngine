@@ -9,6 +9,8 @@ namespace TheraEngine.Components.Scene.Transforms
     /// </summary>
     public abstract class OriginRebasableComponent : SceneComponent
     {
+        public event Action<Vec3> OriginRebased;
+
         public OriginRebasableComponent() : base() { }
 
         /// <summary>
@@ -16,6 +18,16 @@ namespace TheraEngine.Components.Scene.Transforms
         /// </summary>
         /// <param name="newOrigin">The translation of the new origin relative to the current origin. 
         /// Subtract this value from a world translation to correct it.</param>
-        protected internal abstract void OriginRebased(Vec3 newOrigin);
+        internal void RebaseOrigin(Vec3 newOrigin)
+        {
+            OnOriginRebased(newOrigin);
+            OriginRebased?.Invoke(newOrigin);
+        }
+        /// <summary>
+        /// This is to handle translating the root component of an actor when the world's origin is changed.
+        /// </summary>
+        /// <param name="newOrigin">The translation of the new origin relative to the current origin. 
+        /// Subtract this value from a world translation to correct it.</param>
+        protected internal abstract void OnOriginRebased(Vec3 newOrigin);
     }
 }

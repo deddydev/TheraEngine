@@ -30,7 +30,7 @@ namespace TheraEngine.Core
         }
 
         public override bool CanRead => _stream.CanRead;
-        public override bool CanSeek => false;//_stream.CanSeek;
+        public override bool CanSeek => _stream.CanSeek;
         public override bool CanWrite => _stream.CanWrite;
         public override long Length => _stream.Length;
         public override long Position
@@ -52,8 +52,8 @@ namespace TheraEngine.Core
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new InvalidOperationException("Cannot seek in a progress stream.");
-            //_stream.Seek(offset, origin);
+            //throw new InvalidOperationException("Cannot seek in a progress stream.");
+            return _stream.Seek(offset, origin);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -92,25 +92,24 @@ namespace TheraEngine.Core
 
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            throw new NotImplementedException();
-            //IAsyncResult result = _stream.BeginRead(buffer, offset, count, callback, state);
-            //return result;
+            IAsyncResult result = _stream.BeginRead(buffer, offset, count, callback, state);
+            return result;
         }
         public override int EndRead(IAsyncResult asyncResult)
         {
-            throw new NotImplementedException();
-            //int result = _stream.EndRead(asyncResult);
-            //return result;
+            int bytesRead = _stream.EndRead(asyncResult);
+            _readProgress?.Report(bytesRead);
+            return bytesRead;
         }
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            throw new NotImplementedException();
-            //return _stream.BeginWrite(buffer, offset, count, callback, state);
+            IAsyncResult result = _stream.BeginWrite(buffer, offset, count, callback, state);
+            _writeProgress?.Report(count);
+            return result;
         }
         public override void EndWrite(IAsyncResult asyncResult)
         {
-            throw new NotImplementedException();
-            //_stream.EndWrite(asyncResult);
+            _stream.EndWrite(asyncResult);
         }
     }
 }

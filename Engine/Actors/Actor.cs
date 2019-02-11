@@ -92,6 +92,6 @@ namespace TheraEngine.Actors
             _sceneComponentCache = _rootComponent?.GenerateChildCache() ?? new List<SceneComponent>();
             OnSceneComponentCacheRegenerated();
         }
-        internal override void RebaseOrigin(Vec3 newOrigin) => RootComponent?.OriginRebased(newOrigin);
+        internal override void RebaseOrigin(Vec3 newOrigin) => RootComponent?.RebaseOrigin(newOrigin);
     }
 }

@@ -32,7 +32,7 @@ namespace TheraEngine.Components.Scene.Transforms
         [Browsable(false)]
         public float LaggingDistance { get; private set; }
 
-        protected internal override void OriginRebased(Vec3 newOrigin)
+        protected internal override void OnOriginRebased(Vec3 newOrigin)
         {
             _currentPoint -= newOrigin;
             _destPoint -= newOrigin;

@@ -13,7 +13,7 @@ namespace TheraEngine.Core.Files
 {
     public abstract partial class TFileObject : TObject, IFileObject
     {
-        private static void ReadLoaders(Dictionary<string, Dictionary<Type, Delegate>> loaders, Type type, string[] extensions)
+        private static void ReadLoaders(IDictionary<string, Dictionary<Type, Delegate>> loaders, Type type, IEnumerable<string> extensions)
         {
             foreach (string ext3rd in extensions)
             {
@@ -25,29 +25,24 @@ namespace TheraEngine.Core.Files
                     loaders.Add(extLower, extensionLoaders = new Dictionary<Type, Delegate>());
                 if (!extensionLoaders.ContainsKey(type))
                 {
-                    var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
+                    MethodInfo[] methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
                         .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
                         .ToArray();
-                    if (methods.Length > 0)
+                    if (methods.Length <= 0)
+                        continue;
+                    MethodInfo m = methods[0];
+                    ThirdPartyLoader loader = m.GetCustomAttribute<ThirdPartyLoader>();
+                    bool async = loader.Async;
+                    Type t = async ? typeof(Del3rdPartyImportFileMethodAsync<>) : typeof(Del3rdPartyImportFileMethod<>);
+                    try
                     {
-                        MethodInfo m = methods[0];
-                        var loader = m.GetCustomAttribute<ThirdPartyLoader>();
-                        bool async = loader.Async;
-                        Type t;
-                        if (async)
-                            t = typeof(Del3rdPartyImportFileMethodAsync<>);
-                        else
-                            t = typeof(Del3rdPartyImportFileMethod<>);
-                        try
-                        {
-                            Type delType = t.MakeGenericType(m.DeclaringType);
-                            Delegate d = Delegate.CreateDelegate(delType, m);
-                            extensionLoaders.Add(type, d);
-                        }
-                        catch
-                        {
-                            Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party loader for {m.DeclaringType.GetFriendlyName()}.");
-                        }
+                        Type delType = t.MakeGenericType(m.DeclaringType);
+                        Delegate d = Delegate.CreateDelegate(delType, m);
+                        extensionLoaders.Add(type, d);
+                    }
+                    catch
+                    {
+                        Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party loader for {m.DeclaringType.GetFriendlyName()}.");
                     }
                 }
                 else
@@ -60,15 +55,14 @@ namespace TheraEngine.Core.Files
             _3rdPartyExporters = new Dictionary<string, Dictionary<Type, Delegate>>();
             try
             {
-                var types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
+                Type[] types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
                 foreach (Type type in types)
                 {
                     TFileExt attrib = GetFileExtension(type);
-                    if (attrib != null)
-                    {
-                        ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
-                        ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
-                    }
+                    if (attrib == null)
+                        continue;
+                    ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
+                    ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
                 }
             }
             catch { }
@@ -113,10 +107,7 @@ namespace TheraEngine.Core.Files
         public static EFileFormat GetFormat(string path, out string ext)
         {
             int index = path.LastIndexOf('.') + 1;
-            if (index != 0)
-                ext = path.Substring(index).ToLowerInvariant();
-            else
-                ext = path.ToLowerInvariant();
+            ext = index != 0 ? path.Substring(index).ToLowerInvariant() : path.ToLowerInvariant();
 
             if (TFile3rdPartyExt.Is3rdPartyExtension(ext))
                 return EFileFormat.ThirdParty;
@@ -213,8 +204,8 @@ namespace TheraEngine.Core.Files
                         allTypes += ";";
                         eachType += "|";
                     }
-                    string fmt = String.Format("*.{0}{1}", type.Substring(0, 1).ToLowerInvariant(), ext.Extension);
-                    eachType += String.Format("{0} [{2}] ({1})|{1}", name, fmt, type);
+                    string fmt = $"*.{type.Substring(0, 1).ToLowerInvariant()}{ext.Extension}";
+                    eachType += $"{name} [{type}] ({fmt})|{fmt}";
                     allTypes += fmt;
                 }
             }
@@ -238,8 +229,8 @@ namespace TheraEngine.Core.Files
                             eachType += "|";
                         }
 
-                        string fmt = String.Format("*.{0}", ext.Extension);
-                        eachType += String.Format("{0} ({1})|{1}", name, fmt);
+                        string fmt = $"*.{ext.Extension}";
+                        eachType += $"{name} ({fmt})|{fmt}";
                         allTypes += fmt;
                     }
             }
@@ -261,11 +252,11 @@ namespace TheraEngine.Core.Files
                         allTypes += ";";
                         eachType += "|";
                     }
-                    string fmt = String.Format("*.{0}", extLower);
+                    string fmt = $"*.{extLower}";
                     if (TFile3rdPartyExt.ExtensionNames3rdParty.ContainsKey(extLower))
-                        eachType += String.Format("{0} ({1})|{1}", TFile3rdPartyExt.ExtensionNames3rdParty[extLower], fmt);
+                        eachType += $"{TFile3rdPartyExt.ExtensionNames3rdParty[extLower]} ({fmt})|{fmt}";
                     else
-                        eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
+                        eachType += $"{extLower} file ({fmt})|{fmt}";
                     allTypes += fmt;
                 }
             }
@@ -294,16 +285,16 @@ namespace TheraEngine.Core.Files
                         allTypes += ";";
                         eachType += "|";
                     }
-                    string fmt = String.Format("*.{0}", extLower);
+                    string fmt = $"*.{extLower}";
                     if (TFile3rdPartyExt.ExtensionNames3rdParty.ContainsKey(extLower))
-                        eachType += String.Format("{0} ({1})|{1}", TFile3rdPartyExt.ExtensionNames3rdParty[extLower], fmt);
+                        eachType += $"{TFile3rdPartyExt.ExtensionNames3rdParty[extLower]} ({fmt})|{fmt}";
                     else
-                        eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
+                        eachType += $"{extLower} file ({fmt})|{fmt}";
                     allTypes += fmt;
                 }
             }
             
-            string allTypesFull = String.Format("{0} ({1})|{1}", name, allTypes);
+            string allTypesFull = $"{name} ({allTypes})|{allTypes}";
             return allTypesFull + "|" + eachType;
         }
 
@@ -400,12 +391,9 @@ namespace TheraEngine.Core.Files
                     TFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as TFileObject;
                     return file;
                 }
-                else
-                {
-                    Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
-                    return null;
 
-                }
+                Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
+                return null;
             }
             catch (Exception ex)
             {

@@ -601,6 +601,22 @@ namespace TheraEditor
             //sln.SaveAs(Path.Combine(slnDir, Name + ".sln"));
             //VisualStudioManager.VSInstanceClosed();
         }
+
+        public EngineLogger LastBuildLog { get; private set; }
+
+        public void DisplayLastBuildLog()
+        {
+            if (Editor.Instance.InvokeRequired)
+                Editor.Instance.BeginInvoke((Action)ShowErrorForm);
+            else
+                ShowErrorForm();
+        }
+        private void ShowErrorForm()
+        {
+            Editor.Instance.ErrorListForm.Show(Editor.Instance.DockPanel, WeifenLuo.WinFormsUI.Docking.DockState.Document);
+            Editor.Instance.ErrorListForm.SetLog(LastBuildLog);
+        }
+
         public async Task CompileAsync()
             => await Task.Run(() => Compile());
         public async Task CompileAsync(string buildConfiguration, string buildPlatform)
@@ -616,10 +632,10 @@ namespace TheraEditor
                 { "Platform",       buildPlatform       },
             };
             BuildRequestData request = new BuildRequestData(SolutionPath, props, null, new[] { "Build" }, null);
-            EngineLogger logger = new EngineLogger();
+            LastBuildLog = new EngineLogger();
             BuildParameters buildParams = new BuildParameters(pc)
             {
-                Loggers = new ILogger[] { logger }
+                Loggers = new ILogger[] { LastBuildLog }
             };
             BuildResult result = BuildManager.DefaultBuildManager.Build(buildParams, request);
             if (result.OverallResult == BuildResultCode.Success)
@@ -635,19 +651,9 @@ namespace TheraEditor
             else
             {
                 PrintLine(SolutionPath + " : Build failed.");
-
-                if (Editor.Instance.InvokeRequired)
-                    Editor.Instance.Invoke((Action<EngineLogger>)ShowErrorForm, logger);
-                else
-                    ShowErrorForm(logger);
             }
             
             pc.UnregisterAllLoggers();
-        }
-        private void ShowErrorForm(EngineLogger logger)
-        {
-            Editor.Instance.ErrorListForm.Show(Editor.Instance.DockPanel, WeifenLuo.WinFormsUI.Docking.DockState.Document);
-            Editor.Instance.ErrorListForm.SetLog(logger);
         }
 
         [TPostDeserialize]
@@ -683,39 +689,16 @@ namespace TheraEditor
                 };
 
                 _gameDomain = AppDomainContext.Create(setupInfo);
-
-                string path;
-                for (int i = 0; i < AssemblyPaths.Length; ++i)
+                
+                foreach (string path in AssemblyPaths)
                 {
-                    path = AssemblyPaths[i];
                     FileInfo file = new FileInfo(path);
-                    if (file.Exists)
-                    {
-                        PrintLine("Loading compiled assembly at " + path);
-                        _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                        _gameDomain.LoadAssemblyWithReferences(LoadMethod.LoadFrom, path);
+                    if (!file.Exists)
+                        continue;
 
-                        //RemoteAction.Invoke(
-                        //    _gameDomain.Domain,
-                        //    "Hello World",
-                        //    (message) =>
-                        //    {
-                        //        var msg = message + " from AppDomain " + AppDomain.CurrentDomain.SetupInformation.ApplicationName;
-                        //        Console.WriteLine(msg);
-                        //    });
-
-                        //Assembly[] a = RemoteFunc.Invoke(_gameDomain.Domain, file.FullName,
-                        //    (string fullname) =>
-                        //    {
-                        //        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                        //        PrintLine(fullname);
-                        //        string list = assemblies.ToStringList(",", ", and ", x => x.GetName().Name);
-                        //        PrintLine(list);
-                        //        //.Single(s => s.FullName.Equals(fullname));
-                        //        //return asm.GetType("algoritmo", true, true);
-                        //        return assemblies;
-                        //    });
-                    }
+                    PrintLine("Loading compiled assembly at " + path);
+                    _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
+                    _gameDomain.LoadAssemblyWithReferences(LoadMethod.LoadFrom, path);
                 }
             }
             catch (Exception ex)

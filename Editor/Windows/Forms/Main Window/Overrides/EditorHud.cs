@@ -260,8 +260,16 @@ namespace TheraEditor.Windows.Forms
             //};
             //dock.ChildComponents.Add(TextOverlay);
 
+            canvas.OriginRebased += RootComponent_OriginRebased;
+
             return canvas;
         }
+
+        private void RootComponent_OriginRebased(Vec3 newOrigin)
+        {
+            _hitPoint -= newOrigin;
+        }
+
         public override void RegisterInput(InputInterface input)
         {
             //input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);

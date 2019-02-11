@@ -15,27 +15,21 @@ namespace TheraEngine.Rendering.Cameras
     public abstract class Camera : TFileObject, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
-
-        //[Browsable(false)]
-        //public TShape CullingVolume => _transformedFrustum.CullingVolume;
-        //[Browsable(false)]
-        //public IOctreeNode OctreeNode
-        //{
-        //    get => _transformedFrustum.OctreeNode;
-        //    set => _transformedFrustum.OctreeNode = value;
-        //}
-
+        
         public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
 
-        public Camera() 
+        protected Camera() 
             : this(16.0f, 9.0f) { }
-        public Camera(float width, float height)
+
+        protected Camera(float width, float height)
             : this(width, height, 1.0f, 10000.0f) { }
-        public Camera(float width, float height, float nearZ, float farZ)
+
+        protected Camera(float width, float height, float nearZ, float farZ)
             : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
-        public Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
+
+        protected Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
         {
             _renderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
             _postProcessSettingsRef = new PostProcessSettings();
@@ -61,46 +55,14 @@ namespace TheraEngine.Rendering.Cameras
         /// Also can be considered the camera's world transform.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 CameraToWorldSpaceMatrix
-        {
-            get => _owningComponent != null ? _owningComponent.WorldMatrix : _cameraToWorldSpaceMatrix;
-            //set
-            //{
-            //    if (_owningComponent != null)
-            //    {
-            //        _owningComponent.WorldMatrix = value;
-            //        _transform = _owningComponent.LocalMatrix;
-            //        _invTransform = _owningComponent.InverseLocalMatrix;
-            //    }
-            //    else
-            //    {
-            //        _transform = value;
-            //        _invTransform = _transform.Inverted();
-            //    }
-            //}
-        }
+        public Matrix4 CameraToWorldSpaceMatrix => _owningComponent?.WorldMatrix ?? _cameraToWorldSpaceMatrix;
+
         /// <summary>
         /// Transformation from the space relative to the world to space relative to the camera.
         /// </summary>
         [Browsable(false)]
-        public Matrix4 WorldToCameraSpaceMatrix
-        {
-            get => _owningComponent != null ? _owningComponent.InverseWorldMatrix : _worldToCameraSpaceMatrix;
-            //set
-            //{
-            //    if (_owningComponent != null)
-            //    {
-            //        _owningComponent.InverseWorldMatrix = value;
-            //        _transform = _owningComponent.LocalMatrix;
-            //        _invTransform = _owningComponent.InverseLocalMatrix;
-            //    }
-            //    else
-            //    {
-            //        _invTransform = value;
-            //        _transform = _invTransform.Inverted();
-            //    }
-            //}
-        }
+        public Matrix4 WorldToCameraSpaceMatrix => _owningComponent?.InverseWorldMatrix ?? _worldToCameraSpaceMatrix;
+
         [Browsable(false)]
         public Matrix4 ComponentToCameraSpaceMatrix => _worldToCameraSpaceMatrix;
         [Browsable(false)]
@@ -141,7 +103,7 @@ namespace TheraEngine.Rendering.Cameras
 
         [Browsable(false)]
         [Category("Camera")]
-        public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.Translation : _localPoint.Raw;
+        public Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? _localPoint.Raw;
         
         [Category("Camera")]
         public EventVec3 LocalPoint

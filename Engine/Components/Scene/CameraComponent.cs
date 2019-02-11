@@ -1,15 +1,14 @@
-﻿using TheraEngine.Rendering.Cameras;
-using TheraEngine.Input;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Core.Files;
 using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Shapes;
+using TheraEngine.Input;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Components.Scene
 {
@@ -173,7 +172,7 @@ namespace TheraEngine.Components.Scene
             if (OwningActor is IPawn p && p.CurrentCameraComponent == null)
                 p.CurrentCameraComponent = this;
         }
-        protected internal override void OriginRebased(Vec3 newOrigin)
+        protected internal override void OnOriginRebased(Vec3 newOrigin)
         {
             _cameraRef.File?.TranslateAbsolute(-newOrigin);
         }

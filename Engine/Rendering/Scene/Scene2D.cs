@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Core;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 
@@ -13,7 +11,7 @@ namespace TheraEngine.Rendering
     public class Scene2D : BaseScene
     {
         //public Quadtree<I2DRenderable> RenderTree { get; private set; }
-        public override int Count => _renderables.Count;// RenderTree.Count;
+        //public override int Count => _renderables.Count;// RenderTree.Count;
 
         private List<I2DRenderable> _renderables = new List<I2DRenderable>();
 

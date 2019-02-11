@@ -92,7 +92,7 @@ namespace TheraEngine.Components.Scene.Transforms
             RecalcLocalTransform();
         }
 
-        protected internal override void OriginRebased(Vec3 newOrigin)
+        protected internal override void OnOriginRebased(Vec3 newOrigin)
         {
             //Engine.PrintLine("Rebasing {0}.", OwningActor.GetType().GetFriendlyName());
             _desiredTranslation -= newOrigin;

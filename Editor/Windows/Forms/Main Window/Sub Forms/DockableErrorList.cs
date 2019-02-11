@@ -4,6 +4,7 @@ using System.Collections;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Microsoft.Build.Framework;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using WeifenLuo.WinFormsUI.Docking;
@@ -65,8 +66,8 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
             Logger = log;
-            chkErrors.Text = log.Errors.Count.ToString() + " Errors";
-            chkWarnings.Text = log.Warnings.Count.ToString() + " Warnings";
+            chkErrors.Text = log.Errors.Count + " Errors";
+            chkWarnings.Text = log.Warnings.Count + " Warnings";
             Populate();
         }
 
@@ -75,7 +76,7 @@ namespace TheraEditor.Windows.Forms
             int messageCount = 0;
             listView1.Items.Clear();
             if (chkErrors.Checked)
-                foreach (var error in Logger.Errors)
+                foreach (BuildErrorEventArgs error in Logger.Errors)
                 {
                     string[] cols = new string[]
                     {
@@ -94,7 +95,7 @@ namespace TheraEditor.Windows.Forms
                 }
 
             if (chkWarnings.Checked)
-                foreach (var warning in Logger.Warnings)
+                foreach (BuildWarningEventArgs warning in Logger.Warnings)
                 {
                     string[] cols = new string[]
                     {
@@ -112,29 +113,28 @@ namespace TheraEditor.Windows.Forms
                     listView1.Items.Add(item);
                 }
 
-            foreach (var message in Logger.Messages)
+            foreach (BuildMessageEventArgs message in Logger.Messages)
             {
                 string projectFile = Path.GetFileNameWithoutExtension(message.ProjectFile);
                 if (string.IsNullOrWhiteSpace(projectFile))
                     continue;
                 ++messageCount;
-                if (chkMessages.Checked)
+                if (!chkMessages.Checked)
+                    continue;
+                string[] cols = new[]
                 {
-                    string[] cols = new string[]
-                    {
-                        "Message",
-                        message.Code,
-                        message.Message,
-                        projectFile,
-                        message.File,
-                        message.LineNumber.ToString(),
-                    };
-                    ListViewItem item = new ListViewItem(cols, 2);
-                    listView1.Items.Add(item);
-                }
+                    "Message",
+                    message.Code,
+                    message.Message,
+                    projectFile,
+                    message.File,
+                    message.LineNumber.ToString(),
+                };
+                ListViewItem item = new ListViewItem(cols, 2);
+                listView1.Items.Add(item);
             }
 
-            chkMessages.Text = messageCount.ToString() + " Messages";
+            chkMessages.Text = messageCount + " Messages";
             AutoResize();
         }
         protected override void OnResize(EventArgs e)
@@ -174,10 +174,7 @@ namespace TheraEditor.Windows.Forms
             if (e.Column == _listViewSorter.SortColumn)
             {
                 //Reverse the current sort direction for this column.
-                if (_listViewSorter.Order == SortOrder.Ascending)
-                    _listViewSorter.Order = SortOrder.Descending;
-                else
-                    _listViewSorter.Order = SortOrder.Ascending;
+                _listViewSorter.Order = _listViewSorter.Order == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
             }
             else
             {
@@ -192,8 +189,10 @@ namespace TheraEditor.Windows.Forms
         private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             ListViewItem item = listView1.GetItemAt(e.X, e.Y);
-            if (item?.Tag != null)
-                OpenLocation(Path.Combine(Path.GetDirectoryName(((FileLocation)item.Tag).ProjectPath), item.SubItems[4].Text), (FileLocation)item.Tag);
+            if (item?.Tag is FileLocation tag)
+                OpenLocation(Path.Combine(
+                    Path.GetDirectoryName(tag.ProjectPath),
+                    item.SubItems[4].Text), tag);
         }
 
         private async void OpenLocation(string filePath, FileLocation loc)

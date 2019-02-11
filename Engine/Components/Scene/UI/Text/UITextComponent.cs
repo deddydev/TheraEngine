@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing.Text;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
 
 namespace TheraEngine.Rendering.UI
 {
-    public class UITextComponent : UIMaterialRectangleComponent
+    public class UITextComponent : UIMaterialRectangleComponent, IPreRendered
     {
         public UITextComponent() : base(TMaterial.CreateUnlitTextureMaterialForward(
             new TexRef2D("DrawSurface", 1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
@@ -50,10 +51,14 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _textQuality = value;
-                Redraw(true);
+                NeedsRedraw = true;
+                ForceFullRedraw = true;
+                //Redraw(true);
             }
         }
 
+        public bool ForceFullRedraw { get; set; } = true;
+        public bool NeedsRedraw { get; set; } = false;
         public void Redraw(bool forceFullRedraw)
             => TextDrawer.Draw(TextTexture, TextureResolutionMultiplier, TextQuality, forceFullRedraw);
 
@@ -66,10 +71,27 @@ namespace TheraEngine.Rendering.UI
             if (w != TextTexture.Width || h != TextTexture.Height)
             {
                 TextTexture.Resize(w, h);
-                Redraw(true);
+                NeedsRedraw = true;
+                ForceFullRedraw = true;
+                //Redraw(true);
             }
 
             return rect;
+        }
+
+        public bool PreRenderEnabled { get; set; } = true;
+        public void PreRenderUpdate(Camera camera)
+        {
+
+        }
+        public void PreRenderSwap()
+        {
+            if (NeedsRedraw)
+                Redraw(ForceFullRedraw);
+        }
+        public void PreRender(Viewport viewport, Camera camera)
+        {
+
         }
     }
 }

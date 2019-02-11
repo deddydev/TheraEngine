@@ -176,7 +176,7 @@ namespace TheraEngine.Worlds
                 PhysicsWorld.UpdateAabbs();
             }
 
-            Scene.RegenerateTree();
+            //Scene.RegenerateTree();
 
             Engine.PrintLine("Finished origin rebase.");
 

@@ -789,10 +789,9 @@ namespace TheraEditor.Windows.Forms
             }
 
             bool success = await c.RequestConnectionAsync();
-            if (success)
-                Engine.PrintLine("Successfully connected to the target server.");
-            else
-                Engine.PrintLine("Failed to connect to the target server.");
+            Engine.PrintLine(success
+                ? "Successfully connected to the target server."
+                : "Failed to connect to the target server.");
         }
 
         private IPEndPoint CreateEndPoint(string ipPort)
@@ -886,12 +885,12 @@ namespace TheraEditor.Windows.Forms
         {
             get
             {
-                if (_value == null || _value.IsDisposed)
-                {
-                    _value = new T();
-                    Engine.PrintLine("Created " + _value.GetType().GetFriendlyName());
-                    _onCreated?.Invoke(_value);
-                }
+                if (_value != null && !_value.IsDisposed)
+                    return _value;
+
+                _value = new T();
+                Engine.PrintLine("Created " + _value.GetType().GetFriendlyName());
+                _onCreated?.Invoke(_value);
                 return _value;
             }
         }

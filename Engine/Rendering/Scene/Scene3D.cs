@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering
         //TODO: implement octree on GPU with compute shader instead of here on CPU
         //Also implement occlusion culling along with frustum culling
         public Octree RenderTree { get; private set; }
-        public override int Count => RenderTree.Count;
+        //public override int Count => RenderTree.Count;
         public LightManager Lights { get; private set; }
         public ParticleManager Particles { get; }
         public IBLProbeGridActor IBLProbeActor { get; set; }
@@ -361,11 +361,11 @@ namespace TheraEngine.Rendering
             //Don't blur original image, barely makes a difference to result
         }
 
+        private bool _queueRemake = false;
         public override void RegenerateTree()
         {
-            RenderTree.Remake();
+            _queueRemake = true;
         }
-
         public override void GlobalPreRender()
         {
             Voxelize();
@@ -374,6 +374,11 @@ namespace TheraEngine.Rendering
         public override void GlobalSwap()
         {
             Lights.SwapBuffers();
+            //if (_queueRemake)
+            //{
+            //    RenderTree.Remake();
+            //    _queueRemake = false;
+            //}
         }
         public override void GlobalUpdate()
         {

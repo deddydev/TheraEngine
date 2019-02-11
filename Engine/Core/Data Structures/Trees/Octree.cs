@@ -278,8 +278,8 @@ namespace System
         internal int ItemID = 0;
 
         private Node _head;
-        internal HashSet<T> AllItems { get; } = new HashSet<T>();
-        public int Count => AllItems.Count;
+        //internal HashSet<T> AllItems { get; } = new HashSet<T>();
+        //public int Count => AllItems.Count;
 
         public Octree(BoundingBoxStruct bounds)
         {
@@ -310,10 +310,13 @@ namespace System
         public void Remake() => Remake(_head.Bounds);
         public void Remake(BoundingBoxStruct newBounds)
         {
+            List<I3DRenderable> renderables = new List<I3DRenderable>();
+            _head.CollectAll(renderables);
+
+            ItemID = 0;
             _head = new Node(newBounds, 0, 0, null, this);
-            var array = AllItems.ToArray();
-            AllItems.Clear();
-            foreach (T item in array)
+            
+            foreach (T item in renderables)
                 if (!_head.Add(item))
                     _head.ForceAdd(item);
         }
@@ -322,13 +325,13 @@ namespace System
         /// </summary>
         public bool Add(T value)
         {
-            if (!AllItems.Contains(value))
-            {
+            //if (!AllItems.Contains(value))
+            //{
                 if (!_head.Add(value))
                     _head.ForceAdd(value);
                 return true;
-            }
-            return false;
+            //}
+            //return false;
         }
         public void Add(IEnumerable<T> value)
         {
@@ -342,12 +345,12 @@ namespace System
         /// <returns></returns>
         public bool Remove(T value)
         {
-            if (AllItems.Contains(value))
-            {
+            //if (AllItems.Contains(value))
+            //{
                 _head.Remove(value);
                 return true;
-            }
-            return false;
+            //}
+            //return false;
         }
 
         public ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment)
@@ -584,6 +587,18 @@ namespace System
                 IsLoopingSubNodes = true;
                 for (int i = 0; i < MaxChildNodeCount; ++i)
                     _subNodes[i]?.CollectAll(passes, camera, shadowPass);
+                IsLoopingSubNodes = false;
+            }
+            public void CollectAll(List<I3DRenderable> renderables)
+            {
+                IsLoopingItems = true;
+                for (int i = 0; i < _items.Count; ++i)
+                    renderables.Add(_items[i]);
+                IsLoopingItems = false;
+
+                IsLoopingSubNodes = true;
+                for (int i = 0; i < MaxChildNodeCount; ++i)
+                    _subNodes[i]?.CollectAll(renderables);
                 IsLoopingSubNodes = false;
             }
             #endregion
@@ -857,16 +872,18 @@ namespace System
 
         private bool Uncache(T item)
         {
-            bool exists = AllItems.Remove(item);
+            //bool exists = AllItems.Remove(item);
             item.RenderInfo.SceneID = -1;
-            return exists;
+            //return exists;
+            return true;
         }
 
         private bool Cache(T item)
         {
-            bool success = AllItems.Add(item);
+            //bool success = AllItems.Add(item);
             item.RenderInfo.SceneID = ItemID++;
-            return success;
+            //return success;
+            return true;
         }
     }
 }

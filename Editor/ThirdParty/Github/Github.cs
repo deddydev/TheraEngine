@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
@@ -15,6 +16,7 @@ using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core;
 using TheraEngine.Core.Files.Serialization;
+using Application = System.Windows.Forms.Application;
 
 namespace TheraEditor
 {
@@ -51,39 +53,135 @@ namespace TheraEditor
         
         public static class ReleaseCreator
         {
+            public static void DeleteDirectory(string path)
+            {
+                foreach (string directory in Directory.GetDirectories(path))
+                    DeleteDirectory(directory);
+
+                try
+                {
+                    Directory.Delete(path, true);
+                }
+                catch (IOException)
+                {
+                    Directory.Delete(path, true);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    Directory.Delete(path, true);
+                }
+            }
+            private static string[] GetFiles(string sourceFolder, string filters, SearchOption searchOption)
+                => filters.Split('|').SelectMany(filter => Directory.GetFiles(sourceFolder, filter, searchOption)).ToArray();
             private static string CreateReleaseTagName(AssemblyName name)
             {
                 Version ver = name.Version;
-                return $"{name.Name.ReplaceWhitespace("_")}_v{ver.ToString()}";
+                return $"{name.Name.ReplaceWhitespace("_")}_v{ver}";
             }
-            public static async Task CreateNewRelease(Assembly assembly, string postBody, string zipFilePath)
+            public static async Task CreateNewRelease(Assembly assembly, string postBody)
             {
+                string progDir = Path.GetDirectoryName(assembly.Location);
+                string[] exts =
+                {
+                ".dll",
+                ".exe",
+                ".config",
+//#if DEBUG
+//                ".pdb", //Debug symbols, not needed for public releases
+//                ".xml", //Library code documentation, also not needed
+//#endif
+            };
+
+                Engine.PrintLine("Creating new release...");
+
+                //TODO: create release creator form
+
+                string[] paths = Directory.EnumerateFileSystemEntries(progDir, "*.*", SearchOption.AllDirectories).
+                    Where(x => exts.Contains(Path.GetExtension(x).ToLowerInvariant())).ToArray();
+
+                string tempFolderName = SerializationCommon.ResolveDirectoryName(progDir, "temp");
+                string tempFolderPath = progDir + Path.DirectorySeparatorChar + tempFolderName;
+
+                string newPath;
+                string relativePath;
+                string[] parts;
+                string fileName;
+
+                //if (Directory.Exists(tempFolderPath))
+                //    Directory.Delete(tempFolderPath);
+                Directory.CreateDirectory(tempFolderPath);
+                foreach (string path in paths)
+                {
+                    newPath = tempFolderPath;
+                    relativePath = path.Substring(progDir.Length);
+                    parts = relativePath.Split(Path.DirectorySeparatorChar);
+                    for (int i = 0; i < parts.Length - 1; ++i)
+                    {
+                        newPath += Path.DirectorySeparatorChar + parts[i];
+                        if (!Directory.Exists(newPath))
+                            Directory.CreateDirectory(newPath);
+                    }
+                    fileName = parts[parts.Length - 1];
+                    File.Copy(path, newPath + Path.DirectorySeparatorChar + fileName);
+                }
+
+                AssemblyName name = assembly.GetName();
+                string tagName = CreateReleaseTagName(name);
+                string zipFilePath = progDir + Path.DirectorySeparatorChar + tagName + ".zip";
+
+                if (File.Exists(zipFilePath))
+                    File.Delete(zipFilePath);
+
+                int op = Editor.Instance.BeginOperation("Creating update zip file...", out Progress<float> progress, out CancellationTokenSource cancel);
+                {
+                    IProgress<float> iProg = progress;
+                    await Task.Run(() => ZipFileWithProgress.CreateFromDirectory(tempFolderPath, zipFilePath, iProg));
+                }
+                Editor.Instance.EndOperation(op);
+
+                DeleteDirectory(tempFolderPath);
+
                 try
                 {
                     if (!CheckGithubConnection(out GitHubClient client))
                         return;
-
-                    AssemblyName name = assembly.GetName();
-                    string tagName = CreateReleaseTagName(name);
+                    
                     NewRelease newRelease = new NewRelease(tagName)
                     {
-                        Name = name.Name + " v" + name.Version.ToString(),
+                        Name = name.Name + " v" + name.Version,
                         Body = postBody,
                         Draft = true, //Need to upload zip file
                         Prerelease = false
                     };
                     
                     Release release = await client.Repository.Release.Create(RepoOwner, RepoName, newRelease);
-                    using (var archiveContents = File.OpenRead(zipFilePath))
-                    {
-                        var assetUpload = new ReleaseAssetUpload(
-                            Path.GetFileName(zipFilePath),
-                            "application/zip",
-                            archiveContents,
-                            null);
 
-                        var asset = await client.Repository.Release.UploadAsset(release, assetUpload);
+                    op = Editor.Instance.BeginOperation("Uploading zip file...", out progress, out cancel);
+                    {
+                        IProgress<float> iProg = progress;
+
+                        long currentBytes = 0L;
+                        using (ProgressStream archiveContents =
+                            new ProgressStream(File.OpenRead(zipFilePath), null, null))
+                        {
+                            float length = archiveContents.Length;
+                            archiveContents.SetReadProgress(new BasicProgress<int>(i =>
+                            {
+                                currentBytes += i;
+                                iProg.Report(currentBytes / length);
+                            }));
+
+                            ReleaseAssetUpload assetUpload = new ReleaseAssetUpload(
+                                Path.GetFileName(zipFilePath),
+                                "application/zip",
+                                archiveContents,
+                                null);
+
+                            await client.Repository.Release.UploadAsset(release, assetUpload);
+                        }
                     }
+                    Editor.Instance.EndOperation(op);
+
                     ReleaseUpdate updateRelease = release.ToUpdate();
                     updateRelease.Draft = false;
                     release = await client.Repository.Release.Edit(RepoOwner, RepoName, release.Id, updateRelease);
@@ -98,6 +196,8 @@ namespace TheraEditor
                 {
                     Engine.LogException(e);
                 }
+
+                File.Delete(zipFilePath);
             }
         }
         private static bool CheckGithubConnection(out GitHubClient client)
@@ -165,26 +265,26 @@ namespace TheraEditor
                             //Searching for the _v backwards will always work 
                             //because version numbers don't contain underscores or letters
                             int verIndex = tagName.FindFirstReverse("_v");
-                            if (verIndex > 0)
-                            {
-                                assemblyName = tagName.Substring(0, verIndex);
-                                versionStr = tagName.Substring(verIndex + 2);
-                                verParts = versionStr.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-                                if (verParts.Length == 4)
-                                {
-                                    Version thisVer = new Version(
-                                        int.Parse(verParts[0]),
-                                        int.Parse(verParts[1]),
-                                        int.Parse(verParts[2]),
-                                        int.Parse(verParts[3]));
+                            if (verIndex <= 0)
+                                continue;
 
-                                    if (releaseVer == null || thisVer.CompareTo(releaseVer) > 0)
-                                    {
-                                        releaseVer = thisVer;
-                                        newestRelease = release;
-                                    }
-                                }
-                            }
+                            assemblyName = tagName.Substring(0, verIndex);
+                            versionStr = tagName.Substring(verIndex + 2);
+                            verParts = versionStr.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (verParts.Length != 4)
+                                continue;
+
+                            Version thisVer = new Version(
+                                int.Parse(verParts[0]),
+                                int.Parse(verParts[1]),
+                                int.Parse(verParts[2]),
+                                int.Parse(verParts[3]));
+
+                            if (releaseVer != null && thisVer.CompareTo(releaseVer) <= 0)
+                                continue;
+
+                            releaseVer = thisVer;
+                            newestRelease = release;
                         }
 
                         if (newestRelease == null)
@@ -254,38 +354,38 @@ namespace TheraEditor
                             await Task.Run(() => ZipFileWithProgress.ExtractToDirectory(localUpdateZipPath, localUpdateUnzipPath, iProg));
                             Editor.Instance.EndOperation(op);
 
-                            if (overwrite == DialogResult.Yes)
+                            if (overwrite != DialogResult.Yes)
+                                return;
+
+                            string exePath = System.Windows.Forms.Application.ExecutablePath;
+                            string localUpdateDirName = Path.GetFileName(localUpdateUnzipPath);
+                            Process currentProcess = Process.GetCurrentProcess();
+                            string pid = currentProcess.Id.ToString();
+                            string tempPath = Environment.GetEnvironmentVariable("TMP");
+                            string batName = SerializationCommon.ResolveFileName(tempPath, "TheraEngineUpdate", "bat");
+                            string batPath = tempPath + Path.DirectorySeparatorChar + batName;
+
+                            string batchCode =
+                                $"@echo off" + Environment.NewLine +
+                                $"taskkill /pid {pid} /f" + Environment.NewLine +
+                                $"for /d %%I in ({exeDir}\\*) do (" + Environment.NewLine +
+                                $"if /i not \"%%~nxI\" equ \"{localUpdateDirName}\" rmdir /q /s \"%%~I\"" + Environment.NewLine +
+                                $")" + Environment.NewLine +
+                                $"del /q {exeDir}\\*" + Environment.NewLine +
+                                $"xcopy \"{localUpdateUnzipPath}\" \"{exeDir}\" /E /y" + Environment.NewLine +
+                                $"rmdir /S /Q \"{localUpdateUnzipPath}\"" + Environment.NewLine +
+                                $"Start \"\"  \"{exePath}\"" + Environment.NewLine +
+                                $"del %0";
+
+                            File.WriteAllText(batPath, batchCode);
+
+                            ProcessStartInfo info = new ProcessStartInfo(batPath)
                             {
-                                string exePath = System.Windows.Forms.Application.ExecutablePath;
-                                string localUpdateDirName = Path.GetFileName(localUpdateUnzipPath);
-                                Process currentProcess = Process.GetCurrentProcess();
-                                string pid = currentProcess.Id.ToString();
-                                string tempPath = Environment.GetEnvironmentVariable("TMP");
-                                string batName = SerializationCommon.ResolveFileName(tempPath, "TheraEngineUpdate", "bat");
-                                string batPath = tempPath + Path.DirectorySeparatorChar + batName;
-
-                                string batchCode =
-                                    $"@echo off" + Environment.NewLine +
-                                    $"taskkill /pid {pid} /f" + Environment.NewLine +
-                                    $"for /d %%I in ({exeDir}\\*) do (" + Environment.NewLine +
-                                    $"if /i not \"%%~nxI\" equ \"{localUpdateDirName}\" rmdir /q /s \"%%~I\"" + Environment.NewLine +
-                                    $")" + Environment.NewLine +
-                                    $"del /q {exeDir}\\*" + Environment.NewLine +
-                                    $"xcopy \"{localUpdateUnzipPath}\" \"{exeDir}\" /E /y" + Environment.NewLine +
-                                    $"rmdir /S /Q \"{localUpdateUnzipPath}\"" + Environment.NewLine +
-                                    $"Start \"\"  \"{exePath}\"" + Environment.NewLine +
-                                    $"del %0";
-
-                                File.WriteAllText(batPath, batchCode);
-
-                                ProcessStartInfo info = new ProcessStartInfo(batPath)
-                                {
-                                    CreateNoWindow = false,
-                                    WindowStyle = ProcessWindowStyle.Hidden,
-                                    UseShellExecute = true,
-                                };
-                                Process.Start(info);
-                            }
+                                CreateNoWindow = false,
+                                WindowStyle = ProcessWindowStyle.Hidden,
+                                UseShellExecute = true,
+                            };
+                            Process.Start(info);
 
                             return;
                         }
@@ -325,7 +425,7 @@ namespace TheraEditor
 
                 try
                 {
-                    var github = new GitHubClient(new Octokit.ProductHeaderValue(RepoName))
+                    GitHubClient github = new GitHubClient(new ProductHeaderValue(RepoName))
                     {
                         Credentials = GetBotCredentials()
                     };

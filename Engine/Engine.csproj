@@ -485,6 +485,7 @@
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
+    <Compile Include="Shapes\Boxes\BoundingBoxStruct.cs" />
     <Compile Include="Shapes\Cylindrical\XAligned\CapsuleX.cs" />
     <Compile Include="Shapes\Cylindrical\XAligned\CylinderX.cs" />
     <Compile Include="Shapes\Cylindrical\ZAligned\CapsuleZ.cs" />

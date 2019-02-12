@@ -10,6 +10,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Shapes;
 
 namespace TheraEditor.Windows.Forms
 {

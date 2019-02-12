@@ -86,38 +86,46 @@ namespace TheraEngine.Core.Files
         [CustomMemberDeserializeMethod("Path")]
         private void DeserializePath(SerializeAttribute node)
         {
-            if (!node.GetObjectAs(out string path))
+            try
             {
-                _path = null;
-                return;
-            }
-            if (!path.IsAbsolutePath())
-            {
-                switch (Type)
+                if (!node.GetObjectAs(out string path))
                 {
-                    case EPathType.FileRelative:
-                        {
-                            string dir = System.IO.Path.GetDirectoryName(node.Parent.Owner.FilePath);
-                            path = dir + path;
-                            break;
-                        }
-                    case EPathType.EngineRelative:
-                        {
-                            string relPath = Assembly.GetExecutingAssembly().Location;
-                            string dir = System.IO.Path.GetDirectoryName(relPath);
-                            path = dir + path;
-                            break;
-                        }
-                    case EPathType.GameRelative:
-                        {
-                            string dir = Engine.Game?.DirectoryPath;
-                            if (!string.IsNullOrWhiteSpace(dir))
-                                path = dir + path;
-                            break;
-                        }
+                    _path = null;
+                    return;
                 }
+                if (!path.IsAbsolutePath())
+                {
+                    switch (Type)
+                    {
+                        case EPathType.FileRelative:
+                            {
+                                string dir = System.IO.Path.GetDirectoryName(node.Parent.Owner.FilePath);
+                                path = dir + path;
+                                break;
+                            }
+                        case EPathType.EngineRelative:
+                            {
+                                string relPath = Assembly.GetExecutingAssembly().Location;
+                                string dir = System.IO.Path.GetDirectoryName(relPath);
+                                path = dir + path;
+                                break;
+                            }
+                        case EPathType.GameRelative:
+                            {
+                                string dir = Engine.Game?.DirectoryPath;
+                                if (!string.IsNullOrWhiteSpace(dir))
+                                    path = dir + path;
+                                break;
+                            }
+                    }
+                }
+                _path = System.IO.Path.GetFullPath(path);
             }
-            _path = System.IO.Path.GetFullPath(path);
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+                _path = null;
+            }
         }
 
         [TString(false, true)]

@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Maths;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Shapes;
 
 namespace TheraEngine.Core.Shapes
 {

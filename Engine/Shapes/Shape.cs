@@ -6,6 +6,7 @@ using TheraEngine.Physics;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Shapes;
 
 namespace TheraEngine.Core.Shapes
 {

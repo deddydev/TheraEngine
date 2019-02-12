@@ -5,6 +5,7 @@ using System;
 using TheraEngine.Core.Maths.Transforms;
 using System.ComponentModel;
 using TheraEngine.Physics;
+using TheraEngine.Shapes;
 
 namespace TheraEngine.Core.Shapes
 {

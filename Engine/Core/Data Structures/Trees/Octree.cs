@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using TheraEngine;
@@ -10,241 +9,10 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Shapes;
 
 namespace System
 {
-    public struct BoundingBoxStruct
-    {
-        public Vec3 HalfExtents;
-        public Vec3 Translation;
-        public Vec3 Minimum
-        {
-            get => Translation - HalfExtents;
-            set
-            {
-                Vec3 max = Maximum;
-                Translation = (max + value) / 2.0f;
-                HalfExtents = (max - value) / 2.0f;
-            }
-        }
-        public Vec3 Maximum
-        {
-            get => Translation + HalfExtents;
-            set
-            {
-                Vec3 min = Minimum;
-                Translation = (value + min) / 2.0f;
-                HalfExtents = (value - min) / 2.0f;
-            }
-        }
-
-        #region Constructors
-        public BoundingBoxStruct(float uniformHalfExtents)
-            : this(new Vec3(uniformHalfExtents)) { }
-        public BoundingBoxStruct(float uniformHalfExtents, Vec3 translation)
-            : this(new Vec3(uniformHalfExtents), translation) { }
-        public BoundingBoxStruct(float halfExtentX, float halfExtentY, float halfExtentZ)
-            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ)) { }
-        public BoundingBoxStruct(float halfExtentX, float halfExtentY, float halfExtentZ, Vec3 translation)
-            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ), translation) { }
-        public BoundingBoxStruct(float halfExtentX, float halfExtentY, float halfExtentZ, float x, float y, float z)
-            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ), new Vec3(x, y, z)) { }
-        public BoundingBoxStruct(Vec3 halfExtents)
-            : this(halfExtents, Vec3.Zero) { }
-        public BoundingBoxStruct(EventVec3 halfExtents)
-            : this(halfExtents, new EventVec3(Vec3.Zero)) { }
-        public BoundingBoxStruct(Vec3 halfExtents, Vec3 translation)
-            : this()
-        {
-            HalfExtents = halfExtents;
-            Translation = translation;
-        }
-        #endregion
-        
-        //Half extents is one of 8 octants that make up the box, so multiply half extent volume by 8
-        public float GetVolume() =>
-            HalfExtents.X * HalfExtents.Y * HalfExtents.Z * 8.0f;
-        //Each half extent side is one of 4 quadrants on both sides of the box, so multiply each side area by 8
-        public float GetSurfaceArea() =>
-            HalfExtents.X * HalfExtents.Y * 8.0f +
-            HalfExtents.Y * HalfExtents.Z * 8.0f +
-            HalfExtents.Z * HalfExtents.X * 8.0f;
-
-        /// <summary>
-        /// Expands this bounding box to include the given point.
-        /// </summary>
-        public void Expand(Vec3 point)
-        {
-            Vec3 min = Vec3.ComponentMin(point, Minimum);
-            Vec3 max = Vec3.ComponentMax(point, Maximum);
-            Translation = (max + min) / 2.0f;
-            HalfExtents = (max - min) / 2.0f;
-        }
-        public void Expand(BoundingBoxStruct box)
-        {
-            Vec3 min = Vec3.ComponentMin(box.Minimum, box.Maximum, Minimum);
-            Vec3 max = Vec3.ComponentMax(box.Minimum, box.Maximum, Maximum);
-            Translation = (max + min) / 2.0f;
-            HalfExtents = (max - min) / 2.0f;
-        }
-
-        #region Collision
-        /// <summary>
-        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBoxStruct"/>.
-        /// </summary>
-        public bool Intersects(Ray ray)
-            => Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out float distance);
-        /// <summary>
-        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBoxStruct"/>.
-        /// Returns the distance of the closest intersection.
-        /// </summary>
-        public bool Intersects(Ray ray, out float distance)
-            => Collision.RayIntersectsAABBDistance(ray, Minimum, Maximum, out distance);
-        public bool Intersects(Vec3 start, Vec3 direction, out float distance)
-            => Collision.RayIntersectsAABBDistance(start, direction, Minimum, Maximum, out distance);
-        /// <summary>
-        /// Returns true if the given <see cref="Ray"/> intersects this <see cref="BoundingBoxStruct"/>.
-        /// Returns the position of the closest intersection.
-        /// </summary>
-        public bool Intersects(Ray ray, out Vec3 point)
-            => Collision.RayIntersectsAABB(ray, Minimum, Maximum, out point);
-        //public bool Intersects(Vec3 start, Vec3 direction, out Vec3 point)
-        //    => Collision.RayIntersectsAABB(start, direction, Minimum, Maximum, out point);
-
-        public bool Contains(Vec3 point)
-            => Collision.AABBContainsPoint(Minimum, Maximum, point);
-        public EContainment Contains(BoundingBox box)
-            => Collision.AABBContainsAABB(Minimum, Maximum, box.Minimum, box.Maximum);
-        public EContainment Contains(BoundingBoxStruct box)
-            => Collision.AABBContainsAABB(Minimum, Maximum, box.Minimum, box.Maximum);
-        public EContainment Contains(Box box)
-            => Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.Transform.Matrix);
-        public EContainment Contains(Sphere sphere)
-            => Collision.AABBContainsSphere(Minimum, Maximum, sphere.Center, sphere.Radius);
-        public EContainment Contains(Cone cone)
-        {
-            bool top = Contains(cone.GetTopPoint());
-            bool bot = Contains(cone.GetBottomCenterPoint());
-            if (top && bot)
-                return EContainment.Contains;
-            else if (!top && !bot)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
-        }
-        public EContainment Contains(Cylinder cylinder)
-        {
-            bool top = Contains(cylinder.GetTopCenterPoint());
-            bool bot = Contains(cylinder.GetBottomCenterPoint());
-            if (top && bot)
-                return EContainment.Contains;
-            else if (!top && !bot)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
-        }
-        public EContainment Contains(Capsule capsule)
-        {
-            Vec3 top = capsule.GetTopCenterPoint();
-            Vec3 bot = capsule.GetBottomCenterPoint();
-            Vec3 radiusVec = new Vec3(capsule.Radius);
-            Vec3 capsuleMin = Vec3.ComponentMin(top, bot) - radiusVec;
-            Vec3 capsuleMax = Vec3.ComponentMax(top, bot) + radiusVec;
-            Vec3 min = Minimum;
-            Vec3 max = Maximum;
-
-            bool containsX = false, containsY = false, containsZ = false;
-            bool disjointX = false, disjointY = false, disjointZ = false;
-
-            containsX = capsuleMin.X >= min.X && capsuleMax.X <= max.X;
-            containsY = capsuleMin.Y >= min.Y && capsuleMax.Y <= max.Y;
-            containsZ = capsuleMin.Z >= min.Z && capsuleMax.Z <= max.Z;
-
-            if (!containsX) disjointX = capsuleMax.X < min.X || capsuleMin.X > max.X;
-            if (!containsY) disjointY = capsuleMax.Y < min.Y || capsuleMin.Y > max.Y;
-            if (!containsZ) disjointZ = capsuleMax.Z < min.Z || capsuleMin.Z > max.Z;
-
-            if (containsX && containsY && containsZ)
-                return EContainment.Contains;
-            if (disjointX && disjointY && disjointZ)
-                return EContainment.Disjoint;
-            return EContainment.Intersects;
-        }
-        public EContainment Contains(TShape shape)
-        {
-            if (shape != null)
-            {
-                if (shape is BoundingBox bb)
-                    return Contains(bb);
-                else if (shape is Box box)
-                    return Contains(box);
-                else if (shape is Sphere sphere)
-                    return Contains(sphere);
-                else if (shape is Cone cone)
-                    return Contains(cone);
-                else if (shape is Cylinder cylinder)
-                    return Contains(cylinder);
-                else if (shape is Capsule capsule)
-                    return Contains(capsule);
-            }
-            return EContainment.Contains;
-        }
-        #endregion
-
-        #region Static Constructors
-        /// <summary>
-        /// Creates a new bounding box from minimum and maximum coordinates.
-        /// </summary>
-        public static BoundingBoxStruct FromMinMax(Vec3 min, Vec3 max)
-            => new BoundingBoxStruct((max - min) * 0.5f, (max + min) * 0.5f);
-        /// <summary>
-        /// Creates a new bounding box from half extents and a translation.
-        /// </summary>
-        public static BoundingBoxStruct FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
-            => new BoundingBoxStruct(halfExtents, translation);
-        /// <summary>
-        /// Creates a new bounding box from half extents and a translation.
-        /// </summary>
-        public static BoundingBoxStruct FromHalfExtentsTranslation(EventVec3 halfExtents, EventVec3 translation)
-            => new BoundingBoxStruct(halfExtents, translation);
-        /// <summary>
-        /// Creates a bounding box that encloses the given sphere.
-        /// </summary>
-        public static BoundingBoxStruct EnclosingSphere(Sphere sphere)
-            => FromMinMax(sphere.Center - sphere.Radius, sphere.Center + sphere.Radius);
-        /// <summary>
-        /// Creates a bounding box that includes both given bounding boxes.
-        /// </summary>
-        public static BoundingBoxStruct Merge(BoundingBoxStruct box1, BoundingBoxStruct box2)
-            => FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
-        #endregion
-
-        public static bool operator ==(BoundingBoxStruct left, BoundingBoxStruct right) => left.Equals(ref right);
-        public static bool operator !=(BoundingBoxStruct left, BoundingBoxStruct right) => !left.Equals(ref right);
-
-        public bool Equals(ref BoundingBoxStruct value)
-            => Minimum == value.Minimum && Maximum == value.Maximum;
-        
-        public override string ToString()
-        {
-            return string.Format(CultureInfo.CurrentCulture, "Minimum:{0} Maximum:{1}", Minimum.ToString(), Maximum.ToString());
-        }
-        public override bool Equals(object value)
-        {
-            if (!(value is BoundingBoxStruct))
-                return false;
-
-            var strongValue = (BoundingBoxStruct)value;
-            return Equals(ref strongValue);
-        }
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Minimum.GetHashCode() * 397) ^ Maximum.GetHashCode();
-            }
-        }
-        public Vec3 ClosestPoint(Vec3 point)
-            => Collision.ClosestPointAABBPoint(Minimum, Maximum, point);
-    }
     /// <summary>
     /// The interface for interacting with an internal octree subdivision.
     /// </summary>
@@ -286,7 +54,7 @@ namespace System
             _head = new Node(bounds, 0, 0, null, this);
             //Engine.PrintLine($"Octree array length with {MinimumUnit} minimum unit: {ArrayLength(bounds.HalfExtents).ToString()}");
         }
-        public Octree(BoundingBoxStruct bounds, List<T> items) : this(bounds) => _head.Add(items);
+        public Octree(BoundingBoxStruct bounds, List<T> items) : this(bounds) => _head.AddHereOrSmaller(items);
 
         public int ArrayLength(Vec3 halfExtents)
         {
@@ -317,40 +85,41 @@ namespace System
             _head = new Node(newBounds, 0, 0, null, this);
             
             foreach (T item in renderables)
-                if (!_head.Add(item))
+                if (!_head.AddHereOrSmaller(item))
                     _head.ForceAdd(item);
         }
-        /// <summary>
-        /// Returns true if the item was added, and false if it was already in the tree.
-        /// </summary>
-        public bool Add(T value)
+        
+        internal ConcurrentQueue<T> AddedItems { get; } = new ConcurrentQueue<T>();
+        internal ConcurrentQueue<T> RemovedItems { get; } = new ConcurrentQueue<T>();
+        internal ConcurrentQueue<T> MovedItems { get; } = new ConcurrentQueue<T>();
+        internal void Swap()
         {
-            //if (!AllItems.Contains(value))
-            //{
-                if (!_head.Add(value))
-                    _head.ForceAdd(value);
-                return true;
-            //}
-            //return false;
+            while (MovedItems.TryDequeue(out T item))
+                ((Node)item.RenderInfo.OctreeNode).ItemMoved_Internal(item);
+            while (AddedItems.TryDequeue(out T item))
+            {
+                item.RenderInfo.SceneID = ItemID++;
+                _head.AddHereOrSmaller(item);
+            }
+            while (RemovedItems.TryDequeue(out T item))
+            {
+                _head.RemoveHereOrSmaller(item);
+                item.RenderInfo.SceneID = -1;
+            }
+        }
+        
+        public void Add(T value)
+        {
+            AddedItems.Enqueue(value);
         }
         public void Add(IEnumerable<T> value)
         {
             foreach (T item in value)
                 Add(item);
         }
-        /// <summary>
-        /// Returns true if the item was found and removed, and false if it wasn't found.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public bool Remove(T value)
+        public void Remove(T value)
         {
-            //if (AllItems.Contains(value))
-            //{
-                _head.Remove(value);
-                return true;
-            //}
-            //return false;
+            RemovedItems.Enqueue(value);
         }
 
         public ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment)
@@ -390,12 +159,13 @@ namespace System
                 _subDivIndex = subDivIndex;
                 _subDivLevel = subDivLevel;
                 _parentNode = parent;
+
                 Owner = owner;
             }
 
             protected int _subDivIndex, _subDivLevel;
             protected BoundingBoxStruct _bounds;
-            protected ThreadSafeList<T> _items;
+            protected List<T> _items;
             protected Node[] _subNodes;
             protected Node _parentNode;
             private readonly ReaderWriterLockSlim _lock;
@@ -404,7 +174,7 @@ namespace System
             public Node ParentNode { get => _parentNode; set => _parentNode = value; }
             public int SubDivIndex { get => _subDivIndex; set => _subDivIndex = value; }
             public int SubDivLevel { get => _subDivLevel; set => _subDivLevel = value; }
-            public ThreadSafeList<T> Items => _items;
+            public List<T> Items => _items;
             public BoundingBoxStruct Bounds => _bounds;
             public Vec3 Center => _bounds.Translation;
             public Vec3 Min => _bounds.Minimum;
@@ -444,9 +214,11 @@ namespace System
                 //However, if the item is inserted into a volume with at least one other item in it, 
                 //need to try subdividing for all items at that point.
 
-                if (item == null || item.RenderInfo.CullingVolume == null)
-                    return;
-
+                if (item?.RenderInfo.CullingVolume != null)
+                    Owner.MovedItems.Enqueue(item);
+            }
+            internal void ItemMoved_Internal(T item)
+            {
                 //Still within the same volume?
                 if (item.RenderInfo.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
                 {
@@ -458,10 +230,10 @@ namespace System
                             return;
                         if (item.RenderInfo.CullingVolume.ContainedWithin(bounds.Value) == EContainment.Contains)
                         {
-                            bool shouldDestroy = Remove(item);
+                            bool shouldDestroy = RemoveHereOrSmaller(item);
                             if (shouldDestroy)
                                 ClearSubNode(_subDivIndex);
-                            CreateSubNode(bounds.Value, i)?.Add(item);
+                            CreateSubNode(bounds.Value, i)?.AddHereOrSmaller(item);
                             break;
                         }
                     }
@@ -469,7 +241,7 @@ namespace System
                 else if (ParentNode != null)
                 {
                     //Belongs in larger parent volume, remove from this node
-                    bool shouldDestroy = Remove(item);
+                    bool shouldDestroy = RemoveHereOrSmaller(item);
                     if (!ParentNode.TryAddUp(item, shouldDestroy ? _subDivIndex : -1))
                     {
                         //Force add to root node
@@ -485,7 +257,7 @@ namespace System
             {
                 ClearSubNode(childDestroyIndex);
 
-                if (Add(item, childDestroyIndex))
+                if (AddHereOrSmaller(item, childDestroyIndex))
                     return true;
                 else
                 {
@@ -527,7 +299,6 @@ namespace System
                         CollectAll(passes, camera, shadowPass);
                     else
                     {
-                        IsLoopingItems = true;
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
@@ -549,18 +320,14 @@ namespace System
                                 }
                             }
                         }
-                        IsLoopingItems = false;
-
-                        IsLoopingSubNodes = true;
+                        
                         for (int i = 0; i < MaxChildNodeCount; ++i)
                             _subNodes[i]?.CollectVisible(cullingVolume, passes, camera, shadowPass);
-                        IsLoopingSubNodes = false;
                     }
                 }
             }
             public void CollectAll(RenderPasses passes, Camera camera, bool shadowPass)
             {
-                IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
                 {
                     I3DRenderable r = _items[i] as I3DRenderable;
@@ -582,24 +349,17 @@ namespace System
                         }
                     }
                 }
-                IsLoopingItems = false;
 
-                IsLoopingSubNodes = true;
                 for (int i = 0; i < MaxChildNodeCount; ++i)
                     _subNodes[i]?.CollectAll(passes, camera, shadowPass);
-                IsLoopingSubNodes = false;
             }
             public void CollectAll(List<I3DRenderable> renderables)
             {
-                IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
                     renderables.Add(_items[i]);
-                IsLoopingItems = false;
-
-                IsLoopingSubNodes = true;
+                
                 for (int i = 0; i < MaxChildNodeCount; ++i)
                     _subNodes[i]?.CollectAll(renderables);
-                IsLoopingSubNodes = false;
             }
             #endregion
 
@@ -608,17 +368,17 @@ namespace System
             /// Returns true if this node no longer contains anything.
             /// </summary>
             /// <param name="item">The item to remove.</param>
-            public bool Remove(T item)
+            public bool RemoveHereOrSmaller(T item)
             {
                 if (_items.Contains(item))
-                    QueueRemove(item);
+                    RemoveHere(item);
                 else
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         Node node = _subNodes[i];
                         if (node != null)
                         {
-                            if (node.Remove(item))
+                            if (node.RemoveHereOrSmaller(item))
                                 _subNodes[i] = null;
                             else
                                 return false;
@@ -633,10 +393,10 @@ namespace System
             /// <param name="items">The items to add.</param>
             /// <param name="forceAddToThisNode">If true, will add each item regardless of if its culling volume fits within this node's bounds.</param>
             /// <returns>True if ANY node was added.</returns>
-            internal void Add(List<T> items)
+            internal void AddHereOrSmaller(List<T> items)
             {
                 foreach (T item in items)
-                    Add(item, -1);
+                    AddHereOrSmaller(item, -1);
             }
             /// <summary>
             /// Adds an item to this node. May subdivide.
@@ -644,14 +404,11 @@ namespace System
             /// <param name="items">The item to add.</param>
             /// <param name="forceAddToThisNode">If true, will add the item regardless of if its culling volume fits within the node's bounds.</param>
             /// <returns>True if the node was added.</returns>
-            internal bool Add(T item, int ignoreSubNode = -1)
+            internal bool AddHereOrSmaller(T item, int ignoreSubNode = -1)
             {
-                if (item == null)
-                    return false;
-
                 if (item.RenderInfo.CullingVolume != null)
                 {
-                    if (item.RenderInfo.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
+                    if (_bounds.Contains(item.RenderInfo.CullingVolume) != EContainment.Contains)
                         return false;
 
                     for (int i = 0; i < MaxChildNodeCount; ++i)
@@ -659,122 +416,52 @@ namespace System
                         if (i == ignoreSubNode)
                             continue;
 
-                        BoundingBoxStruct? bounds = GetSubdivision(i);
-                        if (bounds is null)
+                        BoundingBoxStruct? subDiv = GetSubdivision(i);
+                        if (!(subDiv is null) && subDiv.Value.Contains(item.RenderInfo.CullingVolume) == EContainment.Contains)
                         {
-                            return QueueAdd(item);
-                        }
-                        if (item.RenderInfo.CullingVolume.ContainedWithin(bounds.Value) == EContainment.Contains)
-                        {
-                            CreateSubNode(bounds.Value, i)?.Add(item);
+                            CreateSubNode(subDiv.Value, i)?.AddHereOrSmaller(item);
                             return true;
                         }
                     }
                 }
                 
-                return QueueAdd(item);
+                AddHere(item);
+                return true;
             }
             #endregion
-
-            #region Loop Threading Backlog
-
-            //Backlog for adding and removing items when other threads are currently looping
-            protected ConcurrentQueue<Tuple<bool, T>> _itemQueue = new ConcurrentQueue<Tuple<bool, T>>();
-            //Backlog for setting sub nodes when other threads are currently looping
-            protected ConcurrentQueue<Tuple<int, Node>> _subNodeQueue = new ConcurrentQueue<Tuple<int, Node>>();
-            private bool _isLoopingItems = false;
-            private bool _isLoopingSubNodes = false;
-
-            protected bool IsLoopingItems
+            
+            internal void AddHere(T item)
             {
-                get => _isLoopingItems;
-                set
-                {
-                    _isLoopingItems = value;
-                    while (!_isLoopingItems && !_itemQueue.IsEmpty && _itemQueue.TryDequeue(out Tuple<bool, T> result))
-                    {
-                        if (result.Item1)
-                            Add(result.Item2, -1);
-                        else
-                            Remove(result.Item2);
-                    }
-                }
+                _items.Add(item);
+                item.RenderInfo.OctreeNode = this;
             }
-            protected bool IsLoopingSubNodes
+            internal void RemoveHere(T item)
             {
-                get => _isLoopingSubNodes;
-                set
-                {
-                    _isLoopingSubNodes = value;
-                    while (!_isLoopingSubNodes && !_subNodeQueue.IsEmpty && _subNodeQueue.TryDequeue(out Tuple<int, Node> result))
-                        _subNodes[result.Item1] = result.Item2;
-                }
+                _items.Remove(item);
+                item.RenderInfo.OctreeNode = null;
             }
-
-            private bool QueueAdd(T item)
-            {
-                if (item == null)
-                    return false;
-
-                if (IsLoopingItems)
-                {
-                    _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
-                    return false;
-                }
-                else
-                {
-                    if (Owner.Cache(item))
-                    {
-                        _items.Add(item);
-                        item.RenderInfo.OctreeNode = this;
-                    }
-                    return true;
-                }
-            }
-            private bool QueueRemove(T item)
-            {
-                if (item == null)
-                    return false;
-
-                if (IsLoopingItems)
-                {
-                    _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
-                    return false;
-                }
-                else
-                {
-                    if (Owner.Uncache(item))
-                    {
-                        _items.Remove(item);
-                        item.RenderInfo.OctreeNode = null;
-                    }
-                    return true;
-                }
-            }
-
-            #endregion
-
+            
             #region Convenience methods
             public T FindClosest(Vec3 point, ref float closestDistance)
             {
                 if (!_bounds.Contains(point))
                     return null;
                 
-                IsLoopingSubNodes = true;
+                //IsLoopingSubNodes = true;
                 foreach (Node n in _subNodes)
                 {
                     T t = n?.FindClosest(point, ref closestDistance);
                     if (t != null)
                         return t;
                 }
-                IsLoopingSubNodes = false;
+                //IsLoopingSubNodes = false;
                 
                 if (_items.Count == 0)
                     return null;
 
                 T closest = null;
 
-                IsLoopingItems = true;
+                //IsLoopingItems = true;
                 foreach (T item in _items)
                     if (item.RenderInfo.CullingVolume != null)
                     {
@@ -785,7 +472,7 @@ namespace System
                             closest = item;
                         }
                     }
-                IsLoopingItems = false;
+                //IsLoopingItems = false;
 
                 return closest;
             }
@@ -795,7 +482,7 @@ namespace System
                 if (c == EContainment.Intersects)
                 {
                     //Compare each item separately
-                    IsLoopingItems = true;
+                    //IsLoopingItems = true;
                     foreach (T item in _items)
                         if (item.RenderInfo.CullingVolume != null)
                         {
@@ -803,22 +490,22 @@ namespace System
                             if (c == containment)
                                 list.Add(item);
                         }
-                    IsLoopingItems = false;
+                    //IsLoopingItems = false;
                 }
                 else if (c == containment)
                 {
                     //All items already have this containment
-                    IsLoopingItems = true;
+                    //IsLoopingItems = true;
                     list.AddRange(_items);
-                    IsLoopingItems = false;
+                    //IsLoopingItems = false;
                 }
                 else //Not what we want
                     return;
 
-                IsLoopingSubNodes = true;
+                //IsLoopingSubNodes = true;
                 foreach (Node n in _subNodes)
                     n?.FindAll(shape, list, containment);
-                IsLoopingSubNodes = false;
+                //IsLoopingSubNodes = false;
             }
             /// <summary>
             /// Simply collects all the items contained in this node and all of its sub nodes.
@@ -851,7 +538,7 @@ namespace System
             {
                 try
                 {
-                    IsLoopingSubNodes = true;
+                    //IsLoopingSubNodes = true;
                     if (_subNodes[index] != null)
                         return _subNodes[index];
 
@@ -859,13 +546,13 @@ namespace System
                 }
                 finally
                 {
-                    IsLoopingSubNodes = false;
+                    //IsLoopingSubNodes = false;
                 }
             }
 
             internal void ForceAdd(T value)
             {
-                QueueAdd(value);
+                AddHere(value);
             }
             #endregion
         }

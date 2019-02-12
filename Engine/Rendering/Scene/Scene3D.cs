@@ -7,6 +7,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Particles;
+using TheraEngine.Shapes;
 
 namespace TheraEngine.Rendering
 {
@@ -374,6 +375,7 @@ namespace TheraEngine.Rendering
         public override void GlobalSwap()
         {
             Lights.SwapBuffers();
+            RenderTree.Swap();
             //if (_queueRemake)
             //{
             //    RenderTree.Remake();
@@ -388,9 +390,11 @@ namespace TheraEngine.Rendering
         public override void Remove(IRenderable obj) => Remove(obj as I3DRenderable);
         public void Add(I3DRenderable obj)
         {
-            if (obj == null || RenderTree?.Add(obj) != true)
+            if (obj == null)
                 return;
-            
+
+            RenderTree?.Add(obj);
+
             //if (obj.CullingVolume != null)
             //    RegisterCullingVolume(obj.CullingVolume);
 
@@ -398,9 +402,11 @@ namespace TheraEngine.Rendering
         }
         public void Remove(I3DRenderable obj)
         {
-            if (obj == null || RenderTree?.Remove(obj) != true)
+            if (obj == null)
                 return;
-            
+
+            RenderTree?.Remove(obj);
+
             //if (obj.CullingVolume != null)
             //    UnregisterCullingVolume(obj.CullingVolume);
 

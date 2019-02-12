@@ -20,10 +20,16 @@ namespace TheraEngine.Rendering.UI
             }), true)
         {
             _textDrawer = new TextDrawer();
-            _textDrawer.NeedsRedraw += Redraw;
-
+            _textDrawer.NeedsRedraw += WantsRedraw;
+            
             RenderCommand.RenderPass = ERenderPass.TransparentForward;
             RenderCommand.Mesh.Material.RenderParams = new RenderingParameters(true);
+        }
+
+        private void WantsRedraw(bool forceFullRedraw)
+        {
+            NeedsRedraw = true;
+            ForceFullRedraw = forceFullRedraw;
         }
 
         [TSerialize(nameof(TextQuality))]
@@ -42,6 +48,9 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _texRes = value;
+
+                NeedsRedraw = true;
+                ForceFullRedraw = true;
                 PerformResize();
             }
         }
@@ -51,16 +60,15 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _textQuality = value;
+
                 NeedsRedraw = true;
                 ForceFullRedraw = true;
-                //Redraw(true);
             }
         }
 
         public bool ForceFullRedraw { get; set; } = true;
+        public IVec2? NeedsResize { get; set; } = null;
         public bool NeedsRedraw { get; set; } = false;
-        public void Redraw(bool forceFullRedraw)
-            => TextDrawer.Draw(TextTexture, TextureResolutionMultiplier, TextQuality, forceFullRedraw);
 
         public override Vec2 Resize(Vec2 parentBounds)
         {
@@ -70,28 +78,30 @@ namespace TheraEngine.Rendering.UI
             int h = (int)(Height * TextureResolutionMultiplier.Y);
             if (w != TextTexture.Width || h != TextTexture.Height)
             {
-                TextTexture.Resize(w, h);
+                NeedsResize = new IVec2(w, h);
                 NeedsRedraw = true;
                 ForceFullRedraw = true;
-                //Redraw(true);
             }
 
             return rect;
         }
 
         public bool PreRenderEnabled { get; set; } = true;
-        public void PreRenderUpdate(Camera camera)
-        {
-
-        }
+        public void PreRenderUpdate(Camera camera) { }
+        public void PreRender(Viewport viewport, Camera camera) { }
         public void PreRenderSwap()
         {
-            if (NeedsRedraw)
-                Redraw(ForceFullRedraw);
-        }
-        public void PreRender(Viewport viewport, Camera camera)
-        {
+            if (NeedsResize != null)
+            {
+                TextTexture.Resize(NeedsResize.Value.X, NeedsResize.Value.Y);
+                NeedsResize = null;
+            }
 
+            if (NeedsRedraw)
+            {
+                TextDrawer.Draw(TextTexture, TextureResolutionMultiplier, TextQuality, ForceFullRedraw);
+                NeedsRedraw = false;
+            }
         }
     }
 }

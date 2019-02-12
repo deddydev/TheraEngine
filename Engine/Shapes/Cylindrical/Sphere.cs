@@ -7,6 +7,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Maths;
 using TheraEngine.Physics;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Shapes;
 using static System.Math;
 
 namespace TheraEngine.Core.Shapes

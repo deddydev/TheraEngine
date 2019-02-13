@@ -35,12 +35,12 @@ namespace TheraEngine
         /// <summary>
         /// Called before any viewports are rendered.
         /// </summary>
-        protected virtual void GlobalPreRender() { OnPreRender(); }
+        protected virtual void GlobalPreRender() => OnPreRender();
         protected void OnPreRender() => PreRendered?.Invoke();
         /// <summary>
         /// Called after all viewports have been rendered.
         /// </summary>
-        protected virtual void GlobalPostRender() { OnPostRender(); }
+        protected virtual void GlobalPostRender() => OnPostRender();
         protected void OnPostRender() => PostRendered?.Invoke();
 
         protected override void OnUpdate()

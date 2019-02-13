@@ -11,8 +11,10 @@ using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
+using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
+using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Networking;
 using TheraEngine.Timers;
@@ -562,7 +564,7 @@ namespace TheraEditor.Windows.Forms
         #region Game Mode
         private void RegisterInput(InputInterface input)
         {
-            input.RegisterKeyEvent(EKey.F1, EButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
+            input.RegisterKeyEvent(EKey.Escape, EButtonInputType.Pressed, EndGameplay, EInputPauseType.TickAlways);
         }
         public enum EEditorGameplayState
         {
@@ -625,17 +627,24 @@ namespace TheraEditor.Windows.Forms
 
             if (_gameState == EEditorGameplayState.Attached)
             {
+                //Attached -> Editing
+
                 ReleaseMouse();
             }
             else //Detached
             {
+                //Detached -> Editing
+                
+                Engine.World.DespawnActor(FlyingCameraDetachedPawn);
+
                 //Mouse is already released
             }
 
-            SetEditorGameMode();
-
-            Engine.Pause(ELocalPlayerIndex.One, true);
+            //Both attached and detached use gameplay mode and are unpaused
+            SetEditingMode();
         }
+        public IPawn GameplayPawn { get; set; }
+        public FlyingCameraPawn FlyingCameraDetachedPawn { get; } = new FlyingCameraPawn();
         private void SetDetachedGameState()
         {
             btnPlay.Text = "Stop";
@@ -643,14 +652,20 @@ namespace TheraEditor.Windows.Forms
 
             if (_gameState == EEditorGameplayState.Attached)
             {
+                //Attached -> Detached
+
                 ReleaseMouse();
             }
             else //Editing
             {
-                SetProjectGameMode();
+                //Editing -> Detached
+
+                //Mouse already released in edit mode
+                SetGameplayMode();
             }
 
-            Engine.Unpause(ELocalPlayerIndex.One, true);
+            Engine.World.SpawnActor(FlyingCameraDetachedPawn);
+            FlyingCameraDetachedPawn.ForcePossessionBy(ELocalPlayerIndex.One);
         }
         private void SetAttachedGameState()
         {
@@ -659,31 +674,41 @@ namespace TheraEditor.Windows.Forms
 
             BaseRenderPanel renderPanel = (ActiveRenderForm as DockableWorldRenderForm)?.RenderPanel ?? FocusViewport(0).RenderPanel;
 
+            //Mouse is released in edit mode and detached mode
             CaptureMouse(renderPanel);
 
             if (_gameState == EEditorGameplayState.Editing)
             {
-                SetProjectGameMode();
+                //Editing -> Attached
+
+                SetGameplayMode();
             }
             else //Detached
             {
-                //TODO: reattach the user to the pawn it is supposed to be controlling
+                //Detached -> Attached
+                
+                GameplayPawn.ForcePossessionBy(ELocalPlayerIndex.One);
+                Engine.World.DespawnActor(FlyingCameraDetachedPawn);
             }
-
-            Engine.Unpause(ELocalPlayerIndex.One, true);
         }
-        private void SetProjectGameMode()
+        private void SetGameplayMode()
         {
-            BaseGameMode gameMode = Engine.GetGameMode();
+            Engine.World.EndPlay();
+            BaseGameMode gameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
             Engine.SetActiveGameMode(gameMode, false);
             InputInterface.GlobalRegisters.Add(RegisterInput);
-            gameMode?.BeginGameplay();
+            Engine.World.BeginPlay();
+            Engine.Unpause(ELocalPlayerIndex.One, true);
+            GameplayPawn = Engine.LocalPlayers[0].ControlledPawn;
         }
-        private void SetEditorGameMode()
+        private void SetEditingMode()
         {
+            Engine.World.EndPlay();
             Engine.SetActiveGameMode(_editorGameMode, false);
             InputInterface.GlobalRegisters.Remove(RegisterInput);
-            _editorGameMode.BeginGameplay();
+            Engine.World.BeginPlay();
+            Engine.Pause(ELocalPlayerIndex.One, true);
+            GameplayPawn = null;
         }
         #endregion
 

@@ -38,8 +38,9 @@ namespace TheraEngine.Timers
             if (IsRunning)
                 return;
 
-            IsSingleThreaded = singleThreaded;
             Engine.PrintLine("Started game loop.");
+
+            IsSingleThreaded = singleThreaded;
             IsRunning = true;
             _watch.Start();
 
@@ -70,7 +71,7 @@ namespace TheraEngine.Timers
         }
         private void RunUpdateMultiThreadInternal()
         {
-            while (IsRunning)
+            while (IsRunning && !IsSingleThreaded)
             {
                 //Updating populates the command buffer while render consumes the previous buffer
                 DispatchUpdate();
@@ -373,7 +374,43 @@ namespace TheraEngine.Timers
         /// </summary>
         public float UpdateTime { get; private set; }
         public float TimeDilation { get; set; } = 1.0f;
-        public bool IsSingleThreaded { get; private set; } = false;
+
+        private bool _isSingleThreaded = false;
+        public bool IsSingleThreaded
+        {
+            get => _isSingleThreaded;
+            set
+            {
+                if (_isSingleThreaded == value)
+                    return;
+
+                if (IsRunning)
+                {
+                    if (_commandsReady != null)
+                        Application.Idle -= Application_Idle_MultiThread;
+                    else
+                        Application.Idle -= Application_Idle_SingleThread;
+                }
+
+                _isSingleThreaded = value;
+
+                if (IsRunning)
+                {
+                    if (_isSingleThreaded)
+                        Application.Idle += Application_Idle_SingleThread;
+                    else
+                    {
+                        _commandsReady = new ManualResetEvent(false);
+                        _commandsSwappedForRender = new ManualResetEvent(false);
+                        _renderDone = new ManualResetEvent(true);
+
+                        Task.Factory.StartNew(RunUpdateMultiThreadInternal, TaskCreationOptions.LongRunning);
+
+                        Application.Idle += Application_Idle_MultiThread;
+                    }
+                }
+            }
+        }
 
         public event Action SwapBuffers;
     }

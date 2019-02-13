@@ -317,7 +317,7 @@ namespace TheraEditor
                         Repository repo = await client.Repository.Get(RepoOwner, RepoName);
                         ReleaseAsset asset = (await client.Repository.Release.GetAllAssets(RepoOwner, repo.Name, newestRelease.Id))[0];
                                         
-                        string exeDir = System.Windows.Forms.Application.StartupPath;
+                        string exeDir = Application.StartupPath;
                         string zipDir = Path.Combine(exeDir, newestRelease.TagName);
                         Directory.CreateDirectory(exeDir);
 
@@ -357,7 +357,7 @@ namespace TheraEditor
                             if (overwrite != DialogResult.Yes)
                                 return;
 
-                            string exePath = System.Windows.Forms.Application.ExecutablePath;
+                            string exePath = Application.ExecutablePath;
                             string localUpdateDirName = Path.GetFileName(localUpdateUnzipPath);
                             Process currentProcess = Process.GetCurrentProcess();
                             string pid = currentProcess.Id.ToString();
@@ -386,8 +386,6 @@ namespace TheraEditor
                                 UseShellExecute = true,
                             };
                             Process.Start(info);
-
-                            return;
                         }
                     }
                 }

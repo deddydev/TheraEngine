@@ -555,6 +555,11 @@ namespace TheraEngine.Rendering.Models
             }
             else
             {
+                if (VertexFragProgram == null)
+                {
+                    VertexFragProgram = new RenderProgram(Material.FragmentShaders[0], _vertexShader);
+                    //_vertexFragProgram.Generate();
+                }
                 vtxProg = matProg = VertexFragProgram;
                 VertexFragProgram.Use();
             }

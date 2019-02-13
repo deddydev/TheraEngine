@@ -33,6 +33,7 @@ namespace TheraEngine.Actors
         CameraComponent CurrentCameraComponent { get; set; }
         LocalFileRef<IUserInterface> HUD { get; set; }
 
+        void ForcePossessionBy(ELocalPlayerIndex possessor);
         void QueuePossession(ELocalPlayerIndex possessor);
         void OnUnPossessed();
         void OnPossessed(PawnController possessor);
@@ -177,8 +178,11 @@ namespace TheraEngine.Actors
             if (HUD?.File is BaseActor actor)
                 actor.Despawned();
         }
+
         public void QueuePossession(ELocalPlayerIndex possessor)
             => Engine.QueuePossession(this, possessor);
+        public void ForcePossessionBy(ELocalPlayerIndex possessor)
+            => Engine.ForcePossession(this, possessor);
         
         public virtual void OnPossessed(PawnController possessor)
         {

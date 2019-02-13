@@ -23,13 +23,13 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             if (Rotating)
             {
-                float pitch = -y * MouseRotateSpeed;
+                float pitch = y * MouseRotateSpeed;
                 float yaw = -x * MouseRotateSpeed;
                 RootComponent.Rotation.AddRotations(pitch, yaw, 0.0f);
             }
             else if (Translating)
             {
-                RootComponent.TranslateRelative(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f);
+                RootComponent.TranslateRelative(-x * MouseTranslateSpeed, -y * MouseTranslateSpeed, 0.0f);
             }
         }
         protected override void Tick(float delta)

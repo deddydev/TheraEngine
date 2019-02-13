@@ -224,6 +224,8 @@ namespace TheraEngine.Worlds
             {
                 RenderInfo3D.UnlinkScene();
             }
+
+            Engine.ActiveGameMode?.EndGameplay();
         }
         public virtual void BeginPlay()
         {
@@ -245,8 +247,10 @@ namespace TheraEngine.Worlds
             foreach (var m in Settings.Maps)
                 if (m.File.VisibleByDefault)
                     m.File.BeginPlay(this);
+
+            Engine.ActiveGameMode?.BeginGameplay();
         }
-        
+
         private readonly RenderCommandMethod3D _rc3D;
         private readonly RenderCommandMethod2D _rc2D;
 

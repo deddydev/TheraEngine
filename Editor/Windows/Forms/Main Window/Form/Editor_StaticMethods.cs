@@ -110,13 +110,24 @@ namespace TheraEditor.Windows.Forms
 
         [DllImport("user32.dll")]
         private static extern int ShowCursor(bool bShow);
+
         internal static void ShowCursor()
         {
+            if (Instance.InvokeRequired)
+            {
+                Instance.Invoke((Action)ShowCursor);
+                return;
+            }
             Cursor.Show();
             //while (ShowCursor(true) < 0) ;
         }
         internal static void HideCursor()
         {
+            if (Instance.InvokeRequired)
+            {
+                Instance.Invoke((Action)HideCursor);
+                return;
+            }
             Cursor.Hide();
             //while (ShowCursor(false) >= 0) ;
         }

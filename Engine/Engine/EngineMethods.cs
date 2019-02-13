@@ -692,6 +692,12 @@ namespace TheraEngine
                 _possessionQueues.Add(possessor, queue);
             }
         }
+        public static void ForcePossession(IPawn pawn, ELocalPlayerIndex possessor)
+        {
+            int index = (int)possessor;
+            if (index < LocalPlayers.Count)
+                LocalPlayers[index].ControlledPawn = pawn;
+        }
 
         /// <summary>
         /// Retrieves the world viewport with the same index.
@@ -713,26 +719,22 @@ namespace TheraEngine
 
             //bool wasRunning = _timer.IsRunning;
             World previous = World;
-
-            ActiveGameMode?.EndGameplay();
+            
             World?.EndPlay();
-
-            //Stop();
-
+            
             World = world;
+
             if (World != null)
             {
+                if (loadWorldGameMode)
+                    SetActiveGameMode(World.GetGameMode());
+
                 //if (!deferBeginPlay)
-                    World.BeginPlay();
+                World.BeginPlay();
             }
             //else
             //    Scene.Clear(new BoundingBox(0.5f, Vec3.Zero));
-
-            if (loadWorldGameMode && Game != null)
-                Game.State.GameModeRef = World?.GetGameMode();
-
-            ActiveGameMode?.BeginGameplay();
-
+            
             PostWorldChanged?.Invoke();
 
             //if (wasRunning)

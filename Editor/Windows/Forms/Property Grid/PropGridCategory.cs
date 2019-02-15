@@ -74,7 +74,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         Control control = tblProps.GetControlFromPosition(i, x);
                         if (control is PropGridItem item)
                         {
-                            PropGridItem.RemoveVisibleItem(item);
+                            PropertyGrid.RemoveVisibleItem(item);
                         }
                         else if (control is BetterTableLayoutPanel tbl)
                         {
@@ -83,7 +83,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                                 Control control2 = tbl.GetControlFromPosition(0, r);
                                 if (control2 is PropGridItem item2)
                                 {
-                                    PropGridItem.RemoveVisibleItem(item2);
+                                    PropertyGrid.RemoveVisibleItem(item2);
                                 }
                             }
                         }
@@ -267,7 +267,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     tbl.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                     tbl.RowCount = tblProps.RowStyles.Count;
                     tbl.Controls.Add(item, 0, tbl.RowCount - 1);
-                    PropGridItem.AddVisibleItem(item);
+                    PropertyGrid.AddVisibleItem(item);
                 }
                 tblProps.Controls.Add(tbl, 1, tblProps.RowCount - 1);
             }
@@ -281,7 +281,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.ReadOnly = readOnly;
                 item.ParentCategory = this;
                 tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
-                PropGridItem.AddVisibleItem(item);
+                PropertyGrid.AddVisibleItem(item);
             }
             return label;
         }

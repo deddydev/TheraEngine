@@ -227,6 +227,8 @@ namespace TheraEngine
 
         #region Timing
 
+        public static float RenderFrequency => _timer.RenderFrequency;
+        public static float UpdateFrequency => _timer.UpdateFrequency;
         public static float RenderDelta => _timer.RenderTime;
         public static float UpdateDelta => _timer.UpdateTime;
         public static float RenderPeriod => _timer.RenderPeriod;

@@ -125,7 +125,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             _mouseDown = MouseDownProperties;
             Type type = CurrentType;
-            if (!type.IsValueType)
+            if (type != null && !type.IsValueType)
             {
                 Type compareType;
                 Type bestType = null;

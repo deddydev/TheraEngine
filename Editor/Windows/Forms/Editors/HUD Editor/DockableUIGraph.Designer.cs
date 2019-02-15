@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.RenderPanel = new HudGraphRenderPanel();
+            this.RenderPanel = new TheraEditor.Windows.Forms.HudGraphRenderPanel();
             this.SuspendLayout();
             // 
             // RenderPanel
@@ -42,7 +42,7 @@
             this.RenderPanel.TabIndex = 1;
             this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Adaptive;
             // 
-            // DockableMatGraph
+            // DockableHudGraph
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -53,7 +53,7 @@
             this.Controls.Add(this.RenderPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.Name = "DockableMatGraph";
+            this.Name = "DockableHudGraph";
             this.Text = "Material Graph";
             this.ResumeLayout(false);
 

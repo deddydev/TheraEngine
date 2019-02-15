@@ -27,6 +27,7 @@ namespace TheraEngine.Worlds
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(this, oldMult);
         public void OnEnableOriginRebasingChanged() => EnableOriginRebasingChanged?.Invoke(this);
 
+        [Browsable(false)]
         public World OwningWorld { get; internal set; }
 
         //[TypeConverter(typeof(Vec3StringConverter))]

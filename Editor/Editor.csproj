@@ -241,19 +241,19 @@
     <Compile Include="Core\Extensions\ZipFileWithProgress.cs" />
     <Compile Include="Core\Thumbnails.cs" />
     <Compile Include="Intellisense.cs" />
-    <Compile Include="Windows\Forms\Editors\HUD Editor\DockableHudGraph.cs">
+    <Compile Include="Windows\Forms\Editors\HUD Editor\DockableUIGraph.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\HUD Editor\DockableHudGraph.Designer.cs">
-      <DependentUpon>DockableHudGraph.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Editors\HUD Editor\DockableUIGraph.Designer.cs">
+      <DependentUpon>DockableUIGraph.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\HUD Editor\HudEditorForm.cs">
+    <Compile Include="Windows\Forms\Editors\HUD Editor\UIEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\HUD Editor\HudEditorForm.Designer.cs">
-      <DependentUpon>HudEditorForm.cs</DependentUpon>
+    <Compile Include="Windows\Forms\Editors\HUD Editor\UIEditorForm.Designer.cs">
+      <DependentUpon>UIEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\HUD Editor\HudEditorHud.cs" />
+    <Compile Include="Windows\Forms\Editors\HUD Editor\UIEditorHud.cs" />
     <Compile Include="Windows\Forms\Editors\UIEditorBase.cs" />
     <Compile Include="Windows\Forms\Main Window\AboutForm.cs">
       <SubType>Form</SubType>
@@ -832,11 +832,11 @@
     <Compile Include="Windows\Forms\Property Grid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Windows\Forms\Editors\HUD Editor\DockableHudGraph.resx">
-      <DependentUpon>DockableHudGraph.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Editors\HUD Editor\DockableUIGraph.resx">
+      <DependentUpon>DockableUIGraph.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\HUD Editor\HudEditorForm.resx">
-      <DependentUpon>HudEditorForm.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\Forms\Editors\HUD Editor\UIEditorForm.resx">
+      <DependentUpon>UIEditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>

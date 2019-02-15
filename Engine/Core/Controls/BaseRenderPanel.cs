@@ -391,8 +391,8 @@ namespace TheraEngine
         /// </summary>
         public void CreateContext()
         {
-            if (Engine.DesignMode)
-                return;
+            //if (Engine.DesignMode)
+            //    return;
 
             switch (Engine.RenderLibrary)
             {

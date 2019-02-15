@@ -124,7 +124,7 @@ namespace TheraEditor.Windows.Forms
 
         private void GetKeyframeInfo(FloatKeyframe kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos)
         {
-            float tangentScale = 50.0f / _baseTransformComponent.ScaleX;
+            float tangentScale = 50.0f / BaseTransformComponent.ScaleX;
             float velOut = kf.OutTangent;
             float velIn = kf.InTangent;
 
@@ -175,8 +175,8 @@ namespace TheraEditor.Windows.Forms
             float displayFPS;
             GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
             Vec2 bounds = Bounds;
-            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
-            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, _baseTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
             float maxSec = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
             float minSec = TMath.Max(boundsMinAnimRelative.X, animMin.X);
             float maxVal = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
@@ -274,8 +274,8 @@ namespace TheraEditor.Windows.Forms
 
             GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
             Vec2 bounds = Bounds;
-            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, _baseTransformComponent.InverseWorldMatrix).Xy;
-            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, _baseTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
+            Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
             float maxSec = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
             float minSec = TMath.Max(boundsMinAnimRelative.X, animMin.X);
             float maxVal = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
@@ -413,7 +413,7 @@ void main()
         protected override void UpdateTextScale()
         {
             base.UpdateTextScale();
-            Vec2 scale = 1.0f / _baseTransformComponent.Scale;
+            Vec2 scale = 1.0f / BaseTransformComponent.Scale;
             _xCoord.Scale = scale;
             _yCoord.Scale = scale;
         }
@@ -466,7 +466,7 @@ void main()
         private void OnCurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
         {
             Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
-            AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
+            AnimPositionWorld = Vec3.TransformPosition(pos, BaseTransformComponent.WorldMatrix).Xy;
 
             Vec2 origin = GetViewportBottomLeftWorldSpace();
 
@@ -489,7 +489,7 @@ void main()
         private bool _redrewLastMove = false;
         protected override void BaseWorldTransformChanged()
         {
-            Matrix4 mtx = _baseTransformComponent.WorldMatrix;
+            Matrix4 mtx = BaseTransformComponent.WorldMatrix;
 
             _rcKfLines.WorldMatrix =
             _rcSpline.WorldMatrix =
@@ -501,7 +501,7 @@ void main()
                 RenderAnimPosition = true;
 
                 Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
-                AnimPositionWorld = Vec3.TransformPosition(pos, _baseTransformComponent.WorldMatrix).Xy;
+                AnimPositionWorld = Vec3.TransformPosition(pos, BaseTransformComponent.WorldMatrix).Xy;
             }
             else
                 RenderAnimPosition = false;
@@ -803,7 +803,7 @@ void main()
                     }
                     else
                     {
-                        float tangentScale = 50.0f / _baseTransformComponent.ScaleX;
+                        float tangentScale = 50.0f / BaseTransformComponent.ScaleX;
                      
                         if (kf.Value.DraggingInTangent)
                         {
@@ -843,7 +843,7 @@ void main()
                 return;
 
             Vec2 cursorPos = CursorPositionTransformRelative();
-            float radius = SelectionRadius / _baseTransformComponent.ScaleX;
+            float radius = SelectionRadius / BaseTransformComponent.ScaleX;
             ClosestPositionIndices = KeyframeInOutPosInOutTan.FindAllMatchIndices(x => x.DistanceToFast(cursorPos) < radius);
         }
         protected override void OnScrolledInput(bool down)
@@ -871,14 +871,14 @@ void main()
             if (ClosestPositionIndices != null)
                 foreach (int index in ClosestPositionIndices)
                     if (KeyframeInOutPosInOutTan?.IndexInArrayRange(index) ?? false)
-                        Engine.Renderer.RenderPoint(Vec3.TransformPosition(KeyframeInOutPosInOutTan[index], _baseTransformComponent.WorldMatrix), Color.Yellow, false, 10.0f);
+                        Engine.Renderer.RenderPoint(Vec3.TransformPosition(KeyframeInOutPosInOutTan[index], BaseTransformComponent.WorldMatrix), Color.Yellow, false, 10.0f);
 
             base.RenderMethod();
 
             //Animation end line
             if (_targetAnimation != null && _targetAnimation.Keyframes.Count > 0)
             {
-                Vec3 end = Vec3.TransformPosition(new Vec2(_targetAnimation.LengthInSeconds, 0.0f), _baseTransformComponent.WorldMatrix);
+                Vec3 end = Vec3.TransformPosition(new Vec2(_targetAnimation.LengthInSeconds, 0.0f), BaseTransformComponent.WorldMatrix);
                 Engine.Renderer.RenderLine(new Vec2(end.X, 0.0f), new Vec2(end.X, wh.Y), new ColorF4(0.7f, 0.3f, 0.3f), false, 10.0f);
             }
 

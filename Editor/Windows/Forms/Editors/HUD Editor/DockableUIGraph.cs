@@ -5,6 +5,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
+using TheraEngine.Rendering.UI;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -21,12 +22,14 @@ namespace TheraEditor.Windows.Forms
         }
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
-            Editor.SetActiveEditorControl(this);
+            if (!Engine.DesignMode)
+                Editor.SetActiveEditorControl(this);
         }
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
-            Editor.SetActiveEditorControl(this);
+            if (!Engine.DesignMode)
+                Editor.SetActiveEditorControl(this);
         }
 
         public HudEditorGameMode GameMode { get; set; }
@@ -39,7 +42,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnHandleDestroyed(EventArgs e)
         {
             base.OnHandleDestroyed(e);
-            if (Editor.ActiveRenderForm == this)
+            if (!Engine.DesignMode && Editor.ActiveRenderForm == this)
                 Editor.SetActiveEditorControl(null);
         }
         protected override void OnShown(EventArgs e)
@@ -51,6 +54,16 @@ namespace TheraEditor.Windows.Forms
         {
             RenderPanel.FormClosed();
             base.OnClosed(e);
+        }
+        private void newUIElementToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UIComponent comp = Editor.UserCreateInstanceOf<UIComponent>();
+            if (comp != null)
+                RenderPanel.UI.BaseTransformComponent.ChildComponents.Add(comp);
+        }
+        private void removeSelectedElementToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
     public class HudEditorController : LocalPlayerController

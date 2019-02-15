@@ -62,6 +62,11 @@ namespace TheraEngine.Rendering.UI
         //        }
         //    }
         //}
+        internal void SetModificationValueNoUpdate(float value)
+        {
+            if (!IgnoreUserChanges)
+                _modValue = value;
+        }
         public float ModificationValue
         {
             get => _modValue;

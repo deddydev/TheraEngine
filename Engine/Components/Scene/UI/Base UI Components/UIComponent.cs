@@ -58,12 +58,19 @@ namespace TheraEngine.Rendering.UI
                 PerformResize();
             }
         }
-        
+
         #region Translation
 
         [Browsable(false)]
         [Category("Transform")]
-        public Vec2 ScreenTranslation => Vec3.TransformPosition(WorldPoint, GetInvComponentTransform()).Xy;
+        public Vec2 ScreenTranslation
+        {
+            get => Vec3.TransformPosition(WorldPoint, GetInvComponentTransform()).Xy;
+            set
+            {
+                //LocalTranslation = Vec3.TransformPosition(value, );
+            }
+        }
 
         [Category("Transform")]
         public virtual Vec2 LocalTranslation

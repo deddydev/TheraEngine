@@ -209,6 +209,7 @@ namespace TheraEditor.Windows.Forms
         };
         public UIViewportComponent SubViewport { get; private set; }
         public UITextComponent SubViewportText { get; private set; }
+        public UIString2D FPSText { get; private set; }
         //public UITextProjectionComponent TextOverlay { get; private set; }
         protected override UICanvasComponent OnConstructRoot()
         {
@@ -259,6 +260,31 @@ namespace TheraEditor.Windows.Forms
             //    DockStyle = HudDockStyle.Fill,
             //};
             //dock.ChildComponents.Add(TextOverlay);
+
+            t = "FPS: 0";
+            s = TextRenderer.MeasureText(t, f);
+            UITextComponent fpsComp = new UITextComponent();
+
+            fpsComp.RenderInfo.VisibleByDefault = true;
+            fpsComp.SizeableHeight.SetSizingPixels(s.Height);
+            fpsComp.SizeableWidth.SetSizingPixels(s.Width);
+
+            fpsComp.SizeablePosX.SetSizingPixels(0.0f);
+            fpsComp.SizeablePosX.ParentBoundsInherited = EParentBoundsInheritedValue.Width;
+            fpsComp.SizeablePosX.SmallerRelative = true;
+            fpsComp.SizeablePosY.SetSizingPixels(0.0f);
+            fpsComp.SizeablePosX.ParentBoundsInherited = EParentBoundsInheritedValue.Height;
+            fpsComp.SizeablePosY.SmallerRelative = true;
+
+            fpsComp.TextureResolutionMultiplier = f.Size * 0.5f;
+            fpsComp.TextDrawer.Add(true, FPSText = new UIString2D()
+            {
+                Font = f,
+                Format = sf,
+                Text = t,
+                TextColor = new ColorF4(1.0f, 0.0f, 0.0f, 1.0f),
+            });
+            canvas.ChildComponents.Add(fpsComp);
 
             canvas.OriginRebased += RootComponent_OriginRebased;
 
@@ -408,6 +434,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void MouseMove(float delta)
         {
+            FPSText.Text = "FPS: " + Math.Round(Engine.RenderFrequency, 0, MidpointRounding.AwayFromZero);
             MouseMove(false);
         }
         private void MouseMove(bool gamepad)

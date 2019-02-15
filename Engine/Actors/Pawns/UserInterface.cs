@@ -223,7 +223,6 @@ namespace TheraEngine.Actors.Types.Pawns
         {
             child.OwningActor = this;
         }
-
         //public void Render()
         //{
         //    _scene.DoRender(AbstractRenderer.CurrentCamera, null);

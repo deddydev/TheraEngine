@@ -268,7 +268,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 var sref = Editor.GetSettingsRef();
                 var inst = await sref.GetInstanceAsync();
-                PropGridItem.BeginUpdatingVisibleItems(inst.PropertyGridRef.File.UpdateRateInSeconds);
+                BeginUpdatingVisibleItems(inst.PropertyGridRef.File.UpdateRateInSeconds);
             }
 
             base.OnHandleCreated(e);
@@ -276,10 +276,74 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnHandleDestroyed(EventArgs e)
         {
             if (!Engine.DesignMode)
-                PropGridItem.StopUpdatingVisibleItems();
+                StopUpdatingVisibleItems();
             
             base.OnHandleDestroyed(e);
         }
+        internal void AddVisibleItem(PropGridItem item)
+        {
+            VisibleItemsAdditionQueue.Enqueue(item);
+        }
+        internal void RemoveVisibleItem(PropGridItem item)
+        {
+            VisibleItemsRemovalQueue.Enqueue(item);
+        }
+        internal void StopUpdatingVisibleItems()
+        {
+            _updatingVisibleItems = false;
+        }
+        /// <summary>
+        /// List of all visible PropGridItems that need to be updated.
+        /// </summary>
+        private List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
+        private Queue<PropGridItem> VisibleItemsRemovalQueue { get; } = new Queue<PropGridItem>();
+        private Queue<PropGridItem> VisibleItemsAdditionQueue { get; } = new Queue<PropGridItem>();
+
+        private bool _updatingVisibleItems = false;
+        //private static DateTime _timeStartedUpdatingVisibleItems;
+        internal void BeginUpdatingVisibleItems(float updateRateInSeconds)
+        {
+            if (_updatingVisibleItems)
+                return;
+
+            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
+            _updatingVisibleItems = true;
+            //_timeStartedUpdatingVisibleItems = DateTime.Now;
+
+            Task.Run(() =>
+            {
+                while (_updatingVisibleItems)
+                {
+                    //if (Engine.CurrentFramesPerSecond > 30.0f)
+                    {
+                        Parallel.For(0, VisibleItems.Count, UpdateItem);
+                        while (VisibleItemsRemovalQueue.Count > 0)
+                            VisibleItems.Remove(VisibleItemsRemovalQueue.Dequeue());
+                        while (VisibleItemsAdditionQueue.Count > 0)
+                            VisibleItems.Add(VisibleItemsAdditionQueue.Dequeue());
+                    }
+                    Thread.Sleep(sleepTime);
+                }
+            });
+        }
+        private void UpdateItem(int i)
+        {
+            try
+            {
+                PropGridItem item = VisibleItems[i];
+                if (item.IsDisposed || item.Disposing)
+                    RemoveVisibleItem(item);
+                else// if (item.UpdateTimeSpan == null || DateTime.Now - item.LastUpdateTime >= item.UpdateTimeSpan.Value)
+                    BaseRenderPanel.ThreadSafeBlockingInvoke(
+                        (Action)item.UpdateDisplay,
+                        BaseRenderPanel.PanelType.Rendering);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+        }
+
         public event Action<object> PropertiesLoaded;
 
         private object GetObject() => _targetObject;

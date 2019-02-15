@@ -244,77 +244,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             LastUpdateTime = now;
             _updating = false;
         }
+        public TimeSpan? UpdateTimeSpan { get; set; }
+        public DateTime LastUpdateTime { get; set; }
+        public DateTime LastDisplayChangeTime { get; set; }
 
         protected abstract bool UpdateDisplayInternal(object value);
         
         public virtual bool CanAnimate => false;
 
         object IPropGridMemberOwner.Value => GetValue();
-
-        internal static void AddVisibleItem(PropGridItem item)
-        {
-            VisibleItemsAdditionQueue.Enqueue(item);
-        }
-        internal static void RemoveVisibleItem(PropGridItem item)
-        {
-            VisibleItemsRemovalQueue.Enqueue(item);
-        }
-        internal static void StopUpdatingVisibleItems()
-        {
-            _updatingVisibleItems = false;
-        }
-        /// <summary>
-        /// List of all visible PropGridItems that need to be updated.
-        /// </summary>
-        private static List<PropGridItem> VisibleItems { get; } = new List<PropGridItem>();
-        private static Queue<PropGridItem> VisibleItemsRemovalQueue { get; } = new Queue<PropGridItem>();
-        private static Queue<PropGridItem> VisibleItemsAdditionQueue { get; } = new Queue<PropGridItem>();
-        public TimeSpan? UpdateTimeSpan { get; set; }
-        public DateTime LastUpdateTime { get; set; }
-        public DateTime LastDisplayChangeTime { get; set; }
-        private static bool _updatingVisibleItems = false;
-        //private static DateTime _timeStartedUpdatingVisibleItems;
-        internal static void BeginUpdatingVisibleItems(float updateRateInSeconds)
-        {
-            if (_updatingVisibleItems)
-                return;
-
-            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
-            _updatingVisibleItems = true;
-            //_timeStartedUpdatingVisibleItems = DateTime.Now;
-
-            Task.Run(() =>
-            {
-                while (_updatingVisibleItems)
-                {
-                    //if (Engine.CurrentFramesPerSecond > 30.0f)
-                    {
-                        Parallel.For(0, VisibleItems.Count, i =>
-                        {
-                            try
-                            {
-                                PropGridItem item = VisibleItems[i];
-                                if (item.IsDisposed || item.Disposing)
-                                    RemoveVisibleItem(item);
-                                else// if (item.UpdateTimeSpan == null || DateTime.Now - item.LastUpdateTime >= item.UpdateTimeSpan.Value)
-                                    BaseRenderPanel.ThreadSafeBlockingInvoke(
-                                        (Action)item.UpdateDisplay,
-                                        BaseRenderPanel.PanelType.Rendering);
-                            }
-                            catch (Exception ex)
-                            {
-                                Engine.LogException(ex);
-                            }
-                        });
-                        while (VisibleItemsRemovalQueue.Count > 0)
-                            VisibleItems.Remove(VisibleItemsRemovalQueue.Dequeue());
-                        while (VisibleItemsAdditionQueue.Count > 0)
-                            VisibleItems.Add(VisibleItemsAdditionQueue.Dequeue());
-                    }
-                    Thread.Sleep(sleepTime);
-                }
-            });
-        }
+        
         public override string ToString()
             => DataType + " - " + MemberInfo;
         protected virtual void OnLabelSet()

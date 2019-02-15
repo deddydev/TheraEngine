@@ -1,10 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
@@ -22,14 +19,14 @@ namespace TheraEditor.Windows.Forms
             VertexTriangle[] lines = quad.ToTriangles();
             PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), lines);
             TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Yellow);
-            //mat.RenderParams.DepthTest.Enabled = ERenderParamUsage.Disabled;
             _highlightMesh.Mesh = new PrimitiveManager(data, mat);
             _uiBoundsMesh.Mesh = new PrimitiveManager(data, mat);
         }
         public UIHudEditor(Vec2 bounds) : base(bounds) { }
 
+        public Vec2 PreviewResolution = new Vec2(1920, 1080);
         public event DelUIComponentSelect UIComponentSelected;
-        public event DelUIComponentSelect UIComponentHighlighted;
+        //public event DelUIComponentSelect UIComponentHighlighted;
         
         public IUserInterface TargetHUD
         {
@@ -40,15 +37,15 @@ namespace TheraEditor.Windows.Forms
                     return;
                 else if (_targetHud != null)
                 {
-                    _baseTransformComponent.ChildComponents.Remove(_targetHud.RootComponent);
+                    BaseTransformComponent.ChildComponents.Remove(_targetHud.RootComponent);
                 }
                 _targetHud = value;
                 if (_targetHud != null)
                 {
-                    _baseTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
+                    BaseTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
                     IVec2 vec = LocalPlayerController.Viewport.Region.Extents;
-                    UIDockableComponent comp = _targetHud.RootComponent as UIDockableComponent;
-                    //comp.Bounds = vec;
+                    UICanvasComponent canvas = _targetHud.RootComponent as UICanvasComponent;
+                    canvas.Size = PreviewResolution;
                 }
                 else
                 {
@@ -69,6 +66,7 @@ namespace TheraEditor.Windows.Forms
         protected override void OnLeftClickDown()
         {
             _dragComp = _highlightedComp;
+            UIComponentSelected?.Invoke(_dragComp);
         }
         protected override void OnLeftClickUp()
         {
@@ -87,22 +85,30 @@ namespace TheraEditor.Windows.Forms
         protected override void HighlightScene()
         {
             _highlightedComp = FindComponent();
+            //UIComponentHighlighted?.Invoke(_highlightedComp);
         }
 
         protected override void HandleDragItem()
         {
             Vec2 diff = GetWorldCursorDiff(CursorPosition());
-            _dragComp.LocalTranslation += diff;
+            _dragComp.LocalTranslation += diff / BaseTransformComponent.ScaleX;
         }
         protected override void AddRenderables(RenderPasses passes)
         {
             if (_highlightedComp != null)
             {
-                _highlightMesh.WorldMatrix = _highlightedComp.WorldMatrix;
+                Matrix4 mtx = _highlightedComp.WorldMatrix;
+                if (_highlightedComp is UIBoundableComponent bound)
+                    mtx = mtx * Matrix4.CreateScale(bound.Width, bound.Height, 1.0f);
+                else
+                    _highlightMesh.WorldMatrix = mtx;
                 passes.Add(_highlightMesh);
             }
 
-            _uiBoundsMesh.WorldMatrix = Matrix4.CreateScale(TargetHUD.Bounds);
+            _uiBoundsMesh.WorldMatrix = 
+                Matrix4.CreateTranslation(BaseTransformComponent.LocalTranslation) *
+                Matrix4.CreateScale(PreviewResolution * BaseTransformComponent.ScaleX);
+
             passes.Add(_uiBoundsMesh);
         }
     }

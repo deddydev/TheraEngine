@@ -352,6 +352,8 @@
   <ItemGroup>
     <Compile Include="Actors\IActor.cs" />
     <Compile Include="Actors\BaseActor.cs" />
+    <Compile Include="Animation\Camera\PerspCamKeyCollection.cs" />
+    <Compile Include="Animation\Model\BoneAnimation.cs" />
     <Compile Include="Animation\Property\Core\AnimationMember.cs" />
     <Compile Include="Animation\Property\Core\AnimationTree.cs" />
     <Compile Include="Animation\Property\Core\BasePropAnim.cs" />

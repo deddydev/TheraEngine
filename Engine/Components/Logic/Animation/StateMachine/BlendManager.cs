@@ -10,7 +10,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Components.Logic.Animation
 {
-    public enum AnimBlendType
+    public enum EAnimBlendType
     {
         Linear,             //start + (end - start) * time
         CosineEaseInOut,    //start + (end - start) * (1.0f - cos(time)) / 2.0f
@@ -40,7 +40,7 @@ namespace TheraEngine.Components.Logic.Animation
             /// The blending method to use.
             /// </summary>
             [TSerialize]
-            public AnimBlendType Type
+            public EAnimBlendType Type
             {
                 get => _blendType;
                 set
@@ -49,19 +49,19 @@ namespace TheraEngine.Components.Logic.Animation
                     switch (_blendType)
                     {
                         default:
-                        case AnimBlendType.Linear:
+                        case EAnimBlendType.Linear:
                             _blendFunction = (time) => time;
                             break;
-                        case AnimBlendType.CosineEaseInOut:
+                        case EAnimBlendType.CosineEaseInOut:
                             _blendFunction = (time) => Interp.InterpCosineTo(0.0f, 1.0f, time);
                             break;
-                        case AnimBlendType.QuadraticEaseStart:
+                        case EAnimBlendType.QuadraticEaseStart:
                             _blendFunction = (time) => Interp.InterpQuadraticEaseStart(0.0f, 1.0f, time);
                             break;
-                        case AnimBlendType.QuadraticEaseEnd:
+                        case EAnimBlendType.QuadraticEaseEnd:
                             _blendFunction = (time) => Interp.InterpQuadraticEaseEnd(0.0f, 1.0f, time);
                             break;
-                        case AnimBlendType.Custom:
+                        case EAnimBlendType.Custom:
                             _blendFunction = (time) => _customBlendFunction.First.Interpolate(time, EVectorInterpValueType.Position);
                             break;
                     }
@@ -70,7 +70,7 @@ namespace TheraEngine.Components.Logic.Animation
 
             private AnimStateTransition _transition;
             private float _invDuration;
-            private AnimBlendType _blendType;
+            private EAnimBlendType _blendType;
             private Func<float, float> _blendFunction;
             [TSerialize("CustomFunction", Order = 0)]
             private KeyframeTrack<FloatKeyframe> _customBlendFunction;

@@ -42,9 +42,9 @@ namespace TheraEngine.Components.Logic.Animation
         /// The interpolation method to use to blend to the next state.
         /// </summary>
         [TSerialize]
-        public AnimBlendType BlendType { get; set; }
+        public EAnimBlendType BlendType { get; set; }
         /// <summary>
-        /// If <see cref="BlendType"/> == <see cref="AnimBlendType.Custom"/>, 
+        /// If <see cref="BlendType"/> == <see cref="EAnimBlendType.Custom"/>, 
         /// uses these keyframes to interpolate between 0.0f and 1.0f.
         /// </summary>
         [TSerialize]

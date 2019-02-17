@@ -157,7 +157,7 @@ namespace TheraEditor.Windows.Forms
                 comp.LightColor = new EventColorF3(1.0f);
                 comp.Rotation.Yaw = 45.0f;
                 comp.Rotation.Pitch = -45.0f;
-                comp.Scale = new Vec3(5.0f);
+                comp.Scale = new Vec3(2000.0f);
                 actors.Add(light);
                 
                 TextureFile2D skyTex = await Engine.Files.LoadEngineTexture2DAsync("modelviewerbg1.png");

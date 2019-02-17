@@ -1,14 +1,11 @@
-﻿using EnumsNET;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Xml;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Animation
 {
@@ -19,7 +16,7 @@ namespace TheraEngine.Animation
         public PerspCamKeyCollection() { }
         
         public float LengthInSeconds { get; private set; }
-        
+        public ERotationOrder EulerOrder { get; set; }
         public bool VerticalFOV { get; set; }
         public bool OverrideAspect { get; set; }
 
@@ -71,278 +68,77 @@ namespace TheraEngine.Animation
 
         public void Progress(float delta) => _tracks.ForEach(x => x.Progress(delta));
 
-        /// <summary>
-        /// Retrieves the parts of the transform at the requested frame second.
-        /// Uses the defaultTransform for tracks that have no keys.
-        /// </summary>
-        public unsafe void GetTransform(Transform bindState,
-            out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void UpdateCamera(PerspectiveCamera camera, float second)
         {
-            Vec3 t, r, s;
-            Vec3
-                bt = bindState.Translation.Raw,
-                br = bindState.Rotation.PitchYawRoll,
-                bs = bindState.Scale.Raw;
+            Vec3 t, r;
+            Vec4 param;
             float* pt = (float*)&t;
             float* pr = (float*)&r;
-            float* ps = (float*)&s;
-            float* pbt = (float*)&bt;
-            float* pbr = (float*)&br;
-            float* pbs = (float*)&bs;
-            for (int i = 0; i < 3; ++i, ++pbt)
-            {
-                var track = _tracks[i];
-                *pt++ = track.Keyframes.Count == 0 ? *pbt : track.CurrentPosition;
-            }
-            for (int i = 3; i < 6; ++i, ++pbr)
-            {
-                var track = _tracks[i];
-                *pr++ = track.Keyframes.Count == 0 ? *pbr : track.CurrentPosition;
-            }
-            for (int i = 6; i < 9; ++i, ++pbs)
-            {
-                var track = _tracks[i];
-                *ps++ = track.Keyframes.Count == 0 ? *pbs : track.CurrentPosition;
-            }
+            float* pp = (float*)&param;
 
-            translation = t;
-            rotation = new Rotator(r, EulerOrder);
-            scale = s;
-        }
-        /// <summary>
-        /// Retrieves the parts of the transform at the requested frame second.
-        /// Uses the defaultTransform for tracks that have no keys.
-        /// </summary>
-        public unsafe void GetTransform(Transform bindState, float second,
-            out Vec3 translation, out Rotator rotation, out Vec3 scale)
-        {
-            Vec3 t, r, s;
-            Vec3
-                bt = bindState.Translation.Raw,
-                br = bindState.Rotation.PitchYawRoll,
-                bs = bindState.Scale.Raw;
-            float* pt = (float*)&t;
-            float* pr = (float*)&r;
-            float* ps = (float*)&s;
-            float* pbt = (float*)&bt;
-            float* pbr = (float*)&br;
-            float* pbs = (float*)&bs;
-            for (int i = 0; i < 3; ++i, ++pbt)
-            {
-                var track = _tracks[i];
-                *pt++ = track.Keyframes.Count == 0 ? *pbt : track.GetValue(second);
-            }
-            for (int i = 3; i < 6; ++i, ++pbr)
-            {
-                var track = _tracks[i];
-                *pr++ = track.Keyframes.Count == 0 ? *pbr : track.GetValue(second);
-            }
-            for (int i = 6; i < 9; ++i, ++pbs)
-            {
-                var track = _tracks[i];
-                *ps++ = track.Keyframes.Count == 0 ? *pbs : track.GetValue(second);
-            }
-
-            translation = t;
-            rotation = new Rotator(r, EulerOrder);
-            scale = s;
-        }
-        /// <summary>
-        /// Retrieves the parts of the transform at the current frame second.
-        /// Uses the defaultTransform for tracks that have no keys.
-        /// </summary>
-        public unsafe void GetTransform(out Vec3 translation, out Rotator rotation, out Vec3 scale)
-        {
-            Vec3 t, r, s;
-            float* pt = (float*)&t;
-            float* pr = (float*)&r;
-            float* ps = (float*)&s;
-
-            for (int i = 0; i < 3; ++i)
-                *pt++ = _tracks[i].CurrentPosition;
-            for (int i = 3; i < 6; ++i)
-                *pr++ = _tracks[i].CurrentPosition;
-            for (int i = 6; i < 9; ++i)
-                *ps++ = _tracks[i].CurrentPosition;
-
-            translation = t;
-            rotation = new Rotator(r, EulerOrder);
-            scale = s;
-        }
-        /// <summary>
-        /// Retrieves the parts of the transform at the requested frame second.
-        /// Uses the defaultTransform for tracks that have no keys.
-        /// </summary>
-        public unsafe void GetTransform(float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
-        {
-            Vec3 t, r, s;
-            float* pt = (float*)&t;
-            float* pr = (float*)&r;
-            float* ps = (float*)&s;
-
-            for (int i = 0; i < 3; ++i)
-                *pt++ = _tracks[i].GetValue(second);
-            for (int i = 3; i < 6; ++i)
-                *pr++ = _tracks[i].GetValue(second);
-            for (int i = 6; i < 9; ++i)
-                *ps++ = _tracks[i].GetValue(second);
-
-            translation = t;
-            rotation = new Rotator(r, EulerOrder);
-            scale = s;
-        }
-        /// <summary>
-        /// Retrieves the transform at the requested frame second.
-        /// Uses the defaultTransform for tracks that have no keys.
-        /// </summary>
-        public unsafe Transform GetTransform(Transform defaultTransform)
-        {
-            Vec3 t, r, s;
-            Vec3
-                bt = defaultTransform.Translation.Raw,
-                br = defaultTransform.Rotation.PitchYawRoll,
-                bs = defaultTransform.Scale.Raw;
-
-            float* pt = (float*)&t;
-            float* pr = (float*)&r;
-            float* ps = (float*)&s;
-            float* pbt = (float*)&bt;
-            float* pbr = (float*)&br;
-            float* pbs = (float*)&bs;
-
-            for (int i = 0; i < 3; ++i, ++pbt)
-            {
-                var track = _tracks[i];
-                *pt++ = track.Keyframes.Count == 0 ? *pbt : track.CurrentPosition;
-            }
-            for (int i = 3; i < 6; ++i, ++pbr)
-            {
-                var track = _tracks[i];
-                *pr++ = track.Keyframes.Count == 0 ? *pbr : track.CurrentPosition;
-            }
-            for (int i = 6; i < 9; ++i, ++pbs)
-            {
-                var track = _tracks[i];
-                *ps++ = track.Keyframes.Count == 0 ? *pbs : track.CurrentPosition;
-            }
-
-            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
-        }
-        /// <summary>
-        /// Retrieves the transform at the requested frame second.
-        /// Uses the defaultTransform for tracks that have no keys.
-        /// </summary>
-        public unsafe Transform GetTransform(Transform defaultTransform, float second)
-        {
-            Vec3 t, r, s;
-            Vec3
-                bt = defaultTransform.Translation.Raw,
-                br = defaultTransform.Rotation.PitchYawRoll,
-                bs = defaultTransform.Scale.Raw;
-
-            float* pt = (float*)&t;
-            float* pr = (float*)&r;
-            float* ps = (float*)&s;
-            float* pbt = (float*)&bt;
-            float* pbr = (float*)&br;
-            float* pbs = (float*)&bs;
-
-            for (int i = 0; i < 3; ++i, ++pbt)
-            {
-                var track = _tracks[i];
-                *pt++ = track.Keyframes.Count == 0 ? *pbt : track.GetValue(second);
-            }
-            for (int i = 3; i < 6; ++i, ++pbr)
-            {
-                var track = _tracks[i];
-                *pr++ = track.Keyframes.Count == 0 ? *pbr : track.GetValue(second);
-            }
-            for (int i = 6; i < 9; ++i, ++pbs)
-            {
-                var track = _tracks[i];
-                *ps++ = track.Keyframes.Count == 0 ? *pbs : track.GetValue(second);
-            }
-
-            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
-        }
-        /// <summary>
-        /// Retrieves the transform at the current frame second.
-        /// </summary>
-        public unsafe Transform GetTransform()
-        {
-            Vec3 t, r, s;
-            float* pt = (float*)&t;
-            float* pr = (float*)&r;
-            float* ps = (float*)&s;
-
-            for (int i = 0; i < 3; ++i)
-                *pt++ = _tracks[i].CurrentPosition;
-            for (int i = 3; i < 6; ++i)
-                *pr++ = _tracks[i].CurrentPosition;
-            for (int i = 6; i < 9; ++i)
-                *ps++ = _tracks[i].CurrentPosition;
-
-            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
-        }
-        /// <summary>
-        /// Retrieves the transform at the requested frame second.
-        /// </summary>
-        public unsafe Transform GetTransform(float second)
-        {
-            Vec3 t, r, s;
-            float* pt = (float*)&t;
-            float* pr = (float*)&r;
-            float* ps = (float*)&s;
-
-            for (int i = 0; i < 3; ++i)
-                *pt++ = _tracks[i].GetValue(second);
-            for (int i = 3; i < 6; ++i)
-                *pr++ = _tracks[i].GetValue(second);
-            for (int i = 6; i < 9; ++i)
-                *ps++ = _tracks[i].GetValue(second);
-
-            return new Transform(t, new Rotator(r, EulerOrder), s, TransformOrder);
-        }
-        public float?[] GetValues()
-        {
-            float?[] values = new float?[9];
             for (int i = 0; i < 3; ++i)
             {
                 var track = _tracks[i];
-                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.CurrentPosition;
+                *pt++ = track.GetValue(second);
             }
             for (int i = 3; i < 6; ++i)
             {
                 var track = _tracks[i];
-                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.CurrentPosition;
+                *pr++ = track.GetValue(second);
             }
-            for (int i = 6; i < 9; ++i)
+            for (int i = 6; i < 10; ++i)
             {
                 var track = _tracks[i];
-                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.CurrentPosition;
+                *pp++ = track.GetValue(second);
             }
 
+            camera.SetAll(t, new Rotator(r, EulerOrder), param.X, VerticalFOV, param.Z, param.W, OverrideAspect ? (float?)param.Y : null);
+        }
+        public unsafe void UpdateCamera(PerspectiveCamera camera)
+        {
+            Vec3 t, r;
+            Vec4 param;
+            float* pt = (float*)&t;
+            float* pr = (float*)&r;
+            float* pp = (float*)&param;
+
+            for (int i = 0; i < 3; ++i)
+            {
+                var track = _tracks[i];
+                *pt++ = track.CurrentPosition;
+            }
+            for (int i = 3; i < 6; ++i)
+            {
+                var track = _tracks[i];
+                *pr++ = track.CurrentPosition;
+            }
+            for (int i = 6; i < 10; ++i)
+            {
+                var track = _tracks[i];
+                *pp++ = track.CurrentPosition;
+            }
+
+            camera.SetAll(t, new Rotator(r, EulerOrder), param.X, VerticalFOV, param.Z, param.W, OverrideAspect ? (float?)param.Y : null);
+        }
+        
+        public float[] GetValues()
+        {
+            float[] values = new float[10];
+            for (int i = 0; i < 10; ++i)
+            {
+                var track = _tracks[i];
+                values[i] = track.CurrentPosition;
+            }
             return values;
         }
-        public float?[] GetValues(float second)
+        public float[] GetValues(float second)
         {
-            float?[] values = new float?[9];
-            for (int i = 0; i < 3; ++i)
+            float[] values = new float[10];
+            for (int i = 0; i < 10; ++i)
             {
                 var track = _tracks[i];
-                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.GetValue(second);
+                values[i] = track.GetValue(second);
             }
-            for (int i = 3; i < 6; ++i)
-            {
-                var track = _tracks[i];
-                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.GetValue(second);
-            }
-            for (int i = 6; i < 9; ++i)
-            {
-                var track = _tracks[i];
-                values[i] = track.Keyframes.Count == 0 ? null : (float?)track.GetValue(second);
-            }
-
             return values;
         }
 

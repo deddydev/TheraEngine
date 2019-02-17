@@ -203,7 +203,7 @@ namespace System
                 //pitch = (float)Asin(2.0f * test / unit);
                 //roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
             }
-            return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), RotationOrder.YPR);
+            return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), ERotationOrder.YPR);
         }
         public void Normalize(ENormalizeOption normalizeMethod)
         {
@@ -330,19 +330,19 @@ namespace System
         /// <param name="yaw">The yaw (heading), rotation around Y axis</param>
         /// <param name="pitch">The pitch (attitude), rotation around X axis</param>
         /// <param name="roll">The roll (bank), rotation around Z axis</param>
-        public static Quat FromEulerAngles(float pitch, float yaw, float roll, RotationOrder order = RotationOrder.YPR)
+        public static Quat FromEulerAngles(float pitch, float yaw, float roll, ERotationOrder order = ERotationOrder.YPR)
         {
             Quat p = FromAxisAngleDeg(Vec3.UnitX, pitch);
             Quat y = FromAxisAngleDeg(Vec3.UnitY, yaw);
             Quat r = FromAxisAngleDeg(Vec3.UnitZ, roll);
             switch (order)
             {
-                case RotationOrder.RYP: return r * y * p;
-                case RotationOrder.YRP: return y * r * p;
-                case RotationOrder.PRY: return p * r * y;
-                case RotationOrder.RPY: return r * p * y;
-                case RotationOrder.YPR: return y * p * r;
-                case RotationOrder.PYR: return p * y * r;
+                case ERotationOrder.RYP: return r * y * p;
+                case ERotationOrder.YRP: return y * r * p;
+                case ERotationOrder.PRY: return p * r * y;
+                case ERotationOrder.RPY: return r * p * y;
+                case ERotationOrder.YPR: return y * p * r;
+                case ERotationOrder.PYR: return p * y * r;
             }
             return Identity;
         }

@@ -99,7 +99,8 @@ namespace System
             while (AddedItems.TryDequeue(out T item))
             {
                 item.RenderInfo.SceneID = ItemID++;
-                _head.AddHereOrSmaller(item);
+                if (!_head.AddHereOrSmaller(item))
+                    _head.ForceAdd(item);
             }
             while (RemovedItems.TryDequeue(out T item))
             {

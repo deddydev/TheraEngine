@@ -136,7 +136,7 @@ namespace TheraEngine.Components.Logic.Movement
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
             base.OnDespawned();
         }
-        private void FloorTransformChanged()
+        private void FloorTransformChanged(SceneComponent floor)
         {
             //TODO: change to falling if ground accelerates down with gravity faster than the character
             SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;

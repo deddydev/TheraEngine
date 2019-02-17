@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
@@ -181,7 +182,7 @@ namespace TheraEditor.Windows.Forms
             UpdateBackgroundMaterial();
             UpdateTextScale();
         }
-        protected virtual void BaseWorldTransformChanged()
+        protected virtual void BaseWorldTransformChanged(SceneComponent comp)
         {
             UpdateBackgroundMaterial();
         }

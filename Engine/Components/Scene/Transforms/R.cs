@@ -16,11 +16,11 @@ namespace TheraEngine.Components.Scene.Transforms
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
-        public RotationComponent(RotationOrder order, bool deferLocalRecalc = false)
+        public RotationComponent(ERotationOrder order, bool deferLocalRecalc = false)
             : this(Rotator.GetZero(order), deferLocalRecalc) { }
-        public RotationComponent(float pitch, float yaw, float roll, RotationOrder order = RotationOrder.YPR, bool deferLocalRecalc = false)
+        public RotationComponent(float pitch, float yaw, float roll, ERotationOrder order = ERotationOrder.YPR, bool deferLocalRecalc = false)
               : this(new Rotator(pitch, yaw, roll, order), deferLocalRecalc) { }
-        public RotationComponent(Vec3 pitchYawRoll, RotationOrder order = RotationOrder.YPR, bool deferLocalRecalc = false)
+        public RotationComponent(Vec3 pitchYawRoll, ERotationOrder order = ERotationOrder.YPR, bool deferLocalRecalc = false)
              : this(new Rotator(pitchYawRoll, order), deferLocalRecalc) { }
 
         [TSerialize(nameof(Rotation), UseCategory = true, OverrideCategory = "Transform")]

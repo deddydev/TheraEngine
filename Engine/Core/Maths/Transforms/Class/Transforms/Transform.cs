@@ -25,7 +25,7 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public static Transform GetIdentity(
             TransformOrder transformationOrder = TransformOrder.TRS,
-            RotationOrder rotationOrder = RotationOrder.YPR)
+            ERotationOrder rotationOrder = ERotationOrder.YPR)
         {
             Transform identity = GetIdentity();
             identity._transformOrder = transformationOrder;
@@ -39,7 +39,7 @@ namespace TheraEngine.Core.Maths.Transforms
             _translation.Changed += CreateTransform;
 
             _quaternion = Quat.Identity;
-            _rotation = new Rotator(RotationOrder.YPR);
+            _rotation = new Rotator(ERotationOrder.YPR);
             _rotation.Changed += CreateTransform;
 
             _scale = Vec3.One;
@@ -239,7 +239,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 CreateTransform();
             }
         }
-        public RotationOrder RotationOrder
+        public ERotationOrder RotationOrder
         {
             get => _rotation.Order;
             set => _rotation.Order = value;

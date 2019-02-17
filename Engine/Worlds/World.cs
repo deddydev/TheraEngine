@@ -248,6 +248,8 @@ namespace TheraEngine.Worlds
                 if (m.File.VisibleByDefault)
                     m.File.BeginPlay(this);
 
+            Scene3D?.IBLProbeActor?.InitAndCaptureAll(256);
+
             Engine.ActiveGameMode?.BeginGameplay();
         }
 

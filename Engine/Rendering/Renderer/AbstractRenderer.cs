@@ -262,7 +262,7 @@ namespace TheraEngine.Rendering
             m.Render(modelMatrix, Matrix3.Identity);
         }
         public static readonly Vec3 UIPositionBias = new Vec3(0.0f, 0.0f, 0.1f);
-        public static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, RotationOrder.YPR);
+        public static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, ERotationOrder.YPR);
         public virtual void RenderCircle(Vec3 centerTranslation, Rotator rotation, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Components.Logic.Animation;
-using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Rendering.Models;
 
@@ -31,7 +30,8 @@ namespace TheraEngine.Animation
             return (await Collada.ImportAsync(path, o, progress, cancel))?.Models[0].Animation;
         }
         
-        public SkeletalAnimation() : base(0.0f, false) { }
+        public SkeletalAnimation() 
+            : base(0.0f, false) { }
         public SkeletalAnimation(float lengthInSeconds, bool looped)
             : base(lengthInSeconds, looped) { }
         public SkeletalAnimation(int frameCount, float FPS, bool looped)

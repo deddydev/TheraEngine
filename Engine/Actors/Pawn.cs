@@ -201,7 +201,7 @@ namespace TheraEngine.Actors
 
         public virtual void RegisterInput(InputInterface input) { }
         
-        public void QueueWorldRebase()
+        public void QueueWorldRebase(SceneComponent comp)
         {
             if (!IsSpawned || OwningWorld.IsRebasingOrigin)
                 return;

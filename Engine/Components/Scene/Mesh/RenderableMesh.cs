@@ -141,7 +141,7 @@ namespace TheraEngine.Components.Scene.Mesh
             Mesh = mesh;
             SetCullingVolume(mesh.CullingVolume);
         }
-        private void _component_WorldTransformChanged()
+        private void _component_WorldTransformChanged(SceneComponent comp)
         {
             RenderInfo.CullingVolume.SetTransformMatrix(_component.WorldMatrix * _initialCullingVolumeMatrix);
             RenderInfo.OctreeNode?.ItemMoved(this);

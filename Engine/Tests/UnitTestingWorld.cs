@@ -9,6 +9,7 @@ using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.ComponentActors.Shapes;
 using TheraEngine.Actors.Types.Lights;
 using TheraEngine.Animation;
+using TheraEngine.Components;
 using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
@@ -75,8 +76,8 @@ namespace TheraEngine.Tests
             bool testLandscape = true;
             bool createWalls = true;
             int pointLights = 0;
-            int dirLights = 0;
-            int spotLights = 1;
+            int dirLights = 1;
+            int spotLights = 0;
 
             float margin = 2.0f;
             float radius = 1.0f;
@@ -369,7 +370,7 @@ namespace TheraEngine.Tests
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
             //iblProbes.RootComponent.Translation.Y += 3.0f;
             Random random = new Random();
-            for (int i = 0; i < 0; ++i)
+            for (int i = 0; i < 10; ++i)
             {
                 iblProbes.AddProbe(new Vec3(
                     ((float)random.NextDouble() - 0.5f) * 200.0f,
@@ -390,13 +391,12 @@ namespace TheraEngine.Tests
             Settings = new WorldSettings("UnitTestingWorld", new Map(true, Vec3.Zero, actors))
             {
                 Bounds = bounds,
-                OriginRebaseRadius = 50.0f,
-                EnableOriginRebasing = true,
+                OriginRebaseRadius = 100.0f,
+                EnableOriginRebasing = false,
             };
 
             base.BeginPlay();
 
-            //iblProbes.InitAndCaptureAll(256);
             //RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers, TickLandscape, EInputPauseType.TickOnlyWhenUnpaused);
         }
     }
@@ -425,7 +425,7 @@ namespace TheraEngine.Tests
             set
             {
                 _testDistance = value;
-                RootComponent_WorldTransformChanged();
+                RootComponent_WorldTransformChanged(null);
             }
         }
         public float Radius
@@ -484,7 +484,7 @@ namespace TheraEngine.Tests
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
 
-        private void RootComponent_WorldTransformChanged()
+        private void RootComponent_WorldTransformChanged(SceneComponent comp)
         {
             _direction = Vec3.TransformVector(new Vec3(0.0f, 0.0f, -_testDistance), RootComponent.Rotation.GetMatrix());
             _endTraceTransform = _direction.AsTranslationMatrix() * RootComponent.WorldMatrix;

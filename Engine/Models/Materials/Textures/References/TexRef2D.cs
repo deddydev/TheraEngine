@@ -295,7 +295,7 @@ namespace TheraEngine.Rendering.Models.Materials
         /// Converts this texture reference into a texture made for rendering.
         /// </summary>
         /// <returns></returns>
-        public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
+        public override async Task<BaseRenderTexture> GetRenderTextureGenericAsync() => await GetTextureAsync();
 
         /// <summary>
         /// Resizes the textures stored in memory.

@@ -1061,6 +1061,15 @@ namespace TheraEditor.Windows.Forms
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             HighlightRange(e.ChangedRange);
+
+            if (Mode == ETextEditorMode.GLSL)
+            {
+                var (Success, Output) = CompileGLSL();
+                if (!Success)
+                {
+                    Engine.PrintLine(Output);
+                }
+            }
         }
         private (bool Success, string Output) CompileGLSL()
         {
@@ -1101,48 +1110,48 @@ namespace TheraEditor.Windows.Forms
         {
             ThreadPool.QueueUserWorkItem((o) => ReBuildObjectExplorer(TextBox.Text));
 
-            if (Mode == ETextEditorMode.GLSL)
-            {
-                var (Success, Output) = CompileGLSL();
-                if (!Success)
-                {
-                    Engine.PrintLine(Output);
+            //if (Mode == ETextEditorMode.GLSL)
+            //{
+            //    var (Success, Output) = CompileGLSL();
+            //    if (!Success)
+            //    {
+            //        Engine.PrintLine(Output);
 
-                    //int[] errorLines = output.FindAllOccurrences(0, ") : ");
-                    //foreach (int i in errorLines)
-                    //{
-                    //    int start = output.FindFirstReverse(i - 1, '(');
-                    //    int lineIndex = int.Parse(output.Substring(start + 1, i - start - 1)) - 1;
-                    //    if (lineIndex >= 0 && lineIndex < TextBox.LinesCount)
-                    //    {
-                    //        Line lineInfo = TextBox[lineIndex];
-                    //        _errorLines.Add(lineInfo);
-                    //        lineInfo.BackgroundBrush = _errorBrush;
+            //        //int[] errorLines = output.FindAllOccurrences(0, ") : ");
+            //        //foreach (int i in errorLines)
+            //        //{
+            //        //    int start = output.FindFirstReverse(i - 1, '(');
+            //        //    int lineIndex = int.Parse(output.Substring(start + 1, i - start - 1)) - 1;
+            //        //    if (lineIndex >= 0 && lineIndex < TextBox.LinesCount)
+            //        //    {
+            //        //        Line lineInfo = TextBox[lineIndex];
+            //        //        _errorLines.Add(lineInfo);
+            //        //        lineInfo.BackgroundBrush = _errorBrush;
 
-                    //        string line = lineInfo.Text;
-                    //        int errorStart = i + 4;//errors.FindFirst(i + 3, ':') + 2;
-                    //        int errorEnd = output.FindFirst(errorStart, "\n");
-                    //        string errorMsg = output.Substring(errorStart, errorEnd - errorStart);
+            //        //        string line = lineInfo.Text;
+            //        //        int errorStart = i + 4;//errors.FindFirst(i + 3, ':') + 2;
+            //        //        int errorEnd = output.FindFirst(errorStart, "\n");
+            //        //        string errorMsg = output.Substring(errorStart, errorEnd - errorStart);
 
-                    //        lineInfo.AddRange((" // " + errorMsg).Select(x => new FastColoredTextBoxNS.Char(x)));
-                    //    }
-                    //    //Match m = Regex.Match(errorMsg, "(?<= \").*(?=\")");
-                    //    //int tokenStart = line.IndexOf(m.Value);
-                    //    //if (tokenStart < 0)
-                    //    //    continue;
-                    //    //Place px;
-                    //    //for (int x = 0; x < m.Length; ++x)
-                    //    //{
-                    //    //    px = new Place(tokenStart + x, lineIndex);
-                    //    //    FastColoredTextBoxNS.Char cx = TextBox[px];
-                    //    //    cx.style = TextBox.GetStyleIndexMask(new Style[] { _errorStyle });
-                    //    //    TextBox[px] = cx;
-                    //    //}
-                    //    //0(line#) : error CXXXX: <message>
-                    //    //at token "<token>"
-                    //}
-                }
-            }
+            //        //        lineInfo.AddRange((" // " + errorMsg).Select(x => new FastColoredTextBoxNS.Char(x)));
+            //        //    }
+            //        //    //Match m = Regex.Match(errorMsg, "(?<= \").*(?=\")");
+            //        //    //int tokenStart = line.IndexOf(m.Value);
+            //        //    //if (tokenStart < 0)
+            //        //    //    continue;
+            //        //    //Place px;
+            //        //    //for (int x = 0; x < m.Length; ++x)
+            //        //    //{
+            //        //    //    px = new Place(tokenStart + x, lineIndex);
+            //        //    //    FastColoredTextBoxNS.Char cx = TextBox[px];
+            //        //    //    cx.style = TextBox.GetStyleIndexMask(new Style[] { _errorStyle });
+            //        //    //    TextBox[px] = cx;
+            //        //    //}
+            //        //    //0(line#) : error CXXXX: <message>
+            //        //    //at token "<token>"
+            //        //}
+            //    }
+            //}
         }
         public void HighlightRange(Range range)
         {
@@ -1759,7 +1768,10 @@ namespace TheraEditor.Windows.Forms
             if (TextBox.IsChanged)
             {
                 if (SavedOverride != null)
+                {
                     SavedOverride(this);
+                    TextBox.IsChanged = false;
+                }
                 else
                 {
                     TargetFile.Text = GetText();
@@ -1778,8 +1790,8 @@ namespace TheraEditor.Windows.Forms
             Editor.Instance.ContentTree.EndFileSave(path);
             TextBox.OpenBindingFile(path, TargetFile.Encoding);
 
-            TextBox.OnTextChanged();
-            TextBox.OnSyntaxHighlight(new TextChangedEventArgs(TextBox.Range));
+            //TextBox.OnTextChanged();
+            //TextBox.OnSyntaxHighlight(new TextChangedEventArgs(TextBox.Range));
             TextBox.IsChanged = false;
         }
         private void btnSelectPaths_Click(object sender, EventArgs e)

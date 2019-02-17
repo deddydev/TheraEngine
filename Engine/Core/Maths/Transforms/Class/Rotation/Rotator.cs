@@ -7,7 +7,7 @@ using System.Globalization;
 
 namespace TheraEngine.Core.Maths.Transforms
 {
-    public enum RotationOrder
+    public enum ERotationOrder
     {
         YPR = 0,
         YRP,
@@ -17,23 +17,23 @@ namespace TheraEngine.Core.Maths.Transforms
         RYP,
     }
     public delegate void RotatorChange(Rotator rotation);
-    public delegate void RotationOrderChange(RotationOrder newOrder, RotationOrder prevOrder);
+    public delegate void RotationOrderChange(ERotationOrder newOrder, ERotationOrder prevOrder);
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe class Rotator : IEquatable<Rotator>
     {
-        public Rotator() : this(RotationOrder.YPR) { }
+        public Rotator() : this(ERotationOrder.YPR) { }
 
-        public Rotator(RotationOrder order) : this(0.0f, 0.0f, 0.0f, order) { }
-        public Rotator(float pitch, float yaw, float roll, RotationOrder rotationOrder = RotationOrder.YPR)
+        public Rotator(ERotationOrder order) : this(0.0f, 0.0f, 0.0f, order) { }
+        public Rotator(float pitch, float yaw, float roll, ERotationOrder rotationOrder = ERotationOrder.YPR)
         {
             Yaw = yaw;
             Pitch = pitch;
             Roll = roll;
             _rotationOrder = rotationOrder;
         }
-        public Rotator(Vec3 pyr, RotationOrder rotationOrder)
+        public Rotator(Vec3 pyr, ERotationOrder rotationOrder)
         {
             _pyr = pyr;
             _rotationOrder = rotationOrder;
@@ -55,7 +55,7 @@ namespace TheraEngine.Core.Maths.Transforms
         public event Action Changed;
         private int _updateIndex = 0;
         private Vec3 _prevPyr;
-        private RotationOrder _prevOrder;
+        private ERotationOrder _prevOrder;
         private Rotator _syncPitch, _syncYaw, _syncRoll, _syncAll;
         //private readonly object _lock = new object();
 
@@ -74,7 +74,7 @@ namespace TheraEngine.Core.Maths.Transforms
         [TSerialize("PitchYawRoll", NodeType = ENodeType.ElementContent)]
         private Vec3 _pyr;
         [TSerialize("Order", NodeType = ENodeType.Attribute)]
-        private RotationOrder _rotationOrder = RotationOrder.YPR;
+        private ERotationOrder _rotationOrder = ERotationOrder.YPR;
         [TSerialize("LockYaw", NodeType = ENodeType.Attribute)]
         private bool _lockYaw = false;
         [TSerialize("LockPitch", NodeType = ENodeType.Attribute)]
@@ -83,7 +83,7 @@ namespace TheraEngine.Core.Maths.Transforms
         private bool _lockRoll = false;
 
         [Category("Rotator")]
-        public RotationOrder Order
+        public ERotationOrder Order
         {
             get => _rotationOrder;
             set
@@ -316,16 +316,16 @@ namespace TheraEngine.Core.Maths.Transforms
         {
             return new Rotator(-Pitch, -Yaw, -Roll, OppositeOf(_rotationOrder));
         }
-        public static RotationOrder OppositeOf(RotationOrder order)
+        public static ERotationOrder OppositeOf(ERotationOrder order)
         {
             switch (order)
             {
-                case RotationOrder.PRY: return RotationOrder.YRP;
-                case RotationOrder.PYR: return RotationOrder.RYP;
-                case RotationOrder.RPY: return RotationOrder.YPR;
-                case RotationOrder.RYP: return RotationOrder.PYR;
-                case RotationOrder.YRP: return RotationOrder.PRY;
-                case RotationOrder.YPR: return RotationOrder.RPY;
+                case ERotationOrder.PRY: return ERotationOrder.YRP;
+                case ERotationOrder.PYR: return ERotationOrder.RYP;
+                case ERotationOrder.RPY: return ERotationOrder.YPR;
+                case ERotationOrder.RYP: return ERotationOrder.PYR;
+                case ERotationOrder.YRP: return ERotationOrder.PRY;
+                case ERotationOrder.YPR: return ERotationOrder.RPY;
                 default: throw new Exception();
             }
         }
@@ -404,11 +404,11 @@ namespace TheraEngine.Core.Maths.Transforms
             else
             {
                 _pyr = Vec3.Zero;
-                _rotationOrder = RotationOrder.PYR;
+                _rotationOrder = ERotationOrder.PYR;
             }
             EndUpdate();
         }
-        public void SetRotations(float pitch, float yaw, float roll, RotationOrder order)
+        public void SetRotations(float pitch, float yaw, float roll, ERotationOrder order)
         {
             BeginUpdate();
             Pitch = pitch;
@@ -447,13 +447,13 @@ namespace TheraEngine.Core.Maths.Transforms
             else
             {
                 _pyr = Vec3.Zero;
-                _rotationOrder = RotationOrder.PYR;
+                _rotationOrder = ERotationOrder.PYR;
             }
         }
         /// <summary>
         /// Sets the internal <see cref="Vec3"/> value and does not fire any events.
         /// </summary>
-        public void SetRotationsNoUpdate(float pitch, float yaw, float roll, RotationOrder order)
+        public void SetRotationsNoUpdate(float pitch, float yaw, float roll, ERotationOrder order)
         {
             if (!_lockPitch)
                 _pyr.X = pitch;
@@ -729,9 +729,9 @@ namespace TheraEngine.Core.Maths.Transforms
         public static explicit operator Vec3(Rotator v)
             => new Vec3(v.Yaw, v.Pitch, v.Roll);
         public static explicit operator Rotator(Vec3 v)
-            => new Rotator(v.X, v.Y, v.Z, RotationOrder.PYR);
+            => new Rotator(v.X, v.Y, v.Z, ERotationOrder.PYR);
         
-        public static Rotator GetZero(RotationOrder order = RotationOrder.YPR)
+        public static Rotator GetZero(ERotationOrder order = ERotationOrder.YPR)
         {
            return new Rotator(0.0f, 0.0f, 0.0f, order);
         }
@@ -742,7 +742,7 @@ namespace TheraEngine.Core.Maths.Transforms
             float.Parse(parts[0].Substring(1, parts[0].Length - 2)),
             float.Parse(parts[1].Substring(0, parts[1].Length - 1)),
             float.Parse(parts[2].Substring(0, parts[2].Length - 1)),
-            (RotationOrder)Enum.Parse(typeof(RotationOrder), parts[3].Substring(0, parts[3].Length - 1)));
+            (ERotationOrder)Enum.Parse(typeof(ERotationOrder), parts[3].Substring(0, parts[3].Length - 1)));
         }
         public override string ToString()
         {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Animation;
+using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
@@ -487,7 +488,7 @@ void main()
             _yString.Text = pos.Y.ToString("###0.0##");
         }
         private bool _redrewLastMove = false;
-        protected override void BaseWorldTransformChanged()
+        protected override void BaseWorldTransformChanged(SceneComponent comp)
         {
             Matrix4 mtx = BaseTransformComponent.WorldMatrix;
 
@@ -510,7 +511,7 @@ void main()
             _xCoord.SizeablePosY.ModificationValue = origin.Y;
             _yCoord.SizeablePosX.ModificationValue = origin.X;
 
-            base.BaseWorldTransformChanged();
+            base.BaseWorldTransformChanged(comp);
             
             Vec2 bl = GetViewportBottomLeftWorldSpace();
             Vec2 tr = GetViewportTopRightWorldSpace();

@@ -73,7 +73,7 @@ namespace TheraEngine.Components
             ChildComponents = new EventList<SceneComponent>();
         }
 
-        public event Action WorldTransformChanged;
+        public event Action<SceneComponent> WorldTransformChanged;
 
         /// <summary>
         /// This is the method that will be called immediately after any world transform change.
@@ -100,7 +100,7 @@ namespace TheraEngine.Components
             foreach (SceneComponent c in _children)
                 c.RecalcWorldTransform();
 
-            WorldTransformChanged?.Invoke();
+            WorldTransformChanged?.Invoke(this);
             SocketTransformChanged?.Invoke(this);
         }
 

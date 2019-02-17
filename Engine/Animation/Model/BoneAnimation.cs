@@ -90,11 +90,17 @@ namespace TheraEngine.Animation
         //    _rotation.Add(new QuatKeyframe(frameIndex, state.Quaternion, radial));
         //    _scale.Add(new Vec3Keyframe(frameIndex, state.Scale, planar));
         //}
+        private HashSet<string> _boneNotFoundCache = new HashSet<string>();
         public void UpdateSkeleton(Skeleton skeleton)
         {
             Bone bone = skeleton[_name];
             if (bone != null)
                 UpdateState(bone.FrameState, bone.BindState);
+            else if (!_boneNotFoundCache.Contains(_name))
+            {
+                _boneNotFoundCache.Add(_name);
+                Engine.PrintLine($"Bone '{_name}' not found in skeleton '{skeleton.ToString()}'.");
+            }
         }
         public void UpdateState(Transform frameState, Transform bindState)
         {

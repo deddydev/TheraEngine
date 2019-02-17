@@ -271,7 +271,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public void UpdateTexture() => _texture?.PushData();
 
         public override BaseRenderTexture GetRenderTextureGeneric(bool loadSynchronously = false) => GetTexture(loadSynchronously);
-        public override async Task<BaseRenderTexture> GetTextureGenericAsync() => await GetTextureAsync();
+        public override async Task<BaseRenderTexture> GetRenderTextureGenericAsync() => await GetTextureAsync();
 
         /// <summary>
         /// Resizes the textures stored in memory.

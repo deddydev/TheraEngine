@@ -18,6 +18,8 @@ namespace TheraEngine.Timers
 
         bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
 
+        public event Action SwapBuffers;
+
         FrameEventArgs _updateArgs = new FrameEventArgs();
         FrameEventArgs _renderArgs = new FrameEventArgs();
 
@@ -62,7 +64,7 @@ namespace TheraEngine.Timers
 
         private void Application_Idle_SingleThread(object sender, EventArgs e)
         {
-            while (IsApplicationIdle())
+            while (IsApplicationIdle() && IsSingleThreaded)
             {
                 DispatchUpdate();
                 SwapBuffers?.Invoke();
@@ -192,10 +194,8 @@ namespace TheraEngine.Timers
             RenderTime = timestamp - _renderTimestamp;
         }
 
-        private void OnRenderFrameInternal(FrameEventArgs e) { OnRenderFrame(e); }
-        private void OnUpdateFrameInternal(FrameEventArgs e) { OnUpdateFrame(e); }
-        private void OnRenderFrame(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
-        private void OnUpdateFrame(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
+        private void OnRenderFrameInternal(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
+        private void OnUpdateFrameInternal(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
         public bool IsRunning { get; private set; } = false;
 
         /// <summary>
@@ -411,8 +411,6 @@ namespace TheraEngine.Timers
                 }
             }
         }
-
-        public event Action SwapBuffers;
     }
 
     public class FrameEventArgs : EventArgs

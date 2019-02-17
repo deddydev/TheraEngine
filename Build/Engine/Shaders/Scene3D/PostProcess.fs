@@ -112,16 +112,17 @@ void main()
  	float vig = clamp(pow(vigUV.x * vigUV.y * Vignette.Intensity, Vignette.Power), 0.0f, 1.0f);
 	ldrSceneColor = mix(Vignette.Color, ldrSceneColor, vig);
 
+  //Add HUD on top of scene
   vec4 hudColor = texture(HUDTex, uv);
   ldrSceneColor = mix(ldrSceneColor, hudColor.rgb, hudColor.a);
 
+	//Gamma-correct
+	ldrSceneColor = pow(ldrSceneColor, vec3(1.0f / ColorGrade.Gamma));
   //Fix subtle banding by applying fine noise
   ldrSceneColor += mix(-0.5f / 255.0f, 0.5f / 255.0f, rand(uv));
 
-	//Gamma-correct
-	ldrSceneColor = pow(ldrSceneColor, vec3(1.0f / ColorGrade.Gamma));
-
 	OutColor = vec4(ldrSceneColor, 1.0f);
+  
   //float depth = GetDistanceFromDepth(texture(Texture2, uv).r);
   //uint stencil = texture(Texture3, uv).r;
   //OutColor = vec4(vec3(float(stencil) / 255.0f), 1.0f);

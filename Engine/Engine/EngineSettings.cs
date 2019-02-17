@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using TheraEngine.Core.Files;
@@ -71,6 +72,8 @@ namespace TheraEngine
     [TFileDef("Engine Settings")]
     public class EngineSettings : TSettings
     {
+        public event Action SingleThreadedChanged;
+
         [Category("Performance")]
         [TSerialize]
         public bool SkinOnGPU { get; set; }
@@ -85,7 +88,16 @@ namespace TheraEngine
         public bool EnableDeferredPass { get; set; }
         [Category("Performance")]
         [TSerialize]
-        public bool SingleThreaded { get; set; } = false;
+        public bool SingleThreaded
+        {
+            get => _singleThreaded;
+            set
+            {
+                _singleThreaded = value;
+                SingleThreadedChanged?.Invoke();
+            }
+        }
+        private bool _singleThreaded = false;
 
         //[Category("Debug")]
         //[TSerialize]

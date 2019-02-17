@@ -147,7 +147,7 @@ namespace TheraEngine.Animation
     public class BoneFrame
     {
         public string _name;
-        public RotationOrder _eulerOrder = RotationOrder.RYP;
+        public ERotationOrder _eulerOrder = ERotationOrder.RYP;
         public FrameValueWeight[] _values;
         //t, r, s;
         //t, s => x, y, z;
@@ -179,7 +179,7 @@ namespace TheraEngine.Animation
         public Vec3 GetUnweightedScale() 
             => new Vec3(_values[6].Value, _values[7].Value, _values[8].Value);
 
-        public BoneFrame(string name, float?[] values, RotationOrder eulerOrder)
+        public BoneFrame(string name, float?[] values, ERotationOrder eulerOrder)
         {
             _name = name;
             _eulerOrder = eulerOrder;
@@ -218,7 +218,7 @@ namespace TheraEngine.Animation
         //    _values[8].Weight = weights[8];
         //}
 
-        public BoneFrame(string name, FrameValueWeight[] values, RotationOrder eulerOrder)
+        public BoneFrame(string name, FrameValueWeight[] values, ERotationOrder eulerOrder)
         {
             _name = name;
             _eulerOrder = eulerOrder;

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Core.Extensions;
@@ -206,18 +207,18 @@ namespace TheraEngine
         {
             if (_context == null || _context.IsContextDisposed())
                 base.OnPaint(e);
-            else// if (Monitor.TryEnter(_context))
+            else if (Monitor.TryEnter(_context))
             {
-                //try
-                //{
+                try
+                {
                     _context.Capture(true);
                     _context.PreRender();
                     OnRender();
                     _context.PostRender();
                     _context.Swap();
                     _context.ErrorCheck();
-                //}
-                //finally { Monitor.Exit(_context); }
+                }
+                finally { Monitor.Exit(_context); }
             }
         }
         /// <summary>

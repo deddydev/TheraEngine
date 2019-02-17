@@ -8,6 +8,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Components.Scene;
+using TheraEngine.Components;
 
 namespace TheraEngine.Rendering.Cameras
 {
@@ -182,7 +183,7 @@ namespace TheraEngine.Rendering.Cameras
         internal Vec3 _projectionRange;
         internal Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
-        private EventVec3 _viewTarget = null;
+        protected EventVec3 _viewTarget = null;
         protected bool _updating = false;
         protected Matrix4
             _projectionMatrix = Matrix4.Identity,
@@ -191,7 +192,7 @@ namespace TheraEngine.Rendering.Cameras
             _worldToCameraSpaceMatrix = Matrix4.Identity,
             _worldToCameraProjSpaceMatrix = Matrix4.Identity,
             _cameraProjToWorldSpaceMatrix = Matrix4.Identity;
-        private bool _matrixInvalidated = false;
+        protected bool _matrixInvalidated = false;
 
         [TSerialize("Point")]
         protected EventVec3 _localPoint;
@@ -206,7 +207,7 @@ namespace TheraEngine.Rendering.Cameras
 
         private void _viewTarget_Changed()
             => SetRotationWithTarget(_viewTarget.Raw);
-        private void _owningComponent_WorldTransformChanged()
+        private void _owningComponent_WorldTransformChanged(SceneComponent comp)
         {
             //_forwardInvalidated = true;
             //_upInvalidated = true;
@@ -215,7 +216,7 @@ namespace TheraEngine.Rendering.Cameras
             if (!_updating)
                 OnTransformChanged();
         }
-
+        
         /// <summary>
         /// Returns an X, Y coordinate relative to the camera's Origin,
         /// with Z being the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f).
@@ -238,7 +239,7 @@ namespace TheraEngine.Rendering.Cameras
         public Vec3 ScreenToWorld(Vec3 screenPoint)
             => ((screenPoint / _projectionRange) / Vec3.Half - Vec3.One) * CameraProjToWorldSpaceMatrix;
         
-        protected virtual void PositionChanged()
+        public virtual void PositionChanged()
         {
             if (_viewTarget != null)
                 _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles());
@@ -363,6 +364,8 @@ namespace TheraEngine.Rendering.Cameras
                 _localRotation.Yaw + yaw, 
                 _localRotation.Roll + roll);
 
+        public void SetRotationsNoUpdate(Rotator r)
+            => _localRotation.SetRotationsNoUpdate(r);
         public void SetRotation(Rotator r) 
             => _localRotation.SetRotations(r);
         public void SetRotation(Vec3 pitchYawRoll)
@@ -389,10 +392,11 @@ namespace TheraEngine.Rendering.Cameras
         public event Action TransformChanged;
         public event Action ProjectionChanged;
 
-        protected void OnTransformChanged()
+        protected void OnTransformChanged(bool updateTransformedFrustum = true)
         {
             _matrixInvalidated = true;
-            UpdateTransformedFrustum();
+            if (updateTransformedFrustum)
+                UpdateTransformedFrustum();
             _updating = true;
             TransformChanged?.Invoke();
             _updating = false;

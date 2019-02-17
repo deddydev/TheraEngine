@@ -230,10 +230,15 @@ namespace TheraEditor.Windows.Forms
             {
                 DockContent form = FindForm() as DockContent;
                 DockPanel p = form?.DockPanel ?? Editor.Instance.DockPanel;
-                var textEditor = DockableTextEditor.ShowNew(p, DockState.DockLeft, fileRef.File);
+                var textEditor = DockableTextEditor.ShowNew(p, DockState.DockLeft, fileRef.File, Saved);
                 textEditor.FormClosed += TextEditor_FormClosed;
                 _textEditors.Add(file, textEditor);
             }
+        }
+
+        private void Saved(DockableTextEditor obj)
+        {
+
         }
 
         private void TextEditor_FormClosed(object sender, FormClosedEventArgs e)

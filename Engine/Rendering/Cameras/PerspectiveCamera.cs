@@ -132,14 +132,52 @@ namespace TheraEngine.Rendering.Cameras
             //}
             base.CalculateProjection();
         }
-        public void SetProjectionParams(float aspect, float fovy, float farz, float nearz)
+
+        public void SetAll(Vec3 translation, Rotator rotation, float fov, bool verticalFOV, float nearZ, float farZ, float? aspect)
+        {
+            LocalPoint.SetRawNoUpdate(translation);
+
+            if (ViewTarget == null)
+                SetRotationsNoUpdate(rotation);
+
+            if (aspect != null)
+                _aspect = aspect.Value;
+
+            _farZ = farZ;
+            _nearZ = nearZ;
+            
+            if (_viewTarget != null)
+                _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles());
+
+            Matrix4 rotMatrix = _localRotation.GetMatrix();
+            _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix;
+            _worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
+            
+            OnTransformChanged(false);
+
+            if (verticalFOV)
+                VerticalFieldOfView = fov;
+            else
+                HorizontalFieldOfView = fov;
+        }
+        
+        public void SetProjectionParamsFovY(float aspect, float fovy, float farZ, float nearZ)
         {
             _aspect = aspect;
-            _farZ = farz;
-            _nearZ = nearz;
+            _farZ = farZ;
+            _nearZ = nearZ;
 
             //This will set _fovX and calc projection too
             VerticalFieldOfView = fovy;
+        }
+        public void SetProjectionParamsFovX(float aspect, float fovx, float farZ, float nearZ)
+        {
+            _aspect = aspect;
+            _farZ = farZ;
+            _nearZ = nearZ;
+            
+            //This will set _fovY and calc projection too
+            HorizontalFieldOfView = fovx;
         }
         protected override void UpdateTransformedFrustum()
         {

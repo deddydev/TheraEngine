@@ -121,12 +121,12 @@ namespace System
             Matrix4 r = rotator.GetRollMatrix();
             switch (rotator.Order)
             {
-                case RotationOrder.YPR: return y * p * r;
-                case RotationOrder.YRP: return y * r * p;
-                case RotationOrder.PYR: return p * y * r;
-                case RotationOrder.PRY: return p * r * y;
-                case RotationOrder.RPY: return r * p * y;
-                case RotationOrder.RYP: return r * y * p;
+                case ERotationOrder.YPR: return y * p * r;
+                case ERotationOrder.YRP: return y * r * p;
+                case ERotationOrder.PYR: return p * y * r;
+                case ERotationOrder.PRY: return p * r * y;
+                case ERotationOrder.RPY: return r * p * y;
+                case ERotationOrder.RYP: return r * y * p;
             }
             return Identity;
         }

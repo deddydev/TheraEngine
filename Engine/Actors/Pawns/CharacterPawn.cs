@@ -60,7 +60,7 @@ namespace TheraEngine.Actors.Types.Pawns
         protected BoomComponent _tpCameraBoom;
         protected CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
-        private Rotator _viewRotation = Rotator.GetZero(RotationOrder.YPR);
+        private Rotator _viewRotation = Rotator.GetZero(ERotationOrder.YPR);
         float _gamePadMovementInputMultiplier = 51.0f;
         float _keyboardMovementInputMultiplier = 51.0f;
         float _mouseXLookInputMultiplier = 0.5f;

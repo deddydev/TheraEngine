@@ -79,7 +79,7 @@ namespace TheraEngine.Components.Scene.Shapes
         private void BodyMoved(Matrix4 transform)
             => WorldMatrix = _rigidBodyCollision.WorldTransform;
 
-        private void ThisMoved()
+        private void ThisMoved(SceneComponent comp)
             => _rigidBodyCollision.ProceedToTransform(WorldMatrix);
 
         private void PhysicsSimulationStateChanged(bool isSimulating)

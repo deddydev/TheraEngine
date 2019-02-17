@@ -20,7 +20,7 @@ namespace TheraEngine.Animation
 
         public float LengthInSeconds { get; private set; }
         public TransformOrder TransformOrder { get; set; } = TransformOrder.TRS;
-        public RotationOrder EulerOrder { get; set; } = RotationOrder.RYP;
+        public ERotationOrder EulerOrder { get; set; } = ERotationOrder.RYP;
 
         public PropAnimFloat TranslationX => _tracks[0];
         public PropAnimFloat TranslationY => _tracks[1];

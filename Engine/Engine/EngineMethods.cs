@@ -268,15 +268,29 @@ namespace TheraEngine
         /// </summary>
         public static void Run()
         {
-            //EngineSettings settings = await SettingsRef.GetInstanceAsync();
-
+            EngineSettings settings = Settings;
+            settings.SingleThreadedChanged += Settings_SingleThreadedChanged;
             _timer.Run(Settings?.SingleThreaded ?? false);
         }
+
+        private static void Settings_SingleThreadedChanged()
+        {
+            if (_timer.IsRunning)
+                _timer.IsSingleThreaded = Settings.SingleThreaded;
+        }
+
         /// <summary>
         /// HALTS update and render ticks. Not recommended for use as this literally halts all visuals and user input.
         /// </summary>
-        public static void Stop() => _timer.Stop();
-        private static event EventHandler<FrameEventArgs> Update = delegate { };
+        public static void Stop()
+        {
+            EngineSettings settings = Settings;
+            settings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
+            _timer.Stop();
+        }
+
+        private static event EventHandler<FrameEventArgs> Update;
+
         /// <summary>
         /// Registers the given function to be called every update tick.
         /// </summary>

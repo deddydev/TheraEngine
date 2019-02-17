@@ -9,7 +9,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridRotator()
         {
             InitializeComponent();
-            cboOrder.DataSource = Enum.GetValues(typeof(RotationOrder));
+            cboOrder.DataSource = Enum.GetValues(typeof(ERotationOrder));
 
             numericInputBoxPitch.Tag = nameof(Rotator.Pitch);
             numericInputBoxYaw.Tag = nameof(Rotator.Yaw);
@@ -83,7 +83,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             SubmitPreManualStateChange(_rotator, nameof(Rotator.Order));
-            _rotator.Order = (RotationOrder)cboOrder.SelectedIndex;
+            _rotator.Order = (ERotationOrder)cboOrder.SelectedIndex;
             SubmitPostManualStateChange(_rotator, nameof(Rotator.Order));
         }
         

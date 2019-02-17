@@ -338,6 +338,26 @@ namespace TheraEngine.Core.Files.Serialization
         #region String
         public override bool ObjectFromString(Type type, string value, out object result)
         {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    result = null;
+                    return true;
+                }
+                else
+                {
+                    type = type.GetGenericArguments()[0];
+                    var ser = DetermineObjectSerializer(type, true);
+                    if (ser == null)
+                    {
+                        result = null;
+                        return false;
+                    }
+                    return ser.ObjectFromString(type, value, out result);
+                }
+            }
+
             if (type.IsEnum)
             {
                 value = value.ReplaceWhitespace("").Replace("/", ", ");
@@ -361,6 +381,14 @@ namespace TheraEngine.Core.Files.Serialization
                 case "Double": result = Double.Parse(value); return true;
                 case "Decimal": result = Decimal.Parse(value); return true;
                 case "String": result = value; return true;
+            }
+
+            if (type.GetInterface(nameof(ISerializableString)) != null)
+            {
+                ISerializableString o = (ISerializableString)Activator.CreateInstance(type);
+                o.ReadFromString(value);
+                result = o;
+                return true;
             }
 
             if (type.IsValueType)
@@ -397,6 +425,9 @@ namespace TheraEngine.Core.Files.Serialization
                     return true;
             }
 
+            if (type.GetInterface(nameof(ISerializableString)) != null)
+                return true;
+
             if (type.IsValueType)
                 return true;
 
@@ -404,12 +435,23 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public override bool ObjectToString(object obj, out string str)
         {
+            if (obj == null)
+            {
+                str = string.Empty;
+                return true;
+            }
+
             Type type = obj.GetType();
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                type = type.GetGenericArguments()[0];
+            
             if (type.IsEnum)
             {
                 str = obj.ToString().Replace(",", "/").ReplaceWhitespace("");
                 return true;
             }
+
             switch (type.Name)
             {
                 case "Boolean":
@@ -429,11 +471,19 @@ namespace TheraEngine.Core.Files.Serialization
                     str = obj.ToString();
                     return true;
             }
+
+            if (type.GetInterface(nameof(ISerializableString)) != null)
+            {
+                str = (obj as ISerializableString)?.WriteToString();
+                return true;
+            }
+
             if (type.IsValueType)
             {
                 str = SerializationCommon.GetStructAsBytesString(obj);
                 return true;
             }
+
             str = null;
             return false;
         }

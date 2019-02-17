@@ -285,6 +285,7 @@
             this.TextBox.TabIndex = 1;
             this.TextBox.TextAreaBorderColor = System.Drawing.Color.Transparent;
             this.TextBox.Zoom = 100;
+            this.TextBox.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChanged);
             this.TextBox.SelectionChanged += new System.EventHandler(this.TextBox_SelectionChanged);
             this.TextBox.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.TextBox_TextChangedDelayed);
             this.TextBox.SelectionChangedDelayed += new System.EventHandler(this.TextBox_SelectionChangedDelayed);

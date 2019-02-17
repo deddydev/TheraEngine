@@ -912,7 +912,7 @@
     <Compile Include="Windows\Forms\Main Window\Form\Editor_Designer.Designer.cs">
       <DependentUpon>Editor_Designer.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Main Window\Overrides\EditorHud.cs" />
+    <Compile Include="Windows\Forms\Main Window\Overrides\EditorUI.cs" />
     <Compile Include="EditorSettings.cs" />
     <Compile Include="Windows\Forms\Borderless Form\BorderlessFormBase.cs">
       <SubType>Form</SubType>

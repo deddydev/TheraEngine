@@ -115,7 +115,7 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            if (_operations.All(x => x == null))
+            if (_operations.Count == 0 || _operations.All(x => x == null))
             {
                 _operations.Clear();
                 btnCancelOp.Visible = false;

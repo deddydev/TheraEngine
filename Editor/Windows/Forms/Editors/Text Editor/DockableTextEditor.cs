@@ -368,8 +368,8 @@ namespace TheraEditor.Windows.Forms
             TextBox.DelayedEventsInterval = 500;
 
             //TextBox.VisibleRangeChanged += TextBox_VisibleRangeChanged;
-            TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
-            TextBox.TextChanged += TextBox_TextChanged;
+            //TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
+            //TextBox.TextChanged += TextBox_TextChanged;
             TextBox.SelectionChangedDelayed += TextBox_SelectionChangedDelayed;
             TextBox.KeyDown += TextBox_KeyDown;
             TextBox.MouseMove += TextBox_MouseMove;
@@ -402,8 +402,8 @@ namespace TheraEditor.Windows.Forms
             TextBox.LeftBracket2 = '\x0';
             TextBox.RightBracket2 = '\x0';
 
-            TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
-            TextBox.TextChanged -= TextBox_TextChanged;
+            //TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
+            //TextBox.TextChanged -= TextBox_TextChanged;
             TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
             TextBox.KeyDown -= TextBox_KeyDown;
             TextBox.MouseMove -= TextBox_MouseMove;
@@ -519,8 +519,8 @@ namespace TheraEditor.Windows.Forms
             TextBox.DelayedEventsInterval = 500;
 
             //TextBox.VisibleRangeChanged += TextBox_VisibleRangeChanged;
-            TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
-            TextBox.TextChanged += TextBox_TextChanged;
+            //TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
+            //TextBox.TextChanged += TextBox_TextChanged;
             TextBox.SelectionChangedDelayed += TextBox_SelectionChangedDelayed;
             TextBox.KeyDown += TextBox_KeyDown;
             TextBox.MouseMove += TextBox_MouseMove;
@@ -545,7 +545,7 @@ namespace TheraEditor.Windows.Forms
             dgvObjectExplorer.Visible = false;
             lblSplitFileObjects.Visible = false;
 
-            TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
+            //TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
             TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
             TextBox.KeyDown -= TextBox_KeyDown;
             TextBox.MouseMove -= TextBox_MouseMove;
@@ -727,7 +727,11 @@ namespace TheraEditor.Windows.Forms
             TextBox.RightBracket2 = '\x0';
 
             //clear style of changed range
-            e.ClearStyle(KeywordStyle, ClassNameStyle, PreprocessorStyle, NumberStyle, CommentStyle, StringStyle);
+            e.ClearStyle(KeywordStyle, ClassNameStyle, PreprocessorStyle, NumberStyle, CommentStyle, StringStyle, HoveredWordStyle);
+
+            Range hoveredWord = e.GetIntersectionWith(HoveredWordRange);
+            if (hoveredWord.Length > 0)
+                hoveredWord.SetStyle(HoveredWordStyle);
 
             //string highlighting
             e.SetStyle(StringStyle, StringRegex);
@@ -824,8 +828,8 @@ namespace TheraEditor.Windows.Forms
             TextBox.DelayedEventsInterval = 500;
 
             //TextBox.VisibleRangeChanged += TextBox_VisibleRangeChanged;
-            TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
-            TextBox.TextChanged += TextBox_TextChanged;
+            //TextBox.TextChangedDelayed += TextBox_TextChangedDelayed;
+            //TextBox.TextChanged += TextBox_TextChanged;
             TextBox.SelectionChangedDelayed += TextBox_SelectionChangedDelayed;
             //TextBox.KeyDown += TextBox_KeyDown;
             TextBox.MouseMove += TextBox_MouseMove;
@@ -847,8 +851,8 @@ namespace TheraEditor.Windows.Forms
             TextBox.LeftBracket2 = '\x0';
             TextBox.RightBracket2 = '\x0';
 
-            TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
-            TextBox.TextChanged -= TextBox_TextChanged;
+            //TextBox.TextChangedDelayed -= TextBox_TextChangedDelayed;
+            //TextBox.TextChanged -= TextBox_TextChanged;
             TextBox.SelectionChangedDelayed -= TextBox_SelectionChangedDelayed;
             //TextBox.KeyDown -= TextBox_KeyDown;
             TextBox.MouseMove -= TextBox_MouseMove;
@@ -858,7 +862,14 @@ namespace TheraEditor.Windows.Forms
         private void XMLSyntaxHighlight(Range e)
         {
             //clear style of changed range
-            e.ClearStyle(NumberStyle, StringStyle, MethodStyle, ClassNameStyle);
+            e.ClearStyle(NumberStyle, StringStyle, MethodStyle, ClassNameStyle, HoveredWordStyle);
+
+            if (HoveredWordRange != null)
+            {
+                Range hoveredWord = e.GetIntersectionWith(HoveredWordRange);
+                if (hoveredWord.Length > 0)
+                    hoveredWord.SetStyle(HoveredWordStyle);
+            }
 
             //attribute highlighting
             e.SetStyle(MethodStyle, "(?<=\"*\\s*)[a-zA-Z][a-zA-Z0-9.\\-_:]+(?=\\s*=)");
@@ -967,11 +978,23 @@ namespace TheraEditor.Windows.Forms
         {
             var place = TextBox.PointToPlace(e.Location);
             var range = new Range(TextBox, place, place);
-            HoveredWordRange?.ClearStyle(HoveredWordStyle);
+            Range r = HoveredWordRange;
+            HoveredWordRange = null;
+            //if (r != null && r.Length > 0)
+            //    HighlightScriptSyntax?.Invoke(r);
+            //else
+                HighlightScriptSyntax?.Invoke(TextBox.VisibleRange);
             HoveredWordRange = range.GetFragment("[a-zA-Z]");
-            HoveredWordRange?.SetStyle(HoveredWordStyle);
-            
-            lblHoveredWord.Text = HoveredWordRange.Text;
+            if (HoveredWordRange != null && HoveredWordRange.Length > 0)
+            {
+                HighlightScriptSyntax?.Invoke(HoveredWordRange);
+                lblHoveredWord.Text = HoveredWordRange.Text;
+            }
+            else
+            {
+                HighlightScriptSyntax?.Invoke(TextBox.VisibleRange);
+                lblHoveredWord.Text = null;
+            }
         }
         //private void TextBox_MouseDoubleClick(object sender, MouseEventArgs e)
         //{
@@ -989,16 +1012,10 @@ namespace TheraEditor.Windows.Forms
                     SelectHoveredLine();
                 else
                     SelectHoveredWord();
-                
                 _lastDoubleClickedTime = now;
-            }
-            else
-            {
-
             }
             
             _lastClickedTime = now;
-
         }
         private void SelectHoveredWord()
         {
@@ -1007,12 +1024,12 @@ namespace TheraEditor.Windows.Forms
         }
         private void SelectHoveredLine()
         {
-            if (HoveredWordRange != null)
-            {
-                Range line = HoveredWordRange.Clone();
-                line.Expand();
-                TextBox.Selection = line;
-            }
+            if (HoveredWordRange == null)
+                return;
+            
+            Range line = HoveredWordRange.Clone();
+            line.Expand();
+            TextBox.Selection = line;
         }
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
@@ -1061,15 +1078,6 @@ namespace TheraEditor.Windows.Forms
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             HighlightRange(e.ChangedRange);
-
-            if (Mode == ETextEditorMode.GLSL)
-            {
-                var (Success, Output) = CompileGLSL();
-                if (!Success)
-                {
-                    Engine.PrintLine(Output);
-                }
-            }
         }
         private (bool Success, string Output) CompileGLSL()
         {
@@ -1109,6 +1117,15 @@ namespace TheraEditor.Windows.Forms
         private void TextBox_TextChangedDelayed(object sender, TextChangedEventArgs e)
         {
             ThreadPool.QueueUserWorkItem((o) => ReBuildObjectExplorer(TextBox.Text));
+
+            if (Mode == ETextEditorMode.GLSL)
+            {
+                var (Success, Output) = CompileGLSL();
+                if (!Success)
+                {
+                    Engine.PrintLine(Output);
+                }
+            }
 
             //if (Mode == ETextEditorMode.GLSL)
             //{

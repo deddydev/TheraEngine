@@ -25,6 +25,7 @@ namespace System
 
         //private int _updating = 0;
         private float _oldX, _oldY, _oldZ, _oldW;
+        [TSerialize("XYZW", NodeType = ENodeType.ElementContent)]
         private Vec4 _data;
         
         public float X

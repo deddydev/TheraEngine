@@ -71,18 +71,13 @@ namespace TheraEngine.Animation
         public PropAnimFloat ScaleZ => _tracks.ScaleZ;
 
         public void Progress(float delta)
-        {
-            _tracks.Progress(delta);
-        }
-
+            => _tracks.Progress(delta);
+        
         public BoneFrame GetFrame()
-        {
-            return new BoneFrame(_name, _tracks.GetValues(), _tracks.EulerOrder);
-        }
+            => new BoneFrame(_name, _tracks.GetValues(), _tracks.EulerOrder);
         public BoneFrame GetFrame(float second)
-        {
-            return new BoneFrame(_name, _tracks.GetValues(second), _tracks.EulerOrder);
-        }
+            => new BoneFrame(_name, _tracks.GetValues(second), _tracks.EulerOrder);
+        
         //public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
         //{
         //    FrameState state = FrameState.DeriveTRS(transform);

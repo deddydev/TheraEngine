@@ -168,6 +168,7 @@ namespace TheraEngine.Core.Maths.Transforms
             Rotation.SetRotationsNoUpdate(_quaternion.ToYawPitchRoll());
         }
 
+        [Category("Transform")]
         public EventVec3 Translation
         {
             get
@@ -215,6 +216,7 @@ namespace TheraEngine.Core.Maths.Transforms
             }
             set => _rotation.Roll = value;
         }
+        [Category("Transform")]
         public EventVec3 Scale
         {
             get
@@ -229,7 +231,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 _scale.Changed += CreateTransform;
             }
         }
-        
+        [Category("Transform")]
         public TransformOrder TransformationOrder
         {
             get => _transformOrder;
@@ -239,11 +241,13 @@ namespace TheraEngine.Core.Maths.Transforms
                 CreateTransform();
             }
         }
+        [Category("Transform")]
         public ERotationOrder RotationOrder
         {
             get => _rotation.Order;
             set => _rotation.Order = value;
         }
+        [Category("Transform")]
         public Rotator Rotation
         {
             get

@@ -24,14 +24,14 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class EditorHud : UserInterface
+    public class EditorUI : UserInterface
     {
-        public EditorHud() : base()
+        public EditorUI() : base()
         {
             TransformTool3D.Instance.MouseDown += Instance_MouseDown;
             TransformTool3D.Instance.MouseUp += Instance_MouseUp;
         }
-        public EditorHud(Vec2 bounds) : base(bounds)
+        public EditorUI(Vec2 bounds) : base(bounds)
         {
             TransformTool3D.Instance.MouseDown += Instance_MouseDown;
             TransformTool3D.Instance.MouseUp += Instance_MouseUp;
@@ -56,9 +56,11 @@ namespace TheraEditor.Windows.Forms
         {
 
         }
-
-        [Browsable(false)]
+        
+        [TSerialize]
         public float DraggingTestDistance { get; set; } = 20.0f;
+        [TSerialize]
+        public double FPSUpdateIntervalSeconds { get; set; } = 0.3;
 
         public Vec3 HitPoint => _hitPoint;
         public Vec3 HitNormal => _hitNormal;
@@ -68,6 +70,7 @@ namespace TheraEditor.Windows.Forms
         private Vec3 _hitNormal;
         private float _hitDistance;
 
+        private DateTime _lastFPSUpdateTime;
         //private Vec3 _lastHitPoint;
         private HighlightPoint _highlightPoint = new HighlightPoint();
         TRigidBody _pickedBody;
@@ -261,7 +264,7 @@ namespace TheraEditor.Windows.Forms
             //};
             //dock.ChildComponents.Add(TextOverlay);
 
-            t = "FPS: 0";
+            t = "FPS: 000";
             s = TextRenderer.MeasureText(t, f);
             UITextComponent fpsComp = new UITextComponent();
 
@@ -420,21 +423,27 @@ namespace TheraEditor.Windows.Forms
         protected override void OnSpawnedPostComponentSpawn()
         {
             base.OnSpawnedPostComponentSpawn();
+
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             _highlightPoint.RenderInfo.LinkScene(_highlightPoint, OwningScene3D);
-            //OwningWorld.Scene.Add(_highlightPoint);
             SubViewport.IsVisible = false;
         }
         protected override void OnDespawned()
         {
             base.OnDespawned();
+
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
-            //OwningWorld.Scene.Remove(_highlightPoint);
             _highlightPoint.RenderInfo.UnlinkScene();
         }
         private void MouseMove(float delta)
         {
-            FPSText.Text = "FPS: " + Math.Round(Engine.RenderFrequency, 0, MidpointRounding.AwayFromZero);
+            DateTime now = DateTime.Now;
+            if ((now - _lastFPSUpdateTime).TotalSeconds >= FPSUpdateIntervalSeconds)
+            {
+                FPSText.Text = "FPS: " + Math.Round(Engine.RenderFrequency, 0, MidpointRounding.AwayFromZero);
+                _lastFPSUpdateTime = now;
+            }
+
             MouseMove(false);
         }
         private void MouseMove(bool gamepad)

@@ -26,9 +26,9 @@ namespace TheraEditor.Windows.Forms
             if (!Editor.Instance.PropertyGridFormActive)
                 return;
 
-            EditorHud hud = null;
+            EditorUI hud = null;
             if (Engine.LocalPlayers.Count > 0)
-                hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
+                hud = (EditorUI)Engine.LocalPlayers[0].ControlledPawn?.HUD;
             
             if (ActorTree.SelectedNode == null)
             {

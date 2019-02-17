@@ -143,7 +143,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (_targetObject is SceneComponent sc && Engine.LocalPlayers.Count > 0)
             {
-                EditorHud hud = (EditorHud)Engine.LocalPlayers[0].ControlledPawn?.HUD;
+                EditorUI hud = (EditorUI)Engine.LocalPlayers[0].ControlledPawn?.HUD;
                 hud?.SetSelectedComponent(false, sc);
             }
 

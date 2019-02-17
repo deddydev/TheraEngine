@@ -163,6 +163,9 @@ uniform VignetteStruct Vignette;";
         [Category("Color Grade Settings")]
         public EventColorF3 Tint { get; set; } = new ColorF3(1.0f, 1.0f, 1.0f);
 
+        /// <summary>
+        /// If <see langword="true"/>, adjusts the exposure value depending on the scene's average luminosity.
+        /// </summary>
         [TSerialize]
         [Category("Color Grade Settings")]
         public bool AutoExposure { get; set; } = true;

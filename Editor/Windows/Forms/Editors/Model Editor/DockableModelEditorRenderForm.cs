@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms
                 MouseTranslateSpeed = 0.02f,
                 ScrollSpeed = 0.5f,
                 GamepadTranslateSpeed = 15.0f,
-                HUD = new EditorHud(RenderPanel.ClientSize),
+                HUD = new EditorUI(RenderPanel.ClientSize),
                 Name = string.Format("ModelViewport{0}_EditorCamera", (FormIndex + 1).ToString()),
             };
             Text = string.Format("Model Viewport {0}", (FormIndex + 1).ToString());

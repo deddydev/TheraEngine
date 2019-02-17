@@ -14,6 +14,7 @@ namespace System
     {
         //private int _updating = 0;
         private float _oldX, _oldY;
+        [TSerialize("XY", NodeType = ENodeType.ElementContent)]
         private Vec2 _data;
 
         public void SetRawNoUpdate(Vec2 raw)

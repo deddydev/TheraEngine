@@ -26,7 +26,11 @@ namespace TheraEngine.Core.Maths.Transforms
 
         public float X, Y, Z;
 
-        public Color Color { get => (Color)this; set => Xyz = (Vec3)value; }
+        public Color Color
+        {
+            get => (Color)this;
+            set => Xyz = (Vec3)value;
+        }
 
         [Browsable(false)]
         public float* Data => (float*)Address;
@@ -1162,7 +1166,7 @@ namespace TheraEngine.Core.Maths.Transforms
                 Abs(Y - other.Y) < precision &&
                 Abs(Z - other.Z) < precision;
 
-        public string WriteToString() => ToString();
+        public string WriteToString() => ToString("", "", " ");
         public void ReadFromString(string str) => this = new Vec3(str);
     }
 }

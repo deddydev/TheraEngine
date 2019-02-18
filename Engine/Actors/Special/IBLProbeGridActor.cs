@@ -18,10 +18,13 @@ namespace TheraEngine.Actors
     public class IBLProbeGridActor : Actor<TranslationComponent>, I3DRenderable
     {
         private bool _showPrefilterTexture = false;
-        private bool _showCaptureSpheres = false;
+        private bool _showCaptureSpheres = true;
 
         [Category(SceneComponent.RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true)
+        {
+            EditorVisibilityMode = Rendering.RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected
+        };
         
         [Category(SceneComponent.RenderingCategoryName)]
         public bool ShowPrefilterTexture

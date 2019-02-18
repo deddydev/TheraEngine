@@ -62,7 +62,7 @@ namespace TheraEngine.Actors.Types
 
             //Irradiance texture doesn't need to be very high quality, 
             //linear filtering on low resolution will do fine
-            IrradianceTex = new TexRefCube("IrradianceTex", 32,
+            IrradianceTex = new TexRefCube("IrradianceTex", 64,
                 EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte)
             {
                 MinFilter = ETexMinFilter.Linear,

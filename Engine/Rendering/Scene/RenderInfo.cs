@@ -10,7 +10,7 @@ namespace TheraEngine.Rendering
         [TSerialize]
         public virtual bool VisibleByDefault { get; set; } = true;
         [TSerialize(State = true, Config = false)]
-        public virtual bool Visible { get; set; } = true;
+        public virtual bool Visible { get; set; } = false;
 #if EDITOR
         [TSerialize]
         public virtual bool VisibleInEditorOnly { get; set; } = false;
@@ -117,7 +117,7 @@ namespace TheraEngine.Rendering
             get => Scene != null && base.Visible;
             set
             {
-                if (Visible == value)
+                if (base.Visible == value)
                     return;
 
                 base.Visible = value;
@@ -166,16 +166,18 @@ namespace TheraEngine.Rendering
             if (r3d == null || scene == null)
                 return;
 
+            Scene = null;
+            Visible = false;
+
             Scene = scene;
             Owner = r3d;
 
-            Visible = VisibleByDefault || forceVisible;
+            bool visible = VisibleByDefault || forceVisible;
 #if EDITOR
             if (VisibleInEditorOnly)
-                Visible = Visible && Engine.EditorState.InEditMode;
+                visible = visible && Engine.EditorState.InEditMode;
 #endif
-            if (Visible)
-                Scene.Add(Owner);
+            Visible = visible;
 
             CullingVolume?.RenderInfo?.LinkScene(CullingVolume, scene);
         }

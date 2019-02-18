@@ -96,16 +96,16 @@ namespace System
         {
             while (MovedItems.TryDequeue(out T item))
                 ((Node)item.RenderInfo.OctreeNode).ItemMoved_Internal(item);
+            while (RemovedItems.TryDequeue(out T item))
+            {
+                _head.RemoveHereOrSmaller(item);
+                item.RenderInfo.SceneID = -1;
+            }
             while (AddedItems.TryDequeue(out T item))
             {
                 item.RenderInfo.SceneID = ItemID++;
                 if (!_head.AddHereOrSmaller(item))
                     _head.ForceAdd(item);
-            }
-            while (RemovedItems.TryDequeue(out T item))
-            {
-                _head.RemoveHereOrSmaller(item);
-                item.RenderInfo.SceneID = -1;
             }
         }
         

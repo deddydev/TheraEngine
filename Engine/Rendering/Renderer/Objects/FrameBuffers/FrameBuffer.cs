@@ -146,8 +146,9 @@ namespace TheraEngine.Rendering
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)DetachAll, BaseRenderPanel.PanelType.Rendering))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
-            for (int i = 0; i < Targets.Length; ++i)
-                Detach(i);
+            if (Targets != null)
+                for (int i = 0; i < Targets.Length; ++i)
+                    Detach(i);
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, NullBindingId);
         }
         public void Attach(int i)

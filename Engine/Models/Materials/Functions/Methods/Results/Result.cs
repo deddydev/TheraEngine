@@ -1,4 +1,6 @@
-﻿namespace TheraEngine.Rendering.Models.Materials.Functions
+﻿using System;
+
+namespace TheraEngine.Rendering.Models.Materials.Functions
 {
     public abstract class ResultFunc : ShaderMethod
     {

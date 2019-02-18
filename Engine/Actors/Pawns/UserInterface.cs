@@ -236,7 +236,8 @@ namespace TheraEngine.Actors.Types.Pawns
         }
         public void AddRenderableComponent(I2DRenderable component)
         {
-            _screenSpaceUIScene.Add(component);
+            component.RenderInfo.LinkScene(component, _screenSpaceUIScene);
+            //_screenSpaceUIScene.Add(component);
 
             //if (_renderables.Count == 0)
             //{

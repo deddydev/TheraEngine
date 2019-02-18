@@ -235,7 +235,7 @@ namespace TheraEditor.Windows.Forms
             Size s = TextRenderer.MeasureText(t, f);
             SubViewportText = new UITextComponent
             {
-                DockStyle = UIDockStyle.Top,
+                DockStyle = EUIDockStyle.Top,
                 Height = s.Height,
             };
             SubViewportText.RenderInfo.Visible = false;
@@ -435,13 +435,20 @@ namespace TheraEditor.Windows.Forms
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
             _highlightPoint.RenderInfo.UnlinkScene();
         }
+        private float _averageFPS;
         private void MouseMove(float delta)
         {
             DateTime now = DateTime.Now;
             if ((now - _lastFPSUpdateTime).TotalSeconds >= FPSUpdateIntervalSeconds)
             {
-                FPSText.Text = "FPS: " + Math.Round(Engine.RenderFrequency, 0, MidpointRounding.AwayFromZero);
+                FPSText.Text = "FPS: " + Math.Round(_averageFPS, 0, MidpointRounding.AwayFromZero);
+                _averageFPS = Engine.RenderFrequency;
                 _lastFPSUpdateTime = now;
+            }
+            else
+            {
+                _averageFPS += Engine.RenderFrequency;
+                _averageFPS *= 0.5f;
             }
 
             MouseMove(false);

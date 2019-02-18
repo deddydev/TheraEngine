@@ -1,6 +1,4 @@
-﻿using System;
-using TheraEngine.Components;
-using TheraEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
@@ -12,12 +10,15 @@ namespace TheraEngine.Rendering.UI.Functions
     {
         public static ColorF4 DefaultColor { get; } = new ColorF4(0.7f, 1.0f);
 
+        public abstract BaseFuncExec ConnectedToGeneric { get; }
+
         public BaseFuncExec(string name) : base(name, DefaultColor) { }
         public BaseFuncExec(string name, IFunction parent) : base(name, parent, DefaultColor) { }
     }
-    public abstract class BaseFuncExec<TInput> : BaseFuncExec where TInput : UIComponent, IBaseFuncExec
+    public abstract class BaseFuncExec<TInput> : BaseFuncExec where TInput : BaseFuncExec, IBaseFuncExec
     {
         public TInput ConnectedTo => _connectedTo;
+        public override BaseFuncExec ConnectedToGeneric => ConnectedTo;
 
         protected TInput _connectedTo;
 

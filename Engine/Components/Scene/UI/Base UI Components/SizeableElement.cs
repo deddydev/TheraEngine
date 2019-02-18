@@ -3,7 +3,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI
 {
-    public enum SizingMode
+    public enum ESizingMode
     {
         /// <summary>
         /// 
@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering.UI
     }
     public interface ISizeable
     {
-        void Update(Vec2 parentBounds);
+        //void Update(Vec2 parentBounds);
     }
     public class SizeableElement : ISizeable
     {
@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.UI
             _currValue = 0.0f,
             _modValue = 0.0f,
             _resValue = 0.0f;
-        private SizingMode _sizingMode = SizingMode.Pixels;
+        private ESizingMode _sizingMode = ESizingMode.Pixels;
         private SizeableElement
             _propElem = null,
             _minSize,
@@ -91,7 +91,7 @@ namespace TheraEngine.Rendering.UI
                 }
             }
         }
-        public SizingMode SizingOption
+        public ESizingMode SizingOption
         {
             get => _sizingMode;
             set
@@ -197,13 +197,13 @@ namespace TheraEngine.Rendering.UI
             switch (SizingOption)
             {
                 default:
-                case SizingMode.Pixels:
+                case ESizingMode.Pixels:
                     newValue += ModificationValue;
                     break;
-                case SizingMode.PercentageOfParent:
+                case ESizingMode.PercentageOfParent:
                     newValue += size * ModificationValue;
                     break;
-                case SizingMode.Proportion:
+                case ESizingMode.Proportion:
                     if (ProportionElement != null)
                         newValue += ProportionElement.GetValue(parentBounds) * ModificationValue;
                     break;
@@ -233,7 +233,7 @@ namespace TheraEngine.Rendering.UI
         }
         public void SetSizingPercentageOfParent(float percentage)
         {
-            SizingOption = SizingMode.PercentageOfParent;
+            SizingOption = ESizingMode.PercentageOfParent;
             ModificationValue = percentage;
         }
         public static SizeableElement Proportioned(SizeableElement proportionalElement, float ratio, bool smallerRelative, EParentBoundsInheritedValue parentBoundsInherited)
@@ -248,7 +248,7 @@ namespace TheraEngine.Rendering.UI
         }
         public void SetSizingProportioned(SizeableElement proportionalElement, float ratio)
         {
-            SizingOption = SizingMode.Proportion;
+            SizingOption = ESizingMode.Proportion;
             ProportionElement = proportionalElement;
             ModificationValue = ratio;
         }
@@ -270,7 +270,7 @@ namespace TheraEngine.Rendering.UI
         /// <param name="parentDim"></param>
         public void SetSizingPixels(float pixels)
         {
-            SizingOption = SizingMode.Pixels;
+            SizingOption = ESizingMode.Pixels;
             ModificationValue = pixels;
         }
         //public void SetSizingIgnored()
@@ -279,10 +279,10 @@ namespace TheraEngine.Rendering.UI
         //}
         #endregion
 
-        public void Update(Vec2 parentBounds)
-        {
-            GetValue(parentBounds);
-        }
+        //public void Update(Vec2 parentBounds)
+        //{
+        //    GetValue(parentBounds);
+        //}
     }
     public class SizeableElementQuad : ISizeable
     {

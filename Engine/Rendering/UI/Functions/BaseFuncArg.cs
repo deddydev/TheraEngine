@@ -3,6 +3,12 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
+    public interface IBaseFuncArg : IUIComponent
+    {
+        BaseFunction OwningFunction { get; }
+        int ArgumentIndex { get; }
+        bool IsOutput { get; }
+    }
     public abstract class BaseFuncArg : UIMaterialRectangleComponent
     {
         public const int ConnectionBoxDims = 10;
@@ -20,6 +26,7 @@ namespace TheraEngine.Rendering.UI.Functions
             Size = new Vec2(ConnectionBoxDims);
         }
 
+        public BaseFunction OwningFunction { get; internal set; }
         public abstract bool IsOutput { get; }
         public override string ToString() => Name;
         public int ArgumentIndex { get; internal set; }

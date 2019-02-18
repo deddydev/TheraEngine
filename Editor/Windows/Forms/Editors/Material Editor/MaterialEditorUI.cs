@@ -18,10 +18,10 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public class UIMaterialEditor : EditorUserInterface, I2DRenderable
+    public class MaterialEditorUI : EditorUserInterface, I2DRenderable
     {
-        public UIMaterialEditor() : base() { }
-        public UIMaterialEditor(Vec2 bounds) : base(bounds) { }
+        public MaterialEditorUI() : base() { }
+        public MaterialEditorUI(Vec2 bounds) : base(bounds) { }
         
         public event DelSelectedFunctionChanged SelectedFunctionChanged;
         
@@ -272,15 +272,13 @@ namespace TheraEditor.Windows.Forms
         }
         protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
         {
-            if (_targetMaterial == null)
+            if (EndFunc == null)
             {
                 min = Vec2.Zero;
                 max = Vec2.Zero;
                 return false;
             }
-
-            min = Vec2.Zero;
-            max = Vec2.Zero;
+            EndFunc.GetMinMax(out min, out max);
             return true;
         }
         protected override void RenderMethod()

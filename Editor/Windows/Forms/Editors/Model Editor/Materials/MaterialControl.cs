@@ -98,26 +98,33 @@ namespace TheraEditor.Windows.Forms
                     for (int i = 0; i < _material.Textures.Length; ++i)
                     {
                         BaseTexRef tref = _material.Textures[i];
-                        var item = new ListViewItem(string.Format("{0} [{1}]",
-                            tref.Name, tref.GetType().GetFriendlyName())) { Tag = tref };
-                        if (tref is TexRef2D t2d)
+                        if (tref != null)
                         {
-                            if (t2d.Mipmaps.Length > 0)
+                            var item = new ListViewItem($"{tref.Name} [{tref.GetType().GetFriendlyName()}]") { Tag = tref };
+                            if (tref is TexRef2D t2d)
                             {
-                                var file = t2d.Mipmaps[0]?.File;
-                                if (file != null)
+                                if (t2d.Mipmaps.Length > 0)
                                 {
-                                    if (file.Bitmaps.Length > 0 && file.Bitmaps[0] != null)
+                                    var file = t2d.Mipmaps[0]?.File;
+                                    if (file != null)
                                     {
-                                        string samplerName = tref.ResolveSamplerName(i);
-                                        images.Images.Add(samplerName, file.Bitmaps[0].GetThumbnailImage(128, 128, null, IntPtr.Zero));
-                                        item.ImageKey = samplerName;
+                                        if (file.Bitmaps.Length > 0 && file.Bitmaps[0] != null)
+                                        {
+                                            string samplerName = tref.ResolveSamplerName(i);
+                                            images.Images.Add(samplerName, file.Bitmaps[0].GetThumbnailImage(128, 128, null, IntPtr.Zero));
+                                            item.ImageKey = samplerName;
+                                        }
                                     }
                                 }
                             }
+                            lstTextures.Items.Add(item);
+                            tref.Renamed += Tref_Renamed;
                         }
-                        lstTextures.Items.Add(item);
-                        tref.Renamed += Tref_Renamed;
+                        else
+                        {
+                            var item = new ListViewItem("<null>");
+                            lstTextures.Items.Add(item);
+                        }
                     }
                     
                     foreach (var shaderRef in _material.Shaders)

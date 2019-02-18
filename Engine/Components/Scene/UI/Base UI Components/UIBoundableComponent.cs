@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.UI
@@ -133,7 +132,7 @@ namespace TheraEngine.Rendering.UI
         protected virtual void RemakeAxisAlignedRegion()
         {
             RenderInfo.AxisAlignedRegion.Translation = WorldPoint.Xy;
-            RenderInfo.AxisAlignedRegion.Extents = Size * WorldScale.Xy;
+            RenderInfo.AxisAlignedRegion.Extents = Size;
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
         public override UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint)
@@ -150,7 +149,7 @@ namespace TheraEngine.Rendering.UI
             if (item is UIComponent c)
                 c.LayerIndex = LayerIndex;
         }
-
+        public override void OnSpawned() => base.OnSpawned();
         public virtual void AddRenderables(RenderPasses passes, Camera camera) { }
     }
 }

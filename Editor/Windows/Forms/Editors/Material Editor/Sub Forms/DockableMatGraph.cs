@@ -134,6 +134,6 @@ namespace TheraEditor.Windows.Forms
         public MaterialEditorController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
     }
-    public class MaterialGraphRenderPanel : UIRenderPanel<UIMaterialEditor, MaterialEditorGameMode, MaterialEditorController> { }
-    public class MaterialEditorGameMode : UIGameMode<UIMaterialEditor, MaterialEditorController> { }
+    public class MaterialGraphRenderPanel : UIRenderPanel<MaterialEditorUI, MaterialEditorGameMode, MaterialEditorController> { }
+    public class MaterialEditorGameMode : UIGameMode<MaterialEditorUI, MaterialEditorController> { }
 }

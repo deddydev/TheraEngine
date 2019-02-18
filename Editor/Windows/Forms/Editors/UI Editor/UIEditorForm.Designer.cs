@@ -2,7 +2,7 @@
 
 namespace TheraEditor.Windows.Forms
 {
-    partial class HudEditorForm
+    partial class UIEditorForm
     {
         /// <summary>
         /// Required designer variable.
@@ -101,7 +101,7 @@ namespace TheraEditor.Windows.Forms
             // ModelEditorText
             // 
             this.ModelEditorText.Dock = System.Windows.Forms.DockStyle.Left;
-            this.ModelEditorText.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.ModelEditorText.Font = new System.Drawing.Font("Origicide", 10F);
             this.ModelEditorText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.ModelEditorText.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.ModelEditorText.Location = new System.Drawing.Point(0, 0);
@@ -109,7 +109,7 @@ namespace TheraEditor.Windows.Forms
             this.ModelEditorText.Name = "ModelEditorText";
             this.ModelEditorText.Size = new System.Drawing.Size(170, 40);
             this.ModelEditorText.TabIndex = 18;
-            this.ModelEditorText.Text = "HUD Editor";
+            this.ModelEditorText.Text = "User Interface Editor";
             this.ModelEditorText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // HudEditorForm

@@ -80,11 +80,12 @@ namespace TheraEditor.Windows.Forms
         protected override UICanvasComponent OnConstructRoot()
         {
             BaseTransformComponent = new UIComponent();
-            _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial())
-            {
-                DockStyle = UIDockStyle.Fill,
-                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
-            };
+
+            _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial());
+            _backgroundComponent.SizeablePosX.SetSizingPixels(0.0f);
+            _backgroundComponent.SizeablePosY.SetSizingPixels(0.0f);
+            _backgroundComponent.SizeableHeight.SetSizingPercentageOfParent(1.0f);
+            _backgroundComponent.SizeableWidth.SetSizingPercentageOfParent(1.0f);
             _backgroundComponent.ChildComponents.Add(BaseTransformComponent);
 
             UICanvasComponent baseUI = new UICanvasComponent();
@@ -164,20 +165,22 @@ namespace TheraEditor.Windows.Forms
                 float xScale = Bounds.X / xBound;
                 float yScale = Bounds.Y / yBound;
 
-                if (xScale < yScale)
-                {
-                    BaseTransformComponent.Scale = xScale;
-                }
-                else
-                {
-                    BaseTransformComponent.Scale = yScale;
-                }
+                //if (xScale < yScale)
+                //{
+                //    BaseTransformComponent.Scale = xScale;
+                //}
+                //else
+                //{
+                //    BaseTransformComponent.Scale = yScale;
+                //}
 
-                float midVal = (max.Y + min.Y) * 0.5f;
-                BaseTransformComponent.LocalTranslation = new Vec2(0.0f, -(midVal - yBound) * BaseTransformComponent.ScaleX);
+                BaseTransformComponent.LocalTranslation = Vec3.TransformPosition(min, BaseTransformComponent.WorldMatrix).Xy;
             }
             else
+            {
+                BaseTransformComponent.LocalTranslation = Vec2.Zero;
                 BaseTransformComponent.Scale = TMath.Min(Bounds.X, Bounds.Y) / (UnitIncrement * InitialVisibleBoxes);
+            }
 
             UpdateBackgroundMaterial();
             UpdateTextScale();

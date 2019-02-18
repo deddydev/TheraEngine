@@ -5,7 +5,7 @@
         void SetConnection(IFuncExecInput other);
     }
     public class FuncExecOutput<TInput, TParent> : BaseFuncExec<TInput>, IFuncExecOutput
-        where TInput : UIComponent, IFuncExecInput where TParent : UIComponent, IFunction
+        where TInput : BaseFuncExec, IFuncExecInput where TParent : UIComponent, IFunction
     {
         public override bool IsOutput => true;
         public new TParent OwningActor => (TParent)base.OwningActor;

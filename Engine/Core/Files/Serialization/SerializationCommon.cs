@@ -518,8 +518,8 @@ namespace TheraEngine.Core.Files.Serialization
                 BindingFlags.NonPublic |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy;
-
-            MemberInfo[] members = type?.GetMembersExt(retrieveFlags) ?? new MemberInfo[0];
+            
+            MemberInfo[] members = type?.GetMembers(retrieveFlags) ?? new MemberInfo[0];
             List<TSerializeMemberInfo> serMembers = new List<TSerializeMemberInfo>(members.Length);
             
             int elementStringCount = 0;

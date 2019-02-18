@@ -160,6 +160,26 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
                 _bounds.X = origX - _translation.X;
             }
         }
+        public Vec2 Min
+        {
+            get => _translation + new Vec2(Width < 0 ? Width : 0, Height < 0 ? Height : 0);
+            set
+            {
+                CheckProperDimensions();
+                Vec2 orig = _bounds;
+                _translation = value;
+                _bounds = orig - _translation;
+            }
+        }
+        public Vec2 Max
+        {
+            get => _translation + new Vec2(Width > 0 ? Width : 0, Height > 0 ? Height : 0);
+            set
+            {
+                CheckProperDimensions();
+                _bounds = value - _translation;
+            }
+        }
         /// <summary>
         /// The Y value of the bottom boundary line.
         /// Only moves the bottom edge by resizing height.

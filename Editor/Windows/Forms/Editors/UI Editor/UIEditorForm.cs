@@ -6,38 +6,38 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(IUserInterface))]
-    public partial class HudEditorForm : TheraForm, IDockPanelOwner
+    public partial class UIEditorForm : TheraForm, IDockPanelOwner
     {
         DockPanel IDockPanelOwner.DockPanelRef => dockPanel1;
 
-        public HudEditorForm()
+        public UIEditorForm()
         {
             InitializeComponent();
             dockPanel1.Theme = new TheraEditorTheme();
             FormTitle2.MouseDown += TitleBar_MouseDown;
             FormTitle2.MouseUp += (s, e) => { if (e.Button == System.Windows.Forms.MouseButtons.Right && FormTitle.ClientRectangle.Contains(e.Location)) ShowSystemMenu(MouseButtons); };
-            HUDGraph = new DockableFormInstance<DockableHudGraph>(x => x.Show(dockPanel1, DockState.Document));
-            HUDProps = new DockableFormInstance<DockablePropertyGrid>(x => x.Show(dockPanel1, DockState.DockRight));
+            UIGraph = new DockableFormInstance<DockableHudGraph>(x => x.Show(dockPanel1, DockState.Document));
+            UIProps = new DockableFormInstance<DockablePropertyGrid>(x => x.Show(dockPanel1, DockState.DockRight));
         }
-        public HudEditorForm(IUserInterface manager) : this()
+        public UIEditorForm(IUserInterface manager) : this()
         {
             TargetHUD = manager;
         }
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            HUDGraph.Form.Focus();
-            HUDGraph.Form.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
+            UIGraph.Form.Focus();
+            UIGraph.Form.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
         }
-        public DockableFormInstance<DockableHudGraph> HUDGraph { get; }
-        public DockableFormInstance<DockablePropertyGrid> HUDProps { get; }
+        public DockableFormInstance<DockableHudGraph> UIGraph { get; }
+        public DockableFormInstance<DockablePropertyGrid> UIProps { get; }
         public IUserInterface TargetHUD
         {
-            get => HUDGraph.Form.RenderPanel.UI.TargetHUD;
+            get => UIGraph.Form.RenderPanel.UI.TargetHUD;
             set
             {
-                HUDGraph.Form.RenderPanel.UI.TargetHUD = value;
-                HUDProps.Form.PropertyGrid.TargetObject = value;
+                UIGraph.Form.RenderPanel.UI.TargetHUD = value;
+                UIProps.Form.PropertyGrid.TargetObject = value;
                 FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
             }
         }

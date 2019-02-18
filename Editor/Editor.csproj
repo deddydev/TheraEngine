@@ -241,19 +241,19 @@
     <Compile Include="Core\Extensions\ZipFileWithProgress.cs" />
     <Compile Include="Core\Thumbnails.cs" />
     <Compile Include="Intellisense.cs" />
-    <Compile Include="Windows\Forms\Editors\HUD Editor\DockableUIGraph.cs">
+    <Compile Include="Windows\Forms\Editors\UI Editor\DockableUIGraph.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\HUD Editor\DockableUIGraph.Designer.cs">
+    <Compile Include="Windows\Forms\Editors\UI Editor\DockableUIGraph.Designer.cs">
       <DependentUpon>DockableUIGraph.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\HUD Editor\UIEditorForm.cs">
+    <Compile Include="Windows\Forms\Editors\UI Editor\UIEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\HUD Editor\UIEditorForm.Designer.cs">
+    <Compile Include="Windows\Forms\Editors\UI Editor\UIEditorForm.Designer.cs">
       <DependentUpon>UIEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\HUD Editor\UIEditorHud.cs" />
+    <Compile Include="Windows\Forms\Editors\UI Editor\UIEditorHud.cs" />
     <Compile Include="Windows\Forms\Editors\UIEditorBase.cs" />
     <Compile Include="Windows\Forms\Main Window\AboutForm.cs">
       <SubType>Form</SubType>
@@ -832,10 +832,10 @@
     <Compile Include="Windows\Forms\Property Grid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Windows\Forms\Editors\HUD Editor\DockableUIGraph.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\UI Editor\DockableUIGraph.resx">
       <DependentUpon>DockableUIGraph.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\HUD Editor\UIEditorForm.resx">
+    <EmbeddedResource Include="Windows\Forms\Editors\UI Editor\UIEditorForm.resx">
       <DependentUpon>UIEditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Main Window\AboutForm.resx">
@@ -930,7 +930,7 @@
     <Compile Include="Windows\Forms\Editors\Material Editor\MaterialEditorForm.Designer.cs">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\Material Editor\MaterialEditorHud.cs" />
+    <Compile Include="Windows\Forms\Editors\Material Editor\MaterialEditorUI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectState.cs" />

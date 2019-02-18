@@ -158,7 +158,7 @@ namespace TheraEngine.Actors.Types
 
                 _viewport.Update(scene, camera, camera.Frustum);
 
-                scene.PreRenderSwap();
+                //scene.PreRenderSwap();
                 _viewport.SwapBuffers();
 
                 if (CaptureDepthCubeMap)
@@ -174,8 +174,8 @@ namespace TheraEngine.Actors.Types
                         (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
                 }
 
-                _viewport.HUD?.ScreenSpaceUIScene?.PreRender(_viewport, _viewport.HUD.ScreenOverlayCamera);
-                scene.PreRender(_viewport, camera);
+                //_viewport.HUD?.ScreenSpaceUIScene?.PreRender(_viewport, _viewport.HUD.ScreenOverlayCamera);
+                //scene.PreRender(_viewport, camera);
 
                 _viewport.Render(scene, camera, RenderFBO);
             }

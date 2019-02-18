@@ -348,15 +348,15 @@ namespace TheraEngine
         /// </summary>
         public static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function, EInputPauseType pausedBehavior = EInputPauseType.TickAlways)
         {
-            if (function != null)
-            {
-                var list = GetTickList(group, order, pausedBehavior);
-                int tickIndex = (int)group + (int)order + (int)pausedBehavior;
-                if (_currentTickList == tickIndex)
-                    _tickListQueue.Enqueue(new Tuple<bool, DelTick>(false, function));
-                else
-                    list.Remove(function);
-            }
+            if (function == null)
+                return;
+            
+            var list = GetTickList(group, order, pausedBehavior);
+            int tickIndex = (int)group + (int)order + (int)pausedBehavior;
+            if (_currentTickList == tickIndex)
+                _tickListQueue.Enqueue(new Tuple<bool, DelTick>(false, function));
+            else
+                list.Remove(function);
         }
         /// <summary>
         /// Gets a list of items to tick (in no particular order) that were registered with the following parameters.

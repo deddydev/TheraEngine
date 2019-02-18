@@ -71,7 +71,7 @@ namespace TheraEngine.Rendering.UI.Functions
             _headerText = new UITextComponent
             {
                 Name = FunctionName + " [Header Text]",
-                DockStyle = UIDockStyle.Top,
+                DockStyle = EUIDockStyle.Top,
                 Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
             };
             _headerText.TextDrawer.Add(_headerString = new UIString2D()
@@ -89,6 +89,8 @@ namespace TheraEngine.Rendering.UI.Functions
         {
             return TMaterial.CreateUnlitColorMaterialForward(new ColorF4(0.1f, 1.0f));
         }
+
+        public abstract void GetMinMax(out Vec2 min, out Vec2 max, bool searchForward = true, bool searchBackward = true);
 
         protected void AddParam(BaseFuncArg arg)
         {
@@ -186,6 +188,61 @@ namespace TheraEngine.Rendering.UI.Functions
             ArrangeControls();
         }
 
+        public override void GetMinMax(out Vec2 min, out Vec2 max, bool searchForward = true, bool searchBackward = true)
+        {
+            RemakeAxisAlignedRegion();
+
+            BaseFunction func;
+            min = RenderInfo.AxisAlignedRegion.Min;
+            max = RenderInfo.AxisAlignedRegion.Max;
+            if (searchBackward)
+            {
+                foreach (var input in _execInputs)
+                {
+                    func = input?.ConnectedToGeneric?.OwningFunction;
+                    if (func == null)
+                        continue;
+                    func.GetMinMax(out Vec2 min2, out Vec2 max2, false, true);
+                    min = Vec2.ComponentMin(min, min2);
+                    max = Vec2.ComponentMax(max, max2);
+                }
+                foreach (var input in _valueInputs)
+                {
+                    func = input?.Connection?.OwningFunction;
+                    if (func == null)
+                        continue;
+                    func.GetMinMax(out Vec2 min2, out Vec2 max2, false, true);
+                    min = Vec2.ComponentMin(min, min2);
+                    max = Vec2.ComponentMax(max, max2);
+                }
+            }
+            if (searchForward)
+            {
+                foreach (var output in _execOutputs)
+                {
+                    func = output?.ConnectedToGeneric?.OwningFunction;
+                    if (func == null)
+                        continue;
+                    func.GetMinMax(out Vec2 min2, out Vec2 max2, true, false);
+                    min = Vec2.ComponentMin(min, min2);
+                    max = Vec2.ComponentMax(max, max2);
+                }
+                foreach (var output in _valueOutputs)
+                {
+                    var list = output?.Connections;
+                    foreach (var input in list)
+                    {
+                        func = input?.OwningFunction;
+                        if (func == null)
+                            continue;
+                        func.GetMinMax(out Vec2 min2, out Vec2 max2, true, false);
+                        min = Vec2.ComponentMin(min, min2);
+                        max = Vec2.ComponentMax(max, max2);
+                    }
+                }
+            }
+        }
+
         #region Input/Output Exec
         protected List<TEIn> _execInputs = new List<TEIn>();
         protected List<TEOut> _execOutputs = new List<TEOut>();
@@ -200,11 +257,13 @@ namespace TheraEngine.Rendering.UI.Functions
         protected void AddExecInput(TEIn input)
         {
             _execInputs.Add(input);
+            input.OwningFunction = this;
             AddParam(input);
         }
         protected void AddExecOutput(TEOut output)
         {
             _execOutputs.Add(output);
+            output.OwningFunction = this;
             AddParam(output);
         }
         #endregion
@@ -224,12 +283,14 @@ namespace TheraEngine.Rendering.UI.Functions
         {
             input.ArgumentIndex = _valueInputs.Count;
             _valueInputs.Add(input);
+            input.OwningFunction = this;
             AddParam(input);
         }
         protected void AddValueOutput(TVOut output)
         {
             output.ArgumentIndex = _valueOutputs.Count;
             _valueOutputs.Add(output);
+            output.OwningFunction = this;
             AddParam(output);
         }
         #endregion

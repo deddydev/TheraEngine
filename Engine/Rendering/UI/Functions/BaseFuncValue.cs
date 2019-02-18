@@ -6,7 +6,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
-    public interface IBaseFuncValue : IUIComponent
+    public interface IBaseFuncValue : IBaseFuncArg
     {
         int CurrentArgumentType { get; set; }
         //int[] AllowedArgumentTypes { get; }

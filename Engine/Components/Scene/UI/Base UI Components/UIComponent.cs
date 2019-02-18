@@ -174,9 +174,9 @@ namespace TheraEngine.Rendering.UI
         }
         public override void OnSpawned()
         {
+            base.OnSpawned();
             if (this is I2DRenderable r)
                 OwningActor.AddRenderableComponent(r);
-            base.OnSpawned();
         }
         public override void OnDespawned()
         {

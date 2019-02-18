@@ -278,9 +278,26 @@ namespace TheraEngine.Rendering.Models.Materials
                 LoadMipmaps();
                 return _texture;
             }
+            else
+            {
+                GetTextureAsync().ContinueWith(task =>
+                {
+                    _texture = task.Result;
+                    if (_fillerRenderTex != null)
+                    {
+                        _fillerRenderTex.PostPushData -= SetParameters;
+                        _fillerRenderTex = null;
+                    }
+                });
 
-            GetTextureAsync().ContinueWith(task => _texture = task.Result);
-            return _texture;
+                if (_fillerRenderTex != null)
+                    return _fillerRenderTex;
+
+                _fillerRenderTex = new RenderTex2D(EPixelInternalFormat.Rgb8, EPixelFormat.Bgr, EPixelType.UnsignedByte, FillerBitmap);
+                _fillerRenderTex.PostPushData += SetParameters;
+
+                return _fillerRenderTex;
+            }
         }
 
         public void UpdateRenderTexture() => _texture?.PushData();
@@ -440,6 +457,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _texture.PostPushData += SetParameters;
         }
 
+        private RenderTex2D _fillerRenderTex = null;
         public static Bitmap FillerBitmap => _fillerBitmap.Value;
         private static readonly Lazy<Bitmap> _fillerBitmap = new Lazy<Bitmap>(GetFillerBitmap);
         private static Bitmap GetFillerBitmap()
@@ -461,6 +479,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             return bmp;
         }
+
         /// <summary>
         /// Attaches to fbo.
         /// </summary>

@@ -10,6 +10,7 @@ namespace TheraEngine.Rendering.UI.Functions
         void SecondaryRemoveConnection(IFuncValueInput other);
         void ClearConnections();
         bool ConnectionsContains(IFuncValueInput other);
+        IEnumerable<IFuncValueInput> Connections { get; }
     }
     public class FuncValueOutput<TInput, TParent> : BaseFuncValue<TInput>, IFuncValueOutput
         where TInput : class, IFuncValueInput where TParent : class, IFunction
@@ -22,6 +23,8 @@ namespace TheraEngine.Rendering.UI.Functions
         public new TParent ParentSocket => (TParent)base.ParentSocket;
 
         public override bool HasConnection => Connections.Count > 0;
+
+        IEnumerable<IFuncValueInput> IFuncValueOutput.Connections => Connections;
 
         protected EventList<TInput> _connections = new EventList<TInput>(false, false);
         
@@ -85,7 +88,6 @@ namespace TheraEngine.Rendering.UI.Functions
             => ConnectTo(other as TInput);
 
         IEnumerator<IFuncValueInput> IEnumerable<IFuncValueInput>.GetEnumerator() => _connections.GetEnumerator();
-
         public bool ConnectionsContains(IFuncValueInput other) => _connections.Contains(other);
     }
 }

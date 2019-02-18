@@ -341,14 +341,14 @@ namespace TheraEngine.Rendering.Models.Materials
                 if (t is TexRef2D t2d)
                     t2d.Resize(width, height);
         }
-        public async void SetTextureUniforms(RenderProgram program)
+        public void SetTextureUniforms(RenderProgram program)
         {
             for (int i = 0; i < Textures.Length; ++i)
             {
                 BaseTexRef tref = Textures[i];
                 if (tref == null)
                     continue;
-                var tex = await tref.GetRenderTextureGenericAsync();
+                var tex = tref.GetRenderTextureGeneric(false);//await tref.GetRenderTextureGenericAsync();
                 program.Sampler(tref.ResolveSamplerName(i), tex, i);
             }
         }

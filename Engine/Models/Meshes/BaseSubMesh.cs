@@ -14,10 +14,7 @@ namespace TheraEngine.Rendering.Models
 
         [TSerialize(Order = 0)]
         public RenderInfo3D RenderInfo { get; set; }
-
-        [TSerialize(Order = 1)]
-        public TShape CullingVolume { get; set; }
-
+        
         [DisplayName("Levels Of Detail")]
         [Browsable(false)]
         [TSerialize(Order = 2)]
@@ -28,40 +25,34 @@ namespace TheraEngine.Rendering.Models
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            TShape cullingVolume,
             PrimitiveData primitives,
             TMaterial material)
         {
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            CullingVolume = cullingVolume;
             LODs = new List<LOD>() { new LOD(material, primitives, 0.0f) };
         }
         public BaseSubMesh(
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            TShape cullingVolume,
             List<LOD> lods)
         {
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            CullingVolume = cullingVolume;
             LODs = lods ?? new List<LOD>();
         }
         public BaseSubMesh(
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            TShape cullingVolume,
             params LOD[] lods)
         {
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            CullingVolume = cullingVolume;
             LODs = lods.ToList();
         }
     }

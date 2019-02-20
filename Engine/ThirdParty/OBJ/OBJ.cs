@@ -26,7 +26,8 @@ namespace TheraEngine.Rendering.Models
                     BoundingBox b = BoundingBox.ExpandableBox();
                     PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), subgroup.Faces.SelectMany(x => CreateTriangles(x, result, false, modelMatrix, normalMatrix, b)));
                     var objMat = result.Materials.FirstOrDefault(x => x.Name == subgroup.Material?.Name);
-                    m.RigidChildren.Add(new StaticRigidSubMesh(group.Name + "_" + (subgroup.Material?.Name ?? "NoMaterial"), null, ERenderPass.OpaqueDeferredLit, b, data, CreateMaterial(objMat, dirPath, options.UseForwardShaders)));
+                    RenderInfo3D renderInfo = new RenderInfo3D(true, false) { CullingVolume = b };
+                    m.RigidChildren.Add(new StaticRigidSubMesh(group.Name + "_" + (subgroup.Material?.Name ?? "NoMaterial"), renderInfo, ERenderPass.OpaqueDeferredLit, data, CreateMaterial(objMat, dirPath, options.UseForwardShaders)));
                 }
             }
             return m;

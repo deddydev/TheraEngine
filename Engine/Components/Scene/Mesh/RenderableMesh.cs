@@ -139,7 +139,7 @@ namespace TheraEngine.Components.Scene.Mesh
             : base(mesh.LODs, mesh.RenderPass, mesh.RenderInfo, component)
         {
             Mesh = mesh;
-            SetCullingVolume(mesh.CullingVolume);
+            SetCullingVolume(mesh.RenderInfo.CullingVolume);
         }
         private void _component_WorldTransformChanged(SceneComponent comp)
         {

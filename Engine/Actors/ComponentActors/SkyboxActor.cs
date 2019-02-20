@@ -166,7 +166,7 @@ namespace TheraEngine.Actors.Types
             if (mesh == null)
                 return;
 
-            BoundingBox box = mesh.CullingVolume as BoundingBox;
+            BoundingBox box = mesh.RenderInfo.CullingVolume as BoundingBox;
             if (box != null)
             {
                 box.Minimum = -HalfExtents;
@@ -234,12 +234,13 @@ namespace TheraEngine.Actors.Types
             _uvType = tex == null || tex.Bitmaps.Length == 0 || tex.Bitmaps[0] == null || tex.Bitmaps[0].Width > tex.Bitmaps[0].Height ?
                 BoundingBox.ECubemapTextureUVs.WidthLarger :
                 BoundingBox.ECubemapTextureUVs.HeightLarger;
-            
+
+            TShape box = BoundingBox.FromMinMax(min, max);
+            RenderInfo3D renderInfo = new RenderInfo3D(true, false) { CullingVolume = box };
             StaticRigidSubMesh mesh = new StaticRigidSubMesh(
                 "Mesh",
-                null,
+                renderInfo,
                 ERenderPass.Background,
-                BoundingBox.FromMinMax(min, max),
                 BoundingBox.SolidMesh(min, max, true, _uvType, TexCoordEdgeBias),
                 Material);
 

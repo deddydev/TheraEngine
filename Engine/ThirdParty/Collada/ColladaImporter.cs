@@ -391,7 +391,8 @@ namespace TheraEngine.Rendering.Models
                     sphere = new Sphere(remap.GetFirstAppearanceBuffer<Vec3>());
                 }
 
-                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), null, ERenderPass.OpaqueDeferredLit, sphere, data, m));
+                RenderInfo3D renderInfo = new RenderInfo3D(true, false) { CullingVolume = sphere };
+                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), renderInfo, ERenderPass.OpaqueDeferredLit, data, m));
             }
 
             public void Initialize(StaticModel model, VisualScene scene, bool addBinormals = true, bool addTangents = true)
@@ -445,7 +446,8 @@ namespace TheraEngine.Rendering.Models
                     sphere = new Sphere(remap.GetFirstAppearanceBuffer<Vec3>());
                 }
 
-                model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), null, ERenderPass.OpaqueDeferredLit, sphere, data, m));
+                RenderInfo3D renderInfo = new RenderInfo3D(true, false) { CullingVolume = sphere };
+                model.RigidChildren.Add(new StaticRigidSubMesh(_node.Name ?? (_node.ID ?? _node.SID), renderInfo, ERenderPass.OpaqueDeferredLit, data, m));
             }
         }
         private static TMaterial CreateMaterial(LibraryMaterials.Material colladaMaterial)

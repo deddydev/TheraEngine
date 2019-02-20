@@ -31,8 +31,8 @@ namespace TheraEngine.Rendering.Models
         {
             BoundingBox aabb = new BoundingBox();
             foreach (var s in RigidChildren)
-                if (s.CullingVolume != null)
-                    aabb.Expand(s.CullingVolume.GetAABB());
+                if (s.RenderInfo.CullingVolume != null)
+                    aabb.Expand(s.RenderInfo.CullingVolume.GetAABB());
             //foreach (var s in SoftChildren)
             //    if (s.CullingVolume != null)
             //        aabb.Expand(s.CullingVolume.GetAABB());

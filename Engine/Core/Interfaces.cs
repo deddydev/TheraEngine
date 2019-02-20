@@ -47,7 +47,6 @@ namespace TheraEngine
         List<LOD> LODs { get; }
         ERenderPass RenderPass { get; set; }
         RenderInfo3D RenderInfo { get; set; }
-        TShape CullingVolume { get; set; }
     }
     public interface IStaticSubMesh : IBaseSubMesh
     {

@@ -3,6 +3,7 @@ using static System.Math;
 using TheraEngine.Core.Maths.Transforms;
 using System;
 using System.Drawing;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Core.Maths
 {
@@ -170,33 +171,33 @@ namespace TheraEngine.Core.Maths
             float p0, float t0, float t1, float p1,
             out float second, out float first, out float zero)
         {
-            second = 3.0f * ( 3.0f * t0 - p0 - 3.0f * t1 + p1);
-            first  = 6.0f * (-2.0f * t0 + p0 +        t1);
-            zero   = 3.0f * (        t0 - p0);
+            second = 3.0f * (       -p0 + 3.0f * t0 - 3.0f * t1 + p1);
+            first  = 2.0f * ( 3.0f * p0 - 6.0f * t0 + 3.0f * t1);
+            zero   =         -3.0f * p0 + 3.0f * t0;
         }
         public static void CubicBezierVelocityCoefs(
             Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
             out Vec2 second, out Vec2 first, out Vec2 zero)
         {
-            second = 3.0f * ( 3.0f * t0 - p0 - 3.0f * t1 + p1);
-            first  = 6.0f * (-2.0f * t0 + p0 +        t1);
-            zero   = 3.0f * (        t0 - p0);
+            second = 3.0f * (       -p0 + 3.0f * t0 - 3.0f * t1 + p1);
+            first  = 2.0f * ( 3.0f * p0 - 6.0f * t0 + 3.0f * t1);
+            zero   =         -3.0f * p0 + 3.0f * t0;
         }
         public static void CubicBezierVelocityCoefs(
             Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
             out Vec3 second, out Vec3 first, out Vec3 zero)
         {
-            second = 3.0f * ( 3.0f * t0 - p0 - 3.0f * t1 + p1);
-            first  = 6.0f * (-2.0f * t0 + p0 +        t1);
-            zero   = 3.0f * (        t0 - p0);
+            second = 3.0f * (       -p0 + 3.0f * t0 - 3.0f * t1 + p1);
+            first  = 2.0f * ( 3.0f * p0 - 6.0f * t0 + 3.0f * t1);
+            zero   =         -3.0f * p0 + 3.0f * t0;
         }
         public static void CubicBezierVelocityCoefs(
             Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
             out Vec4 second, out Vec4 first, out Vec4 zero)
         {
-            second = 3.0f * ( 3.0f * t0 - p0 - 3.0f * t1 + p1);
-            first  = 6.0f * (-2.0f * t0 + p0 +        t1);
-            zero   = 3.0f * (        t0 - p0);
+            second = 3.0f * (       -p0 + 3.0f * t0 - 3.0f * t1 + p1);
+            first  = 2.0f * ( 3.0f * p0 - 6.0f * t0 + 3.0f * t1);
+            zero   =         -3.0f * p0 + 3.0f * t0;
         }
         #endregion
 
@@ -205,29 +206,29 @@ namespace TheraEngine.Core.Maths
            float p0, float t0, float t1, float p1,
            out float first, out float zero)
         {
-            first = 6.0f * (-3.0f * t1 + 3.0f * t0 - p0 + p1);
-            zero  = 6.0f * (        t1 - 2.0f * t0 + p0);
+            first = 6.0f * (       -p0 + 3.0f * t0 - 3.0f * t1 + p1);
+            zero  = 2.0f * ( 3.0f * p0 - 6.0f * t0 + 3.0f * t1);
         }
         public static void CubicBezierAccelerationCoefs(
            Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
            out Vec2 first, out Vec2 zero)
         {
-            first = 6.0f * (-3.0f * t1 + 3.0f * t0 - p0 + p1);
-            zero  = 6.0f * (        t1 - 2.0f * t0 + p0);
+            first = 6.0f * (       -p0 + 3.0f * t0 - 3.0f * t1 + p1);
+            zero  = 2.0f * ( 3.0f * p0 - 6.0f * t0 + 3.0f * t1);
         }
         public static void CubicBezierAccelerationCoefs(
            Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
            out Vec3 first, out Vec3 zero)
         {
-            first = 6.0f * (-3.0f * t1 + 3.0f * t0 - p0 + p1);
-            zero  = 6.0f * (        t1 - 2.0f * t0 + p0);
+            first = 6.0f * (       -p0 + 3.0f * t0 - 3.0f * t1 + p1);
+            zero  = 2.0f * ( 3.0f * p0 - 6.0f * t0 + 3.0f * t1);
         }
         public static void CubicBezierAccelerationCoefs(
            Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
            out Vec4 first, out Vec4 zero)
         {
-            first = 6.0f * (-3.0f * t1 + 3.0f * t0 - p0 + p1);
-            zero  = 6.0f * (        t1 - 2.0f * t0 + p0);
+            first = 6.0f * (       -p0 + 3.0f * t0 - 3.0f * t1 + p1);
+            zero  = 2.0f * ( 3.0f * p0 - 6.0f * t0 + 3.0f * t1);
         }
         #endregion
 
@@ -315,8 +316,8 @@ namespace TheraEngine.Core.Maths
         {
             third  = ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
             second = (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
-            first  = t0;
-            zero   = p0;
+            first  =                      t0;
+            zero   =          p0;
         }
         public static void CubicHermiteCoefs(
             Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
@@ -324,8 +325,8 @@ namespace TheraEngine.Core.Maths
         {
             third  = ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
             second = (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
-            first  = t0;
-            zero   = p0;
+            first  =                      t0;
+            zero   =          p0;
         }
         public static void CubicHermiteCoefs(
             Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
@@ -333,8 +334,8 @@ namespace TheraEngine.Core.Maths
         {
             third  = ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
             second = (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
-            first  = t0;
-            zero   = p0;
+            first  =                      t0;
+            zero   =          p0;
         }
         public static void CubicHermiteCoefs(
             Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
@@ -342,8 +343,8 @@ namespace TheraEngine.Core.Maths
         {
             third  = ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
             second = (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
-            first  = t0;
-            zero   = p0;
+            first  =                      t0;
+            zero   =          p0;
         }
         #endregion
 
@@ -352,33 +353,33 @@ namespace TheraEngine.Core.Maths
            float p0, float t0, float t1, float p1,
            out float second, out float first, out float zero)
         {
-            second = 6.0f * p0 + 3.0f * t0 - 6.0f * p1 + 3.0f * t1;
-            first = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
-            zero = t0;
+            second = 3.0f * ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            first  = 2.0f * (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
+            zero   =                             t0;
         }
         public static void CubicHermiteVelocityCoefs(
            Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
            out Vec2 second, out Vec2 first, out Vec2 zero)
         {
-            second = 6.0f * p0 + 3.0f * t0 - 6.0f * p1 + 3.0f * t1;
-            first = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
-            zero = t0;
+            second = 3.0f * ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            first  = 2.0f * (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
+            zero   =                             t0;
         }
         public static void CubicHermiteVelocityCoefs(
            Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
            out Vec3 second, out Vec3 first, out Vec3 zero)
         {
-            second = 6.0f * p0 + 3.0f * t0 - 6.0f * p1 + 3.0f * t1;
-            first = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
-            zero = t0;
+            second = 3.0f * ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            first  = 2.0f * (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
+            zero   =                             t0;
         }
         public static void CubicHermiteVelocityCoefs(
            Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
            out Vec4 second, out Vec4 first, out Vec4 zero)
         {
-            second = 6.0f * p0 + 3.0f * t0 - 6.0f * p1 + 3.0f * t1;
-            first = -6.0f * p0 - 4.0f * t0 + 6.0f * p1 - 2.0f * t1;
-            zero = t0;
+            second = 3.0f * ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            first  = 2.0f * (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
+            zero   =                             t0;
         }
         #endregion
 
@@ -387,29 +388,29 @@ namespace TheraEngine.Core.Maths
            float p0, float t0, float t1, float p1,
            out float first, out float zero)
         {
-            first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
-            zero  = -6.0f * p0 - 4.0f * t0 +  6.0f * p1 - 2.0f * t1;
+            first = 6.0f * ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            zero  = 2.0f * (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
         }
         public static void CubicHermiteAccelerationCoefs(
            Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1,
            out Vec2 first, out Vec2 zero)
         {
-            first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
-            zero  = -6.0f * p0 - 4.0f * t0 +  6.0f * p1 - 2.0f * t1;
+            first = 6.0f * ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            zero  = 2.0f * (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
         }
         public static void CubicHermiteAccelerationCoefs(
            Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1,
            out Vec3 first, out Vec3 zero)
         {
-            first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
-            zero  = -6.0f * p0 - 4.0f * t0 +  6.0f * p1 - 2.0f * t1;
+            first = 6.0f * ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            zero  = 2.0f * (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
         }
         public static void CubicHermiteAccelerationCoefs(
            Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1,
            out Vec4 first, out Vec4 zero)
         {
-            first = 12.0f * p0 + 6.0f * t0 - 12.0f * p1 + 6.0f * t1;
-            zero  = -6.0f * p0 - 4.0f * t0 +  6.0f * p1 - 2.0f * t1;
+            first = 6.0f * ( 2.0f * p0 +        t0 - 2.0f * p1 + t1);
+            zero  = 2.0f * (-3.0f * p0 - 2.0f * t0 + 3.0f * p1 - t1);
         }
         #endregion
 
@@ -526,6 +527,11 @@ namespace TheraEngine.Core.Maths
         public static Vec3 Lerp(Vec3 startValue, Vec3 endValue, float time)
             => startValue + (endValue - startValue) * time;
         public static Vec4 Lerp(Vec4 startValue, Vec4 endValue, float time)
+            => startValue + (endValue - startValue) * time;
+
+        public static ColorF3 Lerp(ColorF3 startValue, ColorF3 endValue, float time)
+            => startValue + (endValue - startValue) * time;
+        public static ColorF4 Lerp(ColorF4 startValue, ColorF4 endValue, float time)
             => startValue + (endValue - startValue) * time;
 
         public static float InterpQuadraticEaseEnd(float start, float end, float time, float speed = 1.0f, float exponent = 2.0f)

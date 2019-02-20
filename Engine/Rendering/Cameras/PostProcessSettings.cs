@@ -26,7 +26,6 @@ namespace TheraEngine.Rendering.Cameras
             LensFlare = new LensFlareSettings();
             AntiAliasing = new AntiAliasSettings();
             AmbientOcclusion = new AmbientOcclusionSettings();
-            //Shadows = new ShadowSettings();
         }
         
         [TSerialize("AntiAliasing")]
@@ -53,10 +52,7 @@ namespace TheraEngine.Rendering.Cameras
         public AmbientOcclusionSettings AmbientOcclusion { get; set; }
         [Category("Post-Process Settings")]
         [TSerialize]
-        public GlobalFileRef<TMaterial> PostProcessMaterial { get; set; }
-        //[Category("Post-Process Settings")]
-        //[TSerialize("Shadows")]
-        //public ShadowSettings Shadows { get; set; }
+        public LocalFileRef<TMaterial> PostProcessMaterial { get; set; }
 
         internal void SetUniforms(RenderProgram program)
         {
@@ -84,19 +80,29 @@ namespace TheraEngine.Rendering.Cameras
 
         public void Lerp(PostProcessSettings from, PostProcessSettings to, float time)
         {
-
+            ColorGrading.Lerp(from.ColorGrading, to.ColorGrading, time);
+            AmbientOcclusion.Lerp(from.AmbientOcclusion, to.AmbientOcclusion, time);
+            Bloom.Lerp(from.Bloom, to.Bloom, time);
+            Vignette.Lerp(from.Vignette, to.Vignette, time);
+            DepthOfField.Lerp(from.DepthOfField, to.DepthOfField, time);
         }
     }
     public class AmbientOcclusionSettings : PostSettings
     {
         [TSerialize]
         [Category("Ambient Occlusion Settings")]
-        public float Radius { get; set; } = 0.75f;
+        public float Radius { get; set; } = 1.75f;
         
         [TSerialize]
         [Category("Ambient Occlusion Settings")]
-        public float Power { get; set; } = 4.0f;
-        
+        public float Power { get; set; } = 2.0f;
+
+        public void Lerp(AmbientOcclusionSettings from, AmbientOcclusionSettings to, float time)
+        {
+            Radius = Interp.Lerp(from.Radius, to.Radius, time);
+            Power = Interp.Lerp(from.Power, to.Power, time);
+        }
+
         internal void SetUniforms(RenderProgram program)
         {
             program.Uniform("Radius", Radius);
@@ -105,6 +111,8 @@ namespace TheraEngine.Rendering.Cameras
     }
     public class VignetteSettings : PostSettings
     {
+        public const string VignetteUniformName = "Vignette";
+
         [TSerialize]
         [Category("Vignette Settings")]
         public ColorF3 Color { get; set; } = new ColorF3(0.0f, 0.0f, 0.0f);
@@ -119,9 +127,9 @@ namespace TheraEngine.Rendering.Cameras
 
         internal void SetUniforms(RenderProgram program)
         {
-            program.Uniform("Vignette.Color", Color);
-            program.Uniform("Vignette.Intensity", Intensity);
-            program.Uniform("Vignette.Power", Power);
+            program.Uniform($"{VignetteUniformName}.{nameof(Color)}", Color);
+            program.Uniform($"{VignetteUniformName}.{nameof(Intensity)}", Intensity);
+            program.Uniform($"{VignetteUniformName}.{nameof(Power)}", Power);
         }
 
         internal static string WriteShaderSetup()
@@ -135,6 +143,13 @@ struct VignetteStruct
 };
 uniform VignetteStruct Vignette;";
         }
+
+        public void Lerp(VignetteSettings from, VignetteSettings to, float time)
+        {
+            Color = Interp.Lerp(from.Color, to.Color, time);
+            Intensity = Interp.Lerp(from.Intensity, to.Intensity, time);
+            Power = Interp.Lerp(from.Power, to.Power, time);
+        }
     }
     public class DepthOfFieldSettings : PostSettings
     {
@@ -147,9 +162,13 @@ uniform VignetteStruct Vignette;";
         {
             return @"";
         }
+
+        internal void Lerp(DepthOfFieldSettings depthOfField1, DepthOfFieldSettings depthOfField2, float time) => throw new NotImplementedException();
     }
     public class ColorGradeSettings : PostSettings
     {
+        public const string ColorGradeUniformName = "ColorGrade";
+
         public ColorGradeSettings()
         {
             Contrast = 0.0f;
@@ -169,6 +188,12 @@ uniform VignetteStruct Vignette;";
         [TSerialize]
         [Category("Color Grade Settings")]
         public bool AutoExposure { get; set; } = true;
+        [TSerialize]
+        [Category("Color Grade Settings")]
+        public float AutoExposureBias { get; set; } = 0.0f;
+        [TSerialize]
+        [Category("Color Grade Settings")]
+        public float AutoExposureScale { get; set; } = 1.0f;
         [TSerialize]
         [Category("Color Grade Settings")]
         public float ExposureDividend { get; set; } = 0.5f;
@@ -220,13 +245,13 @@ uniform VignetteStruct Vignette;";
 
         internal void SetUniforms(RenderProgram program)
         {
-            program.Uniform("ColorGrade.Tint", Tint.Raw);
-            program.Uniform("ColorGrade.Exposure", Exposure);
-            program.Uniform("ColorGrade.Contrast", _contrastUniformValue);
-            program.Uniform("ColorGrade.Gamma", Gamma);
-            program.Uniform("ColorGrade.Hue", Hue);
-            program.Uniform("ColorGrade.Saturation", Saturation);
-            program.Uniform("ColorGrade.Brightness", Brightness);
+            program.Uniform($"{ColorGradeUniformName}.{nameof(Tint)}", Tint.Raw);
+            program.Uniform($"{ColorGradeUniformName}.{nameof(Exposure)}", Exposure);
+            program.Uniform($"{ColorGradeUniformName}.{nameof(Contrast)}", _contrastUniformValue);
+            program.Uniform($"{ColorGradeUniformName}.{nameof(Gamma)}", Gamma);
+            program.Uniform($"{ColorGradeUniformName}.{nameof(Hue)}", Hue);
+            program.Uniform($"{ColorGradeUniformName}.{nameof(Saturation)}", Saturation);
+            program.Uniform($"{ColorGradeUniformName}.{nameof(Brightness)}", Brightness);
         }
 
         internal static string WriteShaderSetup()
@@ -247,15 +272,11 @@ struct ColorGradeStruct
 uniform ColorGradeStruct ColorGrade;";
         }
         
-        private Vec3 _luminance = new Vec3(0.299f, 0.587f, 0.114f);
         public unsafe void UpdateExposure(TexRef2D hdrSceneTexture)
         {
             if (!AutoExposure && Exposure >= MinExposure && Exposure <= MaxExposure)
                 return;
-
-            //if (Engine.CurrentFramesPerSecond < 30.0f)
-            //    return;
-
+            
             //Calculate average color value using 1x1 mipmap of scene
             var tex = hdrSceneTexture.RenderTextureGeneric;
             tex.Bind();
@@ -271,7 +292,7 @@ uniform ColorGradeStruct ColorGrade;";
             if (float.IsNaN(rgb.Z)) return;
 
             //Calculate luminance factor off of the average color
-            float lumDot = rgb.Dot(_luminance);
+            float lumDot = rgb.Dot(Vec3.Luminance);
 
             //If the dot factor is zero, this means the screen is perfectly black.
             //Usually that means nothing is being rendered, so don't update the exposure now.
@@ -285,14 +306,18 @@ uniform ColorGradeStruct ColorGrade;";
                 return;
             }
 
-            float target = (ExposureDividend / lumDot).Clamp(MinExposure, MaxExposure);
+            float exposure = ExposureDividend / lumDot;
+            exposure = AutoExposureBias + AutoExposureScale * exposure;
+            exposure = exposure.Clamp(MinExposure, MaxExposure);
 
             //If the current exposure is an invalid value, that means we want the exposure to be set immediately.
             if (Exposure < MinExposure || Exposure > MaxExposure)
-                Exposure = target;
+                Exposure = exposure;
             else
-                Exposure = Interp.Lerp(Exposure, target, ExposureTransitionSpeed);
+                Exposure = Interp.Lerp(Exposure, exposure, ExposureTransitionSpeed);
         }
+
+        internal void Lerp(ColorGradeSettings colorGrading1, ColorGradeSettings colorGrading2, float time) => throw new NotImplementedException();
     }
     public class BloomSettings : PostSettings
     {
@@ -315,6 +340,8 @@ uniform ColorGradeStruct ColorGrade;";
 uniform float BloomIntensity = 1.0f;
 uniform float BloomThreshold = 1.0f;";
         }
+
+        internal void Lerp(BloomSettings bloom1, BloomSettings bloom2, float time) => throw new NotImplementedException();
     }
     public class LensFlareSettings : PostSettings
     {

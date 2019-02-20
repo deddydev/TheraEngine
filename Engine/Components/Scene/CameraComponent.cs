@@ -144,6 +144,19 @@ namespace TheraEngine.Components.Scene
         }
 
 #if EDITOR
+        private bool _previewAlwaysVisible = false;
+        [Category("Editor Traits")]
+        public bool PreviewAlwaysVisible
+        {
+            get => _previewAlwaysVisible;
+            set
+            {
+                if (_previewAlwaysVisible == value)
+                    return;
+                _previewAlwaysVisible = value;
+                Engine.EditorState.PinnedCamera = _previewAlwaysVisible ? this : null;
+            }
+        }
         [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]

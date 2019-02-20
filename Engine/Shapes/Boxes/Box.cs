@@ -12,6 +12,9 @@ namespace TheraEngine.Core.Shapes
     [TFileDef("Box")]
     public class Box : TShape
     {
+        public event Action HalfExtentsPreSet;
+        public event Action HalfExtentsPostSet;
+
         public EventVec3 _halfExtents;
 
         [Category("Box")]
@@ -19,7 +22,12 @@ namespace TheraEngine.Core.Shapes
         public EventVec3 HalfExtents
         {
             get => _halfExtents;
-            set => _halfExtents = value;
+            set
+            {
+                HalfExtentsPreSet?.Invoke();
+                _halfExtents = value ?? new EventVec3();
+                HalfExtentsPostSet?.Invoke();
+            }
         }
 
         private Transform _transform;

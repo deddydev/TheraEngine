@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
+using TheraEngine.Components.Scene;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -276,6 +277,7 @@ namespace TheraEngine.Editor
         /// Used to determine if the editor is editing the game currently instead of simulating gameplay.
         /// </summary>
         public bool InEditMode { get; set; } = true;
+        public CameraComponent PinnedCamera { get; set; }
     }
 
     /// <summary>

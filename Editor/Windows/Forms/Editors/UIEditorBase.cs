@@ -33,6 +33,8 @@ namespace TheraEditor.Windows.Forms
         protected UITextComponent _originText;
         private Deque<(UITextComponent, UIString2D, float)> _textCacheX = new Deque<(UITextComponent, UIString2D, float)>();
         private Deque<(UITextComponent, UIString2D, float)> _textCacheY = new Deque<(UITextComponent, UIString2D, float)>();
+        protected UITextComponent _xUnitText, _yUnitText;
+        protected UIString2D _xUnitString, _yUnitString;
         
         public Font UIFont { get; set; } = new Font("Segoe UI", 10.0f, FontStyle.Regular);
 
@@ -76,7 +78,9 @@ namespace TheraEditor.Windows.Forms
             (_zoomIn + _zoomOut) != 0.0f ||
             (_moveUp + _moveDown) != 0.0f ||
             (_moveLeft + _moveRight) != 0.0f;
-
+        
+        public virtual string XUnitString { get; } = null;
+        public virtual string YUnitString { get; } = null;
         protected override UICanvasComponent OnConstructRoot()
         {
             BaseTransformComponent = new UIComponent();
@@ -94,6 +98,10 @@ namespace TheraEditor.Windows.Forms
             BaseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
             
             _originText = ConstructText(new ColorF4(0.3f), "0", "0", out UIString2D originStr);
+            if (!string.IsNullOrWhiteSpace(XUnitString))
+                _xUnitText = ConstructText(ColorF4.White, XUnitString, XUnitString, out _xUnitString);
+            if (!string.IsNullOrWhiteSpace(YUnitString))
+                _yUnitText = ConstructText(ColorF4.White, YUnitString, YUnitString, out _yUnitString);
 
             return baseUI;
         }
@@ -187,6 +195,17 @@ namespace TheraEditor.Windows.Forms
         }
         protected virtual void BaseWorldTransformChanged(SceneComponent comp)
         {
+            Vec2 origin = GetViewportTopRightWorldSpace();
+            if (_xUnitText != null)
+            {
+                float height = _xUnitText.SizeableHeight.GetValue(_xUnitText.ParentBounds);
+                _xUnitText.SizeablePosY.ModificationValue = origin.Y - height / BaseTransformComponent.ScaleY;
+            }
+            if (_yUnitText != null)
+            {
+                float width = _yUnitText.SizeableWidth.GetValue(_yUnitText.ParentBounds);
+                _yUnitText.SizeablePosX.ModificationValue = origin.X - width / BaseTransformComponent.ScaleX;
+            }
             UpdateBackgroundMaterial();
         }
         public override void Resize(Vec2 bounds)
@@ -290,9 +309,11 @@ namespace TheraEditor.Windows.Forms
                     str = cache.Item2;
                 }
 
-                if (pos != 0.0f)
+                if (pos == 0.0f)
+                    comp.RenderInfo.Visible = false;
+                else
                 {
-                    str.Text = pos.ToString();//"###0.0##"
+                    str.Text = pos.ToString("###0.0##");
                     if (xCoord)
                     {
                         comp.SizeablePosX.ModificationValue = pos;
@@ -305,8 +326,6 @@ namespace TheraEditor.Windows.Forms
                     }
                     comp.RenderInfo.Visible = true;
                 }
-                else
-                    comp.RenderInfo.Visible = false;
             }
         }
 
@@ -506,6 +525,10 @@ namespace TheraEditor.Windows.Forms
                 comp.Item1.Scale = scale;
             foreach (var comp in _textCacheY)
                 comp.Item1.Scale = scale;
+            if (_xUnitText != null)
+                _xUnitText.Scale = scale;
+            if (_yUnitText != null)
+                _yUnitText.Scale = scale;
         }
         protected virtual void AddRenderables(RenderPasses passes) { }
         void I2DRenderable.AddRenderables(RenderPasses passes, Camera camera)

@@ -464,6 +464,8 @@ void main()
 
             return root;
         }
+        public override string XUnitString => "Sec";
+        public override string YUnitString => "Value";
         private void OnCurrentPositionChanged(PropAnimVector<float, FloatKeyframe> obj)
         {
             Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);

@@ -91,7 +91,7 @@ namespace TheraEngine.Audio
                 public bint _byteRate;
                 public bshort _blockAlign;
                 public bshort _bitsPerSample;
-                public bshort _extraParamSize; //Nonexistant if PCM
+                //public bshort _extraParamSize; //Nonexistant if PCM
 
                 //Extra params here
 

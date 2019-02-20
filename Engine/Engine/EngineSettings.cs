@@ -99,31 +99,6 @@ namespace TheraEngine
         }
         private bool _singleThreaded = false;
 
-        //[Category("Debug")]
-        //[TSerialize]
-        //public bool RenderCameraFrustums { get; set; }
-        //[Category("Debug")]
-        //[TSerialize]
-        //public bool RenderSkeletons { get; set; }
-        [Category("Debug")]
-        [TSerialize]
-        public bool RenderQuadtree { get; set; }
-        [Category("Debug")]
-        [TSerialize]
-        public bool RenderOctree { get; set; }
-        //[Category("Debug")]
-        //[TSerialize]
-        //public bool RenderSplines { get; set; }
-        [Category("Debug")]
-        [TSerialize]
-        public bool RenderCullingVolumes { get; set; }
-        //[Category("Debug")]
-        //[TSerialize]
-        //public bool RenderLights { get; set; }
-        [Category("Debug")]
-        [TSerialize]
-        public bool RenderPhysicsWorld { get; set; }
-
         /// <summary>
         /// Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).
         /// </summary>
@@ -235,23 +210,7 @@ namespace TheraEngine
             SkinOnGPU = true;
             UseIntegerWeightingIds = true;
             AllowShaderPipelines = true;
-#if DEBUG
-            RenderPhysicsWorld = false;
-            RenderOctree = false;
-            RenderQuadtree = true;
-            //RenderSkeletons = false;
-            //RenderCameraFrustums = false;
-            //RenderSplines = false;
-            RenderCullingVolumes = false;
-            //RenderLights = false;
-#else
-            RenderOctree = false;
-            RenderQuadtree = false;
-            //RenderSkeletons = false;
-            //RenderCameraFrustums = false;
-            //RenderSplines = false;
-            RenderCullingVolumes = false;
-#endif
+
             CapFPS = false;
             TargetFPS = 60.0f;
             CapUPS = false;

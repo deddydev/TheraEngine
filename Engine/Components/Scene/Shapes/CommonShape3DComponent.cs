@@ -35,9 +35,10 @@ namespace TheraEngine.Components.Scene.Shapes
                 RenderInfo.CullingVolume = _shape;
             }
         }
+
         [TSerialize]
         [Category(RenderingCategoryName)]
-        public T Shape
+        public virtual T Shape
         {
             get => _shape;
             set

@@ -44,6 +44,16 @@ namespace TheraEngine.Core.Files
         [TSerialize("Path", Order = 1, NodeType = ENodeType.Attribute)]
         protected string _path;
 
+        public PathReference()
+        {
+
+        }
+        public PathReference(string path, EPathType type)
+        {
+            Path = path;
+            _type = type;
+        }
+
         [Category("File Reference")]
         public EPathType Type
         {
@@ -205,5 +215,8 @@ namespace TheraEngine.Core.Files
         /// </summary>
         [Browsable(false)]
         public virtual bool FileExists => Path.IsAbsolutePath() && File.Exists(Path);
+
+        public static implicit operator PathReference(string path)
+            => new PathReference(path, EPathType.FileRelative);
     }
 }

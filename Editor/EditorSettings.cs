@@ -39,16 +39,36 @@ namespace TheraEditor
         }
 
         [TSerialize]
-        public string DockConfigPath { get; set; }
-        
+        public PathReference DockConfigPath { get; set; }
+
         [TSerialize]
         [Browsable(false)]
-        public List<string> RecentlyOpenedProjectPaths
-        {
-            get => _recentlyOpenedProjectPaths;
-            set => _recentlyOpenedProjectPaths = value;
-        }
-        private List<string> _recentlyOpenedProjectPaths;
+        public List<string> RecentlyOpenedProjectPaths { get; set; }
+
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderCameraFrustums { get; set; }
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderSkeletons { get; set; }
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderQuadtree { get; set; }
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderOctree { get; set; }
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderSplines { get; set; }
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderCullingVolumes { get; set; }
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderLights { get; set; }
+        [Category("Debug")]
+        [TSerialize]
+        public bool RenderPhysicsWorld { get; set; }
 
         [TFileDef("Property Grid Settings")]
         public class PropertyGridSettings : TSettings
@@ -100,20 +120,17 @@ namespace TheraEditor
 
         public EditorSettings()
         {
-            DockConfigPath = Path.DirectorySeparatorChar + "DockPanel.config";
+            DockConfigPath = "DockPanel.config";
             PropertyGridRef = new PropertyGridSettings();
             ControlSettingsRef = new ControlSettings();
         }
 
         public string GetFullDockConfigPath()
         {
-            if (!string.IsNullOrWhiteSpace(DockConfigPath) &&
-                DockConfigPath[0] == Path.DirectorySeparatorChar)
-            {
-                if (!string.IsNullOrWhiteSpace(FilePath))
-                    return Path.Combine(Path.GetDirectoryName(FilePath), DockConfigPath);
-            }
-            return DockConfigPath;
+            string path = DockConfigPath?.Path;
+            if (!string.IsNullOrWhiteSpace(path) && !string.IsNullOrWhiteSpace(FilePath))
+                return Path.Combine(Path.GetDirectoryName(FilePath), path);
+            return path;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Maths.Transforms;
@@ -55,18 +54,42 @@ namespace TheraEngine.Components.Scene
                 }
             }
         }
-        
-        protected override void OnWorldTransformChanged()
+
+        [TSerialize]
+        [Category(RenderingCategoryName)]
+        public override Box Shape
+        {
+            get => base.Shape;
+            set
+            {
+                if (_shape != null)
+                {
+                    _shape.HalfExtentsPreSet -= ShapeHalfExtentsPostSet;
+                    _shape.HalfExtentsPostSet -= ShapeHalfExtentsPostSet;
+                    _shape.HalfExtents.Changed -= UpdateRenderCommandMatrix;
+                }
+
+                base.Shape = value;
+
+                _shape.HalfExtentsPreSet += ShapeHalfExtentsPostSet;
+                _shape.HalfExtentsPostSet += ShapeHalfExtentsPostSet;
+                _shape.HalfExtents.Changed += UpdateRenderCommandMatrix;
+            }
+        }
+
+        private void ShapeHalfExtentsPreSet() => _shape.HalfExtents.Changed -= UpdateRenderCommandMatrix;
+        private void ShapeHalfExtentsPostSet() => _shape.HalfExtents.Changed += UpdateRenderCommandMatrix;
+        private void UpdateRenderCommandMatrix()
         {
             Vec3 halfExtents = _shape.HalfExtents.Raw;
-
-            //DecalRenderMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
-            //InverseDecalRenderMatrix = (1.0f / halfExtents).AsScaleMatrix() * InverseWorldMatrix;
-
             RenderCommandDecal.WorldMatrix = WorldMatrix * halfExtents.AsScaleMatrix();
-
+        }
+        protected override void OnWorldTransformChanged()
+        {
+            UpdateRenderCommandMatrix();
             base.OnWorldTransformChanged();
         }
+
         /// <summary>
         /// Generates a basic decal material that projects a single texture onto surfaces. Texture may use transparency.
         /// </summary>

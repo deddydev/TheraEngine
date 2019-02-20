@@ -87,13 +87,13 @@ void main()
 
 	vec3 hdrSceneColor = texture(HDRSceneTex, uv).rgb;
 
-  //Tone mapping
-	vec3 ldrSceneColor = vec3(1.0f) - exp(-hdrSceneColor * ColorGrade.Exposure);
-  
   //Add each blurred bloom mipmap
   //Starts at 1/2 size lod because original image is not blurred (and doesn't need to be)
   for (float lod = 1.0f; lod < 5.0f; lod += 1.0f)
-	  ldrSceneColor += textureLod(Texture1, uv, lod).rgb;
+    hdrSceneColor += textureLod(Texture1, uv, lod).rgb;
+
+  //Tone mapping
+	vec3 ldrSceneColor = vec3(1.0f) - exp(-hdrSceneColor * ColorGrade.Exposure);
 
 	//Color grading
 	ldrSceneColor *= ColorGrade.Tint;

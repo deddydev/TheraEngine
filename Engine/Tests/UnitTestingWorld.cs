@@ -75,8 +75,8 @@ namespace TheraEngine.Tests
             bool testShapeTracer = false;
             bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 0;
-            int dirLights = 1;
+            int pointLights = 2;
+            int dirLights = 0;
             int spotLights = 0;
 
             float margin = 2.0f;

@@ -288,6 +288,10 @@ namespace TheraEngine.Core.Maths.Transforms
         /// Unit length (1.0f) vector in the forward direction (negative Z-axis).
         /// </summary>
         public static readonly Vec3 Forward = -UnitZ;
+        /// <summary>
+        /// 0.299f, 0.587f, 0.114f
+        /// </summary>
+        public static readonly Vec3 Luminance = new Vec3(0.299f, 0.587f, 0.114f);
 
         #region Max/Min
         /// <summary>

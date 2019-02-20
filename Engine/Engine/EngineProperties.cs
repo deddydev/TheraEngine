@@ -222,7 +222,7 @@ namespace TheraEngine
         private static readonly Lazy<ComputerInfo> _computerInfo = new Lazy<ComputerInfo>(ComputerInfo.Analyze);
 
 #if EDITOR
-        public static EngineEditorState EditorState = new EngineEditorState();
+        public static EngineEditorState EditorState { get; } = new EngineEditorState();
 #endif
 
         #region Timing

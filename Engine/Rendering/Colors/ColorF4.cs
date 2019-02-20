@@ -117,6 +117,31 @@ namespace TheraEngine.Rendering.Models.Materials
         public static implicit operator ColorF4(ColorF3 p) 
             => new ColorF4(p.R, p.G, p.B, 1.0f);
 
+        public static ColorF4 operator -(ColorF4 left, ColorF4 right)
+            => new ColorF4(
+                left.R - right.R,
+                left.G - right.G,
+                left.B - right.B,
+                left.A - right.A);
+        public static ColorF4 operator +(ColorF4 left, ColorF4 right)
+            => new ColorF4(
+                left.R + right.R,
+                left.G + right.G,
+                left.B + right.B,
+                left.A + right.A);
+        public static ColorF4 operator *(ColorF4 left, float right)
+            => new ColorF4(
+                left.R * right,
+                left.G * right,
+                left.B * right,
+                left.A * right);
+        public static ColorF4 operator *(float left, ColorF4 right)
+            => new ColorF4(
+                left * right.R,
+                left * right.G,
+                left * right.B,
+                left * right.A);
+
         public bool Equals(ColorF4 other, float precision)
         {
             return

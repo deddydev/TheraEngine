@@ -86,8 +86,11 @@ namespace TheraEngine.Rendering
     }
     public class RenderCommandMesh3D : RenderCommand3D
     {
+        [Category("Render Command")]
         public PrimitiveManager Mesh { get; set; }
+        [Browsable(false)]
         public Matrix4 WorldMatrix { get; set; } = Matrix4.Identity;
+        [Browsable(false)]
         public Matrix3 NormalMatrix { get; set; } = Matrix3.Identity;
         public TMaterial MaterialOverride { get; set; }
 

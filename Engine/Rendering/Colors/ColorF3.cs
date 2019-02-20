@@ -97,6 +97,27 @@ namespace TheraEngine.Rendering.Models.Materials
         public static explicit operator ColorF3(Color p) => new ColorF3(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat);
         public static explicit operator Color(ColorF3 p) => Color.FromArgb(255, p.R.ToByte(), p.G.ToByte(), p.B.ToByte());
 
+        public static ColorF3 operator -(ColorF3 left, ColorF3 right)
+            => new ColorF3(
+                left.R - right.R,
+                left.G - right.G,
+                left.B - right.B);
+        public static ColorF3 operator +(ColorF3 left, ColorF3 right)
+            => new ColorF3(
+                left.R + right.R,
+                left.G + right.G,
+                left.B + right.B);
+        public static ColorF3 operator *(ColorF3 left, float right)
+            => new ColorF3(
+                left.R * right,
+                left.G * right,
+                left.B * right);
+        public static ColorF3 operator *(float left, ColorF3 right)
+            => new ColorF3(
+                left * right.R,
+                left * right.G,
+                left * right.B);
+
         public override string ToString()
         {
             return String.Format("[R:{0},G:{1},B:{2}]", R, G, B);

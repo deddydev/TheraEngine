@@ -636,7 +636,7 @@ namespace TheraEditor.Windows.Forms
                 TreeNode t = SelectedComponent?.OwningActor?.EditorState?.TreeNode;
                 if (t == null)
                     return;
-
+                
                 if (t.TreeView.InvokeRequired)
                     t.TreeView.BeginInvoke((Action) (() => t.TreeView.SelectedNode = t));
                 else
@@ -645,7 +645,10 @@ namespace TheraEditor.Windows.Forms
         }
         private void PreSelectedComponentChanged(bool selectedByViewport)
         {
-
+            if (SelectedComponent is CameraComponent camComp)
+            {
+                //CameraPreviewComponent.PreviewAlwaysVisible
+            }
         }
         private void PostSelectedComponentChanged(bool selectedByViewport)
         {
@@ -655,13 +658,18 @@ namespace TheraEditor.Windows.Forms
             {
                 SubViewport.ViewportCamera = cam.Camera;
                 SubViewport.IsVisible = true;
-                SubViewportText.RenderInfo.Visible = true;
+                if (cam.PreviewAlwaysVisible)
+                    Engine.EditorState.PinnedCamera = cam;
+            }
+            else if (Engine.EditorState.PinnedCamera != null)
+            {
+                SubViewport.ViewportCamera = Engine.EditorState.PinnedCamera.Camera;
+                SubViewport.IsVisible = true;
             }
             else
             {
                 SubViewport.ViewportCamera = null;
                 SubViewport.IsVisible = false;
-                SubViewportText.RenderInfo.Visible = false;
             }
 
             if (SelectedComponent != null)

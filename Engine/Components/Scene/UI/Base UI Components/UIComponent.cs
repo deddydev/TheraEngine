@@ -40,6 +40,8 @@ namespace TheraEngine.Rendering.UI
             get => _visible;
             set
             {
+                //if (_visible == value)
+                //    return;
                 _visible = value;
                 if (this is I2DRenderable r)
                     r.RenderInfo.Visible = value;

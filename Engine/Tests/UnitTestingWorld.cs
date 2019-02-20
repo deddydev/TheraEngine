@@ -369,17 +369,17 @@ namespace TheraEngine.Tests
 
             IBLProbeGridActor iblProbes = new IBLProbeGridActor();
             //iblProbes.RootComponent.Translation.Y += 3.0f;
-            Random random = new Random();
-            for (int i = 0; i < 10; ++i)
-            {
-                iblProbes.AddProbe(new Vec3(
-                    ((float)random.NextDouble() - 0.5f) * 200.0f,
-                    ((float)random.NextDouble() - 0.5f) * 200.0f,
-                    ((float)random.NextDouble() - 0.5f) * 200.0f));
-            }
+            //Random random = new Random();
+            //for (int i = 0; i < 10; ++i)
+            //{
+            //    iblProbes.AddProbe(new Vec3(
+            //        ((float)random.NextDouble() - 0.5f) * 200.0f,
+            //        ((float)random.NextDouble() - 0.5f) * 200.0f,
+            //        ((float)random.NextDouble() - 0.5f) * 200.0f));
+            //}
             //iblProbes.AddProbe(new Vec3(50.0f, 0.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(-51.0f, 0.0f, 0.0f));
-            //iblProbes.AddProbe(new Vec3(0.0f, 52.0f, 0.0f));
+            iblProbes.AddProbe(new Vec3(0.0f, 100.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(0.0f, -53.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(10.0f, 0.0f, 54.0f));
             //iblProbes.AddProbe(new Vec3(0.0f, 0.0f, -55.0f));

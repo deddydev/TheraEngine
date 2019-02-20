@@ -133,6 +133,7 @@ namespace TheraEngine.Actors
         {
             private SceneComponent _probe;
 
+            public int Index => _probe?.Index ?? -1;
             public double[] Position { get; set; }
 
             public DelaunayTriVertex(Vec3 point) { }
@@ -163,13 +164,18 @@ namespace TheraEngine.Actors
 
         private void Link(SceneComponent comp)
         {
-            IBLProbeComponent probe = (IBLProbeComponent)comp;
-            probe.Capture();
-            probe.GenerateIrradianceMap();
-            probe.GeneratePrefilterMap();
+            BaseRenderPanel.ThreadSafeBlockingInvoke((Action)(() => 
+            {
+                IBLProbeComponent probe = (IBLProbeComponent)comp;
+                probe.Capture();
+                probe.GenerateIrradianceMap();
+                probe.GeneratePrefilterMap();
+            }),
+            BaseRenderPanel.PanelType.Rendering);
 
             if (RootComponent.ChildComponents.Count < 5)
                 return;
+
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
         }

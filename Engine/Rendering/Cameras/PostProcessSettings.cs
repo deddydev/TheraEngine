@@ -253,8 +253,8 @@ uniform ColorGradeStruct ColorGrade;";
             if (!AutoExposure && Exposure >= MinExposure && Exposure <= MaxExposure)
                 return;
 
-            if (Engine.CurrentFramesPerSecond < 30.0f)
-                return;
+            //if (Engine.CurrentFramesPerSecond < 30.0f)
+            //    return;
 
             //Calculate average color value using 1x1 mipmap of scene
             var tex = hdrSceneTexture.RenderTextureGeneric;

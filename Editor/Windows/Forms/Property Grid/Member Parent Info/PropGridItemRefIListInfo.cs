@@ -19,15 +19,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public int Index { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => List == null ? null : (Index >= 0 && Index < List.Count ? List[Index]?.GetType() ?? _dataType : _dataType);
-        private readonly Type _dataType;
+        public override Type DataType => List == null ? _elementType : (Index >= 0 && Index < List.Count ? List[Index]?.GetType() ?? _elementType : _elementType);
+        private readonly Type _elementType;
 
         public IList List => Owner.Value as IList;
 
         public PropGridMemberInfoIList(IPropGridMemberOwner owner, int index) : base(owner)
         {
             Index = index;
-            _dataType = List?.DetermineElementType();
+            _elementType = List?.DetermineElementType();
         }
 
         public override bool IsReadOnly() 

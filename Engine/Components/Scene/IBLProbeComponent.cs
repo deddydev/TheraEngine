@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
-using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
@@ -39,6 +37,7 @@ namespace TheraEngine.Actors.Types
         }
 
         private PrimitiveManager _irradianceSphere;
+
         public IBLProbeComponent() : base() { }
         
         protected override void OnWorldTransformChanged()
@@ -95,8 +94,8 @@ namespace TheraEngine.Actors.Types
             TMaterial irrMat = new TMaterial("IrradianceMat", r, new ShaderVar[0], new TexRefCube[] { _envTex }, irrShader);
             TMaterial prefMat = new TMaterial("PrefilterMat", r, prefilterVars, new TexRefCube[] { _envTex }, prefShader);
 
-            _irradianceFBO = new CubeFrameBuffer(irrMat, 0.1f, 3.0f, false);
-            _prefilterFBO = new CubeFrameBuffer(prefMat, 0.1f, 3.0f, false);
+            _irradianceFBO = new CubeFrameBuffer(irrMat, 0.0f, 1.0f, false);
+            _prefilterFBO = new CubeFrameBuffer(prefMat, 0.0f, 1.0f, false);
         }
         public void FullCapture(int colorResolution, bool captureDepth, int depthResolution)
         {
@@ -175,11 +174,6 @@ namespace TheraEngine.Actors.Types
             };
             _irradianceSphere.Parameter<ShaderVec3>(0).Value = WorldMatrix.Translation;
             _rc.WorldMatrix = WorldMatrix;
-
-            //foreach (Camera c in Cameras)
-            //{
-            //    OwningScene.Add(c);
-            //}
         }
 
         private RenderCommandMesh3D _rc = null;
@@ -187,6 +181,9 @@ namespace TheraEngine.Actors.Types
         {
             if (_rc != null)
                 passes.Add(_rc);
+            //if (RenderCameraFrustums)
+            //    foreach (Camera c in Cameras)
+            //        c.AddRenderables(passes, camera);
         }
     }
 }

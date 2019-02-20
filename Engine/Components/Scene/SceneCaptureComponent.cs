@@ -80,28 +80,24 @@ namespace TheraEngine.Actors.Types
                 new Rotator( 90.0f,   0.0f, 180.0f), //-Y
                 new Rotator(  0.0f, 180.0f,   0.0f), //+Z
                 new Rotator(  0.0f,   0.0f,   0.0f), //-Z
-
-                //new Rotator(  0.0f, -90.0f, 180.0f), //+X
-                //new Rotator(  0.0f,  90.0f, 180.0f), //-X
-                //new Rotator( 90.0f,   0.0f,   0.0f), //+Y
-                //new Rotator(-90.0f,   0.0f,   0.0f), //-Y
-                //new Rotator(  0.0f, 180.0f, 180.0f), //+Z
-                //new Rotator(  0.0f,   0.0f, 180.0f), //-Z
             };
 
-            PerspectiveCamera c;
+            float aspect = _viewport.InternalResolution.Width / _viewport.InternalResolution.Height;
+
+            PerspectiveCamera cam;
             for (int i = 0; i < 6; ++i)
             {
-                c = new PerspectiveCamera(Vec3.Zero, rotations[i], 1.0f, 10000.0f, 90.0f, 1.0f);
-                c.LocalPoint.Raw = WorldPoint;
-                c.Resize(_viewport.InternalResolution.Width, _viewport.InternalResolution.Height);
-                c.PostProcessRef.File.ColorGrading.AutoExposure = false;
-                c.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
-                Cameras[i] = c;
+                cam = new PerspectiveCamera(WorldPoint, rotations[i], 1.0f, 10000.0f, 90.0f, aspect);
+
+                //Can't use AutoExposure because the scene has not been rendered previously for gauging luminosity
+                cam.PostProcessRef.File.ColorGrading.AutoExposure = false;
+                cam.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
+
+                Cameras[i] = cam;
             }
 
             _envTex = new TexRefCube("SceneCaptureCubeMap", _colorRes,
-                EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
+                EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte)
             {
                 MinFilter = ETexMinFilter.NearestMipmapLinear,
                 MagFilter = ETexMagFilter.Nearest,
@@ -124,7 +120,8 @@ namespace TheraEngine.Actors.Types
                 };
 
             _tempDepth = new RenderBuffer();
-            _tempDepth.SetStorage(ERenderBufferStorage.DepthComponent16, _colorRes, _colorRes);
+            _tempDepth.SetStorage(ERenderBufferStorage.DepthComponent32f, _colorRes, _colorRes);
+
             RenderFBO = new CubeFrameBuffer(null, 0.1f, 10000.0f, true);
         }
         protected override void OnWorldTransformChanged()
@@ -148,9 +145,9 @@ namespace TheraEngine.Actors.Types
             if (scene == null)
                 return;
 
-            //scene.UpdateShadowMaps();
-            //scene.Lights.SwapBuffers();
-            //scene.RenderShadowMaps();
+            scene.UpdateShadowMaps();
+            scene.Lights.SwapBuffers();
+            scene.RenderShadowMaps();
 
             for (int i = 0; i < 6; ++i)
             {
@@ -158,7 +155,7 @@ namespace TheraEngine.Actors.Types
 
                 _viewport.Update(scene, camera, camera.Frustum);
 
-                scene.PreRenderSwap();
+                //scene.PreRenderSwap();
                 _viewport.SwapBuffers();
 
                 if (CaptureDepthCubeMap)
@@ -174,8 +171,8 @@ namespace TheraEngine.Actors.Types
                         (_tempDepth, EFramebufferAttachment.DepthAttachment, 0, -1));
                 }
 
-                _viewport.HUD?.ScreenSpaceUIScene?.PreRender(_viewport, _viewport.HUD.ScreenOverlayCamera);
-                scene.PreRender(_viewport, camera);
+                //_viewport.HUD?.ScreenSpaceUIScene?.PreRender(_viewport, _viewport.HUD.ScreenOverlayCamera);
+                //scene.PreRender(_viewport, camera);
 
                 _viewport.Render(scene, camera, RenderFBO);
             }

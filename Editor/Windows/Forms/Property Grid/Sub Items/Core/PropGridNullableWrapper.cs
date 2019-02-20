@@ -43,8 +43,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected internal override void SetReferenceHolder(PropGridMemberInfo parentInfo)
         {
             base.SetReferenceHolder(parentInfo);
-
-            ValueType = DataType?.GetGenericArguments()[0];
+            
             pnlEditors.Controls.Clear();
 
             if (DataType != null)
@@ -60,6 +59,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.SetReferenceHolder(new PropGridItemRefNullableInfo(this, MemberInfo, ValueType));
                 }
             }
+            else
+                ValueType = null;
 
             pnlEditors.Enabled = false;
         }

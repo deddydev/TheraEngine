@@ -1004,18 +1004,25 @@ namespace TheraEditor.Windows.Forms
         private DateTime _lastDoubleClickedTime;
         private void TextBox_MouseClick(object sender, MouseEventArgs e)
         {
-            int ms = SystemInformation.DoubleClickTime;
-            DateTime now = DateTime.Now;
-            if ((now - _lastClickedTime).TotalMilliseconds <= ms)
+            if (e.Button == MouseButtons.Left)
             {
+                int ms = SystemInformation.DoubleClickTime;
+                DateTime now = DateTime.Now;
                 if ((now - _lastDoubleClickedTime).TotalMilliseconds <= ms)
+                {
                     SelectHoveredLine();
-                else
+                    Engine.PrintLine("Triple Clicked");
+                }
+                else if ((now - _lastClickedTime).TotalMilliseconds <= ms)
+                {
                     SelectHoveredWord();
-                _lastDoubleClickedTime = now;
+                    _lastDoubleClickedTime = now;
+                    Engine.PrintLine("Double Clicked");
+                }
+                //else
+                //    Engine.PrintLine("Clicked");
+                _lastClickedTime = now;
             }
-            
-            _lastClickedTime = now;
         }
         private void SelectHoveredWord()
         {

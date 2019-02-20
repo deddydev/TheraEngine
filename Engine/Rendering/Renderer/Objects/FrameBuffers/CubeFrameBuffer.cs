@@ -20,7 +20,8 @@ namespace TheraEngine.Rendering
         {
             Material = mat;
 
-            PrimitiveData cubeData = BoundingBox.SolidMesh(-1.0f, 1.0f, true);
+            float middle = (nearZ + farZ) * 0.5f;
+            PrimitiveData cubeData = BoundingBox.SolidMesh(-middle, middle, true);
             _cube = new PrimitiveManager(cubeData, Material);
             _cube.SettingUniforms += SetUniforms;
 
@@ -35,22 +36,23 @@ namespace TheraEngine.Rendering
                 new Rotator(  0.0f,   0.0f,   0.0f), //-Z
             };
 
-            Camera c;
+            Camera cam;
+            float range = farZ - nearZ;
             for (int i = 0; i < 6; ++i)
             {
-                c = perspectiveCameras ?
+                cam = perspectiveCameras ?
                     new PerspectiveCamera(Vec3.Zero, rotations[i], nearZ, farZ, 90.0f, 1.0f) :
                     (Camera)new OrthographicCamera(2.0f, 2.0f, Vec3.One, Vec3.Zero, rotations[i], Vec2.Half, nearZ, farZ);
-                c.Resize(2.0f, 2.0f);
-                Cameras[i] = c;
+
+                cam.Resize(range, range);
+
+                Cameras[i] = cam;
             }
-
         }
+
         private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)
-        {
-            SettingUniforms?.Invoke(materialProgram);
-        }
-
+            => SettingUniforms?.Invoke(materialProgram);
+        
         /// <summary>
         /// Renders the one side of the FBO to the entire region set by Engine.Renderer.PushRenderArea().
         /// </summary>

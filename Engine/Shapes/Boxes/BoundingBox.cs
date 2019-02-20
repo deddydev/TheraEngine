@@ -297,7 +297,7 @@ namespace TheraEngine.Core.Shapes
         /// <param name="inwardFacing">If the faces' fronts should face inward instead of outward.</param>
         /// <param name="cubemapUVs">If each quad should use UVs for </param>
         /// <returns></returns>
-        public static PrimitiveData SolidMesh(Vec3 min, Vec3 max, bool inwardFacing = false, ECubemapTextureUVs cubemapUVs = ECubemapTextureUVs.None, float bias = 0.002f)
+        public static PrimitiveData SolidMesh(Vec3 min, Vec3 max, bool inwardFacing = false, ECubemapTextureUVs cubemapUVs = ECubemapTextureUVs.None, float bias = 0.0f)
         {
             VertexQuad left, right, top, bottom, front, back;
 

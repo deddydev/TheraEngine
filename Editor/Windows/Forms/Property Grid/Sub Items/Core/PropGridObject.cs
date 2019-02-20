@@ -45,7 +45,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //Value is boxed as object, so this doesn't work
             //if (pnlProps.Visible && !ReferenceEquals(value, _object))
             //    LoadProperties(value);
-
+            
             _object = value;
             Type type = _object?.GetType();
             if (type != CurrentType)

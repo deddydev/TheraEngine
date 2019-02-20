@@ -26,7 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
             await Writer.WriteObjectAsync();
-            Engine.PrintLine("Serialized XML file to {0}", filePath);
+            //Engine.PrintLine("Serialized XML file to {0}", filePath);
         }
         /// <summary>
         /// Writes <paramref name="fileObject"/> as an XML file.
@@ -48,7 +48,7 @@ namespace TheraEngine.Core.Files.Serialization
             string filePath = TFileObject.GetFilePath(targetDirectoryPath, fileName, EProprietaryFileFormat.XML, fileObject.GetType());
             Writer = new WriterXML(this, fileObject, filePath, flags, progress, cancel, null);
             await Writer.WriteObjectAsync();
-            Engine.PrintLine("Serialized XML file to {0}", filePath);
+            //Engine.PrintLine("Serialized XML file to {0}", filePath);
         }
         public class WriterXML : AbstractWriter
         {

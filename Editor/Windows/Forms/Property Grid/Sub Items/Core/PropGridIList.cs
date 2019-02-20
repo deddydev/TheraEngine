@@ -92,13 +92,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private async void LoadList(IList list)
         {
             propGridListItems.tblProps.SuspendLayout();
+            propGridListItems.DestroyProperties();
 
-            if (list == null)
-            {
-                _displayedCount = 0;
-                propGridListItems.DestroyProperties();
-            }
-            else
+            if (list != null)
             {
                 _displayedCount = list.Count;
                 await Task.Run(() =>
@@ -108,19 +104,27 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                     Parallel.For(0, list.Count, i =>
                     {
-                        Type elementType = list[i]?.GetType() ?? _elementType;
+                        //Type elementType = list[i]?.GetType() ?? _elementType;
 
-                        Deque<Type> controlTypes;
-                        if (editorTypeCaches.ContainsKey(elementType))
-                            controlTypes = editorTypeCaches[elementType];
-                        else
-                        {
-                            controlTypes = TheraPropertyGrid.GetControlTypes(elementType);
-                            editorTypeCaches.TryAdd(elementType, controlTypes);
-                        }
+                        //Deque<Type> controlTypes;
+                        //if (editorTypeCaches.ContainsKey(elementType))
+                        //    controlTypes = editorTypeCaches[elementType];
+                        //else
+                        //{
+                        //    controlTypes = TheraPropertyGrid.GetControlTypes(elementType);
+                        //    editorTypeCaches.TryAdd(elementType, controlTypes);
+                        //}
 
-                        List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, new PropGridMemberInfoIList(this, i), DataChangeHandler);
-                        controls.TryAdd(i, items);
+                        var info = new PropGridMemberInfoIList(this, i);
+                        var item = new PropGridIListElementWrapper();
+                        item.SetReferenceHolder(info);
+                        item.Dock = DockStyle.Fill;
+                        item.Visible = true;
+                        item.DataChangeHandler = DataChangeHandler;
+                        controls.TryAdd(i, new List<PropGridItem>() { item });
+
+                        //List<PropGridItem> items = TheraPropertyGrid.InstantiatePropertyEditors(controlTypes, info, DataChangeHandler);
+                        //controls.TryAdd(i, items);
                     });
 
                     //TODO: wrap editors in a control that contains a minus button to remove the item from the list
@@ -134,6 +138,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
                 });
             }
+            else
+                _displayedCount = 0;
 
             propGridListItems.tblProps.ResumeLayout(true);
         }

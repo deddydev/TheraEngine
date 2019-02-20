@@ -22,7 +22,7 @@ namespace TheraEngine.Animation
         }
         protected abstract void Execute(AnimationTree output, Skeleton skeleton, object[] input);
     }
-    public enum AnimArgType : int
+    public enum EAnimArgType : int
     {
         Invalid = -1,
         String,

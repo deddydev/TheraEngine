@@ -609,8 +609,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.SetReferenceHolder(info);
                     item.Dock = DockStyle.Fill;
                     item.Visible = true;
-                    if (dataChangeHandler != null)
-                        item.DataChangeHandler = dataChangeHandler;
+                    item.DataChangeHandler = dataChangeHandler;
                 }
                 return item;
 
@@ -846,7 +845,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void treeViewSceneComps_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             SceneComponent comp = _selectedSceneComp.Tag as SceneComponent;
-            SetObject(comp, $".SceneComponentCache[{(comp?.CacheIndex ?? -1).ToString()}]");
+            SetObject(comp, $".SceneComponentCache[{(comp?.ActorSceneComponentCacheIndex ?? -1).ToString()}]");
         }
 
         private void treeViewSceneComps_BeforeSelect(object sender, TreeViewCancelEventArgs e)

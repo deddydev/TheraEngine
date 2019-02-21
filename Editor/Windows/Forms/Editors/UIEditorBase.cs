@@ -164,6 +164,7 @@ namespace TheraEditor.Windows.Forms
             {
                 float xBound = max.X - min.X;
                 float yBound = max.Y - min.Y;
+                Vec2 bottomLeft = -min;
 
                 if (xBound == 0.0f)
                     xBound = UnitIncrement * InitialVisibleBoxes;
@@ -173,16 +174,22 @@ namespace TheraEditor.Windows.Forms
                 float xScale = Bounds.X / xBound;
                 float yScale = Bounds.Y / yBound;
 
-                //if (xScale < yScale)
-                //{
-                //    BaseTransformComponent.Scale = xScale;
-                //}
-                //else
-                //{
-                //    BaseTransformComponent.Scale = yScale;
-                //}
+                if (xScale < yScale)
+                {
+                    BaseTransformComponent.Scale = xScale;
+                    float remaining = (Bounds.Y / xScale - yBound) * 0.5f;
+                    bottomLeft.Y += remaining;
+                    bottomLeft *= xScale;
+                }
+                else
+                {
+                    BaseTransformComponent.Scale = yScale;
+                    float remaining = (Bounds.X / yScale - xBound) * 0.5f;
+                    bottomLeft.X += remaining;
+                    bottomLeft *= yScale;
+                }
 
-                BaseTransformComponent.LocalTranslation = Vec3.TransformPosition(min, BaseTransformComponent.WorldMatrix).Xy;
+                BaseTransformComponent.LocalTranslation = bottomLeft;
             }
             else
             {
@@ -198,13 +205,13 @@ namespace TheraEditor.Windows.Forms
             Vec2 origin = GetViewportTopRightWorldSpace();
             if (_xUnitText != null)
             {
-                float height = _xUnitText.SizeableHeight.GetValue(_xUnitText.ParentBounds);
-                _xUnitText.SizeablePosY.ModificationValue = origin.Y - height / BaseTransformComponent.ScaleY;
+                float width = _xUnitText.SizeableWidth.GetValue(_xUnitText.ParentBounds);
+                _xUnitText.SizeablePosX.ModificationValue = origin.X - width / BaseTransformComponent.ScaleX;
             }
             if (_yUnitText != null)
             {
-                float width = _yUnitText.SizeableWidth.GetValue(_yUnitText.ParentBounds);
-                _yUnitText.SizeablePosX.ModificationValue = origin.X - width / BaseTransformComponent.ScaleX;
+                float height = _yUnitText.SizeableHeight.GetValue(_yUnitText.ParentBounds);
+                _yUnitText.SizeablePosY.ModificationValue = origin.Y - height / BaseTransformComponent.ScaleY;
             }
             UpdateBackgroundMaterial();
         }
@@ -212,9 +219,6 @@ namespace TheraEditor.Windows.Forms
         {
             base.Resize(bounds);
             UpdateBackgroundMaterial();
-
-            //TODO: remove, this is for debug purposes only
-            ZoomExtents();
         }
         public void UpdateLineIncrement()
         {

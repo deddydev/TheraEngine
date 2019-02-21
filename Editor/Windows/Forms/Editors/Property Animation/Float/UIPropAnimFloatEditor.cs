@@ -451,9 +451,6 @@ void main()
         {
             base.ZoomExtents();
             UpdateSplinePrimitive();
-
-            //Vec2 animPos = _baseTransformComponent.LocalTranslation / _baseTransformComponent.Scale;
-            //Vec2 visibleAnimRange = Bounds / _baseTransformComponent.Scale;
         }
         protected override UICanvasComponent OnConstructRoot()
         {

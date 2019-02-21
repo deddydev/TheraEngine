@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
+using TheraEngine;
 using TheraEngine.Core.Memory;
 
 namespace System
@@ -39,28 +40,29 @@ namespace System
         {
             FileStream stream;
             FileMap map;
-            //try
-            //{
-            if (!File.Exists(path))
-                stream = File.Create(path, 8, options);
-            else
-                stream = new FileStream(path, FileMode.Open, (prot == FileMapProtect.ReadWrite) ? FileAccess.ReadWrite : FileAccess.Read, FileShare.Read, 8, options);
-            //}
-            //catch //File is currently in use, but we can copy it to a temp location and read that
-            //{
-            //    string tempPath = Path.GetTempFileName();
-            //    File.Copy(path, tempPath, true);
-            //    stream = new FileStream(tempPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, options | FileOptions.DeleteOnClose);
-            //}
-            //try
-            //{
+            try
+            {
+                if (!File.Exists(path))
+                    stream = File.Create(path, 8, options);
+                else
+                    stream = new FileStream(path, FileMode.Open, (prot == FileMapProtect.ReadWrite) ? FileAccess.ReadWrite : FileAccess.Read, FileShare.Read, 8, options);
+            }
+            catch //File is currently in use, but we can copy it to a temp location and read that
+            {
+                string tempPath = Path.GetTempFileName();
+                Engine.LogWarning($"File at {path} is in use; creating temporary copy at {tempPath}.");
+                File.Copy(path, tempPath, true);
+                stream = new FileStream(tempPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, options | FileOptions.DeleteOnClose);
+            }
+            try
+            {
                 map = FromStreamInternal(stream, prot, offset, length);
-            //}
-            //catch (Exception x)
-            //{
-            //    stream.Dispose();
-            //    throw x;
-            //}
+            }
+            catch (Exception x)
+            {
+                stream.Dispose();
+                throw x;
+            }
             map._path = path; //In case we're using a temp file
             return map;
         }
@@ -69,15 +71,16 @@ namespace System
         public static FileMap FromTempFile(int length, out string path)
         {
             FileStream stream = new FileStream(path = Path.GetTempFileName(), FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, FileOptions.RandomAccess | FileOptions.DeleteOnClose);
-            //try
-            //{
+            try
+            {
                 return FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, length);
-            //}
-            //catch (Exception x)
-            //{
-            //    stream.Dispose();
-            //    throw x;
-            //}
+            }
+            catch (Exception ex)
+            {
+                stream.Dispose();
+                Engine.LogException(ex);
+            }
+            return null;
         }
 
         public static FileMap FromStream(FileStream stream) 

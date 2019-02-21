@@ -16,7 +16,7 @@ namespace TheraEditor.Windows.Forms
             dockPanel1.Theme = new TheraEditorTheme();
             FormTitle2.MouseDown += TitleBar_MouseDown;
             FormTitle2.MouseUp += (s, e) => { if (e.Button == System.Windows.Forms.MouseButtons.Right && FormTitle.ClientRectangle.Contains(e.Location)) ShowSystemMenu(MouseButtons); };
-            UIGraph = new DockableFormInstance<DockableHudGraph>(x => x.Show(dockPanel1, DockState.Document));
+            UIGraph = new DockableFormInstance<DockableUIGraph>(x => x.Show(dockPanel1, DockState.Document));
             UIProps = new DockableFormInstance<DockablePropertyGrid>(x => x.Show(dockPanel1, DockState.DockRight));
         }
         public UIEditorForm(IUserInterface manager) : this()
@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms
             UIGraph.Form.Focus();
             UIGraph.Form.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
         }
-        public DockableFormInstance<DockableHudGraph> UIGraph { get; }
+        public DockableFormInstance<DockableUIGraph> UIGraph { get; }
         public DockableFormInstance<DockablePropertyGrid> UIProps { get; }
         public IUserInterface TargetHUD
         {

@@ -66,7 +66,7 @@ namespace TheraEngine.Rendering.Models.Materials
             GlobalFileRef<TextureFile2D> tref = tex;
             tref.RegisterLoadEvent(OnMipLoaded);
             tref.RegisterUnloadEvent(OnMipUnloaded);
-            _mipmaps = new GlobalFileRef<TextureFile2D>[]  { tref };
+            _mipmaps = new GlobalFileRef<TextureFile2D>[] { tref };
         }
         public TexRef2D(string name, params string[] mipMapPaths)
         {
@@ -117,7 +117,7 @@ namespace TheraEngine.Rendering.Models.Materials
                         var fileRef = Mipmaps[i];
                         if (fileRef == null)
                             Mipmaps[i] = fileRef = new GlobalFileRef<TextureFile2D>();
-                        
+
                         fileRef.UnregisterLoadEvent(OnMipLoaded);
                         fileRef.UnregisterUnloadEvent(OnMipUnloaded);
                     }
@@ -136,7 +136,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 }
             }
         }
-        
+
         internal void OnMipLoaded(TextureFile2D tex)
         {
             //Engine.PrintLine("Mipmap loaded.");
@@ -163,7 +163,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private EPixelType _pixelType = EPixelType.UnsignedByte;
         [TSerialize(nameof(InternalFormat))]
         private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
-        
+
         [Category(CategoryName)]
         public EPixelFormat PixelFormat
         {
@@ -301,7 +301,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         public void UpdateRenderTexture() => _texture?.PushData();
-        
+
         /// <summary>
         /// Converts this texture reference into a texture made for rendering.
         /// </summary>
@@ -458,26 +458,44 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         private RenderTex2D _fillerRenderTex = null;
-        public static Bitmap FillerBitmap => _fillerBitmap.Value;
-        private static readonly Lazy<Bitmap> _fillerBitmap = new Lazy<Bitmap>(GetFillerBitmap);
-        private static Bitmap GetFillerBitmap()
+        public static Bitmap FillerBitmap
+        {
+            get
+            {
+                while (_loadingFillerBitmap) ;
+                if (_loadingFillerBitmap = _fillerBitmap == null)
+                {
+                    Task.Run(GetFillerBitmap).ContinueWith(x => _loadingFillerBitmap = false);
+                    while (_loadingFillerBitmap) ;
+                }
+                return _fillerBitmap;
+            }
+        }
+        private static bool _loadingFillerBitmap = false;
+        private static Bitmap _fillerBitmap = null;
+        private static void GetFillerBitmap()
         {
             TextureFile2D tex = new TextureFile2D(Path.Combine(Engine.Settings.TexturesFolder, "Filler.png"));
             if (tex.Bitmaps != null && tex.Bitmaps.Length > 0 && tex.Bitmaps[0] != null)
-                return tex.Bitmaps[0];
+            {
+                _loadingFillerBitmap = false;
+                _fillerBitmap = tex.Bitmaps[0];
+            }
+            else
+            {
+                const int squareExtent = 4;
+                const int dim = squareExtent * 2;
 
-            const int squareExtent = 4;
-            const int dim = squareExtent * 2;
+                Bitmap bmp = new Bitmap(dim, dim, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                Graphics flagGraphics = Graphics.FromImage(bmp);
 
-            Bitmap bmp = new Bitmap(dim, dim, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            Graphics flagGraphics = Graphics.FromImage(bmp);
+                flagGraphics.FillRectangle(Brushes.Red, 0, 0, squareExtent, squareExtent);
+                flagGraphics.FillRectangle(Brushes.Red, squareExtent, squareExtent, squareExtent, squareExtent);
+                flagGraphics.FillRectangle(Brushes.White, 0, squareExtent, squareExtent, squareExtent);
+                flagGraphics.FillRectangle(Brushes.White, squareExtent, 0, squareExtent, squareExtent);
 
-            flagGraphics.FillRectangle(Brushes.Red, 0, 0, squareExtent, squareExtent);
-            flagGraphics.FillRectangle(Brushes.Red, squareExtent, squareExtent, squareExtent, squareExtent);
-            flagGraphics.FillRectangle(Brushes.White, 0, squareExtent, squareExtent, squareExtent);
-            flagGraphics.FillRectangle(Brushes.White, squareExtent, 0, squareExtent, squareExtent);
-
-            return bmp;
+                _fillerBitmap = bmp;
+            }
         }
 
         /// <summary>

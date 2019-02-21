@@ -11,9 +11,9 @@ using TheraEngine.Rendering.UI;
 namespace TheraEditor.Windows.Forms
 {
     public delegate void DelUIComponentSelect(UIComponent comp);
-    public class UIHudEditor : EditorUserInterface, I2DRenderable
+    public class UIEditorUI : EditorUserInterface, I2DRenderable
     {
-        public UIHudEditor() : base()
+        public UIEditorUI() : base()
         {
             VertexQuad quad = VertexQuad.PosZQuad(1, true, -0.5f, false);
             VertexTriangle[] lines = quad.ToTriangles();
@@ -22,7 +22,7 @@ namespace TheraEditor.Windows.Forms
             _highlightMesh.Mesh = new PrimitiveManager(data, mat);
             _uiBoundsMesh.Mesh = new PrimitiveManager(data, mat);
         }
-        public UIHudEditor(Vec2 bounds) : base(bounds) { }
+        public UIEditorUI(Vec2 bounds) : base(bounds) { }
 
         public Vec2 PreviewResolution = new Vec2(1920, 1080);
         public event DelUIComponentSelect UIComponentSelected;
@@ -79,8 +79,8 @@ namespace TheraEditor.Windows.Forms
         protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
         {
             min = Vec2.Zero;
-            max = Vec2.Zero;
-            return false;
+            max = PreviewResolution;
+            return true;
         }
         protected override void HighlightScene()
         {

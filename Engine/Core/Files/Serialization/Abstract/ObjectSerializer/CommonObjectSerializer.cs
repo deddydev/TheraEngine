@@ -81,28 +81,17 @@ namespace TheraEngine.Core.Files.Serialization
                 if (attrib != null)
                 {
                     bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, attrib);
-                    if (customInvoked)
-                        return;
-                    if (attrib.GetObject(member.MemberType, out object value))
+                    if (!customInvoked && attrib.GetObject(member.MemberType, out object value))
                         member.SetObject(o, value);
-                    else
-                        Engine.LogWarning($"Unable to deserialize attribute member {member.Name} as {member.MemberType.GetFriendlyName()}.");
                 }
                 else if (member.NodeType == ENodeType.ElementContent)
                 {
                     bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, parentNode.Content);
-                    if (customInvoked)
-                        return;
-                    if (parentNode.Content.GetObject(member.MemberType, out object value))
+                    if (!customInvoked && parentNode.Content.GetObject(member.MemberType, out object value))
                         member.SetObject(o, value);
-                    else
-                        Engine.LogWarning($"Unable to deserialize element {member.Name} content as {member.MemberType.GetFriendlyName()}.");
-                }
-                else
-                {
-                    //Engine.LogWarning("Unable to parse member " + member.Name + " as " + member.MemberType.GetFriendlyName());
                 }
             }
+            //Otherwise, this member must be default
         }
         public async Task<bool> TryInvokeManualParentDeserializeAsync<T>(TSerializeMemberInfo member, SerializeElement parent, T data)
         {
@@ -115,19 +104,20 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (MethodInfo customMethod in customMethods)
             {
                 ParameterInfo[] parameters = customMethod.GetParameters();
-                if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(typeof(T)))
+                if (parameters.Length != 1 || !parameters[0].ParameterType.IsAssignableFrom(typeof(T)))
                 {
-                    //Engine.PrintLine($"Deserializing {member.MemberType.GetFriendlyName()} {member.Name} manually as {member.NodeType.ToString()} via parent.");
-
-                    if (customMethod.ReturnType == typeof(Task))
-                        await (Task)customMethod.Invoke(parent.Object, new object[] { data });
-                    else
-                        customMethod.Invoke(parent.Object, new object[] { data });
-
-                    return true;
+                    Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
+                    continue;
                 }
 
-                Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
+                //Engine.PrintLine($"Deserializing {member.MemberType.GetFriendlyName()} {member.Name} manually as {member.NodeType.ToString()} via parent.");
+
+                if (customMethod.ReturnType == typeof(Task))
+                    await (Task)customMethod.Invoke(parent.Object, new object[] { data });
+                else
+                    customMethod.Invoke(parent.Object, new object[] { data });
+
+                return true;
             }
 
             return false;

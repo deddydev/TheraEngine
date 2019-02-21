@@ -10,15 +10,15 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableHudGraph : DockContent, IEditorControl
+    public partial class DockableUIGraph : DockContent, IEditorControl
     {
-        public DockableHudGraph()
+        public DockableUIGraph()
         {
             InitializeComponent();
 
             RenderPanel.AllowDrop = false;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
-            GameMode = new HudEditorGameMode() { RenderPanel = RenderPanel };
+            GameMode = new UIEditorGameMode() { RenderPanel = RenderPanel };
         }
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
@@ -32,7 +32,7 @@ namespace TheraEditor.Windows.Forms
                 Editor.SetActiveEditorControl(this);
         }
 
-        public HudEditorGameMode GameMode { get; set; }
+        public UIEditorGameMode GameMode { get; set; }
 
         ELocalPlayerIndex IEditorControl.PlayerIndex => ELocalPlayerIndex.One;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
@@ -66,12 +66,12 @@ namespace TheraEditor.Windows.Forms
 
         }
     }
-    public class HudEditorController : LocalPlayerController
+    public class UIEditorController : LocalPlayerController
     {
-        public HudEditorController(ELocalPlayerIndex index) : this(index, null) { }
-        public HudEditorController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+        public UIEditorController(ELocalPlayerIndex index) : this(index, null) { }
+        public UIEditorController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
     }
-    public class HudGraphRenderPanel : UIRenderPanel<UIHudEditor, HudEditorGameMode, HudEditorController> { }
-    public class HudEditorGameMode : UIGameMode<UIHudEditor, HudEditorController> { }
+    public class UIGraphRenderPanel : UIRenderPanel<UIEditorUI, UIEditorGameMode, UIEditorController> { }
+    public class UIEditorGameMode : UIGameMode<UIEditorUI, UIEditorController> { }
 }

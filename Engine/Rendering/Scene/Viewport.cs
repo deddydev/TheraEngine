@@ -42,7 +42,6 @@ namespace TheraEngine.Rendering
         internal QuadFrameBuffer BloomBlurFBO8;
         internal QuadFrameBuffer BloomBlurFBO16;
         internal QuadFrameBuffer LightCombineFBO;
-        internal FrameBuffer DecalsFBO;
         internal QuadFrameBuffer ForwardPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
         internal QuadFrameBuffer HudFBO;
@@ -154,15 +153,18 @@ namespace TheraEngine.Rendering
             PrecomputeBRDF();
             Resize(width, height);
         }
+
         internal BoundingRectangle BloomRect16;
         internal BoundingRectangle BloomRect8;
         internal BoundingRectangle BloomRect4;
         internal BoundingRectangle BloomRect2;
         //internal BoundingRectangle BloomRect1;
+
         public void SetInternalResolution(int width, int height)
         {
             _internalResolution.Width = width;
             _internalResolution.Height = height;
+
             BloomRect16.Width = (int)(width * 0.0625f);
             BloomRect16.Height = (int)(height * 0.0625f);
             BloomRect8.Width = (int)(width * 0.125f);
@@ -173,6 +175,7 @@ namespace TheraEngine.Rendering
             BloomRect2.Height = (int)(height * 0.5f);
             //BloomRect1.Width = width;
             //BloomRect1.Height = height;
+
             InitFBOs();
 
             _camera?.Resize(width, height);

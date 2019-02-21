@@ -1,6 +1,6 @@
 ﻿namespace TheraEditor.Windows.Forms
 {
-    partial class DockableHudGraph
+    partial class DockableUIGraph
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.RenderPanel = new TheraEditor.Windows.Forms.HudGraphRenderPanel();
+            this.components = new System.ComponentModel.Container();
+            this.RenderPanel = new TheraEditor.Windows.Forms.UIGraphRenderPanel();
+            this.dockingHostToolStripPanel1 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.SuspendLayout();
             // 
             // RenderPanel
@@ -42,6 +44,15 @@
             this.RenderPanel.TabIndex = 1;
             this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Adaptive;
             // 
+            // dockingHostToolStripPanel1
+            // 
+            this.dockingHostToolStripPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.dockingHostToolStripPanel1.Location = new System.Drawing.Point(0, 0);
+            this.dockingHostToolStripPanel1.Name = "dockingHostToolStripPanel1";
+            this.dockingHostToolStripPanel1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.dockingHostToolStripPanel1.RowMargin = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.dockingHostToolStripPanel1.Size = new System.Drawing.Size(378, 0);
+            // 
             // DockableHudGraph
             // 
             this.AllowDrop = true;
@@ -50,17 +61,20 @@
             this.ClientSize = new System.Drawing.Size(378, 332);
             this.CloseButton = false;
             this.CloseButtonVisible = false;
+            this.Controls.Add(this.dockingHostToolStripPanel1);
             this.Controls.Add(this.RenderPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DockableHudGraph";
             this.Text = "Material Graph";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
-        public HudGraphRenderPanel RenderPanel;
+        public UIGraphRenderPanel RenderPanel;
+        private DockingHostToolStripPanel dockingHostToolStripPanel1;
     }
 }

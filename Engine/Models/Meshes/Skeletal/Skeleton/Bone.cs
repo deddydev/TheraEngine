@@ -256,7 +256,6 @@ namespace TheraEngine.Rendering.Models
         [Browsable(false)]
         public EventList<Bone> ChildBones => _childBones;
         [Category("Bone")]
-        [TSerialize]
         public Transform FrameState { get; private set; }
         [Category("Bone")]
         public Transform BindState

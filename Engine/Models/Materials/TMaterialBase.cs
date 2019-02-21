@@ -348,7 +348,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 BaseTexRef tref = Textures[i];
                 if (tref == null)
                     continue;
-                var tex = tref.GetRenderTextureGeneric(false);//await tref.GetRenderTextureGenericAsync();
+                var tex = tref.GetRenderTextureGeneric(tref.FrameBufferAttachment != null);//await tref.GetRenderTextureGenericAsync();
                 program.Sampler(tref.ResolveSamplerName(i), tex, i);
             }
         }

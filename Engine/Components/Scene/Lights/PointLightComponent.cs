@@ -81,7 +81,7 @@ namespace TheraEngine.Components.Scene.Lights
                     s3d.Lights.Add(this);
 
                     if (ShadowMap == null)
-                        SetShadowMapResolution(512, 512);
+                        SetShadowMapResolution(1024, 1024);
                 }
                 _influenceVolume.RenderInfo.LinkScene(_influenceVolume, s3d);
             }

@@ -133,7 +133,7 @@ namespace TheraEngine.Core.Files
             }
             catch (Exception ex)
             {
-                Engine.LogException(ex);
+                //Engine.LogException(ex);
                 _path = null;
             }
         }

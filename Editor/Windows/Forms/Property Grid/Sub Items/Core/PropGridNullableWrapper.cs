@@ -48,15 +48,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (DataType != null)
             {
+                PropGridItemRefNullableInfo parentInfoNullable = new PropGridItemRefNullableInfo(this, MemberInfo, ValueType);
+                
                 ValueType = DataType.GetGenericArguments()[0];
                 var types = TheraPropertyGrid.GetControlTypes(ValueType);
-                var items = TheraPropertyGrid.InstantiatePropertyEditors(types, null, DataChangeHandler);
+                var items = TheraPropertyGrid.InstantiatePropertyEditors(types, parentInfoNullable, DataChangeHandler);
                 foreach (var item in items)
                 {
                     item.Dock = System.Windows.Forms.DockStyle.Top;
                     item.AutoSize = true;
                     pnlEditors.Controls.Add(item);
-                    item.SetReferenceHolder(new PropGridItemRefNullableInfo(this, MemberInfo, ValueType));
                 }
             }
             else

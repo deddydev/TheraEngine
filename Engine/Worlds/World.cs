@@ -227,7 +227,7 @@ namespace TheraEngine.Worlds
 
             Engine.ActiveGameMode?.EndGameplay();
         }
-        public virtual void BeginPlay()
+        public virtual async void BeginPlay()
         {
             if (Settings.TwoDimensional)
             {
@@ -248,8 +248,17 @@ namespace TheraEngine.Worlds
                 if (m.File.VisibleByDefault)
                     m.File.BeginPlay(this);
 
-            Scene3D?.RenderTree.Swap();
-            Scene3D?.IBLProbeActor?.InitAndCaptureAll(256);
+            Scene3D s3D = Scene3D;
+            if (s3D != null)
+            {
+                s3D.RenderTree.Swap();
+                await s3D.IBLProbeActor?.InitAndCaptureAllAsync(512);
+            }
+            //Scene2D s2D = Scene2D;
+            //if (s2D != null)
+            //{
+            //    s2D.RenderTree.Swap();
+            //}
 
             Engine.ActiveGameMode?.BeginGameplay();
         }

@@ -92,6 +92,9 @@ namespace System
         internal ConcurrentQueue<T> AddedItems { get; } = new ConcurrentQueue<T>();
         internal ConcurrentQueue<T> RemovedItems { get; } = new ConcurrentQueue<T>();
         internal ConcurrentQueue<T> MovedItems { get; } = new ConcurrentQueue<T>();
+        /// <summary>
+        /// Updates all moved, added and removed items in the octree.
+        /// </summary>
         internal void Swap()
         {
             while (MovedItems.TryDequeue(out T item))

@@ -130,28 +130,27 @@ namespace TheraEditor.Windows.Forms
                 var meshes = staticMesh.Meshes;
                 if (meshes != null)
                     foreach (StaticRenderableMesh m in staticMesh.Meshes)
-                    {
-                        foreach (var lod in m.LODs)
-                        {
-                            var tris = lod.Manager.Data.Triangles;
-                            if (tris != null && tris.Count > 0)
-                                UpdateMatHighlight(lod.Manager.Material, highlighted);
-                        }
-                    }
+                        if (m != null)
+                            foreach (var lod in m.LODs)
+                            {
+                                var tris = lod.Manager.Data.Triangles;
+                                if (tris != null && tris.Count > 0)
+                                    UpdateMatHighlight(lod.Manager.Material, highlighted);
+                            }
             }
             else if (HighlightedComponent is SkeletalMeshComponent skeletalMesh)
             {
                 var meshes = skeletalMesh.Meshes;
                 if (meshes != null)
                     foreach (SkeletalRenderableMesh m in skeletalMesh.Meshes)
-                    {
-                        foreach (var lod in m.LODs)
-                        {
-                            var tris = lod.Manager.Data.Triangles;
-                            if (tris != null && tris.Count > 0)
-                                UpdateMatHighlight(lod.Manager.Material, highlighted);
-                        }
-                    }
+                        if (m != null)
+                            foreach (var lod in m.LODs)
+                            {
+                                var tris = lod.Manager.Data.Triangles;
+                                if (tris != null && tris.Count > 0)
+                                    UpdateMatHighlight(lod.Manager.Material, highlighted);
+                            }
+                    
             }
             else if (HighlightedComponent is LandscapeComponent landscape)
             {
@@ -162,6 +161,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (m == null)
                 return;
+
             if (highlighted)
             {
                 if (_highlightedMaterials.ContainsKey(m.UniqueID))
@@ -269,23 +269,25 @@ namespace TheraEditor.Windows.Forms
             UITextComponent fpsComp = new UITextComponent();
 
             fpsComp.RenderInfo.VisibleByDefault = true;
-            fpsComp.SizeableHeight.SetSizingPixels(s.Height);
             fpsComp.SizeableWidth.SetSizingPixels(s.Width);
+            fpsComp.SizeableHeight.SetSizingPixels(s.Height);
 
-            fpsComp.SizeablePosX.SetSizingPixels(0.0f);
             fpsComp.SizeablePosX.ParentBoundsInherited = EParentBoundsInheritedValue.Width;
             fpsComp.SizeablePosX.SmallerRelative = true;
-            fpsComp.SizeablePosY.SetSizingPixels(0.0f);
-            fpsComp.SizeablePosX.ParentBoundsInherited = EParentBoundsInheritedValue.Height;
-            fpsComp.SizeablePosY.SmallerRelative = true;
+            fpsComp.SizeablePosX.SetSizingPixels(0.0f);
 
-            fpsComp.TextureResolutionMultiplier = f.Size * 0.5f;
+            fpsComp.SizeablePosY.ParentBoundsInherited = EParentBoundsInheritedValue.Height;
+            fpsComp.SizeablePosY.SmallerRelative = false;
+            fpsComp.SizeablePosY.SetSizingPixels(0.0f);
+            fpsComp.SizeablePosY.Origin = fpsComp.SizeableHeight;
+
+            fpsComp.TextureResolutionMultiplier = f.Size;
             fpsComp.TextDrawer.Add(true, FPSText = new UIString2D()
             {
                 Font = f,
                 Format = sf,
                 Text = t,
-                TextColor = new ColorF4(1.0f, 0.0f, 0.0f, 1.0f),
+                TextColor = new ColorF4(0.1f, 1.0f, 0.1f, 1.0f),
             });
             canvas.ChildComponents.Add(fpsComp);
 

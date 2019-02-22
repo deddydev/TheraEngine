@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Windows.Forms;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -7,10 +8,31 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     {
         public PropGridIListElementWrapper() => InitializeComponent();
 
+        public override PropGridCategory ParentCategory
+        {
+            get => base.ParentCategory;
+            set
+            {
+                base.ParentCategory = value;
+                foreach (PropGridItem item in pnlEditors.Controls)
+                    item.ParentCategory = value;
+            }
+        }
+        public override Label Label
+        {
+            get => base.Label;
+            set
+            {
+                base.Label = value;
+                foreach (PropGridItem item in pnlEditors.Controls)
+                    item.Label = value;
+            }
+        }
+
         protected override bool UpdateDisplayInternal(object value)
         {
-            foreach (PropGridItem item in pnlEditors.Controls)
-                item.UpdateDisplay();
+            //foreach (PropGridItem item in pnlEditors.Controls)
+            //    item.UpdateDisplay();
             return true;
         }
         protected internal override void SetReferenceHolder(PropGridMemberInfo parentInfo)
@@ -25,14 +47,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 var items = TheraPropertyGrid.InstantiatePropertyEditors(types, parentInfo, DataChangeHandler);
                 foreach (var item in items)
                 {
-                    item.Dock = System.Windows.Forms.DockStyle.Top;
+                    item.Dock = DockStyle.Top;
                     item.AutoSize = true;
                     pnlEditors.Controls.Add(item);
                 }
             }
-
-            pnlEditors.Enabled = false;
-
+            
             btnRemove.Visible = !((parentInfo as PropGridMemberInfoIList)?.List?.IsFixedSize ?? true);
         }
         private void btnRemove_Click(object sender, EventArgs e)

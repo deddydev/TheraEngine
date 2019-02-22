@@ -695,9 +695,9 @@ namespace TheraEngine.Components
         public virtual bool IsRotatable => false;
         [Browsable(false)]
         public virtual bool IsScalable => false;
-
-        public int Index => ParentSocket?.ChildComponents?.IndexOf(this) ?? -1;
-
+        [Browsable(false)]
+        public int ParentSocketChildIndex => ParentSocket?.ChildComponents?.IndexOf(this) ?? -1;
+        
         public virtual void HandleWorldTranslation(Vec3 delta)
         {
             if (!IsTranslatable)

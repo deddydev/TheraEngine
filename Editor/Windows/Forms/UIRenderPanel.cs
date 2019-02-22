@@ -40,11 +40,12 @@ namespace TheraEngine
 
         public UIRenderPanel()
         {
-            //if (Engine.DesignMode)
-            //    return;
             Viewport v = AddViewport();
+
             GameMode = new UIGameModeType();
-            v.HUD = UI = new UIPawnType();
+            UI = new UIPawnType();
+
+            v.HUD = UI;
             v.Camera = UI.ScreenOverlayCamera;
         }
         public void FormShown()

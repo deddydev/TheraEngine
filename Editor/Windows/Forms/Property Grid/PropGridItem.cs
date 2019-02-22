@@ -35,13 +35,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public virtual PropGridCategory ParentCategory { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public PropGridMemberInfo MemberInfo { get; set; }
+        public PropGridMemberInfo MemberInfo { get; private set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public Type DataType => MemberInfo?.DataType;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public Label Label { get; set; }
+        public virtual Label Label { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public virtual bool ReadOnly { get; set; } = false;

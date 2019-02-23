@@ -67,7 +67,7 @@ namespace TheraEditor.Actors.Types.Pawns
         public Vec3 HitNormal => EditorHud.HitNormal;
         public float HitDistance => EditorHud.HitDistance;
         public Vec3 HitScreenPoint { get; private set; }
-        private EditorUI EditorHud => HUD?.File as EditorUI;
+        private EditorUI3D EditorHud => HUD?.File as EditorUI3D;
 
         private bool DragZooming => _ctrl && _leftClickDown;
 

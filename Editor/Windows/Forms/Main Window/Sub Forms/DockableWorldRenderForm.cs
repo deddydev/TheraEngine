@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
-                HUD = new EditorUI(RenderPanel.ClientSize),
+                HUD = new EditorUI3D(RenderPanel.ClientSize),
                 Name = $"Viewport{(FormIndex + 1).ToString()}_EditorCamera"
             };
             Text = $"Viewport {(FormIndex + 1).ToString()}";
@@ -145,7 +145,7 @@ namespace TheraEditor.Windows.Forms
 
             BaseRenderPanel.HoveredPanel = RenderPanel;
             RenderPanel.Focus();
-            EditorUI hud = EditorPawn.HUD.File as EditorUI;
+            EditorUI3D hud = EditorPawn.HUD.File as EditorUI3D;
             Engine.World.SpawnActor(actor, EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance);
             _prevTransformType = hud.TransformMode;
             hud.TransformMode = TransformType.DragDrop;
@@ -155,7 +155,7 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_DragLeave(object sender, EventArgs e)
         {
-            EditorUI hud = EditorPawn.HUD.File as EditorUI;
+            EditorUI3D hud = EditorPawn.HUD.File as EditorUI3D;
             if (hud?.DragComponent is null)
                 return;
 
@@ -179,7 +179,7 @@ namespace TheraEditor.Windows.Forms
             _dragInstance = null;
             _lastDraggedNode = null;
 
-            EditorUI hud = EditorPawn.HUD.File as EditorUI;
+            EditorUI3D hud = EditorPawn.HUD.File as EditorUI3D;
             if (hud?.DragComponent is null)
                 return;
 

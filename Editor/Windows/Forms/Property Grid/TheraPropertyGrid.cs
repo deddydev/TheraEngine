@@ -143,7 +143,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (_targetObject is SceneComponent sc && Engine.LocalPlayers.Count > 0)
             {
-                EditorUI hud = (EditorUI)Engine.LocalPlayers[0].ControlledPawn?.HUD;
+                EditorUI3D hud = Engine.LocalPlayers[0]?.ControlledPawn?.HUD?.File as EditorUI3D;
                 hud?.SetSelectedComponent(false, sc);
             }
 
@@ -300,28 +300,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private Queue<PropGridItem> VisibleItemsAdditionQueue { get; } = new Queue<PropGridItem>();
 
         private bool _updatingVisibleItems = false;
-        //private static DateTime _timeStartedUpdatingVisibleItems;
         internal void BeginUpdatingVisibleItems(float updateRateInSeconds)
         {
             if (_updatingVisibleItems)
                 return;
 
-            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
             _updatingVisibleItems = true;
-            //_timeStartedUpdatingVisibleItems = DateTime.Now;
+
+            int sleepTime = (int)(updateRateInSeconds * 1000.0f);
 
             Task.Run(() =>
             {
                 while (_updatingVisibleItems)
                 {
-                    //if (Engine.CurrentFramesPerSecond > 30.0f)
-                    {
-                        Parallel.For(0, VisibleItems.Count, UpdateItem);
-                        while (VisibleItemsRemovalQueue.Count > 0)
-                            VisibleItems.Remove(VisibleItemsRemovalQueue.Dequeue());
-                        while (VisibleItemsAdditionQueue.Count > 0)
-                            VisibleItems.Add(VisibleItemsAdditionQueue.Dequeue());
-                    }
+                    Parallel.For(0, VisibleItems.Count, UpdateItem);
+                    while (VisibleItemsRemovalQueue.Count > 0)
+                        VisibleItems.Remove(VisibleItemsRemovalQueue.Dequeue());
+                    while (VisibleItemsAdditionQueue.Count > 0)
+                        VisibleItems.Add(VisibleItemsAdditionQueue.Dequeue());
                     Thread.Sleep(sleepTime);
                 }
             });

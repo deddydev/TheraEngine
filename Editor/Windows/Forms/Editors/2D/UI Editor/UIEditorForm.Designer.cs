@@ -44,27 +44,27 @@ namespace TheraEditor.Windows.Forms
             // BodyPanel
             // 
             this.BodyPanel.Controls.Add(this.dockPanel1);
-            this.BodyPanel.Size = new System.Drawing.Size(993, 898);
+            this.BodyPanel.Size = new System.Drawing.Size(1025, 976);
             // 
             // MainPanel
             // 
-            this.MainPanel.Size = new System.Drawing.Size(993, 938);
+            this.MainPanel.Size = new System.Drawing.Size(1025, 1016);
             // 
             // TitlePanel
             // 
             this.TitlePanel.Controls.Add(this.PaddingPanel);
-            this.TitlePanel.Size = new System.Drawing.Size(993, 40);
+            this.TitlePanel.Size = new System.Drawing.Size(1025, 40);
             this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
             this.TitlePanel.Controls.SetChildIndex(this.PaddingPanel, 0);
             // 
             // FormTitle
             // 
-            this.FormTitle.Size = new System.Drawing.Size(822, 40);
+            this.FormTitle.Size = new System.Drawing.Size(854, 40);
             this.FormTitle.Text = "MaterialEditorForm";
             // 
             // MiddlePanel
             // 
-            this.MiddlePanel.Size = new System.Drawing.Size(993, 946);
+            this.MiddlePanel.Size = new System.Drawing.Size(1025, 1024);
             // 
             // dockPanel1
             // 
@@ -72,7 +72,7 @@ namespace TheraEditor.Windows.Forms
             this.dockPanel1.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
             this.dockPanel1.Location = new System.Drawing.Point(0, 0);
             this.dockPanel1.Name = "dockPanel1";
-            this.dockPanel1.Size = new System.Drawing.Size(993, 898);
+            this.dockPanel1.Size = new System.Drawing.Size(1025, 976);
             this.dockPanel1.TabIndex = 2;
             // 
             // PaddingPanel
@@ -82,7 +82,7 @@ namespace TheraEditor.Windows.Forms
             this.PaddingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PaddingPanel.Location = new System.Drawing.Point(44, 0);
             this.PaddingPanel.Name = "PaddingPanel";
-            this.PaddingPanel.Size = new System.Drawing.Size(822, 40);
+            this.PaddingPanel.Size = new System.Drawing.Size(854, 40);
             this.PaddingPanel.TabIndex = 18;
             // 
             // FormTitle2
@@ -93,7 +93,7 @@ namespace TheraEditor.Windows.Forms
             this.FormTitle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.FormTitle2.Location = new System.Drawing.Point(170, 0);
             this.FormTitle2.Name = "FormTitle2";
-            this.FormTitle2.Size = new System.Drawing.Size(652, 40);
+            this.FormTitle2.Size = new System.Drawing.Size(684, 40);
             this.FormTitle2.TabIndex = 19;
             this.FormTitle2.Text = "Title Text";
             this.FormTitle2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -112,13 +112,13 @@ namespace TheraEditor.Windows.Forms
             this.ModelEditorText.Text = "User Interface Editor";
             this.ModelEditorText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // HudEditorForm
+            // UIEditorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1001, 946);
+            this.ClientSize = new System.Drawing.Size(1033, 1024);
             this.Location = new System.Drawing.Point(0, 0);
-            this.Name = "HudEditorForm";
+            this.Name = "UIEditorForm";
             this.Text = "MaterialEditorForm";
             this.BodyPanel.ResumeLayout(false);
             this.MainPanel.ResumeLayout(false);

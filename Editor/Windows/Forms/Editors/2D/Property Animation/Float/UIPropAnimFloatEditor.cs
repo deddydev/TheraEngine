@@ -23,10 +23,10 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public class UIPropAnimFloatEditor : EditorUserInterface, I2DRenderable, IPreRendered
+    public class EditorUIPropAnimFloat : EditorUI2DBase, I2DRenderable, IPreRendered
     {
-        public UIPropAnimFloatEditor() : base() { }
-        public UIPropAnimFloatEditor(Vec2 bounds) : base(bounds) { }
+        public EditorUIPropAnimFloat() : base() { }
+        public EditorUIPropAnimFloat(Vec2 bounds) : base(bounds) { }
 
         protected UITextComponent _xCoord, _yCoord;
         protected UIString2D _xString, _yString;
@@ -95,6 +95,7 @@ namespace TheraEditor.Windows.Forms
                     _targetAnimation.LengthChanged += _position_LengthChanged;
                     _targetAnimation.CurrentPositionChanged += OnCurrentPositionChanged;
                     _targetAnimation.TickSelf = true;
+                    _targetAnimation.Progress(0.0f);
 
                     ZoomExtents();
                 }
@@ -643,6 +644,7 @@ void main()
                         {
                             FloatKeyframe kf = new FloatKeyframe(sec, val, 0.0f, EVectorInterpType.CubicHermite);
                             track.Add(kf);
+                            kf.GenerateTangents();
 
                             //This will update the animation position
                             _targetAnimation.Progress(0.0f);

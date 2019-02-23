@@ -66,7 +66,7 @@ namespace TheraEngine.Rendering.OpenGL
             131169,
             //131216,
             //131218,
-            //131076,
+            131076,
             //1282,
             //0,
             //9,

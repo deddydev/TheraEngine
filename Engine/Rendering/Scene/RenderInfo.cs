@@ -139,9 +139,9 @@ namespace TheraEngine.Rendering
         //[Browsable(false)]
         //public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
         [TSerialize]
-        public bool ReceivesShadows { get; set; } = false;
+        public bool ReceivesShadows { get; set; } = true;
         [TSerialize]
-        public bool CastsShadows { get; set; } = false;
+        public bool CastsShadows { get; set; } = true;
         [TSerialize]
         public bool VisibleInIBLCapture { get; set; } = true;
         

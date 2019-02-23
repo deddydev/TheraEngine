@@ -718,6 +718,9 @@ namespace TheraEngine.Components
 #if EDITOR
         protected void AddPreviewRenderCommand(RenderCommandMesh3D renderCommand, RenderPasses passes, Camera camera, bool scaleByDistance, float scale)
         {
+            if (passes.ShadowPass)
+                return;
+
             float camDist = camera.DistanceFromScreenPlane(WorldPoint);
             if (scaleByDistance)
                 scale *= camDist;

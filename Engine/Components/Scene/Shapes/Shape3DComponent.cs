@@ -21,7 +21,7 @@ namespace TheraEngine.Components.Scene.Shapes
     }
     public abstract class Shape3DComponent : TRComponent, IShape3DComponent
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(true, true);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
 
         [TSerialize]
         [Category(RenderingCategoryName)]

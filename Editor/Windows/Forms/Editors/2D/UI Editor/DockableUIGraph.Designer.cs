@@ -53,7 +53,7 @@
             this.dockingHostToolStripPanel1.RowMargin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.dockingHostToolStripPanel1.Size = new System.Drawing.Size(378, 0);
             // 
-            // DockableHudGraph
+            // DockableUIGraph
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -63,10 +63,10 @@
             this.CloseButtonVisible = false;
             this.Controls.Add(this.dockingHostToolStripPanel1);
             this.Controls.Add(this.RenderPanel);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.Name = "DockableHudGraph";
-            this.Text = "Material Graph";
+            this.Name = "DockableUIGraph";
+            this.Text = "UI View";
             this.ResumeLayout(false);
             this.PerformLayout();
 

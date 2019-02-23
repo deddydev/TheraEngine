@@ -24,14 +24,14 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class EditorUI : UserInterface
+    public class EditorUI3D : UserInterface
     {
-        public EditorUI() : base()
+        public EditorUI3D() : base()
         {
             TransformTool3D.Instance.MouseDown += Instance_MouseDown;
             TransformTool3D.Instance.MouseUp += Instance_MouseUp;
         }
-        public EditorUI(Vec2 bounds) : base(bounds)
+        public EditorUI3D(Vec2 bounds) : base(bounds)
         {
             TransformTool3D.Instance.MouseDown += Instance_MouseDown;
             TransformTool3D.Instance.MouseUp += Instance_MouseUp;
@@ -60,7 +60,7 @@ namespace TheraEditor.Windows.Forms
         [TSerialize]
         public float DraggingTestDistance { get; set; } = 20.0f;
         [TSerialize]
-        public double FPSUpdateIntervalSeconds { get; set; } = 0.3;
+        public double FPSUpdateIntervalSeconds { get; set; } = 1.0;
 
         public Vec3 HitPoint => _hitPoint;
         public Vec3 HitNormal => _hitNormal;
@@ -426,7 +426,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnSpawnedPostComponentSpawn();
 
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             _highlightPoint.RenderInfo.LinkScene(_highlightPoint, OwningScene3D);
             SubViewport.IsVisible = false;
         }
@@ -434,28 +434,30 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnDespawned();
 
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MouseMove);
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             _highlightPoint.RenderInfo.UnlinkScene();
         }
-        private float _averageFPS;
-        private void MouseMove(float delta)
+        private float _averageFPS = 0.0f;
+        private int _averageFPSCount = 1;
+        private void Tick(float delta)
         {
             DateTime now = DateTime.Now;
             if ((now - _lastFPSUpdateTime).TotalSeconds >= FPSUpdateIntervalSeconds)
             {
-                FPSText.Text = "FPS: " + Math.Round(_averageFPS, 0, MidpointRounding.AwayFromZero);
+                FPSText.Text = "FPS: " + Math.Round(_averageFPS / _averageFPSCount, 0, MidpointRounding.AwayFromZero);
+                _averageFPSCount = 1;
                 _averageFPS = Engine.RenderFrequency;
                 _lastFPSUpdateTime = now;
             }
             else
             {
                 _averageFPS += Engine.RenderFrequency;
-                _averageFPS *= 0.5f;
+                ++_averageFPSCount;
             }
 
-            MouseMove(false);
+            MouseMove();
         }
-        private void MouseMove(bool gamepad)
+        private void MouseMove()
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
             if (v != null)
@@ -467,25 +469,22 @@ namespace TheraEditor.Windows.Forms
         public void MouseMove(Viewport v, Vec2 viewportPoint)
         {
             SceneComponent dragComp = DragComponent;
+
+            //Transforming object?
             if (TransformTool3D.Instance.IsSpawned)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
-                if (TransformTool3D.Instance.MouseMove(cursor, v.Camera, MouseDown))
-                {
-                    if (!MouseDown)
-                        HighlightedComponent = TransformTool3D.Instance.RootComponent;
-                }
-                else
-                {
+                if (!TransformTool3D.Instance.MouseMove(cursor, v.Camera, MouseDown))
                     HighlightScene(v, viewportPoint);
-                }
+                else if (!MouseDown)
+                    HighlightedComponent = null;//TransformTool3D.Instance.RootComponent;
             }
-            else if (_currentConstraint != null)
+            else if (_currentConstraint != null) //Dragging physics object?
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
                 _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * DraggingTestDistance;
             }
-            else if (dragComp != null)
+            else if (dragComp != null) //Dragging and dropping object?
             {
                 IRigidBodyCollidable p = dragComp as IRigidBodyCollidable;
                 SceneComponent comp = v.PickScene(
@@ -525,7 +524,7 @@ namespace TheraEditor.Windows.Forms
                     up * _draggingUniformScale,
                     forward * _draggingUniformScale);
             }
-            else //Nothing selected
+            else //Not doing anything
             {
                 HighlightScene(v, viewportPoint);
             }

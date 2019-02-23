@@ -11,13 +11,14 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Textures;
 using TheraEngine.Worlds;
 
 namespace TheraEngine.Tests
 {
     public class TestWorld : World
     {
-        public override void BeginPlay()
+        public override async void BeginPlay()
         {
             Settings = new WorldSettings("TestWorld")
             {
@@ -99,7 +100,9 @@ namespace TheraEngine.Tests
             //    new Vec3(20.0f, 0.0f, 0.0f),
             //    new Rotator(0.0f, 0.0f, 20.0f, RotationOrder.YPR),
             //    Material.GetLitColorMaterial(Color.Green));
-
+            TextureFile2D skyTex = await Engine.Files.LoadEngineTexture2DAsync("modelviewerbg2.png");
+            SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
+            actors.Add(skyboxActor);
             //PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()
             //{
             //    Mass = 20.0f,
@@ -147,7 +150,6 @@ namespace TheraEngine.Tests
 
             ColladaImportOptions objOptions = new ColladaImportOptions()
             {
-                //UseForwardShaders = Engine.Settings.ShadingStyle3D == ShadingStyle.Forward,
                 InitialTransform = new Transform(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
@@ -229,6 +231,10 @@ namespace TheraEngine.Tests
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
             spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
             actors.Add(spawn);
+
+            IBLProbeGridActor ibl = new IBLProbeGridActor();
+            ibl.AddProbe(new Vec3(0.0f, 100.0f, 0.0f));
+            actors.Add(ibl);
 
             //Actor<BlockingVolumeComponent> block = new Actor<BlockingVolumeComponent>(new BlockingVolumeComponent(
             //        new Vec3(500.0f, 10.0f, 500.0f),

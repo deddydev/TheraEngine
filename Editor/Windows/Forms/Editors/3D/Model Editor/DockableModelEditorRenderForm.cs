@@ -25,7 +25,7 @@ namespace TheraEditor.Windows.Forms
                 MouseTranslateSpeed = 0.02f,
                 ScrollSpeed = 0.5f,
                 GamepadTranslateSpeed = 15.0f,
-                HUD = new EditorUI(RenderPanel.ClientSize),
+                HUD = new EditorUI3D(RenderPanel.ClientSize),
                 Name = string.Format("ModelViewport{0}_EditorCamera", (FormIndex + 1).ToString()),
             };
             Text = string.Format("Model Viewport {0}", (FormIndex + 1).ToString());
@@ -93,13 +93,11 @@ namespace TheraEditor.Windows.Forms
             Form.World.SpawnActor(EditorPawn);
             base.OnShown(e);
         }
-        
         protected override void OnClosed(EventArgs e)
         {
             Form.World.DespawnActor(EditorPawn);
             base.OnClosed(e);
         }
-        
         //protected override void OnResizeBegin(EventArgs e)
         //{
         //    RenderPanel.BeginResize();

@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models
     public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; }
-            = new RenderInfo3D(false, false) { CastsShadows = false, ReceivesShadows = false };
+            = new RenderInfo3D(false, true) { CastsShadows = false, ReceivesShadows = false };
         
         public Skeleton() : base()
         {

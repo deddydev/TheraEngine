@@ -33,6 +33,8 @@ namespace TheraEngine.Components.Scene.Shapes
             {
                 base.RenderInfo = value;
                 RenderInfo.CullingVolume = _shape;
+                RenderInfo.CastsShadows = false;
+                RenderInfo.ReceivesShadows = false;
             }
         }
 

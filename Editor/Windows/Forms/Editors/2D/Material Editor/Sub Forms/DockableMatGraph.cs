@@ -49,7 +49,8 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.FormClosed();
             base.OnClosed(e);
         }
-
+        private void RenderPanel_MouseEnter(object sender, EventArgs e) => Cursor.Hide();
+        private void RenderPanel_MouseLeave(object sender, EventArgs e) => Cursor.Show();
         public void AlignView(BoundingRectangleF bounds)
         {
             ////Get aspect of the front plane of the aabb

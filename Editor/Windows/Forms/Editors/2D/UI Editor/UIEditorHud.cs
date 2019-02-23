@@ -11,7 +11,7 @@ using TheraEngine.Rendering.UI;
 namespace TheraEditor.Windows.Forms
 {
     public delegate void DelUIComponentSelect(UIComponent comp);
-    public class UIEditorUI : EditorUserInterface, I2DRenderable
+    public class UIEditorUI : EditorUI2DBase, I2DRenderable
     {
         public UIEditorUI() : base()
         {

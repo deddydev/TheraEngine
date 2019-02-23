@@ -151,5 +151,13 @@ namespace TheraEngine.Animation
                     break;
             }
         }
+
+        public void GenerateTangents()
+        {
+            float valueDiff = (Next?.InValue ?? InValue) - (Prev?.OutValue ?? OutValue);
+            float secDiff = (Next?.Second ?? Second) - (Prev?.Second ?? Second);
+            if (secDiff != 0.0f)
+                InTangent = -(OutTangent = valueDiff / secDiff);
+        }
     }
 }

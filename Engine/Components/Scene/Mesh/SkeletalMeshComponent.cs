@@ -89,7 +89,7 @@ namespace TheraEngine.Components.Scene.Mesh
 
                 if (_modelRef != null)
                 {
-                    _modelRef.UnregisterLoadEvent(_modelRef_Loaded);
+                    _modelRef.UnregisterLoadEvent(ModelLoaded);
                 }
 
                 if (Meshes != null)
@@ -103,7 +103,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
 
                 _modelRef = value ?? new GlobalFileRef<SkeletalModel>();
-                _modelRef.RegisterLoadEvent(_modelRef_Loaded);
+                _modelRef.RegisterLoadEvent(ModelLoaded);
             }
         }
 
@@ -126,26 +126,36 @@ namespace TheraEngine.Components.Scene.Mesh
 
                 if (_skeletonRef != null)
                 {
-                    _skeletonRef.UnregisterLoadEvent(_skeletonRef_Loaded);
+                    _skeletonRef.UnregisterLoadEvent(SkeletonLoaded);
+                    _skeletonRef.UnregisterUnloadEvent(SkeletonUnloaded);
 
                     if (_skeletonRef.IsLoaded)
                         _skeletonRef.File.OwningComponent = null;
                 }
 
                 _skeletonRef = value ?? new LocalFileRef<Skeleton>();
-                _skeletonRef.RegisterLoadEvent(_skeletonRef_Loaded);
+                _skeletonRef.RegisterLoadEvent(SkeletonLoaded);
+                _skeletonRef.RegisterUnloadEvent(SkeletonUnloaded);
             }
         }
 
-        private void _skeletonRef_Loaded(Skeleton skel)
+        private void SkeletonUnloaded(Skeleton skel)
+        {
+            if (IsSpawned)
+                TargetSkeleton?.RenderInfo?.UnlinkScene();
+        }
+        private void SkeletonLoaded(Skeleton skel)
         {
             if (ModelRef == null || !ModelRef.IsLoaded)
                 return;
-            
+
             if (IsSpawned)
+            {
                 MakeMeshes(ModelRef.File, skel);
+                TargetSkeleton?.RenderInfo?.LinkScene(TargetSkeleton, OwningScene3D);
+            }
         }
-        private async void _modelRef_Loaded(SkeletalModel model)
+        private async void ModelLoaded(SkeletalModel model)
         {
             if (IsSpawned)
             {
@@ -169,30 +179,30 @@ namespace TheraEngine.Components.Scene.Mesh
             if (model == null)
                 return;
 
-            _targetSkeleton = skeletonOverride ?? await model.SkeletonRef?.GetInstanceAsync();
+            TargetSkeleton = skeletonOverride ?? await model.SkeletonRef?.GetInstanceAsync();
 
-            if (_targetSkeleton == null)
+            if (TargetSkeleton == null)
                 return;
 
-            _targetSkeleton.OwningComponent = this;
+            TargetSkeleton.OwningComponent = this;
 
             Meshes = new SkeletalRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
             for (int i = 0; i < model.RigidChildren.Count; ++i)
             {
-                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], _targetSkeleton, this);
+                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.RigidChildren[i], TargetSkeleton, this);
                 mesh.RenderInfo.LinkScene(mesh, OwningScene3D);
                 Meshes[i] = mesh;
             }
             for (int i = 0; i < model.SoftChildren.Count; ++i)
             {
-                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], _targetSkeleton, this);
+                SkeletalRenderableMesh mesh = new SkeletalRenderableMesh(model.SoftChildren[i], TargetSkeleton, this);
                 mesh.RenderInfo.LinkScene(mesh, OwningScene3D);
                 Meshes[model.RigidChildren.Count + i] = mesh;
             }
-            if (_targetSkeleton != null)
+            if (TargetSkeleton != null)
             {
                 AbstractPhysicsWorld world = OwningWorld.PhysicsWorld3D;
-                foreach (Bone b in _targetSkeleton.GetPhysicsDrivableBones())
+                foreach (Bone b in TargetSkeleton.GetPhysicsDrivableBones())
                 {
                     TConstraint constraint = b.ParentPhysicsConstraint;
                     if (constraint != null)
@@ -208,12 +218,12 @@ namespace TheraEngine.Components.Scene.Mesh
         public SkeletalRenderableMesh[] Meshes { get; private set; }
         [Browsable(false)]
         public bool PreRenderEnabled { get; set; } = true;
-
-        private Skeleton _targetSkeleton;
+        [Browsable(false)]
+        public Skeleton TargetSkeleton { get; private set; }
 
         public void SetAllSimulatingPhysics(bool doSimulation)
         {
-            foreach (Bone b in _targetSkeleton)
+            foreach (Bone b in TargetSkeleton)
                 if (b.RigidBodyCollision != null)
                     b.RigidBodyCollision.SimulatingPhysics = doSimulation;
         }
@@ -222,6 +232,7 @@ namespace TheraEngine.Components.Scene.Mesh
             var model = await ModelRef?.GetInstanceAsync();
             var skeletonOverride = await SkeletonOverrideRef?.GetInstanceAsync();
             MakeMeshes(model, skeletonOverride);
+            TargetSkeleton?.RenderInfo?.LinkScene(TargetSkeleton, OwningScene3D);
             base.OnSpawned();
         }
         public override void OnDespawned()
@@ -236,10 +247,10 @@ namespace TheraEngine.Components.Scene.Mesh
                     }
                 }
 
-            if (_targetSkeleton != null)
+            if (TargetSkeleton != null)
             {
                 AbstractPhysicsWorld world = OwningWorld.PhysicsWorld3D;
-                foreach (Bone b in _targetSkeleton.GetPhysicsDrivableBones())
+                foreach (Bone b in TargetSkeleton.GetPhysicsDrivableBones())
                 {
                     TConstraint constraint = b.ParentPhysicsConstraint;
                     if (constraint != null)
@@ -248,6 +259,7 @@ namespace TheraEngine.Components.Scene.Mesh
                     if (body != null)
                         world.RemoveCollisionObject(body);
                 }
+                TargetSkeleton.RenderInfo.UnlinkScene();
             }
 
             base.OnDespawned();
@@ -255,7 +267,7 @@ namespace TheraEngine.Components.Scene.Mesh
         public override void RecalcWorldTransform()
         {
             base.RecalcWorldTransform();
-            _targetSkeleton?.WorldMatrixChanged();
+            TargetSkeleton?.WorldMatrixChanged();
         }
         
         public void PreRenderUpdate(Camera camera)
@@ -264,11 +276,11 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         public void PreRenderSwap()
         {
-            _targetSkeleton?.SwapBuffers();
+            TargetSkeleton?.SwapBuffers();
         }
         public void PreRender(Viewport viewport, Camera camera)
         {
-            _targetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
+            TargetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
         }
 
         protected internal override void OnHighlightChanged(bool highlighted)

@@ -26,9 +26,9 @@ namespace TheraEditor.Windows.Forms
             if (!Editor.Instance.PropertyGridFormActive)
                 return;
 
-            EditorUI hud = null;
+            EditorUI3D hud = null;
             if (Engine.LocalPlayers.Count > 0)
-                hud = (EditorUI)Engine.LocalPlayers[0].ControlledPawn?.HUD;
+                hud = (EditorUI3D)Engine.LocalPlayers[0].ControlledPawn?.HUD;
             
             if (ActorTree.SelectedNode == null)
             {
@@ -65,13 +65,11 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
+            ClearMaps();
+
             if (Engine.World == null || Engine.ShuttingDown)
                 return;
-
-            _dynamicActorsMapNode = null;
-            _mapTreeNodes.Clear();
-            ActorTree.Nodes.Clear();
-
+            
             Engine.World.Settings.Maps.ForEach(x => CacheMap(x));
             Engine.World.State.SpawnedActors.ForEach(ActorSpawned);
         }
@@ -229,6 +227,18 @@ namespace TheraEditor.Windows.Forms
             
             targetMap.Actors.Add(newActor);
             Engine.World.SpawnActor(newActor);
+        }
+
+        public void ClearMaps()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)ClearMaps);
+                return;
+            }
+            _dynamicActorsMapNode = null;
+            _mapTreeNodes.Clear();
+            ActorTree.Nodes.Clear();
         }
     }
 }

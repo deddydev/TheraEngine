@@ -8,6 +8,7 @@ using TheraEngine.Animation;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using WeifenLuo.WinFormsUI.Docking;
+using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -22,7 +23,11 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.GotFocus += RenderPanel_GotFocus;
             RenderPanel.MouseEnter += RenderPanel_MouseEnter;
             RenderPanel.MouseLeave += RenderPanel_MouseLeave;
+
             GameMode = new PropAnimFloatEditorGameMode() { RenderPanel = RenderPanel };
+
+            tearOffToolStrip1.RenderMode = ToolStripRenderMode.Professional;
+            tearOffToolStrip1.Renderer = new TheraToolstripRenderer();
         }
         public DockablePropAnimFloatGraph(PropAnimFloat anim) : this()
         {
@@ -46,15 +51,8 @@ namespace TheraEditor.Windows.Forms
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = value;
             }
         }
-
-        private void RenderPanel_MouseEnter(object sender, EventArgs e)
-        {
-            Cursor.Hide();
-        }
-        private void RenderPanel_MouseLeave(object sender, EventArgs e)
-        {
-            Cursor.Show();
-        }
+        private void RenderPanel_MouseEnter(object sender, EventArgs e) => Cursor.Hide();
+        private void RenderPanel_MouseLeave(object sender, EventArgs e) => Cursor.Show();
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             Editor.SetActiveEditorControl(this);
@@ -77,6 +75,10 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.FormClosed();
             base.OnClosing(e);
         }
+        private void btnZoomExtents_Click(object sender, EventArgs e)
+        {
+            RenderPanel.UI.ZoomExtents();
+        }
     }
     public class PropAnimFloatPlayerController : LocalPlayerController
     {
@@ -84,6 +86,6 @@ namespace TheraEditor.Windows.Forms
         public PropAnimFloatPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
     }
-    public class PropAnimFloatGraphRenderPanel : UIRenderPanel<UIPropAnimFloatEditor, PropAnimFloatEditorGameMode, PropAnimFloatPlayerController> { }
-    public class PropAnimFloatEditorGameMode : UIGameMode<UIPropAnimFloatEditor, PropAnimFloatPlayerController> { }
+    public class PropAnimFloatGraphRenderPanel : UIRenderPanel<EditorUIPropAnimFloat, PropAnimFloatEditorGameMode, PropAnimFloatPlayerController> { }
+    public class PropAnimFloatEditorGameMode : UIGameMode<EditorUIPropAnimFloat, PropAnimFloatPlayerController> { }
 }

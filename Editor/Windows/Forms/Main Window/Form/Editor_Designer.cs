@@ -193,6 +193,40 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
+        protected override void OnShown(EventArgs e)
+        {
+            Engine.PreWorldChanged += Engine_PreWorldChanged;
+            Engine.PostWorldChanged += Engine_PostWorldChanged;
+        }
+        private void Engine_PreWorldChanged()
+        {
+
+        }
+        private void Engine_PostWorldChanged()
+        {
+            var sref = Engine.World?.SettingsRef;
+            if (sref != null)
+            {
+                sref.RegisterLoadEvent(WorldSettingsLoaded);
+                sref.RegisterUnloadEvent(WorldSettingsUnloaded);
+            }
+            ActorTreeForm.GenerateInitialActorList();
+        }
+        private void WorldSettingsUnloaded(WorldSettings settings)
+        {
+            if (settings != null)
+                settings.Maps.CollectionChanged -= Maps_CollectionChanged;
+        }
+        private void WorldSettingsLoaded(WorldSettings settings)
+        {
+            if (settings != null)
+                settings.Maps.CollectionChanged += Maps_CollectionChanged;
+        }
+        private void Maps_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            ActorTreeForm.ClearMaps();
+        }
+
         #region World Management
         /// <summary>
         /// The world that the editor is currently editing.
@@ -697,15 +731,19 @@ namespace TheraEditor.Windows.Forms
             BaseGameMode gameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
             Engine.SetActiveGameMode(gameMode, false);
             InputInterface.GlobalRegisters.Add(RegisterInput);
+            ActorTreeForm.ClearMaps();
             Engine.World.BeginPlay();
             Engine.Unpause(ELocalPlayerIndex.One, true);
-            GameplayPawn = Engine.LocalPlayers[0].ControlledPawn;
+            if (Engine.LocalPlayers.Count > 0)
+                GameplayPawn = Engine.LocalPlayers[0].ControlledPawn;
         }
+
         private void SetEditingMode()
         {
             Engine.World.EndPlay();
             Engine.SetActiveGameMode(_editorGameMode, false);
             InputInterface.GlobalRegisters.Remove(RegisterInput);
+            ActorTreeForm.ClearMaps();
             Engine.World.BeginPlay();
             Engine.Pause(ELocalPlayerIndex.One, true);
             GameplayPawn = null;

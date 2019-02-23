@@ -21,11 +21,11 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public abstract class EditorUserInterface : UserInterface, I2DRenderable
+    public abstract class EditorUI2DBase : UserInterface, I2DRenderable
     {
-        public EditorUserInterface() : base()
+        public EditorUI2DBase() : base()
             => _rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
-        public EditorUserInterface(Vec2 bounds) : base(bounds)
+        public EditorUI2DBase(Vec2 bounds) : base(bounds)
             =>_rcMethod = new RenderCommandMethod2D(ERenderPass.OnTopForward, RenderMethod);
 
         protected UIMaterialRectangleComponent _backgroundComponent;
@@ -142,7 +142,7 @@ namespace TheraEditor.Windows.Forms
             comp.RenderInfo.VisibleByDefault = true;
             comp.SizeableHeight.SetSizingPixels(height);
             comp.SizeableWidth.SetSizingPixels(width);
-            comp.TextureResolutionMultiplier = UIFont.Size * 0.5f;
+            comp.TextureResolutionMultiplier = UIFont.Size;
             str = new UIString2D()
             {
                 Font = UIFont,

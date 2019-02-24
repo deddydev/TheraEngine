@@ -75,9 +75,9 @@ namespace TheraEngine.Tests
             bool testShapeTracer = false;
             bool testLandscape = true;
             bool createWalls = true;
-            int pointLights = 2;
+            int pointLights = 0;
             int dirLights = 0;
-            int spotLights = 0;
+            int spotLights = 3;
 
             float margin = 2.0f;
             float radius = 1.0f;
@@ -92,7 +92,7 @@ namespace TheraEngine.Tests
             BaseActor actor;
 
             #region Meshes
-            int count = 4;
+            int count = 10;
             int y = 0;
 
             Random rand = new Random((int)DateTime.Now.Ticks);
@@ -104,7 +104,7 @@ namespace TheraEngine.Tests
                 {
                     float xV = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
                     float zV = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
-                    TMaterial mat = TMaterial.CreateLitColorMaterial(sphereColor/*new ColorF4(xV, zV, 0.0f, 1.0f)*/);
+                    TMaterial mat = TMaterial.CreateLitColorMaterial(new ColorF4(xV, zV, 0.0f, 1.0f));
                     mat.RenderParams.StencilTest = Editor.EditorState.OutlinePassStencil;
                     //mat.Requirements = TMaterial.UniformRequirements.NeedsCamera;
                     //mat.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
@@ -132,9 +132,9 @@ namespace TheraEngine.Tests
                         CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
                         CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
                     };
-                    Actor<StaticMeshComponent> sphere = ((x ^ z) & 1) == 0 ?
-                        (Actor<StaticMeshComponent>)new ConeActor("TestCone" + (y++).ToString(), radius, radius * 2.0f, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo) :
-                        new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo);
+                    Actor<StaticMeshComponent> sphere = //((x ^ z) & 1) == 0 ?
+                        //(Actor<StaticMeshComponent>)new ConeActor("TestCone" + (y++).ToString(), radius, radius * 2.0f, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo, 20) :
+                        new SphereActor("TestSphere" + (y++).ToString(), radius, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo, 20);
 
                     //sphere.RootComponent.RigidBodyCollision.AngularVelocity = new Vec3(
                     //    rand.Next(-halfMax, halfMax) / maxVel,
@@ -180,12 +180,12 @@ namespace TheraEngine.Tests
                     new Rotator(0.0f, 0.0f, 0.0f),
                     new Rotator(90.0f, 0.0f, 0.0f),
                     new Rotator(180.0f, 0.0f, 0.0f),
-                    new Rotator(270.0f, 0.0f, 0.0f),
+                    new Rotator(-90.0f, 0.0f, 0.0f),
                     new Rotator(90.0f, 90.0f, 0.0f),
                     new Rotator(90.0f, -90.0f, 0.0f),
                 };
 
-                for (int i = 0; i < 1; ++i)
+                for (int i = 0; i < 6; ++i)
                 {
                     Rotator r = rotations[i];
                     actor = new BoxActor("Wall" + i,
@@ -379,7 +379,7 @@ namespace TheraEngine.Tests
             //}
             //iblProbes.AddProbe(new Vec3(50.0f, 0.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(-51.0f, 0.0f, 0.0f));
-            iblProbes.AddProbe(new Vec3(0.0f, 100.0f, 0.0f));
+            iblProbes.AddProbe(new Vec3(0.0f, 0.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(0.0f, -53.0f, 0.0f));
             //iblProbes.AddProbe(new Vec3(10.0f, 0.0f, 54.0f));
             //iblProbes.AddProbe(new Vec3(0.0f, 0.0f, -55.0f));

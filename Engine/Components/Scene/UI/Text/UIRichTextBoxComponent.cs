@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering.UI.Text
     {
         public UIRichTextBoxComponent() : base()
         {
-            TextDrawer.Add(Text);
+            TextDrawer.Text.Add(Text);
         }
 
         public override Vec2 Resize(Vec2 parentBounds)

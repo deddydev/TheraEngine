@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,6 +14,7 @@ using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
@@ -140,15 +142,14 @@ namespace TheraEditor.Windows.Forms
         #endregion
 
         private LocalFileRef<World> ModelEditorWorld
-            = new LocalFileRef<World>(/*Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
+            = new LocalFileRef<World>(/*Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
 
         public async Task InitWorldAsync()
         {
-            //bool loaded = ModelEditorWorld.IsLoaded;
             //bool fileDoesNotExist = !ModelEditorWorld.FileExists;
-            World world = await ModelEditorWorld.GetInstanceAsync();
-            if (world == null)
-            {
+            World world;// = await ModelEditorWorld.GetInstanceAsync();
+            //if (world == null)
+            //{
                 List<BaseActor> actors = new List<BaseActor>();
 
                 DirectionalLightActor light = new DirectionalLightActor();
@@ -166,29 +167,17 @@ namespace TheraEditor.Windows.Forms
 
                 IBLProbeGridActor iblProbes = new IBLProbeGridActor();
                 iblProbes.AddProbe(Vec3.Zero);
-                //iblProbes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
                 actors.Add(iblProbes);
 
                 ModelEditorWorld.File = world = new World()
                 {
                     Settings = new WorldSettings("ModelEditorWorld", new Map(actors)),
                 };
-
-                world.BeginPlay();
-                iblProbes.InitAndCaptureAll(256);
-            }
-            else
-            {
-                world.BeginPlay();
-                IBLProbeGridActor[] ibl = world.State.GetSpawnedActorsOfType<IBLProbeGridActor>().ToArray();
-                if (ibl.Length > 0)
-                    ibl[0]?.InitAndCaptureAll(256);
-            }
+            //}
+            world.BeginPlay();
             
-            //DirectionalLightActor light = w.State.GetSpawnedActorsOfType<DirectionalLightActor>().ToArray()[0];
-            //w.Scene.Add(light.RootComponent.ShadowCamera);
             //if (fileDoesNotExist)
-            //    ModelEditorWorld.File.Export(Engine.EngineWorldsPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
+            //    await ModelEditorWorld.File.ExportAsync(Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
         }
 
         public World World => ModelEditorWorld.File;        
@@ -215,9 +204,7 @@ namespace TheraEditor.Windows.Forms
         public async void SetModel(StaticModel stm)
         {
             if (World == null)
-            {
                 await InitWorldAsync();
-            }
 
             FormTitle2.Text = stm?.FilePath ?? stm?.Name ?? string.Empty;
 
@@ -256,7 +243,7 @@ namespace TheraEditor.Windows.Forms
             TargetActor.LogicComponents.Add(machine);
             World.SpawnActor(TargetActor);
             if (chkViewBones.Checked)
-                World.Scene.Add(skel);
+                World.Scene?.Add(skel);
 
             MeshList.DisplayMeshes(comp);
             MaterialList.DisplayMaterials(skm);
@@ -281,7 +268,7 @@ namespace TheraEditor.Windows.Forms
             //Editor.Instance.SetRenderTicking(true);
             World.DespawnActor(TargetActor);
             if (Model is SkeletalModel skm && skm.SkeletonRef?.IsLoaded == true)
-                World.Scene.Remove(skm.SkeletonRef.File);
+                World.Scene?.Remove(skm.SkeletonRef.File);
             base.OnClosed(e);
         }
 
@@ -301,14 +288,6 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void SwapBuffers()
-        {
-            World.Scene?.GlobalSwap();
-            for (int i = 0; i < 4; ++i)
-                if (RenderFormActive(i))
-                    GetRenderForm(i).RenderPanel.SwapBuffers();
-        }
-
         private void UpdateTick(object sender, FrameEventArgs e)
         {
             World.Scene?.GlobalUpdate();
@@ -316,37 +295,76 @@ namespace TheraEditor.Windows.Forms
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.UpdateTick(sender, e);
         }
-        private void RenderTick(object sender, FrameEventArgs e)
+        private void SwapBuffers()
         {
-            //try { Invoke((Action)Redraw); } catch { }
-            Redraw();
+            World.Scene?.GlobalSwap();
+            for (int i = 0; i < 4; ++i)
+                if (RenderFormActive(i))
+                    GetRenderForm(i).RenderPanel.SwapBuffers();
         }
-        private void Redraw()
+        private void RenderTick(object sender, FrameEventArgs e)
         {
             RenderForm1.RenderPanel.CaptureContext();
 
-            World.Scene.GlobalPreRender();
+            World.Scene?.GlobalPreRender();
             for (int i = 0; i < 4; ++i)
                 if (RenderFormActive(i))
                     GetRenderForm(i).RenderPanel.Invalidate();
-
-            //Application.DoEvents();
         }
 
-        private void btnViewport1_Click         (object sender, EventArgs e) => RenderForm1.Focus();
-        private void btnViewport2_Click         (object sender, EventArgs e) => RenderForm2.Focus();
-        private void btnViewport3_Click         (object sender, EventArgs e) => RenderForm3.Focus();
-        private void btnViewport4_Click         (object sender, EventArgs e) => RenderForm4.Focus();
-        private void btnMeshList_Click          (object sender, EventArgs e) => MeshList.Focus();
-        private void btnMaterialList_Click      (object sender, EventArgs e) => MaterialList.Focus();
-        private void btnSkeleton_Click          (object sender, EventArgs e) => BoneTreeForm.Focus();
-        private void chkViewNormals_Click       (object sender, EventArgs e) => chkViewNormals.Checked          = !chkViewNormals.Checked;
-        private void chkViewBinormals_Click     (object sender, EventArgs e) => chkViewBinormals.Checked        = !chkViewBinormals.Checked;
-        private void chkViewTangents_Click      (object sender, EventArgs e) => chkViewTangents.Checked         = !chkViewTangents.Checked;
-        private void chkViewWireframe_Click     (object sender, EventArgs e) => chkViewWireframe.Checked        = !chkViewWireframe.Checked;
-        private void chkViewCollisions_Click    (object sender, EventArgs e) => chkViewCollisions.Checked       = !chkViewCollisions.Checked;
-        private void chkViewCullingVolumes_Click(object sender, EventArgs e) => chkViewCullingVolumes.Checked   = !chkViewCullingVolumes.Checked;
-        private void chkViewConstraints_Click   (object sender, EventArgs e) => chkViewConstraints.Checked      = !chkViewConstraints.Checked;
+        private void btnViewport1_Click     (object sender, EventArgs e) => RenderForm1.Focus();
+        private void btnViewport2_Click     (object sender, EventArgs e) => RenderForm2.Focus();
+        private void btnViewport3_Click     (object sender, EventArgs e) => RenderForm3.Focus();
+        private void btnViewport4_Click     (object sender, EventArgs e) => RenderForm4.Focus();
+        private void btnMeshList_Click      (object sender, EventArgs e) => MeshList.Focus();
+        private void btnMaterialList_Click  (object sender, EventArgs e) => MaterialList.Focus();
+        private void btnSkeleton_Click      (object sender, EventArgs e) => BoneTreeForm.Focus();
+
+        private void chkViewNormals_Click(object sender, EventArgs e)
+        {
+            chkViewNormals.Checked = !chkViewNormals.Checked;
+        }
+        private void chkViewBinormals_Click(object sender, EventArgs e)
+        {
+            chkViewBinormals.Checked = !chkViewBinormals.Checked;
+        }
+        private void chkViewTangents_Click(object sender, EventArgs e)
+        {
+            chkViewTangents.Checked = !chkViewTangents.Checked;
+        }
+        private void chkViewWireframe_Click(object sender, EventArgs e)
+        {
+            chkViewWireframe.Checked = !chkViewWireframe.Checked;
+        }
+        private void chkViewCollisions_Click(object sender, EventArgs e)
+        {
+            chkViewCollisions.Checked = !chkViewCollisions.Checked;
+        }
+        private void chkViewConstraints_Click(object sender, EventArgs e)
+        {
+            chkViewConstraints.Checked = !chkViewConstraints.Checked;
+        }
+        private void chkViewCullingVolumes_Click(object sender, EventArgs e)
+        {
+            chkViewCullingVolumes.Checked = !chkViewCullingVolumes.Checked;
+            var comp = TargetActor?.RootComponentGeneric;
+            RenderInfo3D r3D;
+            switch (comp)
+            {
+                case SkeletalMeshComponent skelComp:
+                    if (skelComp.Meshes != null)
+                        foreach (var mesh in skelComp.Meshes)
+                            if ((r3D = mesh?.RenderInfo?.CullingVolume?.RenderInfo) != null)
+                                r3D.Visible = chkViewCullingVolumes.Checked;
+                    break;
+                case StaticMeshComponent staticComp:
+                    if (staticComp.Meshes != null)
+                        foreach (var mesh in staticComp.Meshes)
+                            if ((r3D = mesh?.RenderInfo?.CullingVolume?.RenderInfo) != null)
+                                r3D.Visible = chkViewCullingVolumes.Checked;
+                    break;
+            }
+        }
         private void chkViewBones_Click(object sender, EventArgs e)
         {
             chkViewBones.Checked = !chkViewBones.Checked;

@@ -604,19 +604,6 @@ namespace TheraEditor
 
         public EngineLogger LastBuildLog { get; private set; }
 
-        public void DisplayLastBuildLog()
-        {
-            if (Editor.Instance.InvokeRequired)
-                Editor.Instance.BeginInvoke((Action)ShowErrorForm);
-            else
-                ShowErrorForm();
-        }
-        private void ShowErrorForm()
-        {
-            Editor.Instance.ErrorListForm.Show(Editor.Instance.DockPanel, WeifenLuo.WinFormsUI.Docking.DockState.Document);
-            Editor.Instance.ErrorListForm.SetLog(LastBuildLog);
-        }
-
         public async Task CompileAsync()
             => await Task.Run(() => Compile());
         public async Task CompileAsync(string buildConfiguration, string buildPlatform)
@@ -727,7 +714,8 @@ namespace TheraEditor
                 string[] files = Directory.GetFiles(dir);
                 foreach (string path in files)
                 {
-                    string localPath = LocalSourceDirectory + path.MakeAbsolutePathRelativeTo(SourceDirectory).Substring(1);
+                    string relPath = path.MakeAbsolutePathRelativeTo(SourceDirectory);
+                    string localPath = LocalSourceDirectory + relPath;
                     if (localPath.EndsWith("cs", StringComparison.InvariantCultureIgnoreCase))
                     {
                         codeFilesRef.Add(localPath);
@@ -862,6 +850,16 @@ namespace TheraEditor
             public void TaskFinishedHandler(object sender, TaskFinishedEventArgs e)
             {
                 PrintLine($"Finished task {e.TaskName}");
+            }
+            public void Display()
+            {
+                if (Editor.Instance.InvokeRequired)
+                {
+                    Editor.Instance.BeginInvoke((Action)Display);
+                    return;
+                }
+                Editor.Instance.ErrorListForm.Show(Editor.Instance.DockPanel, WeifenLuo.WinFormsUI.Docking.DockState.DockBottom);
+                Editor.Instance.ErrorListForm.SetLog(this);
             }
         }
     }

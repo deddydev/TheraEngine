@@ -448,9 +448,9 @@ void main()
             max = new Vec2(maxX, maxY);
             return true;
         }
-        public override void ZoomExtents()
+        public override void ZoomExtents(bool adjustScale = true)
         {
-            base.ZoomExtents();
+            base.ZoomExtents(adjustScale);
             UpdateSplinePrimitive();
         }
         protected override UICanvasComponent OnConstructRoot()

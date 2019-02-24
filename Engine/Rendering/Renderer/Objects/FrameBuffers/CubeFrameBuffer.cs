@@ -15,6 +15,7 @@ namespace TheraEngine.Rendering
         private PrimitiveManager _cube;
 
         public Camera[] Cameras { get; }
+        public Vec3 Position { get; private set; }
 
         public CubeFrameBuffer(TMaterial mat, float nearZ = 1.0f, float farZ = 1000.0f, bool perspectiveCameras = true)
         {
@@ -61,6 +62,13 @@ namespace TheraEngine.Rendering
             Engine.Renderer.PushCamera(Cameras[(int)face]);
             _cube.Render();
             Engine.Renderer.PopCamera();
+        }
+
+        public void SetTransform(Vec3 point)
+        {
+            Position = point;
+            foreach (Camera c in Cameras)
+                c.LocalPoint.Raw = Position;
         }
     }
 }

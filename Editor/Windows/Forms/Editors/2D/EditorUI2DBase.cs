@@ -150,7 +150,7 @@ namespace TheraEditor.Windows.Forms
                 Text = initialText,
                 TextColor = color,
             };
-            comp.TextDrawer.Add(true, str);
+            comp.TextDrawer.Text.Add(str);
 
             BaseTransformComponent.ChildComponents.Add(comp);
             comp.Scale = 1.0f / BaseTransformComponent.Scale * TextScale;
@@ -158,7 +158,7 @@ namespace TheraEditor.Windows.Forms
             return comp;
         }
         protected abstract bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max);
-        public virtual void ZoomExtents()
+        public virtual void ZoomExtents(bool adjustScale = true)
         {
             if (GetFocusAreaMinMax(out Vec2 min, out Vec2 max))
             {
@@ -174,19 +174,32 @@ namespace TheraEditor.Windows.Forms
                 float xScale = Bounds.X / xBound;
                 float yScale = Bounds.Y / yBound;
 
-                if (xScale < yScale)
+                if (adjustScale)
                 {
-                    BaseTransformComponent.Scale = xScale;
-                    float remaining = (Bounds.Y / xScale - yBound) * 0.5f;
-                    bottomLeft.Y += remaining;
-                    bottomLeft *= xScale;
+                    if (xScale < yScale)
+                    {
+                        BaseTransformComponent.Scale = xScale;
+                        float remaining = (Bounds.Y / BaseTransformComponent.Scale.X - yBound) * 0.5f;
+                        bottomLeft.Y += remaining;
+                        bottomLeft *= BaseTransformComponent.Scale.X;
+                    }
+                    else
+                    {
+                        BaseTransformComponent.Scale = yScale;
+                        float remaining = (Bounds.X / BaseTransformComponent.Scale.Y - xBound) * 0.5f;
+                        bottomLeft.X += remaining;
+                        bottomLeft *= BaseTransformComponent.Scale.Y;
+                    }
                 }
                 else
                 {
-                    BaseTransformComponent.Scale = yScale;
-                    float remaining = (Bounds.X / yScale - xBound) * 0.5f;
+                    float remaining = (Bounds.Y / BaseTransformComponent.Scale.X - yBound) * 0.5f;
+                    bottomLeft.Y += remaining;
+
+                    remaining = (Bounds.X / BaseTransformComponent.Scale.Y - xBound) * 0.5f;
                     bottomLeft.X += remaining;
-                    bottomLeft *= yScale;
+
+                    bottomLeft *= BaseTransformComponent.Scale;
                 }
 
                 BaseTransformComponent.LocalTranslation = bottomLeft;
@@ -219,6 +232,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.Resize(bounds);
             UpdateBackgroundMaterial();
+            ZoomExtents(false);
         }
         public void UpdateLineIncrement()
         {

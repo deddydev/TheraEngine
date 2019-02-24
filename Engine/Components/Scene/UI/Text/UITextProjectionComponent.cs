@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.UI
 
         public void SubmitProjectors(IEnumerable<ITextProjector> projectors)
         {
-            TextDrawer.Intersect(projectors.SelectMany(x => x.Text));
+            //TextDrawer.Intersect(projectors.SelectMany(x => x.Text));
         }
     }
 }

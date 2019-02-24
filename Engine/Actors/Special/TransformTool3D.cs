@@ -963,12 +963,12 @@ namespace TheraEngine.Actors.Types
 
         private void Render()
         {
-            if (_hiCam || _hiSphere || _hiAxis.Any)
-            {
-                Engine.Renderer.RenderPoint(_lastPointWorld, Color.Black, false);
-                Vec3 worldNormal = Vec3.TransformVector(_localDragPlaneNormal, RootComponent.WorldMatrix);
-                Engine.Renderer.RenderLine(_lastPointWorld, _lastPointWorld + worldNormal * Engine.Renderer.CurrentCamera.DistanceScale(RootComponent.WorldPoint, 2.0f), Color.Black, false);
-            }
+            //if (_hiCam || _hiSphere || _hiAxis.Any)
+            //{
+            //    Engine.Renderer.RenderPoint(_lastPointWorld, Color.Black, false);
+            //    Vec3 worldNormal = Vec3.TransformVector(_localDragPlaneNormal, RootComponent.WorldMatrix);
+            //    Engine.Renderer.RenderLine(_lastPointWorld, _lastPointWorld + worldNormal * Engine.Renderer.CurrentCamera.DistanceScale(RootComponent.WorldPoint, 2.0f), Color.Black, false);
+            //}
         }
 
         private readonly RenderCommandMethod3D _rc;

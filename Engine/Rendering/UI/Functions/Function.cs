@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering.UI.Functions
                 DockStyle = EUIDockStyle.Top,
                 Height = TextRenderer.MeasureText(FunctionName, _headerFont).Height + HeaderPadding * 2,
             };
-            _headerText.TextDrawer.Add(_headerString = new UIString2D()
+            _headerText.TextDrawer.Text.Add(_headerString = new UIString2D()
             {
                 Text = FunctionName,
                 Font = _headerFont,
@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering.UI.Functions
             {
                 Name = arg.Name + " Text",
             };
-            text.TextDrawer.Add(new UIString2D()
+            text.TextDrawer.Text.Add(new UIString2D()
             {
                 Text = arg.Name,
                 Font = _paramFont,

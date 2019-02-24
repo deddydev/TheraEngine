@@ -56,14 +56,12 @@ namespace TheraEngine.Rendering.Models
         }
         public static VertexQuad MakeQuad(
             Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal, bool flipVerticalUVCoord = true)
-        {
-            return new VertexQuad(
+            => new VertexQuad(
                 new Vertex(bottomLeft,  normal, new Vec2(0.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
                 new Vertex(bottomRight, normal, new Vec2(1.0f, flipVerticalUVCoord ? 1.0f : 0.0f)),
                 new Vertex(topRight,    normal, new Vec2(1.0f, flipVerticalUVCoord ? 0.0f : 1.0f)),
                 new Vertex(topLeft,     normal, new Vec2(0.0f, flipVerticalUVCoord ? 0.0f : 1.0f)));
-        }
-
+        
         /// <summary>
         /// Generates a quad using cubemap-cross texture coordinates.
         /// </summary>

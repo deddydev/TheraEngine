@@ -246,7 +246,7 @@ namespace TheraEditor.Windows.Forms
                 //Alignment = StringAlignment.Center,
                 //LineAlignment = StringAlignment.Near
             };
-            SubViewportText.TextDrawer.Add(true, new UIString2D()
+            SubViewportText.TextDrawer.Text.Add(new UIString2D()
             {
                 Font = f,
                 Format = sf,
@@ -282,7 +282,7 @@ namespace TheraEditor.Windows.Forms
             fpsComp.SizeablePosY.Origin = fpsComp.SizeableHeight;
 
             fpsComp.TextureResolutionMultiplier = f.Size;
-            fpsComp.TextDrawer.Add(true, FPSText = new UIString2D()
+            fpsComp.TextDrawer.Text.Add(FPSText = new UIString2D()
             {
                 Font = f,
                 Format = sf,

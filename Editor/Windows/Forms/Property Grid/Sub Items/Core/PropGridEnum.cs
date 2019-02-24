@@ -89,6 +89,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             if (string.Equals(name, _value, StringComparison.InvariantCulture))
                                 selectedIndex = i;
                         }
+                        if (cboEnumNames.Items.Count != _fields.Length)
+                        {
+                            cboEnumNames.Items.Clear();
+                            bool splitCamelCase = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase;
+                            for (int i = 0; i < _fields.Length; ++i)
+                                cboEnumNames.Items.Add(GetFieldName(_fields[i], splitCamelCase));
+                        }
                         cboEnumNames.SelectedIndex = selectedIndex;
                         cboEnumNames.Enabled = editable;
                     }

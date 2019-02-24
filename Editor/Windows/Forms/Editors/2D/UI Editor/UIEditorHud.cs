@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Input.Devices;
@@ -17,14 +18,39 @@ namespace TheraEditor.Windows.Forms
         {
             VertexQuad quad = VertexQuad.PosZQuad(1, true, -0.5f, false);
             VertexTriangle[] lines = quad.ToTriangles();
-            PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), lines);
-            TMaterial mat = TMaterial.CreateUnlitColorMaterialForward(Color.Yellow);
-            _highlightMesh.Mesh = new PrimitiveManager(data, mat);
-            _uiBoundsMesh.Mesh = new PrimitiveManager(data, mat);
+            PrimitiveData data = PrimitiveData.FromTriangles(VertexShaderDesc.PosTex(), lines);
+            GLSLScript script = Engine.Files.LoadEngineShader("Outline2DUnlitForward.fs", EGLSLType.Fragment);
+            TMaterial highlightMat = new TMaterial("OutlineMaterial", new ShaderVar[] { new ShaderVec2(Vec2.Zero, "Size") }, script);
+            _highlightMesh.Mesh = new PrimitiveManager(data, highlightMat);
+            TMaterial boundsMat = new TMaterial("OutlineMaterial", new ShaderVar[] { new ShaderVec2(Vec2.Zero, "Size") }, script);
+            _uiBoundsMesh.Mesh = new PrimitiveManager(data, boundsMat);
+            BaseTransformComponent.WorldTransformChanged += BaseTransformComponent_WorldTransformChanged;
         }
-        public UIEditorUI(Vec2 bounds) : base(bounds) { }
 
-        public Vec2 PreviewResolution = new Vec2(1920, 1080);
+        private void BaseTransformComponent_WorldTransformChanged(TheraEngine.Components.SceneComponent obj)
+        {
+            if (_targetHud?.RootComponent is UICanvasComponent canvas)
+            {
+                canvas.Size = _previewResolution;
+                _uiBoundsMesh.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * BaseTransformComponent.ScaleX;
+            }
+        }
+
+        private Vec2 _previewResolution = new Vec2(1920, 1080);
+        public Vec2 PreviewResolution
+        {
+            get => _previewResolution;
+            set
+            {
+                _previewResolution = value;
+                if (_targetHud?.RootComponent is UICanvasComponent canvas)
+                {
+                    canvas.Size = _previewResolution;
+                    _uiBoundsMesh.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * BaseTransformComponent.ScaleX;
+                }
+            }
+        }
+
         public event DelUIComponentSelect UIComponentSelected;
         //public event DelUIComponentSelect UIComponentHighlighted;
         
@@ -44,8 +70,11 @@ namespace TheraEditor.Windows.Forms
                 {
                     BaseTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
                     IVec2 vec = LocalPlayerController.Viewport.Region.Extents;
-                    UICanvasComponent canvas = _targetHud.RootComponent as UICanvasComponent;
-                    canvas.Size = PreviewResolution;
+                    if (_targetHud?.RootComponent is UICanvasComponent canvas)
+                    {
+                        canvas.Size = PreviewResolution;
+                        _uiBoundsMesh.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * BaseTransformComponent.ScaleX;
+                    }
                 }
                 else
                 {
@@ -84,7 +113,10 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void HighlightScene()
         {
-            _highlightedComp = FindComponent();
+            _highlightedComp = (_targetHud?.RootComponent as UICanvasComponent)?.FindDeepestComponent(CursorPositionWorld());
+            if (_highlightedComp is UIBoundableComponent bound)
+                _highlightMesh.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.Size;
+
             //UIComponentHighlighted?.Invoke(_highlightedComp);
         }
 
@@ -105,10 +137,11 @@ namespace TheraEditor.Windows.Forms
                 passes.Add(_highlightMesh);
             }
 
+            UICanvasComponent canvas = _targetHud?.RootComponent as UICanvasComponent;
             _uiBoundsMesh.WorldMatrix = 
                 Matrix4.CreateTranslation(BaseTransformComponent.LocalTranslation) *
-                Matrix4.CreateScale(PreviewResolution * BaseTransformComponent.ScaleX);
-
+                Matrix4.CreateScale((canvas?.Size ?? PreviewResolution) * BaseTransformComponent.ScaleX);
+            
             passes.Add(_uiBoundsMesh);
         }
     }

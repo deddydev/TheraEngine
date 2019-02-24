@@ -53,8 +53,7 @@ namespace TheraEngine.Actors.Types
             get => _envDepthTex;
             set => _envDepthTex = value;
         }
-
-        public PerspectiveCamera[] Cameras { get; set; }
+        
         protected CubeFrameBuffer RenderFBO { get; set; }
 
         public SceneCaptureComponent() { }
@@ -70,31 +69,6 @@ namespace TheraEngine.Actors.Types
         protected virtual void InitializeForCapture()
         {
             _viewport = new Viewport(_colorRes, _colorRes);
-
-            Cameras = new PerspectiveCamera[6];
-            Rotator[] rotations = new Rotator[]
-            {
-                new Rotator(  0.0f,  90.0f,   0.0f), //+X
-                new Rotator(  0.0f, -90.0f,   0.0f), //-X
-                new Rotator(-90.0f,   0.0f, 180.0f), //+Y
-                new Rotator( 90.0f,   0.0f, 180.0f), //-Y
-                new Rotator(  0.0f, 180.0f,   0.0f), //+Z
-                new Rotator(  0.0f,   0.0f,   0.0f), //-Z
-            };
-
-            float aspect = _viewport.InternalResolution.Width / _viewport.InternalResolution.Height;
-
-            PerspectiveCamera cam;
-            for (int i = 0; i < 6; ++i)
-            {
-                cam = new PerspectiveCamera(WorldPoint, rotations[i], 1.0f, 10000.0f, 90.0f, aspect);
-
-                //Can't use AutoExposure because the scene has not been rendered previously for gauging luminosity
-                cam.PostProcessRef.File.ColorGrading.AutoExposure = false;
-                cam.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
-
-                Cameras[i] = cam;
-            }
 
             _envTex = new TexRefCube("SceneCaptureCubeMap", _colorRes,
                 EPixelInternalFormat.Rgb8, EPixelFormat.Rgb, EPixelType.UnsignedByte)
@@ -123,13 +97,19 @@ namespace TheraEngine.Actors.Types
             _tempDepth.SetStorage(ERenderBufferStorage.DepthComponent32f, _colorRes, _colorRes);
 
             RenderFBO = new CubeFrameBuffer(null, 0.1f, 10000.0f, true);
+            RenderFBO.SetTransform(WorldPoint);
+
+            float aspect = _viewport.InternalResolution.Width / _viewport.InternalResolution.Height;
+            foreach (Camera cam in RenderFBO.Cameras)
+            {
+                cam.PostProcessRef.File.ColorGrading.AutoExposure = false;
+                cam.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
+            }
         }
         protected override void OnWorldTransformChanged()
         {
             base.OnWorldTransformChanged();
-            if (Cameras != null)
-                foreach (Camera c in Cameras)
-                    c.LocalPoint.Raw = WorldPoint;
+            RenderFBO?.SetTransform(WorldPoint);
         }
         /// <summary>
         /// Renders the scene to the ResultTexture cubemap.
@@ -151,7 +131,7 @@ namespace TheraEngine.Actors.Types
 
             for (int i = 0; i < 6; ++i)
             {
-                Camera camera = Cameras[i];
+                Camera camera = RenderFBO.Cameras[i];
 
                 _viewport.Update(scene, camera, camera.Frustum);
 

@@ -245,7 +245,7 @@ namespace TheraEngine.Rendering
             //    Engine.Scene.AddDebugPrimitive(new DebugPrimitive() { Manager = m, ModelMatrix = modelMatrix, Color = color, Type = DebugPrimitiveType.Point });
             //else
             //{
-                SetPointSize(pointSize);
+                //SetPointSize(pointSize);
                 m.Render(modelMatrix);
             //}
         }
@@ -258,14 +258,14 @@ namespace TheraEngine.Rendering
             m.Material.RenderParams.DepthTest.Enabled = depthTestEnabled ? ERenderParamUsage.Enabled : ERenderParamUsage.Disabled;
             //((Vec3*)m.Data[0].Address)[1] = end - start;
             Matrix4 modelMatrix = Matrix4.CreateTranslation(start) * end.LookatAngles(start).GetMatrix() * Matrix4.CreateScale(end.DistanceTo(start));
-            SetLineSize(lineWidth);
+            //SetLineSize(lineWidth);
             m.Render(modelMatrix, Matrix3.Identity);
         }
         public static readonly Vec3 UIPositionBias = new Vec3(0.0f, 0.0f, 0.1f);
         public static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, ERotationOrder.YPR);
         public virtual void RenderCircle(Vec3 centerTranslation, Rotator rotation, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
-            SetLineSize(lineWidth);
+            //SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidCircle : DebugPrimitiveType.WireCircle);
             m.Parameter<ShaderVec4>(0).Value = color;
             Matrix4 mtx = Matrix4.CreateTranslation(centerTranslation) * Matrix4.CreateFromRotator(rotation) * Matrix4.CreateScale(radius, 1.0f, radius);
@@ -273,7 +273,7 @@ namespace TheraEngine.Rendering
         }
         public virtual void RenderQuad(Vec3 centerTranslation, Rotator rotation, Vec2 extents, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
-            SetLineSize(lineWidth);
+            //SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
             m.Parameter<ShaderVec4>(0).Value = color;
             Matrix4 mtx = Matrix4.CreateTranslation(centerTranslation) * Matrix4.CreateFromRotator(rotation) * Matrix4.CreateScale(extents.X, 1.0f, extents.Y);
@@ -281,7 +281,7 @@ namespace TheraEngine.Rendering
         }
         public virtual void RenderSphere(Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
-            SetLineSize(lineWidth);
+            //SetLineSize(lineWidth);
             //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
@@ -293,7 +293,7 @@ namespace TheraEngine.Rendering
             => RenderBox(halfExtents, translation.AsTranslationMatrix(), solid, color, lineWidth);
         public virtual void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
-            SetLineSize(lineWidth);
+            //SetLineSize(lineWidth);
             IPrimitiveManager mesh = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
             mesh.Parameter<ShaderVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
@@ -302,7 +302,7 @@ namespace TheraEngine.Rendering
         }
         public void RenderCapsule(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
-            SetLineSize(lineWidth);
+            //SetLineSize(lineWidth);
             IPrimitiveManager mCyl = null, mTop = null, mBot = null;
             string cylStr = "_CYLINDER";
             string topStr = "_TOPHALF";
@@ -344,7 +344,7 @@ namespace TheraEngine.Rendering
         }
         public void RenderCone(Matrix4 transform, Vec3 localUpAxis, float radius, float height, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
-            SetLineSize(lineWidth);
+            //SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidCone : DebugPrimitiveType.WireCone);
             m.Parameter<ShaderVec4>(0).Value = color;
             transform = transform * localUpAxis.LookatAngles().GetMatrix() * Matrix4.CreateScale(radius, radius, height);

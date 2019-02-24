@@ -289,12 +289,8 @@ namespace TheraEngine.Components.Scene.Mesh
 
             if (Meshes != null)
                 foreach (SkeletalRenderableMesh m in Meshes)
-                {
                     foreach (var lod in m.LODs)
-                    {
                         Editor.EditorState.RegisterHighlightedMaterial(lod.Manager.Material, highlighted, OwningScene);
-                    }
-                }
         }
         protected internal override void OnSelectedChanged(bool selected)
         {

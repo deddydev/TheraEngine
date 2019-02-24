@@ -167,15 +167,11 @@ namespace System
             return ext.ToLowerInvariant();
         }
         public static bool IsAbsolutePath(this string path)
-        {
-            return path.IsValidPath()
+            => path.IsValidPath()
                 && Path.IsPathRooted(path)
                 && !Path.GetPathRoot(path).Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
-        }
         public static bool IsValidPath(this string path)
-        {
-            return !string.IsNullOrWhiteSpace(path) && path.IndexOfAny(Path.GetInvalidPathChars().ToArray()) == -1;
-        }
+            => !string.IsNullOrWhiteSpace(path) && path.IndexOfAny(Path.GetInvalidPathChars().ToArray()) == -1;
         public static bool StartsWithDirectorySeparator(this string str)
             => !string.IsNullOrEmpty(str) && str[0] == Path.DirectorySeparatorChar;
         public static bool EndsWithDirectorySeparator(this string str)
@@ -205,45 +201,25 @@ namespace System
             return null; //Path is invalid
         }
         public static bool Equals(this string str, string other, bool ignoreCase)
-        {
-            return string.Equals(str, other, ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
-        }
+            => string.Equals(str, other, ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
         public static decimal ParseInvariantDecimal(this string str)
-        {
-            return decimal.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => decimal.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static float ParseInvariantFloat(this string str)
-        {
-            return float.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => float.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static double ParseInvariantDouble(this string str)
-        {
-            return double.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => double.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static sbyte ParseInvariantSByte(this string str)
-        {
-            return sbyte.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => sbyte.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static byte ParseInvariantByte(this string str)
-        {
-            return byte.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => byte.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static short ParseInvariantShort(this string str)
-        {
-            return short.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => short.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static ushort ParseInvariantUShort(this string str)
-        {
-            return ushort.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => ushort.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static int ParseInvariantInt(this string str)
-        {
-            return int.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => int.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static uint ParseInvariantUInt(this string str)
-        {
-            return uint.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
-        }
+            => uint.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
         public static bool EqualsOrdinalIgnoreCase(this string str, string other)
             => str.Equals(other, StringComparison.OrdinalIgnoreCase);
         public static bool EqualsOrdinal(this string str, string other)

@@ -61,12 +61,12 @@ namespace TheraEngine.Rendering.OpenGL
 
         private int[] _ignoredMessageIds =
         {
-            131185,
-            131204,
-            131169,
+            131185, //buffer will use video memory
+            //131204,
+            131169, //allocated memory for render buffer
             //131216,
-            //131218,
-            131076,
+            131218,
+            //131076,
             //1282,
             //0,
             //9,
@@ -83,11 +83,11 @@ namespace TheraEngine.Rendering.OpenGL
                 return;
 
             string s = new string((sbyte*)message);
-            if (severity == DebugSeverity.DebugSeverityNotification || type == DebugType.DebugTypeOther || _printMessageIds.IndexOf(id) >= 0)
-                Engine.PrintLine("OPENGL NOIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
+            //if (severity == DebugSeverity.DebugSeverityNotification || type == DebugType.DebugTypeOther || _printMessageIds.IndexOf(id) >= 0)
+                Engine.PrintLine("OPENGL NOTIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
             //else
-            //    //throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
-            //    Engine.PrintLine("OPENGL NOIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
+            //    throw new Exception(string.Format("OPENGL ERROR: {0} {1} {2} {3} {4}", source, type, id, severity, s));
+            //    Engine.PrintLine("OPENGL NOTIF: {0} {1} {2} {3} {4}", source, type, id, severity, s);
         }
 
         private DebugProc _error;

@@ -582,6 +582,10 @@ namespace TheraEditor.Windows.Forms
                 CurrentWorld = _project.OpeningWorldRef?.File;
 
                 UpdateRecentProjectPaths();
+
+                var errors = _project?.LastBuildLog?.Errors;
+                if (errors != null && errors.Count > 0)
+                    _project.LastBuildLog.Display();
             }
             else
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -28,54 +29,96 @@ namespace TheraEngine.Rendering.Text
         public event DelTextRedraw NeedsRedraw;
 
         private TextSort _sorter;
-        private HashSet<UIString2D> _text;
         private LinkedList<UIString2D> _modified;
 
         protected void OnDoRedraw(bool forceFullRedraw) 
             => NeedsRedraw?.Invoke(forceFullRedraw);
 
+        [Browsable(false)]
         public bool Modified => _modified.Count > 0;
+        public EventList<UIString2D> Text { get; }
 
         public TextDrawer()
         {
             _sorter = new TextSort();
-            _text = new HashSet<UIString2D>();
+            Text = new EventList<UIString2D>();
+            Text.PostAdded += _text_PostAdded;
+            Text.PostRemoved += _text_PostRemoved;
+            Text.PostAddedRange += Text_PostAddedRange;
+            Text.PostRemovedRange += Text_PostRemovedRange;
+            Text.PostInserted += Text_PostInserted;
+            Text.PostInsertedRange += Text_PostInsertedRange;
             _modified = new LinkedList<UIString2D>();
         }
-        
+
+        private void Text_PostInsertedRange(IEnumerable<UIString2D> items, int index)
+        {
+            Text_PostAddedRange(items);
+        }
+        private void Text_PostInserted(UIString2D item, int index)
+        {
+            _text_PostAdded(item);
+        }
+        private void Text_PostAddedRange(IEnumerable<UIString2D> items)
+        {
+            foreach (var item in items)
+                if (item != null)
+                    item.Parent = this;
+            OnDoRedraw(true);
+        }
+        private void Text_PostRemovedRange(IEnumerable<UIString2D> items)
+        {
+            foreach (var item in items)
+                if (item != null && item.Parent == this)
+                    item.Parent = null;
+            OnDoRedraw(true);
+        }
+        private void _text_PostRemoved(UIString2D item)
+        {
+            if (item != null && item.Parent == this)
+                item.Parent = null;
+            OnDoRedraw(true);
+        }
+        private void _text_PostAdded(UIString2D item)
+        {
+            if (item != null)
+                item.Parent = this;
+            OnDoRedraw(true);
+        }
+
         public void Clear(bool redraw = true)
         {
-            _text.Clear();
+            Text.Clear();
             _modified.Clear();
 
             if (redraw)
                 OnDoRedraw(true);
         }
-        public void Intersect<T>(IEnumerable<T> text, bool redraw = true) where T : UIString2D
-        {
-            _text.IntersectWith(text);
-        }
-        public void Add(UIString2D text, bool redraw = true)
-        {
-            if (text == null)
-                return;
+        //public void Intersect<T>(IEnumerable<T> text, bool redraw = true) where T : UIString2D
+        //{
+        //    _text.IntersectWith(text);
+        //}
+        //public void Add(UIString2D text, bool redraw = true)
+        //{
+        //    if (text == null)
+        //        return;
 
-            text.Parent = this;
-            _text.Add(text);
-            _modified.AddLast(text);
+        //    text.Parent = this;
+        //    _text.Add(text);
+        //    _modified.AddLast(text);
 
-            if (redraw)
-                OnDoRedraw(false);
-        }
-        public void Add(bool redraw, params UIString2D[] text) => Add(text, redraw);
-        public void Add(IEnumerable<UIString2D> text, bool redraw = true)
-        {
-            foreach (UIString2D str in text)
-                Add(str, false);
+        //    if (redraw)
+        //        OnDoRedraw(false);
+        //}
+        //public void Add(bool redraw, params UIString2D[] text) => Add(text, redraw);
+        //public void Add(IEnumerable<UIString2D> text, bool redraw = true)
+        //{
+        //    foreach (UIString2D str in text)
+        //        Add(str, false);
 
-            if (redraw)
-                OnDoRedraw(false);
-        }
+        //    if (redraw)
+        //        OnDoRedraw(false);
+        //}
 
         public unsafe void Draw(TexRef2D texture, Vec2 texRes, TextRenderingHint textQuality, bool forceFullRedraw)
         {
@@ -116,7 +159,7 @@ namespace TheraEngine.Rendering.Text
                         g.ResetClip();
                         g.Clear(Color.Transparent);
 
-                        foreach (UIString2D text in _text.OrderBy(x => x.Order))
+                        foreach (UIString2D text in Text.OrderBy(x => x.Order))
                         {
                             var bounds = text.Region;
                             if (!bounds.DisjointWith(b.Width, b.Height))

@@ -245,7 +245,9 @@ namespace TheraEditor.Windows.Forms
 
         private void Saved(DockableTextEditor obj)
         {
-
+            GLSLScript script = obj.TargetFile as GLSLScript;
+            if (script != null)
+                script.Text = obj.GetText();
         }
 
         private void TextEditor_FormClosed(object sender, FormClosedEventArgs e)

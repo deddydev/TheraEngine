@@ -135,12 +135,12 @@ namespace TheraEngine.Rendering.UI
             RenderInfo.AxisAlignedRegion.Extents = Size;
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
-        public override UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint)
+        public override UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint, bool includeCurrent = true)
         {
             if (Size.X > 0.0f && Size.Y > 0.0f && !Contains(viewportPoint))
                 return null;
             
-            return base.FindDeepestComponent(viewportPoint) ?? this;
+            return base.FindDeepestComponent(viewportPoint) ?? (includeCurrent ? this : null);
         }
         
         protected override void HandleSingleChildAdded(SceneComponent item)

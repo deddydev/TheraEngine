@@ -235,11 +235,11 @@ namespace TheraEngine.Rendering.UI
             //else
             //    Resize(Vec2.Zero);
         }
-        public virtual UIBoundableComponent FindDeepestComponent(Vec2 cursorPointWorld)
+        public virtual UIBoundableComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeCurrent = true)
         {
             foreach (UIComponent c in _children)
             {
-                UIBoundableComponent comp = c.FindDeepestComponent(cursorPointWorld);
+                UIBoundableComponent comp = c.FindDeepestComponent(cursorPointWorld, includeCurrent);
                 if (comp != null)
                     return comp;
             }

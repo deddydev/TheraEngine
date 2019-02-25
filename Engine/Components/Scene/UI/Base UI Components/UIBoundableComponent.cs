@@ -86,9 +86,9 @@ namespace TheraEngine.Rendering.UI
         
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
 
-        public bool Contains(Vec2 viewportPoint)
+        public bool Contains(Vec2 worldPoint)
         {
-            Vec3 localPoint = viewportPoint * GetInvComponentTransform();
+            Vec3 localPoint = worldPoint * GetInvComponentTransform();
             return Size.Contains(localPoint.Xy);
         }
 
@@ -135,12 +135,12 @@ namespace TheraEngine.Rendering.UI
             RenderInfo.AxisAlignedRegion.Extents = Size;
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
-        public override UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint, bool includeCurrent = true)
+        public override UIBoundableComponent FindDeepestComponent(Vec2 worldPoint, bool includeCurrent = true)
         {
-            if (Size.X > 0.0f && Size.Y > 0.0f && !Contains(viewportPoint))
+            if (Size.X > 0.0f && Size.Y > 0.0f && !Contains(worldPoint))
                 return null;
             
-            return base.FindDeepestComponent(viewportPoint) ?? (includeCurrent ? this : null);
+            return base.FindDeepestComponent(worldPoint) ?? (includeCurrent ? this : null);
         }
         
         protected override void HandleSingleChildAdded(SceneComponent item)

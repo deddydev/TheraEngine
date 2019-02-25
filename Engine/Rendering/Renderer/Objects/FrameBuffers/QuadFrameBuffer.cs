@@ -21,15 +21,30 @@ namespace TheraEngine.Rendering
         /// </summary>
         private OrthographicCamera _quadCamera;
 
-        public PrimitiveManager FullScreenTriangle { get; }
+        public PrimitiveManager FullScreenMesh { get; }
 
-        public static PrimitiveData Mesh()
+        public static PrimitiveData Mesh(bool asTriangle)
         {
-            VertexTriangle triangle = new VertexTriangle(
-                new Vec3(0.0f, 0.0f, 0.0f),
-                new Vec3(2.0f, 0.0f, 0.0f),
-                new Vec3(0.0f, 2.0f, 0.0f));
-            return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), triangle);
+            if (asTriangle)
+            {
+                VertexTriangle triangle = new VertexTriangle(
+                    new Vec3(0.0f, 0.0f, 0.0f),
+                    new Vec3(2.0f, 0.0f, 0.0f),
+                    new Vec3(0.0f, 2.0f, 0.0f));
+                return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), triangle);
+            }
+            else
+            {
+                VertexTriangle triangle1 = new VertexTriangle(
+                    new Vec3(0.0f, 0.0f, 0.0f),
+                    new Vec3(1.0f, 0.0f, 0.0f),
+                    new Vec3(0.0f, 1.0f, 0.0f));
+                VertexTriangle triangle2 = new VertexTriangle(
+                    new Vec3(0.0f, 1.0f, 0.0f),
+                    new Vec3(1.0f, 0.0f, 0.0f),
+                    new Vec3(1.0f, 1.0f, 0.0f));
+                return PrimitiveData.FromTriangles(VertexShaderDesc.JustPositions(), triangle1, triangle2);
+            }
         }
 
         /// <summary>
@@ -40,8 +55,8 @@ namespace TheraEngine.Rendering
         {
             Material = mat;
 
-            FullScreenTriangle = new PrimitiveManager(Mesh(), Material);
-            FullScreenTriangle.SettingUniforms += SetUniforms;
+            FullScreenMesh = new PrimitiveManager(Mesh(false), Material);
+            FullScreenMesh.SettingUniforms += SetUniforms;
 
             _quadCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
             _quadCamera.Resize(1.0f, 1.0f);
@@ -56,7 +71,7 @@ namespace TheraEngine.Rendering
         public void RenderFullscreen()
         {
             Engine.Renderer.PushCamera(_quadCamera);
-            FullScreenTriangle.Render();
+            FullScreenMesh.Render();
             Engine.Renderer.PopCamera();
         }
     }

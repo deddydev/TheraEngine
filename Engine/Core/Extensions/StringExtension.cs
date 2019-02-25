@@ -43,7 +43,13 @@ namespace System
 
             return list.Cast<object>().Aggregate(new StringBuilder(),
                 (builder, obj) => builder.Append(separator + elementToString(obj)),
-                (builder) => builder.Remove(0, separator.Length).ToString());
+                (builder) => 
+                {
+                    if (list.Count == 0)
+                        return builder.ToString();
+                    else
+                        return builder.Remove(0, separator.Length).ToString();
+                });
 
             //string str = string.Empty;
             //string sep = separator;
@@ -79,7 +85,13 @@ namespace System
 
             return list.Cast<object>().Aggregate(new StringBuilder(),
                 (builder, obj) => builder.Append(separator + obj.ToString()),
-                (builder) => builder.Remove(0, separator.Length).ToString());
+                (builder) => 
+                {
+                    if (list.Count == 0)
+                        return builder.ToString();
+                    else
+                        return builder.Remove(0, separator.Length).ToString();
+                });
 
             //string str = "";
             //string sep = separator;
@@ -112,7 +124,13 @@ namespace System
 
             return list.Cast<object>().Aggregate(new StringBuilder(),
                 (builder, obj) => builder.Append(separator + elementToString(obj)),
-                (builder) => builder.Remove(0, separator.Length).ToString());
+                (builder) => 
+                {
+                    if (list.Count == 0)
+                        return builder.ToString();
+                    else
+                        return builder.Remove(0, separator.Length).ToString();
+                });
 
             //string str = "";
             //string sep = separator;
@@ -142,7 +160,13 @@ namespace System
 
             return list.Cast<object>().Aggregate(new StringBuilder(),
                 (builder, obj) => builder.Append(separator + obj.ToString()),
-                (builder) => builder.Remove(0, separator.Length).ToString());
+                (builder) => 
+                {
+                    if (list.Count == 0)
+                        return builder.ToString();
+                    else
+                        return builder.Remove(0, separator.Length).ToString();
+                });
 
             //string str = "";
             //string sep = separator;

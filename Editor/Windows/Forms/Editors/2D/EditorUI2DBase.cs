@@ -362,7 +362,6 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnSpawnedPostComponentSpawn();
             RenderInfo.LinkScene(this, ScreenSpaceUIScene);
-            ScreenSpaceUIScene.Add(this);
             ZoomExtents();
         }
         protected override void OnDespawned()

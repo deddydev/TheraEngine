@@ -253,7 +253,7 @@
     <Compile Include="Windows\Forms\Editors\2D\UI Editor\UIEditorForm.Designer.cs">
       <DependentUpon>UIEditorForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Forms\Editors\2D\UI Editor\UIEditorHud.cs" />
+    <Compile Include="Windows\Forms\Editors\2D\UI Editor\UIEditorUI.cs" />
     <Compile Include="Windows\Forms\Editors\2D\EditorUI2DBase.cs" />
     <Compile Include="Windows\Forms\Main Window\AboutForm.cs">
       <SubType>Form</SubType>

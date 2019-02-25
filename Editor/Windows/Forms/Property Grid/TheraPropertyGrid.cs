@@ -29,8 +29,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public TheraPropertyGrid()
         {
             InitializeComponent();
+
             ctxSceneComps.RenderMode = ToolStripRenderMode.Professional;
             ctxSceneComps.Renderer = new TheraForm.TheraToolstripRenderer();
+
             _lblObjectName_StartColor = lblObjectName.BackColor;
             _lblObjectName_EndColor = Color.FromArgb(_lblObjectName_StartColor.R + 10, _lblObjectName_StartColor.G + 10, _lblObjectName_StartColor.B + 10);
         }
@@ -754,49 +756,50 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             nodes.Add(s);
         }
 
-        int _y = 0;
+        //int _y = 0;
         private void pnlLogicComps_MouseDown(object sender, MouseEventArgs e)
         {
-            _y = e.Y;
-            pnlLogicComps.MouseMove += MouseMoveSceneComps;
+            //_y = e.Y;
+            //pnlLogicComps.MouseMove += MouseMoveSceneComps;
         }
 
         private void lblProperties_MouseDown(object sender, MouseEventArgs e)
         {
-            _y = e.Y;
-            if (lstLogicComps.Visible)
-                lblProperties.MouseMove += MouseMoveLogicComps;
-            else
-                lblProperties.MouseMove += MouseMoveSceneComps;
+            //_y = e.Y;
+            //if (lstLogicComps.Visible)
+            //    lblProperties.MouseMove += MouseMoveLogicComps;
+            //else
+            //    lblProperties.MouseMove += MouseMoveSceneComps;
         }
         private void pnlLogicComps_MouseUp(object sender, MouseEventArgs e)
         {
-            pnlLogicComps.MouseMove -= MouseMoveSceneComps;
+            //pnlLogicComps.MouseMove -= MouseMoveSceneComps;
         }
         private void lblProperties_MouseUp(object sender, MouseEventArgs e)
         {
-            if (lstLogicComps.Visible)
-                lblProperties.MouseMove -= MouseMoveLogicComps;
-            else
-                lblProperties.MouseMove -= MouseMoveSceneComps;
+            //if (lstLogicComps.Visible)
+            //    lblProperties.MouseMove -= MouseMoveLogicComps;
+            //else
+            //    lblProperties.MouseMove -= MouseMoveSceneComps;
         }
         private void MouseMoveSceneComps(object sender, MouseEventArgs e)
         {
-            int diff = e.Y - _y;
-            treeViewSceneComps.Height += diff;
-            _y = e.Y;
+            //int diff = e.Y - _y;
+            //treeViewSceneComps.Height += diff;
+            //_y = e.Y;
         }
         private void MouseMoveLogicComps(object sender, MouseEventArgs e)
         {
-            int diff = e.Y - _y;
-            lstLogicComps.Height += diff;
-            _y = e.Y;
+            //int diff = e.Y - _y;
+            //lstLogicComps.Height += diff;
+            //_y = e.Y;
         }
 
         private void lstLogicComps_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_updating)
                 return;
+
             btnMoveUpLogicComp.Visible = lstLogicComps.SelectedIndex >= 0 && lstLogicComps.SelectedIndex < lstLogicComps.Items.Count - 1;
             btnMoveDownLogicComp.Visible = lstLogicComps.SelectedIndex < lstLogicComps.Items.Count && lstLogicComps.SelectedIndex > 0;
             btnRemoveLogicComp.Visible = lstLogicComps.SelectedIndex >= 0 && lstLogicComps.SelectedIndex < lstLogicComps.Items.Count;
@@ -818,20 +821,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             TreeNode node = treeViewSceneComps.GetNodeAt(e.Location);
             if (node == null)
+            {
+                treeViewSceneComps.SelectedNode = _selectedSceneComp = null;
                 return;
+            }
 
             Rectangle r = node.Bounds;
-            r.X -= 25; r.Width += 25;
+            //Adjust for icon
+            r.X -= 25;
+            r.Width += 25;
+
             if (!r.Contains(e.Location))
                 return;
+            
+            treeViewSceneComps.SelectedNode = _selectedSceneComp = node;
 
-            _selectedSceneComp = node;
-            treeViewSceneComps.SelectedNode = node;
-            if (e.Button != MouseButtons.Right)
-                return;
-
-            UpdateCtxSceneComp();
-            ctxSceneComps.Show(treeViewSceneComps, e.Location);
+            if (e.Button == MouseButtons.Right)
+            {
+                UpdateCtxSceneComp();
+                ctxSceneComps.Show(treeViewSceneComps, e.Location);
+            }
         }
         private void lstLogicComps_MouseDoubleClick(object sender, MouseEventArgs e)
         {

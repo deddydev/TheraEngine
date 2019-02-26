@@ -28,40 +28,38 @@ namespace TheraEngine.Rendering.Models.Materials
         public ResultFunc EditorMaterialEnd { get; set; }
 #endif
 
+        [Browsable(false)]
+        public List<GLSLScript> FragmentShaders { get; } = new List<GLSLScript>();
+        [Browsable(false)]
+        public List<GLSLScript> GeometryShaders { get; } = new List<GLSLScript>();
+        [Browsable(false)]
+        public List<GLSLScript> TessEvalShaders { get; } = new List<GLSLScript>();
+        [Browsable(false)]
+        public List<GLSLScript> TessCtrlShaders { get; } = new List<GLSLScript>();
+        [Browsable(false)]
+        public List<GLSLScript> VertexShaders { get; } = new List<GLSLScript>();
+
         [TSerialize(nameof(Shaders))]
         private EventList<GlobalFileRef<GLSLScript>> _shaders;
 
-        public List<GLSLScript> FragmentShaders { get; } = new List<GLSLScript>();
-        public List<GLSLScript> GeometryShaders { get; } = new List<GLSLScript>();
-        public List<GLSLScript> TessEvalShaders { get; } = new List<GLSLScript>();
-        public List<GLSLScript> TessCtrlShaders { get; } = new List<GLSLScript>();
-        public List<GLSLScript> VertexShaders { get; } = new List<GLSLScript>();
         public EventList<GlobalFileRef<GLSLScript>> Shaders => _shaders;
 
         public TMaterial()
             : this("NewMaterial", new RenderingParameters()) { }
-
         public TMaterial(string name, params GLSLScript[] shaders)
             : this(name, null, new ShaderVar[0], new BaseTexRef[0], shaders) { }
-
         public TMaterial(string name, RenderingParameters renderParams, params GLSLScript[] shaders)
             : this(name, renderParams, new ShaderVar[0], new BaseTexRef[0], shaders) { }
-
         public TMaterial(string name, ShaderVar[] vars, params GLSLScript[] shaders)
             : this(name, null, vars, new BaseTexRef[0], shaders) { }
-        
         public TMaterial(string name, RenderingParameters renderParams, ShaderVar[] vars, params GLSLScript[] shaders)
             : this(name, renderParams, vars, new BaseTexRef[0], shaders) { }
-
         public TMaterial(string name, BaseTexRef[] textures, params GLSLScript[] shaders)
             : this(name, null, new ShaderVar[0], textures, shaders) { }
-
         public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params GLSLScript[] shaders)
             : this(name, renderParams, new ShaderVar[0], textures,  shaders) { }
-
         public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params GLSLScript[] shaders)
             : this(name, null, vars, textures,shaders) { }
-        
         public TMaterial(
             string name,
             RenderingParameters renderParams, 
@@ -96,7 +94,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (_shaders != null)
                 foreach (var shaderRef in _shaders)
                 {
-                    GLSLScript s = shaderRef.File;
+                    GLSLScript s = shaderRef?.File;
                     if (s != null)
                         switch (s.Type)
                         {

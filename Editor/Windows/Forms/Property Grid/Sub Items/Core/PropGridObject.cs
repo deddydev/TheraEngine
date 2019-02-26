@@ -166,7 +166,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             object value = GetValue();
             Form form = Activator.CreateInstance(_editorType, value) as Form;
             if (form is DockContent dc && !(form is TheraForm))
-                dc.Show(Editor.Instance.DockPanel, DockState.Document);
+            {
+                DockContent form2 = ParentCategory.PropertyGrid.FindForm() as DockContent;
+                DockPanel p = form2?.DockPanel ?? Editor.Instance.DockPanel;
+                dc.Show(p, DockState.Document);
+            }
             else
                 form?.ShowDialog(this);
         }

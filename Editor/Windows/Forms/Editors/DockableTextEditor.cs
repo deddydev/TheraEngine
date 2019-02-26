@@ -32,6 +32,7 @@ namespace TheraEditor.Windows.Forms
         //[Description("C++")]
         //CPlusPlus,
     }
+    [EditorFor(typeof(TextFile))]
     public partial class DockableTextEditor : DockContent
     {
         public DockableTextEditor()
@@ -71,6 +72,7 @@ namespace TheraEditor.Windows.Forms
 
             dgvObjectExplorer.RowPrePaint += DgvObjectExplorer_RowPrePaint;
         }
+        public DockableTextEditor(TextFile file) : this() => TargetFile = file;
 
         private void DgvObjectExplorer_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
         {
@@ -1011,13 +1013,13 @@ namespace TheraEditor.Windows.Forms
                 if ((now - _lastDoubleClickedTime).TotalMilliseconds <= ms)
                 {
                     SelectHoveredLine();
-                    Engine.PrintLine("Triple Clicked");
+                    //Engine.PrintLine("Triple Clicked");
                 }
                 else if ((now - _lastClickedTime).TotalMilliseconds <= ms)
                 {
                     SelectHoveredWord();
                     _lastDoubleClickedTime = now;
-                    Engine.PrintLine("Double Clicked");
+                    //Engine.PrintLine("Double Clicked");
                 }
                 //else
                 //    Engine.PrintLine("Clicked");

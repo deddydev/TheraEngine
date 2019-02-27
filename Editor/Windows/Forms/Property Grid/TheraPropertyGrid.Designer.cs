@@ -52,8 +52,8 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnAddToSibAboveSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnAddToSibBelowSceneComp = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnAddSibToParentSceneComp = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnAddAsSibToParentSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnRemoveSceneComp = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlSide = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
@@ -303,8 +303,8 @@
             this.toolStripSeparator2,
             this.btnAddToSibAboveSceneComp,
             this.btnAddToSibBelowSceneComp,
-            this.btnAddSibToParentSceneComp,
-            this.removeToolStripMenuItem});
+            this.btnAddAsSibToParentSceneComp,
+            this.btnRemoveSceneComp});
             this.ctxSceneComps.Name = "ctxSceneComps";
             this.ctxSceneComps.Size = new System.Drawing.Size(282, 208);
             // 
@@ -363,16 +363,17 @@
             // 
             // btnAddSibToParentSceneComp
             // 
-            this.btnAddSibToParentSceneComp.Name = "btnAddSibToParentSceneComp";
-            this.btnAddSibToParentSceneComp.Size = new System.Drawing.Size(281, 24);
-            this.btnAddSibToParentSceneComp.Text = "Add As Sibling To Parent";
-            this.btnAddSibToParentSceneComp.Click += new System.EventHandler(this.btnAddSibToParentSceneComp_Click);
+            this.btnAddAsSibToParentSceneComp.Name = "btnAddAsSibToParentSceneComp";
+            this.btnAddAsSibToParentSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnAddAsSibToParentSceneComp.Text = "Add As Sibling To Parent";
+            this.btnAddAsSibToParentSceneComp.Click += new System.EventHandler(this.btnAddAsSibToParentSceneComp_Click);
             // 
             // removeToolStripMenuItem
             // 
-            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(281, 24);
-            this.removeToolStripMenuItem.Text = "Remove";
+            this.btnRemoveSceneComp.Name = "btnRemoveSceneComp";
+            this.btnRemoveSceneComp.Size = new System.Drawing.Size(281, 24);
+            this.btnRemoveSceneComp.Text = "Remove";
+            this.btnRemoveSceneComp.Click += new System.EventHandler(this.btnRemoveSceneComp_Click);
             // 
             // pnlSide
             // 
@@ -521,10 +522,10 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem btnAddToSibAboveSceneComp;
         private System.Windows.Forms.ToolStripMenuItem btnAddToSibBelowSceneComp;
-        private System.Windows.Forms.ToolStripMenuItem btnAddSibToParentSceneComp;
+        private System.Windows.Forms.ToolStripMenuItem btnAddAsSibToParentSceneComp;
         private System.Windows.Forms.Panel pnlSide;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnRemoveSceneComp;
         private BetterTableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Panel pnlProps2;
         private System.Windows.Forms.Panel pnlScene;

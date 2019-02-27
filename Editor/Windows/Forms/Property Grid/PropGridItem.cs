@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Animation;
+using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
 using static TheraEditor.Windows.Forms.TheraForm;
 
@@ -228,13 +229,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             _updating = true;
-            
             DateTime now = DateTime.Now;
-            object value = GetValue();
-            //if (value is Exception ex)
-            //    Engine.LogWarning(ex.ToString());
-            //else
-            bool displayChanged = UpdateDisplayInternal(value);
+            bool displayChanged = false;
+
+            if (VisibleIfAttrib?.Evaluate(MemberInfo?.Owner?.Value) ?? true)
+            {
+                if (!Visible)
+                    Visible = true;
+
+                object value = GetValue();
+                //if (value is Exception ex)
+                //    Engine.LogWarning(ex.ToString());
+                //else
+                displayChanged = UpdateDisplayInternal(value);
+            }
+            else
+            {
+                if (Visible)
+                    Visible = false;
+            }
+
             if (displayChanged)
             {
                 //UpdateTimeSpan = now - LastDisplayChangeTime;
@@ -244,6 +258,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             LastUpdateTime = now;
             _updating = false;
         }
+
+        public BrowsableIf VisibleIfAttrib { get; set; }
         public TimeSpan? UpdateTimeSpan { get; set; }
         public DateTime LastUpdateTime { get; set; }
         public DateTime LastDisplayChangeTime { get; set; }

@@ -213,8 +213,9 @@ namespace TheraEngine.Rendering.UI
 
             IgnoreResizes = true;
             ParentBounds = parentBounds;
-            foreach (UIComponent c in _children)
-                c.Resize(parentBounds);
+            foreach (SceneComponent c in _children)
+                if (c is UIComponent uiComp)
+                    uiComp.Resize(parentBounds);
             RecalcLocalTransform();
             IgnoreResizes = false;
 
@@ -237,11 +238,14 @@ namespace TheraEngine.Rendering.UI
         }
         public virtual UIBoundableComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeCurrent = true)
         {
-            foreach (UIComponent c in _children)
+            foreach (SceneComponent c in _children)
             {
-                UIBoundableComponent comp = c.FindDeepestComponent(cursorPointWorld, includeCurrent);
-                if (comp != null)
-                    return comp;
+                if (c is UIComponent uiComp)
+                {
+                    UIBoundableComponent comp = uiComp.FindDeepestComponent(cursorPointWorld, includeCurrent);
+                    if (comp != null)
+                        return comp;
+                }
             }
             return null;
         }

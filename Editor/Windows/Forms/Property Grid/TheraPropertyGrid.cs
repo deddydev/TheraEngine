@@ -43,6 +43,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             public PropertyInfo Property { get; set; }
             public object[] Attribs { get; set; }
             public bool ReadOnly { get; set; }
+            public BrowsableIf VisibleIfAttrib { get; set; }
         }
         private class MethodData
         {
@@ -422,30 +423,51 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         return;
 
                     object[] attribs = prop.GetCustomAttributes(true);
-                    foreach (object attrib in attribs)
+                    BrowsableIf visibleIfAttrib = null;
+
+                    try
                     {
-                        switch (attrib)
+                        foreach (object attrib in attribs)
                         {
-                            case BrowsableIf browsableIf when !browsableIf.Evaluate(obj):
-                            case BrowsableAttribute browsable when !browsable.Browsable:
-                                return;
-                            case ReadOnlyAttribute readOnlyAttrib:
-                                readOnly = readOnlyAttrib.IsReadOnly || readOnly;
-                                break;
+                            switch (attrib)
+                            {
+                                case BrowsableIf browsableIf:
+                                    visibleIfAttrib = browsableIf;
+                                    break;
+                                case BrowsableAttribute browsable when !browsable.Browsable:
+                                    return;
+                                case ReadOnlyAttribute readOnlyAttrib:
+                                    readOnly = readOnlyAttrib.IsReadOnly || readOnly;
+                                    break;
+                            }
                         }
+
+                        object propObj = prop.GetValue(obj);
+                        Type subType = propObj?.GetType() ?? prop.PropertyType;
+                        PropertyData propData = new PropertyData()
+                        {
+                            ControlTypes = GetControlTypes(subType),
+                            Property = prop,
+                            Attribs = attribs,
+                            ReadOnly = readOnly,
+                            VisibleIfAttrib = visibleIfAttrib,
+                        };
+
+                        propInfo.TryAdd(i, propData);
                     }
-
-                    object propObj = prop.GetValue(obj);
-                    Type subType = propObj?.GetType() ?? prop.PropertyType;
-                    PropertyData propData = new PropertyData()
+                    catch (Exception ex)
                     {
-                        ControlTypes = GetControlTypes(subType),
-                        Property = prop,
-                        Attribs = attribs,
-                        ReadOnly = readOnly,
-                    };
-
-                    propInfo.TryAdd(i, propData);
+                        Engine.LogException(ex);
+                        PropertyData propData = new PropertyData()
+                        {
+                            ControlTypes = GetControlTypes(null),
+                            Property = prop,
+                            Attribs = attribs,
+                            ReadOnly = readOnly,
+                            VisibleIfAttrib = visibleIfAttrib,
+                        };
+                        propInfo.TryAdd(i, propData);
+                    }
                 });
 
                 Parallel.For(0, methods.Length, i =>
@@ -493,7 +515,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         continue;
 
                     PropertyData p = propInfo[i];
-                    CreateControls(grid, p.ControlTypes, new PropGridMemberInfoProperty(memberOwner, p.Property), pnlProps, categories, p.Attribs, p.ReadOnly, changeHandler);
+                    CreateControls(grid, p.ControlTypes, new PropGridMemberInfoProperty(memberOwner, p.Property), pnlProps, categories, p.Attribs, p.ReadOnly, p.VisibleIfAttrib, changeHandler);
                 }
 
                 for (int i = 0; i < methods.Length; ++i)
@@ -504,7 +526,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     MethodData m = methodInfo[i];
                     Deque<Type> deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridMethod));
-                    CreateControls(grid, deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Attribs, false, changeHandler);
+                    CreateControls(grid, deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Attribs, false, null, changeHandler);
                 }
 
                 for (int i = 0; i < events.Length; ++i)
@@ -515,7 +537,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     EventData e = eventInfo[i];
                     Deque<Type> deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridEvent));
-                    CreateControls(grid, deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Attribs, false, changeHandler);
+                    CreateControls(grid, deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Attribs, false, null, changeHandler);
                 }
 
                 bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
@@ -707,6 +729,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Dictionary<string, PropGridCategory> categories,
             object[] attribs,
             bool readOnly,
+            BrowsableIf visibleIfAttrib,
             IDataChangeHandler dataChangeHandler)
         {
             List<PropGridItem> controls = InstantiatePropertyEditors(controlTypes, info, dataChangeHandler);
@@ -724,7 +747,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             string catName = !(attribs.FirstOrDefault(x => x is CategoryAttribute) is CategoryAttribute category) ? GetDefaultCatName() : category.Category;
             if (categories.ContainsKey(catName))
-                categories[catName].AddMember(controls, attribs, readOnly);
+                categories[catName].AddMember(controls, attribs, readOnly, visibleIfAttrib);
             else
             {
                 PropGridCategory misc = new PropGridCategory()
@@ -733,7 +756,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     Dock = DockStyle.Top,
                     PropertyGrid = grid,
                 };
-                misc.AddMember(controls, attribs, readOnly);
+                misc.AddMember(controls, attribs, readOnly, visibleIfAttrib);
                 categories.Add(catName, misc);
 
                 panel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -1085,14 +1108,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 btnAddSiblingSceneComp.Enabled =
                 btnAddToSibAboveSceneComp.Enabled =
                 btnAddToSibBelowSceneComp.Enabled =
-                btnAddSibToParentSceneComp.Enabled =
+                btnAddAsSibToParentSceneComp.Enabled =
+                btnRemoveSceneComp.Enabled =
                 false;
             }
             else
             {
-                SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-                var sibComps = sceneCompSel.ParentSocket?.ChildComponents;
-                int index = sibComps?.IndexOf(sceneCompSel) ?? -1;
+                var sibComps = _selectedSceneComp.Parent?.Nodes;
+                int index = sibComps?.IndexOf(_selectedSceneComp) ?? -1;
                 int count = sibComps?.Count ?? -1;
 
                 btnAddChildSceneComp.Enabled = true;
@@ -1103,8 +1126,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 btnAddToSibAboveSceneComp.Enabled = index > 0;
                 btnAddToSibBelowSceneComp.Enabled = index < count - 1;
 
-                btnAddSiblingSceneComp.Enabled = sceneCompSel.ParentSocket is SceneComponent;
-                btnAddSibToParentSceneComp.Enabled = sceneCompSel.ParentSocket?.ParentSocket is SceneComponent;
+                SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+                btnAddSiblingSceneComp.Enabled = sceneCompSel.ParentSocket is SceneComponent && _selectedSceneComp.Parent != null;
+                btnAddAsSibToParentSceneComp.Enabled = sceneCompSel.ParentSocket?.ParentSocket is SceneComponent && _selectedSceneComp.Parent?.Parent != null;
+
+                btnRemoveSceneComp.Enabled = _selectedSceneComp.Parent != null;
             }
         }
         private void btnAddSiblingSceneComp_Click(object sender, EventArgs e)
@@ -1147,10 +1173,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAddChildSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
             SceneComponent comp = Editor.UserCreateInstanceOf<SceneComponent>();
             if (comp == null)
                 return;
+
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
 
             sceneCompSel.ChildComponents.Add(comp);
 
@@ -1165,6 +1192,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnMoveUpSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
@@ -1183,6 +1211,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnMoveDownSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
@@ -1201,6 +1230,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAddToSibAboveSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
@@ -1219,6 +1249,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void btnAddToSibBelowSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
             sibComps.RemoveAt(index);
@@ -1233,10 +1264,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             CalcSceneCompTreeHeight();
             treeViewSceneComps.SelectedNode = _selectedSceneComp;
         }
-
-        private void btnAddSibToParentSceneComp_Click(object sender, EventArgs e)
+        private void btnRemoveSceneComp_Click(object sender, EventArgs e)
         {
             SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+
+            TreeNode parentNode = _selectedSceneComp.Parent;
+            sceneCompSel.DetachFromParent();
+            _selectedSceneComp.Remove();
+            _selectedSceneComp = parentNode;
+
+            _selectedSceneComp?.EnsureVisible();
+            CalcSceneCompTreeHeight();
+            treeViewSceneComps.SelectedNode = _selectedSceneComp;
+        }
+        private void btnAddAsSibToParentSceneComp_Click(object sender, EventArgs e)
+        {
+            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+
             var parent = sceneCompSel.ParentSocket;
             var sibComps = parent.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);

@@ -113,6 +113,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         internal protected override void SetReferenceHolder(PropGridMemberInfo parentInfo)
         {
             base.SetReferenceHolder(parentInfo);
+            if (parentInfo.DataType.IsValueType)
+                pnlHeader.BackColor = Color.FromArgb(105, 110, 140);
+            else
+                pnlHeader.BackColor = Color.FromArgb(75, 120, 160);
             UpdateMouseDown();
         }
 

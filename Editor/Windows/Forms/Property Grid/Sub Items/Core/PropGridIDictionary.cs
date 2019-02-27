@@ -125,7 +125,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     });
                     for (int i = 0; i < controls.Count; ++i)
                     {
-                        Label label = propGridDicItems.AddMember(controls[i], new object[0], false);
+                        Label label = propGridDicItems.AddMember(controls[i], new object[0], false, null);
                         label.MouseEnter += Label_MouseEnter;
                         label.MouseLeave += Label_MouseLeave;
                         label.MouseDown += Label_MouseDown;
@@ -186,7 +186,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             for (int x = 0; x < count; ++x)
                 interlaced.Add(((x & 1) == 0) ? keys[++keyIndex] : values[++valueIndex]);
             
-            propGridDicItems.AddMember(interlaced, new object[0], false);
+            propGridDicItems.AddMember(interlaced, new object[0], false, null);
             //Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(interlaced[interlaced.Count - 1]);
         }
 

@@ -130,7 +130,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     //TODO: wrap editors in a control that contains a minus button to remove the item from the list
                     for (int i = 0; i < controls.Count; ++i)
                     {
-                        Label label = propGridListItems.AddMember(controls[i], new object[0], false);
+                        Label label = propGridListItems.AddMember(controls[i], new object[0], false, null);
                         label.MouseEnter += Label_MouseEnter;
                         label.MouseLeave += Label_MouseLeave;
                         label.MouseDown += Label_MouseDown;

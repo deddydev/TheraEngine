@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheraEditor.Core.Extensions;
 using TheraEngine.Core.Maths;
+using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -196,7 +197,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 EndLocation = endLocation;
             }
         }
-        public Label AddMember(List<PropGridItem> editors, object[] attributes, bool readOnly)
+        public Label AddMember(List<PropGridItem> editors, object[] attributes, bool readOnly, BrowsableIf visibleIfAttrib)
         {
             var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
             string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
@@ -210,7 +211,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     tblProps.BeginUpdate();
                     tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                     tblProps.RowCount = tblProps.RowStyles.Count;
-                    label = AddRowToTable(editors, readOnly, name, desc);
+                    label = AddRowToTable(editors, readOnly, name, desc, visibleIfAttrib);
                     tblProps.EndUpdate();
                 }));
             }
@@ -219,14 +220,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 tblProps.BeginUpdate();
                 tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 tblProps.RowCount = tblProps.RowStyles.Count;
-                label = AddRowToTable(editors, readOnly, name, desc);
+                label = AddRowToTable(editors, readOnly, name, desc, visibleIfAttrib);
                 tblProps.EndUpdate();
             }
 
             return label;
         }
 
-        private Label AddRowToTable(List<PropGridItem> editors, bool readOnly, string name, string desc)
+        private Label AddRowToTable(List<PropGridItem> editors, bool readOnly, string name, string desc, BrowsableIf visibleIfAttrib)
         {
             Label label = new Label()
             {
@@ -262,6 +263,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.Margin = new Padding(0);
                     item.Padding = new Padding(0);
                     item.ReadOnly = readOnly;
+                    item.VisibleIfAttrib = visibleIfAttrib;
                     item.ParentCategory = this;
 
                     tbl.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -279,6 +281,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.Margin = new Padding(0);
                 item.Padding = new Padding(0);
                 item.ReadOnly = readOnly;
+                item.VisibleIfAttrib = visibleIfAttrib;
                 item.ParentCategory = this;
                 tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
                 PropertyGrid.AddVisibleItem(item);

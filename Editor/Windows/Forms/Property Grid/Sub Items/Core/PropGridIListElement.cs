@@ -57,7 +57,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void btnRemove_Click(object sender, EventArgs e)
         {
-            var parentInfo = GetParentInfo<PropGridMemberInfoIList>();
+            var parentInfo = GetMemberInfoAs<PropGridMemberInfoIList>();
             if (parentInfo == null)
                 return;
 

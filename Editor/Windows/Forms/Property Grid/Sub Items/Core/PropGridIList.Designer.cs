@@ -93,8 +93,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(75)))), ((int)(((byte)(120)))), ((int)(((byte)(160)))));
             this.pnlHeader.Controls.Add(this.lblObjectTypeName);
-            this.pnlHeader.Controls.Add(this.btnAdd);
             this.pnlHeader.Controls.Add(this.chkNull);
+            this.pnlHeader.Controls.Add(this.btnAdd);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Animation;
@@ -28,7 +26,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public event Action DoneEditing;
         public event Action ValueChanged;
 
-        public T GetParentInfo<T>() where T : PropGridMemberInfo
+        public T GetMemberInfoAs<T>() where T : PropGridMemberInfo
             => MemberInfo as T;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -47,7 +45,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         [Browsable(false)]
         public virtual bool ReadOnly { get; set; } = false;
 
-        protected bool IsEditable() => !ReadOnly && (MemberInfo == null || !MemberInfo.IsReadOnly()) && (!(ParentCategory?.ReadOnly ?? false));
+        protected bool IsEditable() =>
+            !ReadOnly &&
+            (MemberInfo == null || !MemberInfo.IsReadOnly()) &&
+            (!(ParentCategory?.ReadOnly ?? false));
 
         /// <summary>
         /// When true, disallows UpdateDisplay() from doing anything until set to false.
@@ -175,25 +176,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
             //    _oldValue, _newValue, classObject, info);
         }
-        //internal protected virtual void SetIDictionaryOwner(IDictionary dic, Type dataType, object key, bool isKey)
-        //{
-        //    ParentInfo = new PropGridItemParentIDictionaryInfo(dic, key, isKey);
-        //    DataType = dataType;
-        //    SetControlsEnabled(!dic.IsReadOnly && !_readOnly);
-        //    UpdateDisplay();
-        //}
-        //internal protected virtual void SetIListOwner(IList list, Type elementType, int index)
-        //{
-        //    ParentInfo = new PropGridItemParentIListInfo(list, index);
-        //    DataType = elementType;
-        //    SetControlsEnabled(!list.IsReadOnly && !_readOnly);
-        //    UpdateDisplay();
-        //}
-        //protected internal void SetPropertyByName(string propertyName, object propertyOwner)
-        //{
-        //    PropertyInfo propertyInfo = propertyOwner.GetType().GetProperty(propertyName);
-        //    SetReferenceHolder(propertyInfo, propertyOwner);
-        //}
         /// <summary>
         /// Designates where this item gets and sets its value.
         /// </summary>
@@ -236,6 +218,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 if (!Visible)
                     Visible = true;
+                if (Label != null && !Label.Visible)
+                    Label.Visible = true;
+                if (ParentCategory != null && !ParentCategory.Visible)
+                    ParentCategory.Visible = true;
 
                 object value = GetValue();
                 //if (value is Exception ex)
@@ -247,6 +233,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 if (Visible)
                     Visible = false;
+                if (Label != null && !Label.Visible)
+                    Label.Visible = false;
+                if (ParentCategory != null && ParentCategory.Visible)
+                {
+                    bool anyVisible = false;
+                    for (int i = 0; i < ParentCategory.tblProps.RowCount; ++i)
+                    {
+                        if (ParentCategory.tblProps.GetControlFromPosition(1, i)?.Visible ?? false)
+                        {
+                            anyVisible = true;
+                            break;
+                        }
+                    }
+                    if (!anyVisible)
+                        ParentCategory.Visible = false;
+                }
             }
 
             if (displayChanged)
@@ -277,7 +279,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (!CanAnimate)
                 return;
 
-            PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
+            PropGridMemberInfoProperty propInfo = GetMemberInfoAs<PropGridMemberInfoProperty>();
             if (!(propInfo.Owner.Value is TObject obj))
                 return;
 
@@ -317,12 +319,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected virtual BasePropAnim CreateAnimation() => throw new NotImplementedException($"{nameof(CreateAnimation)} must be overloaded when {nameof(CanAnimate)} is true.");
         protected virtual string GetAnimationMemberPath()
         {
-            PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
+            PropGridMemberInfoProperty propInfo = GetMemberInfoAs<PropGridMemberInfoProperty>();
             return propInfo.Property.Name;
         }
         private void CreateAnimation(object sender, EventArgs e)
         {
-            PropGridMemberInfoProperty propInfo = GetParentInfo<PropGridMemberInfoProperty>();
+            PropGridMemberInfoProperty propInfo = GetMemberInfoAs<PropGridMemberInfoProperty>();
             if (!(propInfo.Owner.Value is TObject obj))
                 return;
 

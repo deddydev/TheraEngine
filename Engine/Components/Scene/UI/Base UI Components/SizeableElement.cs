@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.UI
@@ -31,7 +32,7 @@ namespace TheraEngine.Rendering.UI
     {
         //void Update(Vec2 parentBounds);
     }
-    public class SizeableElement : ISizeable
+    public class SizeableElement : TObject, ISizeable
     {
         internal bool IgnoreUserChanges { get; set; } = false;
 
@@ -79,6 +80,7 @@ namespace TheraEngine.Rendering.UI
                 }
             }
         }
+        [ReadOnly(true)]
         public float ResultingValue
         {
             get => _resValue;

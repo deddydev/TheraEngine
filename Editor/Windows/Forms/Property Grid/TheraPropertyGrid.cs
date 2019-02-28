@@ -286,6 +286,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         internal void AddVisibleItem(PropGridItem item)
         {
             VisibleItemsAdditionQueue.Enqueue(item);
+            item.UpdateDisplay();
         }
         internal void RemoveVisibleItem(PropGridItem item)
         {

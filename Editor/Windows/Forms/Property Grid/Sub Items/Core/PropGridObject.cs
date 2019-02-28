@@ -125,6 +125,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public void Toggle() => pnlProps.Visible = !pnlProps.Visible;
         public ControlCollection ChildControls => pnlProps.Controls;
 
+        public bool EditInPlace { get; set; } = false;
+
         private void UpdateMouseDown()
         {
             _mouseDown = MouseDownProperties;
@@ -180,8 +182,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void MouseDownProperties()
         {
-            //pnlProps.Visible = !pnlProps.Visible;
-            ParentCategory?.PropertyGrid?.SetObject(_object, MemberInfo.MemberAccessor);
+            if (EditInPlace)
+                pnlProps.Visible = !pnlProps.Visible;
+            else
+                ParentCategory?.PropertyGrid?.SetObject(_object, MemberInfo.MemberAccessor);
         }
         private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
         {

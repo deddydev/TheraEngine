@@ -45,7 +45,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(34, 31);
             this.btnRemove.TabIndex = 3;
-            this.btnRemove.Text = "-";
+            this.btnRemove.Text = "X";
             this.btnRemove.UseVisualStyleBackColor = true;
             this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
             // 
@@ -65,19 +65,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(75)))), ((int)(((byte)(120)))), ((int)(((byte)(160)))));
             this.pnlHeader.Controls.Add(this.pnlEditors);
             this.pnlHeader.Controls.Add(this.btnRemove);
+            this.pnlHeader.AutoSize = true;
+            this.pnlHeader.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Size = new System.Drawing.Size(11, 31);
             // 
-            // PropGridNullableWrapper
+            // PropGridIListElement
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.pnlHeader);
-            this.Name = "PropGridNullableWrapper";
-            this.Size = new System.Drawing.Size(0, 17);
+            this.Name = "PropGridIListElement";
+            this.Size = new System.Drawing.Size(11, 31);
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
             this.ResumeLayout(false);

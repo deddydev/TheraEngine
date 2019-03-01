@@ -855,6 +855,8 @@ namespace TheraEngine.Core.Maths.Transforms
             => new Vec4(c.R * THelpers.ByteToFloat, c.G * THelpers.ByteToFloat, c.B * THelpers.ByteToFloat, c.A * THelpers.ByteToFloat);
         public static explicit operator Color(Vec4 v)
             => Color.FromArgb(v.W.ToByte(), v.X.ToByte(), v.Y.ToByte(), v.Z.ToByte());
+        public static implicit operator Vec4(Quat v) => new Vec4(v.X, v.Y, v.Z, v.W);
+
         private static readonly string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString() => ToString();
         public string ToString(string openingBracket = "(", string closingBracket = ")", string separator = ", ")

@@ -36,26 +36,40 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _lblObjectName_StartColor = lblObjectName.BackColor;
             _lblObjectName_EndColor = Color.FromArgb(_lblObjectName_StartColor.R + 10, _lblObjectName_StartColor.G + 10, _lblObjectName_StartColor.B + 10);
         }
-
-        private class PropertyData
+        private class PropGridData
         {
+            public string Category { get; set; }
+        }
+        private class PropertyData : PropGridData
+        {
+            public PropertyData(PropertyInfo property, object obj, string category)
+            {
+                Deque<Type> types;
+                try
+                {
+                    object propObj = property.GetValue(obj);
+                    Type subType = propObj?.GetType() ?? property.PropertyType;
+                    types = GetControlTypes(subType);
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                    types = GetControlTypes(null);
+                }
+                ControlTypes = types;
+                Property = property;
+                Category = category;
+            }
             public Deque<Type> ControlTypes { get; set; }
             public PropertyInfo Property { get; set; }
-            public object[] Attribs { get; set; }
-            public bool ReadOnly { get; set; }
-            public BrowsableIf VisibleIfAttrib { get; set; }
         }
-        private class MethodData
+        private class MethodData : PropGridData
         {
             public MethodInfo Method { get; set; }
-            public object[] Attribs { get; set; }
-            public string DisplayName { get; set; }
         }
-        private class EventData
+        private class EventData : PropGridData
         {
             public EventInfo Event { get; set; }
-            public object[] Attribs { get; set; }
-            public string DisplayName { get; set; }
         }
 
         private const string MiscName = "Miscellaneous";
@@ -359,8 +373,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     this,
                     pnlProps, _categories,
                     _targetObject,
-                    this, this,
-                    false, true,
+                    this, this, true,
                     propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
             }
             catch (Exception ex)
@@ -377,7 +390,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             object obj,
             IPropGridMemberOwner memberOwner,
             IDataChangeHandler changeHandler,
-            bool readOnly,
             bool showProperties = true,
             bool showMethods = true,
             bool showEvents = true)
@@ -422,53 +434,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     ParameterInfo[] indexParams = prop.GetIndexParameters();
                     if (indexParams.Length > 0)
                         return;
+                    
+                    BrowsableAttribute browsable = prop.GetCustomAttribute<BrowsableAttribute>(true);
+                    if (!(browsable?.Browsable ?? true))
+                        return;
 
-                    object[] attribs = prop.GetCustomAttributes(true);
-                    BrowsableIf visibleIfAttrib = null;
+                    string category = prop.GetCustomAttribute<CategoryAttribute>(true)?.Category;
 
-                    try
-                    {
-                        foreach (object attrib in attribs)
-                        {
-                            switch (attrib)
-                            {
-                                case BrowsableIf browsableIf:
-                                    visibleIfAttrib = browsableIf;
-                                    break;
-                                case BrowsableAttribute browsable when !browsable.Browsable:
-                                    return;
-                                case ReadOnlyAttribute readOnlyAttrib:
-                                    readOnly = readOnlyAttrib.IsReadOnly || readOnly;
-                                    break;
-                            }
-                        }
-
-                        object propObj = prop.GetValue(obj);
-                        Type subType = propObj?.GetType() ?? prop.PropertyType;
-                        PropertyData propData = new PropertyData()
-                        {
-                            ControlTypes = GetControlTypes(subType),
-                            Property = prop,
-                            Attribs = attribs,
-                            ReadOnly = readOnly,
-                            VisibleIfAttrib = visibleIfAttrib,
-                        };
-
-                        propInfo.TryAdd(i, propData);
-                    }
-                    catch (Exception ex)
-                    {
-                        Engine.LogException(ex);
-                        PropertyData propData = new PropertyData()
-                        {
-                            ControlTypes = GetControlTypes(null),
-                            Property = prop,
-                            Attribs = attribs,
-                            ReadOnly = readOnly,
-                            VisibleIfAttrib = visibleIfAttrib,
-                        };
-                        propInfo.TryAdd(i, propData);
-                    }
+                    PropertyData propData = new PropertyData(prop, obj, category);
+                    propInfo.TryAdd(i, propData);
                 });
 
                 Parallel.For(0, methods.Length, i =>
@@ -477,12 +451,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (method.IsSpecialName || (!(method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false)))
                         return;
 
-                    object[] attribs = method.GetCustomAttributes(true);
+                    string category = method.GetCustomAttribute<CategoryAttribute>(true)?.Category;
+
                     MethodData methodData = new MethodData()
                     {
                         Method = method,
-                        Attribs = attribs,
-                        DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? method.Name,
+                        Category = category,
                     };
 
                     methodInfo.TryAdd(i, methodData);
@@ -494,12 +468,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (e.IsSpecialName)
                         return;
 
-                    object[] attribs = e.GetCustomAttributes(true);
+                    string category = e.GetCustomAttribute<CategoryAttribute>(true)?.Category;
+
                     EventData eventData = new EventData()
                     {
                         Event = e,
-                        Attribs = attribs,
-                        DisplayName = (attribs.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute)?.DisplayName ?? e.Name,
+                        Category = category,
                     };
 
                     eventInfo.TryAdd(i, eventData);
@@ -516,7 +490,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         continue;
 
                     PropertyData p = propInfo[i];
-                    CreateControls(grid, p.ControlTypes, new PropGridMemberInfoProperty(memberOwner, p.Property), pnlProps, categories, p.Attribs, p.ReadOnly, p.VisibleIfAttrib, changeHandler);
+                    CreateControls(grid, p.ControlTypes, new PropGridMemberInfoProperty(memberOwner, p.Property), pnlProps, categories, p.Category, changeHandler);
                 }
 
                 for (int i = 0; i < methods.Length; ++i)
@@ -527,7 +501,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     MethodData m = methodInfo[i];
                     Deque<Type> deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridMethod));
-                    CreateControls(grid, deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Attribs, false, null, changeHandler);
+                    CreateControls(grid, deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Category, changeHandler);
                 }
 
                 for (int i = 0; i < events.Length; ++i)
@@ -538,7 +512,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     EventData e = eventInfo[i];
                     Deque<Type> deque = new Deque<Type>();
                     deque.PushBack(typeof(PropGridEvent));
-                    CreateControls(grid, deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Attribs, false, null, changeHandler);
+                    CreateControls(grid, deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Category, changeHandler);
                 }
 
                 bool ignoreLoneSubCats = Editor.Instance.Project?.EditorSettings?.PropertyGrid?.IgnoreLoneSubCategories ?? true;
@@ -611,8 +585,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             if (controlTypes.Count == 0)
             {
-                Engine.LogWarning("Unable to find control for " + (propertyType == null ? "null" : propertyType.GetFriendlyName()));
-                controlTypes.PushBack(typeof(PropGridText));
+                //Engine.LogWarning("Unable to find control for " + (propertyType == null ? "null" : propertyType.GetFriendlyName()));
+                controlTypes.PushBack(typeof(PropGridObject));
             }
             else if (controlTypes.Count > 1)
                 if (mainControlType == typeof(PropGridObject))
@@ -620,17 +594,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             return controlTypes;
         }
-        public static PropGridItem InstantiatePropertyEditor(Type controlType, PropGridMemberInfo info, IDataChangeHandler dataChangeHandler)
+        public static PropGridItem InstantiatePropertyEditor(Type controlType, PropGridMemberInfo info, PropGridCategory category, IDataChangeHandler dataChangeHandler)
         {
             PropGridItem control = (PropGridItem)Editor.Instance.Invoke((Func<PropGridItem>)(() => 
             {
                 PropGridItem item = Activator.CreateInstance(controlType) as PropGridItem;
                 if (item != null)
                 {
-                    item.SetReferenceHolder(info);
                     item.Dock = DockStyle.Fill;
-                    item.Visible = true;
+                    item.ParentCategory = category;
                     item.DataChangeHandler = dataChangeHandler;
+                    item.SetReferenceHolder(info);
                 }
                 return item;
 
@@ -642,8 +616,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// Instantiates the given PropGridItem-derived control types for the given object in a list.
         /// </summary>
         public static List<PropGridItem> InstantiatePropertyEditors(
-            Deque<Type> controlTypes, PropGridMemberInfo info, IDataChangeHandler dataChangeHandler)
-            => controlTypes.Select(x => InstantiatePropertyEditor(x, info, dataChangeHandler)).ToList();
+            Deque<Type> controlTypes, PropGridMemberInfo info, PropGridCategory category, IDataChangeHandler dataChangeHandler)
+            => controlTypes.Select(x => InstantiatePropertyEditor(x, info, category, dataChangeHandler)).ToList();
 
         //public static PropGridMethod CreateMethodControl(
         //    MethodInfo m,
@@ -710,9 +684,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         //    return control;
         //}
-
+        private static string GetDefaultCatName(PropGridMemberInfo info)
+        {
+            switch (info)
+            {
+                case PropGridMemberInfoEvent _:
+                    return "Events";
+                case PropGridMemberInfoMethod _:
+                    return "Methods";
+                default:
+                    return MiscName;
+            }
+        }
         /// <summary>
-        /// Constructs all given control types and 
+        /// Constructs all given control types
         /// </summary>
         /// <param name="grid"></param>
         /// <param name="controlTypes"></param>
@@ -728,42 +713,31 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             PropGridMemberInfo info,
             BetterTableLayoutPanel panel,
             Dictionary<string, PropGridCategory> categories,
-            object[] attribs,
-            bool readOnly,
-            BrowsableIf visibleIfAttrib,
+            string category,
             IDataChangeHandler dataChangeHandler)
         {
-            List<PropGridItem> controls = InstantiatePropertyEditors(controlTypes, info, dataChangeHandler);
-            string GetDefaultCatName()
-            {
-                switch (info)
-                {
-                    case PropGridMemberInfoEvent _:
-                        return "Events";
-                    case PropGridMemberInfoMethod _:
-                        return "Methods";
-                    default:
-                        return MiscName;
-                }
-            }
-            string catName = !(attribs.FirstOrDefault(x => x is CategoryAttribute) is CategoryAttribute category) ? GetDefaultCatName() : category.Category;
+            string catName = category ?? GetDefaultCatName(info);
+            PropGridCategory targetCategory;
+
             if (categories.ContainsKey(catName))
-                categories[catName].AddMember(controls, attribs, readOnly, visibleIfAttrib);
+                targetCategory = categories[catName];
             else
             {
-                PropGridCategory misc = new PropGridCategory()
+                targetCategory = new PropGridCategory()
                 {
                     CategoryName = catName,
                     Dock = DockStyle.Top,
                     PropertyGrid = grid,
                 };
-                misc.AddMember(controls, attribs, readOnly, visibleIfAttrib);
-                categories.Add(catName, misc);
+                categories.Add(catName, targetCategory);
 
                 panel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 panel.RowCount = panel.RowStyles.Count;
-                panel.Controls.Add(misc, 0, panel.RowCount - 1);
+                panel.Controls.Add(targetCategory, 0, panel.RowCount - 1);
             }
+
+            List<PropGridItem> controls = InstantiatePropertyEditors(controlTypes, info, targetCategory, dataChangeHandler);
+            targetCategory.AddMember(controls);
         }
         #endregion
 

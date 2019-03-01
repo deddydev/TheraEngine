@@ -71,6 +71,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
+                pnlProps.Visible = AlwaysVisible;
                 lblObjectTypeName.Enabled = true;
             }
             return false;
@@ -93,20 +94,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 ParentCategory?.PropertyGrid,
                 pnlProps, _categories,
                 notNull ? _object : null,
-                this, DataChangeHandler,
-                ReadOnly, true,
+                this, DataChangeHandler, true,
                 propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
         }
         
         private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
         {
-            if (_object != null)
+            if (_object != null && !AlwaysVisible)
                 lblObjectTypeName.BackColor = chkNull.BackColor = Color.FromArgb(105, 140, 170);
         }
 
         private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
         {
-            if (_object != null)
+            if (_object != null && !AlwaysVisible)
                 lblObjectTypeName.BackColor = chkNull.BackColor = Color.Transparent;
         }
         
@@ -121,11 +121,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         public void Expand() => pnlProps.Visible = true;
-        public void Collapse() => pnlProps.Visible = false;
-        public void Toggle() => pnlProps.Visible = !pnlProps.Visible;
+        public void Collapse() => pnlProps.Visible = AlwaysVisible;
+        public void Toggle() => pnlProps.Visible = AlwaysVisible ? true : !pnlProps.Visible;
         public ControlCollection ChildControls => pnlProps.Controls;
 
         public bool EditInPlace { get; set; } = false;
+        public bool AlwaysVisible { get; set; } = false;
 
         private void UpdateMouseDown()
         {
@@ -183,7 +184,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void MouseDownProperties()
         {
             if (EditInPlace)
-                pnlProps.Visible = !pnlProps.Visible;
+                pnlProps.Visible = AlwaysVisible ? true : !pnlProps.Visible;
             else
                 ParentCategory?.PropertyGrid?.SetObject(_object, MemberInfo.MemberAccessor);
         }
@@ -201,9 +202,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     LoadProperties(true);
             }
             else
-            {
                 LoadProperties(false);
-            }
         }
         
         private void chkNull_CheckedChanged(object sender, EventArgs e)

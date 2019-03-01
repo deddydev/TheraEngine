@@ -88,7 +88,7 @@ namespace TheraEditor.Windows.Forms
         public event DelUIComponentSelect UIComponentSelected;
         //public event DelUIComponentSelect UIComponentHighlighted;
         
-        public IUserInterface TargetHUD
+        public IUserInterface TargetUI
         {
             get => _targetHud;
             set
@@ -103,7 +103,6 @@ namespace TheraEditor.Windows.Forms
                 if (_targetHud != null)
                 {
                     BaseTransformComponent.ChildComponents.Add(_targetHud.RootComponent);
-                    IVec2 vec = LocalPlayerController.Viewport.Region.Extents;
                     if (_targetHud?.RootComponent is UICanvasComponent canvas)
                     {
                         canvas.Size = PreviewResolution;
@@ -135,6 +134,8 @@ namespace TheraEditor.Windows.Forms
             else
             {
                 _selectedComp = _highlightedComp;
+                if (_selectedComp is UIBoundableComponent selectedBounds)
+                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.Size * BaseTransformComponent.Scale;
                 _dragComp = null;
             }
             UIComponentSelected?.Invoke(_dragComp);

@@ -110,8 +110,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             editorTypeCaches.TryAdd(valType, valControlTypes);
                         }
                         
-                        List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyControlTypes, new PropGridItemRefIDictionaryInfo(this, key, true), DataChangeHandler);
-                        List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valControlTypes, new PropGridItemRefIDictionaryInfo(this, key, false), DataChangeHandler);
+                        List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyControlTypes, new PropGridItemRefIDictionaryInfo(this, key, true), ParentCategory, DataChangeHandler);
+                        List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valControlTypes, new PropGridItemRefIDictionaryInfo(this, key, false), ParentCategory, DataChangeHandler);
 
                         //TODO: don't interlace, put key editor in place of label
                         int count = keys.Count + values.Count;
@@ -125,7 +125,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     });
                     for (int i = 0; i < controls.Count; ++i)
                     {
-                        Label label = propGridDicItems.AddMember(controls[i], new object[0], false, null);
+                        Label label = propGridDicItems.AddMember(controls[i]);
                         label.MouseEnter += Label_MouseEnter;
                         label.MouseLeave += Label_MouseLeave;
                         label.MouseDown += Label_MouseDown;
@@ -172,12 +172,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var keys = TheraPropertyGrid.InstantiatePropertyEditors(
                 TheraPropertyGrid.GetControlTypes(key?.GetType()),
                 new PropGridItemRefIDictionaryInfo(this,
-                key, true), DataChangeHandler);
+                key, true), ParentCategory, DataChangeHandler);
 
             var values = TheraPropertyGrid.InstantiatePropertyEditors(
                 TheraPropertyGrid.GetControlTypes(value?.GetType()),
                 new PropGridItemRefIDictionaryInfo(this,
-                key, false), DataChangeHandler);
+                key, false), ParentCategory, DataChangeHandler);
 
             int count = keys.Count + values.Count;
             List<PropGridItem> interlaced = new List<PropGridItem>(count);
@@ -186,7 +186,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             for (int x = 0; x < count; ++x)
                 interlaced.Add(((x & 1) == 0) ? keys[++keyIndex] : values[++valueIndex]);
             
-            propGridDicItems.AddMember(interlaced, new object[0], false, null);
+            propGridDicItems.AddMember(interlaced);
             //Editor.Instance.PropertyGridForm.PropertyGrid.pnlProps.ScrollControlIntoView(interlaced[interlaced.Count - 1]);
         }
 

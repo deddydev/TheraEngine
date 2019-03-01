@@ -82,7 +82,7 @@ namespace TheraEditor.Windows.Forms
                         PropGridItem valueCtrl = TheraPropertyGrid.InstantiatePropertyEditor(
                             TheraPropertyGrid.GetControlTypes(valType)[0], 
                             new PropGridMemberInfoProperty(_paramWrappers[i], 
-                            varType.GetProperty("Value")), this);
+                            varType.GetProperty("Value")), null, this);
 
                         valueCtrl.ValueChanged += RedrawPreview;
 

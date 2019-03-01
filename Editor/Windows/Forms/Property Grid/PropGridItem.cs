@@ -8,6 +8,7 @@ using TheraEngine;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
+using TheraEngine.Rendering.UI;
 using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -176,12 +177,68 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //Editor.Instance.UndoManager.AddChange(PropertyGrid.TargetObject.EditorState,
             //    _oldValue, _newValue, classObject, info);
         }
+        private void ResolveMemberName(string displayNameOverride)
+        {
+            if (Label == null)
+                return;
+
+            string propName = MemberInfo?.DisplayName; //editors[0].GetParentInfo<PropGridItemRefPropertyInfo>()?.Property?.Name;
+            string name;
+
+            if (!string.IsNullOrWhiteSpace(displayNameOverride))
+                name = displayNameOverride;
+            else if (!string.IsNullOrWhiteSpace(propName))
+                name = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
+            else
+                name = "[No Name]";
+
+            Label.Text = name;
+        }
         /// <summary>
         /// Designates where this item gets and sets its value.
         /// </summary>
         protected internal virtual void SetReferenceHolder(PropGridMemberInfo memberInfo)
         {
             MemberInfo = memberInfo;
+
+            string displayNameOverride = null;
+            
+            if (MemberInfo is PropGridMemberInfoProperty propInfo)
+            {
+                var attribs = propInfo.Property.GetCustomAttributes(true);
+                foreach (object attrib in attribs)
+                {
+                    switch (attrib)
+                    {
+                        case BrowsableIf browsableIf:
+                            VisibleIfAttrib = browsableIf;
+                            break;
+                        case BrowsableAttribute browsable:
+                            Visible = browsable.Browsable;
+                            return;
+                        case ReadOnlyAttribute readOnlyAttrib:
+                            ReadOnly = readOnlyAttrib.IsReadOnly;
+                            break;
+                        case DisplayNameAttribute displayName:
+                            displayNameOverride = displayName.DisplayName;
+                            break;
+                        case EditInPlace editInPlace:
+                            if (this is PropGridObject pobj)
+                            {
+                                pobj.EditInPlace = true;
+                                pobj.AlwaysVisible = true;
+                            }
+                            break;
+                        case DescriptionAttribute desc:
+                            if (Label.Tag is MemberLabelInfo info)
+                                info.Description = desc.Description;
+                            break;
+                    }
+                }
+            }
+
+            ResolveMemberName(displayNameOverride);
+
             if (DataType != null)
             {
                 //Double check that this control is valid for the given type
@@ -198,11 +255,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         return;
                 }
             }
+
             UpdateDisplay();
         }
         internal void SetLabel(Label label)
         {
             Label = label;
+
+            string displayNameOverride = (MemberInfo as PropGridMemberInfoProperty)?.Property?.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
+            ResolveMemberName(displayNameOverride);
+
             OnLabelSet();
         }
         public void UpdateDisplay()
@@ -271,20 +333,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public virtual bool CanAnimate => false;
 
         object IPropGridMemberOwner.Value => GetValue();
-        
-        public override string ToString()
-            => DataType + " - " + MemberInfo;
+
         protected virtual void OnLabelSet()
         {
             if (!CanAnimate)
                 return;
 
-            PropGridMemberInfoProperty propInfo = GetMemberInfoAs<PropGridMemberInfoProperty>();
-            if (!(propInfo.Owner.Value is TObject obj))
+            GetAnimationMemberPath(out PropGridMemberInfo animOwner);
+            if (!(animOwner?.Owner?.Value is TObject obj))
                 return;
 
             ToolStripMenuItem[] anims = obj.Animations?.
-                Where(x => x.RootMember?.MemberName == propInfo.Property.Name && x.RootMember?.Animation.File != null).
+                Where(x => x.RootMember?.MemberName == animOwner.DisplayName && x.RootMember?.Animation.File != null).
                 Select(x => new ToolStripMenuItem(x.Name, null, EditAnimation) { Tag = x }).
                 ToArray();
 
@@ -307,7 +367,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             strip.RenderMode = ToolStripRenderMode.Professional;
             strip.Renderer = new TheraToolstripRenderer();
+
             Label.ContextMenuStrip = strip;
+            Label.Name += "*";
         }
         private static void EditAnimation(object sender, EventArgs e)
         {
@@ -317,21 +379,39 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //}
         }
         protected virtual BasePropAnim CreateAnimation() => throw new NotImplementedException($"{nameof(CreateAnimation)} must be overloaded when {nameof(CanAnimate)} is true.");
-        protected virtual string GetAnimationMemberPath()
+        protected virtual string GetAnimationMemberPath(out PropGridMemberInfo animOwner)
         {
-            PropGridMemberInfoProperty propInfo = GetMemberInfoAs<PropGridMemberInfoProperty>();
-            return propInfo.Property.Name;
+            var info = MemberInfo;
+            string accessor = string.Empty;
+            int count = 0;
+            while (info != null && !(info.Owner?.Value is TObject obj))
+            {
+                accessor = info.MemberAccessor + accessor;
+                info = info.Owner.MemberInfo;
+                ++count;
+            }
+            if (!(info?.Owner?.Value is TObject))
+            {
+                animOwner = null;
+                return null;
+            }
+            animOwner = info;
+            if (count > 0 && accessor[0] == '.')
+                accessor = accessor.Substring(1);
+            return accessor;
         }
         private void CreateAnimation(object sender, EventArgs e)
         {
-            PropGridMemberInfoProperty propInfo = GetMemberInfoAs<PropGridMemberInfoProperty>();
-            if (!(propInfo.Owner.Value is TObject obj))
+            string path = GetAnimationMemberPath(out PropGridMemberInfo animOwner);
+            if (animOwner == null)
                 return;
-
-            AnimationTree anim = new AnimationTree(propInfo.Property.Name, GetAnimationMemberPath(), CreateAnimation());
+            TObject obj = animOwner.Owner?.Value as TObject;
+            
+            AnimationTree anim = new AnimationTree(animOwner.DisplayName, path, CreateAnimation());
 
             if (obj.Animations == null)
                 obj.Animations = new EventList<AnimationTree>();
+
             obj.Animations.Add(anim);
 
             ToolStripItemCollection menu = Label.ContextMenuStrip.Items;
@@ -345,5 +425,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 ((ToolStripMenuItem)menu[1]).DropDownItems.Add(menuItem);
         }
+
+        public override string ToString() => $"[{DataType.GetFriendlyName()}] - {MemberInfo}";
     }
 }

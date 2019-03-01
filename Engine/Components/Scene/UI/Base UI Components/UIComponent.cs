@@ -9,6 +9,7 @@ using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -22,7 +23,7 @@ namespace TheraEngine.Rendering.UI
         float ScaleX { get; set; }
         float ScaleY { get; set; }
     }
-    public class UIComponent : OriginRebasableComponent, IUIComponent, IEnumerable<UIComponent>
+    public class UIComponent : OriginRebasableComponent, IUIComponent, I2DRenderable, IEnumerable<UIComponent>
     {
         public UIComponent() : base() { }
 
@@ -31,9 +32,7 @@ namespace TheraEngine.Rendering.UI
         protected bool _visible = true;
 
         [Category("Rendering")]
-        public virtual int LayerIndex { get; set; }
-        [Category("Rendering")]
-        public virtual int IndexWithinLayer { get; set; }
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
         [Category("Rendering")]
         public virtual bool IsVisible
         {
@@ -200,10 +199,9 @@ namespace TheraEngine.Rendering.UI
                 -LocalTranslation,
                 TransformOrder.SRT);
         }
-
-        [Category("Transform")]
+        [Browsable(false)]
         public bool IgnoreResizes { get; set; } = false;
-        [Category("Transform")]
+        [Browsable(false)]
         public Vec2 ParentBounds { get; protected set; }
 
         public virtual Vec2 Resize(Vec2 parentBounds)
@@ -306,8 +304,8 @@ namespace TheraEngine.Rendering.UI
             base.HandleSingleChildAdded(item);
             if (item is UIComponent c)
             {
-                c.LayerIndex = LayerIndex;
-                c.IndexWithinLayer = IndexWithinLayer + 1;
+                c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
+                c.RenderInfo.IndexWithinLayer = RenderInfo.IndexWithinLayer + 1;
                 c.PerformResize();
             }
         }
@@ -346,6 +344,10 @@ namespace TheraEngine.Rendering.UI
             if (delta)
                 mtx = mtx.ClearTranslation();
             return (coordinate * mtx).Xy;
+        }
+        public virtual void AddRenderables(RenderPasses passes, Camera camera)
+        {
+
         }
     }
 }

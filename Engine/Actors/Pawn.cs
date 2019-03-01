@@ -72,7 +72,7 @@ namespace TheraEngine.Actors
         /// <summary>
         /// The interface that is managing and providing input to this pawn.
         /// </summary>
-        [Category("Pawn")]
+        [Browsable(false)]
         public PawnController Controller { get; private set; }
         /// <summary>
         /// Casts the controller to a server player controller.

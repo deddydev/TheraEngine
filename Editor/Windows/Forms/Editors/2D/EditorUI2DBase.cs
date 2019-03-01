@@ -218,12 +218,12 @@ namespace TheraEditor.Windows.Forms
             Vec2 origin = GetViewportTopRightWorldSpace();
             if (_xUnitText != null)
             {
-                float width = _xUnitText.SizeableWidth.GetValue(_xUnitText.ParentBounds);
+                float width = _xUnitText.SizeableWidth.GetResultingValue(_xUnitText.ParentBounds);
                 _xUnitText.SizeablePosX.ModificationValue = origin.X - width / BaseTransformComponent.ScaleX;
             }
             if (_yUnitText != null)
             {
-                float height = _yUnitText.SizeableHeight.GetValue(_yUnitText.ParentBounds);
+                float height = _yUnitText.SizeableHeight.GetResultingValue(_yUnitText.ParentBounds);
                 _yUnitText.SizeablePosY.ModificationValue = origin.Y - height / BaseTransformComponent.ScaleY;
             }
             UpdateBackgroundMaterial();
@@ -278,7 +278,7 @@ namespace TheraEditor.Windows.Forms
                 inc *= (float)Math.Pow(invMax, mults);
 
             inc /= MaxIncrementExclusive;
-            inc *= 0.5f; //half the result
+            //inc *= 0.5f; //half the result
             if (inc != UnitIncrement)
                 UnitIncrement = inc;
         }
@@ -529,7 +529,7 @@ namespace TheraEditor.Windows.Forms
         protected virtual void Zoom(float increment)
         {
             Vec3 worldPoint = CursorPositionWorld();
-            BaseTransformComponent.Zoom(BaseTransformComponent.ScaleX * increment, worldPoint.Xy, new Vec2(0.1f, 0.1f), null);
+            BaseTransformComponent.Zoom(BaseTransformComponent.ScaleX * increment, worldPoint.Xy, new Vec2(0.1f, 0.1f), new Vec2(3000.0f, 3000.0f));
 
             UpdateBackgroundMaterial();
             UpdateTextScale();

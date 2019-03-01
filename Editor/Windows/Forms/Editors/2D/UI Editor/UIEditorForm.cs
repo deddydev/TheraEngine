@@ -1,11 +1,10 @@
 ﻿using System;
 using TheraEngine.Actors.Types.Pawns;
-using TheraEngine.Rendering.UI;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    [EditorFor(typeof(IUserInterface))]
+    //[EditorFor(typeof(IUserInterface))]
     public partial class UIEditorForm : TheraForm, IDockPanelOwner
     {
         DockPanel IDockPanelOwner.DockPanelRef => dockPanel1;
@@ -21,30 +20,30 @@ namespace TheraEditor.Windows.Forms
         }
         public UIEditorForm(IUserInterface manager) : this()
         {
-            TargetHUD = manager;
+            TargetUI = manager;
         }
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
             UIGraph.Form.Focus();
-            UIGraph.Form.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
+            //UIGraph.Form.RenderPanel.UI.UIComponentSelected += UI_SelectedComponentChanged;
         }
         public DockableFormInstance<DockableUIGraph> UIGraph { get; }
         public DockableFormInstance<DockablePropertyGrid> UIProps { get; }
-        public IUserInterface TargetHUD
+        public IUserInterface TargetUI
         {
-            get => UIGraph.Form.RenderPanel.UI.TargetHUD;
+            get => UIGraph.Form.TargetUI;
             set
             {
-                UIGraph.Form.RenderPanel.UI.TargetHUD = value;
+                UIGraph.Form.TargetUI = value;
                 UIProps.Form.PropertyGrid.TargetObject = value;
                 FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
             }
         }
 
-        private void UI_SelectedComponentChanged(UIComponent comp)
-        {
-            //MaterialFunctionProperties.TargetFunc = func;
-        }
+        //private void UI_SelectedComponentChanged(UIComponent comp)
+        //{
+        //    //MaterialFunctionProperties.TargetFunc = func;
+        //}
     }
 }

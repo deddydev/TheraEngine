@@ -1,16 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using TheraEditor.Core.Extensions;
 using TheraEngine.Core.Maths;
-using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
+    public class MemberLabelInfo
+    {
+        public string Description { get; set; }
+        public Point StartLocation { get; set; }
+        public Point EndLocation { get; set; }
+        public EventHandler<FrameEventArgs> LerpMethod;
+        public PropGridMemberInfo ParentInfo { get; set; }
+
+        public MemberLabelInfo(string description, Point startLocation, Point endLocation)
+        {
+            Description = description;
+            StartLocation = startLocation;
+            EndLocation = endLocation;
+        }
+    }
     public partial class PropGridCategory : UserControl, ICollapsible
     {
         public PropGridCategory()
@@ -164,45 +176,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         //    return label;
         //}
-        public string ResolveMemberName(PropGridItem editor, object[] attributes)
+        public Label AddMember(List<PropGridItem> editors)
         {
-            var displayNameAttrib = attributes.FirstOrDefault(x => x is DisplayNameAttribute) as DisplayNameAttribute;
-            
-            string displayName = displayNameAttrib?.DisplayName;
-            var parentInfo = editor.MemberInfo;
-            string propName = parentInfo.DisplayName; //editors[0].GetParentInfo<PropGridItemRefPropertyInfo>()?.Property?.Name;
-            string name;
-
-            if (!string.IsNullOrWhiteSpace(displayName))
-                name = displayName;
-            else if (!string.IsNullOrWhiteSpace(propName))
-                name = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase ? propName.SplitCamelCase() : propName;
-            else
-                name = "[No Name]";
-
-            return name;
-        }
-        private class MemberLabelInfo
-        {
-            public string Description { get; set; }
-            public Point StartLocation { get; set; }
-            public Point EndLocation { get; set; }
-            public EventHandler<FrameEventArgs> LerpMethod;
-            public PropGridMemberInfo ParentInfo { get; set; }
-
-            public MemberLabelInfo(string description, Point startLocation, Point endLocation)
-            {
-                Description = description;
-                StartLocation = startLocation;
-                EndLocation = endLocation;
-            }
-        }
-        public Label AddMember(List<PropGridItem> editors, object[] attributes, bool readOnly, BrowsableIf visibleIfAttrib)
-        {
-            var description = attributes.FirstOrDefault(x => x is DescriptionAttribute) as DescriptionAttribute;
-            string desc = string.IsNullOrWhiteSpace(description?.Description) ? null : description.Description;
-            string name = ResolveMemberName(editors[0], attributes);
-            
             Label label = null;
             if (tblProps.InvokeRequired)
             {
@@ -211,7 +186,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     tblProps.BeginUpdate();
                     tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                     tblProps.RowCount = tblProps.RowStyles.Count;
-                    label = AddRowToTable(editors, readOnly, name, desc, visibleIfAttrib);
+                    label = AddRowToTable(editors);
                     tblProps.EndUpdate();
                 }));
             }
@@ -220,14 +195,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 tblProps.BeginUpdate();
                 tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 tblProps.RowCount = tblProps.RowStyles.Count;
-                label = AddRowToTable(editors, readOnly, name, desc, visibleIfAttrib);
+                label = AddRowToTable(editors);
                 tblProps.EndUpdate();
             }
 
             return label;
         }
 
-        private Label AddRowToTable(List<PropGridItem> editors, bool readOnly, string name, string desc, BrowsableIf visibleIfAttrib)
+        private Label AddRowToTable(List<PropGridItem> editors)
         {
             Label label = new Label()
             {
@@ -237,12 +212,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Dock = DockStyle.Fill,
                 Padding = new Padding(3, 2, 3, 4),
                 Margin = new Padding(0),
-                Text = name,
+                Text = null,
             };
             label.MouseEnter += Label_MouseEnter;
             label.MouseLeave += Label_MouseLeave;
             tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
-            label.Tag = new MemberLabelInfo(desc, label.Location, new Point(label.Location.X + 10, label.Location.Y));
+            label.Tag = new MemberLabelInfo(null, label.Location, new Point(label.Location.X + 10, label.Location.Y));
             if (editors.Count > 1)
             {
                 BetterTableLayoutPanel tbl = new BetterTableLayoutPanel()
@@ -262,14 +237,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.Dock = DockStyle.Top;
                     item.Margin = new Padding(0);
                     item.Padding = new Padding(0);
-                    item.ReadOnly = readOnly;
-                    item.VisibleIfAttrib = visibleIfAttrib;
                     item.ParentCategory = this;
 
                     tbl.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                     tbl.RowCount = tblProps.RowStyles.Count;
                     tbl.Controls.Add(item, 0, tbl.RowCount - 1);
-                    PropertyGrid.AddVisibleItem(item);
+                    PropertyGrid?.AddVisibleItem(item);
                 }
                 tblProps.Controls.Add(tbl, 1, tblProps.RowCount - 1);
             }
@@ -280,11 +253,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.Dock = DockStyle.Fill;
                 item.Margin = new Padding(0);
                 item.Padding = new Padding(0);
-                item.ReadOnly = readOnly;
-                item.VisibleIfAttrib = visibleIfAttrib;
                 item.ParentCategory = this;
                 tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
-                PropertyGrid.AddVisibleItem(item);
+                PropertyGrid?.AddVisibleItem(item);
             }
             return label;
         }

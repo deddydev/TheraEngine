@@ -44,7 +44,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (DataType != null)
             {
                 var types = TheraPropertyGrid.GetControlTypes(DataType);
-                var items = TheraPropertyGrid.InstantiatePropertyEditors(types, parentInfo, DataChangeHandler);
+                var items = TheraPropertyGrid.InstantiatePropertyEditors(types, parentInfo, ParentCategory, DataChangeHandler);
                 foreach (var item in items)
                 {
                     item.Dock = DockStyle.Top;

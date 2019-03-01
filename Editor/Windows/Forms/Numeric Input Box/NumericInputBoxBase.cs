@@ -267,7 +267,7 @@ namespace TheraEditor.Windows.Forms
             SetValue((!string.IsNullOrWhiteSpace(textValue) && TryParse(textValue, out T newValue2)) ? (T?)newValue2 : null, true);
         }
 
-        protected void SetValue(T? value, bool forceTextUpdate)
+        public void SetValue(T? value, bool forceTextUpdate)
         {
             T? newValue = value == null ?
                 (Nullable ? null : (T?)DefaultValue) :

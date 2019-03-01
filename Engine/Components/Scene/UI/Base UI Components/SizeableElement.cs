@@ -39,7 +39,6 @@ namespace TheraEngine.Rendering.UI
         public event Action ParameterChanged;
 
         private float
-            _currValue = 0.0f,
             _modValue = 0.0f,
             _resValue = 0.0f;
         private ESizingMode _sizingMode = ESizingMode.Pixels;
@@ -63,11 +62,6 @@ namespace TheraEngine.Rendering.UI
         //        }
         //    }
         //}
-        internal void SetModificationValueNoUpdate(float value)
-        {
-            if (!IgnoreUserChanges)
-                _modValue = value;
-        }
         public float ModificationValue
         {
             get => _modValue;
@@ -80,18 +74,40 @@ namespace TheraEngine.Rendering.UI
                 }
             }
         }
-        [ReadOnly(true)]
-        public float ResultingValue
+        //[ReadOnly(true)]
+        //public float ResultingValue
+        //{
+        //    get => _resValue;
+        //    //set
+        //    //{
+        //    //    if (!IgnoreUserChanges)
+        //    //    {
+        //    //        _resValue = value;
+        //    //        ParameterChanged?.Invoke();
+        //    //    }
+        //    //}
+        //}
+        public void SetResultingValue(float value, Vec2 parentBounds)
         {
-            get => _resValue;
-            set
-            {
-                if (!IgnoreUserChanges)
-                {
-                    _resValue = value;
-                    ParameterChanged?.Invoke();
-                }
-            }
+            if (IgnoreUserChanges)
+                return;
+
+            _resValue = value;
+            GetModificationValue(parentBounds);
+            ParameterChanged?.Invoke();
+        }
+        internal void SetModificationValueNoUpdate(float value)
+        {
+            if (!IgnoreUserChanges)
+                _modValue = value;
+        }
+        internal void SetResultingValueNoUpdate(float value, Vec2 parentBounds)
+        {
+            if (IgnoreUserChanges)
+                return;
+
+            _resValue = value;
+            GetModificationValue(parentBounds);
         }
         public ESizingMode SizingOption
         {
@@ -191,35 +207,77 @@ namespace TheraEngine.Rendering.UI
             }
             return 0.0f;
         }
-        public float GetValue(Vec2 parentBounds)
+        public float GetResultingValue(Vec2 parentBounds)
         {
-            float origin = Origin?.GetValue(parentBounds) ?? 0.0f;
+            float origin = Origin?.GetResultingValue(parentBounds) ?? 0.0f;
             float size = GetDim(parentBounds);
             float newValue = origin;
             switch (SizingOption)
             {
                 default:
                 case ESizingMode.Pixels:
-                    newValue += ModificationValue;
+                    newValue += _modValue;
                     break;
                 case ESizingMode.PercentageOfParent:
-                    newValue += size * ModificationValue;
+                    newValue += size * _modValue;
                     break;
                 case ESizingMode.Proportion:
                     if (ProportionElement != null)
-                        newValue += ProportionElement.GetValue(parentBounds) * ModificationValue;
+                        newValue += ProportionElement.GetResultingValue(parentBounds) * _modValue;
                     break;
             }
 
-            ResultingValue = _smallerRelative ? newValue : size - newValue;
+            newValue = _smallerRelative ? newValue : size - newValue;
 
             if (Minimum != null)
-                ResultingValue = ResultingValue.ClampMin(Minimum.GetValue(parentBounds));
+                newValue = newValue.ClampMin(Minimum.GetResultingValue(parentBounds));
 
             if (Maximum != null)
-                ResultingValue = ResultingValue.ClampMax(Maximum.GetValue(parentBounds));
+                newValue = newValue.ClampMax(Maximum.GetResultingValue(parentBounds));
 
-            return ResultingValue;
+            return _resValue = newValue;
+        }
+        public float GetModificationValue(Vec2 parentBounds)
+        {
+            float origin = Origin?.GetResultingValue(parentBounds) ?? 0.0f;
+            float size = GetDim(parentBounds);
+
+            float newValue = _resValue;
+
+            if (Minimum != null)
+                newValue = newValue.ClampMin(Minimum.GetResultingValue(parentBounds));
+
+            if (Maximum != null)
+                newValue = newValue.ClampMax(Maximum.GetResultingValue(parentBounds));
+
+            if (!_smallerRelative)
+                newValue = size - newValue;
+
+            newValue -= origin;
+            switch (SizingOption)
+            {
+                default:
+                case ESizingMode.Pixels:
+                    break;
+                case ESizingMode.PercentageOfParent:
+                    if (size != 0.0f)
+                        newValue /= size;
+                    else
+                        newValue = 0.0f;
+                    break;
+                case ESizingMode.Proportion:
+                    if (ProportionElement != null)
+                    {
+                        float dim = ProportionElement.GetResultingValue(parentBounds);
+                        if (dim != 0.0f)
+                            newValue /= dim;
+                        else
+                            newValue = 0.0f;
+                    }
+                    break;
+            }
+            
+            return _modValue = newValue;
         }
 
         #region Sizing modes
@@ -296,10 +354,10 @@ namespace TheraEngine.Rendering.UI
         public Vec4 GetLRTB(Vec2 parentBounds)
         {
             return new Vec4(
-                Left.GetValue(parentBounds),
-                Right.GetValue(parentBounds),
-                Top.GetValue(parentBounds),
-                Bottom.GetValue(parentBounds));
+                Left.GetResultingValue(parentBounds),
+                Right.GetResultingValue(parentBounds),
+                Top.GetResultingValue(parentBounds),
+                Bottom.GetResultingValue(parentBounds));
         }
         public void Update(Vec2 parentBounds)
         {

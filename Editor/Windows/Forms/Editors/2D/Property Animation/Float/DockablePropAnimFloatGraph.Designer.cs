@@ -43,23 +43,24 @@
             this.RenderPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.RenderPanel.Location = new System.Drawing.Point(0, 25);
             this.RenderPanel.Name = "RenderPanel";
-            this.RenderPanel.Size = new System.Drawing.Size(385, 188);
+            this.RenderPanel.Size = new System.Drawing.Size(359, 188);
             this.RenderPanel.TabIndex = 0;
             this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Adaptive;
             // 
             // dockingHostToolStripPanel1
             // 
+            this.dockingHostToolStripPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
             this.dockingHostToolStripPanel1.Controls.Add(this.tearOffToolStrip1);
             this.dockingHostToolStripPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.dockingHostToolStripPanel1.Location = new System.Drawing.Point(0, 0);
             this.dockingHostToolStripPanel1.Name = "dockingHostToolStripPanel1";
             this.dockingHostToolStripPanel1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.dockingHostToolStripPanel1.RowMargin = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.dockingHostToolStripPanel1.Size = new System.Drawing.Size(385, 25);
-            this.dockingHostToolStripPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
+            this.dockingHostToolStripPanel1.Size = new System.Drawing.Size(359, 25);
             // 
             // tearOffToolStrip1
             // 
+            this.tearOffToolStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
             this.tearOffToolStrip1.BottomToolStripPanel = null;
             this.tearOffToolStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.tearOffToolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -72,7 +73,6 @@
             this.tearOffToolStrip1.TabIndex = 2;
             this.tearOffToolStrip1.Text = "tearOffToolStrip1";
             this.tearOffToolStrip1.TopToolStripPanel = null;
-            this.tearOffToolStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
             // 
             // btnZoomExtents
             // 
@@ -89,10 +89,10 @@
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(385, 213);
+            this.ClientSize = new System.Drawing.Size(359, 213);
             this.Controls.Add(this.RenderPanel);
             this.Controls.Add(this.dockingHostToolStripPanel1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DockablePropAnimFloatGraph";
             this.Text = "Float Animation Editor";

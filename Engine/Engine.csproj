@@ -1103,6 +1103,10 @@
     <Compile Include="ThirdParty\PMX\Format\Triangles.cs" />
     <Compile Include="ThirdParty\PMX\Format\Vertices.cs" />
     <Compile Include="ThirdParty\VisualStudioSolution.cs" />
+    <Compile Include="ThirdParty\VMD\Format\Camera.cs" />
+    <Compile Include="ThirdParty\VMD\Format\Morph.cs" />
+    <Compile Include="ThirdParty\VMD\Format\Bone.cs" />
+    <Compile Include="ThirdParty\VMD\Format\Header.cs" />
     <Compile Include="Worlds\AssetURL.cs" />
     <Compile Include="Worlds\EventDictionary.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />

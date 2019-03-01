@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.UI
         Vec2 LocalOriginTranslation { get; set; }
         Vec2 BottomLeftTranslation { get; set; }
     }
-    public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, I2DRenderable, IEnumerable<UIComponent>
+    public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, IEnumerable<UIComponent>
     {
         public UIBoundableComponent() : base() { }
         
@@ -83,8 +83,6 @@ namespace TheraEngine.Rendering.UI
             get => LocalTranslation - LocalOriginTranslation;
             set => LocalTranslation = value + LocalOriginTranslation;
         }
-        
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
 
         public bool Contains(Vec2 worldPoint)
         {
@@ -147,9 +145,7 @@ namespace TheraEngine.Rendering.UI
         {
             base.HandleSingleChildAdded(item);
             if (item is UIComponent c)
-                c.LayerIndex = LayerIndex;
+                c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
         }
-        public override void OnSpawned() => base.OnSpawned();
-        public virtual void AddRenderables(RenderPasses passes, Camera camera) { }
     }
 }

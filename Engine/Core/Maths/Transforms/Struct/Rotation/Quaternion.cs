@@ -16,6 +16,13 @@ namespace System
 
         public float X, Y, Z, W;
 
+        public Quat(Vec4 v)
+        {
+            X = v.X;
+            Y = v.Y;
+            Z = v.Z;
+            W = v.W;
+        }
         public Quat(Vec3 v, float w)
         {
             X = v.X;
@@ -30,6 +37,8 @@ namespace System
             Z = z;
             W = w;
         }
+
+        public static implicit operator Quat(Vec4 v) => new Quat(v);
 
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
         public Vec3 Xyz

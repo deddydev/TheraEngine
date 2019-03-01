@@ -45,12 +45,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (diff == 0)
                 return;
             if (diff < 0)
-                numericInputBox1.Value += numericInputBox1.SmallIncrement;
+                numericInputBox1.SetValue(numericInputBox1.Value + numericInputBox1.SmallIncrement, true);
             else
-                numericInputBox1.Value -= numericInputBox1.SmallIncrement;
+                numericInputBox1.SetValue(numericInputBox1.Value - numericInputBox1.SmallIncrement, true);
             _y = e.Location.Y;
         }
-
+        private void LabelMouseEnter(object sender, EventArgs e)
+        {
+            Cursor = Cursors.SizeNS;
+        }
+        private void LabelMouseLeave(object sender, EventArgs e)
+        {
+            Cursor = Cursors.Default;
+        }
         private void numericInputBox1_ValueChanged(NumericInputBoxBase<Single> box, Single? previous, Single? current)
         {
             UpdateValue(current.Value, false);
@@ -76,8 +83,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             Label.MouseDown += LabelMouseDown;
             Label.MouseUp += LabelMouseUp;
+            Label.MouseEnter += LabelMouseEnter;
+            Label.MouseLeave += LabelMouseLeave;
             base.OnLabelSet();
         }
+
         protected override BasePropAnim CreateAnimation() => new PropAnimFloat(0.0f, true, true);
     }
 }

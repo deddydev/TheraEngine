@@ -10,10 +10,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override string MemberAccessor => "." + Owner.MemberInfo.DisplayName + DisplayName;
+        public override string MemberAccessor => "." + DisplayName;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override string DisplayName => string.Format("[{0}]", Index);
+        public override string DisplayName => Owner.MemberInfo.DisplayName + string.Format("[{0}]", Index);
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public int Index { get; set; }

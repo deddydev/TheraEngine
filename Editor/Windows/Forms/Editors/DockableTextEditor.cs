@@ -729,11 +729,11 @@ namespace TheraEditor.Windows.Forms
             TextBox.RightBracket2 = '\x0';
 
             //clear style of changed range
-            e.ClearStyle(KeywordStyle, ClassNameStyle, PreprocessorStyle, NumberStyle, CommentStyle, StringStyle, HoveredWordStyle);
+            e.ClearStyle(KeywordStyle, ClassNameStyle, PreprocessorStyle, NumberStyle, CommentStyle, StringStyle);
 
-            Range hoveredWord = e.GetIntersectionWith(HoveredWordRange);
-            if (hoveredWord.Length > 0)
-                hoveredWord.SetStyle(HoveredWordStyle);
+            //Range hoveredWord = e.GetIntersectionWith(HoveredWordRange);
+            //if (hoveredWord.Length > 0)
+            //    hoveredWord.SetStyle(HoveredWordStyle);
 
             //string highlighting
             e.SetStyle(StringStyle, StringRegex);

@@ -152,8 +152,11 @@ namespace TheraEditor.Wrappers
                 if (TheraPropertyGrid.FullEditorTypes.ContainsKey(t))
                 {
                     var editorType = TheraPropertyGrid.FullEditorTypes[t];
-                    using (Form f = Activator.CreateInstance(editorType, fileObj) as Form)
-                        f?.ShowDialog(Editor.Instance);
+                    Form form = Activator.CreateInstance(editorType, fileObj) as Form;
+                    if (form is DockContent dc && !(form is TheraForm))
+                        dc.Show(Editor.Instance.DockPanel, DockState.Document);
+                    else
+                        form?.ShowDialog(Editor.Instance);
                     return;
                 }
                 foreach (Type intfType in t.GetInterfaces())
@@ -161,8 +164,11 @@ namespace TheraEditor.Wrappers
                     if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
                     {
                         var editorType = TheraPropertyGrid.FullEditorTypes[intfType];
-                        using (Form f = Activator.CreateInstance(editorType, fileObj) as Form)
-                            f?.ShowDialog(Editor.Instance);
+                        Form form = Activator.CreateInstance(editorType, fileObj) as Form;
+                        if (form is DockContent dc && !(form is TheraForm))
+                            dc.Show(Editor.Instance.DockPanel, DockState.Document);
+                        else
+                            form?.ShowDialog(Editor.Instance);
                         return;
                     }
                 }

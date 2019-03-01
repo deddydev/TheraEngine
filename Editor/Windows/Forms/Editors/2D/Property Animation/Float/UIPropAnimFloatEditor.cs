@@ -148,7 +148,7 @@ namespace TheraEditor.Windows.Forms
               out (float Time, float Value)[] max);
             return TMath.Max(Math.Abs(min[0].Value), Math.Abs(max[0].Value));
         }
-        const float Resolution = 1.0f;
+        const float Resolution = 0.5f;
         private float MinSec { get; set; }
         private float VisibleSecRange { get; set; }
         private int FrameCount { get; set; }
@@ -563,9 +563,11 @@ void main()
 
                     _draggedKeyframes.Clear();
                     _selectionStartPosAnimRelative = animPos;
+                    HashSet<int> uniqueKfs = new HashSet<int>();
                     foreach (int index in ClosestPositionIndices)
                     {
                         int kfIndex = index >> 2;
+                        uniqueKfs.Add(kfIndex);
                         var kf = _targetAnimation.Keyframes[kfIndex];
 
                         // 00 inPos
@@ -617,6 +619,14 @@ void main()
                             });
                         }
                     }
+                    if (uniqueKfs.Count == 1)
+                    {
+                        //var graph = Viewport.OwningPanel.FindForm() as DockablePropAnimFloatGraph;
+                        //graph.DockPanel
+                        Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = _targetAnimation.Keyframes[ClosestPositionIndices[0] >> 2];
+                    }
+                    else
+                        Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = _targetAnimation;
                 }
                 else if (CtrlDown)
                 {

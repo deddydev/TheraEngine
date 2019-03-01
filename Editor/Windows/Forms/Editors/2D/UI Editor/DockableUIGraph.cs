@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using TheraEngine;
 using TheraEngine.Actors;
+using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
-using TheraEngine.Rendering.UI;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
+    [EditorFor(typeof(IUserInterface))]
     public partial class DockableUIGraph : DockContent, IEditorControl
     {
         public DockableUIGraph()
@@ -19,6 +20,20 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.AllowDrop = false;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
             GameMode = new UIEditorGameMode() { RenderPanel = RenderPanel };
+        }
+        public DockableUIGraph(IUserInterface ui) : this()
+        {
+            TargetUI = ui;
+        }
+        public IUserInterface TargetUI
+        {
+            get => RenderPanel.UI.TargetUI;
+            internal set
+            {
+                RenderPanel.UI.TargetUI = value;
+                if (value != null)
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = value;
+            }
         }
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
@@ -55,15 +70,19 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.FormClosed();
             base.OnClosed(e);
         }
-        private void newUIElementToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            UIComponent comp = Editor.UserCreateInstanceOf<UIComponent>();
-            if (comp != null)
-                RenderPanel.UI.BaseTransformComponent.ChildComponents.Add(comp);
-        }
-        private void removeSelectedElementToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+        //private void newUIElementToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    UIComponent comp = Editor.UserCreateInstanceOf<UIComponent>();
+        //    if (comp != null)
+        //        RenderPanel.UI?.TargetHUD?.RootComponent?.ChildComponents?.Add(comp);
+        //}
+        //private void removeSelectedElementToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
 
+        //}
+        private void btnZoomExtents_Click(object sender, EventArgs e)
+        {
+            RenderPanel.UI.ZoomExtents();
         }
     }
     public class UIEditorController : LocalPlayerController

@@ -52,7 +52,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 
                 ValueType = DataType.GetGenericArguments()[0];
                 var types = TheraPropertyGrid.GetControlTypes(ValueType);
-                var items = TheraPropertyGrid.InstantiatePropertyEditors(types, parentInfoNullable, DataChangeHandler);
+                var items = TheraPropertyGrid.InstantiatePropertyEditors(types, parentInfoNullable, ParentCategory, DataChangeHandler);
                 foreach (var item in items)
                 {
                     item.Dock = System.Windows.Forms.DockStyle.Top;

@@ -313,7 +313,7 @@ namespace TheraEngine.Components
         /// All scene components that derive their transform from this one.
         /// </summary>
         [TSerialize]
-        [Browsable(false)]
+        //[Browsable(false)]
         [Category("Scene Component")]
         public EventList<SceneComponent> ChildComponents
         {
@@ -423,7 +423,8 @@ namespace TheraEngine.Components
         //[Category("Rendering")]
         //public bool IsSpawned
         //    => OwningActor == null ? false : OwningActor.IsSpawned;
-        [Browsable(false)]
+        //[Browsable(false)]
+        [Category("Scene Component")]
         public virtual ISocket ParentSocket
         {
             get => _parent;

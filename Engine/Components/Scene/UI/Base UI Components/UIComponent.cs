@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.UI
             }
         }
 
-        [Browsable(false)]
+        [Category("Scene Component")]
         public override ISocket ParentSocket
         {
             get => base.ParentSocket;

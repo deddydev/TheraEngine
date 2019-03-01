@@ -39,11 +39,11 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public float MaxX
         {
-            get => LocalTranslationX + (Width < 0 ? 0 : Width);
+            get => BottomLeftTranslation.X + (Width < 0 ? 0 : Width);
             set
             {
                 CheckProperDimensions();
-                Width = value - LocalTranslationX;
+                Width = value - BottomLeftTranslation.X;
             }
         }
         /// <summary>
@@ -53,11 +53,11 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public float MaxY
         {
-            get => LocalTranslationY + (Height < 0 ? 0 : Height);
+            get => BottomLeftTranslation.Y + (Height < 0 ? 0 : Height);
             set
             {
                 CheckProperDimensions();
-                Height = value - LocalTranslationY;
+                Height = value - BottomLeftTranslation.Y;
             }
         }
         /// <summary>
@@ -67,13 +67,13 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public float MinX
         {
-            get => LocalTranslationX + (Width < 0 ? Width : 0);
+            get => BottomLeftTranslation.X + (Width < 0 ? Width : 0);
             set
             {
                 CheckProperDimensions();
-                float origX = Width;
+                float origX = MaxX;
                 SizeablePosX.SetResultingValueNoUpdate(value, ParentBounds);
-                Width = origX - LocalTranslationX;
+                Width = origX - BottomLeftTranslation.X;
             }
         }
         /// <summary>
@@ -83,13 +83,13 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public float MinY
         {
-            get => LocalTranslationY + (Height < 0 ? Height : 0);
+            get => BottomLeftTranslation.Y + (Height < 0 ? Height : 0);
             set
             {
                 CheckProperDimensions();
-                float origY = Height;
+                float origY = MaxY;
                 SizeablePosY.SetResultingValueNoUpdate(value, ParentBounds);
-                Height = origY - LocalTranslationY;
+                Height = origY - BottomLeftTranslation.Y;
             }
         }
         /// <summary>

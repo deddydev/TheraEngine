@@ -638,6 +638,7 @@ namespace TheraEditor
             else
             {
                 PrintLine(SolutionPath + " : Build failed.");
+                LastBuildLog.Display();
             }
             
             pc.UnregisterAllLoggers();

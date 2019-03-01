@@ -230,7 +230,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             }
                             break;
                         case DescriptionAttribute desc:
-                            if (Label.Tag is MemberLabelInfo info)
+                            if (Label?.Tag is MemberLabelInfo info)
                                 info.Description = desc.Description;
                             break;
                     }
@@ -262,8 +262,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             Label = label;
 
-            string displayNameOverride = (MemberInfo as PropGridMemberInfoProperty)?.Property?.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
+            var prop = (MemberInfo as PropGridMemberInfoProperty)?.Property;
+            string displayNameOverride = prop?.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName;
             ResolveMemberName(displayNameOverride);
+
+            string desc = prop?.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            if (!string.IsNullOrWhiteSpace(desc) && Label?.Tag is MemberLabelInfo info)
+                info.Description = desc;
 
             OnLabelSet();
         }

@@ -281,7 +281,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             DateTime now = DateTime.Now;
             bool displayChanged = false;
 
-            if (VisibleIfAttrib?.Evaluate(MemberInfo?.Owner?.Value) ?? true)
+            var parent = MemberInfo?.Owner?.Value;
+            if (parent == null || (VisibleIfAttrib?.Evaluate(parent) ?? true))
             {
                 if (!Visible)
                     Visible = true;

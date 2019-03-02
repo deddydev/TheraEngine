@@ -14,7 +14,7 @@ namespace TheraEngine.ThirdParty.VMD
         private fixed byte _boneName[15];
         private uint _frameIndex;
         private Vec3 _boneRelativePosition;
-        private Vec4 _boneRotation;
+        private Quat _boneRotation;
         private fixed byte _interpolation[64];
 
         public string BoneName

@@ -429,6 +429,8 @@ namespace TheraEditor.Windows.Forms
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             _highlightPoint.RenderInfo.LinkScene(_highlightPoint, OwningScene3D);
             SubViewport.IsVisible = false;
+
+            Editor.Instance.ActorTreeForm.EditorHUD = this;
         }
         protected override void OnDespawned()
         {
@@ -436,6 +438,8 @@ namespace TheraEditor.Windows.Forms
 
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             _highlightPoint.RenderInfo.UnlinkScene();
+
+            Editor.Instance.ActorTreeForm.EditorHUD = null;
         }
         private float _averageFPS = 0.0f;
         private int _averageFPSCount = 1;

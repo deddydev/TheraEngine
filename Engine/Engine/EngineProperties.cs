@@ -95,8 +95,6 @@ namespace TheraEngine
         /// </summary>
         public static event Action PostWorldChanged;
 
-        public static BaseGameMode ActiveGameMode => Game?.State.GameModeRef?.File;
-
         /// <summary>
         /// Instances of files that are loaded only once and are accessable by all global references to that file.
         /// </summary>
@@ -108,7 +106,7 @@ namespace TheraEngine
         /// <summary>
         /// Controllers for all players that are local to this client.
         /// </summary>
-        public static List<LocalPlayerController> LocalPlayers { get; } = new List<LocalPlayerController>();
+        //public static List<LocalPlayerController> LocalPlayers => World.GameMode.LocalPlayers;
         
         public static List<AIController> ActiveAI = new List<AIController>();
 
@@ -199,10 +197,7 @@ namespace TheraEngine
         //Continually scans for and processes new input devices.
         //TODO: allow disabling
         private static InputAwaiter _inputAwaiter;
-
-        //Queue of what pawns should be possessed next for each player index when they either first join the game, or have their controlled pawn set to null.
-        private static Dictionary<ELocalPlayerIndex, Queue<IPawn>> _possessionQueues = new Dictionary<ELocalPlayerIndex, Queue<IPawn>>();
-
+        
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
         private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();

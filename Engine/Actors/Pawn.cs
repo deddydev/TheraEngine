@@ -162,6 +162,8 @@ namespace TheraEngine.Actors
         {
             OwningWorld.Settings.EnableOriginRebasingChanged += Settings_EnableOriginRebasingChanged;
             Settings_EnableOriginRebasingChanged(OwningWorld.Settings);
+
+
         }
         private void Settings_EnableOriginRebasingChanged(WorldSettings settings)
         {
@@ -180,9 +182,25 @@ namespace TheraEngine.Actors
         }
 
         public void QueuePossession(ELocalPlayerIndex possessor)
-            => Engine.QueuePossession(this, possessor);
+        {
+            var mode = OwningWorld?.CurrentGameMode;
+            if (mode != null)
+                mode.QueuePossession(this, possessor);
+            else
+            {
+
+            }
+        }
         public void ForcePossessionBy(ELocalPlayerIndex possessor)
-            => Engine.ForcePossession(this, possessor);
+        {
+            var mode = OwningWorld?.CurrentGameMode;
+            if (mode != null)
+                mode.ForcePossession(this, possessor);
+            else
+            {
+
+            }
+        }
         
         public virtual void OnPossessed(PawnController possessor)
         {

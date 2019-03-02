@@ -404,7 +404,7 @@ namespace TheraEngine.Rendering.Models
             if (IsMapped)
                 return;
 
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PushData, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PushData, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
             if (!IsActive)
@@ -424,7 +424,7 @@ namespace TheraEngine.Rendering.Models
             if (IsMapped)
                 return;
 
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PushSubData, BaseRenderPanel.PanelType.Rendering, offset, length))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PushSubData, BaseRenderPanel.EPanelType.Rendering, offset, length))
                 return;
 
             if (!IsActive)

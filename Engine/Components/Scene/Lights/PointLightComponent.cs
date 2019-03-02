@@ -108,8 +108,7 @@ namespace TheraEngine.Components.Scene.Lights
         /// </summary>
         public override void SetUniforms(RenderProgram program, string targetStructName)
         {
-            targetStructName = targetStructName ?? Uniform.LightsStructName;
-            targetStructName += ".";
+            targetStructName = (targetStructName ?? Uniform.LightsStructName) + ".";
 
             program.Uniform(targetStructName + "Color", _color.Raw);
             program.Uniform(targetStructName + "DiffuseIntensity", _diffuseIntensity);
@@ -117,8 +116,7 @@ namespace TheraEngine.Components.Scene.Lights
             program.Uniform(targetStructName + "Radius", Radius);
             program.Uniform(targetStructName + "Brightness", Brightness);
 
-            var tex = ShadowMap.Material.Textures[1].RenderTextureGeneric;
-            program.Sampler("ShadowMap", tex, 4);
+            ShadowMap.Material.Textures[1].SampleIn(program, 4);
         }
         public override void SetShadowMapResolution(int width, int height)
         {

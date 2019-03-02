@@ -31,10 +31,11 @@ namespace TheraEngine.Rendering.Text
         [TagName("localPlayerName")]
         public virtual string GetLocalPlayerName(int index)
         {
-            if (Engine.LocalPlayers.IndexInRange(index))
-                return Engine.LocalPlayers[index].PlayerInfo.UserName;
-            else
-                return $"[local player index {index} is out of range]";
+            //if (Engine.LocalPlayers.IndexInRange(index))
+            //    return Engine.LocalPlayers[index].PlayerInfo.UserName;
+            //else
+            //    return $"[local player index {index} is out of range]";
+            return "";
         }
     }
 }

@@ -18,6 +18,6 @@ namespace TheraEngine.Rendering.UI
             set => base.ViewportCamera = value;
         }
 
-        private BaseScene _scene;
+        public Scene3D Scene { get; set; }
     }
 }

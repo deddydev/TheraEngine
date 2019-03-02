@@ -42,13 +42,6 @@ namespace TheraEngine.Input
                 ViewportCamera = camera;
             }
         }
-        ~ServerPlayerController()
-        {
-            _input.WantsInputsRegistered -= RegisterInput;
-            int index = PlayerInfo.ServerIndex;
-            if (index >= 0 && index < Engine.LocalPlayers.Count)
-                Engine.LocalPlayers.RemoveAt(index);
-        }
 
         private Viewport _viewport;
         protected InputInterface _input;

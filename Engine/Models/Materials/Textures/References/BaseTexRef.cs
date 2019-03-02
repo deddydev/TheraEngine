@@ -58,6 +58,7 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 case ETextureType.Tex1D:
                     return null;
+                    //return new TexRef1D();
                 case ETextureType.Tex2D:
                     return new TexRef2D();
                 case ETextureType.Tex3D:
@@ -65,7 +66,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 case ETextureType.TexCube:
                     return new TexRefCube();
                 case ETextureType.Tex2DRect:
-                    return null;
+                    return new TexRef2D() { Rectangle = true };
                 case ETextureType.Tex1DArray:
                     return null;
                 case ETextureType.Tex2DArray:
@@ -75,7 +76,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 case ETextureType.TexBuffer:
                     return null;
                 case ETextureType.Tex2DMultisample:
-                    return null;
+                    return new TexRef2D() { MultiSample = true };
                 case ETextureType.Tex2DMultisampleArray:
                     return null;
                 default:
@@ -86,5 +87,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public string ResolveSamplerName(int textureIndex, string samplerNameOverride = null)
             => samplerNameOverride ?? SamplerName ?? ($"Texture{textureIndex.ToString()}");
+
+        public void SampleIn(RenderProgram program, int textureUnit)
+            => program.Sampler(SamplerName, RenderTextureGeneric, textureUnit);
     }
 }

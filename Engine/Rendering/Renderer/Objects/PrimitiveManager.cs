@@ -534,6 +534,8 @@ namespace TheraEngine.Rendering.Models
             }
 
             TMaterial mat = GetRenderMaterial(materialOverride);
+            if (mat == null)
+                return;
 
             RenderProgram vtxProg, matProg;
             if (Engine.Settings.AllowShaderPipelines)

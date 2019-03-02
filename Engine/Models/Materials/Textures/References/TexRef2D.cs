@@ -471,6 +471,10 @@ namespace TheraEngine.Rendering.Models.Materials
                 return _fillerBitmap;
             }
         }
+        
+        public bool Rectangle { get; set; } = false;
+        public bool MultiSample { get; set; } = false;
+
         private static bool _loadingFillerBitmap = false;
         private static Bitmap _fillerBitmap = null;
         private static void GetFillerBitmap()

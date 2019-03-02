@@ -138,7 +138,7 @@ namespace TheraEngine
         /// Initializes the engine to its beginning state.
         /// Call AFTER SetGame is called and all initial render panels are created and ready.
         /// </summary>
-        public static void Initialize(bool loadOpeningWorldGameMode = true)
+        public static void Initialize()
         {
             var userSet = UserSettings;
             var engineSet = Settings;
@@ -173,7 +173,7 @@ namespace TheraEngine
 
                 //Set initial world (this would generally be a world for opening videos or the main menu)
                 if (Game.OpeningWorldRef?.FileExists ?? false)
-                    SetCurrentWorld(Game.OpeningWorldRef.File, true, loadOpeningWorldGameMode);
+                    SetCurrentWorld(Game.OpeningWorldRef.File);
 
                 //Preload transition world now
                 //await Game.TransitionWorldRef.LoadNewInstanceAsync();
@@ -244,7 +244,7 @@ namespace TheraEngine
 
             //SteamAPI.Shutdown();
             //Stop();
-            SetCurrentWorld(null, true, true);
+            SetCurrentWorld(null);
 
             IEnumerable<IFileObject>
             //files = LocalFileInstances.SelectMany(x => x.Value);
@@ -469,8 +469,9 @@ namespace TheraEngine
         /// <param name="toggler">The player that's pausing the game.</param>
         public static void SetPaused(bool wantsPause, ELocalPlayerIndex toggler, bool force = false)
         {
-            if ((!force && wantsPause && ActiveGameMode.DisallowPausing) || IsPaused == wantsPause)
+            if ((!force && wantsPause && World.CurrentGameMode.DisallowPausing) || IsPaused == wantsPause)
                 return;
+
             IsPaused = wantsPause;
             PauseChanged?.Invoke(IsPaused, toggler);
             PrintLine("Engine{0}paused.", IsPaused ? " " : " un");
@@ -632,132 +633,50 @@ namespace TheraEngine
         /// Retrieves the current world's overridden game mode or the game's game mode if not overriden.
         /// </summary>
         public static BaseGameMode GetGameMode()
-            => World?.Settings?.GameModeOverrideRef?.File ?? Game.DefaultGameModeRef;
-        public static void SetActiveGameMode(BaseGameMode mode, bool beginGameplay = true)
-        {
-            if (Game != null)
-            {
-                ActiveGameMode?.EndGameplay();
-                Game.State.GameMode = mode;
-                if (beginGameplay)
-                    ActiveGameMode?.BeginGameplay();
-            }
-        }
+            => World?.Settings?.DefaultGameModeRef?.File ?? Game.DefaultGameModeRef;
         #endregion
 
         /// <summary>
         /// Performs a ray trace in the current world referenced by the engine.
         /// To perform a ray trace in a specific world, use World.PhysicsWorld.RayTrace(ShapeTrace result); 
         /// </summary>
-        public static bool RayTrace(RayTrace result, World world) => (world ?? World)?.PhysicsWorld3D?.RayTrace(result) ?? false;
-
+        public static bool RayTrace(RayTrace result, World world)
+            => (world ?? World)?.PhysicsWorld3D?.RayTrace(result) ?? false;
         /// <summary>
         /// Performs a shape trace in the current world referenced by the engine.
         /// To perform a shape trace in a specific world, use World.PhysicsWorld.ShapeTrace(ShapeTrace result); 
         /// </summary>
-        public static bool ShapeTrace(ShapeTrace result, World world) => (world ?? World)?.PhysicsWorld3D?.ShapeTrace(result) ?? false;
+        public static bool ShapeTrace(ShapeTrace result, World world) 
+            => (world ?? World)?.PhysicsWorld3D?.ShapeTrace(result) ?? false;
         
-        private static void ActivePlayers_Removed(LocalPlayerController item)
-        {
-            //ActiveGameMode?.HandleLocalPlayerLeft(item);
-
-            //TODO: remove controller from the server
-        }
-
-        private static void ActivePlayers_Added(LocalPlayerController item)
-        {
-            //ActiveGameMode?.HandleLocalPlayerJoined(item);
-
-            //TODO: create controller on the server
-        }
-
-        internal static void ResetLocalPlayerControllers()
-        {
-            foreach (LocalPlayerController controller in LocalPlayers)
-                controller.UnlinkControlledPawn();
-        }
-        internal static void DestroyLocalPlayerControllers()
-        {
-            foreach (LocalPlayerController controller in LocalPlayers)
-                controller.Destroy();
-            LocalPlayers.Clear();
-        }
-
         //public static BaseGameMode ActiveGameMode { get; set; }
         //public static T ActiveGameModeAs<T>() where T : BaseGameMode
         //    => ActiveGameMode as T;
-
-        /// <summary>
-        /// Enqueues a pawn to be possessed by the given local player as soon as its current controlled pawn is set to null.
-        /// </summary>
-        /// <param name="pawn">The pawn to possess.</param>
-        /// <param name="possessor">The controller to possess the pawn.</param>
-        public static void QueuePossession(IPawn pawn, ELocalPlayerIndex possessor)
-        {
-            int index = (int)possessor;
-            if (index < LocalPlayers.Count)
-                LocalPlayers[index].EnqueuePosession(pawn);
-            else if (_possessionQueues.ContainsKey(possessor))
-                _possessionQueues[possessor].Enqueue(pawn);
-            else
-            {
-                Queue<IPawn> queue = new Queue<IPawn>();
-                queue.Enqueue(pawn);
-                _possessionQueues.Add(possessor, queue);
-            }
-        }
-        public static void ForcePossession(IPawn pawn, ELocalPlayerIndex possessor)
-        {
-            int index = (int)possessor;
-            if (index < LocalPlayers.Count)
-                LocalPlayers[index].ControlledPawn = pawn;
-        }
 
         /// <summary>
         /// Retrieves the world viewport with the same index.
         /// </summary>
         public static Viewport GetViewport(ELocalPlayerIndex index)
             => BaseRenderPanel.WorldPanel?.GetViewport(index);
-
+        
         /// <summary>
         /// Tells the engine to play in a new world.
         /// </summary>
         /// <param name="world">The world to play in.</param>
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool loadWorldGameMode = true)
+        public static void SetCurrentWorld(World world)
         {
             if (World == world)
                 return;
 
             PreWorldChanged?.Invoke();
-
-            //bool wasRunning = _timer.IsRunning;
-            World previous = World;
             
             World?.EndPlay();
-            
             World = world;
-
-            if (World != null)
-            {
-                if (loadWorldGameMode)
-                    SetActiveGameMode(World.GetGameMode());
-
-                //if (!deferBeginPlay)
-                World.BeginPlay();
-            }
-            //else
-            //    Scene.Clear(new BoundingBox(0.5f, Vec3.Zero));
+            World?.BeginPlay();
             
             PostWorldChanged?.Invoke();
-
-            //if (wasRunning)
-            //    Run();
-
-            if (unloadPrevious)
-                previous?.Unload();
         }
-
 
         public static IEnumerable<AppDomain> EnumAppDomains()
         {
@@ -914,7 +833,7 @@ namespace TheraEngine
         public static class Input
         {
             public static InputInterface Get(int localPlayerIndex)
-                => LocalPlayers.IndexInRange(localPlayerIndex) ? LocalPlayers[localPlayerIndex]?.Input : null;
+                => World.CurrentGameMode.LocalPlayers.IndexInRange(localPlayerIndex) ? World.CurrentGameMode.LocalPlayers[localPlayerIndex]?.Input : null;
 
             public static bool Key(int localPlayerIndex, EKey key, EButtonInputType type)
                 => Get(localPlayerIndex)?.GetKeyState(key, type) ?? false;
@@ -961,40 +880,7 @@ namespace TheraEngine
             /// <param name="device">The device that was found.</param>
             internal static void FoundInput(InputDevice device)
             {
-                if (device is BaseKeyboard || device is BaseMouse)
-                {
-                    if (LocalPlayers.Count == 0)
-                    {
-                        ELocalPlayerIndex index = ELocalPlayerIndex.One;
-                        if (_possessionQueues.ContainsKey(index))
-                        {
-                            //Transfer possession queue to the controller itself
-                            ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
-                            _possessionQueues.Remove(index);
-                        }
-                        else
-                            ActiveGameMode?.CreateLocalController(index);
-                    }
-                    else
-                        LocalPlayers[0].Input.UpdateDevices();
-                }
-                else
-                {
-                    if (device.Index >= LocalPlayers.Count)
-                    {
-                        ELocalPlayerIndex index = (ELocalPlayerIndex)LocalPlayers.Count;
-                        if (_possessionQueues.ContainsKey(index))
-                        {
-                            //Transfer possession queue to the controller itself
-                            ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
-                            _possessionQueues.Remove(index);
-                        }
-                        else
-                            ActiveGameMode?.CreateLocalController(index);
-                    }
-                    else
-                        LocalPlayers[device.Index].Input.UpdateDevices();
-                }
+                World?.CurrentGameMode?.FoundInput(device);
             }
         }
     }

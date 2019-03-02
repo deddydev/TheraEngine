@@ -7,6 +7,8 @@ namespace TheraEngine.Rendering
 {
     public abstract class RenderInfo : TFileObject
     {
+        [Browsable(false)]
+        public int SceneID { get; internal set; } = -1;
         [TSerialize]
         public virtual bool VisibleByDefault { get; set; } = true;
         [TSerialize(State = true, Config = false)]
@@ -48,6 +50,26 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
 
+        public override bool Visible
+        {
+            get => Scene != null && base.Visible;
+            set
+            {
+                if (base.Visible == value)
+                    return;
+
+                base.Visible = value;
+
+                if (Scene == null)
+                    return;
+
+                if (value)
+                    Scene.Renderables.Add(Owner);
+                else
+                    Scene.Renderables.Remove(Owner);
+            }
+        }
+        
         public RenderInfo2D(int layerIndex, int orderInLayer)
         {
             LayerIndex = layerIndex;
@@ -72,16 +94,20 @@ namespace TheraEngine.Rendering
             if (r2D == null || scene == null)
                 return;
 
+            Scene = null;
+            Visible = false;
+
             Scene = scene;
             Owner = r2D;
 
-            Visible = r2D.RenderInfo.VisibleByDefault || forceVisible;
+            bool visible = VisibleByDefault || forceVisible;
 #if EDITOR
             if (VisibleInEditorOnly)
-                Visible = Visible && Engine.EditorState.InEditMode;
+                visible = visible && Engine.EditorState.InEditMode;
 #endif
-            if (Visible)
-                Scene.Add(Owner);
+            Visible = visible;
+
+            //AxisAlignedRegion?.RenderInfo?.LinkScene(AxisAlignedRegion, scene);
         }
 
         public void UnlinkScene()
@@ -89,7 +115,7 @@ namespace TheraEngine.Rendering
             if (Owner == null || Scene == null)
                 return;
 
-            Scene.Remove(Owner);
+            Scene.Renderables.Remove(Owner);
             Scene = null;
             Owner = null;
         }
@@ -126,9 +152,9 @@ namespace TheraEngine.Rendering
                     return;
 
                 if (value)
-                    Scene.Add(Owner);
+                    Scene.Renderables.Add(Owner);
                 else
-                    Scene.Remove(Owner);
+                    Scene.Renderables.Remove(Owner);
             }
         }
 
@@ -145,8 +171,6 @@ namespace TheraEngine.Rendering
         [TSerialize]
         public bool VisibleInIBLCapture { get; set; } = true;
         
-        [Browsable(false)]
-        public int SceneID { get; internal set; } = -1;
         [Browsable(false)]
         public Scene3D Scene { get; internal set; }
         [Browsable(false)]
@@ -187,7 +211,7 @@ namespace TheraEngine.Rendering
             if (Owner == null || Scene == null)
                 return;
 
-            Scene.Remove(Owner);
+            Scene.Renderables.Remove(Owner);
             Scene = null;
             Owner = null;
 

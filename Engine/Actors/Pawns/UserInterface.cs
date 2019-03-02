@@ -230,7 +230,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public void RemoveRenderableComponent(I2DRenderable component)
         {
-            _screenSpaceUIScene.Remove(component);
+            _screenSpaceUIScene.Renderables.Remove(component);
 
             //_renderables.Remove(component);
         }

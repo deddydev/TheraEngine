@@ -6,10 +6,12 @@ namespace TheraEngine.Core.Reflection.Attributes
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class BrowsableIf : Attribute
     {
-        private string _condition;
+        public string Condition { get; }
+
         public BrowsableIf(string condition)
-            => _condition = condition;
+            => Condition = condition;
+
         public bool Evaluate(object owningObject) 
-            => ExpressionParser.Evaluate<bool>(_condition, owningObject);
+            => ExpressionParser.Evaluate<bool>(Condition, owningObject);
     }
 }

@@ -87,8 +87,8 @@ namespace TheraEngine.Components.Scene
             }
 
             int index = (int)playerIndex;
-            if (index >= 0 && index < Engine.LocalPlayers.Count)
-                Engine.LocalPlayers[index].ViewportCamera = c;
+            if (index >= 0 && index < OwningWorld.CurrentGameMode.LocalPlayers.Count)
+                OwningWorld.CurrentGameMode.LocalPlayers[index].ViewportCamera = c;
             else
             {
                 Dictionary<int, ConcurrentQueue<Camera>> v = LocalPlayerController.CameraPossessionQueue;

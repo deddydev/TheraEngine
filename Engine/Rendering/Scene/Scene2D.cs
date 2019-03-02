@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 
@@ -10,17 +11,25 @@ namespace TheraEngine.Rendering
     /// </summary>
     public class Scene2D : BaseScene
     {
-        //public Quadtree<I2DRenderable> RenderTree { get; private set; }
-        //public override int Count => _renderables.Count;// RenderTree.Count;
-
-        private List<I2DRenderable> _renderables = new List<I2DRenderable>();
+        [Category("Scene 2D")]
+        public Quadtree<I2DRenderable> RenderTree { get; private set; }
+        [Category("Scene 2D")]
+        public EventList<I2DRenderable> Renderables { get; }
+        //public override int Count => Renderables.Count;
 
         public Scene2D() : this(Vec2.Zero) { }
         public Scene2D(Vec2 bounds)
         {
             Render = DoRender;
             Clear(bounds);
+
+            Renderables = new EventList<I2DRenderable>();
+            Renderables.PostAnythingAdded += Renderables_PostAnythingAdded;
+            Renderables.PostAnythingRemoved += Renderables_PostAnythingRemoved;
         }
+
+        private void Renderables_PostAnythingAdded(I2DRenderable item) => RenderTree.Add(item);
+        private void Renderables_PostAnythingRemoved(I2DRenderable item) => RenderTree.Remove(item);
 
         //public void CollectVisibleRenderables(Frustum frustum)
         //{
@@ -36,19 +45,60 @@ namespace TheraEngine.Rendering
 
         //    CollectVisibleRenderables(BoundingRectangle.FromMinMaxSides(minX, maxX, minY, maxY, 0.0f, 0.0f));
         //}
-        //public void CollectVisibleRenderables(BoundingRectangle bounds)
-        //{
-        //    //RenderTree.CollectVisible(bounds, _passes);
+        public void CollectVisibleRenderables(BoundingRectangle bounds)
+        {
+            //RenderTree.CollectVisible(bounds, _passes);
 
-        //    foreach (I2DRenderable r in _renderables)
-        //        r.AddRenderables(_passes);
-        //}
+            //foreach (I2DRenderable r in _renderables)
+            //    r.AddRenderables(_passes);
+        }
         public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, Camera camera, bool shadowPass)
         {
-            foreach (I2DRenderable r in _renderables)
+            //RenderTree.CollectVisible(null, populatingPasses, camera);
+            foreach (I2DRenderable r in Renderables)
                 if (r.RenderInfo.Visible)
                     r.AddRenderables(populatingPasses, camera);
         }
+        public I2DRenderable FindDeepest(Vec2 viewportPoint)
+        {
+            foreach (I2DRenderable r in Renderables)
+            {
+                if (r.RenderInfo.AxisAlignedRegion.Contains(viewportPoint))
+                    return r;
+            }
+            return null;
+        }
+
+        public void Resize(Vec2 bounds)
+        {
+            RenderTree?.Remake(new BoundingRectangleF(Vec2.Zero, bounds));
+        }
+        
+        public void Clear(Vec2 bounds)
+        {
+            RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangleF(new Vec2(0.0f), bounds));
+        }
+
+        public override void RegenerateTree()
+        {
+
+        }
+
+        public override void GlobalPreRender()
+        {
+
+        }
+
+        public override void GlobalSwap()
+        {
+            RenderTree.Swap();
+        }
+
+        public override void GlobalUpdate()
+        {
+
+        }
+
         public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
             Engine.Renderer.PushCamera(camera);
@@ -114,63 +164,6 @@ namespace TheraEngine.Rendering
             Engine.Renderer.PopCamera();
         }
 
-        public I2DRenderable FindDeepest(Vec2 viewportPoint)
-        {
-            foreach (I2DRenderable r in _renderables)
-            {
-                if (r.RenderInfo.AxisAlignedRegion.Contains(viewportPoint))
-                    return r;
-            }
-            return null;
-        }
-
-        public void Resize(Vec2 bounds)
-        {
-            //RenderTree?.Remake(new BoundingRectangle(Vec2.Zero, bounds));
-        }
-
-        public override void Add(IRenderable obj) => Add(obj as I2DRenderable);
-        public override void Remove(IRenderable obj) => Remove(obj as I2DRenderable);
-        public void Add(I2DRenderable obj)
-        {
-            if (obj == null)
-                return;
-            
-            _renderables.Add(obj);
-            //RenderTree?.Add(obj);
-        }
-        public void Remove(I2DRenderable obj)
-        {
-            if (obj == null)
-                return;
-            
-            _renderables.Remove(obj);
-            //RenderTree?.Remove(obj);
-        }
-        public void Clear(Vec2 bounds)
-        {
-            //RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangle(new Vec2(0.0f), bounds));
-            //_renderables.Clear();
-        }
-
-        public override void RegenerateTree()
-        {
-
-        }
-
-        public override void GlobalPreRender()
-        {
-
-        }
-
-        public override void GlobalSwap()
-        {
-
-        }
-
-        public override void GlobalUpdate()
-        {
-
-        }
+        public override IEnumerator<IRenderable> GetEnumerator() => Renderables.GetEnumerator();
     }
 }

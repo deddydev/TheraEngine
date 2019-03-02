@@ -158,9 +158,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (isObj)
                 obj.EditorState.Selected = true;
 
-            if (_targetObject is SceneComponent sc && Engine.LocalPlayers.Count > 0)
+            if (_targetObject is SceneComponent sc && sc.OwningWorld?.CurrentGameMode != null && sc.OwningWorld.CurrentGameMode.LocalPlayers.Count > 0)
             {
-                EditorUI3D hud = Engine.LocalPlayers[0]?.ControlledPawn?.HUD?.File as EditorUI3D;
+                EditorUI3D hud = sc.OwningWorld.CurrentGameMode.LocalPlayers[0]?.ControlledPawn?.HUD?.File as EditorUI3D;
                 hud?.SetSelectedComponent(false, sc);
             }
 
@@ -350,7 +350,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 else// if (item.UpdateTimeSpan == null || DateTime.Now - item.LastUpdateTime >= item.UpdateTimeSpan.Value)
                     BaseRenderPanel.ThreadSafeBlockingInvoke(
                         (Action)item.UpdateDisplay,
-                        BaseRenderPanel.PanelType.Rendering);
+                        BaseRenderPanel.EPanelType.Rendering);
             }
             catch (Exception ex)
             {

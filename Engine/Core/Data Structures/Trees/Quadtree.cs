@@ -38,57 +38,86 @@ namespace System
     /// <typeparam name="T">The item type to use. Must be a class deriving from I2DRenderable.</typeparam>
     public class Quadtree<T> where T : class, I2DRenderable
     {
+        public const float MinimumUnit = 1.0f;
         public const int MaxChildNodeCount = 4;
 
+        internal int ItemID = 0;
+
         private Node _head;
-        internal HashSet<T> AllItems { get; } = new HashSet<T>();
-        public int Count => AllItems.Count;
 
         public BoundingRectangleF Bounds => _head.Bounds;
 
-        public Quadtree(BoundingRectangleF bounds) => _head = new Node(bounds, 0, 0, null, this);
-        public Quadtree(BoundingRectangleF bounds, List<T> items) : this(bounds) => _head.Add(items);
-
-        public void Remake(BoundingRectangleF? newBounds)
+        public Quadtree(BoundingRectangleF bounds)
         {
-            _head = new Node(newBounds ?? _head.Bounds, 0, 0, null, this);
-            var array = AllItems.ToArray();
-            AllItems.Clear();
-            foreach (T item in array)
-                if (!_head.Add(item))
-                    _head.ForceAdd(item);
+            _head = new Node(bounds, 0, 0, null, this);
+            //Engine.PrintLine($"Quadtree array length with {MinimumUnit} minimum unit: {ArrayLength(bounds.HalfExtents).ToString()}");
         }
+        public Quadtree(BoundingRectangleF bounds, List<T> items) : this(bounds) => _head.AddHereOrSmaller(items);
+
         /// <summary>
-        /// Returns true if the item was added, and false if it was already in the tree.
+        /// The maximum length of an array that could store every possible octree node.
         /// </summary>
-        public bool Add(T value)
+        public int ArrayLength(Vec2 halfExtents)
         {
-            if (!AllItems.Contains(value))
+            float minExtent = TMath.Min(halfExtents.X, halfExtents.Y);
+            int divisions = 0;
+            while (minExtent >= MinimumUnit)
             {
-                if (!_head.Add(value))
-                    _head.ForceAdd(value);
-                return true;
+                minExtent *= 0.5f;
+                ++divisions;
             }
-            return false;
+            return (int)Math.Pow(MaxChildNodeCount, divisions);
+        }
+
+        public void Remake(BoundingRectangleF newBounds)
+        {
+            List<I2DRenderable> renderables = new List<I2DRenderable>();
+            _head.CollectAll(renderables);
+
+            ItemID = 0;
+            _head = new Node(newBounds, 0, 0, null, this);
+
+            foreach (T item in renderables)
+                if (!_head.AddHereOrSmaller(item))
+                    _head.AddHere(item);
+        }
+
+        internal ConcurrentQueue<T> AddedItems { get; } = new ConcurrentQueue<T>();
+        internal ConcurrentQueue<T> RemovedItems { get; } = new ConcurrentQueue<T>();
+        internal ConcurrentQueue<T> MovedItems { get; } = new ConcurrentQueue<T>();
+
+        /// <summary>
+        /// Updates all moved, added and removed items in the octree.
+        /// </summary>
+        internal void Swap()
+        {
+            while (MovedItems.TryDequeue(out T item))
+                ((Node)item.RenderInfo.QuadtreeNode).ItemMoved_Internal(item);
+            while (RemovedItems.TryDequeue(out T item))
+            {
+                _head.RemoveHereOrSmaller(item);
+                item.RenderInfo.SceneID = -1;
+            }
+            while (AddedItems.TryDequeue(out T item))
+            {
+                item.RenderInfo.SceneID = ItemID++;
+                if (!_head.AddHereOrSmaller(item))
+                    _head.AddHere(item);
+            }
+        }
+
+        public void Add(T value)
+        {
+            AddedItems.Enqueue(value);
         }
         public void Add(IEnumerable<T> value)
         {
             foreach (T item in value)
                 Add(item);
         }
-        /// <summary>
-        /// Returns true if the item was found and removed, and false if it wasn't found.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public bool Remove(T value)
+        public void Remove(T value)
         {
-            if (AllItems.Contains(value))
-            {
-                _head.Remove(value);
-                return true;
-            }
-            return false;
+            RemovedItems.Enqueue(value);
         }
 
         //public ThreadSafeList<T> FindAll(float radius, Vec2 point, EContainment containment)
@@ -150,8 +179,8 @@ namespace System
             public Node(BoundingRectangleF bounds, int subDivIndex, int subDivLevel, Node parent, Quadtree<T> owner)
             {
                 _bounds = bounds;
-                _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
-                _items = new ThreadSafeList<T>(_lock);
+                //_lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+                _items = new List<T>();
                 _subNodes = new Node[MaxChildNodeCount];
                 _subDivIndex = subDivIndex;
                 _subDivLevel = subDivLevel;
@@ -161,17 +190,17 @@ namespace System
 
             protected int _subDivIndex, _subDivLevel;
             protected BoundingRectangleF _bounds;
-            protected ThreadSafeList<T> _items;
+            protected List<T> _items;
             protected Node[] _subNodes;
             protected Node _parentNode;
             private Quadtree<T> _owner;
-            private ReaderWriterLockSlim _lock;
+            //private ReaderWriterLockSlim _lock;
 
             public Quadtree<T> Owner { get => _owner; set => _owner = value; }
             public Node ParentNode { get => _parentNode; set => _parentNode = value; }
             public int SubDivIndex { get => _subDivIndex; set => _subDivIndex = value; }
             public int SubDivLevel { get => _subDivLevel; set => _subDivLevel = value; }
-            public ThreadSafeList<T> Items => _items;
+            public List<T> Items => _items;
             public BoundingRectangleF Bounds => _bounds;
             public Vec2 Center => _bounds.Translation;
             public Vec2 Min => _bounds.BottomLeft;
@@ -205,9 +234,11 @@ namespace System
                 //However, if the item is inserted into a volume with at least one other item in it, 
                 //need to try subdividing for all items at that point.
 
-                if (item == null)
-                    return;
-
+                if (item?.RenderInfo.AxisAlignedRegion != null)
+                    Owner.MovedItems.Enqueue(item);
+            }
+            public void ItemMoved_Internal(T item)
+            {
                 //Still within the same volume?
                 if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(_bounds) == EContainment.Contains)
                 {
@@ -217,8 +248,8 @@ namespace System
                         BoundingRectangleF bounds = GetSubdivision(i);
                         if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
                         {
-                            QueueRemove(item);
-                            CreateSubNode(bounds, i)?.Add(item);
+                            RemoveHere(item);
+                            CreateSubNode(bounds, i)?.AddHereOrSmaller(item);
                             break;
                         }
                     }
@@ -226,11 +257,11 @@ namespace System
                 else if (ParentNode != null)
                 {
                     //Belongs in larger parent volume, remove from this node
-                    bool shouldDestroy = Remove(item);
+                    bool shouldDestroy = RemoveHereOrSmaller(item);
                     if (!ParentNode.TryAddUp(item, shouldDestroy ? _subDivIndex : -1))
                     {
                         //Force add to root node
-                        Owner._head.ForceAdd(item);
+                        Owner._head.AddHere(item);
                     }
                 }
             }
@@ -242,7 +273,7 @@ namespace System
             {
                 ClearSubNode(childDestroyIndex);
 
-                if (Add(item, childDestroyIndex))
+                if (AddHereOrSmaller(item, childDestroyIndex))
                     return true;
                 else
                 {
@@ -294,34 +325,42 @@ namespace System
                         CollectAll(passes, true, camera);
                     else
                     {
-                        IsLoopingItems = true;
+                        //IsLoopingItems = true;
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I2DRenderable r = _items[i] as I2DRenderable;
                             if (r.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) != EContainment.Disjoint)
                                 r.AddRenderables(passes, camera);
                         }
-                        IsLoopingItems = false;
+                        //IsLoopingItems = false;
 
-                        IsLoopingSubNodes = true;
+                        //IsLoopingSubNodes = true;
                         for (int i = 0; i < MaxChildNodeCount; ++i)
                             _subNodes[i]?.CollectVisible(bounds, passes, camera);
-                        IsLoopingSubNodes = false;
+                        //IsLoopingSubNodes = false;
                     }
                 }
             }
             public void CollectAll(RenderPasses passes, bool visibleOnly, Camera camera)
             {
-                IsLoopingItems = true;
+                //IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
                     if (_items[i] is I2DRenderable r && (!visibleOnly || r.RenderInfo.Visible))
                         r.AddRenderables(passes, camera);
-                IsLoopingItems = false;
+                //IsLoopingItems = false;
 
-                IsLoopingSubNodes = true;
+                //IsLoopingSubNodes = true;
                 for (int i = 0; i < MaxChildNodeCount; ++i)
                     _subNodes[i]?.CollectAll(passes, visibleOnly, camera);
-                IsLoopingSubNodes = false;
+                //IsLoopingSubNodes = false;
+            }
+            public void CollectAll(List<I2DRenderable> renderables)
+            {
+                for (int i = 0; i < _items.Count; ++i)
+                    renderables.Add(_items[i]);
+
+                for (int i = 0; i < MaxChildNodeCount; ++i)
+                    _subNodes[i]?.CollectAll(renderables);
             }
             #endregion
 
@@ -330,17 +369,17 @@ namespace System
             /// Returns true if this node no longer contains anything.
             /// </summary>
             /// <param name="item">The item to remove.</param>
-            public bool Remove(T item)
+            public bool RemoveHereOrSmaller(T item)
             {
                 if (_items.Contains(item))
-                    QueueRemove(item);
+                    RemoveHere(item);
                 else
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         Node node = _subNodes[i];
                         if (node != null)
                         {
-                            if (node.Remove(item))
+                            if (node.RemoveHereOrSmaller(item))
                                 _subNodes[i] = null;
                             else
                                 return false;
@@ -355,10 +394,10 @@ namespace System
             /// <param name="items">The items to add.</param>
             /// <param name="forceAddToThisNode">If true, will add each item regardless of if its culling volume fits within this node's bounds.</param>
             /// <returns>True if ANY node was added.</returns>
-            internal void Add(List<T> items)
+            internal void AddHereOrSmaller(List<T> items)
             {
                 foreach (T item in items)
-                    Add(item);
+                    AddHereOrSmaller(item);
             }
             /// <summary>
             /// Adds an item to this node. May subdivide.
@@ -366,111 +405,123 @@ namespace System
             /// <param name="items">The item to add.</param>
             /// <param name="forceAddToThisNode">If true, will add the item regardless of if its culling volume fits within the node's bounds.</param>
             /// <returns>True if the node was added.</returns>
-            internal bool Add(T item, int ignoreSubNode = -1)
+            internal bool AddHereOrSmaller(T item, int ignoreSubNode = -1)
             {
                 if (item == null)
                     return false;
 
-                if (item.RenderInfo.AxisAlignedRegion.IsEmpty())
-                    return QueueAdd(item);
-
-                if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
-                    return false;
-
-                for (int i = 0; i < MaxChildNodeCount; ++i)
+                if (!item.RenderInfo.AxisAlignedRegion.IsEmpty())
                 {
-                    if (i == ignoreSubNode)
-                        continue;
+                    if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(_bounds) != EContainment.Contains)
+                        return false;
 
-                    BoundingRectangleF bounds = GetSubdivision(i);
-                    if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
+                    for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
-                        CreateSubNode(bounds, i)?.Add(item);
-                        return true;
+                        if (i == ignoreSubNode)
+                            continue;
+
+                        BoundingRectangleF bounds = GetSubdivision(i);
+                        if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(bounds) == EContainment.Contains)
+                        {
+                            CreateSubNode(bounds, i)?.AddHereOrSmaller(item);
+                            return true;
+                        }
                     }
                 }
 
-                return QueueAdd(item);
+                AddHere(item);
+                return true;
             }
 
-            public void ForceAdd(T value)
-            {
-                if (value != null)
-                    QueueAdd(value);
-            }
+            //public void ForceAdd(T value)
+            //{
+            //    if (value != null)
+            //        QueueAdd(value);
+            //}
             #endregion
 
-            #region Loop Threading Backlog
-
-            //Backlog for adding and removing items when other threads are currently looping
-            protected ConcurrentQueue<Tuple<bool, T>> _itemQueue = new ConcurrentQueue<Tuple<bool, T>>();
-            //Backlog for setting sub nodes when other threads are currently looping
-            protected ConcurrentQueue<Tuple<int, Node>> _subNodeQueue = new ConcurrentQueue<Tuple<int, Node>>();
-            private bool _isLoopingItems = false;
-            private bool _isLoopingSubNodes = false;
-
-            protected bool IsLoopingItems
+            internal void AddHere(T item)
             {
-                get => _isLoopingItems;
-                set
-                {
-                    _isLoopingItems = value;
-                    while (!_isLoopingItems && !_itemQueue.IsEmpty && _itemQueue.TryDequeue(out Tuple<bool, T> result))
-                    {
-                        if (result.Item1)
-                            Add(result.Item2, -1);
-                        else
-                            Remove(result.Item2);
-                    }
-                }
+                _items.Add(item);
+                item.RenderInfo.QuadtreeNode = this;
             }
-            protected bool IsLoopingSubNodes
+            internal void RemoveHere(T item)
             {
-                get => _isLoopingSubNodes;
-                set
-                {
-                    _isLoopingSubNodes = value;
-                    while (!_isLoopingSubNodes && !_subNodeQueue.IsEmpty && _subNodeQueue.TryDequeue(out Tuple<int, Node> result))
-                        _subNodes[result.Item1] = result.Item2;
-                }
+                _items.Remove(item);
+                item.RenderInfo.QuadtreeNode = null;
             }
 
-            private bool QueueAdd(T item)
-            {
-                if (IsLoopingItems)
-                {
-                    _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
-                    return false;
-                }
-                else
-                {
-                    if (Owner.AllItems.Add(item))
-                    {
-                        _items.Add(item);
-                        item.RenderInfo.QuadtreeNode = this;
-                    }
-                    return true;
-                }
-            }
-            private bool QueueRemove(T item)
-            {
-                if (IsLoopingItems)
-                {
-                    _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
-                    return false;
-                }
-                else
-                {
-                    if (Owner.AllItems.Remove(item))
-                    {
-                        _items.Remove(item);
-                        item.RenderInfo.QuadtreeNode = null;
-                    }
-                    return true;
-                }
-            }
+            //#region Loop Threading Backlog
 
-            #endregion
+            ////Backlog for adding and removing items when other threads are currently looping
+            //protected ConcurrentQueue<Tuple<bool, T>> _itemQueue = new ConcurrentQueue<Tuple<bool, T>>();
+            ////Backlog for setting sub nodes when other threads are currently looping
+            //protected ConcurrentQueue<Tuple<int, Node>> _subNodeQueue = new ConcurrentQueue<Tuple<int, Node>>();
+            //private bool _isLoopingItems = false;
+            //private bool _isLoopingSubNodes = false;
+
+            //protected bool IsLoopingItems
+            //{
+            //    get => _isLoopingItems;
+            //    set
+            //    {
+            //        _isLoopingItems = value;
+            //        while (!_isLoopingItems && !_itemQueue.IsEmpty && _itemQueue.TryDequeue(out Tuple<bool, T> result))
+            //        {
+            //            if (result.Item1)
+            //                AddHereOrSmaller(result.Item2, -1);
+            //            else
+            //                RemoveHereOrSmaller(result.Item2);
+            //        }
+            //    }
+            //}
+            //protected bool IsLoopingSubNodes
+            //{
+            //    get => _isLoopingSubNodes;
+            //    set
+            //    {
+            //        _isLoopingSubNodes = value;
+            //        while (!_isLoopingSubNodes && !_subNodeQueue.IsEmpty && _subNodeQueue.TryDequeue(out Tuple<int, Node> result))
+            //            _subNodes[result.Item1] = result.Item2;
+            //    }
+            //}
+
+            //private bool QueueAdd(T item)
+            //{
+            //    if (IsLoopingItems)
+            //    {
+            //        _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
+            //        return false;
+            //    }
+            //    else
+            //    {
+            //        if (Owner.AllItems.Add(item))
+            //        {
+            //            _items.Add(item);
+            //            item.RenderInfo.QuadtreeNode = this;
+            //        }
+            //        return true;
+            //    }
+            //}
+            //private bool RemoveHere(T item)
+            //{
+            //    if (IsLoopingItems)
+            //    {
+            //        _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
+            //        return false;
+            //    }
+            //    else
+            //    {
+            //        if (Owner.AllItems.Remove(item))
+            //        {
+            //            _items.Remove(item);
+            //            item.RenderInfo.QuadtreeNode = null;
+            //        }
+            //        return true;
+            //    }
+            //}
+
+            //#endregion
 
             #region Convenience methods
             public T FindNearest(Vec2 point, ref float closestDistance)
@@ -478,21 +529,21 @@ namespace System
                 if (!_bounds.Contains(point))
                     return null;
                 
-                IsLoopingSubNodes = true;
+                //IsLoopingSubNodes = true;
                 foreach (Node n in _subNodes)
                 {
                     T t = n?.FindNearest(point, ref closestDistance);
                     if (t != null)
                         return t;
                 }
-                IsLoopingSubNodes = false;
+                //IsLoopingSubNodes = false;
                 
                 if (_items.Count == 0)
                     return null;
 
                 T closest = null;
 
-                IsLoopingItems = true;
+                //IsLoopingItems = true;
                 foreach (T item in _items)
                 {
                     float dist = item.RenderInfo.AxisAlignedRegion.ClosestPoint(point).DistanceToFast(point);
@@ -502,7 +553,7 @@ namespace System
                         closest = item;
                     }
                 }
-                IsLoopingItems = false;
+                //IsLoopingItems = false;
 
                 return closest;
             }
@@ -511,58 +562,58 @@ namespace System
                 if (!_bounds.Contains(point))
                     return;
 
-                IsLoopingSubNodes = true;
+                //IsLoopingSubNodes = true;
                 foreach (Node n in _subNodes)
                     n?.FindDeepest(point, ref currentDeepest);
-                IsLoopingSubNodes = false;
+                //IsLoopingSubNodes = false;
 
                 if (_items.Count == 0)
                     return;
 
-                IsLoopingItems = true;
+                //IsLoopingItems = true;
                 foreach (T item in _items)
                     if (item.RenderInfo.AxisAlignedRegion.Contains(point) && 
                         item.RenderInfo.DeeperThan(currentDeepest?.RenderInfo))
                         currentDeepest = item;
-                IsLoopingItems = false;
+                //IsLoopingItems = false;
             }
             public void FindAllIntersecting(Vec2 point, List<T> intersecting)
             {
                 if (!_bounds.Contains(point))
                     return;
 
-                IsLoopingSubNodes = true;
+                //IsLoopingSubNodes = true;
                 foreach (Node n in _subNodes)
                     n?.FindAllIntersecting(point, intersecting);
-                IsLoopingSubNodes = false;
+                //IsLoopingSubNodes = false;
 
                 if (_items.Count == 0)
                     return;
                 
-                IsLoopingItems = true;
+                //IsLoopingItems = true;
                 foreach (T item in _items)
                     if (item.RenderInfo.AxisAlignedRegion.Contains(point))
                         intersecting.Add(item);
-                IsLoopingItems = false;
+                //IsLoopingItems = false;
             }
             public void FindAllIntersecting(Vec2 point, SortedSet<T> intersecting)
             {
                 if (!_bounds.Contains(point))
                     return;
 
-                IsLoopingSubNodes = true;
+                //IsLoopingSubNodes = true;
                 foreach (Node n in _subNodes)
                     n?.FindAllIntersecting(point, intersecting);
-                IsLoopingSubNodes = false;
+                //IsLoopingSubNodes = false;
 
                 if (_items.Count == 0)
                     return;
 
-                IsLoopingItems = true;
+                //IsLoopingItems = true;
                 foreach (T item in _items)
                     if (item.RenderInfo.AxisAlignedRegion.Contains(point))
                         intersecting.Add(item);
-                IsLoopingItems = false;
+                //IsLoopingItems = false;
             }
             //public void FindAll(Shape shape, ThreadSafeList<T> list, EContainment containment)
             //{
@@ -626,7 +677,7 @@ namespace System
             {
                 try
                 {
-                    IsLoopingSubNodes = true;
+                    //IsLoopingSubNodes = true;
                     if (_subNodes[index] != null)
                         return _subNodes[index];
 
@@ -634,10 +685,26 @@ namespace System
                 }
                 finally
                 {
-                    IsLoopingSubNodes = false;
+                    //IsLoopingSubNodes = false;
                 }
             }
             #endregion
+        }
+
+        private bool Uncache(T item)
+        {
+            //bool exists = AllItems.Remove(item);
+            item.RenderInfo.SceneID = -1;
+            //return exists;
+            return true;
+        }
+
+        private bool Cache(T item)
+        {
+            //bool success = AllItems.Add(item);
+            item.RenderInfo.SceneID = ItemID++;
+            //return success;
+            return true;
         }
     }
 }

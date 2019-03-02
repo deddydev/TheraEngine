@@ -46,8 +46,6 @@ namespace System
         internal int ItemID = 0;
 
         private Node _head;
-        //internal HashSet<T> AllItems { get; } = new HashSet<T>();
-        //public int Count => AllItems.Count;
 
         public Octree(BoundingBoxStruct bounds)
         {
@@ -56,6 +54,9 @@ namespace System
         }
         public Octree(BoundingBoxStruct bounds, List<T> items) : this(bounds) => _head.AddHereOrSmaller(items);
 
+        /// <summary>
+        /// The maximum length of an array that could store every possible octree node.
+        /// </summary>
         public int ArrayLength(Vec3 halfExtents)
         {
             float minExtent = TMath.Min(halfExtents.X, halfExtents.Y, halfExtents.Z);
@@ -68,13 +69,14 @@ namespace System
             return (int)Math.Pow(MaxChildNodeCount, divisions);
         }
 
-        public class RenderEquality : IEqualityComparer<I3DRenderable>
-        {
-            public bool Equals(I3DRenderable x, I3DRenderable y)
-                => x.RenderInfo.SceneID == y.RenderInfo.SceneID;
-            public int GetHashCode(I3DRenderable obj)
-                => obj.RenderInfo.SceneID;
-        }
+        //public class RenderEquality : IEqualityComparer<I3DRenderable>
+        //{
+        //    public bool Equals(I3DRenderable x, I3DRenderable y)
+        //        => x.RenderInfo.SceneID == y.RenderInfo.SceneID;
+        //    public int GetHashCode(I3DRenderable obj)
+        //        => obj.RenderInfo.SceneID;
+        //}
+        
         public void Remake() => Remake(_head.Bounds);
         public void Remake(BoundingBoxStruct newBounds)
         {
@@ -86,12 +88,13 @@ namespace System
             
             foreach (T item in renderables)
                 if (!_head.AddHereOrSmaller(item))
-                    _head.ForceAdd(item);
+                    _head.AddHere(item);
         }
         
         internal ConcurrentQueue<T> AddedItems { get; } = new ConcurrentQueue<T>();
         internal ConcurrentQueue<T> RemovedItems { get; } = new ConcurrentQueue<T>();
         internal ConcurrentQueue<T> MovedItems { get; } = new ConcurrentQueue<T>();
+
         /// <summary>
         /// Updates all moved, added and removed items in the octree.
         /// </summary>
@@ -108,7 +111,7 @@ namespace System
             {
                 item.RenderInfo.SceneID = ItemID++;
                 if (!_head.AddHereOrSmaller(item))
-                    _head.ForceAdd(item);
+                    _head.AddHere(item);
             }
         }
         
@@ -249,7 +252,7 @@ namespace System
                     if (!ParentNode.TryAddUp(item, shouldDestroy ? _subDivIndex : -1))
                     {
                         //Force add to root node
-                        Owner._head.ForceAdd(item);
+                        Owner._head.AddHere(item);
                     }
                 }
             }
@@ -410,6 +413,9 @@ namespace System
             /// <returns>True if the node was added.</returns>
             internal bool AddHereOrSmaller(T item, int ignoreSubNode = -1)
             {
+                if (item == null)
+                    return false;
+
                 if (item.RenderInfo.CullingVolume != null)
                 {
                     if (_bounds.Contains(item.RenderInfo.CullingVolume) != EContainment.Contains)
@@ -552,11 +558,6 @@ namespace System
                 {
                     //IsLoopingSubNodes = false;
                 }
-            }
-
-            internal void ForceAdd(T value)
-            {
-                AddHere(value);
             }
             #endregion
         }

@@ -46,7 +46,7 @@ namespace TheraEngine.Worlds
         /// Overrides the default game mode specified by the game.
         /// </summary>
         [Category("Gameplay")]
-        public GlobalFileRef<BaseGameMode> GameModeOverrideRef
+        public GlobalFileRef<BaseGameMode> DefaultGameModeRef
         {
             get => _gameModeOverrideRef;
             set
@@ -81,7 +81,7 @@ namespace TheraEngine.Worlds
         [TSerialize(nameof(Gravity))]
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
 
-        [TSerialize(nameof(GameModeOverrideRef))]
+        [TSerialize(nameof(DefaultGameModeRef))]
         private GlobalFileRef<BaseGameMode> _gameModeOverrideRef;
 
         [TSerialize(nameof(TimeDilation))]
@@ -180,18 +180,6 @@ namespace TheraEngine.Worlds
         {
             map.OwningWorld = OwningWorld;
         }
-        
-        //public List<TMaterial> CollectDefaultMaterials()
-        //{
-        //    foreach (Map m in _maps)
-        //    {
-        //        if (m.VisibleByDefault)
-        //        {
-
-        //        }
-        //    }
-        //    return null;
-        //}
 
         public WorldSettings()
         {

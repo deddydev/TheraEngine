@@ -164,10 +164,11 @@ namespace TheraEditor.Windows.Forms
             {
                 if (allowDerivedTypes)
                 {
-                    Type[] types = Program.PopulateMenuDropDown(toolStripDropDownButton1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+                    Type[] types = Program.PopulateTreeView(treeView1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
                     if (types.Length > 1)
                     {
-                        toolStripDropDownButton1.Visible = true;
+                        treeView1.Visible = true;
+                        treeView1.ExpandAll();
                         return true;
                     }
                     else if (types.Length == 1)
@@ -224,13 +225,13 @@ namespace TheraEditor.Windows.Forms
                     }
 
                     SetTargetType(type);
-                    toolStripTypeSelection.Visible = false;
+                    treeView1.Visible = false;
                 }
             }
             else
             {
                 SetTargetType(type);
-                toolStripTypeSelection.Visible = false;
+                treeView1.Visible = false;
             }
             
             return true;
@@ -238,7 +239,7 @@ namespace TheraEditor.Windows.Forms
 
         private void OnTypeSelected(object sender, EventArgs e)
         {
-            ToolStripDropDownItem item = sender as ToolStripDropDownItem;
+            TreeNode item = sender as TreeNode;
             SetTargetType(item?.Tag as Type);
         }
 
@@ -282,7 +283,7 @@ namespace TheraEditor.Windows.Forms
                 _mode = value;
                 if (_mode == EObjectCreatorMode.Object)
                 {
-                    toolStripTypeSelection.Visible = true;
+                    treeView1.Visible = true;
                     pnlArrayLength.Visible = false;
                     toolStripDropDownButton1.Visible = true;
                     tblConstructors.Visible = true;
@@ -307,7 +308,7 @@ namespace TheraEditor.Windows.Forms
                 }
                 else if (_mode == EObjectCreatorMode.Array)
                 {
-                    toolStripTypeSelection.Visible = false;
+                    treeView1.Visible = false;
                     pnlArrayLength.Visible = true;
                     toolStripDropDownButton1.Visible = true;
                     tblConstructors.Visible = true;
@@ -331,17 +332,20 @@ namespace TheraEditor.Windows.Forms
                     false;
 
                     tblConstructors.Controls.Clear();
+
                     tblConstructors.ColumnStyles.Clear();
                     tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
                     tblConstructors.ColumnCount = 1;
+
                     tblConstructors.RowStyles.Clear();
                     tblConstructors.RowCount = numArrayLength.Value.Value;
+
                     for (int i = 0; i < tblConstructors.RowCount; ++i)
                         tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                 }
                 else
                 {
-                    toolStripTypeSelection.Visible =
+                    treeView1.Visible =
                     pnlArrayLength.Visible =
                     toolStripDropDownButton1.Visible =
                     cboConstructor.Visible =
@@ -488,6 +492,9 @@ namespace TheraEditor.Windows.Forms
         }
         private void SetTargetType(Type type)
         {
+            if (type == null)
+                return;
+
             ClassType = type;
 
             bool notNull = ClassType != null;
@@ -503,7 +510,7 @@ namespace TheraEditor.Windows.Forms
 
             if (Mode == EObjectCreatorMode.Array)
             {
-                toolStripTypeSelection.Visible = true;
+                treeView1.Visible = true;
                 FinalArguments = new object[numArrayLength.Value.Value][].FillWith(new object[1] { type.GetDefaultValue() });
                 for (int i = 0; i < numArrayLength.Value.Value; ++i)
                     tblConstructors.Controls.Add(CreateControl(type, 0, i, FinalArguments));
@@ -564,26 +571,23 @@ namespace TheraEditor.Windows.Forms
             tblConstructors.RowCount = 0;
             tblConstructors.ColumnStyles.Clear();
             tblConstructors.ColumnCount = 0;
-
-            //First row: text representation
-            tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tblConstructors.RowCount = tblConstructors.RowStyles.Count;
-            //Second row: input object editors
-            tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            tblConstructors.RowCount = tblConstructors.RowStyles.Count;
+            
+            tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            tblConstructors.ColumnCount = 2;
 
             Parameters[index] = parameters;
             FinalArguments[index] = new object[parameters.Length];
 
-            //Update column count if the number of parameters exceeds current count
-            int columns = Math.Max(parameters.Length + 1, tblConstructors.ColumnCount);
-            if (columns > tblConstructors.ColumnCount)
+            //Update row count if the number of parameters exceeds current count
+            int rows = Math.Max(parameters.Length + 1, tblConstructors.RowCount);
+            if (rows > tblConstructors.RowCount)
             {
-                int total = columns - tblConstructors.ColumnCount;
+                int total = rows - tblConstructors.ColumnCount;
                 for (int i = 0; i < total; ++i)
                 {
-                    tblConstructors.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-                    tblConstructors.ColumnCount = tblConstructors.ColumnStyles.Count;
+                    tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    tblConstructors.RowCount = tblConstructors.RowStyles.Count;
                 }
             }
 
@@ -611,24 +615,23 @@ namespace TheraEditor.Windows.Forms
                 string typeName = t.GetFriendlyName();
                 string varName = p.Name;
                 string finalText = typeName + " " + varName;
-                if (paramIndex != parameters.Length - 1)
-                    finalText += ", ";
 
                 Label paramLabel = new Label()
                 {
+                    TextAlign = ContentAlignment.MiddleRight,
                     Text = finalText,
-                    Dock = DockStyle.Left,
+                    Dock = DockStyle.Right,
                     AutoSize = true,
                     Padding = new Padding(0),
-                    Margin = new Padding(0),
-                    BackColor = Color.FromArgb(50, 55, 70),
-                    ForeColor = Color.FromArgb(200, 200, 220),
+                    Margin = new Padding(5),
+                    BackColor = Color.FromArgb(20, 20, 20),
+                    ForeColor = Color.FromArgb(224, 224, 224),
                 };
-                tblConstructors.Controls.Add(paramLabel, paramIndex + 1, tblConstructors.RowCount - 2);
+                tblConstructors.Controls.Add(paramLabel, 0, paramIndex);
 
                 Control paramTool = CreateControl(t, p.Position, index, FinalArguments);
                 if (paramTool != null)
-                    tblConstructors.Controls.Add(paramTool, paramIndex + 1, tblConstructors.RowCount - 1);
+                    tblConstructors.Controls.Add(paramTool, 1, paramIndex);
             }
         }
 
@@ -650,6 +653,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (current.Value == array.Length || current.Value < 0)
                     return;
+
                 countBefore = array.Length;
                 Array.Resize(ref array, current.Value);
             }
@@ -662,15 +666,21 @@ namespace TheraEditor.Windows.Forms
                 {
                     tblConstructors.RowStyles.Add(new RowStyle(SizeType.AutoSize));
                     FinalArguments[i] = new object[1] { def };
-                    tblConstructors.Controls.Add(CreateControl(ClassType, 0, i, FinalArguments), 0, i);
+                    if (ClassType != null)
+                    {
+                        var control = CreateControl(ClassType, 0, i, FinalArguments);
+                        if (control != null)
+                            tblConstructors.Controls.Add(control, 0, i);
+                    }
                 }
             }
             else
             {
-                for (int i = array.Length; i < countBefore; ++i)
+                for (int i = Math.Min(tblConstructors.RowStyles.Count - 1, countBefore - 1); i >= array.Length; --i)
                 {
-                    tblConstructors.RowStyles.RemoveAt(array.Length);
                     tblConstructors.Controls.Remove(tblConstructors.GetControlFromPosition(0, i));
+                    tblConstructors.Controls.Remove(tblConstructors.GetControlFromPosition(1, i));
+                    tblConstructors.RowStyles.RemoveAt(i);
                 }
             }
         }
@@ -678,6 +688,8 @@ namespace TheraEditor.Windows.Forms
         {
             Control paramTool = null;
             bool nullable = false;
+            if (type == null)
+                return null;
             if (type.IsGenericParameter)
             {
                 TypeInfo info = ClassType.GetTypeInfo();
@@ -692,9 +704,11 @@ namespace TheraEditor.Windows.Forms
                 RowIndex = rowIndex,
                 Value = finalArguments[rowIndex][columnIndex],
             };
+
             Type temp = Nullable.GetUnderlyingType(type);
             if (nullable = temp != null)
                 type = temp;
+
             switch (type.Name)
             {
                 case "Boolean":
@@ -937,17 +951,16 @@ namespace TheraEditor.Windows.Forms
                         {
                             Text = arg.Value == null ? "null" : arg.Value.ToString(),
                             Tag = arg,
-                            BackColor = Color.FromArgb(70, 75, 90),
                         };
                         objectSelectionLabel.MouseEnter += (sender, e) =>
                         {
                             Label s = (Label)sender;
-                            s.BackColor = Color.FromArgb(50, 55, 70);
+                            s.BackColor = Color.FromArgb(s.BackColor.R + 20, s.BackColor.G + 20, s.BackColor.B + 20);
                         };
                         objectSelectionLabel.MouseLeave += (sender, e) =>
                         {
                             Label s = (Label)sender;
-                            s.BackColor = Color.FromArgb(70, 75, 90);
+                            s.BackColor = Color.FromArgb(s.BackColor.R - 20, s.BackColor.G - 20, s.BackColor.B - 20);
                         };
                         objectSelectionLabel.MouseClick += (sender, e) =>
                         {
@@ -976,12 +989,12 @@ namespace TheraEditor.Windows.Forms
             }
             if (paramTool != null)
             {
-                paramTool.Padding = new Padding(0);
+                paramTool.Padding = new Padding(5);
                 paramTool.Margin = new Padding(0);
-                paramTool.Dock = DockStyle.Top;
-                paramTool.AutoSize = true;
-                paramTool.BackColor = Color.FromArgb(50, 55, 70);
-                paramTool.ForeColor = Color.FromArgb(200, 200, 220);
+                paramTool.Dock = DockStyle.Fill;
+                paramTool.AutoSize = false;
+                paramTool.BackColor = Color.FromArgb(20, 20, 20);
+                paramTool.ForeColor = Color.FromArgb(224, 224, 224);
             }
             return paramTool;
         }

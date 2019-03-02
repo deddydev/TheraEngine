@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Core;
@@ -140,7 +141,7 @@ namespace TheraEngine.Rendering
         void PreRenderSwap();
         void PreRender(Viewport viewport, Camera camera);
     }
-    public abstract class BaseScene
+    public abstract class BaseScene : IEnumerable<IRenderable>
     {
         /// <summary>
         /// Call this method to render the scene.
@@ -239,8 +240,8 @@ namespace TheraEngine.Rendering
         /// Occurs before any individual viewport processing.
         /// </summary>
         public abstract void GlobalSwap();
-
-        public abstract void Add(IRenderable obj);
-        public abstract void Remove(IRenderable obj);
+        
+        public abstract IEnumerator<IRenderable> GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

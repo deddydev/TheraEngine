@@ -112,9 +112,9 @@ namespace TheraEngine.Rendering
                 //throw new Exception("No context bound.");
                 return false;
             }
-            else if (_currentBind == null || _currentBind.ThreadID != Thread.CurrentThread.ManagedThreadId)
+            else if (_currentBind == null || _currentBind._context != RenderContext.Captured)
             {
-                int index = _owners.FindIndex(x => x.ThreadID != Thread.CurrentThread.ManagedThreadId);
+                int index = _owners.FindIndex(x => x._context == RenderContext.Captured);
                 if (index >= 0)
                     _currentBind = _owners[index];
                 else
@@ -128,7 +128,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public void GenerateSafe()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)GenerateSafe, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)GenerateSafe, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
             Generate();
@@ -142,7 +142,7 @@ namespace TheraEngine.Rendering
             //if (!Engine.IsInRenderThread())
             //    throw new InvalidOperationException("Render objects must be created on the rendering thread. Try calling GenerateSafe().");
 
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)GenerateSafe, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)GenerateSafe, BaseRenderPanel.EPanelType.Rendering))
                 return IsActive ? BindingId : NullBindingId;
 
             //Make sure current bind is up to date
@@ -164,6 +164,7 @@ namespace TheraEngine.Rendering
                 CurrentBind.BindingId = id;
                 CurrentBind.GenerationStackTrace = Engine.GetStackTrace();
                 CurrentBind.GenerationTime = DateTime.Now;
+                CurrentBind.ThreadID = Thread.CurrentThread.ManagedThreadId;
                 PostGenerated();
                 Generated?.Invoke();
             }
@@ -182,7 +183,7 @@ namespace TheraEngine.Rendering
             if (RenderContext.Captured == null)
                 return;
 
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Delete, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Delete, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
             //Remove current bind from owners list
@@ -240,7 +241,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         public virtual void Destroy()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Destroy, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Destroy, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
             ContextBind b;

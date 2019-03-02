@@ -119,7 +119,7 @@ namespace System
         /// Use this so you don't have to write that every time.
         /// </summary>
         public static bool IndexInArrayRange(this Array a, int value)
-            => value >= 0 && value < a.Length;
+            => a == null ? false : value >= 0 && value < a.Length;
         
         public static int[] FindAllOccurences(this Array a, object o)
         {

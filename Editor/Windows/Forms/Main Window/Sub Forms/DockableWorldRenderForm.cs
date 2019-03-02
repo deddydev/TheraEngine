@@ -50,7 +50,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void Engine_WorldPostChanged()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Engine_WorldPostChanged, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Engine_WorldPostChanged, BaseRenderPanel.EPanelType.Rendering))
                 return;
             
             if (Engine.World == null || EditorPawn == null)
@@ -71,7 +71,7 @@ namespace TheraEditor.Windows.Forms
         ELocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => EditorPawn;
-        BaseGameMode IEditorControl.GameMode => Engine.ActiveGameMode;
+        BaseGameMode IEditorControl.GameMode => Engine.World?.CurrentGameMode;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

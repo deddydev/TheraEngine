@@ -73,7 +73,8 @@ namespace TheraEngine.Rendering.Models.Materials
             Textures = textures ?? new BaseTexRef[0];
             _shaders = new EventList<GlobalFileRef<GLSLScript>>();
             _shaders.PostModified += ShadersChanged;
-            _shaders.AddRange(shaders.Select(x => new GlobalFileRef<GLSLScript>(x)));
+            if (shaders != null)
+                _shaders.AddRange(shaders.Select(x => new GlobalFileRef<GLSLScript>(x)));
         }
 
         [TPostDeserialize]

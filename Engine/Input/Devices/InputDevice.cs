@@ -70,8 +70,9 @@ namespace TheraEngine.Input.Devices
         private bool CanSend()
             => Engine.Network != null &&
             !Engine.Network.IsServer &&
-            InputInterface != null &&
-            Engine.LocalPlayers.IndexInRange(InputInterface.LocalPlayerIndex);
+            InputInterface != null;
+            //&&
+            //Engine.LocalPlayers.IndexInRange(InputInterface.LocalPlayerIndex);
         
         protected void SendButtonAction(int buttonIndex, int listIndex)
         {
@@ -83,7 +84,7 @@ namespace TheraEngine.Input.Devices
             packet.DeviceType = DeviceType;
             packet.InputType = EInputType.ButtonAction;
             packet.InputIndex = (byte)buttonIndex;
-            packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            //packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
 
             Engine.Network.SendPacket(packet);
         }
@@ -97,7 +98,7 @@ namespace TheraEngine.Input.Devices
             packet.Header.DeviceType = DeviceType;
             packet.Header.InputType = EInputType.ButtonPressedState;
             packet.Header.InputIndex = (byte)buttonIndex;
-            packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            //packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
             packet.Pressed = (byte)(pressed ? 1 : 0);
 
             Engine.Network.SendPacket(packet);
@@ -112,7 +113,7 @@ namespace TheraEngine.Input.Devices
             packet.DeviceType = DeviceType;
             packet.InputType = EInputType.AxisButtonAction;
             packet.InputIndex = (byte)axisIndex;
-            packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            //packet.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
 
             Engine.Network.SendPacket(packet);
         }
@@ -126,7 +127,7 @@ namespace TheraEngine.Input.Devices
             packet.Header.DeviceType = DeviceType;
             packet.Header.InputType = EInputType.AxisButtonPressedState;
             packet.Header.InputIndex = (byte)axisIndex;
-            packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            //packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
             packet.Pressed = (byte)(pressed ? 1 : 0);
 
             Engine.Network.SendPacket(packet);
@@ -141,7 +142,7 @@ namespace TheraEngine.Input.Devices
             packet.Header.DeviceType = DeviceType;
             packet.Header.InputType = EInputType.AxisValue;
             packet.Header.InputIndex = (byte)axisIndex;
-            packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
+            //packet.Header.PlayerIndex = (byte)Engine.LocalPlayers[InputInterface.LocalPlayerIndex].ServerPlayerIndex;
             packet.Value = value;
 
             Engine.Network.SendPacket(packet);

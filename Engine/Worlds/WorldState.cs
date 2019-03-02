@@ -6,6 +6,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering;
 using TheraEngine.Actors;
+using TheraEngine.GameModes;
 
 namespace TheraEngine.Worlds
 {
@@ -19,6 +20,7 @@ namespace TheraEngine.Worlds
         public EventList<BaseActor> SpawnedActors { get; }
 
         public BaseScene Scene { get; internal set; } = null;
+        public BaseGameMode GameMode { get; internal set; } = null;
 
         public Dictionary<Type, HashSet<int>> _actorTypeMap;
         public Dictionary<string, BaseActor> _actorNameMap;

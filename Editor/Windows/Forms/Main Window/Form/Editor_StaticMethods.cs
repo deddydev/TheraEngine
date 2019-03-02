@@ -31,29 +31,29 @@ namespace TheraEditor.Windows.Forms
 
             //bool sameGameMode = ReferenceEquals(ActiveRenderForm?.GameMode, control?.GameMode);
 
-            if (ActiveRenderForm != null)
+            if (ActiveRenderForm?.GameMode != null)
             {
                 int index = (int)ActiveRenderForm.PlayerIndex;
-                if (index < Engine.LocalPlayers.Count)
+                if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
                 {
-                    LocalPlayerController c = Engine.LocalPlayers[index];
+                    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
                     ActiveRenderForm.RenderPanel.UnregisterController(c);
                     c.ControlledPawn = null;
                 }
 
                 //if (!sameGameMode)
-                ActiveRenderForm.GameMode?.EndGameplay();
+                ActiveRenderForm.GameMode.EndGameplay();
             }
             ActiveRenderForm = control;
-            if (ActiveRenderForm != null)
+            if (ActiveRenderForm?.GameMode != null)
             {
                 //if (!sameGameMode)
-                    ActiveRenderForm.GameMode?.BeginGameplay();
+                    ActiveRenderForm.GameMode.BeginGameplay();
 
                 int index = (int)control.PlayerIndex;
-                if (index < Engine.LocalPlayers.Count)
+                if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
                 {
-                    LocalPlayerController c = Engine.LocalPlayers[index];
+                    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
                     ActiveRenderForm.RenderPanel.GetOrAddViewport(0).RegisterController(c);
                     c.ControlledPawn = ActiveRenderForm.EditorPawn;
                 }

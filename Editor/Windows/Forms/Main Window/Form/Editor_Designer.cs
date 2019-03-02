@@ -238,7 +238,7 @@ namespace TheraEditor.Windows.Forms
         }
         private async void SetWorld(World world)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<World>)SetWorld, BaseRenderPanel.PanelType.Rendering, world))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<World>)SetWorld, BaseRenderPanel.EPanelType.Rendering, world))
                 return;
 
             if (Engine.World?.EditorState?.HasChanges ?? false)
@@ -254,8 +254,10 @@ namespace TheraEditor.Windows.Forms
                 }
                 Engine.World.EditorState = null;
             }
-
-            Engine.SetCurrentWorld(world, true, false);
+            
+            if (world != null)
+                world.CurrentGameMode = _editorGameMode;
+            Engine.SetCurrentWorld(world);
 
             bool worldExists = Engine.World != null;
 
@@ -574,8 +576,7 @@ namespace TheraEditor.Windows.Forms
                 }
 
                 Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
-                Engine.SetActiveGameMode(_editorGameMode);
-                Engine.Initialize(false);
+                Engine.Initialize();
                 SetRenderTicking(true);
                 Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
@@ -733,19 +734,19 @@ namespace TheraEditor.Windows.Forms
         {
             Engine.World.EndPlay();
             BaseGameMode gameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
-            Engine.SetActiveGameMode(gameMode, false);
+            Engine.World.CurrentGameMode = gameMode;
             InputInterface.GlobalRegisters.Add(RegisterInput);
             ActorTreeForm.ClearMaps();
             Engine.World.BeginPlay();
             Engine.Unpause(ELocalPlayerIndex.One, true);
-            if (Engine.LocalPlayers.Count > 0)
-                GameplayPawn = Engine.LocalPlayers[0].ControlledPawn;
+            if (gameMode.LocalPlayers.Count > 0)
+                GameplayPawn = gameMode.LocalPlayers[0].ControlledPawn;
         }
 
         private void SetEditingMode()
         {
             Engine.World.EndPlay();
-            Engine.SetActiveGameMode(_editorGameMode, false);
+            Engine.World.CurrentGameMode = _editorGameMode;
             InputInterface.GlobalRegisters.Remove(RegisterInput);
             ActorTreeForm.ClearMaps();
             Engine.World.BeginPlay();

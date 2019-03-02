@@ -44,7 +44,7 @@ namespace TheraEngine.Rendering
         internal QuadFrameBuffer LightCombineFBO;
         internal QuadFrameBuffer ForwardPassFBO;
         internal QuadFrameBuffer PostProcessFBO;
-        internal QuadFrameBuffer HudFBO;
+        internal QuadFrameBuffer HUDFBO;
         internal PrimitiveManager PointLightManager;
         internal PrimitiveManager SpotLightManager;
         internal PrimitiveManager DirLightManager;
@@ -199,8 +199,8 @@ namespace TheraEngine.Rendering
             //DirLightFBO = null;
             GBufferFBO?.Destroy();
             GBufferFBO = null;
-            HudFBO?.Destroy();
-            HudFBO = null;
+            HUDFBO?.Destroy();
+            HUDFBO = null;
             LightCombineFBO?.Destroy();
             LightCombineFBO = null;
             PostProcessFBO?.Destroy();
@@ -221,7 +221,7 @@ namespace TheraEngine.Rendering
             ForwardPassFBO?.GenerateSafe();
             //DirLightFBO?.Generate();
             GBufferFBO?.GenerateSafe();
-            HudFBO?.GenerateSafe();
+            HUDFBO?.GenerateSafe();
             LightCombineFBO?.GenerateSafe();
             PostProcessFBO?.GenerateSafe();
             SSAOBlurFBO?.GenerateSafe();
@@ -295,13 +295,17 @@ namespace TheraEngine.Rendering
         private RenderPasses _renderPasses = new RenderPasses();
         protected virtual void OnRender(BaseScene scene, Camera camera, FrameBuffer target)
         {
-            HUD?.ScreenSpaceUIScene?.Render(HUD.RenderPasses, HUD.ScreenOverlayCamera, this, HudFBO);
+            HUD?.ScreenSpaceUIScene?.Render(HUD.RenderPasses, HUD.ScreenOverlayCamera, this, HUDFBO);
             scene.Render(_renderPasses, camera, this, target);
         }
         internal protected virtual void SwapBuffers()
         {
             _renderPasses.SwapBuffers();
-            HUD?.RenderPasses.SwapBuffers();
+            if (HUD != null)
+            {
+                HUD.ScreenSpaceUIScene?.GlobalSwap();
+                HUD.RenderPasses.SwapBuffers();
+            }
         }
         public void Update(BaseScene scene, Camera camera, IVolume cullingVolume)
         {
@@ -714,7 +718,7 @@ namespace TheraEngine.Rendering
 
         protected void PrecomputeBRDF(int width = 512, int height = 512)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PrecomputeBRDF, BaseRenderPanel.PanelType.Rendering, width, height))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, int>)PrecomputeBRDF, BaseRenderPanel.EPanelType.Rendering, width, height))
                 return;
 
             RenderingParameters renderParams = new RenderingParameters();
@@ -764,7 +768,7 @@ namespace TheraEngine.Rendering
         internal protected virtual unsafe void InitFBOs()
         {
             RegeneratingFBOs = true;
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)InitFBOs, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)InitFBOs, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
             ClearFBOs();
@@ -1046,8 +1050,8 @@ namespace TheraEngine.Rendering
             PostProcessFBO = new QuadFrameBuffer(postProcessMat);
             PostProcessFBO.SettingUniforms += _postProcess_SettingUniforms;
 
-            HudFBO = new QuadFrameBuffer(hudMat);
-            HudFBO.SetRenderTargets((hudTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
+            HUDFBO = new QuadFrameBuffer(hudMat);
+            HUDFBO.SetRenderTargets((hudTexture, EFramebufferAttachment.ColorAttachment0, 0, -1));
 
             #endregion
 

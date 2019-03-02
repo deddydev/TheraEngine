@@ -370,7 +370,7 @@ namespace TheraEngine.Actors.Types
                 case ESpace.Screen:
                     {
                         Vec3 point = _targetSocket.WorldMatrix.Translation;
-                        var localPlayers = Engine.LocalPlayers;
+                        var localPlayers = OwningWorld.CurrentGameMode.LocalPlayers;
                         if (localPlayers.Count > 0)
                         {
                             Camera c = localPlayers[0].ViewportCamera;
@@ -415,7 +415,7 @@ namespace TheraEngine.Actors.Types
                     }
                 case ESpace.Screen:
                     {
-                        Camera c = Engine.LocalPlayers[0].ViewportCamera;
+                        Camera c = OwningWorld.CurrentGameMode.LocalPlayers[0].ViewportCamera;
                         Matrix4 mtx = c.CameraToWorldSpaceMatrix;
                         mtx.Translation = _targetSocket.InverseWorldMatrix.Translation;
                         return mtx;

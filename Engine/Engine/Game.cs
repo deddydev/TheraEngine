@@ -143,22 +143,10 @@ namespace TheraEngine
             get => _worldRef.File;
             set => _worldRef.File = value;
         }
-        [Browsable(false)]
-        public BaseGameMode GameMode
-        {
-            get => _gameModeRef.File;
-            set => _gameModeRef.File = value;
-        }
-
         public GlobalFileRef<World> WorldRef
         {
             get => _worldRef;
             set => _worldRef = value ?? new GlobalFileRef<World>();
-        }
-        public GlobalFileRef<BaseGameMode> GameModeRef
-        {
-            get => _gameModeRef;
-            set => _gameModeRef = value ?? new GlobalFileRef<BaseGameMode>();
         }
     }
 }

@@ -11,6 +11,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Shapes;
+using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -46,12 +47,17 @@ namespace TheraEditor.Windows.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
             float camDist = 1.0f / TMath.Tandf(_cameraFovY * 0.5f);
-            PerspectiveCamera c = new PerspectiveCamera(
+
+            PerspectiveCamera cam = new PerspectiveCamera(
                 new Vec3(0.0f, 0.0f, camDist), Rotator.GetZero(), 0.1f, 100.0f, _cameraFovY, 1.0f);
-            c.PostProcessRef.File.ColorGrading.AutoExposure = true;
-            c.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
-            basicRenderPanel1.Camera = c;
+
+            cam.PostProcessRef.File.ColorGrading.AutoExposure = false;
+            cam.PostProcessRef.File.ColorGrading.Exposure = 1.0f;
+
+            basicRenderPanel1.Camera = cam;
+
             if (_light == null)
             {
                 _light = new DirectionalLightComponent();
@@ -61,11 +67,18 @@ namespace TheraEditor.Windows.Forms
                 _light.Scale = 1.0f;
                 _light.Rotation.Yaw = 0.0f;
                 _light.Rotation.Pitch = 0.0f;
-                basicRenderPanel1.Scene.Lights.Add(_light);
-                basicRenderPanel1.PreRendered += BasicRenderPanel1_PreRendered;
-                basicRenderPanel1.RegisterTick();
-                RedrawPreview();
+                //_light.CastsShadows = false;
             }
+
+            WorldSettings settings = new WorldSettings
+            {
+                Bounds = BoundingBox.FromHalfExtentsTranslation(5.0f, 0.0f),
+
+            };
+            basicRenderPanel1.World.Settings = settings;
+            basicRenderPanel1.World.BeginPlay();
+
+            basicRenderPanel1.RegisterTick();
         }
 
         private int _prevX, _prevY;
@@ -112,8 +125,6 @@ namespace TheraEditor.Windows.Forms
                 lightRotation = rot * lightRotation;
                 Rotator r = lightRotation.ToYawPitchRoll();
                 _light.Rotation.SetRotations(r);
-
-                RedrawPreview();
             }
         }
 
@@ -127,11 +138,6 @@ namespace TheraEditor.Windows.Forms
             _prevX = e.X;
             _prevY = e.Y;
             _dragging = true;
-        }
-        
-        private void BasicRenderPanel1_PreRendered()
-        {
-            _light.RenderShadowMap(basicRenderPanel1.Scene);
         }
         
         private DirectionalLightComponent _light;
@@ -152,32 +158,23 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (_spherePrim == null)
                     {
-                        basicRenderPanel1.Scene.Clear(BoundingBoxStruct.FromHalfExtentsTranslation(5.0f, 0.0f));
-                        basicRenderPanel1.Scene.Lights.Add(_light);
-                        _spherePrim = new MeshRenderable( //0.8f instead of 1.0f for border padding
-                            new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
-                        basicRenderPanel1.Scene.Add(_spherePrim);
+                        //basicRenderPanel1.World.Clear(BoundingBoxStruct.FromHalfExtentsTranslation(5.0f, 0.0f));
+                        //basicRenderPanel1.World.Lights.Add(_light);
+                        //_spherePrim = new MeshRenderable( //0.8f instead of 1.0f for border padding
+                        //    new PrimitiveManager(Sphere.SolidMesh(Vec3.Zero, 0.8f, 30), _material));
+                        //basicRenderPanel1.World.Add(_spherePrim);
 
-                        IBLProbeGridActor probes = new IBLProbeGridActor();
-                        probes.AddProbe(Vec3.Zero);
-                        //probes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
-                        probes.OwningScene = basicRenderPanel1.Scene;
-                        probes.InitAndCaptureAll(128);
-                        basicRenderPanel1.Scene.IBLProbeActor = probes;
+                        //IBLProbeGridActor probes = new IBLProbeGridActor();
+                        //probes.AddProbe(Vec3.Zero);
+                        ////probes.SetFrequencies(BoundingBox.FromHalfExtentsTranslation(100.0f, Vec3.Zero), new Vec3(0.02f));
+                        //probes.OwningScene = basicRenderPanel1.World;
+                        //probes.InitAndCaptureAll(128);
+                        //basicRenderPanel1.World.IBLProbeActor = probes;
                     }
                     else
                         _spherePrim.Material = _material;
                 }
-
-                RedrawPreview();
             }
-        }
-
-        private void RedrawPreview()
-        {
-            //basicRenderPanel1.UpdateTick(null, null);
-            //basicRenderPanel1.SwapBuffers();
-            //basicRenderPanel1.Invalidate();
         }
     }
 }

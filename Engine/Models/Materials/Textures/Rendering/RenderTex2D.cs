@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         //TODO: use PBO per texture for quick data updates
         public override void PushData()
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PushData, BaseRenderPanel.PanelType.Rendering))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)PushData, BaseRenderPanel.EPanelType.Rendering))
                 return;
 
             Bitmap bmp = null;

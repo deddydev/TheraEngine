@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Rendering.Models.Materials.Textures
 {
@@ -43,6 +44,7 @@ namespace TheraEngine.Rendering.Models.Materials.Textures
         public BaseRenderTexture() : base(EObjectType.Texture) { }
         public BaseRenderTexture(int bindingId) : base(EObjectType.Texture, bindingId) { }
 
+        //public DataSource BitmapData { get; set; }
         public EPixelInternalFormat InternalFormat { get; set; } = EPixelInternalFormat.Rgba;
         public EPixelFormat PixelFormat { get; set; } = EPixelFormat.Rgba;
         public EPixelType PixelType { get; set; } = EPixelType.UnsignedByte;

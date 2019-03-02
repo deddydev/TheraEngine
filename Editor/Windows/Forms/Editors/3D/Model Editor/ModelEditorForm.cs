@@ -243,7 +243,7 @@ namespace TheraEditor.Windows.Forms
             TargetActor.LogicComponents.Add(machine);
             World.SpawnActor(TargetActor);
             if (chkViewBones.Checked)
-                World.Scene?.Add(skel);
+                World.Scene3D?.Renderables.Add(skel);
 
             MeshList.DisplayMeshes(comp);
             MaterialList.DisplayMaterials(skm);
@@ -268,7 +268,7 @@ namespace TheraEditor.Windows.Forms
             //Editor.Instance.SetRenderTicking(true);
             World.DespawnActor(TargetActor);
             if (Model is SkeletalModel skm && skm.SkeletonRef?.IsLoaded == true)
-                World.Scene?.Remove(skm.SkeletonRef.File);
+                World.Scene3D?.Renderables.Remove(skm.SkeletonRef.File);
             base.OnClosed(e);
         }
 

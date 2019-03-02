@@ -13,8 +13,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override bool UpdateDisplayInternal(object value)
         {
             bool editable = IsEditable();
-            //bool notNull = value is null;
-            if (chkNull.Checked = value is null)
+            bool isNull = value is null;
+            if (isNull)
             {
                 if (pnlEditors.Enabled)
                 {
@@ -32,11 +32,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     //    item.SetReferenceHolder(new PropGridItemRefNullableInfo(ParentInfo, ValueType));
                 }
             }
+            if (chkNull.Checked != isNull)
+                chkNull.Checked = isNull;
             chkNull.Enabled = editable;
             return false;
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
             object o = chkNull.Checked ? null : Editor.UserCreateInstanceOf(ValueType, true, this);
             UpdateValue(o, true);
         }

@@ -40,7 +40,7 @@ namespace TheraEngine
     {
         public virtual int MaxViewports => 4;
 
-        public enum PanelType
+        public enum EPanelType
         {
             World,
             Hovered,
@@ -48,14 +48,14 @@ namespace TheraEngine
             Rendering,
         }
 
-        public static Control GetPanel(PanelType type)
+        public static Control GetPanel(EPanelType type)
         {
             switch (type)
             {
-                case PanelType.World: return WorldPanel;
-                case PanelType.Hovered: return HoveredPanel;
-                case PanelType.Focused: return FocusedPanel;
-                case PanelType.Rendering: return RenderingPanel;
+                case EPanelType.World: return WorldPanel;
+                case EPanelType.Hovered: return HoveredPanel;
+                case EPanelType.Focused: return FocusedPanel;
+                case EPanelType.Rendering: return RenderingPanel;
             }
             return null;
         }
@@ -126,7 +126,7 @@ namespace TheraEngine
         /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
         /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
         /// </summary>
-        public static bool ThreadSafeBlockingInvoke<T>(Delegate method, PanelType type, out T result, params object[] args)
+        public static bool ThreadSafeBlockingInvoke<T>(Delegate method, EPanelType type, out T result, params object[] args)
         {
             Control panel = GetPanel(type);
             if (panel == null)
@@ -141,7 +141,7 @@ namespace TheraEngine
         /// If it does, then it calls the method. You should return from the currently executing method if calling this on the currently executing method.
         /// This method is typically used when calling graphics methods off of the render thread (same as the main/UI thread).
         /// </summary>
-        public static bool ThreadSafeBlockingInvoke(Delegate method, PanelType type, params object[] args)
+        public static bool ThreadSafeBlockingInvoke(Delegate method, EPanelType type, params object[] args)
         {
             Control panel = GetPanel(type);
             return panel?.ThreadSafeBlockingInvoke(method, args) ?? false;

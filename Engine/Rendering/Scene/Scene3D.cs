@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Core.Maths.Transforms;
@@ -24,13 +25,19 @@ namespace TheraEngine.Rendering
         //public override int Count => RenderTree.Count;
         public LightManager Lights { get; private set; }
         public ParticleManager Particles { get; }
-        public IBLProbeGridActor IBLProbeActor { get; set; }
-        //private GlobalFileRef<TMaterial> _voxelizationMaterial;
-
+        public IBLProbeGridActor IBLProbeActor { get; internal set; }
+        public EventList<I3DRenderable> Renderables { get; }
+        
         public Scene3D() : this(0.5f) { }
         public Scene3D(Vec3 boundsHalfExtents)
         {
-            Clear(new BoundingBoxStruct(boundsHalfExtents, Vec3.Zero));
+            Renderables = new EventList<I3DRenderable>();
+            Renderables.PostAnythingAdded += Renderables_PostAnythingAdded;
+            Renderables.PostAnythingRemoved += Renderables_PostAnythingRemoved;
+
+            RenderTree = new Octree(new BoundingBoxStruct(boundsHalfExtents, Vec3.Zero));
+            Lights = new LightManager();
+            
             Render = RenderDeferred;
 
             TMaterial m = new TMaterial("VoxelizeMat",
@@ -54,6 +61,9 @@ namespace TheraEngine.Rendering
 
             _voxelizationMaterial = m;
         }
+
+        private void Renderables_PostAnythingAdded(I3DRenderable item) => RenderTree.Add(item);
+        private void Renderables_PostAnythingRemoved(I3DRenderable item) => RenderTree.Remove(item);
 
         public void UpdateShadowMaps() => Lights?.UpdateShadowMaps(this);
         public void RenderShadowMaps() => Lights?.RenderShadowMaps(this);
@@ -92,88 +102,6 @@ namespace TheraEngine.Rendering
         {
             RenderTree.CollectVisible(collectionVolume, populatingPasses, camera, shadowPass);
         }
-        //public void RenderForward(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
-        //{
-        //    AbstractRenderer.PushCamera(camera);
-        //    AbstractRenderer.PushCurrent3DScene(this);
-        //    {
-        //        if (viewport != null)
-        //        {
-        //            //Enable internal resolution
-        //            Engine.Renderer.PushRenderArea(viewport.InternalResolution);
-        //            {
-        //                viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
-        //                {
-        //                    Engine.Renderer.Clear(EBufferClear.All);
-
-        //                    Engine.Renderer.AllowDepthWrite(false);
-        //                    renderingPasses.Render(ERenderPass.Background);
-        //                    Engine.Renderer.AllowDepthWrite(true);
-
-        //                    renderingPasses.Render(ERenderPass.OpaqueForward);
-        //                    //c.OwningComponent?.OwningWorld?.PhysicsWorld.DrawDebugWorld();
-        //                    //RenderTree.DebugRender(camera?.Frustum, true);
-
-        //                    renderingPasses.Render(ERenderPass.TransparentForward);
-        //                    Engine.Renderer.AllowDepthWrite(false);
-        //                    renderingPasses.Render(ERenderPass.OnTopForward);
-        //                }
-        //                viewport.ForwardPassFBO.Unbind(EFramebufferTarget.DrawFramebuffer);
-
-        //                //viewport.PingPongBloomBlurFBO.Reset();
-        //                //viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-        //                //Engine.Renderer.AllowDepthWrite(false);
-        //                //viewport.BrightPassFBO.RenderFullscreen();
-        //                //Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
-
-        //                //var t = viewport._bloomBlurTexture.GetTexture(true);
-        //                //t.Bind();
-        //                //t.GenerateMipmaps();
-
-        //                //for (int i = 0; i < 10; ++i)
-        //                //{
-        //                //    viewport.PingPongBloomBlurFBO.BindCurrentTarget(EFramebufferTarget.DrawFramebuffer);
-        //                //    Engine.Renderer.AllowDepthWrite(false);
-        //                //    viewport.PingPongBloomBlurFBO.RenderFullscreen();
-        //                //    Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
-
-        //                //    viewport.PingPongBloomBlurFBO.Switch();
-        //                //}
-        //            }
-        //            Engine.Renderer.PopRenderArea();
-
-        //            //Render the last pass to the actual screen resolution, 
-        //            //or the provided target FBO
-        //            target?.Bind(EFramebufferTarget.DrawFramebuffer);
-        //            {
-        //                Engine.Renderer.PushRenderArea(viewport.Region);
-        //                viewport.PostProcessFBO.RenderFullscreen();
-        //                Engine.Renderer.PopRenderArea();
-        //            }
-        //            target?.Unbind(EFramebufferTarget.DrawFramebuffer);
-        //        }
-        //        else
-        //        {
-        //            target?.Bind(EFramebufferTarget.DrawFramebuffer);
-        //            Engine.Renderer.Clear(EBufferClear.All);
-
-        //            Engine.Renderer.AllowDepthWrite(false);
-        //            renderingPasses.Render(ERenderPass.Background);
-
-        //            Engine.Renderer.AllowDepthWrite(true);
-        //            renderingPasses.Render(ERenderPass.OpaqueForward);
-        //            renderingPasses.Render(ERenderPass.TransparentForward);
-
-        //            //Render forward on-top objects last
-        //            //Disable depth fail for objects on top
-        //            Engine.Renderer.DepthFunc(EComparison.Always);
-        //            renderingPasses.Render(ERenderPass.OnTopForward);
-        //            target?.Unbind(EFramebufferTarget.DrawFramebuffer);
-        //        }
-        //    }
-        //    AbstractRenderer.PopCurrent3DScene();
-        //    AbstractRenderer.PopCamera();
-        //}
         public abstract class RenderSequenceCommand
         {
 
@@ -182,6 +110,45 @@ namespace TheraEngine.Rendering
         {
 
         }
+        private bool _queueRemake = false;
+        public override void RegenerateTree()
+        {
+            _queueRemake = true;
+        }
+        public override void GlobalPreRender()
+        {
+            Voxelize();
+            RenderShadowMaps();
+        }
+        public override void GlobalSwap()
+        {
+            Lights.SwapBuffers();
+            RenderTree.Swap();
+            //if (_queueRemake)
+            //{
+            //    RenderTree.Remake();
+            //    _queueRemake = false;
+            //}
+        }
+        public override void GlobalUpdate()
+        {
+            UpdateShadowMaps();
+        }
+        /// <summary>
+        /// Clears all items from the scene and sets the bounds.
+        /// </summary>
+        /// <param name="sceneBounds">The total extent of the items in the scene.</param>
+        public void Clear(BoundingBoxStruct sceneBounds)
+        {
+            Renderables.Clear();
+            RenderTree = new Octree(sceneBounds);
+            Lights = new LightManager();
+        }
+
+        private float _renderFPS;
+        private RenderQuery _timeQuery = new RenderQuery();
+
+        #region Passes
         public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
         {
             //_timeQuery.BeginQuery(EQueryTarget.TimeElapsed);
@@ -242,7 +209,7 @@ namespace TheraEngine.Rendering
 
                     Engine.Renderer.AllowDepthWrite(false);
                     renderingPasses.Render(ERenderPass.Background);
-                    
+
                     Engine.Renderer.AllowDepthWrite(true);
                     renderingPasses.Render(ERenderPass.OpaqueDeferredLit);
                     renderingPasses.Render(ERenderPass.OpaqueForward);
@@ -261,14 +228,11 @@ namespace TheraEngine.Rendering
             //_renderFPS = 1.0f / (_timeQuery.EndAndGetQueryInt() * 1e-9f);
             //Engine.PrintLine(_renderMS.ToString() + " ms");
         }
-
         private void RenderPostProcessPass(Viewport viewport, TMaterial post)
         {
             //TODO: Apply camera post process material pass here
 
         }
-        private float _renderFPS;
-        private RenderQuery _timeQuery = new RenderQuery();
         private void RenderDeferredPass(Viewport viewport, RenderPasses renderingPasses)
         {
             viewport.SSAOFBO.Bind(EFramebufferTarget.DrawFramebuffer);
@@ -289,13 +253,11 @@ namespace TheraEngine.Rendering
             viewport.ForwardPassFBO.Bind(EFramebufferTarget.DrawFramebuffer);
             {
                 Engine.Renderer.EnableDepthTest(false);
-                //Render the deferred pass result
+
+                //Render the deferred pass lighting result
                 viewport.LightCombineFBO.RenderFullscreen();
 
                 Engine.Renderer.EnableDepthTest(true);
-                //viewport.RenderingCamera.OwningComponent?.OwningWorld?.PhysicsWorld?.DrawDebugWorld();
-                //RenderTree.DebugRender(viewport.RenderingCamera.Frustum, true);
-
                 renderingPasses.Render(ERenderPass.OpaqueForward);
 
                 Engine.Renderer.AllowDepthWrite(false);
@@ -361,73 +323,8 @@ namespace TheraEngine.Rendering
             BloomScaledPass(viewport.BloomBlurFBO2, viewport.BloomRect2, 1);
             //Don't blur original image, barely makes a difference to result
         }
+        #endregion
 
-        private bool _queueRemake = false;
-        public override void RegenerateTree()
-        {
-            _queueRemake = true;
-        }
-        public override void GlobalPreRender()
-        {
-            Voxelize();
-            RenderShadowMaps();
-        }
-        public override void GlobalSwap()
-        {
-            Lights.SwapBuffers();
-            RenderTree.Swap();
-            //if (_queueRemake)
-            //{
-            //    RenderTree.Remake();
-            //    _queueRemake = false;
-            //}
-        }
-        public override void GlobalUpdate()
-        {
-            UpdateShadowMaps();
-        }
-        public override void Add(IRenderable obj) => Add(obj as I3DRenderable);
-        public override void Remove(IRenderable obj) => Remove(obj as I3DRenderable);
-        public void Add(I3DRenderable obj)
-        {
-            if (obj == null)
-                return;
-
-            RenderTree?.Add(obj);
-
-            //if (obj.CullingVolume != null)
-            //    RegisterCullingVolume(obj.CullingVolume);
-
-            //Engine.PrintLine("Added {0} to the scene.", obj.ToString());
-        }
-        public void Remove(I3DRenderable obj)
-        {
-            if (obj == null)
-                return;
-
-            RenderTree?.Remove(obj);
-
-            //if (obj.CullingVolume != null)
-            //    UnregisterCullingVolume(obj.CullingVolume);
-
-            //Engine.PrintLine("Removed {0} from the scene.", obj.ToString());
-        }
-        private void RegisterCullingVolume(TShape cullingVolume)
-        {
-
-        }
-        private void UnregisterCullingVolume(TShape cullingVolume)
-        {
-
-        }
-        /// <summary>
-        /// Clears all items from the scene and sets the bounds.
-        /// </summary>
-        /// <param name="sceneBounds">The total extent of the items in the scene.</param>
-        public void Clear(BoundingBoxStruct sceneBounds)
-        {
-            RenderTree = new Octree(sceneBounds);
-            Lights = new LightManager();
-        }
+        public override IEnumerator<IRenderable> GetEnumerator() => Renderables.GetEnumerator();
     }
 }

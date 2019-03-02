@@ -237,8 +237,8 @@ namespace TheraEngine.Core.Tools
                 return value;
             }
 
-            throw new InvalidOperationException("Token not recognized: " + token);
-            //return null;
+            //throw new InvalidOperationException("Token not recognized: " + token);
+            return null;
         }
         private static object TryParseNumeric(string token)
         {

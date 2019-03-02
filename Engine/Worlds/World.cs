@@ -42,6 +42,8 @@ namespace TheraEngine.Worlds
         private GlobalFileRef<WorldSettings> _settingsRef;
         private GlobalFileRef<WorldState> _stateRef;
 
+        public BaseRenderPanel RenderPanel { get; internal set; }
+
         [TSerialize]
         public GlobalFileRef<WorldSettings> SettingsRef
         {
@@ -94,11 +96,23 @@ namespace TheraEngine.Worlds
         public Scene3D Scene3D => Scene as Scene3D;
         public Scene2D Scene2D => Scene as Scene2D;
         public AbstractPhysicsWorld PhysicsWorld3D { get; private set; }
+        public BaseGameMode CurrentGameMode
+        {
+            get => State.GameMode;
+            set
+            {
+                if (IsPlaying)
+                    State.GameMode?.EndGameplay();
+                State.GameMode = value;
+                if (IsPlaying)
+                    State.GameMode?.BeginGameplay();
+            }
+        }
 
-        public BaseGameMode GetGameMode()
-            => Settings?.GameModeOverrideRef?.File;
+        public BaseGameMode GetDefaultGameMode()
+            => Settings?.DefaultGameModeRef?.File;
         public T GetGameMode<T>() where T : class, IGameMode
-            => Settings?.GameModeOverrideRef?.File as T;
+            => Settings?.DefaultGameModeRef?.File as T;
 
         [Browsable(false)]
         public int SpawnedActorCount => State.SpawnedActors.Count;
@@ -154,6 +168,7 @@ namespace TheraEngine.Worlds
         RenderInfo2D I2DRenderable.RenderInfo => RenderInfo2D;
 
         public Scene2D OwningScene2D { get; }
+        public bool IsPlaying { get; private set; }
 
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
@@ -217,15 +232,12 @@ namespace TheraEngine.Worlds
                 m.File.EndPlay();
 
             if (Settings.TwoDimensional)
-            {
                 RenderInfo2D.UnlinkScene();
-            }
             else
-            {
                 RenderInfo3D.UnlinkScene();
-            }
 
-            Engine.ActiveGameMode?.EndGameplay();
+            CurrentGameMode?.EndGameplay();
+            IsPlaying = false;
         }
         public virtual async void BeginPlay()
         {
@@ -255,13 +267,14 @@ namespace TheraEngine.Worlds
                 if (s3D.IBLProbeActor != null)
                     await s3D.IBLProbeActor.InitAndCaptureAllAsync(512);
             }
-            //Scene2D s2D = Scene2D;
-            //if (s2D != null)
-            //{
-            //    s2D.RenderTree.Swap();
-            //}
+            Scene2D s2D = Scene2D;
+            if (s2D != null)
+            {
+                s2D.RenderTree.Swap();
+            }
 
-            Engine.ActiveGameMode?.BeginGameplay();
+            CurrentGameMode?.BeginGameplay();
+            IsPlaying = true;
         }
 
         private readonly RenderCommandMethod3D _rc3D;
@@ -283,7 +296,11 @@ namespace TheraEngine.Worlds
         }
         private void Render2D()
         {
+            if (!(Engine.EditorState?.InEditMode ?? false))
+                return;
 
+            if (Settings.PreviewQuadtrees)
+                Scene2D?.RenderTree?.DebugRender(null, true);
         }
 
         void I3DRenderable.AddRenderables(RenderPasses passes, Camera camera) 

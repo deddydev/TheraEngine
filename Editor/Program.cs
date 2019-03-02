@@ -54,6 +54,38 @@ namespace TheraEditor
                     d.ShowDialog();
             }
         }
+        /// <summary>
+        /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
+        /// </summary>
+        /// <param name="button">The button to populate.</param>
+        /// <param name="onClick">The method to trigger when a leaf button is pressed.
+        /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
+        /// <param name="match">The predicate method used to find specific types.</param>
+        public static Type[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<Type> match)
+        {
+            Type[] fileObjectTypes = Engine.FindTypes(match).ToArray();
+            
+            Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
+            foreach (Type type in fileObjectTypes)
+            {
+                string path = type.Namespace;
+                int dotIndex = path.IndexOf(".");
+                string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
+                NamespaceNode node;
+                if (nodeCache.ContainsKey(name))
+                    node = nodeCache[name];
+                else
+                {
+                    node = new NamespaceNode(name, true);
+                    nodeCache.Add(name, node);
+                    tree.Nodes.Add(node.TreeNode);
+                }
+                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, null);
+            }
+            tree.AfterSelect += (s, e) => onClick(e.Node, e);
+
+            return fileObjectTypes;
+        }
 
         /// <summary>
         /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
@@ -67,9 +99,9 @@ namespace TheraEditor
             Type[] fileObjectTypes = Engine.FindTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (Type t in fileObjectTypes)
+            foreach (Type type in fileObjectTypes)
             {
-                string path = t.Namespace;
+                string path = type.Namespace;
                 int dotIndex = path.IndexOf(".");
                 string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
                 NamespaceNode node;
@@ -77,55 +109,72 @@ namespace TheraEditor
                     node = nodeCache[name];
                 else
                 {
-                    node = new NamespaceNode(name);
+                    node = new NamespaceNode(name, false);
                     nodeCache.Add(name, node);
                     button.DropDownItems.Add(node.Button);
                 }
-                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);
+                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick);
             }
 
             return fileObjectTypes;
         }
         private class NamespaceNode
         {
-            public NamespaceNode(string name)
+            public NamespaceNode(string name, bool treeView)
             {
                 Name = name;
                 Children = new Dictionary<string, NamespaceNode>();
-                Button = new ToolStripMenuItem(Name)
+                if (treeView)
                 {
-                    AutoSize = true,
-                    //ShowDropDownArrow = true,
-                    TextAlign = ContentAlignment.MiddleLeft,
-                };
-                //Size s = TextRenderer.MeasureText(Name, Button.Font);
-                //Button.Width = s.Width + 10;
-                //Button.Height = s.Height + 10;
+                    TreeNode = new TreeNode(Name);
+                }
+                else
+                {
+                    Button = new ToolStripMenuItem(Name)
+                    {
+                        AutoSize = true,
+                        //ShowDropDownArrow = true,
+                        TextAlign = ContentAlignment.MiddleLeft,
+                    };
+                }
             }
 
             public string Name { get; set; }
             private Dictionary<string, NamespaceNode> Children { get; set; }
             public ToolStripMenuItem Button { get; set; }
+            public TreeNode TreeNode { get; set; }
 
-            public void Add(string path, Type t, EventHandler onClick)
+            public void Add(string path, Type type, EventHandler onClick)
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    string typeName = t.GetFriendlyName();
+                    string typeName = type.GetFriendlyName();
                     //FileDef def = t.GetCustomAttributeExt<FileDef>();
                     string displayText = /*def?.UserFriendlyName ?? */typeName;
-                    ToolStripMenuItem btn = new ToolStripMenuItem(displayText)
+                    if (Button != null)
                     {
-                        AutoSize = true,
-                        //ShowDropDownArrow = false,
-                        TextAlign = ContentAlignment.MiddleLeft,
-                        Tag = t,
-                    };
-                    //Size s = TextRenderer.MeasureText(displayText, btn.Font);
-                    //btn.Width = s.Width;
-                    //btn.Height = s.Height + 10;
-                    btn.Click += onClick;
-                    Button.DropDownItems.Add(btn);
+                        ToolStripMenuItem btn = new ToolStripMenuItem(displayText)
+                        {
+                            AutoSize = true,
+                            //ShowDropDownArrow = false,
+                            TextAlign = ContentAlignment.MiddleLeft,
+                            Tag = type,
+                        };
+                        //Size s = TextRenderer.MeasureText(displayText, btn.Font);
+                        //btn.Width = s.Width;
+                        //btn.Height = s.Height + 10;
+                        btn.Click += onClick;
+                        Button.DropDownItems.Add(btn);
+                    }
+                    else
+                    {
+                        TreeNode treeNode = new TreeNode(displayText)
+                        {
+                            Tag = type,
+                        };
+
+                        TreeNode.Nodes.Add(treeNode);
+                    }
                     return;
                 }
                 int dotIndex = path.IndexOf(".");
@@ -135,11 +184,15 @@ namespace TheraEditor
                     node = Children[name];
                 else
                 {
-                    node = new NamespaceNode(name);
+                    bool treeView = TreeNode != null;
+                    node = new NamespaceNode(name, treeView);
                     Children.Add(name, node);
-                    Button.DropDownItems.Add(node.Button);
+                    if (treeView)
+                        TreeNode.Nodes.Add(node.TreeNode);
+                    else
+                        Button.DropDownItems.Add(node.Button);
                 }
-                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);
+                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick);
             }
         }
         

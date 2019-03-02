@@ -18,6 +18,8 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
         }
 
+        public EditorUI3D EditorHUD { get; set; }
+
         private readonly Dictionary<Guid, TreeNode> _mapTreeNodes = new Dictionary<Guid, TreeNode>();
         private TreeNode _dynamicActorsMapNode = null;
 
@@ -25,14 +27,10 @@ namespace TheraEditor.Windows.Forms
         {
             if (!Editor.Instance.PropertyGridFormActive)
                 return;
-
-            EditorUI3D hud = null;
-            if (Engine.LocalPlayers.Count > 0)
-                hud = (EditorUI3D)Engine.LocalPlayers[0].ControlledPawn?.HUD;
             
             if (ActorTree.SelectedNode == null)
             {
-                hud?.SetSelectedComponent(false, null, true);
+                EditorHUD?.SetSelectedComponent(false, null, true);
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = Engine.World?.Settings;
             }
             else switch (e.Node.Tag)
@@ -40,21 +38,23 @@ namespace TheraEditor.Windows.Forms
                 case IActor actor:
                 {
                     actor.EditorState.Selected = true;
-                    hud?.SetSelectedComponent(false, actor.RootComponent, true);
+                    EditorHUD?.SetSelectedComponent(false, actor.RootComponent, true);
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = actor;
                     break;
                 }
                 case Component component:
                 {
                     component.EditorState.Selected = true;
-                    hud?.SetSelectedComponent(false, component as SceneComponent, true);
+                    EditorHUD?.SetSelectedComponent(false, component as SceneComponent, true);
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = component;
                     break;
                 }
                 case Map map:
-                    hud?.SetSelectedComponent(false, null, true);
+                {
+                    EditorHUD?.SetSelectedComponent(false, null, true);
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = map;
                     break;
+                }
             }
         }
         internal void GenerateInitialActorList()

@@ -171,7 +171,7 @@ namespace TheraEngine.Actors
                 probe.GenerateIrradianceMap();
                 probe.GeneratePrefilterMap();
             }),
-            BaseRenderPanel.PanelType.Rendering);
+            BaseRenderPanel.EPanelType.Rendering);
 
             if (RootComponent.ChildComponents.Count < 5)
                 return;
@@ -220,7 +220,7 @@ namespace TheraEngine.Actors
         }
         public void InitAndCaptureAll(int colorResolution, bool captureDepth = false, int depthResolution = 1)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, bool, int>)InitAndCaptureAll, BaseRenderPanel.PanelType.Rendering, colorResolution, captureDepth, depthResolution))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<int, bool, int>)InitAndCaptureAll, BaseRenderPanel.EPanelType.Rendering, colorResolution, captureDepth, depthResolution))
                 return;
 
             foreach (IBLProbeComponent comp in RootComponent.ChildComponents)

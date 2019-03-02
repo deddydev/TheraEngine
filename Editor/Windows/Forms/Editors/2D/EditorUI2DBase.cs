@@ -41,7 +41,7 @@ namespace TheraEditor.Windows.Forms
         private readonly RenderCommandMethod2D _rcMethod;
 
         public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
-        public BoundingRectangleF AxisAlignedRegion { get; } = new BoundingRectangleF();
+        public BoundingRectangleFStruct AxisAlignedRegion { get; } = new BoundingRectangleFStruct();
         public IQuadtreeNode QuadtreeNode { get; set; }
         
         public float UnitIncrement { get; set; } = 1.0f;

@@ -1103,6 +1103,7 @@
     <Compile Include="ThirdParty\PMX\Format\Triangles.cs" />
     <Compile Include="ThirdParty\PMX\Format\Vertices.cs" />
     <Compile Include="ThirdParty\VisualStudioSolution.cs" />
+    <Compile Include="ThirdParty\VMD\Importer.cs" />
     <Compile Include="ThirdParty\VMD\Format\Camera.cs" />
     <Compile Include="ThirdParty\VMD\Format\Morph.cs" />
     <Compile Include="ThirdParty\VMD\Format\Bone.cs" />

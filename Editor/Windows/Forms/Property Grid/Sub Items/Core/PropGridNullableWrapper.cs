@@ -52,11 +52,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             if (DataType != null)
             {
+                ValueType = DataType.GetGenericArguments()[0];
+
                 PropGridItemRefNullableInfo parentInfoNullable = new PropGridItemRefNullableInfo(this, MemberInfo, ValueType);
                 
-                ValueType = DataType.GetGenericArguments()[0];
                 var types = TheraPropertyGrid.GetControlTypes(ValueType);
                 var items = TheraPropertyGrid.InstantiatePropertyEditors(types, parentInfoNullable, ParentCategory, DataChangeHandler);
+
                 foreach (var item in items)
                 {
                     item.Dock = System.Windows.Forms.DockStyle.Top;

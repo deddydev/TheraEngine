@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using TheraEngine.Components.Logic.Animation;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Rendering.Models;
+using TheraEngine.ThirdParty.VMD;
 
 namespace TheraEngine.Animation
 {
     [TFileDef("Skeletal Animation")]
-    [TFileExt("skelanim", new string[] { "dae" }, null)]
+    [TFileExt("skelanim", new string[] { "dae", "vmd" }, null)]
     public class SkeletalAnimation : BaseAnimation
     {
         [ThirdPartyLoader("dae", true)]
@@ -29,7 +30,15 @@ namespace TheraEngine.Animation
             };
             return (await Collada.ImportAsync(path, o, progress, cancel))?.Models[0].Animation;
         }
-        
+        [ThirdPartyLoader("vmd", true)]
+        public static async Task<SkeletalAnimation> LoadVMDAsync(
+            string path, IProgress<float> progress, CancellationToken cancel)
+        {
+            VMDImporter importer = new VMDImporter();
+            SkeletalAnimation anim = await importer.Import(path);
+            return anim;
+        }
+
         public SkeletalAnimation() 
             : base(0.0f, false) { }
         public SkeletalAnimation(float lengthInSeconds, bool looped)

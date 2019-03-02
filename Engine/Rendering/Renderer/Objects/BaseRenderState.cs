@@ -114,6 +114,7 @@ namespace TheraEngine.Rendering
             }
             else if (_currentBind == null || _currentBind._context != RenderContext.Captured)
             {
+                //This part is very important; switches contexts based on captured context for different render panels
                 int index = _owners.FindIndex(x => x._context == RenderContext.Captured);
                 if (index >= 0)
                     _currentBind = _owners[index];

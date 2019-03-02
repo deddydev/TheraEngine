@@ -338,7 +338,7 @@ namespace TheraEngine.Animation
             => ConvertInterpolatedValue(Interp.CubicBezierAcceleration(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time));
 
         public int CubicHermite(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue(Interp.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time));
+            => ConvertInterpolatedValue(Interp.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time, key2.Second - key1.Second));
         public int CubicHermiteVelocity(IntKeyframe key1, IntKeyframe key2, float time)
             => ConvertInterpolatedValue(Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time));
         public int CubicHermiteAcceleration(IntKeyframe key1, IntKeyframe key2, float time)

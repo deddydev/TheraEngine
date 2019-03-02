@@ -71,12 +71,12 @@ namespace TheraEngine.Rendering
 
         public void Resize(Vec2 bounds)
         {
-            RenderTree?.Remake(new BoundingRectangleF(Vec2.Zero, bounds));
+            RenderTree?.Remake(new BoundingRectangleFStruct(Vec2.Zero, bounds));
         }
         
         public void Clear(Vec2 bounds)
         {
-            RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangleF(new Vec2(0.0f), bounds));
+            RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangleFStruct(new Vec2(0.0f), bounds));
         }
 
         public override void RegenerateTree()

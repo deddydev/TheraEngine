@@ -10,9 +10,9 @@ namespace TheraEngine.Core.Shapes
     public class EventBoundingRectangleF
     {
         [TSerialize(nameof(Raw))]
-        private BoundingRectangleF _raw;
+        private BoundingRectangleFStruct _raw;
 
-        public BoundingRectangleF Raw
+        public BoundingRectangleFStruct Raw
         {
             get => _raw;
             set
@@ -62,8 +62,8 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
             }
         }
 
-        public EventBoundingRectangleF() => _raw = new BoundingRectangleF();
-        public EventBoundingRectangleF(BoundingRectangleF value) => _raw = value;
+        public EventBoundingRectangleF() => _raw = new BoundingRectangleFStruct();
+        public EventBoundingRectangleF(BoundingRectangleFStruct value) => _raw = value;
         public EventBoundingRectangleF(float x, float y, float width, float height, float localOriginPercentageX, float localOriginPercentageY)
             : this(new Vec2(x, y), new Vec2(width, height), new Vec2(localOriginPercentageX, localOriginPercentageY)) { }
         public EventBoundingRectangleF(float x, float y, float width, float height)
@@ -72,7 +72,7 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
             : this(translation, bounds, Vec2.Zero) { }
         public EventBoundingRectangleF(Vec2 translation, Vec2 bounds, Vec2 localOriginPercentage)
         {
-            _raw = new BoundingRectangleF(translation, bounds, localOriginPercentage);
+            _raw = new BoundingRectangleFStruct(translation, bounds, localOriginPercentage);
         }
 
         public static EventBoundingRectangleF FromMinMaxSides(
@@ -318,39 +318,39 @@ Bottom left point of this rectangle is Position - LocalOrigin.")]
         /// </summary>
         /// <param name="other">The other rectangle.</param>
         /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
-        public EContainment ContainmentWithin(BoundingRectangleF other) => _raw.ContainmentWithin(other);
+        public EContainment ContainmentWithin(BoundingRectangleFStruct other) => _raw.ContainmentWithin(other);
         /// <summary>
         /// Determines if this rectangle contains another.
         /// </summary>
         /// <param name="other">The other rectangle.</param>
         /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
-        public EContainment ContainmentOf(BoundingRectangleF other) => _raw.ContainmentOf(other);
+        public EContainment ContainmentOf(BoundingRectangleFStruct other) => _raw.ContainmentOf(other);
         public bool DisjointWith(float width, float height) => _raw.DisjointWith(width, height);
         /// <summary>
         /// Returns true if this rectangle and the given rectangle are not touching or contained within another.
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool DisjointWith(BoundingRectangleF other) => _raw.DisjointWith(other);
+        public bool DisjointWith(BoundingRectangleFStruct other) => _raw.DisjointWith(other);
         /// <summary>
         /// Returns true if full contains the given rectangle. If intersecting at all (including a same edge) or disjoint, returns false.
         /// </summary>
-        public bool Contains(BoundingRectangleF other) => _raw.Contains(other);
+        public bool Contains(BoundingRectangleFStruct other) => _raw.Contains(other);
         /// <summary>
         /// Returns true if intersecting at all (including a same edge). If no edges are touching, returns false.
         /// </summary>
-        public bool Intersects(BoundingRectangleF other) => _raw.Intersects(other);
+        public bool Intersects(BoundingRectangleFStruct other) => _raw.Intersects(other);
         public override string ToString() => _raw.ToString();
 
         public Vec2 ClosestPoint(Vec2 point) => _raw.ClosestPoint(point);
 
         public bool IsEmpty() => _raw.IsEmpty();
 
-        public static explicit operator BoundingRectangleF(EventBoundingRectangleF value)
+        public static explicit operator BoundingRectangleFStruct(EventBoundingRectangleF value)
         {
             return value._raw;
         }
-        public static implicit operator EventBoundingRectangleF(BoundingRectangleF value)
+        public static implicit operator EventBoundingRectangleF(BoundingRectangleFStruct value)
         {
             return new EventBoundingRectangleF(value);
         }

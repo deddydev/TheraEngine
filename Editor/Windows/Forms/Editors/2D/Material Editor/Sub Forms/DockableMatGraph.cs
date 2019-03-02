@@ -51,7 +51,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void RenderPanel_MouseEnter(object sender, EventArgs e) => Cursor.Hide();
         private void RenderPanel_MouseLeave(object sender, EventArgs e) => Cursor.Show();
-        public void AlignView(BoundingRectangleF bounds)
+        public void AlignView(BoundingRectangleFStruct bounds)
         {
             ////Get aspect of the front plane of the aabb
             //aabb.GetCorners(out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);

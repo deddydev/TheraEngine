@@ -46,7 +46,7 @@ namespace TheraEngine.Rendering
         /// The axis-aligned bounding box for this UI component.
         /// </summary>
         [Browsable(false)]
-        public BoundingRectangleF AxisAlignedRegion;
+        public BoundingRectangleFStruct AxisAlignedRegion;
         [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
 

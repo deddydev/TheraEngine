@@ -417,10 +417,17 @@ namespace TheraEngine.Core.Maths
         #endregion
 
         #region Position
-        public static float CubicHermite(float p0, float t0, float t1, float p1, float time)
+        public static float CubicHermite(float p0, float t0, float t1, float p1, float time, float span)
         {
-            CubicHermiteCoefs(p0, t0, t1, p1, out float third, out float second, out float first, out float zero);
-            return EvaluatePolynomial(third, second, first, zero, time);
+            float diff = p1 - p0;
+            float offset = time * span;
+            float inv = time - 1.0f; //-1 to 0
+            return p0
+                + (offset * inv * ((inv * t0) + (time * t1)))
+                + ((time * time) * (3.0f - 2.0f * time) * diff);
+
+            //CubicHermiteCoefs(p0, t0, t1, p1, out float third, out float second, out float first, out float zero);
+            //return EvaluatePolynomial(third, second, first, zero, time);
         }
         public static Vec2 CubicHermite(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
         {

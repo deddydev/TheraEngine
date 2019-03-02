@@ -61,7 +61,7 @@ namespace TheraEngine.Animation
             => Interp.CubicBezierAcceleration(OutValue, OutValue + OutTangent, next.InValue + next.InTangent, next.InValue, time);
 
         public override float CubicHermite(VectorKeyframe<float> next, float time)
-            => Interp.CubicHermite(OutValue, OutTangent, -next.InTangent, next.InValue, time);
+            => Interp.CubicHermite(OutValue, OutTangent, -next.InTangent, next.InValue, time, next.Second - Second);
         public override float CubicHermiteVelocity(VectorKeyframe<float> next, float time)
             => Interp.CubicHermiteVelocity(OutValue, OutTangent, -next.InTangent, next.InValue, time);
         public override float CubicHermiteAcceleration(VectorKeyframe<float> next, float time)
@@ -69,6 +69,22 @@ namespace TheraEngine.Animation
 
         public override string WriteToString()
             => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);
+
+        public override string ToString()
+        {
+            switch (InterpolationType)
+            {
+                case EVectorInterpType.Step:
+                    return string.Format("[F:{0} : {3}] V:({1} {2})", Second, InValue.ToString(), OutValue.ToString(), InterpolationType);
+                case EVectorInterpType.Linear:
+                    return string.Format("[F:{0} : {3}] V:({1} {2})", Second, InValue.ToString(), OutValue.ToString(), InterpolationType);
+                case EVectorInterpType.CubicHermite:
+                    return string.Format("[F:{0} : {5}] V:({1} {2}) T:({3} {4})", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);
+                default:
+                case EVectorInterpType.CubicBezier:
+                    return string.Format("[F:{0} : {5}] V:({1} {2}) T:({3} {4})", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);
+            }
+        }
 
         public override void ReadFromString(string str)
         {

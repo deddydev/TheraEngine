@@ -8,6 +8,7 @@ namespace TheraEngine.ThirdParty.VMD
     public unsafe struct Header
     {
         public const int Size = 54;
+        public static readonly string MagicString = "Vocaloid Motion Data 0002";
 
         private fixed byte _magic[30]; //Vocaloid Motion Data 0002 + 5 null bytes
         private fixed byte _modelName[20];

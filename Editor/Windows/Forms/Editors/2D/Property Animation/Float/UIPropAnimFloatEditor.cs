@@ -148,7 +148,7 @@ namespace TheraEditor.Windows.Forms
               out (float Time, float Value)[] max);
             return TMath.Max(Math.Abs(min[0].Value), Math.Abs(max[0].Value));
         }
-        const float Resolution = 0.5f;
+        const float Resolution = 1.0f;
         private float MinSec { get; set; }
         private float VisibleSecRange { get; set; }
         private int FrameCount { get; set; }
@@ -819,25 +819,23 @@ void main()
                      
                         if (kf.Value.DraggingInTangent)
                         {
-                            float inTanY = pos.Y + kf.Value.InTangentOffset;
-                            
+                            float posY = pos.Y/* + kf.Value.InValueOffset*/;
                             if (SnapToIncrement)
-                                inTanY = inTanY.RoundToNearestMultiple(UnitIncrement);
+                                posY = posY.RoundToNearestMultiple(UnitIncrement);
 
-                            float inTanYDiff = inTanY - kf.Value.InValueInitial;
-
-                            kf.Value.Keyframe.InTangent = inTanYDiff / (kfSec - kf.Value.SecondInitial);
+                            //m = y / x
+                            //y = pos.Y - kf.Value.InValueInitial
+                            //x = pos.X - kf.Value.SecondInitial
+                            kf.Value.Keyframe.InTangent = -(posY - kf.Value.InValueInitial) / (pos.X - kf.Value.SecondInitial);
                         }
                         if (kf.Value.DraggingOutTangent)
                         {
-                            float outTanY = pos.Y + kf.Value.OutTangentOffset;
+                            float posY = pos.Y/* + kf.Value.OutValueOffset*/;
                             
                             if (SnapToIncrement)
-                                outTanY = outTanY.RoundToNearestMultiple(UnitIncrement);
-
-                            float outTanYDiff = outTanY - kf.Value.OutValueInitial;
-
-                            kf.Value.Keyframe.OutTangent = outTanYDiff / (kfSec - kf.Value.SecondInitial);
+                                posY = posY.RoundToNearestMultiple(UnitIncrement);
+                            
+                            kf.Value.Keyframe.OutTangent = (posY - kf.Value.OutValueInitial) / (pos.X - kf.Value.SecondInitial);
                         }
                     }
                 }

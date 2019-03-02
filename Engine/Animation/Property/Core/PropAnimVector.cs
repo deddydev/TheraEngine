@@ -648,7 +648,7 @@ namespace TheraEngine.Animation
             InterpolationType = type;
         }
 
-        protected delegate T DelInterpolate(VectorKeyframe<T> next, float time);
+        protected delegate T DelInterpolate(VectorKeyframe<T> next, float timeOffset, float timeSpan);
         protected EVectorInterpType _interpolationType;
         protected DelInterpolate _interpolate;
         protected DelInterpolate _interpolateVelocity;
@@ -658,9 +658,9 @@ namespace TheraEngine.Animation
         public override Type ValueType => typeof(T);
 
         private T _inValue, _outValue, _inTangent, _outTangent;
-        private bool _syncInOutValues = false;
-        private bool _syncInOutTangentDirections = false;
-        private bool _syncInOutTangentMagnitudes = false;
+        private bool _syncInOutValues = true;
+        private bool _syncInOutTangentDirections = true;
+        private bool _syncInOutTangentMagnitudes = true;
         private bool _synchronizing = false;
 
         [Category("Editor Traits")]
@@ -843,31 +843,127 @@ namespace TheraEngine.Animation
             }
         }
 
-        /// <summary>
-        /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
-        /// </summary>
-        public T InterpolatePositionNextNormalized(float time) => _interpolate(Next, time);
-        /// <summary>
-        /// Interpolates velocity from this keyframe to the next using a normalized time value (0.0f - 1.0f)
-        /// </summary>
-        public T InterpolateVelocityNextNormalized(float time) => _interpolateVelocity(Next, time);
-        /// <summary>
-        /// Interpolates acceleration from this keyframe to the next using a normalized time value (0.0f - 1.0f)
-        /// </summary>
-        public T InterpolateAccelerationNextNormalized(float time) => _interpolateAcceleration(Next, time);
+        public VectorKeyframe<T> GetNextKeyframe(out float span)
+        {
+            if (IsLast || Next.Second > OwningTrack.LengthInSeconds)
+            {
+                if (OwningTrack.FirstKey != this)
+                {
+                    VectorKeyframe<T> next = (VectorKeyframe<T>)OwningTrack.FirstKey;
+                    span = OwningTrack.LengthInSeconds - Second + next.Second;
+                    return next;
+                }
+                else
+                {
+                    span = 0.0f;
+                    return null;
+                }
+            }
+            else
+            {
+                span = _next.Second - Second;
+                return Next;
+            }
+        }
+        public VectorKeyframe<T> GetPrevKeyframe(out float span)
+        {
+            if (IsFirst || Prev.Second < 0.0f)
+            {
+                if (OwningTrack.LastKey != this)
+                {
+                    VectorKeyframe<T> prev = (VectorKeyframe<T>)OwningTrack.LastKey;
+                    span = OwningTrack.LengthInSeconds - prev.Second + Second;
+                    return prev;
+                }
+                else
+                {
+                    span = 0.0f;
+                    return null;
+                }
+            }
+            else
+            {
+                span = Second - _prev.Second;
+                return Prev;
+            }
+        }
 
         /// <summary>
         /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
         /// </summary>
-        public T InterpolatePositionNormalized(VectorKeyframe<T> next, float time) => _interpolate(next, time);
+        public T InterpolatePositionNextNormalized(float time)
+        {
+            var next = GetNextKeyframe(out float span);
+            if (next == null)
+                return OutValue;
+            return _interpolate(next, span * time, span);
+        }
         /// <summary>
         /// Interpolates velocity from this keyframe to the next using a normalized time value (0.0f - 1.0f)
         /// </summary>
-        public T InterpolateVelocityNormalized(VectorKeyframe<T> next, float time) => _interpolateVelocity(next, time);
+        public T InterpolateVelocityNextNormalized(float time)
+        {
+            var next = GetNextKeyframe(out float span);
+            if (next == null)
+                return OutTangent;
+            return _interpolateVelocity(next, span * time, span);
+        }
         /// <summary>
         /// Interpolates acceleration from this keyframe to the next using a normalized time value (0.0f - 1.0f)
         /// </summary>
-        public T InterpolateAccelerationNormalized(VectorKeyframe<T> next, float time) => _interpolateAcceleration(next, time);
+        public T InterpolateAccelerationNextNormalized(float time)
+        {
+            var next = GetNextKeyframe(out float span);
+            if (next == null)
+                return default;
+            return _interpolateAcceleration(next, span * time, span);
+        }
+
+        /// <summary>
+        /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolatePositionNormalized(VectorKeyframe<T> next, float time)
+        {
+            if (next == null)
+                return OutValue;
+
+            float span;
+            if (next.Second < Second)
+                span = OwningTrack.LengthInSeconds - Second + next.Second;
+            else
+                span = next.Second - Second;
+            return _interpolate(next, span * time, span);
+        }
+        /// <summary>
+        /// Interpolates velocity from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolateVelocityNormalized(VectorKeyframe<T> next, float time)
+        {
+            if (next == null)
+                return OutTangent;
+
+            float span;
+            if (next.Second < Second)
+                span = OwningTrack.LengthInSeconds - Second + next.Second;
+            else
+                span = next.Second - Second;
+            return _interpolateVelocity(next, span * time, span);
+        }
+        /// <summary>
+        /// Interpolates acceleration from this keyframe to the next using a normalized time value (0.0f - 1.0f)
+        /// </summary>
+        public T InterpolateAccelerationNormalized(VectorKeyframe<T> next, float time)
+        {
+            if (next == null)
+                return default;
+
+            float span;
+            if (next.Second < Second)
+                span = OwningTrack.LengthInSeconds - Second + next.Second;
+            else
+                span = next.Second - Second;
+            return _interpolateAcceleration(next, span * time, span);
+        }
 
         public T Interpolate(float desiredSecond, EVectorInterpValueType type)
         {
@@ -920,16 +1016,15 @@ namespace TheraEngine.Animation
                     return type == EVectorInterpValueType.Position ? InValue : new T();
             }
 
-            float time = diff / span;
             switch (type)
             {
                 default:
                 case EVectorInterpValueType.Position:
-                    return key1._interpolate(key2, time);
+                    return key1._interpolate(key2, diff, span);
                 case EVectorInterpValueType.Velocity:
-                    return key1._interpolateVelocity(key2, time);
+                    return key1._interpolateVelocity(key2, diff, span);
                 case EVectorInterpValueType.Acceleration:
-                    return key1._interpolateAcceleration(key2, time);
+                    return key1._interpolateAcceleration(key2, diff, span);
             }
         }
         public T Interpolate(
@@ -1004,11 +1099,11 @@ namespace TheraEngine.Animation
             {
                 default:
                 case EVectorInterpValueType.Position:
-                    return key1._interpolate(key2, normalizedTime);
+                    return key1._interpolate(key2, diff, span);
                 case EVectorInterpValueType.Velocity:
-                    return key1._interpolateVelocity(key2, normalizedTime);
+                    return key1._interpolateVelocity(key2, diff, span);
                 case EVectorInterpValueType.Acceleration:
-                    return key1._interpolateAcceleration(key2, normalizedTime);
+                    return key1._interpolateAcceleration(key2, diff, span);
             }
         }
         public void Interpolate(
@@ -1107,26 +1202,26 @@ namespace TheraEngine.Animation
             }
 
             normalizedTime = diff / span;
-            position = key1._interpolate(key2, normalizedTime);
-            velocity = key1._interpolateVelocity(key2, normalizedTime);
-            acceleration = key1._interpolateAcceleration(key2, normalizedTime);
+            position = key1._interpolate(key2, diff, span);
+            velocity = key1._interpolateVelocity(key2, diff, span);
+            acceleration = key1._interpolateAcceleration(key2, diff, span);
         }
 
-        public T Step(VectorKeyframe<T> next, float time) => time < 1.0f ? OutValue : next.OutValue;
-        public T StepVelocity(VectorKeyframe<T> next, float time) => new T();
-        public T StepAcceleration(VectorKeyframe<T> next, float time) => new T();
+        public T Step(VectorKeyframe<T> next, float diff, float span) => (diff / span) < 1.0f ? OutValue : next.OutValue;
+        public T StepVelocity(VectorKeyframe<T> next, float diff, float span) => new T();
+        public T StepAcceleration(VectorKeyframe<T> next, float diff, float span) => new T();
 
-        public abstract T Lerp(VectorKeyframe<T> next, float time);
-        public abstract T LerpVelocity(VectorKeyframe<T> next, float time);
-        public T LerpAcceleration(VectorKeyframe<T> next, float time) => new T();
+        public abstract T Lerp(VectorKeyframe<T> next, float diff, float span);
+        public abstract T LerpVelocity(VectorKeyframe<T> next, float diff, float span);
+        public T LerpAcceleration(VectorKeyframe<T> next, float diff, float span) => new T();
 
-        public abstract T CubicHermite(VectorKeyframe<T> next, float time);
-        public abstract T CubicHermiteVelocity(VectorKeyframe<T> next, float time);
-        public abstract T CubicHermiteAcceleration(VectorKeyframe<T> next, float time);
+        public abstract T CubicHermite(VectorKeyframe<T> next, float diff, float span);
+        public abstract T CubicHermiteVelocity(VectorKeyframe<T> next, float diff, float span);
+        public abstract T CubicHermiteAcceleration(VectorKeyframe<T> next, float diff, float span);
 
-        public abstract T CubicBezier(VectorKeyframe<T> next, float time);
-        public abstract T CubicBezierVelocity(VectorKeyframe<T> next, float time);
-        public abstract T CubicBezierAcceleration(VectorKeyframe<T> next, float time);
+        public abstract T CubicBezier(VectorKeyframe<T> next, float diff, float span);
+        public abstract T CubicBezierVelocity(VectorKeyframe<T> next, float diff, float span);
+        public abstract T CubicBezierAcceleration(VectorKeyframe<T> next, float diff, float span);
 
         [GridCallable]
         public void AverageKeyframe(

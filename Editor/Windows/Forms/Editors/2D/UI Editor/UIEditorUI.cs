@@ -130,6 +130,8 @@ namespace TheraEditor.Windows.Forms
             if (_selectedComp == _highlightedComp)
             {
                 _dragComp = _selectedComp;
+                if (_selectedComp == null)
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = TargetUI;
             }
             else
             {
@@ -137,6 +139,8 @@ namespace TheraEditor.Windows.Forms
                 if (_selectedComp is UIBoundableComponent selectedBounds)
                     _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.Size * BaseTransformComponent.Scale;
                 _dragComp = null;
+
+                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = _selectedComp as object ?? TargetUI;
             }
             UIComponentSelected?.Invoke(_dragComp);
         }
@@ -174,7 +178,7 @@ namespace TheraEditor.Windows.Forms
         protected override void HandleDragItem()
         {
             Vec2 diff = GetWorldCursorDiff(CursorPosition());
-            _dragComp.LocalTranslation += diff / BaseTransformComponent.ScaleX;
+            _dragComp.LocalTranslation += _dragComp.ScreenToLocal(diff, true);
         }
         protected override void AddRenderables(RenderPasses passes)
         {

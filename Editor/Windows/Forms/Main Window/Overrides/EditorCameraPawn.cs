@@ -75,7 +75,7 @@ namespace TheraEditor.Actors.Types.Pawns
         {
             if (TargetViewportComponent != null && Moving)
             {
-                Vec2 result = UIComponent.ScreenToLocalPoint(new Vec2(x, y), /*(UIComponent)TargetViewportComponent.OwningActor.RootComponent,*/ TargetViewportComponent, true);
+                Vec2 result = TargetViewportComponent.ScreenToLocal(new Vec2(x, y), true);
                 x = result.X;
                 y = result.Y;
             }

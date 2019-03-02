@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
@@ -10,6 +11,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -25,7 +27,7 @@ namespace TheraEngine.Rendering.UI
     }
     public class UIComponent : OriginRebasableComponent, IUIComponent, I2DRenderable, IEnumerable<UIComponent>
     {
-        public UIComponent() : base() { }
+        public UIComponent() : base() { _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, Render); }
 
         protected Vec2 _translation = Vec2.Zero;
         protected Vec2 _scale = Vec2.One;
@@ -338,16 +340,28 @@ namespace TheraEngine.Rendering.UI
         /// <param name="uiComp">The UI component whose space you wish to convert the coordinate to.</param>
         /// <param name="delta">If true, the coordinate and returned value are treated like a vector offset instead of an absolute point.</param>
         /// <returns></returns>
-        public static Vec2 ScreenToLocalPoint(Vec2 coordinate, UIComponent uiComp, bool delta = false)
+        public Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false)
         {
-            Matrix4 mtx = uiComp.GetInvComponentTransform();
+            Matrix4 mtx = GetInvComponentTransform();
             if (delta)
                 mtx = mtx.ClearTranslation();
             return (coordinate * mtx).Xy;
         }
+        public RenderCommandMethod2D _rc;
         public virtual void AddRenderables(RenderPasses passes, Camera camera)
         {
+            passes.Add(_rc);
+        }
+        private void Render()
+        {
+            Vec3 startPoint = ParentSocket?.WorldMatrix.Translation ?? Vec3.Zero;
+            Vec3 endPoint = WorldMatrix.Translation;
 
+            Engine.Renderer.RenderLine(startPoint, endPoint, ColorF4.White);
+            Engine.Renderer.RenderPoint(endPoint, ColorF4.White);
+
+            Engine.Renderer.RenderLine(endPoint, endPoint + WorldMatrix.UpVec, Color.Green);
+            Engine.Renderer.RenderLine(endPoint, endPoint + WorldMatrix.RightVec, Color.Red);
         }
     }
 }

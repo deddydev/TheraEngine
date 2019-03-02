@@ -338,11 +338,20 @@ namespace TheraEngine.Animation
             => ConvertInterpolatedValue(Interp.CubicBezierAcceleration(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time));
 
         public int CubicHermite(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue(Interp.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time, key2.Second - key1.Second));
+        {
+            float timeSpan = key2.Second - key1.Second;
+            return ConvertInterpolatedValue(Interp.CubicHermite(key1.OutValue, key1.OutTangent * timeSpan, key2.InTangent * timeSpan, key2.InValue, time));
+        }
         public int CubicHermiteVelocity(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue(Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time));
+        {
+            float timeSpan = key2.Second - key1.Second;
+            return ConvertInterpolatedValue(Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent * timeSpan, key2.InTangent * timeSpan, key2.InValue, time));
+        }
         public int CubicHermiteAcceleration(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue(Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time));
+        {
+            float timeSpan = key2.Second - key1.Second;
+            return ConvertInterpolatedValue(Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent * timeSpan, key2.InTangent * timeSpan, key2.InValue, time));
+        }
         
         public void MakeOutLinear()
             => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);

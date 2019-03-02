@@ -92,14 +92,25 @@ namespace System
         internal void Swap()
         {
             while (MovedItems.TryDequeue(out T item))
+            {
+                if (item == null)
+                    continue;
+
                 ((Node)item.RenderInfo.QuadtreeNode).ItemMoved_Internal(item);
+            }
             while (RemovedItems.TryDequeue(out T item))
             {
+                if (item == null)
+                    continue;
+
                 _head.RemoveHereOrSmaller(item);
                 item.RenderInfo.SceneID = -1;
             }
             while (AddedItems.TryDequeue(out T item))
             {
+                if (item == null)
+                    continue;
+
                 item.RenderInfo.SceneID = ItemID++;
                 if (!_head.AddHereOrSmaller(item))
                     _head.AddHere(item);
@@ -239,6 +250,9 @@ namespace System
             }
             public void ItemMoved_Internal(T item)
             {
+                if (item == null)
+                    return;
+
                 //Still within the same volume?
                 if (item.RenderInfo.AxisAlignedRegion.ContainmentWithin(_bounds) == EContainment.Contains)
                 {
@@ -371,6 +385,9 @@ namespace System
             /// <param name="item">The item to remove.</param>
             public bool RemoveHereOrSmaller(T item)
             {
+                if (item == null)
+                    return false;
+
                 if (_items.Contains(item))
                     RemoveHere(item);
                 else
@@ -432,21 +449,21 @@ namespace System
                 AddHere(item);
                 return true;
             }
-
-            //public void ForceAdd(T value)
-            //{
-            //    if (value != null)
-            //        QueueAdd(value);
-            //}
             #endregion
 
             internal void AddHere(T item)
             {
+                if (item == null)
+                    return;
+
                 _items.Add(item);
                 item.RenderInfo.QuadtreeNode = this;
             }
             internal void RemoveHere(T item)
             {
+                if (item == null)
+                    return;
+
                 _items.Remove(item);
                 item.RenderInfo.QuadtreeNode = null;
             }

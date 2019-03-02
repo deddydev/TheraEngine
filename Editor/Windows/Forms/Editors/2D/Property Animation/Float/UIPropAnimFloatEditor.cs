@@ -46,7 +46,9 @@ namespace TheraEditor.Windows.Forms
         public Vec2 AnimPositionWorld { get; private set; }
         [TSerialize]
         public EVectorInterpValueType ValueDisplayMode { get; private set; } = EVectorInterpValueType.Position;
-        
+
+        [TSerialize]
+        public float TangentScale = 50.0f;
         [TSerialize]
         public bool RenderExtrema { get; set; } = true;
         [TSerialize]
@@ -126,14 +128,15 @@ namespace TheraEditor.Windows.Forms
 
         private void GetKeyframeInfo(FloatKeyframe kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos)
         {
-            float tangentScale = 50.0f / BaseTransformComponent.ScaleX;
             float velOut = kf.OutTangent;
             float velIn = kf.InTangent;
 
-            Vec2 tangentInVector = new Vec2(-tangentScale, velIn * tangentScale);
-            Vec2 tangentOutVector = new Vec2(tangentScale, velOut * tangentScale);
-            //tangentInVector.Normalize();
-            //tangentOutVector.Normalize();
+            Vec2 tangentInVector = new Vec2(-1.0f, velIn);
+            Vec2 tangentOutVector = new Vec2(1.0f, velOut);
+            tangentInVector.Normalize();
+            tangentOutVector.Normalize();
+            tangentInVector *= TangentScale / BaseTransformComponent.ScaleX;
+            tangentOutVector *= TangentScale / BaseTransformComponent.ScaleX;
 
             inPos = new Vec3(kf.Second, kf.InValue, 0.0f);
             inTanPos = new Vec3(kf.Second + tangentInVector.X, kf.InValue + tangentInVector.Y, 0.0f);
@@ -154,7 +157,7 @@ namespace TheraEditor.Windows.Forms
         private int FrameCount { get; set; }
         public void UpdateSplinePrimitive(bool renderPass = false)
         {
-            if (!Engine.IsSingleThreaded && !renderPass)
+            if ((!Engine.IsSingleThreaded && !renderPass) || _regenerating)
             {
                 QueueSplineUpdate = true;
                 return;
@@ -578,8 +581,8 @@ void main()
                         bool inVal = (index & 1) == 0;
                         bool pos = (index & 2) == 0;
 
-                        bool draggingInValue = (pos && inVal) || kf.SyncInOutValues;
-                        bool draggingOutValue = (pos && !inVal) || kf.SyncInOutValues;
+                        bool draggingInValue = pos && (inVal || kf.SyncInOutValues);
+                        bool draggingOutValue = pos && (!inVal || kf.SyncInOutValues);
                         bool draggingPos = draggingInValue || draggingOutValue;
 
                         bool draggingInTangent = !draggingPos && ((!pos && inVal) || kf.SyncInOutTangentDirections || kf.SyncInOutTangentMagnitudes);
@@ -815,7 +818,7 @@ void main()
                     }
                     else
                     {
-                        float tangentScale = 50.0f / BaseTransformComponent.ScaleX;
+                        float tangentScale = TangentScale / BaseTransformComponent.ScaleX;
                      
                         if (kf.Value.DraggingInTangent)
                         {

@@ -399,7 +399,7 @@ namespace TheraEngine.Rendering
         {
             if (testHud)
             {
-                UIBoundableComponent hudComp = HUD?.FindDeepestComponent(viewportPoint);
+                UIComponent hudComp = HUD?.FindDeepestComponent(viewportPoint);
                 bool valid = hudComp?.IsVisible ?? false;
                 if (interactableHudOnly)
                     valid = valid && hudComp is IInteractableUI;

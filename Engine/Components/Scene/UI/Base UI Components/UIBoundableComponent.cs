@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -133,12 +132,22 @@ namespace TheraEngine.Rendering.UI
             RenderInfo.AxisAlignedRegion.Extents = Size;
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
-        public override UIBoundableComponent FindDeepestComponent(Vec2 worldPoint, bool includeCurrent = true)
+        public override UIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)
         {
-            if (Size.X > 0.0f && Size.Y > 0.0f && !Contains(worldPoint))
-                return null;
-            
-            return base.FindDeepestComponent(worldPoint) ?? (includeCurrent ? this : null);
+            if (includeThis && Contains(worldPoint))
+                return this;
+
+            foreach (SceneComponent c in _children)
+            {
+                if (c is UIComponent uiComp)
+                {
+                    UIComponent comp = uiComp.FindDeepestComponent(worldPoint, true);
+                    if (comp != null)
+                        return comp;
+                }
+            }
+
+            return null;
         }
         
         protected override void HandleSingleChildAdded(SceneComponent item)

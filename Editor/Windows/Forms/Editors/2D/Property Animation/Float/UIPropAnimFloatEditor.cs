@@ -910,15 +910,12 @@ void main()
             }
         }
 
-        public bool PreRenderEnabled { get; set; } = true;
+        public bool PreRenderEnabled => !Engine.IsSingleThreaded && QueueSplineUpdate;
         public void PreRenderUpdate(Camera camera) { }
         public void PreRenderSwap()
         {
-            if (!Engine.IsSingleThreaded && QueueSplineUpdate)
-            {
-                QueueSplineUpdate = false;
-                UpdateSplinePrimitive(true);
-            }
+            QueueSplineUpdate = false;
+            UpdateSplinePrimitive(true);
         }
         public void PreRender(Viewport viewport, Camera camera) { }
     }

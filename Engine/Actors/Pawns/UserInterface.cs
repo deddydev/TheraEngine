@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
@@ -30,7 +29,7 @@ namespace TheraEngine.Actors.Types.Pawns
         Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition);
 
         void Resize(Vec2 bounds);
-        UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint);
+        UIComponent FindDeepestComponent(Vec2 viewportPoint);
         List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint);
         void RemoveRenderableComponent(I2DRenderable r);
         void AddRenderableComponent(I2DRenderable r);
@@ -184,10 +183,8 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint)
             => new List<I2DRenderable>();//_scene.RenderTree.FindAllIntersecting(viewportPoint);
-        public UIBoundableComponent FindDeepestComponent(Vec2 viewportPoint)
-        {
-            return RootComponent.FindDeepestComponent(viewportPoint);
-        }
+        public UIComponent FindDeepestComponent(Vec2 viewportPoint)
+            => RootComponent.FindDeepestComponent(viewportPoint, false);
         //UIComponent current = null;
         ////Larger z-indices means the component is closer
         //foreach (UIComponent comp in results)
@@ -280,8 +277,8 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public UIComponent FindComponent()
             => FindComponent(CursorPositionWorld());
-        public UIBoundableComponent FindComponent(Vec2 cursorWorldPos)
-            => RootComponent.FindDeepestComponent(cursorWorldPos);
+        public UIComponent FindComponent(Vec2 cursorWorldPos)
+            => RootComponent.FindDeepestComponent(cursorWorldPos, false);
 
         #region Cursor Position
         /// <summary>

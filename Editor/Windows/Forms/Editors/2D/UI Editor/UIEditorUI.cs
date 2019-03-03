@@ -62,12 +62,12 @@ namespace TheraEditor.Windows.Forms
             if (_targetHud?.RootComponent is UICanvasComponent canvas)
             {
                 canvas.Size = _previewResolution;
-                _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * BaseTransformComponent.Scale;
+                _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * canvas.WorldMatrix.Scale.Xy;
             }
             if (_highlightedComp is UIBoundableComponent highlightedBounds)
-                _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = highlightedBounds.Size * BaseTransformComponent.Scale;
+                _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = highlightedBounds.Size * highlightedBounds.WorldMatrix.Scale.Xy;
             if (_selectedComp is UIBoundableComponent selectedBounds)
-                _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.Size * BaseTransformComponent.Scale;
+                _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.Size * selectedBounds.WorldMatrix.Scale.Xy;
         }
 
         private Vec2 _previewResolution = new Vec2(1920, 1080);
@@ -80,7 +80,7 @@ namespace TheraEditor.Windows.Forms
                 if (_targetHud?.RootComponent is UICanvasComponent canvas)
                 {
                     canvas.Size = _previewResolution;
-                    _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * BaseTransformComponent.Scale;
+                    _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * canvas.WorldMatrix.Scale.Xy;
                 }
             }
         }
@@ -106,7 +106,7 @@ namespace TheraEditor.Windows.Forms
                     if (_targetHud?.RootComponent is UICanvasComponent canvas)
                     {
                         canvas.Size = PreviewResolution;
-                        _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * BaseTransformComponent.Scale;
+                        _uiBoundsRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = canvas.Size * canvas.WorldMatrix.Scale.Xy;
                     }
                 }
                 else
@@ -137,7 +137,7 @@ namespace TheraEditor.Windows.Forms
             {
                 _selectedComp = _highlightedComp;
                 if (_selectedComp is UIBoundableComponent selectedBounds)
-                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.Size * BaseTransformComponent.Scale;
+                    _selectedRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = selectedBounds.Size * selectedBounds.WorldMatrix.Scale.Xy;
                 _dragComp = null;
 
                 Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = _selectedComp as object ?? TargetUI;
@@ -170,7 +170,7 @@ namespace TheraEditor.Windows.Forms
                 //Engine.PrintLine(target?.Name ?? "Nothing selected");
                 _highlightedComp = target;
                 if (_highlightedComp is UIBoundableComponent bound)
-                    _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.Size * BaseTransformComponent.Scale;
+                    _highlightRC.Mesh.Material.Parameter<ShaderVec2>(0).Value = bound.Size * bound.WorldMatrix.Scale.Xy;
             }
             //UIComponentHighlighted?.Invoke(_highlightedComp);
         }

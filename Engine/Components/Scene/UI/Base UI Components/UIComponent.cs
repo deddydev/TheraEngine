@@ -44,8 +44,7 @@ namespace TheraEngine.Rendering.UI
                 //if (_visible == value)
                 //    return;
                 _visible = value;
-                if (this is I2DRenderable r)
-                    r.RenderInfo.Visible = value;
+                RenderInfo.Visible = value;
                 foreach (UIComponent c in _children)
                     c.IsVisible = value;
             }
@@ -68,11 +67,8 @@ namespace TheraEngine.Rendering.UI
         [Category("Transform")]
         public Vec2 ScreenTranslation
         {
-            get => Vec3.TransformPosition(WorldPoint, GetInvComponentTransform()).Xy;
-            set
-            {
-                //LocalTranslation = Vec3.TransformPosition(value, );
-            }
+            get => Vec3.TransformPosition(WorldPoint, GetComponentTransform()).Xy;
+            set => LocalTranslation = Vec3.TransformPosition(value, GetInvComponentTransform()).Xy;
         }
 
         [Category("Transform")]
@@ -82,8 +78,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation = value;
-                RecalcLocalTransform();
-                //PerformResize();
+                //RecalcLocalTransform();
+                PerformResize();
             }
         }
         [Category("Transform")]
@@ -93,8 +89,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation.X = value;
-                RecalcLocalTransform();
-                //PerformResize();
+                //RecalcLocalTransform();
+                PerformResize();
             }
         }
         [Category("Transform")]
@@ -104,8 +100,8 @@ namespace TheraEngine.Rendering.UI
             set
             {
                 _translation.Y = value;
-                RecalcLocalTransform();
-                //PerformResize();
+                //RecalcLocalTransform();
+                PerformResize();
             }
         }
         #endregion
@@ -236,17 +232,21 @@ namespace TheraEngine.Rendering.UI
             //else
             //    Resize(Vec2.Zero);
         }
-        public virtual UIBoundableComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeCurrent = true)
+        public virtual UIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
         {
             foreach (SceneComponent c in _children)
             {
                 if (c is UIComponent uiComp)
                 {
-                    UIBoundableComponent comp = uiComp.FindDeepestComponent(cursorPointWorld, includeCurrent);
+                    UIComponent comp = uiComp.FindDeepestComponent(cursorPointWorld, true);
                     if (comp != null)
                         return comp;
                 }
             }
+
+            if (includeThis && cursorPointWorld.DistanceTo(WorldPoint.Xy) < 20)
+                return this;
+
             return null;
         }
 
@@ -350,6 +350,9 @@ namespace TheraEngine.Rendering.UI
         public RenderCommandMethod2D _rc;
         public virtual void AddRenderables(RenderPasses passes, Camera camera)
         {
+            if (!Engine.EditorState.InEditMode)
+                return;
+
             passes.Add(_rc);
         }
         private void Render()
@@ -360,8 +363,9 @@ namespace TheraEngine.Rendering.UI
             Engine.Renderer.RenderLine(startPoint, endPoint, ColorF4.White);
             Engine.Renderer.RenderPoint(endPoint, ColorF4.White);
 
-            Engine.Renderer.RenderLine(endPoint, endPoint + WorldMatrix.UpVec, Color.Green);
-            Engine.Renderer.RenderLine(endPoint, endPoint + WorldMatrix.RightVec, Color.Red);
+            Vec3 scale = WorldMatrix.Scale;
+            Engine.Renderer.RenderLine(endPoint, endPoint + WorldMatrix.UpVec.NormalizedFast() * 50.0f, Color.Green);
+            Engine.Renderer.RenderLine(endPoint, endPoint + WorldMatrix.RightVec.NormalizedFast() * 50.0f, Color.Red);
         }
     }
 }

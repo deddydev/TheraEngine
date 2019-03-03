@@ -73,6 +73,14 @@ namespace TheraEngine
     public class EngineSettings : TSettings
     {
         public event Action SingleThreadedChanged;
+        public event Action UpdatePerSecondChanged;
+        public event Action FramesPerSecondChanged;
+
+        private bool _singleThreaded = false;
+        private bool _capUPS = false;
+        private bool _capFPS = false;
+        private float _targetFPS;
+        private float _targetUPS;
 
         [Category("Performance")]
         [TSerialize]
@@ -97,7 +105,6 @@ namespace TheraEngine
                 SingleThreadedChanged?.Invoke();
             }
         }
-        private bool _singleThreaded = false;
 
         /// <summary>
         /// Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).
@@ -106,7 +113,15 @@ namespace TheraEngine
         [Category("Frames Per Second")]
         [DisplayName("Capped")]
         [TSerialize("Capped", OverrideCategory = "FramesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute)]
-        public bool CapFPS { get; set; }
+        public bool CapFPS
+        {
+            get => _capFPS;
+            set
+            {
+                _capFPS = value;
+                FramesPerSecondChanged?.Invoke();
+            }
+        }
         /// <summary>
         /// How many frames are expected to be rendered per second.
         /// </summary>
@@ -114,7 +129,15 @@ namespace TheraEngine
         [Category("Frames Per Second")]
         [DisplayName("Target")]
         [TSerialize("Target", OverrideCategory = "FramesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute, Condition = "CapFPS")]
-        public float TargetFPS { get; set; }
+        public float TargetFPS
+        {
+            get => _targetFPS;
+            set
+            {
+                _targetFPS = value;
+                FramesPerSecondChanged?.Invoke();
+            }
+        }
 
         /// <summary>
         /// Determines if the update rate should be capped at a specific frequency. If not, will run as fast as possible.
@@ -123,7 +146,15 @@ namespace TheraEngine
         [Category("Updates Per Second")]
         [DisplayName("Capped")]
         [TSerialize("Capped", OverrideCategory = "UpdatesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute)]
-        public bool CapUPS { get; set; }
+        public bool CapUPS
+        {
+            get => _capUPS;
+            set
+            {
+                _capUPS = value;
+                UpdatePerSecondChanged?.Invoke();
+            }
+        }
         /// <summary>
         /// How many internal engine tick update calls are expected to be made per second. This is not the same as the render frequency.
         /// </summary>
@@ -131,7 +162,15 @@ namespace TheraEngine
         [Category("Updates Per Second")]
         [DisplayName("Target")]
         [TSerialize("Target", OverrideCategory = "UpdatesPerSecond", UseCategory = true, NodeType = ENodeType.Attribute, Condition = "CapUPS")]
-        public float TargetUPS { get; set; }
+        public float TargetUPS
+        {
+            get => _targetUPS;
+            set
+            {
+                _targetUPS = value;
+                UpdatePerSecondChanged?.Invoke();
+            }
+        }
 
         /// <summary>
         /// How many seconds the user has to hold a button for it to register as a hold event.

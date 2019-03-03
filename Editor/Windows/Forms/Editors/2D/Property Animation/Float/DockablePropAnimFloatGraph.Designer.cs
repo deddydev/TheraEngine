@@ -95,6 +95,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DockablePropAnimFloatGraph";
+            this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.Document;
             this.Text = "Float Animation Editor";
             this.dockingHostToolStripPanel1.ResumeLayout(false);
             this.dockingHostToolStripPanel1.PerformLayout();

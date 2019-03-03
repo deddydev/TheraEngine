@@ -92,13 +92,12 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(328, 209);
-            this.CloseButton = false;
-            this.CloseButtonVisible = false;
             this.Controls.Add(this.RenderPanel);
             this.Controls.Add(this.dockingHostToolStripPanel2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DockableUIGraph";
+            this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.Document;
             this.Text = "UI View";
             this.dockingHostToolStripPanel2.ResumeLayout(false);
             this.dockingHostToolStripPanel2.PerformLayout();

@@ -1,12 +1,13 @@
-﻿//using ComponentOwl.BetterListView;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using WeifenLuo.WinFormsUI.Docking;
+using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -19,7 +20,13 @@ namespace TheraEditor.Windows.Forms
 
             RenderPanel.AllowDrop = false;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
+            RenderPanel.MouseEnter += RenderPanel_MouseEnter;
+            RenderPanel.MouseLeave += RenderPanel_MouseLeave;
+
             GameMode = new UIEditorGameMode() { RenderPanel = RenderPanel };
+
+            tearOffToolStrip1.RenderMode = ToolStripRenderMode.Professional;
+            tearOffToolStrip1.Renderer = new TheraToolstripRenderer();
         }
         public DockableUIGraph(IUserInterface ui) : this()
         {
@@ -35,6 +42,8 @@ namespace TheraEditor.Windows.Forms
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = value;
             }
         }
+        private void RenderPanel_MouseEnter(object sender, EventArgs e) => Cursor.Hide();
+        private void RenderPanel_MouseLeave(object sender, EventArgs e) => Cursor.Show();
         private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
             if (!Engine.DesignMode)

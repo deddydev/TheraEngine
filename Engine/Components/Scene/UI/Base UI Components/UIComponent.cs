@@ -201,6 +201,8 @@ namespace TheraEngine.Rendering.UI
         public bool IgnoreResizes { get; set; } = false;
         [Browsable(false)]
         public Vec2 ParentBounds { get; protected set; }
+        [TSerialize]
+        public bool RenderTransformation { get; set; } = true;
 
         public virtual Vec2 Resize(Vec2 parentBounds)
         {
@@ -350,7 +352,7 @@ namespace TheraEngine.Rendering.UI
         public RenderCommandMethod2D _rc;
         public virtual void AddRenderables(RenderPasses passes, Camera camera)
         {
-            if (!Engine.EditorState.InEditMode)
+            if (!RenderTransformation || !Engine.EditorState.InEditMode)
                 return;
 
             passes.Add(_rc);

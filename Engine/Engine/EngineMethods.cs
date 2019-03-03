@@ -270,9 +270,21 @@ namespace TheraEngine
         {
             EngineSettings settings = Settings;
             settings.SingleThreadedChanged += Settings_SingleThreadedChanged;
-            _timer.Run(Settings?.SingleThreaded ?? false);
+            settings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
+            settings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
+            _timer.Run(settings?.SingleThreaded ?? false);
         }
 
+        private static void Settings_UpdatePerSecondChanged()
+        {
+            EngineSettings settings = Settings;
+            TargetUpdatesPerSecond = settings.CapUPS ? settings.TargetUPS.ClampMin(1.0f) : 0.0f;
+        }
+        private static void Settings_FramesPerSecondChanged()
+        {
+            EngineSettings settings = Settings;
+            TargetFramesPerSecond = settings.CapFPS ? settings.TargetFPS.ClampMin(1.0f) : 0.0f;
+        }
         private static void Settings_SingleThreadedChanged()
         {
             if (_timer.IsRunning)
@@ -286,6 +298,8 @@ namespace TheraEngine
         {
             EngineSettings settings = Settings;
             settings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
+            settings.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
+            settings.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
             _timer.Stop();
         }
 

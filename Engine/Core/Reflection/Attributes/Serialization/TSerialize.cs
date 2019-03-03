@@ -53,7 +53,7 @@ namespace System.ComponentModel
 
         /// <summary>
         /// Determines if the element should be grouped into a category,
-        /// either using the category attribute or the OverrideXmlCategory property.
+        /// either using the category attribute or the OverrideCategory property.
         /// </summary>
         public bool UseCategory { get; set; } = false;
 

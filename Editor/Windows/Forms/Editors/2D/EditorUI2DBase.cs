@@ -83,16 +83,16 @@ namespace TheraEditor.Windows.Forms
         public virtual string YUnitString { get; } = null;
         protected override UICanvasComponent OnConstructRoot()
         {
-            BaseTransformComponent = new UIComponent();
+            BaseTransformComponent = new UIComponent() { RenderTransformation = false };
 
-            _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial());
+            _backgroundComponent = new UIMaterialRectangleComponent(GetBackgroundMaterial()) { RenderTransformation = false };
             _backgroundComponent.SizeablePosX.SetSizingPixels(0.0f);
             _backgroundComponent.SizeablePosY.SetSizingPixels(0.0f);
             _backgroundComponent.SizeableHeight.SetSizingPercentageOfParent(1.0f);
             _backgroundComponent.SizeableWidth.SetSizingPercentageOfParent(1.0f);
             _backgroundComponent.ChildComponents.Add(BaseTransformComponent);
 
-            UICanvasComponent baseUI = new UICanvasComponent();
+            UICanvasComponent baseUI = new UICanvasComponent() { RenderTransformation = false };
             baseUI.ChildComponents.Add(_backgroundComponent);
 
             BaseTransformComponent.WorldTransformChanged += BaseWorldTransformChanged;
@@ -138,7 +138,7 @@ namespace TheraEditor.Windows.Forms
             float width = size.Width;
             float height = size.Height;
 
-            UITextComponent comp = new UITextComponent();
+            UITextComponent comp = new UITextComponent() { RenderTransformation = false };
             comp.RenderInfo.VisibleByDefault = true;
             comp.SizeableHeight.SetSizingPixels(height);
             comp.SizeableWidth.SetSizingPixels(width);

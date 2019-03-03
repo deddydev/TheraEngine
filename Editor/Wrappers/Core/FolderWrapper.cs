@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
@@ -242,7 +243,8 @@ namespace TheraEditor.Wrappers
         #region File Type Loading
 
         private static bool IsFileObject(Type t)
-            =>  !t.IsAbstract && 
+            =>  t.Assembly != Assembly.GetExecutingAssembly() &&
+                !t.IsAbstract && 
                 !t.IsInterface &&
                 t.GetConstructors().Any(x => x.IsPublic) &&
                 t.IsSubclassOf(typeof(TFileObject)) &&

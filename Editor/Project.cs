@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEditor.Windows.Forms;
@@ -156,6 +157,9 @@ namespace TheraEditor
                 UpdatePaths();
             }
         }
+        [TSerialize]
+        public EventList<PathReference> ReferencedAssemblies { get; private set; }
+
         private void UpdatePaths()
         {
             if (string.IsNullOrWhiteSpace(DirectoryPath))
@@ -385,7 +389,33 @@ namespace TheraEditor
 
             File.WriteAllText(SourceDirectory + "Program.cs", progCs.Replace('@', '{').Replace('#', '}'));
         }
+        public async void GetReferencedAssemblies()
+        {
+            string csprojPath = Path.Combine(DirectoryPath, Name + ".csproj");
 
+            if (!File.Exists(csprojPath))
+                return;
+            
+            XMLSchemeDefinition<MSBuild.Project> csprojParser = new XMLSchemeDefinition<MSBuild.Project>();
+            int op = Editor.Instance.BeginOperation("Reading csproj...", out Progress<float> progress, out CancellationTokenSource cancel);
+            MSBuild.Project importProj = await csprojParser.ImportAsync(csprojPath, 0, progress, cancel.Token);
+            Editor.Instance.EndOperation(op);
+
+            ItemGroup[] itemGroups = importProj.GetChildren<ItemGroup>();
+            foreach (ItemGroup itemGroup in itemGroups)
+            {
+                Item[] items = itemGroup.GetChildren<Item>();
+                foreach (Item item in items)
+                {
+                    if (item.ElementName.EqualsInvariantIgnoreCase("Reference"))
+                    {
+
+                    }
+
+                }
+            }
+            
+        }
         public async void GenerateSolution(bool forceRegenerateProgramDotCs = false)
         {
             Process[] devenv = Process.GetProcessesByName("DevEnv");
@@ -408,8 +438,14 @@ namespace TheraEditor
             //    GenerateProgramDotCs();
 
             #region csproj
+
             string csprojPath = Path.Combine(DirectoryPath, Name + ".csproj");
-            MSBuild.Project p = new MSBuild.Project
+
+            int op;
+            Progress<float> progress;
+            CancellationTokenSource cancel;
+
+            MSBuild.Project exportProj = new MSBuild.Project
             {
                 ToolsVersion = majorVer + "." + minorVer,
                 DefaultTargets = "Build",
@@ -467,50 +503,37 @@ namespace TheraEditor
                 out HashSet<string> usingNamespaces);
 
             ItemGroup refGrp = new ItemGroup();
-            foreach (string nsRef in usingNamespaces)
-            {
-                int end = nsRef.IndexOf(".", StringComparison.InvariantCulture);
-                string root = end > 0 ? nsRef.Substring(0, end) : nsRef;
-                if (string.Equals(root, "System", StringComparison.InvariantCulture))
-                {
-                    refGrp.AddElements(new Item("Reference") { Include = nsRef });
-                }
-                else
-                {
-                    //TODO: determine which dll or exe this root namespace resides in.
-                    //Or just pull the references out of the original csproj and put them back in.
-                    //If no csproj previously existed, just reference TheraEngine.dll
-                    //if (previousReferences.Count == 0)
-                    //{
-                        ////TODO: copy the thera engine dll to the game exe directory first
-                        //Assembly engineAssembly = typeof(Engine).Assembly;
-                        //string engineDLLPath = engineAssembly.CodeBase;
-                        //if (engineDLLPath.StartsWith("file:///"))
-                        //    engineDLLPath = engineDLLPath.Substring(8);
-                        //engineDLLPath = engineDLLPath.MakeAbsolutePathRelativeTo(Path.GetDirectoryName(csprojPath));
-                        //if (engineDLLPath.StartsWith("\\"))
-                        //    engineDLLPath = engineDLLPath.Substring(1);
 
-                    //}
-                    Item asmRef = new Item("Reference")
+            List<string> assemblyPaths = new List<string>();
+            assemblyPaths.Add(typeof(Engine).Assembly.Location);
+            assemblyPaths.AddRange(ReferencedAssemblies.Select(x => x.Path));
+
+            foreach (string path in assemblyPaths)
+            {
+                var name = AssemblyName.GetAssemblyName(path);
+                string relPath = path.MakeAbsolutePathRelativeTo(DirectoryPath);
+
+                if (relPath.StartsWith("\\"))
+                    relPath = relPath.Substring(1);
+
+                Item asmRef = new Item("Reference")
+                {
+                    Include = name.ToString(),
+                };
+                {
+                    ItemMetadata specificVersion = new ItemMetadata
                     {
-                        //Include = engineAssembly.GetName().ToString()
+                        ElementName = "SpecificVersion",
+                        StringContent = new ElementString("False"),
                     };
+                    ItemMetadata hintPath = new ItemMetadata
                     {
-                        ItemMetadata specificVersion = new ItemMetadata
-                        {
-                            ElementName = "SpecificVersion",
-                            StringContent = new ElementString("False"),
-                        };
-                        ItemMetadata hintPath = new ItemMetadata
-                        {
-                            ElementName = "HintPath",
-                            //StringContent = new ElementString(engineDLLPath),
-                        };
-                        asmRef.AddElements(specificVersion, hintPath);
-                    }
-                    refGrp.AddElements(asmRef);
+                        ElementName = "HintPath",
+                        StringContent = new ElementString(relPath),
+                    };
+                    asmRef.AddElements(specificVersion, hintPath);
                 }
+                refGrp.AddElements(asmRef);
             }
             
             ItemGroup compileGrp = new ItemGroup();
@@ -533,7 +556,7 @@ namespace TheraEditor
                 Name = "AfterBuild"
             };
 
-            p.AddElements(
+            exportProj.AddElements(
                 import,
                 mainInfo,
                 debugx86,
@@ -548,10 +571,11 @@ namespace TheraEditor
                 beforeBuild,
                 afterBuild);
 
-            XMLSchemeDefinition<MSBuild.Project> def = new XMLSchemeDefinition<MSBuild.Project>();
-            int op = Editor.Instance.BeginOperation("Exporting csproj...", out Progress<float> progress, out CancellationTokenSource cancel);
-            await def.ExportAsync(csprojPath, p, progress, cancel.Token);
+            XMLSchemeDefinition<MSBuild.Project> csProjExporter = new XMLSchemeDefinition<MSBuild.Project>();
+            op = Editor.Instance.BeginOperation("Writing csproj...", out progress, out cancel);
+            await csProjExporter.ExportAsync(csprojPath, exportProj, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
+
             #endregion
 
             #region sln

@@ -79,6 +79,11 @@ namespace TheraEditor.Windows.Forms
         {
             RenderPanel.UI.ZoomExtents();
         }
+        private void chkAutoTangents_Click(object sender, EventArgs e)
+        {
+            chkAutoTangents.Checked = !chkAutoTangents.Checked;
+            RenderPanel.UI.AutoGenerateTangents = chkAutoTangents.Checked;
+        }
     }
     public class PropAnimFloatPlayerController : LocalPlayerController
     {

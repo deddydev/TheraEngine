@@ -170,10 +170,43 @@ namespace TheraEngine.Animation
 
         public void GenerateTangents()
         {
-            float valueDiff = (Next?.InValue ?? InValue) - (Prev?.OutValue ?? OutValue);
-            float secDiff = (Next?.Second ?? Second) - (Prev?.Second ?? Second);
+            var next = GetNextKeyframe(out float span1);
+            var prev = GetPrevKeyframe(out float span2);
+            float valueDiff = (next?.InValue ?? InValue) - (prev?.OutValue ?? OutValue);
+            float secDiff = (next?.Second ?? Second) - (prev?.Second ?? Second);
             if (secDiff != 0.0f)
                 InTangent = -(OutTangent = valueDiff / secDiff);
+        }
+        public void GenerateOutTangent()
+        {
+            var next = GetNextKeyframe(out float span1);
+            var prev = GetPrevKeyframe(out float span2);
+            float valueDiff = (next?.InValue ?? InValue) - (prev?.OutValue ?? OutValue);
+            float secDiff = (next?.Second ?? Second) - (prev?.Second ?? Second);
+            if (secDiff != 0.0f)
+                OutTangent = valueDiff / secDiff;
+        }
+        public void GenerateInTangent()
+        {
+            var next = GetNextKeyframe(out float span1);
+            var prev = GetPrevKeyframe(out float span2);
+            float valueDiff = (next?.InValue ?? InValue) - (prev?.OutValue ?? OutValue);
+            float secDiff = (next?.Second ?? Second) - (prev?.Second ?? Second);
+            if (secDiff != 0.0f)
+                InTangent = -valueDiff / secDiff;
+        }
+        public void GenerateAdjacentTangents(bool prev, bool next)
+        {
+            if (prev)
+            {
+                var prevkf = GetPrevKeyframe(out float span2) as FloatKeyframe;
+                prevkf?.GenerateOutTangent();
+            }
+            if (next)
+            {
+                var nextKf = GetNextKeyframe(out float span1) as FloatKeyframe;
+                nextKf?.GenerateInTangent();
+            }
         }
     }
 }

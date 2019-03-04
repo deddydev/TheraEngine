@@ -35,7 +35,8 @@ namespace TheraEditor.Windows.Forms
         private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D(ERenderPass.OnTopForward);
         private readonly RenderCommandMesh2D _rcKeyframeInOutPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
         private readonly RenderCommandMesh2D _rcTangentPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
-        
+
+
         public bool IsDraggingKeyframes => _draggedKeyframes.Count > 0;
         public int[] ClosestPositionIndices { get; private set; }
         private Vec3[] KeyframeInOutPosInOutTan { get; set; }
@@ -44,9 +45,11 @@ namespace TheraEditor.Windows.Forms
         private float AnimLength { get; set; } = 0.0f;
         private int KeyCount { get; set; } = 0;
         public Vec2 AnimPositionWorld { get; private set; }
+
         [TSerialize]
         public EVectorInterpValueType ValueDisplayMode { get; private set; } = EVectorInterpValueType.Position;
-
+        [TSerialize]
+        public bool AutoGenerateTangents { get; set; }
         [TSerialize]
         public float TangentScale = 50.0f;
         [TSerialize]
@@ -760,6 +763,10 @@ void main()
                                 if (SnapToIncrement)
                                     inPos = inPos.RoundToNearestMultiple(UnitIncrement);
                                 kf.Value.Keyframe.InValue = inPos;
+                                if (AutoGenerateTangents)
+                                {
+                                    kf.Value.Keyframe.GenerateAdjacentTangents(true, true);
+                                }
                             }
                             if (kf.Value.DraggingOutValue)
                             {
@@ -767,6 +774,10 @@ void main()
                                 if (SnapToIncrement)
                                     outPos = outPos.RoundToNearestMultiple(UnitIncrement);
                                 kf.Value.Keyframe.OutValue = outPos;
+                                if (AutoGenerateTangents)
+                                {
+                                    kf.Value.Keyframe.GenerateAdjacentTangents(true, true);
+                                }
                             }
                         }
                         else
@@ -807,6 +818,10 @@ void main()
                             if (SnapToIncrement)
                                 inPos = inPos.RoundToNearestMultiple(UnitIncrement);
                             kf.Value.Keyframe.InValue = inPos;
+                            if (AutoGenerateTangents)
+                            {
+                                kf.Value.Keyframe.GenerateAdjacentTangents(true, true);
+                            }
                         }
                         if (kf.Value.DraggingOutValue)
                         {
@@ -814,6 +829,10 @@ void main()
                             if (SnapToIncrement)
                                 outPos = outPos.RoundToNearestMultiple(UnitIncrement);
                             kf.Value.Keyframe.OutValue = outPos;
+                            if (AutoGenerateTangents)
+                            {
+                                kf.Value.Keyframe.GenerateAdjacentTangents(true, true);
+                            }
                         }
                     }
                     else

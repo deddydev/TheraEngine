@@ -34,6 +34,7 @@
             this.dockingHostToolStripPanel1 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.tearOffToolStrip1 = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.btnZoomExtents = new System.Windows.Forms.ToolStripButton();
+            this.chkAutoTangents = new System.Windows.Forms.ToolStripButton();
             this.dockingHostToolStripPanel1.SuspendLayout();
             this.tearOffToolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -64,12 +65,13 @@
             this.tearOffToolStrip1.BottomToolStripPanel = null;
             this.tearOffToolStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.tearOffToolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btnZoomExtents});
+            this.btnZoomExtents,
+            this.chkAutoTangents});
             this.tearOffToolStrip1.LeftToolStripPanel = null;
             this.tearOffToolStrip1.Location = new System.Drawing.Point(3, 0);
             this.tearOffToolStrip1.Name = "tearOffToolStrip1";
             this.tearOffToolStrip1.RightToolStripPanel = null;
-            this.tearOffToolStrip1.Size = new System.Drawing.Size(95, 25);
+            this.tearOffToolStrip1.Size = new System.Drawing.Size(214, 25);
             this.tearOffToolStrip1.TabIndex = 2;
             this.tearOffToolStrip1.Text = "tearOffToolStrip1";
             this.tearOffToolStrip1.TopToolStripPanel = null;
@@ -83,6 +85,16 @@
             this.btnZoomExtents.Size = new System.Drawing.Size(83, 22);
             this.btnZoomExtents.Text = "Zoom Extents";
             this.btnZoomExtents.Click += new System.EventHandler(this.btnZoomExtents_Click);
+            // 
+            // chkAutoTangents
+            // 
+            this.chkAutoTangents.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.chkAutoTangents.Image = ((System.Drawing.Image)(resources.GetObject("chkAutoTangents.Image")));
+            this.chkAutoTangents.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.chkAutoTangents.Name = "chkAutoTangents";
+            this.chkAutoTangents.Size = new System.Drawing.Size(88, 22);
+            this.chkAutoTangents.Text = "Auto Tangents";
+            this.chkAutoTangents.Click += new System.EventHandler(this.chkAutoTangents_Click);
             // 
             // DockablePropAnimFloatGraph
             // 
@@ -112,5 +124,6 @@
         private DockingHostToolStripPanel dockingHostToolStripPanel1;
         private TearOffToolStrip tearOffToolStrip1;
         private System.Windows.Forms.ToolStripButton btnZoomExtents;
+        private System.Windows.Forms.ToolStripButton chkAutoTangents;
     }
 }

@@ -229,8 +229,8 @@ namespace TheraEngine.Rendering.UI
 
             if (ParentSocket is UIBoundableComponent comp)
                 Resize(comp.Size);
-            else if (OwningActor != null)
-                Resize(OwningActor.Bounds);
+            //else if (OwningActor != null)
+            //    Resize(OwningActor.Bounds);
             //else
             //    Resize(Vec2.Zero);
         }

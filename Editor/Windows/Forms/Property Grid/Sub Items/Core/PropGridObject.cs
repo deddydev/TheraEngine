@@ -116,9 +116,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (parentInfo?.DataType != null)
             {
                 if (parentInfo.DataType.IsValueType)
+                {
+                    chkNull.Visible = false;
                     pnlHeader.BackColor = Color.FromArgb(105, 110, 140);
+                }
                 else
+                {
+                    chkNull.Visible = true;
                     pnlHeader.BackColor = Color.FromArgb(75, 120, 160);
+                }
             }
             UpdateMouseDown();
         }

@@ -6,361 +6,87 @@ using TheraEngine.Core.Maths;
 
 namespace TheraEngine.Animation
 {
-    public class PropAnimInt : PropAnimKeyframed<IntKeyframe>, IEnumerable<IntKeyframe>
+    public class PropAnimInt : PropAnimVector<int, IntKeyframe>, IEnumerable<IntKeyframe>
     {
-        private DelGetValue<int> _getValue;
-
-        [TSerialize(Condition = "Baked")]
-        private int[] _baked = null;
-        /// <summary>
-        /// The default value to return when no keyframes are set.
-        /// </summary>
-        [Category(PropAnimCategory)]
-        [TSerialize(Condition = "!Baked")]
-        public int DefaultValue { get; set; } = 0;
-
-        public PropAnimInt() : base(0.0f, false) { }
+        public PropAnimInt() : base() { }
         public PropAnimInt(float lengthInSeconds, bool looped, bool useKeyframes)
             : base(lengthInSeconds, looped, useKeyframes) { }
-        public PropAnimInt(int frameCount, float FPS, bool looped, bool useKeyframes) 
+        public PropAnimInt(int frameCount, float FPS, bool looped, bool useKeyframes)
             : base(frameCount, FPS, looped, useKeyframes) { }
 
-        protected override void BakedChanged()
-            => _getValue = !IsBaked ? (DelGetValue<int>)GetValueKeyframed : GetValueBaked;
+        //public bool UseConstantVelocity { get; set; } = true;
+        //public float ConstantVelocitySpeed { get; set; } = 1.0f;
         
-        public int GetValue(float second)
-            => _getValue(second);
-        protected override object GetValueGeneric(float second)
-            => _getValue(second);
-        public int GetValueBaked(float second)
-            => _baked[(int)Math.Floor(second * BakedFramesPerSecond)];
-        public int GetValueBaked(int frameIndex)
-            => _baked[frameIndex];
-        public int GetValueKeyframed(float second)
-            => _keyframes.Count == 0 ? DefaultValue : _keyframes.First.Interpolate(second);
-        
-        public override void Bake(float framesPerSecond)
-        {
-            _bakedFPS = framesPerSecond;
-            _bakedFrameCount = (int)Math.Ceiling(LengthInSeconds * framesPerSecond);
-            _baked = new int[BakedFrameCount];
-            for (int i = 0; i < BakedFrameCount; ++i)
-                _baked[i] = GetValueKeyframed(i);
-        }
-
-        public void GetMinMax(out int min, out int max)
-        {
-            if (_keyframes.Count == 0)
-            {
-                min = DefaultValue;
-                max = DefaultValue;
-            }
-            else
-            {
-                IntKeyframe kf = _keyframes.First;
-                if (_keyframes.Count == 1)
-                {
-                    if (kf.Second.IsZero())
-                    {
-                        min = max = kf.OutValue;
-                    }
-                    else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
-                    {
-                        min = max = kf.InValue;
-                    }
-                    else
-                    {
-                        min = Math.Min(kf.InValue, kf.OutValue);
-                        max = Math.Max(kf.InValue, kf.OutValue);
-                    }
-                }
-                else
-                {
-                    min = int.MaxValue;
-                    max = int.MinValue;
-                    for (int i = 0; i < _keyframes.Count; ++i)
-                    {
-                        if (kf.Second.IsZero())
-                        {
-                            min = TMath.Min(min, kf.OutValue);
-                            max = TMath.Max(min, kf.OutValue);
-                        }
-                        else if (kf.Second.EqualTo(_keyframes.LengthInSeconds))
-                        {
-                            min = TMath.Min(min, kf.InValue);
-                            max = TMath.Max(min, kf.InValue);
-                        }
-                        else
-                        {
-                            min = TMath.Min(min, kf.InValue, kf.OutValue);
-                            max = TMath.Max(max, kf.InValue, kf.OutValue);
-                        }
-
-                        //If not the last keyframe, evaluate the interpolation
-                        //between this keyframe and the next to find spots where
-                        //velocity reaches zero. This means that the position value
-                        //is an extrema and should be considered for min/max.
-                        if (i != _keyframes.Count - 1)
-                        {
-                            IntKeyframe next = kf.Next;
-
-                            //Retrieve velocity interpolation equation coefficients
-                            //so we can solve for the two time values where velocity is zero.
-                            Interp.CubicHermiteVelocityCoefs(
-                                kf.OutValue, kf.OutTangent, next.InTangent, next.InValue,
-                                out float second, out float first, out float zero);
-
-                            if (TMath.QuadraticRealRoots(second, first, zero,
-                                out float time1, out float time2))
-                            {
-                                int val1 = kf.InterpolateNextNormalized(time1);
-                                int val2 = kf.InterpolateNextNormalized(time2);
-                                min = TMath.Min(min, val1, val2);
-                                max = TMath.Max(max, val1, val2);
-                            }
-
-                            kf = next;
-                        }
-                    }
-                }
-            }
-        }
-
-        protected override object GetCurrentValueGeneric()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void OnProgressed(float delta)
-        {
-            throw new NotImplementedException();
-        }
+        protected override int LerpValues(int t1, int t2, float time) => (int)Interp.Lerp(t1, t2, time);
+        protected override float[] GetComponents(int value) => new float[] { value };
+        protected override int GetMaxValue() => int.MaxValue;
+        protected override int GetMinValue() => int.MinValue;
+        //public override void Progress(float delta)
+        //{
+        //    if (UseConstantVelocity)
+        //    {
+        //        float b = CurrentVelocity;
+        //        float a = 1.0f;
+        //        Vec2 start = new Vec2(0.0f, 0.0f);
+        //        Vec2 end = new Vec2(a, b);
+        //        float c = start.DistanceTo(end);
+        //        float triangleSizeRatio = ConstantVelocitySpeed / c;
+        //        Speed = triangleSizeRatio;
+        //    }
+        //    base.Progress(delta);
+        //}
     }
-    public class IntKeyframe : Keyframe, IPlanarKeyframe<int>
+    public class IntKeyframe : VectorKeyframe<int>
     {
-        public IntKeyframe() { }
-        public IntKeyframe(int frameIndex, float FPS, int inValue, int outValue, float inTangent, float outTangent, EVectorInterpType type)
+        public IntKeyframe()
+            : this(0.0f, 0, 0, EVectorInterpType.CubicBezier) { }
+        public IntKeyframe(int frameIndex, float FPS, int inValue, int outValue, int inTangent, int outTangent, EVectorInterpType type)
             : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
-        public IntKeyframe(int frameIndex, float FPS, int inoutValue, float inoutTangent, EVectorInterpType type)
+        public IntKeyframe(int frameIndex, float FPS, int inoutValue, int inoutTangent, EVectorInterpType type)
             : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public IntKeyframe(float second, int inoutValue, float inoutTangent, EVectorInterpType type)
+        public IntKeyframe(float second, int inoutValue, int inoutTangent, EVectorInterpType type)
             : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
-        public IntKeyframe(float second, int inoutValue, float inTangent, float outTangent, EVectorInterpType type)
+        public IntKeyframe(float second, int inoutValue, int inTangent, int outTangent, EVectorInterpType type)
             : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
-        public IntKeyframe(float second, int inValue, int outValue, float inTangent, float outTangent, EVectorInterpType type) : base()
-        {
-            Second = second;
-            InValue = inValue;
-            OutValue = outValue;
-            InTangent = inTangent;
-            OutTangent = outTangent;
-            InterpolationType = type;
-
-            _interpolate = CubicHermite;
-            _interpolateVelocity = CubicHermiteVelocity;
-            _interpolateAcceleration = CubicHermiteAcceleration;
-    }
-
-        private delegate int DelInterpolate(IntKeyframe key1, IntKeyframe key2, float time);
-        private DelInterpolate _interpolate;
-        private DelInterpolate _interpolateVelocity;
-        private DelInterpolate _interpolateAcceleration;
-        protected EVectorInterpType _interpolationType;
+        public IntKeyframe(float second, int inValue, int outValue, int inTangent, int outTangent, EVectorInterpType type)
+            : base(second, inValue, outValue, inTangent, outTangent, type) { }
         
-        [TSerialize(NodeType = ENodeType.Attribute)]
-        public int InValue { get; set; }
-        [TSerialize(NodeType = ENodeType.Attribute)]
-        public int OutValue { get; set; }
+        public override int Lerp(VectorKeyframe<int> next, float diff, float span)
+            => (int)Interp.Lerp(OutValue, next.InValue, diff / span);
+        public override int LerpVelocity(VectorKeyframe<int> next, float diff, float span)
+            => (int)((next.InValue - OutValue) / (diff / span));
 
-        [TSerialize(NodeType = ENodeType.Attribute)]
-        public float InTangent { get; set; }
-        [TSerialize(NodeType = ENodeType.Attribute)]
-        public float OutTangent { get; set; }
+        public override int CubicBezier(VectorKeyframe<int> next, float diff, float span)
+            => (int)Interp.CubicBezier(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
+        public override int CubicBezierVelocity(VectorKeyframe<int> next, float diff, float span)
+            => (int)Interp.CubicBezierVelocity(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
+        public override int CubicBezierAcceleration(VectorKeyframe<int> next, float diff, float span)
+            => (int)Interp.CubicBezierAcceleration(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
 
-        [Browsable(false)]
-        public new IntKeyframe Next
-        {
-            get => _next as IntKeyframe;
-            set => _next = value;
-        }
-        [Browsable(false)]
-        public new IntKeyframe Prev
-        {
-            get => _prev as IntKeyframe;
-            set => _prev = value;
-        }
-
-        [TSerialize(NodeType = ENodeType.Attribute)]
-        public EVectorInterpType InterpolationType
-        {
-            get => _interpolationType;
-            set
-            {
-                _interpolationType = value;
-                switch (_interpolationType)
-                {
-                    case EVectorInterpType.Step:
-                        _interpolate = Step;
-                        _interpolateVelocity = StepVelocity;
-                        _interpolateAcceleration = StepAcceleration;
-                        break;
-                    case EVectorInterpType.Linear:
-                        _interpolate = Lerp;
-                        _interpolateVelocity = LerpVelocity;
-                        _interpolateAcceleration = LerpAcceleration;
-                        break;
-                    case EVectorInterpType.CubicHermite:
-                        _interpolate = CubicHermite;
-                        _interpolateVelocity = CubicHermiteVelocity;
-                        _interpolateAcceleration = CubicHermiteAcceleration;
-                        break;
-                    case EVectorInterpType.CubicBezier:
-                        _interpolate = CubicBezier;
-                        _interpolateVelocity = CubicBezierVelocity;
-                        _interpolateAcceleration = CubicBezierAcceleration;
-                        break;
-                }
-            }
-        }
-
-        [Browsable(false)]
-        public override Type ValueType => typeof(int);
-        object IPlanarKeyframe.InValue { get => InValue; set => InValue = (int)value; }
-        object IPlanarKeyframe.OutValue { get => OutValue; set => OutValue = (int)value; }
-        object IPlanarKeyframe.InTangent { get => InTangent; set => InTangent = (int)value; }
-        object IPlanarKeyframe.OutTangent { get => OutTangent; set => OutTangent = (int)value; }
-        int IPlanarKeyframe<int>.InTangent { get => (int)InTangent; set => InTangent = value; }
-        int IPlanarKeyframe<int>.OutTangent { get => (int)OutTangent; set => OutTangent = value; }
-
-        /// <summary>
-        /// Interpolates from this keyframe to the next using a normalized time value (0.0f - 1.0f)
-        /// </summary>
-        public int InterpolateNextNormalized(float time) => _interpolate(this, Next, time);
-        /// <summary>
-        /// Interpolates velocity from this keyframe to the next using a normalized time value (0.0f - 1.0f)
-        /// </summary>
-        public int InterpolateVelocityNextNormalized(float time) => _interpolateVelocity(this, Next, time);
-        /// <summary>
-        /// Interpolates acceleration from this keyframe to the next using a normalized time value (0.0f - 1.0f)
-        /// </summary>
-        public int InterpolateAccelerationNextNormalized(float time) => _interpolateAcceleration(this, Next, time);
-        public int Interpolate(float desiredSecond)
-        {
-            //First, check if the desired second is between this key and the next key.
-            if (desiredSecond < Second)
-            {
-                //If the previous key's second is greater than this second, this key must be the first key. 
-                //Return the InValue as the desired second comes before this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _prev.Second < Second ? Prev.Interpolate(desiredSecond) : InValue;
-            }
-            else if (desiredSecond > _next.Second)
-            {
-                //If the next key's second is less than this second, this key must be the last key. 
-                //Return the OutValue as the desired second comes after this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _next.Second > Second ? Next.Interpolate(desiredSecond) : OutValue;
-            }
-
-            float span = _next.Second - Second;
-            float diff = desiredSecond - Second;
-            float time = diff / span;
-            return _interpolate(this, Next, time);
-        }
-        public int InterpolateVelocity(float desiredSecond)
-        {
-            //First, check if the desired second is between this key and the next key.
-            if (desiredSecond < Second)
-            {
-                //If the previous key's second is greater than this second, this key must be the first key. 
-                //Return the InValue as the desired second comes before this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _prev.Second < Second ? Prev.InterpolateVelocity(desiredSecond) : InValue;
-            }
-            else if (desiredSecond > _next.Second)
-            {
-                //If the next key's second is less than this second, this key must be the last key. 
-                //Return the OutValue as the desired second comes after this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _next.Second > Second ? Next.InterpolateVelocity(desiredSecond) : OutValue;
-            }
-
-            float span = _next.Second - Second;
-            float diff = desiredSecond - Second;
-            float time = diff / span;
-            return _interpolateVelocity(this, Next, time);
-        }
-        public int InterpolateAcceleration(float desiredSecond)
-        {
-            //First, check if the desired second is between this key and the next key.
-            if (desiredSecond < Second)
-            {
-                //If the previous key's second is greater than this second, this key must be the first key. 
-                //Return the InValue as the desired second comes before this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _prev.Second < Second ? Prev.InterpolateAcceleration(desiredSecond) : InValue;
-            }
-            else if (desiredSecond > _next.Second)
-            {
-                //If the next key's second is less than this second, this key must be the last key. 
-                //Return the OutValue as the desired second comes after this one.
-                //Otherwise, move to the previous key to calculate the interpolated value.
-                return _next.Second > Second ? Next.InterpolateAcceleration(desiredSecond) : OutValue;
-            }
-
-            float span = _next.Second - Second;
-            float diff = desiredSecond - Second;
-            float time = diff / span;
-            return _interpolateAcceleration(this, Next, time);
-        }
-
-        protected virtual int ConvertInterpolatedValue(float interpolatedValue) => (int)interpolatedValue;
-        
-        public static int Step(IntKeyframe key1, IntKeyframe key2, float time)
-            => time < 1.0f ? key1.OutValue : key2.OutValue;
-        public static int StepVelocity(IntKeyframe key1, IntKeyframe key2, float time)
-            => 0;
-        public static int StepAcceleration(IntKeyframe key1, IntKeyframe key2, float time)
-            => 0;
-
-        public int Lerp(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue(Interp.Lerp(key1.OutValue, key2.InValue, time));
-        public int LerpVelocity(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue((key2.InValue - key1.OutValue) / time);
-        public static int LerpAcceleration(IntKeyframe key1, IntKeyframe key2, float time)
-            => 0;
-
-        public int CubicBezier(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue(Interp.CubicBezier(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time));
-        public int CubicBezierVelocity(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue(Interp.CubicBezierVelocity(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time));
-        public int CubicBezierAcceleration(IntKeyframe key1, IntKeyframe key2, float time)
-            => ConvertInterpolatedValue(Interp.CubicBezierAcceleration(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time));
-
-        public int CubicHermite(IntKeyframe key1, IntKeyframe key2, float time)
-        {
-            float timeSpan = key2.Second - key1.Second;
-            return ConvertInterpolatedValue(Interp.CubicHermite(key1.OutValue, key1.OutTangent * timeSpan, key2.InTangent * timeSpan, key2.InValue, time));
-        }
-        public int CubicHermiteVelocity(IntKeyframe key1, IntKeyframe key2, float time)
-        {
-            float timeSpan = key2.Second - key1.Second;
-            return ConvertInterpolatedValue(Interp.CubicHermiteVelocity(key1.OutValue, key1.OutTangent * timeSpan, key2.InTangent * timeSpan, key2.InValue, time));
-        }
-        public int CubicHermiteAcceleration(IntKeyframe key1, IntKeyframe key2, float time)
-        {
-            float timeSpan = key2.Second - key1.Second;
-            return ConvertInterpolatedValue(Interp.CubicHermiteAcceleration(key1.OutValue, key1.OutTangent * timeSpan, key2.InTangent * timeSpan, key2.InValue, time));
-        }
-        
-        public void MakeOutLinear()
-            => OutTangent = (Next.InValue - OutValue) / (Next.Second - Second);
-        public void MakeInLinear()
-            => InTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
+        public override int CubicHermite(VectorKeyframe<int> next, float diff, float span)
+            => (int)Interp.CubicHermite(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
+        public override int CubicHermiteVelocity(VectorKeyframe<int> next, float diff, float span)
+            => (int)Interp.CubicHermiteVelocity(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
+        public override int CubicHermiteAcceleration(VectorKeyframe<int> next, float diff, float span)
+            => (int)Interp.CubicHermiteAcceleration(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
 
         public override string WriteToString()
+            => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);
+
+        public override string ToString()
         {
-            return string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue, OutValue, InTangent, OutTangent, InterpolationType);
+            switch (InterpolationType)
+            {
+                case EVectorInterpType.Step:
+                    return string.Format("[F:{0} : {3}] V:({1} {2})", Second, InValue.ToString(), OutValue.ToString(), InterpolationType);
+                case EVectorInterpType.Linear:
+                    return string.Format("[F:{0} : {3}] V:({1} {2})", Second, InValue.ToString(), OutValue.ToString(), InterpolationType);
+                case EVectorInterpType.CubicHermite:
+                    return string.Format("[F:{0} : {5}] V:({1} {2}) T:({3} {4})", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);
+                default:
+                case EVectorInterpType.CubicBezier:
+                    return string.Format("[F:{0} : {5}] V:({1} {2}) T:({3} {4})", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);
+            }
         }
 
         public override void ReadFromString(string str)
@@ -369,48 +95,74 @@ namespace TheraEngine.Animation
             Second = float.Parse(parts[0]);
             InValue = int.Parse(parts[1]);
             OutValue = int.Parse(parts[2]);
-            InTangent = float.Parse(parts[3]);
-            OutTangent = float.Parse(parts[4]);
+            InTangent = int.Parse(parts[3]);
+            OutTangent = int.Parse(parts[4]);
             InterpolationType = parts[5].AsEnum<EVectorInterpType>();
         }
-        
-        //void IPlanarKeyframe.ParsePlanar(string inValue, string outValue, string inTangent, string outTangent)
-        //{
-        //    InValue = int.Parse(inValue);
-        //    OutValue = int.Parse(outValue);
-        //    InTangent = float.Parse(inTangent);
-        //    OutTangent = float.Parse(outTangent);
-        //}
-        //void IPlanarKeyframe.WritePlanar(out string inValue, out string outValue, out string inTangent, out string outTangent)
-        //{
-        //    inValue = InValue.ToString();
-        //    outValue = OutValue.ToString();
-        //    inTangent = InTangent.ToString();
-        //    outTangent = OutTangent.ToString();
-        //}
-        public void UnifyTangentDirections(EUnifyBias bias) => UnifyTangents(bias);
-        public void UnifyTangentMagnitudes(EUnifyBias bias) => UnifyTangents(bias);
-        public void UnifyTangents(EUnifyBias bias)
+
+        public override void MakeOutLinear()
+        {
+            var next = Next;
+            float span;
+            if (next == null)
+            {
+                if (OwningTrack != null && OwningTrack.FirstKey != this)
+                {
+                    next = (VectorKeyframe<int>)OwningTrack.FirstKey;
+                    span = OwningTrack.LengthInSeconds - Second + next.Second;
+                }
+                else
+                    return;
+            }
+            else
+                span = next.Second - Second;
+            OutTangent = (int)((next.InValue - OutValue) / span);
+        }
+        public override void MakeInLinear()
+        {
+            var prev = Prev;
+            float span;
+            if (prev == null)
+            {
+                if (OwningTrack != null && OwningTrack.LastKey != this)
+                {
+                    prev = (VectorKeyframe<int>)OwningTrack.LastKey;
+                    span = OwningTrack.LengthInSeconds - prev.Second + Second;
+                }
+                else
+                    return;
+            }
+            else
+                span = Second - prev.Second;
+            InTangent = (int)(-(InValue - prev.OutValue) / span);
+        }
+
+        public override void UnifyTangentDirections(EUnifyBias bias) => UnifyTangents(bias);
+        public override void UnifyTangentMagnitudes(EUnifyBias bias) => UnifyTangents(bias);
+
+        public override void UnifyTangents(EUnifyBias bias)
         {
             switch (bias)
             {
                 case EUnifyBias.Average:
-                    InTangent = OutTangent = (InTangent + OutTangent) / 2.0f;
+                    float avg = (-InTangent + OutTangent) * 0.5f;
+                    OutTangent = (int)avg;
+                    InTangent = (int)-avg;
                     break;
                 case EUnifyBias.In:
-                    OutTangent = InTangent;
+                    OutTangent = -InTangent;
                     break;
                 case EUnifyBias.Out:
-                    InTangent = OutTangent;
+                    InTangent = -OutTangent;
                     break;
             }
         }
-        public void UnifyValues(EUnifyBias bias)
+        public override void UnifyValues(EUnifyBias bias)
         {
             switch (bias)
             {
                 case EUnifyBias.Average:
-                    InValue = OutValue = (InValue + OutValue) / 2;
+                    InValue = OutValue = (int)((InValue + OutValue) / 2.0f);
                     break;
                 case EUnifyBias.In:
                     OutValue = InValue;
@@ -421,11 +173,93 @@ namespace TheraEngine.Animation
             }
         }
 
-        public void UnifyKeyframe(EUnifyBias bias)
+        public void GenerateTangents()
         {
-            throw new NotImplementedException();
-        }
+            var next = GetNextKeyframe(out float nextSpan);
+            var prev = GetPrevKeyframe(out float prevSpan);
 
-        public void GenerateTangents() => throw new NotImplementedException();
+            if (Math.Abs(InValue - OutValue) < 0.0001f)
+            {
+                float tangent = 0.0f;
+                float weightCount = 0;
+                if (prev != null && prevSpan > 0.0f)
+                {
+                    tangent += (InValue - prev.OutValue) / prevSpan;
+                    weightCount++;
+                }
+                if (next != null && nextSpan > 0.0f)
+                {
+                    tangent += (next.InValue - OutValue) / nextSpan;
+                    weightCount++;
+                }
+
+                if (weightCount > 0)
+                    tangent /= weightCount;
+
+                OutTangent = (int)tangent;
+                InTangent = (int)-tangent;
+            }
+            else
+            {
+                if (prev != null && prevSpan > 0.0f)
+                {
+                    InTangent = (int)(-(InValue - prev.OutValue) / prevSpan);
+                }
+                if (next != null && nextSpan > 0.0f)
+                {
+                    OutTangent = (int)((next.InValue - OutValue) / nextSpan);
+                }
+            }
+
+            //float valueDiff = (next?.InValue ?? InValue) - (prev?.OutValue ?? OutValue);
+            //float secDiff = (next?.Second ?? Second) - (prev?.Second ?? Second);
+            //if (secDiff != 0.0f)
+            //    InTangent = -(OutTangent = valueDiff / secDiff);
+        }
+        public void GenerateOutTangent()
+        {
+            var next = GetNextKeyframe(out float nextSpan);
+            if (next != null && nextSpan > 0.0f)
+            {
+                OutTangent = (int)((next.InValue - OutValue) / nextSpan);
+            }
+
+            //var next = GetNextKeyframe(out float span1);
+            //var prev = GetPrevKeyframe(out float span2);
+            //float valueDiff = (next?.InValue ?? InValue) - (prev?.OutValue ?? OutValue);
+            //float secDiff = (next?.Second ?? Second) - (prev?.Second ?? Second);
+            //if (secDiff != 0.0f)
+            //    OutTangent = valueDiff / secDiff;
+        }
+        public void GenerateInTangent()
+        {
+            var prev = GetPrevKeyframe(out float prevSpan);
+            if (prev != null && prevSpan > 0.0f)
+            {
+                InTangent = (int)(-(InValue - prev.OutValue) / prevSpan);
+            }
+
+            //var next = GetNextKeyframe(out float span1);
+            //var prev = GetPrevKeyframe(out float span2);
+            //float valueDiff = (next?.InValue ?? InValue) - (prev?.OutValue ?? OutValue);
+            //float secDiff = (next?.Second ?? Second) - (prev?.Second ?? Second);
+            //if (secDiff != 0.0f)
+            //    InTangent = -valueDiff / secDiff;
+        }
+        public void GenerateAdjacentTangents(bool prev, bool next)
+        {
+            if (prev)
+            {
+                var prevkf = GetPrevKeyframe(out float span2) as IntKeyframe;
+                prevkf?.GenerateOutTangent();
+                GenerateInTangent();
+            }
+            if (next)
+            {
+                var nextKf = GetNextKeyframe(out float span1) as IntKeyframe;
+                nextKf?.GenerateInTangent();
+                GenerateOutTangent();
+            }
+        }
     }
 }

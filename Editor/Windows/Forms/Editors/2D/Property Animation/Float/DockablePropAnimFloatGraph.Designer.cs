@@ -35,6 +35,7 @@
             this.tearOffToolStrip1 = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.btnZoomExtents = new System.Windows.Forms.ToolStripButton();
             this.chkAutoTangents = new System.Windows.Forms.ToolStripButton();
+            this.chkSnapToIncrement = new System.Windows.Forms.ToolStripButton();
             this.dockingHostToolStripPanel1.SuspendLayout();
             this.tearOffToolStrip1.SuspendLayout();
             this.SuspendLayout();

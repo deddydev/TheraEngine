@@ -248,13 +248,13 @@ namespace TheraEngine.Animation
             if (prev)
             {
                 var prevkf = GetPrevKeyframe(out float span2) as FloatKeyframe;
-                prevkf?.GenerateOutTangent();
+                prevkf?.GenerateTangents();
                 GenerateInTangent();
             }
             if (next)
             {
                 var nextKf = GetNextKeyframe(out float span1) as FloatKeyframe;
-                nextKf?.GenerateInTangent();
+                nextKf?.GenerateTangents();
                 GenerateOutTangent();
             }
         }

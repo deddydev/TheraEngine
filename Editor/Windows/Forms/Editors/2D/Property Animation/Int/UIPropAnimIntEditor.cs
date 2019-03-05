@@ -648,15 +648,15 @@ void main()
                         var nextKf = prevKf?.Next;
                         if (prevKf != null && prevKf.Second.EqualTo(sec, 0.01f))
                         {
-                            prevKf.OutValue = val;
+                            prevKf.OutValue = (int)val;
                         }
                         else if (nextKf != null && nextKf.Second.EqualTo(sec, 0.01f))
                         {
-                            nextKf.InValue = val;
+                            nextKf.InValue = (int)val;
                         }
                         else
                         {
-                            IntKeyframe kf = new IntKeyframe(sec, val, 0.0f, EVectorInterpType.CubicHermite);
+                            IntKeyframe kf = new IntKeyframe(sec, (int)val, 0, EVectorInterpType.CubicHermite);
                             track.Add(kf);
                             kf.GenerateTangents();
 
@@ -692,7 +692,7 @@ void main()
 
         private class DraggedKeyframeInfo
         {
-            public FloatKeyframe Keyframe { get; set; }
+            public IntKeyframe Keyframe { get; set; }
 
             public bool DraggingInValue { get; set; } = false;
             public bool DraggingOutValue { get; set; } = false;
@@ -706,10 +706,10 @@ void main()
             public float OutTangentOffset { get; set; }
             
             public float SecondInitial { get; set; }
-            public float InValueInitial { get; set; }
-            public float OutValueInitial { get; set; }
-            public float InTangentInitial { get; set; }
-            public float OutTangentInitial { get; set; }
+            public int InValueInitial { get; set; }
+            public int OutValueInitial { get; set; }
+            public int InTangentInitial { get; set; }
+            public int OutTangentInitial { get; set; }
         }
         protected override void HandleDragItem()
         {
@@ -770,7 +770,7 @@ void main()
                                 float inPos = pos.Y + kf.Value.InValueOffset;
                                 if (SnapToIncrement)
                                     inPos = inPos.RoundToNearestMultiple(UnitIncrement);
-                                kf.Value.Keyframe.InValue = inPos;
+                                kf.Value.Keyframe.InValue = (int)inPos;
                                 if (AutoGenerateTangents)
                                 {
                                     kf.Value.Keyframe.GenerateAdjacentTangents(true, false);
@@ -781,7 +781,7 @@ void main()
                                 float outPos = pos.Y + kf.Value.OutValueOffset;
                                 if (SnapToIncrement)
                                     outPos = outPos.RoundToNearestMultiple(UnitIncrement);
-                                kf.Value.Keyframe.OutValue = outPos;
+                                kf.Value.Keyframe.OutValue = (int)outPos;
                                 if (AutoGenerateTangents)
                                 {
                                     kf.Value.Keyframe.GenerateAdjacentTangents(false, true);
@@ -803,14 +803,14 @@ void main()
                                 float inPos = pos.Y + kf.Value.InValueOffset;
                                 if (SnapToIncrement)
                                     inPos = inPos.RoundToNearestMultiple(UnitIncrement);
-                                kf.Value.Keyframe.InTangent = inPos;
+                                kf.Value.Keyframe.InTangent = (int)inPos;
                             }
                             if (kf.Value.DraggingOutTangent)
                             {
                                 float outPos = pos.Y + kf.Value.OutValueOffset;
                                 if (SnapToIncrement)
                                     outPos = outPos.RoundToNearestMultiple(UnitIncrement);
-                                kf.Value.Keyframe.OutTangent = outPos;
+                                kf.Value.Keyframe.OutTangent = (int)outPos;
                             }
                         }
                     }
@@ -843,7 +843,7 @@ void main()
                             float inPos = pos.Y + kf.Value.InValueOffset;
                             if (SnapToIncrement)
                                 inPos = inPos.RoundToNearestMultiple(UnitIncrement);
-                            kf.Value.Keyframe.InValue = inPos;
+                            kf.Value.Keyframe.InValue = (int)inPos;
                             if (AutoGenerateTangents)
                             {
                                 kf.Value.Keyframe.GenerateAdjacentTangents(true, false);
@@ -854,7 +854,7 @@ void main()
                             float outPos = pos.Y + kf.Value.OutValueOffset;
                             if (SnapToIncrement)
                                 outPos = outPos.RoundToNearestMultiple(UnitIncrement);
-                            kf.Value.Keyframe.OutValue = outPos;
+                            kf.Value.Keyframe.OutValue = (int)outPos;
                             if (AutoGenerateTangents)
                             {
                                 kf.Value.Keyframe.GenerateAdjacentTangents(false, true);
@@ -882,7 +882,7 @@ void main()
                             //m = y / x
                             //y = pos.Y - kf.Value.InValueInitial
                             //x = pos.X - kf.Value.SecondInitial
-                            kf.Value.Keyframe.InTangent = -(posY - kf.Value.InValueInitial) / (pos.X - kf.Value.SecondInitial);
+                            kf.Value.Keyframe.InTangent = (int)(-(posY - kf.Value.InValueInitial) / (pos.X - kf.Value.SecondInitial));
                         }
                         if (kf.Value.DraggingOutTangent)
                         {
@@ -891,7 +891,7 @@ void main()
                             if (SnapToIncrement)
                                 posY = posY.RoundToNearestMultiple(UnitIncrement);
                             
-                            kf.Value.Keyframe.OutTangent = (posY - kf.Value.OutValueInitial) / (pos.X - kf.Value.SecondInitial);
+                            kf.Value.Keyframe.OutTangent = (int)((posY - kf.Value.OutValueInitial) / (pos.X - kf.Value.SecondInitial));
                         }
                     }
                 }

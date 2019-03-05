@@ -425,5 +425,7 @@ namespace TheraEngine.Animation
         {
             throw new NotImplementedException();
         }
+
+        public void GenerateTangents() => throw new NotImplementedException();
     }
 }

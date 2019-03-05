@@ -1,6 +1,6 @@
 ﻿namespace TheraEditor.Windows.Forms
 {
-    partial class DockablePropAnimFloatGraph
+    partial class DockablePropAnimIntGraph
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DockablePropAnimFloatGraph));
-            this.RenderPanel = new TheraEditor.Windows.Forms.PropAnimFloatGraphRenderPanel();
+            this.RenderPanel = new TheraEditor.Windows.Forms.PropAnimIntGraphRenderPanel();
             this.dockingHostToolStripPanel1 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.tearOffToolStrip1 = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.btnZoomExtents = new System.Windows.Forms.ToolStripButton();
@@ -130,7 +130,7 @@
 
         #endregion
 
-        private PropAnimFloatGraphRenderPanel RenderPanel;
+        private PropAnimIntGraphRenderPanel RenderPanel;
         private DockingHostToolStripPanel dockingHostToolStripPanel1;
         private TearOffToolStrip tearOffToolStrip1;
         private System.Windows.Forms.ToolStripButton btnZoomExtents;

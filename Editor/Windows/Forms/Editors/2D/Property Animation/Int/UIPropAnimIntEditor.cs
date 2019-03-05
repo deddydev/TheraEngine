@@ -18,16 +18,14 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
-    public delegate void DelSelectedKeyframeChanged(Keyframe kf);
-    public delegate void DelSelectedTangentChanged(Keyframe kf, bool inTan);
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public class EditorUIPropAnimFloat : EditorUI2DBase, I2DRenderable, IPreRendered
+    public class EditorUIPropAnimInt : EditorUI2DBase, I2DRenderable, IPreRendered
     {
-        public EditorUIPropAnimFloat() : base() { }
-        public EditorUIPropAnimFloat(Vec2 bounds) : base(bounds) { }
-
+        public EditorUIPropAnimInt() : base() { }
+        public EditorUIPropAnimInt(Vec2 bounds) : base(bounds) { }
+        
         protected UITextComponent _xCoord, _yCoord;
         protected UIString2D _xString, _yString;
         
@@ -35,7 +33,6 @@ namespace TheraEditor.Windows.Forms
         private readonly RenderCommandMesh2D _rcSpline = new RenderCommandMesh2D(ERenderPass.OnTopForward);
         private readonly RenderCommandMesh2D _rcKeyframeInOutPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
         private readonly RenderCommandMesh2D _rcTangentPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
-
 
         public bool IsDraggingKeyframes => _draggedKeyframes.Count > 0;
         public int[] ClosestPositionIndices { get; private set; }
@@ -70,13 +67,13 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        private PropAnimFloat _targetAnimation;
+        private PropAnimInt _targetAnimation;
         private Dictionary<int, DraggedKeyframeInfo> _draggedKeyframes = new Dictionary<int, DraggedKeyframeInfo>();
         private Vec2 _selectionStartPosAnimRelative;
 
         private bool _regenerating = false;
         
-        public PropAnimFloat TargetAnimation
+        public PropAnimInt TargetAnimation
         {
             get => _targetAnimation;
             set
@@ -85,20 +82,20 @@ namespace TheraEditor.Windows.Forms
                 {
                     _targetAnimation.Keyframes.Changed -= OnChanged;
                     //_targetAnimation.SpeedChanged -= OnSpeedChanged;
-                    _targetAnimation.ConstrainKeyframedFPSChanged -= OnConstrainKeyframedFPSChanged;
+                    //_targetAnimation.ConstrainKeyframedFPSChanged -= OnConstrainKeyframedFPSChanged;
                     _targetAnimation.BakedFPSChanged -= OnBakedFPSChanged;
                     _targetAnimation.LengthChanged -= _position_LengthChanged;
-                    _targetAnimation.CurrentPositionChanged -= OnCurrentPositionChanged;
+                    //_targetAnimation.CurrentPositionChanged -= OnCurrentPositionChanged;
                 }
                 _targetAnimation = value;
                 if (_targetAnimation != null)
                 {
                     _targetAnimation.Keyframes.Changed += OnChanged;
                     //_targetAnimation.SpeedChanged += OnSpeedChanged;
-                    _targetAnimation.ConstrainKeyframedFPSChanged += OnConstrainKeyframedFPSChanged;
+                    //_targetAnimation.ConstrainKeyframedFPSChanged += OnConstrainKeyframedFPSChanged;
                     _targetAnimation.BakedFPSChanged += OnBakedFPSChanged;
                     _targetAnimation.LengthChanged += _position_LengthChanged;
-                    _targetAnimation.CurrentPositionChanged += OnCurrentPositionChanged;
+                    //_targetAnimation.CurrentPositionChanged += OnCurrentPositionChanged;
                     _targetAnimation.TickSelf = true;
                     _targetAnimation.Progress(0.0f);
 
@@ -129,7 +126,7 @@ namespace TheraEditor.Windows.Forms
             UpdateSplinePrimitive();
         }
 
-        private void GetKeyframeInfo(FloatKeyframe kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos)
+        private void GetKeyframeInfo(IntKeyframe kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos)
         {
             float velOut = kf.OutTangent;
             float velIn = kf.InTangent;
@@ -149,10 +146,11 @@ namespace TheraEditor.Windows.Forms
         }
         public float GetMaxSpeed()
         {
-            _targetAnimation.GetMinMax(true,
-              out (float Time, float Value)[] min,
-              out (float Time, float Value)[] max);
-            return TMath.Max(Math.Abs(min[0].Value), Math.Abs(max[0].Value));
+            return 0.0f;
+            //_targetAnimation.GetMinMax(true,
+            //  out (float Time, float Value)[] min,
+            //  out (float Time, float Value)[] max);
+            //return TMath.Max(Math.Abs(min[0].Value), Math.Abs(max[0].Value));
         }
         const float Resolution = 1.0f;
         private float MinSec { get; set; }
@@ -233,7 +231,7 @@ namespace TheraEditor.Windows.Forms
 
             i = 0;
             int i2;
-            foreach (FloatKeyframe kf in _targetAnimation)
+            foreach (IntKeyframe kf in _targetAnimation)
             {
                 i2 = i << 1;
                 GetKeyframeInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
@@ -320,7 +318,7 @@ namespace TheraEditor.Windows.Forms
 
             i = 0;
             int i2 = 0;
-            foreach (FloatKeyframe kf in _targetAnimation)
+            foreach (IntKeyframe kf in _targetAnimation)
             {
                 i2 = i << 1;
                 GetKeyframeInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
@@ -410,7 +408,7 @@ void main()
         private void GetSplineVertex(float sec, float maxVelocity, out Vec3 pos, out ColorF4 color)
         {
             float val = _targetAnimation.GetValue(sec);
-            float vel = _targetAnimation.GetVelocityKeyframed(sec);
+            float vel = 0.0f;//_targetAnimation.GetVelocityKeyframed(sec);
 
             //float time = 1.0f - 1.0f / (1.0f + VelocitySigmoidScale * (vel * vel));
             float time = Math.Abs(vel) / maxVelocity;
@@ -427,32 +425,32 @@ void main()
         }
         protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
         {
-            if (_targetAnimation == null)
+            //if (_targetAnimation == null)
             {
                 min = Vec2.Zero;
                 max = Vec2.Zero;
                 return false;
             }
 
-            _targetAnimation.GetMinMax(false,
-                out (float Time, float Value)[] minResult,
-                out (float Time, float Value)[] maxResult);
+            //_targetAnimation.GetMinMax(false,
+            //    out (float Time, float Value)[] minResult,
+            //    out (float Time, float Value)[] maxResult);
 
-            float minY = minResult[0].Value;
-            float maxY = maxResult[0].Value;
-            if (minY > maxY)
-            {
-                min = Vec2.Zero;
-                max = Vec2.Zero;
-                return false;
-            }
+            //float minY = minResult[0].Value;
+            //float maxY = maxResult[0].Value;
+            //if (minY > maxY)
+            //{
+            //    min = Vec2.Zero;
+            //    max = Vec2.Zero;
+            //    return false;
+            //}
 
-            float minX = 0.0f;
-            float maxX = _targetAnimation.LengthInSeconds;
+            //float minX = 0.0f;
+            //float maxX = _targetAnimation.LengthInSeconds;
 
-            min = new Vec2(minX, minY);
-            max = new Vec2(maxX, maxY);
-            return true;
+            //min = new Vec2(minX, minY);
+            //max = new Vec2(maxX, maxY);
+            //return true;
         }
         public override void ZoomExtents(bool adjustScale = true)
         {
@@ -658,7 +656,7 @@ void main()
                         }
                         else
                         {
-                            FloatKeyframe kf = new FloatKeyframe(sec, val, 0.0f, EVectorInterpType.CubicHermite);
+                            IntKeyframe kf = new IntKeyframe(sec, val, 0.0f, EVectorInterpType.CubicHermite);
                             track.Add(kf);
                             kf.GenerateTangents();
 

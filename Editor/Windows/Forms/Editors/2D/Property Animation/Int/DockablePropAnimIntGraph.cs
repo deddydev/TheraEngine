@@ -12,10 +12,10 @@ using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms
 {
-    [EditorFor(typeof(PropAnimFloat))]
-    public partial class DockablePropAnimFloatGraph : DockContent, IEditorControl
+    [EditorFor(typeof(PropAnimInt))]
+    public partial class DockablePropAnimIntGraph : DockContent, IEditorControl
     {
-        public DockablePropAnimFloatGraph()
+        public DockablePropAnimIntGraph()
         {
             InitializeComponent();
 
@@ -24,24 +24,24 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.MouseEnter += RenderPanel_MouseEnter;
             RenderPanel.MouseLeave += RenderPanel_MouseLeave;
 
-            GameMode = new PropAnimFloatEditorGameMode() { RenderPanel = RenderPanel };
+            GameMode = new PropAnimIntEditorGameMode() { RenderPanel = RenderPanel };
 
             tearOffToolStrip1.RenderMode = ToolStripRenderMode.Professional;
             tearOffToolStrip1.Renderer = new TheraToolstripRenderer();
         }
-        public DockablePropAnimFloatGraph(PropAnimFloat anim) : this()
+        public DockablePropAnimIntGraph(PropAnimInt anim) : this()
         {
             TargetAnimation = anim;
         }
 
-        public PropAnimFloatEditorGameMode GameMode { get; set; }
+        public PropAnimIntEditorGameMode GameMode { get; set; }
 
         ELocalPlayerIndex IEditorControl.PlayerIndex => ELocalPlayerIndex.One;
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => RenderPanel.UI;
         BaseGameMode IEditorControl.GameMode => GameMode;
 
-        public PropAnimFloat TargetAnimation
+        public PropAnimInt TargetAnimation
         {
             get => RenderPanel.UI.TargetAnimation;
             internal set
@@ -90,12 +90,12 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.UI.SnapToIncrement = chkSnapToIncrement.Checked;
         }
     }
-    public class PropAnimFloatPlayerController : LocalPlayerController
+    public class PropAnimIntPlayerController : LocalPlayerController
     {
-        public PropAnimFloatPlayerController(ELocalPlayerIndex index) : this(index, null) { }
-        public PropAnimFloatPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+        public PropAnimIntPlayerController(ELocalPlayerIndex index) : this(index, null) { }
+        public PropAnimIntPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
     }
-    public class PropAnimFloatGraphRenderPanel : UIRenderPanel<EditorUIPropAnimFloat, PropAnimFloatEditorGameMode, PropAnimFloatPlayerController> { }
-    public class PropAnimFloatEditorGameMode : UIGameMode<EditorUIPropAnimFloat, PropAnimFloatPlayerController> { }
+    public class PropAnimIntGraphRenderPanel : UIRenderPanel<EditorUIPropAnimInt, PropAnimIntEditorGameMode, PropAnimIntPlayerController> { }
+    public class PropAnimIntEditorGameMode : UIGameMode<EditorUIPropAnimInt, PropAnimIntPlayerController> { }
 }

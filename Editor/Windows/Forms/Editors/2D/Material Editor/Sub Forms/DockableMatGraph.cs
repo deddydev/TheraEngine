@@ -8,6 +8,7 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Rendering.Models.Materials.Functions;
+using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -32,6 +33,7 @@ namespace TheraEditor.Windows.Forms
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => RenderPanel.UI;
         BaseGameMode IEditorControl.GameMode => GameMode;
+        World IEditorControl.World => RenderPanel.World;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

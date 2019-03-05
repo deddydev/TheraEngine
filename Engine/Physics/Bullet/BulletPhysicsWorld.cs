@@ -24,6 +24,39 @@ namespace TheraEngine.Physics
                     _dynamicsWorld.Gravity = value;
             }
         }
+        public override bool DrawConstraints
+        {
+            get => (_physicsDebugDrawer.DebugMode & DebugDrawModes.DrawConstraints) != 0;
+            set
+            {
+                if (value)
+                    _physicsDebugDrawer.DebugMode |= DebugDrawModes.DrawConstraints;
+                else
+                    _physicsDebugDrawer.DebugMode &= ~DebugDrawModes.DrawConstraints;
+            }
+        }
+        public override bool DrawConstraintLimits
+        {
+            get => (_physicsDebugDrawer.DebugMode & DebugDrawModes.DrawConstraintLimits) != 0;
+            set
+            {
+                if (value)
+                    _physicsDebugDrawer.DebugMode |= DebugDrawModes.DrawConstraintLimits;
+                else
+                    _physicsDebugDrawer.DebugMode &= ~DebugDrawModes.DrawConstraintLimits;
+            }
+        }
+        public override bool DrawCollisionAABBs
+        {
+            get => (_physicsDebugDrawer.DebugMode & DebugDrawModes.DrawAabb) != 0;
+            set
+            {
+                if (value)
+                    _physicsDebugDrawer.DebugMode |= DebugDrawModes.DrawAabb;
+                else
+                    _physicsDebugDrawer.DebugMode &= ~DebugDrawModes.DrawAabb;
+            }
+        }
 
         internal DiscreteDynamicsWorld _dynamicsWorld;
         internal BroadphaseInterface _broadphaseInterface;

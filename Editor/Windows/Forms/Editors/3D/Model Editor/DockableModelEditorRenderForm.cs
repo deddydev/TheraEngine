@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TheraEditor.Actors.Types.Pawns;
 using TheraEngine;
 using TheraEngine.Actors;
@@ -6,6 +7,7 @@ using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
 using TheraEngine.GameModes;
 using TheraEngine.Rendering.Cameras;
+using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -17,35 +19,47 @@ namespace TheraEditor.Windows.Forms
             Form = form;
             FormIndex = formIndex;
             PlayerIndex = playerIndex;
+
             InitializeComponent();
+
+            RenderPanel.ValidPlayerIndices = new List<ELocalPlayerIndex>() { playerIndex };
             RenderPanel.Owner = this;
             GameMode = new EditorGameMode();
+            GameMode.TargetRenderPanels.Add(RenderPanel);
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 MouseTranslateSpeed = 0.02f,
                 ScrollSpeed = 0.5f,
                 GamepadTranslateSpeed = 15.0f,
+
                 HUD = new EditorUI3D(RenderPanel.ClientSize),
-                Name = string.Format("ModelViewport{0}_EditorCamera", (FormIndex + 1).ToString()),
+                Name = $"ModelViewport{(FormIndex + 1).ToString()}_EditorCamera",
             };
-            Text = string.Format("Model Viewport {0}", (FormIndex + 1).ToString());
+            Text = $"Model Viewport {(FormIndex + 1).ToString()}";
             RenderPanel.AllowDrop = true;
-            RenderPanel.GotFocus += RenderPanel_GotFocus;
+            //RenderPanel.GotFocus += RenderPanel_GotFocus;
         }
 
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
+            Editor.SetActiveEditorControl(this);
+            Form.World.CurrentGameMode = GameMode;
         }
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
+            if (Editor.ActiveRenderForm == this)
+            {
+                Editor.SetActiveEditorControl(null);
+                Form.World.CurrentGameMode = null;
+            }
         }
 
-        private void RenderPanel_GotFocus(object sender, EventArgs e)
-        {
-            Editor.SetActiveEditorControl(this);
-        }
+        //private void RenderPanel_GotFocus(object sender, EventArgs e)
+        //{
+        //    Editor.SetActiveEditorControl(this);
+        //}
         
         //private void Engine_WorldPreChanged()
         //{
@@ -81,13 +95,17 @@ namespace TheraEditor.Windows.Forms
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => EditorPawn;
         BaseGameMode IEditorControl.GameMode => GameMode;
+        World IEditorControl.World => Form.World;
 
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            base.OnHandleDestroyed(e);
-            if (Editor.ActiveRenderForm == this)
-                Editor.SetActiveEditorControl(null);
-        }
+        //protected override void OnHandleDestroyed(EventArgs e)
+        //{
+        //    base.OnHandleDestroyed(e);
+        //    if (Editor.ActiveRenderForm == this)
+        //    {
+        //        Editor.SetActiveEditorControl(null);
+        //        Form.World.CurrentGameMode = null;
+        //    }
+        //}
         protected override void OnShown(EventArgs e)
         {
             Form.World.SpawnActor(EditorPawn);

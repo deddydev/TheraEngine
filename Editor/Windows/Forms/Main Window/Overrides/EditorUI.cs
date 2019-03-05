@@ -219,9 +219,10 @@ namespace TheraEditor.Windows.Forms
             UICanvasComponent canvas = new UICanvasComponent()
             {
                 //DockStyle = UIDockStyle.Fill,
+                RenderTransformation = false,
             };
 
-            SubViewport = new UIViewportComponent();
+            SubViewport = new UIViewportComponent() { RenderTransformation = false };
             SubViewport.SizeableWidth.Minimum = SizeableElement.Pixels(200.0f, true, EParentBoundsInheritedValue.Width);
             SubViewport.SizeableWidth.SetSizingPercentageOfParent(0.4f);
             SubViewport.SizeableHeight.SetSizingProportioned(SubViewport.SizeableWidth, 9.0f / 16.0f);
@@ -237,6 +238,7 @@ namespace TheraEditor.Windows.Forms
             {
                 DockStyle = EUIDockStyle.Top,
                 Height = s.Height,
+                RenderTransformation = false,
             };
             SubViewportText.RenderInfo.Visible = false;
             SubViewportText.SizeableHeight.Minimum = SizeableElement.Pixels(s.Height, true, EParentBoundsInheritedValue.Height);
@@ -266,7 +268,7 @@ namespace TheraEditor.Windows.Forms
 
             t = "FPS: 000";
             s = TextRenderer.MeasureText(t, f);
-            UITextComponent fpsComp = new UITextComponent();
+            UITextComponent fpsComp = new UITextComponent() { RenderTransformation = false };
 
             fpsComp.RenderInfo.VisibleByDefault = true;
             fpsComp.SizeableWidth.SetSizingPixels(s.Width);

@@ -19,7 +19,23 @@ namespace TheraEngine.Physics
                 base.Gravity = value;
             }
         }
-        
+
+        public override bool DrawCollisionAABBs
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+        public override bool DrawConstraintLimits
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+        public override bool DrawConstraints
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
         public JitterPhysicsWorld()
         {
 

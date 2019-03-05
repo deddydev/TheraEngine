@@ -42,8 +42,6 @@ namespace TheraEngine.Worlds
         private GlobalFileRef<WorldSettings> _settingsRef;
         private GlobalFileRef<WorldState> _stateRef;
 
-        public BaseRenderPanel RenderPanel { get; internal set; }
-
         [TSerialize]
         public GlobalFileRef<WorldSettings> SettingsRef
         {
@@ -96,16 +94,38 @@ namespace TheraEngine.Worlds
         public Scene3D Scene3D => Scene as Scene3D;
         public Scene2D Scene2D => Scene as Scene2D;
         public AbstractPhysicsWorld PhysicsWorld3D { get; private set; }
+
+        public delegate void DelGameModeChange(World world, BaseGameMode previous, BaseGameMode next);
+        public event DelGameModeChange CurrentGameModePreChanged;
+        public event DelGameModeChange CurrentGameModePostChanged;
+        
         public BaseGameMode CurrentGameMode
         {
             get => State.GameMode;
             set
             {
+                var mode = State.GameMode;
+                CurrentGameModePreChanged?.Invoke(this, mode, value);
                 if (IsPlaying)
-                    State.GameMode?.EndGameplay();
+                {
+                    if (mode != null)
+                    {
+                        if (mode.TargetWorld == this)
+                            mode.TargetWorld = null;
+                        mode.EndGameplay();
+                    }
+                }
                 State.GameMode = value;
                 if (IsPlaying)
-                    State.GameMode?.BeginGameplay();
+                {
+                    var newMode = State.GameMode;
+                    if (newMode != null)
+                    {
+                        newMode.TargetWorld = this;
+                        newMode.BeginGameplay();
+                    }
+                }
+                CurrentGameModePostChanged?.Invoke(this, mode, value);
             }
         }
 

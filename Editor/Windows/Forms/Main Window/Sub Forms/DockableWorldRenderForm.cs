@@ -8,6 +8,7 @@ using TheraEngine.Actors.Types;
 using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Timers;
+using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
@@ -36,7 +37,7 @@ namespace TheraEditor.Windows.Forms
             Engine.SetWorldPanel(RenderPanel, false);
             Editor.SetActiveEditorControl(this);
         }
-        
+
         private void Engine_WorldPreChanged()
         {
             if (Engine.World == null || EditorPawn == null)
@@ -52,7 +53,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action)Engine_WorldPostChanged, BaseRenderPanel.EPanelType.Rendering))
                 return;
-            
+
             if (Engine.World == null || EditorPawn == null)
             {
                 Text = $"Viewport {(FormIndex + 1).ToString()}";
@@ -63,7 +64,7 @@ namespace TheraEditor.Windows.Forms
                 Text = $"{Engine.World.Name} (Viewport {(FormIndex + 1).ToString()})";
             }
         }
-        
+
         public int FormIndex { get; private set; }
         public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
         public EditorCameraPawn EditorPawn { get; private set; }
@@ -72,6 +73,7 @@ namespace TheraEditor.Windows.Forms
         BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
         IPawn IEditorControl.EditorPawn => EditorPawn;
         BaseGameMode IEditorControl.GameMode => Engine.World?.CurrentGameMode;
+        World IEditorControl.World => Engine.World;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

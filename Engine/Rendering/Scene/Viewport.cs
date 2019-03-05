@@ -261,6 +261,9 @@ namespace TheraEngine.Rendering
         {
             if (!Owners.Contains(controller))
                 Owners.Add(controller);
+
+            //TODO: allow multiple viewports per controller?
+            //Choose which viewport to use based on hovered cursor position?
             controller.Viewport = this;
         }
 

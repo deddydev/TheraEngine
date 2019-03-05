@@ -45,12 +45,12 @@ namespace TheraEngine
 
         protected override void OnUpdate()
         {
-            foreach (Viewport v in _viewports)
+            foreach (Viewport v in Viewports.Values)
                 v.Update(GetScene(v), GetCamera(v), GetCullingVolume(v));
         }
         public override void SwapBuffers()
         {
-            foreach (Viewport v in _viewports)
+            foreach (Viewport v in Viewports.Values)
             {
                 GetScene(v)?.PreRenderSwap();
                 v.SwapBuffers();
@@ -62,7 +62,7 @@ namespace TheraEngine
             BaseScene scene;
 
             GlobalPreRender();
-            foreach (Viewport viewport in _viewports)
+            foreach (Viewport viewport in Viewports.Values)
             {
                 camera = GetCamera(viewport);
                 scene = GetScene(viewport);

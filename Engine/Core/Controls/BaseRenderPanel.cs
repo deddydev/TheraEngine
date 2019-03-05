@@ -22,7 +22,7 @@ namespace TheraEngine
     }
     public interface IRenderPanel : IEnumerable<Viewport>
     {
-        List<Viewport> Viewports { get; }
+        Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; }
         VSyncMode VsyncMode { get; set; }
         Point ScreenLocation { get; }
         Point PointToClient(Point p);
@@ -33,7 +33,7 @@ namespace TheraEngine
         void CreateContext();
         Viewport GetOrAddViewport(ELocalPlayerIndex index);
         Viewport GetViewport(ELocalPlayerIndex index);
-        Viewport AddViewport();
+        Viewport AddViewport(ELocalPlayerIndex index);
         void UnregisterController(LocalPlayerController controller);
     }
     public abstract class BaseRenderPanel : UserControl, IRenderPanel
@@ -109,10 +109,7 @@ namespace TheraEngine
         protected bool _resizing = false;
         protected VSyncMode _vsyncMode = VSyncMode.Adaptive;
         internal RenderContext _context;
-        protected List<Viewport> _viewports = new List<Viewport>(4);
-
-        public List<Viewport> Viewports => _viewports;
-
+        
         /// <summary>
         /// Calls the method. Invokes the render panel if necessary.
         /// </summary>
@@ -270,18 +267,21 @@ namespace TheraEngine
             //_timer.Stop();
             //Visible = true;
             _resizing = false;
-            foreach (Viewport v in _viewports)
+            foreach (Viewport v in Viewports.Values)
                 v.SetInternalResolution(v.Width, v.Height);
         }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             _context?.Update();
-            foreach (Viewport v in _viewports)
+            foreach (Viewport v in Viewports.Values)
                 v.Resize(Width, Height, true);
             ScreenLocation = base.PointToScreen(Point.Empty);
         }
-        private void UpdateScreenLocation(object sender, EventArgs e) => ScreenLocation = base.PointToScreen(Point.Empty);
+
+        private void UpdateScreenLocation(object sender, EventArgs e)
+            => ScreenLocation = base.PointToScreen(Point.Empty);
+
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
@@ -303,7 +303,17 @@ namespace TheraEngine
             base.OnMove(e);
             UpdateScreenLocation(this, e);
         }
+
         public Point ScreenLocation { get; private set; }
+        public List<ELocalPlayerIndex> ValidPlayerIndices { get; set; } = new List<ELocalPlayerIndex>()
+        {
+            ELocalPlayerIndex.One,
+            ELocalPlayerIndex.Two,
+            ELocalPlayerIndex.Three,
+            ELocalPlayerIndex.Four,
+        };
+        public Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; set; } = new Dictionary<ELocalPlayerIndex, Viewport>();
+
         #endregion
 
         #region Mouse
@@ -442,29 +452,28 @@ namespace TheraEngine
             //This method probably won't be called every frame so this shouldn't be a speed issue.
             //lock (_viewports)
             //{
-                return GetViewport(index) ?? AddViewport();
+                return GetViewport(index) ?? AddViewport(index);
             //}
         }
         public Viewport GetViewport(ELocalPlayerIndex index)
         {
-            int i = (int)index;
-            return _viewports.IndexInRange(i) ? _viewports[i] : null;
+            return Viewports.ContainsKey(index) ? Viewports[index] : null;
         }
-        public Viewport AddViewport()
+        public Viewport AddViewport(ELocalPlayerIndex index)
         {
-            if (_viewports.Count == MaxViewports)
+            if (Viewports.Count == MaxViewports)
                 return null;
 
-            Viewport newViewport = new Viewport(this, _viewports.Count);
-            _viewports.Add(newViewport);
+            Viewport newViewport = new Viewport(this, Viewports.Count);
+            Viewports.Add(index, newViewport);
 
             Engine.PrintLine("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
 
             //Fix the regions of the rest of the viewports
-            for (int i = 0; i < _viewports.Count - 1; ++i)
+            int i = 0;
+            foreach (Viewport p in Viewports.Values)
             {
-                Viewport p = _viewports[i];
-                p.ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+                p.ViewportCountChanged(i++, Viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
                 p.Resize(Width, Height);
             }
 
@@ -475,7 +484,7 @@ namespace TheraEngine
             if (IsDisposed)
                 return;
 
-            if (controller.Viewport != null && _viewports.Contains(controller.Viewport))
+            if (controller.Viewport != null && Viewports.ContainsValue(controller.Viewport))
             {
                 Viewport v = controller.Viewport;
                 v.UnregisterController(controller);
@@ -504,7 +513,7 @@ namespace TheraEngine
             base.Dispose(disposing);
         }
 
-        public IEnumerator<Viewport> GetEnumerator() => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
+        public IEnumerator<Viewport> GetEnumerator() => ((IEnumerable<Viewport>)Viewports).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Viewport>)Viewports).GetEnumerator();
     }
 }

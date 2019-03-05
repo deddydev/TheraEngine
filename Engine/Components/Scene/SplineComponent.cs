@@ -12,7 +12,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Components.Scene
 {
-    public class SplineComponent : TRSComponent, I3DRenderable
+    public class Spline3DComponent : TRSComponent, I3DRenderable
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
         
@@ -43,7 +43,7 @@ namespace TheraEngine.Components.Scene
         private PrimitiveManager _extremaPrimitive;
 
         [TSerialize]
-        public PropAnimVec3 Position
+        public PropAnimVec3 Spline
         {
             get => _position;
             set
@@ -101,13 +101,13 @@ namespace TheraEngine.Components.Scene
             RegenerateSplinePrimitive();
         }
 
-        public SplineComponent() : base()
+        public Spline3DComponent() : base()
         {
-            Position = null;
+            Spline = null;
         }
-        public SplineComponent(PropAnimVec3 spline) : base()
+        public Spline3DComponent(PropAnimVec3 spline) : base()
         {
-            Position = spline;
+            Spline = spline;
         }
 
         EventVec3 _cullingVolumeTranslation = null;

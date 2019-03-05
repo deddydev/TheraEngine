@@ -7,6 +7,7 @@ using TheraEngine.Input.Devices;
 using System.Linq;
 using System.ComponentModel;
 using TheraEngine.Worlds;
+using TheraEngine.Components.Scene.Transforms;
 
 namespace TheraEngine.GameModes
 {
@@ -126,7 +127,18 @@ namespace TheraEngine.GameModes
             get => _disallowPausing;
             set => _disallowPausing = value;
         }
+
+        /// <summary>
+        /// These are the render panels that will be used for the target world's local player controllers.
+        /// </summary>
+        public List<BaseRenderPanel> TargetRenderPanels { get; } = new List<BaseRenderPanel>();
+        /// <summary>
+        /// This is the world that is running this game mode.
+        /// </summary>
         public World TargetWorld { get; internal set; }
+        /// <summary>
+        /// These are the local players that are active in the world.
+        /// </summary>
         public List<LocalPlayerController> LocalPlayers { get; } = new List<LocalPlayerController>();
 
         /// <summary>
@@ -180,6 +192,23 @@ namespace TheraEngine.GameModes
                 queue.Enqueue(pawn);
                 _possessionQueues.Add(possessor, queue);
             }
+        }
+
+        //public Queue<ELocalPlayerIndex> CollectPossessionQueueFor(IPawn pawn)
+        //{
+        //    Queue<ELocalPlayerIndex> indices = new Queue<ELocalPlayerIndex>();
+            
+        //}
+
+        /// <summary>
+        /// Enqueues a pawn to be possessed by the given local player as soon as its current controlled pawn is set to null.
+        /// </summary>
+        /// <param name="pawn">The pawn to possess.</param>
+        /// <param name="possessor">The controller to possess the pawn.</param>
+        public void QueuePossession(IPawn pawn, Queue<ELocalPlayerIndex> possessors)
+        {
+            while (possessors.Count > 0)
+                QueuePossession(pawn, possessors.Dequeue());
         }
         public void ForcePossession(IPawn pawn, ELocalPlayerIndex possessor)
         {
@@ -274,8 +303,7 @@ namespace TheraEngine.GameModes
         protected internal virtual void HandleLocalPlayerLeft(ControllerType item)
         {
             item.Viewport.HUD = null;
-
-            TargetWorld.RenderPanel.UnregisterController(item);
+            item.Viewport.OwningPanel.UnregisterController(item);
 
             TargetWorld.DespawnActor(item.ControlledPawn as BaseActor);
             item.UnlinkControlledPawn();
@@ -283,9 +311,13 @@ namespace TheraEngine.GameModes
         protected internal virtual void HandleLocalPlayerJoined(ControllerType item)
         {
             PawnType pawn = new PawnType();
-
-            TargetWorld.RenderPanel.GetOrAddViewport(item.LocalPlayerIndex)?.RegisterController(item);
             
+            var panel = TargetRenderPanels.FirstOrDefault(x => x.ValidPlayerIndices.Contains(item.LocalPlayerIndex));
+            if (panel != null)
+                panel.GetOrAddViewport(item.LocalPlayerIndex).RegisterController(item);
+            else
+                Engine.LogWarning($"No target render panel found for player {item.LocalPlayerIndex.ToString().ToLowerInvariant()}.");
+
             item.EnqueuePosession(pawn);
             TargetWorld.SpawnActor(pawn);
         }

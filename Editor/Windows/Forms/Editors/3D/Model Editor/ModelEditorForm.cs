@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Lights;
+using TheraEngine.Animation;
 using TheraEngine.Components.Logic.Animation;
+using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Files;
@@ -24,7 +24,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    [EditorFor(typeof(SkeletalModel), typeof(StaticModel), typeof(IActor))]
+    [EditorFor(typeof(SkeletalModel), typeof(StaticModel), typeof(IActor), typeof(PropAnimVec3))]
     public partial class ModelEditorForm : TheraForm, IDockPanelOwner
     {
         DockPanel IDockPanelOwner.DockPanelRef => DockPanel1;
@@ -32,6 +32,7 @@ namespace TheraEditor.Windows.Forms
         public ModelEditorForm()
         {
             InitializeComponent();
+
             ModelEditorText.Font = Engine.MakeFont("origicide", 10.0f, FontStyle.Regular);
             DockPanel1.Theme = new TheraEditorTheme();
             AutoScaleMode = AutoScaleMode.Font;
@@ -44,6 +45,7 @@ namespace TheraEditor.Windows.Forms
         public ModelEditorForm(SkeletalModel model) : this() => SetModel(model);
         public ModelEditorForm(StaticModel model) : this() => SetModel(model);
         public ModelEditorForm(BaseActor actor) : this() => SetActor(actor);
+        public ModelEditorForm(PropAnimVec3 vec3Anim) : this() => SetAnim(vec3Anim);
 
         #region Instanced Dock Forms
         //Dockable forms with a limited amount of instances
@@ -199,7 +201,7 @@ namespace TheraEditor.Windows.Forms
             TargetActor = actor;
             World.SpawnActor(TargetActor);
 
-            PropGrid.PropertyGrid.TargetObject = TargetActor;
+            PropGrid.PropertyGrid.TargetObject = actor;
         }
         public async void SetModel(StaticModel stm)
         {
@@ -221,13 +223,13 @@ namespace TheraEditor.Windows.Forms
 
             //BoundingBox aabb = stm?.CalculateCullingAABB() ?? new BoundingBox();
             //RenderForm1.AlignView(aabb);
+
+            PropGrid.PropertyGrid.TargetObject = stm;
         }
         public async void SetModel(SkeletalModel skm)
         {
             if (World == null)
-            {
                 await InitWorldAsync();
-            }
 
             Skeleton skel = skm.SkeletonRef?.File;
 
@@ -242,8 +244,6 @@ namespace TheraEditor.Windows.Forms
             AnimStateMachineComponent machine = new AnimStateMachineComponent(skm.SkeletonRef?.File);
             TargetActor.LogicComponents.Add(machine);
             World.SpawnActor(TargetActor);
-            if (chkViewBones.Checked)
-                World.Scene3D?.Renderables.Add(skel);
 
             MeshList.DisplayMeshes(comp);
             MaterialList.DisplayMaterials(skm);
@@ -252,7 +252,26 @@ namespace TheraEditor.Windows.Forms
 
             //BoundingBox aabb = skm.CalculateBindPoseCullingAABB();
             //RenderForm1.AlignView(aabb);
+
+            PropGrid.PropertyGrid.TargetObject = skm;
         }
+        public async void SetAnim(PropAnimVec3 vec3anim)
+        {
+            if (World == null)
+                await InitWorldAsync();
+
+            FormTitle2.Text = vec3anim?.FilePath ?? vec3anim?.Name ?? string.Empty;
+
+            if (TargetActor != null && TargetActor.IsSpawned)
+                World.DespawnActor(TargetActor);
+
+            Spline3DComponent comp = new Spline3DComponent(vec3anim);
+            TargetActor = new Actor<Spline3DComponent>(comp);
+            World.SpawnActor(TargetActor);
+
+            PropGrid.PropertyGrid.TargetObject = vec3anim;
+        }
+
         protected override async void OnShown(EventArgs e)
         {
             base.OnShown(e);
@@ -267,8 +286,8 @@ namespace TheraEditor.Windows.Forms
             SetRenderTicking(false);
             //Editor.Instance.SetRenderTicking(true);
             World.DespawnActor(TargetActor);
-            if (Model is SkeletalModel skm && skm.SkeletonRef?.IsLoaded == true)
-                World.Scene3D?.Renderables.Remove(skm.SkeletonRef.File);
+            //if (Model is SkeletalModel skm && skm.SkeletonRef?.IsLoaded == true)
+            //    World.Scene3D?.Renderables.Remove(skm.SkeletonRef.File);
             base.OnClosed(e);
         }
 
@@ -339,10 +358,19 @@ namespace TheraEditor.Windows.Forms
         private void chkViewCollisions_Click(object sender, EventArgs e)
         {
             chkViewCollisions.Checked = !chkViewCollisions.Checked;
+            if (TargetActor?.RootComponentGeneric is SkeletalMeshComponent skel && skel.TargetSkeleton != null)
+                foreach (Bone bone in skel.TargetSkeleton.BoneIndexCache.Values)
+                    if (bone?.RigidBodyCollision?.CollisionShape != null)
+                        bone.RigidBodyCollision.CollisionShape.DebugRender = true;
         }
         private void chkViewConstraints_Click(object sender, EventArgs e)
         {
             chkViewConstraints.Checked = !chkViewConstraints.Checked;
+            World.PhysicsWorld3D.DrawConstraints = chkViewConstraints.Checked;
+            World.PhysicsWorld3D.DrawConstraintLimits = chkViewConstraints.Checked;
+            //if (TargetActor?.RootComponentGeneric is SkeletalMeshComponent skel && skel.TargetSkeleton != null)
+            //    foreach (Bone bone in skel.TargetSkeleton.BoneIndexCache.Values)
+            //        bone.ParentPhysicsConstraint
         }
         private void chkViewCullingVolumes_Click(object sender, EventArgs e)
         {

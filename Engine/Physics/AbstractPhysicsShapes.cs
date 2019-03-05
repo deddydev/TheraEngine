@@ -10,6 +10,7 @@ namespace TheraEngine.Physics
     {
         public abstract float Margin { get; set; }
         public abstract Vec3 LocalScaling { get; set; }
+        public bool DebugRender { get; set; }
 
         public Sphere GetBoundingSphere()
         {

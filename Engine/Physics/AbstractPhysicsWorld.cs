@@ -10,6 +10,10 @@ namespace TheraEngine.Physics
         public virtual Vec3 Gravity { get; set; } = new Vec3(0.0f, -9.81f, 0.0f);
         public bool AllowIndividualAabbUpdates { get; set; } = true;
 
+        public abstract bool DrawConstraints { get; set; }
+        public abstract bool DrawConstraintLimits { get; set; }
+        public abstract bool DrawCollisionAABBs { get; set; }
+
         /// <summary>
         /// Renders all debug objects. Only to be called in the render pass.
         /// </summary>

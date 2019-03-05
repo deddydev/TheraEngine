@@ -13,26 +13,26 @@ namespace TheraEngine.Rendering.Models
 
         public int VertexIndex
             => _vertexIndex;
-        public ReadOnlyCollection<IndexLine> ConnectedEdges
-            => _connectedEdges.AsReadOnly();
+        //public ReadOnlyCollection<IndexLine> ConnectedEdges
+        //    => _connectedEdges.AsReadOnly();
 
         public override string ToString()
             => _vertexIndex.ToString();
 
         [TSerialize("Index", NodeType = ENodeType.Attribute)]
         private int _vertexIndex;
-        private List<IndexLine> _connectedEdges = new List<IndexLine>();
+        //private List<IndexLine> _connectedEdges = new List<IndexLine>();
 
-        internal void AddLine(IndexLine edge)
-        {
-            if (!_connectedEdges.Contains(edge))
-                _connectedEdges.Add(edge);
-        }
-        internal void RemoveLine(IndexLine edge)
-        {
-            if (_connectedEdges.Contains(edge))
-                _connectedEdges.Remove(edge);
-        }
+        //internal void AddLine(IndexLine edge)
+        //{
+        //    if (!_connectedEdges.Contains(edge))
+        //        _connectedEdges.Add(edge);
+        //}
+        //internal void RemoveLine(IndexLine edge)
+        //{
+        //    if (_connectedEdges.Contains(edge))
+        //        _connectedEdges.Remove(edge);
+        //}
 
         public string WriteToString() => _vertexIndex.ToString();
         public void ReadFromString(string str)
@@ -65,6 +65,7 @@ namespace TheraEngine.Rendering.Models
         //            return;
         //        }
         //}
+
         public static implicit operator IndexPoint(int i) => new IndexPoint(i);
         public static implicit operator int(IndexPoint i) => i.VertexIndex;
     }

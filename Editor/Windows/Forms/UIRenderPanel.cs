@@ -40,9 +40,12 @@ namespace TheraEngine
 
         public UIRenderPanel()
         {
-            Viewport v = AddViewport();
+            Viewport v = AddViewport(ELocalPlayerIndex.One);
 
             GameMode = new UIGameModeType();
+            GameMode.TargetRenderPanels.Add(this);
+            World.CurrentGameMode = GameMode;
+
             UI = new UIPawnType();
 
             v.HUD = UI;

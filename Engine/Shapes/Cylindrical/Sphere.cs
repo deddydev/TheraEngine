@@ -25,6 +25,7 @@ namespace TheraEngine.Core.Shapes
             get => _radius;
             set => _radius = Abs(value);
         }
+        [TSerialize]
         [Category("Sphere")]
         public EventVec3 Center
         {

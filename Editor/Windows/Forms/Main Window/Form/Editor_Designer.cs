@@ -41,6 +41,10 @@ namespace TheraEditor.Windows.Forms
         /// The game mode used for this render form.
         /// </summary>
         BaseGameMode GameMode { get; }
+        /// <summary>
+        /// The world this render form is rendering.
+        /// </summary>
+        World World { get; }
     }
     public partial class Editor : TheraForm, IMappableShortcutControl, IDockPanelOwner
     {

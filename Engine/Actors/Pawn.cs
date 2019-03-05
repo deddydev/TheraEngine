@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
@@ -7,6 +8,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
@@ -163,8 +165,24 @@ namespace TheraEngine.Actors
             OwningWorld.Settings.EnableOriginRebasingChanged += Settings_EnableOriginRebasingChanged;
             Settings_EnableOriginRebasingChanged(OwningWorld.Settings);
 
+            var mode = OwningWorld.CurrentGameMode;
+            if (mode != null)
+            {
+                if (ForcePossession != null)
+                    mode.ForcePossession(this, ForcePossession.Value);
+                mode.QueuePossession(this, PossessionQueue);
 
+                ForcePossession = null;
+                PossessionQueue.Clear();
+            }
+            //OwningWorld.CurrentGameModePreChanged += OwningWorld_CurrentGameModePreChanged;
         }
+
+        //private void OwningWorld_CurrentGameModePreChanged(World world, BaseGameMode previous, BaseGameMode next)
+        //{
+        //    PossessionQueue = previous.CollectPossessionQueueFor(this);
+        //}
+
         private void Settings_EnableOriginRebasingChanged(WorldSettings settings)
         {
             if (settings.EnableOriginRebasing)
@@ -179,17 +197,18 @@ namespace TheraEngine.Actors
 
             if (HUD?.File is BaseActor actor)
                 actor.Despawned();
-        }
 
+            //OwningWorld.CurrentGameModePreChanged -= OwningWorld_CurrentGameModePreChanged;
+        }
+        public ELocalPlayerIndex? ForcePossession { get; private set; }
+        public Queue<ELocalPlayerIndex> PossessionQueue { get; private set; } = new Queue<ELocalPlayerIndex>();
         public void QueuePossession(ELocalPlayerIndex possessor)
         {
             var mode = OwningWorld?.CurrentGameMode;
             if (mode != null)
                 mode.QueuePossession(this, possessor);
             else
-            {
-
-            }
+                PossessionQueue.Enqueue(possessor);
         }
         public void ForcePossessionBy(ELocalPlayerIndex possessor)
         {
@@ -197,9 +216,7 @@ namespace TheraEngine.Actors
             if (mode != null)
                 mode.ForcePossession(this, possessor);
             else
-            {
-
-            }
+                ForcePossession = possessor;
         }
         
         public virtual void OnPossessed(PawnController possessor)

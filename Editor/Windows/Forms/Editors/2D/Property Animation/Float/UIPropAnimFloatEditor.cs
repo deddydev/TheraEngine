@@ -36,15 +36,20 @@ namespace TheraEditor.Windows.Forms
         private readonly RenderCommandMesh2D _rcKeyframeInOutPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
         private readonly RenderCommandMesh2D _rcTangentPositions = new RenderCommandMesh2D(ERenderPass.OnTopForward);
 
-
+        [Browsable(false)]
+        public bool IsRenderingTangents => !AutoGenerateTangents && RenderKeyframeTangents;
+        [Browsable(false)]
         public bool IsDraggingKeyframes => _draggedKeyframes.Count > 0;
+        [Browsable(false)]
         public int[] ClosestPositionIndices { get; private set; }
+        [Browsable(false)]
+        public Vec2 AnimPositionWorld { get; private set; }
+
         private Vec3[] KeyframeInOutPosInOutTan { get; set; }
         //public float VelocitySigmoidScale { get; set; } = 0.002f;
         private float DisplayFPS { get; set; } = 0.0f;
         private float AnimLength { get; set; } = 0.0f;
         private int KeyCount { get; set; } = 0;
-        public Vec2 AnimPositionWorld { get; private set; }
 
         [TSerialize]
         public EVectorInterpValueType ValueDisplayMode { get; private set; } = EVectorInterpValueType.Position;
@@ -129,7 +134,7 @@ namespace TheraEditor.Windows.Forms
             UpdateSplinePrimitive();
         }
 
-        private void GetKeyframeInfo(FloatKeyframe kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos)
+        private void GetKeyframePosInfo(FloatKeyframe kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos)
         {
             float velOut = kf.OutTangent;
             float velIn = kf.InTangent;
@@ -142,11 +147,12 @@ namespace TheraEditor.Windows.Forms
             tangentOutVector *= TangentScale / BaseTransformComponent.ScaleX;
 
             inPos = new Vec3(kf.Second, kf.InValue, 0.0f);
-            inTanPos = new Vec3(kf.Second + tangentInVector.X, kf.InValue + tangentInVector.Y, 0.0f);
+            inTanPos = inPos + tangentInVector;
 
             outPos = new Vec3(kf.Second, kf.OutValue, 0.0f);
-            outTanPos = new Vec3(kf.Second + tangentOutVector.X, kf.OutValue + tangentOutVector.Y, 0.0f);
+            outTanPos = outPos + tangentOutVector;
         }
+
         public float GetMaxSpeed()
         {
             _targetAnimation.GetMinMax(true,
@@ -236,7 +242,7 @@ namespace TheraEditor.Windows.Forms
             foreach (FloatKeyframe kf in _targetAnimation)
             {
                 i2 = i << 1;
-                GetKeyframeInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
+                GetKeyframePosInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
                 
                 KeyframeInOutPosInOutTan[i2] = inPos;
                 KeyframeInOutPosInOutTan[i2 + 1] = outPos;
@@ -323,7 +329,7 @@ namespace TheraEditor.Windows.Forms
             foreach (FloatKeyframe kf in _targetAnimation)
             {
                 i2 = i << 1;
-                GetKeyframeInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
+                GetKeyframePosInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
 
                 KeyframeInOutPosInOutTan[i2] = inPos;
                 KeyframeInOutPosInOutTan[i2 + 1] = outPos;
@@ -418,6 +424,7 @@ void main()
             color = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, time);
             pos = new Vec3(sec, val, 0.0f);
         }
+
         protected override void UpdateTextScale()
         {
             base.UpdateTextScale();
@@ -492,6 +499,8 @@ void main()
 
             _xString.Text = pos.X.ToString("###0.0##");
             _yString.Text = pos.Y.ToString("###0.0##");
+
+            BaseTransformComponent.PerformResize();
         }
         private bool _redrewLastMove = false;
         protected override void BaseWorldTransformChanged(SceneComponent comp)
@@ -509,6 +518,9 @@ void main()
 
                 Vec3 pos = new Vec3(_targetAnimation.CurrentTime, _targetAnimation.CurrentPosition, 0.0f);
                 AnimPositionWorld = Vec3.TransformPosition(pos, BaseTransformComponent.WorldMatrix).Xy;
+
+                _xCoord.SizeablePosX.ModificationValue = pos.X;
+                _yCoord.SizeablePosY.ModificationValue = pos.Y;
             }
             else
                 RenderAnimPosition = false;
@@ -529,13 +541,55 @@ void main()
                 _redrewLastMove = shouldRedraw;
             }
         }
+        
+        protected float _moveTimeLeft = 0.0f;
+        protected float _moveTimeRight = 0.0f;
+        protected override bool ShouldTickInput
+            => base.ShouldTickInput || (_targetAnimation != null && (_moveTimeLeft + _moveTimeRight) != 0.0f);
+        protected override void TickInput(float delta)
+        {
+            base.TickInput(delta);
+
+            float moveTime = _moveTimeLeft + _moveTimeRight;
+            if (moveTime != 0.0f)
+                _targetAnimation.Progress(delta * moveTime);
+        }
+
         public override void RegisterInput(InputInterface input)
         {
             base.RegisterInput(input);
             
             input.RegisterKeyEvent(EKey.Space, EButtonInputType.Pressed, TogglePlay, EInputPauseType.TickAlways);
+
+            input.RegisterKeyPressed(EKey.Left, MoveTimeLeft, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.Right, MoveTimeRight, EInputPauseType.TickAlways);
+            //input.RegisterKeyPressed(EKey.Down, MoveDown, EInputPauseType.TickAlways);
+            //input.RegisterKeyPressed(EKey.Up, MoveUp, EInputPauseType.TickAlways);
         }
-        
+
+        private void MoveTimeRight(bool pressed)
+        {
+            _moveTimeRight = pressed ? 1.0f : 0.0f;
+            UpdateInputTick();
+
+            //if (_targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f)
+            //    return;
+
+            //float inc = 1.0f / _targetAnimation.LengthInSeconds;
+            //_targetAnimation.CurrentTime += inc / BaseTransformComponent.ScaleX;
+        }
+        private void MoveTimeLeft(bool pressed)
+        {
+            _moveTimeLeft = pressed ? -1.0f : 0.0f;
+            UpdateInputTick();
+
+            //if (_targetAnimation == null || _targetAnimation.LengthInSeconds <= 0.0f)
+            //    return;
+
+            //float inc = 1.0f / _targetAnimation.LengthInSeconds;
+            //_targetAnimation.CurrentTime -= inc / BaseTransformComponent.ScaleX;
+        }
+
         private void TogglePlay()
         {
             if (_targetAnimation == null)
@@ -670,6 +724,7 @@ void main()
                 else
                 {
                     //Begin drag selection
+                    Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = _targetAnimation;
                 }
             }
         }
@@ -928,8 +983,12 @@ void main()
             
             passes.Add(_rcSpline);
             passes.Add(_rcKeyframeInOutPositions);
-            passes.Add(_rcTangentPositions);
-            passes.Add(_rcKfLines);
+
+            if (IsRenderingTangents)
+            {
+                passes.Add(_rcTangentPositions);
+                passes.Add(_rcKfLines);
+            }
         }
         protected override void RenderMethod()
         {
@@ -958,9 +1017,15 @@ void main()
 
                 if (_targetAnimation != null)
                 {
-                    //float invScale = 1.0f / _baseTransformComponent.ScaleX;
-                    Engine.Renderer.RenderLine(new Vec2(AnimPositionWorld.X - 15.0f, AnimPositionWorld.Y), new Vec2(AnimPositionWorld.X - 15.0f, AnimPositionWorld.Y + _targetAnimation.CurrentVelocity), new ColorF4(0.5f, 0.5f, 0.0f), false, 10.0f);
-                    Engine.Renderer.RenderLine(new Vec2(AnimPositionWorld.X + 15.0f, AnimPositionWorld.Y), new Vec2(AnimPositionWorld.X + 15.0f, AnimPositionWorld.Y + _targetAnimation.CurrentAcceleration), new ColorF4(0.5f, 0.0f, 0.5f), false, 10.0f);
+                    Vec2 vel = new Vec2(1.0f, _targetAnimation.CurrentVelocity);
+                    vel.Normalize();
+                    vel *= TangentScale;
+                    Engine.Renderer.RenderLine(AnimPositionWorld, AnimPositionWorld + vel, new ColorF4(0.5f, 0.5f, 0.0f), false, 10.0f);
+
+                    Vec2 acc = new Vec2(1.0f, _targetAnimation.CurrentAcceleration);
+                    acc.Normalize();
+                    acc *= TangentScale;
+                    Engine.Renderer.RenderLine(AnimPositionWorld, AnimPositionWorld + acc, new ColorF4(0.5f, 0.0f, 0.5f), false, 10.0f);
                 }
             }
         }

@@ -86,10 +86,10 @@ namespace TheraEditor.Windows.Forms
             chkAutoTangents.Checked = !chkAutoTangents.Checked;
             RenderPanel.UI.AutoGenerateTangents = chkAutoTangents.Checked;
         }
-        private void chkSnapToIncrement_Click(object sender, EventArgs e)
+        private void chkSnapToUnits_Click(object sender, EventArgs e)
         {
-            chkSnapToIncrement.Checked = !chkSnapToIncrement.Checked;
-            RenderPanel.UI.SnapToIncrement = chkSnapToIncrement.Checked;
+            chkSnapToUnits.Checked = !chkSnapToUnits.Checked;
+            RenderPanel.UI.SnapToIncrement = chkSnapToUnits.Checked;
         }
     }
     public class PropAnimFloatPlayerController : LocalPlayerController

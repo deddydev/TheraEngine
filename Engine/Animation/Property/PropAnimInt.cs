@@ -21,20 +21,14 @@ namespace TheraEngine.Animation
         protected override float[] GetComponents(int value) => new float[] { value };
         protected override int GetMaxValue() => int.MaxValue;
         protected override int GetMinValue() => int.MinValue;
-        //public override void Progress(float delta)
-        //{
-        //    if (UseConstantVelocity)
-        //    {
-        //        float b = CurrentVelocity;
-        //        float a = 1.0f;
-        //        Vec2 start = new Vec2(0.0f, 0.0f);
-        //        Vec2 end = new Vec2(a, b);
-        //        float c = start.DistanceTo(end);
-        //        float triangleSizeRatio = ConstantVelocitySpeed / c;
-        //        Speed = triangleSizeRatio;
-        //    }
-        //    base.Progress(delta);
-        //}
+        protected override float GetVelocityMagnitude()
+        {
+            float b = CurrentVelocity;
+            float a = 1.0f;
+            Vec2 start = new Vec2(0.0f, 0.0f);
+            Vec2 end = new Vec2(a, b);
+            return start.DistanceTo(end);
+        }
     }
     public class IntKeyframe : VectorKeyframe<int>
     {

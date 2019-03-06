@@ -101,15 +101,9 @@ namespace TheraEngine.Components.Scene
             RegenerateSplinePrimitive();
         }
 
-        public Spline3DComponent() : base()
-        {
-            Spline = null;
-        }
-        public Spline3DComponent(PropAnimVec3 spline) : base()
-        {
-            Spline = spline;
-        }
-
+        public Spline3DComponent() : this(null) { }
+        public Spline3DComponent(PropAnimVec3 spline) : base() => Spline = spline;
+        
         EventVec3 _cullingVolumeTranslation = null;
         public void RegenerateSplinePrimitive()
         {

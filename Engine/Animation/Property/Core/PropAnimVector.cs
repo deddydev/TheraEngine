@@ -259,6 +259,62 @@ namespace TheraEngine.Animation
                 OnCurrentTimeChanged();
             }
         }
+
+        [Category(VectorAnimCategory)]
+        public bool UseConstantVelocity { get; set; } = false;
+        public override void Progress(float delta)
+        {
+            if (UseConstantVelocity)
+            {
+                float c = GetVelocityMagnitude();
+                float triangleSizeRatio = Speed / c;
+                delta *= triangleSizeRatio;
+            }
+            else
+                delta *= Speed;
+
+            //Increment the current time with the delta value
+            _currentTime += delta;
+
+            //Is the new current time out of range of the animation?
+            bool greater = _currentTime >= _lengthInSeconds;
+            bool less = _currentTime <= 0.0f;
+            if (greater || less)
+            {
+                //If playing but not looped, end the animation
+                if (_state == EAnimationState.Playing && !_looped)
+                {
+                    //Correct delta and current time for over-progression past the start or end point
+                    if (greater)
+                    {
+                        delta -= _currentTime - _lengthInSeconds;
+                        _currentTime = _lengthInSeconds;
+                    }
+                    else if (less)
+                    {
+                        delta -= _currentTime;
+                        _currentTime = 0.0f;
+                    }
+                    //Progress whatever delta is remaining and then stop
+                    OnProgressed(delta);
+                    OnCurrentTimeChanged();
+                    Stop();
+                    return;
+                }
+                else
+                {
+                    //Remap current time into proper range and correct delta
+                    float remappedCurrentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
+                    delta = remappedCurrentTime - _currentTime;
+                    _currentTime = remappedCurrentTime;
+                }
+            }
+
+            OnProgressed(delta);
+            OnCurrentTimeChanged();
+        }
+
+        protected abstract float GetVelocityMagnitude();
         protected override void OnProgressed(float delta)
         {
             //TODO: assign separate functions to be called by OnProgressed to avoid if statements and returns

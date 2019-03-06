@@ -42,19 +42,21 @@ namespace TheraEditor.Windows.Forms
                 }
 
                 //if (!sameGameMode)
-                ActiveRenderForm.GameMode.EndGameplay();
+                //ActiveRenderForm.GameMode.EndGameplay();
+                ActiveRenderForm.World.CurrentGameMode = null;
             }
             ActiveRenderForm = control;
             if (ActiveRenderForm?.GameMode != null)
             {
                 //if (!sameGameMode)
-                    ActiveRenderForm.GameMode.BeginGameplay();
+                ActiveRenderForm.World.CurrentGameMode = ActiveRenderForm.GameMode;
+                //ActiveRenderForm.GameMode.BeginGameplay();
 
                 int index = (int)control.PlayerIndex;
                 if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
                 {
                     LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
-                    ActiveRenderForm.RenderPanel.GetOrAddViewport(0).RegisterController(c);
+                    ActiveRenderForm.RenderPanel.GetOrAddViewport(control.PlayerIndex).RegisterController(c);
                     c.ControlledPawn = ActiveRenderForm.EditorPawn;
                 }
 

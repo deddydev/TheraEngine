@@ -51,12 +51,12 @@ namespace TheraEngine.Core.Maths.Transforms
         }
         public Vec3(float value)
             : this(value, value, value) { }
-        public Vec3(Vec2 v)
-            : this(v.X, v.Y, 0.0f) { }
-        public Vec3(Vec2 v, float z)
-            : this(v.X, v.Y, z) { }
-        public Vec3(float x, Vec2 v)
-            : this(x, v.X, v.Y) { }
+        public Vec3(Vec2 xy)
+            : this(xy.X, xy.Y, 0.0f) { }
+        public Vec3(Vec2 xy, float z)
+            : this(xy.X, xy.Y, z) { }
+        public Vec3(float x, Vec2 yz)
+            : this(x, yz.X, yz.Y) { }
 
         public Vec3(Vec4 v, bool divideByW)
         {

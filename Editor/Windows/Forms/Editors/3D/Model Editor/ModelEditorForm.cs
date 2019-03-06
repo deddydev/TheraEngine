@@ -276,9 +276,9 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnShown(e);
             //Editor.Instance.SetRenderTicking(false);
-            RenderForm1.RenderPanel.CaptureContext();
             if (World == null)
                 await InitWorldAsync();
+            RenderForm1.RenderPanel.CaptureContext();
             SetRenderTicking(true);
         }
         protected override void OnClosed(EventArgs e)

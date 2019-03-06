@@ -26,6 +26,7 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.Owner = this;
             GameMode = new EditorGameMode();
             GameMode.TargetRenderPanels.Add(RenderPanel);
+
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 MouseTranslateSpeed = 0.02f,
@@ -35,56 +36,23 @@ namespace TheraEditor.Windows.Forms
                 HUD = new EditorUI3D(RenderPanel.ClientSize),
                 Name = $"ModelViewport{(FormIndex + 1).ToString()}_EditorCamera",
             };
+
             Text = $"Model Viewport {(FormIndex + 1).ToString()}";
             RenderPanel.AllowDrop = true;
-            //RenderPanel.GotFocus += RenderPanel_GotFocus;
+            RenderPanel.GotFocus += RenderPanel_GotFocus;
+            RenderPanel.LostFocus += RenderPanel_LostFocus;
         }
-
-        protected override void OnGotFocus(EventArgs e)
+        
+        private void RenderPanel_GotFocus(object sender, EventArgs e)
         {
-            base.OnGotFocus(e);
             Editor.SetActiveEditorControl(this);
-            Form.World.CurrentGameMode = GameMode;
         }
-        protected override void OnLostFocus(EventArgs e)
+        private void RenderPanel_LostFocus(object sender, EventArgs e)
         {
-            base.OnLostFocus(e);
             if (Editor.ActiveRenderForm == this)
-            {
                 Editor.SetActiveEditorControl(null);
-                Form.World.CurrentGameMode = null;
-            }
         }
 
-        //private void RenderPanel_GotFocus(object sender, EventArgs e)
-        //{
-        //    Editor.SetActiveEditorControl(this);
-        //}
-        
-        //private void Engine_WorldPreChanged()
-        //{
-        //    if (Engine.World == null || EditorPawn == null)
-        //    {
-
-        //    }
-        //    else
-        //    {
-        //        Engine.World.DespawnActor(EditorPawn);
-        //    }
-        //}
-        //private void Engine_WorldPostChanged()
-        //{
-        //    if (Engine.World == null || EditorPawn == null)
-        //    {
-        //        Text = string.Format("Model Viewport {0}", (FormIndex + 1).ToString());
-        //    }
-        //    else
-        //    {
-        //        Engine.World.SpawnActor(EditorPawn);
-        //        Text = string.Format("{0} (Model Viewport {1})", Engine.World.Name, (FormIndex + 1).ToString());
-        //    }
-        //}
-        
         public EditorGameMode GameMode { get; set; }
         public ModelEditorForm Form { get; private set; }
         public int FormIndex { get; private set; }

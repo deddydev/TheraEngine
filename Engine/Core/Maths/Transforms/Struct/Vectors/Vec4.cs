@@ -135,6 +135,10 @@ namespace TheraEngine.Core.Maths.Transforms
         public float Length => (float)Sqrt(LengthSquared);
         [Browsable(false)]
         public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
+        
+        public float DistanceTo(Vec4 point) => (point - this).Length;
+        public float DistanceToFast(Vec4 point) => (point - this).LengthFast;
+        public float DistanceToSquared(Vec4 point) => (point - this).LengthSquared;
 
         public void Normalize() { this *= (1.0f / Length); }
         public Vec4 Normalized()

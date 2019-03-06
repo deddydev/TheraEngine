@@ -17,6 +17,14 @@ namespace TheraEngine.Animation
         protected override float[] GetComponents(Vec3 value) => new float[] { value.X, value.Y, value.Z };
         protected override Vec3 GetMaxValue() => new Vec3(float.MaxValue);
         protected override Vec3 GetMinValue() => new Vec3(float.MinValue);
+        protected override float GetVelocityMagnitude()
+        {
+            Vec3 b = CurrentVelocity;
+            float a = 1.0f;
+            Vec4 start = Vec4.Zero;
+            Vec4 end = new Vec4(a, b.X, b.Y, b.Z);
+            return start.DistanceTo(end);
+        }
     }
     public class Vec3Keyframe : VectorKeyframe<Vec3>
     {

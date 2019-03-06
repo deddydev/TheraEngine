@@ -10,28 +10,19 @@ namespace TheraEngine.Animation
             : base(lengthInSeconds, looped, useKeyframes) { }
         public PropAnimFloat(int frameCount, float FPS, bool looped, bool useKeyframes)
             : base(frameCount, FPS, looped, useKeyframes) { }
-
-        //public bool UseConstantVelocity { get; set; } = true;
-        //public float ConstantVelocitySpeed { get; set; } = 1.0f;
-
+        
         protected override float LerpValues(float t1, float t2, float time) => Interp.Lerp(t1, t2, time);
         protected override float[] GetComponents(float value) => new float[] { value };
         protected override float GetMaxValue() => float.MaxValue;
         protected override float GetMinValue() => float.MinValue;
-        //public override void Progress(float delta)
-        //{
-        //    if (UseConstantVelocity)
-        //    {
-        //        float b = CurrentVelocity;
-        //        float a = 1.0f;
-        //        Vec2 start = new Vec2(0.0f, 0.0f);
-        //        Vec2 end = new Vec2(a, b);
-        //        float c = start.DistanceTo(end);
-        //        float triangleSizeRatio = ConstantVelocitySpeed / c;
-        //        Speed = triangleSizeRatio;
-        //    }
-        //    base.Progress(delta);
-        //}
+        protected override float GetVelocityMagnitude()
+        {
+            float b = CurrentVelocity;
+            float a = 1.0f;
+            Vec2 start = new Vec2(0.0f, 0.0f);
+            Vec2 end = new Vec2(a, b);
+            return start.DistanceTo(end);
+        }
     }
     public class FloatKeyframe : VectorKeyframe<float>
     {
@@ -56,16 +47,16 @@ namespace TheraEngine.Animation
         public override float CubicBezier(VectorKeyframe<float> next, float diff, float span)
             => Interp.CubicBezier(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
         public override float CubicBezierVelocity(VectorKeyframe<float> next, float diff, float span)
-            => Interp.CubicBezierVelocity(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicBezierVelocity(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span) / span;
         public override float CubicBezierAcceleration(VectorKeyframe<float> next, float diff, float span)
-            => Interp.CubicBezierAcceleration(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicBezierAcceleration(OutValue, OutValue + OutTangent * span * span, next.InValue + next.InTangent * span * span, next.InValue, diff / span) / (span * span);
         
         public override float CubicHermite(VectorKeyframe<float> next, float diff, float span)
             => Interp.CubicHermite(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
         public override float CubicHermiteVelocity(VectorKeyframe<float> next, float diff, float span)
-            => Interp.CubicHermiteVelocity(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicHermiteVelocity(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span) / span;
         public override float CubicHermiteAcceleration(VectorKeyframe<float> next, float diff, float span)
-            => Interp.CubicHermiteAcceleration(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
+            => Interp.CubicHermiteAcceleration(OutValue, OutTangent * span * span, -next.InTangent * span * span, next.InValue, diff / span) / (span * span);
         
         public override string WriteToString()
             => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using TheraEngine.Core.Maths;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes;
@@ -17,6 +18,48 @@ namespace TheraEngine.Animation
         protected override float[] GetComponents(Vec4 value) => new float[] { value.X, value.Y, value.Z, value.W };
         protected override Vec4 GetMaxValue() => new Vec4(float.MaxValue);
         protected override Vec4 GetMinValue() => new Vec4(float.MinValue);
+        protected override float GetVelocityMagnitude()
+        {
+            Vec4 b = CurrentVelocity;
+            float a = 1.0f;
+            Vec5 start = Vec5.Zero;
+            Vec5 end = new Vec5(a, b.X, b.Y, b.Z, b.W);
+            return start.DistanceTo(end);
+        }
+        private struct Vec5
+        {
+            public float X, Y, Z, U, V;
+
+            public static readonly Vec5 Zero = new Vec5();
+
+            public Vec5(float x, float y, float z, float u, float v)
+            {
+                X = x;
+                Y = y;
+                Z = z;
+                U = u;
+                V = v;
+            }
+
+            [Browsable(false)]
+            public float LengthSquared => X * X + Y * Y + Z * Z + U * U + V * V;
+            [Browsable(false)]
+            public float Length => (float)Math.Sqrt(LengthSquared);
+            [Browsable(false)]
+            public float LengthFast => 1.0f / TMath.InverseSqrtFast(LengthSquared);
+
+            public float DistanceTo(Vec5 point) => (point - this).Length;
+            public float DistanceToFast(Vec5 point) => (point - this).LengthFast;
+            public float DistanceToSquared(Vec5 point) => (point - this).LengthSquared;
+
+            public static Vec5 operator -(Vec5 left, Vec5 right)
+                => new Vec5(
+                    left.X - right.X,
+                    left.Y - right.Y,
+                    left.Z - right.Z,
+                    left.U - right.U,
+                    left.V - right.V);
+        }
     }
     public class Vec4Keyframe : VectorKeyframe<Vec4>
     {

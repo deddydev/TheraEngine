@@ -29,13 +29,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DockablePropAnimFloatGraph));
             this.RenderPanel = new TheraEditor.Windows.Forms.PropAnimFloatGraphRenderPanel();
             this.dockingHostToolStripPanel1 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
             this.tearOffToolStrip1 = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.btnZoomExtents = new System.Windows.Forms.ToolStripButton();
             this.chkAutoTangents = new System.Windows.Forms.ToolStripButton();
-            this.chkSnapToIncrement = new System.Windows.Forms.ToolStripButton();
+            this.chkSnapToUnits = new System.Windows.Forms.ToolStripButton();
             this.dockingHostToolStripPanel1.SuspendLayout();
             this.tearOffToolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -67,12 +66,13 @@
             this.tearOffToolStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.tearOffToolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnZoomExtents,
-            this.chkAutoTangents});
+            this.chkAutoTangents,
+            this.chkSnapToUnits});
             this.tearOffToolStrip1.LeftToolStripPanel = null;
             this.tearOffToolStrip1.Location = new System.Drawing.Point(3, 0);
             this.tearOffToolStrip1.Name = "tearOffToolStrip1";
             this.tearOffToolStrip1.RightToolStripPanel = null;
-            this.tearOffToolStrip1.Size = new System.Drawing.Size(214, 25);
+            this.tearOffToolStrip1.Size = new System.Drawing.Size(293, 25);
             this.tearOffToolStrip1.TabIndex = 2;
             this.tearOffToolStrip1.Text = "tearOffToolStrip1";
             this.tearOffToolStrip1.TopToolStripPanel = null;
@@ -80,7 +80,7 @@
             // btnZoomExtents
             // 
             this.btnZoomExtents.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnZoomExtents.Image = ((System.Drawing.Image)(resources.GetObject("btnZoomExtents.Image")));
+            this.btnZoomExtents.ForeColor = System.Drawing.Color.White;
             this.btnZoomExtents.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnZoomExtents.Name = "btnZoomExtents";
             this.btnZoomExtents.Size = new System.Drawing.Size(83, 22);
@@ -90,22 +90,22 @@
             // chkAutoTangents
             // 
             this.chkAutoTangents.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.chkAutoTangents.Image = ((System.Drawing.Image)(resources.GetObject("chkAutoTangents.Image")));
+            this.chkAutoTangents.ForeColor = System.Drawing.Color.White;
             this.chkAutoTangents.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.chkAutoTangents.Name = "chkAutoTangents";
             this.chkAutoTangents.Size = new System.Drawing.Size(88, 22);
             this.chkAutoTangents.Text = "Auto Tangents";
             this.chkAutoTangents.Click += new System.EventHandler(this.chkAutoTangents_Click);
             // 
-            // chkSnapToIncrement
+            // chkSnapToUnits
             // 
-            this.chkSnapToIncrement.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            //this.chkSnapToIncrement.Image = ((System.Drawing.Image)(resources.GetObject("chkAutoTangents.Image")));
-            this.chkSnapToIncrement.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.chkSnapToIncrement.Name = "chkSnapToIncrement";
-            this.chkSnapToIncrement.Size = new System.Drawing.Size(88, 22);
-            this.chkSnapToIncrement.Text = "Snap To Increment";
-            this.chkSnapToIncrement.Click += new System.EventHandler(this.chkSnapToIncrement_Click);
+            this.chkSnapToUnits.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.chkSnapToUnits.ForeColor = System.Drawing.Color.White;
+            this.chkSnapToUnits.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.chkSnapToUnits.Name = "chkSnapToUnits";
+            this.chkSnapToUnits.Size = new System.Drawing.Size(110, 22);
+            this.chkSnapToUnits.Text = "Snap To Increment";
+            this.chkSnapToUnits.Click += new System.EventHandler(this.chkSnapToUnits_Click);
             // 
             // DockablePropAnimFloatGraph
             // 
@@ -136,6 +136,6 @@
         private TearOffToolStrip tearOffToolStrip1;
         private System.Windows.Forms.ToolStripButton btnZoomExtents;
         private System.Windows.Forms.ToolStripButton chkAutoTangents;
-        private System.Windows.Forms.ToolStripButton chkSnapToIncrement;
+        private System.Windows.Forms.ToolStripButton chkSnapToUnits;
     }
 }

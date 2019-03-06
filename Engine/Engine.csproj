@@ -1008,7 +1008,7 @@
     <Compile Include="Components\Scene\Lights\PointLightComponent.cs" />
     <Compile Include="Components\Scene\Lights\DirectionalLightComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\PositionLag.cs" />
-    <Compile Include="Components\Scene\SplineComponent.cs" />
+    <Compile Include="Components\Scene\Spline3DComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoisePosition.cs" />
     <Compile Include="Components\Scene\Transforms\R.cs" />
     <Compile Include="Components\Scene\Transforms\RT.cs" />

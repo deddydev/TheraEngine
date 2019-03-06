@@ -142,7 +142,7 @@ namespace TheraEngine.Rendering
             OwningPanel = panel;
             Index = index;
             _ssaoInfo.Generate();
-            PrecomputeBRDF();
+            //PrecomputeBRDF();
             Resize(panel.Width, panel.Height);
         }
         public Viewport(int width, int height)
@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering
             Index = 0;
             SetFullScreen();
             _ssaoInfo.Generate();
-            PrecomputeBRDF();
+            //PrecomputeBRDF();
             Resize(width, height);
         }
 
@@ -751,6 +751,7 @@ namespace TheraEngine.Rendering
                     new Vec3(-1.0f, 1.0f, -0.5f),
                     false, false).ToTriangles());
             PrimitiveManager quad = new PrimitiveManager(data, mat);
+            quad.GenerateSafe();
 
             BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
             

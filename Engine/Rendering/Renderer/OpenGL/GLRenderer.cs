@@ -291,6 +291,11 @@ namespace TheraEngine.Rendering.OpenGL
         public override void ActiveShaderProgram(int pipelineBindingId, int programBindingId)
             => GL.ActiveShaderProgram(pipelineBindingId, programBindingId);
 
+        /// <summary>
+        /// Generates a new shader program.
+        /// </summary>
+        /// <param name="separable">If true, this program will be usable in a program pipeline.</param>
+        /// <returns></returns>
         [MinGLVersion(EOpenGLVersion.Ver_4_1)]
         public override int GenerateProgram(bool separable)
         {

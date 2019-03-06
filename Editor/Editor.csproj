@@ -656,9 +656,7 @@
       <DependentUpon>MinMaxControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\Forms\Property Grid\MinMaxEditor.cs" />
-    <Compile Include="Windows\Forms\Property Grid\PropGridCategory.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="Windows\Forms\Property Grid\PropGridCategory.cs" />
     <Compile Include="Windows\Forms\Property Grid\PropGridCategory.Designer.cs">
       <DependentUpon>PropGridCategory.cs</DependentUpon>
     </Compile>
@@ -845,6 +843,9 @@
     <Compile Include="Windows\Forms\Property Grid\TheraPropertyGrid.Designer.cs">
       <DependentUpon>TheraPropertyGrid.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Windows\Forms\Editors\2D\Property Animation\Float\DockablePropAnimFloatGraph.resx">
+      <DependentUpon>DockablePropAnimFloatGraph.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editors\2D\Property Animation\Int\DockablePropAnimIntGraph.resx">
       <DependentUpon>DockablePropAnimIntGraph.cs</DependentUpon>
     </EmbeddedResource>
@@ -874,9 +875,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editors\3D\Model Editor\Materials\MaterialControlOld.resx">
       <DependentUpon>MaterialControlOld.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editors\2D\Property Animation\Float\DockablePropAnimFloatGraph.resx">
-      <DependentUpon>DockablePropAnimFloatGraph.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.resx">
       <DependentUpon>PropGridEvent.cs</DependentUpon>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -304,7 +305,14 @@ namespace TheraEngine
             UpdateScreenLocation(this, e);
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Point ScreenLocation { get; private set; }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public List<ELocalPlayerIndex> ValidPlayerIndices { get; set; } = new List<ELocalPlayerIndex>()
         {
             ELocalPlayerIndex.One,
@@ -312,6 +320,10 @@ namespace TheraEngine
             ELocalPlayerIndex.Three,
             ELocalPlayerIndex.Four,
         };
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Dictionary<ELocalPlayerIndex, Viewport> Viewports { get; set; } = new Dictionary<ELocalPlayerIndex, Viewport>();
 
         #endregion
@@ -470,11 +482,17 @@ namespace TheraEngine
             Engine.PrintLine("Added new viewport to {0}: {1}", GetType().GetFriendlyName(), newViewport.Index);
 
             //Fix the regions of the rest of the viewports
+            var twoPlayerPref = Engine.Game?.TwoPlayerPref ?? Viewport.ETwoPlayerPreference.SplitHorizontally;
+            var threePlayerPref = Engine.Game?.ThreePlayerPref ?? Viewport.EThreePlayerPreference.PreferFirstPlayer;
             int i = 0;
             foreach (Viewport p in Viewports.Values)
             {
-                p.ViewportCountChanged(i++, Viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
-                p.Resize(Width, Height);
+                if (p != null)
+                {
+                    p.ViewportCountChanged(i, Viewports.Count, twoPlayerPref, threePlayerPref);
+                    p.Resize(Width, Height);
+                }
+                ++i;
             }
 
             return newViewport;

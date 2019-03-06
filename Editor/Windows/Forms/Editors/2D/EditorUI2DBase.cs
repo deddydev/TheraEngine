@@ -382,10 +382,10 @@ namespace TheraEditor.Windows.Forms
             input.RegisterButtonEvent(EMouseButton.RightClick,  EButtonInputType.Pressed,   OnRightClickPressed, EInputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.RightClick,  EButtonInputType.Released,  OnRightClickReleased,   EInputPauseType.TickAlways);
 
-            input.RegisterKeyPressed(EKey.Left, MoveLeft, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.Down, MoveDown, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.Right, MoveRight, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.Up, MoveUp, EInputPauseType.TickAlways);
+            //input.RegisterKeyPressed(EKey.Left, MoveLeft, EInputPauseType.TickAlways);
+            //input.RegisterKeyPressed(EKey.Down, MoveDown, EInputPauseType.TickAlways);
+            //input.RegisterKeyPressed(EKey.Right, MoveRight, EInputPauseType.TickAlways);
+            //input.RegisterKeyPressed(EKey.Up, MoveUp, EInputPauseType.TickAlways);
 
             input.RegisterKeyPressed(EKey.A, MoveLeft, EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.S, MoveDown, EInputPauseType.TickAlways);
@@ -411,7 +411,7 @@ namespace TheraEditor.Windows.Forms
         public Vec2 CursorDiffTransformRelative()
                => Vec3.TransformPosition(GetWorldCursorDiff(CursorPosition()), BaseTransformComponent.InverseWorldMatrix).Xy;
 
-        private void UpdateInputTick()
+        protected void UpdateInputTick()
         {
             bool should = ShouldTickInput;
             if (should != _ticking)

@@ -24,8 +24,8 @@ namespace TheraEngine.Rendering
             Clear(bounds);
 
             Renderables = new EventList<I2DRenderable>();
-            Renderables.PostAnythingAdded += Renderables_PostAnythingAdded;
-            Renderables.PostAnythingRemoved += Renderables_PostAnythingRemoved;
+            //Renderables.PostAnythingAdded += Renderables_PostAnythingAdded;
+            //Renderables.PostAnythingRemoved += Renderables_PostAnythingRemoved;
         }
 
         private void Renderables_PostAnythingAdded(I2DRenderable item) => RenderTree.Add(item);

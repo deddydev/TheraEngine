@@ -14,10 +14,28 @@ namespace TheraEditor.Windows.Forms
         where PawnType : BaseActor, IUserInterface, new()
         where ControllerType : LocalPlayerController
     {
-        public IUIRenderPanel RenderPanel { get; set; }
+        private IUIRenderPanel _renderPanel;
+        public IUIRenderPanel RenderPanel
+        {
+            get => _renderPanel;
+            set
+            {
+                _renderPanel = value;
+                TargetRenderPanels.Clear();
+                if (_renderPanel is BaseRenderPanel renderPanel)
+                    TargetRenderPanels.Add(renderPanel);
+            }
+        }
         protected override void HandleLocalPlayerJoined(ControllerType item)
         {
-            RenderPanel.GetOrAddViewport(0)?.RegisterController(item);
+            if (RenderPanel == null)
+            {
+                Engine.LogWarning($"No UI render panel set.");
+                return;
+            }
+
+            RenderPanel.GetOrAddViewport(item.LocalPlayerIndex)?.RegisterController(item);
+
             item.EnqueuePosession(RenderPanel.UI);
             item.Viewport.HUD = RenderPanel.UI;
             item.ViewportCamera = RenderPanel.UI.ScreenOverlayCamera;

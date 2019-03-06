@@ -646,7 +646,7 @@ namespace TheraEngine.Animation
             //    OwningTrack.LengthInSeconds = key.Second;
             
             key.Remove(key.OwningTrack != OwningTrack);
-            key.Second = key.Second.RemapToRange(0.0f, OwningTrack.LengthInSeconds);
+            key.Second = key.Second.RemapToRange(0.0f, OwningTrack.LengthInSeconds + 0.0001f);
 
             //Second is within this keyframe and the next?
             if (key.Second >= Second)

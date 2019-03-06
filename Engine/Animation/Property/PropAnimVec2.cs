@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Core.Maths;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Animation
@@ -16,6 +17,14 @@ namespace TheraEngine.Animation
         protected override float[] GetComponents(Vec2 value) => new float[] { value.X, value.Y };
         protected override Vec2 GetMaxValue() => new Vec2(float.MaxValue);
         protected override Vec2 GetMinValue() => new Vec2(float.MinValue);
+        protected override float GetVelocityMagnitude()
+        {
+            Vec2 b = CurrentVelocity;
+            float a = 1.0f;
+            Vec3 start = Vec3.Zero;
+            Vec3 end = new Vec3(a, b);
+            return start.DistanceTo(end);
+        }
     }
     public class Vec2Keyframe : VectorKeyframe<Vec2>
     {

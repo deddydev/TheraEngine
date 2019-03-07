@@ -17,7 +17,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override void OnDragDrop(DragEventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
-            bool copy = (e.KeyState & (int)KeyStateFlags.Ctrl) != 0;
+            bool copy = (e.KeyState & (int)EKeyStateFlags.Ctrl) != 0;
             if (e.Effect != DragDropEffects.None)
             {
                 IFileRef r = _object as IFileRef;

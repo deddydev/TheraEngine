@@ -2,7 +2,6 @@
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -11,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Core;
 using TheraEditor.Properties;
@@ -27,7 +25,7 @@ namespace TheraEditor.Windows.Forms
     }
 
     [Flags]
-    public enum KeyStateFlags : int
+    public enum EKeyStateFlags : int
     {
         LeftMouse   = 0b000001,
         RightMouse  = 0b000010,
@@ -108,28 +106,18 @@ namespace TheraEditor.Windows.Forms
             }
         }
         
-        private ConcurrentDictionary<string, int> _savingOperations = new ConcurrentDictionary<string, int>();
-        public void BeginFileSaveWithProgress(string filePath, string statusBarMessage, out Progress<float> progress, out CancellationTokenSource cancel)
-        {
-            WatchProjectDirectory = false;
-            int op = Editor.Instance.BeginOperation(statusBarMessage, out progress, out cancel);
-            _savingOperations.AddOrUpdate(filePath, op, (key, val) => val);
-        }
-        public void BeginFileSave(string filePath)
-        {
-            WatchProjectDirectory = false;
-            int op = -1;
-            _savingOperations.AddOrUpdate(filePath, op, (key, val) => val);
-        }
-        public void EndFileSave(string filePath)
-        {
-            _savingOperations.TryRemove(filePath, out int op);
-            if (op >= 0)
-                Editor.Instance.EndOperation(op);
-            WatchProjectDirectory = true;
-            BaseWrapper bw = FindOrCreatePath(filePath);
-            bw?.EnsureVisible();
-        }
+        //internal void BeginFileSave(string filePath, int op)
+        //{
+        //    //WatchProjectDirectory = false;
+        //    _savingOperations.AddOrUpdate(filePath, op, (key, val) => val);
+        //}
+        //internal void EndFileSave(string filePath)
+        //{
+        //    _savingOperations.TryRemove(filePath, out int op);
+        //    //WatchProjectDirectory = true;
+        //    //BaseWrapper bw = FindOrCreatePath(filePath);
+        //    //bw?.EnsureVisible();
+        //}
 
         public ResourceTree()
         {
@@ -769,7 +757,7 @@ namespace TheraEditor.Windows.Forms
 
         private BaseWrapper _dropNode = null;
         private BaseWrapper _previousDropNode = null;
-        private System.Windows.Forms.Timer _dragTimer = new System.Windows.Forms.Timer();
+        private Timer _dragTimer = new Timer();
         private ImageList _draggingImageList = new ImageList();
         
         private void TreeView_ItemDrag(object sender, ItemDragEventArgs e)
@@ -867,7 +855,7 @@ namespace TheraEditor.Windows.Forms
                 tmpNode = tmpNode.Parent;
             }
 
-            bool ctrl = (e.KeyState & (int)KeyStateFlags.Ctrl) != 0;
+            bool ctrl = (e.KeyState & (int)EKeyStateFlags.Ctrl) != 0;
             e.Effect = ctrl ? DragDropEffects.Copy : DragDropEffects.Move;
 
             if (_previousDropNode != _dropNode)
@@ -881,7 +869,7 @@ namespace TheraEditor.Windows.Forms
         private void TreeView1_DragDrop(object sender, DragEventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
-            bool copy = (e.KeyState & (int)KeyStateFlags.Ctrl) != 0;
+            bool copy = (e.KeyState & (int)EKeyStateFlags.Ctrl) != 0;
             if (_dropNode != null && e.Effect != DragDropEffects.None)
             {
                 if (e.Data.GetData(DataFormats.FileDrop) is string[] paths)

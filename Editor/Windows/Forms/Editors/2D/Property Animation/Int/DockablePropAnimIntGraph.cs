@@ -89,7 +89,7 @@ namespace TheraEditor.Windows.Forms
         private void chkSnapToIncrement_Click(object sender, EventArgs e)
         {
             chkSnapToIncrement.Checked = !chkSnapToIncrement.Checked;
-            RenderPanel.UI.SnapToIncrement = chkSnapToIncrement.Checked;
+            RenderPanel.UI.SnapToUnits = chkSnapToIncrement.Checked;
         }
     }
     public class PropAnimIntPlayerController : LocalPlayerController

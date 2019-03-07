@@ -785,7 +785,7 @@ void main()
                         if (kf.Value.DraggingInValue || kf.Value.DraggingOutValue)
                         {
                             float sec = pos.X + kf.Value.SecondOffset;
-                            if (SnapToIncrement)
+                            if (SnapToUnits)
                                 sec = sec.RoundToNearestMultiple(UnitIncrement);
                             kf.Value.Keyframe.Second = sec;
 
@@ -825,7 +825,7 @@ void main()
                             if (kf.Value.DraggingInValue)
                             {
                                 float inPos = pos.Y + kf.Value.InValueOffset;
-                                if (SnapToIncrement)
+                                if (SnapToUnits)
                                     inPos = inPos.RoundToNearestMultiple(UnitIncrement);
                                 kf.Value.Keyframe.InValue = inPos;
                                 if (AutoGenerateTangents)
@@ -836,7 +836,7 @@ void main()
                             if (kf.Value.DraggingOutValue)
                             {
                                 float outPos = pos.Y + kf.Value.OutValueOffset;
-                                if (SnapToIncrement)
+                                if (SnapToUnits)
                                     outPos = outPos.RoundToNearestMultiple(UnitIncrement);
                                 kf.Value.Keyframe.OutValue = outPos;
                                 if (AutoGenerateTangents)
@@ -858,14 +858,14 @@ void main()
                             if (kf.Value.DraggingInTangent)
                             {
                                 float inPos = pos.Y + kf.Value.InValueOffset;
-                                if (SnapToIncrement)
+                                if (SnapToUnits)
                                     inPos = inPos.RoundToNearestMultiple(UnitIncrement);
                                 kf.Value.Keyframe.InTangent = inPos;
                             }
                             if (kf.Value.DraggingOutTangent)
                             {
                                 float outPos = pos.Y + kf.Value.OutValueOffset;
-                                if (SnapToIncrement)
+                                if (SnapToUnits)
                                     outPos = outPos.RoundToNearestMultiple(UnitIncrement);
                                 kf.Value.Keyframe.OutTangent = outPos;
                             }
@@ -878,7 +878,7 @@ void main()
                 foreach (var kf in _draggedKeyframes)
                 {
                     float kfSec = pos.X + kf.Value.SecondOffset;
-                    if (SnapToIncrement)
+                    if (SnapToUnits)
                         kfSec = kfSec.RoundToNearestMultiple(UnitIncrement);
 
                     if (kf.Value.DraggingInValue || kf.Value.DraggingOutValue)
@@ -898,7 +898,7 @@ void main()
                         if (kf.Value.DraggingInValue)
                         {
                             float inPos = pos.Y + kf.Value.InValueOffset;
-                            if (SnapToIncrement)
+                            if (SnapToUnits)
                                 inPos = inPos.RoundToNearestMultiple(UnitIncrement);
                             kf.Value.Keyframe.InValue = inPos;
                             if (AutoGenerateTangents)
@@ -909,7 +909,7 @@ void main()
                         if (kf.Value.DraggingOutValue)
                         {
                             float outPos = pos.Y + kf.Value.OutValueOffset;
-                            if (SnapToIncrement)
+                            if (SnapToUnits)
                                 outPos = outPos.RoundToNearestMultiple(UnitIncrement);
                             kf.Value.Keyframe.OutValue = outPos;
                             if (AutoGenerateTangents)
@@ -933,7 +933,7 @@ void main()
                         if (kf.Value.DraggingInTangent)
                         {
                             float posY = pos.Y/* + kf.Value.InValueOffset*/;
-                            if (SnapToIncrement)
+                            if (SnapToUnits)
                                 posY = posY.RoundToNearestMultiple(UnitIncrement);
 
                             //m = y / x
@@ -945,7 +945,7 @@ void main()
                         {
                             float posY = pos.Y/* + kf.Value.OutValueOffset*/;
                             
-                            if (SnapToIncrement)
+                            if (SnapToUnits)
                                 posY = posY.RoundToNearestMultiple(UnitIncrement);
                             
                             kf.Value.Keyframe.OutTangent = (posY - kf.Value.OutValueInitial) / (pos.X - kf.Value.SecondInitial);

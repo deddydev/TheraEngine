@@ -48,6 +48,13 @@ namespace TheraEngine.Animation
         private TValue[] _baked = null;
 
         /// <summary>
+        /// If true, speed calculated relative to the current tangent rather than multiplied directly with the current velocity (change in position).
+        /// </summary>
+        [Description("If true, speed calculated relative to the current tangent rather than multiplied directly with the current velocity (change in position).")]
+        [TSerialize]
+        [Category(VectorAnimCategory)]
+        public bool UseTangentRelativeSpeed { get; set; } = false;
+        /// <summary>
         /// The default value to return when no keyframes are set.
         /// </summary>
         [TNumericPrefixSuffix(null, " m")]
@@ -260,11 +267,9 @@ namespace TheraEngine.Animation
             }
         }
 
-        [Category(VectorAnimCategory)]
-        public bool UseConstantVelocity { get; set; } = false;
         public override void Progress(float delta)
         {
-            if (UseConstantVelocity)
+            if (UseTangentRelativeSpeed)
             {
                 float c = GetVelocityMagnitude();
                 float triangleSizeRatio = Speed / c;

@@ -888,11 +888,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
             }
 
-            editor.ContentTree.WatchProjectDirectory = false;
+            //editor.ContentTree.WatchProjectDirectory = false;
             int op = editor.BeginOperation($"Saving {file.FilePath}", out Progress<float> progress, out CancellationTokenSource cancel);
             await file.ExportAsync(ESerializeFlags.Default, progress, cancel.Token);
             editor.EndOperation(op);
-            editor.ContentTree.WatchProjectDirectory = true;
+            //editor.ContentTree.WatchProjectDirectory = true;
 
             //if (TargetFileObject.References.Count == 1)
             //{

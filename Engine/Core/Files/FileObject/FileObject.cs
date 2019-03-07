@@ -1,5 +1,6 @@
 ﻿using SevenZip;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -297,6 +298,7 @@ namespace TheraEngine.Core.Files
                 directory, fileName, flags, progress, cancel,
                 endian, encrypted, compressed, encryptionPassword, compressionProgress);
         
+        public static ConcurrentHashSet<string> ExportingPaths = new ConcurrentHashSet<string>();
         public async Task Export3rdPartyAsync(
             string directory,
             string fileName,
@@ -338,6 +340,7 @@ namespace TheraEngine.Core.Files
 
             FilePath = directory + fileName + "." + thirdPartyExt;
 
+            ExportingPaths.Add(FilePath);
             Delegate exporter = Get3rdPartyExporter(GetType(), thirdPartyExt);
             if (exporter != null)
             {
@@ -362,6 +365,7 @@ namespace TheraEngine.Core.Files
                     ManualWrite3rdParty(FilePath);
             }
             Engine.PrintLine($"Saved {thirdPartyExt} file to {FilePath}");
+            ExportingPaths.TryRemove(FilePath);
         }
 
         #region Manual Read/Write

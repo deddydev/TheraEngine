@@ -274,7 +274,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         public void UpdateDisplay()
         {
-            if (IsEditing || MemberInfo == null || !ParentCategory.Visible || !ParentCategory.tblProps.Visible)
+            if (IsEditing || MemberInfo == null || (ParentCategory != null && (!ParentCategory.Visible || !ParentCategory.tblProps.Visible)))
                 return;
 
             _updating = true;

@@ -15,6 +15,9 @@ namespace TheraEngine
         IUserInterface UI { get; }
         World World { get; }
         IUIGameMode GameMode { get; }
+
+        void FormShown();
+        void FormClosed();
     }
     public class UIRenderPanel<UIPawnType, UIGameModeType, UIControllerType> : RenderPanel<Scene2D>, IUIRenderPanel 
         where UIPawnType : BaseActor, IUserInterface, new()

@@ -937,9 +937,9 @@ namespace TheraEditor.Windows.Forms
         }
         private async void SaveFile(TFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
         {
-            ContentTree.BeginFileSaveWithProgress(filePath, "Saving file...", out Progress<float> progress, out CancellationTokenSource cancel);
+            int op = BeginOperation("Saving file...", out Progress<float> progress, out CancellationTokenSource cancel);
             await file.ExportAsync(filePath, flags, progress, cancel.Token);
-            ContentTree.EndFileSave(filePath);
+            EndOperation(op);
         }
     }
     public class DockableFormInstance<T> where T : DockContent, new()

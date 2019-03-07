@@ -64,7 +64,7 @@ namespace TheraEditor.Windows.Forms
         [TSerialize]
         public float ZoomScrollIncrement { get; set; } = 0.05f;
         [TSerialize]
-        public bool SnapToIncrement { get; set; } = false;
+        public bool SnapToUnits { get; set; } = false;
 
         protected bool CtrlDown { get; private set; } = false;
         protected bool ShiftDown { get; private set; } = false;
@@ -232,6 +232,7 @@ namespace TheraEditor.Windows.Forms
         {
             base.Resize(bounds);
             UpdateBackgroundMaterial();
+            //TODO: zoom extents of the previous bounds with no scale instead of the target's bounds
             ZoomExtents(false);
         }
         public void UpdateLineIncrement()
@@ -278,7 +279,7 @@ namespace TheraEditor.Windows.Forms
                 inc *= (float)Math.Pow(invMax, mults);
 
             inc /= MaxIncrementExclusive;
-            //inc *= 0.5f; //half the result
+            inc *= 0.5f; //half the result
             if (inc != UnitIncrement)
                 UnitIncrement = inc;
         }
@@ -466,7 +467,7 @@ namespace TheraEditor.Windows.Forms
             UpdateInputTick();
         }
 
-        private void ToggleSnap() => SnapToIncrement = !SnapToIncrement;
+        private void ToggleSnap() => SnapToUnits = !SnapToUnits;
         
         protected virtual void OnCtrlPressed(bool pressed) => CtrlDown = pressed;
         protected virtual void OnShiftPressed(bool pressed) => ShiftDown = pressed;

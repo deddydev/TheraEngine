@@ -49,14 +49,14 @@ namespace TheraEngine.Animation
         public override float CubicBezierVelocity(VectorKeyframe<float> next, float diff, float span)
             => Interp.CubicBezierVelocity(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span) / span;
         public override float CubicBezierAcceleration(VectorKeyframe<float> next, float diff, float span)
-            => Interp.CubicBezierAcceleration(OutValue, OutValue + OutTangent * span * span, next.InValue + next.InTangent * span * span, next.InValue, diff / span) / (span * span);
+            => Interp.CubicBezierAcceleration(OutValue, OutValue + OutTangent * span, next.InValue + next.InTangent * span, next.InValue, diff / span) / (span * span);
         
         public override float CubicHermite(VectorKeyframe<float> next, float diff, float span)
             => Interp.CubicHermite(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span);
         public override float CubicHermiteVelocity(VectorKeyframe<float> next, float diff, float span)
             => Interp.CubicHermiteVelocity(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span) / span;
         public override float CubicHermiteAcceleration(VectorKeyframe<float> next, float diff, float span)
-            => Interp.CubicHermiteAcceleration(OutValue, OutTangent * span * span, -next.InTangent * span * span, next.InValue, diff / span) / (span * span);
+            => Interp.CubicHermiteAcceleration(OutValue, OutTangent * span, -next.InTangent * span, next.InValue, diff / span) / (span * span);
         
         public override string WriteToString()
             => string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.ToString(), OutValue.ToString(), InTangent.ToString(), OutTangent.ToString(), InterpolationType);

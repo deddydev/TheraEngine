@@ -289,7 +289,7 @@ namespace TheraEditor.Wrappers
                     return;
 
                 string name = Path.GetFileNameWithoutExtension(ofd.FileName);
-                ResourceTree tree = Editor.Instance.ContentTree;
+                //ResourceTree tree = Editor.Instance.ContentTree;
                 string path = ofd.FileName;
                         
                 int op = Editor.Instance.BeginOperation($"Importing '{path}'...", out Progress<float> progress, out CancellationTokenSource cancel);
@@ -306,9 +306,9 @@ namespace TheraEditor.Wrappers
                     return;
 
                 Serializer serializer = new Serializer();
-                tree.BeginFileSaveWithProgress(filePath, $"Saving...", out progress, out cancel);
+                op = Editor.Instance.BeginOperation($"Saving...", out progress, out cancel);
                 await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
-                tree.EndFileSave(filePath);
+                Editor.Instance.EndOperation(op);
             }
         }
         public static string GetFolderPath() => GetInstance<FolderWrapper>().FilePath;
@@ -327,10 +327,9 @@ namespace TheraEditor.Wrappers
             //Node will automatically be added to the file tree
             if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
             {
-                Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Exporting...", 
-                    out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Editor.Instance.BeginOperation("Exporting...", out Progress<float> progress, out CancellationTokenSource cancel);
                 await Serializer.ExportXMLAsync(file, dir, file.Name, ESerializeFlags.Default, progress, cancel.Token);
-                Editor.Instance.ContentTree.EndFileSave(path);
+                Editor.Instance.EndOperation(op);
             }
         }
         private async void NewCodeFile(ECodeFileType type)
@@ -346,9 +345,9 @@ namespace TheraEditor.Wrappers
 
             string name = "NewCodeFile";
             string path = Path.Combine(dir, name + ".cs");
-            Editor.Instance.ContentTree.BeginFileSaveWithProgress(path, "Saving script...", out Progress<float> progress, out CancellationTokenSource cancel);
+            int op = Editor.Instance.BeginOperation("Saving script...", out Progress<float> progress, out CancellationTokenSource cancel);
             await code.Export3rdPartyAsync(dir, "NewCodeFile", "cs", progress, cancel.Token);
-            Editor.Instance.ContentTree.EndFileSave(path);
+            Editor.Instance.EndOperation(op);
         }
         #endregion
 

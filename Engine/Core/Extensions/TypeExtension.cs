@@ -59,9 +59,9 @@ namespace System
             else if (type.IsArray)
                 return GetFriendlyName(type.GetElementType(), translations, openBracket, closeBracket) + "[]";
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                return type.GetGenericArguments()[0].GetFriendlyName() + "?";
+                return GetFriendlyName(type.GetGenericArguments()[0], translations, openBracket, closeBracket) + "?";
             else if (type.IsGenericType)
-                return type.Name.Split('`')[0] + openBracket + string.Join(", ", type.GetGenericArguments().Select(x => GetFriendlyName(x))) + closeBracket;
+                return type.Name.Split('`')[0] + openBracket + string.Join(", ", type.GetGenericArguments().Select(x => GetFriendlyName(x, translations, openBracket, closeBracket))) + closeBracket;
             else
                 return type.Name;
         }

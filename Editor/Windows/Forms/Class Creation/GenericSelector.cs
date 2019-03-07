@@ -61,6 +61,25 @@ namespace TheraEditor.Windows.Forms
                 string genericName = genArg.Name;
                 bool hasTC = tcf != TypeConstraintFlag.None;
                 bool hasBT = baseType != null;
+                var interfaces = genArg.GetInterfaces().ToList();
+                for (int x = 0; x < interfaces.Count; ++x)
+                {
+                    Type t = interfaces[x];
+                    if (baseType != null && t.IsAssignableFrom(baseType))
+                    {
+                        interfaces.RemoveAt(x--);
+                        continue;
+                    }
+                    for (int j = x + 1; j < interfaces.Count; j++)
+                    {
+                        Type t2 = interfaces[j];
+                        if (t.IsAssignableFrom(t2))
+                        {
+                            interfaces.RemoveAt(x--);
+                            break;
+                        }
+                    }
+                }
 
                 if (hasBT || gvf != GenericVarianceFlag.None || hasTC)
                 {
@@ -68,10 +87,21 @@ namespace TheraEditor.Windows.Forms
                     if (hasBT)
                     {
                         genericName += baseType.GetFriendlyName();
+                        if (interfaces.Count > 0)
+                            genericName += ", ";
+                    }
+                    bool first = true;
+                    foreach (Type iType in interfaces)
+                    {
+                        if (first)
+                            first = false;
+                        else
+                            genericName += ", ";
+                        genericName += iType.GetFriendlyName();
                     }
                     if (hasTC)
                     {
-                        if (hasBT)
+                        if (hasBT || interfaces.Count > 0)
                             genericName += ", ";
                         switch (tcf)
                         {
@@ -116,9 +146,11 @@ namespace TheraEditor.Windows.Forms
                 bool test(Type type)
                 {
                     return !(
-
+                    
                     //Base type isn't requested base type?
                     (baseType != null && !baseType.IsAssignableFrom(type)) ||
+
+                    !interfaces.All(x => x.IsAssignableFrom(type)) ||
 
                     //Doesn't fit constraints?
                     !type.FitsConstraints(gvf, tcf)// ||

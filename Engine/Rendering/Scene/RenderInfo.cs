@@ -27,6 +27,8 @@ namespace TheraEngine.Rendering
         [Browsable(false)]
         public DateTime LastRenderedTime { get; internal set; }
         public TimeSpan GetTimeSinceLastRender() => DateTime.Now - LastRenderedTime;
+
+        public bool VisibleOnScreen => GetTimeSinceLastRender().TotalMilliseconds < 33.33f; //33.33ms per frame = 30 fps
     }
     public class RenderInfo2D : RenderInfo
     {

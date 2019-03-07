@@ -93,19 +93,19 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void lblObjectName_Click(object sender, EventArgs e)
         {
-            if (TargetObjects.Count > 1)
-            {
-                TargetObjects.Pop();
-                var current = TargetObjects.Peek();
-                SetObject(current.Item1, current.Item2);
-                UpdateLabel();
-            }
+            if (TargetObjects.Count <= 1)
+                return;
+            
+            TargetObjects.Pop();
+            var current = TargetObjects.Peek();
+            SetObject(current.Item1, current.Item2);
+            UpdateLabel();
         }
         internal void SetObject(object value, string memberAccessor)
         {
             if (InvokeRequired)
             {
-                Invoke((Action)(() => SetObject(value, memberAccessor)));
+                BeginInvoke((Action)(() => SetObject(value, memberAccessor)));
                 return;
             }
 
@@ -142,15 +142,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 lblProperties.Visible = actor != null && ShowPropertiesHeader;
                 CalcSceneCompTreeHeight();
-
-                lblProperties.Text = "Properties";
                 // lblProperties.Text = string.Format("Properties: {0} [{1}]",
                 //_targetObject.ToString(),
                 //_targetObject.GetType().GetFriendlyName());
             }
             else
             {
-                lblProperties.Text = "Properties";
                 lblProperties.Visible = false;
                 tableLayoutPanel1.Visible = false;
             }

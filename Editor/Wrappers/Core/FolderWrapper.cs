@@ -328,6 +328,9 @@ namespace TheraEditor.Wrappers
             if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
             {
                 int op = Editor.Instance.BeginOperation("Exporting...", out Progress<float> progress, out CancellationTokenSource cancel);
+                string name = file.Name;
+                name = name.Replace("<", "[");
+                name = name.Replace(">", "]");
                 await Serializer.ExportXMLAsync(file, dir, file.Name, ESerializeFlags.Default, progress, cancel.Token);
                 Editor.Instance.EndOperation(op);
             }

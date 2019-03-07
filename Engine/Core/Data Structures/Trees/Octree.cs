@@ -319,7 +319,8 @@ namespace System
                             bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                             if (allowRender && (r.RenderInfo.CullingVolume == null || (c = cullingVolume.Contains(r.RenderInfo.CullingVolume)) != EContainment.Disjoint))
                             {
-                                r.RenderInfo.LastRenderedTime = DateTime.Now;
+                                if (!shadowPass)
+                                    r.RenderInfo.LastRenderedTime = DateTime.Now;
                                 r.AddRenderables(passes, camera);
                                 if (passes.GetCommandsAddedCount() == 0)
                                 {
@@ -348,7 +349,8 @@ namespace System
                     bool allowRender = r.RenderInfo.Visible && (!shadowPass || r.RenderInfo.CastsShadows);
                     if (allowRender)
                     {
-                        r.RenderInfo.LastRenderedTime = DateTime.Now;
+                        if (!shadowPass)
+                            r.RenderInfo.LastRenderedTime = DateTime.Now;
                         r.AddRenderables(passes, camera);
                         if (passes.GetCommandsAddedCount() == 0)
                         {

@@ -69,9 +69,9 @@ namespace TheraEngine.GameModes
             return value._value;
         }
     }
-    public static class ClassCreator<T> where T : class
+    public class ClassCreator<T> where T : class
     {
-        public static T New(params object[] args)
+        public T New(params object[] args)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace TheraEngine.GameModes
             }
             return default;
         }
-        public static T2 New<T2>() where T2 : T, new()
+        public T2 New<T2>() where T2 : T, new()
         {
             try
             {
@@ -95,7 +95,7 @@ namespace TheraEngine.GameModes
             }
             return default;
         }
-        public static T2 New<T2>(params object[] args) where T2 : T
+        public T2 New<T2>(params object[] args) where T2 : T
         {
             try
             {
@@ -114,6 +114,8 @@ namespace TheraEngine.GameModes
         void EndGameplay();
         void AbortGameplay();
     }
+    [TFileExt("gm")]
+    [TFileDef("Game Mode", "")]
     public abstract class BaseGameMode : TFileObject, IGameMode
     {
         //Queue of what pawns should be possessed next for each player index when they either first join the game, or have their controlled pawn set to null.
@@ -131,14 +133,17 @@ namespace TheraEngine.GameModes
         /// <summary>
         /// These are the render panels that will be used for the target world's local player controllers.
         /// </summary>
+        [Browsable(false)]
         public List<BaseRenderPanel> TargetRenderPanels { get; } = new List<BaseRenderPanel>();
         /// <summary>
         /// This is the world that is running this game mode.
         /// </summary>
+        [Browsable(false)]
         public World TargetWorld { get; internal set; }
         /// <summary>
         /// These are the local players that are active in the world.
         /// </summary>
+        [Browsable(false)]
         public List<LocalPlayerController> LocalPlayers { get; } = new List<LocalPlayerController>();
 
         /// <summary>
@@ -299,6 +304,19 @@ namespace TheraEngine.GameModes
         where ControllerType : LocalPlayerController
     {
         public int _numSpectators, _numPlayers, _numComputers;
+        private ClassCreator<PawnType> _pawnCreator = new ClassCreator<PawnType>();
+        private ClassCreator<ControllerType> _controllerCreator = new ClassCreator<ControllerType>();
+
+        public ClassCreator<PawnType> PawnSubClassCreator
+        {
+            get => _pawnCreator;
+            set => _pawnCreator = value ?? new ClassCreator<PawnType>();
+        }
+        public ClassCreator<ControllerType> ControllerSubClassCreator
+        {
+            get => _controllerCreator;
+            set => _controllerCreator = value ?? new ClassCreator<ControllerType>();
+        }
         
         protected internal virtual void HandleLocalPlayerLeft(ControllerType item)
         {
@@ -310,7 +328,7 @@ namespace TheraEngine.GameModes
         }
         protected internal virtual void HandleLocalPlayerJoined(ControllerType item)
         {
-            PawnType pawn = new PawnType();
+            PawnType pawn = PawnSubClassCreator.New();
             
             var panel = TargetRenderPanels.FirstOrDefault(x => x.ValidPlayerIndices.Contains(item.LocalPlayerIndex));
             if (panel != null)
@@ -322,9 +340,9 @@ namespace TheraEngine.GameModes
             TargetWorld.SpawnActor(pawn);
         }
         protected internal override void CreateLocalController(ELocalPlayerIndex index, Queue<IPawn> queue)
-            => InitController(ClassCreator<ControllerType>.New(index, queue));
+            => InitController(ControllerSubClassCreator.New(index, queue));
         protected internal override void CreateLocalController(ELocalPlayerIndex index)
-            => InitController(ClassCreator<ControllerType>.New(index));
+            => InitController(ControllerSubClassCreator.New(index));
         private void InitController(ControllerType t)
         {
             LocalPlayers.Add(t);

@@ -166,7 +166,7 @@ namespace System.Collections.Generic
                 if (reportModified)
                 {
                     PostModified?.Invoke();
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item));
                 }
             }
 
@@ -216,7 +216,7 @@ namespace System.Collections.Generic
                 if (reportModified)
                 {
                     PostModified?.Invoke();
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, collection.ToList()));
                 }
             }
         }
@@ -252,7 +252,7 @@ namespace System.Collections.Generic
                     if (reportModified)
                     {
                         PostModified?.Invoke();
-                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
                     }
                 }
                 return true;
@@ -300,7 +300,7 @@ namespace System.Collections.Generic
                 if (reportModified)
                 {
                     PostModified?.Invoke();
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, range.ToList()));
                 }
             }
 
@@ -339,7 +339,7 @@ namespace System.Collections.Generic
                 if (reportModified)
                 {
                     PostModified?.Invoke();
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
                 }
             }
         }
@@ -429,7 +429,7 @@ namespace System.Collections.Generic
                 if (reportModified)
                 {
                     PostModified?.Invoke();
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, matches.ToArray()));
                 }
             }
             else
@@ -473,7 +473,7 @@ namespace System.Collections.Generic
                 if (reportModified)
                 {
                     PostModified?.Invoke();
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item));
                 }
             }
         }
@@ -521,7 +521,7 @@ namespace System.Collections.Generic
                 if (reportModified)
                 {
                     PostModified?.Invoke();
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, collection.ToList()));
                 }
             }
         }
@@ -538,7 +538,7 @@ namespace System.Collections.Generic
             if (report)
             {
                 PostModified?.Invoke();
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
         public new void Reverse() => Reverse(true);
@@ -554,7 +554,7 @@ namespace System.Collections.Generic
             if (report)
             {
                 PostModified?.Invoke();
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
         public new void Sort(int index, int count, IComparer<T> comparer) => Sort(index, count, comparer, true);
@@ -570,7 +570,7 @@ namespace System.Collections.Generic
             if (report)
             {
                 PostModified?.Invoke();
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
         public new void Sort() => Sort(true);
@@ -586,7 +586,7 @@ namespace System.Collections.Generic
             if (report)
             {
                 PostModified?.Invoke();
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
         public new void Sort(IComparer<T> comparer) => Sort(comparer, true);
@@ -602,7 +602,7 @@ namespace System.Collections.Generic
             if (report)
             {
                 PostModified?.Invoke();
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, this));
             }
         }
         public new T this[int index]
@@ -633,7 +633,7 @@ namespace System.Collections.Generic
                     PostAnythingAdded?.Invoke(value);
                     PostIndexSet?.Invoke(index, prev);
                     PostModified?.Invoke();
-                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace));
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, index));
                 }
             }
         }

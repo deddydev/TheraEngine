@@ -39,7 +39,7 @@ namespace TheraEngine.Tests
                     AngularDamping = 0.1f,
                     LinearDamping = 0.05f,
                     Restitution = 1.0f,
-                    Friction = 0.2f,
+                    Friction = 0.7f,
                     RollingFriction = 0.1f,
                     CollisionEnabled = true,
                     SimulatePhysics = true,
@@ -64,6 +64,7 @@ namespace TheraEngine.Tests
 
             TRigidBodyConstructionInfo floorInfo = new TRigidBodyConstructionInfo()
             {
+                Friction = 0.7f,
                 Mass = 20.0f,
                 Restitution = 0.5f,
                 CollisionEnabled = true,

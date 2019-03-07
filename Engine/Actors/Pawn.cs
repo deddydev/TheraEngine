@@ -71,6 +71,10 @@ namespace TheraEngine.Actors
         private CameraComponent _currentCameraComponent;
         private LocalFileRef<IUserInterface> _hud = null;
 
+        [Browsable(false)]
+        public ELocalPlayerIndex? ForcePossession { get; private set; }
+        [Browsable(false)]
+        public Queue<ELocalPlayerIndex> PossessionQueue { get; private set; } = new Queue<ELocalPlayerIndex>();
         /// <summary>
         /// The interface that is managing and providing input to this pawn.
         /// </summary>
@@ -200,8 +204,6 @@ namespace TheraEngine.Actors
 
             //OwningWorld.CurrentGameModePreChanged -= OwningWorld_CurrentGameModePreChanged;
         }
-        public ELocalPlayerIndex? ForcePossession { get; private set; }
-        public Queue<ELocalPlayerIndex> PossessionQueue { get; private set; } = new Queue<ELocalPlayerIndex>();
         public void QueuePossession(ELocalPlayerIndex possessor)
         {
             var mode = OwningWorld?.CurrentGameMode;

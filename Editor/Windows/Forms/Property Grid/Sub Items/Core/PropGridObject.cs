@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEngine;
 using WeifenLuo.WinFormsUI.Docking;
 using static System.Windows.Forms.Control;
 
@@ -216,8 +217,21 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         private void chkNull_CheckedChanged(object sender, EventArgs e)
         {
-            if (!_updating)
-                UpdateValue(chkNull.Checked ? null : Editor.UserCreateInstanceOf(DataType, true, this), true);
+            if (_updating)
+                return;
+
+            if (chkNull.Checked)
+            {
+                UpdateValue(null, true);
+                if ((GetValue() is null))
+                    return;
+
+                Engine.PrintLine("Unable to set this property to null.");
+            }
+            
+            object o = Editor.UserCreateInstanceOf(DataType, true, this);
+
+            UpdateValue(o, true);
         }
     }
 }

@@ -121,7 +121,7 @@ namespace TheraEditor.Windows.Forms
                     }
                     if (gvf != GenericVarianceFlag.None)
                     {
-                        throw new Exception();
+                        //throw new Exception();
                     }
                 }
 

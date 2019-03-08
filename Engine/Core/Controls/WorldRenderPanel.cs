@@ -1,5 +1,4 @@
-﻿using System;
-using TheraEngine.Rendering;
+﻿using TheraEngine.Rendering;
 
 namespace TheraEngine
 {

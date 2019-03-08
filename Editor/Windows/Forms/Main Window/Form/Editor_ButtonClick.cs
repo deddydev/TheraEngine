@@ -1,14 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using TheraEngine;
-using TheraEngine.Core;
-using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -116,8 +109,13 @@ namespace TheraEditor.Windows.Forms
             => GameState = GameState != EEditorGameplayState.Editing ? EEditorGameplayState.Editing : EEditorGameplayState.Attached;
         private void btnPlayDetached_Click(object sender, EventArgs e)
             => GameState = GameState != EEditorGameplayState.Attached ? EEditorGameplayState.Attached : EEditorGameplayState.Detached;
-        private void EndGameplay() 
-            => GameState = EEditorGameplayState.Editing;
+        private void EndGameplay()
+        {
+            if (GameState == EEditorGameplayState.Detached)
+                GameState = EEditorGameplayState.Editing;
+            else
+                GameState = EEditorGameplayState.Detached;
+        }
 
         private void BtnProjectSettings_Click(object sender, EventArgs e)
             => PropertyGridForm.PropertyGrid.TargetObject = Project;

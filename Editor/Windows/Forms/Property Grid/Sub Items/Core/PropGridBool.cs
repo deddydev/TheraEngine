@@ -7,6 +7,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
     public partial class PropGridBool : PropGridItem
     {
         public PropGridBool() => InitializeComponent();
+
         public override bool CanAnimate => true;
         protected override BasePropAnim CreateAnimation() => new PropAnimBool(0.0f, true, true);
         protected override bool UpdateDisplayInternal(object value)

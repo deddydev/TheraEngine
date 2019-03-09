@@ -13,7 +13,7 @@ using static TheraEditor.Windows.Forms.TheraForm;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(IUserInterface))]
-    public partial class DockableUIGraph : DockContent, IEditorControl
+    public partial class DockableUIGraph : DockContent, IEditorRenderableControl
     {
         public DockableUIGraph()
         {
@@ -59,11 +59,11 @@ namespace TheraEditor.Windows.Forms
 
         public UIEditorGameMode GameMode { get; set; }
 
-        ELocalPlayerIndex IEditorControl.PlayerIndex => ELocalPlayerIndex.One;
-        BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
-        IPawn IEditorControl.EditorPawn => RenderPanel.UI;
-        BaseGameMode IEditorControl.GameMode => GameMode;
-        World IEditorControl.World => RenderPanel.World;
+        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => ELocalPlayerIndex.One;
+        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
+        IPawn IEditorRenderableControl.EditorPawn => RenderPanel.UI;
+        BaseGameMode IEditorRenderableControl.GameMode => GameMode;
+        World IEditorRenderableControl.World => RenderPanel.World;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

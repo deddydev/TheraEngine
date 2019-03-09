@@ -13,7 +13,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableMatGraph : DockContent, IEditorControl
+    public partial class DockableMatGraph : DockContent, IEditorRenderableControl
     {
         public DockableMatGraph()
         {
@@ -29,11 +29,11 @@ namespace TheraEditor.Windows.Forms
         
         public MaterialEditorGameMode GameMode { get; set; }
 
-        ELocalPlayerIndex IEditorControl.PlayerIndex => ELocalPlayerIndex.One;
-        BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
-        IPawn IEditorControl.EditorPawn => RenderPanel.UI;
-        BaseGameMode IEditorControl.GameMode => GameMode;
-        World IEditorControl.World => RenderPanel.World;
+        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => ELocalPlayerIndex.One;
+        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
+        IPawn IEditorRenderableControl.EditorPawn => RenderPanel.UI;
+        BaseGameMode IEditorRenderableControl.GameMode => GameMode;
+        World IEditorRenderableControl.World => RenderPanel.World;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

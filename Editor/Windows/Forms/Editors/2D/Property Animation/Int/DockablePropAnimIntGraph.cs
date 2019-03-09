@@ -14,7 +14,7 @@ using static TheraEditor.Windows.Forms.TheraForm;
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(PropAnimInt))]
-    public partial class DockablePropAnimIntGraph : DockContent, IEditorControl
+    public partial class DockablePropAnimIntGraph : DockContent, IEditorRenderableControl
     {
         public DockablePropAnimIntGraph()
         {
@@ -37,11 +37,11 @@ namespace TheraEditor.Windows.Forms
 
         public PropAnimIntEditorGameMode GameMode { get; set; }
 
-        ELocalPlayerIndex IEditorControl.PlayerIndex => ELocalPlayerIndex.One;
-        BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
-        IPawn IEditorControl.EditorPawn => RenderPanel.UI;
-        BaseGameMode IEditorControl.GameMode => GameMode;
-        World IEditorControl.World => RenderPanel.World;
+        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => ELocalPlayerIndex.One;
+        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
+        IPawn IEditorRenderableControl.EditorPawn => RenderPanel.UI;
+        BaseGameMode IEditorRenderableControl.GameMode => GameMode;
+        World IEditorRenderableControl.World => RenderPanel.World;
 
         public PropAnimInt TargetAnimation
         {

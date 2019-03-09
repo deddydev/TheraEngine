@@ -396,8 +396,8 @@ namespace TheraEditor.Windows.Forms
             input.RegisterKeyPressed(EKey.PageDown, ZoomOut, EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.PageUp, ZoomIn, EInputPauseType.TickAlways);
 
-            input.RegisterKeyPressed(EKey.Q, ZoomOut, EInputPauseType.TickAlways);
-            input.RegisterKeyPressed(EKey.E, ZoomIn, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.E, ZoomOut, EInputPauseType.TickAlways);
+            input.RegisterKeyPressed(EKey.Q, ZoomIn, EInputPauseType.TickAlways);
 
             input.RegisterMouseScroll(OnScrolledInput, EInputPauseType.TickAlways);
             input.RegisterMouseMove(MouseMove, EMouseMoveType.Absolute, EInputPauseType.TickAlways);
@@ -436,14 +436,14 @@ namespace TheraEditor.Windows.Forms
                 BaseTransformComponent.LocalTranslation += move;
             }
         }
-        private void ZoomIn(bool pressed)
-        {
-            _zoomIn = pressed ? ZoomTickIncrementPerSec : 0.0f;
-            UpdateInputTick();
-        }
         private void ZoomOut(bool pressed)
         {
-            _zoomOut = pressed ? -ZoomTickIncrementPerSec : 0.0f;
+            _zoomOut = pressed ? ZoomTickIncrementPerSec : 0.0f;
+            UpdateInputTick();
+        }
+        private void ZoomIn(bool pressed)
+        {
+            _zoomIn = pressed ? -ZoomTickIncrementPerSec : 0.0f;
             UpdateInputTick();
         }
         private void MoveUp(bool pressed)

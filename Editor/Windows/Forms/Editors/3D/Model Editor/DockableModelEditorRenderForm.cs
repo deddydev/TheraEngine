@@ -12,7 +12,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableModelEditorRenderForm : DockContent, IEditorControl
+    public partial class DockableModelEditorRenderForm : DockContent, IEditorRenderableControl
     {
         public DockableModelEditorRenderForm(ELocalPlayerIndex playerIndex, int formIndex, ModelEditorForm form)
         {
@@ -59,11 +59,11 @@ namespace TheraEditor.Windows.Forms
         public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
         public EditorCameraPawn EditorPawn { get; private set; }
 
-        ELocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
-        BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
-        IPawn IEditorControl.EditorPawn => EditorPawn;
-        BaseGameMode IEditorControl.GameMode => GameMode;
-        World IEditorControl.World => Form.World;
+        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => PlayerIndex;
+        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
+        IPawn IEditorRenderableControl.EditorPawn => EditorPawn;
+        BaseGameMode IEditorRenderableControl.GameMode => GameMode;
+        World IEditorRenderableControl.World => Form.World;
 
         //protected override void OnHandleDestroyed(EventArgs e)
         //{

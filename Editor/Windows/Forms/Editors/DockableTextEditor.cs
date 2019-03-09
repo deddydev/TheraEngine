@@ -81,11 +81,11 @@ namespace TheraEditor.Windows.Forms
         
         private AutocompleteMenu AutoCompleteMenu { get; set; }
         
-        private Range HoveredWordRange { get; set; }
+        //private Range HoveredWordRange { get; set; }
         private Style InvisibleCharsStyle { get; } = new InvisibleCharsRenderer(Pens.Gray);
         private Color CurrentLineColor { get; } = Color.FromArgb(255, 80, 95, 90);
         private Color ChangedLineColor { get; } = Color.FromArgb(200, Color.Yellow);
-        private MarkerStyle HoveredWordStyle { get; } = new MarkerStyle(new SolidBrush(Color.FromArgb(255, 60, 60, 40)));
+        //private MarkerStyle HoveredWordStyle { get; } = new MarkerStyle(new SolidBrush(Color.FromArgb(255, 60, 60, 40)));
         private TextStyle KeywordStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(86, 156, 214)), null, FontStyle.Regular);
         private TextStyle ClassNameStyle { get; } = new TextStyle(new SolidBrush(Color.FromArgb(78, 201, 176)), null, FontStyle.Regular);
         private TextStyle PreprocessorStyle { get; } = new TextStyle(Brushes.Gray, null, FontStyle.Regular);
@@ -864,14 +864,14 @@ namespace TheraEditor.Windows.Forms
         private void XMLSyntaxHighlight(Range e)
         {
             //clear style of changed range
-            e.ClearStyle(NumberStyle, StringStyle, MethodStyle, ClassNameStyle, HoveredWordStyle);
+            e.ClearStyle(NumberStyle, StringStyle, MethodStyle, ClassNameStyle);
 
-            if (HoveredWordRange != null)
-            {
-                Range hoveredWord = e.GetIntersectionWith(HoveredWordRange);
-                if (hoveredWord.Length > 0)
-                    hoveredWord.SetStyle(HoveredWordStyle);
-            }
+            //if (HoveredWordRange != null)
+            //{
+            //    Range hoveredWord = e.GetIntersectionWith(HoveredWordRange);
+            //    if (hoveredWord.Length > 0)
+            //        hoveredWord.SetStyle(HoveredWordStyle);
+            //}
 
             //attribute highlighting
             e.SetStyle(MethodStyle, "(?<=\"*\\s*)[a-zA-Z][a-zA-Z0-9.\\-_:]+(?=\\s*=)");
@@ -978,25 +978,25 @@ namespace TheraEditor.Windows.Forms
         }
         private void TextBox_MouseMove(object sender, MouseEventArgs e)
         {
-            var place = TextBox.PointToPlace(e.Location);
-            var range = new Range(TextBox, place, place);
-            Range r = HoveredWordRange;
-            HoveredWordRange = null;
-            //if (r != null && r.Length > 0)
-            //    HighlightScriptSyntax?.Invoke(r);
+            //var place = TextBox.PointToPlace(e.Location);
+            //var range = new Range(TextBox, place, place);
+            //Range r = HoveredWordRange;
+            //HoveredWordRange = null;
+            ////if (r != null && r.Length > 0)
+            ////    HighlightScriptSyntax?.Invoke(r);
+            ////else
+            //    HighlightScriptSyntax?.Invoke(TextBox.VisibleRange);
+            //HoveredWordRange = range.GetFragment("[a-zA-Z]");
+            //if (HoveredWordRange != null && HoveredWordRange.Length > 0)
+            //{
+            //    HighlightScriptSyntax?.Invoke(HoveredWordRange);
+            //    lblHoveredWord.Text = HoveredWordRange.Text;
+            //}
             //else
-                HighlightScriptSyntax?.Invoke(TextBox.VisibleRange);
-            HoveredWordRange = range.GetFragment("[a-zA-Z]");
-            if (HoveredWordRange != null && HoveredWordRange.Length > 0)
-            {
-                HighlightScriptSyntax?.Invoke(HoveredWordRange);
-                lblHoveredWord.Text = HoveredWordRange.Text;
-            }
-            else
-            {
-                HighlightScriptSyntax?.Invoke(TextBox.VisibleRange);
-                lblHoveredWord.Text = null;
-            }
+            //{
+            //    HighlightScriptSyntax?.Invoke(TextBox.VisibleRange);
+            //    lblHoveredWord.Text = null;
+            //}
         }
         //private void TextBox_MouseDoubleClick(object sender, MouseEventArgs e)
         //{
@@ -1006,40 +1006,40 @@ namespace TheraEditor.Windows.Forms
         private DateTime _lastDoubleClickedTime;
         private void TextBox_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
-            {
-                int ms = SystemInformation.DoubleClickTime;
-                DateTime now = DateTime.Now;
-                if ((now - _lastDoubleClickedTime).TotalMilliseconds <= ms)
-                {
-                    SelectHoveredLine();
-                    //Engine.PrintLine("Triple Clicked");
-                }
-                else if ((now - _lastClickedTime).TotalMilliseconds <= ms)
-                {
-                    SelectHoveredWord();
-                    _lastDoubleClickedTime = now;
-                    //Engine.PrintLine("Double Clicked");
-                }
-                //else
-                //    Engine.PrintLine("Clicked");
-                _lastClickedTime = now;
-            }
+            //if (e.Button == MouseButtons.Left)
+            //{
+            //    int ms = SystemInformation.DoubleClickTime;
+            //    DateTime now = DateTime.Now;
+            //    if ((now - _lastDoubleClickedTime).TotalMilliseconds <= ms)
+            //    {
+            //        SelectHoveredLine();
+            //        //Engine.PrintLine("Triple Clicked");
+            //    }
+            //    else if ((now - _lastClickedTime).TotalMilliseconds <= ms)
+            //    {
+            //        SelectHoveredWord();
+            //        _lastDoubleClickedTime = now;
+            //        //Engine.PrintLine("Double Clicked");
+            //    }
+            //    //else
+            //    //    Engine.PrintLine("Clicked");
+            //    _lastClickedTime = now;
+            //}
         }
-        private void SelectHoveredWord()
-        {
-            if (HoveredWordRange != null)
-                TextBox.Selection = HoveredWordRange;
-        }
-        private void SelectHoveredLine()
-        {
-            if (HoveredWordRange == null)
-                return;
+        //private void SelectHoveredWord()
+        //{
+        //    if (HoveredWordRange != null)
+        //        TextBox.Selection = HoveredWordRange;
+        //}
+        //private void SelectHoveredLine()
+        //{
+        //    if (HoveredWordRange == null)
+        //        return;
             
-            Range line = HoveredWordRange.Clone();
-            line.Expand();
-            TextBox.Selection = line;
-        }
+        //    Range line = HoveredWordRange.Clone();
+        //    line.Expand();
+        //    TextBox.Selection = line;
+        //}
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {

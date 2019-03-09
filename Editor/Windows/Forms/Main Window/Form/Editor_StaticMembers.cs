@@ -14,7 +14,7 @@ namespace TheraEditor.Windows.Forms
         /// </summary>
         public static Editor Instance { get; private set; }
 
-        public static IEditorControl ActiveRenderForm { get; private set; } = null;
+        public static IEditorRenderableControl ActiveRenderForm { get; private set; } = null;
 
         public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; } = new GlobalFileRef<EditorSettings>(
             TFileObject.GetFilePath<EditorSettings>(Application.StartupPath, "EditorConfig", EProprietaryFileFormat.XML))

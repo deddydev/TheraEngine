@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
@@ -41,10 +40,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 { TypeCode.UInt64,  UInt64ConvertBit },
             };
         }
+
         private void comboBox1_LostFocus(object sender, EventArgs e) => IsEditing = false;
         private void comboBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
+
         private string _value = string.Empty;
         private FieldInfo[] _fields;
+
         protected override bool UpdateDisplayInternal(object value)
         {
             bool editable = IsEditable();

@@ -75,6 +75,7 @@ namespace TheraEngine.Editor
         public bool IsDirty { get; set; }
         public List<LocalValueChange> ChangedValues { get; } = new List<LocalValueChange>();
         public static List<EditorState> DirtyStates { get; } = new List<EditorState>();
+        public bool DisplayInActorTree { get; set; } = true;
 
         private void OnSelectedChanged(bool selected)
         {

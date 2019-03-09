@@ -13,22 +13,27 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableWorldRenderForm : DockContent, IEditorControl
+    public partial class DockableWorldRenderForm : DockContent, IEditorRenderableControl
     {
         public DockableWorldRenderForm(ELocalPlayerIndex playerIndex, int formIndex)
         {
             FormIndex = formIndex;
             PlayerIndex = playerIndex;
+
             InitializeComponent();
+
+            Text = $"Viewport {(FormIndex + 1).ToString()}";
+
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 HUD = new EditorUI3D(RenderPanel.ClientSize),
                 Name = $"Viewport{(FormIndex + 1).ToString()}_EditorCamera"
             };
-            Text = $"Viewport {(FormIndex + 1).ToString()}";
-            RenderPanel.AllowDrop = true;
+
             Engine.PreWorldChanged += Engine_WorldPreChanged;
             Engine.PostWorldChanged += Engine_WorldPostChanged;
+
+            RenderPanel.AllowDrop = true;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
         }
         
@@ -69,11 +74,11 @@ namespace TheraEditor.Windows.Forms
         public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
         public EditorCameraPawn EditorPawn { get; private set; }
 
-        ELocalPlayerIndex IEditorControl.PlayerIndex => PlayerIndex;
-        BaseRenderPanel IEditorControl.RenderPanel => RenderPanel;
-        IPawn IEditorControl.EditorPawn => EditorPawn;
-        BaseGameMode IEditorControl.GameMode => Engine.World?.CurrentGameMode;
-        World IEditorControl.World => Engine.World;
+        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => PlayerIndex;
+        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
+        IPawn IEditorRenderableControl.EditorPawn => EditorPawn;
+        BaseGameMode IEditorRenderableControl.GameMode => Engine.World?.CurrentGameMode;
+        World IEditorRenderableControl.World => Engine.World;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
@@ -114,6 +119,8 @@ namespace TheraEditor.Windows.Forms
 
         protected override string GetPersistString()
             => GetType() + "," + FormIndex;
+
+        #region Drag / Drop Actors
 
         BaseFileWrapper _lastDraggedNode = null;
         IFileObject _dragInstance = null;
@@ -191,5 +198,7 @@ namespace TheraEditor.Windows.Forms
             //Engine.TargetRenderFreq = _preRenderFreq;
             //Editor.Instance.DoEvents = true;
         }
+
+        #endregion
     }
 }

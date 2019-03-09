@@ -129,7 +129,10 @@ namespace TheraEditor.Wrappers
         
         public void Reload()
         {
-
+            bool wasLoaded = SingleInstanceRef.IsLoaded;
+            SingleInstanceRef.IsLoaded = false;
+            if (wasLoaded)
+                SingleInstanceRef.IsLoaded = true;
         }
 
         public virtual async void EditResource()

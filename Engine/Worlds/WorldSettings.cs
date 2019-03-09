@@ -157,6 +157,27 @@ namespace TheraEngine.Worlds
             }
         }
 
+        public Map FindOrCreateMap()
+        {
+            Map map;
+            if (Maps != null)
+            {
+                if (Maps.Count > 0)
+                    map = Maps[0];
+                else
+                {
+                    map = new Map();
+                    Maps.Add(map);
+                }
+            }
+            else
+            {
+                map = new Map();
+                Maps = new EventList<LocalFileRef<Map>>() { map };
+            }
+            return map;
+        }
+
         private void Maps_PostAnythingRemoved(LocalFileRef<Map> item)
         {
             if (item == null)

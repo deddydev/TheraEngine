@@ -202,25 +202,8 @@ namespace TheraEditor.Windows.Forms
             }
 
             if (targetMap == null)
-            {
-                EventList<LocalFileRef<Map>> mapList = Engine.World.Settings.Maps;
-                if (mapList != null)
-                {
-                    if (mapList.Count > 0)
-                        targetMap = mapList[0];
-                    else
-                    {
-                        targetMap = new Map();
-                        mapList.Add(targetMap);
-                    }
-                }
-                else
-                {
-                    targetMap = new Map();
-                    Engine.World.Settings.Maps = new EventList<LocalFileRef<Map>>() { targetMap };
-                }
-            }
-
+                targetMap = Engine.World.Settings.FindOrCreateMap();
+            
             BaseActor newActor = Editor.UserCreateInstanceOf<BaseActor>();
             if (newActor == null)
                 return;

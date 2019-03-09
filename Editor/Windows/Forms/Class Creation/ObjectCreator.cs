@@ -513,7 +513,7 @@ namespace TheraEditor.Windows.Forms
                 treeView1.Visible = true;
                 FinalArguments = new object[numArrayLength.Value.Value][].FillWith(new object[1] { type.GetDefaultValue() });
                 for (int i = 0; i < numArrayLength.Value.Value; ++i)
-                    tblConstructors.Controls.Add(CreateControl(type, 0, i, FinalArguments));
+                    tblConstructors.Controls.Add(CreateControl(type, 0, i));
             }
             else
             {
@@ -629,7 +629,7 @@ namespace TheraEditor.Windows.Forms
                 };
                 tblConstructors.Controls.Add(paramLabel, 0, paramIndex);
 
-                Control paramTool = CreateControl(t, p.Position, index, FinalArguments);
+                Control paramTool = CreateControl(t, p.Position, index);
                 if (paramTool != null)
                     tblConstructors.Controls.Add(paramTool, 1, paramIndex);
             }
@@ -668,7 +668,7 @@ namespace TheraEditor.Windows.Forms
                     FinalArguments[i] = new object[1] { def };
                     if (ClassType != null)
                     {
-                        var control = CreateControl(ClassType, 0, i, FinalArguments);
+                        var control = CreateControl(ClassType, 0, i);
                         if (control != null)
                             tblConstructors.Controls.Add(control, 0, i);
                     }
@@ -684,7 +684,7 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        public Control CreateControl(Type type, int columnIndex, int rowIndex, object[][] finalArguments)
+        public Control CreateControl(Type type, int columnIndex, int rowIndex)
         {
             Control paramTool = null;
             bool nullable = false;
@@ -702,7 +702,7 @@ namespace TheraEditor.Windows.Forms
                 Type = type,
                 ColumnIndex = columnIndex,
                 RowIndex = rowIndex,
-                Value = finalArguments[rowIndex][columnIndex],
+                Value = FinalArguments[rowIndex][columnIndex],
             };
 
             Type temp = Nullable.GetUnderlyingType(type);
@@ -724,7 +724,7 @@ namespace TheraEditor.Windows.Forms
                             CheckBox checkBox = (CheckBox)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)checkBox.Tag;
 
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = 
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = 
                             argInfo.Value = (checkBox.CheckState == CheckState.Checked ? true : (checkBox.CheckState == CheckState.Indeterminate ? (bool?)null : false));
                         };
                         paramTool = box;
@@ -742,7 +742,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -759,7 +759,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -787,7 +787,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -804,7 +804,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -821,7 +821,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -838,7 +838,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -855,7 +855,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -872,7 +872,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -889,7 +889,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -906,7 +906,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -923,7 +923,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             ArgumentInfo argInfo = (ArgumentInfo)b.Tag;
                             argInfo.Value = current;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = current;
                         };
                         paramTool = box;
                     }
@@ -940,7 +940,7 @@ namespace TheraEditor.Windows.Forms
                             TextBox s = (TextBox)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
                             argInfo.Value = s.Text;
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = s.Text;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = s.Text;
                         };
                         paramTool = box;
                     }
@@ -966,22 +966,22 @@ namespace TheraEditor.Windows.Forms
                         {
                             Label s = (Label)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
-                            Type t = argInfo.Type;
-                            if (t.IsGenericParameter)
+                            Type argType = argInfo.Type;
+                            if (argType.IsGenericParameter)
                             {
                                 TypeInfo info = IntrospectionExtensions.GetTypeInfo(ClassType);
-                                int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == t);
+                                int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == argType);
                                 if (_genericTypeArgs.IndexInArrayRange(argIndex))
-                                    t = _genericTypeArgs[argIndex];
+                                    argType = _genericTypeArgs[argIndex];
                             }
-                            object o = Editor.UserCreateInstanceOf(t, true, this);
+                            object o = Editor.UserCreateInstanceOf(argType, true, this);
 
                             if (o == null && argInfo.Type.IsValueType)
                                 o = argInfo.Type.GetDefaultValue();
 
                             argInfo.Value = o;
                             s.Text = o == null ? "null" : o.ToString();
-                            finalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = o;
+                            FinalArguments[argInfo.RowIndex][argInfo.ColumnIndex] = o;
                         };
                         paramTool = objectSelectionLabel;
                     }

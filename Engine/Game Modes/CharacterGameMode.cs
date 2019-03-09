@@ -30,15 +30,6 @@ namespace TheraEngine.GameModes
     {
         public CharacterGameMode() : base() { }
         
-        protected internal override void HandleLocalPlayerJoined(ControllerType item)
-        {
-            PawnType pawn = new PawnType();
-
-            BaseRenderPanel.WorldPanel?.GetOrAddViewport(item.LocalPlayerIndex)?.RegisterController(item);
-            
-            item.EnqueuePosession(pawn);
-            pawn.QueueRespawn();
-        }
         public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)
         {
             foreach (IActor a in Engine.World.StateRef.File.SpawnedActors)

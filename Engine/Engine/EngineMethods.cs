@@ -670,8 +670,8 @@ namespace TheraEngine
         /// <summary>
         /// Retrieves the world viewport with the same index.
         /// </summary>
-        public static Viewport GetViewport(ELocalPlayerIndex index)
-            => BaseRenderPanel.WorldPanel?.GetViewport(index);
+        //public static Viewport GetViewport(ELocalPlayerIndex index)
+        //    => BaseRenderPanel.WorldPanel?.GetViewport(index);
         
         /// <summary>
         /// Tells the engine to play in a new world.

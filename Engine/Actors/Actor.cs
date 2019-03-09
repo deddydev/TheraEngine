@@ -22,7 +22,7 @@ namespace TheraEngine.Actors
         {
             IsConstructing = true;
 
-            if (logicComponents.Length > 0)
+            if (logicComponents != null && logicComponents.Length > 0)
                 _logicComponents.AddRange(logicComponents);
 
             PreConstruct();

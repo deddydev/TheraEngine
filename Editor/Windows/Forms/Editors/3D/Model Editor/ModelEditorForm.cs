@@ -143,7 +143,7 @@ namespace TheraEditor.Windows.Forms
 
         #endregion
 
-        private LocalFileRef<World> ModelEditorWorld
+        private LocalFileRef<World> ModelEditorWorldRef
             = new LocalFileRef<World>(/*Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld"))*/);
 
         public async Task InitWorldAsync()
@@ -171,7 +171,7 @@ namespace TheraEditor.Windows.Forms
                 iblProbes.AddProbe(Vec3.Zero);
                 actors.Add(iblProbes);
 
-                ModelEditorWorld.File = world = new World()
+                ModelEditorWorldRef.File = world = new World()
                 {
                     Settings = new WorldSettings("ModelEditorWorld", new Map(actors)),
                 };
@@ -182,7 +182,7 @@ namespace TheraEditor.Windows.Forms
             //    await ModelEditorWorld.File.ExportAsync(Engine.Files.WorldPath(Path.Combine("ModelEditorWorld", "ModelEditorWorld.xworld")));
         }
 
-        public World World => ModelEditorWorld.File;        
+        public World World => ModelEditorWorldRef.File;        
         public BaseActor TargetActor { get; private set; }
         public IModelFile Model { get; private set; }
 

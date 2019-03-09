@@ -16,7 +16,7 @@ namespace TheraEditor.Windows.Forms
     {
         public DockableModelEditorRenderForm(ELocalPlayerIndex playerIndex, int formIndex, ModelEditorForm form)
         {
-            Form = form;
+            ModelWindow = form;
             FormIndex = formIndex;
             PlayerIndex = playerIndex;
 
@@ -24,8 +24,10 @@ namespace TheraEditor.Windows.Forms
 
             RenderPanel.ValidPlayerIndices = new List<ELocalPlayerIndex>() { playerIndex };
             RenderPanel.Owner = this;
+
             GameMode = new EditorGameMode();
-            GameMode.TargetRenderPanels.Add(RenderPanel);
+
+            Text = $"Model Viewport {(FormIndex + 1).ToString()}";
 
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
@@ -37,24 +39,22 @@ namespace TheraEditor.Windows.Forms
                 Name = $"ModelViewport{(FormIndex + 1).ToString()}_EditorCamera",
             };
 
-            Text = $"Model Viewport {(FormIndex + 1).ToString()}";
             RenderPanel.AllowDrop = true;
             RenderPanel.GotFocus += RenderPanel_GotFocus;
-            RenderPanel.LostFocus += RenderPanel_LostFocus;
+            //RenderPanel.LostFocus += RenderPanel_LostFocus;
         }
         
         private void RenderPanel_GotFocus(object sender, EventArgs e)
-        {
-            Editor.SetActiveEditorControl(this);
-        }
-        private void RenderPanel_LostFocus(object sender, EventArgs e)
-        {
-            if (Editor.ActiveRenderForm == this)
-                Editor.SetActiveEditorControl(null);
-        }
+            => Editor.SetActiveEditorControl(this);
+        
+        //private void RenderPanel_LostFocus(object sender, EventArgs e)
+        //{
+        //    if (Editor.ActiveRenderForm == this)
+        //        Editor.SetActiveEditorControl(null);
+        //}
 
         public EditorGameMode GameMode { get; set; }
-        public ModelEditorForm Form { get; private set; }
+        public ModelEditorForm ModelWindow { get; private set; }
         public int FormIndex { get; private set; }
         public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
         public EditorCameraPawn EditorPawn { get; private set; }
@@ -63,7 +63,7 @@ namespace TheraEditor.Windows.Forms
         BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
         IPawn IEditorRenderableControl.EditorPawn => EditorPawn;
         BaseGameMode IEditorRenderableControl.GameMode => GameMode;
-        World IEditorRenderableControl.World => Form.World;
+        World IEditorRenderableControl.World => ModelWindow.World;
 
         //protected override void OnHandleDestroyed(EventArgs e)
         //{
@@ -76,12 +76,12 @@ namespace TheraEditor.Windows.Forms
         //}
         protected override void OnShown(EventArgs e)
         {
-            Form.World.SpawnActor(EditorPawn);
+            ModelWindow.World.SpawnActor(EditorPawn);
             base.OnShown(e);
         }
         protected override void OnClosed(EventArgs e)
         {
-            Form.World.DespawnActor(EditorPawn);
+            ModelWindow.World.DespawnActor(EditorPawn);
             base.OnClosed(e);
         }
         //protected override void OnResizeBegin(EventArgs e)

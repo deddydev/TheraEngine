@@ -6,6 +6,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.GameModes;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
@@ -45,14 +46,8 @@ namespace TheraEditor.Windows.Forms
 
         private void Engine_WorldPreChanged()
         {
-            if (Engine.World == null || EditorPawn == null)
-            {
-
-            }
-            else
-            {
+            if (Engine.World != null && EditorPawn != null)
                 Engine.World.DespawnActor(EditorPawn);
-            }
         }
         private void Engine_WorldPostChanged()
         {
@@ -69,7 +64,7 @@ namespace TheraEditor.Windows.Forms
                 Text = $"{Engine.World.Name} (Viewport {(FormIndex + 1).ToString()})";
             }
         }
-
+        
         public int FormIndex { get; private set; }
         public ELocalPlayerIndex PlayerIndex { get; private set; } = ELocalPlayerIndex.One;
         public EditorCameraPawn EditorPawn { get; private set; }
@@ -93,29 +88,11 @@ namespace TheraEditor.Windows.Forms
             Engine.World?.SpawnActor(EditorPawn);
             base.OnShown(e);
         }
-
-        private void RenderTick(object sender, FrameEventArgs e)
-        {
-            RenderPanel.Invalidate();
-            Application.DoEvents();
-        }
-
         protected override void OnClosed(EventArgs e)
         {
             Engine.World?.DespawnActor(EditorPawn);
             base.OnClosed(e);
         }
-        
-        //protected override void OnResizeBegin(EventArgs e)
-        //{
-        //    RenderPanel.BeginResize();
-        //    base.OnResizeBegin(e);
-        //}
-        //protected override void OnResizeEnd(EventArgs e)
-        //{
-        //    RenderPanel.EndResize();
-        //    base.OnResizeEnd(e);
-        //}
 
         protected override string GetPersistString()
             => GetType() + "," + FormIndex;
@@ -155,7 +132,10 @@ namespace TheraEditor.Windows.Forms
             BaseRenderPanel.HoveredPanel = RenderPanel;
             RenderPanel.Focus();
             EditorUI3D hud = EditorPawn.HUD.File as EditorUI3D;
-            Engine.World.SpawnActor(actor, EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance);
+            Map map = Engine.World.Settings.FindOrCreateMap();
+            map.Actors.Add(actor);
+            Vec3 point = EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance;
+            Engine.World.SpawnActor(actor, point);
             _prevTransformType = hud.TransformMode;
             hud.TransformMode = TransformType.DragDrop;
             hud.HighlightedComponent = actor.RootComponentGeneric;

@@ -28,6 +28,19 @@ namespace TheraEngine.Animation
     }
     public class Vec2Keyframe : VectorKeyframe<Vec2>
     {
+        public Vec2Keyframe()
+            : this(0.0f, 0.0f, 0.0f, EVectorInterpType.CubicBezier) { }
+        public Vec2Keyframe(int frameIndex, float FPS, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, EVectorInterpType type)
+            : this(frameIndex / FPS, inValue, outValue, inTangent, outTangent, type) { }
+        public Vec2Keyframe(int frameIndex, float FPS, Vec2 inoutValue, Vec2 inoutTangent, EVectorInterpType type)
+            : this(frameIndex / FPS, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public Vec2Keyframe(float second, Vec2 inoutValue, Vec2 inoutTangent, EVectorInterpType type)
+            : this(second, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public Vec2Keyframe(float second, Vec2 inoutValue, Vec2 inTangent, Vec2 outTangent, EVectorInterpType type)
+            : this(second, inoutValue, inoutValue, inTangent, outTangent, type) { }
+        public Vec2Keyframe(float second, Vec2 inValue, Vec2 outValue, Vec2 inTangent, Vec2 outTangent, EVectorInterpType type)
+            : base(second, inValue, outValue, inTangent, outTangent, type) { }
+
         public override Vec2 Lerp(VectorKeyframe<Vec2> next, float diff, float span)
           => Interp.Lerp(OutValue, next.InValue, diff / span);
         public override Vec2 LerpVelocity(VectorKeyframe<Vec2> next, float diff, float span)
@@ -195,6 +208,89 @@ namespace TheraEngine.Animation
                 case EUnifyBias.Out:
                     InValue = OutValue;
                     break;
+            }
+        }
+        public void GenerateTangents()
+        {
+            //var next = GetNextKeyframe(out float nextSpan);
+            //var prev = GetPrevKeyframe(out float prevSpan);
+
+            //if (Math.Abs(InValue - OutValue) < 0.0001f)
+            //{
+            //    float tangent = 0.0f;
+            //    float weightCount = 0;
+            //    if (prev != null && prevSpan > 0.0f)
+            //    {
+            //        tangent += (InValue - prev.OutValue) / prevSpan;
+            //        weightCount++;
+            //    }
+            //    if (next != null && nextSpan > 0.0f)
+            //    {
+            //        tangent += (next.InValue - OutValue) / nextSpan;
+            //        weightCount++;
+            //    }
+
+            //    if (weightCount > 0)
+            //        tangent /= weightCount;
+
+            //    OutTangent = tangent;
+            //    InTangent = -tangent;
+            //}
+            //else
+            //{
+            //    if (prev != null && prevSpan > 0.0f)
+            //    {
+            //        InTangent = -(InValue - prev.OutValue) / prevSpan;
+            //    }
+            //    if (next != null && nextSpan > 0.0f)
+            //    {
+            //        OutTangent = (next.InValue - OutValue) / nextSpan;
+            //    }
+            //}
+        }
+        public void GenerateOutTangent()
+        {
+            var next = GetNextKeyframe(out float nextSpan);
+            if (next != null && nextSpan > 0.0f)
+            {
+                OutTangent = (next.InValue - OutValue) / nextSpan;
+            }
+
+            //var next = GetNextKeyframe(out float span1);
+            //var prev = GetPrevKeyframe(out float span2);
+            //float valueDiff = (next?.InValue ?? InValue) - (prev?.OutValue ?? OutValue);
+            //float secDiff = (next?.Second ?? Second) - (prev?.Second ?? Second);
+            //if (secDiff != 0.0f)
+            //    OutTangent = valueDiff / secDiff;
+        }
+        public void GenerateInTangent()
+        {
+            var prev = GetPrevKeyframe(out float prevSpan);
+            if (prev != null && prevSpan > 0.0f)
+            {
+                InTangent = -(InValue - prev.OutValue) / prevSpan;
+            }
+
+            //var next = GetNextKeyframe(out float span1);
+            //var prev = GetPrevKeyframe(out float span2);
+            //float valueDiff = (next?.InValue ?? InValue) - (prev?.OutValue ?? OutValue);
+            //float secDiff = (next?.Second ?? Second) - (prev?.Second ?? Second);
+            //if (secDiff != 0.0f)
+            //    InTangent = -valueDiff / secDiff;
+        }
+        public void GenerateAdjacentTangents(bool prev, bool next)
+        {
+            if (prev)
+            {
+                var prevkf = GetPrevKeyframe(out float span2) as Vec2Keyframe;
+                prevkf?.GenerateTangents();
+                GenerateInTangent();
+            }
+            if (next)
+            {
+                var nextKf = GetNextKeyframe(out float span1) as Vec2Keyframe;
+                nextKf?.GenerateTangents();
+                GenerateOutTangent();
             }
         }
     }

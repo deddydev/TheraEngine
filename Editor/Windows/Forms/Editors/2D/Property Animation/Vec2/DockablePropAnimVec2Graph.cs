@@ -11,19 +11,19 @@ using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms
 {
-    [EditorFor(typeof(PropAnimFloat))]
-    public partial class DockablePropAnimFloatGraph : DockableRenderableFileEditor
+    [EditorFor(typeof(PropAnimVec2))]
+    public partial class DockablePropAnimVec2Graph : DockableRenderableFileEditor
     {
-        public DockablePropAnimFloatGraph()
+        public DockablePropAnimVec2Graph()
         {
             InitializeComponent();
             
-            GameMode = new PropAnimFloatEditorGameMode() { RenderPanel = RenderPanel };
+            GameMode = new PropAnimVec2EditorGameMode() { RenderPanel = RenderPanel };
 
             tsPropAnimFloat.RenderMode = ToolStripRenderMode.Professional;
             tsPropAnimFloat.Renderer = new TheraToolstripRenderer();
         }
-        public DockablePropAnimFloatGraph(PropAnimFloat anim) : this() => TargetAnimation = anim;
+        public DockablePropAnimVec2Graph(PropAnimVec2 anim) : this() => TargetAnimation = anim;
         
         public override IPawn EditorPawn => RenderPanel.UI;
         public override World World => RenderPanel.World;
@@ -31,7 +31,7 @@ namespace TheraEditor.Windows.Forms
         protected override IUIRenderPanel RenderPanelGeneric => RenderPanel;
         public override bool ShouldHideCursor => true;
 
-        public PropAnimFloat TargetAnimation
+        public PropAnimVec2 TargetAnimation
         {
             get => RenderPanel.UI.TargetAnimation;
             internal set
@@ -56,12 +56,12 @@ namespace TheraEditor.Windows.Forms
             RenderPanel.UI.SnapToUnits = chkSnapToUnits.Checked;
         }
     }
-    public class PropAnimFloatPlayerController : LocalPlayerController
+    public class PropAnimVec2PlayerController : LocalPlayerController
     {
-        public PropAnimFloatPlayerController(ELocalPlayerIndex index) : this(index, null) { }
-        public PropAnimFloatPlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
+        public PropAnimVec2PlayerController(ELocalPlayerIndex index) : this(index, null) { }
+        public PropAnimVec2PlayerController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue = null)
             : base(index, possessionQueue) => SetViewportCamera = SetViewportHUD = false;
     }
-    public class PropAnimFloatGraphRenderPanel : UIRenderPanel<EditorUIPropAnimFloat, PropAnimFloatEditorGameMode, PropAnimFloatPlayerController> { }
-    public class PropAnimFloatEditorGameMode : UIGameMode<EditorUIPropAnimFloat, PropAnimFloatPlayerController> { }
+    public class PropAnimVec2GraphRenderPanel : UIRenderPanel<EditorUIPropAnimVec2, PropAnimVec2EditorGameMode, PropAnimVec2PlayerController> { }
+    public class PropAnimVec2EditorGameMode : UIGameMode<EditorUIPropAnimVec2, PropAnimVec2PlayerController> { }
 }

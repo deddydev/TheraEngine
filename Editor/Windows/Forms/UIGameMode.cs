@@ -28,12 +28,6 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void HandleLocalPlayerJoined(ControllerType item)
         {
-            if (RenderPanel == null)
-            {
-                Engine.LogWarning($"No UI render panel set.");
-                return;
-            }
-
             RenderPanel.GetOrAddViewport(item.LocalPlayerIndex)?.RegisterController(item);
 
             item.EnqueuePosession(RenderPanel.UI);

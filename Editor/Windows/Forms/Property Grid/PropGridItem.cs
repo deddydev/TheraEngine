@@ -142,6 +142,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 MemberInfo.MemberValue = newValue;
                 newValue = MemberInfo.MemberValue;
             }
+
             if (_isEditing)
                 _newValue = newValue;
             

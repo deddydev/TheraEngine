@@ -11,7 +11,7 @@ namespace TheraEditor.Windows.Forms
     public abstract class DockableRenderableFileEditor : DockableFileEditor, IEditorRenderableControl
     {
         public virtual ELocalPlayerIndex PlayerIndex { get; } = ELocalPlayerIndex.One;
-        public BaseGameMode GameMode { get; protected set; }
+        public BaseGameMode GameMode => RenderPanelGeneric.GameMode as BaseGameMode;
         BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanelGeneric as BaseRenderPanel;
 
         public abstract IPawn EditorPawn { get; }

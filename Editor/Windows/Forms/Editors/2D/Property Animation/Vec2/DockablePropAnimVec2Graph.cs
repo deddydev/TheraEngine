@@ -18,8 +18,6 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
             
-            GameMode = new PropAnimVec2EditorGameMode() { RenderPanel = RenderPanel };
-
             tsPropAnimFloat.RenderMode = ToolStripRenderMode.Professional;
             tsPropAnimFloat.Renderer = new TheraToolstripRenderer();
         }

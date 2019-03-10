@@ -248,43 +248,42 @@ namespace TheraEditor.Windows.Forms
         }
 
         const float Resolution = 1.0f;
-        private float MinSec { get; set; }
-        private float VisibleSecRange { get; set; }
+        private Vec2 VisibleRange { get; set; }
         private int FrameCount { get; set; }
 
         public void UpdateSplinePrimitive(bool renderPass = false)
         {
-            //if ((!Engine.IsSingleThreaded && !renderPass) || _regenerating)
-            //{
-            //    QueueSplineUpdate = true;
-            //    return;
-            //}
+            if ((!Engine.IsSingleThreaded && !renderPass) || _regenerating)
+            {
+                QueueSplineUpdate = true;
+                return;
+            }
 
-            //if (_targetAnimation == null)
-            //    return;
+            if (_targetAnimation == null)
+                return;
 
-            //if (AnimLength != _targetAnimation.LengthInSeconds ||
-            //    KeyCount != _targetAnimation.Keyframes.Count ||
-            //    _rcSpline.Mesh == null)
-            //{
-            //    RegenerateSplinePrimitive();
-            //    return;
-            //}
+            if (AnimLength != _targetAnimation.LengthInSeconds ||
+                KeyCount != _targetAnimation.Keyframes.Count ||
+                _rcSpline.Mesh == null)
+            {
+                RegenerateSplinePrimitive();
+                return;
+            }
 
-            //if (DisplayFPS <= 0.0f)
-            //    return;
+            if (DisplayFPS <= 0.0f)
+                return;
 
             //float displayFPS;
             //GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
             //Vec2 bounds = Bounds;
             //Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
             //Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
-            //float maxSec = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
-            //float minSec = TMath.Max(boundsMinAnimRelative.X, animMin.X);
-            //float maxVal = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
-            //float minVal = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
-            //float visibleAnimSecRange = maxSec - minSec;
-            //float visibleAnimValRange = maxVal - minVal;
+            //float maxX = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
+            //float minX = TMath.Max(boundsMinAnimRelative.X, animMin.X);
+            //float maxY = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
+            //float minY = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
+            //float visibleAnimXRange = maxX - minX;
+            //float visibleAnimYRange = maxY - minY;
             ////if (_targetAnimation.ConstrainKeyframedFPS || _targetAnimation.IsBaked)
             ////{
             ////    displayFPS = _targetAnimation.BakedFramesPerSecond * Resolution;
@@ -294,11 +293,11 @@ namespace TheraEditor.Windows.Forms
             ////else
             //{
             //    //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-            //    displayFPS = Bounds.X / visibleAnimSecRange * Resolution;
+            //    displayFPS = TMath.Max(Bounds.X / visibleAnimXRange, Bounds.Y / visibleAnimYRange) * Resolution;
             //}
             //float secondsPerFrame = 1.0f / displayFPS;
 
-            //int frameCount = (int)Math.Ceiling(visibleAnimSecRange * displayFPS) + 1;
+            //int frameCount = (int)Math.Ceiling(visibleAnimXRange * displayFPS) + 1;
 
             //if (frameCount != FrameCount)
             //{
@@ -306,53 +305,53 @@ namespace TheraEditor.Windows.Forms
             //    return;
             //}
 
-            //float maxVel = GetMaxSpeed();
+            float maxVel = GetMaxSpeed();
 
-            //var posBuf = _rcSpline.Mesh.Data[EBufferType.Position];
-            //var colBuf = _rcSpline.Mesh.Data[EBufferType.Color];
-            //var kfPosBuf = _rcKeyframeInOutPositions.Mesh.Data[EBufferType.Position];
-            //var tanPosBuf = _rcTangentPositions.Mesh.Data[EBufferType.Position];
-            //var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
+            var posBuf = _rcSpline.Mesh.Data[EBufferType.Position];
+            var colBuf = _rcSpline.Mesh.Data[EBufferType.Color];
+            var kfPosBuf = _rcKeyframeInOutPositions.Mesh.Data[EBufferType.Position];
+            var tanPosBuf = _rcTangentPositions.Mesh.Data[EBufferType.Position];
+            var keyLinesBuf = _rcKfLines.Mesh.Data[EBufferType.Position];
 
-            //int i;
-            //float sec = minSec;
-            //float timeIncrement = 1.0f / displayFPS;
-            //for (i = 0; i < posBuf.ElementCount; ++i, sec += timeIncrement)
-            //{
-            //    GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
+            int i;
+            float sec = 0.0f;
+            float timeIncrement = 1.0f / DisplayFPS;
+            for (i = 0; i < posBuf.ElementCount; ++i, sec += timeIncrement)
+            {
+                GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
 
-            //    posBuf.Set(i, pos);
-            //    colBuf.Set(i, color);
-            //}
+                posBuf.Set(i, pos);
+                colBuf.Set(i, color);
+            }
 
-            //i = 0;
-            //int i2;
-            //foreach (Vec2Keyframe kf in _targetAnimation)
-            //{
-            //    i2 = i << 1;
-            //    GetKeyframePosInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
-                
-            //    KeyframeInOutPosInOutTan[i2] = inPos;
-            //    KeyframeInOutPosInOutTan[i2 + 1] = outPos;
+            i = 0;
+            int i2;
+            foreach (Vec2Keyframe kf in _targetAnimation)
+            {
+                i2 = i << 1;
+                GetKeyframePosInfo(kf, out Vec3 inPos, out Vec3 outPos, out Vec3 inTanPos, out Vec3 outTanPos);
 
-            //    kfPosBuf.Set(i, inPos);
-            //    tanPosBuf.Set(i, inTanPos);
-            //    keyLinesBuf.Set(i2, inPos);
-            //    keyLinesBuf.Set(i2 + 1, inTanPos);
+                KeyframeInOutPosInOutTan[i2] = inPos;
+                KeyframeInOutPosInOutTan[i2 + 1] = outPos;
 
-            //    ++i;
-            //    i2 = i << 1;
+                kfPosBuf.Set(i, inPos);
+                tanPosBuf.Set(i, inTanPos);
+                keyLinesBuf.Set(i2, inPos);
+                keyLinesBuf.Set(i2 + 1, inTanPos);
 
-            //    KeyframeInOutPosInOutTan[i2] = inTanPos;
-            //    KeyframeInOutPosInOutTan[i2 + 1] = outTanPos;
+                ++i;
+                i2 = i << 1;
 
-            //    kfPosBuf.Set(i, outPos);
-            //    tanPosBuf.Set(i, outTanPos);
-            //    keyLinesBuf.Set(i2, outPos);
-            //    keyLinesBuf.Set(i2 + 1, outTanPos);
+                KeyframeInOutPosInOutTan[i2] = inTanPos;
+                KeyframeInOutPosInOutTan[i2 + 1] = outTanPos;
 
-            //    ++i;
-            //}
+                kfPosBuf.Set(i, outPos);
+                tanPosBuf.Set(i, outTanPos);
+                keyLinesBuf.Set(i2, outPos);
+                keyLinesBuf.Set(i2 + 1, outTanPos);
+
+                ++i;
+            }
         }
         public async Task RegenerateSplinePrimitiveAsync()
             => await Task.Run((Action)RegenerateSplinePrimitive);
@@ -373,27 +372,28 @@ namespace TheraEditor.Windows.Forms
                 _regenerating = false;
                 return;
             }
-
+            
             GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
             Vec2 bounds = Bounds;
             Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
             Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
-            float maxSec = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
-            float minSec = TMath.Max(boundsMinAnimRelative.X, animMin.X);
-            float maxVal = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
-            float minVal = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
-            float visibleAnimSecRange = maxSec - minSec;
-            float visibleAnimValRange = maxVal - minVal;
-            if (visibleAnimSecRange <= 0.0f)
-                visibleAnimSecRange = Bounds.X;
-            DisplayFPS = Bounds.X / visibleAnimSecRange * Resolution;
-            
+            float maxX = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
+            float minX = TMath.Max(boundsMinAnimRelative.X, animMin.X);
+            float maxY = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
+            float minY = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
+            float visibleAnimXRange = maxX - minX;
+            float visibleAnimYRange = maxY - minY;
+            if (visibleAnimXRange <= 0.0f)
+                visibleAnimXRange = Bounds.X;
+            if (visibleAnimYRange <= 0.0f)
+                visibleAnimYRange = Bounds.Y;
+            DisplayFPS = TMath.Max(Bounds.X / visibleAnimXRange, Bounds.Y / visibleAnimYRange) * Resolution;
+
             float secondsPerFrame = 1.0f / DisplayFPS;
 
-            int frameCount = (int)Math.Ceiling(visibleAnimSecRange * DisplayFPS) + 1;
-
-            MinSec = minSec;
-            VisibleSecRange = visibleAnimSecRange;
+            int frameCount = (int)Math.Ceiling(visibleAnimXRange * DisplayFPS) + 1;
+            
+            VisibleRange = new Vec2(visibleAnimXRange, visibleAnimYRange);
             FrameCount = frameCount;
 
             int posCount = (KeyCount = _targetAnimation.Keyframes.Count) << 1;
@@ -405,7 +405,7 @@ namespace TheraEditor.Windows.Forms
 
             float maxVel = GetMaxSpeed();
             int i;
-            float sec = minSec;
+            float sec = 0.0f;
             for (i = 0; i < splinePoints.Length; ++i, sec += secondsPerFrame)
             {
                 GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
@@ -520,20 +520,15 @@ void main()
                 out (float Time, float Value)[] minResult,
                 out (float Time, float Value)[] maxResult);
 
-            float minY = minResult[0].Value;
-            float maxY = maxResult[0].Value;
-            if (minY > maxY)
+            min = new Vec2(minResult[0].Value, minResult[1].Value);
+            max = new Vec2(maxResult[0].Value, maxResult[1].Value);
+            if (min.X > max.X || min.Y > max.Y)
             {
                 min = Vec2.Zero;
                 max = Vec2.Zero;
                 return false;
             }
 
-            float minX = 0.0f;
-            float maxX = _targetAnimation.LengthInSeconds;
-
-            min = new Vec2(minX, minY);
-            max = new Vec2(maxX, maxY);
             return true;
         }
         public override void ZoomExtents(bool adjustScale = true)

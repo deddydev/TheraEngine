@@ -31,16 +31,27 @@
             this.components = new System.ComponentModel.Container();
             this.ActorTree = new System.Windows.Forms.TreeView();
             this.ctxActorTree = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.newActorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ctxSingleActor = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnAddActor = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnAddMap = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnDeleteActor = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepMap = new System.Windows.Forms.ToolStripSeparator();
+            this.btnRemoveMap = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepScene = new System.Windows.Forms.ToolStripSeparator();
+            this.btnAddSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnRemoveSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepLogic = new System.Windows.Forms.ToolStripSeparator();
+            this.btnAddLogicComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnRemoveLogicComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnRename = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepActor = new System.Windows.Forms.ToolStripSeparator();
+            this.btnMoveUp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxActorTree.SuspendLayout();
-            this.ctxSingleActor.SuspendLayout();
             this.SuspendLayout();
             // 
             // ActorTree
             // 
-            this.ActorTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.ActorTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
             this.ActorTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.ActorTree.ContextMenuStrip = this.ctxActorTree;
             this.ActorTree.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -58,32 +69,122 @@
             // 
             this.ctxActorTree.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.ctxActorTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newActorToolStripMenuItem});
+            this.btnRename,
+            this.btnMoveUp,
+            this.btnMoveDown,
+            this.sepActor,
+            this.btnAddActor,
+            this.btnDeleteActor,
+            this.sepMap,
+            this.btnAddMap,
+            this.btnRemoveMap,
+            this.sepScene,
+            this.btnAddSceneComp,
+            this.btnRemoveSceneComp,
+            this.sepLogic,
+            this.btnAddLogicComp,
+            this.btnRemoveLogicComp});
             this.ctxActorTree.Name = "ctxActorTree";
             this.ctxActorTree.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.ctxActorTree.Size = new System.Drawing.Size(211, 56);
+            this.ctxActorTree.Size = new System.Drawing.Size(219, 292);
+            this.ctxActorTree.Opening += new System.ComponentModel.CancelEventHandler(this.ctxActorTree_Opening);
             // 
-            // newActorToolStripMenuItem
+            // btnAddActor
             // 
-            this.newActorToolStripMenuItem.Name = "newActorToolStripMenuItem";
-            this.newActorToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.newActorToolStripMenuItem.Text = "New Actor";
-            this.newActorToolStripMenuItem.Click += new System.EventHandler(this.NewActor_Click);
+            this.btnAddActor.Name = "btnAddActor";
+            this.btnAddActor.Size = new System.Drawing.Size(218, 22);
+            this.btnAddActor.Text = "Add Actor";
+            this.btnAddActor.Click += new System.EventHandler(this.btnAddActor_Click);
             // 
-            // ctxSingleActor
+            // btnAddMap
             // 
-            this.ctxSingleActor.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.ctxSingleActor.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.deleteToolStripMenuItem});
-            this.ctxSingleActor.Name = "ctxSingleActor";
-            this.ctxSingleActor.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.ctxSingleActor.Size = new System.Drawing.Size(123, 28);
+            this.btnAddMap.Name = "btnAddMap";
+            this.btnAddMap.Size = new System.Drawing.Size(218, 22);
+            this.btnAddMap.Text = "Add Map";
+            this.btnAddMap.Click += new System.EventHandler(this.btnAddMap_Click);
             // 
-            // deleteToolStripMenuItem
+            // btnDeleteActor
             // 
-            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(122, 24);
-            this.deleteToolStripMenuItem.Text = "Delete";
+            this.btnDeleteActor.Name = "btnDeleteActor";
+            this.btnDeleteActor.Size = new System.Drawing.Size(218, 22);
+            this.btnDeleteActor.Text = "Delete Actor";
+            this.btnDeleteActor.Click += new System.EventHandler(this.btnDeleteActor_Click);
+            // 
+            // sepMap
+            // 
+            this.sepMap.Name = "sepMap";
+            this.sepMap.Size = new System.Drawing.Size(215, 6);
+            // 
+            // btnRemoveMap
+            // 
+            this.btnRemoveMap.Name = "btnRemoveMap";
+            this.btnRemoveMap.Size = new System.Drawing.Size(218, 22);
+            this.btnRemoveMap.Text = "Remove Map";
+            this.btnRemoveMap.Click += new System.EventHandler(this.btnRemoveMap_Click);
+            // 
+            // sepScene
+            // 
+            this.sepScene.Name = "sepScene";
+            this.sepScene.Size = new System.Drawing.Size(215, 6);
+            // 
+            // btnAddSceneComp
+            // 
+            this.btnAddSceneComp.Name = "btnAddSceneComp";
+            this.btnAddSceneComp.Size = new System.Drawing.Size(218, 22);
+            this.btnAddSceneComp.Text = "Add Scene Component";
+            this.btnAddSceneComp.Click += new System.EventHandler(this.btnAddSceneComp_Click);
+            // 
+            // btnRemoveSceneComp
+            // 
+            this.btnRemoveSceneComp.Name = "btnRemoveSceneComp";
+            this.btnRemoveSceneComp.Size = new System.Drawing.Size(218, 22);
+            this.btnRemoveSceneComp.Text = "Remove Scene Component";
+            this.btnRemoveSceneComp.Click += new System.EventHandler(this.btnRemoveSceneComp_Click);
+            // 
+            // sepLogic
+            // 
+            this.sepLogic.Name = "sepLogic";
+            this.sepLogic.Size = new System.Drawing.Size(215, 6);
+            // 
+            // btnAddLogicComp
+            // 
+            this.btnAddLogicComp.Name = "btnAddLogicComp";
+            this.btnAddLogicComp.Size = new System.Drawing.Size(218, 22);
+            this.btnAddLogicComp.Text = "Add Logic Component";
+            this.btnAddLogicComp.Click += new System.EventHandler(this.btnAddLogicComp_Click);
+            // 
+            // btnRemoveLogicComp
+            // 
+            this.btnRemoveLogicComp.Name = "btnRemoveLogicComp";
+            this.btnRemoveLogicComp.Size = new System.Drawing.Size(218, 22);
+            this.btnRemoveLogicComp.Text = "Remove Logic Component";
+            this.btnRemoveLogicComp.Click += new System.EventHandler(this.btnRemoveLogicComp_Click);
+            // 
+            // btnRename
+            // 
+            this.btnRename.Name = "btnRename";
+            this.btnRename.Size = new System.Drawing.Size(218, 22);
+            this.btnRename.Text = "Rename";
+            this.btnRename.Click += new System.EventHandler(this.btnRename_Click);
+            // 
+            // sepActor
+            // 
+            this.sepActor.Name = "sepActor";
+            this.sepActor.Size = new System.Drawing.Size(215, 6);
+            // 
+            // btnMoveUp
+            // 
+            this.btnMoveUp.Name = "btnMoveUp";
+            this.btnMoveUp.Size = new System.Drawing.Size(218, 22);
+            this.btnMoveUp.Text = "Move Up";
+            this.btnMoveUp.Click += new System.EventHandler(this.btnMoveUp_Click);
+            // 
+            // btnMoveDown
+            // 
+            this.btnMoveDown.Name = "btnMoveDown";
+            this.btnMoveDown.Size = new System.Drawing.Size(218, 22);
+            this.btnMoveDown.Text = "Move Down";
+            this.btnMoveDown.Click += new System.EventHandler(this.btnMoveDown_Click);
             // 
             // DockableActorTree
             // 
@@ -92,7 +193,6 @@
             this.Name = "DockableActorTree";
             this.Text = "Scene Actors";
             this.ctxActorTree.ResumeLayout(false);
-            this.ctxSingleActor.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -100,9 +200,21 @@
         #endregion
         
         public System.Windows.Forms.TreeView ActorTree;
-        private System.Windows.Forms.ContextMenuStrip ctxSingleActor;
-        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip ctxActorTree;
-        private System.Windows.Forms.ToolStripMenuItem newActorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnAddActor;
+        private System.Windows.Forms.ToolStripMenuItem btnRename;
+        private System.Windows.Forms.ToolStripSeparator sepActor;
+        private System.Windows.Forms.ToolStripMenuItem btnDeleteActor;
+        private System.Windows.Forms.ToolStripSeparator sepMap;
+        private System.Windows.Forms.ToolStripMenuItem btnAddMap;
+        private System.Windows.Forms.ToolStripMenuItem btnRemoveMap;
+        private System.Windows.Forms.ToolStripSeparator sepScene;
+        private System.Windows.Forms.ToolStripMenuItem btnAddSceneComp;
+        private System.Windows.Forms.ToolStripMenuItem btnRemoveSceneComp;
+        private System.Windows.Forms.ToolStripSeparator sepLogic;
+        private System.Windows.Forms.ToolStripMenuItem btnAddLogicComp;
+        private System.Windows.Forms.ToolStripMenuItem btnRemoveLogicComp;
+        private System.Windows.Forms.ToolStripMenuItem btnMoveUp;
+        private System.Windows.Forms.ToolStripMenuItem btnMoveDown;
     }
 }

@@ -180,7 +180,29 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void NewActor_Click(object sender, EventArgs e)
+        public void ClearMaps()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)ClearMaps);
+                return;
+            }
+            _dynamicActorsMapNode = null;
+            _mapTreeNodes.Clear();
+            ActorTree.Nodes.Clear();
+        }
+
+        private void ctxActorTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
+
+        private void btnRename_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnAddActor_Click(object sender, EventArgs e)
         {
             if (Engine.World?.Settings == null)
                 return;
@@ -203,25 +225,58 @@ namespace TheraEditor.Windows.Forms
 
             if (targetMap == null)
                 targetMap = Engine.World.Settings.FindOrCreateMap();
-            
+
             BaseActor newActor = Editor.UserCreateInstanceOf<BaseActor>();
             if (newActor == null)
                 return;
-            
+
             targetMap.Actors.Add(newActor);
             Engine.World.SpawnActor(newActor);
         }
 
-        public void ClearMaps()
+        private void btnDeleteActor_Click(object sender, EventArgs e)
         {
-            if (InvokeRequired)
-            {
-                BeginInvoke((Action)ClearMaps);
-                return;
-            }
-            _dynamicActorsMapNode = null;
-            _mapTreeNodes.Clear();
-            ActorTree.Nodes.Clear();
+
+        }
+
+        private void btnAddMap_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRemoveMap_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnAddSceneComp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRemoveSceneComp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnAddLogicComp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRemoveLogicComp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnMoveUp_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnMoveDown_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

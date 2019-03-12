@@ -5,7 +5,6 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
-using TheraEngine.Core.Files;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 

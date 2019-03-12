@@ -353,6 +353,15 @@ namespace TheraEngine.Core.Memory
         }
         #endregion
 
+        public byte[] GetBytes(int count)
+        {
+            byte[] arr = new byte[count];
+            for (int i = 0; i < count; ++i)
+                arr[i] = this[i].Byte;
+            return arr;
+        }
+        
+        public VoidPtr this[int index] => this + index;
         public VoidPtr this[int count, int stride] => this + (count * stride);
 
         public string GetANSIString(int offset = 0) => new string((sbyte*)this + offset);

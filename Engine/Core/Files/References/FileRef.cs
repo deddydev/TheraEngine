@@ -26,6 +26,8 @@ namespace TheraEngine.Core.Files
     [TFileExt("ref")]
     public abstract class FileRef<T> : FileLoader<T>, IFileRef where T : class, IFileObject
     {
+        //TODO: monitor when file's FilePath is changed, update reference path here accordingly
+
         #region Constructors
         public FileRef() : base() { }
         public FileRef(Type type) : base(type) { }

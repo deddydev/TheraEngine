@@ -657,14 +657,11 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnRequestEditText(NodeRequestTextEventArgs e)
         {
-            if (e.Node is BaseFileWrapper)
+            if (e.Node is BaseFileWrapper && !string.IsNullOrEmpty(e.Node.Text))
             {
-                if (!string.IsNullOrEmpty(e.Node.Text))
-                {
-                    int i = e.Node.Text.LastIndexOf('.');
-                    if (i >= 0)
-                        e.Label = e.Node.Text.Substring(0, i);
-                }
+                int i = e.Node.Text.LastIndexOf('.');
+                if (i >= 0)
+                    e.Label = e.Node.Text.Substring(0, i);
             }
         }
         protected override void OnValidateLabelEdit(NodeRequestTextEventArgs e)

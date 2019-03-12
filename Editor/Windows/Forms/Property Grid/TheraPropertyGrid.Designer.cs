@@ -61,6 +61,7 @@
             this.pnlLogic = new System.Windows.Forms.Panel();
             this.pnlProps2 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.btnSaveAs = new System.Windows.Forms.Button();
             this.pnlHeader.SuspendLayout();
             this.pnlLogicComps.SuspendLayout();
             this.ctxSceneComps.SuspendLayout();
@@ -74,9 +75,9 @@
             // 
             // lblSceneComps
             // 
-            this.lblSceneComps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(82)))), ((int)(((byte)(80)))));
+            this.lblSceneComps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(44)))));
             this.lblSceneComps.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblSceneComps.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSceneComps.Font = new System.Drawing.Font("Source Sans Pro", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSceneComps.ForeColor = System.Drawing.Color.Silver;
             this.lblSceneComps.Location = new System.Drawing.Point(0, 0);
             this.lblSceneComps.Name = "lblSceneComps";
@@ -87,9 +88,9 @@
             // 
             // lblLogicComps
             // 
-            this.lblLogicComps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(82)))), ((int)(((byte)(80)))));
+            this.lblLogicComps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(44)))));
             this.lblLogicComps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblLogicComps.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblLogicComps.Font = new System.Drawing.Font("Source Sans Pro", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblLogicComps.ForeColor = System.Drawing.Color.Silver;
             this.lblLogicComps.Location = new System.Drawing.Point(74, 0);
             this.lblLogicComps.Name = "lblLogicComps";
@@ -103,9 +104,9 @@
             // lblProperties
             // 
             this.lblProperties.AutoEllipsis = true;
-            this.lblProperties.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(82)))), ((int)(((byte)(80)))));
+            this.lblProperties.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(44)))));
             this.lblProperties.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblProperties.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblProperties.Font = new System.Drawing.Font("Source Sans Pro", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblProperties.ForeColor = System.Drawing.Color.Silver;
             this.lblProperties.Location = new System.Drawing.Point(0, 0);
             this.lblProperties.Margin = new System.Windows.Forms.Padding(0);
@@ -180,7 +181,7 @@
             this.lblObjectName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.lblObjectName.Location = new System.Drawing.Point(0, 0);
             this.lblObjectName.Name = "lblObjectName";
-            this.lblObjectName.Size = new System.Drawing.Size(543, 33);
+            this.lblObjectName.Size = new System.Drawing.Size(521, 33);
             this.lblObjectName.TabIndex = 6;
             this.lblObjectName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblObjectName.Click += new System.EventHandler(this.lblObjectName_Click);
@@ -191,6 +192,7 @@
             // 
             this.pnlHeader.Controls.Add(this.lblObjectName);
             this.pnlHeader.Controls.Add(this.btnSave);
+            this.pnlHeader.Controls.Add(this.btnSaveAs);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Margin = new System.Windows.Forms.Padding(0);
@@ -200,14 +202,15 @@
             // 
             // btnSave
             // 
-            this.btnSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(82)))), ((int)(((byte)(100)))));
+            this.btnSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(82)))), ((int)(((byte)(80)))));
             this.btnSave.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSave.Font = new System.Drawing.Font("Source Sans Pro", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSave.ForeColor = System.Drawing.Color.Silver;
-            this.btnSave.Location = new System.Drawing.Point(543, 0);
+            this.btnSave.Location = new System.Drawing.Point(521, 0);
             this.btnSave.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(74, 33);
+            this.btnSave.Size = new System.Drawing.Size(48, 33);
             this.btnSave.TabIndex = 7;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = false;
@@ -229,7 +232,7 @@
             // 
             // btnMoveUpLogicComp
             // 
-            this.btnMoveUpLogicComp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(102)))), ((int)(((byte)(100)))));
+            this.btnMoveUpLogicComp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(82)))), ((int)(((byte)(80)))));
             this.btnMoveUpLogicComp.Dock = System.Windows.Forms.DockStyle.Left;
             this.btnMoveUpLogicComp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMoveUpLogicComp.ForeColor = System.Drawing.Color.Silver;
@@ -244,7 +247,7 @@
             // 
             // btnMoveDownLogicComp
             // 
-            this.btnMoveDownLogicComp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(102)))), ((int)(((byte)(100)))));
+            this.btnMoveDownLogicComp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(82)))), ((int)(((byte)(80)))));
             this.btnMoveDownLogicComp.Dock = System.Windows.Forms.DockStyle.Left;
             this.btnMoveDownLogicComp.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMoveDownLogicComp.ForeColor = System.Drawing.Color.Silver;
@@ -465,6 +468,23 @@
             this.panel2.Size = new System.Drawing.Size(617, 141);
             this.panel2.TabIndex = 4;
             // 
+            // btnSaveAs
+            // 
+            this.btnSaveAs.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(82)))), ((int)(((byte)(80)))));
+            this.btnSaveAs.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnSaveAs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSaveAs.Font = new System.Drawing.Font("Source Sans Pro", 9.749999F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSaveAs.ForeColor = System.Drawing.Color.Silver;
+            this.btnSaveAs.Location = new System.Drawing.Point(569, 0);
+            this.btnSaveAs.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.btnSaveAs.Name = "btnSaveAs";
+            this.btnSaveAs.Size = new System.Drawing.Size(48, 33);
+            this.btnSaveAs.TabIndex = 8;
+            this.btnSaveAs.Text = "As...";
+            this.btnSaveAs.UseVisualStyleBackColor = false;
+            this.btnSaveAs.Visible = false;
+            this.btnSaveAs.Click += new System.EventHandler(this.btnSaveAs_Click);
+            // 
             // TheraPropertyGrid
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -527,5 +547,6 @@
         private System.Windows.Forms.Panel pnlScene;
         private System.Windows.Forms.Panel pnlLogic;
         private System.Windows.Forms.Panel panel2;
+        public System.Windows.Forms.Button btnSaveAs;
     }
 }

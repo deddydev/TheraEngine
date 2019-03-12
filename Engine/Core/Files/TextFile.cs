@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
@@ -17,6 +18,8 @@ namespace TheraEngine.Core.Files
     public class TextFile : TFileObject, ITextSource
     {
         public event Action TextChanged;
+
+        public static ConcurrentDictionary<string, (DateTime, string)> TextCache = new ConcurrentDictionary<string, (DateTime, string)>();
 
         private string _text = null;
         [TString(true, false, false, true)]
@@ -74,19 +77,59 @@ namespace TheraEngine.Core.Files
         }
         public override void ManualWrite3rdParty(string filePath)
         {
-            File.WriteAllText(filePath, Text, Encoding);
+            try
+            {
+                File.WriteAllText(filePath, Text, Encoding);
+                DateTime lastUpdatedTime = File.GetLastWriteTime(FilePath);
+                var attrib = (lastUpdatedTime, _text);
+                TextCache.AddOrUpdate(filePath, attrib, (x, y) => attrib);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
         }
         public string LoadText()
         {
             _text = null;
             if (!string.IsNullOrWhiteSpace(FilePath) && File.Exists(FilePath))
             {
-                Encoding = GetEncoding(FilePath);
-                _text = File.ReadAllText(FilePath, Encoding);
+                DateTime lastUpdatedTime = File.GetLastWriteTime(FilePath);
+                if (TextCache.ContainsKey(FilePath))
+                {
+                    var attrib = TextCache[FilePath];
+                    if (attrib.Item1 < lastUpdatedTime)
+                    {
+                        Read();
+                        attrib.Item1 = lastUpdatedTime;
+                        attrib.Item2 = _text;
+                        TextCache[FilePath] = attrib;
+                    }
+                    else
+                    {
+                        _text = attrib.Item2;
+                    }
+                }
+                else
+                {
+                    Read();
+                    var attrib = (lastUpdatedTime, _text);
+                    TextCache.AddOrUpdate(FilePath, attrib, (x, y) => attrib);
+                }
             }
 
             return _text;
         }
+
+        private unsafe void Read()
+        {
+            using (FileMap map = FileMap.FromFile(FilePath, FileMapProtect.Read))
+            {
+                Encoding = GetEncoding(map, out int bomLength);
+                _text = Encoding.GetString((byte*)map.Address + bomLength, map.Length - bomLength);
+            }
+        }
+
         public void UnloadText()
         {
             _text = null;
@@ -103,14 +146,14 @@ namespace TheraEngine.Core.Files
         /// Determines a text file's encoding by analyzing its byte order mark (BOM).
         /// Defaults to ASCII when detection of the text file's endianness fails.
         /// </summary>
-        /// <param name="filename">The text file to analyze.</param>
+        /// <param name="path">The text file to analyze.</param>
         /// <returns>The detected encoding.</returns>
-        public static Encoding GetEncoding(string filename)
+        public static Encoding GetEncoding(string path)
         {
             // Read the BOM
             byte[] bom = new byte[4];
-            using (FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read))
-                file.Read(bom, 0, 4);
+            using (FileMap map = FileMap.FromFile(path, FileMapProtect.Read, 0, 4))
+                bom = map.Address.GetBytes(4);
 
             // Analyze the BOM
             if (bom[0] == 0x2B && bom[1] == 0x2F && bom[2] == 0x76) return Encoding.UTF7;
@@ -118,6 +161,42 @@ namespace TheraEngine.Core.Files
             if (bom[0] == 0xFF && bom[1] == 0xFE) return Encoding.Unicode; //UTF-16LE
             if (bom[0] == 0xFE && bom[1] == 0xFF) return Encoding.BigEndianUnicode; //UTF-16BE
             if (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xFE && bom[3] == 0xFF) return Encoding.UTF32;
+            return Encoding.Default;
+        }
+        public static Encoding GetEncoding(FileMap file, out int bomLength)
+        {
+            // Read the BOM
+            byte[] bom = new byte[4];
+            bom = file.Address.GetBytes(4);
+
+            // Analyze the BOM
+            if (bom[0] == 0x2B && bom[1] == 0x2F && bom[2] == 0x76)
+            {
+                bomLength = 3;
+                return Encoding.UTF7;
+            }
+            if (bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)
+            {
+                bomLength = 3;
+                return Encoding.UTF8;
+            }
+            if (bom[0] == 0xFF && bom[1] == 0xFE)
+            {
+                bomLength = 2;
+                return Encoding.Unicode; //UTF-16LE
+            }
+            if (bom[0] == 0xFE && bom[1] == 0xFF)
+            {
+                bomLength = 2;
+                return Encoding.BigEndianUnicode; //UTF-16BE
+            }
+            if (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xFE && bom[3] == 0xFF)
+            {
+                bomLength = 4;
+                return Encoding.UTF32;
+            }
+
+            bomLength = 0;
             return Encoding.Default;
         }
     }

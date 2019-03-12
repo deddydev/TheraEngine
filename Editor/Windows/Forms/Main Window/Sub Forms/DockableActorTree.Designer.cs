@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.ActorTree = new System.Windows.Forms.TreeView();
+            this.ActorTree = new TreeViewEx();
             this.ctxActorTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.btnAddActor = new System.Windows.Forms.ToolStripMenuItem();
             this.btnAddMap = new System.Windows.Forms.ToolStripMenuItem();
@@ -199,7 +199,7 @@
 
         #endregion
         
-        public System.Windows.Forms.TreeView ActorTree;
+        public TreeViewEx ActorTree;
         private System.Windows.Forms.ContextMenuStrip ctxActorTree;
         private System.Windows.Forms.ToolStripMenuItem btnAddActor;
         private System.Windows.Forms.ToolStripMenuItem btnRename;

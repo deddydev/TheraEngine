@@ -102,7 +102,7 @@ namespace TheraEditor.Windows.Forms
             DockPanel dockPanel,
             DockState document,
             TextFile file,
-            Action<DockableTextEditor> onSavedOverride = null)
+            DelTextSavedHandler onSavedOverride = null)
         {
             DockableTextEditor editor;
             if (file.RootFile == file && !string.IsNullOrWhiteSpace(file?.FilePath))
@@ -1707,7 +1707,9 @@ namespace TheraEditor.Windows.Forms
         }
 
         public string GetText() => TextBox.Text;
-        public event Action<DockableTextEditor> SavedOverride;
+
+        public delegate void DelTextSavedHandler(DockableTextEditor editor, string targetPath);
+        public event DelTextSavedHandler SavedOverride;
 
         private bool _updating = false;
         private void cboMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -1777,9 +1779,10 @@ namespace TheraEditor.Windows.Forms
             if (TargetFile == null)
                 return;
 
+            string filter = TargetFile.GetFilter(true, true, false, false);
             using (SaveFileDialog sfd = new SaveFileDialog()
             {
-                Filter = TargetFile.GetFilter(true, true, false, false) + "|All files (*.*)|*.*",
+                Filter = filter + "|All files (*.*)|*.*",
             })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)
@@ -1795,7 +1798,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (SavedOverride != null)
                 {
-                    SavedOverride(this);
+                    SavedOverride(this, null);
                     TextBox.IsChanged = false;
                 }
                 else
@@ -1816,7 +1819,7 @@ namespace TheraEditor.Windows.Forms
             Editor.Instance.EndOperation(op);
             TextBox.OpenBindingFile(path, TargetFile.Encoding);
 
-            //TextBox.OnTextChanged();
+            TextBox.OnTextChanged();
             //TextBox.OnSyntaxHighlight(new TextChangedEventArgs(TextBox.Range));
             TextBox.IsChanged = false;
         }

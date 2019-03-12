@@ -99,7 +99,7 @@ namespace TheraEngine.Core.Files
             bool thirdParty = true,
             bool import3rdParty = false, 
             bool export3rdParty = false)
-            => GetFilter(GetType(), proprietary, import3rdParty, export3rdParty);
+            => GetFilter(GetType(), proprietary, thirdParty, import3rdParty, export3rdParty);
         
         public async void Export()
             => await ExportAsync(ESerializeFlags.Default);

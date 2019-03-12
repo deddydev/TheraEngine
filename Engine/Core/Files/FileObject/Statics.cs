@@ -193,7 +193,7 @@ namespace TheraEngine.Core.Files
             TFileDef def = GetFileDefinition(classType);
             TFileExt ext = GetFileExtension(classType);
             string name = def?.UserFriendlyName ?? classType.GetFriendlyName();
-            if (proprietary)
+            if (proprietary && ext != null)
             {
                 foreach (string type in Enum.GetNames(typeof(EProprietaryFileFormat)))
                 {
@@ -229,68 +229,71 @@ namespace TheraEngine.Core.Files
                             eachType += "|";
                         }
 
-                        string fmt = $"*.{ext.Extension}";
+                        string fmt = $"*.{extStr}";
                         eachType += $"{name} ({fmt})|{fmt}";
                         allTypes += fmt;
                     }
             }
-            if (import3rdParty)
+            if (ext != null)
             {
-                foreach (string ext3rd in ext.ImportableExtensions)
+                if (import3rdParty)
                 {
-                    string extLower = ext3rd.ToLowerInvariant();
-                    if (first)
+                    foreach (string ext3rd in ext.ImportableExtensions)
                     {
-                        first = false;
-                        if (eachType.Length > 0)
-                            eachType += "|";
-                        if (allTypes.Length > 0)
+                        string extLower = ext3rd.ToLowerInvariant();
+                        if (first)
+                        {
+                            first = false;
+                            if (eachType.Length > 0)
+                                eachType += "|";
+                            if (allTypes.Length > 0)
+                                allTypes += ";";
+                        }
+                        else
+                        {
                             allTypes += ";";
+                            eachType += "|";
+                        }
+                        string fmt = $"*.{extLower}";
+                        if (TFile3rdPartyExt.ExtensionNames3rdParty.ContainsKey(extLower))
+                            eachType += $"{TFile3rdPartyExt.ExtensionNames3rdParty[extLower]} ({fmt})|{fmt}";
+                        else
+                            eachType += $"{extLower} file ({fmt})|{fmt}";
+                        allTypes += fmt;
                     }
-                    else
-                    {
-                        allTypes += ";";
-                        eachType += "|";
-                    }
-                    string fmt = $"*.{extLower}";
-                    if (TFile3rdPartyExt.ExtensionNames3rdParty.ContainsKey(extLower))
-                        eachType += $"{TFile3rdPartyExt.ExtensionNames3rdParty[extLower]} ({fmt})|{fmt}";
-                    else
-                        eachType += $"{extLower} file ({fmt})|{fmt}";
-                    allTypes += fmt;
                 }
-            }
-            if (export3rdParty)
-            {
-                foreach (string ext3rd in ext.ExportableExtensions)
+                if (export3rdParty)
                 {
-                    //Don't rewrite extension if it was already written as importable
-                    if (import3rdParty && 
-                        ext.ImportableExtensions != null && 
-                        ext.ImportableExtensions.Contains(ext3rd, StringComparer.InvariantCultureIgnoreCase))
-                        continue;
-
-                    string extLower = ext3rd.ToLowerInvariant();
-
-                    if (first)
+                    foreach (string ext3rd in ext.ExportableExtensions)
                     {
-                        first = false;
-                        if (eachType.Length > 0)
-                            eachType += "|";
-                        if (allTypes.Length > 0)
+                        //Don't rewrite extension if it was already written as importable
+                        if (import3rdParty &&
+                            ext.ImportableExtensions != null &&
+                            ext.ImportableExtensions.Contains(ext3rd, StringComparer.InvariantCultureIgnoreCase))
+                            continue;
+
+                        string extLower = ext3rd.ToLowerInvariant();
+
+                        if (first)
+                        {
+                            first = false;
+                            if (eachType.Length > 0)
+                                eachType += "|";
+                            if (allTypes.Length > 0)
+                                allTypes += ";";
+                        }
+                        else
+                        {
                             allTypes += ";";
+                            eachType += "|";
+                        }
+                        string fmt = $"*.{extLower}";
+                        if (TFile3rdPartyExt.ExtensionNames3rdParty.ContainsKey(extLower))
+                            eachType += $"{TFile3rdPartyExt.ExtensionNames3rdParty[extLower]} ({fmt})|{fmt}";
+                        else
+                            eachType += $"{extLower} file ({fmt})|{fmt}";
+                        allTypes += fmt;
                     }
-                    else
-                    {
-                        allTypes += ";";
-                        eachType += "|";
-                    }
-                    string fmt = $"*.{extLower}";
-                    if (TFile3rdPartyExt.ExtensionNames3rdParty.ContainsKey(extLower))
-                        eachType += $"{TFile3rdPartyExt.ExtensionNames3rdParty[extLower]} ({fmt})|{fmt}";
-                    else
-                        eachType += $"{extLower} file ({fmt})|{fmt}";
-                    allTypes += fmt;
                 }
             }
             

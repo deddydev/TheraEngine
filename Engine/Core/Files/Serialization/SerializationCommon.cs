@@ -745,12 +745,27 @@ namespace TheraEngine.Core.Files.Serialization
                     default:
                     case EFileFormat.ThirdParty:
 
-                        Type[] types = TFileObject.DetermineThirdPartyTypes(ext);
+                        List<Type> types = TFileObject.DetermineThirdPartyTypes(ext).ToList();
 
-                        if (types.Length > 1)
+                        if (types.Count > 1)
+                            for (int i = 0; i < types.Count; ++i)
+                            {
+                                Type t1 = types[i];
+                                for (int x = i + 1; x < types.Count; x++)
+                                {
+                                    Type t2 = types[x];
+                                    if (t1.IsAssignableFrom(t2))
+                                    {
+                                        types.RemoveAt(i--);
+                                        break;
+                                    }
+                                }
+                            }
+
+                        if (types.Count > 1)
                             Engine.PrintLine($"Multiple possible file types found for 3rd party extension '{ext}': {types.ToStringList(", ")}. Assuming the first.");
-
-                        fileType = types.Length > 0 ? types[0] : null;
+                        
+                        fileType = types.Count > 0 ? types[0] : null;
 
                         break;
                     case EFileFormat.XML:

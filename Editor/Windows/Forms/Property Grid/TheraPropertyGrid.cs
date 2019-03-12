@@ -131,7 +131,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             treeViewSceneComps.Nodes.Clear();
             lstLogicComps.DataSource = null;
-            btnSave.Visible = isObj && obj.EditorState.IsDirty;
+            btnSave.Visible = btnSaveAs.Visible = isObj && obj.EditorState.IsDirty;
             pnlHeader.Visible = pnlProps2.Visible = notNull;
             if (Enabled = notNull)
             {
@@ -857,64 +857,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _selectedSceneComp = e.Node;
         }
-
-        private async void btnSave_Click(object sender, EventArgs e)
-        {
-            (object, string) o = TargetObjects.Count == 0 ? (null, null) : TargetObjects.Peek();
-            if (!(o.Item1 is IFileObject fobj))
-                return;
-
-            IFileObject file = fobj?.RootFile ?? fobj;
-
-            Editor editor = Editor.Instance;
-            string path = file.FilePath;
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                using (SaveFileDialog sfd = new SaveFileDialog
-                {
-                    Filter = file.GetFilter()
-                })
-                {
-                    if (sfd.ShowDialog(this) == DialogResult.OK)
-                        path = sfd.FileName;
-                    else
-                    {
-                        Engine.PrintLine("Save canceled.");
-                        return;
-                    }
-                }
-            }
-
-            //editor.ContentTree.WatchProjectDirectory = false;
-            int op = editor.BeginOperation($"Saving {file.FilePath}", out Progress<float> progress, out CancellationTokenSource cancel);
-            await file.ExportAsync(ESerializeFlags.Default, progress, cancel.Token);
-            editor.EndOperation(op);
-            //editor.ContentTree.WatchProjectDirectory = true;
-
-            //if (TargetFileObject.References.Count == 1)
-            //{
-
-            //}
-            //else if (TargetFileObject.References.Count > 1)
-            //{
-            //    foreach (IFileRef r in TargetFileObject.References)
-            //    {
-
-            //    }
-            //}
-
-            btnSave.Visible = false;
-            file.EditorState.IsDirty = false;
-        }
-
         public void HandleChange(params LocalValueChange[] changes)
         {
             if (!(TargetObject is IObject obj))
                 return;
-            btnSave.Visible = true;
+            btnSave.Visible = btnSaveAs.Visible = true;
             Editor.Instance.UndoManager.AddChange(obj.EditorState, changes);
         }
-
         private void btnMoveDownLogicComp_Click(object sender, EventArgs e)
         {
             if (!(TargetObject is IActor a) || a.LogicComponents.Count <= 1)
@@ -1293,6 +1242,63 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void toolStripSeparator1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnSaveAs_Click(object sender, EventArgs e) => Save(true);
+        private void btnSave_Click(object sender, EventArgs e) => Save(false);
+        
+        private void Save(bool saveAs)
+        {
+            (object, string) o = TargetObjects.Count == 0 ? (null, null) : TargetObjects.Peek();
+            if (!(o.Item1 is IFileObject fobj))
+                return;
+
+            IFileObject file = fobj?.RootFile ?? fobj;
+
+            string path;
+            if (saveAs)
+                path = SelectPath(file);
+            else
+                path = file?.FilePath ?? SelectPath(file);
+
+            Save(file, path);
+        }
+        private string SelectPath(IFileObject file)
+        {
+            string path = null;
+            using (SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = file.GetFilter()
+            })
+            {
+                if (sfd.ShowDialog(this) == DialogResult.OK)
+                    path = sfd.FileName;
+                else
+                    Engine.PrintLine("Save canceled.");
+            }
+            return path;
+        }
+        private async void Save(IFileObject file, string path)
+        {
+            Editor editor = Editor.Instance;
+            int op = editor.BeginOperation($"Saving {path}", out Progress<float> progress, out CancellationTokenSource cancel);
+            await file.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);
+            editor.EndOperation(op);
+
+            //if (TargetFileObject.References.Count == 1)
+            //{
+
+            //}
+            //else if (TargetFileObject.References.Count > 1)
+            //{
+            //    foreach (IFileRef r in TargetFileObject.References)
+            //    {
+
+            //    }
+            //}
+
+            btnSave.Visible = btnSaveAs.Visible = false;
+            file.EditorState.IsDirty = false;
         }
     }
     public interface IDataChangeHandler

@@ -48,7 +48,7 @@ namespace TheraEngine.Rendering.UI
         }
 
         [Browsable(false)]
-        public bool PreRenderEnabled { get; set; } = true;
+        public bool PreRenderEnabled => IsVisible && ViewportCamera?.OwningComponent?.OwningScene != null;
         [Browsable(false)]
         public virtual Camera ViewportCamera
         {

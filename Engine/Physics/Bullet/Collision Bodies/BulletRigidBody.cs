@@ -488,12 +488,12 @@ namespace TheraEngine.Physics.Bullet
 
             if (state != null)
             {
-                node.AddAttribute("WorldTransform", state.WorldTransform);
-                node.AddAttribute("CenterOfMassOffset", state.CenterOfMassOffset);
+                node.AddAttribute("WorldTransform", (Matrix4)state.WorldTransform);
+                node.AddAttribute("CenterOfMassOffset", (Matrix4)state.CenterOfMassOffset);
             }
             else
             {
-                node.AddAttribute("WorldTransform", Body.WorldTransform);
+                node.AddAttribute("WorldTransform", (Matrix4)Body.WorldTransform);
             }
 
             CollisionShape shape = Body.CollisionShape;

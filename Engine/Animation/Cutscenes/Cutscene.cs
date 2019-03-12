@@ -11,8 +11,8 @@ namespace TheraEngine.Animation.Cutscenes
     public class WorldObjectReference
     {
         public string WorldPath { get; set; }
-        public int ActorID { get; set; }
-
+        public int MapIndex { get; set; }
+        public int ActorIndex { get; set; }
     }
     [TFileExt("cut")]
     [TFileDef("Cutscene")]
@@ -167,7 +167,11 @@ namespace TheraEngine.Animation.Cutscenes
                 {
                     newTime -= CurrentScene.LengthInSeconds;
                     if (++CurrentSceneIndex < SubScenes.Count)
-                        CurrentScene = SubScenes[CurrentSceneIndex]?.Animation?.File;
+                    {
+                        var clip = SubScenes[CurrentSceneIndex];
+                        CurrentScene = clip?.Animation?.File;
+                        CurrentScene.CurrentTime = clip.StartSecond;
+                    }
                     else
                         return;
                 }
@@ -193,7 +197,7 @@ namespace TheraEngine.Animation.Cutscenes
         }
     }
     [TFileExt("clip")]
-    [TFileDef("Cutscene Animation Clip")]
+    [TFileDef("Animation Clip")]
     public class Clip<T> : TFileObject where T : BaseAnimation
     {
         [TSerialize]

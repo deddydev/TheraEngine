@@ -98,7 +98,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             TextFile file = GetValue()?.ToString() ?? string.Empty;
             DockableTextEditor.ShowNew(p, DockState.Document, file, TextEditor_Saved);
         }
-        private void TextEditor_Saved(DockableTextEditor obj)
+        private void TextEditor_Saved(DockableTextEditor obj, string targetPath)
             => UpdateValue(obj.GetText(), true);
         
         private void btnBrowse_Click(object sender, EventArgs e)

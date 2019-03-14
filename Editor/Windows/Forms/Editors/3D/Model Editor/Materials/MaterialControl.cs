@@ -243,10 +243,9 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        private void Saved(DockableTextEditor obj)
+        private void Saved(DockableTextEditor obj, string targetPath)
         {
-            GLSLScript script = obj.TargetFile as GLSLScript;
-            if (script != null)
+            if (obj.TargetFile is GLSLScript script)
                 script.Text = obj.GetText();
         }
 

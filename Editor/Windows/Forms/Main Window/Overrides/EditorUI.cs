@@ -661,7 +661,8 @@ namespace TheraEditor.Windows.Forms
         {
             DragComponent = null;
 
-            if (SelectedComponent is CameraComponent cam)
+            if (SelectedComponent is CameraComponent cam &&
+                cam.Camera != OwningPawn?.LocalPlayerController?.ViewportCamera)
             {
                 SubViewport.ViewportCamera = cam.Camera;
                 SubViewport.IsVisible = true;

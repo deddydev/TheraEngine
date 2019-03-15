@@ -2,15 +2,28 @@
 
 namespace TheraEngine.Rendering.Particles
 {
-    public class Emitter : TFileObject
-    {
-        public void BeginEmitting()
-        {
+    //public class Emitter : TFileObject
+    //{
+    //    public ParticleSystemComponent Component { get; internal set; }
 
-        }
-        public void StopEmitting()
-        {
+    //    private bool _isEmitting = true;
+    //    public bool IsEmitting
+    //    {
+    //        get => _isEmitting;
+    //        set
+    //        {
+    //            if (_isEmitting == value)
+    //                return;
+    //            _isEmitting = value;
+    //        }
+    //    }
+    //    public void OnSpawned()
+    //    {
 
-        }
-    }
+    //    }
+    //    public void OnDespawned()
+    //    {
+
+    //    }
+    //}
 }

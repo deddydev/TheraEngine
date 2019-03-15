@@ -98,6 +98,11 @@ namespace TheraEngine.Rendering.Models
             Double  = 10,
         }
 
+        /// <summary>
+        /// If the buffer is mapped, this means any updates to the buffer will be shown by the GPU immediately.
+        /// If the buffer is not mapped, any updates will have to be pushed to the GPU using PushData or PushSubData.
+        /// </summary>
+        public bool IsMapped { get; internal set; } = false;
         public bool MapData { get; set; } = false;
         public EBufferTarget Target { get; private set; } = EBufferTarget.ArrayBuffer;
         public EBufferUsage Usage { get; set; } = EBufferUsage.StaticDraw;
@@ -119,6 +124,8 @@ namespace TheraEngine.Rendering.Models
         internal int _elementCount;
         [TSerialize("Type", NodeType = ENodeType.Attribute)]
         internal EBufferType _type = EBufferType.Other;
+        [TSerialize("Divisor", NodeType = ENodeType.Attribute)]
+        internal int _divisor = 0;
 
         [TSerialize("Data", IsElementString = true)]
         internal DataSource _data;
@@ -301,6 +308,11 @@ namespace TheraEngine.Rendering.Models
             get => _type;
             set => _type = value;
         }
+        public int Divisor
+        {
+            get => _divisor;
+            set => _divisor = value;
+        }
 
         public DataBuffer() : base(EObjectType.Buffer) { }
         public DataBuffer(
@@ -387,12 +399,6 @@ namespace TheraEngine.Rendering.Models
                 return -1;
             }
         }
-
-        /// <summary>
-        /// If the buffer is mapped, this means any updates to the buffer will be shown by the GPU immediately.
-        /// If the buffer is not mapped, any updates will have to be pushed to the GPU using PushData or PushSubData.
-        /// </summary>
-        public bool IsMapped { get; internal set; } = false;
 
         protected override void PostGenerated()
             => Engine.Renderer.InitializeBuffer(this);

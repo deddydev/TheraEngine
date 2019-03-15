@@ -492,6 +492,7 @@ namespace TheraEngine.Rendering.Models
         public RenderQuery ConditionalRenderQuery { get; set; } = null;
 
         public VertexShaderDesc BufferInfo { get; set; }
+        public int Instances { get; set; } = 1;
 
         public void Render() => Render(1);
         public void Render(int instances) 
@@ -600,7 +601,7 @@ namespace TheraEngine.Rendering.Models
 
             OnSettingUniforms(vtxProg, matProg);
             
-            Engine.Renderer.RenderPrimitiveManager(this, false, instances);
+            Engine.Renderer.RenderPrimitiveManager(this, false, Instances);
             _lastRenderedModelMatrix = modelMatrix;
         }
         private void OnSettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)

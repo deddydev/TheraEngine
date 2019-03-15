@@ -350,6 +350,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actors\ComponentActors\Spline2DActor.cs" />
     <Compile Include="Actors\IActor.cs" />
     <Compile Include="Actors\BaseActor.cs" />
     <Compile Include="Animation\Camera\PerspCamKeyCollection.cs" />
@@ -369,14 +370,15 @@
     <Compile Include="Components\Logic\Animation\StateMachine\AnimStateTransition.cs" />
     <Compile Include="Components\Logic\Animation\StateMachine\BlendManager.cs" />
     <Compile Include="Components\Logic\Scripting\ScriptComponent.cs" />
-    <Compile Include="Components\Scene\AudioComponent.cs" />
+    <Compile Include="Components\Scene\Misc\AudioComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\XAligned\CapsuleXComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\ZAligned\CapsuleZComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Shape3DComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\XAligned\ConeXComponent.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\ZAligned\ConeZComponent.cs" />
     <Compile Include="Components\Scene\Shapes\CollidableShape3DComponent.cs" />
-    <Compile Include="Components\Scene\SubActorComponent.cs" />
+    <Compile Include="Components\Scene\Splines\Spline2DComponent.cs" />
+    <Compile Include="Components\Scene\Misc\SubActorComponent.cs" />
     <Compile Include="Core\Attributes\TDeprecatedName.cs" />
     <Compile Include="Core\Attributes\TDropDownIndexSelectorAttribute.cs" />
     <Compile Include="Components\Logic\Common\HealthComponent.cs" />
@@ -388,15 +390,14 @@
     <Compile Include="Actors\Pawns\FlyingCameraPawnBase.cs" />
     <Compile Include="Actors\Pawns\FlyingCameraPawn.cs" />
     <Compile Include="Animation\Functions\Skeleton\BlendSpace1D.cs" />
-    <Compile Include="Components\Scene\IBLProbeComponent.cs" />
-    <Compile Include="Components\Scene\SceneCaptureComponent.cs" />
+    <Compile Include="Components\Scene\Misc\IBLProbeComponent.cs" />
+    <Compile Include="Components\Scene\Misc\SceneCaptureComponent.cs" />
     <Compile Include="Animation\Property\PropAnimInt.cs" />
     <Compile Include="Animation\Property\PropAnimMethod.cs" />
     <Compile Include="Components\Logic\Scripting\LuaScriptComponent.cs" />
     <Compile Include="Components\Logic\Scripting\CSharpScriptComponent.cs" />
     <Compile Include="Components\Logic\Scripting\PythonScriptComponent.cs" />
     <Compile Include="Components\Logic\Interaction\InteractorComponent.cs" />
-    <Compile Include="Components\Scene\ScreenTextComponent.cs" />
     <Compile Include="Components\Scene\Mesh\RenderableMesh.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\OriginRebasableComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Lagged\TranslationLagged.cs" />
@@ -699,7 +700,7 @@
     <Compile Include="Models\Meshes\Primitives\PrimitiveData\PrimitiveDataMembers.cs" />
     <Compile Include="Models\Meshes\Primitives\PrimitiveData\PrimitiveDataSerialize.cs" />
     <Compile Include="Models\Meshes\Primitives\VertexShaderDesc.cs" />
-    <Compile Include="Components\Scene\ParticleEmitterComponent.cs" />
+    <Compile Include="Components\Scene\Misc\ParticleEmitterComponent.cs" />
     <Compile Include="Rendering\Scene\Scene.cs" />
     <Compile Include="Rendering\Scene\Scene2D.cs" />
     <Compile Include="Tests\TestDefaults.cs" />
@@ -1008,7 +1009,7 @@
     <Compile Include="Components\Scene\Lights\PointLightComponent.cs" />
     <Compile Include="Components\Scene\Lights\DirectionalLightComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\PositionLag.cs" />
-    <Compile Include="Components\Scene\Spline3DComponent.cs" />
+    <Compile Include="Components\Scene\Splines\Spline3DComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Noise\NoisePosition.cs" />
     <Compile Include="Components\Scene\Transforms\R.cs" />
     <Compile Include="Components\Scene\Transforms\RT.cs" />
@@ -1017,8 +1018,8 @@
     <Compile Include="Components\Scene\Transforms\TRS.cs" />
     <Compile Include="Components\LogicComponent.cs" />
     <Compile Include="Components\Scene\Transforms\Misc\Boom.cs" />
-    <Compile Include="Components\Scene\CameraComponent.cs" />
-    <Compile Include="Components\Scene\DecalComponent.cs" />
+    <Compile Include="Components\Scene\Misc\CameraComponent.cs" />
+    <Compile Include="Components\Scene\Misc\DecalComponent.cs" />
     <Compile Include="Components\Logic\MovementComponents\TransformMovementComponent.cs" />
     <Compile Include="Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="Components\SceneComponent.cs" />
@@ -1074,13 +1075,13 @@
     <Compile Include="Rendering\Scene\Viewport.cs" />
     <Compile Include="Core\Memory\VoidPtr.cs" />
     <Compile Include="Actors\Actor.cs" />
-    <Compile Include="Actors\ComponentActors\SplineActor.cs" />
+    <Compile Include="Actors\ComponentActors\Spline3DActor.cs" />
     <Compile Include="Actors\ComponentActors\AudioActor.cs" />
     <Compile Include="Actors\Special\TransformTool2D.cs" />
     <Compile Include="Actors\Pawns\CharacterPawn.cs" />
     <Compile Include="Actors\Pawns\UserInterface.cs" />
     <Compile Include="Actors\Pawns\FlyingCameraPawnLagged.cs" />
-    <Compile Include="Components\Scene\LandscapeComponent.cs" />
+    <Compile Include="Components\Scene\Misc\LandscapeComponent.cs" />
     <Compile Include="Actors\Pawn.cs" />
     <Compile Include="Actors\Special\TransformTool3D.cs" />
     <Compile Include="Actors\Special\CharacterSpawnPointActor.cs" />

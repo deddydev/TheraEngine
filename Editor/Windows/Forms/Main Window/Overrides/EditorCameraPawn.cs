@@ -73,12 +73,12 @@ namespace TheraEditor.Actors.Types.Pawns
 
         protected override void MouseMove(float x, float y)
         {
-            if (TargetViewportComponent != null && Moving)
-            {
-                Vec2 result = TargetViewportComponent.ScreenToLocal(new Vec2(x, y), true);
-                x = result.X;
-                y = result.Y;
-            }
+            //if (TargetViewportComponent != null && Moving)
+            //{
+            //    Vec2 result = TargetViewportComponent.ScreenToLocal(new Vec2(x, y), true);
+            //    x = result.X;
+            //    y = result.Y;
+            //}
             ICameraTransformable comp = TargetComponent;
             if (Rotating)
             {

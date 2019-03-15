@@ -500,8 +500,12 @@ namespace TheraEngine.Components
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
         }
+        protected bool AllowLocalRecalc { get; set; } = true;
         protected void RecalcLocalTransform()
         {
+            if (!AllowLocalRecalc)
+                return;
+
             OnRecalcLocalTransform(out _localMatrix, out _inverseLocalMatrix);
             RecalcWorldTransform();
         }

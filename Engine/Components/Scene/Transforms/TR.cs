@@ -35,7 +35,8 @@ namespace TheraEngine.Components.Scene.Transforms
     {
         Rotator Rotation { get; set; }
 
-        void SetTR(Vec3 translation, Rotator rotation);
+        void SetTR(EventVec3 translation, Rotator rotation);
+        void SetTRRaw(Vec3 translation, Rotator rotation);
     }
     /// <summary>
     /// Translates first, then rotates.
@@ -46,7 +47,7 @@ namespace TheraEngine.Components.Scene.Transforms
         public TRComponent() : this(Vec3.Zero, Rotator.GetZero(), true) { }
         public TRComponent(Vec3 translation, Rotator rotation, bool deferLocalRecalc = false) : base(translation, true)
         {
-            _rotation = rotation;
+            _rotation = rotation ?? new Rotator();
             _rotation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
@@ -60,18 +61,26 @@ namespace TheraEngine.Components.Scene.Transforms
         }
         public TRComponent(Rotator rotation, bool deferLocalRecalc = false) : base()
         {
-            _rotation = rotation;
+            _rotation = rotation ?? new Rotator();
             _rotation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();
         }
 
-        public void SetTR(Vec3 translation, Rotator rotation)
+        public void SetTR(EventVec3 translation, Rotator rotation)
         {
-            _translation = translation;
+            _translation = translation ?? new EventVec3();
             _translation.Changed += RecalcLocalTransform;
-            _rotation = rotation;
+            _rotation = rotation ?? new Rotator();
             _rotation.Changed += RecalcLocalTransform;
+            RecalcLocalTransform();
+        }
+        public void SetTRRaw(Vec3 translation, Rotator rotation)
+        {
+            AllowLocalRecalc = false;
+            _translation.Raw = translation;
+            _rotation.SetRotations(rotation);
+            AllowLocalRecalc = true;
             RecalcLocalTransform();
         }
 

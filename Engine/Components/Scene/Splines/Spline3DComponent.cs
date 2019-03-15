@@ -33,7 +33,7 @@ namespace TheraEngine.Components.Scene
         [TSerialize]
         public bool RenderExtrema { get; set; } = true;
         
-        private PropAnimVec3 _position;
+        private PropAnimVec3 _spline;
         private PrimitiveManager _splinePrimitive;
         private PrimitiveManager _velocityTangentsPrimitive;
         private PrimitiveManager _pointPrimitive;
@@ -45,33 +45,33 @@ namespace TheraEngine.Components.Scene
         [TSerialize]
         public PropAnimVec3 Spline
         {
-            get => _position;
+            get => _spline;
             set
             {
-                if (_position != null)
+                if (_spline != null)
                 {
-                    _position.Keyframes.Changed -= Keyframes_Changed;
-                    _position.ConstrainKeyframedFPSChanged -= _position_ConstrainKeyframedFPSChanged;
-                    _position.BakedFPSChanged -= _position_BakedFPSChanged1;
-                    _position.LengthChanged -= _position_LengthChanged;
+                    _spline.Keyframes.Changed -= Keyframes_Changed;
+                    _spline.ConstrainKeyframedFPSChanged -= _position_ConstrainKeyframedFPSChanged;
+                    _spline.BakedFPSChanged -= _position_BakedFPSChanged1;
+                    _spline.LengthChanged -= _position_LengthChanged;
                     //_position.AnimationStarted -= _spline_AnimationStarted;
                     //_position.AnimationPaused -= _spline_AnimationEnded;
                     //_position.AnimationEnded -= _spline_AnimationEnded;
-                    _position.CurrentPositionChanged -= _position_CurrentPositionChanged;
+                    _spline.CurrentPositionChanged -= _position_CurrentPositionChanged;
                     //_spline_AnimationEnded();
                 }
-                _position = value;
-                if (_position != null)
+                _spline = value;
+                if (_spline != null)
                 {
-                    _position.Keyframes.Changed += Keyframes_Changed;
-                    _position.ConstrainKeyframedFPSChanged += _position_ConstrainKeyframedFPSChanged;
-                    _position.BakedFPSChanged += _position_BakedFPSChanged1;
-                    _position.LengthChanged += _position_LengthChanged;
+                    _spline.Keyframes.Changed += Keyframes_Changed;
+                    _spline.ConstrainKeyframedFPSChanged += _position_ConstrainKeyframedFPSChanged;
+                    _spline.BakedFPSChanged += _position_BakedFPSChanged1;
+                    _spline.LengthChanged += _position_LengthChanged;
                     //_position.AnimationStarted += _spline_AnimationStarted;
                     //_position.AnimationPaused += _spline_AnimationEnded;
                     //_position.AnimationEnded += _spline_AnimationEnded;
-                    _position.CurrentPositionChanged += _position_CurrentPositionChanged;
-                    _position.TickSelf = true;
+                    _spline.CurrentPositionChanged += _position_CurrentPositionChanged;
+                    _spline.TickSelf = true;
                     //if (_position.State == EAnimationState.Playing)
                     //    _spline_AnimationStarted();
                 }
@@ -120,17 +120,17 @@ namespace TheraEngine.Components.Scene
             _extremaPrimitive?.Dispose();
             _extremaPrimitive = null;
 
-            if (_position == null || _position.LengthInSeconds <= 0.0f)
+            if (_spline == null || _spline.LengthInSeconds <= 0.0f)
                 return;
 
             //TODO: when the FPS is unconstrained, use adaptive vertex points based on velocity/acceleration
-            float fps = _position.ConstrainKeyframedFPS || _position.IsBaked ?
-                _position.BakedFramesPerSecond :
+            float fps = _spline.ConstrainKeyframedFPS || _spline.IsBaked ?
+                _spline.BakedFramesPerSecond :
                 (Engine.TargetFramesPerSecond == 0 ? 30.0f : Engine.TargetFramesPerSecond);
 
-            int frameCount = (int)Math.Ceiling(_position.LengthInSeconds * fps) + 1;
+            int frameCount = (int)Math.Ceiling(_spline.LengthInSeconds * fps) + 1;
             float invFps = 1.0f / fps;
-            int kfCount = _position.Keyframes.Count << 1;
+            int kfCount = _spline.Keyframes.Count << 1;
 
             Vertex[] splinePoints = new Vertex[frameCount];
             VertexLine[] velocity = new VertexLine[frameCount];
@@ -143,8 +143,8 @@ namespace TheraEngine.Components.Scene
             for (i = 0; i < splinePoints.Length; ++i)
             {
                 sec = i * invFps;
-                Vec3 val = _position.GetValueKeyframed(sec);
-                Vec3 vel = _position.GetVelocityKeyframed(sec);
+                Vec3 val = _spline.GetValueKeyframed(sec);
+                Vec3 vel = _spline.GetVelocityKeyframed(sec);
                 float velLength = vel.LengthFast;
                 Vec3 velColor = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, 1.0f / (1.0f + 0.1f * (velLength * velLength)));
                 Vertex pos = new Vertex(val) { Color = velColor };
@@ -153,7 +153,7 @@ namespace TheraEngine.Components.Scene
             }
             i = 0;
             Vec3 p0, p1;
-            foreach (Vec3Keyframe kf in _position)
+            foreach (Vec3Keyframe kf in _spline)
             {
                 keyframePositions[i] = p0 = kf.InValue;
                 tangentPositions[i] = p1 = p0 + kf.InTangent;
@@ -176,7 +176,7 @@ namespace TheraEngine.Components.Scene
 
             VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 
-            _position.GetMinMax(false,
+            _spline.GetMinMax(false,
                 out (float Time, float Value)[] min, 
                 out (float Time, float Value)[] max);
 
@@ -184,11 +184,11 @@ namespace TheraEngine.Components.Scene
             for (int x = 0, index = 0; x < 3; ++x)
             {
                 var (TimeMin, ValueMin) = min[x];
-                Vec3 minPos = _position.GetValue(TimeMin);
+                Vec3 minPos = _spline.GetValue(TimeMin);
                 minPos[x] = ValueMin;
                 
                 var (TimeMax, ValueMax) = max[x];
-                Vec3 maxPos = _position.GetValue(TimeMax);
+                Vec3 maxPos = _spline.GetValue(TimeMax);
                 maxPos[x] = ValueMax;
                 
                 extrema[index++] = minPos;
@@ -268,10 +268,10 @@ void main()
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
 
             Matrix4 splinePosMtx, invSplinePosMtx;
-            if (_position != null)
+            if (_spline != null)
             {
-                splinePosMtx = Matrix4.CreateTranslation(_position.CurrentPosition);
-                invSplinePosMtx = Matrix4.CreateTranslation(-_position.CurrentPosition);
+                splinePosMtx = Matrix4.CreateTranslation(_spline.CurrentPosition);
+                invSplinePosMtx = Matrix4.CreateTranslation(-_spline.CurrentPosition);
             }
             else
             {
@@ -316,7 +316,7 @@ void main()
         private readonly RenderCommandMesh3D _rcExtrema = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
-            if (_position == null)
+            if (_spline == null)
                 return;
 
             if (RenderSpline)

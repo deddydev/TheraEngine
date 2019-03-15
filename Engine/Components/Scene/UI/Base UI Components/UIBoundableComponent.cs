@@ -134,12 +134,12 @@ namespace TheraEngine.Rendering.UI
         }
         public override UIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)
         {
-            if (includeThis && Contains(worldPoint))
+            if (includeThis && IsVisible && Contains(worldPoint))
                 return this;
 
             foreach (SceneComponent c in _children)
             {
-                if (c is UIComponent uiComp)
+                if (c is UIComponent uiComp && uiComp.IsVisible)
                 {
                     UIComponent comp = uiComp.FindDeepestComponent(worldPoint, true);
                     if (comp != null)

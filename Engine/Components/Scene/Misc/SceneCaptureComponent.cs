@@ -1,6 +1,4 @@
-﻿using System;
-using TheraEngine.Components.Scene.Transforms;
-using TheraEngine.Core.Maths.Transforms;
+﻿using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;

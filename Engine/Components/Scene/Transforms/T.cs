@@ -16,9 +16,9 @@ namespace TheraEngine.Components.Scene.Transforms
     public class TranslationComponent : OriginRebasableComponent
     {
         public TranslationComponent() : this(Vec3.Zero, true) { }
-        public TranslationComponent(Vec3 translation, bool deferLocalRecalc = false) : base()
+        public TranslationComponent(EventVec3 translation, bool deferLocalRecalc = false) : base()
         {
-            _translation = translation;
+            _translation = translation ?? new EventVec3();
             _translation.Changed += RecalcLocalTransform;
             if (!deferLocalRecalc)
                 RecalcLocalTransform();

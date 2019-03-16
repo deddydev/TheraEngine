@@ -58,7 +58,7 @@ namespace TheraEngine.Core.Files
 
                 return _rootFile.FilePath;
             }
-            set => _filePath = value;
+            set => _filePath = value.IsValidPath() ? Path.GetFullPath(value) : value;
         }
         [Browsable(false)]
         [TString(false, true, false)]

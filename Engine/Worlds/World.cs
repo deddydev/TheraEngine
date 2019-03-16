@@ -259,7 +259,7 @@ namespace TheraEngine.Worlds
             CurrentGameMode?.EndGameplay();
             IsPlaying = false;
         }
-        public virtual async void BeginPlay()
+        public virtual void BeginPlay()
         {
             if (Settings.TwoDimensional)
             {
@@ -295,6 +295,10 @@ namespace TheraEngine.Worlds
 
             CurrentGameMode?.BeginGameplay();
             IsPlaying = true;
+
+            string cut = Settings.CutsceneToPlayOnBeginPlay;
+            if (!string.IsNullOrWhiteSpace(cut) && Settings.Cutscenes.ContainsKey(cut))
+                Settings.Cutscenes[cut]?.Start();
         }
 
         private readonly RenderCommandMethod3D _rc3D;

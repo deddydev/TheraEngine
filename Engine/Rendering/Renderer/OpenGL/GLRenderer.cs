@@ -991,7 +991,7 @@ namespace TheraEngine.Rendering.OpenGL
         {
             int glVer = 2;
 
-            int index = buffer._location;
+            int index = buffer.Location;
             int vaoId = buffer._vaoId;
             int componentType = (int)buffer._componentType;
             int componentCount = buffer._componentCount;
@@ -1025,6 +1025,7 @@ namespace TheraEngine.Rendering.OpenGL
                     if (buffer.Target == EBufferTarget.ArrayBuffer)
                     {
                         GL.EnableVertexAttribArray(index);
+                        GL.VertexAttribBinding(index, index);
                         if (integral)
                             GL.VertexAttribIFormat(index, componentCount, VertexAttribIntegerType.Byte + componentType, 0);
                         else
@@ -1035,45 +1036,27 @@ namespace TheraEngine.Rendering.OpenGL
                         MapBufferData(buffer);
                     else
                         PushBufferData(buffer);
-
-                    if (buffer.Target == EBufferTarget.ArrayBuffer)
-                    {
-                        GL.VertexAttribBinding(index, index);
-                    }
-
+                    
                     break;
 
                 case 2:
 
-                    if (index >= 0)
+                    if (buffer.Target == EBufferTarget.ArrayBuffer)
                     {
-                        if (buffer.Target == EBufferTarget.ArrayBuffer)
-                        {
-                            GL.EnableVertexArrayAttrib(vaoId, index);
-                            if (integral)
-                                GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
-                            else
-                                GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
-                        }
-                        
-                        if (buffer.MapData)
-                            MapBufferData(buffer);
+                        GL.EnableVertexArrayAttrib(vaoId, index);
+                        GL.VertexArrayBindingDivisor(vaoId, index, buffer.InstanceDivisor);
+                        GL.VertexArrayAttribBinding(vaoId, index, index);
+                        if (integral)
+                            GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
                         else
-                            PushBufferData(buffer);
+                            GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
+                        GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
+                    }
 
-                        if (buffer.Target == EBufferTarget.ArrayBuffer)
-                        {
-                            GL.VertexArrayAttribBinding(vaoId, index, index);
-                            GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
-                        }
-                    }
+                    if (buffer.MapData)
+                        MapBufferData(buffer);
                     else
-                    {
-                        if (buffer.MapData)
-                            MapBufferData(buffer);
-                        else
-                            PushBufferData(buffer);
-                    }
+                        PushBufferData(buffer);
 
                     break;
             }

@@ -34,7 +34,7 @@ namespace TheraEngine.Components.Scene.Transforms
             _scale.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }
-        public void SetTRSRaw(Vec3 translation, Rotator rotation, EventVec3 scale)
+        public void SetTRSRaw(Vec3 translation, Rotator rotation, Vec3 scale)
         {
             AllowLocalRecalc = false;
             _translation.Raw = translation;

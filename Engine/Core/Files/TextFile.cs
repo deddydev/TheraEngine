@@ -106,9 +106,7 @@ namespace TheraEngine.Core.Files
                         TextCache[FilePath] = attrib;
                     }
                     else
-                    {
                         _text = attrib.Item2;
-                    }
                 }
                 else
                 {
@@ -150,12 +148,10 @@ namespace TheraEngine.Core.Files
         /// <returns>The detected encoding.</returns>
         public static Encoding GetEncoding(string path)
         {
-            // Read the BOM
             byte[] bom = new byte[4];
             using (FileMap map = FileMap.FromFile(path, FileMapProtect.Read, 0, 4))
                 bom = map.Address.GetBytes(4);
-
-            // Analyze the BOM
+            
             if (bom[0] == 0x2B && bom[1] == 0x2F && bom[2] == 0x76) return Encoding.UTF7;
             if (bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF) return Encoding.UTF8;
             if (bom[0] == 0xFF && bom[1] == 0xFE) return Encoding.Unicode; //UTF-16LE
@@ -165,11 +161,9 @@ namespace TheraEngine.Core.Files
         }
         public static Encoding GetEncoding(FileMap file, out int bomLength)
         {
-            // Read the BOM
             byte[] bom = new byte[4];
             bom = file.Address.GetBytes(4);
-
-            // Analyze the BOM
+            
             if (bom[0] == 0x2B && bom[1] == 0x2F && bom[2] == 0x76)
             {
                 bomLength = 3;

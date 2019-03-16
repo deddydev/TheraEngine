@@ -1090,6 +1090,9 @@ namespace TheraEditor.Windows.Forms
         }
         private (bool Success, string Output) CompileGLSL()
         {
+            if (_glslShader is null)
+                return (false, null);
+
             string ext = string.IsNullOrEmpty(_targetFile.FilePath) ? string.Empty : Path.GetExtension(_targetFile.FilePath).Substring(1);
             EGLSLType mode = _glslShader.ShaderMode;
             switch (ext)

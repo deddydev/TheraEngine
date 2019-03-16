@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering
         public Octree RenderTree { get; private set; }
         //public override int Count => RenderTree.Count;
         public LightManager Lights { get; private set; }
-        public ParticleManager Particles { get; }
+        //public ParticleManager Particles { get; }
         public IBLProbeGridActor IBLProbeActor { get; internal set; }
         public EventList<I3DRenderable> Renderables { get; }
         

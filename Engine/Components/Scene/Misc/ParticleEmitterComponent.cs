@@ -12,8 +12,13 @@ namespace TheraEngine.Rendering.Particles
     [TFileDef("Particle Emitter Component")]
     public class ParticleEmitterComponent : TRComponent, I3DRenderable, IPreRendered
     {
-        public const int MaxParticles = 100000;
-        public Particle[] ParticlesContainer = new Particle[MaxParticles];
+        private int _maxParticles = 100000;
+        public Particle[] _particles;
+        private bool _isEmitting = true;
+        private int _lastUsedParticle = 0;
+        private float _elapsed = 0.0f;
+
+        public int ActiveInstances => ParticleMesh.Instances;
         public PrimitiveManager ParticleMesh
         {
             get => _rc.Mesh;
@@ -21,10 +26,11 @@ namespace TheraEngine.Rendering.Particles
         }
         public Vec3 CameraPosition { get; set; }
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D();
-        public bool PreRenderEnabled => IsEmitting;
-        private int _lastUsedParticle = 0;
 
-        private bool _isEmitting = true;
+        public int NumPerSpawn { get; set; } = 2;
+        public float SecPerSpawn { get; set; } = 0.2f;
+        public float NewParticleLifeSeconds { get; set; } = 2.0f;
+
         public bool IsEmitting
         {
             get => _isEmitting;
@@ -42,13 +48,43 @@ namespace TheraEngine.Rendering.Particles
                 }
             }
         }
+        public int MaxParticles
+        {
+            get => _maxParticles;
+            set
+            {
+                _maxParticles = value;
+                if (IsSpawned)
+                {
+                    _particles.Resize(_maxParticles);
+                    var instBufs = ParticleMesh.Data.GetAllBuffersOfType(EBufferType.Other);
+                    //instBufs[0].Resize(_maxParticles);
+                    //instBufs[1].Resize(_maxParticles);
+                }
+            }
+        }
 
         public override void OnSpawned()
         {
-            PrimitiveData data = PrimitiveData.FromQuads(VertexShaderDesc.PosColor(), VertexQuad.PosZQuad(1, false, 0.0f, true));
-            TMaterial mat = TMaterial.CreateUnlitColorMaterialForward();
-            ParticleMesh = new PrimitiveManager(data, mat);
+            base.OnSpawned();
 
+            _particles = new Particle[MaxParticles];
+
+            PrimitiveData data = PrimitiveData.FromQuads(VertexShaderDesc.JustPositions(), VertexQuad.PosZQuad(1, false, 0.0f, true));
+
+            Vec4[] positions = new Vec4[MaxParticles];
+            ColorF4[] colors = new ColorF4[MaxParticles];
+            var posBuf = data.AddBuffer(positions, new VertexAttribInfo(EBufferType.Other, 0), false, false, true, 1);
+            var colBuf = data.AddBuffer(colors, new VertexAttribInfo(EBufferType.Other, 1), false, false, true, 1);
+            posBuf.Location = 1;
+            colBuf.Location = 2;
+            
+            GLSLScript vert = Engine.Files.LoadEngineShader("ParticleInstance.vs", EGLSLType.Vertex);
+            GLSLScript frag = Engine.Files.LoadEngineShader("ParticleInstance.fs", EGLSLType.Fragment);
+            RenderingParameters rp = new RenderingParameters(true);
+            TMaterial mat = new TMaterial("ParticleMaterial", rp, vert, frag);
+            ParticleMesh = new PrimitiveManager(data, mat);
+            
             if (_isEmitting)
                 StartEmitting();
             else
@@ -56,6 +92,8 @@ namespace TheraEngine.Rendering.Particles
         }
         public override void OnDespawned()
         {
+            base.OnDespawned();
+
             if (_isEmitting)
                 StopEmitting();
         }
@@ -67,79 +105,89 @@ namespace TheraEngine.Rendering.Particles
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Update);
         }
-        private int FindUnusedParticle()
+        protected virtual int FindUnusedParticleIndex()
         {
             for (int i = _lastUsedParticle; i < MaxParticles; i++)
-            {
-                if (ParticlesContainer[i].Life < 0.0f)
-                {
-                    _lastUsedParticle = i;
-                    return i;
-                }
-            }
+                if (_particles[i].Life <= 0.0f)
+                    return _lastUsedParticle = i;
+            
             for (int i = 0; i < _lastUsedParticle; i++)
-            {
-                if (ParticlesContainer[i].Life < 0.0f)
-                {
-                    _lastUsedParticle = i;
-                    return i;
-                }
-            }
-            return 0; // All particles are taken, override the first one
+                if (_particles[i].Life <= 0.0f)
+                    return _lastUsedParticle = i;
+            
+            return _lastUsedParticle = 0; // All particles are taken, override the first one
         }
+        private readonly Random Random = new Random();
+        protected virtual void InitializeParticle(ref Particle particle)
+        {
+            particle.Position = WorldPoint;
+            Vec3 rand = new Vec3((float)Random.NextDouble(), (float)Random.NextDouble(), (float)Random.NextDouble());
+            particle.Color = new ColorF4(rand.X, rand.Y, rand.Z, 1.0f);
+            particle.Life = NewParticleLifeSeconds;
+            particle.Velocity = WorldMatrix.UpVec * 10.0f + rand * 10.0f;
+            particle.Scale = (float)Random.NextDouble();
+        }
+
         private unsafe void Update(float delta)
         {
-            int num = 0;
+            _elapsed += delta;
+
+            while (SecPerSpawn > 0.001f && _elapsed >= SecPerSpawn)
+            {
+                _elapsed -= SecPerSpawn;
+                for (int i = 0; i < NumPerSpawn; ++i)
+                {
+                    int unusedParticle = FindUnusedParticleIndex();
+                    InitializeParticle(ref _particles[unusedParticle]);
+                }
+            }
+            
+            int instanceCount = 0;
             for (int i = 0; i < MaxParticles; i++)
             {
-                Particle p = ParticlesContainer[i];
+                Particle p = _particles[i];
                 if (p.Life > 0.0f)
                 {
                     p.Life -= delta;
-                    if (p.Life > 0.0f)
-                    {
-                        p.Velocity += new Vec3(0.0f, -9.81f, 0.0f) * delta * 0.5f;
-                        p.Position += p.Velocity * delta;
-                        p.Distance = (p.Position - CameraPosition).LengthSquared;
 
-                        var posBuf = ParticleMesh.Data[EBufferType.Position];
-                        var colBuf = ParticleMesh.Data[EBufferType.Color];
+                    p.Velocity += new Vec3(0.0f, -9.81f, 0.0f) * delta * 0.5f;
+                    p.Position += p.Velocity * delta;
+                    p.Distance = (p.Position - CameraPosition).LengthSquared;
+                    
+                    var instBufs = ParticleMesh.Data.GetAllBuffersOfType(EBufferType.Other);
+                    
+                    Vec4* posPtr = (Vec4*)instBufs[0].Address;
+                    posPtr[instanceCount] = new Vec4(p.Position, p.Scale);
 
-                        int offset = num << 2;
-                        float* posPtr = (float*)posBuf.Address;
-                        posPtr[offset + 0] = p.Position.X;
-                        posPtr[offset + 1] = p.Position.Y;
-                        posPtr[offset + 2] = p.Position.Z;
-                        posPtr[offset + 3] = p.Scale;
+                    ColorF4* colPtr = (ColorF4*)instBufs[1].Address;
+                    colPtr[instanceCount] = p.Color;
 
-                        float* colPtr = (float*)colBuf.Address;
-                        colPtr[offset + 0] = p.Color.R;
-                        colPtr[offset + 1] = p.Color.G;
-                        colPtr[offset + 2] = p.Color.B;
-                        colPtr[offset + 3] = p.Color.A;
-                    }
-                    else
-                    {
-                        // Particles that just died will be put at the end of the buffer in SortParticles();
-                        p.Distance = -1.0f;
-                    }
-
-                    num++;
+                    ++instanceCount;
                 }
+                else
+                {
+                    // Particles that just died will be put at the end of the buffer in SortParticles();
+                    p.Distance = -1.0f;
+                }
+                _particles[i] = p;
             }
-            Array.Sort(ParticlesContainer);
+
+            ParticleMesh.Instances = instanceCount;
+            Array.Sort(_particles);
         }
 
         public RenderCommandMesh3D _rc = new RenderCommandMesh3D(ERenderPass.TransparentForward);
         public void AddRenderables(RenderPasses passes, Camera camera) => passes.Add(_rc);
-        
+
+        [Browsable(false)]
+        public bool PreRenderEnabled => IsEmitting;
         public void PreRenderUpdate(Camera camera) => CameraPosition = camera.LocalPoint;
         public void PreRenderSwap() { }
         public void PreRender(Viewport viewport, Camera camera) { }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Particle
+    public struct Particle : IComparable<Particle>
     {
         private float _life;
         private float _scale;
@@ -154,5 +202,7 @@ namespace TheraEngine.Rendering.Particles
         public Vec3 Position { get => _position; set => _position = value; }
         public Vec3 Velocity { get => _velocity; set => _velocity = value; }
         public ColorF4 Color { get => _color; set => _color = value; }
+
+        public int CompareTo(Particle other) => (int)(other.Distance - Distance);
     };
 }

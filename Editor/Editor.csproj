@@ -436,6 +436,12 @@
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIListElement.Designer.cs">
       <DependentUpon>PropGridIListElement.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridFont.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridFont.Designer.cs">
+      <DependentUpon>PropGridFont.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridShaderVecColor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -897,6 +903,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridNullableWrapper.resx">
       <DependentUpon>PropGridNullableWrapper.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridFont.resx">
+      <DependentUpon>PropGridFont.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Engine\PropGridShaderVecColor.resx">
       <DependentUpon>PropGridShaderVecColor.cs</DependentUpon>

@@ -127,6 +127,10 @@ namespace TheraEditor.Windows.Forms
         }
         protected override void OnLeftClickDown()
         {
+            var cursorPos = CursorPosition();
+            if (!Bounds.Contains(cursorPos))
+                return;
+
             if (_selectedComp == _highlightedComp)
             {
                 _dragComp = _selectedComp;
@@ -155,8 +159,16 @@ namespace TheraEditor.Windows.Forms
 
         protected override bool GetFocusAreaMinMax(out Vec2 min, out Vec2 max)
         {
-            min = Vec2.Zero;
-            max = PreviewResolution;
+            if (_selectedComp != null)
+            {
+                min = Vec3.TransformPosition(_selectedComp.RenderInfo.AxisAlignedRegion.Min, BaseTransformComponent.InverseLocalMatrix).Xy;
+                max = Vec3.TransformPosition(_selectedComp.RenderInfo.AxisAlignedRegion.Max, BaseTransformComponent.InverseLocalMatrix).Xy;
+            }
+            else
+            {
+                min = Vec2.Zero;
+                max = PreviewResolution;
+            }
             return true;
         }
         protected override void HighlightScene()

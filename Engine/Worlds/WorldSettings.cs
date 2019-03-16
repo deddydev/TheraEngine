@@ -121,6 +121,10 @@ namespace TheraEngine.Worlds
         [TSerialize]
         public BoundingBox Bounds { get; set; } = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
 
+        [TSerialize]
+        [Category("World")]
+        public string CutsceneToPlayOnBeginPlay { get; set; }
+        [TSerialize]
         [Category("World")]
         public EventDictionary<string, Cutscene> Cutscenes
         {
@@ -138,6 +142,7 @@ namespace TheraEngine.Worlds
                 }
             }
         }
+
         [Category("World")]
         public EventList<LocalFileRef<Map>> Maps
         {
@@ -149,9 +154,12 @@ namespace TheraEngine.Worlds
                     _maps.PostAnythingAdded -= Maps_PostAnythingAdded;
                     _maps.PostAnythingRemoved -= Maps_PostAnythingRemoved;
                 }
+
                 _maps = value ?? new EventList<LocalFileRef<Map>>();
+
                 _maps.PostAnythingAdded += Maps_PostAnythingAdded;
                 _maps.PostAnythingRemoved += Maps_PostAnythingRemoved;
+
                 foreach (LocalFileRef<Map> mapRef in _maps)
                     Maps_PostAnythingAdded(mapRef);
             }

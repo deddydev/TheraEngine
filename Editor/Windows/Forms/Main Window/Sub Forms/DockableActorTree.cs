@@ -15,6 +15,9 @@ namespace TheraEditor.Windows.Forms
         public DockableActorTree()
         {
             InitializeComponent();
+
+            ctxActorTree.RenderMode = ToolStripRenderMode.Professional;
+            ctxActorTree.Renderer = new TheraForm.TheraToolstripRenderer();
         }
 
         public EditorUI3D EditorHUD { get; set; }
@@ -193,7 +196,36 @@ namespace TheraEditor.Windows.Forms
 
         private void ctxActorTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            TreeNode node = ActorTree.SelectedNode;
+            switch (node.Tag)
+            {
+                case Map map:
 
+                    break;
+                case BaseActor actor:
+
+                    break;
+                case SceneComponent sceneComp:
+
+                    break;
+                case LogicComponent logicComp:
+                    
+                    break;
+            }
+        }
+        private void ctxActorTree_Closing(object sender, ToolStripDropDownClosingEventArgs e)
+        {
+            spltActor.Visible =
+            btnNewActor.Visible =
+            btnRemove.Visible =
+            btnNewMap.Visible =
+            btnNewChildSceneComp.Visible =
+            btnNewLogicComp.Visible =
+            true;
+
+            btnMoveDown.Enabled =
+            btnMoveUp.Enabled =
+            true;
         }
 
         private void btnRename_Click(object sender, EventArgs e)
@@ -214,10 +246,10 @@ namespace TheraEditor.Windows.Forms
                 case Map map:
                     targetMap = map;
                     break;
-                case IActor actor:
+                case BaseActor actor:
                     targetMap = actor.MapAttachment;
                     break;
-                case IComponent comp:
+                case Component comp:
                     targetMap = comp.OwningActor?.MapAttachment;
                     break;
             }
@@ -233,47 +265,71 @@ namespace TheraEditor.Windows.Forms
             Engine.World.SpawnActor(newActor);
         }
 
-        private void btnDeleteActor_Click(object sender, EventArgs e)
+        private void btnRemove_Click(object sender, EventArgs e)
+        {
+            TreeNode node = ActorTree.SelectedNode;
+            if (node?.Tag == null)
+                return;
+            switch (node.Tag)
+            {
+                case Map map:
+                    {
+                        var maps = map.OwningWorld.Settings.Maps;
+                        int index = maps.FindIndex(x => x.IsLoaded && x.File == map);
+                        if (maps.IndexInRange(index))
+                            maps.RemoveAt(index);
+                    }
+                    break;
+                case BaseActor actor:
+                    {
+                        var map = actor.MapAttachment;
+                        map?.Actors?.Remove(actor);
+                    }
+                    break;
+                case SceneComponent sceneComp:
+                    {
+                        var socket = sceneComp.ParentSocket;
+                        socket?.ChildComponents?.Remove(sceneComp);
+                    }
+                    break;
+                case LogicComponent logicComp:
+                    {
+                        var actor = logicComp.OwningActor;
+                        actor?.LogicComponents?.Remove(logicComp);
+                    }
+                    break;
+            }
+        }
+
+        private void btnNewMap_Click(object sender, EventArgs e)
         {
 
         }
-
-        private void btnAddMap_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnRemoveMap_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnAddSceneComp_Click(object sender, EventArgs e)
         {
 
         }
-
-        private void btnRemoveSceneComp_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnAddLogicComp_Click(object sender, EventArgs e)
         {
 
         }
-
-        private void btnRemoveLogicComp_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnMoveUp_Click(object sender, EventArgs e)
         {
 
         }
-
         private void btnMoveDown_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void btnMoveAsSibToParent_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void btnMoveAsChildToSibPrev_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void btnMoveAsChildToSibNext_Click(object sender, EventArgs e)
         {
 
         }

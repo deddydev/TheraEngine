@@ -70,7 +70,9 @@ namespace TheraEngine.Rendering.Models
 
         public void SetData(FacePoint facepoint, List<DataBuffer> buffers)
         {
-            if (facepoint.BufferIndices == null) return;
+            if (facepoint.BufferIndices == null)
+                return;
+
             for (int i = 0; i < facepoint.BufferIndices.Count; ++i)
             {
                 DataBuffer b = buffers[i];

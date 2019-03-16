@@ -359,15 +359,18 @@ namespace TheraEngine.Rendering.UI
         }
         private void Render()
         {
-            Vec3 startPoint = ParentSocket?.WorldMatrix.Translation ?? Vec3.Zero;
-            Vec3 endPoint = WorldMatrix.Translation;
+            Vec3 startPoint = (ParentSocket?.WorldMatrix.Translation ?? Vec3.Zero) + AbstractRenderer.UIPositionBias;
+            Vec3 endPoint = WorldMatrix.Translation + AbstractRenderer.UIPositionBias;
 
             Engine.Renderer.RenderLine(startPoint, endPoint, ColorF4.White);
             Engine.Renderer.RenderPoint(endPoint, ColorF4.White);
 
             Vec3 scale = WorldMatrix.Scale;
-            Engine.Renderer.RenderLine(endPoint, endPoint + WorldMatrix.UpVec.NormalizedFast() * 50.0f, Color.Green);
-            Engine.Renderer.RenderLine(endPoint, endPoint + WorldMatrix.RightVec.NormalizedFast() * 50.0f, Color.Red);
+            Vec3 up = WorldMatrix.UpVec.NormalizedFast() * 50.0f;
+            Vec3 right = WorldMatrix.RightVec.NormalizedFast() * 50.0f;
+            
+            Engine.Renderer.RenderLine(endPoint, endPoint + up, Color.Green);
+            Engine.Renderer.RenderLine(endPoint, endPoint + right, Color.Red);
         }
     }
 }

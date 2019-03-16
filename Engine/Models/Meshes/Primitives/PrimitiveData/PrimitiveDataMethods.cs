@@ -261,24 +261,32 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
+            bool isMapped = false,
+            int instanceDivisor = 0,
             EBufferTarget target = EBufferTarget.ArrayBuffer) where T : struct
         {
             if (_buffers == null)
                 _buffers = new List<DataBuffer>();
 
             int bufferIndex = _buffers.Count;
-            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral);
+            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral)
+            {
+                InstanceDivisor = instanceDivisor,
+                MapData = isMapped
+            };
             if (remap)
             {
                 Remapper remapper = buffer.SetDataNumeric(bufferData, true);
-                for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].BufferIndices.Add(remapper.RemapTable[i]);
+                if (instanceDivisor == 0)
+                    for (int i = 0; i < bufferData.Count; ++i)
+                        _facePoints[i].BufferIndices.Add(remapper.RemapTable[i]);
             }
             else
             {
                 buffer.SetDataNumeric(bufferData);
-                for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].BufferIndices.Add(i);
+                if (instanceDivisor == 0)
+                    for (int i = 0; i < bufferData.Count; ++i)
+                        _facePoints[i].BufferIndices.Add(i);
             }
             _buffers.Add(buffer);
         }
@@ -288,6 +296,8 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
+            bool isMapped = false,
+            int instanceDivisor = 0,
             EBufferTarget target = EBufferTarget.ArrayBuffer) where T : struct
         {
             if (_buffers == null)
@@ -295,18 +305,24 @@ namespace TheraEngine.Rendering.Models
             if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
 
-            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral);
+            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral)
+            {
+                InstanceDivisor = instanceDivisor,
+                MapData = isMapped
+            };
             if (remap)
             {
                 Remapper remapper = buffer.SetDataNumeric(bufferData, true);
-                for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].BufferIndices[bufferIndex] = remapper.ImplementationTable[remapper.RemapTable[i]];
+                if (instanceDivisor == 0)
+                    for (int i = 0; i < bufferData.Count; ++i)
+                        _facePoints[i].BufferIndices[bufferIndex] = remapper.ImplementationTable[remapper.RemapTable[i]];
             }
             else
             {
                 buffer.SetDataNumeric(bufferData);
-                for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].BufferIndices[bufferIndex] = i;
+                if (instanceDivisor == 0)
+                    for (int i = 0; i < bufferData.Count; ++i)
+                        _facePoints[i].BufferIndices[bufferIndex] = i;
             }
             _buffers[bufferIndex] = buffer;
         }
@@ -315,24 +331,32 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
+            bool isMapped = false,
+            int instanceDivisor = 0,
             EBufferTarget target = EBufferTarget.ArrayBuffer) where T : unmanaged, IBufferable
         {
             if (_buffers == null)
                 _buffers = new List<DataBuffer>();
 
             int bufferIndex = _buffers.Count;
-            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral);
+            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral)
+            {
+                InstanceDivisor = instanceDivisor,
+                MapData = isMapped
+            };
             if (remap)
             {
                 Remapper remapper = buffer.SetData(bufferData, true);
-                for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].BufferIndices.Add(remapper.RemapTable[i]);
+                if (instanceDivisor == 0)
+                    for (int i = 0; i < bufferData.Count; ++i)
+                        _facePoints[i].BufferIndices.Add(remapper.RemapTable[i]);
             }
             else
             {
                 buffer.SetData(bufferData);
-                for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].BufferIndices.Add(i);
+                if (instanceDivisor == 0)
+                    for (int i = 0; i < bufferData.Count; ++i)
+                        _facePoints[i].BufferIndices.Add(i);
             }
             _buffers.Add(buffer);
             return buffer;
@@ -343,6 +367,8 @@ namespace TheraEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
+            bool isMapped = false,
+            int instanceDivisor = 0,
             EBufferTarget target = EBufferTarget.ArrayBuffer) where T : unmanaged, IBufferable
         {
             if (_buffers == null)
@@ -350,18 +376,24 @@ namespace TheraEngine.Rendering.Models
             if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
 
-            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral);
+            DataBuffer buffer = new DataBuffer(bufferIndex, info, target, integral)
+            {
+                InstanceDivisor = instanceDivisor,
+                MapData = isMapped
+            };
             if (remap)
             {
                 Remapper remapper = buffer.SetData(bufferData, true);
-                for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].BufferIndices[bufferIndex] = remapper.ImplementationTable[remapper.RemapTable[i]];
+                if (instanceDivisor == 0)
+                    for (int i = 0; i < bufferData.Count; ++i)
+                        _facePoints[i].BufferIndices[bufferIndex] = remapper.ImplementationTable[remapper.RemapTable[i]];
             }
             else
             {
                 buffer.SetData(bufferData);
-                for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].BufferIndices[bufferIndex] = i;
+                if (instanceDivisor == 0)
+                    for (int i = 0; i < bufferData.Count; ++i)
+                        _facePoints[i].BufferIndices[bufferIndex] = i;
             }
             _buffers[bufferIndex] = buffer;
             return buffer;

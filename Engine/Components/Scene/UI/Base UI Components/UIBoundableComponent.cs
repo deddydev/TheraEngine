@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.UI
 {
@@ -128,8 +129,15 @@ namespace TheraEngine.Rendering.UI
         }
         protected virtual void RemakeAxisAlignedRegion()
         {
-            RenderInfo.AxisAlignedRegion.Translation = WorldPoint.Xy;
-            RenderInfo.AxisAlignedRegion.Extents = Size;
+            Matrix4 mtx = WorldMatrix * Matrix4.CreateScale(Width, Height, 0.0f);
+
+            Vec3 minPos = Vec3.TransformPosition(Vec3.Zero, mtx);
+            Vec3 maxPos = Vec3.TransformPosition(Vec2.One, mtx); //This is Vec2.One on purpose, we only want Z to be 0
+
+            Vec2 min = new Vec2(Math.Min(minPos.X, maxPos.X), Math.Min(minPos.Y, maxPos.Y));
+            Vec2 max = new Vec2(Math.Max(minPos.X, maxPos.X), Math.Max(minPos.Y, maxPos.Y));
+
+            RenderInfo.AxisAlignedRegion = BoundingRectangleFStruct.FromMinMaxSides(min.X, max.X, min.Y, max.Y, 0.0f, 0.0f);
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
         public override UIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)

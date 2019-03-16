@@ -26,15 +26,15 @@ namespace TheraEngine.Rendering.Models
     }
     public enum EBufferType
     {
-        Position        = 0, //VertexBuffer.MaxMorphs + 1
-        Normal          = 1, //VertexBuffer.MaxMorphs + 1
-        Binormal        = 2, //VertexBuffer.MaxMorphs + 1
-        Tangent         = 3, //VertexBuffer.MaxMorphs + 1
-        MatrixIds       = 4, //VertexBuffer.MaxMorphs + 1
-        MatrixWeights   = 5, //VertexBuffer.MaxMorphs + 1
-        Color           = 6, //VertexBuffer.MaxColors
-        TexCoord        = 7, //VertexBuffer.MaxTexCoords
-        Other           = 8, //VertexBuffer.MaxOtherBuffers
+        Position        = 0, //VertexBuffer.MaxMorphs + 1: 0
+        Normal          = 1, //VertexBuffer.MaxMorphs + 1: 1
+        Binormal        = 2, //VertexBuffer.MaxMorphs + 1: 2
+        Tangent         = 3, //VertexBuffer.MaxMorphs + 1: 3
+        MatrixIds       = 4, //VertexBuffer.MaxMorphs + 1: 4
+        MatrixWeights   = 5, //VertexBuffer.MaxMorphs + 1: 5
+        Color           = 6, //VertexBuffer.MaxColors: 6,7
+        TexCoord        = 7, //VertexBuffer.MaxTexCoords: 8-15
+        Other           = 8, //VertexBuffer.MaxOtherBuffers: 16-25
     }
     public class VertexAttribInfo
     {
@@ -106,12 +106,13 @@ namespace TheraEngine.Rendering.Models
         public bool MapData { get; set; } = false;
         public EBufferTarget Target { get; private set; } = EBufferTarget.ArrayBuffer;
         public EBufferUsage Usage { get; set; } = EBufferUsage.StaticDraw;
+        public int Location { get => _location; set => _location = value; }
         internal int _vaoId = 0;
 
         [TSerialize("Index", NodeType = ENodeType.Attribute)]
         internal int _bufferIndex;
         [TSerialize("BindLocation", NodeType = ENodeType.Attribute)]
-        internal int _location;
+        private int _location;
         [TSerialize("ComponentType", NodeType = ENodeType.Attribute)]
         internal EComponentType _componentType;
         [TSerialize("Normalize", NodeType = ENodeType.Attribute)]
@@ -125,7 +126,7 @@ namespace TheraEngine.Rendering.Models
         [TSerialize("Type", NodeType = ENodeType.Attribute)]
         internal EBufferType _type = EBufferType.Other;
         [TSerialize("Divisor", NodeType = ENodeType.Attribute)]
-        internal int _divisor = 0;
+        private int _divisor = 0;
 
         [TSerialize("Data", IsElementString = true)]
         internal DataSource _data;
@@ -308,7 +309,13 @@ namespace TheraEngine.Rendering.Models
             get => _type;
             set => _type = value;
         }
-        public int Divisor
+        /// <summary>
+        /// Gets or sets the instance divisor.
+        /// </summary>
+        /// <value>
+        /// The instance divisor.
+        /// </value>
+        public int InstanceDivisor
         {
             get => _divisor;
             set => _divisor = value;

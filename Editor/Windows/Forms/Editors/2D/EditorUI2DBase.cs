@@ -501,7 +501,10 @@ namespace TheraEditor.Windows.Forms
         {
             Vec2 cursorPos = CursorPosition();
             if (!Bounds.Contains(cursorPos))
+            {
+                _cursorPos = cursorPos;
                 return;
+            }
 
             if (IsDragging)
                 HandleDragItem();
@@ -511,6 +514,7 @@ namespace TheraEditor.Windows.Forms
                 HighlightScene();
 
             _cursorPos = cursorPos;
+            _lastWorldPos = Viewport.ScreenToWorld(_cursorPos).Xy;
         }
 
         protected abstract void HighlightScene();

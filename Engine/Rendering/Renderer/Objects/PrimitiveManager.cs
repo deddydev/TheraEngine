@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -76,6 +77,18 @@ namespace TheraEngine.Rendering.Models
             Material = material;
             Data = data;
         }
+
+        /// <summary>
+        /// Determines how to use the results of the <see cref="ConditionalRenderQuery"/>.
+        /// </summary>
+        public EConditionalRenderType ConditionalRenderType { get; set; } = EConditionalRenderType.QueryNoWait;
+        /// <summary>
+        /// A render query that is used to determine if this mesh should be rendered or not.
+        /// </summary>
+        public RenderQuery ConditionalRenderQuery { get; set; } = null;
+
+        public VertexShaderDesc BufferInfo { get; set; }
+        public int Instances { get; set; } = 1;
 
         //TODO: move vertex buffer allocations out of PrimitiveData and into this class, so the original PrimitiveData can be disposed of.
         public PrimitiveData Data
@@ -156,29 +169,35 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
+        [Browsable(false)]
         public DataBuffer IndexBuffer { get; private set; }
         public EDrawElementType ElementType { get; private set; }
+        [Browsable(false)]
         public RenderProgram VertexFragProgram { get; private set; }
 
         /// <summary>
         /// All vertices that have changed and are ready for render.
         /// Only used by CPU skinning.
         /// </summary>
+        [Browsable(false)]
         public HashSet<int> ModifiedVertexIndicesRendering => _modifiedVertexIndicesRendering;
         /// <summary>
         /// All bones that have changed and are ready for render.
         /// Only used by GPU skinning.
         /// </summary>
+        [Browsable(false)]
         public HashSet<int> ModifiedBoneIndicesRendering => _modifiedBoneIndicesRendering;
         /// <summary>
         /// All vertices that are currently changing.
         /// Only used by CPU skinning.
         /// </summary>
+        [Browsable(false)]
         public HashSet<int> ModifiedVertexIndicesUpdating => _modifiedVertexIndicesUpdating;
         /// <summary>
         /// All bones that are currently changing.
         /// Only used by GPU skinning.
         /// </summary>
+        [Browsable(false)]
         public HashSet<int> ModifiedBoneIndicesUpdating => _modifiedBoneIndicesUpdating;
 
         private HashSet<int> _modifiedVertexIndicesRendering = new HashSet<int>();
@@ -481,18 +500,6 @@ namespace TheraEngine.Rendering.Models
 
         internal TMaterial GetRenderMaterial(TMaterial localOverrideMat)
             => Engine.Renderer.MaterialOverride ?? localOverrideMat ?? Material;
-
-        /// <summary>
-        /// Determines how to use the results of the <see cref="ConditionalRenderQuery"/>.
-        /// </summary>
-        public EConditionalRenderType ConditionalRenderType { get; set; } = EConditionalRenderType.QueryNoWait;
-        /// <summary>
-        /// A render query that is used to determine if this mesh should be rendered or not.
-        /// </summary>
-        public RenderQuery ConditionalRenderQuery { get; set; } = null;
-
-        public VertexShaderDesc BufferInfo { get; set; }
-        public int Instances { get; set; } = 1;
 
         public void Render() => Render(1);
         public void Render(int instances) 

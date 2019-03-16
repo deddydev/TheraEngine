@@ -32,7 +32,7 @@ namespace TheraEngine.Worlds
 
             Actors = actors == null ? new EventList<BaseActor>(false, false) : new EventList<BaseActor>(actors.ToList(), false, false);
         }
-
+        
         [TSerialize]
         public bool VisibleByDefault
         {
@@ -67,7 +67,7 @@ namespace TheraEngine.Worlds
                 }
             }
         }
-        
+
         private void _actors_PostAnythingAdded(BaseActor item)
         {
             if (item != null)

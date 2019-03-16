@@ -119,6 +119,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public void OnValueChanged() => ValueChanged?.Invoke();
         public void UpdateValue(object newValue, bool submitStateChange)
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action<object, bool>)UpdateValue, newValue, submitStateChange);
+                return;
+            }
+
             if (_updating || MemberInfo.IsReadOnly())
                 return;
 

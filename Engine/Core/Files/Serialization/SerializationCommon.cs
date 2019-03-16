@@ -754,7 +754,7 @@ namespace TheraEngine.Core.Files.Serialization
                                 for (int x = i + 1; x < types.Count; x++)
                                 {
                                     Type t2 = types[x];
-                                    if (t1.IsAssignableFrom(t2))
+                                    if (t2.IsAssignableFrom(t1))
                                     {
                                         types.RemoveAt(i--);
                                         break;

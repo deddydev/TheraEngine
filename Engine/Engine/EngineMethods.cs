@@ -730,6 +730,8 @@ namespace TheraEngine
         public delegate void DelEndOperation(int operationId);
 
         public static bool IsFocused { get; private set; } = true;
+        public static Random Random { get; } = new Random();
+
         public static event Action GotFocus;
         public static event Action LostFocus;
 

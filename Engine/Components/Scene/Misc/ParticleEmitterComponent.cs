@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using TheraEngine.Components.Scene.Transforms;
@@ -200,12 +202,23 @@ namespace TheraEngine.Rendering.Particles
             _particles = new TParticle[MaxParticles];
             base.OnSpawned();
         }
+
         protected override void SortParticles()
-            => Array.Sort(_particles);
+            => Array.Sort(_particles, _comparer);
+
+        private readonly ParticleComparer _comparer = new ParticleComparer();
+
+        private class ParticleComparer : IComparer<TParticle>, IComparer
+        {
+            public int Compare(TParticle x, TParticle y)
+                => (int)(y.CameraDistance - x.CameraDistance);
+            public int Compare(object x, object y)
+                => Compare((TParticle)x, (TParticle)y);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct BasicGravityParticle : IComparable<BasicGravityParticle>, IParticle
+    public struct BasicGravityParticle : IParticle
     {
         private float _life;
         private float _scale;
@@ -220,8 +233,7 @@ namespace TheraEngine.Rendering.Particles
         public Vec3 Position { get => _position; set => _position = value; }
         public Vec3 Velocity { get => _velocity; set => _velocity = value; }
         public ColorF4 Color { get => _color; set => _color = value; }
-
-        public int CompareTo(BasicGravityParticle other) => (int)(other.CameraDistance - CameraDistance);
+        
         public void Initialize(BaseParticleEmitterComponent component)
         {
             Vec3 rand = new Vec3(

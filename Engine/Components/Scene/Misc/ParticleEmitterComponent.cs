@@ -36,7 +36,7 @@ namespace TheraEngine.Rendering.Particles
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D();
 
         public int NumPerSpawn { get; set; } = 2;
-        public float SecPerSpawn { get; set; } = 0.2f;
+        public float SecPerSpawn { get; set; } = 0.1f;
         public float NewParticleLifeSeconds { get; set; } = 2.0f;
 
         public bool IsSimulating
@@ -91,7 +91,8 @@ namespace TheraEngine.Rendering.Particles
         {
             base.OnSpawned();
             GenerateParticleMesh();
-            IsSimulating = IsEmitting;
+            if (IsSimulating = IsEmitting)
+                StartSimulating();
         }
         public override void OnDespawned()
         {
@@ -229,8 +230,9 @@ namespace TheraEngine.Rendering.Particles
                 (float)Engine.Random.NextDouble());
 
             Position = component.WorldPoint;
-            Velocity = component.WorldMatrix.UpVec * 10.0f + (rand - 0.5f) * 20.0f;
             Color = new ColorF4(rand.X, rand.Y, rand.Z, 1.0f);
+            rand.Y += 0.5f;
+            Velocity = component.WorldMatrix.UpVec * 10.0f + (rand - 0.5f) * 5.0f;
             Life = component.NewParticleLifeSeconds;
             Scale = (float)Engine.Random.NextDouble() + 1.0f;
         }

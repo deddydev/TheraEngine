@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.Cameras;
@@ -15,10 +13,6 @@ namespace TheraEngine.Rendering.Particles
     {
         float Life { get; set; }
         float CameraDistance { get; set; }
-        Vec3 Position { get; set; }
-        Vec3 Velocity { get; set; }
-        ColorF4 Color { get; set; }
-        float Scale { get; set; }
 
         void Update(float delta, DataBuffer[] instBufs, int instanceIndex, BaseParticleEmitterComponent component);
         void Initialize(BaseParticleEmitterComponent component);
@@ -45,6 +39,25 @@ namespace TheraEngine.Rendering.Particles
         public float SecPerSpawn { get; set; } = 0.2f;
         public float NewParticleLifeSeconds { get; set; } = 2.0f;
 
+        public bool IsSimulating
+        {
+            get => _isSimulating;
+            set
+            {
+                if (_isSimulating == value)
+                    return;
+
+                _isSimulating = value;
+
+                if (IsSpawned)
+                {
+                    if (_isSimulating)
+                        StartSimulating();
+                    else
+                        StopSimulating();
+                }
+            }
+        }
         public bool IsEmitting
         {
             get => _isEmitting;
@@ -52,14 +65,11 @@ namespace TheraEngine.Rendering.Particles
             {
                 if (_isEmitting == value)
                     return;
+
                 _isEmitting = value;
-                if (IsSpawned)
-                {
-                    if (_isEmitting)
-                        StartSimulating();
-                    else
-                        StopSimulating();
-                }
+
+                if (IsSpawned && !_isSimulating && _isEmitting)
+                    IsSimulating = true;
             }
         }
         public virtual int MaxParticles
@@ -80,20 +90,13 @@ namespace TheraEngine.Rendering.Particles
         public override void OnSpawned()
         {
             base.OnSpawned();
-
             GenerateParticleMesh();
-
-            if (_isEmitting)
-                StartSimulating();
-            else
-                StopSimulating();
+            IsSimulating = IsEmitting;
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
-
-            if (_isEmitting)
-                StopSimulating();
+            IsSimulating = false;
         }
 
         private void StartSimulating()
@@ -155,6 +158,9 @@ namespace TheraEngine.Rendering.Particles
 
             ParticleMesh.Instances = instanceCount;
             SortParticles();
+
+            if (instanceCount == 0 && !IsEmitting)
+                IsSimulating = false;
         }
 
         public abstract IParticle this[int index] { get; protected set; }
@@ -165,8 +171,8 @@ namespace TheraEngine.Rendering.Particles
         public void AddRenderables(RenderPasses passes, Camera camera) => passes.Add(_rc);
 
         [Browsable(false)]
-        public bool PreRenderEnabled => IsEmitting;
-        public void PreRenderUpdate(Camera camera) => CameraPosition = camera.LocalPoint;
+        public bool PreRenderEnabled => IsSimulating;
+        public void PreRenderUpdate(Camera camera) => CameraPosition = camera.WorldPoint;
         public void PreRenderSwap() { }
         public void PreRender(Viewport viewport, Camera camera) { }
     }

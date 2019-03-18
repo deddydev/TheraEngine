@@ -235,8 +235,7 @@ namespace TheraEngine.Core.Files
                 return _file;
 
             LoadAttempted = false;
-            Task.WaitAll(GetInstanceAsync());
-            LoadAttempted = true;
+            GetInstanceAsync().ContinueWith(x => LoadAttempted = true);
             return _file;
         }
 

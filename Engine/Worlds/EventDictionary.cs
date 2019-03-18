@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
 
@@ -23,6 +24,7 @@ namespace TheraEngine.Worlds
         public event DelCleared Cleared;
         public event DelRemoved Removed;
         public event DelSet Set;
+        public event Action Changed;
 
         public new TValue this[TKey key]
         {
@@ -32,24 +34,30 @@ namespace TheraEngine.Worlds
                 TValue old = base[key];
                 base[key] = value;
                 Set?.Invoke(key, old, value);
+                Changed?.Invoke();
             }
         }
         public new void Add(TKey key, TValue value)
         {
             base.Add(key, value);
             Added?.Invoke(key, value);
+            Changed?.Invoke();
         }
         public new void Clear()
         {
             base.Clear();
             Cleared?.Invoke();
+            Changed?.Invoke();
         }
         public new bool Remove(TKey key)
         {
             TValue old = base[key];
             bool success = base.Remove(key);
             if (success)
+            {
                 Removed?.Invoke(key, old);
+                Changed?.Invoke();
+            }
             return success;
         }
     }

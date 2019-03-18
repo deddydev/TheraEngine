@@ -705,18 +705,18 @@ namespace TheraEngine.Components
         
         public virtual void HandleWorldTranslation(Vec3 delta)
         {
-            if (!IsTranslatable)
-                throw new InvalidOperationException();
+            //if (!IsTranslatable)
+            //    throw new InvalidOperationException();
         }
         public virtual void HandleWorldScale(Vec3 delta)
         {
-            if (!IsScalable)
-                throw new InvalidOperationException();
+            //if (!IsScalable)
+            //    throw new InvalidOperationException();
         }
         public virtual void HandleWorldRotation(Quat delta)
         {
-            if (!IsRotatable)
-                throw new InvalidOperationException();
+            //if (!IsRotatable)
+            //    throw new InvalidOperationException();
         }
         #endregion
         

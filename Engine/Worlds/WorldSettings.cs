@@ -91,7 +91,7 @@ namespace TheraEngine.Worlds
         private EventDictionary<string, Cutscene> _cutscenes;
 
         [TSerialize(nameof(Maps))]
-        private EventList<LocalFileRef<Map>> _maps;
+        private EventDictionary<string, LocalFileRef<Map>> _maps;
 
         [TSerialize]
         [Category("World")]
@@ -111,16 +111,22 @@ namespace TheraEngine.Worlds
         [Category("World Origin Rebasing")]
         [TSerialize]
         public float OriginRebaseRadius { get; set; } = 500.0f;
+        [TSerialize]
         [Category("Editor Traits")]
         public bool PreviewOctrees { get; set; } = false;
+        [TSerialize]
         [Category("Editor Traits")]
         public bool PreviewQuadtrees { get; set; } = false;
+        [TSerialize]
         [Category("Editor Traits")]
         public bool PreviewPhysics { get; set; } = false;
+        [TSerialize]
+        [Category("Editor Traits")]
+        public string NewActorTargetMapName { get; set; }
+
         [Category("World")]
         [TSerialize]
         public BoundingBox Bounds { get; set; } = BoundingBox.FromMinMax(-1000.0f, 1000.0f);
-
         [TSerialize]
         [Category("World")]
         public string CutsceneToPlayOnBeginPlay { get; set; }
@@ -144,62 +150,70 @@ namespace TheraEngine.Worlds
         }
 
         [Category("World")]
-        public EventList<LocalFileRef<Map>> Maps
+        public EventDictionary<string, LocalFileRef<Map>> Maps
         {
             get => _maps;
             set
             {
                 if (_maps != null)
                 {
-                    _maps.PostAnythingAdded -= Maps_PostAnythingAdded;
-                    _maps.PostAnythingRemoved -= Maps_PostAnythingRemoved;
+                    _maps.Added -= _maps_Added;
+                    _maps.Removed -= _maps_Removed;
+                    _maps.Set -= _maps_Set;
                 }
 
-                _maps = value ?? new EventList<LocalFileRef<Map>>();
+                _maps = value ?? new EventDictionary<string, LocalFileRef<Map>>();
 
-                _maps.PostAnythingAdded += Maps_PostAnythingAdded;
-                _maps.PostAnythingRemoved += Maps_PostAnythingRemoved;
+                _maps.Added += _maps_Added;
+                _maps.Removed += _maps_Removed;
+                _maps.Set += _maps_Set;
 
-                foreach (LocalFileRef<Map> mapRef in _maps)
-                    Maps_PostAnythingAdded(mapRef);
+                foreach (var mapRef in _maps)
+                    _maps_Added(mapRef.Key, mapRef.Value);
             }
         }
 
-        public Map FindOrCreateMap()
+        private void _maps_Set(string key, LocalFileRef<Map> oldValue, LocalFileRef<Map> newValue)
+        {
+            _maps_Removed(key, oldValue);
+            _maps_Added(key, newValue);
+        }
+        private void _maps_Removed(string key, LocalFileRef<Map> value)
+        {
+            if (value == null)
+                return;
+            value.UnregisterLoadEvent(MapLoaded);
+            value.UnregisterUnloadEvent(MapUnloaded);
+        }
+        private void _maps_Added(string key, LocalFileRef<Map> value)
+        {
+            if (value == null)
+                return;
+            value.RegisterLoadEvent(MapLoaded);
+            value.RegisterUnloadEvent(MapUnloaded);
+        }
+
+        public Map FindOrCreateMap(string name)
         {
             Map map;
             if (Maps != null)
             {
-                if (Maps.Count > 0)
-                    map = Maps[0];
+                if (Maps.ContainsKey(name))
+                    map = Maps[name];
                 else
                 {
                     map = new Map();
-                    Maps.Add(map);
+                    Maps.Add(name, map);
                 }
             }
             else
             {
                 map = new Map();
-                Maps = new EventList<LocalFileRef<Map>>() { map };
+                Maps = new EventDictionary<string, LocalFileRef<Map>> { { name, map } };
             }
             return map;
         }
-
-        private void Maps_PostAnythingRemoved(LocalFileRef<Map> item)
-        {
-            if (item == null)
-                return;
-            item.UnregisterLoadEvent(MapLoaded);
-            item.UnregisterUnloadEvent(MapUnloaded);
-        }
-        private void Maps_PostAnythingAdded(LocalFileRef<Map> item)
-        {
-            if (item == null)
-                return;
-            item.RegisterLoadEvent(MapLoaded);
-            item.RegisterUnloadEvent(MapUnloaded);
-        }
+        
         private void MapUnloaded(Map map)
         {
             if (map.OwningWorld == OwningWorld)
@@ -212,7 +226,7 @@ namespace TheraEngine.Worlds
 
         public WorldSettings()
         {
-            Maps = new EventList<LocalFileRef<Map>>();
+            Maps = new EventDictionary<string, LocalFileRef<Map>>();
             Cutscenes = new EventDictionary<string, Cutscene>();
         }
         public WorldSettings(string name, params Map[] maps)
@@ -222,7 +236,7 @@ namespace TheraEngine.Worlds
                 Bounds.Maximum.X, Bounds.Maximum.Y, Bounds.Maximum.Z,
                 Bounds.Minimum.X, Bounds.Minimum.Y, Bounds.Minimum.Z);
 
-            Maps = new EventList<LocalFileRef<Map>>(maps.Select(x => new LocalFileRef<Map>(x)));
+            Maps = new EventDictionary<string, LocalFileRef<Map>>(maps.ToDictionary(x => x.Name, x => new LocalFileRef<Map>(x)));
             Cutscenes = new EventDictionary<string, Cutscene>();
         }
     }

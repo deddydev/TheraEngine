@@ -430,6 +430,12 @@
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.Designer.cs">
       <DependentUpon>PropGridEvent.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDateTime.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDateTime.Designer.cs">
+      <DependentUpon>PropGridDateTime.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIListElement.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -897,6 +903,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridEvent.resx">
       <DependentUpon>PropGridEvent.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridDateTime.resx">
+      <DependentUpon>PropGridDateTime.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Property Grid\Sub Items\Core\PropGridIListElement.resx">
       <DependentUpon>PropGridIListElement.cs</DependentUpon>

@@ -41,7 +41,7 @@ namespace TheraEngine.Windows.Forms
             => GetCullingVolumeOverride?.Invoke(v) ?? base.GetCullingVolume(v);
         protected override void GlobalPreRender()
         {
-            Owner?.ModelWindow?.World?.Scene?.GlobalPreRender();
+            //Owner?.ModelWindow?.World?.Scene?.GlobalPreRender();
             base.GlobalPreRender();
         }
     }

@@ -126,6 +126,8 @@ namespace TheraEngine.Rendering
     public delegate float DelGetSortOrder(bool shadowPass);
     public sealed class RenderInfo3D : RenderInfo
     {
+        private TShape _cullingVolume;
+
         [TSerialize]
         public bool HiddenFromOwner { get; set; } = false;
         [TSerialize]
@@ -133,8 +135,18 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// The shape the rendering octree will use to determine occlusion and offscreen culling (visibility).
         /// </summary>
+        //[BrowsableIf("")]
         [TSerialize]
-        public TShape CullingVolume { get; set; }
+        public TShape CullingVolume
+        {
+            get => _cullingVolume;
+            set
+            {
+                _cullingVolume?.RenderInfo?.UnlinkScene();
+                _cullingVolume = value;
+                _cullingVolume?.RenderInfo?.LinkScene(Owner, Scene);
+            }
+        }
         /// <summary>
         /// The octree bounding box this object is currently located in.
         /// </summary>   

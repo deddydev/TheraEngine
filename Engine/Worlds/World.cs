@@ -249,7 +249,7 @@ namespace TheraEngine.Worlds
         public virtual void EndPlay()
         {
             foreach (var m in Settings.Maps)
-                m.File.EndPlay();
+                m.Value.File.EndPlay();
 
             if (Settings.TwoDimensional)
                 RenderInfo2D.UnlinkScene();
@@ -277,8 +277,8 @@ namespace TheraEngine.Worlds
             Engine.TimeDilation = Settings.TimeDilation;
 
             foreach (var m in Settings.Maps)
-                if (m.File.VisibleByDefault)
-                    m.File.BeginPlay(this);
+                if (m.Value.File.VisibleByDefault)
+                    m.Value.File.BeginPlay(this);
 
             Scene3D s3D = Scene3D;
             if (s3D != null)

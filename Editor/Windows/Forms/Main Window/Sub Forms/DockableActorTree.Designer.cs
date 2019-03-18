@@ -29,64 +29,48 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.ActorTree = new TheraEditor.Windows.Forms.TreeViewEx();
             this.ctxActorTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.btnRename = new System.Windows.Forms.ToolStripMenuItem();
+            this.splt1 = new System.Windows.Forms.ToolStripSeparator();
             this.btnMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.btnMoveDown = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnRemove = new System.Windows.Forms.ToolStripMenuItem();
-            this.spltActor = new System.Windows.Forms.ToolStripSeparator();
-            this.btnNewActor = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnNewMap = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnNewChildSceneComp = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnNewLogicComp = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnNewSiblingSceneComp = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnMoveAsChildToSibNext = new System.Windows.Forms.ToolStripMenuItem();
             this.btnMoveAsSibToParent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnMoveAsChildToSibPrev = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnMoveAsChildToSibNext = new System.Windows.Forms.ToolStripMenuItem();
+            this.splt2 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnNewActor = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnNewMap = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnNewLogicComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnNewSiblingSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnNewChildSceneComp = new System.Windows.Forms.ToolStripMenuItem();
+            this.splt3 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.ActorTree = new TheraEditor.Windows.Forms.TreeViewEx();
             this.ctxActorTree.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // ActorTree
-            // 
-            this.ActorTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
-            this.ActorTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.ActorTree.ContextMenuStrip = this.ctxActorTree;
-            this.ActorTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ActorTree.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.ActorTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.ActorTree.HideSelection = false;
-            this.ActorTree.Location = new System.Drawing.Point(0, 0);
-            this.ActorTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.ActorTree.Name = "ActorTree";
-            this.ActorTree.Size = new System.Drawing.Size(728, 585);
-            this.ActorTree.TabIndex = 2;
-            this.ActorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
             // 
             // ctxActorTree
             // 
             this.ctxActorTree.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.ctxActorTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnRename,
-            this.toolStripSeparator1,
+            this.splt1,
             this.btnMoveUp,
             this.btnMoveDown,
             this.btnMoveAsSibToParent,
             this.btnMoveAsChildToSibPrev,
             this.btnMoveAsChildToSibNext,
-            this.spltActor,
+            this.splt2,
             this.btnNewActor,
             this.btnNewMap,
-            this.btnNewLogicComp,
             this.btnNewSiblingSceneComp,
             this.btnNewChildSceneComp,
-            this.toolStripSeparator2,
+            this.btnNewLogicComp,
+            this.splt3,
             this.btnRemove});
             this.ctxActorTree.Name = "ctxActorTree";
             this.ctxActorTree.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.ctxActorTree.Size = new System.Drawing.Size(244, 308);
+            this.ctxActorTree.Size = new System.Drawing.Size(244, 286);
             this.ctxActorTree.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.ctxActorTree_Closing);
             this.ctxActorTree.Opening += new System.ComponentModel.CancelEventHandler(this.ctxActorTree_Opening);
             // 
@@ -96,6 +80,11 @@
             this.btnRename.Size = new System.Drawing.Size(243, 22);
             this.btnRename.Text = "Rename";
             this.btnRename.Click += new System.EventHandler(this.btnRename_Click);
+            // 
+            // splt1
+            // 
+            this.splt1.Name = "splt1";
+            this.splt1.Size = new System.Drawing.Size(240, 6);
             // 
             // btnMoveUp
             // 
@@ -111,59 +100,6 @@
             this.btnMoveDown.Text = "Move Down";
             this.btnMoveDown.Click += new System.EventHandler(this.btnMoveDown_Click);
             // 
-            // btnRemove
-            // 
-            this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(243, 22);
-            this.btnRemove.Text = "Remove";
-            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
-            // 
-            // spltActor
-            // 
-            this.spltActor.Name = "spltActor";
-            this.spltActor.Size = new System.Drawing.Size(240, 6);
-            // 
-            // btnNewActor
-            // 
-            this.btnNewActor.Name = "btnNewActor";
-            this.btnNewActor.Size = new System.Drawing.Size(243, 22);
-            this.btnNewActor.Text = "New Actor";
-            this.btnNewActor.Click += new System.EventHandler(this.btnAddActor_Click);
-            // 
-            // btnNewMap
-            // 
-            this.btnNewMap.Name = "btnNewMap";
-            this.btnNewMap.Size = new System.Drawing.Size(243, 22);
-            this.btnNewMap.Text = "New Map";
-            this.btnNewMap.Click += new System.EventHandler(this.btnNewMap_Click);
-            // 
-            // btnNewChildSceneComp
-            // 
-            this.btnNewChildSceneComp.Name = "btnNewChildSceneComp";
-            this.btnNewChildSceneComp.Size = new System.Drawing.Size(243, 22);
-            this.btnNewChildSceneComp.Text = "New Child";
-            this.btnNewChildSceneComp.Click += new System.EventHandler(this.btnAddSceneComp_Click);
-            // 
-            // btnNewLogicComp
-            // 
-            this.btnNewLogicComp.Name = "btnNewLogicComp";
-            this.btnNewLogicComp.Size = new System.Drawing.Size(243, 22);
-            this.btnNewLogicComp.Text = "New Logic Component";
-            this.btnNewLogicComp.Click += new System.EventHandler(this.btnAddLogicComp_Click);
-            // 
-            // btnNewSiblingSceneComp
-            // 
-            this.btnNewSiblingSceneComp.Name = "btnNewSiblingSceneComp";
-            this.btnNewSiblingSceneComp.Size = new System.Drawing.Size(243, 22);
-            this.btnNewSiblingSceneComp.Text = "New Sibling";
-            // 
-            // btnMoveAsChildToSibNext
-            // 
-            this.btnMoveAsChildToSibNext.Name = "btnMoveAsChildToSibNext";
-            this.btnMoveAsChildToSibNext.Size = new System.Drawing.Size(243, 22);
-            this.btnMoveAsChildToSibNext.Text = "Move As Child To Sibling Below";
-            this.btnMoveAsChildToSibNext.Click += new System.EventHandler(this.btnMoveAsChildToSibNext_Click);
-            // 
             // btnMoveAsSibToParent
             // 
             this.btnMoveAsSibToParent.Name = "btnMoveAsSibToParent";
@@ -178,15 +114,81 @@
             this.btnMoveAsChildToSibPrev.Text = "Move As Child To Sibling Above";
             this.btnMoveAsChildToSibPrev.Click += new System.EventHandler(this.btnMoveAsChildToSibPrev_Click);
             // 
-            // toolStripSeparator1
+            // btnMoveAsChildToSibNext
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(240, 6);
+            this.btnMoveAsChildToSibNext.Name = "btnMoveAsChildToSibNext";
+            this.btnMoveAsChildToSibNext.Size = new System.Drawing.Size(243, 22);
+            this.btnMoveAsChildToSibNext.Text = "Move As Child To Sibling Below";
+            this.btnMoveAsChildToSibNext.Click += new System.EventHandler(this.btnMoveAsChildToSibNext_Click);
             // 
-            // toolStripSeparator2
+            // splt2
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(240, 6);
+            this.splt2.Name = "splt2";
+            this.splt2.Size = new System.Drawing.Size(240, 6);
+            // 
+            // btnNewActor
+            // 
+            this.btnNewActor.Name = "btnNewActor";
+            this.btnNewActor.Size = new System.Drawing.Size(243, 22);
+            this.btnNewActor.Text = "New Actor";
+            this.btnNewActor.Click += new System.EventHandler(this.btnNewActor_Click);
+            // 
+            // btnNewMap
+            // 
+            this.btnNewMap.Name = "btnNewMap";
+            this.btnNewMap.Size = new System.Drawing.Size(243, 22);
+            this.btnNewMap.Text = "New Map";
+            this.btnNewMap.Click += new System.EventHandler(this.btnNewMap_Click);
+            // 
+            // btnNewLogicComp
+            // 
+            this.btnNewLogicComp.Name = "btnNewLogicComp";
+            this.btnNewLogicComp.Size = new System.Drawing.Size(243, 22);
+            this.btnNewLogicComp.Text = "New Logic Component";
+            this.btnNewLogicComp.Click += new System.EventHandler(this.btnAddLogicComp_Click);
+            // 
+            // btnNewSiblingSceneComp
+            // 
+            this.btnNewSiblingSceneComp.Name = "btnNewSiblingSceneComp";
+            this.btnNewSiblingSceneComp.Size = new System.Drawing.Size(243, 22);
+            this.btnNewSiblingSceneComp.Text = "New Sibling";
+            // 
+            // btnNewChildSceneComp
+            // 
+            this.btnNewChildSceneComp.Name = "btnNewChildSceneComp";
+            this.btnNewChildSceneComp.Size = new System.Drawing.Size(243, 22);
+            this.btnNewChildSceneComp.Text = "New Child";
+            this.btnNewChildSceneComp.Click += new System.EventHandler(this.btnAddSceneComp_Click);
+            // 
+            // splt3
+            // 
+            this.splt3.Name = "splt3";
+            this.splt3.Size = new System.Drawing.Size(240, 6);
+            // 
+            // btnRemove
+            // 
+            this.btnRemove.Name = "btnRemove";
+            this.btnRemove.Size = new System.Drawing.Size(243, 22);
+            this.btnRemove.Text = "Remove";
+            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
+            // 
+            // ActorTree
+            // 
+            this.ActorTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
+            this.ActorTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ActorTree.ContextMenuStrip = this.ctxActorTree;
+            this.ActorTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ActorTree.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.ActorTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.ActorTree.HideSelection = false;
+            this.ActorTree.LabelEdit = true;
+            this.ActorTree.Location = new System.Drawing.Point(0, 0);
+            this.ActorTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.ActorTree.Name = "ActorTree";
+            this.ActorTree.Size = new System.Drawing.Size(728, 585);
+            this.ActorTree.TabIndex = 2;
+            this.ActorTree.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.ActorTree_AfterLabelEdit);
+            this.ActorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
             // 
             // DockableActorTree
             // 
@@ -205,7 +207,7 @@
         private System.Windows.Forms.ContextMenuStrip ctxActorTree;
         private System.Windows.Forms.ToolStripMenuItem btnNewActor;
         private System.Windows.Forms.ToolStripMenuItem btnRename;
-        private System.Windows.Forms.ToolStripSeparator spltActor;
+        private System.Windows.Forms.ToolStripSeparator splt2;
         private System.Windows.Forms.ToolStripMenuItem btnRemove;
         private System.Windows.Forms.ToolStripMenuItem btnNewMap;
         private System.Windows.Forms.ToolStripMenuItem btnNewChildSceneComp;
@@ -213,10 +215,10 @@
         private System.Windows.Forms.ToolStripMenuItem btnMoveUp;
         private System.Windows.Forms.ToolStripMenuItem btnMoveDown;
         private System.Windows.Forms.ToolStripMenuItem btnNewSiblingSceneComp;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator splt1;
         private System.Windows.Forms.ToolStripMenuItem btnMoveAsSibToParent;
         private System.Windows.Forms.ToolStripMenuItem btnMoveAsChildToSibPrev;
         private System.Windows.Forms.ToolStripMenuItem btnMoveAsChildToSibNext;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripSeparator splt3;
     }
 }

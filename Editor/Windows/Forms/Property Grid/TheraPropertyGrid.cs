@@ -3,7 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -122,21 +124,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     category.DestroyProperties();
                 _categories.Clear();
                 pnlProps.Visible = visible;
+                lblFilePath.Text = null;
             }
 
             _targetObject = value;
             bool notNull = _targetObject != null;
-            IObject obj = _targetObject as IObject;
-            bool isObj = obj != null;
 
             treeViewSceneComps.Nodes.Clear();
             lstLogicComps.DataSource = null;
-            btnSave.Visible = btnSaveAs.Visible = isObj && obj.EditorState.IsDirty;
+
             pnlHeader.Visible = pnlProps2.Visible = notNull;
             if (Enabled = notNull)
             {
                 IActor actor = _targetObject as IActor;
-                tableLayoutPanel1.Visible = actor != null;
+                tblActor.Visible = actor != null;
                 PopulateSceneComponentTree(treeViewSceneComps.Nodes, actor?.RootComponent);
                 PopulateLogicComponentList(actor?.LogicComponents);
 
@@ -145,20 +146,42 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 // lblProperties.Text = string.Format("Properties: {0} [{1}]",
                 //_targetObject.ToString(),
                 //_targetObject.GetType().GetFriendlyName());
+
+                if (_targetObject is IObject obj)
+                {
+                    btnSave.Visible = btnSaveAs.Visible = obj.EditorState.IsDirty;
+                    obj.EditorState.Selected = true;
+                    if (_targetObject is IFileObject fobj)
+                    {
+                        lblFilePath.Text = fobj.FilePath;
+                        btnExplorer.Visible = fobj.FilePath.IsValidExistingPath();
+                    }
+                    else
+                    {
+                        btnExplorer.Visible = false;
+                    }
+                }
+                else
+                {
+                    btnSave.Visible = btnSaveAs.Visible = btnExplorer.Visible = false;
+                }
+
             }
             else
             {
                 lblProperties.Visible = false;
-                tableLayoutPanel1.Visible = false;
+                tblActor.Visible = false;
+                btnSave.Visible = btnSaveAs.Visible = false;
             }
 
-            if (isObj)
-                obj.EditorState.Selected = true;
-
-            if (_targetObject is SceneComponent sc && sc.OwningWorld?.CurrentGameMode != null && sc.OwningWorld.CurrentGameMode.LocalPlayers.Count > 0)
+            if (_targetObject is SceneComponent sc)
             {
-                EditorUI3D hud = sc.OwningWorld.CurrentGameMode.LocalPlayers[0]?.ControlledPawn?.HUD?.File as EditorUI3D;
-                hud?.SetSelectedComponent(false, sc);
+                var players = sc.OwningWorld?.CurrentGameMode?.LocalPlayers;
+                if (players != null && players.Count > 0)
+                {
+                    EditorUI3D hud = players[0]?.ControlledPawn?.HUD?.File as EditorUI3D;
+                    hud?.SetSelectedComponent(false, sc);
+                }
             }
 
             //Load the properties of the object
@@ -1299,6 +1322,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             btnSave.Visible = btnSaveAs.Visible = false;
             file.EditorState.IsDirty = false;
+        }
+
+        private void btnExplorer_Click(object sender, EventArgs e)
+        {
+            if (TargetObject is IFileObject fobj && fobj.FilePath.IsValidExistingPath())
+                Process.Start("explorer.exe", Path.GetDirectoryName(fobj.FilePath));
         }
     }
     public interface IDataChangeHandler

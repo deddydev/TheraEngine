@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 
@@ -39,7 +40,7 @@ namespace TheraEngine.Rendering.UI
                         EPixelFormat.Rgba, EPixelType.HalfFloat,
                         EFramebufferAttachment.ColorAttachment0),
                 },
-                Engine.Files.LoadEngineShader("ViewportFBO.fs", EGLSLType.Fragment));
+                Engine.Files.LoadEngineShader(Path.Combine("Common", "UnlitTexturedForward.fs"), EGLSLType.Fragment));
         }
 
         private void SetUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)

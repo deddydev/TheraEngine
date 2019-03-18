@@ -35,7 +35,7 @@ namespace TheraEngine.Animation.Cutscenes
         }
 
         private EventList<Clip<Cutscene>> _scenes = new EventList<Clip<Cutscene>>();
-        private EventList<Clip<BaseAnimation>> _animationTracks = new EventList<Clip<BaseAnimation>>();
+        private EventDictionary<string, Clip<BaseAnimation>> _animationTracks = new EventDictionary<string, Clip<BaseAnimation>>();
 
         public List<GlobalFileRef<IActor>> InvolvedActors { get; set; }
         private Camera CurrentCamera { get; set; }
@@ -44,7 +44,7 @@ namespace TheraEngine.Animation.Cutscenes
         private int CurrentSceneIndex { get; set; } = -1;
 
         [TSerialize]
-        public EventList<Clip<BaseAnimation>> AnimationTracks
+        public EventDictionary<string, Clip<BaseAnimation>> AnimationTracks
         {
             get => _animationTracks;
             set => _animationTracks = value;
@@ -99,16 +99,16 @@ namespace TheraEngine.Animation.Cutscenes
         public void LoadAnimations()
         {
             foreach (var anim in AnimationTracks)
-                anim.AnimationRef.GetInstance();
+                anim.Value.AnimationRef.GetInstance();
         }
         public void LoadAnimationsParallel()
         {
-            Parallel.ForEach(AnimationTracks, anim => anim.AnimationRef.GetInstance());
+            Parallel.ForEach(AnimationTracks, anim => anim.Value.AnimationRef.GetInstance());
         }
         public async Task LoadAnimationsAsync()
         {
             foreach (var anim in AnimationTracks)
-                await anim.AnimationRef.GetInstanceAsync();
+                await anim.Value.AnimationRef.GetInstanceAsync();
             //Task.WaitAll(AnimationTracks.Select(x => x.AnimationRef.GetInstanceAsync()).ToArray());
         }
         #endregion
@@ -156,7 +156,7 @@ namespace TheraEngine.Animation.Cutscenes
         {
             //Progress animations in this cutscene level
             foreach (var anim in AnimationTracks)
-                anim?.AnimationRef?.File?.Progress(delta);
+                anim.Value?.AnimationRef?.File?.Progress(delta);
 
             //Progress sub scenes
             if (CurrentSceneClip == null)

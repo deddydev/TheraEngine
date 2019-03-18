@@ -223,14 +223,14 @@ namespace TheraEditor.Windows.Forms
         private void WorldSettingsUnloaded(WorldSettings settings)
         {
             if (settings != null)
-                settings.Maps.CollectionChanged -= Maps_CollectionChanged;
+                settings.Maps.Changed -= Maps_Changed;
         }
         private void WorldSettingsLoaded(WorldSettings settings)
         {
             if (settings != null)
-                settings.Maps.CollectionChanged += Maps_CollectionChanged;
+                settings.Maps.Changed += Maps_Changed;
         }
-        private void Maps_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void Maps_Changed()
         {
             ActorTreeForm.ClearMaps();
         }

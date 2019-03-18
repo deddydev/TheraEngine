@@ -259,7 +259,7 @@ namespace TheraEngine.Tests
             //Actor<StaticMeshComponent> gunActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(gunScene.StaticModel, null)) { Name = "PBRGunTest" };
 
             Settings.DefaultGameModeRef = new TestGameMode();// new GameMode<FlyingCameraPawn>();
-            Settings.Maps.Add(new Map(true, Vec3.Zero, actors));
+            Settings.Maps.Add("DefaultMap", new Map(true, Vec3.Zero, actors));
             //Settings.Maps[0].File.Settings.StaticActors.AddRange(array);
 
             //Export(Engine.ContentFolderAbs, "TestWorld", FileFormat.XML);

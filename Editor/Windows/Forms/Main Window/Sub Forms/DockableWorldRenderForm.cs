@@ -132,7 +132,7 @@ namespace TheraEditor.Windows.Forms
             BaseRenderPanel.HoveredPanel = RenderPanel;
             RenderPanel.Focus();
             EditorUI3D hud = EditorPawn.HUD.File as EditorUI3D;
-            Map map = Engine.World.Settings.FindOrCreateMap();
+            Map map = Engine.World.Settings.FindOrCreateMap(Engine.World.Settings.NewActorTargetMapName);
             map.Actors.Add(actor);
             Vec3 point = EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance;
             Engine.World.SpawnActor(actor, point);

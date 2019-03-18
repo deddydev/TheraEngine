@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
@@ -72,7 +73,7 @@ namespace TheraEditor.Windows.Forms
             if (Engine.World == null || Engine.ShuttingDown)
                 return;
             
-            Engine.World.Settings.Maps.ForEach(x => CacheMap(x));
+            Engine.World.Settings.Maps.ForEach(x => CacheMap(x.Value));
             Engine.World.State.SpawnedActors.ForEach(ActorSpawned);
         }
         internal TreeNode CacheMap(Map map)
@@ -197,16 +198,35 @@ namespace TheraEditor.Windows.Forms
         private void ctxActorTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TreeNode node = ActorTree.SelectedNode;
+
+            btnMoveDown.Enabled = node?.NextNode != null;
+            btnMoveUp.Enabled = node?.PrevNode != null;
+
+            btnMoveAsSibToParent.Visible =
+            btnMoveAsChildToSibNext.Visible =
+            btnMoveAsChildToSibPrev.Visible = 
+            btnNewSiblingSceneComp.Visible =
+            btnNewChildSceneComp.Visible =
+            node?.Tag is SceneComponent;
+
+            if (node == null)
+            {
+                btnNewLogicComp.Visible = false;
+                btnRemove.Enabled = false;
+                return;
+            }
+
             switch (node.Tag)
             {
                 case Map map:
-
+                    btnNewLogicComp.Visible = false;
                     break;
                 case BaseActor actor:
 
                     break;
                 case SceneComponent sceneComp:
-
+                    btnNewLogicComp.Visible = false;
+                    btnNewSiblingSceneComp.Enabled = sceneComp.ParentSocket is SceneComponent;
                     break;
                 case LogicComponent logicComp:
                     
@@ -215,14 +235,16 @@ namespace TheraEditor.Windows.Forms
         }
         private void ctxActorTree_Closing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            spltActor.Visible =
-            btnNewActor.Visible =
-            btnRemove.Visible =
-            btnNewMap.Visible =
-            btnNewChildSceneComp.Visible =
             btnNewLogicComp.Visible =
+            btnMoveAsSibToParent.Visible =
+            btnMoveAsChildToSibNext.Visible =
+            btnMoveAsChildToSibPrev.Visible =
+            btnNewSiblingSceneComp.Visible =
+            btnNewChildSceneComp.Visible =
             true;
 
+            btnNewSiblingSceneComp.Enabled =
+            btnRemove.Enabled =
             btnMoveDown.Enabled =
             btnMoveUp.Enabled =
             true;
@@ -230,10 +252,11 @@ namespace TheraEditor.Windows.Forms
 
         private void btnRename_Click(object sender, EventArgs e)
         {
-
+            if (ActorTree.SelectedNode != null && !ActorTree.SelectedNode.IsEditing)
+                ActorTree.SelectedNode.BeginEdit();
         }
 
-        private void btnAddActor_Click(object sender, EventArgs e)
+        private void btnNewActor_Click(object sender, EventArgs e)
         {
             if (Engine.World?.Settings == null)
                 return;
@@ -255,7 +278,7 @@ namespace TheraEditor.Windows.Forms
             }
 
             if (targetMap == null)
-                targetMap = Engine.World.Settings.FindOrCreateMap();
+                targetMap = Engine.World.Settings.FindOrCreateMap(Engine.World.Settings.NewActorTargetMapName);
 
             BaseActor newActor = Editor.UserCreateInstanceOf<BaseActor>();
             if (newActor == null)
@@ -275,9 +298,9 @@ namespace TheraEditor.Windows.Forms
                 case Map map:
                     {
                         var maps = map.OwningWorld.Settings.Maps;
-                        int index = maps.FindIndex(x => x.IsLoaded && x.File == map);
-                        if (maps.IndexInRange(index))
-                            maps.RemoveAt(index);
+                        var matches = maps.Where(x => x.Value.IsLoaded && x.Value.File == map);
+                        foreach (var match in matches)
+                            maps.Remove(match.Key);
                     }
                     break;
                 case BaseActor actor:
@@ -299,6 +322,7 @@ namespace TheraEditor.Windows.Forms
                     }
                     break;
             }
+            node.Remove();
         }
 
         private void btnNewMap_Click(object sender, EventArgs e)
@@ -332,6 +356,13 @@ namespace TheraEditor.Windows.Forms
         private void btnMoveAsChildToSibNext_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void ActorTree_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            TreeNode node = ActorTree.SelectedNode;
+            if (node?.Tag is IObject obj)
+                obj.Name = e.Label;
         }
     }
 }

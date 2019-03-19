@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Actors;
+using TheraEngine.Actors.Types;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds;
@@ -13,7 +15,7 @@ namespace TheraEngine.Animation.Cutscenes
     {
         public string WorldPath { get; set; }
         public int MapIndex { get; set; }
-        public int ActorIndex { get; set; }
+        public string ActorKey { get; set; }
     }
     [TFileExt("cut")]
     [TFileDef("Cutscene")]
@@ -34,15 +36,25 @@ namespace TheraEngine.Animation.Cutscenes
             SubScenes = new EventList<Clip<Cutscene>>();
         }
 
+        private PerspCamKeyCollection _cameraTrack = new PerspCamKeyCollection();
         private EventList<Clip<Cutscene>> _scenes = new EventList<Clip<Cutscene>>();
         private EventDictionary<string, Clip<BaseAnimation>> _animationTracks = new EventDictionary<string, Clip<BaseAnimation>>();
 
-        public List<GlobalFileRef<IActor>> InvolvedActors { get; set; }
+        public List<GlobalFileRef<BaseActor>> InvolvedActors { get; set; }
         private Camera CurrentCamera { get; set; }
-        public GlobalFileRef<World> WorldRef { get; set; }
         public Clip<Cutscene> CurrentSceneClip { get; private set; }
         private int CurrentSceneIndex { get; set; } = -1;
 
+        public PerspectiveCamera Camera { get; private set; }
+        public CameraActor CameraActor { get; private set; }
+        public World TargetWorld { get; set; }
+
+        [TSerialize]
+        public PerspCamKeyCollection CameraTrack
+        {
+            get => _cameraTrack;
+            set => _cameraTrack = value ?? new PerspCamKeyCollection();
+        }
         [TSerialize]
         public EventDictionary<string, Clip<BaseAnimation>> AnimationTracks
         {
@@ -126,9 +138,13 @@ namespace TheraEngine.Animation.Cutscenes
                 CurrentSceneIndex = 0;
                 foreach (var anim in AnimationTracks)
                 {
-
+                    anim.Value.Animation.Start();
                 }
             }
+            Camera = new PerspectiveCamera();
+            CameraActor = new CameraActor();
+            CameraActor.Camera = Camera;
+            TargetWorld.SpawnActor(CameraActor);
         }
         protected override void PostStopped()
         {
@@ -230,6 +246,30 @@ namespace TheraEngine.Animation.Cutscenes
         public float EndSecond { get; set; }
 
         public float LengthInSeconds => EndSecond - StartSecond;
+
+        public void Start()
+        {
+            Animation.TickSelf = false;
+            Animation.CurrentTime = StartSecond;
+            Animation.Start();
+        }
+        public void Progress(float delta)
+        {
+            float time = Animation.CurrentTime + delta;
+            if (Animation.Looped)
+            {
+                time = time.RemapToRange(StartSecond, EndSecond);
+                Animation.Progress(time - Animation.CurrentTime);
+            }
+            else
+            {
+                bool shouldStop = time <= StartSecond || time >= EndSecond;
+                time = time.Clamp(StartSecond, EndSecond);
+                Animation.Progress(time - Animation.CurrentTime);
+                if (shouldStop)
+                    Animation.Stop();
+            }
+        }
 
         [Browsable(false)]
         public T Animation => AnimationRef.File;

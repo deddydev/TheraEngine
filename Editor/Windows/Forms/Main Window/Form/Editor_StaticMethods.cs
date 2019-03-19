@@ -33,13 +33,13 @@ namespace TheraEditor.Windows.Forms
 
             if (ActiveRenderForm?.GameMode != null)
             {
-                int index = (int)ActiveRenderForm.PlayerIndex;
-                if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
-                {
-                    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
-                    ActiveRenderForm.RenderPanel.UnregisterController(c);
-                    c.ControlledPawn = null;
-                }
+                //int index = (int)ActiveRenderForm.PlayerIndex;
+                //if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
+                //{
+                //    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
+                //    ActiveRenderForm.RenderPanel.UnregisterController(c);
+                //    c.ControlledPawn = null;
+                //}
 
                 //if (!sameGameMode)
                 //ActiveRenderForm.GameMode.EndGameplay();
@@ -52,13 +52,13 @@ namespace TheraEditor.Windows.Forms
                 ActiveRenderForm.World.CurrentGameMode = ActiveRenderForm.GameMode;
                 //ActiveRenderForm.GameMode.BeginGameplay();
 
-                int index = (int)control.PlayerIndex;
-                if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
-                {
-                    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
-                    ActiveRenderForm.RenderPanel.GetOrAddViewport(control.PlayerIndex).RegisterController(c);
-                    c.ControlledPawn = ActiveRenderForm.EditorPawn;
-                }
+                //int index = (int)control.PlayerIndex;W
+                //if (index < ActiveRenderForm.GameMode.LocalPlayers.Count)
+                //{
+                //    LocalPlayerController c = ActiveRenderForm.GameMode.LocalPlayers[index];
+                //    ActiveRenderForm.RenderPanel.GetOrAddViewport(control.PlayerIndex).RegisterController(c);
+                //    c.ControlledPawn = ActiveRenderForm.EditorPawn;
+                //}
 
                 Engine.PrintLine("Set active render form: " + ActiveRenderForm.ToString());
             }

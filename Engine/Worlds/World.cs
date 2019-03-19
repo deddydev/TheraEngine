@@ -107,24 +107,10 @@ namespace TheraEngine.Worlds
                 var mode = State.GameMode;
                 CurrentGameModePreChanged?.Invoke(this, mode, value);
                 if (IsPlaying)
-                {
-                    if (mode != null)
-                    {
-                        if (mode.TargetWorld == this)
-                            mode.TargetWorld = null;
-                        mode.EndGameplay();
-                    }
-                }
+                    mode?.EndGameplay();
                 State.GameMode = value;
                 if (IsPlaying)
-                {
-                    var newMode = State.GameMode;
-                    if (newMode != null)
-                    {
-                        newMode.TargetWorld = this;
-                        newMode.BeginGameplay();
-                    }
-                }
+                    State.GameMode?.BeginGameplay(this);
                 CurrentGameModePostChanged?.Invoke(this, mode, value);
             }
         }
@@ -293,7 +279,7 @@ namespace TheraEngine.Worlds
                 s2D.RenderTree.Swap();
             }
 
-            CurrentGameMode?.BeginGameplay();
+            CurrentGameMode?.BeginGameplay(this);
             IsPlaying = true;
 
             string cut = Settings.CutsceneToPlayOnBeginPlay;

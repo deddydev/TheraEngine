@@ -8,6 +8,7 @@ using System.Linq;
 using System.ComponentModel;
 using TheraEngine.Worlds;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.GameModes
 {
@@ -110,7 +111,7 @@ namespace TheraEngine.GameModes
     }
     public interface IGameMode
     {
-        void BeginGameplay();
+        void BeginGameplay(World world);
         void EndGameplay();
         void AbortGameplay();
     }
@@ -118,6 +119,39 @@ namespace TheraEngine.GameModes
     [TFileDef("Game Mode", "")]
     public abstract class BaseGameMode : TFileObject, IGameMode
     {
+        public BaseGameMode()
+        {
+            _targetRenderPanels = new EventList<BaseRenderPanel>();
+            _targetRenderPanels.CollectionChanged += _targetRenderPanels_CollectionChanged;
+        }
+
+        private void _targetRenderPanels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (IsPlaying)
+                foreach (var player in LocalPlayers)
+                    LinkControllerToViewport(player);
+        }
+
+        public virtual Viewport LinkControllerToViewport(LocalPlayerController item)
+        {
+            if (item == null)
+                return null;
+
+            item.Viewport?.UnregisterController(item);
+
+            var panel = TargetRenderPanels.FirstOrDefault(x => x.ValidPlayerIndices.Contains(item.LocalPlayerIndex));
+            if (panel != null)
+            {
+                Viewport v = panel.GetOrAddViewport(item.LocalPlayerIndex);
+                v?.RegisterController(item);
+                return v;
+            }
+            else
+                Engine.LogWarning($"No target render panel found for player {item.LocalPlayerIndex.ToString().ToLowerInvariant()}.");
+
+            return null;
+        }
+
         //Queue of what pawns should be possessed next for each player index when they either first join the game, or have their controlled pawn set to null.
         private static Dictionary<ELocalPlayerIndex, Queue<IPawn>> _possessionQueues = new Dictionary<ELocalPlayerIndex, Queue<IPawn>>();
 
@@ -130,16 +164,19 @@ namespace TheraEngine.GameModes
             set => _disallowPausing = value;
         }
 
+        public bool IsPlaying { get; private set; }
+
+        private EventList<BaseRenderPanel> _targetRenderPanels;
         /// <summary>
         /// These are the render panels that will be used for the target world's local player controllers.
         /// </summary>
         [Browsable(false)]
-        public List<BaseRenderPanel> TargetRenderPanels { get; } = new List<BaseRenderPanel>();
+        public EventList<BaseRenderPanel> TargetRenderPanels => _targetRenderPanels;
         /// <summary>
         /// This is the world that is running this game mode.
         /// </summary>
         [Browsable(false)]
-        public World TargetWorld { get; internal set; }
+        public World TargetWorld { get; private set; }
         /// <summary>
         /// These are the local players that are active in the world.
         /// </summary>
@@ -161,18 +198,22 @@ namespace TheraEngine.GameModes
         protected internal abstract void CreateLocalController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue);
 
         protected virtual void OnBeginGameplay() { }
-        public void BeginGameplay()
+        public void BeginGameplay(World world)
         {
+            TargetWorld = world;
             Engine.PrintLine("Game mode {0} has begun play.", GetType().GetFriendlyName());
             CreateLocalPlayerControllers();
             OnBeginGameplay();
+            IsPlaying = true;
         }
         protected virtual void OnEndGameplay() { }
         public void EndGameplay()
         {
+            IsPlaying = false;
             DestroyLocalPlayerControllers();
             OnEndGameplay();
             Engine.PrintLine("Game mode {0} has ended play.", GetType().GetFriendlyName());
+            TargetWorld = null;
         }
         protected virtual void OnAbortGameplay() { }
         public void AbortGameplay()
@@ -328,14 +369,9 @@ namespace TheraEngine.GameModes
         }
         protected internal virtual void HandleLocalPlayerJoined(ControllerType item)
         {
-            PawnType pawn = PawnSubClassCreator.New();
-            
-            var panel = TargetRenderPanels.FirstOrDefault(x => x.ValidPlayerIndices.Contains(item.LocalPlayerIndex));
-            if (panel != null)
-                panel.GetOrAddViewport(item.LocalPlayerIndex).RegisterController(item);
-            else
-                Engine.LogWarning($"No target render panel found for player {item.LocalPlayerIndex.ToString().ToLowerInvariant()}.");
+            LinkControllerToViewport(item);
 
+            PawnType pawn = PawnSubClassCreator.New();
             item.EnqueuePosession(pawn);
             TargetWorld.SpawnActor(pawn);
         }

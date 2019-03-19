@@ -1,6 +1,8 @@
 ﻿using TheraEditor.Actors.Types.Pawns;
 using TheraEditor.Windows.Forms;
 using TheraEngine.GameModes;
+using TheraEngine.Input;
+using TheraEngine.Rendering;
 
 namespace TheraEditor
 {
@@ -8,19 +10,19 @@ namespace TheraEditor
     {
         protected override void HandleLocalPlayerJoined(EditorPlayerController item)
         {
-            if (!(Editor.ActiveRenderForm is DockableWorldRenderForm form) || item.LocalPlayerIndex != form.PlayerIndex)
-                return;
-
-            form.RenderPanel.GetOrAddViewport(0).RegisterController(item);
-            item.ControlledPawn = form.EditorPawn;
+            LinkControllerToViewport(item);
+        }
+        public override Viewport LinkControllerToViewport(LocalPlayerController item)
+        {
+            var vp = base.LinkControllerToViewport(item);
+            if (vp?.OwningPanel is IEditorRenderableControl c)
+                item.ControlledPawn = c.EditorPawn;
+            return vp;
         }
         protected override void HandleLocalPlayerLeft(EditorPlayerController item)
         {
-            if (!(Editor.ActiveRenderForm is DockableWorldRenderForm form) || item.LocalPlayerIndex != form.PlayerIndex)
-                return;
-
-            form.RenderPanel.UnregisterController(item);
-            item.ControlledPawn = null;
+            item.Viewport.OwningPanel.UnregisterController(item);
+            item.UnlinkControlledPawn();
         }
     }
 }

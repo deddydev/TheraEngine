@@ -5,7 +5,8 @@
         protected override void GlobalPreRender()
         {
             //Prerender will be done by the editor before rendering any other viewport
-            OnPreRender();
+            //OnPreRender();
+            base.GlobalPreRender();
         }
     }
 }

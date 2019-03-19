@@ -22,10 +22,9 @@ namespace TheraEditor.Windows.Forms
 
             InitializeComponent();
 
+            GameMode = new EditorGameMode();
             RenderPanel.ValidPlayerIndices = new List<ELocalPlayerIndex>() { playerIndex };
             RenderPanel.Owner = this;
-
-            GameMode = new EditorGameMode();
 
             Text = $"Model Viewport {(FormIndex + 1).ToString()}";
 

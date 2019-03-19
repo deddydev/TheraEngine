@@ -60,7 +60,6 @@ namespace TheraEditor.Windows.Forms
             Engine.BeginOperation += BeginOperation;
             Engine.EndOperation += EndOperation;
 
-            _editorGameMode = new EditorGameMode();
             InitializeComponent();
             DockPanel.Theme = new TheraEditorTheme();
 
@@ -205,6 +204,7 @@ namespace TheraEditor.Windows.Forms
         {
             Engine.PreWorldChanged += Engine_PreWorldChanged;
             Engine.PostWorldChanged += Engine_PostWorldChanged;
+            _editorGameMode = new EditorGameMode();
         }
         private void Engine_PreWorldChanged()
         {

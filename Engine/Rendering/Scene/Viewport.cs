@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Components;
@@ -277,6 +278,8 @@ namespace TheraEngine.Rendering
             controller.Viewport = null;
             if (Owners.Contains(controller))
                 Owners.Remove(controller);
+            if (Owners.Count == 0)
+                OwningPanel.Viewports.Remove(PlayerIndex);
         }
         
         /// <summary>
@@ -707,6 +710,7 @@ namespace TheraEngine.Rendering
         public TexRef2D LightingTexture { get; private set; }
         public TexRefView2D DepthViewTexture { get; private set; }
         public TexRefView2D StencilViewTexture { get; private set; }
+        public ELocalPlayerIndex PlayerIndex { get; internal set; }
 
         public enum EDepthStencilUse
         {

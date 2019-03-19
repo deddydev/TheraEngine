@@ -485,13 +485,11 @@ namespace TheraEngine
             var twoPlayerPref = Engine.Game?.TwoPlayerPref ?? Viewport.ETwoPlayerPreference.SplitHorizontally;
             var threePlayerPref = Engine.Game?.ThreePlayerPref ?? Viewport.EThreePlayerPreference.PreferFirstPlayer;
             int i = 0;
-            foreach (Viewport p in Viewports.Values)
+            foreach (var p in Viewports)
             {
-                if (p != null)
-                {
-                    p.ViewportCountChanged(i, Viewports.Count, twoPlayerPref, threePlayerPref);
-                    p.Resize(Width, Height);
-                }
+                p.Value.ViewportCountChanged(i, Viewports.Count, twoPlayerPref, threePlayerPref);
+                p.Value.Resize(Width, Height);
+                p.Value.PlayerIndex = p.Key;
                 ++i;
             }
 

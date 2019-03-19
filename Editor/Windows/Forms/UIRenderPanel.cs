@@ -45,8 +45,7 @@ namespace TheraEngine
         {
             Viewport v = AddViewport(ELocalPlayerIndex.One);
 
-            GameMode = new UIGameModeType();
-            GameMode.RenderPanel = this;
+            GameMode = new UIGameModeType { RenderPanel = this };
             World.CurrentGameMode = GameMode;
 
             UI = new UIPawnType();

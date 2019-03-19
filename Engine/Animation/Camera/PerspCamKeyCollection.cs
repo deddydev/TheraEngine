@@ -66,8 +66,54 @@ namespace TheraEngine.Animation
                 track.SetLength(seconds, stretchAnimation, notifyChanged);
         }
 
+        public void ResetProgress() => _tracks.ForEach(x => x.CurrentTime = 0.0f);
         public void Progress(float delta) => _tracks.ForEach(x => x.Progress(delta));
 
+        public void SetCameraKeyframe(float second, PerspectiveCamera cameraReference)
+        {
+            var kf = new FloatKeyframe(second, cameraReference.LocalPoint.X, 0.0f, EVectorInterpType.CubicHermite);
+            TranslationX.Keyframes.Add(kf);
+            kf.GenerateTangents();
+
+            kf = new FloatKeyframe(second, cameraReference.LocalPoint.Y, 0.0f, EVectorInterpType.CubicHermite);
+            TranslationY.Keyframes.Add(kf);
+            kf.GenerateTangents();
+
+            kf = new FloatKeyframe(second, cameraReference.LocalPoint.Z, 0.0f, EVectorInterpType.CubicHermite);
+            TranslationZ.Keyframes.Add(kf);
+            kf.GenerateTangents();
+
+            kf = new FloatKeyframe(second, cameraReference.LocalRotation.Pitch, 0.0f, EVectorInterpType.CubicHermite);
+            RotationX.Keyframes.Add(kf);
+            kf.GenerateTangents();
+
+            kf = new FloatKeyframe(second, cameraReference.LocalRotation.Yaw, 0.0f, EVectorInterpType.CubicHermite);
+            RotationY.Keyframes.Add(kf);
+            kf.GenerateTangents();
+
+            kf = new FloatKeyframe(second, cameraReference.LocalRotation.Roll, 0.0f, EVectorInterpType.CubicHermite);
+            RotationZ.Keyframes.Add(kf);
+            kf.GenerateTangents();
+
+            kf = new FloatKeyframe(second, VerticalFOV ? cameraReference.VerticalFieldOfView : cameraReference.HorizontalFieldOfView, 0.0f, EVectorInterpType.CubicHermite);
+            FOV.Keyframes.Add(kf);
+            kf.GenerateTangents();
+
+            if (OverrideAspect)
+            {
+                kf = new FloatKeyframe(second, cameraReference.Aspect, 0.0f, EVectorInterpType.CubicHermite);
+                Aspect.Keyframes.Add(kf);
+                kf.GenerateTangents();
+            }
+
+            kf = new FloatKeyframe(second, cameraReference.NearZ, 0.0f, EVectorInterpType.CubicHermite);
+            NearZ.Keyframes.Add(kf);
+            kf.GenerateTangents();
+
+            kf = new FloatKeyframe(second, cameraReference.FarZ, 0.0f, EVectorInterpType.CubicHermite);
+            FarZ.Keyframes.Add(kf);
+            kf.GenerateTangents();
+        }
         public unsafe void UpdateCamera(PerspectiveCamera camera, float second)
         {
             Vec3 t, r;

@@ -844,9 +844,6 @@
     <Compile Include="Input\Devices\DirectX\DXMouse.cs" />
     <Compile Include="Input\Devices\DirectX\DXKeyboard.cs" />
     <Compile Include="Input\LocalPlayerController.cs" />
-    <Compile Include="Rendering\Particles\Emitter.cs" />
-    <Compile Include="Rendering\Particles\Particle.cs" />
-    <Compile Include="Rendering\Particles\ParticleManager.cs" />
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
     <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />

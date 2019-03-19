@@ -158,7 +158,7 @@
             this.btnNewChildSceneComp.Name = "btnNewChildSceneComp";
             this.btnNewChildSceneComp.Size = new System.Drawing.Size(243, 22);
             this.btnNewChildSceneComp.Text = "New Child";
-            this.btnNewChildSceneComp.Click += new System.EventHandler(this.btnAddSceneComp_Click);
+            this.btnNewChildSceneComp.Click += new System.EventHandler(this.btnNewChildSceneComp_Click);
             // 
             // splt3
             // 

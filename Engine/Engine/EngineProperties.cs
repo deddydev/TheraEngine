@@ -51,8 +51,6 @@ namespace TheraEngine
     public class EngineSingleton : TFileObject
     {
         internal EngineSingleton() { }
-
-
     }
     public static partial class Engine
     {

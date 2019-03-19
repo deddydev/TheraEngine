@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types;
+using TheraEngine.Components.Scene;
 using TheraEngine.Core.Files;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds;
@@ -23,32 +24,44 @@ namespace TheraEngine.Animation.Cutscenes
     {
         public Cutscene() : base(0.0f, false)
         {
-            SubScenes = new EventList<Clip<Cutscene>>();
+            SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
         }
         public Cutscene(float lengthInSeconds, bool looped)
             : base(lengthInSeconds, looped)
         {
-            SubScenes = new EventList<Clip<Cutscene>>();
+            SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
         }
         public Cutscene(int frameCount, float FPS, bool looped)
             : base(FPS <= 0.0f ? 0.0f : frameCount / FPS, looped)
         {
-            SubScenes = new EventList<Clip<Cutscene>>();
+            SubScenes = new EventList<(float Second, Clip<Cutscene> Clip)>();
         }
 
         private PerspCamKeyCollection _cameraTrack = new PerspCamKeyCollection();
-        private EventList<Clip<Cutscene>> _scenes = new EventList<Clip<Cutscene>>();
-        private EventDictionary<string, Clip<BaseAnimation>> _animationTracks = new EventDictionary<string, Clip<BaseAnimation>>();
+        private EventList<(float Second, Clip<Cutscene> Clip)> _scenes;
+        private EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)> _animationTracks = new EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)>();
 
         public List<GlobalFileRef<BaseActor>> InvolvedActors { get; set; }
-        private Camera CurrentCamera { get; set; }
-        public Clip<Cutscene> CurrentSceneClip { get; private set; }
+
+        private (float Second, Clip<Cutscene> Clip)? _currentSceneClip;
+        public (float Second, Clip<Cutscene> Clip)? CurrentSceneClip
+        {
+            get => _currentSceneClip;
+            private set
+            {
+                if (_currentSceneClip?.Clip?.Animation != null)
+                    _currentSceneClip.Value.Clip.Animation.Camera = null;
+                _currentSceneClip = value;
+                if (_currentSceneClip?.Clip?.Animation != null)
+                    _currentSceneClip.Value.Clip.Animation.Camera = Camera;
+            }
+        }
         private int CurrentSceneIndex { get; set; } = -1;
 
         public PerspectiveCamera Camera { get; private set; }
-        public CameraActor CameraActor { get; private set; }
+        public Pawn<CameraComponent> CameraPawn { get; private set; }
         public World TargetWorld { get; set; }
-
+        
         [TSerialize]
         public PerspCamKeyCollection CameraTrack
         {
@@ -56,13 +69,13 @@ namespace TheraEngine.Animation.Cutscenes
             set => _cameraTrack = value ?? new PerspCamKeyCollection();
         }
         [TSerialize]
-        public EventDictionary<string, Clip<BaseAnimation>> AnimationTracks
+        public EventDictionary<string, (float Second, Clip<BaseAnimation> Clip)> AnimationTracks
         {
             get => _animationTracks;
             set => _animationTracks = value;
         }
         [TSerialize]
-        public EventList<Clip<Cutscene>> SubScenes
+        public EventList<(float Second, Clip<Cutscene> Clip)> SubScenes
         {
             get => _scenes;
             set
@@ -86,41 +99,41 @@ namespace TheraEngine.Animation.Cutscenes
         {
             foreach (var scene in SubScenes)
             {
-                var cut = scene.AnimationRef.GetInstance();
+                var cut = scene.Clip.AnimationRef.GetInstance();
                 cut?.LoadSubScenes();
             }
         }
         public void LoadSubScene(int index)
         {
             if (SubScenes.IndexInRange(index))
-                SubScenes[index].AnimationRef.GetInstance();
+                SubScenes[index].Clip.AnimationRef.GetInstance();
         }
         public async Task LoadSubScenesAsync()
         {
             foreach (var scene in SubScenes)
             {
-                var cut = await scene.AnimationRef.GetInstanceAsync();
+                var cut = await scene.Clip.AnimationRef.GetInstanceAsync();
                 await cut?.LoadSubScenesAsync();
             }
         }
         public async Task LoadSubSceneAsync(int index)
         {
             if (SubScenes.IndexInRange(index))
-                await SubScenes[index].AnimationRef.GetInstanceAsync();
+                await SubScenes[index].Clip.AnimationRef.GetInstanceAsync();
         }
         public void LoadAnimations()
         {
             foreach (var anim in AnimationTracks)
-                anim.Value.AnimationRef.GetInstance();
+                anim.Value.Clip.AnimationRef.GetInstance();
         }
         public void LoadAnimationsParallel()
         {
-            Parallel.ForEach(AnimationTracks, anim => anim.Value.AnimationRef.GetInstance());
+            Parallel.ForEach(AnimationTracks, anim => anim.Value.Clip.AnimationRef.GetInstance());
         }
         public async Task LoadAnimationsAsync()
         {
             foreach (var anim in AnimationTracks)
-                await anim.Value.AnimationRef.GetInstanceAsync();
+                await anim.Value.Clip.AnimationRef.GetInstanceAsync();
             //Task.WaitAll(AnimationTracks.Select(x => x.AnimationRef.GetInstanceAsync()).ToArray());
         }
         #endregion
@@ -138,26 +151,34 @@ namespace TheraEngine.Animation.Cutscenes
                 CurrentSceneIndex = 0;
                 foreach (var anim in AnimationTracks)
                 {
-                    anim.Value.Animation.Start();
+                    anim.Value.Clip.Start();
                 }
             }
+
             Camera = new PerspectiveCamera();
-            CameraActor = new CameraActor();
-            CameraActor.Camera = Camera;
-            TargetWorld.SpawnActor(CameraActor);
+            CameraComponent comp = new CameraComponent(Camera);
+            CameraPawn = new Pawn<CameraComponent>(comp);
+            TargetWorld.SpawnActor(CameraPawn);
+            CameraTrack.UpdateCamera(Camera);
+            CameraPawn.ForcePossessionBy(ELocalPlayerIndex.One);
         }
         protected override void PostStopped()
         {
 
         }
 
-        private void _scenes_PostAnythingRemoved(Clip<Cutscene> item)
+        private void _scenes_PostAnythingRemoved((float Second, Clip<Cutscene> Clip) item)
         {
 
         }
-        private void _scenes_PostAnythingAdded(Clip<Cutscene> item)
+        private void _scenes_PostAnythingAdded((float Second, Clip<Cutscene> Clip) item)
         {
 
+        }
+
+        public void SetCameraKeyframe(PerspectiveCamera cameraReference)
+        {
+            CameraTrack.SetCameraKeyframe(CurrentTime, cameraReference);
         }
 
         /// <summary>
@@ -167,68 +188,40 @@ namespace TheraEngine.Animation.Cutscenes
         {
 
         }
-        private float _lastDelta = 0.0f;
         protected override void OnProgressed(float delta)
         {
-            //Progress animations in this cutscene level
-            foreach (var anim in AnimationTracks)
-                anim.Value?.AnimationRef?.File?.Progress(delta);
-
-            //Progress sub scenes
             if (CurrentSceneClip == null)
-                return;
-
-            _lastDelta = delta;
-
-            var scene = CurrentSceneClip.Animation;
-            float sceneTime = scene.CurrentTime + delta;
-            if (sceneTime > CurrentSceneClip.LengthInSeconds)
             {
-                scene.Stop();
+                //Progress animations in this cutscene level
 
-                //New time is beyond current scene, need to move to the next scene (or further, so use a while loop)
-                while (sceneTime > CurrentSceneClip.LengthInSeconds)
-                {
-                    sceneTime -= CurrentSceneClip.LengthInSeconds;
+                CameraTrack.Progress(delta);
+                CameraTrack.UpdateCamera(Camera);
 
-                    if (++CurrentSceneIndex >= SubScenes.Count)
-                    {
-                        CurrentSceneIndex = 0;
-                    }
-
-                    CurrentSceneClip = SubScenes[CurrentSceneIndex];
-                }
-
-                scene = CurrentSceneClip.Animation;
-                scene.TickSelf = false;
-                scene.Start();
-                scene.Progress(CurrentSceneClip.StartSecond + sceneTime);
-            }
-            else if (sceneTime < 0.0f)
-            {
-                scene.Stop();
-
-                //New time is before current scene, need to move to the previous scene (or further, so use a while loop)
-                while (sceneTime < 0.0f)
-                {
-                    sceneTime += CurrentSceneClip.LengthInSeconds;
-
-                    if (--CurrentSceneIndex < 0)
-                    {
-                        CurrentSceneIndex = SubScenes.Count - 1;
-                    }
-
-                    CurrentSceneClip = SubScenes[CurrentSceneIndex];
-                }
-
-                scene = CurrentSceneClip.Animation;
-                scene.TickSelf = false;
-                scene.Start();
-                scene.Progress(CurrentSceneClip.EndSecond - sceneTime);
+                foreach (var anim in AnimationTracks)
+                    anim.Value.Clip.Progress(delta, out float over);
             }
             else
             {
-                CurrentSceneClip.Animation.Progress(delta);
+                CurrentSceneClip.Value.Clip.Progress(delta, out float overShootDelta);
+
+                if (overShootDelta > 0.0f)
+                {
+                    //New time is beyond current scene, need to move to the next scene (or further, so use a while loop)
+                    if (++CurrentSceneIndex >= SubScenes.Count)
+                        CurrentSceneIndex = 0;
+
+                    CurrentSceneClip = SubScenes[CurrentSceneIndex];
+                    CurrentSceneClip.Value.Clip.Start(overShootDelta);
+                }
+                else if (overShootDelta < 0.0f)
+                {
+                    //New time is before current scene, need to move to the previous scene (or further, so use a while loop)
+                    if (--CurrentSceneIndex < 0)
+                        CurrentSceneIndex = SubScenes.Count - 1;
+
+                    CurrentSceneClip = SubScenes[CurrentSceneIndex];
+                    CurrentSceneClip.Value.Clip.Start(CurrentSceneClip.Value.Clip.LengthInSeconds + overShootDelta);
+                }
             }
         }
     }
@@ -238,7 +231,7 @@ namespace TheraEngine.Animation.Cutscenes
     {
         [TSerialize]
         public LocalFileRef<T> AnimationRef { get; set; }
-
+        
         [TSerialize(IsAttribute = true)]
         public float StartSecond { get; set; }
 
@@ -247,30 +240,32 @@ namespace TheraEngine.Animation.Cutscenes
 
         public float LengthInSeconds => EndSecond - StartSecond;
 
-        public void Start()
+        public void Start(float offset = 0.0f)
         {
             Animation.TickSelf = false;
-            Animation.CurrentTime = StartSecond;
+            Animation.CurrentTime = StartSecond + offset;
             Animation.Start();
         }
-        public void Progress(float delta)
+        public void Progress(float delta, out float overShootDelta)
         {
             float time = Animation.CurrentTime + delta;
             if (Animation.Looped)
             {
                 time = time.RemapToRange(StartSecond, EndSecond);
                 Animation.Progress(time - Animation.CurrentTime);
+                overShootDelta = 0.0f;
             }
             else
             {
                 bool shouldStop = time <= StartSecond || time >= EndSecond;
-                time = time.Clamp(StartSecond, EndSecond);
-                Animation.Progress(time - Animation.CurrentTime);
+                float time2 = time.Clamp(StartSecond, EndSecond);
+                Animation.Progress(time2 - Animation.CurrentTime);
                 if (shouldStop)
                     Animation.Stop();
+                overShootDelta = time - time2;
             }
         }
-
+        
         [Browsable(false)]
         public T Animation => AnimationRef.File;
     }

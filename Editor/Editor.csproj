@@ -237,6 +237,7 @@
     <Compile Include="Core\Extensions\AssemblyNameExtension.cs" />
     <Compile Include="Core\Extensions\ControlExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
+    <Compile Include="Core\Extensions\TreeViewExtension.cs" />
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Extensions\ZipFileWithProgress.cs" />
     <Compile Include="Core\Thumbnails.cs" />

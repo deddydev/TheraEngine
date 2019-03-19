@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using TheraEditor.Core.Extensions;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
@@ -20,7 +21,7 @@ namespace TheraEditor.Windows.Forms
             ctxActorTree.RenderMode = ToolStripRenderMode.Professional;
             ctxActorTree.Renderer = new TheraForm.TheraToolstripRenderer();
         }
-
+        
         public EditorUI3D EditorHUD { get; set; }
 
         private readonly Dictionary<Guid, TreeNode> _mapTreeNodes = new Dictionary<Guid, TreeNode>();
@@ -199,6 +200,7 @@ namespace TheraEditor.Windows.Forms
         {
             TreeNode node = ActorTree.SelectedNode;
 
+            btnMoveUp.Visible = btnMoveDown.Visible = node?.Tag is IComponent;
             btnMoveDown.Enabled = btnMoveAsChildToSibNext.Enabled = node?.NextNode != null;
             btnMoveUp.Enabled = btnMoveAsChildToSibPrev.Enabled = node?.PrevNode != null;
 
@@ -208,6 +210,8 @@ namespace TheraEditor.Windows.Forms
             btnNewSiblingSceneComp.Visible =
             btnNewChildSceneComp.Visible =
             node?.Tag is SceneComponent;
+
+            splt1.Visible = btnMoveUp.Visible || btnMoveDown.Visible || btnMoveAsSibToParent.Visible || btnMoveAsChildToSibNext.Visible || btnMoveAsChildToSibPrev.Visible || btnNewSiblingSceneComp.Visible;
 
             if (node == null)
             {
@@ -235,12 +239,15 @@ namespace TheraEditor.Windows.Forms
         }
         private void ctxActorTree_Closing(object sender, ToolStripDropDownClosingEventArgs e)
         {
+            btnMoveUp.Visible =
+            btnMoveDown.Visible =
             btnNewLogicComp.Visible =
             btnMoveAsSibToParent.Visible =
             btnMoveAsChildToSibNext.Visible =
             btnMoveAsChildToSibPrev.Visible =
             btnNewSiblingSceneComp.Visible =
             btnNewChildSceneComp.Visible =
+            splt1.Visible =
             true;
 
             btnNewSiblingSceneComp.Enabled =
@@ -329,23 +336,101 @@ namespace TheraEditor.Windows.Forms
 
         private void btnNewMap_Click(object sender, EventArgs e)
         {
-
+            var map = Engine.World.Settings.FindOrCreateMap("Map" + Engine.World.Settings.Maps.Count);
+            TreeNode node = CacheMap(map);
+            ActorTree.LabelEdit = true;
+            node.BeginEdit();
         }
-        private void btnAddSceneComp_Click(object sender, EventArgs e)
+        private void btnNewChildSceneComp_Click(object sender, EventArgs e)
         {
-
+            var node = ActorTree.SelectedNode;
+            if (node.Tag is SceneComponent comp)
+            {
+                SceneComponent newComp = Editor.UserCreateInstanceOf<SceneComponent>();
+                if (newComp != null)
+                    comp.ChildComponents.Add(newComp);
+            }
         }
         private void btnAddLogicComp_Click(object sender, EventArgs e)
         {
-
+            var node = ActorTree.SelectedNode;
+            switch (node.Tag)
+            {
+                case BaseActor actor:
+                    {
+                        LogicComponent newComp = Editor.UserCreateInstanceOf<LogicComponent>();
+                        if (newComp != null)
+                            actor.LogicComponents.Add(newComp);
+                    }
+                    break;
+                case LogicComponent logicComp:
+                    {
+                        LogicComponent newComp = Editor.UserCreateInstanceOf<LogicComponent>();
+                        if (newComp != null)
+                            logicComp.OwningActor.LogicComponents.Add(newComp);
+                    }
+                    break;
+            }
         }
         private void btnMoveUp_Click(object sender, EventArgs e)
         {
-
+            var node = ActorTree.SelectedNode;
+            switch (node.Tag)
+            {
+                case SceneComponent sceneComp:
+                    {
+                        var socket = sceneComp.ParentSocket;
+                        int index = socket?.ChildComponents?.IndexOf(sceneComp) ?? -1;
+                        if (index > 0)
+                        {
+                            socket.ChildComponents.RemoveAt(index);
+                            socket.ChildComponents.Insert(index - 1, sceneComp);
+                        }
+                        node.MoveUp();
+                    }
+                    break;
+                case LogicComponent logicComp:
+                    {
+                        var comps = logicComp.OwningActor?.LogicComponents;
+                        int index = comps?.IndexOf(logicComp) ?? -1;
+                        if (index > 0)
+                        {
+                            comps.RemoveAt(index);
+                            comps.Insert(index - 1, logicComp);
+                        }
+                        node.MoveUp();
+                    }
+                    break;
+            }
         }
         private void btnMoveDown_Click(object sender, EventArgs e)
         {
-
+            var node = ActorTree.SelectedNode;
+            switch (node.Tag)
+            {
+                case SceneComponent sceneComp:
+                    {
+                        var socket = sceneComp.ParentSocket;
+                        int index = socket.ChildComponents.IndexOf(sceneComp);
+                        if (index >= 0 && index + 1 < socket.ChildComponents.Count)
+                        {
+                            socket.ChildComponents.RemoveAt(index);
+                            socket.ChildComponents.Insert(index + 1, sceneComp);
+                        }
+                    }
+                    break;
+                case LogicComponent logicComp:
+                    {
+                        var comps = logicComp.OwningActor?.LogicComponents;
+                        int index = comps.IndexOf(logicComp);
+                        if (index >= 0 && index + 1 < comps.Count)
+                        {
+                            comps.RemoveAt(index);
+                            comps.Insert(index + 1, logicComp);
+                        }
+                    }
+                    break;
+            }
         }
         private void btnMoveAsSibToParent_Click(object sender, EventArgs e)
         {

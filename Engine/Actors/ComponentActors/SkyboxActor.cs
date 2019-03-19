@@ -61,7 +61,7 @@ namespace TheraEngine.Actors.Types
         [TString(false, true)]
         public string TexturePath
         {
-            get => SkyboxTextureRef.AbsolutePath;
+            get => SkyboxTextureRef?.AbsolutePath;
             set
             {
                 GlobalFileRef<TextureFile2D> tref = SkyboxTextureRef;
@@ -184,13 +184,13 @@ namespace TheraEngine.Actors.Types
             }
 
             StaticRenderableMesh[] renderMeshes = RootComponent?.Meshes;
-            if (renderMeshes == null || renderMeshes.Length <= 0)
+            if (renderMeshes == null || renderMeshes.Length <= 0 || renderMeshes[0] == null)
                 return;
             
             StaticRenderableMesh rmesh = renderMeshes[0];
-            rmesh?.SetCullingVolume(box);
+            rmesh.RenderInfo.CullingVolume = box.HardCopy();
 
-            RenderableLOD rlod = rmesh?.LODs?.First?.Value;
+            RenderableLOD rlod = rmesh.LODs?.First?.Value;
             if (rlod == null)
                 return;
 

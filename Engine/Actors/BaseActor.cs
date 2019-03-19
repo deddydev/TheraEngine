@@ -78,12 +78,13 @@ namespace TheraEngine.Actors
                 }
             }
         }
-        [Browsable(false)]
+        //[Browsable(false)]
         public DateTime SpawnTime { get; private set; }
         [Browsable(false)]
         public TimeSpan ActiveTime => DateTime.Now - SpawnTime;
         [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0 && OwningWorld != null;
+        public bool IsSpawnedIn(World world) => _spawnIndex >= 0 && OwningWorld == world;
         [Browsable(false)]
         public World OwningWorld { get; private set; } = null;
         [Browsable(false)]

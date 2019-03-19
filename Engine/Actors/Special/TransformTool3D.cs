@@ -11,6 +11,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Text;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Actors.Types
 {
@@ -76,7 +77,7 @@ namespace TheraEngine.Actors.Types
             };
             Bone screen = new Bone(screenBoneName)
             {
-                BillboardType = BillboardType.RotationXYZ
+                BillboardType = EBillboardType.RotationXYZ
             };
             root.ChildBones.Add(screen);
             Skeleton skel = new Skeleton(root);
@@ -428,13 +429,16 @@ namespace TheraEngine.Actors.Types
             }
         }
 
-        public static TransformTool3D GetInstance(ISocket comp, TransformType transformType)
+        public static TransformTool3D GetInstance(World world, ISocket comp, TransformType transformType)
         {
-            if (Engine.World == null)
+            if (world == null)
                 return null;
 
-            if (!Instance.IsSpawned)
-                Engine.World.SpawnActor(Instance);
+            if (!Instance.IsSpawnedIn(world))
+            {
+                Instance.Despawn();
+                world.SpawnActor(Instance);
+            }
 
             Instance.TargetSocket = comp;
             Instance.TransformMode = transformType;

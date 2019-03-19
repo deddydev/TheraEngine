@@ -22,6 +22,7 @@ namespace TheraEngine.Components.Scene.Mesh
     /// </summary>
     public abstract class BaseRenderableMesh3D : I3DRenderable
     {
+        public BaseRenderableMesh3D() { }
         public BaseRenderableMesh3D(List<LOD> lods, ERenderPass renderPass, RenderInfo3D renderInfo, SceneComponent component)
         {
             _component = component;
@@ -35,7 +36,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 };
                 //if (lod.Manager.Material.GeometryShaders.Count == 0)
                 //{
-                //    lod.Manager.Material.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
+                //    lod.Manager.Material.Shaders.Add(Engine.Files.LoadEngineShader("VisualizeNormal.gs", EGLSLType.Geometry));
                 //    lod.Manager.Material.Requirements = TMaterial.UniformRequirements.NeedsCamera;
                 //}
                 return lod;
@@ -47,22 +48,55 @@ namespace TheraEngine.Components.Scene.Mesh
             RenderCommand.RenderPass = renderPass;
         }
 
-        public BaseRenderableMesh3D() { }
-        
         protected SceneComponent _component;
         protected LinkedListNode<RenderableLOD> _currentLOD;
+        private Matrix4 _initialCullingVolumeMatrix;
+        private RenderInfo3D _renderInfo = new RenderInfo3D();
 
         [Browsable(false)]
         public RenderableLOD CurrentLOD => _currentLOD.Value;
-        
+        [Browsable(false)]
+        public Scene3D OwningScene3D => _component?.OwningScene3D;
         [Browsable(false)]
         [DisplayName("Levels Of Detail")]
         public LinkedList<RenderableLOD> LODs { get; private set; }
-        public RenderInfo3D RenderInfo { get; protected set; }
-        
-        [Browsable(false)]
-        public Scene3D OwningScene3D => _component?.OwningScene3D;
-        
+        public RenderInfo3D RenderInfo
+        {
+            get => _renderInfo;
+            protected set
+            {
+                var old = _renderInfo?.CullingVolume;
+
+                if (_renderInfo != null)
+                    _renderInfo.CullingVolumeChanged -= CullingVolumeChanged;
+
+                _renderInfo = value ?? new RenderInfo3D();
+
+                if (_renderInfo != null)
+                    _renderInfo.CullingVolumeChanged += CullingVolumeChanged;
+
+                CullingVolumeChanged(old, _renderInfo?.CullingVolume);
+            }
+        }
+        private void CullingVolumeChanged(TShape oldVolume, TShape newVolume)
+        {
+            if (oldVolume != null)
+                _component.WorldTransformChanged -= UpdateCullingVolumeTransform;
+            
+            if (newVolume != null)
+            {
+                _initialCullingVolumeMatrix = newVolume.GetTransformMatrix() * _component.InverseWorldMatrix;
+                _component.WorldTransformChanged += UpdateCullingVolumeTransform;
+            }
+            else
+                _initialCullingVolumeMatrix = Matrix4.Identity;
+        }
+        private void UpdateCullingVolumeTransform(SceneComponent comp)
+        {
+            RenderInfo.CullingVolume.SetTransformMatrix(_component.WorldMatrix * _initialCullingVolumeMatrix);
+            RenderInfo.OctreeNode?.ItemMoved(this);
+        }
+
         private void UpdateLOD(float viewDist)
         {
             while (true)
@@ -83,7 +117,6 @@ namespace TheraEngine.Components.Scene.Mesh
                 }
             }
         }
-
         public void Destroy()
         {
             foreach (var lod in LODs)
@@ -108,44 +141,10 @@ namespace TheraEngine.Components.Scene.Mesh
         [Browsable(false)]
         public IStaticSubMesh Mesh { get; set; }
         
-        public void SetCullingVolume(TShape shape)
-        {
-            if (RenderInfo.CullingVolume != null)
-                _component.WorldTransformChanged -= _component_WorldTransformChanged;
-            RenderInfo.CullingVolume = shape?.HardCopy();
-            if (RenderInfo.CullingVolume != null)
-            {
-                _initialCullingVolumeMatrix = RenderInfo.CullingVolume.GetTransformMatrix();
-                _component.WorldTransformChanged += _component_WorldTransformChanged;
-                //_cullingVolume.VisibilityChanged += () => 
-                //{
-                //    if (_cullingVolume.Visible)
-                //    {
-                //        _component?.OwningScene?.Add(_cullingVolume);
-                //    }
-                //    else
-                //    {
-                //        _component?.OwningScene?.Remove(_cullingVolume);
-                //    }
-                //};  
-            }
-            else
-                _initialCullingVolumeMatrix = Matrix4.Identity;
-        }
-        
-        private Matrix4 _initialCullingVolumeMatrix;
-        
         public StaticRenderableMesh(IStaticSubMesh mesh, SceneComponent component)
             : base(mesh.LODs, mesh.RenderPass, mesh.RenderInfo, component)
-        {
-            Mesh = mesh;
-            SetCullingVolume(mesh.RenderInfo.CullingVolume);
-        }
-        private void _component_WorldTransformChanged(SceneComponent comp)
-        {
-            RenderInfo.CullingVolume.SetTransformMatrix(_component.WorldMatrix * _initialCullingVolumeMatrix);
-            RenderInfo.OctreeNode?.ItemMoved(this);
-        }
+            => Mesh = mesh;
+        
         public override string ToString() => Mesh.Name;
     }
     public class SkeletalRenderableMesh : BaseRenderableMesh3D

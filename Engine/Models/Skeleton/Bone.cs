@@ -11,7 +11,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Rendering.Models
 {
-    public enum BillboardType
+    public enum EBillboardType
     {
         None,
         RotationY,
@@ -25,26 +25,18 @@ namespace TheraEngine.Rendering.Models
     [TFileDef("Bone")]
     public class Bone : TFileObject, IRigidBodyCollidable, ISocket
     {
+        //TODO: culling volumes for each skinned bone; cull mesh if all influence bones are culled
+
         public Bone(Skeleton owner) : this()
-        {
-            Skeleton = owner;
-        }
+            => Skeleton = owner;
         public Bone(string name, Transform bindstate, TRigidBodyConstructionInfo info)
-        {
-            Init(name, bindstate, info);
-        }
+            => Init(name, bindstate, info);
         public Bone(string name, Transform bindState)
-        {
-            Init(name, bindState, null);
-        }
+            => Init(name, bindState, null);
         public Bone(string name)
-        {
-            Init(name, new Transform(), null);
-        }
+            => Init(name, new Transform(), null);
         public Bone()
-        {
-            Init("NewBone", new Transform(), null);
-        }
+            => Init("NewBone", new Transform(), null);
         private void Init(string name, Transform bindState, TRigidBodyConstructionInfo info)
         {
             FrameState = bindState.HardCopy();
@@ -68,9 +60,7 @@ namespace TheraEngine.Rendering.Models
             ChildComponents.PostInsertedRange += ChildComponentsInsertedRange;
 
             if (info != null)
-            {
                 RigidBodyCollision = TRigidBody.New(info);
-            }
         }
 
         private void _rigidBodyCollision_TransformChanged(Matrix4 transform)
@@ -104,7 +94,7 @@ namespace TheraEngine.Rendering.Models
         public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Remove(m);
 
         [TSerialize(nameof(BillboardType), NodeType = ENodeType.Attribute)]
-        private BillboardType _billboardType = BillboardType.None;
+        private EBillboardType _billboardType = EBillboardType.None;
         [TSerialize(nameof(ScaleByDistance), NodeType = ENodeType.Attribute)]
         private bool _scaleByDistance = false;
         internal int _index;
@@ -329,7 +319,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         [Category("Bone")]
-        public BillboardType BillboardType
+        public EBillboardType BillboardType
         {
             get => _billboardType;
             set
@@ -398,7 +388,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         [Browsable(false)]
-        public bool UsesCamera => BillboardType != BillboardType.None || ScaleByDistance;
+        public bool UsesCamera => BillboardType != EBillboardType.None || ScaleByDistance;
 
         public void CalcFrameMatrix(Camera camera, bool force = false)
         {
@@ -423,7 +413,7 @@ namespace TheraEngine.Rendering.Models
                 }
                 if (usesCamera)
                 {
-                    if (BillboardType != BillboardType.None)
+                    if (BillboardType != EBillboardType.None)
                     {
                         //Align rotation using camera
                         HandleBillboarding(parentMatrix, inverseParentMatrix, camera); 
@@ -631,7 +621,7 @@ namespace TheraEngine.Rendering.Models
             Matrix4 angles = Matrix4.Identity, invAngles = Matrix4.Identity;
             switch (BillboardType)
             {
-                case BillboardType.PerspectiveXYZ:
+                case EBillboardType.PerspectiveXYZ:
 
                     Vec3 componentPoint = camera.WorldPoint * OwningComponent.InverseWorldMatrix;
                     Vec3 diff = frameTrans.Translation - componentPoint;
@@ -642,15 +632,15 @@ namespace TheraEngine.Rendering.Models
 
                     break;
 
-                case BillboardType.PerspectiveXY:
+                case EBillboardType.PerspectiveXY:
 
                     break;
 
-                case BillboardType.PerspectiveY:
+                case EBillboardType.PerspectiveY:
 
                     break;
 
-                case BillboardType.RotationXYZ:
+                case EBillboardType.RotationXYZ:
 
                     Vec3 up1 = camera.UpVector;
                     Vec3 forward1 = camera.ForwardVector;
@@ -669,7 +659,7 @@ namespace TheraEngine.Rendering.Models
 
                     break;
 
-                case BillboardType.RotationXY:
+                case EBillboardType.RotationXY:
 
                     Vec3 forward2 = camera.ForwardVector;
                     Vec3 right2 = camera.RightVector;
@@ -689,7 +679,7 @@ namespace TheraEngine.Rendering.Models
 
                     break;
 
-                case BillboardType.RotationY:
+                case EBillboardType.RotationY:
 
                     Vec3 up3 = Vec3.TransformNormalInverse(Vec3.UnitY, inverseParentMatrix); //Up is related to parent
                     Vec3 forward3 = camera.ForwardVector;

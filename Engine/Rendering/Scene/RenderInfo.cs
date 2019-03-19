@@ -124,9 +124,11 @@ namespace TheraEngine.Rendering
         }
     }
     public delegate float DelGetSortOrder(bool shadowPass);
+    public delegate void DelCullingVolumeChanged(TShape oldVolume, TShape newVolume);
     public sealed class RenderInfo3D : RenderInfo
     {
         private TShape _cullingVolume;
+        public event DelCullingVolumeChanged CullingVolumeChanged;
 
         [TSerialize]
         public bool HiddenFromOwner { get; set; } = false;
@@ -142,9 +144,11 @@ namespace TheraEngine.Rendering
             get => _cullingVolume;
             set
             {
+                TShape old = _cullingVolume;
                 _cullingVolume?.RenderInfo?.UnlinkScene();
                 _cullingVolume = value;
                 _cullingVolume?.RenderInfo?.LinkScene(Owner, Scene);
+                CullingVolumeChanged?.Invoke(old, _cullingVolume);
             }
         }
         /// <summary>

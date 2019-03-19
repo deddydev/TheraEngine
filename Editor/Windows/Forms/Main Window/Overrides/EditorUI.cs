@@ -720,7 +720,7 @@ namespace TheraEditor.Windows.Forms
                     {
                         if (UseTransformTool)
                         {
-                            TransformTool3D.GetInstance(SelectedComponent, _transformType);
+                            TransformTool3D.GetInstance(OwningWorld, SelectedComponent, _transformType);
                         }
                         else
                         {

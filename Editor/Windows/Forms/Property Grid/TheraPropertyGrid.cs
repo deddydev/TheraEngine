@@ -85,6 +85,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private object _targetObject;
 
         public Stack<(object, string)> TargetObjects { get; } = new Stack<(object, string)>();
+        private bool AllowExplorer { get; set; }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object TargetObject
@@ -154,16 +155,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (_targetObject is IFileObject fobj)
                     {
                         lblFilePath.Text = fobj.FilePath;
-                        btnExplorer.Visible = fobj.FilePath.IsValidExistingPath();
+                        AllowExplorer = fobj.FilePath.IsValidExistingPath();
                     }
                     else
                     {
-                        btnExplorer.Visible = false;
+                        AllowExplorer = false;
                     }
                 }
                 else
                 {
-                    btnSave.Visible = btnSaveAs.Visible = btnExplorer.Visible = false;
+                    btnSave.Visible = btnSaveAs.Visible = AllowExplorer = false;
                 }
 
             }
@@ -1326,8 +1327,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnExplorer_Click(object sender, EventArgs e)
         {
-            if (TargetObject is IFileObject fobj && fobj.FilePath.IsValidExistingPath())
+            if (AllowExplorer && TargetObject is IFileObject fobj && fobj.FilePath.IsValidExistingPath())
                 Process.Start("explorer.exe", Path.GetDirectoryName(fobj.FilePath));
+        }
+        private void lblFilePath_MouseEnter(object sender, EventArgs e)
+        {
+            if (AllowExplorer)
+                lblFilePath.BackColor = Color.FromArgb(70, 112, 110);
+        }
+        private void lblFilePath_MouseLeave(object sender, EventArgs e)
+        {
+            if (AllowExplorer)
+                lblFilePath.BackColor = Color.FromArgb(60, 102, 100);
         }
     }
     public interface IDataChangeHandler

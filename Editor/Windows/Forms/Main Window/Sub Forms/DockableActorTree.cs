@@ -199,8 +199,8 @@ namespace TheraEditor.Windows.Forms
         {
             TreeNode node = ActorTree.SelectedNode;
 
-            btnMoveDown.Enabled = node?.NextNode != null;
-            btnMoveUp.Enabled = node?.PrevNode != null;
+            btnMoveDown.Enabled = btnMoveAsChildToSibNext.Enabled = node?.NextNode != null;
+            btnMoveUp.Enabled = btnMoveAsChildToSibPrev.Enabled = node?.PrevNode != null;
 
             btnMoveAsSibToParent.Visible =
             btnMoveAsChildToSibNext.Visible =
@@ -244,6 +244,8 @@ namespace TheraEditor.Windows.Forms
             true;
 
             btnNewSiblingSceneComp.Enabled =
+            btnMoveAsChildToSibNext.Enabled =
+            btnMoveAsChildToSibPrev.Enabled =
             btnRemove.Enabled =
             btnMoveDown.Enabled =
             btnMoveUp.Enabled =

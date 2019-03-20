@@ -227,7 +227,8 @@ namespace System
             internal void ItemMoved_Internal(T item)
             {
                 //Still within the same volume?
-                if (item.RenderInfo.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
+                if (item.RenderInfo.CullingVolume != null &&
+                    item.RenderInfo.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
                 {
                     //Try subdividing
                     for (int i = 0; i < MaxChildNodeCount; ++i)
@@ -418,11 +419,7 @@ namespace System
                 if (item == null)
                     return false;
 
-                if (item.RenderInfo.CullingVolume != null)
-                {
-                    if (_bounds.Contains(item.RenderInfo.CullingVolume) != EContainment.Contains)
-                        return false;
-
+                if (item.RenderInfo.CullingVolume != null && _bounds.Contains(item.RenderInfo.CullingVolume) == EContainment.Contains)
                     for (int i = 0; i < MaxChildNodeCount; ++i)
                     {
                         if (i == ignoreSubNode)
@@ -435,7 +432,6 @@ namespace System
                             return true;
                         }
                     }
-                }
                 
                 AddHere(item);
                 return true;

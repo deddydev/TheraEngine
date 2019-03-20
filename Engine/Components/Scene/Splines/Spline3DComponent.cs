@@ -143,7 +143,7 @@ namespace TheraEngine.Components.Scene
             for (i = 0; i < splinePoints.Length; ++i)
             {
                 sec = i * invFps;
-                Vec3 val = _spline.GetValueKeyframed(sec);
+                Vec3 val = _spline.GetValue(sec);
                 Vec3 vel = _spline.GetVelocityKeyframed(sec);
                 float velLength = vel.LengthFast;
                 Vec3 velColor = Vec3.Lerp(Vec3.UnitZ, Vec3.UnitX, 1.0f / (1.0f + 0.1f * (velLength * velLength)));
@@ -198,7 +198,7 @@ namespace TheraEngine.Components.Scene
             TMath.ComponentMinMax(out Vec3 minVal, out Vec3 maxVal, extrema);
             var box = BoundingBox.FromMinMax(minVal, maxVal);
             _cullingVolumeTranslation = box.Translation;
-            RenderInfo.CullingVolume = box;
+            RenderInfo.CullingVolume = box.GetVolume() == 0 ? null : box;
 
             RenderingParameters p = new RenderingParameters
             {

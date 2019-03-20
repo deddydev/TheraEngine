@@ -240,8 +240,8 @@ namespace TheraEngine.Animation
             if (ConstrainKeyframedFPS)
             {
                 int frame = (int)(second * _bakedFPS);
-                float floorSec = frame / _bakedFPS;
-                float ceilSec = (frame + 1) / _bakedFPS;
+                float floorSec = _bakedFPS != 0.0f ? (frame / _bakedFPS) : 0.0f;
+                float ceilSec = _bakedFPS != 0.0f ? ((frame + 1) / _bakedFPS) : 0.0f;
                 float time = second - floorSec;
 
                 if (LerpConstrainedFPS)

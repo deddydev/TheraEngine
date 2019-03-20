@@ -130,10 +130,10 @@ namespace TheraEngine.Rendering.Particles
                     _elapsed -= SecPerSpawn;
                     for (int i = 0; i < NumPerSpawn; ++i)
                     {
-                        int unusedParticle = FindUnusedParticleIndex();
-                        var p = this[unusedParticle];
+                        int index = FindUnusedParticleIndex();
+                        var p = this[index];
                         p.Initialize(this);
-                        this[unusedParticle] = p;
+                        this[index] = p;
                     }
                 }
             }
@@ -267,8 +267,10 @@ namespace TheraEngine.Rendering.Particles
 
             Vec4[] positions = new Vec4[component.MaxParticles];
             ColorF4[] colors = new ColorF4[component.MaxParticles];
+
             var posBuf = data.AddBuffer(positions, new VertexAttribInfo(EBufferType.Other, 0), false, false, true, 1);
             var colBuf = data.AddBuffer(colors, new VertexAttribInfo(EBufferType.Other, 1), false, false, true, 1);
+
             posBuf.Location = 1;
             colBuf.Location = 2;
 

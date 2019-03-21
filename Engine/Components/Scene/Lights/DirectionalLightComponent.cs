@@ -11,7 +11,7 @@ namespace TheraEngine.Components.Scene.Lights
     [TFileDef("Directional Light Component")]
     public class DirectionalLightComponent : LightComponent
     {
-        private Vec3 _scale;
+        private Vec3 _scale = Vec3.One;
         private Vec3 _direction;
 
         [TSerialize]
@@ -29,6 +29,7 @@ namespace TheraEngine.Components.Scene.Lights
                     ShadowCamera.LocalPoint.Raw = WorldPoint;
                     ShadowCamera.TranslateRelative(0.0f, 0.0f, Scale.Z * 0.5f);
                 }
+                LightMatrix = WorldMatrix * _scale.AsScaleMatrix();
             }
         }
         [Category("Directional Light Component")]

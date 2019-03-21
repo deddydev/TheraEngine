@@ -258,19 +258,19 @@ namespace TheraEngine
         //    _resizing = true;
         //    _timer.Start();
         //}
-        private void BeginResize()
-        {
-            //Visible = false;
-            _resizing = true;
-        }
-        private void EndResize()
-        {
-            //_timer.Stop();
-            //Visible = true;
-            _resizing = false;
-            foreach (Viewport v in Viewports.Values)
-                v.SetInternalResolution(v.Width, v.Height);
-        }
+        //public void BeginResize()
+        //{
+        //    //Visible = false;
+        //    _resizing = true;
+        //}
+        //public void EndResize()
+        //{
+        //    //_timer.Stop();
+        //    //Visible = true;
+        //    _resizing = false;
+        //    foreach (Viewport v in Viewports.Values)
+        //        v.SetInternalResolution(v.Width, v.Height);
+        //}
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);

@@ -319,18 +319,18 @@ namespace TheraEngine.Rendering.Models.Materials
             return new EDrawBuffersAttachment[0];
         }
 
-        public void GenerateTextures(bool loadSynchronously)
-        {
-            if (_textures != null)
-            {
-                foreach (var t in _textures)
-                //await Task.Run(() => Parallel.ForEach(_textures, t =>
-                {
-                    t.GetRenderTextureGeneric(loadSynchronously).PushData();
-                }
-                //));
-            }
-        }
+        //public void GenerateTextures(bool loadSynchronously)
+        //{
+        //    if (_textures != null)
+        //    {
+        //        foreach (var t in _textures)
+        //        //await Task.Run(() => Parallel.ForEach(_textures, t =>
+        //        {
+        //            t.GetRenderTextureGeneric(loadSynchronously).PushData();
+        //        }
+        //        //));
+        //    }
+        //}
         /// <summary>
         /// Resizes the gbuffer's textures.
         /// Note that they will still fully cover the screen regardless of 
@@ -350,6 +350,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 BaseTexRef tref = Textures[i];
                 if (tref == null)
                     continue;
+
                 var tex = tref.GetRenderTextureGeneric(tref.FrameBufferAttachment != null);//await tref.GetRenderTextureGenericAsync();
                 program.Sampler(tref.ResolveSamplerName(i), tex, i);
             }
@@ -361,6 +362,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 BaseTexRef tref = Textures[textureIndex];
                 if (tref == null)
                     return;
+
                 program.Sampler(tref.ResolveSamplerName(textureIndex, samplerNameOverride), tref.RenderTextureGeneric, textureIndex);
             }
         }

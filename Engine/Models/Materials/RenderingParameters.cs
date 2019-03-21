@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering.Models.Materials
         [TSerialize]
         public BlendMode BlendMode { get => _blendMode; set => _blendMode = value ?? new BlendMode(); }
 
-        internal void SetUniforms(RenderProgram program, ref float secondsLive)
+        internal void SetRequirementUniforms(RenderProgram program, ref float secondsLive)
         {
             //Set engine uniforms
             if (Requirements.HasFlag(EUniformRequirements.Camera))

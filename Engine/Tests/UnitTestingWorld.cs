@@ -77,7 +77,7 @@ namespace TheraEngine.Tests
             bool createWalls = true;
             int pointLights = 0;
             int dirLights = 0;
-            int spotLights = 3;
+            int spotLights = 1;
 
             float margin = 2.0f;
             float radius = 1.0f;
@@ -92,7 +92,7 @@ namespace TheraEngine.Tests
             BaseActor actor;
 
             #region Meshes
-            int count = 10;
+            int count = 2;
             int y = 0;
 
             Random rand = new Random((int)DateTime.Now.Ticks);
@@ -105,7 +105,7 @@ namespace TheraEngine.Tests
                     float xV = ((x + count) / (float)count * 0.5f).ClampMin(0.0f);
                     float zV = ((z + count) / (float)count * 0.5f).ClampMin(0.0f);
                     TMaterial mat = TMaterial.CreateLitColorMaterial(new ColorF4(xV, zV, 0.0f, 1.0f));
-                    mat.RenderParams.StencilTest = Editor.EditorState.OutlinePassStencil;
+                    //mat.RenderParams.StencilTest = Editor.EditorState.OutlinePassStencil;
                     //mat.Requirements = TMaterial.UniformRequirements.NeedsCamera;
                     //mat.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
                     mat.Parameter<ShaderFloat>("Roughness").Value = xV;

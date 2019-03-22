@@ -154,7 +154,7 @@ namespace TheraEngine.Components.Scene
                 if (_previewAlwaysVisible == value)
                     return;
                 _previewAlwaysVisible = value;
-                Engine.EditorState.PinnedCamera = _previewAlwaysVisible ? this : null;
+                Engine.EditorState.PinnedCameraComponent = _previewAlwaysVisible ? this : null;
             }
         }
         [Category("Editor Traits")]

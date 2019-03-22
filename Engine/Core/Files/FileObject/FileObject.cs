@@ -22,12 +22,6 @@ namespace TheraEngine.Core.Files
     //[FileDef("Thera Engine Asset")]
     public abstract partial class TFileObject : TObject, IFileObject
     {
-        /// <summary>
-        /// If true, this object was originally constructed via code.
-        /// If false, this object was originally deserialized from a file.
-        /// </summary>
-        [Browsable(false)]
-        public bool ConstructedProgrammatically { get; internal set; } = true;
         [Browsable(false)]
         public TFileDef FileDefinition => GetFileDefinition(GetType());
         [Browsable(false)]

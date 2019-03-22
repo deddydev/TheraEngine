@@ -7,6 +7,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Components.Scene.Mesh;
+using TheraEngine.Core.Files;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -199,10 +200,11 @@ namespace TheraEditor.Windows.Forms
         private void ctxActorTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TreeNode node = ActorTree.SelectedNode;
+            bool programmatic = node.Tag is TObject tobj && tobj.ConstructedProgrammatically;
 
             btnMoveUp.Visible = btnMoveDown.Visible = node?.Tag is IComponent;
-            btnMoveDown.Enabled = btnMoveAsChildToSibNext.Enabled = node?.NextNode != null;
-            btnMoveUp.Enabled = btnMoveAsChildToSibPrev.Enabled = node?.PrevNode != null;
+            btnMoveDown.Enabled = btnMoveAsChildToSibNext.Enabled = node?.NextNode != null && !programmatic;
+            btnMoveUp.Enabled = btnMoveAsChildToSibPrev.Enabled = node?.PrevNode != null && !programmatic;
 
             btnMoveAsSibToParent.Visible =
             btnMoveAsChildToSibNext.Visible =
@@ -220,6 +222,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
+            btnRemove.Enabled = !programmatic;
             switch (node.Tag)
             {
                 case Map map:
@@ -309,26 +312,24 @@ namespace TheraEditor.Windows.Forms
                         var maps = map.OwningWorld.Settings.Maps;
                         var matches = maps.Where(x => x.Value.IsLoaded && x.Value.File == map);
                         foreach (var match in matches)
+                        {
+                            match.Value?.File?.EndPlay();
                             maps.Remove(match.Key);
+                        }
                     }
                     break;
                 case BaseActor actor:
                     {
                         var map = actor.MapAttachment;
+                        actor?.Despawn();
                         map?.Actors?.Remove(actor);
                     }
                     break;
                 case SceneComponent sceneComp:
-                    {
-                        var socket = sceneComp.ParentSocket;
-                        socket?.ChildComponents?.Remove(sceneComp);
-                    }
+                    sceneComp.ParentSocket?.ChildComponents?.Remove(sceneComp);
                     break;
                 case LogicComponent logicComp:
-                    {
-                        var actor = logicComp.OwningActor;
-                        actor?.LogicComponents?.Remove(logicComp);
-                    }
+                    logicComp.OwningActor?.LogicComponents?.Remove(logicComp);
                     break;
             }
             node.Remove();

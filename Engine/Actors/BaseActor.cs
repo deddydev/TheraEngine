@@ -95,7 +95,7 @@ namespace TheraEngine.Actors
         }
         [TSerialize]
         [Browsable(false)]
-        public Map MapAttachment { get; set; } = null;
+        public Map MapAttachment { get; internal set; } = null;
         /// <summary>
         /// Logic components handle plug-n-play code for certain features.
         /// For example, a logic component could give any actor health and/or allow it to take damage.

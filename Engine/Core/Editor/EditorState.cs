@@ -278,7 +278,7 @@ namespace TheraEngine.Editor
         /// Used to determine if the editor is editing the game currently instead of simulating gameplay.
         /// </summary>
         public bool InEditMode { get; set; } = true;
-        public CameraComponent PinnedCamera { get; set; }
+        public CameraComponent PinnedCameraComponent { get; set; }
     }
 
     /// <summary>

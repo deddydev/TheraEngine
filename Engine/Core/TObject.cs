@@ -57,7 +57,14 @@ namespace TheraEngine
         [Browsable(false)]
         //[TSerialize(NodeType = ENodeType.Attribute)]
         public Guid Guid { get; internal set; } = Guid.NewGuid();
-        
+
+        /// <summary>
+        /// If true, this object was originally constructed via code.
+        /// If false, this object was originally deserialized from a file.
+        /// </summary>
+        [Browsable(false)]
+        public bool ConstructedProgrammatically { get; internal set; } = true;
+
         [TSerialize]
         //[BrowsableIf("_userData != null")]
         [Browsable(false)]

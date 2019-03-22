@@ -13,7 +13,7 @@ namespace TheraEngine.Actors
         event Action<BaseActor> SceneComponentCacheRegenerated;
         event Action<BaseActor> LogicComponentsChanged;
 
-        Map MapAttachment { get; set; }
+        Map MapAttachment { get; }
         bool IsConstructing { get; }
         World OwningWorld { get; }
 

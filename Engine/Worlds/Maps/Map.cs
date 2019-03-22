@@ -70,7 +70,17 @@ namespace TheraEngine.Worlds
 
         private void _actors_PostAnythingAdded(BaseActor item)
         {
-            if (item != null)
+            if (item == null)
+                return;
+            
+            if (item.IsSpawned && !item.IsSpawnedIn(OwningWorld))
+            {
+                item.Despawn();
+                item.MapAttachment = this;
+                if (OwningWorld.IsPlaying)
+                    OwningWorld.SpawnActor(item);
+            }
+            else
                 item.MapAttachment = this;
         }
         private void _actors_PostAnythingRemoved(BaseActor item)

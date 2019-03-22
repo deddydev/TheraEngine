@@ -641,7 +641,7 @@ namespace TheraEditor.Windows.Forms
             if (!fromActorTree)
             {
                 TreeNode t = SelectedComponent?.OwningActor?.EditorState?.TreeNode;
-                if (t == null)
+                if (t?.TreeView == null)
                     return;
                 
                 if (t.TreeView.InvokeRequired)
@@ -667,11 +667,11 @@ namespace TheraEditor.Windows.Forms
                 SubViewport.ViewportCamera = cam.Camera;
                 SubViewport.IsVisible = true;
                 if (cam.PreviewAlwaysVisible)
-                    Engine.EditorState.PinnedCamera = cam;
+                    Engine.EditorState.PinnedCameraComponent = cam;
             }
-            else if (Engine.EditorState.PinnedCamera != null)
+            else if (Engine.EditorState.PinnedCameraComponent != null)
             {
-                SubViewport.ViewportCamera = Engine.EditorState.PinnedCamera.Camera;
+                SubViewport.ViewportCamera = Engine.EditorState.PinnedCameraComponent.Camera;
                 SubViewport.IsVisible = true;
             }
             else

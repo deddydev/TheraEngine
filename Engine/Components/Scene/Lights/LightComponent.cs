@@ -114,25 +114,25 @@ namespace TheraEngine.Components.Scene.Lights
         public abstract void SetUniforms(RenderProgram program, string targetStructName);
         protected virtual IVolume GetShadowVolume() => ShadowCamera?.Frustum;
         public abstract TMaterial GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32);
-        private bool _renderPass, _lastPassRendered;
+        //private bool _renderPass, _lastPassRendered;
         public void UpdateShadowMap(BaseScene scene)
         {
-            if (!CastsShadows)
-                return;
+            //if (!CastsShadows)
+            //    return;
 
-            _renderPass = ShadowMap != null; //TODO: distance to camera < max fade distance
+            //_renderPass = ShadowMap != null; //TODO: distance to camera < max fade distance
             IVolume volume = GetShadowVolume();
             scene.CollectVisible(_passes, volume, ShadowCamera, true);
         }
         internal void SwapBuffers()
         {
             _passes.SwapBuffers();
-            THelpers.Swap(ref _renderPass, ref _lastPassRendered);
+            //THelpers.Swap(ref _renderPass, ref _lastPassRendered);
         }
         public void RenderShadowMap(BaseScene scene)
         {
-            if (!_lastPassRendered)
-                return;
+            //if (!_lastPassRendered)
+            //    return;
 
             Engine.Renderer.MaterialOverride = ShadowMap.Material;
             Engine.Renderer.PushRenderArea(_region);

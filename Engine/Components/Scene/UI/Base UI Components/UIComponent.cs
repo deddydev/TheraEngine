@@ -237,14 +237,12 @@ namespace TheraEngine.Rendering.UI
         public virtual UIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
         {
             foreach (SceneComponent c in _children)
-            {
                 if (c is UIComponent uiComp)
                 {
                     UIComponent comp = uiComp.FindDeepestComponent(cursorPointWorld, true);
                     if (comp != null)
                         return comp;
                 }
-            }
 
             if (includeThis && cursorPointWorld.DistanceTo(WorldPoint.Xy) < 20)
                 return this;

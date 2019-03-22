@@ -147,7 +147,12 @@ namespace TheraEngine.Rendering
                 TShape old = _cullingVolume;
                 _cullingVolume?.RenderInfo?.UnlinkScene();
                 _cullingVolume = value;
-                _cullingVolume?.RenderInfo?.LinkScene(Owner, Scene);
+                var r3D = _cullingVolume?.RenderInfo;
+                if (r3D != null)
+                {
+                    r3D.CastsShadows = false;
+                    r3D.LinkScene(Owner, Scene);
+                }
                 CullingVolumeChanged?.Invoke(old, _cullingVolume);
             }
         }

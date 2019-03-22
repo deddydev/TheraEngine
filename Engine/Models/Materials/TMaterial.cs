@@ -17,10 +17,10 @@ namespace TheraEngine.Rendering.Models.Materials
         //TODO: load a material from the engine directory
         public static TMaterial InvalidMaterial { get; }
             = CreateUnlitColorMaterialForward(Color.Magenta);
-        
+
         protected override void OnSetUniforms(RenderProgram program)
         {
-            RenderParams?.SetUniforms(program, ref _secondsLive);
+            RenderParams?.SetRequirementUniforms(program, ref _secondsLive);
         }
 
 #if EDITOR
@@ -29,18 +29,24 @@ namespace TheraEngine.Rendering.Models.Materials
 #endif
 
         [Browsable(false)]
-        public List<GLSLScript> FragmentShaders { get; } = new List<GLSLScript>();
+        public IReadOnlyList<GLSLScript> FragmentShaders => _fragmentShaders;
         [Browsable(false)]
-        public List<GLSLScript> GeometryShaders { get; } = new List<GLSLScript>();
+        public IReadOnlyList<GLSLScript> GeometryShaders => _geometryShaders;
         [Browsable(false)]
-        public List<GLSLScript> TessEvalShaders { get; } = new List<GLSLScript>();
+        public IReadOnlyList<GLSLScript> TessEvalShaders => _tessEvalShaders;
         [Browsable(false)]
-        public List<GLSLScript> TessCtrlShaders { get; } = new List<GLSLScript>();
+        public IReadOnlyList<GLSLScript> TessCtrlShaders => _tessCtrlShaders;
         [Browsable(false)]
-        public List<GLSLScript> VertexShaders { get; } = new List<GLSLScript>();
+        public IReadOnlyList<GLSLScript> VertexShaders => _vertexShaders;
 
         [TSerialize(nameof(Shaders))]
         private EventList<GlobalFileRef<GLSLScript>> _shaders;
+
+        private readonly List<GLSLScript> _fragmentShaders = new List<GLSLScript>();
+        private readonly List<GLSLScript> _geometryShaders = new List<GLSLScript>();
+        private readonly List<GLSLScript> _tessEvalShaders = new List<GLSLScript>();
+        private readonly List<GLSLScript> _tessCtrlShaders = new List<GLSLScript>();
+        private readonly List<GLSLScript> _vertexShaders = new List<GLSLScript>();
 
         public EventList<GlobalFileRef<GLSLScript>> Shaders => _shaders;
 
@@ -57,12 +63,12 @@ namespace TheraEngine.Rendering.Models.Materials
         public TMaterial(string name, BaseTexRef[] textures, params GLSLScript[] shaders)
             : this(name, null, new ShaderVar[0], textures, shaders) { }
         public TMaterial(string name, RenderingParameters renderParams, BaseTexRef[] textures, params GLSLScript[] shaders)
-            : this(name, renderParams, new ShaderVar[0], textures,  shaders) { }
+            : this(name, renderParams, new ShaderVar[0], textures, shaders) { }
         public TMaterial(string name, ShaderVar[] vars, BaseTexRef[] textures, params GLSLScript[] shaders)
-            : this(name, null, vars, textures,shaders) { }
+            : this(name, null, vars, textures, shaders) { }
         public TMaterial(
             string name,
-            RenderingParameters renderParams, 
+            RenderingParameters renderParams,
             ShaderVar[] vars,
             BaseTexRef[] textures,
             params GLSLScript[] shaders)
@@ -80,11 +86,11 @@ namespace TheraEngine.Rendering.Models.Materials
         [TPostDeserialize]
         internal void ShadersChanged()
         {
-            FragmentShaders.Clear();
-            GeometryShaders.Clear();
-            TessCtrlShaders.Clear();
-            TessEvalShaders.Clear();
-            VertexShaders.Clear();
+            _fragmentShaders.Clear();
+            _geometryShaders.Clear();
+            _tessCtrlShaders.Clear();
+            _tessEvalShaders.Clear();
+            _vertexShaders.Clear();
 
             if (_program != null)
             {
@@ -100,19 +106,19 @@ namespace TheraEngine.Rendering.Models.Materials
                         switch (s.Type)
                         {
                             case EGLSLType.Vertex:
-                                VertexShaders.Add(shaderRef);
+                                _vertexShaders.Add(shaderRef);
                                 break;
                             case EGLSLType.Fragment:
-                                FragmentShaders.Add(shaderRef);
+                                _fragmentShaders.Add(shaderRef);
                                 break;
                             case EGLSLType.Geometry:
-                                GeometryShaders.Add(shaderRef);
+                                _geometryShaders.Add(shaderRef);
                                 break;
                             case EGLSLType.TessControl:
-                                TessCtrlShaders.Add(shaderRef);
+                                _tessCtrlShaders.Add(shaderRef);
                                 break;
                             case EGLSLType.TessEvaluation:
-                                TessEvalShaders.Add(shaderRef);
+                                _tessEvalShaders.Add(shaderRef);
                                 break;
                         }
                 }
@@ -171,7 +177,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         //public static TMaterial CreateLitColorMaterial() 
         //    => CreateLitColorMaterial(Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
-        public static TMaterial CreateLitColorMaterial(bool deferred = true) 
+        public static TMaterial CreateLitColorMaterial(bool deferred = true)
             => CreateLitColorMaterial(Color.DarkTurquoise, deferred);
         //public static TMaterial CreateLitColorMaterial(ColorF4 color)
         //    => CreateLitColorMaterial(color, Engine.Settings.ShadingStyle3D == ShadingStyle.Deferred);
@@ -282,7 +288,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
             if (transparencyMode == EOpaque.RGB_ZERO ||
                 transparencyMode == EOpaque.RGB_ONE)
-            source += @"
+                source += @"
 float luminance(in vec3 color)
 {
     return (color.r * 0.212671) + (color.g * 0.715160) + (color.b * 0.072169);
@@ -293,44 +299,46 @@ float luminance(in vec3 color)
                 case EOpaque.A_ONE:
                     source += "\nresult = mix(fb, mat, transparent.a * transparency);";
                     break;
-                case EOpaque.RGB_ZERO: source += @"
+                case EOpaque.RGB_ZERO:
+                    source += @"
 result.rgb = fb.rgb * (transparent.rgb * transparency) + mat.rgb * (1.0f - transparent.rgb * transparency);
 result.a = fb.a * (luminance(transparent.rgb) * transparency) + mat.a * (1.0f - luminance(transparent.rgb) * transparency);";
                     break;
                 case EOpaque.A_ZERO:
                     source += "\nresult = mix(mat, fb, transparent.a * transparency);";
                     break;
-                case EOpaque.RGB_ONE: source += @"
+                case EOpaque.RGB_ONE:
+                    source += @"
 result.rgb = fb.rgb * (1.0f - transparent.rgb * transparency) + mat.rgb * (transparent.rgb * transparency);
 result.a = fb.a * (1.0f - luminance(transparent.rgb) * transparency) + mat.a * (luminance(transparent.rgb) * transparency);";
                     break;
             }
 
-           
-//#version 450
 
-//layout (location = 0) out vec4 OutColor;
+            //#version 450
 
-//uniform vec4 MatColor;
-//uniform float MatSpecularIntensity;
-//uniform float MatShininess;
+            //layout (location = 0) out vec4 OutColor;
 
-//uniform vec3 CameraPosition;
-//uniform vec3 CameraForward;
+            //uniform vec4 MatColor;
+            //uniform float MatSpecularIntensity;
+            //uniform float MatShininess;
 
-//in vec3 FragPos;
-//in vec3 FragNorm;
+            //uniform vec3 CameraPosition;
+            //uniform vec3 CameraForward;
 
-//" + LightingSetupBasic() + @"
+            //in vec3 FragPos;
+            //in vec3 FragNorm;
 
-//void main()
-//{
-//    vec3 normal = normalize(FragNorm);
+            //" + LightingSetupBasic() + @"
 
-//    " + LightingCalcForward() + @"
+            //void main()
+            //{
+            //    vec3 normal = normalize(FragNorm);
 
-//    OutColor = MatColor * vec4(totalLight, 1.0);
-//}
+            //    " + LightingCalcForward() + @"
+
+            //    OutColor = MatColor * vec4(totalLight, 1.0);
+            //}
 
             GLSLScript s = new GLSLScript(EGLSLType.Fragment, source);
             RenderingParameters param = new RenderingParameters()

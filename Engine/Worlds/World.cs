@@ -105,6 +105,8 @@ namespace TheraEngine.Worlds
             set
             {
                 var mode = State.GameMode;
+                if (mode == value)
+                    return;
                 CurrentGameModePreChanged?.Invoke(this, mode, value);
                 if (IsPlaying)
                     mode?.EndGameplay();

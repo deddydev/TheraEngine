@@ -125,37 +125,37 @@ namespace TheraEditor.Windows.Forms
         }
         private void HighlightedComponentChanged(bool highlighted)
         {
-            if (HighlightedComponent is StaticMeshComponent staticMesh)
-            {
-                var meshes = staticMesh.Meshes;
-                if (meshes != null)
-                    foreach (StaticRenderableMesh m in staticMesh.Meshes)
-                        if (m != null)
-                            foreach (var lod in m.LODs)
-                            {
-                                var tris = lod.Manager.Data.Triangles;
-                                if (tris != null && tris.Count > 0)
-                                    UpdateMatHighlight(lod.Manager.Material, highlighted);
-                            }
-            }
-            else if (HighlightedComponent is SkeletalMeshComponent skeletalMesh)
-            {
-                var meshes = skeletalMesh.Meshes;
-                if (meshes != null)
-                    foreach (SkeletalRenderableMesh m in skeletalMesh.Meshes)
-                        if (m != null)
-                            foreach (var lod in m.LODs)
-                            {
-                                var tris = lod.Manager.Data.Triangles;
-                                if (tris != null && tris.Count > 0)
-                                    UpdateMatHighlight(lod.Manager.Material, highlighted);
-                            }
+            //if (HighlightedComponent is StaticMeshComponent staticMesh)
+            //{
+            //    var meshes = staticMesh.Meshes;
+            //    if (meshes != null)
+            //        foreach (StaticRenderableMesh m in staticMesh.Meshes)
+            //            if (m != null)
+            //                foreach (var lod in m.LODs)
+            //                {
+            //                    var tris = lod.Manager.Data.Triangles;
+            //                    if (tris != null && tris.Count > 0)
+            //                        UpdateMatHighlight(lod.Manager.Material, highlighted);
+            //                }
+            //}
+            //else if (HighlightedComponent is SkeletalMeshComponent skeletalMesh)
+            //{
+            //    var meshes = skeletalMesh.Meshes;
+            //    if (meshes != null)
+            //        foreach (SkeletalRenderableMesh m in skeletalMesh.Meshes)
+            //            if (m != null)
+            //                foreach (var lod in m.LODs)
+            //                {
+            //                    var tris = lod.Manager.Data.Triangles;
+            //                    if (tris != null && tris.Count > 0)
+            //                        UpdateMatHighlight(lod.Manager.Material, highlighted);
+            //                }
                     
-            }
-            else if (HighlightedComponent is LandscapeComponent landscape)
-            {
-                UpdateMatHighlight(landscape.Material, highlighted);
-            }
+            //}
+            //else if (HighlightedComponent is LandscapeComponent landscape)
+            //{
+            //    UpdateMatHighlight(landscape.Material, highlighted);
+            //}
         }
         private void UpdateMatHighlight(TMaterial m, bool highlighted)
         {

@@ -23,11 +23,6 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
 
             GameMode = new EditorGameMode();
-            RenderPanel.ValidPlayerIndices = new List<ELocalPlayerIndex>() { playerIndex };
-            RenderPanel.Owner = this;
-
-            Text = $"Model Viewport {(FormIndex + 1).ToString()}";
-
             EditorPawn = new EditorCameraPawn(PlayerIndex)
             {
                 MouseTranslateSpeed = 0.02f,
@@ -37,6 +32,10 @@ namespace TheraEditor.Windows.Forms
                 HUD = new EditorUI3D(RenderPanel.ClientSize),
                 Name = $"ModelViewport{(FormIndex + 1).ToString()}_EditorCamera",
             };
+            RenderPanel.ValidPlayerIndices = new List<ELocalPlayerIndex>() { playerIndex };
+            RenderPanel.Owner = this;
+
+            Text = $"Model Viewport {(FormIndex + 1).ToString()}";
 
             RenderPanel.AllowDrop = true;
             RenderPanel.GotFocus += RenderPanel_GotFocus;

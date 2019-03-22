@@ -143,7 +143,7 @@ namespace TheraEngine.Rendering
             OwningPanel = panel;
             Index = index;
             _ssaoInfo.Generate();
-            //PrecomputeBRDF();
+            PrecomputeBRDF();
             Resize(panel.Width, panel.Height);
         }
         public Viewport(int width, int height)
@@ -151,7 +151,7 @@ namespace TheraEngine.Rendering
             Index = 0;
             SetFullScreen();
             _ssaoInfo.Generate();
-            //PrecomputeBRDF();
+            PrecomputeBRDF();
             Resize(width, height);
         }
 
@@ -755,7 +755,7 @@ namespace TheraEngine.Rendering
                     new Vec3(-1.0f, 1.0f, -0.5f),
                     false, false).ToTriangles());
             PrimitiveManager quad = new PrimitiveManager(data, mat);
-            quad.GenerateSafe();
+            //quad.GenerateSafe();
 
             BoundingRectangle region = new BoundingRectangle(IVec2.Zero, new IVec2(width, height));
             
@@ -1092,18 +1092,18 @@ namespace TheraEngine.Rendering
             int baseCount = LightCombineFBO.Material.Textures.Length;
 
             if (probe.IrradianceTex != null)
-                program.Sampler(
-                    "Irradiance",
-                    probe.IrradianceTex.GetTexture(true),
-                    baseCount);
+            {
+                var tex = probe.IrradianceTex.GetTexture(true);
+                program.Sampler("Irradiance", tex, baseCount);
+            }
 
             ++baseCount;
 
             if (probe.PrefilterTex != null)
-                program.Sampler(
-                    "Prefilter", 
-                    probe.PrefilterTex.GetTexture(true),
-                    baseCount);
+            {
+                var tex = probe.PrefilterTex.GetTexture(true);
+                program.Sampler("Prefilter", tex, baseCount);
+            }
         }
 
         //private void DecalManager_SettingUniforms(RenderProgram vertexProgram, RenderProgram materialProgram)

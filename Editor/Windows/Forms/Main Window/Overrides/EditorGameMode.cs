@@ -15,7 +15,7 @@ namespace TheraEditor
         public override Viewport LinkControllerToViewport(LocalPlayerController item)
         {
             var vp = base.LinkControllerToViewport(item);
-            if (vp?.OwningPanel is IEditorRenderableControl c)
+            if (vp?.OwningPanel?.ParentForm is IEditorRenderableControl c)
                 item.ControlledPawn = c.EditorPawn;
             return vp;
         }

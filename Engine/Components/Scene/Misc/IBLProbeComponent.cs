@@ -22,7 +22,7 @@ namespace TheraEngine.Actors.Types
         public TexRefCube PrefilterTex { get; private set; }
 
         [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
        
         private bool _showPrefilterTexture = false;
         [Category(RenderingCategoryName)]

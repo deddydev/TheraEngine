@@ -73,6 +73,7 @@ namespace TheraEditor
         private string _localConfigDirectory;
         private string _localContentDirectory;
         private string _localTempDirectory;
+        private string _localLibrariesDirectory;
         private AppDomainContext<AssemblyTargetLoader, PathBasedAssemblyResolver> _gameDomain;
 
         public Intellisense Intellisense { get; } = new Intellisense();
@@ -145,6 +146,19 @@ namespace TheraEditor
                     Path.GetFullPath(Path.Combine(DirectoryPath, LocalTempDirectory));
             }
         }
+        [TString(false, true, false, true)]
+        [TSerialize]
+        [Category("Paths")]
+        public string LocalLibrariesDirectory
+        {
+            get => _localLibrariesDirectory;
+            set
+            {
+                _localLibrariesDirectory = value;
+                LibrariesDirectory = string.IsNullOrWhiteSpace(LocalLibrariesDirectory) ? null :
+                    Path.GetFullPath(Path.Combine(DirectoryPath, LocalLibrariesDirectory));
+            }
+        }
         [Browsable(false)]
         [TString(false, true, false)]
         [Category("Object")]
@@ -169,6 +183,7 @@ namespace TheraEditor
                 ConfigDirectory = null;
                 ContentDirectory = null;
                 TempDirectory = null;
+                LibrariesDirectory = null;
             }
             else
             {
@@ -182,6 +197,8 @@ namespace TheraEditor
                     Path.GetFullPath(Path.Combine(DirectoryPath, LocalContentDirectory));
                 TempDirectory = string.IsNullOrWhiteSpace(LocalTempDirectory) ? null :
                     Path.GetFullPath(Path.Combine(DirectoryPath, LocalTempDirectory));
+                LibrariesDirectory = string.IsNullOrWhiteSpace(LocalLibrariesDirectory) ? null :
+                    Path.GetFullPath(Path.Combine(DirectoryPath, LocalLibrariesDirectory));
             }
         }
 
@@ -195,7 +212,9 @@ namespace TheraEditor
         public string ContentDirectory { get; private set; }
         [Browsable(false)]
         public string TempDirectory { get; private set; }
-
+        [Browsable(false)]
+        public string LibrariesDirectory { get; private set; }
+        
         [TSerialize(nameof(ProjectStateRef), State = true, Config = false)]
         private GlobalFileRef<ProjectState> _projectStateRef;
         [TSerialize(nameof(EditorSettingsOverrideRef))]
@@ -241,27 +260,7 @@ namespace TheraEditor
 
         public void SetDirectoryDefaults(string directory)
         {
-            if (!directory.EndsWithDirectorySeparator())
-                directory += Path.DirectorySeparatorChar;
-
-            string bin = "Bin" + Path.DirectorySeparatorChar;
-            string cfg = "Config" + Path.DirectorySeparatorChar;
-            string src = "Source" + Path.DirectorySeparatorChar;
-            string ctt = "Content" + Path.DirectorySeparatorChar;
-            string tmp = "Temp" + Path.DirectorySeparatorChar;
-
-            string binDir = directory + bin;
-            string cfgDir = directory + cfg;
-            string srcDir = directory + src;
-            string cttDir = directory + ctt;
-            string tmpDir = directory + tmp;
-
-            Directory.CreateDirectory(binDir);
-            Directory.CreateDirectory(cfgDir);
-            Directory.CreateDirectory(srcDir);
-            Directory.CreateDirectory(cttDir);
-            Directory.CreateDirectory(tmpDir);
-
+            MakePaths(directory);
             FilePath = GetFilePath<TProject>(directory, Name, EProprietaryFileFormat.XML);
             void Update<T>(ref GlobalFileRef<T> gref, string defaultName) where T : TFileObject, new()
             {
@@ -281,12 +280,40 @@ namespace TheraEditor
             Update(ref _userSettingsRef, nameof(UserSettings));
             Update(ref _engineSettingsRef, nameof(EngineSettings));
             Update(ref _editorSettingsRef, nameof(EditorSettings));
+        }
+
+        private void MakePaths(string directory)
+        {
+            if (!directory.EndsWithDirectorySeparator())
+                directory += Path.DirectorySeparatorChar;
+
+            string bin = "Bin" + Path.DirectorySeparatorChar;
+            string cfg = "Config" + Path.DirectorySeparatorChar;
+            string src = "Source" + Path.DirectorySeparatorChar;
+            string ctt = "Content" + Path.DirectorySeparatorChar;
+            string tmp = "Temp" + Path.DirectorySeparatorChar;
+            string lib = "Lib" + Path.DirectorySeparatorChar;
+
+            string binDir = directory + bin;
+            string cfgDir = directory + cfg;
+            string srcDir = directory + src;
+            string cttDir = directory + ctt;
+            string tmpDir = directory + tmp;
+            string libDir = directory + lib;
+
+            Directory.CreateDirectory(binDir);
+            Directory.CreateDirectory(cfgDir);
+            Directory.CreateDirectory(srcDir);
+            Directory.CreateDirectory(cttDir);
+            Directory.CreateDirectory(tmpDir);
+            Directory.CreateDirectory(libDir);
 
             LocalBinariesDirectory = bin;
             LocalConfigDirectory = cfg;
             LocalSourceDirectory = src;
             LocalContentDirectory = ctt;
             LocalTempDirectory = tmp;
+            LocalLibrariesDirectory = lib;
         }
 
         public static async Task<TProject> CreateAsync(
@@ -506,11 +533,13 @@ namespace TheraEditor
 
             List<string> assemblyPaths = new List<string>();
             assemblyPaths.Add(typeof(Engine).Assembly.Location);
-            assemblyPaths.AddRange(ReferencedAssemblies.Select(x => x.Path));
+            if (ReferencedAssemblies != null && ReferencedAssemblies.Count > 0)
+                assemblyPaths.AddRange(ReferencedAssemblies.Select(x => x.Path));
 
             foreach (string path in assemblyPaths)
             {
                 var name = AssemblyName.GetAssemblyName(path);
+
                 string relPath = path.MakeAbsolutePathRelativeTo(DirectoryPath);
 
                 if (relPath.StartsWith("\\"))

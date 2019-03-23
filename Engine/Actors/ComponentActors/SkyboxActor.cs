@@ -188,7 +188,7 @@ namespace TheraEngine.Actors.Types
                 return;
             
             StaticRenderableMesh rmesh = renderMeshes[0];
-            rmesh.RenderInfo.CullingVolume = box.HardCopy();
+            //rmesh.RenderInfo.CullingVolume = box.HardCopy();
 
             RenderableLOD rlod = rmesh.LODs?.First?.Value;
             if (rlod == null)
@@ -236,7 +236,7 @@ namespace TheraEngine.Actors.Types
                 BoundingBox.ECubemapTextureUVs.HeightLarger;
 
             TShape box = BoundingBox.FromMinMax(min, max);
-            RenderInfo3D renderInfo = new RenderInfo3D(true, false) { CullingVolume = box };
+            RenderInfo3D renderInfo = new RenderInfo3D(true, false) { /*CullingVolume = box*/ };
             StaticRigidSubMesh mesh = new StaticRigidSubMesh(
                 "Mesh",
                 renderInfo,

@@ -127,7 +127,7 @@ namespace TheraEngine.Rendering
             return m;
         }
 
-        public enum DebugPrimitiveType
+        public enum EDebugPrimitiveType
         {
             Point,
             Line,
@@ -155,7 +155,7 @@ namespace TheraEngine.Rendering
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
         private readonly IPrimitiveManager[] _debugPrims = new IPrimitiveManager[14];
 
-        public IPrimitiveManager GetDebugPrimitive(DebugPrimitiveType type)
+        public IPrimitiveManager GetDebugPrimitive(EDebugPrimitiveType type)
         {
             IPrimitiveManager mesh = _debugPrims[(int)type];
             if (mesh != null)
@@ -169,29 +169,29 @@ namespace TheraEngine.Rendering
                 return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), mat);
             }
         }
-        private PrimitiveData GetPrimData(DebugPrimitiveType type)
+        private PrimitiveData GetPrimData(EDebugPrimitiveType type)
         {
             switch (type)
             {
-                case DebugPrimitiveType.Point:
+                case EDebugPrimitiveType.Point:
                     return PrimitiveData.FromPoints(Vec3.Zero);
-                case DebugPrimitiveType.Line: VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
+                case EDebugPrimitiveType.Line: VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
                     return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), line);
 
-                case DebugPrimitiveType.WireSphere: return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60); //Diameter is set to 2.0f on purpose
-                case DebugPrimitiveType.SolidSphere: return Sphere.SolidMesh(Vec3.Zero, 1.0f, 30); //Diameter is set to 2.0f on purpose
+                case EDebugPrimitiveType.WireSphere: return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60); //Diameter is set to 2.0f on purpose
+                case EDebugPrimitiveType.SolidSphere: return Sphere.SolidMesh(Vec3.Zero, 1.0f, 30); //Diameter is set to 2.0f on purpose
 
-                case DebugPrimitiveType.WireBox: return BoundingBox.WireframeMesh(-1.0f, 1.0f);
-                case DebugPrimitiveType.SolidBox: return BoundingBox.SolidMesh(-1.0f, 1.0f);
+                case EDebugPrimitiveType.WireBox: return BoundingBox.WireframeMesh(-1.0f, 1.0f);
+                case EDebugPrimitiveType.SolidBox: return BoundingBox.SolidMesh(-1.0f, 1.0f);
 
-                case DebugPrimitiveType.WireCircle: return Circle3D.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
-                case DebugPrimitiveType.SolidCircle: return Circle3D.SolidMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
+                case EDebugPrimitiveType.WireCircle: return Circle3D.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
+                case EDebugPrimitiveType.SolidCircle: return Circle3D.SolidMesh(1.0f, Vec3.UnitY, Vec3.Zero, 20); //Diameter is set to 2.0f on purpose
 
-                case DebugPrimitiveType.WireQuad: return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
-                case DebugPrimitiveType.SolidQuad: return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
+                case EDebugPrimitiveType.WireQuad: return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(1.0f, false, false).ToLines());
+                case EDebugPrimitiveType.SolidQuad: return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(1.0f, false, false));
 
-                case DebugPrimitiveType.WireCone: return Cone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
-                case DebugPrimitiveType.SolidCone: return Cone.SolidMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20, true);
+                case EDebugPrimitiveType.WireCone: return Cone.WireMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20);
+                case EDebugPrimitiveType.SolidCone: return Cone.SolidMesh(Vec3.Zero, Vec3.Forward, 1.0f, 1.0f, 20, true);
             }
             return null;
         }
@@ -231,13 +231,22 @@ namespace TheraEngine.Rendering
         //public void RenderCone(string name, Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
         //    => RenderCone(name, Vec3.TransformPosition(topPoint, transform), bottomPoint * transform, bottomRadius, solid, color);
 
+        private bool DisallowRender(bool solid)
+        {
+            bool renderingMaps = Current3DScene?.Lights?.RenderingShadowMaps ?? false;
+            return renderingMaps && !solid;
+        }
+
         //public abstract void RenderPoint(Vec3 position, ColorF4 color, float pointSize = DefaultPointSize);
         //public abstract void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize);
         //public abstract void RenderLineLoop(bool closedLoop, params Vec3[] points);
         //public abstract void RenderLineLoop(bool closedLoop, PropAnimVec3 points);
         public virtual void RenderPoint(Vec3 position, ColorF4 color, bool depthTestEnabled = true, float pointSize = DefaultPointSize)
         {
-            IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Point);
+            if (DisallowRender(false))
+                return;
+
+            IPrimitiveManager m = GetDebugPrimitive(EDebugPrimitiveType.Point);
             m.Parameter<ShaderVec4>(0).Value = color;
             m.Material.RenderParams.DepthTest.Enabled = depthTestEnabled ? ERenderParamUsage.Enabled : ERenderParamUsage.Disabled;
             Matrix4 modelMatrix = Matrix4.CreateTranslation(position);
@@ -252,7 +261,10 @@ namespace TheraEngine.Rendering
 
         public virtual unsafe void RenderLine(Vec3 start, Vec3 end, ColorF4 color, bool depthTestEnabled = true, float lineWidth = DefaultLineSize)
         {
-            IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Line);
+            if (DisallowRender(false))
+                return;
+
+            IPrimitiveManager m = GetDebugPrimitive(EDebugPrimitiveType.Line);
             m.Parameter<ShaderVec4>(0).Value = color;
             m.Material.RenderParams.LineWidth = lineWidth;
             m.Material.RenderParams.DepthTest.Enabled = depthTestEnabled ? ERenderParamUsage.Enabled : ERenderParamUsage.Disabled;
@@ -265,26 +277,35 @@ namespace TheraEngine.Rendering
         public static readonly Rotator UIRotation = new Rotator(90.0f, 0.0f, 0.0f, ERotationOrder.YPR);
         public virtual void RenderCircle(Vec3 centerTranslation, Rotator rotation, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            if (DisallowRender(solid))
+                return;
+
             //SetLineSize(lineWidth);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidCircle : DebugPrimitiveType.WireCircle);
+            IPrimitiveManager m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidCircle : EDebugPrimitiveType.WireCircle);
             m.Parameter<ShaderVec4>(0).Value = color;
             Matrix4 mtx = Matrix4.CreateTranslation(centerTranslation) * Matrix4.CreateFromRotator(rotation) * Matrix4.CreateScale(radius, 1.0f, radius);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
         public virtual void RenderQuad(Vec3 centerTranslation, Rotator rotation, Vec2 extents, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            if (Current3DScene.Lights.RenderingShadowMaps && !solid)
+                return;
+
             //SetLineSize(lineWidth);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
+            IPrimitiveManager m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidQuad : EDebugPrimitiveType.WireQuad);
             m.Parameter<ShaderVec4>(0).Value = color;
             Matrix4 mtx = Matrix4.CreateTranslation(centerTranslation) * Matrix4.CreateFromRotator(rotation) * Matrix4.CreateScale(extents.X, 1.0f, extents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
         public virtual void RenderSphere(Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            if (DisallowRender(solid))
+                return;
+
             //SetLineSize(lineWidth);
             //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
+            IPrimitiveManager m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidSphere : EDebugPrimitiveType.WireSphere);
             m.Parameter<ShaderVec4>(0).Value = color;
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
@@ -293,8 +314,11 @@ namespace TheraEngine.Rendering
             => RenderBox(halfExtents, translation.AsTranslationMatrix(), solid, color, lineWidth);
         public virtual void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            if (DisallowRender(solid))
+                return;
+
             //SetLineSize(lineWidth);
-            IPrimitiveManager mesh = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
+            IPrimitiveManager mesh = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidBox : EDebugPrimitiveType.WireBox);
             mesh.Parameter<ShaderVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * halfExtents.AsScaleMatrix();
@@ -302,6 +326,9 @@ namespace TheraEngine.Rendering
         }
         public void RenderCapsule(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            if (DisallowRender(solid))
+                return;
+
             //SetLineSize(lineWidth);
             IPrimitiveManager mCyl = null, mTop = null, mBot = null;
             string cylStr = "_CYLINDER";
@@ -340,12 +367,18 @@ namespace TheraEngine.Rendering
 
         public void RenderCylinder(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            if (DisallowRender(solid))
+                return;
+
             throw new NotImplementedException();
         }
         public void RenderCone(Matrix4 transform, Vec3 localUpAxis, float radius, float height, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            if (DisallowRender(solid))
+                return;
+
             //SetLineSize(lineWidth);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidCone : DebugPrimitiveType.WireCone);
+            IPrimitiveManager m = GetDebugPrimitive(solid ? EDebugPrimitiveType.SolidCone : EDebugPrimitiveType.WireCone);
             m.Parameter<ShaderVec4>(0).Value = color;
             transform = transform * localUpAxis.LookatAngles().GetMatrix() * Matrix4.CreateScale(radius, radius, height);
             m.Render(transform, Matrix3.Identity);

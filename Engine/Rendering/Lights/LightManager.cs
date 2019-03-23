@@ -14,6 +14,7 @@ namespace TheraEngine.Rendering
             = new ConcurrentHashSet<DirectionalLightComponent>();
 
         public ColorF3 GlobalAmbient { get; set; }
+        public bool RenderingShadowMaps { get; private set; } = false;
 
         //internal void SetUniforms(RenderProgram program)
         //{
@@ -63,6 +64,8 @@ namespace TheraEngine.Rendering
         }
         public void RenderShadowMaps(Scene3D scene)
         {
+            RenderingShadowMaps = true;
+
             foreach (DirectionalLightComponent l in DirectionalLights)
                 l.RenderShadowMap(scene);
             
@@ -71,6 +74,8 @@ namespace TheraEngine.Rendering
             
             foreach (PointLightComponent l in PointLights)
                 l.RenderShadowMap(scene);
+
+            RenderingShadowMaps = false;
         }
     }
 }

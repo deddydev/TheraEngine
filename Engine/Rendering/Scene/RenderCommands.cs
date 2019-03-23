@@ -10,11 +10,8 @@ namespace TheraEngine.Rendering
     public abstract class RenderCommand : IComparable<RenderCommand>, IComparable
     {
         public RenderCommand() { }
-        public RenderCommand(ERenderPass renderPass)
-        {
-            RenderPass = renderPass;
-        }
-
+        public RenderCommand(ERenderPass renderPass) => RenderPass = renderPass;
+        
         /// <summary>
         /// Used by the engine for proper order of rendering.
         /// </summary> 
@@ -23,7 +20,7 @@ namespace TheraEngine.Rendering
 
         public abstract int CompareTo(RenderCommand other);
         public int CompareTo(object obj) => CompareTo(obj as RenderCommand);
-        public abstract void Render();
+        public abstract void Render(bool shadowPass);
     }
     public abstract class RenderCommand3D : RenderCommand
     {
@@ -73,7 +70,7 @@ namespace TheraEngine.Rendering
         public RenderCommandMethod2D(ERenderPass renderPass, Action render) : base(renderPass) => Rendered = render;
 
         public Action Rendered { get; set; }
-        public override void Render() => Rendered?.Invoke();
+        public override void Render(bool shadowPass) => Rendered?.Invoke();
     }
     public class RenderCommandMethod3D : RenderCommand3D
     {
@@ -82,7 +79,7 @@ namespace TheraEngine.Rendering
         public RenderCommandMethod3D(ERenderPass renderPass, Action render) : base(renderPass) => Rendered = render;
 
         public Action Rendered { get; set; }
-        public override void Render() => Rendered?.Invoke();
+        public override void Render(bool shadowPass) => Rendered?.Invoke();
     }
     public class RenderCommandMesh3D : RenderCommand3D
     {
@@ -94,7 +91,7 @@ namespace TheraEngine.Rendering
         public Matrix3 NormalMatrix { get; set; } = Matrix3.Identity;
         public TMaterial MaterialOverride { get; set; }
 
-        //public RenderCommandMesh3D() : base() { }
+        public RenderCommandMesh3D() : base() { }
         public RenderCommandMesh3D(ERenderPass renderPass) : base(renderPass) { }
         public RenderCommandMesh3D(
             ERenderPass renderPass,
@@ -110,8 +107,11 @@ namespace TheraEngine.Rendering
             MaterialOverride = materialOverride;
         }
 
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
+            if (shadowPass && Mesh?.Data?.Triangles == null)
+                return;
+
             Mesh?.Render(WorldMatrix, NormalMatrix, MaterialOverride);
         }
     }
@@ -121,7 +121,7 @@ namespace TheraEngine.Rendering
         public Matrix4 WorldMatrix { get; set; } = Matrix4.Identity;
         public TMaterial MaterialOverride { get; set; }
 
-        //public RenderCommandMesh2D() : base() { }
+        public RenderCommandMesh2D() : base() { }
         public RenderCommandMesh2D(ERenderPass renderPass) : base(renderPass) { }
         public RenderCommandMesh2D(
             ERenderPass renderPass,
@@ -136,8 +136,11 @@ namespace TheraEngine.Rendering
             MaterialOverride = materialOverride;
         }
 
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
+            if (shadowPass && Mesh?.Data?.Triangles == null)
+                return;
+
             Mesh?.Render(WorldMatrix, Matrix3.Identity, MaterialOverride);
         }
     }
@@ -161,14 +164,14 @@ namespace TheraEngine.Rendering
             Framebuffer = viewportFBO;
         }
 
-        public override void Render()
+        public override void Render(bool shadowPass)
         {
             //TODO: viewport renders all viewed items to the framebuffer,
             //But this method is called within the parent's rendering to its framebuffer.
             var curr = FrameBuffer.CurrentlyBound;
             Viewport.Render(Viewport.Camera?.OwningComponent?.OwningScene, Viewport.Camera, Framebuffer);
             curr?.Bind(EFramebufferTarget.DrawFramebuffer);
-            base.Render();
+            base.Render(shadowPass);
         }
     }
 }

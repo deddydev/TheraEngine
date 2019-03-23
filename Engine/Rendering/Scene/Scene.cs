@@ -105,7 +105,7 @@ namespace TheraEngine.Rendering
         internal void Render(ERenderPass pass)
         {
             var list = _renderingPasses[(int)pass];
-            list.ForEach(x => x.Render());
+            list.ForEach(x => x.Render(ShadowPass));
             list.Clear();
         }
         internal void ClearRendering(ERenderPass pass)

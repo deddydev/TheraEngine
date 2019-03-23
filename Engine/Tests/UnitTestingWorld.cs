@@ -76,8 +76,8 @@ namespace TheraEngine.Tests
             bool testLandscape = true;
             bool createWalls = true;
             int pointLights = 0;
-            int dirLights = 0;
-            int spotLights = 1;
+            int dirLights = 1;
+            int spotLights = 0;
 
             float margin = 2.0f;
             float radius = 1.0f;

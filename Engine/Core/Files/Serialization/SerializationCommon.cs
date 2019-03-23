@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -8,6 +9,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Tools;
 
@@ -511,7 +514,7 @@ namespace TheraEngine.Core.Files.Serialization
         //    }
         //    return fields;
         //}
-        public static TSerializeMemberInfo[] CollectSerializedMembers(Type type)
+        public static async Task<(int Count, IEnumerable<TSerializeMemberInfo> Values)> CollectSerializedMembersAsync(Type type)
         {
             BindingFlags retrieveFlags =
                 BindingFlags.Instance |
@@ -520,37 +523,42 @@ namespace TheraEngine.Core.Files.Serialization
                 BindingFlags.FlattenHierarchy;
             
             MemberInfo[] members = type?.GetMembers(retrieveFlags) ?? new MemberInfo[0];
-            List<TSerializeMemberInfo> serMembers = new List<TSerializeMemberInfo>(members.Length);
+            ConcurrentDictionary<int, TSerializeMemberInfo> serMembers = new ConcurrentDictionary<int, TSerializeMemberInfo>();
             
             int elementStringCount = 0;
             int firstElementStringIndex = -1;
 
-            foreach (MemberInfo info in members)
-                if ((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize)))
+            await Task.Run(() => Parallel.For(0, members.Length, i =>
+            {
+                var info = members[i];
+                if (!((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize))))
+                    return;
+                
+                TSerializeMemberInfo serMem = new TSerializeMemberInfo(info);
+                serMembers.TryAdd(i, serMem);
+
+                if (serMem.NodeType != ENodeType.ElementContent)
+                    return;
+
+                Interlocked.Increment(ref elementStringCount);
+
+                if (elementStringCount == 1)
                 {
-                    TSerializeMemberInfo serMem = new TSerializeMemberInfo(info);
-                    serMembers.Add(serMem);
-                    if (serMem.NodeType == ENodeType.ElementContent)
-                    {
-                        ++elementStringCount;
-                        if (elementStringCount == 1)
-                        {
-                            firstElementStringIndex = serMembers.Count - 1;
-                        }
-                        else if (firstElementStringIndex >= 0)
-                        {
-                            serMembers[firstElementStringIndex].NodeType = ENodeType.ChildElement;
-                            serMem.NodeType = ENodeType.ChildElement;
-                            firstElementStringIndex = -1;
-                        }
-                        else
-                        {
-                            serMem.NodeType = ENodeType.ChildElement;
-                        }
-                    }
+                    firstElementStringIndex = serMembers.Count - 1;
                 }
+                else if (firstElementStringIndex >= 0)
+                {
+                    serMembers[firstElementStringIndex].NodeType = ENodeType.ChildElement;
+                    serMem.NodeType = ENodeType.ChildElement;
+                    firstElementStringIndex = -1;
+                }
+                else
+                {
+                    serMem.NodeType = ENodeType.ChildElement;
+                }
+            }));
             
-            return serMembers.OrderBy(x => x.Order).ToArray();
+            return (serMembers.Values.Count, serMembers.Values.OrderBy(x => x.Order));
         }
         /// <summary>
         /// Creates an object of the given type.

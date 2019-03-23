@@ -14,9 +14,9 @@ namespace TheraEngine.Core.Files.Serialization
     public class CommonObjectSerializer : BaseObjectSerializer
     {
         #region Reading
-        public override void DeserializeTreeToObject()
+        public override async void DeserializeTreeToObject()
         {
-            List<TSerializeMemberInfo> members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType).ToList();
+            var members = await SerializationCommon.CollectSerializedMembersAsync(TreeNode.ObjectType);
 
             if (members.Count == 0)
             {
@@ -43,17 +43,19 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<TPreDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<TPreDeserialize>().Arguments);
 
-            var categorizedChildren = members.
+            var categorizedChildren = members.Values.
                 Where(member => member.Category != null).
                 GroupBy(member => member.Category).
                 ToDictionary(grp => grp.Key, grp => grp.ToArray());
 
-            foreach (var grouping in categorizedChildren)
-                foreach (TSerializeMemberInfo p in grouping.Value)
-                    members.Remove(p);
+            //foreach (var grouping in categorizedChildren)
+            //    foreach (TSerializeMemberInfo p in grouping.Value)
+            //        members.Values.Remove(p);
 
-            foreach (var member in members)
-                ReadMember(TreeNode, member, TreeNode.Object);
+            foreach (var member in members.Values)
+                if (!categorizedChildren.Any(x => x.Value.Contains(member)))
+                    ReadMember(TreeNode, member, TreeNode.Object);
+            
             foreach (var catMember in categorizedChildren)
             {
                 SerializeElement catNode = TreeNode.GetChildElement(catMember.Key);
@@ -164,9 +166,9 @@ namespace TheraEngine.Core.Files.Serialization
 
         public override async void SerializeTreeFromObject()
         {
-            TSerializeMemberInfo[] members = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
+            var (Count, Values) = await SerializationCommon.CollectSerializedMembersAsync(TreeNode.ObjectType);
 
-            if (members.Length == 0)
+            if (Count == 0)
             {
                 if (ShouldWriteDefaultMembers || !TreeNode.IsObjectDefault())
                     TreeNode.Content.SetValueAsObject(TreeNode.Object);
@@ -175,7 +177,7 @@ namespace TheraEngine.Core.Files.Serialization
             
             SerializeElement parent = TreeNode;
             Dictionary<string, SerializeElement> categoryNodes = new Dictionary<string, SerializeElement>();
-            foreach (TSerializeMemberInfo member in members)
+            foreach (TSerializeMemberInfo member in Values)
             {
                 if (!member.AllowSerialize(TreeNode.Object))
                     continue;

@@ -306,7 +306,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             {
                 var sref = Editor.GetSettingsRef();
                 var inst = await sref.GetInstanceAsync();
-                BeginUpdatingVisibleItems(inst.PropertyGridRef.File.UpdateRateInSeconds);
+                BeginUpdatingVisibleItems(inst?.PropertyGridRef.File.UpdateRateInSeconds ?? 0.2f);
             }
 
             base.OnHandleCreated(e);

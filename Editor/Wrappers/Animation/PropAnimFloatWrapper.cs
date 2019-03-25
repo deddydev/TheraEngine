@@ -40,7 +40,7 @@ namespace TheraEditor.Wrappers
                 _graph.Show(Editor.Instance.DockPanel, DockState.Document);
             }
             PropAnimFloat anim = await ResourceRef.GetInstanceAsync();
-            _graph.TargetAnimation = anim;
+            _graph.File = anim;
             _graph.Focus();
         }
         private void _graph_FormClosed(object sender, FormClosedEventArgs e)

@@ -514,7 +514,7 @@ namespace TheraEngine.Core.Files.Serialization
         //    }
         //    return fields;
         //}
-        public static async Task<(int Count, IEnumerable<TSerializeMemberInfo> Values)> CollectSerializedMembersAsync(Type type)
+        public static (int Count, IEnumerable<TSerializeMemberInfo> Values) CollectSerializedMembers(Type type)
         {
             BindingFlags retrieveFlags =
                 BindingFlags.Instance |
@@ -524,41 +524,27 @@ namespace TheraEngine.Core.Files.Serialization
             
             MemberInfo[] members = type?.GetMembers(retrieveFlags) ?? new MemberInfo[0];
             ConcurrentDictionary<int, TSerializeMemberInfo> serMembers = new ConcurrentDictionary<int, TSerializeMemberInfo>();
+            ConcurrentDictionary<int, TSerializeMemberInfo> contentMembers = new ConcurrentDictionary<int, TSerializeMemberInfo>();
             
-            int elementStringCount = 0;
-            int firstElementStringIndex = -1;
-
-            await Task.Run(() => Parallel.For(0, members.Length, i =>
+            Parallel.For(0, members.Length, i =>
             {
                 var info = members[i];
                 if (!((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize))))
                     return;
                 
                 TSerializeMemberInfo serMem = new TSerializeMemberInfo(info);
-                serMembers.TryAdd(i, serMem);
+                serMembers.AddOrUpdate(i, serMem, (r, s) => serMem);
 
-                if (serMem.NodeType != ENodeType.ElementContent)
-                    return;
+                if (serMem.NodeType == ENodeType.ElementContent)
+                    contentMembers.AddOrUpdate(i, serMem, (r, s) => serMem);
+            });
 
-                Interlocked.Increment(ref elementStringCount);
-
-                if (elementStringCount == 1)
-                {
-                    firstElementStringIndex = serMembers.Count - 1;
-                }
-                else if (firstElementStringIndex >= 0)
-                {
-                    serMembers[firstElementStringIndex].NodeType = ENodeType.ChildElement;
-                    serMem.NodeType = ENodeType.ChildElement;
-                    firstElementStringIndex = -1;
-                }
-                else
-                {
-                    serMem.NodeType = ENodeType.ChildElement;
-                }
-            }));
+            if (contentMembers.Count > 1)
+                foreach (var mem in contentMembers.Values)
+                    mem.NodeType = ENodeType.ChildElement;
             
-            return (serMembers.Values.Count, serMembers.Values.OrderBy(x => x.Order));
+            var values = serMembers.OrderBy(x => x.Key).Select(x => x.Value).OrderBy(x => x.Order);
+            return (serMembers.Values.Count, values);
         }
         /// <summary>
         /// Creates an object of the given type.

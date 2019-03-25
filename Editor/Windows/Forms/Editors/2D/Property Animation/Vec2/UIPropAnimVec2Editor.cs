@@ -45,7 +45,7 @@ namespace TheraEditor.Windows.Forms
 
         private Vec3[] KeyframeInOutPosInOutTan { get; set; }
         //public float VelocitySigmoidScale { get; set; } = 0.002f;
-        private float DisplayFPS { get; set; } = 0.0f;
+        private Vec2 DisplayFPS { get; set; } = 0.0f;
         private float AnimLength { get; set; } = 0.0f;
         private int KeyCount { get; set; } = 0;
 
@@ -270,7 +270,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            if (DisplayFPS <= 0.0f)
+            if (DisplayFPS.X <= 0.0f)
                 return;
 
             //float displayFPS;
@@ -315,7 +315,7 @@ namespace TheraEditor.Windows.Forms
 
             int i;
             float sec = 0.0f;
-            float timeIncrement = 1.0f / DisplayFPS;
+            float timeIncrement = 1.0f / DisplayFPS.X;
             for (i = 0; i < posBuf.ElementCount; ++i, sec += timeIncrement)
             {
                 GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
@@ -374,26 +374,31 @@ namespace TheraEditor.Windows.Forms
             }
             
             GetFocusAreaMinMax(out Vec2 animMin, out Vec2 animMax);
+
             Vec2 bounds = Bounds;
             Vec2 boundsMinAnimRelative = Vec3.TransformPosition(Vec3.Zero, BaseTransformComponent.InverseWorldMatrix).Xy;
             Vec2 boundsMaxAnimRelative = Vec3.TransformPosition(bounds, BaseTransformComponent.InverseWorldMatrix).Xy;
+
             float maxX = TMath.Min(boundsMaxAnimRelative.X, animMax.X);
             float minX = TMath.Max(boundsMinAnimRelative.X, animMin.X);
             float maxY = TMath.Min(boundsMaxAnimRelative.Y, animMax.Y);
             float minY = TMath.Max(boundsMinAnimRelative.Y, animMin.Y);
+
             float visibleAnimXRange = maxX - minX;
             float visibleAnimYRange = maxY - minY;
+
             if (visibleAnimXRange <= 0.0f)
                 visibleAnimXRange = Bounds.X;
             if (visibleAnimYRange <= 0.0f)
                 visibleAnimYRange = Bounds.Y;
-            DisplayFPS = TMath.Max(Bounds.X / visibleAnimXRange, Bounds.Y / visibleAnimYRange) * Resolution;
-
-            float secondsPerFrame = 1.0f / DisplayFPS;
-
-            int frameCount = (int)Math.Ceiling(visibleAnimXRange * DisplayFPS) + 1;
-            
             VisibleRange = new Vec2(visibleAnimXRange, visibleAnimYRange);
+
+            DisplayFPS = Bounds / VisibleRange * Resolution;
+
+            Vec2 inc = 1.0f / DisplayFPS;
+
+            int frameCount = (int)Math.Ceiling(visibleAnimXRange * DisplayFPS.X) + 1;
+            
             FrameCount = frameCount;
 
             int posCount = (KeyCount = _targetAnimation.Keyframes.Count) << 1;
@@ -406,7 +411,7 @@ namespace TheraEditor.Windows.Forms
             float maxVel = GetMaxSpeed();
             int i;
             float sec = 0.0f;
-            for (i = 0; i < splinePoints.Length; ++i, sec += secondsPerFrame)
+            for (i = 0; i < splinePoints.Length; ++i, sec += inc.X)
             {
                 GetSplineVertex(sec, maxVel, out Vec3 pos, out ColorF4 color);
                 splinePoints[i] = new Vertex(pos, color);

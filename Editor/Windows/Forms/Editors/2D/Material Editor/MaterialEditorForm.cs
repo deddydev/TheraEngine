@@ -7,13 +7,14 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace TheraEditor.Windows.Forms
 {
     //[EditorFor(typeof(TMaterial))]
-    public partial class MaterialEditorForm : TheraForm, IDockPanelOwner
+    public partial class MaterialEditorForm : FileEditorTheraForm<TMaterial>, IDockPanelOwner
     {
         DockPanel IDockPanelOwner.DockPanelRef => dockPanel1;
 
         public MaterialEditorForm()
         {
             InitializeComponent();
+
             dockPanel1.Theme = new TheraEditorTheme();
             FormTitle2.MouseDown += TitleBar_MouseDown;
             FormTitle2.MouseUp += (s, e) => 
@@ -22,13 +23,12 @@ namespace TheraEditor.Windows.Forms
                     ShowSystemMenu(MouseButtons);
             };
         }
-        public MaterialEditorForm(TMaterial m) : this()
-        {
-            Material = m;
-        }
+        public MaterialEditorForm(TMaterial file) : this() => File = file;
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
             MaterialGraph.Focus();
             MaterialFunctions.Focus();
             MaterialFunctionProperties.Focus();
@@ -108,17 +108,18 @@ namespace TheraEditor.Windows.Forms
                 return _matProps;
             }
         }
-        public TMaterial Material
+        public override TMaterial File
         {
-            get => MaterialGraph.RenderPanel.UI.TargetMaterial;
+            get => base.File;
             set
             {
+                base.File = value;
+
                 MaterialGraph.RenderPanel.UI.TargetMaterial = value;
                 MaterialProperties.TargetMaterial = value;
                 FormTitle2.Text = value != null ? value.Name + " [" + value.FilePath + "]" : string.Empty;
             }
         }
-
         private void UI_SelectedFunctionChanged(MaterialFunction func)
         {
             //MaterialFunctionProperties.TargetFunc = func;

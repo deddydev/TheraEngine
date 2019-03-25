@@ -32,11 +32,11 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DockablePropAnimFloatGraph));
             this.RenderPanel = new TheraEditor.Windows.Forms.PropAnimIntGraphRenderPanel();
             this.dockingHostToolStripPanel1 = new TheraEditor.Windows.Forms.DockingHostToolStripPanel();
-            this.tearOffToolStrip1 = new TheraEditor.Windows.Forms.TearOffToolStrip();
+            this.tsPropAnimInt = new TheraEditor.Windows.Forms.TearOffToolStrip();
             this.btnZoomExtents = new System.Windows.Forms.ToolStripButton();
             this.chkAutoTangents = new System.Windows.Forms.ToolStripButton();
             this.dockingHostToolStripPanel1.SuspendLayout();
-            this.tearOffToolStrip1.SuspendLayout();
+            this.tsPropAnimInt.SuspendLayout();
             this.SuspendLayout();
             // 
             // RenderPanel
@@ -51,7 +51,7 @@
             // dockingHostToolStripPanel1
             // 
             this.dockingHostToolStripPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
-            this.dockingHostToolStripPanel1.Controls.Add(this.tearOffToolStrip1);
+            this.dockingHostToolStripPanel1.Controls.Add(this.tsPropAnimInt);
             this.dockingHostToolStripPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.dockingHostToolStripPanel1.Location = new System.Drawing.Point(0, 0);
             this.dockingHostToolStripPanel1.Name = "dockingHostToolStripPanel1";
@@ -61,20 +61,20 @@
             // 
             // tearOffToolStrip1
             // 
-            this.tearOffToolStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
-            this.tearOffToolStrip1.BottomToolStripPanel = null;
-            this.tearOffToolStrip1.Dock = System.Windows.Forms.DockStyle.None;
-            this.tearOffToolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsPropAnimInt.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
+            this.tsPropAnimInt.BottomToolStripPanel = null;
+            this.tsPropAnimInt.Dock = System.Windows.Forms.DockStyle.None;
+            this.tsPropAnimInt.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnZoomExtents,
             this.chkAutoTangents});
-            this.tearOffToolStrip1.LeftToolStripPanel = null;
-            this.tearOffToolStrip1.Location = new System.Drawing.Point(3, 0);
-            this.tearOffToolStrip1.Name = "tearOffToolStrip1";
-            this.tearOffToolStrip1.RightToolStripPanel = null;
-            this.tearOffToolStrip1.Size = new System.Drawing.Size(214, 25);
-            this.tearOffToolStrip1.TabIndex = 2;
-            this.tearOffToolStrip1.Text = "tearOffToolStrip1";
-            this.tearOffToolStrip1.TopToolStripPanel = null;
+            this.tsPropAnimInt.LeftToolStripPanel = null;
+            this.tsPropAnimInt.Location = new System.Drawing.Point(3, 0);
+            this.tsPropAnimInt.Name = "tearOffToolStrip1";
+            this.tsPropAnimInt.RightToolStripPanel = null;
+            this.tsPropAnimInt.Size = new System.Drawing.Size(214, 25);
+            this.tsPropAnimInt.TabIndex = 2;
+            this.tsPropAnimInt.Text = "tearOffToolStrip1";
+            this.tsPropAnimInt.TopToolStripPanel = null;
             // 
             // btnZoomExtents
             // 
@@ -98,13 +98,13 @@
             // 
             // chkSnapToIncrement
             // 
-            this.chkSnapToIncrement.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.chkSnapToUnits.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             //this.chkSnapToIncrement.Image = ((System.Drawing.Image)(resources.GetObject("chkAutoTangents.Image")));
-            this.chkSnapToIncrement.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.chkSnapToIncrement.Name = "chkSnapToIncrement";
-            this.chkSnapToIncrement.Size = new System.Drawing.Size(88, 22);
-            this.chkSnapToIncrement.Text = "Snap To Increment";
-            this.chkSnapToIncrement.Click += new System.EventHandler(this.chkSnapToIncrement_Click);
+            this.chkSnapToUnits.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.chkSnapToUnits.Name = "chkSnapToIncrement";
+            this.chkSnapToUnits.Size = new System.Drawing.Size(88, 22);
+            this.chkSnapToUnits.Text = "Snap To Increment";
+            this.chkSnapToUnits.Click += new System.EventHandler(this.chkSnapToUnits_Click);
             // 
             // DockablePropAnimFloatGraph
             // 
@@ -121,8 +121,8 @@
             this.Text = "Float Animation Editor";
             this.dockingHostToolStripPanel1.ResumeLayout(false);
             this.dockingHostToolStripPanel1.PerformLayout();
-            this.tearOffToolStrip1.ResumeLayout(false);
-            this.tearOffToolStrip1.PerformLayout();
+            this.tsPropAnimInt.ResumeLayout(false);
+            this.tsPropAnimInt.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -132,9 +132,9 @@
 
         private PropAnimIntGraphRenderPanel RenderPanel;
         private DockingHostToolStripPanel dockingHostToolStripPanel1;
-        private TearOffToolStrip tearOffToolStrip1;
+        private TearOffToolStrip tsPropAnimInt;
         private System.Windows.Forms.ToolStripButton btnZoomExtents;
         private System.Windows.Forms.ToolStripButton chkAutoTangents;
-        private System.Windows.Forms.ToolStripButton chkSnapToIncrement;
+        private System.Windows.Forms.ToolStripButton chkSnapToUnits;
     }
 }

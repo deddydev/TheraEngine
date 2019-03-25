@@ -8,7 +8,6 @@ using TheraEngine.Actors.Types;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.GameModes;
-using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 

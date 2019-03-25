@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Properties;
 using TheraEditor.Windows.Forms;
@@ -21,14 +22,18 @@ namespace TheraEditor.Wrappers
             _menu.Closing += MenuClosing;
         }
 
-        private static void RegenSolutionAction(object sender, EventArgs e)
-            => GetInstance<ProjectWrapper>().GenerateSolution();
+        private static async void RegenSolutionAction(object sender, EventArgs e)
+            => await GetInstance<ProjectWrapper>().GenerateSolution();
 
-        private void GenerateSolution()
+        private async Task GenerateSolution()
         {
-            Resource?.GenerateSolution();
-        }
+            var res = Resource;
+            if (res == null)
+                return;
 
+            await res.GenerateSolutionAsync();
+        }
+        
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             
@@ -41,9 +46,11 @@ namespace TheraEditor.Wrappers
 
         public ProjectWrapper() : base(_menu) { }
         
-        public override void EditResource()
+        public override async void EditResource()
         {
-            Editor.Instance.Project = Resource;
+            var res = await ResourceRef.GetInstanceAsync();
+
+            Editor.Instance.Project = res;
         }
     }
 }

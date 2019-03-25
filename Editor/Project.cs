@@ -376,14 +376,14 @@ namespace TheraEditor
                     EProprietaryFileFormat.XML, editorSettings),
             };
 
-            await state.ExportAsync();
-            await userSettings.ExportAsync();
-            await engineSettings.ExportAsync();
-            await editorSettings.ExportAsync();
+            await Task.WhenAll(
+                state.ExportAsync(),
+                userSettings.ExportAsync(),
+                engineSettings.ExportAsync(),
+                editorSettings.ExportAsync(),
+                project.ExportAsync());
 
-            await project.ExportAsync();
-
-            project.GenerateSolution(true);
+            await project.GenerateSolutionAsync(true);
             await project.CompileAsync();
 
             return project;
@@ -441,9 +441,8 @@ namespace TheraEditor
 
                 }
             }
-            
         }
-        public async void GenerateSolution(bool forceRegenerateProgramDotCs = false)
+        public async Task GenerateSolutionAsync(bool forceRegenerateProgramDotCs = false)
         {
             Process[] devenv = Process.GetProcessesByName("DevEnv");
             FileVersionInfo info = null;
@@ -531,10 +530,10 @@ namespace TheraEditor
 
             ItemGroup refGrp = new ItemGroup();
 
-            List<string> assemblyPaths = new List<string>();
-            assemblyPaths.Add(typeof(Engine).Assembly.Location);
-            if (ReferencedAssemblies != null && ReferencedAssemblies.Count > 0)
-                assemblyPaths.AddRange(ReferencedAssemblies.Select(x => x.Path));
+            HashSet<string> assemblyPaths = new HashSet<string> { typeof(Engine).Assembly.Location };
+            if (ReferencedAssemblies != null)
+                foreach (PathReference pathRef in ReferencedAssemblies)
+                    assemblyPaths.Add(pathRef.Path);
 
             foreach (string path in assemblyPaths)
             {

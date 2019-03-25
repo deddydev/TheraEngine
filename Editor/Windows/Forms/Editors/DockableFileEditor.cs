@@ -1,19 +1,26 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading;
 using System.Windows.Forms;
-using TheraEngine;
-using TheraEngine.Actors;
 using TheraEngine.Core.Files;
-using TheraEngine.GameModes;
-using TheraEngine.Worlds;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class DockableFileEditor : DockContent, IEditorControl
+    public abstract class DockableFileEditor<T> : DockContent, IFileEditorControl where T : TFileObject
     {
-        protected abstract TFileObject File { get; }
+        private T _file;
+        public virtual T File
+        {
+            get => _file;
+            set
+            {
+                if (!AllowFileClose())
+                    return;
+
+                _file = value;
+            }
+        }
+        TFileObject IFileEditorControl.File => File;
 
         protected void btnSave_Click(object sender, EventArgs e) => Save();
         protected void btnSaveAs_Click(object sender, EventArgs e) => SaveAs();
@@ -23,6 +30,7 @@ namespace TheraEditor.Windows.Forms
         {
             if (File == null)
                 return;
+
             if (string.IsNullOrWhiteSpace(File.FilePath))
                 SaveAs();
             else
@@ -36,22 +44,43 @@ namespace TheraEditor.Windows.Forms
         {
             if (File == null)
                 return;
+
             using (SaveFileDialog sfd = new SaveFileDialog() { Filter = File.GetFilter() })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                     await File.ExportAsync(sfd.FileName, ESerializeFlags.Default);
             }
         }
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            Editor.OpenEditors.Add(this);
+        }
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            if (File == null || !File.EditorState.IsDirty)
-                return;
+            bool allow = AllowFileClose();
+            e.Cancel = !allow;
+            if (allow)
+                Editor.OpenEditors.Remove(this);
+        }
+        public bool AllowFileClose()
+        {
+            if (_file == null || !_file.HasEditorState || !_file.EditorState.IsDirty)
+                return true;
 
-            DialogResult result = MessageBox.Show(this, "Do you want to save your work before closing?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button3);
+            string path = 
+                string.IsNullOrWhiteSpace(_file?.FilePath) || 
+                string.IsNullOrWhiteSpace(Editor.Instance.Project?.DirectoryPath) ? 
+                _file?.ToString() ?? "<null>" : 
+                _file.FilePath.MakeAbsolutePathRelativeTo(Editor.Instance.Project.DirectoryPath);
+
+            DialogResult result = MessageBox.Show(this, $"Do you want to save your work to {path} before closing?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button3);
             if (result == DialogResult.Cancel)
-                e.Cancel = true;
+                return false;
             else if (result == DialogResult.Yes)
                 Save();
+
+            return true;
         }
     }
 }

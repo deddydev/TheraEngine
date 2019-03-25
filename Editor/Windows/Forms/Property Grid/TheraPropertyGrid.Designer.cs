@@ -49,7 +49,7 @@
             this.pnlPropScroll = new System.Windows.Forms.Panel();
             this.pnlProps = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.pnlFile = new System.Windows.Forms.Panel();
-            this.lblFilePath = new System.Windows.Forms.Label();
+            this.lblFilePath = new AutoEllipseLabel();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnSaveAs = new System.Windows.Forms.Button();
             this.tblActor = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
@@ -581,7 +581,7 @@
         private System.Windows.Forms.Panel pnlLogic;
         private System.Windows.Forms.Panel pnlPropScroll;
         private System.Windows.Forms.Panel pnlFile;
-        private System.Windows.Forms.Label lblFilePath;
+        private AutoEllipseLabel lblFilePath;
         public System.Windows.Forms.Button btnSave;
         public System.Windows.Forms.Button btnSaveAs;
     }

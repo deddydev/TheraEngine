@@ -12,16 +12,22 @@ namespace TheraEditor.Windows.Forms
         public UIEditorForm()
         {
             InitializeComponent();
+
             dockPanel1.Theme = new TheraEditorTheme();
             FormTitle2.MouseDown += TitleBar_MouseDown;
-            FormTitle2.MouseUp += (s, e) => { if (e.Button == System.Windows.Forms.MouseButtons.Right && FormTitle.ClientRectangle.Contains(e.Location)) ShowSystemMenu(MouseButtons); };
+            FormTitle2.MouseUp += (s, e) => 
+            {
+                if (e.Button == System.Windows.Forms.MouseButtons.Right && 
+                    FormTitle.ClientRectangle.Contains(e.Location))
+                    ShowSystemMenu(MouseButtons);
+            };
             UIGraph = new DockableFormInstance<DockableUIGraph>(x => x.Show(dockPanel1, DockState.Document));
             UIProps = new DockableFormInstance<DockablePropertyGrid>(x => x.Show(dockPanel1, DockState.DockRight));
         }
+
         public UIEditorForm(IUserInterface manager) : this()
-        {
-            TargetUI = manager;
-        }
+            => TargetUI = manager;
+        
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);

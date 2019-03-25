@@ -9,6 +9,16 @@ namespace TheraEditor.Core.Extensions
 {
     public static class ControlExtension
     {
+        public static Rectangle GetPaddedRectangle(this Control control)
+        {
+            var rect = control.ClientRectangle;
+            var pad = control.Padding;
+            return new Rectangle(
+                rect.X + pad.Left,
+                rect.Y + pad.Top,
+                rect.Width - (pad.Left + pad.Right),
+                rect.Height - (pad.Top + pad.Bottom));
+        }
         public static void LerpLocation(
             this Control control,
             Point point,

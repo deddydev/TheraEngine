@@ -3,12 +3,13 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
+using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class DockableRenderableFileEditor : DockableFileEditor, IEditorRenderableControl
+    public abstract class DockableRenderableFileEditor<T> : DockableFileEditor<T>, IEditorRenderableControl where T : TFileObject
     {
         public virtual ELocalPlayerIndex PlayerIndex { get; } = ELocalPlayerIndex.One;
         public BaseGameMode GameMode => RenderPanelGeneric.GameMode as BaseGameMode;

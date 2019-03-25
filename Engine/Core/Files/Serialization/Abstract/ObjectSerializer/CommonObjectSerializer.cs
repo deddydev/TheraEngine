@@ -14,11 +14,11 @@ namespace TheraEngine.Core.Files.Serialization
     public class CommonObjectSerializer : BaseObjectSerializer
     {
         #region Reading
-        public override async void DeserializeTreeToObject()
+        public override void DeserializeTreeToObject()
         {
-            var members = await SerializationCommon.CollectSerializedMembersAsync(TreeNode.ObjectType);
-
-            if (members.Count == 0)
+            var (Count, Values) = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
+            var values = Values.ToList();
+            if (values.Count == 0)
             {
                 //Engine.PrintLine($"Deserializing {TreeNode.ObjectType.GetFriendlyName()} {TreeNode.Name} as {nameof(ENodeType.ElementContent)}.");
 
@@ -43,18 +43,17 @@ namespace TheraEngine.Core.Files.Serialization
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<TPreDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<TPreDeserialize>().Arguments);
 
-            var categorizedChildren = members.Values.
+            var categorizedChildren = values.
                 Where(member => member.Category != null).
                 GroupBy(member => member.Category).
                 ToDictionary(grp => grp.Key, grp => grp.ToArray());
 
-            //foreach (var grouping in categorizedChildren)
-            //    foreach (TSerializeMemberInfo p in grouping.Value)
-            //        members.Values.Remove(p);
+            foreach (var grouping in categorizedChildren)
+                foreach (TSerializeMemberInfo p in grouping.Value)
+                    values.Remove(p);
 
-            foreach (var member in members.Values)
-                if (!categorizedChildren.Any(x => x.Value.Contains(member)))
-                    ReadMember(TreeNode, member, TreeNode.Object);
+            foreach (var member in values)
+                ReadMember(TreeNode, member, TreeNode.Object);
             
             foreach (var catMember in categorizedChildren)
             {
@@ -166,8 +165,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         public override async void SerializeTreeFromObject()
         {
-            var (Count, Values) = await SerializationCommon.CollectSerializedMembersAsync(TreeNode.ObjectType);
-
+            var (Count, Values) = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
             if (Count == 0)
             {
                 if (ShouldWriteDefaultMembers || !TreeNode.IsObjectDefault())

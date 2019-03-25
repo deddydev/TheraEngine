@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -23,11 +22,15 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public interface IEditorControl
+    public interface IFileEditorControl
     {
-        //void FileReloaded(object file);
+        TFileObject File { get; }
+
+        void Save();
+        void SaveAs();
+        bool AllowFileClose();
     }
-    public interface IEditorRenderableControl : IEditorControl
+    public interface IEditorRenderableControl
     {
         /// <summary>
         /// The player index this control allows input from.
@@ -476,11 +479,19 @@ namespace TheraEditor.Windows.Forms
             get => _project;
             set => SetProject(value);
         }
+        public static List<IFileEditorControl> OpenEditors { get; } = new List<IFileEditorControl>(); 
         private bool CloseProject()
         {
             if (_project == null)
                 return true;
 
+            var editors = OpenEditors.ToArray();
+            foreach (var form in editors)
+                if (form.AllowFileClose())
+                    ((Form)form).Close();
+                else
+                    return false;
+            
             if (_project.EditorState != null && _project.EditorState.HasChanges)
             {
                 DialogResult r = MessageBox.Show(this, "Save changes to current project?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);

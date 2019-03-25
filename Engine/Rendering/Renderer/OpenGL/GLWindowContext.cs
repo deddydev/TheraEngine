@@ -233,20 +233,12 @@ namespace TheraEngine.Rendering.OpenGL
             }
 
             public override bool IsContextDisposed()
-                => _context == null || _context.IsDisposed;
-
+                => _context?.IsDisposed ?? true;
             public override bool IsCurrent()
-            {
-                if (!IsContextDisposed())
-                    return _context.IsCurrent;
-                return false;
-            }
-
+                => !IsContextDisposed() && _context.IsCurrent;
             public override void OnSwapBuffers()
-            {
-                _context.SwapBuffers();
-            }
-
+                => _context.SwapBuffers();
+            
             public override void OnResized(IVec2 size)
             {
                 Size = size;

@@ -123,6 +123,8 @@ namespace TheraEngine
 
         private EditorState _editorState = null;
 
+        [Browsable(false)]
+        public bool HasEditorState => _editorState != null;
         //[BrowsableIf("_editorState != null")]
         //[TSerialize]
         [Browsable(false)]

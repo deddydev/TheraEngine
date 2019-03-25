@@ -1,95 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Animation;
-using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Worlds;
-using WeifenLuo.WinFormsUI.Docking;
 using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms
 {
     [EditorFor(typeof(PropAnimInt))]
-    public partial class DockablePropAnimIntGraph : DockContent, IEditorRenderableControl
+    public partial class DockablePropAnimIntGraph : DockableRenderableFileEditor<PropAnimInt>
     {
         public DockablePropAnimIntGraph()
         {
             InitializeComponent();
-
-            RenderPanel.AllowDrop = false;
-            RenderPanel.GotFocus += RenderPanel_GotFocus;
-            RenderPanel.MouseEnter += RenderPanel_MouseEnter;
-            RenderPanel.MouseLeave += RenderPanel_MouseLeave;
-
-            GameMode = new PropAnimIntEditorGameMode() { RenderPanel = RenderPanel };
-
-            tearOffToolStrip1.RenderMode = ToolStripRenderMode.Professional;
-            tearOffToolStrip1.Renderer = new TheraToolstripRenderer();
+            
+            tsPropAnimInt.RenderMode = ToolStripRenderMode.Professional;
+            tsPropAnimInt.Renderer = new TheraToolstripRenderer();
         }
-        public DockablePropAnimIntGraph(PropAnimInt anim) : this()
+        public DockablePropAnimIntGraph(PropAnimInt anim) : this() => File = anim;
+
+        public override IPawn EditorPawn => RenderPanel.UI;
+        public override World World => RenderPanel.World;
+        protected override IUIRenderPanel RenderPanelGeneric => RenderPanel;
+        public override bool ShouldHideCursor => true;
+        
+        public override PropAnimInt File
         {
-            TargetAnimation = anim;
-        }
-
-        public PropAnimIntEditorGameMode GameMode { get; set; }
-
-        ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => ELocalPlayerIndex.One;
-        BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
-        IPawn IEditorRenderableControl.EditorPawn => RenderPanel.UI;
-        BaseGameMode IEditorRenderableControl.GameMode => GameMode;
-        World IEditorRenderableControl.World => RenderPanel.World;
-
-        public PropAnimInt TargetAnimation
-        {
-            get => RenderPanel.UI.TargetAnimation;
-            internal set
+            get => base.File;
+            set
             {
+                base.File = value;
+
                 RenderPanel.UI.TargetAnimation = value;
                 if (value != null)
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = value;
             }
         }
-        private void RenderPanel_MouseEnter(object sender, EventArgs e) => Cursor.Hide();
-        private void RenderPanel_MouseLeave(object sender, EventArgs e) => Cursor.Show();
-        private void RenderPanel_GotFocus(object sender, EventArgs e)
-        {
-            Editor.SetActiveEditorControl(this);
-            if (TargetAnimation != null)
-                Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = TargetAnimation;
-        }
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            if (Editor.ActiveRenderForm == this)
-                Editor.SetActiveEditorControl(null);
-            base.OnHandleDestroyed(e);
-        }
-        protected override void OnShown(EventArgs e)
-        {
-            RenderPanel.FormShown();
-            base.OnShown(e);
-        }
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            RenderPanel.FormClosed();
-            base.OnClosing(e);
-        }
         private void btnZoomExtents_Click(object sender, EventArgs e)
-        {
-            RenderPanel.UI.ZoomExtents();
-        }
+            => RenderPanel.UI.ZoomExtents();
         private void chkAutoTangents_Click(object sender, EventArgs e)
         {
             chkAutoTangents.Checked = !chkAutoTangents.Checked;
             RenderPanel.UI.AutoGenerateTangents = chkAutoTangents.Checked;
         }
-        private void chkSnapToIncrement_Click(object sender, EventArgs e)
+        private void chkSnapToUnits_Click(object sender, EventArgs e)
         {
-            chkSnapToIncrement.Checked = !chkSnapToIncrement.Checked;
-            RenderPanel.UI.SnapToUnits = chkSnapToIncrement.Checked;
+            chkSnapToUnits.Checked = !chkSnapToUnits.Checked;
+            RenderPanel.UI.SnapToUnits = chkSnapToUnits.Checked;
         }
     }
     public class PropAnimIntPlayerController : LocalPlayerController

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine;
@@ -7,65 +6,60 @@ using TheraEngine;
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     [PropGridControlFor(typeof(DateTime))]
-    public partial class PropGridDateTime : PropGridItem
+    public partial class PropGridDateTime :
+#if DEBUG
+        DesignerBugFixUserPropGridItem
+#else
+        PropGridItem
+#endif
     {
         public PropGridDateTime() => InitializeComponent();
         
-        protected DateTime _dateTime;
-
         protected override bool UpdateDisplayInternal(object value)
         {
             //Value is boxed as object, so this doesn't work
             //if (pnlProps.Visible && !ReferenceEquals(value, _object))
             //    LoadProperties(value);
             
-            _dateTime = (DateTime)value;
-            lblObjectTypeName.Text = value.ToString();
+            if (!IsEditing)
+                dateTimePicker1.Value = (DateTime)value;
             
             return false;
         }
-        
-        private void lblObjectTypeName_MouseEnter(object sender, EventArgs e)
+
+        private void _dialog_ValueChanged(object sender, EventArgs e)
         {
-            lblObjectTypeName.BackColor = chkNull.BackColor = Color.FromArgb(105, 140, 170);
+            if (IsEditing)
+                UpdateValue(dateTimePicker1.Value, false);
         }
 
-        private void lblObjectTypeName_MouseLeave(object sender, EventArgs e)
+        private void dateTimePicker1_DropDown(object sender, EventArgs e)
         {
-            lblObjectTypeName.BackColor = chkNull.BackColor = Color.Transparent;
-        }
-                
-        private void lblObjectTypeName_MouseDown(object sender, MouseEventArgs e)
-        {
-            ChooseDateTime();
+            _dropDownOpen = true;
+            IsEditing = true;
         }
 
-        private DateTimePicker _dialog = null;
-        private void chkNull_CheckedChanged(object sender, EventArgs e)
+        private void dateTimePicker1_MouseCaptureChanged(object sender, EventArgs e)
         {
-            if (_updating)
-                return;
-
-            if (chkNull.Checked)
-            {
-                UpdateValue(null, true);
-                if ((GetValue() is null))
-                    return;
-
-                Engine.PrintLine("Unable to set this property to null.");
-            }
-
-            ChooseDateTime();
+            //IsEditing = _mouseOver || _dropDownOpen;
         }
 
-        private void ChooseDateTime()
+        private void dateTimePicker1_CloseUp(object sender, EventArgs e)
         {
-            _dialog = new DateTimePicker();
-            _dialog.Value = _dateTime;
-            _dialog.ValueChanged += _dialog_ValueChanged;
-            _dialog.Show();
+            _dropDownOpen = false;
+            IsEditing = _mouseOver;
+            UpdateValue(dateTimePicker1.Value, true);
         }
 
-        private void _dialog_ValueChanged(object sender, EventArgs e) => UpdateValue(_dialog.Value, false);
+        private bool _mouseOver = false;
+        private bool _dropDownOpen = false;
+        private void dateTimePicker1_MouseEnter(object sender, EventArgs e)
+        {
+            _mouseOver = true;
+        }
+        private void dateTimePicker1_MouseLeave(object sender, EventArgs e)
+        {
+            _mouseOver = false;
+        }
     }
 }

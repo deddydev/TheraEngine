@@ -4,8 +4,11 @@ using TheraEditor.Core.Extensions;
 
 namespace TheraEditor.Windows.Forms
 {
-    public class AutoEllipseLabel : Label
+    public class AutoEllipsisLabel : Label
     {
+        public AutoEllipsisLabel()
+            => AutoEllipsis = true;
+        
         protected override void OnPaint(PaintEventArgs e)
         {
             using (Pen p = new Pen(new SolidBrush(BackColor)))

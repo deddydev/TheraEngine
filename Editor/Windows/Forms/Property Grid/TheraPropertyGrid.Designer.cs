@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.lblProperties = new System.Windows.Forms.Label();
-            this.lblObjectName = new System.Windows.Forms.Label();
+            this.lblObjectName = new AutoEllipsisLabel();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.ctxSceneComps = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.btnAddSiblingSceneComp = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,7 +49,7 @@
             this.pnlPropScroll = new System.Windows.Forms.Panel();
             this.pnlProps = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.pnlFile = new System.Windows.Forms.Panel();
-            this.lblFilePath = new AutoEllipseLabel();
+            this.lblFilePath = new AutoEllipsisLabel();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnSaveAs = new System.Windows.Forms.Button();
             this.tblActor = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
@@ -555,7 +555,7 @@
         private System.Windows.Forms.TreeView treeViewSceneComps;
         private System.Windows.Forms.ListBox lstLogicComps;
         public BetterTableLayoutPanel pnlProps;
-        private System.Windows.Forms.Label lblObjectName;
+        private AutoEllipsisLabel lblObjectName;
         private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Panel pnlLogicComps;
         public System.Windows.Forms.Button btnMoveUpLogicComp;
@@ -581,7 +581,7 @@
         private System.Windows.Forms.Panel pnlLogic;
         private System.Windows.Forms.Panel pnlPropScroll;
         private System.Windows.Forms.Panel pnlFile;
-        private AutoEllipseLabel lblFilePath;
+        private AutoEllipsisLabel lblFilePath;
         public System.Windows.Forms.Button btnSave;
         public System.Windows.Forms.Button btnSaveAs;
     }

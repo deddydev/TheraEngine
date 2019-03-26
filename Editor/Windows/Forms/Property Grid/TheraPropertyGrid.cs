@@ -1254,15 +1254,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         private void treeViewSceneComps_AfterExpand(object sender, TreeViewEventArgs e)
-        {
-            CalcSceneCompTreeHeight();
-        }
-
+            => CalcSceneCompTreeHeight();
         private void treeViewSceneComps_AfterCollapse(object sender, TreeViewEventArgs e)
-        {
-            CalcSceneCompTreeHeight();
-        }
-
+            => CalcSceneCompTreeHeight();
+        
         private void toolStripSeparator1_Click(object sender, EventArgs e)
         {
 

@@ -436,14 +436,27 @@ namespace TheraEditor
                 {
                     if (item.ElementName.EqualsInvariantIgnoreCase("Reference"))
                     {
-
+                        string includeAssemblyName = item.Include;
+                        var name = new AssemblyName(includeAssemblyName);
+                        var hintPath = item.GetChildren<ItemMetadata>().FirstOrDefault(x => x.ElementName.EqualsInvariantIgnoreCase("HintPath"));
+                        string path = name?.CodeBase ?? hintPath?.StringContent?.Value ?? null;
+                        if (!string.IsNullOrWhiteSpace(path) && 
+                            ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(path)) == null)
+                        {
+                            string fileName = Path.GetFileName(path);
+                            string newPath = Path.Combine(LibrariesDirectory, fileName);
+                            if (!File.Exists(newPath))
+                                File.Copy(path, newPath);
+                            ReferencedAssemblies.Add(new PathReference(newPath, EPathType.FileRelative));
+                        }
                     }
-
                 }
             }
         }
         public async Task GenerateSolutionAsync(bool forceRegenerateProgramDotCs = false)
         {
+            GetReferencedAssemblies();
+
             Process[] devenv = Process.GetProcessesByName("DevEnv");
             FileVersionInfo info = null;
             if (devenv.Length > 0)
@@ -468,8 +481,6 @@ namespace TheraEditor
             string csprojPath = Path.Combine(DirectoryPath, Name + ".csproj");
 
             int op;
-            Progress<float> progress;
-            CancellationTokenSource cancel;
 
             MSBuild.Project exportProj = new MSBuild.Project
             {
@@ -600,7 +611,7 @@ namespace TheraEditor
                 afterBuild);
 
             XMLSchemeDefinition<MSBuild.Project> csProjExporter = new XMLSchemeDefinition<MSBuild.Project>();
-            op = Editor.Instance.BeginOperation("Writing csproj...", out progress, out cancel);
+            op = Editor.Instance.BeginOperation("Writing csproj...", out Progress<float> progress, out CancellationTokenSource cancel);
             await csProjExporter.ExportAsync(csprojPath, exportProj, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
 

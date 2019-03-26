@@ -13,7 +13,21 @@ using static TheraEditor.Windows.Forms.TheraForm;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public abstract partial class PropGridItem : UserControl, IPropGridMemberOwner
+    public class DesignerBugFixUserPropGridItem : PropGridItem
+    {
+        protected override bool UpdateDisplayInternal(object value)
+        {
+            return false;
+        }
+    }
+    public class DesignerBugFixUserControl : UserControl { }
+    public abstract partial class PropGridItem :
+#if DEBUG
+        DesignerBugFixUserControl,
+#else
+        UserControl,
+#endif
+        IPropGridMemberOwner
     {
         private bool _isEditing = false;
         private object _oldValue, _newValue;
@@ -145,6 +159,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
             else
             {
+                //if (MemberInfo is PropGridMemberInfoProperty prop && prop.Property.DeclaringType.IsValueType)
+                //{
+                    
+                //}
                 MemberInfo.MemberValue = newValue;
                 newValue = MemberInfo.MemberValue;
             }

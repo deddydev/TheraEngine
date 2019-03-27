@@ -78,7 +78,7 @@ namespace TheraEngine.Actors
                 }
             }
         }
-        //[Browsable(false)]
+        [Browsable(false)]
         public DateTime SpawnTime { get; private set; }
         [Browsable(false)]
         public TimeSpan ActiveTime => DateTime.Now - SpawnTime;

@@ -74,7 +74,7 @@ namespace TheraEngine.Tests
             bool testDeferredDecal = true;
             bool testShapeTracer = false;
             bool testLandscape = true;
-            bool createWalls = true;
+            bool createWalls = false;
             int pointLights = 0;
             int dirLights = 1;
             int spotLights = 0;

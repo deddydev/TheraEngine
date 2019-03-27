@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-using TheraEngine;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -13,16 +10,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         PropGridItem
 #endif
     {
-        public PropGridDateTime() => InitializeComponent();
+        public PropGridDateTime()
+        {
+            InitializeComponent();
+        }
         
         protected override bool UpdateDisplayInternal(object value)
         {
             //Value is boxed as object, so this doesn't work
             //if (pnlProps.Visible && !ReferenceEquals(value, _object))
             //    LoadProperties(value);
-            
+
             if (!IsEditing)
-                dateTimePicker1.Value = (DateTime)value;
+            {
+                DateTime time = (DateTime)value;
+                time = time < DateTime.MinValue ? DateTime.MinValue : (time > DateTime.MaxValue ? DateTime.MaxValue : time);
+                dateTimePicker1.Value = time;
+            }
             
             return false;
         }

@@ -353,6 +353,7 @@
     <Compile Include="Actors\ComponentActors\Spline2DActor.cs" />
     <Compile Include="Actors\IActor.cs" />
     <Compile Include="Actors\BaseActor.cs" />
+    <Compile Include="Actors\Pawns\CutsceneCameraPawn.cs" />
     <Compile Include="Animation\Camera\PerspCamKeyCollection.cs" />
     <Compile Include="Animation\Model\BoneAnimation.cs" />
     <Compile Include="Animation\Property\Core\AnimationMember.cs" />

@@ -117,7 +117,7 @@ namespace TheraEngine.Core.Files
         {
             if (Engine.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 await ExportAsync(flags, progress, cancel.Token);
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);
@@ -136,7 +136,7 @@ namespace TheraEngine.Core.Files
         {
             if (Engine.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 await ExportAsync(directory, fileName, flags, progress, cancel.Token);
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);
@@ -154,7 +154,7 @@ namespace TheraEngine.Core.Files
         {
             if (Engine.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 await ExportAsync(path, flags, progress, cancel.Token);
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);

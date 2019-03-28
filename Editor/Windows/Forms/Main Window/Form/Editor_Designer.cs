@@ -979,7 +979,7 @@ namespace TheraEditor.Windows.Forms
         }
         private async void SaveFile(TFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
         {
-            int op = BeginOperation("Saving file...", out Progress<float> progress, out CancellationTokenSource cancel);
+            int op = BeginOperation("Saving file...", "File saved.", out Progress<float> progress, out CancellationTokenSource cancel);
             await file.ExportAsync(filePath, flags, progress, cancel.Token);
             EndOperation(op);
         }

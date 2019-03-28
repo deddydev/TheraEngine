@@ -63,8 +63,8 @@ namespace TheraEditor.Windows.Forms
         {
 
         }
-        private void btnCompile_Click(object sender, EventArgs e)
-            => Project.Compile();
+        private async void btnCompile_Click(object sender, EventArgs e)
+            => await Project.CompileAsync();
         private void visualStudioToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();

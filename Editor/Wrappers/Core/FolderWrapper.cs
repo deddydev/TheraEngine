@@ -292,13 +292,13 @@ namespace TheraEditor.Wrappers
                 //ResourceTree tree = Editor.Instance.ContentTree;
                 string path = ofd.FileName;
                         
-                int op = Editor.Instance.BeginOperation($"Importing '{path}'...", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Editor.Instance.BeginOperation($"Importing '{path}'...", "Import completed.", out Progress<float> progress, out CancellationTokenSource cancel);
                 object file = await TFileObject.LoadAsync(fileType, path, progress, cancel.Token);
                 Editor.Instance.EndOperation(op);
 
                 if (file == null)
                     return;
-                        
+                
                 FolderWrapper folderNode = GetInstance<FolderWrapper>();
                 string dir = folderNode.FilePath;
 
@@ -306,7 +306,7 @@ namespace TheraEditor.Wrappers
                     return;
 
                 Serializer serializer = new Serializer();
-                op = Editor.Instance.BeginOperation($"Saving...", out progress, out cancel);
+                op = Editor.Instance.BeginOperation($"Saving to '{filePath}'...", "Saved successfully.", out progress, out cancel);
                 await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
                 Editor.Instance.EndOperation(op);
             }
@@ -327,7 +327,7 @@ namespace TheraEditor.Wrappers
             //Node will automatically be added to the file tree
             if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
             {
-                int op = Editor.Instance.BeginOperation("Exporting...", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Editor.Instance.BeginOperation("Exporting...", "Export completed.", out Progress<float> progress, out CancellationTokenSource cancel);
                 string name = file.Name;
                 name = name.Replace("<", "[");
                 name = name.Replace(">", "]");
@@ -348,7 +348,7 @@ namespace TheraEditor.Wrappers
 
             string name = "NewCodeFile";
             string path = Path.Combine(dir, name + ".cs");
-            int op = Editor.Instance.BeginOperation("Saving script...", out Progress<float> progress, out CancellationTokenSource cancel);
+            int op = Editor.Instance.BeginOperation("Saving script...", "Script saved successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
             await code.Export3rdPartyAsync(dir, "NewCodeFile", "cs", progress, cancel.Token);
             Editor.Instance.EndOperation(op);
         }

@@ -12,7 +12,7 @@ namespace TheraEditor.Windows.Forms
     {
         private List<OperationInfo> _operations = new List<OperationInfo>();
 
-        public int BeginOperation(string statusBarMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null)
+        public int BeginOperation(string statusBarMessage, string finishedMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null)
         {
             Engine.PrintLine(statusBarMessage);
 
@@ -22,13 +22,13 @@ namespace TheraEditor.Windows.Forms
             progress = new Progress<float>();
             CancellationTokenSource cancelSource = maxOperationTime == null ? new CancellationTokenSource() : new CancellationTokenSource(maxOperationTime.Value);
 
-            _operations.Add(new OperationInfo(progress, cancelSource, OnOperationProgressUpdate, index, statusBarMessage));
+            _operations.Add(new OperationInfo(progress, cancelSource, OnOperationProgressUpdate, index, statusBarMessage, finishedMessage));
             cancel = cancelSource;
 
             if (noOps)
                 Engine.RegisterTick(null, TickOperationProgressBar, null);
 
-            void Finish()
+            void OnStarted()
             {
                 if (noOps)
                     toolStripProgressBar1.Value = 0;
@@ -38,9 +38,9 @@ namespace TheraEditor.Windows.Forms
             }
 
             if (InvokeRequired)
-                BeginInvoke((Action)Finish);
+                BeginInvoke((Action)OnStarted);
             else
-                Finish();
+                OnStarted();
             
             return index;
         }
@@ -103,16 +103,17 @@ namespace TheraEditor.Windows.Forms
             {
                 var info = _operations[index];
                 _operations[index] = null;
-                if (_operations.Count == 1)
-                {
-                    _operations.Clear();
-                    btnCancelOp.Visible = false;
-                    toolStripProgressBar1.Visible = false;
-                    TargetOperationValue = 0;
-                    toolStripStatusLabel1.Text = $"Operation completed successfully in {Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero)} seconds.";
-                    Engine.UnregisterTick(null, TickOperationProgressBar, null);
-                    return;
-                }
+
+                double sec = Math.Round(info.OperationDuration.TotalSeconds, 2, MidpointRounding.AwayFromZero);
+                string completeTime = " (Completed in ";
+                if (sec < 1.0)
+                    completeTime += (sec * 1000.0).ToString() + " ms)";
+                else
+                    completeTime += sec.ToString() + " sec)";
+
+                string message = info.FinishedMessage + completeTime;
+                toolStripStatusLabel1.Text = message;
+                Engine.PrintLine(message);
             }
 
             if (_operations.Count == 0 || _operations.All(x => x == null))
@@ -121,12 +122,11 @@ namespace TheraEditor.Windows.Forms
                 btnCancelOp.Visible = false;
                 toolStripProgressBar1.Visible = false;
                 TargetOperationValue = 0;
-                toolStripStatusLabel1.Text = null;
                 Engine.UnregisterTick(null, TickOperationProgressBar, null);
             }
             else if (_operations.Count(x => x != null) > 1)
             {
-                toolStripStatusLabel1.Text = "Waiting for multiple operations to finish...";
+                //toolStripStatusLabel1.Text = "Waiting for multiple operations to finish...";
             }
             else
             {
@@ -146,8 +146,9 @@ namespace TheraEditor.Windows.Forms
             public bool IsComplete => ProgressValue >= 0.99f;
             public bool CanCancel => _token != null && _token.Token.CanBeCanceled;
             public string StatusBarMessage { get; set; }
-
-            public OperationInfo(Progress<float> progress, CancellationTokenSource cancel, Action<int> updated, int index, string statusBarMessage)
+            public string FinishedMessage { get; set; }
+            
+            public OperationInfo(Progress<float> progress, CancellationTokenSource cancel, Action<int> updated, int index, string statusBarMessage, string finishedMessage)
             {
                 _updated = updated;
                 Progress = progress;
@@ -157,6 +158,7 @@ namespace TheraEditor.Windows.Forms
                 StartTime = DateTime.Now;
                 Index = index;
                 StatusBarMessage = statusBarMessage;
+                FinishedMessage = finishedMessage;
             }
             private void Progress_ProgressChanged(object sender, float progressValue)
             {

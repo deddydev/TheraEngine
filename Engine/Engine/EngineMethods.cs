@@ -726,7 +726,7 @@ namespace TheraEngine
         public static DelBeginOperation BeginOperation;
         public static DelEndOperation EndOperation;
 
-        public delegate int DelBeginOperation(string operationMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null);
+        public delegate int DelBeginOperation(string operationMessage, string finishedMessage, out Progress<float> progress, out CancellationTokenSource cancel, TimeSpan? maxOperationTime = null);
         public delegate void DelEndOperation(int operationId);
 
         public static bool IsFocused { get; private set; } = true;

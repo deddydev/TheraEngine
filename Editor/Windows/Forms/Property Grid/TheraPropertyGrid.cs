@@ -1300,7 +1300,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private async void Save(IFileObject file, string path)
         {
             Editor editor = Editor.Instance;
-            int op = editor.BeginOperation($"Saving {path}", out Progress<float> progress, out CancellationTokenSource cancel);
+            int op = editor.BeginOperation($"Property Grid: saving {path}", $"Property Grid: done saving {path}", out Progress<float> progress, out CancellationTokenSource cancel);
             await file.ExportAsync(path, ESerializeFlags.Default, progress, cancel.Token);
             editor.EndOperation(op);
 

@@ -307,7 +307,7 @@ namespace TheraEngine.Core.Files
             T file;
             if (Engine.BeginOperation != null)
             {
-                int op = Engine.BeginOperation($"Loading file from {filePath}...", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Loading file from {filePath}...", $"{filePath} loaded successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 file = (T)(await LoadAsync(typeof(T), filePath, progress, cancel.Token));
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);

@@ -30,11 +30,12 @@ namespace TheraEditor.Windows.Forms
             if (File == null)
                 return;
 
-            if (string.IsNullOrWhiteSpace(File.FilePath))
+            string path = File.FilePath;
+            if (string.IsNullOrWhiteSpace(path))
                 SaveAs();
             else
             {
-                int op = Editor.Instance.BeginOperation("Saving file...", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Editor.Instance.BeginOperation($"Saving {path}...", $"Successfully saved {path}.", out Progress<float> progress, out CancellationTokenSource cancel);
                 await File.RootFile.ExportAsync(ESerializeFlags.Default, progress, cancel.Token);
                 Editor.Instance.EndOperation(op);
             }

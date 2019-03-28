@@ -445,8 +445,25 @@ namespace TheraEditor
             if (!File.Exists(csprojPath))
                 return;
             
+            if (!LibrariesDirectory.IsValidExistingPath())
+            {
+                if (!string.IsNullOrWhiteSpace(DirectoryPath))
+                {
+                    if (string.IsNullOrWhiteSpace(LocalLibrariesDirectory))
+                        LocalLibrariesDirectory = "Lib" + Path.DirectorySeparatorChar;
+
+                    LibrariesDirectory = Path.GetFullPath(Path.Combine(DirectoryPath, LocalLibrariesDirectory));
+                    Directory.CreateDirectory(LibrariesDirectory);
+                }
+                else
+                {
+                    Engine.LogWarning("Project does not exist in a directory.");
+                    return;
+                }
+            }
+
             XMLSchemeDefinition<MSBuild.Project> csprojParser = new XMLSchemeDefinition<MSBuild.Project>();
-            int op = Editor.Instance.BeginOperation("Reading csproj...", out Progress<float> progress, out CancellationTokenSource cancel);
+            int op = Editor.Instance.BeginOperation($"Reading csproj... {csprojPath}", "Done reading csproj.", out Progress<float> progress, out CancellationTokenSource cancel);
             MSBuild.Project importProj = await csprojParser.ImportAsync(csprojPath, 0, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
 
@@ -456,29 +473,29 @@ namespace TheraEditor
                 Item[] items = itemGroup.GetChildren<Item>();
                 foreach (Item item in items)
                 {
-                    if (item.ElementName.EqualsInvariantIgnoreCase("Reference"))
+                    if (!item.ElementName.EqualsInvariantIgnoreCase("Reference"))
+                        continue;
+                    
+                    string assemblyNameStr = item.Include;
+                    var name = new AssemblyName(assemblyNameStr);
+                    var hintPath = item.GetChildren<ItemMetadata>().FirstOrDefault(x => x.ElementName.EqualsInvariantIgnoreCase("HintPath"));
+                    string path = name?.CodeBase ?? hintPath?.StringContent?.Value ?? null;
+                    if (string.IsNullOrWhiteSpace(path))
+                        continue;
+                    
+                    if (!path.IsAbsolutePath())
+                        path = Path.GetFullPath(Path.Combine(DirectoryPath, path));
+
+                    if (ReferencedAssemblies.Contains(path))
+                        ReferencedAssemblies.Remove(path);
+
+                    string fileName = Path.GetFileName(path);
+                    string newPath = Path.Combine(LibrariesDirectory, fileName);
+
+                    if (ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(newPath)) == null)
                     {
-                        string includeAssemblyName = item.Include;
-                        var name = new AssemblyName(includeAssemblyName);
-                        var hintPath = item.GetChildren<ItemMetadata>().FirstOrDefault(x => x.ElementName.EqualsInvariantIgnoreCase("HintPath"));
-                        string path = name?.CodeBase ?? hintPath?.StringContent?.Value ?? null;
-                        if (!string.IsNullOrWhiteSpace(path))
-                        {
-                            if (!path.IsAbsolutePath())
-                                path = Path.GetFullPath(Path.Combine(DirectoryPath, path));
-
-                            if (ReferencedAssemblies.Contains(path))
-                                ReferencedAssemblies.Remove(path);
-
-                            string fileName = Path.GetFileName(path);
-                            string newPath = Path.Combine(LibrariesDirectory, fileName);
-
-                            if (ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(newPath)) == null)
-                            {
-                                File.Copy(path, newPath, true);
-                                ReferencedAssemblies.Add(new PathReference(newPath, EPathType.FileRelative));
-                            }
-                        }
+                        File.Copy(path, newPath, true);
+                        ReferencedAssemblies.Add(new PathReference(newPath, EPathType.FileRelative));
                     }
                 }
             }
@@ -646,13 +663,14 @@ namespace TheraEditor
                 afterBuild);
 
             XMLSchemeDefinition<MSBuild.Project> csProjExporter = new XMLSchemeDefinition<MSBuild.Project>();
-            op = Editor.Instance.BeginOperation("Writing csproj...", out Progress<float> progress, out CancellationTokenSource cancel);
+            op = Editor.Instance.BeginOperation($"Writing csproj... {csprojPath}", "Done writing csproj.", out Progress<float> progress, out CancellationTokenSource cancel);
             await csProjExporter.ExportAsync(csprojPath, exportProj, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
 
             #endregion
 
             #region sln
+            Engine.PrintLine($"Writing sln... {SolutionPath}");
             //0 = project name, 1 = project GUID, 2 = project type
             //The first GUID is the GUID of a C# project package
             string projTmpl = "Project(\"{2}\") = \"{0}\", \"{0}.csproj\", \"{1}\"\nEndProject\n";
@@ -684,6 +702,7 @@ namespace TheraEditor
             string sln = string.Format(slnTmpl, projects, preSol, postSol, solutionGuid, majorVer.ToString(), ver);
 
             File.WriteAllText(SolutionPath, sln);
+            Engine.PrintLine($"Done writing sln.");
             #endregion
 
             //EnvDTE80.DTE2 dte = VisualStudioManager.CreateVSInstance();
@@ -698,6 +717,8 @@ namespace TheraEditor
             ////sln.AddFromFile(projPath, false);
             //sln.SaveAs(Path.Combine(slnDir, Name + ".sln"));
             //VisualStudioManager.VSInstanceClosed();
+
+            await CompileAsync();
         }
 
         public EngineLogger LastBuildLog { get; private set; }
@@ -710,6 +731,8 @@ namespace TheraEditor
             => Compile("Debug", IntPtr.Size == 8 ? "x64" : "x86");
         public void Compile(string buildConfiguration, string buildPlatform)
         {
+            Engine.PrintLine($"Compiling {buildConfiguration} {buildPlatform} {SolutionPath}");
+
             ProjectCollection pc = new ProjectCollection();
             Dictionary<string, string> props = new Dictionary<string, string>
             {
@@ -727,6 +750,23 @@ namespace TheraEditor
             {
                 ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
                 AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
+
+                var editorAssemblyPath = Assembly.GetExecutingAssembly().Location;
+                var editorFilePaths = Directory.GetFiles(Path.GetDirectoryName(editorAssemblyPath));
+                foreach (var editorFilePath in editorFilePaths)
+                {
+                    foreach (var compilePath in AssemblyPaths)
+                    {
+                        string fileName = Path.GetFileName(editorFilePath);
+                        string compileDir = Path.GetDirectoryName(compilePath);
+                        var filePaths = Directory.GetFiles(compileDir);
+                        if (!filePaths.Any(x => Path.GetFileName(x).EqualsInvariantIgnoreCase(fileName)))
+                        {
+                            string destPath = Path.Combine(compileDir, fileName);
+                            File.Copy(editorFilePath, destPath);
+                        }
+                    }
+                }
 
                 CreateGameDomain(true);
                 

@@ -171,8 +171,25 @@ namespace TheraEditor
                 UpdatePaths();
             }
         }
+
+        private EventList<PathReference> _referencedAssemblies = new EventList<PathReference>();
+
         [TSerialize]
-        public EventList<PathReference> ReferencedAssemblies { get; private set; }
+        public EventList<PathReference> ReferencedAssemblies
+        {
+            get => _referencedAssemblies;
+            private set
+            {
+                if (_referencedAssemblies != null)
+                    _referencedAssemblies.CollectionChanged -= _referencedAssemblies_CollectionChanged;
+                _referencedAssemblies = value ?? new EventList<PathReference>();
+                _referencedAssemblies.CollectionChanged += _referencedAssemblies_CollectionChanged;
+            }
+        }
+        private void _referencedAssemblies_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+
+        }
 
         private void UpdatePaths()
         {
@@ -317,7 +334,8 @@ namespace TheraEditor
         }
 
         public static async Task<TProject> CreateAsync(
-            string directory, string name,
+            string directory,
+            string name,
             UserSettings userSettings,
             EngineSettings engineSettings,
             EditorSettings editorSettings)
@@ -330,18 +348,21 @@ namespace TheraEditor
             string src = "Source" + Path.DirectorySeparatorChar;
             string ctt = "Content" + Path.DirectorySeparatorChar;
             string tmp = "Temp" + Path.DirectorySeparatorChar;
+            string lib = "Lib" + Path.DirectorySeparatorChar;
 
             string binDir = directory + bin;
             string cfgDir = directory + cfg;
             string srcDir = directory + src;
             string cttDir = directory + ctt;
             string tmpDir = directory + tmp;
+            string libDir = directory + lib;
 
             Directory.CreateDirectory(binDir);
             Directory.CreateDirectory(cfgDir);
             Directory.CreateDirectory(srcDir);
             Directory.CreateDirectory(cttDir);
             Directory.CreateDirectory(tmpDir);
+            Directory.CreateDirectory(libDir);
 
             ProjectState state = new ProjectState();
 
@@ -354,6 +375,7 @@ namespace TheraEditor
                 LocalSourceDirectory = src,
                 LocalContentDirectory = ctt,
                 LocalTempDirectory = tmp,
+                LocalLibrariesDirectory = lib,
 
                 FilePath
                     = GetFilePath<TProject>(directory, name,
@@ -416,7 +438,7 @@ namespace TheraEditor
 
             File.WriteAllText(SourceDirectory + "Program.cs", progCs.Replace('@', '{').Replace('#', '}'));
         }
-        public async void GetReferencedAssemblies()
+        public async Task GetReferencedAssemblies()
         {
             string csprojPath = Path.Combine(DirectoryPath, Name + ".csproj");
 
@@ -440,14 +462,22 @@ namespace TheraEditor
                         var name = new AssemblyName(includeAssemblyName);
                         var hintPath = item.GetChildren<ItemMetadata>().FirstOrDefault(x => x.ElementName.EqualsInvariantIgnoreCase("HintPath"));
                         string path = name?.CodeBase ?? hintPath?.StringContent?.Value ?? null;
-                        if (!string.IsNullOrWhiteSpace(path) && 
-                            ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(path)) == null)
+                        if (!string.IsNullOrWhiteSpace(path))
                         {
+                            if (!path.IsAbsolutePath())
+                                path = Path.GetFullPath(Path.Combine(DirectoryPath, path));
+
+                            if (ReferencedAssemblies.Contains(path))
+                                ReferencedAssemblies.Remove(path);
+
                             string fileName = Path.GetFileName(path);
                             string newPath = Path.Combine(LibrariesDirectory, fileName);
-                            if (!File.Exists(newPath))
-                                File.Copy(path, newPath);
-                            ReferencedAssemblies.Add(new PathReference(newPath, EPathType.FileRelative));
+
+                            if (ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(newPath)) == null)
+                            {
+                                File.Copy(path, newPath, true);
+                                ReferencedAssemblies.Add(new PathReference(newPath, EPathType.FileRelative));
+                            }
                         }
                     }
                 }
@@ -455,7 +485,10 @@ namespace TheraEditor
         }
         public async Task GenerateSolutionAsync(bool forceRegenerateProgramDotCs = false)
         {
-            GetReferencedAssemblies();
+            if (!string.IsNullOrWhiteSpace(_name))
+                Name = Path.GetFileNameWithoutExtension(FilePath);
+
+            await GetReferencedAssemblies();
 
             Process[] devenv = Process.GetProcessesByName("DevEnv");
             FileVersionInfo info = null;
@@ -545,6 +578,8 @@ namespace TheraEditor
             if (ReferencedAssemblies != null)
                 foreach (PathReference pathRef in ReferencedAssemblies)
                     assemblyPaths.Add(pathRef.Path);
+
+            //TODO: copy all editor / engine dlls to destination also
 
             foreach (string path in assemblyPaths)
             {

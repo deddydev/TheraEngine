@@ -108,7 +108,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (InvokeRequired)
             {
-                BeginInvoke((Action)(() => SetObject(value, memberAccessor)));
+                BeginInvoke((Action<object, string>)SetObject, value, memberAccessor);
                 return;
             }
 

@@ -122,7 +122,7 @@ namespace TheraEngine.Core.Files.XML
             CancellationToken cancel)
         {
             long currentBytes = 0L;
-            using (ProgressStream f = new ProgressStream(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read), null, null))
+            using (ProgressStream f = new ProgressStream(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), null, null))
             using (XmlReader r = XmlReader.Create(f, settings))
             {
                 if (progress != null)

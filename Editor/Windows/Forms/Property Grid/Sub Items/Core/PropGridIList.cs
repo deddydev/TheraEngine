@@ -91,6 +91,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private async void LoadList(IList list)
         {
+            if (propGridListItems.InvokeRequired)
+            {
+                propGridListItems.BeginInvoke((Action<IList>)LoadList, list);
+                return;
+            }
+
             propGridListItems.tblProps.SuspendLayout();
             propGridListItems.DestroyProperties();
 

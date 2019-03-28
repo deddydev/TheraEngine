@@ -24,7 +24,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (!IsEditing)
             {
                 DateTime time = (DateTime)value;
-                time = time < DateTime.MinValue ? DateTime.MinValue : (time > DateTime.MaxValue ? DateTime.MaxValue : time);
+                time = time < dateTimePicker1.MinDate ? dateTimePicker1.MinDate : (time > dateTimePicker1.MaxDate ? dateTimePicker1.MaxDate : time);
                 dateTimePicker1.Value = time;
             }
             

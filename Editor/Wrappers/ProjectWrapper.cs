@@ -27,7 +27,7 @@ namespace TheraEditor.Wrappers
 
         private async Task GenerateSolution()
         {
-            var res = Resource;
+            var res = await ResourceRef.GetInstanceAsync();
             if (res == null)
                 return;
 

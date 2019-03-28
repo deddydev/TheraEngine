@@ -11,9 +11,10 @@ namespace TheraEngine.Core.Files.Serialization
     {
         #region Tree
 
+        public event Action DoneReadingElements;
         public IList List { get; private set; }
 
-        public override async void DeserializeTreeToObject()
+        public override void DeserializeTreeToObject()
         {
             Type arrayType = TreeNode.ObjectType;
 
@@ -26,26 +27,30 @@ namespace TheraEngine.Core.Files.Serialization
                 else
                     List = Activator.CreateInstance(arrayType) as IList;
 
-                Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
-                for (int i = 0; i < count; ++i)
-                {
-                    SerializeElement node = TreeNode.Children[i];
-                    node.MemberInfo.MemberType = elementType;
-                    bool objSet = await node.DeserializeTreeToObject();
-                    node.ObjectChanged += Node_ObjectChanged;
-                    
-                    if (List.IsFixedSize)
-                        List[i] = node.Object;
-                    else
-                        List.Add(node.Object);
-                }
+                Task.Run(() => ReadElements(arrayType, count)).ContinueWith(t => DoneReadingElements?.Invoke());
                 
                 array = List;
             }
 
             TreeNode.Object = array;
         }
+        private async void ReadElements(Type arrayType, int count)
+        {
+            Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
+            for (int i = 0; i < count; ++i)
+            {
+                SerializeElement node = TreeNode.Children[i];
+                node.MemberInfo.MemberType = elementType;
+                bool objSet = await node.DeserializeTreeToObjectAsync();
 
+                node.ObjectChanged += Node_ObjectChanged;
+
+                if (List.IsFixedSize)
+                    List[i] = node.Object;
+                else
+                    List.Add(node.Object);
+            }
+        }
         private void Node_ObjectChanged(SerializeElement element, object previousObject)
         {
             int index = element.Parent.Children.IndexOf(element);

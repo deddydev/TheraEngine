@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -9,9 +10,10 @@ namespace TheraEngine.Core.Files.Serialization
     [ObjectSerializerFor(typeof(IDictionary))]
     public class DictionarySerializer : BaseObjectSerializer
     {
+        public event Action DoneReadingElements;
         public IDictionary Dictionary { get; private set; }
 
-        public override async void DeserializeTreeToObject()
+        public override void DeserializeTreeToObject()
         {
             int keyValCount = TreeNode.Children.Count;
             Type dicType = TreeNode.ObjectType;
@@ -22,6 +24,10 @@ namespace TheraEngine.Core.Files.Serialization
             if (keyValCount <= 0)
                 return;
 
+            Task.Run(() => ReadDictionary(dicType, keyValCount)).ContinueWith(t => DoneReadingElements?.Invoke());
+        }
+        private async void ReadDictionary(Type dicType, int keyValCount)
+        {
             Type[] args = dicType.GetGenericArguments();
             Type keyType = args[0];
             Type valType = args[1];
@@ -39,14 +45,14 @@ namespace TheraEngine.Core.Files.Serialization
                 SerializeElement valNode = keyValNode.Children[1];
 
                 keyNode.MemberInfo.MemberType = keyType;
-                bool keyObjSet = await keyNode.DeserializeTreeToObject();
+                bool keyObjSet = await keyNode.DeserializeTreeToObjectAsync();
                 //if (!keyObjSet)
                 {
                     keyNode.ObjectChanged += KeyNode_ObjectChanged;
                 }
 
                 valNode.MemberInfo.MemberType = valType;
-                bool valObjSet = await valNode.DeserializeTreeToObject();
+                bool valObjSet = await valNode.DeserializeTreeToObjectAsync();
                 //if (!valObjSet)
                 {
                     valNode.ObjectChanged += ValNode_ObjectChanged;

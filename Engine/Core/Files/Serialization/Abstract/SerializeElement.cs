@@ -383,7 +383,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// If this node's MemberInfo is set, 
         /// this method also applies the deserialized object to the parent.
         /// </summary>
-        public async Task<bool> DeserializeTreeToObject()
+        public async Task<bool> DeserializeTreeToObjectAsync()
         {
             DesiredDerivedObjectType = 
                 GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration) ? 

@@ -798,8 +798,9 @@ namespace TheraEditor
 
             string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
             string buildConfiguration = "Debug";
-            string rootDir = DirectoryPath + $"\\Bin\\{buildPlatform}\\{buildConfiguration}";
-            if (!Directory.Exists(rootDir) && !compiling)
+            
+            string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
+            if (!compiling && !Directory.Exists(rootDir))
             {
                 Compile(buildConfiguration, buildPlatform);
                 return;
@@ -815,22 +816,32 @@ namespace TheraEditor
                 };
 
                 _gameDomain = AppDomainContext.Create(setupInfo);
-                
-                foreach (string path in AssemblyPaths)
-                {
-                    FileInfo file = new FileInfo(path);
-                    if (!file.Exists)
-                        continue;
 
-                    PrintLine("Loading compiled assembly at " + path);
-                    _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                    _gameDomain.LoadAssemblyWithReferences(LoadMethod.LoadFrom, path);
+                if (AssemblyPaths != null)
+                {
+                    foreach (string path in AssemblyPaths)
+                    {
+                        FileInfo file = new FileInfo(path);
+                        if (!file.Exists)
+                            continue;
+
+                        PrintLine("Loading compiled assembly at " + path);
+                        _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
+                        _gameDomain.LoadAssemblyWithReferences(LoadMethod.LoadFrom, path);
+                    }
+                    //_gameDomain.Domain.DomainUnload += Domain_DomainUnload;
                 }
             }
             catch (Exception ex)
             {
                 Engine.LogException(ex);
             }
+        }
+
+        private void Domain_DomainUnload(object sender, EventArgs e)
+        {
+            _gameDomain = null;
+            Engine.PrintLine($"Unloaded game {nameof(AppDomain)}.");
         }
 
         public void CollectFiles(

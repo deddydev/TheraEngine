@@ -14,6 +14,7 @@ namespace TheraEngine.Core.Files.Serialization
     public class CommonObjectSerializer : BaseObjectSerializer
     {
         #region Reading
+        public event Action DoneReadingChildMembers;
         public override void DeserializeTreeToObject()
         {
             var (Count, Values) = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
@@ -39,7 +40,11 @@ namespace TheraEngine.Core.Files.Serialization
                 if (TreeNode.IsRoot)
                     fobj.FilePath = TreeNode.Owner.FilePath;
             }
-            
+
+            Task.Run(() => ReadChildren(values)).ContinueWith(t => DoneReadingChildMembers?.Invoke());
+        }
+        private async void ReadChildren(List<TSerializeMemberInfo> values)
+        {
             foreach (MethodInfo m in TreeNode.PreDeserializeMethods.OrderBy(x => x.GetCustomAttribute<TPreDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<TPreDeserialize>().Arguments);
 
@@ -53,20 +58,20 @@ namespace TheraEngine.Core.Files.Serialization
                     values.Remove(p);
 
             foreach (var member in values)
-                ReadMember(TreeNode, member, TreeNode.Object);
-            
+                await ReadMember(TreeNode, member, TreeNode.Object);
+
             foreach (var catMember in categorizedChildren)
             {
                 SerializeElement catNode = TreeNode.GetChildElement(catMember.Key);
                 if (catNode != null)
                     foreach (var member in catMember.Value)
-                        ReadMember(catNode, member, TreeNode.Object);
+                        await ReadMember(catNode, member, TreeNode.Object);
             }
 
             foreach (MethodInfo m in TreeNode.PostDeserializeMethods.OrderBy(x => x.GetCustomAttribute<TPostDeserialize>().Order))
                 m.Invoke(TreeNode.Object, m.GetCustomAttribute<TPostDeserialize>().Arguments);
         }
-        private async void ReadMember(SerializeElement parentNode, TSerializeMemberInfo member, object o)
+        private async Task ReadMember(SerializeElement parentNode, TSerializeMemberInfo member, object o)
         {
             SerializeElement node = parentNode.GetChildElement(member.Name);
             if (node != null)
@@ -74,7 +79,7 @@ namespace TheraEngine.Core.Files.Serialization
                 node.MemberInfo = member;
                 bool customInvoked = await TryInvokeManualParentDeserializeAsync(member, parentNode, node);
                 if (!customInvoked)
-                    await node.DeserializeTreeToObject();
+                    await node.DeserializeTreeToObjectAsync();
             }
             else
             {

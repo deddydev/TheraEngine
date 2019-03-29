@@ -7,8 +7,8 @@ namespace TheraEngine.Physics
     {
         public bool CollisionEnabled = true;
         public bool SimulatePhysics = true;
-        public TCollisionGroup CollisionGroup = TCollisionGroup.Default;
-        public TCollisionGroup CollidesWith = TCollisionGroup.All;
+        public ETheraCollisionGroup CollisionGroup = ETheraCollisionGroup.Default;
+        public ETheraCollisionGroup CollidesWith = ETheraCollisionGroup.All;
         
         public float WaterOffset { get; set; }
         public Vec3 WaterNormal { get; set; }

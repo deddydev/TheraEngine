@@ -233,8 +233,8 @@ namespace TheraEngine.Actors.Types.Pawns
                 CollisionEnabled = true,
                 SimulatePhysics = true,
                 SleepingEnabled = false,
-                CollisionGroup = (ushort)TCollisionGroup.Characters,
-                CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
+                CollisionGroup = (ushort)ETheraCollisionGroup.Characters,
+                CollidesWith = (ushort)(ETheraCollisionGroup.StaticWorld | ETheraCollisionGroup.DynamicWorld),
             };
 
             CapsuleYComponent rootCapsule = new CapsuleYComponent(radius, halfHeight, info);

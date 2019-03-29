@@ -129,8 +129,8 @@ namespace TheraEngine.Tests
                         LinearSleepingThreshold = 0.0f,
                         AngularSleepingThreshold = 0.0f,
                         //CcdSweptSphereRadius = radius * 0.95f,
-                        CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
-                        CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld),
+                        CollisionGroup = (ushort)ETheraCollisionGroup.DynamicWorld,
+                        CollidesWith = (ushort)(ETheraCollisionGroup.StaticWorld | ETheraCollisionGroup.DynamicWorld),
                     };
                     Actor<StaticMeshComponent> sphere = //((x ^ z) & 1) == 0 ?
                         //(Actor<StaticMeshComponent>)new ConeActor("TestCone" + (y++).ToString(), radius, radius * 2.0f, new Vec3(x * originDist, 0.0f, z * originDist), Rotator.GetZero(), mat, cinfo, 20) :
@@ -195,8 +195,8 @@ namespace TheraEngine.Tests
                             UseMotionState = false,
                             SimulatePhysics = false,
                             CollisionEnabled = true,
-                            CollidesWith = (ushort)(~TCollisionGroup.StaticWorld & TCollisionGroup.All),
-                            CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+                            CollidesWith = (ushort)(~ETheraCollisionGroup.StaticWorld & ETheraCollisionGroup.All),
+                            CollisionGroup = (ushort)ETheraCollisionGroup.StaticWorld,
                             Restitution = 0.5f,
                             Mass = 50.0f,
                         });
@@ -294,8 +294,8 @@ namespace TheraEngine.Tests
                 }
                 TRigidBodyConstructionInfo landscapeInfo = new TRigidBodyConstructionInfo()
                 {
-                    CollidesWith = (ushort)(TCollisionGroup.All & ~TCollisionGroup.StaticWorld),
-                    CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
+                    CollidesWith = (ushort)(ETheraCollisionGroup.All & ~ETheraCollisionGroup.StaticWorld),
+                    CollisionGroup = (ushort)ETheraCollisionGroup.StaticWorld,
                     IsKinematic = true,
                 };
 
@@ -408,7 +408,7 @@ namespace TheraEngine.Tests
             _renderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
             _sphere = TCollisionSphere.New(2.0f);
             _shapeCast = new ShapeTraceClosest(_sphere, Matrix4.Identity, Matrix4.Identity,
-                (ushort)(TCollisionGroup.DynamicWorld), (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
+                (ushort)(ETheraCollisionGroup.DynamicWorld), (ushort)(ETheraCollisionGroup.StaticWorld | ETheraCollisionGroup.DynamicWorld));
         }
 
         private Vec3 _direction;

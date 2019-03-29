@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Actors;
 using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Physics;
 
 namespace TheraEngine.Components.Scene.Volumes
 {
@@ -14,6 +15,13 @@ namespace TheraEngine.Components.Scene.Volumes
         public TriggerVolumeComponent()
             : base(null) { }
         public TriggerVolumeComponent(Vec3 halfExtents)
-            : base(halfExtents, null) { }
+            : base(halfExtents, new TRigidBodyConstructionInfo()
+            {
+                UseMotionState = false,
+                SimulatePhysics = true,
+                CollisionEnabled = false,
+                CollidesWith = (ushort)ETheraCollisionGroup.All,
+                CollisionGroup = (ushort)ETheraCollisionGroup.Volumes,
+            }) { }
     }
 }

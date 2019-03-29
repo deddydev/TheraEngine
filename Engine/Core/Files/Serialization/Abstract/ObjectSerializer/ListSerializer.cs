@@ -13,26 +13,35 @@ namespace TheraEngine.Core.Files.Serialization
 
         public event Action DoneReadingElements;
         public IList List { get; private set; }
+        public bool DeserializeAsync { get; private set; } = false;
 
         public override void DeserializeTreeToObject()
         {
-            Type arrayType = TreeNode.ObjectType;
+            Type listType = TreeNode.ObjectType;
 
-            if (!TreeNode.Content.GetObject(arrayType, out object array))
+            if (!TreeNode.Content.GetObject(listType, out object list))
             {
                 int count = TreeNode.Children.Count;
                 
-                if (arrayType.IsArray)
-                    List = Activator.CreateInstance(arrayType, count) as IList;
+                if (listType.IsArray)
+                    List = Activator.CreateInstance(listType, count) as IList;
                 else
-                    List = Activator.CreateInstance(arrayType) as IList;
-
-                Task.Run(() => ReadElements(arrayType, count)).ContinueWith(t => DoneReadingElements?.Invoke());
+                    List = Activator.CreateInstance(listType) as IList;
                 
-                array = List;
+                TreeNode.MemberInfo.mem
+
+                if (DeserializeAsync)
+                    Task.Run(() => ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke());
+                else
+                {
+                    ReadElements(listType, count);
+                    DoneReadingElements?.Invoke();
+                }
+
+                list = List;
             }
 
-            TreeNode.Object = array;
+            TreeNode.Object = list;
         }
         private async void ReadElements(Type arrayType, int count)
         {

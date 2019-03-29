@@ -34,8 +34,8 @@ namespace TheraEngine.Components.Logic.Movement
         private bool _postWalkAllowJump = false, _justJumped = false;
         private ShapeTraceClosest _closestTrace = new ShapeTraceClosest(
             null, Matrix4.Identity, Matrix4.Identity,
-            (ushort)TCollisionGroup.Characters,
-            (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld));
+            (ushort)ETheraCollisionGroup.Characters,
+            (ushort)(ETheraCollisionGroup.StaticWorld | ETheraCollisionGroup.DynamicWorld));
         #endregion
 
         #region Properties

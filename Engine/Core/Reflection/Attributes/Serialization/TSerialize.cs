@@ -57,6 +57,8 @@ namespace System.ComponentModel
         /// </summary>
         public bool UseCategory { get; set; } = false;
 
+        public bool DeserializeAsync { get; set; } = false;
+
         /// <summary>
         /// Determines if this field should not be written if it is null or default.
         /// </summary>

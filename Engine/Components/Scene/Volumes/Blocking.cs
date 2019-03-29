@@ -8,6 +8,8 @@ namespace TheraEngine.Components.Scene.Volumes
 {
     public class BlockingVolumeComponent : BoxComponent
     {
+        public BlockingVolumeComponent()
+            : this(Vec3.Half, Vec3.Zero, Rotator.GetZero(), 0, 0) { }
         public BlockingVolumeComponent(Vec3 halfExtents, Vec3 translation, Rotator rotation, ushort collisionGroup, ushort collidesWith)
             : base(halfExtents, new TRigidBodyConstructionInfo()
             {

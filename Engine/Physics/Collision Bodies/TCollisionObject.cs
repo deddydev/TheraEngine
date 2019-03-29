@@ -7,7 +7,7 @@ using TheraEngine.Worlds;
 namespace TheraEngine.Physics
 {
     [Flags]
-    public enum TCollisionGroup : ushort
+    public enum ETheraCollisionGroup : ushort
     {
         All             = 0xFFFF,
         None            = 0x0000,
@@ -21,6 +21,8 @@ namespace TheraEngine.Physics
         Interactables   = 0x0080,
         Projectiles     = 0x0100,
         Camera          = 0x0200,
+        Volumes         = 0x0400,
+        Foliage         = 0x0800,
     }
     public interface ICollidable
     {

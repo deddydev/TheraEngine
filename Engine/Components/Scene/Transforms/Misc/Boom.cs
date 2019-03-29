@@ -87,7 +87,7 @@ namespace TheraEngine.Components.Scene.Transforms
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.Translation;
 
-            ShapeTraceClosest result = new ShapeTraceClosest(_traceShape, startMatrix, endMatrix, (ushort)TCollisionGroup.Camera, (ushort)TCollisionGroup.All, IgnoreCast);
+            ShapeTraceClosest result = new ShapeTraceClosest(_traceShape, startMatrix, endMatrix, (ushort)ETheraCollisionGroup.Camera, (ushort)ETheraCollisionGroup.All, IgnoreCast);
 
             Vec3 newEndPoint;
             if (result.Trace(OwningWorld))

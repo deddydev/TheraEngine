@@ -14,7 +14,10 @@ namespace TheraEngine.Core.Files.Serialization
     public class CommonObjectSerializer : BaseObjectSerializer
     {
         #region Reading
+
         public event Action DoneReadingChildMembers;
+        public bool DeserializeAsync { get; private set; } = false;
+
         public override void DeserializeTreeToObject()
         {
             var (Count, Values) = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
@@ -41,7 +44,13 @@ namespace TheraEngine.Core.Files.Serialization
                     fobj.FilePath = TreeNode.Owner.FilePath;
             }
 
-            Task.Run(() => ReadChildren(values)).ContinueWith(t => DoneReadingChildMembers?.Invoke());
+            if (DeserializeAsync)
+                Task.Run(() => ReadChildren(values)).ContinueWith(t => DoneReadingChildMembers?.Invoke());
+            else
+            {
+                ReadChildren(values);
+                DoneReadingChildMembers?.Invoke();
+            }
         }
         private async void ReadChildren(List<TSerializeMemberInfo> values)
         {

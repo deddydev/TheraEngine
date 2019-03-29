@@ -87,13 +87,13 @@ namespace TheraEngine.Physics
 
                 HasContactResponse = _collisionEnabled;
 
-                if (_collisionEnabled)
-                    CollidesWith = _previousCollidesWith;
-                else
-                {
-                    _previousCollidesWith = CollidesWith;
-                    CollidesWith = 0;
-                }
+                //if (_collisionEnabled)
+                //    CollidesWith = _previousCollidesWith;
+                //else
+                //{
+                //    _previousCollidesWith = CollidesWith;
+                //    CollidesWith = 0;
+                //}
             }
         }
 

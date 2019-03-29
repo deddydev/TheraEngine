@@ -43,8 +43,8 @@ namespace TheraEngine.Tests
                     RollingFriction = 0.1f,
                     CollisionEnabled = true,
                     SimulatePhysics = true,
-                    CollisionGroup = (ushort)TCollisionGroup.DynamicWorld,
-                    CollidesWith = (ushort)(TCollisionGroup.StaticWorld | TCollisionGroup.DynamicWorld | TCollisionGroup.Characters | TCollisionGroup.Camera),
+                    CollisionGroup = (ushort)ETheraCollisionGroup.DynamicWorld,
+                    CollidesWith = (ushort)(ETheraCollisionGroup.StaticWorld | ETheraCollisionGroup.DynamicWorld | ETheraCollisionGroup.Characters | ETheraCollisionGroup.Camera),
                 };
                 float x = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.X;
                 float y = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Y;
@@ -69,8 +69,8 @@ namespace TheraEngine.Tests
                 Restitution = 0.5f,
                 CollisionEnabled = true,
                 SimulatePhysics = false,
-                CollisionGroup = (ushort)TCollisionGroup.StaticWorld,
-                CollidesWith = (ushort)(TCollisionGroup.Characters | TCollisionGroup.DynamicWorld | TCollisionGroup.Camera),
+                CollisionGroup = (ushort)ETheraCollisionGroup.StaticWorld,
+                CollidesWith = (ushort)(ETheraCollisionGroup.Characters | ETheraCollisionGroup.DynamicWorld | ETheraCollisionGroup.Camera),
             };
             BoxActor floorActor1 = new BoxActor(
                 "Floor1",

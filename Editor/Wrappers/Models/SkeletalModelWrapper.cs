@@ -29,12 +29,28 @@ namespace TheraEditor.Wrappers
         
         public SkeletalModelWrapper() : base() { }
 
+        private ModelEditorForm _form;
+
         public override async void EditResource()
         {
-            ModelEditorForm d = new ModelEditorForm();
-            d.Show();
-            var mdl = await ResourceRef.GetInstanceAsync();
-            d.SetModel(mdl);
+            if (_form == null || _form.Disposing || _form.IsDisposed)
+            {
+                var modelTask = ResourceRef.GetInstanceAsync();
+
+                _form = new ModelEditorForm();
+                _form.FormClosed += _form_FormClosed;
+                _form.Show();
+
+                var model = await modelTask;
+                _form.SetModel(model);
+            }
+            else
+                _form.Focus();
+        }
+        private void _form_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _form.FormClosed -= _form_FormClosed;
+            _form = null;
         }
     }
 }

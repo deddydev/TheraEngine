@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Shapes;
 using TheraEngine.Physics;
@@ -15,9 +16,9 @@ namespace TheraEngine.Rendering.Models
     {
         public StaticModel() : base() { }
         public StaticModel(string name) { _name = name; }
-
-        public List<StaticRigidSubMesh> RigidChildren => _rigidChildren;
-        public List<StaticSoftSubMesh> SoftChildren => _softChildren;
+        
+        public EventList<StaticRigidSubMesh> RigidChildren => _rigidChildren;
+        public EventList<StaticSoftSubMesh> SoftChildren => _softChildren;
 
         [TSerialize]
         public TCollisionShape CollisionShape { get; set; }
@@ -33,9 +34,9 @@ namespace TheraEngine.Rendering.Models
         //}
 
         [TSerialize(nameof(RigidChildren))]
-        protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();
+        protected EventList<StaticRigidSubMesh> _rigidChildren = new EventList<StaticRigidSubMesh>();
         [TSerialize(nameof(SoftChildren))]
-        protected List<StaticSoftSubMesh> _softChildren = new List<StaticSoftSubMesh>();
+        protected EventList<StaticSoftSubMesh> _softChildren = new EventList<StaticSoftSubMesh>();
         
         /// <summary>
         /// Calculates the fully-encompassing aabb for this model based on each child mesh's aabb.

@@ -7,6 +7,7 @@ using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
 using TheraEngine.Physics;
 using TheraEngine.Rendering;
+using System.Linq;
 
 namespace TheraEngine.Components.Scene.Mesh
 {
@@ -111,6 +112,7 @@ namespace TheraEngine.Components.Scene.Mesh
             {
                 if (_modelRef == value)
                     return;
+
                 if (Meshes != null)
                 {
                     if (IsSpawned)
@@ -118,9 +120,14 @@ namespace TheraEngine.Components.Scene.Mesh
                             mesh.RenderInfo.Visible = false;
                     Meshes = null;
                 }
+
                 _modelRef.UnregisterLoadEvent(OnModelLoaded);
+                _modelRef.UnregisterUnloadEvent(OnModelUnloaded);
+
                 _modelRef = value ?? new GlobalFileRef<StaticModel>();
+
                 _modelRef.RegisterLoadEvent(OnModelLoaded);
+                _modelRef.RegisterUnloadEvent(OnModelUnloaded);
             }
         }
 
@@ -155,29 +162,74 @@ namespace TheraEngine.Components.Scene.Mesh
 
 
         [Category("Static Mesh Component")]
-        public StaticRenderableMesh[] Meshes { get; private set; } = null;
+        public List<StaticRenderableMesh> Meshes { get; private set; } = null;
 
+        private void OnModelUnloaded(StaticModel model)
+        {
+            if (model == null)
+                return;
+
+            model.RigidChildren.PostAnythingAdded -= RigidChildren_PostAnythingAdded;
+            model.RigidChildren.PostAnythingRemoved -= RigidChildren_PostAnythingRemoved;
+            model.SoftChildren.PostAnythingAdded -= SoftChildren_PostAnythingAdded;
+            model.SoftChildren.PostAnythingRemoved -= SoftChildren_PostAnythingRemoved;
+
+            foreach (var mesh in Meshes)
+                mesh?.RenderInfo?.UnlinkScene();
+            Meshes.Clear();
+        }
         private void OnModelLoaded(StaticModel model)
         {
             if (model == null)
                 return;
-            Meshes = new StaticRenderableMesh[model.RigidChildren.Count + model.SoftChildren.Count];
+
+            model.RigidChildren.PostAnythingAdded += RigidChildren_PostAnythingAdded;
+            model.RigidChildren.PostAnythingRemoved += RigidChildren_PostAnythingRemoved;
+            model.SoftChildren.PostAnythingAdded += SoftChildren_PostAnythingAdded;
+            model.SoftChildren.PostAnythingRemoved += SoftChildren_PostAnythingRemoved;
+
+            Meshes = new List<StaticRenderableMesh>(model.RigidChildren.Count + model.SoftChildren.Count);
+
             for (int i = 0; i < model.RigidChildren.Count; ++i)
-            {
-                StaticRenderableMesh m = new StaticRenderableMesh(model.RigidChildren[i], this);
-                if (IsSpawned)
-                    m.RenderInfo.LinkScene(m, OwningScene3D);
-                Meshes[i] = m;
-            }
+                RigidChildren_PostAnythingAdded(model.RigidChildren[i]);
             for (int i = 0; i < model.SoftChildren.Count; ++i)
-            {
-                StaticRenderableMesh m = new StaticRenderableMesh(model.SoftChildren[i], this);
-                if (IsSpawned)
-                    m.RenderInfo.LinkScene(m, OwningScene3D);
-                Meshes[model.RigidChildren.Count + i] = m;
-            }
+                SoftChildren_PostAnythingAdded(model.SoftChildren[i]);
+
             ModelLoaded?.Invoke();
         }
+        private void RigidChildren_PostAnythingAdded(StaticRigidSubMesh item)
+        {
+            StaticRenderableMesh m = new StaticRenderableMesh(item, this);
+            if (IsSpawned)
+                m.RenderInfo.LinkScene(m, OwningScene3D);
+            Meshes.Add(m);
+        }
+        private void RigidChildren_PostAnythingRemoved(StaticRigidSubMesh item)
+        {
+            int match = Meshes.FindIndex(x => x.Mesh == item);
+            if (Meshes.IndexInRange(match))
+            {
+                Meshes[match]?.RenderInfo?.UnlinkScene();
+                Meshes.RemoveAt(match);
+            }
+        }
+        private void SoftChildren_PostAnythingAdded(StaticSoftSubMesh item)
+        {
+            StaticRenderableMesh m = new StaticRenderableMesh(item, this);
+            if (IsSpawned)
+                m.RenderInfo.LinkScene(m, OwningScene3D);
+            Meshes.Add(m);
+        }
+        private void SoftChildren_PostAnythingRemoved(StaticSoftSubMesh item)
+        {
+            int match = Meshes.FindIndex(x => x.Mesh == item);
+            if (Meshes.IndexInRange(match))
+            {
+                Meshes[match]?.RenderInfo?.UnlinkScene();
+                Meshes.RemoveAt(match);
+            }
+        }
+
         public override void OnSpawned()
         {
             if (Meshes == null)

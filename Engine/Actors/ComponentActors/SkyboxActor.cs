@@ -116,8 +116,8 @@ namespace TheraEngine.Actors.Types
                         lod.MaterialRef.File = _material;
                 }
 
-                StaticRenderableMesh[] renderMeshes = RootComponent?.Meshes;
-                if (renderMeshes == null || renderMeshes.Length <= 0)
+                var renderMeshes = RootComponent?.Meshes;
+                if (renderMeshes == null || renderMeshes.Count <= 0)
                     return;
 
                 StaticRenderableMesh rmesh = renderMeshes[0];
@@ -183,8 +183,8 @@ namespace TheraEngine.Actors.Types
                 }
             }
 
-            StaticRenderableMesh[] renderMeshes = RootComponent?.Meshes;
-            if (renderMeshes == null || renderMeshes.Length <= 0 || renderMeshes[0] == null)
+            var renderMeshes = RootComponent?.Meshes;
+            if (renderMeshes == null || renderMeshes.Count <= 0 || renderMeshes[0] == null)
                 return;
             
             StaticRenderableMesh rmesh = renderMeshes[0];

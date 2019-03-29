@@ -454,8 +454,8 @@
     <Compile Include="Core\Files\Serialization\Abstract\SerializeAttribute.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\WriterBinary.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\CommonObjectSerializer.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\DictionarySerializer.cs" />
-    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\ListSerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IDictionarySerializer.cs" />
+    <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IListSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\BaseObjectSerializer.cs" />
     <None Include="Core\Files\Serialization\VarInfo.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\AbstractReader.cs" />

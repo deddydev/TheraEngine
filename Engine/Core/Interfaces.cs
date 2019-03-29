@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
@@ -44,7 +41,7 @@ namespace TheraEngine
     }
     public interface IBaseSubMesh : IObject
     {
-        List<LOD> LODs { get; }
+        EventList<LOD> LODs { get; }
         ERenderPass RenderPass { get; set; }
         RenderInfo3D RenderInfo { get; set; }
     }

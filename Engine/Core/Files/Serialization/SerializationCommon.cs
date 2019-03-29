@@ -39,6 +39,7 @@ namespace TheraEngine.Core.Files.Serialization
         public ENodeType NodeType { get; set; }
         public int Order { get; set; }
         public string Condition { get; set; }
+        public bool DeserializeAsync { get; set; }
 
         public TSerializeMemberInfo(Type memberType, string name, string category = null, bool state = true, bool config = true, ENodeType nodeType = ENodeType.ChildElement, int order = 0, string condition = null)
         {
@@ -76,6 +77,7 @@ namespace TheraEngine.Core.Files.Serialization
                 NodeType = attrib.NodeType;
                 Order = attrib.Order;
                 Condition = attrib.Condition;
+                DeserializeAsync = attrib.DeserializeAsync;
             }
 
             if (attrib == null || !attrib.UseCategory)

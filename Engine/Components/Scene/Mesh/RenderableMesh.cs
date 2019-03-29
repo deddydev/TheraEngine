@@ -27,7 +27,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             _component = component;
 
-            LODs = new LinkedList<RenderableLOD>(lods.Select(x =>
+            LODs = lods.Select(x =>
             {
                 RenderableLOD lod = new RenderableLOD()
                 {
@@ -40,26 +40,28 @@ namespace TheraEngine.Components.Scene.Mesh
                 //    lod.Manager.Material.Requirements = TMaterial.UniformRequirements.NeedsCamera;
                 //}
                 return lod;
-            }));
+            }).ToList();
 
-            _currentLOD = LODs.Last;
+            CurrentLODIndex = LODs.Count - 1;
 
             RenderInfo = renderInfo;
             RenderCommand.RenderPass = renderPass;
         }
 
         protected SceneComponent _component;
-        protected LinkedListNode<RenderableLOD> _currentLOD;
         private Matrix4 _initialCullingVolumeMatrix;
         private RenderInfo3D _renderInfo = new RenderInfo3D();
 
         [Browsable(false)]
-        public RenderableLOD CurrentLOD => _currentLOD.Value;
+        public RenderableLOD CurrentLOD => LODs.IndexInRange(CurrentLODIndex) ? LODs[CurrentLODIndex] : (LODs.Count > 0 ? LODs[LODs.Count - 1] : null);
+        [Browsable(false)]
+        public int CurrentLODIndex { get; private set; }
         [Browsable(false)]
         public Scene3D OwningScene3D => _component?.OwningScene3D;
         [Browsable(false)]
         [DisplayName("Levels Of Detail")]
-        public LinkedList<RenderableLOD> LODs { get; private set; }
+        public List<RenderableLOD> LODs { get; private set; }
+
         public RenderInfo3D RenderInfo
         {
             get => _renderInfo;
@@ -101,22 +103,27 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             while (true)
             {
-                if (viewDist < _currentLOD.Value.VisibleDistance)
+                var currentLOD = CurrentLOD;
+                if (currentLOD == null)
+                    break;
+
+                if (viewDist < currentLOD.VisibleDistance)
                 {
-                    if (_currentLOD.Previous != null)
-                        _currentLOD = _currentLOD.Previous;
+                    if (CurrentLODIndex - 1 >= 0)
+                        --CurrentLODIndex;
                     else
                         break;
                 }
                 else
                 {
-                    if (_currentLOD.Next != null && viewDist >= _currentLOD.Next.Value.VisibleDistance)
-                        _currentLOD = _currentLOD.Next;
+                    if (CurrentLODIndex + 1 < LODs.Count && viewDist >= LODs[CurrentLODIndex + 1].VisibleDistance)
+                        ++CurrentLODIndex;
                     else
                         break;
                 }
             }
         }
+
         public void Destroy()
         {
             foreach (var lod in LODs)
@@ -127,23 +134,43 @@ namespace TheraEngine.Components.Scene.Mesh
         public void AddRenderables(RenderPasses passes, Camera camera)
         {
             float distance = camera?.DistanceFromScreenPlane(_component?.WorldPoint ?? Vec3.Zero) ?? 0.0f;
+
             if (!passes.ShadowPass)
                 UpdateLOD(distance);
-            RenderCommand.Mesh = _currentLOD.Value.Manager;
+
+            RenderCommand.Mesh = CurrentLOD?.Manager;
             RenderCommand.WorldMatrix = _component.WorldMatrix;
             RenderCommand.NormalMatrix = _component.InverseWorldMatrix.Transposed().GetRotationMatrix3();
             RenderCommand.RenderDistance = distance;
+
             passes.Add(RenderCommand);
+        }
+
+        protected void LODs_PostAnythingRemoved(LOD item)
+        {
+            LODs.RemoveAt(LODs.Count - 1);
+        }
+        protected void LODs_PostAnythingAdded(LOD item)
+        {
+            LODs.Add(new RenderableLOD()
+            {
+                VisibleDistance = item.VisibleDistance,
+                Manager = item.CreatePrimitiveManager(),
+            });
         }
     }
     public class StaticRenderableMesh : BaseRenderableMesh3D
     {
         [Browsable(false)]
         public IStaticSubMesh Mesh { get; set; }
-        
+
         public StaticRenderableMesh(IStaticSubMesh mesh, SceneComponent component)
             : base(mesh.LODs, mesh.RenderPass, mesh.RenderInfo, component)
-            => Mesh = mesh;
+        {
+            Mesh = mesh;
+            Mesh.LODs.PostAnythingAdded += LODs_PostAnythingAdded;
+            Mesh.LODs.PostAnythingRemoved += LODs_PostAnythingRemoved;
+        }
         
         public override string ToString() => Mesh.Name;
     }
@@ -154,6 +181,8 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             Mesh = mesh;
             Skeleton = skeleton;
+            Mesh.LODs.PostAnythingAdded += LODs_PostAnythingAdded;
+            Mesh.LODs.PostAnythingRemoved += LODs_PostAnythingRemoved;
         }
         
         //private Bone _singleBind;

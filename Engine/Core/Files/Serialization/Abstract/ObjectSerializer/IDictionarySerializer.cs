@@ -8,7 +8,7 @@ using TheraEngine.Core.Memory;
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectSerializerFor(typeof(IDictionary))]
-    public class DictionarySerializer : BaseObjectSerializer
+    public class IDictionarySerializer : BaseObjectSerializer
     {
         public event Action DoneReadingElements;
         public IDictionary Dictionary { get; private set; }
@@ -16,6 +16,8 @@ namespace TheraEngine.Core.Files.Serialization
 
         public override void DeserializeTreeToObject()
         {
+            DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
+
             int keyValCount = TreeNode.Children.Count;
             Type dicType = TreeNode.ObjectType;
 

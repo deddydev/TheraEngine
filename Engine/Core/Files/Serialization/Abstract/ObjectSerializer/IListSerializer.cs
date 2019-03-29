@@ -7,7 +7,7 @@ using TheraEngine.Core.Memory;
 namespace TheraEngine.Core.Files.Serialization
 {
     [ObjectSerializerFor(typeof(IList), CanSerializeAsString = true)]
-    public class ListSerializer : BaseObjectSerializer
+    public class IListSerializer : BaseObjectSerializer
     {
         #region Tree
 
@@ -18,6 +18,7 @@ namespace TheraEngine.Core.Files.Serialization
         public override void DeserializeTreeToObject()
         {
             Type listType = TreeNode.ObjectType;
+            DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
             if (!TreeNode.Content.GetObject(listType, out object list))
             {
@@ -28,8 +29,6 @@ namespace TheraEngine.Core.Files.Serialization
                 else
                     List = Activator.CreateInstance(listType) as IList;
                 
-                TreeNode.MemberInfo.mem
-
                 if (DeserializeAsync)
                     Task.Run(() => ReadElements(listType, count)).ContinueWith(t => DoneReadingElements?.Invoke());
                 else

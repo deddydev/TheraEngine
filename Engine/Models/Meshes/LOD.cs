@@ -14,28 +14,25 @@ namespace TheraEngine.Rendering.Models
         public event Action VisibleDistanceChanged;
         public event Action MaterialRefChanged;
         public event Action PrimitivesRefChanged;
-        
-        public LOD()
-        {
-            _primitives = new GlobalFileRef<PrimitiveData>();
-            _material = new GlobalFileRef<TMaterial>();
-        }
+
+        public LOD() : this(null, null, 0) { }
         public LOD(
-            GlobalFileRef<TMaterial> material,
+            LocalFileRef<TMaterial> material,
             GlobalFileRef<PrimitiveData> primitives,
             float visibleDistance)
         {
-            _material = material ?? new GlobalFileRef<TMaterial>();
-            _primitives = primitives ?? new GlobalFileRef<PrimitiveData>();
+            _primitivesRef = primitives ?? new GlobalFileRef<PrimitiveData>();
+            _materialRef = material ?? new LocalFileRef<TMaterial>();
+
             VisibleDistance = visibleDistance;
         }
 
         [Category("LOD")]
         [DisplayName("Material")]
-        public GlobalFileRef<TMaterial> MaterialRef => _material;
+        public LocalFileRef<TMaterial> MaterialRef => _materialRef;
         [Category("LOD")]
         [DisplayName("Primitives")]
-        public GlobalFileRef<PrimitiveData> PrimitivesRef => _primitives;
+        public GlobalFileRef<PrimitiveData> PrimitivesRef => _primitivesRef;
         [Category("LOD")]
         [TSerialize(IsAttribute = true)]
         public float VisibleDistance
@@ -60,15 +57,15 @@ namespace TheraEngine.Rendering.Models
         }
 
         [TSerialize("Primitives")]
-        protected GlobalFileRef<PrimitiveData> _primitives;
+        protected GlobalFileRef<PrimitiveData> _primitivesRef;
         [TSerialize("Material")]
-        protected GlobalFileRef<TMaterial> _material;
+        protected LocalFileRef<TMaterial> _materialRef;
         protected float _visibleDistance = 0.0f;
         protected ETransformFlags _billboardMode = ETransformFlags.None;
 
         public PrimitiveManager CreatePrimitiveManager()
         {
-            PrimitiveManager m = new PrimitiveManager(_primitives.File, _material.File);
+            PrimitiveManager m = new PrimitiveManager(_primitivesRef.File, _materialRef.File);
             m.BufferInfo.BillboardMode = TransformFlags;
             return m;
         }

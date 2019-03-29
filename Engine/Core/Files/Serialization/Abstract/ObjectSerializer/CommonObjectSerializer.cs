@@ -20,6 +20,8 @@ namespace TheraEngine.Core.Files.Serialization
 
         public override void DeserializeTreeToObject()
         {
+            DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
+
             var (Count, Values) = SerializationCommon.CollectSerializedMembers(TreeNode.ObjectType);
             var values = Values.ToList();
             if (values.Count == 0)

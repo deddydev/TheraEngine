@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Physics.ContactTesting;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 
@@ -55,6 +56,7 @@ namespace TheraEngine.Physics
         /// <param name="result">Contains parameters and also the results of the trace once this method returns.</param>
         /// <returns>True if any hits occurred.</returns>
         public abstract bool ShapeTrace(ShapeTrace result);
+        public abstract bool ContactTest(ContactTest result);
         /// <summary>
         /// Recalculates the AABBs of all collision objects in the physics world.
         /// </summary>

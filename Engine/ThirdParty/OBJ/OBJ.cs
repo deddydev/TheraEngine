@@ -14,23 +14,30 @@ namespace TheraEngine.Rendering.Models
     {
         public static StaticModel Import(string path, ColladaImportOptions options)
         {
-            StaticModel m = new StaticModel();
             LoadResult result = new ObjLoaderFactory().Create().Load(path);
+
             Matrix4 modelMatrix = options.InitialTransform.Matrix;
             Matrix4 normalMatrix = options.InitialTransform.InverseMatrix.Transposed().GetRotationMatrix4();
             string dirPath = Path.GetDirectoryName(path);
+
+            StaticModel model = new StaticModel();
             foreach (var group in result.Groups)
             {
                 foreach (var subgroup in group.SubGroups)
                 {
-                    BoundingBox b = BoundingBox.ExpandableBox();
-                    PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), subgroup.Faces.SelectMany(x => CreateTriangles(x, result, false, modelMatrix, normalMatrix, b)));
+                    BoundingBox bounds = BoundingBox.ExpandableBox();
+                    PrimitiveData data = PrimitiveData.FromTriangleList(VertexShaderDesc.PosNormTex(), 
+                        subgroup.Faces.SelectMany(x => CreateTriangles(x, result, false, modelMatrix, normalMatrix, bounds)));
+
                     var objMat = result.Materials.FirstOrDefault(x => x.Name == subgroup.Material?.Name);
-                    RenderInfo3D renderInfo = new RenderInfo3D(true, false) { CullingVolume = b };
-                    m.RigidChildren.Add(new StaticRigidSubMesh(group.Name + "_" + (subgroup.Material?.Name ?? "NoMaterial"), renderInfo, ERenderPass.OpaqueDeferredLit, data, CreateMaterial(objMat, dirPath, options.UseForwardShaders)));
+                    RenderInfo3D renderInfo = new RenderInfo3D(true, false) { CullingVolume = bounds };
+                    model.RigidChildren.Add(new StaticRigidSubMesh(
+                        group.Name + "_" + (subgroup.Material?.Name ?? "NoMaterial"),
+                        renderInfo, ERenderPass.OpaqueDeferredLit, data, 
+                        CreateMaterial(objMat, dirPath, options.UseForwardShaders)));
                 }
             }
-            return m;
+            return model;
         }
 
         private static VertexTriangle[] CreateTriangles(
@@ -45,26 +52,26 @@ namespace TheraEngine.Rendering.Models
             Vertex[] vertices = new Vertex[face.Count];
             for (int i = 0; i < vertices.Length; ++i)
             {
-                int v = face[i].VertexIndex - 1;
-                int n = face[i].NormalIndex - 1;
-                int t = face[i].TextureIndex - 1;
+                int vtxIndex = face[i].VertexIndex - 1;
+                int nrmIndex = face[i].NormalIndex - 1;
+                int texIndex = face[i].TextureIndex - 1;
                 
                 Vec3 pos;
                 Vec2 uv;
 
-                if (result.Vertices.IndexInRange(v))
+                if (result.Vertices.IndexInRange(vtxIndex))
                 {
-                    pos = result.Vertices[v] * modelTransform;
+                    pos = Vec3.TransformPosition(result.Vertices[vtxIndex], modelTransform);
                     bounds.Expand(pos);
                 }
                 else
                     pos = Vec3.Zero;
 
-                Vec3 norm = result.Normals.IndexInRange(n) ? result.Normals[n] * normalTransform : Vec3.Zero;
+                Vec3 norm = result.Normals.IndexInRange(nrmIndex) ? Vec3.TransformVector(result.Normals[nrmIndex], normalTransform) : Vec3.Zero;
 
-                if (result.TexCoords.IndexInRange(t))
+                if (result.TexCoords.IndexInRange(texIndex))
                 {
-                    uv = result.TexCoords[t];
+                    uv = result.TexCoords[texIndex];
                     uv.Y = 1.0f - uv.Y;
                 }
                 else
@@ -141,9 +148,9 @@ namespace TheraEngine.Rendering.Models
 
 layout (location = 0) out vec4 OutColor;
 
-in vec3 FragPos;
-in vec3 FragNorm;
-in vec2 FragUV0;
+layout (location = 0) in vec3 FragPos;
+layout (location = 1) in vec3 FragNorm;
+layout (location = 8) in vec2 FragUV0;
 
 uniform vec3 Ambient;
 uniform vec3 Diffuse;
@@ -171,11 +178,11 @@ void main()
 
 layout (location = 0) out vec4 AlbedoSpec;
 layout (location = 1) out vec3 Normal;
-layout (location = 2) out vec3 RMS;
+layout (location = 2) out vec4 RMSI;
 
-in vec3 FragPos;
-in vec3 FragNorm;
-in vec2 FragUV0;
+layout (location = 0) in vec3 FragPos;
+layout (location = 1) in vec3 FragNorm;
+layout (location = 8) in vec2 FragUV0;
 
 //uniform vec3 Ambient;
 uniform vec3 Diffuse;
@@ -189,7 +196,7 @@ void main()
 {
     AlbedoSpec = vec4(texture(Texture0, FragUV0).rgb * Diffuse, 0.0f);
     Normal = normalize(FragNorm);
-    RMS = vec3(1.0f, 0.0f, 1.0f);
+    RMSI = vec4(1.0f, 0.0f, 1.0f, 0.0f);
 }");
         }
     }

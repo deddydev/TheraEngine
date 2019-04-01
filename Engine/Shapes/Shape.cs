@@ -40,8 +40,11 @@ namespace TheraEngine.Core.Shapes
         {
             _rc = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
         }
+        
+        public event Action VolumePropertyChanged;
 
-        public Action VisibilityChanged;
+        protected void OnVolumePropertyChanged()
+            => VolumePropertyChanged?.Invoke();
 
         //[TSerialize]
         //[Category("Shape")]

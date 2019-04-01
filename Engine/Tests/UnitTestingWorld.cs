@@ -14,6 +14,7 @@ using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Lights;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Components.Scene.Transforms;
+using TheraEngine.Components.Scene.Volumes;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Core.Memory;
 using TheraEngine.Core.Shapes;
@@ -348,6 +349,11 @@ namespace TheraEngine.Tests
             SkyboxActor skyboxActor = new SkyboxActor(skyTex, 1000.0f);
             actors.Add(skyboxActor);
             #endregion
+
+            Actor<TriggerVolumeComponent> triggerVolumeActor = new Actor<TriggerVolumeComponent>();
+            triggerVolumeActor.RootComponent.Translation.Y -= 30.0f;
+            triggerVolumeActor.RootComponent.Shape.HalfExtents.Raw = new Vec3(10.0f, 2.0f, 10.0f);
+            actors.Add(triggerVolumeActor);
 
             #region Decal
             if (testDeferredDecal)

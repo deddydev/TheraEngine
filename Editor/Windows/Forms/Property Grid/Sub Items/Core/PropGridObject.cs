@@ -55,7 +55,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 UpdateMouseDown();
             }
 
-            if (Editor.GetSettings().PropertyGrid.ShowTypeNames && !(MemberInfo is PropGridMemberInfoIList ilist && ilist.ListElementType == CurrentType))
+            if (Editor.GetSettings().PropertyGrid.ShowTypeNames && 
+                !(MemberInfo is PropGridMemberInfoIList ilist && 
+                ilist.ListElementType == CurrentType))
             {
                 string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
                 lblObjectTypeName.Text = "[" + typeName + "] " + (value == null ? "null" : value.ToString());

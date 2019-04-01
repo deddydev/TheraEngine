@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Physics.ContactTesting;
 using TheraEngine.Physics.Jitter;
 using TheraEngine.Physics.Jitter.Shapes;
 using TheraEngine.Physics.RayTracing;
@@ -11,6 +12,7 @@ namespace TheraEngine.Physics
     {
         public const uint Seed = 513u;
 
+        public override bool ContactTest(ContactTest result) => throw new NotImplementedException();
         public override Vec3 Gravity
         {
             get => base.Gravity;

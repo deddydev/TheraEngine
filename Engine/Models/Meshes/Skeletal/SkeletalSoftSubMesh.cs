@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Models
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            List<LOD> lods) : base(name, renderInfo, renderPass, lods) { }
+            EventList<LOD> lods) : base(name, renderInfo, renderPass, lods) { }
         public SkeletalSoftSubMesh(
             string name,
             RenderInfo3D renderInfo,

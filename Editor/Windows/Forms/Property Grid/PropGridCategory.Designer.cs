@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.tblProps = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
-            this.lblCategoryName = new System.Windows.Forms.Label();
+            this.lblCategoryName = new AutoEllipsisLabel();
             this.pnlSide = new System.Windows.Forms.Panel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
@@ -105,7 +105,7 @@
         #endregion
 
         public TheraEditor.Windows.Forms.BetterTableLayoutPanel tblProps;
-        private System.Windows.Forms.Label lblCategoryName;
+        private AutoEllipsisLabel lblCategoryName;
         private System.Windows.Forms.Panel pnlSide;
         private System.Windows.Forms.ToolTip toolTip1;
     }

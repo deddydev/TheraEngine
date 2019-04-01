@@ -40,7 +40,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
                 new ConeY(radius, height),
                 translation,
                 rotation,
-                new List<LOD>()
+                new EventList<LOD>()
                 {
                     new LOD(material, Cone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides,         closeBottom), radius *  8),
                     new LOD(material, Cone.SolidMesh(Vec3.Zero, Vec3.Up, height, radius, meshSides / 4 * 3, closeBottom), radius * 16),

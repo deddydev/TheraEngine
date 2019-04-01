@@ -77,8 +77,10 @@ namespace TheraEngine.Components.Scene
             }
         }
 
-        private void ShapeHalfExtentsPreSet() => _shape.HalfExtents.Changed -= UpdateRenderCommandMatrix;
-        private void ShapeHalfExtentsPostSet() => _shape.HalfExtents.Changed += UpdateRenderCommandMatrix;
+        private void ShapeHalfExtentsPreSet(Box box, EventVec3 halfExtents) 
+            => _shape.HalfExtents.Changed -= UpdateRenderCommandMatrix;
+        private void ShapeHalfExtentsPostSet(Box box, EventVec3 halfExtents) 
+            => _shape.HalfExtents.Changed += UpdateRenderCommandMatrix;
         private void UpdateRenderCommandMatrix()
         {
             Vec3 halfExtents = _shape.HalfExtents.Raw;

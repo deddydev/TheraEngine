@@ -121,7 +121,10 @@ namespace TheraEngine.Actors.Types
                     return;
 
                 StaticRenderableMesh rmesh = renderMeshes[0];
-                RenderableLOD rlod = rmesh?.LODs?.First?.Value;
+                if (rmesh.LODs == null || rmesh.LODs.Count == 0)
+                    return;
+
+                RenderableLOD rlod = rmesh?.LODs[0];
                 if (rlod == null)
                     return;
 
@@ -189,8 +192,10 @@ namespace TheraEngine.Actors.Types
             
             StaticRenderableMesh rmesh = renderMeshes[0];
             //rmesh.RenderInfo.CullingVolume = box.HardCopy();
+            if (rmesh.LODs == null || rmesh.LODs.Count == 0)
+                return;
 
-            RenderableLOD rlod = rmesh.LODs?.First?.Value;
+            RenderableLOD rlod = rmesh.LODs[0];
             if (rlod == null)
                 return;
 

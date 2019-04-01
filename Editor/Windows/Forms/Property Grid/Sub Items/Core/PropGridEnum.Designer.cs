@@ -41,10 +41,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             // 
             this.tblEnumFlags.AutoSize = true;
             this.tblEnumFlags.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tblEnumFlags.ColumnCount = 3;
+            this.tblEnumFlags.ColumnCount = 5;
             this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tblEnumFlags.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tblEnumFlags.Dock = System.Windows.Forms.DockStyle.Top;
             this.tblEnumFlags.Location = new System.Drawing.Point(3, 3);
             this.tblEnumFlags.Margin = new System.Windows.Forms.Padding(0);

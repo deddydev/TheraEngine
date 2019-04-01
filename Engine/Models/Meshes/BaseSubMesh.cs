@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering.Models
         [DisplayName("Levels Of Detail")]
         [Browsable(false)]
         [TSerialize(Order = 2)]
-        public List<LOD> LODs { get; set; }
+        public EventList<LOD> LODs { get; set; }
 
         public BaseSubMesh() { }
         public BaseSubMesh(
@@ -30,18 +30,18 @@ namespace TheraEngine.Rendering.Models
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            LODs = new List<LOD>() { new LOD(material, primitives, 0.0f) };
+            LODs = new EventList<LOD>() { new LOD(material, primitives, 0.0f) };
         }
         public BaseSubMesh(
             string name,
             RenderInfo3D renderInfo,
             ERenderPass renderPass,
-            List<LOD> lods)
+            EventList<LOD> lods)
         {
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            LODs = lods ?? new List<LOD>();
+            LODs = lods ?? new EventList<LOD>();
         }
         public BaseSubMesh(
             string name,
@@ -52,7 +52,7 @@ namespace TheraEngine.Rendering.Models
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            LODs = lods.ToList();
+            LODs = new EventList<LOD>(lods);
         }
     }
 }

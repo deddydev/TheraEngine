@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Physics.Bullet;
 using TheraEngine.Physics.Bullet.Shapes;
+using TheraEngine.Physics.ContactTesting;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 
@@ -64,7 +65,7 @@ namespace TheraEngine.Physics
         internal CollisionDispatcher _collisionDispatcher;
         internal MultiBodyConstraintSolver _constraintSolver;
         internal BulletDebugDrawer _physicsDebugDrawer;
-
+        
         public BulletPhysicsWorld()
         {
             _broadphaseInterface = new DbvtBroadphase();
@@ -190,7 +191,7 @@ namespace TheraEngine.Physics
             }
         }
 
-        private static TContactInfo CreateCollisionInfo(ManifoldPoint point)
+        internal static TContactInfo CreateCollisionInfo(ManifoldPoint point)
         {
             return new TContactInfo()
             {
@@ -287,6 +288,7 @@ namespace TheraEngine.Physics
         private TRayResultCallback _rayCallback = new TRayResultCallback(null);
         public override bool RayTrace(RayTrace trace)
         {
+            trace.Reset();
             _rayCallback.Handler = trace;
             _dynamicsWorld.RayTest(trace.StartPointWorld, trace.EndPointWorld, _rayCallback);
             return trace.HasHit;
@@ -294,12 +296,21 @@ namespace TheraEngine.Physics
         private TConvexResultCallback _convexCallback = new TConvexResultCallback(null);
         public override bool ShapeTrace(ShapeTrace trace)
         {
+            trace.Reset();
             _convexCallback.Handler = trace;
             if (trace.AllowedCcdPenetration >= 0.0f)
                 _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback, trace.AllowedCcdPenetration);
             else
                 _dynamicsWorld.ConvexSweepTest((ConvexShape)((IBulletShape)trace.Shape).Shape, trace.Start, trace.End, _convexCallback);
             return trace.HasHit;
+        }
+        private TContactResultCallback _contactCallback = new TContactResultCallback(null);
+        public override bool ContactTest(ContactTest test)
+        {
+            test.Reset();
+            _contactCallback.Handler = test;
+            _dynamicsWorld.ContactTest(((IBulletCollisionObject)test.Object).CollisionObject, _contactCallback);
+            return test.HasContact;
         }
         public override void AddConstraint(TConstraint constraint)
         {

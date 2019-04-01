@@ -17,6 +17,7 @@ using TheraEngine.Core.Files;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
+using TheraEngine.Physics.ContactTesting;
 using TheraEngine.Physics.RayTracing;
 using TheraEngine.Physics.ShapeTracing;
 using TheraEngine.Rendering;
@@ -663,6 +664,9 @@ namespace TheraEngine
         public static bool ShapeTrace(ShapeTrace result, World world) 
             => (world ?? World)?.PhysicsWorld3D?.ShapeTrace(result) ?? false;
         
+        public static bool ContactTest(ContactTest result, World world)
+           => (world ?? World)?.PhysicsWorld3D?.ContactTest(result) ?? false;
+
         //public static BaseGameMode ActiveGameMode { get; set; }
         //public static T ActiveGameModeAs<T>() where T : BaseGameMode
         //    => ActiveGameMode as T;
@@ -672,7 +676,7 @@ namespace TheraEngine
         /// </summary>
         //public static Viewport GetViewport(ELocalPlayerIndex index)
         //    => BaseRenderPanel.WorldPanel?.GetViewport(index);
-        
+
         /// <summary>
         /// Tells the engine to play in a new world.
         /// </summary>

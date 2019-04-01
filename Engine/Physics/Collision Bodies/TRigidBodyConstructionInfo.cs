@@ -37,6 +37,8 @@ namespace TheraEngine.Physics
         }
 
         [TSerialize]
+        public bool IsGhostObject { get; set; } = false;
+        [TSerialize]
         public bool SleepingEnabled { get; set; } = true;
         [TSerialize]
         public bool CollisionEnabled { get; set; } = true;
@@ -111,7 +113,7 @@ namespace TheraEngine.Physics
 
         /// <summary>
         /// The shape this rigid body will use to collide.
-        /// Auto-calculates LocalIntertia for you using Mass and the given shape.
+        /// Auto-calculates LocalInertia for you using Mass and the given shape.
         /// </summary>
         public TCollisionShape CollisionShape
         {

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\NUnit3TestAdapter.3.12.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.12.0\build\net35\NUnit3TestAdapter.props')" />
+  <Import Project="..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props')" />
   <Import Project="..\packages\NUnit.3.11.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -205,8 +205,8 @@
     <AssemblyOriginatorKeyFile>TheraDevKey.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AngleSharp, Version=0.10.1.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
-      <HintPath>..\packages\AngleSharp.0.10.1\lib\net46\AngleSharp.dll</HintPath>
+    <Reference Include="AngleSharp, Version=0.11.0.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
+      <HintPath>..\packages\AngleSharp.0.11.0\lib\net46\AngleSharp.dll</HintPath>
     </Reference>
     <Reference Include="Ayx.BitIO, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ayx.BitIO.1.0.0\lib\net20\Ayx.BitIO.dll</HintPath>
@@ -241,8 +241,8 @@
     <Reference Include="Jitter, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JitterPhysics.0.2.0.20\lib\net4\Jitter.dll</HintPath>
     </Reference>
-    <Reference Include="MIConvexHull, Version=1.0.17.1019, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MIConvexHull.1.1.18.1016\lib\netstandard1.0\MIConvexHull.dll</HintPath>
+    <Reference Include="MIConvexHull, Version=1.1.18.1017, Culture=neutral, PublicKeyToken=2644b6f8be52c998, processorArchitecture=MSIL">
+      <HintPath>..\packages\MIConvexHull.1.1.18.1017\lib\netstandard1.0\MIConvexHull.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic, Version=1.2.2.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\DynamicLanguageRuntime.1.2.2\lib\net45\Microsoft.Dynamic.dll</HintPath>
@@ -330,9 +330,15 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Activities" />
+    <Reference Include="System.Text.Encoding.CodePages, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.4.5.1\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -417,7 +423,6 @@
     <Compile Include="Components\Scene\UI\Text\UIRichTextBoxComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextProjectionComponent.cs" />
     <Compile Include="Components\Scene\UI\Text\UITextComponent.cs" />
-    <Compile Include="Components\Scene\UI\UI3DComponent.cs" />
     <Compile Include="Components\Scene\UI\Base UI Components\UIComponent.cs" />
     <Compile Include="Components\Scene\UI\Base UI Components\UIDockableComponent.cs" />
     <Compile Include="Components\Scene\UI\UIMaterialRectangleComponent.cs" />
@@ -481,13 +486,11 @@
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
     <Compile Include="Core\ResourcePool.cs" />
     <EmbeddedResource Include="Engine\Program_Template.tcs" />
-    <EmbeddedResource Include="Engine\Scripts\Class_Template.tcs" />
-    <None Include="Engine\Scripts\Enum_Template.tcs" />
-    <None Include="Engine\Scripts\Interface_Template.tcs" />
-    <None Include="Engine\Scripts\Struct_Template.tcs" />
     <Compile Include="Input\Devices\BaseGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
+    <Compile Include="Physics\Bullet\TContactResultCallback.cs" />
+    <Compile Include="Physics\ContactTest.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
     <Compile Include="Shapes\Boxes\BoundingBoxStruct.cs" />
     <Compile Include="Shapes\Cylindrical\XAligned\CapsuleX.cs" />
@@ -725,46 +728,6 @@
     <Compile Include="Models\Materials\Functions\MaterialFunction.cs" />
     <Compile Include="Models\Materials\Functions\MatFuncExecInput.cs" />
     <Compile Include="Models\Materials\Functions\MatFuncExecOutput.cs" />
-    <EmbeddedResource Include="Engine\Fonts\Origicide.ttf" />
-    <EmbeddedResource Include="Engine\Models\Sponza\sponza.mtl" />
-    <EmbeddedResource Include="Engine\Models\Sponza\sponza.obj" />
-    <EmbeddedResource Include="Engine\Shaders\Bezier.geom" />
-    <EmbeddedResource Include="Engine\Shaders\Common\ColoredDeferred.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Common\TexturedDeferred.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Common\TexturedNormalMapDeferred.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Common\UnlitColoredForward.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Common\UnlitTexturedForward.frag" />
-    <EmbeddedResource Include="Engine\Shaders\CubeMapSphereMesh.frag" />
-    <EmbeddedResource Include="Engine\Shaders\HudFBO.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Landscape\terrain.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Landscape\terrain.tesc" />
-    <EmbeddedResource Include="Engine\Shaders\Landscape\terrain.tese" />
-    <EmbeddedResource Include="Engine\Shaders\Landscape\terrain.vert" />
-    <EmbeddedResource Include="Engine\Shaders\MaterialEditorGraphBG.frag" />
-    <EmbeddedResource Include="Engine\Shaders\PointLightShadowDepth.frag" />
-    <EmbeddedResource Include="Engine\Shaders\PointLightShadowDepth.geom" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\BloomBlur.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\BRDF.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\BrightPass.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\DeferredDecal.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\DeferredLightCombine.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\DeferredLightingDir.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\DeferredLightingPoint.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\DeferredLightingSpot.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\HudFBO.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\IrradianceConvolution.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\PostProcess.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\Prefilter.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\SSAOBlur.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\SSAOGen.frag" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\Unused\LightCulling.comp" />
-    <EmbeddedResource Include="Engine\Shaders\Scene3D\Unused\OLD_DeferredLighting.frag" />
-    <EmbeddedResource Include="Engine\Shaders\SNIP_LightingBasic.frag" />
-    <EmbeddedResource Include="Engine\Shaders\StencilExplode.geom" />
-    <EmbeddedResource Include="Engine\Shaders\ViewportFBO.frag" />
-    <EmbeddedResource Include="Engine\Shaders\VisualizeNBT_Forward.frag" />
-    <EmbeddedResource Include="Engine\Shaders\VisualizeNBT_Forward.geom" />
-    <EmbeddedResource Include="Engine\Shaders\VisualizeNormal.geom" />
     <None Include="OpenTK.dll.config" />
     <None Include="TheraDevKey.pfx" />
     <None Include="ThirdParty\Collada\Parser\Core\Animation.cs" />
@@ -1186,82 +1149,8 @@
     <Content Include="..\Libraries\x86\Steamworks\steam_api.dll">
       <Link>ThirdParty\NativeLibraries\x86\steam_api.dll</Link>
     </Content>
-    <None Include="Engine\Fonts\license.txt" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\background.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\background_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\background_ddn.tif" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\chain_texture.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\chain_texture_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\chain_texture_mask.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\lion.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\lion2_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\lion_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\spnza_bricks_a_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\spnza_bricks_a_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\spnza_bricks_a_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_arch_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_arch_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_arch_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_ceiling_a_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_ceiling_a_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_a_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_a_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_a_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_b_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_b_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_b_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_c_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_c_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_column_c_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_curtain_blue_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_curtain_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_curtain_green_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_details_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_details_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_fabric_blue_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_fabric_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_fabric_green_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_fabric_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_flagpole_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_flagpole_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_floor_a_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_floor_a_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_roof_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_thorn_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_thorn_diff.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_thorn_mask.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\sponza_thorn_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_dif.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_hanging.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_plant.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_plant_mask.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_plant_spec.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_round.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_round_ddn.tga" />
-    <EmbeddedResource Include="Engine\Models\Sponza\textures\vase_round_spec.tga" />
-    <EmbeddedResource Include="Engine\Scripts\GLSLHighlighting.xml" />
-    <EmbeddedResource Include="Engine\Scripts\PythonHighlighting.xml" />
-    <EmbeddedResource Include="Engine\Scripts\Test.py" />
-    <EmbeddedResource Include="Engine\Solution_Template.tsln" />
-    <EmbeddedResource Include="Engine\Textures\Class.svg" />
-    <EmbeddedResource Include="Engine\Textures\cubemap guide.png" />
-    <EmbeddedResource Include="Engine\Textures\cubemap guide.psd" />
-    <EmbeddedResource Include="Engine\Textures\decal guide.png" />
-    <EmbeddedResource Include="Engine\Textures\decal guide.psd" />
-    <EmbeddedResource Include="Engine\Textures\Error.svg" />
-    <EmbeddedResource Include="Engine\Textures\Event.svg" />
-    <EmbeddedResource Include="Engine\Textures\Field.svg" />
-    <EmbeddedResource Include="Engine\Textures\Filler.png" />
-    <EmbeddedResource Include="Engine\Textures\Message.svg" />
-    <EmbeddedResource Include="Engine\Textures\Method.svg" />
-    <EmbeddedResource Include="Engine\Textures\modelviewerbg0.png" />
-    <EmbeddedResource Include="Engine\Textures\modelviewerbg1.png" />
-    <EmbeddedResource Include="Engine\Textures\modelviewerbg2.png" />
-    <EmbeddedResource Include="Engine\Textures\Property.svg" />
-    <EmbeddedResource Include="Engine\Textures\skybox.jpg" />
-    <EmbeddedResource Include="Engine\Textures\Warning.svg" />
     <Content Include="MIConvexHull.xml" />
+    <EmbeddedResource Include="Engine\Solution_Template.tsln" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="mscoree">
@@ -1298,8 +1187,8 @@ copy /Y "$(SolutionDir)Libraries\$(PlatformName)\Steamworks\CSteamworks.dll" "$(
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.11.0\build\NUnit.props'))" />
-    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.12.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.12.0\build\net35\NUnit3TestAdapter.props'))" />
     <Error Condition="!Exists('..\packages\NAudio.Lame.1.0.9\build\NAudio.Lame.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NAudio.Lame.1.0.9\build\NAudio.Lame.targets'))" />
+    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.13.0\build\net35\NUnit3TestAdapter.props'))" />
   </Target>
   <Import Project="..\packages\NAudio.Lame.1.0.9\build\NAudio.Lame.targets" Condition="Exists('..\packages\NAudio.Lame.1.0.9\build\NAudio.Lame.targets')" />
 </Project>

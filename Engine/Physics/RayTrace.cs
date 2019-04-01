@@ -89,12 +89,9 @@ namespace TheraEngine.Physics.RayTracing
         /// </summary>
         //public bool Trace() => Engine.RayTrace(this, null);
         public bool Trace(World world)
-        {
-            Reset();
-            return Engine.RayTrace(this, world);
-        }
+            => Engine.RayTrace(this, world);
 
-        protected abstract void Reset();
+        internal abstract void Reset();
     }
 
     /// <summary>
@@ -105,7 +102,7 @@ namespace TheraEngine.Physics.RayTracing
         public override bool HasHit => Result != null;
 
         protected RayCollisionResult Result { get; set; } = null;
-        protected override void Reset() => Result = null;
+        internal override void Reset() => Result = null;
 
         public TCollisionObject CollisionObject => Result?.CollisionObject;
         public float HitFraction => Result == null ? 1.0f : Result.HitFraction;
@@ -126,7 +123,7 @@ namespace TheraEngine.Physics.RayTracing
         public override bool HasHit => Results.Count != 0;
         
         public List<RayCollisionResult> Results { get; } = new List<RayCollisionResult>();
-        protected override void Reset() => Results.Clear();
+        internal override void Reset() => Results.Clear();
 
         public RayTraceMulti(Vec3 start, Vec3 end, ushort collisionGroupFlags, ushort collidesWithFlags, params TCollisionObject[] ignored) 
             : base(start, end, collisionGroupFlags, collidesWithFlags, ignored) { }

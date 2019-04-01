@@ -23,8 +23,6 @@ uniform mat4 CameraToWorldSpaceMatrix;
 uniform mat4 ProjMatrix;
 uniform mat4 InvProjMatrix;
 
-//#include "../Common/NoiseSnippets/noise3.glsl"
-
 vec3 SpecF_SchlickRoughness(in float VoH, in vec3 F0, in float roughness)
 {
 	float pow = pow(1.0f - VoH, 5.0f);

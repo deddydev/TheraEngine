@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -216,10 +217,16 @@ namespace TheraEditor.Wrappers
                     foreach (string file in files)
                     {
                         BaseWrapper node = Wrap(file);
-                        if (node == null) continue;
+                        if (node == null)
+                            continue;
+
                         ResourceTree tree = GetTree();
-                        string key = tree.GetOrAddIcon(file);
-                        node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
+                        //Task.Run(() => 
+                        //{
+                            string key = tree.GetOrAddIcon(file);
+                            node.ImageKey = node.SelectedImageKey = node.StateImageKey = key;
+                        //})/*.ContinueWith(t => Nodes.Add(node))*/;
+                       
                         Nodes.Add(node);
                     }
                 }

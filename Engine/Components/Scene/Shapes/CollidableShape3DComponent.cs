@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Shapes
 
         [Category(PhysicsCategoryName)]
         [TSerialize]
-        public TRigidBody RigidBodyCollision
+        public virtual TRigidBody RigidBodyCollision
         {
             get => _rigidBodyCollision;
             set

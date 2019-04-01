@@ -1,6 +1,9 @@
-﻿using System;
+﻿using FreeImageAPI;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using TheraEngine.Components.Scene.Shapes;
 using TheraEngine.Core.Maths.Transforms;
@@ -243,6 +246,12 @@ namespace TheraEngine.Actors.Types
 
             _rc.Mesh?.Dispose();
             _rc.Mesh = new PrimitiveManager(data, material);
+
+            //string desktopPath = Tests.TestDefaults.DesktopPath;
+            //SaveHeightMap(
+            //    desktopPath + "test.dds",
+            //    FREE_IMAGE_FORMAT.FIF_DDS, 
+            //    FREE_IMAGE_SAVE_FLAGS.DEFAULT);
         }
 
         /// <summary>
@@ -405,7 +414,27 @@ namespace TheraEngine.Actors.Types
 
             return normal.NormalizedFast();
         }
+        public void SaveHeightMap(string path, FREE_IMAGE_FORMAT format, FREE_IMAGE_SAVE_FLAGS flags)
+        {
+            var map = GetHeightmap();
+            map.Save(path, format, flags);
+            map.Dispose();
+        }
+        public unsafe FreeImageBitmap GetHeightmap()
+        {
+            DataSource src = new DataSource(_dimensions.X * _dimensions.Y * sizeof(float));
+            float* ptr = (float*)src.Address;
+            for (int h = 0; h < _dimensions.Y; ++h)
+                for (int w = 0; w < _dimensions.X; ++w)
+                {
+                    float height = GetHeight(w, h);
+                    *ptr++ = height;
+                }
 
+            //bmp.UnlockBits(data);
+            FreeImageBitmap bmp = new FreeImageBitmap(_dimensions.X, _dimensions.Y, 0, 32, FREE_IMAGE_TYPE.FIT_FLOAT, src.Address);
+            return bmp;
+        }
         protected internal override void OnHighlightChanged(bool highlighted)
         {
             base.OnHighlightChanged(highlighted);

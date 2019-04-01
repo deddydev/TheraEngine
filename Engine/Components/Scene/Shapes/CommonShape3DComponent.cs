@@ -23,9 +23,11 @@ namespace TheraEngine.Components.Scene.Shapes
             GenerateRigidBody(info);
         }
 
+        [Category(RenderingCategoryName)]
         public RenderCommandMethod3D RenderCommand { get; }
         protected T _shape;
 
+        [Category(RenderingCategoryName)]
         public override RenderInfo3D RenderInfo
         {
             get => base.RenderInfo;
@@ -45,11 +47,24 @@ namespace TheraEngine.Components.Scene.Shapes
             get => _shape;
             set
             {
+                if (_shape != null)
+                    _shape.VolumePropertyChanged -= _shape_VolumePropertyChanged;
                 _shape = value ?? new T();
+                _shape.VolumePropertyChanged += _shape_VolumePropertyChanged;
                 RenderInfo.CullingVolume = _shape;
+                _shape_VolumePropertyChanged();
             }
         }
-        
+
+        private void _shape_VolumePropertyChanged()
+        {
+            if (RigidBodyCollision != null)
+            {
+                RigidBodyCollision.CollisionShape = GetCollisionShape();
+                RigidBodyUpdated();
+            }
+        }
+
         protected virtual void Render() => _shape?.Render();
         protected override RenderCommand3D GetRenderCommand() => RenderCommand;
 

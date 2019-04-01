@@ -23,10 +23,22 @@ namespace TheraEngine.Physics
         Camera          = 0x0200,
         Volumes         = 0x0400,
         Foliage         = 0x0800,
+        Aux1            = 0x1000,
+        Aux2            = 0x2000,
+        Aux3            = 0x4000,
+        Aux4            = 0x8000,
     }
     public interface ICollidable
     {
         Matrix4 WorldMatrix { get; set; }
+    }
+    public interface IGenericCollidable : ICollidable
+    {
+        TCollisionObject CollisionObject { get; }
+    }
+    public interface IGhostCollidable : ICollidable
+    {
+        //TGhostCollisionObject GhostCollision { get; }
     }
     public interface IRigidBodyCollidable : ICollidable
     {

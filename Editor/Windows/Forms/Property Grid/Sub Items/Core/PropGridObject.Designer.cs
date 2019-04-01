@@ -33,7 +33,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.components = new System.ComponentModel.Container();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.pnlProps = new BetterTableLayoutPanel();
-            this.lblObjectTypeName = new System.Windows.Forms.Label();
+            this.lblObjectTypeName = new AutoEllipsisLabel();
             this.chkNull = new System.Windows.Forms.CheckBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.pnlHeader.SuspendLayout();
@@ -116,7 +116,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         #endregion
         private System.Windows.Forms.ToolTip toolTip1;
         protected BetterTableLayoutPanel pnlProps;
-        private Label lblObjectTypeName;
+        private AutoEllipsisLabel lblObjectTypeName;
         private CheckBox chkNull;
         private System.Windows.Forms.Panel pnlHeader;
     }

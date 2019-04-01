@@ -34,7 +34,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             this.propGridListItems = new TheraEditor.Windows.Forms.PropertyGrid.PropGridCategory();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.chkNull = new CheckBox();
-            this.lblObjectTypeName = new Label();
+            this.lblObjectTypeName = new AutoEllipsisLabel();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.btnAdd = new System.Windows.Forms.Button();
             this.pnlHeader.SuspendLayout();
@@ -134,7 +134,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         #endregion
         private ToolTip toolTip1;
         private CheckBox chkNull;
-        private Label lblObjectTypeName;
+        private AutoEllipsisLabel lblObjectTypeName;
         private Panel pnlHeader;
         private Button btnAdd;
         private PropGridCategory propGridListItems;

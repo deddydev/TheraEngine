@@ -71,12 +71,9 @@ namespace TheraEngine.Physics.ShapeTracing
         /// Performs the trace in the world and returns true if there are any collision results.
         /// </summary>
         public bool Trace(World world)
-        {
-            Reset();
-            return Engine.ShapeTrace(this, world);
-        }
-
-        protected abstract void Reset();
+            => Engine.ShapeTrace(this, world);
+        
+        internal abstract void Reset();
     }
 
     public abstract class ShapeTraceSingle : ShapeTrace
@@ -84,7 +81,7 @@ namespace TheraEngine.Physics.ShapeTracing
         public override bool HasHit => Result != null;
 
         protected ShapeCollisionResult Result { get; set; } = null;
-        protected override void Reset() => Result = null;
+        internal override void Reset() => Result = null;
 
         public TCollisionObject CollisionObject => Result?.CollisionObject;
         public float HitFraction => Result == null ? 1.0f : Result.HitFraction;
@@ -102,7 +99,7 @@ namespace TheraEngine.Physics.ShapeTracing
         public override bool HasHit => Results.Count > 0;
 
         public List<ShapeCollisionResult> Results { get; } = new List<ShapeCollisionResult>();
-        protected override void Reset() => Results.Clear();
+        internal override void Reset() => Results.Clear();
 
         public ShapeTraceMulti(TCollisionShape shape, Matrix4 start, Matrix4 end, ushort collisionGroup, ushort collidesWith, params TCollisionObject[] ignored)
             : base(shape, start, end, collisionGroup, collidesWith, ignored) { }

@@ -16,17 +16,18 @@ namespace TheraEditor.Actors.Types.Pawns
         public EditorCameraPawn() : base() { }
         public EditorCameraPawn(ELocalPlayerIndex possessor) : base(possessor) { }
 
-        private ICameraTransformable _targetComponent = null;
-        public ICameraTransformable TargetComponent
+        private ICameraTransformable _camera = null;
+        public ICameraTransformable TargetCamera
         {
-            get => _targetComponent ?? RootComponent;
-            set => _targetComponent = value;
+            get => _camera ?? RootComponent;
+            set => _camera = value;
         }
         public UIViewportComponent TargetViewportComponent { get; set; } = null;
 
         public override void RegisterInput(InputInterface input)
         {
             base.RegisterInput(input);
+
             input.RegisterButtonPressed(EMouseButton.LeftClick, OnLeftClick, EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.AltLeft, OnAlt, EInputPauseType.TickAlways);
             input.RegisterKeyPressed(EKey.AltRight, OnAlt, EInputPauseType.TickAlways);
@@ -35,18 +36,18 @@ namespace TheraEditor.Actors.Types.Pawns
         }
 
         protected virtual void OnLeftClick(bool pressed)
-        {
-            _leftClickDown = pressed;
-        }
+            => _leftClickDown = pressed;
+        private void OnAlt(bool pressed) 
+            => _alt = pressed;
+        private void OnShift(bool pressed)
+            => _shift = pressed;
 
-        private void OnAlt(bool pressed) => _alt = pressed;
-        private void OnShift(bool pressed) => _shift = pressed;
         protected override void OnScrolled(bool up)
         {
             if (_alt || _shift)
                 return;
 
-            ICameraTransformable comp = TargetComponent;
+            ICameraTransformable comp = TargetCamera;
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8f : 1.2f;
             else if (HasHit)
@@ -79,7 +80,7 @@ namespace TheraEditor.Actors.Types.Pawns
             //    x = result.X;
             //    y = result.Y;
             //}
-            ICameraTransformable comp = TargetComponent;
+            ICameraTransformable comp = TargetCamera;
             if (Rotating)
             {
                 float pitch = y * MouseRotateSpeed;
@@ -146,7 +147,7 @@ namespace TheraEditor.Actors.Types.Pawns
             //    }
             //}
 
-            ICameraTransformable comp = TargetComponent;
+            ICameraTransformable comp = TargetCamera;
             bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
             bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
             if (translate)

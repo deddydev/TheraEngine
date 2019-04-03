@@ -13,26 +13,26 @@ namespace BorderlessForm
     /// </summary>
     public class BorderlessFormBase : DockContent
     {
-        public void DecorationMouseDown(HitTestValues hit, Point p)
+        public void DecorationMouseDown(EHitTestValues hit, Point p)
         {
             NativeMethods.ReleaseCapture();
             var pt = new POINT { X = (short)p.X, Y = (short)p.Y };
-            NativeMethods.SendMessage(FindForm().Handle, (int)WindowsMessage.WM_NCLBUTTONDOWN, (int)hit, pt);
+            NativeMethods.SendMessage(FindForm().Handle, (int)EWindowsMessage.WM_NCLBUTTONDOWN, (int)hit, pt);
         }
 
-        public void DecorationMouseDown(HitTestValues hit)
+        public void DecorationMouseDown(EHitTestValues hit)
         {
             DecorationMouseDown(hit, MousePosition);
         }
 
-        public void DecorationMouseUp(HitTestValues hit, Point p)
+        public void DecorationMouseUp(EHitTestValues hit, Point p)
         {
             NativeMethods.ReleaseCapture();
             var pt = new POINT { X = (short)p.X, Y = (short)p.Y };
-            NativeMethods.SendMessage(FindForm().Handle, (int)WindowsMessage.WM_NCLBUTTONUP, (int)hit, pt);
+            NativeMethods.SendMessage(FindForm().Handle, (int)EWindowsMessage.WM_NCLBUTTONUP, (int)hit, pt);
         }
 
-        public void DecorationMouseUp(HitTestValues hit)
+        public void DecorationMouseUp(EHitTestValues hit)
         {
             DecorationMouseUp(hit, MousePosition);
         }
@@ -57,7 +57,7 @@ namespace BorderlessForm
         
         protected void ShowSystemMenu(MouseButtons buttons, Point pos)
         {
-            NativeMethods.SendMessage(Handle, (int)WindowsMessage.WM_SYSMENU, 0, MakeLong((short)pos.X, (short)pos.Y));
+            NativeMethods.SendMessage(Handle, (int)EWindowsMessage.WM_SYSMENU, 0, MakeLong((short)pos.X, (short)pos.Y));
         }
         
         protected override void WndProc(ref Message m)
@@ -70,32 +70,32 @@ namespace BorderlessForm
 
             switch (m.Msg)
             {
-                case (int)WindowsMessage.WM_NCCALCSIZE:
+                case (int)EWindowsMessage.WM_NCCALCSIZE:
                     {
                         // Provides new coordinates for the window client area.
                         WmNCCalcSize(ref m);
                         break;
                     }
-                case (int)WindowsMessage.WM_NCPAINT:
+                case (int)EWindowsMessage.WM_NCPAINT:
                     {
                         // Here should all our painting occur, but...
                         WmNCPaint(ref m);
                         break;
                     }
-                case (int)WindowsMessage.WM_NCACTIVATE:
+                case (int)EWindowsMessage.WM_NCACTIVATE:
                     {
                         // ... WM_NCACTIVATE does some painting directly 
                         // without bothering with WM_NCPAINT ...
                         WmNCActivate(ref m);
                         break;
                     }
-                case (int)WindowsMessage.WM_SETTEXT:
+                case (int)EWindowsMessage.WM_SETTEXT:
                     {
                         // ... and some painting is required in here as well
                         WmSetText(ref m);
                         break;
                     }
-                case (int)WindowsMessage.WM_WINDOWPOSCHANGED:
+                case (int)EWindowsMessage.WM_WINDOWPOSCHANGED:
                     {
                         WmWindowPosChanged(ref m);
                         break;
@@ -130,9 +130,9 @@ namespace BorderlessForm
             get
             {
                 var s = NativeMethods.GetWindowLong(Handle, NativeConstants.GWL_STYLE);
-                var max = (s & (int)WindowStyle.WS_MAXIMIZE) > 0;
+                var max = (s & (int)EWindowStyle.WS_MAXIMIZE) > 0;
                 if (max) return FormWindowState.Maximized;
-                var min = (s & (int)WindowStyle.WS_MINIMIZE) > 0;
+                var min = (s & (int)EWindowStyle.WS_MINIMIZE) > 0;
                 if (min) return FormWindowState.Minimized;
                 return FormWindowState.Normal;
             }

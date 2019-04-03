@@ -175,12 +175,22 @@ namespace TheraEngine.Rendering
                         RenderLightPass(viewport);
                         RenderForwardPass(viewport, renderingPasses);
                         RenderBloomPass(viewport);
-
-                        camera.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
-
-                        TMaterial post = camera?.PostProcessRef?.File?.PostProcessMaterial?.File;
-                        if (post != null)
-                            RenderPostProcessPass(viewport, post);
+                        
+                        if (camera is TypicalCamera typicalCamera)
+                        {
+                            typicalCamera.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
+                            
+                            TMaterial postMat = typicalCamera.PostProcessMaterial?.File;
+                            if (postMat != null)
+                                RenderPostProcessPass(viewport, postMat);
+                        }
+                        else if (camera is BlendableCamera bcam)
+                        {
+                            var tcam1 = bcam.View1 as TypicalCamera;
+                            var tcam2 = bcam.View2 as TypicalCamera;
+                            tcam1.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
+                            tcam2.PostProcessRef?.File?.ColorGrading?.UpdateExposure(viewport.HDRSceneTexture);
+                        }
                     }
                     Engine.Renderer.PopRenderArea();
 

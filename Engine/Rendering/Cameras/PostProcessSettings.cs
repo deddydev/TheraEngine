@@ -50,16 +50,12 @@ namespace TheraEngine.Rendering.Cameras
         [TSerialize("SSAO")]
         [Category("Post-Process Settings")]
         public AmbientOcclusionSettings AmbientOcclusion { get; set; }
-        [Category("Post-Process Settings")]
-        [TSerialize]
-        public LocalFileRef<TMaterial> PostProcessMaterial { get; set; }
 
         internal void SetUniforms(RenderProgram program)
         {
             Vignette.SetUniforms(program);
             DepthOfField.SetUniforms(program);
             ColorGrading.SetUniforms(program);
-            Bloom.SetUniforms(program);
             LensFlare.SetUniforms(program);
         }
 
@@ -271,10 +267,13 @@ struct ColorGradeStruct
 };
 uniform ColorGradeStruct ColorGrade;";
         }
+
+        [Browsable(false)]
+        public bool AllowsAutoExposure => AutoExposure || Exposure < MinExposure || Exposure > MaxExposure;
         
         public unsafe void UpdateExposure(TexRef2D hdrSceneTexture)
         {
-            if (!AutoExposure && Exposure >= MinExposure && Exposure <= MaxExposure)
+            if (!AllowsAutoExposure)
                 return;
             
             //Calculate average color value using 1x1 mipmap of scene

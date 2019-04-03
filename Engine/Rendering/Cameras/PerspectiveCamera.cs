@@ -8,7 +8,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
-    public class PerspectiveCamera : Camera
+    public class PerspectiveCamera : TypicalCamera
     {
         public PerspectiveCamera() : this(0.1f, 10000.0f, 78.0f, 16.0f / 9.0f) { }
         public PerspectiveCamera(Vec3 point, Rotator rotation, float nearZ, float farZ, float fovY, float aspect)
@@ -65,12 +65,12 @@ namespace TheraEngine.Rendering.Cameras
         public override float Width
         {
             get => _width;
-            set => Resize(value, Height);
+            //set => Resize(value, Height);
         }
         public override float Height
         {
             get => _height;
-            set => Resize(Width, value);
+            //set => Resize(Width, value);
         }
 
         /// <summary>
@@ -115,10 +115,11 @@ namespace TheraEngine.Rendering.Cameras
             PositionChanged();
             CalculateProjection();
         }
-        protected unsafe override void CalculateProjection()
+
+        protected override void OnCalculateProjection(out Matrix4 projMatrix, out Matrix4 inverseProjMatrix)
         {
-            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
-            _projectionInverse = Matrix4.CreateInversePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
+            projMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
+            inverseProjMatrix = Matrix4.CreateInversePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
 
             //int slices = _transformedFrustumCascade.Length;
             //float zRange = _farZ - _nearZ;
@@ -130,7 +131,6 @@ namespace TheraEngine.Rendering.Cameras
             //    _transformedFrustumProjMatrices[i] = proj;
             //    _transformedFrustumShadowMatrices[i] = proj * WorldToCameraSpaceMatrix;
             //}
-            base.CalculateProjection();
         }
 
         public void SetAll(Vec3 translation, Rotator rotation, float fov, bool verticalFOV, float nearZ, float farZ, float? aspect)
@@ -246,7 +246,7 @@ namespace TheraEngine.Rendering.Cameras
             => 2.0f * TMath.RadToDeg((float)Math.Atan(width / _aspect * 0.5f / distance));
         public float HorizontalFovForHeightAndDistance(float height, float distance)
             => 2.0f * TMath.RadToDeg((float)Math.Atan(height * _aspect * 0.5f / distance));
-        
+
         // half of the the horizontal field of view
         //       float angleX;
         //// store the information

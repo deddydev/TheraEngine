@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Core.Win32.Native;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -6,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
@@ -982,6 +985,40 @@ namespace TheraEditor.Windows.Forms
             int op = BeginOperation("Saving file...", "File saved.", out Progress<float> progress, out CancellationTokenSource cancel);
             await file.ExportAsync(filePath, flags, progress, cancel.Token);
             EndOperation(op);
+        }
+
+        /// <summary>
+        /// Associates an extension with the editor.
+        /// </summary>
+        /// <param name="ext">The extension of the file to associate.</param>
+        /// <param name="fileName">The name of the file type.</param>
+        /// <param name="keyName">The key to use for the association.</param>
+        public static void AssociateExtension(string ext, string fileName, string keyName)
+        {
+            string openWithPath = Assembly.GetExecutingAssembly().Location;
+
+            RegistryKey baseKey = Registry.ClassesRoot.CreateSubKey(ext);
+            baseKey.SetValue("", keyName);
+            baseKey.Close();
+
+            RegistryKey openMethod = Registry.ClassesRoot.CreateSubKey(keyName);
+            openMethod.SetValue("", fileName);
+            openMethod.CreateSubKey("DefaultIcon").SetValue("", "\"" + openWithPath + "\",0");
+            openMethod.Close();
+
+            RegistryKey shell = openMethod.CreateSubKey("Shell");
+            shell.CreateSubKey("edit").CreateSubKey("command").SetValue("", "\"" + openWithPath + "\"" + " \"%1\"");
+            shell.CreateSubKey("open").CreateSubKey("command").SetValue("", "\"" + openWithPath + "\"" + " \"%1\"");
+            shell.Close();
+
+            //Delete the key instead of trying to change it
+            string keyLocation = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + ext;
+            RegistryKey currentUser = Registry.CurrentUser.OpenSubKey(keyLocation, true);
+            currentUser.DeleteSubKey("UserChoice", false);
+            currentUser.Close();
+
+            //Tell explorer the file association has been changed
+            NativeMethods.SHChangeNotify(0x08000000, 0x0000, IntPtr.Zero, IntPtr.Zero);
         }
     }
     public class DockableFormInstance<T> where T : DockContent, new()

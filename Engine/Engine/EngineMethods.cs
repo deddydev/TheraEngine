@@ -103,10 +103,11 @@ namespace TheraEngine
         {
             IEnumerable<Assembly> search;
 
+            var domains = EnumAppDomains();
             if (assemblies == null || assemblies.Length == 0)
             {
                 //PrintLine("FindTypes; returning assemblies from domains:");
-                search = EnumAppDomains().SelectMany(x =>
+                search = domains.SelectMany(x =>
                 {
                     //PrintLine(x.FriendlyName);
                     return x.GetAssemblies();
@@ -126,7 +127,7 @@ namespace TheraEngine
 
             var allTypes = search.SelectMany(x => x.GetExportedTypes());
 
-            return allTypes.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
+            return allTypes.Where(x => matchPredicate(x)).Distinct().OrderBy(x => x.Name);
         }
 
         public static void SetWorldPanel(BaseRenderPanel panel, bool registerTickNow = true)

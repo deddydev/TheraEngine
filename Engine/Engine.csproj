@@ -491,6 +491,8 @@
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
     <Compile Include="Physics\Bullet\TContactResultCallback.cs" />
     <Compile Include="Physics\ContactTest.cs" />
+    <Compile Include="Rendering\Cameras\BlendableCamera.cs" />
+    <Compile Include="Rendering\Cameras\TypicalCamera.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
     <Compile Include="Shapes\Boxes\BoundingBoxStruct.cs" />
     <Compile Include="Shapes\Cylindrical\XAligned\CapsuleX.cs" />

@@ -38,7 +38,7 @@ namespace TheraEngine.Components.Scene.Lights
         [Browsable(false)]
         public MaterialFrameBuffer ShadowMap { get; protected set; }
         [Browsable(false)]
-        public Camera ShadowCamera { get; protected set; }
+        public TypicalCamera ShadowCamera { get; protected set; }
 
         [TSerialize]
         [Category("Shadow Map Settings")]

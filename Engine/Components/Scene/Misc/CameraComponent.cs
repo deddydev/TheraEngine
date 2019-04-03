@@ -13,7 +13,7 @@ using TheraEngine.Rendering.Cameras;
 namespace TheraEngine.Components.Scene
 {
     [TFileDef("Camera Component")]
-    public class CameraComponent : OriginRebasableComponent, ICameraTransformable, IEditorPreviewIconRenderable
+    public class CameraComponent : OriginRebasableComponent, IEditorPreviewIconRenderable
     {
         #region Constructors
         public CameraComponent() : this(null) { }
@@ -179,16 +179,17 @@ namespace TheraEngine.Components.Scene
 #endif
 
         #region Overrides
+
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
             base.GenerateChildCache(cache);
             if (OwningActor is IPawn p && p.CurrentCameraComponent == null)
                 p.CurrentCameraComponent = this;
         }
+
         protected internal override void OnOriginRebased(Vec3 newOrigin)
-        {
-            _cameraRef.File?.TranslateAbsolute(-newOrigin);
-        }
+            => _cameraRef.File?.RebaseOrigin(newOrigin);
+        
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Camera c = _cameraRef.File;
@@ -216,7 +217,7 @@ namespace TheraEngine.Components.Scene
         public override bool IsTranslatable => true;
         public override void HandleWorldTranslation(Vec3 delta)
         {
-            Camera?.TranslateAbsolute(delta);
+            //Camera?.TranslateAbsolute(delta);
         }
 
 #if EDITOR
@@ -268,46 +269,7 @@ namespace TheraEngine.Components.Scene
         }
 #endif
 
-        [Browsable(false)]
-        public Rotator Rotation
-        {
-            get => Camera?.LocalRotation;
-            set
-            {
-                if (Camera != null)
-                    Camera.LocalRotation = value;
-            }
-        }
-        [Browsable(false)]
-        public EventVec3 Translation
-        {
-            get => Camera?.LocalPoint;
-            set
-            {
-                if (Camera != null)
-                    Camera.LocalPoint = value;
-            }
-        }
-
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
-        
-        public void TranslateRelative(Vec3 delta)
-        {
-            throw new NotImplementedException();
-        }
-        public void TranslateRelative(float dX, float dY, float dZ)
-        {
-            throw new NotImplementedException();
-        }
-        public void Pivot(float pitch, float yaw, float distance)
-        {
-            throw new NotImplementedException();
-        }
-        public void ArcBallRotate(float pitch, float yaw, Vec3 origin)
-        {
-            Translation.Raw = TMath.ArcballTranslation(pitch, yaw, origin, Translation.Raw, LocalRightDir);
-            Rotation.AddRotations(pitch, yaw, 0.0f);
-        }
         
         #endregion
     }

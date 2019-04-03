@@ -625,5 +625,16 @@ namespace TheraEngine.Core.Shapes
         {
             passes.Add(_renderCommand);
         }
+
+        public static Frustum Lerp(Frustum frustum1, Frustum frustum2, float time)
+            => new Frustum(
+                Vec3.Lerp(frustum1.FarBottomLeft,   frustum2.FarBottomLeft,     time),
+                Vec3.Lerp(frustum1.FarBottomRight,  frustum2.FarBottomRight,    time),
+                Vec3.Lerp(frustum1.FarTopLeft,      frustum2.FarTopLeft,        time),
+                Vec3.Lerp(frustum1.FarTopRight,     frustum2.FarTopRight,       time),
+                Vec3.Lerp(frustum1.NearBottomLeft,  frustum2.NearBottomLeft,    time),
+                Vec3.Lerp(frustum1.NearBottomRight, frustum2.NearBottomRight,   time),
+                Vec3.Lerp(frustum1.NearTopLeft,     frustum2.NearTopLeft,       time),
+                Vec3.Lerp(frustum1.NearTopRight,    frustum2.NearTopRight,      time));
     }
 }

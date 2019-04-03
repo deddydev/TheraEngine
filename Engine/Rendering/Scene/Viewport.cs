@@ -1117,7 +1117,7 @@ namespace TheraEngine.Rendering
         //}
 
         private void BrightPassFBO_SettingUniforms(RenderProgram program)
-            => RenderingCamera?.PostProcessRef.File.Bloom.SetUniforms(program);
+            => RenderingCamera?.SetBloomUniforms(program);
         
         private void SSAO_SetUniforms(RenderProgram program)
         {
@@ -1126,7 +1126,7 @@ namespace TheraEngine.Rendering
             program.Uniform("NoiseScale", InternalResolution.Extents / 4.0f);
             program.Uniform("Samples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
             RenderingCamera.SetUniforms(program);
-            RenderingCamera.PostProcessRef.File.AmbientOcclusion.SetUniforms(program);
+            RenderingCamera.SetAmbientOcclusionUniforms(program);
         }
 
         private void _postProcess_SettingUniforms(RenderProgram program)
@@ -1135,7 +1135,7 @@ namespace TheraEngine.Rendering
                 return;
 
             RenderingCamera.SetUniforms(program);
-            RenderingCamera.PostProcessRef.File.SetUniforms(program);
+            RenderingCamera.SetPostProcessUniforms(program);
         }
 
         #endregion

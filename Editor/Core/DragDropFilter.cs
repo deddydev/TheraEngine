@@ -116,10 +116,10 @@ namespace TheraEditor.Core
         }
         public bool PreFilterMessage(ref Message m)
         {
-            WindowsMessage msg = (WindowsMessage)m.Msg;
+            EWindowsMessage msg = (EWindowsMessage)m.Msg;
             switch (msg)
             {
-                case WindowsMessage.WM_MOUSEMOVE:
+                case EWindowsMessage.WM_MOUSEMOVE:
 
                     //Get cursor position
                     //LParam seems to be off compared to Cursor.Position
@@ -188,9 +188,9 @@ namespace TheraEditor.Core
 
                     break;
                 
-                case WindowsMessage.WM_LBUTTONDOWN:
+                case EWindowsMessage.WM_LBUTTONDOWN:
                     return true;
-                case WindowsMessage.WM_LBUTTONUP:
+                case EWindowsMessage.WM_LBUTTONUP:
                     if (_hoveredControl != null)
                     {
                         DragEventArgs dragArgs = new DragEventArgs(_data, 0, _mousePoint.X, _mousePoint.Y, _allowed, _current);
@@ -199,7 +199,7 @@ namespace TheraEditor.Core
                     StopFiltering();
                     break;
                 
-                case WindowsMessage.WM_KEYDOWN:
+                case EWindowsMessage.WM_KEYDOWN:
                     if (_hoveredControl != null)
                     {
                         QueryContinueDragEventArgs queryArgs = new QueryContinueDragEventArgs(0, false, DragAction.Continue);

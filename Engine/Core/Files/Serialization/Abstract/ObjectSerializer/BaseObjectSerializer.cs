@@ -91,7 +91,11 @@ namespace TheraEngine.Core.Files.Serialization
 
                 ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
                 foreach (Type type in typeList)
-                    ObjectSerializers.Add(type.GetCustomAttributeExt<ObjectSerializerFor>(), type);
+                {
+                    var attrib = type.GetCustomAttributeExt<ObjectSerializerFor>();
+                    if (!ObjectSerializers.ContainsKey(attrib))
+                        ObjectSerializers.Add(attrib, type);
+                }
             }
             else
             {

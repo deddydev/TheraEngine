@@ -111,6 +111,8 @@ namespace TheraEngine.Rendering
             base.Destroy();
 
             IsValid = false;
+
+            _attribCache.Clear();
             _uniformCache.Clear();
         }
 
@@ -119,6 +121,8 @@ namespace TheraEngine.Rendering
             if (BaseRenderPanel.ThreadSafeBlockingInvoke((Func<int>)CreateObject, BaseRenderPanel.EPanelType.Rendering))
                 return CurrentBind.BindingId;
 
+            //Reset caches in case the attached shaders have since the program was last active.
+            _attribCache.Clear();
             _uniformCache.Clear();
 
             IsValid = true;
@@ -139,14 +143,14 @@ namespace TheraEngine.Rendering
                 if (!shader.IsActive)
                     shader.GenerateSafe();
 
-                if (IsValid = IsValid && shader.IsCompiled)
+                if (IsValid = (IsValid && shader.IsCompiled))
                     Engine.Renderer.AttachShader(shader.BindingId, id);
                 else
                     return NullBindingId;
             }
 
             bool valid = Engine.Renderer.LinkProgram(id, out string info);
-            if (!(IsValid = IsValid && valid))
+            if (!(IsValid = (IsValid && valid)))
             {
                 //if (info.Contains("Vertex info"))
                 //{

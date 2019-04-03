@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Core.Win32.Native
 {
-    public enum GetWindow_Cmd : uint
+    public enum EGetWindow_Cmd : uint
     {
         GW_HWNDFIRST = 0,
         GW_HWNDLAST = 1,
@@ -14,7 +14,7 @@ namespace Core.Win32.Native
         GW_ENABLEDPOPUP = 6
     }
 
-    public enum VirtualKey
+    public enum EVirtualKey
     {
         VK_LBUTTON = 0x01,
         //Left mouse button
@@ -750,7 +750,7 @@ namespace Core.Win32.Native
         //Clear key
     }
 
-    public enum HitTestValues
+    public enum EHitTestValues
     {
         HTERROR = -2,
         HTTRANSPARENT = -1,
@@ -778,7 +778,7 @@ namespace Core.Win32.Native
         HTHELP = 21
     }
 
-    public enum WindowsMessage
+    public enum EWindowsMessage
     {
         WM_NULL = 0x0000,
         WM_CREATE = 0x0001,
@@ -905,7 +905,7 @@ namespace Core.Win32.Native
         WM_PRINTCLIENT = 0x0318,
     }
 
-    public enum SystemCommands
+    public enum ESystemCommands
     {
         SC_SIZE = 0xF000,
         SC_MOVE = 0xF010,
@@ -984,7 +984,7 @@ namespace Core.Win32.Native
     }
 
     [Flags]
-    public enum WindowStyle
+    public enum EWindowStyle
     {
         WS_OVERLAPPED = 0x00000000,
         WS_POPUP = -2147483648, //0x80000000,
@@ -1010,8 +1010,7 @@ namespace Core.Win32.Native
         WS_ICONIC = WS_MINIMIZE,
         WS_SIZEBOX = WS_THICKFRAME,
         WS_TILEDWINDOW = WS_OVERLAPPEDWINDOW,
-        WS_OVERLAPPEDWINDOW = (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU |
-                                WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX),
+        WS_OVERLAPPEDWINDOW = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
         WS_POPUPWINDOW = (WS_POPUP | WS_BORDER | WS_SYSMENU),
         WS_CHILDWINDOW = (WS_CHILD)
     }
@@ -1040,6 +1039,9 @@ namespace Core.Win32.Native
 
     public static class NativeMethods
     {
+        [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern void SHChangeNotify(uint wEventId, uint uFlags, IntPtr dwItem1, IntPtr dwItem2);
+
         [DllImport("user32.dll")]
         public static extern IntPtr GetWindow(IntPtr hWnd, int uCmd);
         [DllImport("user32.dll")]
@@ -1165,7 +1167,7 @@ namespace Core.Win32.Native
         public static extern int SHAppBarMessage(uint dwMessage, [In] ref APPBARDATA pData);
         
         [DllImport("user32.dll")]
-        public static extern bool AnimateWindow(IntPtr handle, int time, AnimateWindowFlags dwFlags);
+        public static extern bool AnimateWindow(IntPtr handle, int time, EAnimateWindowFlags dwFlags);
 
         [DllImport("user32.dll")]
         public static extern bool SystemParametersInfo(uint uiAction, uint uiParam, IntPtr pvParam, uint fWinIni);
@@ -1180,14 +1182,22 @@ namespace Core.Win32.Native
     public enum EShowWindowEnum
     {
         Hide = 0,
-        ShowNormal = 1, ShowMinimized = 2, ShowMaximized = 3,
-        Maximize = 3, ShowNormalNoActivate = 4, Show = 5,
-        Minimize = 6, ShowMinNoActivate = 7, ShowNoActivate = 8,
-        Restore = 9, ShowDefault = 10, ForceMinimized = 11
+        ShowNormal = 1,
+        ShowMinimized = 2,
+        ShowMaximized = 3,
+        Maximize = 3,
+        ShowNormalNoActivate = 4,
+        Show = 5,
+        Minimize = 6,
+        ShowMinNoActivate = 7,
+        ShowNoActivate = 8,
+        Restore = 9,
+        ShowDefault = 10,
+        ForceMinimized = 11
     };
 
     [Flags]
-    public enum AnimateWindowFlags : uint
+    public enum EAnimateWindowFlags : uint
     {
         AW_HOR_POSITIVE = 0x00000001,
         AW_HOR_NEGATIVE = 0x00000002,
@@ -1203,8 +1213,8 @@ namespace Core.Win32.Native
     {
         public const int GW_HWNDPREV = 3;
 
-        public const int EM_GETSCROLLPOS = (WM_USER + 221);
-        public const int EM_SETSCROLLPOS = (WM_USER + 222);
+        public const int EM_GETSCROLLPOS = WM_USER + 221;
+        public const int EM_SETSCROLLPOS = WM_USER + 222;
 
         public const int VK_CONTROL = 0x11;
         public const int VK_UP = 0x26;

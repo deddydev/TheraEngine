@@ -724,12 +724,8 @@ namespace TheraEditor
         public EngineLogger LastBuildLog { get; private set; }
 
         public async Task CompileAsync()
-            => await Task.Run(() => Compile());
+            => await CompileAsync("Debug", IntPtr.Size == 8 ? "x64" : "x86");
         public async Task CompileAsync(string buildConfiguration, string buildPlatform)
-            => await Task.Run(() => Compile(buildConfiguration, buildPlatform));
-        public void Compile()
-            => Compile("Debug", IntPtr.Size == 8 ? "x64" : "x86");
-        public void Compile(string buildConfiguration, string buildPlatform)
         {
             Engine.PrintLine($"Compiling {buildConfiguration} {buildPlatform} {SolutionPath}");
 
@@ -768,10 +764,16 @@ namespace TheraEditor
                     }
                 }
 
-                CreateGameDomain(true);
-                
                 PrintLine(SolutionPath + " : Build succeeded.");
+                PrintLine("Creating game domain.");
+                CreateGameDomain(true);
+                PrintLine("Game domain created.");
+
+                PrintLine("Resetting type caches.");
                 Editor.ResetTypeCaches();
+                PrintLine("Type caches reset.");
+
+                await ExportAsync();
             }
             else
             {
@@ -781,33 +783,28 @@ namespace TheraEditor
             
             pc.UnregisterAllLoggers();
         }
-
-        [TPostDeserialize]
-        private void PostDeserialize()
+        
+        [TPostDeserialize(arguments: false)]
+        private async void CreateGameDomain(bool compiling)
         {
-            CreateGameDomain(false);
-        }
-        private void CreateGameDomain(bool compiling)
-        {
-            if (_gameDomain != null)
-            {
-                AppDomain.Unload(_gameDomain.Domain);
-                _gameDomain.Dispose();
-                _gameDomain = null;
-            }
-
             string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
             string buildConfiguration = "Debug";
             
             string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
-            if (!compiling && !Directory.Exists(rootDir))
+            if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths == null))
             {
-                Compile(buildConfiguration, buildPlatform);
+                await CompileAsync(buildConfiguration, buildPlatform);
                 return;
             }
 
             try
             {
+                if (_gameDomain != null)
+                {
+                    _gameDomain.Dispose();
+                    _gameDomain = null;
+                }
+
                 AppDomainSetup setupInfo = new AppDomainSetup()
                 {
                     ApplicationName = Name,
@@ -829,7 +826,6 @@ namespace TheraEditor
                         _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
                         _gameDomain.LoadAssemblyWithReferences(LoadMethod.LoadFrom, path);
                     }
-                    //_gameDomain.Domain.DomainUnload += Domain_DomainUnload;
                 }
             }
             catch (Exception ex)
@@ -837,13 +833,7 @@ namespace TheraEditor
                 Engine.LogException(ex);
             }
         }
-
-        private void Domain_DomainUnload(object sender, EventArgs e)
-        {
-            _gameDomain = null;
-            Engine.PrintLine($"Unloaded game {nameof(AppDomain)}.");
-        }
-
+        
         public void CollectFiles(
             out List<string> codeFiles,
             out List<string> contentFiles,

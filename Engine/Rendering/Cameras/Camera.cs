@@ -1,50 +1,31 @@
-﻿using TheraEngine.Core.Files;
-using TheraEngine.Rendering.Models.Materials;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using TheraEngine.Core.Shapes;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Components.Scene;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection.Attributes.Serialization;
+using TheraEngine.Core.Shapes;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
     public abstract class Camera : TFileObject, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
-        
-        public event OwningComponentChange OwningComponentChanged;
-        public delegate void TranslationChange(Vec3 oldTranslation);
-        public delegate void RotationChange(Rotator oldRotation);
-
-        protected Camera() 
-            : this(16.0f, 9.0f) { }
-
-        protected Camera(float width, float height)
-            : this(width, height, 1.0f, 10000.0f) { }
-
-        protected Camera(float width, float height, float nearZ, float farZ)
-            : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
-
-        protected Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
+        protected Camera()
         {
             _renderCommand = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render);
-            _postProcessSettingsRef = new PostProcessSettings();
             _transformedFrustum = new Frustum();
-            _localRotation = rotation;
-            _localPoint = point;
-            _nearZ = nearZ;
-            _farZ = farZ;
-            Resize(width, height);
-            _viewTarget = null;
-            _localRotation.Changed += CreateTransform;
-            _localPoint.Changed += PositionChanged;
-            PositionChanged();
         }
+
+        public event OwningComponentChange OwningComponentChanged;
+
+        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
+
+        public abstract float NearZ { get; set; }
+        public abstract float FarZ { get; set; }
 
         [Browsable(false)]
         public Matrix4 ProjectionMatrix => _projectionMatrix;
@@ -67,75 +48,28 @@ namespace TheraEngine.Rendering.Cameras
         [Browsable(false)]
         public Matrix4 ComponentToCameraSpaceMatrix => _worldToCameraSpaceMatrix;
         [Browsable(false)]
-        public Matrix4 CameraToComponentSpaceMatrix
+        public virtual Matrix4 CameraToComponentSpaceMatrix
         {
             get => _cameraToWorldSpaceMatrix;
             internal set
             {
-                _localPoint.Raw = _cameraToWorldSpaceMatrix.Translation;
-                _localRotation.SetRotations(_cameraToWorldSpaceMatrix.GetRotationMatrix4().ExtractRotation().ToYawPitchRoll());
                 _cameraToWorldSpaceMatrix = value;
                 _worldToCameraSpaceMatrix = _cameraToWorldSpaceMatrix.Inverted();
                 OnTransformChanged();
             }
         }
-        [DisplayName("Near Distance")]
-        [Category("Camera")]
-        public float NearZ
-        {
-            get => _nearZ;
-            set
-            {
-                _nearZ = value;
-                CalculateProjection();
-            }
-        }
-        [DisplayName("Far Distance")]
-        [Category("Camera")]
-        public float FarZ
-        {
-            get => _farZ;
-            set
-            {
-                _farZ = value;
-                CalculateProjection();
-            }
-        }
 
         [Browsable(false)]
         [Category("Camera")]
-        public Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? _localPoint.Raw;
+        public virtual Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? Vec3.Zero;
         
-        [Category("Camera")]
-        public EventVec3 LocalPoint
-        {
-            get => _localPoint;
-            set
-            {
-                _localPoint = value ?? new EventVec3();
-                _localPoint.Changed += PositionChanged;
-                PositionChanged();
-            }
-        }
-        [Category("Camera")]
-        public Rotator LocalRotation
-        {
-            get => _localRotation;
-            set => _localRotation.SetRotations(value);
-        }
-        [DisplayName("Post-Processing")]
-        [Category("Camera")]
-        public GlobalFileRef<PostProcessSettings> PostProcessRef
-        {
-            get => _postProcessSettingsRef;
-            set => _postProcessSettingsRef = value ?? new PostProcessSettings();
-        }
-
         [Browsable(false)]
         public Frustum Frustum => _transformedFrustum;
+        [Browsable(false)]
+        public Frustum UntransformedFrustum => _untransformedFrustum;
 
-        public abstract float Width { get; set; }
-        public abstract float Height { get; set; }
+        public abstract float Width { get; }
+        public abstract float Height { get; }
         [Browsable(false)]
         public abstract Vec2 Origin { get; }
         [Browsable(false)]
@@ -147,7 +81,7 @@ namespace TheraEngine.Rendering.Cameras
         public bool IsActiveRenderCamera { get; internal set; } = false;
 
         [Browsable(false)]
-        public CameraComponent OwningComponent
+        public virtual CameraComponent OwningComponent
         {
             get => _owningComponent;
             set
@@ -162,28 +96,11 @@ namespace TheraEngine.Rendering.Cameras
                 UpdateTransformedFrustum();
             }
         }
-        [Category("Camera")]
-        public EventVec3 ViewTarget
-        {
-            get => _viewTarget;
-            set
-            {
-                if (_viewTarget != null)
-                    _viewTarget.Changed -= _viewTarget_Changed;
-                _viewTarget = value;
-                if (_viewTarget != null)
-                {
-                    _viewTarget.Changed += _viewTarget_Changed;
-                    _viewTarget_Changed();
-                }
-            }
-        }
         
-        private CameraComponent _owningComponent;
+        protected CameraComponent _owningComponent;
         internal Vec3 _projectionRange;
         internal Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
-        protected EventVec3 _viewTarget = null;
         protected bool _updating = false;
         protected Matrix4
             _projectionMatrix = Matrix4.Identity,
@@ -193,20 +110,7 @@ namespace TheraEngine.Rendering.Cameras
             _worldToCameraProjSpaceMatrix = Matrix4.Identity,
             _cameraProjToWorldSpaceMatrix = Matrix4.Identity;
         protected bool _matrixInvalidated = false;
-
-        [TSerialize("Point")]
-        protected EventVec3 _localPoint;
-        [TSerialize("Rotation")]
-        protected Rotator _localRotation;
-        [TSerialize("NearZ")]
-        protected float _nearZ;
-        [TSerialize("FarZ")]
-        protected float _farZ;
-        [TSerialize("PostProcessSettings")]
-        private PostProcessSettings _postProcessSettingsRef;
-
-        private void _viewTarget_Changed()
-            => SetRotationWithTarget(_viewTarget.Raw);
+        
         private void _owningComponent_WorldTransformChanged(SceneComponent comp)
         {
             //_forwardInvalidated = true;
@@ -216,12 +120,12 @@ namespace TheraEngine.Rendering.Cameras
             if (!_updating)
                 OnTransformChanged();
         }
-        
+
         /// <summary>
         /// Returns an X, Y coordinate relative to the camera's Origin,
         /// with Z being the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f).
         /// </summary>
-        public Vec3 WorldToScreen(Vec3 point)
+        public Vec3 WorldToScreen(Vec3 point) 
             => _projectionRange * (((point * WorldToCameraProjSpaceMatrix) + Vec3.One) * Vec3.Half);
         /// <summary>
         /// Takes an X, Y coordinate relative to the camera's Origin along with the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f), and returns a position in the world.
@@ -238,52 +142,9 @@ namespace TheraEngine.Rendering.Cameras
         /// </summary>
         public Vec3 ScreenToWorld(Vec3 screenPoint)
             => ((screenPoint / _projectionRange) / Vec3.Half - Vec3.One) * CameraProjToWorldSpaceMatrix;
-        
-        public virtual void PositionChanged()
-        {
-            if (_viewTarget != null)
-                _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles());
-            CreateTransform();
-        }
-        protected virtual void CreateTransform()
-        {
-            Matrix4 rotMatrix = _localRotation.GetMatrix();
-            _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix;
-            _worldToCameraSpaceMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
-            OnTransformChanged();
-        }
+
         protected virtual void UpdateTransformedFrustum()
-            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, CameraToWorldSpaceMatrix);
-
-        /// <summary>
-        /// Translates the camera relative to the camera's rotation.
-        /// </summary>
-        public void TranslateRelative(float x, float y, float z) 
-            => TranslateRelative(new Vec3(x, y, z));
-        /// <summary>
-        /// Translates the camera relative to the camera's rotation.
-        /// </summary>
-        public void TranslateRelative(Vec3 translation)
-        {
-            _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * translation.AsTranslationMatrix();
-            _worldToCameraSpaceMatrix = (-translation).AsTranslationMatrix() * _worldToCameraSpaceMatrix;
-            _localPoint.SetRawNoUpdate(_cameraToWorldSpaceMatrix.Translation);
-            if (_viewTarget != null)
-                SetRotationWithTarget(_viewTarget.Raw);
-            else
-                OnTransformChanged();
-        }
-
-        /// <summary>
-        /// Translates the camera relative to the world.
-        /// </summary>
-        public void TranslateAbsolute(float x, float y, float z) 
-            => TranslateAbsolute(new Vec3(x, y, z));
-        /// <summary>
-        /// Translates the camera relative to the world.
-        /// </summary>
-        public void TranslateAbsolute(Vec3 translation)
-            => _localPoint.Raw += translation;
+            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum ?? (_untransformedFrustum = CreateUntransformedFrustum()), CameraToWorldSpaceMatrix);
         
         /// <summary>
         /// Rotates the given vector by the camera's rotation. Does not normalize the returned vector.
@@ -293,6 +154,8 @@ namespace TheraEngine.Rendering.Cameras
         /// <returns>The rotated vector. Not normalized.</returns>
         public Vec3 RotateVector(Vec3 dir)
             => Vec3.TransformVector(dir, CameraToWorldSpaceMatrix);
+
+        public abstract void RebaseOrigin(Vec3 newOrigin);
 
         /// <summary>
         /// Rotates the given vector by the camera's rotation. Does not normalize the returned vector.
@@ -347,48 +210,7 @@ namespace TheraEngine.Rendering.Cameras
                 return _cameraProjToWorldSpaceMatrix;
             }
         }
-
-        public Scene3D OwningScene3D { get; set; }
-
-        /// <summary>
-        /// Increments the camera's pitch and yaw rotations.
-        /// </summary>
-        public void AddRotation(float pitch, float yaw) 
-            => AddRotation(pitch, yaw, 0.0f);
-        /// <summary>
-        /// Increments the camera's pitch, yaw and roll rotations.
-        /// </summary>
-        public void AddRotation(float pitch, float yaw, float roll) 
-            => SetRotation(
-                _localRotation.Pitch + pitch,
-                _localRotation.Yaw + yaw, 
-                _localRotation.Roll + roll);
-
-        public void SetRotationsNoUpdate(Rotator r)
-            => _localRotation.SetRotationsNoUpdate(r);
-        public void SetRotation(Rotator r) 
-            => _localRotation.SetRotations(r);
-        public void SetRotation(Vec3 pitchYawRoll)
-            => _localRotation.PitchYawRoll = pitchYawRoll;
-        public void SetRotation(float pitch, float yaw, float roll)
-            => _localRotation.SetRotations(pitch, yaw, roll);
-        public void SetRotationWithTarget(Vec3 target)
-        {
-            //if (_owningComponent != null)
-            //    target = Vec3.TransformPosition(target, _owningComponent.InverseWorldMatrix);
-            SetRotation((target - _localPoint).LookatAngles());
-        }
         
-        public void Reset()
-        {
-            _localPoint.Raw = Vec3.Zero;
-            _localRotation.YawPitchRoll = Vec3.Zero;
-        }
-        public void SaveCurrentTransform() { }
-
-        public event TranslationChange TranslationChanged;
-        public event RotationChange RotationChanged;
-        //public event Action Resized;
         public event Action TransformChanged;
         public event Action ProjectionChanged;
 
@@ -401,11 +223,7 @@ namespace TheraEngine.Rendering.Cameras
             TransformChanged?.Invoke();
             _updating = false;
         }
-        protected void OnTranslationChanged(Vec3 oldTranslation) 
-            => TranslationChanged?.Invoke(oldTranslation);
-        protected void OnRotationChanged(Rotator oldRotation)
-            => RotationChanged?.Invoke(oldRotation);
-        
+
 //        internal static string ShaderDecl()
 //        {
 //            return @"
@@ -433,25 +251,42 @@ namespace TheraEngine.Rendering.Cameras
             program.Uniform(EEngineUniform.ScreenWidth,                 Width);
             program.Uniform(EEngineUniform.ScreenHeight,                Height);
             program.Uniform(EEngineUniform.ScreenOrigin,                Origin);
-            program.Uniform(EEngineUniform.CameraNearZ,                 NearZ);
-            program.Uniform(EEngineUniform.CameraFarZ,                  FarZ);
             program.Uniform(EEngineUniform.CameraPosition,              WorldPoint);
         }
+        
+        protected abstract void OnCreateTransform(
+            out Matrix4 cameraToWorldSpaceMatrix,
+            out Matrix4 worldToCameraSpaceMatrix);
 
+        protected abstract void OnCalculateProjection(
+            out Matrix4 projMatrix,
+            out Matrix4 inverseProjMatrix);
+        
         [TPostDeserialize]
-        protected virtual void CalculateProjection()
+        protected void CalculateProjection()
         {
+            if (_updating)
+                return;
+
+            OnCalculateProjection(out _projectionMatrix, out _projectionInverse);
+
             _projectionRange = new Vec3(Dimensions, 1.0f);
             _projectionOrigin = new Vec3(Origin, 0.0f);
+
             _untransformedFrustum = CreateUntransformedFrustum();
             UpdateTransformedFrustum();
+
             _matrixInvalidated = true;
             ProjectionChanged?.Invoke();
         }
+        protected void CreateTransform()
+        {
+            if (_updating)
+                return;
 
-        //Child camera types must override this
-        public virtual void Resize(float width, float height)
-            => CalculateProjection();
+            OnCreateTransform(out _cameraToWorldSpaceMatrix, out _worldToCameraSpaceMatrix);
+            OnTransformChanged();
+        }
 
         protected abstract Frustum CreateUntransformedFrustum();
 
@@ -484,8 +319,6 @@ namespace TheraEngine.Rendering.Cameras
         public virtual void Render()
         {
             _transformedFrustum.Render();
-            if (_viewTarget != null)
-                Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, false, 1.0f);
         }
         public Plane GetScreenPlane()
             => new Plane(WorldPoint, ForwardVector);
@@ -529,5 +362,13 @@ namespace TheraEngine.Rendering.Cameras
         {
             passes.Add(_renderCommand);
         }
+
+        //Child camera types must override this
+        public virtual void Resize(float width, float height)
+            => CalculateProjection();
+
+        internal abstract void SetBloomUniforms(RenderProgram program);
+        internal abstract void SetAmbientOcclusionUniforms(RenderProgram program);
+        internal abstract void SetPostProcessUniforms(RenderProgram program);
     }
 }

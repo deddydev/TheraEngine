@@ -101,15 +101,15 @@ namespace TheraEditor.Windows.Forms
                 control.MouseDown += (s, e) => SetLabelColors((Control)s, MouseState.Down);
             }
 
-            TopLeftBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTTOPLEFT);
-            TopRightBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTTOPRIGHT);
-            BottomLeftBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTBOTTOMLEFT);
-            BottomRightBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTBOTTOMRIGHT);
+            TopLeftBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, EHitTestValues.HTTOPLEFT);
+            TopRightBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, EHitTestValues.HTTOPRIGHT);
+            BottomLeftBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, EHitTestValues.HTBOTTOMLEFT);
+            BottomRightBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, EHitTestValues.HTBOTTOMRIGHT);
 
-            TopBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTTOP);
-            LeftBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTLEFT);
-            RightBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTRIGHT);
-            BottomBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, HitTestValues.HTBOTTOM);
+            TopBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, EHitTestValues.HTTOP);
+            LeftBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, EHitTestValues.HTLEFT);
+            RightBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, EHitTestValues.HTRIGHT);
+            BottomBorderPanel.MouseDown += (s, e) => DecorationMouseDown(e, EHitTestValues.HTBOTTOM);
             
             FormTitle.MouseDown += TitleBar_MouseDown;
             FormTitle.MouseUp += (s, e) => { if (e.Button == MouseButtons.Right && FormTitle.ClientRectangle.Contains(e.Location)) ShowSystemMenu(MouseButtons); };
@@ -148,7 +148,7 @@ namespace TheraEditor.Windows.Forms
             if (e.Button == MouseButtons.Left) Close();
         }
 
-        protected virtual void DecorationMouseDown(MouseEventArgs e, HitTestValues h)
+        protected virtual void DecorationMouseDown(MouseEventArgs e, EHitTestValues h)
         {
             if (e.Button == MouseButtons.Left) DecorationMouseDown(h);
         }
@@ -228,7 +228,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     _titleClickTime = DateTime.Now;
                     _titleClickPosition = e.Location;
-                    DecorationMouseDown(HitTestValues.HTCAPTION);
+                    DecorationMouseDown(EHitTestValues.HTCAPTION);
                 }
             }
         }

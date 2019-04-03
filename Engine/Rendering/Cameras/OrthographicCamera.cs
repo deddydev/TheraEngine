@@ -5,7 +5,7 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Rendering.Cameras
 {
-    public class OrthographicCamera : Camera
+    public class OrthographicCamera : TypicalCamera
     {
         public OrthographicCamera() : base()
         {
@@ -37,13 +37,13 @@ namespace TheraEngine.Rendering.Cameras
         public override float Width
         {
             get => Math.Abs(_orthoRight - _orthoLeft);
-            set => Resize(value, Height);
+            //set => Resize(value, Height);
         }
 
         public override float Height
         {
             get => Math.Abs(_orthoTop - _orthoBottom);
-            set => Resize(Width, value);
+            //set => Resize(Width, value);
         }
 
         [Browsable(false)]
@@ -152,11 +152,10 @@ namespace TheraEngine.Rendering.Cameras
             //UpdateTransformedFrustum();
             //OnTransformChanged();
         }
-        protected override void CalculateProjection()
+        protected override void OnCalculateProjection(out Matrix4 projMatrix, out Matrix4 inverseProjMatrix)
         {
-            _projectionMatrix = Matrix4.CreateOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
-            _projectionInverse = Matrix4.CreateInverseOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
-            base.CalculateProjection();
+            projMatrix = Matrix4.CreateOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
+            inverseProjMatrix = Matrix4.CreateInverseOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
         }
         public void SetProjectionParams(float farz, float nearz)
         {
@@ -186,12 +185,17 @@ namespace TheraEngine.Rendering.Cameras
             float w = Width / 2.0f, h = Height / 2.0f;
             return BoundingBox.FromMinMax(new Vec3(-w, -h, -_farZ), new Vec3(w, h, -_nearZ)).AsFrustum();
         }
-        protected override void CreateTransform()
+        protected override void OnCreateTransform(out Matrix4 cameraToWorldSpaceMatrix, out Matrix4 worldToCameraSpaceMatrix)
         {
-            Matrix4 rotMatrix = _localRotation.GetMatrix();
-            _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
-            _worldToCameraSpaceMatrix = Matrix4.CreateScale(1.0f / _scale) * _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
-            OnTransformChanged();
+            cameraToWorldSpaceMatrix = 
+                Matrix4.CreateTranslation(_localPoint.Raw) *
+                _localRotation.GetMatrix() *
+                Matrix4.CreateScale(_scale);
+
+            worldToCameraSpaceMatrix = 
+                Matrix4.CreateScale(1.0f / _scale) *
+                _localRotation.GetInverseMatrix() *
+                Matrix4.CreateTranslation(-_localPoint.Raw);
         }
         public override float DistanceScale(Vec3 point, float radius)
         {

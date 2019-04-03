@@ -314,7 +314,7 @@ namespace TheraEngine.Tests
                 //mat.AddShader(Engine.LoadEngineShader("VisualizeNormal.gs", EShaderMode.Geometry));
                 mat.Parameter<ShaderFloat>("Roughness").Value = 1.0f;
                 mat.Parameter<ShaderFloat>("Metallic").Value = 0.0f;
-                landscape.RootComponent.GenerateHeightFieldMesh(mat, 10);
+                landscape.RootComponent.GenerateHeightFieldMesh(mat, 2);
                 landscape.RootComponent.Translation.Y -= 25.0f;
                 _landscape = landscape.RootComponent;
                 actors.Add(landscape);

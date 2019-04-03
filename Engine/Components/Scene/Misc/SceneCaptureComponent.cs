@@ -98,7 +98,7 @@ namespace TheraEngine.Actors.Types
             RenderFBO.SetTransform(WorldPoint);
 
             float aspect = _viewport.InternalResolution.Width / _viewport.InternalResolution.Height;
-            foreach (Camera cam in RenderFBO.Cameras)
+            foreach (TypicalCamera cam in RenderFBO.Cameras)
             {
                 cam.PostProcessRef.File.ColorGrading.AutoExposure = false;
                 cam.PostProcessRef.File.ColorGrading.Exposure = 1.0f;

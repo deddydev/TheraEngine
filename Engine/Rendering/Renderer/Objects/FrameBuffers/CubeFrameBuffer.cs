@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering
 
         private PrimitiveManager _cube;
 
-        public Camera[] Cameras { get; }
+        public TypicalCamera[] Cameras { get; }
         public Vec3 Position { get; private set; }
 
         public CubeFrameBuffer(TMaterial mat, float nearZ = 1.0f, float farZ = 1000.0f, bool perspectiveCameras = true)
@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering
             _cube = new PrimitiveManager(cubeData, Material);
             _cube.SettingUniforms += SetUniforms;
 
-            Cameras = new Camera[6];
+            Cameras = new TypicalCamera[6];
             Rotator[] rotations = new Rotator[]
             {
                 new Rotator(  0.0f,  90.0f,   0.0f), //+X
@@ -37,13 +37,13 @@ namespace TheraEngine.Rendering
                 new Rotator(  0.0f,   0.0f,   0.0f), //-Z
             };
 
-            Camera cam;
+            TypicalCamera cam;
             float range = farZ - nearZ;
             for (int i = 0; i < 6; ++i)
             {
                 cam = perspectiveCameras ?
                     new PerspectiveCamera(Vec3.Zero, rotations[i], nearZ, farZ, 90.0f, 1.0f) :
-                    (Camera)new OrthographicCamera(2.0f, 2.0f, Vec3.One, Vec3.Zero, rotations[i], Vec2.Half, nearZ, farZ);
+                    (TypicalCamera)new OrthographicCamera(2.0f, 2.0f, Vec3.One, Vec3.Zero, rotations[i], Vec2.Half, nearZ, farZ);
 
                 cam.Resize(range, range);
 
@@ -67,7 +67,7 @@ namespace TheraEngine.Rendering
         public void SetTransform(Vec3 point)
         {
             Position = point;
-            foreach (Camera c in Cameras)
+            foreach (TypicalCamera c in Cameras)
                 c.LocalPoint.Raw = Position;
         }
     }

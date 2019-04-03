@@ -247,11 +247,11 @@ namespace TheraEngine.Actors.Types
             _rc.Mesh?.Dispose();
             _rc.Mesh = new PrimitiveManager(data, material);
 
-            //string desktopPath = Tests.TestDefaults.DesktopPath;
-            //SaveHeightMap(
-            //    desktopPath + "test.dds",
-            //    FREE_IMAGE_FORMAT.FIF_DDS, 
-            //    FREE_IMAGE_SAVE_FLAGS.DEFAULT);
+            string desktopPath = Tests.TestDefaults.DesktopPath;
+            SaveHeightMap(
+                desktopPath + "test.png",
+                FREE_IMAGE_FORMAT.FIF_PNG,
+                FREE_IMAGE_SAVE_FLAGS.PNG_Z_NO_COMPRESSION);
         }
 
         /// <summary>
@@ -416,23 +416,26 @@ namespace TheraEngine.Actors.Types
         }
         public void SaveHeightMap(string path, FREE_IMAGE_FORMAT format, FREE_IMAGE_SAVE_FLAGS flags)
         {
-            var map = GetHeightmap();
-            map.Save(path, format, flags);
-            map.Dispose();
+            //var map = GetHeightmap();
+            //map.Save(path, format, flags);
+            //map.Dispose();
         }
         public unsafe FreeImageBitmap GetHeightmap()
         {
-            DataSource src = new DataSource(_dimensions.X * _dimensions.Y * sizeof(float));
-            float* ptr = (float*)src.Address;
+            int floatSize = sizeof(float);
+            int size = _dimensions.X * _dimensions.Y * floatSize;
+            byte[] scan0 = new byte[size];
+            int m = 0;
             for (int h = 0; h < _dimensions.Y; ++h)
                 for (int w = 0; w < _dimensions.X; ++w)
                 {
                     float height = GetHeight(w, h);
-                    *ptr++ = height;
+                    byte[] b = BitConverter.GetBytes(height);
+                    for (int i = 0; i < floatSize; ++i)
+                        scan0[m++] = b[i];
                 }
-
-            //bmp.UnlockBits(data);
-            FreeImageBitmap bmp = new FreeImageBitmap(_dimensions.X, _dimensions.Y, 0, 32, FREE_IMAGE_TYPE.FIT_FLOAT, src.Address);
+            
+            FreeImageBitmap bmp = new FreeImageBitmap(_dimensions.X, _dimensions.Y, 0, 32, FREE_IMAGE_TYPE.FIT_FLOAT, scan0);
             return bmp;
         }
         protected internal override void OnHighlightChanged(bool highlighted)

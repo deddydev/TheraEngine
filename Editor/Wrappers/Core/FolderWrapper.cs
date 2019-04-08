@@ -12,6 +12,7 @@ using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Scripting;
 
 namespace TheraEditor.Wrappers
@@ -249,20 +250,19 @@ namespace TheraEditor.Wrappers
 
         #region File Type Loading
 
-        private static bool IsFileObject(Type t)
-            =>  t.Assembly != Assembly.GetExecutingAssembly() &&
-                !t.IsAbstract && 
-                !t.IsInterface &&
-                t.GetConstructors().Any(x => x.IsPublic) &&
+        private static bool IsFileObject(TType t)
+            =>  !t.AssemblyFullName.EqualsInvariant(Assembly.GetExecutingAssembly().FullName) &&
+                !t.IsAbstract && !t.IsInterface &&
+                t.Constructors.Any(x => x.IsPublic) &&
                 t.IsSubclassOf(typeof(TFileObject)) &&
-                t.GetCustomAttributeExt<TFileExt>() != null;
+                t.HasAttribute(typeof(TFileExt).AssemblyQualifiedName);
 
-        private static bool Is3rdPartyImportable(Type t)
+        private static bool Is3rdPartyImportable(TType t)
         {
             if (!IsFileObject(t))
                 return false;
 
-            string[] ext = TFileObject.GetFileExtension(t)?.ImportableExtensions;
+            string[] ext = t.ImportableExtensions;
             return ext != null && ext.Length > 0;
         }
 

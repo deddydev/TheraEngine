@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TheraEngine;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
 
 namespace System
@@ -303,7 +304,7 @@ namespace System
             }
             if (t.GetInterface(nameof(ISerializableString)) != null)
             {
-                ISerializableString o = (ISerializableString)Activator.CreateInstance(t);
+                ISerializableString o = (ISerializableString)SerializationCommon.CreateInstance(t);
                 o.ReadFromString(value);
                 return o;
             }

@@ -6,6 +6,7 @@ using System.Drawing;
 using TheraEditor.Core;
 using TheraEditor.Core.Extensions;
 using TheraEngine;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Rendering.Models.Materials.Functions;
 using TheraEngine.Rendering.UI.Functions;
 using WeifenLuo.WinFormsUI.Docking;
@@ -164,7 +165,7 @@ namespace TheraEditor.Windows.Forms
 
             public MaterialFunction CreateNew()
             {
-                return (MaterialFunction)Activator.CreateInstance(_materialFuncType);
+                return (MaterialFunction)SerializationCommon.CreateInstance(_materialFuncType);
             }
         }
 

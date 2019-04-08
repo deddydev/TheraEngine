@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Files.XML
 {
@@ -172,7 +173,7 @@ namespace TheraEngine.Core.Files.XML
             string parentTree,
             int elementIndex,
             CancellationToken cancel)
-            => await ParseElementAsync(Activator.CreateInstance(elementType) as IElement, 
+            => await ParseElementAsync(SerializationCommon.CreateInstance(elementType) as IElement, 
                 parent, reader, version, ignoreFlags, parentTree, elementIndex, cancel);
         private async Task<IElement> ParseElementAsync(
             IElement entry,
@@ -268,7 +269,7 @@ namespace TheraEngine.Core.Files.XML
             reader.MoveToElement();
             if (entry is IStringElement stringEntry)
             {
-                stringEntry.GenericStringContent = Activator.CreateInstance(stringEntry.GenericStringType) as BaseElementString;
+                stringEntry.GenericStringContent = SerializationCommon.CreateInstance(stringEntry.GenericStringType) as BaseElementString;
                 stringEntry.GenericStringContent.ReadFromString(await reader.ReadElementContentAsStringAsync());
             }
             else

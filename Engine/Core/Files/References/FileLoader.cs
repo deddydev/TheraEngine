@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Core.Files
@@ -252,17 +253,24 @@ namespace TheraEngine.Core.Files
                     switch (GetFormat())
                     {
                         case EFileFormat.XML:
-                            file = await FromXMLAsync(_subType, absolutePath, progress, cancel) as T;
+                            file = await FromXMLAsync(absolutePath, progress, cancel) as T;
                             break;
                         case EFileFormat.Binary:
-                            file = await FromBinaryAsync(_subType, absolutePath, progress, cancel) as T;
+                            file = await FromBinaryAsync(absolutePath, progress, cancel) as T;
                             break;
                         default:
                             Engine.LogWarning($"Could not load file at \"{absolutePath}\". Invalid file format.");
                             break;
                     }
-                    if (file != null)
+                    if (file != null && _subType != null)
                     {
+                        Type fileType = file?.GetType();
+                        if (!_subType.IsAssignableFrom(fileType))
+                        {
+                            Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {_subType.GetFriendlyName()}.");
+                            return null;
+                        }
+
                         OnFileLoaded(file);
                         Loaded?.Invoke(file);
                     }
@@ -352,9 +360,9 @@ namespace TheraEngine.Core.Files
 
             T file;
             if (args.Length == 0)
-                file = Activator.CreateInstance(_subType) as T;
+                file = SerializationCommon.CreateInstance(_subType) as T;
             else
-                file = Activator.CreateInstance(_subType, args.Select(x => x.Value)) as T;
+                file = SerializationCommon.CreateInstance(_subType, args.Select(x => x.Value)) as T;
 
             if (callLoadedEvent)
                 Loaded?.Invoke(file);

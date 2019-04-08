@@ -14,7 +14,7 @@ namespace TheraEditor.Windows.Forms
     public partial class DockableErrorList : DockContent
     {
         private ListViewColumnSorter _listViewSorter;
-        public TProject.EngineLogger Logger { get; private set; }
+        public TProject.EngineBuildLogger Logger { get; private set; }
         public DockableErrorList()
         {
             InitializeComponent();
@@ -58,11 +58,11 @@ namespace TheraEditor.Windows.Forms
                 ProjectPath = projectPath;
             }
         }
-        public void SetLog(TProject.EngineLogger log)
+        public void SetLog(TProject.EngineBuildLogger log)
         {
             if (InvokeRequired)
             {
-                Invoke((Action<TProject.EngineLogger>)SetLog, log);
+                Invoke((Action<TProject.EngineBuildLogger>)SetLog, log);
                 return;
             }
             Logger = log;

@@ -331,14 +331,14 @@ namespace TheraEngine.Core.Files
         /// <summary>
         /// Opens a new instance of the file object at the given file path.
         /// </summary>
-        /// <param name="type">The type of the file object to load.</param>
+        /// <param name="expectedType">The type of the file object to load.</param>
         /// <param name="filePath">The path to the file.</param>
         /// <returns>A new instance of the file.</returns>
         public static async Task<object> LoadAsync(
-            Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
+            Type expectedType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            TFileExt extAttrib = GetFileExtension(type);
-            TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(type);
+            TFileExt extAttrib = GetFileExtension(expectedType);
+            TFile3rdPartyExt tpAttrib = GetFile3rdPartyExtensions(expectedType);
             EFileFormat fmt = GetFormat(filePath, out string ext);
 
             if (extAttrib != null)
@@ -348,7 +348,7 @@ namespace TheraEngine.Core.Files
                     bool hasWildcard = extAttrib.HasImportableExtension("*");
                     bool hasExt = extAttrib.HasImportableExtension(ext);
                     if (hasWildcard || hasExt)
-                        return await Read3rdPartyAsync(type, filePath, progress, cancel);
+                        return await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
                 }
                 else
                 {
@@ -356,9 +356,23 @@ namespace TheraEngine.Core.Files
 
                     string fileExt = extAttrib.GetFullExtension(pfmt);
                     if (string.Equals(ext, fileExt))
-                        return fmt == EFileFormat.XML ?
-                            await FromXMLAsync(type, filePath, progress, cancel) :
-                            await FromBinaryAsync(type, filePath, progress, cancel);
+                    {
+                        var file = fmt == EFileFormat.XML ?
+                            await FromXMLAsync(filePath, progress, cancel) :
+                            await FromBinaryAsync(filePath, progress, cancel);
+
+                        if (file != null && expectedType != null)
+                        {
+                            Type fileType = file?.GetType();
+                            if (!expectedType.IsAssignableFrom(fileType))
+                            {
+                                Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {expectedType.GetFriendlyName()}.");
+                                return null;
+                            }
+                        }
+
+                        return file;
+                    }
                 }
             }
             else if (tpAttrib != null)
@@ -366,10 +380,10 @@ namespace TheraEngine.Core.Files
                 bool hasWildcard = tpAttrib.HasExtension("*");
                 bool hasExt = tpAttrib.HasExtension(ext);
                 if (hasWildcard || hasExt)
-                    return await Read3rdPartyAsync(type, filePath, progress, cancel);
+                    return await Read3rdPartyAsync(expectedType, filePath, progress, cancel);
             }
 
-            Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, type.GetFriendlyName());
+            Engine.LogWarning("{0} cannot be loaded as {1}.", filePath, expectedType.GetFriendlyName());
             return default;
         }
         #endregion
@@ -378,9 +392,9 @@ namespace TheraEngine.Core.Files
         internal static async Task<T> FromXMLAsync<T>(
             string filePath, IProgress<float> progress, CancellationToken cancel)
             where T : TFileObject
-            => await FromXMLAsync(typeof(T), filePath, progress, cancel) as T;
+            => await FromXMLAsync(filePath, progress, cancel) as T;
         internal static async Task<TFileObject> FromXMLAsync(
-            Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
+            string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             try
             {
@@ -388,15 +402,12 @@ namespace TheraEngine.Core.Files
                     return null;
 
                 Type fileType = SerializationCommon.DetermineType(filePath, out EFileFormat format);
-                if (type.IsAssignableFrom(fileType))
-                {
-                    Deserializer deser = new Deserializer();
-                    TFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as TFileObject;
-                    return file;
-                }
+                if (fileType == null)
+                    return null;
 
-                Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
-                return null;
+                Deserializer deser = new Deserializer();
+                TFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as TFileObject;
+                return file;
             }
             catch (Exception ex)
             {
@@ -416,9 +427,9 @@ namespace TheraEngine.Core.Files
         #region Binary
 
         internal static async Task<T> FromBinaryAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel) where T : TFileObject
-            => await FromBinaryAsync(typeof(T), filePath, progress, cancel) as T;
+            => await FromBinaryAsync(filePath, progress, cancel) as T;
         internal static async Task<TFileObject> FromBinaryAsync(
-            Type type, string filePath, IProgress<float> progress, CancellationToken cancel)
+            string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             try
             {
@@ -430,18 +441,10 @@ namespace TheraEngine.Core.Files
                 {
                     Engine.LogWarning($"Specified to read in {(EFileFormat.Binary).ToString()} format, but file is {format.ToString()}. Reading anyway.");
                 }
-                if (type.IsAssignableFrom(fileType))
-                {
-                    Deserializer deser = new Deserializer();
-                    TFileObject file = await deser.DeserializeBinaryAsync(filePath, progress, cancel,  null) as TFileObject;
-                    return file;
-                }
-                else
-                {
-                    Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {type.GetFriendlyName()}.");
-                    return null;
 
-                }
+                Deserializer deser = new Deserializer();
+                TFileObject file = await deser.DeserializeBinaryAsync(filePath, progress, cancel,  null) as TFileObject;
+                return file;
             }
             catch (Exception ex)
             {
@@ -480,7 +483,7 @@ namespace TheraEngine.Core.Files
             }
 
             //No third party loader defined, create instance directly and call method to do it
-            TFileObject obj = SerializationCommon.CreateObject(classType) as TFileObject;
+            TFileObject obj = SerializationCommon.CreateInstance(classType) as TFileObject;
             if (obj != null)
             {
                 TFile3rdPartyExt attrib = GetFile3rdPartyExtensions(classType);

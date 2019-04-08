@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Tools
 {
@@ -59,7 +60,7 @@ namespace TheraEngine.Core.Tools
                 return Expression.Constant(queueMissingParams.Dequeue());
 
             if (callParamType.ParameterType.IsValueType)
-                return Expression.Constant(Activator.CreateInstance(callParamType.ParameterType));
+                return Expression.Constant(SerializationCommon.CreateInstance(callParamType.ParameterType));
 
             return Expression.Constant(null);
         }

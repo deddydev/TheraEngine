@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using TheraEngine.Core.Files;
 using TheraEditor.Wrappers;
 using System.Drawing;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -73,7 +74,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             _wasVisible = pnlProps.Visible;
             if (_wasNull = _object == null)
-                _object = Activator.CreateInstance(DataType);
+                _object = SerializationCommon.CreateInstance(DataType);
             if (!pnlProps.Visible)
                 pnlProps.Visible = true;
             UpdateDisplay();

@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Files.Serialization;
 
 namespace System
 {
-    public enum GenericVarianceFlag
+    public enum EGenericVarianceFlag
     {
         None,
         CovariantOut,
         ContravariantIn,
     }
-    public enum TypeConstraintFlag
+    public enum ETypeConstraintFlag
     {
         None,
         Struct,             //struct
@@ -70,39 +71,39 @@ namespace System
         /// Returns the default value for the given type. Similar to default(T).
         /// </summary>
         public static object GetDefaultValue(this Type t)
-            => t == null ? null : (t.IsValueType && Nullable.GetUnderlyingType(t) == null) ? Activator.CreateInstance(t) : null;
+            => t == null ? null : (t.IsValueType && Nullable.GetUnderlyingType(t) == null) ? SerializationCommon.CreateInstance(t) : null;
 
-        public static void GetGenericParameterConstraints(this Type genericTypeParam, out GenericVarianceFlag gvf, out TypeConstraintFlag tcf)
+        public static void GetGenericParameterConstraints(this Type genericTypeParam, out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
         {
             GenericParameterAttributes gpa = genericTypeParam.GenericParameterAttributes;
             GenericParameterAttributes variance = gpa & GenericParameterAttributes.VarianceMask;
             GenericParameterAttributes constraints = gpa & GenericParameterAttributes.SpecialConstraintMask;
 
-            gvf = GenericVarianceFlag.None;
-            tcf = TypeConstraintFlag.None;
+            gvf = EGenericVarianceFlag.None;
+            tcf = ETypeConstraintFlag.None;
 
             if (variance != GenericParameterAttributes.None)
             {
                 if ((variance & GenericParameterAttributes.Covariant) != 0)
-                    gvf = GenericVarianceFlag.CovariantOut;
+                    gvf = EGenericVarianceFlag.CovariantOut;
                 else
-                    gvf = GenericVarianceFlag.ContravariantIn;
+                    gvf = EGenericVarianceFlag.ContravariantIn;
             }
 
             if (constraints != GenericParameterAttributes.None)
             {
                 if ((constraints & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0)
-                    tcf = TypeConstraintFlag.Struct;
+                    tcf = ETypeConstraintFlag.Struct;
                 else
                 {
                     if ((constraints & GenericParameterAttributes.DefaultConstructorConstraint) != 0)
-                        tcf = TypeConstraintFlag.NewStructOrClass;
+                        tcf = ETypeConstraintFlag.NewStructOrClass;
                     if ((constraints & GenericParameterAttributes.ReferenceTypeConstraint) != 0)
                     {
-                        if (tcf == TypeConstraintFlag.NewStructOrClass)
-                            tcf = TypeConstraintFlag.NewClass;
+                        if (tcf == ETypeConstraintFlag.NewStructOrClass)
+                            tcf = ETypeConstraintFlag.NewClass;
                         else
-                            tcf = TypeConstraintFlag.Class;
+                            tcf = ETypeConstraintFlag.Class;
                     }
                 }
             }

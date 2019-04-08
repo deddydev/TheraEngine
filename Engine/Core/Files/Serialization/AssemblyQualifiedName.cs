@@ -5,6 +5,7 @@ using System.Reflection;
 
 namespace TheraEngine.Core.Reflection
 {
+    [Serializable]
     public class AssemblyQualifiedName
     {
         private string _classPath;

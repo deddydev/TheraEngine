@@ -193,7 +193,7 @@ namespace TheraEngine.Core.Files.Serialization
             private object ReadFileObjectManually(Type objType, ref VoidPtr address)
             {
                 int size = address.ReadInt();
-                object obj = SerializationCommon.CreateObject(objType);
+                object obj = SerializationCommon.CreateInstance(objType);
 
                 TFileObject fileObj = (TFileObject)obj;
                 fileObj.ManualReadBinary(address, size, StringTable);
@@ -205,7 +205,7 @@ namespace TheraEngine.Core.Files.Serialization
             private object ReadStruct(Type objType, ref VoidPtr address)
             {
                 int size = address.ReadInt();
-                object obj = SerializationCommon.CreateObject(objType);
+                object obj = SerializationCommon.CreateInstance(objType);
 
                 Marshal.PtrToStructure(address, obj);
 
@@ -216,7 +216,7 @@ namespace TheraEngine.Core.Files.Serialization
             private object ReadSerializableByteArray(Type objType, ref VoidPtr address)
             {
                 int size = address.ReadInt();
-                ISerializableByteArray serBytes = (ISerializableByteArray)SerializationCommon.CreateObject(objType);
+                ISerializableByteArray serBytes = (ISerializableByteArray)SerializationCommon.CreateInstance(objType);
 
                 byte[] bytes = new byte[size];
                 for (int i = 0; i < size; ++i)
@@ -229,7 +229,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 int size = address.ReadInt();
 
-                ISerializablePointer serPtr = (ISerializablePointer)SerializationCommon.CreateObject(objType);
+                ISerializablePointer serPtr = (ISerializablePointer)SerializationCommon.CreateInstance(objType);
                 serPtr.ReadFromPointer(address, size);
 
                 address += size;
@@ -238,7 +238,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
             private object ReadSerializableString(Type objType, ref VoidPtr address)
             {
-                ISerializableString serStr = (ISerializableString)SerializationCommon.CreateObject(objType);
+                ISerializableString serStr = (ISerializableString)SerializationCommon.CreateInstance(objType);
 
                 string value = ReadString(ref address);
                 serStr.ReadFromString(value);

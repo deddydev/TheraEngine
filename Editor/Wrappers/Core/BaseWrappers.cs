@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEditor.Wrappers
 {
@@ -139,7 +140,7 @@ namespace TheraEditor.Wrappers
                     ext = ext.Substring(1).ToLowerInvariant();
                     if (NodeWrapperAttribute.ThirdPartyWrappers.ContainsKey(ext))
                     {
-                        w = Activator.CreateInstance(NodeWrapperAttribute.ThirdPartyWrappers[ext]) as BaseWrapper;
+                        w = SerializationCommon.CreateInstance(NodeWrapperAttribute.ThirdPartyWrappers[ext]) as BaseWrapper;
 
                         w.Text = Path.GetFileName(path);
                         w.FilePath = w.Name = path;
@@ -147,7 +148,7 @@ namespace TheraEditor.Wrappers
                     }
                 }
 
-                Type t = TFileObject.DetermineType(path, out EFileFormat format);
+                Type t = TFileObject.DetermineType(path, out _);
                 w = TryWrapType(t);
                 if (w != null)
                 {
@@ -181,7 +182,7 @@ namespace TheraEditor.Wrappers
                 while (tempType != null && w == null)
                 {
                     if (NodeWrapperAttribute.Wrappers.ContainsKey(tempType))
-                        w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[tempType]) as BaseFileWrapper;
+                        w = SerializationCommon.CreateInstance(NodeWrapperAttribute.Wrappers[tempType]) as BaseFileWrapper;
                     else
                     {
                         Type[] interfaces = t.GetInterfaces();
@@ -204,7 +205,7 @@ namespace TheraEditor.Wrappers
                             else
                                 match = validInterfaces[0];
                             
-                            w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[match]) as BaseFileWrapper;
+                            w = SerializationCommon.CreateInstance(NodeWrapperAttribute.Wrappers[match]) as BaseFileWrapper;
                         }
                         else
                             tempType = tempType.BaseType;
@@ -215,7 +216,7 @@ namespace TheraEditor.Wrappers
                 {
                     //Make wrapper for whatever file type this is
                     Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(t);
-                    w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
+                    w = SerializationCommon.CreateInstance(genericFileWrapper) as BaseFileWrapper;
                 }
             }
             return w;

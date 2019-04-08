@@ -21,7 +21,7 @@ namespace TheraEngine.Core.Files.Serialization
             int keyValCount = TreeNode.Children.Count;
             Type dicType = TreeNode.ObjectType;
 
-            Dictionary = Activator.CreateInstance(dicType) as IDictionary;
+            Dictionary = SerializationCommon.CreateInstance(dicType) as IDictionary;
             TreeNode.Object = Dictionary;
 
             if (keyValCount <= 0)

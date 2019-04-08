@@ -9,6 +9,7 @@ using System.Threading;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Editor;
 
 namespace TheraEditor
@@ -46,13 +47,13 @@ namespace TheraEditor
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            if (e.ExceptionObject is Exception)
-            {
-                List<EditorState> dirty = EditorState.DirtyStates;
-                Exception ex = e.ExceptionObject as Exception;
-                using (IssueDialog d = new IssueDialog(ex, dirty))
-                    d.Show();
-            }
+            if (!(e.ExceptionObject is Exception))
+                return;
+
+            List<EditorState> dirty = EditorState.DirtyStates;
+            Exception ex = e.ExceptionObject as Exception;
+            using (IssueDialog d = new IssueDialog(ex, dirty))
+                d.Show();
         }
         /// <summary>
         /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
@@ -61,12 +62,12 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static Type[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<Type> match)
+        public static TType[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<TType> match)
         {
-            Type[] fileObjectTypes = Engine.FindTypes(match).ToArray();
+            TType[] fileObjectTypes = Engine.FindTTypes(match).ToArray();
             
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (Type type in fileObjectTypes)
+            foreach (TType type in fileObjectTypes)
             {
                 string path = type.Namespace;
                 int dotIndex = path.IndexOf(".");
@@ -94,12 +95,12 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static Type[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
+        public static TType[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TType> match)
         {
-            Type[] fileObjectTypes = Engine.FindTypes(match).ToArray();
+            TType[] fileObjectTypes = Engine.FindTTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (Type type in fileObjectTypes)
+            foreach (TType type in fileObjectTypes)
             {
                 string path = type.Namespace;
                 int dotIndex = path.IndexOf(".");
@@ -144,11 +145,11 @@ namespace TheraEditor
             public ToolStripMenuItem Button { get; set; }
             public TreeNode TreeNode { get; set; }
 
-            public void Add(string path, Type type, EventHandler onClick)
+            public void Add(string path, TType type, EventHandler onClick)
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    string typeName = type.GetFriendlyName();
+                    string typeName = type.FriendlyName;
                     //FileDef def = t.GetCustomAttributeExt<FileDef>();
                     string displayText = /*def?.UserFriendlyName ?? */typeName;
                     if (Button != null)

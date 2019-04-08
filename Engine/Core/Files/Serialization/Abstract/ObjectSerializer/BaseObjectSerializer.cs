@@ -152,7 +152,7 @@ namespace TheraEngine.Core.Files.Serialization
                     break;
                 }
             }
-            return (BaseObjectSerializer)Activator.CreateInstance(serType);
+            return (BaseObjectSerializer)SerializationCommon.CreateInstance(serType);
         }
     }
 }

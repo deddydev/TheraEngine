@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Rendering.UI.Functions;
 
@@ -28,7 +29,7 @@ namespace TheraEngine.Rendering.Models.Materials.Functions
             if (ArgumentType == EShaderVarType._invalid)
                 DefaultValue = null;
             else
-                DefaultValue = (ShaderVar)Activator.CreateInstance(ShaderVar.ShaderTypeAssociations[ArgumentType]);
+                DefaultValue = (ShaderVar)SerializationCommon.CreateInstance(ShaderVar.ShaderTypeAssociations[ArgumentType]);
         }
         public override Vec4 GetTypeColor()
             => ShaderVar.GetTypeColor(ArgumentType);

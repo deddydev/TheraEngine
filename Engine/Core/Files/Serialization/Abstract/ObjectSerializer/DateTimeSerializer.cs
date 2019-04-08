@@ -30,14 +30,14 @@ namespace TheraEngine.Core.Files.Serialization
         public override bool CanWriteAsString(Type type) => true;
         public override bool ObjectFromString(Type type, string value, out object result)
         {
-            result = SerializationCommon.CreateType(value);
+            result = DateTime.FromFileTimeUtc(long.Parse(value)).ToLocalTime();
             return true;
         }
         public override bool ObjectToString(object obj, out string str)
         {
-            if (obj is Type type)
+            if (obj is DateTime time)
             {
-                str = type.AssemblyQualifiedName;
+                str = time.ToUniversalTime().ToFileTimeUtc().ToString();
                 return true;
             }
             str = null;

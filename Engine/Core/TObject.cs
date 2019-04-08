@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Remoting.Lifetime;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
@@ -45,11 +46,27 @@ namespace TheraEngine
         #endregion
     }
 
+    public class MarshalSponsor : MarshalByRefObject, ISponsor
+    {
+        public bool Release { get; set; }
+
+        public TimeSpan Renewal(ILease lease)
+        {
+            // if any of these cases is true
+            if (lease == null || lease.CurrentState != LeaseState.Renewing || Release)
+                return TimeSpan.Zero; // don't renew
+            return TimeSpan.FromSeconds(1); // renew for a second, or however long u want
+        }
+    }
     public delegate void ResourceEventHandler(TObject node);
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
-    public abstract class TObject : IObject
+    public abstract class TObject : MarshalByRefObject, IObject
     {
+        public string HomeAppDomain => AppDomain.CurrentDomain.FriendlyName;
+
+        internal MarshalSponsor Sponsor { get; set; }
+
         [TString(false, false, false)]
         [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
         protected string _name = null;

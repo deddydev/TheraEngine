@@ -208,6 +208,9 @@
     <Reference Include="AngleSharp, Version=0.11.0.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
       <HintPath>..\packages\AngleSharp.0.11.0\lib\net46\AngleSharp.dll</HintPath>
     </Reference>
+    <Reference Include="AppDomainToolkit, Version=1.0.4.1, Culture=neutral, PublicKeyToken=f2fc7ab5180cf5c4, processorArchitecture=MSIL">
+      <HintPath>..\packages\AppDomainToolkit.1.0.4.3\lib\net\AppDomainToolkit.dll</HintPath>
+    </Reference>
     <Reference Include="Ayx.BitIO, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ayx.BitIO.1.0.0\lib\net20\Ayx.BitIO.dll</HintPath>
     </Reference>
@@ -484,8 +487,11 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
+    <Compile Include="Core\Reflection\TConstructorInfo.cs" />
+    <Compile Include="Core\Reflection\TParameterInfo.cs" />
+    <Compile Include="Core\Reflection\TType.cs" />
     <Compile Include="Core\ResourcePool.cs" />
-    <EmbeddedResource Include="Engine\Program_Template.tcs" />
+    <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />
     <Compile Include="Input\Devices\BaseGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />
@@ -687,7 +693,7 @@
     </Compile>
     <Compile Include="Animation\Cutscenes\Cutscene.cs" />
     <Compile Include="Core\Editor\EditorState.cs" />
-    <Compile Include="Engine\EngineMethods.cs" />
+    <Compile Include="Core\Engine\EngineMethods.cs" />
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
@@ -714,7 +720,7 @@
     <Compile Include="Animation\BaseAnimation.cs" />
     <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
     <Compile Include="Animation\Model\SkeletalAnimation.cs" />
-    <Compile Include="Engine\Game.cs" />
+    <Compile Include="Core\Engine\Game.cs" />
     <Compile Include="Networking\NetworkConnection.cs" />
     <Compile Include="Animation\Functions\AnimationFunction.cs" />
     <Compile Include="Animation\Functions\AnimFuncExecInput.cs" />
@@ -793,8 +799,8 @@
     <Compile Include="Models\ModelScene.cs" />
     <None Include="Physics\PhysicsDriver.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
-    <Compile Include="Engine\UserSettings.cs" />
-    <Compile Include="Engine\EngineSettings.cs" />
+    <Compile Include="Core\Engine\UserSettings.cs" />
+    <Compile Include="Core\Engine\EngineSettings.cs" />
     <Compile Include="Input\Devices\Types\Mouse.cs" />
     <Compile Include="Input\Devices\Types\Keyboard.cs" />
     <Compile Include="Input\Devices\DirectX\DXGamepad.cs" />
@@ -995,11 +1001,11 @@
     <Compile Include="Components\Scene\Volumes\Gravity.cs" />
     <Compile Include="Components\Scene\Volumes\Trigger.cs" />
     <Compile Include="Components\Scene\Shapes\Cylindrical\YAligned\CapsuleYComponent.cs" />
-    <Compile Include="Engine\EngineProperties.cs" />
+    <Compile Include="Core\Engine\EngineProperties.cs" />
     <Compile Include="Game Modes\GameMode.cs" />
     <Compile Include="Animation\KeyframeTrack.cs" />
     <Compile Include="Core\Interfaces.cs" />
-    <Compile Include="Engine\PlayerInfo.cs" />
+    <Compile Include="Core\Engine\PlayerInfo.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXWindowContext.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLRenderer.cs" />
@@ -1152,7 +1158,7 @@
       <Link>ThirdParty\NativeLibraries\x86\steam_api.dll</Link>
     </Content>
     <Content Include="MIConvexHull.xml" />
-    <EmbeddedResource Include="Engine\Solution_Template.tsln" />
+    <EmbeddedResource Include="Core\Engine\Solution_Template.tsln" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="mscoree">

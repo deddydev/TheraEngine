@@ -117,6 +117,9 @@ namespace TheraEngine.Worlds
             }
         }
 
+        public void MakeCurrent()
+            => Engine.SetCurrentWorld(this);
+        
         public BaseGameMode GetDefaultGameMode()
             => Settings?.DefaultGameModeRef?.File;
         public T GetGameMode<T>() where T : class, IGameMode
@@ -281,8 +284,9 @@ namespace TheraEngine.Worlds
                 s2D.RenderTree.Swap();
             }
 
-            CurrentGameMode?.BeginGameplay(this);
             IsPlaying = true;
+
+            CurrentGameMode?.BeginGameplay(this);
 
             string cut = Settings.CutsceneToPlayOnBeginPlay;
             if (!string.IsNullOrWhiteSpace(cut) && Settings.Cutscenes.ContainsKey(cut))

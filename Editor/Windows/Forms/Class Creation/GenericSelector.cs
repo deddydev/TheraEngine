@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Core.Extensions;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -55,11 +56,11 @@ namespace TheraEditor.Windows.Forms
                 SelectedTypes[i] = null;
                 Type genArg = args[i];
 
-                genArg.GetGenericParameterConstraints(out GenericVarianceFlag gvf, out TypeConstraintFlag tcf);
+                genArg.GetGenericParameterConstraints(out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf);
                 Type baseType = genArg.BaseType;
 
                 string genericName = genArg.Name;
-                bool hasTC = tcf != TypeConstraintFlag.None;
+                bool hasTC = tcf != ETypeConstraintFlag.None;
                 bool hasBT = baseType != null;
                 var interfaces = genArg.GetInterfaces().ToList();
                 for (int x = 0; x < interfaces.Count; ++x)
@@ -81,7 +82,7 @@ namespace TheraEditor.Windows.Forms
                     }
                 }
 
-                if (hasBT || gvf != GenericVarianceFlag.None || hasTC)
+                if (hasBT || gvf != EGenericVarianceFlag.None || hasTC)
                 {
                     genericName = "where " + genericName + " : ";
                     if (hasBT)
@@ -105,21 +106,21 @@ namespace TheraEditor.Windows.Forms
                             genericName += ", ";
                         switch (tcf)
                         {
-                            case TypeConstraintFlag.Struct:
+                            case ETypeConstraintFlag.Struct:
                                 genericName += "struct";
                                 break;
-                            case TypeConstraintFlag.Class:
+                            case ETypeConstraintFlag.Class:
                                 genericName += "class";
                                 break;
-                            case TypeConstraintFlag.NewClass:
+                            case ETypeConstraintFlag.NewClass:
                                 genericName += "class, new()";
                                 break;
-                            case TypeConstraintFlag.NewStructOrClass:
+                            case ETypeConstraintFlag.NewStructOrClass:
                                 genericName += "new()";
                                 break;
                         }
                     }
-                    if (gvf != GenericVarianceFlag.None)
+                    if (gvf != EGenericVarianceFlag.None)
                     {
                         //throw new Exception();
                     }
@@ -143,14 +144,14 @@ namespace TheraEditor.Windows.Forms
 
                 ToolStripMenuItem root = new ToolStripMenuItem("Select a type...") { Tag = i };
 
-                bool test(Type type)
+                bool test(TType type)
                 {
                     return !(
                     
                     //Base type isn't requested base type?
-                    (baseType != null && !baseType.IsAssignableFrom(type)) ||
+                    (baseType != null && !type.IsAssignableTo(baseType)) ||
 
-                    !interfaces.All(x => x.IsAssignableFrom(type)) ||
+                    !interfaces.All(x => type.IsAssignableTo(x)) ||
 
                     //Doesn't fit constraints?
                     !type.FitsConstraints(gvf, tcf)// ||

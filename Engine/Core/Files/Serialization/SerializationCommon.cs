@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppDomainToolkit;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Lifetime;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -297,7 +299,7 @@ namespace TheraEngine.Core.Files.Serialization
             {
                 return new Func<string, object>(value =>
                 {
-                    ISerializableString o = (ISerializableString)Activator.CreateInstance(t);
+                    ISerializableString o = (ISerializableString)CreateInstance(t);
                     o.ReadFromString(value);
                     return o;
                 });
@@ -346,9 +348,9 @@ namespace TheraEngine.Core.Files.Serialization
 
                         IList list;
                         if (t.IsArray)
-                            list = Activator.CreateInstance(t, values.Length) as IList;
+                            list = CreateInstance(t, values.Length) as IList;
                         else
-                            list = Activator.CreateInstance(t) as IList;
+                            list = CreateInstance(t) as IList;
 
                         var func = GetFromStringFunc(elementType);
                         if (list.IsFixedSize)
@@ -412,9 +414,9 @@ namespace TheraEngine.Core.Files.Serialization
                     
                     IList list;
                     if (t.IsArray)
-                        list = Activator.CreateInstance(t, values.Length) as IList;
+                        list = CreateInstance(t, values.Length) as IList;
                     else
-                        list = Activator.CreateInstance(t) as IList;
+                        list = CreateInstance(t) as IList;
 
                     var func = GetFromStringFunc(elementType);
                     if (list.IsFixedSize)
@@ -551,22 +553,51 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Creates an object of the given type.
         /// </summary>
-        public static object CreateObject(Type t)
+        public static object CreateInstance(Type t, params object[] args)
         {
-            object o = null;
-            try
+            object obj = null;
+            //if (t == typeof(string))
+            //    obj = string.Empty;
+            //else
             {
-                if (t == typeof(string))
-                    o = string.Empty;
-                else
-                    o = Activator.CreateInstance(t);
+                Assembly assembly = t.Assembly;
+                Assembly[] currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var domains = Engine.EnumAppDomains();
+                foreach (AppDomain domain in domains)
+                {
+                    if (domain == AppDomain.CurrentDomain)
+                    {
+                        var assemblies = domain.GetAssemblies();
+                        if (!assemblies.Contains(assembly))
+                            continue;
+
+                        try
+                        {
+                            obj = Activator.CreateInstance(t, args);
+                        }
+                        catch (Exception ex)
+                        {
+                            Engine.PrintLine($"Problem constructing {t.GetFriendlyName()}.\n{ex.ToString()}");
+                            obj = FormatterServices.GetUninitializedObject(t);
+                        }
+                        return obj;
+                    }
+                    else
+                    {
+                        var assemblies = domain.GetAssemblies().Where(x => !currentAssemblies.Contains(x));
+                        if (!assemblies.Contains(assembly))
+                            continue;
+
+                        MarshalSponsor sponsor = new MarshalSponsor();
+                        MarshalByRefObject obj3 = domain.CreateInstanceAndUnwrap(t.Assembly.FullName, t.FullName) as MarshalByRefObject;
+                        var lease = obj3.InitializeLifetimeService() as ILease;
+                        lease.Register(sponsor);
+                        return obj3;
+                    }
+                }
+             
             }
-            catch (Exception ex)
-            {
-                Engine.PrintLine($"Problem constructing {t.GetFriendlyName()}.\n{ex.ToString()}");
-                o = FormatterServices.GetUninitializedObject(t);
-            }
-            return o;
+            return obj;
         }
         //public static ESerializeType GetSerializeType(Type t)
         //{
@@ -702,6 +733,9 @@ namespace TheraEngine.Core.Files.Serialization
             try
             {
                 AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
+                string asmName = asmQualName.AssemblyName;
+                var domains = Engine.EnumAppDomains();
+                var assemblies = domains.SelectMany(x => x.GetAssemblies());
                 
                 //Assembly asm = Assembly.Load(asmQualName.AssemblyName);
                 //Version version = asm.GetName().Version;
@@ -714,12 +748,7 @@ namespace TheraEngine.Core.Files.Serialization
                 //typeDeclaration = asmQualName.ToString();
 
                 return Type.GetType(typeDeclaration,
-                    name =>
-                    {
-                        var assemblies = //AppDomain.CurrentDomain.GetAssemblies();
-                        Engine.EnumAppDomains().SelectMany(x => x.GetAssemblies());
-                        return assemblies.FirstOrDefault(z => string.Equals(z.GetName().Name, asmQualName.AssemblyName, StringComparison.InvariantCultureIgnoreCase));
-                    },
+                    name => assemblies.FirstOrDefault(assembly => assembly.GetName().Name.EqualsInvariantIgnoreCase(name.Name)),
                     null,
                     true);
             }

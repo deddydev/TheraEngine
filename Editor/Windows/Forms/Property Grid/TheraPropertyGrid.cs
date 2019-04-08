@@ -16,6 +16,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
 using TheraEngine.Timers;
@@ -619,7 +620,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             PropGridItem control = (PropGridItem)Editor.Instance.Invoke((Func<PropGridItem>)(() => 
             {
-                PropGridItem item = Activator.CreateInstance(controlType) as PropGridItem;
+                PropGridItem item = SerializationCommon.CreateInstance(controlType) as PropGridItem;
                 if (item != null)
                 {
                     item.Dock = DockStyle.Fill;

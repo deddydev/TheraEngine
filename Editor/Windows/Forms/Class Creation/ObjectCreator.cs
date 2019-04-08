@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -164,7 +166,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (allowDerivedTypes)
                 {
-                    Type[] types = Program.PopulateTreeView(treeView1, OnTypeSelected, x => type.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+                    TType[] types = Program.PopulateTreeView(treeView1, OnTypeSelected, x => x.IsAssignableTo(type) && !x.IsInterface && !x.IsAbstract);
                     if (types.Length > 1)
                     {
                         treeView1.Visible = true;
@@ -172,7 +174,7 @@ namespace TheraEditor.Windows.Forms
                         return true;
                     }
                     else if (types.Length == 1)
-                        type = types[0];
+                        type = types[0].CreateType();
                     //else
                     //    return false;
                 }
@@ -190,7 +192,7 @@ namespace TheraEditor.Windows.Forms
                             {
                                 if (type.IsGenericTypeDefinition)
                                     type = type.MakeGenericType(_genericTypeArgs);
-                                ConstructedObject = Activator.CreateInstance(type);
+                                ConstructedObject = SerializationCommon.CreateInstance(type);
                                 return false;
                             }
                         }
@@ -453,7 +455,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             bool hasParameterlessConstructor = ClassType.GetConstructors().FirstOrDefault(x => x.GetParameters().Length == 0) != null;
                             if (hasParameterlessConstructor)
-                                ConstructedObject = Activator.CreateInstance(ClassType);
+                                ConstructedObject = SerializationCommon.CreateInstance(ClassType);
                             else
                             {
                                 ConstructedObject = null;

@@ -8,20 +8,20 @@ namespace TheraEditor.Core.Extensions
 {
     public static class TypeExtension
     {
-        public static bool FitsConstraints(this Type t, GenericVarianceFlag gvf, TypeConstraintFlag tcf)
+        public static bool FitsConstraints(this Type t, EGenericVarianceFlag gvf, ETypeConstraintFlag tcf)
         {
-            if (gvf != GenericVarianceFlag.None)
+            if (gvf != EGenericVarianceFlag.None)
                 throw new Exception();
 
             switch (tcf)
             {
-                case TypeConstraintFlag.Class:
+                case ETypeConstraintFlag.Class:
                     return t.IsClass;
-                case TypeConstraintFlag.NewClass:
+                case ETypeConstraintFlag.NewClass:
                     return t.IsClass && t.GetConstructor(new Type[0]) != null;
-                case TypeConstraintFlag.NewStructOrClass:
+                case ETypeConstraintFlag.NewStructOrClass:
                     return t.GetConstructor(new Type[0]) != null;
-                case TypeConstraintFlag.Struct:
+                case ETypeConstraintFlag.Struct:
                     return t.IsValueType;
             }
             return true;

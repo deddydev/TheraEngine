@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" />
-  <Import Project="..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props" Condition="Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props')" />
+  <Import Project="..\packages\Microsoft.Net.Compilers.3.0.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.3.0.0\build\Microsoft.Net.Compilers.props')" />
+  <Import Project="..\packages\Microsoft.Build.Locator.1.2.2\build\Microsoft.Build.Locator.props" Condition="Exists('..\packages\Microsoft.Build.Locator.1.2.2\build\Microsoft.Build.Locator.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -112,9 +112,6 @@
     <StartupObject>TheraEditor.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AppDomainToolkit, Version=1.0.4.1, Culture=neutral, PublicKeyToken=f2fc7ab5180cf5c4, processorArchitecture=MSIL">
-      <HintPath>..\packages\AppDomainToolkit.1.0.4.3\lib\net\AppDomainToolkit.dll</HintPath>
-    </Reference>
     <Reference Include="BulletSharp">
       <HintPath Condition="'$(Platform)'=='x86'">$(SolutionDir)\Libraries\x86\BulletSharp.dll</HintPath>
       <HintPath Condition="'$(Platform)'=='x64'">$(SolutionDir)\Libraries\x64\BulletSharp.dll</HintPath>
@@ -142,21 +139,21 @@
       <HintPath>..\packages\FCTB.2.16.24\lib\FastColoredTextBox.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Build.15.9.20\lib\net46\Microsoft.Build.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Build.16.0.461\lib\net472\Microsoft.Build.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Engine" />
     <Reference Include="Microsoft.Build.Framework, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Build.Framework.15.9.20\lib\net46\Microsoft.Build.Framework.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Build.Framework.16.0.461\lib\net472\Microsoft.Build.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Locator, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9dff12846e04bfbd, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Build.Locator.1.1.2\lib\net46\Microsoft.Build.Locator.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Build.Locator.1.2.2\lib\net46\Microsoft.Build.Locator.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Build.Tasks.Core.15.9.20\lib\net46\Microsoft.Build.Tasks.Core.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Build.Tasks.Core.16.0.461\lib\net472\Microsoft.Build.Tasks.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Tasks.v4.0" />
     <Reference Include="Microsoft.Build.Utilities.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Build.Utilities.Core.15.9.20\lib\net46\Microsoft.Build.Utilities.Core.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Build.Utilities.Core.16.0.461\lib\net472\Microsoft.Build.Utilities.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Microsoft.VisualBasic" />
@@ -182,8 +179,8 @@
     <Reference Include="Octokit, Version=0.32.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Octokit.0.32.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
-    <Reference Include="Svg, Version=2.4.0.42491, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
-      <HintPath>..\packages\Svg.2.4.0\lib\Svg.dll</HintPath>
+    <Reference Include="Svg, Version=2.4.2.26702, Culture=neutral, PublicKeyToken=12a0bac221edeae2, processorArchitecture=MSIL">
+      <HintPath>..\packages\Svg.2.4.2\lib\Svg.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -204,6 +201,8 @@
     </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.Reflection" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System.Runtime.InteropServices" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
       <Private>True</Private>
@@ -214,6 +213,7 @@
     <Reference Include="System.Threading.Tasks.Dataflow, Version=4.6.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Dataflow.4.9.0\lib\netstandard2.0\System.Threading.Tasks.Dataflow.dll</HintPath>
     </Reference>
+    <Reference Include="System.Threading.Thread" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xaml" />
@@ -1007,13 +1007,14 @@
     <Compile Include="Windows\Controls\TransparentPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Wrappers\Core\NonGenericFileWrapper.cs" />
     <Compile Include="Wrappers\UserInterfaceWrapper.cs" />
     <Compile Include="Wrappers\Code\CSProjWrapper.cs" />
     <Compile Include="Wrappers\Code\SolutionWrapper.cs" />
     <Compile Include="Wrappers\Core\BaseWrappers.cs" />
     <Compile Include="Wrappers\Core\BaseFileWrapper.cs" />
     <Compile Include="Wrappers\ActorWrapper.cs" />
-    <Compile Include="Wrappers\ThirdPartyFileWrapper.cs" />
+    <Compile Include="Wrappers\Core\ThirdPartyFileWrapper.cs" />
     <Compile Include="Wrappers\Core\GenericFileWrapper.cs" />
     <Compile Include="Wrappers\Models\ColladaWrapper.cs" />
     <Compile Include="Wrappers\Scripting\CSharpWrapper.cs" />
@@ -1275,6 +1276,10 @@
     <None Include="Resources\ClosedFolder.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AppDomainToolkit\AppDomainToolkit\AppDomainToolkit.csproj">
+      <Project>{2A53F4FB-0918-485C-9266-BD8FF3FA0D84}</Project>
+      <Name>AppDomainToolkit</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{3ba74071-a8fb-473a-9388-0c8f75872f41}</Project>
       <Name>Engine</Name>
@@ -1328,11 +1333,11 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.2.10.0\build\Microsoft.Net.Compilers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.2.2\build\Microsoft.Build.Locator.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.2.2\build\Microsoft.Build.Locator.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Build.Locator.1.2.2\build\Microsoft.Build.Locator.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Build.Locator.1.2.2\build\Microsoft.Build.Locator.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.3.0.0\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.3.0.0\build\Microsoft.Net.Compilers.props'))" />
   </Target>
-  <Import Project="..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets" Condition="Exists('..\packages\Microsoft.Build.Locator.1.1.2\build\Microsoft.Build.Locator.targets')" />
+  <Import Project="..\packages\Microsoft.Build.Locator.1.2.2\build\Microsoft.Build.Locator.targets" Condition="Exists('..\packages\Microsoft.Build.Locator.1.2.2\build\Microsoft.Build.Locator.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

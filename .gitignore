@@ -13,14 +13,10 @@ Libraries/fbx_d99936f11250/
 *.force
 .vs/
 Thera/obj/
-Testris/obj/
-Forms Editor/obj/
-WPF Editor/obj/
 Releases/
 Thera/bin/
 Build/Debug/
 Build/Release/
-ChromaCrossfire/obj/
 Build/test/
 Editor/obj/
 Compare-NET-Objects/obj/

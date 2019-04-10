@@ -487,9 +487,18 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Core\Reflection\Attributes\TEnumDef.cs" />
-    <Compile Include="Core\Reflection\TConstructorInfo.cs" />
-    <Compile Include="Core\Reflection\TParameterInfo.cs" />
-    <Compile Include="Core\Reflection\TType.cs" />
+    <None Include="Core\Reflection\TConstructorInfo.cs" />
+    <None Include="Core\Reflection\TParameterInfo.cs" />
+    <None Include="Core\Reflection\TType.cs" />
+    <Compile Include="Core\Reflection\Proxies\AssemblyProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\MemberInfoProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\MethodBaseProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\PropertyInfoProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\FieldInfoProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\MethodInfoProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\ParameterInfoProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\ConstructorInfoProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\TypeProxy.cs" />
     <Compile Include="Core\ResourcePool.cs" />
     <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />
     <Compile Include="Input\Devices\BaseGamepadConfiguration.cs" />

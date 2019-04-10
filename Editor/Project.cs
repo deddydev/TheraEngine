@@ -9,11 +9,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
@@ -728,10 +730,25 @@ namespace TheraEditor
         
         public EngineBuildLogger LastBuildLog { get; private set; }
         public bool IsCompiling { get; private set; }
+
         public event DelCompileBegun CompileStarted;
         public event DelCompileResult CompileCompleted;
         [TSerialize]
         public string IntermediateBuildDirectory { get; private set; } = "obj";
+
+        public void DeleteIntermediateDirectory()
+        {
+            try
+            {
+                string interDirPath = Path.Combine(DirectoryPath, IntermediateBuildDirectory);
+                if (Directory.Exists(interDirPath))
+                    Directory.Delete(interDirPath, true);
+            }
+            catch (Exception ex)
+            {
+                Engine.LogException(ex);
+            }
+        }
 
         public async Task CompileAsync()
             => await CompileAsync("Debug", IntPtr.Size == 8 ? "x64" : "x86");
@@ -749,18 +766,17 @@ namespace TheraEditor
                 CompileStarted?.Invoke(this);
                 Engine.PrintLine($"Compiling {buildConfiguration} {buildPlatform} {SolutionPath}");
 
-                string p = Path.Combine(DirectoryPath, IntermediateBuildDirectory);
-                if (Directory.Exists(p))
-                    Directory.Delete(p, true);
+                DeleteIntermediateDirectory();
 
-                ProjectCollection pc = new ProjectCollection();
+                LastBuildLog = new EngineBuildLogger();
+
                 Dictionary<string, string> props = new Dictionary<string, string>
                 {
                     { "Configuration",  buildConfiguration  },
                     { "Platform",       buildPlatform       },
                 };
                 BuildRequestData request = new BuildRequestData(SolutionPath, props, null, new[] { "Build" }, null);
-                LastBuildLog = new EngineBuildLogger();
+                ProjectCollection pc = new ProjectCollection();
                 BuildParameters buildParams = new BuildParameters(pc)
                 {
                     Loggers = new ILogger[] { LastBuildLog }
@@ -769,80 +785,86 @@ namespace TheraEditor
                 await Task.Run(() =>
                 {
                     return BuildManager.DefaultBuildManager.Build(buildParams, request);
-                }).ContinueWith(t =>
-                {
-                    BuildResult result = t.Result;
-                    bool success = result.OverallResult == BuildResultCode.Success;
-                    if (success)
-                    {
-                        ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
-                        AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
-
-                        //Get editor exe path
-                        string editorAssemblyPath = Assembly.GetExecutingAssembly().Location;
-                        //Get all dll files from editor directory
-                        string editorDir = Path.GetDirectoryName(editorAssemblyPath);
-                        string[] editorDLLPaths = Directory.GetFiles(editorDir);
-
-                        foreach (var editorDLLPath in editorDLLPaths)
-                        {
-                            foreach (var compiledDLLPath in AssemblyPaths)
-                            {
-                                string editorDLLName = Path.GetFileName(editorDLLPath);
-                                string compiledDLLDir = Path.GetDirectoryName(compiledDLLPath);
-                                string[] compiledDirDLLS = Directory.GetFiles(compiledDLLDir);
-
-                                if (!compiledDirDLLS.Any(path => Path.GetFileName(path).
-                                    EqualsInvariantIgnoreCase(editorDLLName)))
-                                {
-                                    //Copy the editor's dll to the compile path
-                                    string destPath = Path.Combine(compiledDLLDir, editorDLLName);
-                                    File.Copy(editorDLLPath, destPath);
-                                }
-                            }
-                        }
-
-                        if (Editor.Instance.DockableErrorListFormActive)
-                        {
-                            if (Editor.Instance.InvokeRequired)
-                                Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.ErrorListForm.SetLog(LastBuildLog)));
-                            else
-                                Editor.Instance.ErrorListForm.SetLog(LastBuildLog);
-                        }
-
-                        PrintLine(SolutionPath + " : Build succeeded.");
-                        PrintLine("Creating game domain.");
-                        CreateGameDomain(true);
-                        PrintLine("Game domain created.");
-
-                        PrintLine("Resetting type caches.");
-                        Editor.ResetTypeCaches();
-                        PrintLine("Type caches reset.");
-
-                        Export();
-                    }
-                    else
-                    {
-                        PrintLine(SolutionPath + " : Build failed.");
-                        LastBuildLog.Display();
-                    }
-
-                    pc.UnregisterAllLoggers();
-                    IsCompiling = false;
-                    CompileCompleted?.Invoke(this, success);
-                });
+                }).ContinueWith(OnBuildCompleted);
             }
             catch (Exception ex)
             {
                 Engine.LogException(ex);
+                DeleteIntermediateDirectory();
+
                 IsCompiling = false;
                 CompileCompleted?.Invoke(this, false);
             }
         }
+        private void OnBuildCompleted(Task<BuildResult> buildTask)
+        {
+            BuildResult result = buildTask.Result;
+            bool success = result.OverallResult == BuildResultCode.Success;
+            if (success)
+            {
+                ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
+                AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
+
+                //Get editor exe path
+                string editorAssemblyPath = Assembly.GetExecutingAssembly().Location;
+                //Get all dll files from editor directory
+                string editorDir = Path.GetDirectoryName(editorAssemblyPath);
+                string[] editorDLLPaths = Directory.GetFiles(editorDir);
+
+                foreach (var editorDLLPath in editorDLLPaths)
+                {
+                    foreach (var compiledDLLPath in AssemblyPaths)
+                    {
+                        string editorDLLName = Path.GetFileName(editorDLLPath);
+                        string compiledDLLDir = Path.GetDirectoryName(compiledDLLPath);
+                        string[] compiledDirDLLS = Directory.GetFiles(compiledDLLDir);
+
+                        if (!compiledDirDLLS.Any(path => Path.GetFileName(path).
+                            EqualsInvariantIgnoreCase(editorDLLName)))
+                        {
+                            //Copy the editor's dll to the compile path
+                            string destPath = Path.Combine(compiledDLLDir, editorDLLName);
+                            File.Copy(editorDLLPath, destPath);
+                        }
+                    }
+                }
+
+                if (Editor.Instance.DockableErrorListFormActive)
+                {
+                    if (Editor.Instance.InvokeRequired)
+                        Editor.Instance.BeginInvoke((Action)(() => Editor.Instance.ErrorListForm.SetLog(LastBuildLog)));
+                    else
+                        Editor.Instance.ErrorListForm.SetLog(LastBuildLog);
+                }
+
+                PrintLine(SolutionPath + " : Build succeeded.");
+                CreateGameDomain(true);
+
+                PrintLine("Resetting type caches.");
+                Editor.ResetTypeCaches();
+                PrintLine("Type caches reset.");
+
+                Export();
+            }
+            else
+            {
+                PrintLine(SolutionPath + " : Build failed.");
+                LastBuildLog.Display();
+            }
+            DeleteIntermediateDirectory();
+
+            IsCompiling = false;
+            CompileCompleted?.Invoke(this, success);
+        }
+
+        [Browsable(false)]
+        public ProjectDomainProxy DomainProxy { get; private set; }
+
         [TPostDeserialize(arguments: false)]
         private async void CreateGameDomain(bool compiling)
         {
-            Engine.PrintLine("Active domains before load: " + string.Join(", ", Engine.EnumAppDomains().Select(x => x.FriendlyName)));
+            PrintLine("Creating game domain.");
+            PrintLine("Active domains before load: " + string.Join(", ", Engine.EnumAppDomains().Select(x => x.FriendlyName)));
 
             string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
             string buildConfiguration = "Debug";
@@ -858,6 +880,7 @@ namespace TheraEditor
             {
                 if (_gameDomain != null)
                 {
+                    DomainProxy.Destroyed();
                     _gameDomain.Dispose();
                     _gameDomain = null;
                 }
@@ -886,8 +909,30 @@ namespace TheraEditor
 
                         PrintLine("Loading compiled assembly at " + path);
                         _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                        _gameDomain.LoadAssemblyWithReferences(LoadMethod.LoadBits, path);
+                        _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
                     }
+
+                    Type type = typeof(ProjectDomainProxy);
+                    object proxy = _gameDomain.Domain.CreateInstanceAndUnwrap(
+                        type.Assembly.FullName,
+                        type.FullName);
+
+                    DomainProxy = (ProjectDomainProxy)proxy;
+                    //dynamic dynProxy = proxy;
+                    //string info = dynProxy.GetVersionInfo();
+
+                    //string info3 = type.Assembly.CodeBase;
+                    //string info4 = dynProxy.GetType().Assembly.CodeBase;
+
+                    //Engine.PrintLine(info);
+                    //Engine.PrintLine(info3);
+                    //Engine.PrintLine(info4);
+
+                    SerializationCommon.TypeCreationFailed = TypeCreationFailed;
+                    DomainProxy.Created(this);
+
+                    var lease = DomainProxy.InitializeLifetimeService() as ILease;
+                    lease.Register(DomainProxy.SponsorRef);
                 }
             }
             catch (Exception ex)
@@ -895,11 +940,17 @@ namespace TheraEditor
                 Engine.LogException(ex);
             }
 
-            Engine.PrintLine("Active domains after load: " + string.Join(", ", Engine.EnumAppDomains().Select(x => x.FriendlyName)));
+            PrintLine("Game domain created.");
+            PrintLine("Active domains after load: " + string.Join(", ", Engine.EnumAppDomains().Select(x => x.FriendlyName)));
 
             //var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             //Engine.PrintLine(string.Join("\n", assemblies.Select(x => x.FullName)));
             //_gameDomain.Domain.AssemblyLoad += Domain_AssemblyLoad;
+        }
+        private Type TypeCreationFailed(string typeDeclaration)
+        {
+            TypeProxy proxy = DomainProxy.CreateType(typeDeclaration);
+            return proxy.Value;
         }
 
         private void Domain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)

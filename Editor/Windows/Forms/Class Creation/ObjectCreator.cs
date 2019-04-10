@@ -166,7 +166,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (allowDerivedTypes)
                 {
-                    TType[] types = Program.PopulateTreeView(treeView1, OnTypeSelected, x => x.IsAssignableTo(type) && !x.IsInterface && !x.IsAbstract);
+                    Type[] types = Program.PopulateTreeView(treeView1, OnTypeSelected, x => x.IsAssignableTo(type) && !x.IsInterface && !x.IsAbstract);
                     if (types.Length > 1)
                     {
                         treeView1.Visible = true;
@@ -174,7 +174,7 @@ namespace TheraEditor.Windows.Forms
                         return true;
                     }
                     else if (types.Length == 1)
-                        type = types[0].CreateType();
+                        type = types[0];
                     //else
                     //    return false;
                 }

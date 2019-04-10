@@ -62,12 +62,12 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static TType[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<TType> match)
+        public static Type[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<Type> match)
         {
-            TType[] fileObjectTypes = Engine.FindTTypes(match).ToArray();
+            Type[] fileObjecTypes = Engine.FindTypes(match).ToArray();
             
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (TType type in fileObjectTypes)
+            foreach (Type type in fileObjecTypes)
             {
                 string path = type.Namespace;
                 int dotIndex = path.IndexOf(".");
@@ -85,7 +85,7 @@ namespace TheraEditor
             }
             tree.AfterSelect += (s, e) => onClick(e.Node, e);
 
-            return fileObjectTypes;
+            return fileObjecTypes;
         }
 
         /// <summary>
@@ -95,12 +95,12 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static TType[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TType> match)
+        public static Type[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
         {
-            TType[] fileObjectTypes = Engine.FindTTypes(match).ToArray();
+            Type[] fileObjecTypes = Engine.FindTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (TType type in fileObjectTypes)
+            foreach (Type type in fileObjecTypes)
             {
                 string path = type.Namespace;
                 int dotIndex = path.IndexOf(".");
@@ -117,7 +117,7 @@ namespace TheraEditor
                 node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick);
             }
 
-            return fileObjectTypes;
+            return fileObjecTypes;
         }
         private class NamespaceNode
         {
@@ -145,11 +145,11 @@ namespace TheraEditor
             public ToolStripMenuItem Button { get; set; }
             public TreeNode TreeNode { get; set; }
 
-            public void Add(string path, TType type, EventHandler onClick)
+            public void Add(string path, Type type, EventHandler onClick)
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    string typeName = type.FriendlyName;
+                    string typeName = type.GetFriendlyName();
                     //FileDef def = t.GetCustomAttributeExt<FileDef>();
                     string displayText = /*def?.UserFriendlyName ?? */typeName;
                     if (Button != null)

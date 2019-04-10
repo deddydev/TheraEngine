@@ -559,45 +559,46 @@ namespace TheraEngine.Core.Files.Serialization
             //if (t == typeof(string))
             //    obj = string.Empty;
             //else
-            {
+            //{
                 Assembly assembly = t.Assembly;
-                Assembly[] currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-                var domains = Engine.EnumAppDomains();
-                foreach (AppDomain domain in domains)
-                {
-                    if (domain == AppDomain.CurrentDomain)
-                    {
+                //Assembly[] currentAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var domain = AppDomain.CurrentDomain;
+                //var domains = Engine.EnumAppDomains();
+                //foreach (AppDomain domain in domains)
+                //{
+                //    if (domain == AppDomain.CurrentDomain)
+                //    {
                         var assemblies = domain.GetAssemblies();
-                        if (!assemblies.Contains(assembly))
-                            continue;
-
-                        try
-                        {
-                            obj = Activator.CreateInstance(t, args);
-                        }
-                        catch (Exception ex)
-                        {
-                            Engine.PrintLine($"Problem constructing {t.GetFriendlyName()}.\n{ex.ToString()}");
-                            obj = FormatterServices.GetUninitializedObject(t);
-                        }
-                        return obj;
-                    }
-                    else
-                    {
-                        var assemblies = domain.GetAssemblies().Where(x => !currentAssemblies.Contains(x));
-                        if (!assemblies.Contains(assembly))
-                            continue;
-
-                        MarshalSponsor sponsor = new MarshalSponsor();
-                        MarshalByRefObject obj3 = domain.CreateInstanceAndUnwrap(t.Assembly.FullName, t.FullName) as MarshalByRefObject;
-                        var lease = obj3.InitializeLifetimeService() as ILease;
-                        lease.Register(sponsor);
-                        return obj3;
-                    }
+            if (assemblies.Contains(assembly))
+            {
+                try
+                {
+                    obj = Activator.CreateInstance(t, args);
                 }
-             
+                catch (Exception ex)
+                {
+                    Engine.PrintLine($"Problem constructing {t.GetFriendlyName()}.\n{ex.ToString()}");
+                    obj = FormatterServices.GetUninitializedObject(t);
+                }
             }
             return obj;
+                //    }
+                //    else
+                //    {
+                //        var assemblies = domain.GetAssemblies().Where(x => !currentAssemblies.Contains(x));
+                //        if (!assemblies.Contains(assembly))
+                //            continue;
+
+                //        MarshalSponsor sponsor = new MarshalSponsor();
+                //        MarshalByRefObject obj3 = domain.CreateInstanceAndUnwrap(t.Assembly.FullName, t.FullName) as MarshalByRefObject;
+                //        var lease = obj3.InitializeLifetimeService() as ILease;
+                //        lease.Register(sponsor);
+                //        return obj3;
+                //    }
+                //}
+             
+            //}
+            //return obj;
         }
         //public static ESerializeType GetSerializeType(Type t)
         //{
@@ -728,14 +729,16 @@ namespace TheraEngine.Core.Files.Serialization
                 number = (i++).ToString();
             return name + number;
         }
-        public static Type CreateType(string typeDeclaration)
+        public delegate Type DelTypeCreationFail(string typeDeclaration);
+        public static DelTypeCreationFail TypeCreationFailed;
+        public static TypeProxy CreateType(string typeDeclaration)
         {
             try
             {
                 AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
                 string asmName = asmQualName.AssemblyName;
-                var domains = Engine.EnumAppDomains();
-                var assemblies = domains.SelectMany(x => x.GetAssemblies());
+                //var domains = Engine.EnumAppDomains();
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies(); //domains.SelectMany(x => x.GetAssemblies());
                 
                 //Assembly asm = Assembly.Load(asmQualName.AssemblyName);
                 //Version version = asm.GetName().Version;
@@ -752,9 +755,13 @@ namespace TheraEngine.Core.Files.Serialization
                     null,
                     true);
             }
-            catch (Exception ex)
+            catch
             {
-                Engine.LogException(ex);
+                Type type = TypeCreationFailed?.Invoke(typeDeclaration);
+                if (type == null)
+                    Engine.PrintLine("Unable to create type " + typeDeclaration);
+                
+                //Engine.LogException(ex);
             }
             return null;
         }

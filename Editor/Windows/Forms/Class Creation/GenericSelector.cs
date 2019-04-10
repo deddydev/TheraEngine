@@ -144,7 +144,7 @@ namespace TheraEditor.Windows.Forms
 
                 ToolStripMenuItem root = new ToolStripMenuItem("Select a type...") { Tag = i };
 
-                bool test(TType type)
+                bool test(Type type)
                 {
                     return !(
                     

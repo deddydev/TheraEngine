@@ -104,40 +104,40 @@ namespace TheraEngine
 
             }
         }
-        private static TType[] FindTTypesInDomain()
-        {
-            var list =
-                AppDomain.CurrentDomain.GetAssemblies().
-                Where(x => !x.IsDynamic).
-                SelectMany(x => x.GetExportedTypes()).
-                Select(x => TType.From(x)).
-                ToArray();
-            return list;
-        }
-        /// <summary>
-        /// Helper to collect all types from all loaded assemblies that match the given predicate.
-        /// </summary>
-        /// <param name="matchPredicate">What determines if the type is a match or not.</param>
-        /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
-        /// <returns>All types that match the predicate.</returns>
-        public static IEnumerable<TType> FindTTypes(Predicate<TType> matchPredicate)
-        {
-            List<TType> types = new List<TType>();
+        //private static TType[] FindTTypesInDomain()
+        //{
+        //    var list =
+        //        AppDomain.CurrentDomain.GetAssemblies().
+        //        Where(x => !x.IsDynamic).
+        //        SelectMany(x => x.GetExportedTypes()).
+        //        Select(x => TType.From(x)).
+        //        ToArray();
+        //    return list;
+        //}
+        ///// <summary>
+        ///// Helper to collect all types from all loaded assemblies that match the given predicate.
+        ///// </summary>
+        ///// <param name="matchPredicate">What determines if the type is a match or not.</param>
+        ///// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
+        ///// <returns>All types that match the predicate.</returns>
+        //public static IEnumerable<TType> FindTTypes(Predicate<TType> matchPredicate)
+        //{
+        //    List<TType> types = new List<TType>();
 
-            var domains = EnumAppDomains();
-            foreach (AppDomain domain in domains)
-            {
-                TType[] domainTypes;
-                if (domain == AppDomain.CurrentDomain)
-                    domainTypes = FindTTypesInDomain();
-                else
-                    domainTypes = RemoteFunc.Invoke(domain, FindTTypesInDomain);
+        //    var domains = EnumAppDomains();
+        //    foreach (AppDomain domain in domains)
+        //    {
+        //        TType[] domainTypes;
+        //        if (domain == AppDomain.CurrentDomain)
+        //            domainTypes = FindTTypesInDomain();
+        //        else
+        //            domainTypes = RemoteFunc.Invoke(domain, FindTTypesInDomain);
 
-                types.AddRange(domainTypes.Where(x => matchPredicate(x)));
-            }
+        //        types.AddRange(domainTypes.Where(x => matchPredicate(x)));
+        //    }
 
-            return types.OrderBy(x => x.Name);
-        }
+        //    return types.OrderBy(x => x.Name);
+        //}
         /// <summary>
         /// Helper to collect all types from all loaded assemblies that match the given predicate.
         /// </summary>
@@ -148,23 +148,24 @@ namespace TheraEngine
         {
             IEnumerable<Assembly> search;
 
-            var domains = EnumAppDomains();
             if (assemblies == null || assemblies.Length == 0)
             {
-                //PrintLine("FindTypes; returning assemblies from domains:");
-                search = domains.SelectMany(x =>
-                {
-                    //PrintLine(x.FriendlyName);
-                    try
-                    {
-                        return x.GetAssemblies();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogWarning($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
-                        return new Assembly[0];
-                    }
-                });
+                search = AppDomain.CurrentDomain.GetAssemblies();
+                ////PrintLine("FindTypes; returning assemblies from domains:");
+                //var domains = EnumAppDomains();
+                //search = domains.SelectMany(x =>
+                //{
+                //    //PrintLine(x.FriendlyName);
+                //    try
+                //    {
+                //        return x.GetAssemblies();
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        LogWarning($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
+                //        return new Assembly[0];
+                //    }
+                //});
             }
             else
                 search = assemblies;

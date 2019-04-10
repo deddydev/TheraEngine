@@ -70,8 +70,8 @@ namespace TheraEditor.Wrappers
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
             newDropdown.DropDownItems.Add(newCodeItem);
 
-            Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
-            Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
+            //Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
+            //Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
         }
         
         private enum ECodeFileType
@@ -250,20 +250,35 @@ namespace TheraEditor.Wrappers
 
         #region File Type Loading
 
-        private static bool IsFileObject(TType t)
-            =>  !t.AssemblyFullName.EqualsInvariant(Assembly.GetExecutingAssembly().FullName) &&
-                !t.IsAbstract && !t.IsInterface &&
-                t.Constructors.Any(x => x.IsPublic) &&
-                t.IsSubclassOf(typeof(TFileObject)) &&
-                t.HasAttribute(typeof(TFileExt).AssemblyQualifiedName);
+        //private static bool IsFileObject(TType t)
+        //    =>  !t.AssemblyFullName.EqualsInvariant(Assembly.GetExecutingAssembly().FullName) &&
+        //        !t.IsAbstract && !t.IsInterface &&
+        //        t.Constructors.Any(x => x.IsPublic) &&
+        //        t.IsSubclassOf(typeof(TFileObject)) &&
+        //        t.HasAttribute(typeof(TFileExt).AssemblyQualifiedName);
 
-        private static bool Is3rdPartyImportable(TType t)
+        private static bool IsFileObject(Type t)
+          => t.Assembly != Assembly.GetExecutingAssembly() &&
+              !t.IsAbstract && !t.IsInterface &&
+              t.GetConstructors().Any(x => x.IsPublic) &&
+              t.IsSubclassOf(typeof(TFileObject)) &&
+              t.GetCustomAttributeExt<TFileExt>() != null;
+
+        //private static bool Is3rdPartyImportable(TType t)
+        //{
+        //    if (!IsFileObject(t))
+        //        return false;
+
+        //    string[] ext = t.ImportableExtensions;
+        //    return ext != null && ext.Length > 0;
+        //}
+        private static bool Is3rdPartyImportable(Type t)
         {
             if (!IsFileObject(t))
                 return false;
 
-            string[] ext = t.ImportableExtensions;
-            return ext != null && ext.Length > 0;
+            TFileExt attrib = t.GetCustomAttributeExt<TFileExt>();
+            return attrib.HasAnyImportableExtensions;
         }
 
         private static async void OnImportClickAsync(object sender, EventArgs e)

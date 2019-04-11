@@ -1,6 +1,4 @@
-﻿using AppDomainToolkit;
-using Core.Win32.Native;
-using Microsoft.Scripting.Utils;
+﻿using Core.Win32.Native;
 using mscoree;
 using System;
 using System.Collections.Generic;
@@ -16,9 +14,7 @@ using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Reflection;
 using TheraEngine.GameModes;
-using TheraEngine.Input;
 using TheraEngine.Input.Devices;
 using TheraEngine.Physics.ContactTesting;
 using TheraEngine.Physics.RayTracing;

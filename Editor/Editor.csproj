@@ -135,9 +135,6 @@
     <Reference Include="envdte90a, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="FastColoredTextBox, Version=2.16.24.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
-      <HintPath>..\packages\FCTB.2.16.24\lib\FastColoredTextBox.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Build, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Build.16.0.461\lib\net472\Microsoft.Build.dll</HintPath>
     </Reference>
@@ -1277,10 +1274,6 @@
     <None Include="Resources\ClosedFolder.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppDomainToolkit\AppDomainToolkit\AppDomainToolkit.csproj">
-      <Project>{2A53F4FB-0918-485C-9266-BD8FF3FA0D84}</Project>
-      <Name>AppDomainToolkit</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{3ba74071-a8fb-473a-9388-0c8f75872f41}</Project>
       <Name>Engine</Name>

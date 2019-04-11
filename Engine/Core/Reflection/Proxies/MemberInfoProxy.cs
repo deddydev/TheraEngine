@@ -1,11 +1,25 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace TheraEngine.Core.Reflection
 {
     public abstract class MemberInfoProxy : MarshalByRefObject
     {
+        public static MemberInfoProxy Get(MemberInfo info)
+        {
+            switch (info)
+            {
+                case FieldInfo fieldInfo:
+                    return FieldInfoProxy.Get(fieldInfo);
+                case PropertyInfo propertyInfo:
+                    return PropertyInfoProxy.Get(propertyInfo);
+                case EventInfo eventInfo:
+                    return EventInfoProxy.Get(eventInfo);
+                default:
+                    return null;
+            }
+        }
+
         private MemberInfo Value { get; set; }
 
         //public MemberInfoProxy() { }

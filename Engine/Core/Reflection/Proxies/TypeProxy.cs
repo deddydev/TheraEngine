@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -9,14 +12,14 @@ namespace TheraEngine.Core.Reflection
     /// <summary>
     /// Remotable interface for accessing information of a type.
     /// </summary>
-    public class TypeProxy : MarshalByRefObject
+    public sealed class TypeProxy : MarshalByRefObject
     {
         public static ConcurrentDictionary<Type, TypeProxy> Proxies { get; }
             = new ConcurrentDictionary<Type, TypeProxy>();
         public static TypeProxy Get(Type type)
             => type == null ? null : Proxies.GetOrAdd(type, new TypeProxy(type));
         public static implicit operator TypeProxy(Type type) => Get(type);
-        public static implicit operator Type(TypeProxy proxy) => proxy.Value;
+        public static implicit operator Type(TypeProxy proxy) => proxy?.Value;
 
         private Type Value { get; set; }
 
@@ -252,7 +255,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     If the current System.Type represents a type parameter of a generic method, a
         //     System.Reflection.MethodBase that represents declaring method; otherwise, null.
-        public MethodBase DeclaringMethod { get; }
+        public MethodBaseProxy DeclaringMethod => MethodBaseProxy.Get(Value.DeclaringMethod);
         //
         // Summary:
         //     Gets the type that declares the current nested type or generic type parameter.
@@ -262,7 +265,7 @@ namespace TheraEngine.Core.Reflection
         //     a nested type; or the generic type definition, if the current type is a type
         //     parameter of a generic type; or the type that declares the generic method, if
         //     the current type is a type parameter of a generic method; otherwise, null.
-        public Type DeclaringType { get; }
+        public TypeProxy DeclaringType => Get(Value.DeclaringType);
         //
         // Summary:
         //     Gets the initializer for the type.
@@ -270,7 +273,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     An object that contains the name of the class constructor for the System.Type.
         [ComVisible(true)]
-        public ConstructorInfo TypeInitializer { get; }
+        public ConstructorInfoProxy TypeInitializer => ConstructorInfoProxy.Get(Value.TypeInitializer);
         //
         // Summary:
         //     Gets a value indicating whether the fields of the current type are laid out at
@@ -279,14 +282,14 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the System.Type.Attributes property of the current type includes System.Reflection.TypeAttributes.ExplicitLayout;
         //     otherwise, false.
-        public bool IsExplicitLayout { get; }
+        public bool IsExplicitLayout => Value.IsExplicitLayout;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is a value type.
         //
         // Returns:
         //     true if the System.Type is a value type; otherwise, false.
-        public bool IsValueType { get; }
+        public bool IsValueType => Value.IsValueType;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is an interface; that is, not
@@ -294,7 +297,7 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     true if the System.Type is an interface; otherwise, false.
-        public bool IsInterface { get; }
+        public bool IsInterface => Value.IsInterface;
         //
         // Summary:
         //     Gets a value that indicates whether the current type is security-safe-critical
@@ -304,7 +307,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the current type is security-safe-critical at the current trust level;
         //     false if it is security-critical or transparent.
-        public virtual bool IsSecuritySafeCritical { get; }
+        public bool IsSecuritySafeCritical => Value.IsSecuritySafeCritical;
         //
         // Summary:
         //     Gets a value that indicates whether the current type is security-critical or
@@ -314,28 +317,28 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the current type is security-critical or security-safe-critical at the
         //     current trust level; false if it is transparent.
-        public virtual bool IsSecurityCritical { get; }
+        public bool IsSecurityCritical => Value.IsSecurityCritical;
         //
         // Summary:
         //     Gets an array of the generic type arguments for this type.
         //
         // Returns:
         //     An array of the generic type arguments for this type.
-        public virtual Type[] GenericTypeArguments { get; }
+        public TypeProxy[] GenericTypeArguments => Value.GenericTypeArguments.Select(x => Get(x)).ToArray();
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is marshaled by reference.
         //
         // Returns:
         //     true if the System.Type is marshaled by reference; otherwise, false.
-        public bool IsMarshalByRef { get; }
+        public bool IsMarshalByRef => Value.IsMarshalByRef;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type can be hosted in a context.
         //
         // Returns:
         //     true if the System.Type can be hosted in a context; otherwise, false.
-        public bool IsContextful { get; }
+        public bool IsContextful => Value.IsContextful;
         //
         // Summary:
         //     Gets a value indicating whether the current System.Type encompasses or refers
@@ -345,35 +348,35 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the System.Type is an array, a pointer, or is passed by reference; otherwise,
         //     false.
-        public bool HasElementType { get; }
+        public bool HasElementType => Value.HasElementType;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is a COM object.
         //
         // Returns:
         //     true if the System.Type is a COM object; otherwise, false.
-        public bool IsCOMObject { get; }
+        public bool IsCOMObject => Value.IsCOMObject;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is one of the primitive types.
         //
         // Returns:
         //     true if the System.Type is one of the primitive types; otherwise, false.
-        public bool IsPrimitive { get; }
+        public bool IsPrimitive => Value.IsPrimitive;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is a pointer.
         //
         // Returns:
         //     true if the System.Type is a pointer; otherwise, false.
-        public bool IsPointer { get; }
+        public bool IsPointer => Value.IsPointer;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is passed by reference.
         //
         // Returns:
         //     true if the System.Type is passed by reference; otherwise, false.
-        public bool IsByRef { get; }
+        public bool IsByRef => Value.IsByRef;
         //
         // Summary:
         //     Gets a value indicating whether the current System.Type object has type parameters
@@ -382,7 +385,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the System.Type object is itself a generic type parameter or has type
         //     parameters for which specific types have not been supplied; otherwise, false.
-        public virtual bool ContainsGenericParameters { get; }
+        public bool ContainsGenericParameters => Value.ContainsGenericParameters;
         //
         // Summary:
         //     Gets the position of the type parameter in the type parameter list of the generic
@@ -397,7 +400,7 @@ namespace TheraEngine.Core.Reflection
         //   T:System.InvalidOperationException:
         //     The current type does not represent a type parameter. That is, System.Type.IsGenericParameter
         //     returns false.
-        public virtual int GenericParameterPosition { get; }
+        public int GenericParameterPosition => Value.GenericParameterPosition;
         //
         // Summary:
         //     Gets a value indicating whether the current System.Type represents a type parameter
@@ -406,7 +409,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the System.Type object represents a type parameter of a generic type
         //     definition or generic method definition; otherwise, false.
-        public virtual bool IsGenericParameter { get; }
+        public bool IsGenericParameter => Value.IsGenericParameter;
         //
         // Summary:
         //     Gets a value that indicates whether this object represents a constructed generic
@@ -414,7 +417,7 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     true if this object represents a constructed generic type; otherwise, false.
-        public virtual bool IsConstructedGenericType { get; }
+        public bool IsConstructedGenericType => Value.IsConstructedGenericType;
         //
         // Summary:
         //     Gets a value indicating whether the current System.Type represents a generic
@@ -423,21 +426,21 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the System.Type object represents a generic type definition; otherwise,
         //     false.
-        public virtual bool IsGenericTypeDefinition { get; }
+        public bool IsGenericTypeDefinition => Value.IsGenericTypeDefinition;
         //
         // Summary:
         //     Gets a value indicating whether the current type is a generic type.
         //
         // Returns:
         //     true if the current type is a generic type; otherwise, false.
-        public virtual bool IsGenericType { get; }
+        public bool IsGenericType => Value.IsGenericType;
         //
         // Summary:
         //     Gets a value that indicates whether the type is an array.
         //
         // Returns:
         //     true if the current type is an array; otherwise, false.
-        public bool IsArray { get; }
+        public bool IsArray => Value.IsArray;
         //
         // Summary:
         //     Gets a value indicating whether the string format attribute AutoClass is selected
@@ -446,7 +449,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the string format attribute AutoClass is selected for the System.Type;
         //     otherwise, false.
-        public bool IsAutoClass { get; }
+        public bool IsAutoClass => Value.IsAutoClass;
         //
         // Summary:
         //     Gets a value indicating whether the string format attribute UnicodeClass is selected
@@ -455,7 +458,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the string format attribute UnicodeClass is selected for the System.Type;
         //     otherwise, false.
-        public bool IsUnicodeClass { get; }
+        public bool IsUnicodeClass => Value.IsUnicodeClass;
         //
         // Summary:
         //     Gets a value indicating whether the string format attribute AnsiClass is selected
@@ -464,14 +467,14 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the string format attribute AnsiClass is selected for the System.Type;
         //     otherwise, false.
-        public bool IsAnsiClass { get; }
+        public bool IsAnsiClass => Value.IsAnsiClass;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is serializable.
         //
         // Returns:
         //     true if the System.Type is serializable; otherwise, false.
-        public virtual bool IsSerializable { get; }
+        public bool IsSerializable => Value.IsSerializable;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type has a System.Runtime.InteropServices.ComImportAttribute
@@ -480,35 +483,35 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the System.Type has a System.Runtime.InteropServices.ComImportAttribute;
         //     otherwise, false.
-        public bool IsImport { get; }
+        public bool IsImport => Value.IsImport;
         //
         // Summary:
         //     Gets a value indicating whether the type has a name that requires special handling.
         //
         // Returns:
         //     true if the type has a name that requires special handling; otherwise, false.
-        public bool IsSpecialName { get; }
+        public bool IsSpecialName => Value.IsSpecialName;
         //
         // Summary:
         //     Gets a value indicating whether the current System.Type represents an enumeration.
         //
         // Returns:
         //     true if the current System.Type represents an enumeration; otherwise, false.
-        public virtual bool IsEnum { get; }
+        public bool IsEnum => Value.IsEnum;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is declared sealed.
         //
         // Returns:
         //     true if the System.Type is declared sealed; otherwise, false.
-        public bool IsSealed { get; }
+        public bool IsSealed => Value.IsSealed;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is abstract and must be overridden.
         //
         // Returns:
         //     true if the System.Type is abstract; otherwise, false.
-        public bool IsAbstract { get; }
+        public bool IsAbstract => Value.IsAbstract;
         //
         // Summary:
         //     Gets a System.Reflection.MemberTypes value indicating that this member is a type
@@ -517,7 +520,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     A System.Reflection.MemberTypes value indicating that this member is a type or
         //     a nested type.
-        public override MemberTypes MemberType { get; }
+        public MemberTypes MemberType => Value.MemberType;
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is a class or a delegate; that
@@ -525,7 +528,7 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     true if the System.Type is a class; otherwise, false.
-        public bool IsClass { get; }
+        public bool IsClass => Value.IsClass;
         //
         // Summary:
         //     Gets a value that indicates whether the current type is transparent at the current
@@ -534,7 +537,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the type is security-transparent at the current trust level; otherwise,
         //     false.
-        public virtual bool IsSecurityTransparent { get; }
+        public bool IsSecurityTransparent => Value.IsSecurityTransparent;
         //
         // Summary:
         //     Indicates the type provided by the common language runtime that represents this
@@ -542,7 +545,7 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     The underlying system type for the System.Type.
-        public abstract Type UnderlyingSystemType { get; }
+        public TypeProxy UnderlyingSystemType => Get(Value.UnderlyingSystemType);
 
         //
         // Summary:
@@ -583,7 +586,7 @@ namespace TheraEngine.Core.Reflection
         //     The assembly or one of its dependencies is not valid. -or-Version 2.0 or later
         //     of the common language runtime is currently loaded, and the assembly was compiled
         //     with a later version.
-        public static Type GetType(string typeName);
+        public static TypeProxy GetType(string typeName) => Get(Type.GetType(typeName));
         //
         // Summary:
         //     Gets the type with the specified name, specifying whether to perform a case-sensitive
@@ -667,7 +670,8 @@ namespace TheraEngine.Core.Reflection
         //     The assembly or one of its dependencies is not valid. -or-The assembly was compiled
         //     with a later version of the common language runtime than the version that is
         //     currently loaded.
-        public static Type GetType(string typeName, Func<AssemblyName, Assembly> assemblyResolver, Func<Assembly, string, bool, Type> typeResolver, bool throwOnError, bool ignoreCase);
+        public static TypeProxy GetType(string typeName, Func<AssemblyName, Assembly> assemblyResolver, Func<Assembly, string, bool, Type> typeResolver, bool throwOnError, bool ignoreCase)
+            => Get(Type.GetType(typeName, assemblyResolver, typeResolver, throwOnError, ignoreCase));
         //
         // Summary:
         //     Gets the type with the specified name, specifying whether to throw an exception
@@ -747,7 +751,8 @@ namespace TheraEngine.Core.Reflection
         //     The assembly or one of its dependencies is not valid. -or-The assembly was compiled
         //     with a later version of the common language runtime than the version that is
         //     currently loaded.
-        public static Type GetType(string typeName, Func<AssemblyName, Assembly> assemblyResolver, Func<Assembly, string, bool, Type> typeResolver, bool throwOnError);
+        public static TypeProxy GetType(string typeName, Func<AssemblyName, Assembly> assemblyResolver, Func<Assembly, string, bool, Type> typeResolver, bool throwOnError)
+            => Get(Type.GetType(typeName, assemblyResolver, typeResolver, throwOnError));
         //
         // Summary:
         //     Gets the type with the specified name, optionally providing custom methods to
@@ -810,7 +815,8 @@ namespace TheraEngine.Core.Reflection
         //     The assembly or one of its dependencies is not valid. -or-The assembly was compiled
         //     with a later version of the common language runtime than the version that is
         //     currently loaded.
-        public static Type GetType(string typeName, Func<AssemblyName, Assembly> assemblyResolver, Func<Assembly, string, bool, Type> typeResolver);
+        public static TypeProxy GetType(string typeName, Func<AssemblyName, Assembly> assemblyResolver, Func<Assembly, string, bool, Type> typeResolver)
+            => Get(Type.GetType(typeName, assemblyResolver, typeResolver));
         //
         // Summary:
         //     Gets the System.Type with the specified name, performing a case-sensitive search
@@ -867,7 +873,8 @@ namespace TheraEngine.Core.Reflection
         //     The assembly or one of its dependencies is not valid. -or-Version 2.0 or later
         //     of the common language runtime is currently loaded, and the assembly was compiled
         //     with a later version.
-        public static Type GetType(string typeName, bool throwOnError);
+        public static Type GetType(string typeName, bool throwOnError)
+            => Get(Type.GetType(typeName, throwOnError));
         //
         // Summary:
         //     Gets the System.Type with the specified name, specifying whether to throw an
@@ -926,7 +933,8 @@ namespace TheraEngine.Core.Reflection
         //     The assembly or one of its dependencies is not valid. -or-Version 2.0 or later
         //     of the common language runtime is currently loaded, and the assembly was compiled
         //     with a later version.
-        public static Type GetType(string typeName, bool throwOnError, bool ignoreCase);
+        public static TypeProxy GetType(string typeName, bool throwOnError, bool ignoreCase)
+            => Get(Type.GetType(typeName, throwOnError, ignoreCase));
         //
         // Summary:
         //     Gets the types of the objects in the specified array.
@@ -945,7 +953,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.Reflection.TargetInvocationException:
         //     The class initializers are invoked and at least one throws an exception.
-        public static Type[] GetTypeArray(object[] args);
+        public static TypeProxy[] GetTypeArray(object[] args)
+            => args.Select(x => Get(x?.GetType())).ToArray();
         //
         // Summary:
         //     Gets the underlying type code of the specified System.Type.
@@ -956,7 +965,20 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     The code of the underlying type, or System.TypeCode.Empty if type is null.
-        public static TypeCode GetTypeCode(Type type);
+        public static TypeCode GetTypeCode(TypeProxy type)
+            => Type.GetTypeCode(type.Value);
+        //
+        // Summary:
+        //     Gets the underlying type code of the specified System.Type.
+        //
+        // Parameters:
+        //   type:
+        //     The type whose underlying type code to get.
+        //
+        // Returns:
+        //     The code of the underlying type, or System.TypeCode.Empty if type is null.
+        public static TypeCode GetTypeCode(Type type)
+            => Type.GetTypeCode(type);
         //
         // Summary:
         //     Gets the type associated with the specified class identifier (CLSID) from the
@@ -978,7 +1000,8 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     System.__ComObject regardless of whether the CLSID is valid.
         [SecuritySafeCritical]
-        public static Type GetTypeFromCLSID(Guid clsid, string server, bool throwOnError);
+        public static TypeProxy GetTypeFromCLSID(Guid clsid, string server, bool throwOnError)
+            => Type.GetTypeFromCLSID(clsid, server, throwOnError);
         //
         // Summary:
         //     Gets the type associated with the specified class identifier (CLSID).
@@ -990,7 +1013,8 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     System.__ComObject regardless of whether the CLSID is valid.
         [SecuritySafeCritical]
-        public static Type GetTypeFromCLSID(Guid clsid);
+        public static TypeProxy GetTypeFromCLSID(Guid clsid)
+            => Type.GetTypeFromCLSID(clsid);
         //
         // Summary:
         //     Gets the type associated with the specified class identifier (CLSID), specifying
@@ -1007,7 +1031,8 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     System.__ComObject regardless of whether the CLSID is valid.
         [SecuritySafeCritical]
-        public static Type GetTypeFromCLSID(Guid clsid, bool throwOnError);
+        public static TypeProxy GetTypeFromCLSID(Guid clsid, bool throwOnError)
+            => Type.GetTypeFromCLSID(clsid, throwOnError);
         //
         // Summary:
         //     Gets the type associated with the specified class identifier (CLSID) from the
@@ -1024,7 +1049,8 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     System.__ComObject regardless of whether the CLSID is valid.
         [SecuritySafeCritical]
-        public static Type GetTypeFromCLSID(Guid clsid, string server);
+        public static TypeProxy GetTypeFromCLSID(Guid clsid, string server)
+            => Type.GetTypeFromCLSID(clsid, server);
         //
         // Summary:
         //     Gets the type referenced by the specified type handle.
@@ -1041,7 +1067,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.Reflection.TargetInvocationException:
         //     A class initializer is invoked and throws an exception.
         [SecuritySafeCritical]
-        public static Type GetTypeFromHandle(RuntimeTypeHandle handle);
+        public static TypeProxy GetTypeFromHandle(RuntimeTypeHandle handle)
+            => Type.GetTypeFromHandle(handle);
         //
         // Summary:
         //     Gets the type associated with the specified program identifier (ProgID), specifying
@@ -1067,7 +1094,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.Runtime.InteropServices.COMException:
         //     The specified ProgID is not registered.
         [SecurityCritical]
-        public static Type GetTypeFromProgID(string progID, bool throwOnError);
+        public static TypeProxy GetTypeFromProgID(string progID, bool throwOnError)
+            => Type.GetTypeFromProgID(progID, throwOnError);
         //
         // Summary:
         //     Gets the type associated with the specified program identifier (progID) from
@@ -1091,7 +1119,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.ArgumentException:
         //     prodID is null.
         [SecurityCritical]
-        public static Type GetTypeFromProgID(string progID, string server);
+        public static TypeProxy GetTypeFromProgID(string progID, string server)
+            => Type.GetTypeFromProgID(progID, server);
         //
         // Summary:
         //     Gets the type associated with the specified program identifier (progID) from
@@ -1122,7 +1151,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.Runtime.InteropServices.COMException:
         //     The specified progID is not registered.
         [SecurityCritical]
-        public static Type GetTypeFromProgID(string progID, string server, bool throwOnError);
+        public static TypeProxy GetTypeFromProgID(string progID, string server, bool throwOnError)
+            => Type.GetTypeFromProgID(progID, server, throwOnError);
         //
         // Summary:
         //     Gets the type associated with the specified program identifier (ProgID), returning
@@ -1140,7 +1170,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.ArgumentException:
         //     progID is null.
         [SecurityCritical]
-        public static Type GetTypeFromProgID(string progID);
+        public static TypeProxy GetTypeFromProgID(string progID)
+            => Type.GetTypeFromProgID(progID);
         //
         // Summary:
         //     Gets the handle for the System.Type of a specified object.
@@ -1155,7 +1186,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     o is null.
-        public static RuntimeTypeHandle GetTypeHandle(object o);
+        public static RuntimeTypeHandle GetTypeHandle(object o)
+            => Type.GetTypeHandle(o);
         //
         // Summary:
         //     Gets the System.Type with the specified name, specifying whether to perform a
@@ -1214,7 +1246,8 @@ namespace TheraEngine.Core.Reflection
         //     The assembly or one of its dependencies is not valid. -or-The assembly was compiled
         //     with a later version of the common language runtime than the version that is
         //     currently loaded.
-        public static Type ReflectionOnlyGetType(string typeName, bool throwIfNotFound, bool ignoreCase);
+        public static TypeProxy ReflectionOnlyGetType(string typeName, bool throwIfNotFound, bool ignoreCase)
+            => Type.ReflectionOnlyGetType(typeName, throwIfNotFound, ignoreCase);
         //
         // Summary:
         //     Determines if the underlying system type of the current System.Type object is
@@ -1230,7 +1263,8 @@ namespace TheraEngine.Core.Reflection
         //     true if the underlying system type of o is the same as the underlying system
         //     type of the current System.Type; otherwise, false. This method also returns false
         //     if: . o is null. o cannot be cast or converted to a System.Type object.
-        public override bool Equals(object o);
+        public override bool Equals(object o)
+            => Value.Equals(o);
         //
         // Summary:
         //     Determines if the underlying system type of the current System.Type is the same
@@ -1244,7 +1278,23 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the underlying system type of o is the same as the underlying system
         //     type of the current System.Type; otherwise, false.
-        public virtual bool Equals(Type o);
+        public bool Equals(TypeProxy o)
+            => Value.Equals(o);
+        //
+        // Summary:
+        //     Determines if the underlying system type of the current System.Type is the same
+        //     as the underlying system type of the specified System.Type.
+        //
+        // Parameters:
+        //   o:
+        //     The object whose underlying system type is to be compared with the underlying
+        //     system type of the current System.Type.
+        //
+        // Returns:
+        //     true if the underlying system type of o is the same as the underlying system
+        //     type of the current System.Type; otherwise, false.
+        public bool Equals(Type o)
+            => Value.Equals(o);
         //
         // Summary:
         //     Returns an array of System.Type objects representing a filtered list of interfaces
@@ -1270,7 +1320,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.Reflection.TargetInvocationException:
         //     A static initializer is invoked and throws an exception.
-        public virtual Type[] FindInterfaces(TypeFilter filter, object filterCriteria);
+        public TypeProxy[] FindInterfaces(TypeFilter filter, object filterCriteria)
+            => Value.FindInterfaces(filter, filterCriteria).Select(x => Get(x)).ToArray();
         //
         // Summary:
         //     Returns a filtered array of System.Reflection.MemberInfo objects of the specified
@@ -1306,7 +1357,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     filter is null.
-        public virtual MemberInfo[] FindMembers(MemberTypes memberType, BindingFlags bindingAttr, MemberFilter filter, object filterCriteria);
+        public MemberInfoProxy[] FindMembers(MemberTypes memberType, BindingFlags bindingAttr, MemberFilter filter, object filterCriteria)
+            => Value.FindMembers(memberType, bindingAttr, filter, filterCriteria).Select(x => MemberInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Gets the number of dimensions in an array.
@@ -1321,7 +1373,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentException:
         //     The current type is not an array.
-        public virtual int GetArrayRank();
+        public int GetArrayRank()
+            => Value.GetArrayRank();
         //
         // Summary:
         //     Searches for a constructor whose parameters match the specified argument types
@@ -1361,7 +1414,49 @@ namespace TheraEngine.Core.Reflection
         //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
         //     do not have the same length.
         [ComVisible(true)]
-        public ConstructorInfo GetConstructor(BindingFlags bindingAttr, Binder binder, Type[] types, ParameterModifier[] modifiers);
+        public ConstructorInfoProxy GetConstructor(BindingFlags bindingAttr, Binder binder, TypeProxy[] types, ParameterModifier[] modifiers)
+            => Value.GetConstructor(bindingAttr, binder, types.Select(x => x.Value).ToArray(), modifiers);
+        //
+        // Summary:
+        //     Searches for a constructor whose parameters match the specified argument types
+        //     and modifiers, using the specified binding constraints.
+        //
+        // Parameters:
+        //   bindingAttr:
+        //     A bitmask comprised of one or more System.Reflection.BindingFlags that specify
+        //     how the search is conducted.-or- Zero, to return null.
+        //
+        //   binder:
+        //     An object that defines a set of properties and enables binding, which can involve
+        //     selection of an overloaded method, coercion of argument types, and invocation
+        //     of a member through reflection.-or- A null reference (Nothing in Visual Basic),
+        //     to use the System.Type.DefaultBinder.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the constructor to get.-or- An empty array of the type System.Type
+        //     (that is, Type[] types = new Type[0]) to get a constructor that takes no parameters.-or-
+        //     System.Type.EmptyTypes.
+        //
+        //   modifiers:
+        //     An array of System.Reflection.ParameterModifier objects representing the attributes
+        //     associated with the corresponding element in the parameter type array. The default
+        //     binder does not process this parameter.
+        //
+        // Returns:
+        //     A System.Reflection.ConstructorInfo object representing the constructor that
+        //     matches the specified requirements, if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.ArgumentNullException:
+        //     types is null.-or- One of the elements in types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
+        //     do not have the same length.
+        [ComVisible(true)]
+        public ConstructorInfoProxy GetConstructor(BindingFlags bindingAttr, Binder binder, Type[] types, ParameterModifier[] modifiers)
+            => Value.GetConstructor(bindingAttr, binder, types, modifiers);
         //
         // Summary:
         //     Searches for a constructor whose parameters match the specified argument types
@@ -1406,7 +1501,54 @@ namespace TheraEngine.Core.Reflection
         //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
         //     do not have the same length.
         [ComVisible(true)]
-        public ConstructorInfo GetConstructor(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers);
+        public ConstructorInfoProxy GetConstructor(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, TypeProxy[] types, ParameterModifier[] modifiers)
+            => Value.GetConstructor(bindingAttr, binder, callConvention, types.Select(x => x.Value).ToArray(), modifiers);
+        //
+        // Summary:
+        //     Searches for a constructor whose parameters match the specified argument types
+        //     and modifiers, using the specified binding constraints and the specified calling
+        //     convention.
+        //
+        // Parameters:
+        //   bindingAttr:
+        //     A bitmask comprised of one or more System.Reflection.BindingFlags that specify
+        //     how the search is conducted.-or- Zero, to return null.
+        //
+        //   binder:
+        //     An object that defines a set of properties and enables binding, which can involve
+        //     selection of an overloaded method, coercion of argument types, and invocation
+        //     of a member through reflection.-or- A null reference (Nothing in Visual Basic),
+        //     to use the System.Type.DefaultBinder.
+        //
+        //   callConvention:
+        //     The object that specifies the set of rules to use regarding the order and layout
+        //     of arguments, how the return value is passed, what registers are used for arguments,
+        //     and the stack is cleaned up.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the constructor to get.-or- An empty array of the type System.Type
+        //     (that is, Type[] types = new Type[0]) to get a constructor that takes no parameters.
+        //
+        //   modifiers:
+        //     An array of System.Reflection.ParameterModifier objects representing the attributes
+        //     associated with the corresponding element in the types array. The default binder
+        //     does not process this parameter.
+        //
+        // Returns:
+        //     An object representing the constructor that matches the specified requirements,
+        //     if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.ArgumentNullException:
+        //     types is null.-or- One of the elements in types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
+        //     do not have the same length.
+        [ComVisible(true)]
+        public ConstructorInfoProxy GetConstructor(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+            => Value.GetConstructor(bindingAttr, binder, callConvention, types, modifiers);
         //
         // Summary:
         //     Searches for a public instance constructor whose parameters match the types in
@@ -1430,7 +1572,33 @@ namespace TheraEngine.Core.Reflection
         //   T:System.ArgumentException:
         //     types is multidimensional.
         [ComVisible(true)]
-        public ConstructorInfo GetConstructor(Type[] types);
+        public ConstructorInfoProxy GetConstructor(TypeProxy[] types)
+            => Value.GetConstructor(types.Select(x => x.Value).ToArray());
+        //
+        // Summary:
+        //     Searches for a public instance constructor whose parameters match the types in
+        //     the specified array.
+        //
+        // Parameters:
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the desired constructor.-or- An empty array of System.Type objects,
+        //     to get a constructor that takes no parameters. Such an empty array is provided
+        //     by the static field System.Type.EmptyTypes.
+        //
+        // Returns:
+        //     An object representing the public instance constructor whose parameters match
+        //     the types in the parameter type array, if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.ArgumentNullException:
+        //     types is null.-or- One of the elements in types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.
+        [ComVisible(true)]
+        public ConstructorInfoProxy GetConstructor(Type[] types)
+            => Value.GetConstructor(types);
         //
         // Summary:
         //     When overridden in a derived class, searches for the constructors defined for
@@ -1450,7 +1618,8 @@ namespace TheraEngine.Core.Reflection
         //     or if the current System.Type represents a type parameter in the definition of
         //     a generic type or generic method.
         [ComVisible(true)]
-        public abstract ConstructorInfo[] GetConstructors(BindingFlags bindingAttr);
+        public ConstructorInfoProxy[] GetConstructors(BindingFlags bindingAttr)
+              => Value.GetConstructors(bindingAttr).Select(x => ConstructorInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Returns all the public constructors defined for the current System.Type.
@@ -1463,7 +1632,8 @@ namespace TheraEngine.Core.Reflection
         //     a type parameter in the definition of a generic type or generic method, an empty
         //     array of type System.Reflection.ConstructorInfo is returned.
         [ComVisible(true)]
-        public ConstructorInfo[] GetConstructors();
+        public ConstructorInfoProxy[] GetConstructors()
+              => Value.GetConstructors().Select(x => ConstructorInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Searches for the members defined for the current System.Type whose System.Reflection.DefaultMemberAttribute
@@ -1473,7 +1643,8 @@ namespace TheraEngine.Core.Reflection
         //     An array of System.Reflection.MemberInfo objects representing all default members
         //     of the current System.Type.-or- An empty array of type System.Reflection.MemberInfo,
         //     if the current System.Type does not have default members.
-        public virtual MemberInfo[] GetDefaultMembers();
+        public MemberInfoProxy[] GetDefaultMembers()
+              => Value.GetDefaultMembers().Select(x => MemberInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     When overridden in a derived class, returns the System.Type of the object encompassed
@@ -1484,7 +1655,8 @@ namespace TheraEngine.Core.Reflection
         //     pointer, or reference type, or null if the current System.Type is not an array
         //     or a pointer, or is not passed by reference, or represents a generic type or
         //     a type parameter in the definition of a generic type or generic method.
-        public abstract Type GetElementType();
+        public TypeProxy GetElementType()
+              => Value.GetElementType();
         //
         // Summary:
         //     Returns the name of the constant that has the specified value, for the current
@@ -1505,7 +1677,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentNullException:
         //     value is null.
-        public virtual string GetEnumName(object value);
+        public string GetEnumName(object value)
+              => Value.GetEnumName(value);
         //
         // Summary:
         //     Returns the names of the members of the current enumeration type.
@@ -1516,7 +1689,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentException:
         //     The current type is not an enumeration.
-        public virtual string[] GetEnumNames();
+        public string[] GetEnumNames()
+              => Value.GetEnumNames();
         //
         // Summary:
         //     Returns the underlying type of the current enumeration type.
@@ -1528,7 +1702,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.ArgumentException:
         //     The current type is not an enumeration.-or-The enumeration type is not valid,
         //     because it contains more than one instance field.
-        public virtual Type GetEnumUnderlyingType();
+        public TypeProxy GetEnumUnderlyingType()
+              => Value.GetEnumUnderlyingType();
         //
         // Summary:
         //     Returns an array of the values of the constants in the current enumeration type.
@@ -1540,7 +1715,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentException:
         //     The current type is not an enumeration.
-        public virtual Array GetEnumValues();
+        public Array GetEnumValues()
+              => Value.GetEnumValues();
         //
         // Summary:
         //     When overridden in a derived class, returns the System.Reflection.EventInfo object
@@ -1562,7 +1738,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     name is null.
-        public abstract EventInfo GetEvent(string name, BindingFlags bindingAttr);
+        public EventInfoProxy GetEvent(string name, BindingFlags bindingAttr)
+              => Value.GetEvent(name, bindingAttr);
         //
         // Summary:
         //     Returns the System.Reflection.EventInfo object representing the specified public
@@ -1580,7 +1757,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     name is null.
-        public EventInfo GetEvent(string name);
+        public EventInfoProxy GetEvent(string name)
+              => Value.GetEvent(name);
         //
         // Summary:
         //     When overridden in a derived class, searches for events that are declared or
@@ -1597,7 +1775,8 @@ namespace TheraEngine.Core.Reflection
         //     binding constraints.-or- An empty array of type System.Reflection.EventInfo,
         //     if the current System.Type does not have events, or if none of the events match
         //     the binding constraints.
-        public abstract EventInfo[] GetEvents(BindingFlags bindingAttr);
+        public EventInfoProxy[] GetEvents(BindingFlags bindingAttr)
+              => Value.GetEvents(bindingAttr).Select(x => EventInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Returns all the public events that are declared or inherited by the current System.Type.
@@ -1607,7 +1786,8 @@ namespace TheraEngine.Core.Reflection
         //     which are declared or inherited by the current System.Type.-or- An empty array
         //     of type System.Reflection.EventInfo, if the current System.Type does not have
         //     public events.
-        public virtual EventInfo[] GetEvents();
+        public EventInfoProxy[] GetEvents()
+              => Value.GetEvents().Select(x => EventInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Searches for the specified field, using the specified binding constraints.
@@ -1627,7 +1807,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     name is null.
-        public abstract FieldInfo GetField(string name, BindingFlags bindingAttr);
+        public FieldInfoProxy GetField(string name, BindingFlags bindingAttr)
+              => Value.GetField(name, bindingAttr);
         //
         // Summary:
         //     Searches for the public field with the specified name.
@@ -1647,7 +1828,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.NotSupportedException:
         //     This System.Type object is a System.Reflection.Emit.TypeBuilder whose System.Reflection.Emit.TypeBuilder.CreateType
         //     method has not yet been called.
-        public FieldInfo GetField(string name);
+        public FieldInfoProxy GetField(string name)
+              => Value.GetField(name);
         //
         // Summary:
         //     When overridden in a derived class, searches for the fields defined for the current
@@ -1664,7 +1846,8 @@ namespace TheraEngine.Core.Reflection
         //     An empty array of type System.Reflection.FieldInfo, if no fields are defined
         //     for the current System.Type, or if none of the defined fields match the binding
         //     constraints.
-        public abstract FieldInfo[] GetFields(BindingFlags bindingAttr);
+        public FieldInfoProxy[] GetFields(BindingFlags bindingAttr)
+              => Value.GetFields(bindingAttr).Select(x => FieldInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Returns all the public fields of the current System.Type.
@@ -1673,7 +1856,8 @@ namespace TheraEngine.Core.Reflection
         //     An array of System.Reflection.FieldInfo objects representing all the public fields
         //     defined for the current System.Type.-or- An empty array of type System.Reflection.FieldInfo,
         //     if no public fields are defined for the current System.Type.
-        public FieldInfo[] GetFields();
+        public FieldInfoProxy[] GetFields()
+              => Value.GetFields().Select(x => FieldInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Returns an array of System.Type objects that represent the type arguments of
@@ -1687,7 +1871,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.NotSupportedException:
         //     The invoked method is not supported in the base class. Derived classes must provide
         //     an implementation.
-        public virtual Type[] GetGenericArguments();
+        public TypeProxy[] GetGenericArguments()
+              => Value.GetGenericArguments().Select(x => Get(x)).ToArray();
         //
         // Summary:
         //     Returns an array of System.Type objects that represent the constraints on the
@@ -1701,7 +1886,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.InvalidOperationException:
         //     The current System.Type object is not a generic type parameter. That is, the
         //     System.Type.IsGenericParameter property returns false.
-        public virtual Type[] GetGenericParameterConstraints();
+        public TypeProxy[] GetGenericParameterConstraints()
+              => Value.GetGenericParameterConstraints().Select(x => Get(x)).ToArray();
         //
         // Summary:
         //     Returns a System.Type object that represents a generic type definition from which
@@ -1719,14 +1905,16 @@ namespace TheraEngine.Core.Reflection
         //   T:System.NotSupportedException:
         //     The invoked method is not supported in the base class. Derived classes must provide
         //     an implementation.
-        public virtual Type GetGenericTypeDefinition();
+        public TypeProxy GetGenericTypeDefinition()
+              => Value.GetGenericTypeDefinition();
         //
         // Summary:
         //     Returns the hash code for this instance.
         //
         // Returns:
         //     The hash code for this instance.
-        public override int GetHashCode();
+        public override int GetHashCode()
+            => Value.GetHashCode();
         //
         // Summary:
         //     When overridden in a derived class, searches for the specified interface, specifying
@@ -1753,7 +1941,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.Reflection.AmbiguousMatchException:
         //     The current System.Type represents a type that implements the same generic interface
         //     with different type arguments.
-        public abstract Type GetInterface(string name, bool ignoreCase);
+        public Type GetInterface(string name, bool ignoreCase)
+              => Value.GetInterface(name, ignoreCase);
         //
         // Summary:
         //     Searches for the interface with the specified name.
@@ -1774,7 +1963,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.Reflection.AmbiguousMatchException:
         //     The current System.Type represents a type that implements the same generic interface
         //     with different type arguments.
-        public Type GetInterface(string name);
+        public TypeProxy GetInterface(string name)
+              => Value.GetInterface(name);
         //
         // Summary:
         //     Returns an interface mapping for the specified interface type.
@@ -1803,7 +1993,8 @@ namespace TheraEngine.Core.Reflection
         //     The invoked method is not supported in the base class. Derived classes must provide
         //     an implementation.
         [ComVisible(true)]
-        public virtual InterfaceMapping GetInterfaceMap(Type interfaceType);
+        public InterfaceMapping GetInterfaceMap(Type interfaceType)
+              => Value.GetInterfaceMap(interfaceType);
         //
         // Summary:
         //     When overridden in a derived class, gets all the interfaces implemented or inherited
@@ -1817,7 +2008,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.Reflection.TargetInvocationException:
         //     A static initializer is invoked and throws an exception.
-        public abstract Type[] GetInterfaces();
+        public TypeProxy[] GetInterfaces()
+              => Value.GetInterfaces().Select(x => Get(x)).ToArray();
         //
         // Summary:
         //     Searches for the public members with the specified name.
@@ -1833,7 +2025,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     name is null.
-        public MemberInfo[] GetMember(string name);
+        public MemberInfoProxy[] GetMember(string name)
+              => Value.GetMember(name).Select(x => MemberInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Searches for the specified members, using the specified binding constraints.
@@ -1853,7 +2046,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     name is null.
-        public virtual MemberInfo[] GetMember(string name, BindingFlags bindingAttr);
+        public MemberInfoProxy[] GetMember(string name, BindingFlags bindingAttr)
+              => Value.GetMember(name, bindingAttr).Select(x => MemberInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Searches for the specified members of the specified member type, using the specified
@@ -1880,7 +2074,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.NotSupportedException:
         //     A derived class must provide an implementation.
-        public virtual MemberInfo[] GetMember(string name, MemberTypes type, BindingFlags bindingAttr);
+        public MemberInfoProxy[] GetMember(string name, MemberTypes type, BindingFlags bindingAttr)
+            => Value.GetMember(name, type, bindingAttr).Select(x => MemberInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Returns all the public members of the current System.Type.
@@ -1889,7 +2084,8 @@ namespace TheraEngine.Core.Reflection
         //     An array of System.Reflection.MemberInfo objects representing all the public
         //     members of the current System.Type.-or- An empty array of type System.Reflection.MemberInfo,
         //     if the current System.Type does not have public members.
-        public MemberInfo[] GetMembers();
+        public MemberInfoProxy[] GetMembers()
+            => Value.GetMembers().Select(x => MemberInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     When overridden in a derived class, searches for the members defined for the
@@ -1907,7 +2103,8 @@ namespace TheraEngine.Core.Reflection
         //     An empty array of type System.Reflection.MemberInfo, if no members are defined
         //     for the current System.Type, or if none of the defined members match the binding
         //     constraints.
-        public abstract MemberInfo[] GetMembers(BindingFlags bindingAttr);
+        public MemberInfoProxy[] GetMembers(BindingFlags bindingAttr)
+            => Value.GetMembers(bindingAttr).Select(x => MemberInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Searches for the public method with the specified name.
@@ -1926,7 +2123,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentNullException:
         //     name is null.
-        public MethodInfo GetMethod(string name);
+        public MethodInfoProxy GetMethod(string name)
+            => Value.GetMethod(name);
         //
         // Summary:
         //     Searches for the specified method, using the specified binding constraints.
@@ -1950,7 +2148,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentNullException:
         //     name is null.
-        public MethodInfo GetMethod(string name, BindingFlags bindingAttr);
+        public MethodInfoProxy GetMethod(string name, BindingFlags bindingAttr)
+            => Value.GetMethod(name, bindingAttr);
         //
         // Summary:
         //     Searches for the specified public method whose parameters match the specified
@@ -1984,7 +2183,43 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentException:
         //     types is multidimensional.-or- modifiers is multidimensional.
-        public MethodInfo GetMethod(string name, Type[] types, ParameterModifier[] modifiers);
+        public MethodInfoProxy GetMethod(string name, TypeProxy[] types, ParameterModifier[] modifiers)
+            => Value.GetMethod(name, types.Select(x => x.Value).ToArray(), modifiers);
+        //
+        // Summary:
+        //     Searches for the specified public method whose parameters match the specified
+        //     argument types and modifiers.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the public method to get.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the method to get.-or- An empty array of System.Type objects (as
+        //     provided by the System.Type.EmptyTypes field) to get a method that takes no parameters.
+        //
+        //   modifiers:
+        //     An array of System.Reflection.ParameterModifier objects representing the attributes
+        //     associated with the corresponding element in the types array. To be only used
+        //     when calling through COM interop, and only parameters that are passed by reference
+        //     are handled. The default binder does not process this parameter.
+        //
+        // Returns:
+        //     An object representing the public method that matches the specified requirements,
+        //     if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one method is found with the specified name and specified parameters.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null.-or- types is null.-or- One of the elements in types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.-or- modifiers is multidimensional.
+        public MethodInfoProxy GetMethod(string name, Type[] types, ParameterModifier[] modifiers)
+            => Value.GetMethod(name, types, modifiers);
         //
         // Summary:
         //     Searches for the specified method whose parameters match the specified argument
@@ -2029,7 +2264,54 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentException:
         //     types is multidimensional.-or- modifiers is multidimensional.
-        public MethodInfo GetMethod(string name, BindingFlags bindingAttr, Binder binder, Type[] types, ParameterModifier[] modifiers);
+        public MethodInfoProxy GetMethod(string name, BindingFlags bindingAttr, Binder binder, TypeProxy[] types, ParameterModifier[] modifiers)
+            => Value.GetMethod(name, bindingAttr, binder, types.Select(x => x.Value).ToArray(), modifiers);
+        //
+        // Summary:
+        //     Searches for the specified method whose parameters match the specified argument
+        //     types and modifiers, using the specified binding constraints.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the method to get.
+        //
+        //   bindingAttr:
+        //     A bitmask comprised of one or more System.Reflection.BindingFlags that specify
+        //     how the search is conducted.-or- Zero, to return null.
+        //
+        //   binder:
+        //     An object that defines a set of properties and enables binding, which can involve
+        //     selection of an overloaded method, coercion of argument types, and invocation
+        //     of a member through reflection.-or- A null reference (Nothing in Visual Basic),
+        //     to use the System.Type.DefaultBinder.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the method to get.-or- An empty array of System.Type objects (as
+        //     provided by the System.Type.EmptyTypes field) to get a method that takes no parameters.
+        //
+        //   modifiers:
+        //     An array of System.Reflection.ParameterModifier objects representing the attributes
+        //     associated with the corresponding element in the types array. To be only used
+        //     when calling through COM interop, and only parameters that are passed by reference
+        //     are handled. The default binder does not process this parameter.
+        //
+        // Returns:
+        //     An object representing the method that matches the specified requirements, if
+        //     found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one method is found with the specified name and matching the specified
+        //     binding constraints.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null.-or- types is null.-or- One of the elements in types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.-or- modifiers is multidimensional.
+        public MethodInfoProxy GetMethod(string name, BindingFlags bindingAttr, Binder binder, Type[] types, ParameterModifier[] modifiers)
+            => Value.GetMethod(name, bindingAttr, binder, types, modifiers);
         //
         // Summary:
         //     Searches for the specified method whose parameters match the specified argument
@@ -2080,7 +2362,60 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentException:
         //     types is multidimensional.-or- modifiers is multidimensional.
-        public MethodInfo GetMethod(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers);
+        public MethodInfoProxy GetMethod(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, TypeProxy[] types, ParameterModifier[] modifiers)
+            => Value.GetMethod(name, bindingAttr, binder, callConvention, types.Select(x => x.Value).ToArray(), modifiers);
+        //
+        // Summary:
+        //     Searches for the specified method whose parameters match the specified argument
+        //     types and modifiers, using the specified binding constraints and the specified
+        //     calling convention.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the method to get.
+        //
+        //   bindingAttr:
+        //     A bitmask comprised of one or more System.Reflection.BindingFlags that specify
+        //     how the search is conducted.-or- Zero, to return null.
+        //
+        //   binder:
+        //     An object that defines a set of properties and enables binding, which can involve
+        //     selection of an overloaded method, coercion of argument types, and invocation
+        //     of a member through reflection.-or- A null reference (Nothing in Visual Basic),
+        //     to use the System.Type.DefaultBinder.
+        //
+        //   callConvention:
+        //     The object that specifies the set of rules to use regarding the order and layout
+        //     of arguments, how the return value is passed, what registers are used for arguments,
+        //     and how the stack is cleaned up.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the method to get.-or- An empty array of System.Type objects (as
+        //     provided by the System.Type.EmptyTypes field) to get a method that takes no parameters.
+        //
+        //   modifiers:
+        //     An array of System.Reflection.ParameterModifier objects representing the attributes
+        //     associated with the corresponding element in the types array. To be only used
+        //     when calling through COM interop, and only parameters that are passed by reference
+        //     are handled. The default binder does not process this parameter.
+        //
+        // Returns:
+        //     An object representing the method that matches the specified requirements, if
+        //     found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one method is found with the specified name and matching the specified
+        //     binding constraints.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null.-or- types is null.-or- One of the elements in types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.-or- modifiers is multidimensional.
+        public MethodInfoProxy GetMethod(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers)
+            => Value.GetMethod(name, bindingAttr, binder, callConvention, types, modifiers);
         //
         // Summary:
         //     Searches for the specified public method whose parameters match the specified
@@ -2108,7 +2443,37 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentException:
         //     types is multidimensional.
-        public MethodInfo GetMethod(string name, Type[] types);
+        public MethodInfoProxy GetMethod(string name, TypeProxy[] types)
+            => Value.GetMethod(name, types.Select(x => x.Value).ToArray());
+        //
+        // Summary:
+        //     Searches for the specified public method whose parameters match the specified
+        //     argument types.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the public method to get.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the method to get.-or- An empty array of System.Type objects (as
+        //     provided by the System.Type.EmptyTypes field) to get a method that takes no parameters.
+        //
+        // Returns:
+        //     An object representing the public method whose parameters match the specified
+        //     argument types, if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one method is found with the specified name and specified parameters.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null.-or- types is null.-or- One of the elements in types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.
+        public MethodInfoProxy GetMethod(string name, Type[] types)
+            => Value.GetMethod(name, types);
         //
         // Summary:
         //     When overridden in a derived class, searches for the methods defined for the
@@ -2125,7 +2490,8 @@ namespace TheraEngine.Core.Reflection
         //     An empty array of type System.Reflection.MethodInfo, if no methods are defined
         //     for the current System.Type, or if none of the defined methods match the binding
         //     constraints.
-        public abstract MethodInfo[] GetMethods(BindingFlags bindingAttr);
+        public MethodInfoProxy[] GetMethods(BindingFlags bindingAttr)
+            => Value.GetMethods(bindingAttr).Select(x => MethodInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Returns all the public methods of the current System.Type.
@@ -2134,7 +2500,8 @@ namespace TheraEngine.Core.Reflection
         //     An array of System.Reflection.MethodInfo objects representing all the public
         //     methods defined for the current System.Type.-or- An empty array of type System.Reflection.MethodInfo,
         //     if no public methods are defined for the current System.Type.
-        public MethodInfo[] GetMethods();
+        public MethodInfoProxy[] GetMethods()
+            => Value.GetMethods().Select(x => MethodInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     When overridden in a derived class, searches for the specified nested type, using
@@ -2155,7 +2522,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     name is null.
-        public abstract Type GetNestedType(string name, BindingFlags bindingAttr);
+        public Type GetNestedType(string name, BindingFlags bindingAttr)
+            => Value.GetNestedType(name, bindingAttr);
         //
         // Summary:
         //     Searches for the public nested type with the specified name.
@@ -2171,7 +2539,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.ArgumentNullException:
         //     name is null.
-        public Type GetNestedType(string name);
+        public TypeProxy GetNestedType(string name)
+            => Value.GetNestedType(name);
         //
         // Summary:
         //     When overridden in a derived class, searches for the types nested in the current
@@ -2187,7 +2556,8 @@ namespace TheraEngine.Core.Reflection
         //     System.Type that match the specified binding constraints (the search is not recursive),
         //     or an empty array of type System.Type, if no nested types are found that match
         //     the binding constraints.
-        public abstract Type[] GetNestedTypes(BindingFlags bindingAttr);
+        public TypeProxy[] GetNestedTypes(BindingFlags bindingAttr)
+            => Value.GetNestedTypes(bindingAttr).Select(x => Get(x)).ToArray();
         //
         // Summary:
         //     Returns the public types nested in the current System.Type.
@@ -2196,7 +2566,8 @@ namespace TheraEngine.Core.Reflection
         //     An array of System.Type objects representing the public types nested in the current
         //     System.Type (the search is not recursive), or an empty array of type System.Type
         //     if no public types are nested in the current System.Type.
-        public Type[] GetNestedTypes();
+        public TypeProxy[] GetNestedTypes()
+            => Value.GetNestedTypes().Select(x => Get(x)).ToArray();
         //
         // Summary:
         //     Returns all the public properties of the current System.Type.
@@ -2205,7 +2576,8 @@ namespace TheraEngine.Core.Reflection
         //     An array of System.Reflection.PropertyInfo objects representing all public properties
         //     of the current System.Type.-or- An empty array of type System.Reflection.PropertyInfo,
         //     if the current System.Type does not have public properties.
-        public PropertyInfo[] GetProperties();
+        public PropertyInfoProxy[] GetProperties()
+            => Value.GetProperties().Select(x => PropertyInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     When overridden in a derived class, searches for the properties of the current
@@ -2221,7 +2593,8 @@ namespace TheraEngine.Core.Reflection
         //     of the current System.Type that match the specified binding constraints.-or-
         //     An empty array of type System.Reflection.PropertyInfo, if the current System.Type
         //     does not have properties, or if none of the properties match the binding constraints.
-        public abstract PropertyInfo[] GetProperties(BindingFlags bindingAttr);
+        public PropertyInfoProxy[] GetProperties(BindingFlags bindingAttr)
+            => Value.GetProperties(bindingAttr).Select(x => PropertyInfoProxy.Get(x)).ToArray();
         //
         // Summary:
         //     Searches for the public property with the specified name and return type.
@@ -2243,7 +2616,31 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentNullException:
         //     name is null, or returnType is null.
-        public PropertyInfo GetProperty(string name, Type returnType);
+        public PropertyInfo GetProperty(string name, TypeProxy returnType)
+            => Value.GetProperty(name, returnType);
+        //
+        // Summary:
+        //     Searches for the public property with the specified name and return type.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the public property to get.
+        //
+        //   returnType:
+        //     The return type of the property.
+        //
+        // Returns:
+        //     An object representing the public property with the specified name, if found;
+        //     otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one property is found with the specified name.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null, or returnType is null.
+        public PropertyInfo GetProperty(string name, Type returnType)
+            => Value.GetProperty(name, returnType);
         //
         // Summary:
         //     Searches for the specified public property whose parameters match the specified
@@ -2275,7 +2672,41 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.NullReferenceException:
         //     An element of types is null.
-        public PropertyInfo GetProperty(string name, Type[] types);
+        public PropertyInfoProxy GetProperty(string name, TypeProxy[] types)
+            => Value.GetProperty(name, types.Select(x => x.Value).ToArray());
+        //
+        // Summary:
+        //     Searches for the specified public property whose parameters match the specified
+        //     argument types.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the public property to get.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the indexed property to get.-or- An empty array of the type System.Type
+        //     (that is, Type[] types = new Type[0]) to get a property that is not indexed.
+        //
+        // Returns:
+        //     An object representing the public property whose parameters match the specified
+        //     argument types, if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one property is found with the specified name and matching the specified
+        //     argument types.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null.-or- types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.
+        //
+        //   T:System.NullReferenceException:
+        //     An element of types is null.
+        public PropertyInfoProxy GetProperty(string name, Type[] types)
+            => Value.GetProperty(name, types);
         //
         // Summary:
         //     Searches for the specified property whose parameters match the specified argument
@@ -2326,7 +2757,60 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.NullReferenceException:
         //     An element of types is null.
-        public PropertyInfo GetProperty(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers);
+        public PropertyInfoProxy GetProperty(string name, BindingFlags bindingAttr, Binder binder, TypeProxy returnType, TypeProxy[] types, ParameterModifier[] modifiers)
+            => Value.GetProperty(name, bindingAttr, binder, returnType, types.Select(x => x.Value).ToArray(), modifiers);
+        //
+        // Summary:
+        //     Searches for the specified property whose parameters match the specified argument
+        //     types and modifiers, using the specified binding constraints.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the property to get.
+        //
+        //   bindingAttr:
+        //     A bitmask comprised of one or more System.Reflection.BindingFlags that specify
+        //     how the search is conducted.-or- Zero, to return null.
+        //
+        //   binder:
+        //     An object that defines a set of properties and enables binding, which can involve
+        //     selection of an overloaded method, coercion of argument types, and invocation
+        //     of a member through reflection.-or- A null reference (Nothing in Visual Basic),
+        //     to use the System.Type.DefaultBinder.
+        //
+        //   returnType:
+        //     The return type of the property.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the indexed property to get.-or- An empty array of the type System.Type
+        //     (that is, Type[] types = new Type[0]) to get a property that is not indexed.
+        //
+        //   modifiers:
+        //     An array of System.Reflection.ParameterModifier objects representing the attributes
+        //     associated with the corresponding element in the types array. The default binder
+        //     does not process this parameter.
+        //
+        // Returns:
+        //     An object representing the property that matches the specified requirements,
+        //     if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one property is found with the specified name and matching the specified
+        //     binding constraints.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null.-or- types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
+        //     do not have the same length.
+        //
+        //   T:System.NullReferenceException:
+        //     An element of types is null.
+        public PropertyInfoProxy GetProperty(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers)
+            => Value.GetProperty(name, bindingAttr, binder, returnType, types, modifiers);
         //
         // Summary:
         //     Searches for the specified public property whose parameters match the specified
@@ -2367,7 +2851,50 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.NullReferenceException:
         //     An element of types is null.
-        public PropertyInfo GetProperty(string name, Type returnType, Type[] types, ParameterModifier[] modifiers);
+        public PropertyInfoProxy GetProperty(string name, TypeProxy returnType, TypeProxy[] types, ParameterModifier[] modifiers)
+            => Value.GetProperty(name, returnType, types.Select(x => x.Value).ToArray(), modifiers);
+        //
+        // Summary:
+        //     Searches for the specified public property whose parameters match the specified
+        //     argument types and modifiers.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the public property to get.
+        //
+        //   returnType:
+        //     The return type of the property.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the indexed property to get.-or- An empty array of the type System.Type
+        //     (that is, Type[] types = new Type[0]) to get a property that is not indexed.
+        //
+        //   modifiers:
+        //     An array of System.Reflection.ParameterModifier objects representing the attributes
+        //     associated with the corresponding element in the types array. The default binder
+        //     does not process this parameter.
+        //
+        // Returns:
+        //     An object representing the public property that matches the specified requirements,
+        //     if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one property is found with the specified name and matching the specified
+        //     argument types and modifiers.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null.-or- types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
+        //     do not have the same length.
+        //
+        //   T:System.NullReferenceException:
+        //     An element of types is null.
+        public PropertyInfoProxy GetProperty(string name, Type returnType, Type[] types, ParameterModifier[] modifiers)
+            => Value.GetProperty(name, returnType, types, modifiers);
         //
         // Summary:
         //     Searches for the specified property, using the specified binding constraints.
@@ -2391,7 +2918,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentNullException:
         //     name is null.
-        public PropertyInfo GetProperty(string name, BindingFlags bindingAttr);
+        public PropertyInfoProxy GetProperty(string name, BindingFlags bindingAttr)
+            => Value.GetProperty(name, bindingAttr);
         //
         // Summary:
         //     Searches for the specified public property whose parameters match the specified
@@ -2426,7 +2954,44 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.NullReferenceException:
         //     An element of types is null.
-        public PropertyInfo GetProperty(string name, Type returnType, Type[] types);
+        public PropertyInfoProxy GetProperty(string name, TypeProxy returnType, TypeProxy[] types)
+            => Value.GetProperty(name, returnType, types.Select(x => x.Value).ToArray());
+        //
+        // Summary:
+        //     Searches for the specified public property whose parameters match the specified
+        //     argument types.
+        //
+        // Parameters:
+        //   name:
+        //     The string containing the name of the public property to get.
+        //
+        //   returnType:
+        //     The return type of the property.
+        //
+        //   types:
+        //     An array of System.Type objects representing the number, order, and type of the
+        //     parameters for the indexed property to get.-or- An empty array of the type System.Type
+        //     (that is, Type[] types = new Type[0]) to get a property that is not indexed.
+        //
+        // Returns:
+        //     An object representing the public property whose parameters match the specified
+        //     argument types, if found; otherwise, null.
+        //
+        // Exceptions:
+        //   T:System.Reflection.AmbiguousMatchException:
+        //     More than one property is found with the specified name and matching the specified
+        //     argument types.
+        //
+        //   T:System.ArgumentNullException:
+        //     name is null.-or- types is null.
+        //
+        //   T:System.ArgumentException:
+        //     types is multidimensional.
+        //
+        //   T:System.NullReferenceException:
+        //     An element of types is null.
+        public PropertyInfoProxy GetProperty(string name, Type returnType, Type[] types)
+            => Value.GetProperty(name, returnType, types);
         //
         // Summary:
         //     Searches for the public property with the specified name.
@@ -2445,7 +3010,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentNullException:
         //     name is null.
-        public PropertyInfo GetProperty(string name);
+        public PropertyInfoProxy GetProperty(string name)
+            => Value.GetProperty(name);
         //
         // Summary:
         //     Gets the current System.Type.
@@ -2456,7 +3022,8 @@ namespace TheraEngine.Core.Reflection
         // Exceptions:
         //   T:System.Reflection.TargetInvocationException:
         //     A class initializer is invoked and throws an exception.
-        public Type GetType();
+        public new TypeProxy GetType()
+            => Value.GetType();
         //
         // Summary:
         //     When overridden in a derived class, invokes the specified member, using the specified
@@ -2549,7 +3116,8 @@ namespace TheraEngine.Core.Reflection
         //     The method represented by name has one or more unspecified generic type parameters.
         //     That is, the method's System.Reflection.MethodInfo.ContainsGenericParameters
         //     property returns true.
-        public abstract object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters);
+        public object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters)
+            => Value.InvokeMember(name, invokeAttr, binder, target, args, modifiers, culture, namedParameters);
         //
         // Summary:
         //     Invokes the specified member, using the specified binding constraints and matching
@@ -2631,7 +3199,8 @@ namespace TheraEngine.Core.Reflection
         //     property returns true.
         [DebuggerHidden]
         [DebuggerStepThrough]
-        public object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, CultureInfo culture);
+        public object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, CultureInfo culture)
+            => Value.InvokeMember(name, invokeAttr, binder, target, args, culture);
         //
         // Summary:
         //     Invokes the specified member, using the specified binding constraints and matching
@@ -2710,7 +3279,8 @@ namespace TheraEngine.Core.Reflection
         //     property returns true.
         [DebuggerHidden]
         [DebuggerStepThrough]
-        public object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args);
+        public object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args)
+            => Value.InvokeMember(name, invokeAttr, binder, target, args);
         //
         // Summary:
         //     Determines whether an instance of a specified type can be assigned to an instance
@@ -2735,7 +3305,34 @@ namespace TheraEngine.Core.Reflection
         //     System.IO.Stream object. System.Type.IsAssignableFrom#2 c represents a value
         //     type, and the current instance represents Nullable<c> (Nullable(Of c) in Visual
         //     Basic). false if none of these conditions are true, or if c is null.
-        public virtual bool IsAssignableFrom(Type c);
+        public bool IsAssignableFrom(TypeProxy c)
+            => Value.IsAssignableFrom(c);
+        //
+        // Summary:
+        //     Determines whether an instance of a specified type can be assigned to an instance
+        //     of the current type.
+        //
+        // Parameters:
+        //   c:
+        //     The type to compare with the current type.
+        //
+        // Returns:
+        //     true if any of the following conditions is true: c and the current instance represent
+        //     the same type. c is derived either directly or indirectly from the current instance.
+        //     c is derived directly from the current instance if it inherits from the current
+        //     instance; c is derived indirectly from the current instance if it inherits from
+        //     a succession of one or more classes that inherit from the current instance. The
+        //     current instance is an interface that c implements. c is a generic type parameter,
+        //     and the current instance represents one of the constraints of c. In the following
+        //     example, the current instance is a System.Type object that represents the System.IO.Stream
+        //     class. GenericWithConstraint is a generic type whose generic type parameter must
+        //     be of type System.IO.Stream. Passing its generic type parameter to the System.Type.IsAssignableFrom(System.Type)
+        //     indicates that an instance of the generic type parameter can be assigned to an
+        //     System.IO.Stream object. System.Type.IsAssignableFrom#2 c represents a value
+        //     type, and the current instance represents Nullable<c> (Nullable(Of c) in Visual
+        //     Basic). false if none of these conditions are true, or if c is null.
+        public bool IsAssignableFrom(Type c)
+            => Value.IsAssignableFrom(c);
         //
         // Summary:
         //     Returns a value that indicates whether the specified value exists in the current
@@ -2758,7 +3355,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.InvalidOperationException:
         //     value is of a type that cannot be the underlying type of an enumeration.
-        public virtual bool IsEnumDefined(object value);
+        public bool IsEnumDefined(object value)
+            => Value.IsEnumDefined(value);
         //
         // Summary:
         //     Determines whether two COM types have the same identity and are eligible for
@@ -2772,7 +3370,23 @@ namespace TheraEngine.Core.Reflection
         //     true if the COM types are equivalent; otherwise, false. This method also returns
         //     false if one type is in an assembly that is loaded for execution, and the other
         //     is in an assembly that is loaded into the reflection-only context.
-        public virtual bool IsEquivalentTo(Type other);
+        public bool IsEquivalentTo(TypeProxy other)
+            => Value.IsEquivalentTo(other);
+        //
+        // Summary:
+        //     Determines whether two COM types have the same identity and are eligible for
+        //     type equivalence.
+        //
+        // Parameters:
+        //   other:
+        //     The COM type that is tested for equivalence with the current type.
+        //
+        // Returns:
+        //     true if the COM types are equivalent; otherwise, false. This method also returns
+        //     false if one type is in an assembly that is loaded for execution, and the other
+        //     is in an assembly that is loaded into the reflection-only context.
+        public bool IsEquivalentTo(Type other)
+            => Value.IsEquivalentTo(other);
         //
         // Summary:
         //     Determines whether the specified object is an instance of the current System.Type.
@@ -2786,7 +3400,8 @@ namespace TheraEngine.Core.Reflection
         //     by o, or if the current Type is an interface that o implements. false if neither
         //     of these conditions is the case, if o is null, or if the current Type is an open
         //     generic type (that is, System.Type.ContainsGenericParameters returns true).
-        public virtual bool IsInstanceOfType(object o);
+        public bool IsInstanceOfType(object o)
+            => Value.IsInstanceOfType(o);
         //
         // Summary:
         //     Determines whether the current System.Type derives from the specified System.Type.
@@ -2803,7 +3418,26 @@ namespace TheraEngine.Core.Reflection
         //   T:System.ArgumentNullException:
         //     c is null.
         [ComVisible(true)]
-        public virtual bool IsSubclassOf(Type c);
+        public bool IsSubclassOf(TypeProxy c)
+            => Value.IsSubclassOf(c);
+        //
+        // Summary:
+        //     Determines whether the current System.Type derives from the specified System.Type.
+        //
+        // Parameters:
+        //   c:
+        //     The type to compare with the current type.
+        //
+        // Returns:
+        //     true if the current Type derives from c; otherwise, false. This method also returns
+        //     false if c and the current Type are equal.
+        //
+        // Exceptions:
+        //   T:System.ArgumentNullException:
+        //     c is null.
+        [ComVisible(true)]
+        public bool IsSubclassOf(Type c)
+            => Value.IsSubclassOf(c);
         //
         // Summary:
         //     Returns a System.Type object representing an array of the current type, with
@@ -2828,7 +3462,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.TypeLoadException:
         //     The current type is System.TypedReference.-or-The current type is a ByRef type.
         //     That is, System.Type.IsByRef returns true. -or- rank is greater than 32.
-        public virtual Type MakeArrayType(int rank);
+        public TypeProxy MakeArrayType(int rank)
+            => Value.MakeArrayType(rank);
         //
         // Summary:
         //     Returns a System.Type object representing a one-dimensional array of the current
@@ -2846,7 +3481,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.TypeLoadException:
         //     The current type is System.TypedReference.-or-The current type is a ByRef type.
         //     That is, System.Type.IsByRef returns true.
-        public virtual Type MakeArrayType();
+        public TypeProxy MakeArrayType()
+            => Value.MakeArrayType();
         //
         // Summary:
         //     Returns a System.Type object that represents the current type when passed as
@@ -2863,7 +3499,8 @@ namespace TheraEngine.Core.Reflection
         //   T:System.TypeLoadException:
         //     The current type is System.TypedReference.-or-The current type is a ByRef type.
         //     That is, System.Type.IsByRef returns true.
-        public virtual Type MakeByRefType();
+        public TypeProxy MakeByRefType()
+            => Value.MakeByRefType();
         //
         // Summary:
         //     Substitutes the elements of an array of types for the type parameters of the
@@ -2898,7 +3535,44 @@ namespace TheraEngine.Core.Reflection
         //   T:System.NotSupportedException:
         //     The invoked method is not supported in the base class. Derived classes must provide
         //     an implementation.
-        public virtual Type MakeGenericType(params Type[] typeArguments);
+        public TypeProxy MakeGenericType(params TypeProxy[] typeArguments)
+            => Value.MakeGenericType(typeArguments.Select(x => x.Value).ToArray());
+        //
+        // Summary:
+        //     Substitutes the elements of an array of types for the type parameters of the
+        //     current generic type definition and returns a System.Type object representing
+        //     the resulting constructed type.
+        //
+        // Parameters:
+        //   typeArguments:
+        //     An array of types to be substituted for the type parameters of the current generic
+        //     type.
+        //
+        // Returns:
+        //     A System.Type representing the constructed type formed by substituting the elements
+        //     of typeArguments for the type parameters of the current generic type.
+        //
+        // Exceptions:
+        //   T:System.InvalidOperationException:
+        //     The current type does not represent a generic type definition. That is, System.Type.IsGenericTypeDefinition
+        //     returns false.
+        //
+        //   T:System.ArgumentNullException:
+        //     typeArguments is null.-or- Any element of typeArguments is null.
+        //
+        //   T:System.ArgumentException:
+        //     The number of elements in typeArguments is not the same as the number of type
+        //     parameters in the current generic type definition.-or- Any element of typeArguments
+        //     does not satisfy the constraints specified for the corresponding type parameter
+        //     of the current generic type. -or- typeArguments contains an element that is a
+        //     pointer type (System.Type.IsPointer returns true), a by-ref type (System.Type.IsByRef
+        //     returns true), or System.Void.
+        //
+        //   T:System.NotSupportedException:
+        //     The invoked method is not supported in the base class. Derived classes must provide
+        //     an implementation.
+        public TypeProxy MakeGenericType(params Type[] typeArguments)
+            => Value.MakeGenericType(typeArguments);
         //
         // Summary:
         //     Returns a System.Type object that represents a pointer to the current type.
@@ -2913,260 +3587,16 @@ namespace TheraEngine.Core.Reflection
         //   T:System.TypeLoadException:
         //     The current type is System.TypedReference.-or-The current type is a ByRef type.
         //     That is, System.Type.IsByRef returns true.
-        public virtual Type MakePointerType();
+        public TypeProxy MakePointerType()
+            => Value.MakePointerType();
         //
         // Summary:
         //     Returns a String representing the name of the current Type.
         //
         // Returns:
         //     A System.String representing the name of the current System.Type.
-        public override string ToString();
-        //
-        // Summary:
-        //     When overridden in a derived class, implements the System.Type.Attributes property
-        //     and gets a bitmask indicating the attributes associated with the System.Type.
-        //
-        // Returns:
-        //     A System.Reflection.TypeAttributes object representing the attribute set of the
-        //     System.Type.
-        protected abstract TypeAttributes GetAttributeFlagsImpl();
-        //
-        // Summary:
-        //     When overridden in a derived class, searches for a constructor whose parameters
-        //     match the specified argument types and modifiers, using the specified binding
-        //     constraints and the specified calling convention.
-        //
-        // Parameters:
-        //   bindingAttr:
-        //     A bitmask comprised of one or more System.Reflection.BindingFlags that specify
-        //     how the search is conducted.-or- Zero, to return null.
-        //
-        //   binder:
-        //     An object that defines a set of properties and enables binding, which can involve
-        //     selection of an overloaded method, coercion of argument types, and invocation
-        //     of a member through reflection.-or- A null reference (Nothing in Visual Basic),
-        //     to use the System.Type.DefaultBinder.
-        //
-        //   callConvention:
-        //     The object that specifies the set of rules to use regarding the order and layout
-        //     of arguments, how the return value is passed, what registers are used for arguments,
-        //     and the stack is cleaned up.
-        //
-        //   types:
-        //     An array of System.Type objects representing the number, order, and type of the
-        //     parameters for the constructor to get.-or- An empty array of the type System.Type
-        //     (that is, Type[] types = new Type[0]) to get a constructor that takes no parameters.
-        //
-        //   modifiers:
-        //     An array of System.Reflection.ParameterModifier objects representing the attributes
-        //     associated with the corresponding element in the types array. The default binder
-        //     does not process this parameter.
-        //
-        // Returns:
-        //     A System.Reflection.ConstructorInfo object representing the constructor that
-        //     matches the specified requirements, if found; otherwise, null.
-        //
-        // Exceptions:
-        //   T:System.ArgumentNullException:
-        //     types is null.-or- One of the elements in types is null.
-        //
-        //   T:System.ArgumentException:
-        //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
-        //     do not have the same length.
-        //
-        //   T:System.NotSupportedException:
-        //     The current type is a System.Reflection.Emit.TypeBuilder or System.Reflection.Emit.GenericTypeParameterBuilder.
-        protected abstract ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers);
-        //
-        // Summary:
-        //     When overridden in a derived class, searches for the specified method whose parameters
-        //     match the specified argument types and modifiers, using the specified binding
-        //     constraints and the specified calling convention.
-        //
-        // Parameters:
-        //   name:
-        //     The string containing the name of the method to get.
-        //
-        //   bindingAttr:
-        //     A bitmask comprised of one or more System.Reflection.BindingFlags that specify
-        //     how the search is conducted.-or- Zero, to return null.
-        //
-        //   binder:
-        //     An object that defines a set of properties and enables binding, which can involve
-        //     selection of an overloaded method, coercion of argument types, and invocation
-        //     of a member through reflection.-or- A null reference (Nothing in Visual Basic),
-        //     to use the System.Type.DefaultBinder.
-        //
-        //   callConvention:
-        //     The object that specifies the set of rules to use regarding the order and layout
-        //     of arguments, how the return value is passed, what registers are used for arguments,
-        //     and what process cleans up the stack.
-        //
-        //   types:
-        //     An array of System.Type objects representing the number, order, and type of the
-        //     parameters for the method to get.-or- An empty array of the type System.Type
-        //     (that is, Type[] types = new Type[0]) to get a method that takes no parameters.-or-
-        //     null. If types is null, arguments are not matched.
-        //
-        //   modifiers:
-        //     An array of System.Reflection.ParameterModifier objects representing the attributes
-        //     associated with the corresponding element in the types array. The default binder
-        //     does not process this parameter.
-        //
-        // Returns:
-        //     An object representing the method that matches the specified requirements, if
-        //     found; otherwise, null.
-        //
-        // Exceptions:
-        //   T:System.Reflection.AmbiguousMatchException:
-        //     More than one method is found with the specified name and matching the specified
-        //     binding constraints.
-        //
-        //   T:System.ArgumentNullException:
-        //     name is null.
-        //
-        //   T:System.ArgumentException:
-        //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
-        //     do not have the same length.
-        //
-        //   T:System.NotSupportedException:
-        //     The current type is a System.Reflection.Emit.TypeBuilder or System.Reflection.Emit.GenericTypeParameterBuilder.
-        protected abstract MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers);
-        //
-        // Summary:
-        //     When overridden in a derived class, searches for the specified property whose
-        //     parameters match the specified argument types and modifiers, using the specified
-        //     binding constraints.
-        //
-        // Parameters:
-        //   name:
-        //     The string containing the name of the property to get.
-        //
-        //   bindingAttr:
-        //     A bitmask comprised of one or more System.Reflection.BindingFlags that specify
-        //     how the search is conducted.-or- Zero, to return null.
-        //
-        //   binder:
-        //     An object that defines a set of properties and enables binding, which can involve
-        //     selection of an overloaded member, coercion of argument types, and invocation
-        //     of a member through reflection.-or- A null reference (Nothing in Visual Basic),
-        //     to use the System.Type.DefaultBinder.
-        //
-        //   returnType:
-        //     The return type of the property.
-        //
-        //   types:
-        //     An array of System.Type objects representing the number, order, and type of the
-        //     parameters for the indexed property to get.-or- An empty array of the type System.Type
-        //     (that is, Type[] types = new Type[0]) to get a property that is not indexed.
-        //
-        //   modifiers:
-        //     An array of System.Reflection.ParameterModifier objects representing the attributes
-        //     associated with the corresponding element in the types array. The default binder
-        //     does not process this parameter.
-        //
-        // Returns:
-        //     An object representing the property that matches the specified requirements,
-        //     if found; otherwise, null.
-        //
-        // Exceptions:
-        //   T:System.Reflection.AmbiguousMatchException:
-        //     More than one property is found with the specified name and matching the specified
-        //     binding constraints.
-        //
-        //   T:System.ArgumentNullException:
-        //     name is null.-or- types is null.-or- One of the elements in types is null.
-        //
-        //   T:System.ArgumentException:
-        //     types is multidimensional.-or- modifiers is multidimensional.-or- types and modifiers
-        //     do not have the same length.
-        //
-        //   T:System.NotSupportedException:
-        //     The current type is a System.Reflection.Emit.TypeBuilder, System.Reflection.Emit.EnumBuilder,
-        //     or System.Reflection.Emit.GenericTypeParameterBuilder.
-        protected abstract PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers);
-        //
-        // Summary:
-        //     Returns the underlying type code of this System.Type instance.
-        //
-        // Returns:
-        //     The type code of the underlying type.
-        protected virtual TypeCode GetTypeCodeImpl();
-        //
-        // Summary:
-        //     When overridden in a derived class, implements the System.Type.HasElementType
-        //     property and determines whether the current System.Type encompasses or refers
-        //     to another type; that is, whether the current System.Type is an array, a pointer,
-        //     or is passed by reference.
-        //
-        // Returns:
-        //     true if the System.Type is an array, a pointer, or is passed by reference; otherwise,
-        //     false.
-        protected abstract bool HasElementTypeImpl();
-        //
-        // Summary:
-        //     When overridden in a derived class, implements the System.Type.IsArray property
-        //     and determines whether the System.Type is an array.
-        //
-        // Returns:
-        //     true if the System.Type is an array; otherwise, false.
-        protected abstract bool IsArrayImpl();
-        //
-        // Summary:
-        //     When overridden in a derived class, implements the System.Type.IsByRef property
-        //     and determines whether the System.Type is passed by reference.
-        //
-        // Returns:
-        //     true if the System.Type is passed by reference; otherwise, false.
-        protected abstract bool IsByRefImpl();
-        //
-        // Summary:
-        //     When overridden in a derived class, implements the System.Type.IsCOMObject property
-        //     and determines whether the System.Type is a COM object.
-        //
-        // Returns:
-        //     true if the System.Type is a COM object; otherwise, false.
-        protected abstract bool IsCOMObjectImpl();
-        //
-        // Summary:
-        //     Implements the System.Type.IsContextful property and determines whether the System.Type
-        //     can be hosted in a context.
-        //
-        // Returns:
-        //     true if the System.Type can be hosted in a context; otherwise, false.
-        protected virtual bool IsContextfulImpl();
-        //
-        // Summary:
-        //     Implements the System.Type.IsMarshalByRef property and determines whether the
-        //     System.Type is marshaled by reference.
-        //
-        // Returns:
-        //     true if the System.Type is marshaled by reference; otherwise, false.
-        protected virtual bool IsMarshalByRefImpl();
-        //
-        // Summary:
-        //     When overridden in a derived class, implements the System.Type.IsPointer property
-        //     and determines whether the System.Type is a pointer.
-        //
-        // Returns:
-        //     true if the System.Type is a pointer; otherwise, false.
-        protected abstract bool IsPointerImpl();
-        //
-        // Summary:
-        //     When overridden in a derived class, implements the System.Type.IsPrimitive property
-        //     and determines whether the System.Type is one of the primitive types.
-        //
-        // Returns:
-        //     true if the System.Type is one of the primitive types; otherwise, false.
-        protected abstract bool IsPrimitiveImpl();
-        //
-        // Summary:
-        //     Implements the System.Type.IsValueType property and determines whether the System.Type
-        //     is a value type; that is, not a class or an interface.
-        //
-        // Returns:
-        //     true if the System.Type is a value type; otherwise, false.
-        protected virtual bool IsValueTypeImpl();
+        public override string ToString() 
+            => Value.ToString();
 
         //
         // Summary:
@@ -3182,7 +3612,8 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if left is equal to right; otherwise, false.
         [SecuritySafeCritical]
-        public static bool operator ==(Type left, Type right);
+        public static bool operator ==(TypeProxy left, TypeProxy right)
+            => left.Value == right.Value;
         //
         // Summary:
         //     Indicates whether two System.Type objects are not equal.
@@ -3197,6 +3628,71 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if left is not equal to right; otherwise, false.
         [SecuritySafeCritical]
-        public static bool operator !=(Type left, Type right);
+        public static bool operator !=(TypeProxy left, TypeProxy right)
+            => left.Value != right.Value;
+        //
+        // Summary:
+        //     Indicates whether two System.Type objects are equal.
+        //
+        // Parameters:
+        //   left:
+        //     The first object to compare.
+        //
+        //   right:
+        //     The second object to compare.
+        //
+        // Returns:
+        //     true if left is equal to right; otherwise, false.
+        [SecuritySafeCritical]
+        public static bool operator ==(TypeProxy left, Type right)
+            => left.Value == right;
+        //
+        // Summary:
+        //     Indicates whether two System.Type objects are not equal.
+        //
+        // Parameters:
+        //   left:
+        //     The first object to compare.
+        //
+        //   right:
+        //     The second object to compare.
+        //
+        // Returns:
+        //     true if left is not equal to right; otherwise, false.
+        [SecuritySafeCritical]
+        public static bool operator !=(TypeProxy left, Type right)
+            => left.Value != right;
+        //
+        // Summary:
+        //     Indicates whether two System.Type objects are equal.
+        //
+        // Parameters:
+        //   left:
+        //     The first object to compare.
+        //
+        //   right:
+        //     The second object to compare.
+        //
+        // Returns:
+        //     true if left is equal to right; otherwise, false.
+        [SecuritySafeCritical]
+        public static bool operator ==(Type left, TypeProxy right)
+            => left == right.Value;
+        //
+        // Summary:
+        //     Indicates whether two System.Type objects are not equal.
+        //
+        // Parameters:
+        //   left:
+        //     The first object to compare.
+        //
+        //   right:
+        //     The second object to compare.
+        //
+        // Returns:
+        //     true if left is not equal to right; otherwise, false.
+        [SecuritySafeCritical]
+        public static bool operator !=(Type left, TypeProxy right)
+            => left != right.Value;
     }
 }

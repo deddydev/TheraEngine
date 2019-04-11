@@ -10,6 +10,19 @@ namespace TheraEngine.Core.Reflection
 {
     public abstract class MethodBaseProxy : MemberInfoProxy
     {
+        public static MethodBaseProxy Get(MethodBase methodBase)
+        {
+            switch (methodBase)
+            {
+                case ConstructorInfo constructorInfo:
+                    return ConstructorInfoProxy.Get(constructorInfo);
+                case MethodInfo methodInfo:
+                    return MethodInfoProxy.Get(methodInfo);
+                default:
+                    return null;
+            }
+        }
+        
         private MethodBase Value { get; set; }
 
         //public MethodBaseProxy() { }
@@ -271,6 +284,7 @@ namespace TheraEngine.Core.Reflection
         //     A 32-bit signed integer hash code.
         public override int GetHashCode()
             => Value.GetHashCode();
+
         //
         // Summary:
         //     When overridden in a derived class, gets a System.Reflection.MethodBody object

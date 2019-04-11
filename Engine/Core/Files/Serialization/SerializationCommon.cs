@@ -729,7 +729,7 @@ namespace TheraEngine.Core.Files.Serialization
                 number = (i++).ToString();
             return name + number;
         }
-        public delegate Type DelTypeCreationFail(string typeDeclaration);
+        public delegate TypeProxy DelTypeCreationFail(string typeDeclaration);
         public static DelTypeCreationFail TypeCreationFailed;
         public static TypeProxy CreateType(string typeDeclaration)
         {
@@ -750,18 +750,21 @@ namespace TheraEngine.Core.Files.Serialization
 
                 //typeDeclaration = asmQualName.ToString();
 
-                return Type.GetType(typeDeclaration,
+                return TypeProxy.GetType(typeDeclaration,
                     name => assemblies.FirstOrDefault(assembly => assembly.GetName().Name.EqualsInvariantIgnoreCase(name.Name)),
                     null,
                     true);
             }
-            catch
+            catch// (Exception ex)
             {
-                Type type = TypeCreationFailed?.Invoke(typeDeclaration);
-                if (type == null)
+                TypeProxy type = TypeCreationFailed?.Invoke(typeDeclaration);
+                if (type is null)
+                {
                     Engine.PrintLine("Unable to create type " + typeDeclaration);
-                
-                //Engine.LogException(ex);
+                    //Engine.LogException(ex);
+                }
+                else
+                    return type;
             }
             return null;
         }

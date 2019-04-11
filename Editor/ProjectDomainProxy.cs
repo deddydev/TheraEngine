@@ -29,10 +29,10 @@ namespace TheraEditor
                 //var domains = Engine.EnumAppDomains();
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies(); //domains.SelectMany(x => x.GetAssemblies());
 
-                return new TypeProxy(Type.GetType(typeDeclaration,
+                return TypeProxy.GetType(typeDeclaration,
                     name => assemblies.FirstOrDefault(assembly => assembly.GetName().Name.EqualsInvariantIgnoreCase(name.Name)),
                     null,
-                    true));
+                    true);
             }
             catch (Exception ex)
             {

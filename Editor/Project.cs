@@ -17,6 +17,7 @@ using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Files.XML;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.ThirdParty;
@@ -947,12 +948,9 @@ namespace TheraEditor
             //Engine.PrintLine(string.Join("\n", assemblies.Select(x => x.FullName)));
             //_gameDomain.Domain.AssemblyLoad += Domain_AssemblyLoad;
         }
-        private Type TypeCreationFailed(string typeDeclaration)
-        {
-            TypeProxy proxy = DomainProxy.CreateType(typeDeclaration);
-            return proxy.Value;
-        }
-
+        private TypeProxy TypeCreationFailed(string typeDeclaration)
+            => DomainProxy.CreateType(typeDeclaration);
+        
         private void Domain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
             string assemblyName = args.LoadedAssembly.GetName().Name;

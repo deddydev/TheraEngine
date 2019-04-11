@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+    <AssemblyName>Compare-NET-Objects-Tests</AssemblyName>
+    <RootNamespace>KellermanSoftware.CompareNetObjectsTests</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <PackageReference Include="NUnit" Version="3.10.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Compare-NET-Objects\Compare-NET-Objects.csproj" />
+  </ItemGroup>
+  
+  <PropertyGroup>
+    <IsNetCore>false</IsNetCore>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <IsNetCore>true</IsNetCore>
+    <DefineConstants>$(DefineConstants);DNCORE;NETSTANDARD;NETCORE</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="!$(IsNetCore)">
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  
+</Project>

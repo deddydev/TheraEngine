@@ -3,6 +3,7 @@
 #region Includes
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 #endregion
 
 namespace KellermanSoftware.CompareNetObjects
@@ -306,6 +307,17 @@ namespace KellermanSoftware.CompareNetObjects
             get { return _logic.Config.CollectionMatchingSpec; }
             set { _logic.Config.CollectionMatchingSpec = value; }
         }
+
+        /// <summary>
+        /// Obsolete Use CompareLogic.Config.ComparePredicate instead
+        /// </summary>
+        [Obsolete("Use CompareLogic.Config.ComparePredicate instead", true)]
+        public Predicate<MemberInfo> ComparePredicate
+        {
+            get { return _logic.Config.ComparePredicate; }
+            set { _logic.Config.ComparePredicate = value; }
+        }
+
         #endregion
 
         #region Methods

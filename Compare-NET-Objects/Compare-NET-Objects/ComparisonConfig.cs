@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using System.Linq;
+using System.Reflection;
 #if !NETSTANDARD
 using System.Runtime.Serialization;
 #endif
@@ -401,6 +402,15 @@ namespace KellermanSoftware.CompareNetObjects
         /// Backing member that supports <see cref="HasWildcardMembersToExclude"/>
         /// </summary>
         private bool? _hasWildcardInMembersToIgnore;
+
+        /// <summary>
+        /// The method to determine if a member should be compared or not.
+        /// The default is null.
+        /// </summary>
+#if !NETSTANDARD
+        [DataMember]
+#endif
+        public Predicate<MemberInfo> ComparePredicate { get; set; }
 
         /// <summary>
         /// Computed value of whether or not exclusion list has wildcards.

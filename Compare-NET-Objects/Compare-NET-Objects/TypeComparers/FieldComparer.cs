@@ -54,6 +54,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             if (parms.Config.IgnoreObjectTypes && secondFieldInfo == null)
                 return;
 
+            //If the field does not pass the predicate, skip it
+            if (parms.Config.ComparePredicate != null && !parms.Config.ComparePredicate(item))
+                return;
+
             object objectValue1 = item.GetValue(parms.Object1);
             object objectValue2 = secondFieldInfo != null ? secondFieldInfo.GetValue(parms.Object2) : null;
 

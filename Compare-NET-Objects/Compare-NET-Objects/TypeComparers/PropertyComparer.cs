@@ -75,6 +75,10 @@ namespace KellermanSoftware.CompareNetObjects.TypeComparers
             if (parms.Config.IgnoreObjectTypes && secondObjectInfo == null)
                 return;
 
+            //If the property does not pass the predicate, skip it
+            if (parms.Config.ComparePredicate != null && !parms.Config.ComparePredicate(info.PropertyInfo))
+                return;
+
             object objectValue1;
             object objectValue2;
             if (!IsValidIndexer(parms.Config, info, parms.BreadCrumb))

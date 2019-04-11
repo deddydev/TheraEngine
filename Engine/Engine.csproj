@@ -1180,8 +1180,8 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Compare-NET-Objects\Compare-NET-Objects.csproj">
-      <Project>{f76c2816-647c-4069-9dc1-0e458f8e15f2}</Project>
+    <ProjectReference Include="..\Compare-NET-Objects\Compare-NET-Objects\Compare-NET-Objects.csproj">
+      <Project>{EB236808-A58C-4C6C-9CEB-FE529CC92C0A}</Project>
       <Name>Compare-NET-Objects</Name>
     </ProjectReference>
   </ItemGroup>

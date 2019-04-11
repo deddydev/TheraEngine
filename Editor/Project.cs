@@ -980,33 +980,41 @@ namespace TheraEditor
                 {
                     string relPath = path.MakeAbsolutePathRelativeTo(SourceDirectory);
                     string localPath = LocalSourceDirectory + relPath;
-                    if (localPath.EndsWith("cs", StringComparison.InvariantCultureIgnoreCase))
+                    string ext = localPath.GetExtensionLowercase();
+                    switch (ext)
                     {
-                        codeFilesRef.Add(localPath);
+                        default:
+                            {
+                                contentFilesRef.Add(localPath);
+                            }
+                            break;
+                        case "cs":
+                            {
+                                codeFilesRef.Add(localPath);
 
-                        string text = File.ReadAllText(path);
-                        int usingsEnd = text.FindFirst(0, "namespace");
-                        if (usingsEnd > 0)
-                            text = text.Substring(0, usingsEnd);
+                                string text = File.ReadAllText(path);
+                                int usingsEnd = text.FindFirst(0, "namespace");
+                                if (usingsEnd > 0)
+                                    text = text.Substring(0, usingsEnd);
 
-                        string usingStr = "using ";
-                        int[] usingIndices = text.FindAllOccurrences(0, usingStr);
+                                string usingStr = "using ";
+                                int[] usingIndices = text.FindAllOccurrences(0, usingStr);
 
-                        foreach (int i in usingIndices)
-                        {
-                            int startIndex = i + usingStr.Length;
-                            int endIndex = text.FindFirst(startIndex, ';');
+                                foreach (int i in usingIndices)
+                                {
+                                    int startIndex = i + usingStr.Length;
+                                    int endIndex = text.FindFirst(startIndex, ';');
 
-                            if (endIndex < 0)
-                                continue;
+                                    if (endIndex < 0)
+                                        continue;
 
-                            string reference = text.Substring(startIndex, endIndex - startIndex).Trim();
-                            
-                            referencesRef.Add(reference);
-                        }
+                                    string reference = text.Substring(startIndex, endIndex - startIndex).Trim();
+
+                                    referencesRef.Add(reference);
+                                }
+                            }
+                            break;
                     }
-                    else
-                        contentFilesRef.Add(localPath);
                 }
 
                 string[] dirs = Directory.GetDirectories(dir);
@@ -1242,7 +1250,7 @@ namespace TheraEditor
             }
             public IAssemblyTarget ReflectionOnlyLoadAssembly(LoadMethod loadMethod, string assemblyPath)
             {
-                IAssemblyTarget target = null;
+                IAssemblyTarget target;
                 var assembly = _loader.ReflectionOnlyLoadAssembly(loadMethod, assemblyPath);
                 if (loadMethod == LoadMethod.LoadBits)
                 {

@@ -1,18 +1,22 @@
-﻿using System;
+﻿using AppDomainToolkit;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
+using TheraEngine.Core.Files;
+using TheraEngine.Core.Files.Serialization;
 
 namespace TheraEngine.Core.Reflection
 {
     /// <summary>
     /// Remotable interface for accessing information of a type.
     /// </summary>
-    public sealed class TypeProxy : MarshalByRefObject
+    public sealed class TypeProxy : MemberInfoProxy
     {
         public static ConcurrentDictionary<Type, TypeProxy> Proxies { get; }
             = new ConcurrentDictionary<Type, TypeProxy>();
@@ -26,7 +30,53 @@ namespace TheraEngine.Core.Reflection
         private Type Value { get; set; }
 
         //public TypeProxy() { }
-        private TypeProxy(Type value) => Value = value;
+        private TypeProxy(Type value) : base(value) => Value = value;
+
+        public string GetFriendlyName() 
+            => Value.GetFriendlyName();
+        public object GetDefaultValue()
+            => Value.GetDefaultValue();
+        public TypeProxy DetermineElementType()
+            => Value.DetermineElementType();
+
+        public void GetGenericParameterConstraints(out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
+        {
+            GenericParameterAttributes gpa = GenericParameterAttributes;
+            GenericParameterAttributes variance = gpa & GenericParameterAttributes.VarianceMask;
+            GenericParameterAttributes constraints = gpa & GenericParameterAttributes.SpecialConstraintMask;
+
+            gvf = EGenericVarianceFlag.None;
+            tcf = ETypeConstraintFlag.None;
+
+            if (variance != GenericParameterAttributes.None)
+            {
+                if ((variance & GenericParameterAttributes.Covariant) != 0)
+                    gvf = EGenericVarianceFlag.CovariantOut;
+                else
+                    gvf = EGenericVarianceFlag.ContravariantIn;
+            }
+
+            if (constraints != GenericParameterAttributes.None)
+            {
+                if ((constraints & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0)
+                    tcf = ETypeConstraintFlag.Struct;
+                else
+                {
+                    if ((constraints & GenericParameterAttributes.DefaultConstructorConstraint) != 0)
+                        tcf = ETypeConstraintFlag.NewStructOrClass;
+                    if ((constraints & GenericParameterAttributes.ReferenceTypeConstraint) != 0)
+                    {
+                        if (tcf == ETypeConstraintFlag.NewStructOrClass)
+                            tcf = ETypeConstraintFlag.NewClass;
+                        else
+                            tcf = ETypeConstraintFlag.Class;
+                    }
+                }
+            }
+        }
+
+        public bool FitsConstraints(EGenericVarianceFlag gvf, ETypeConstraintFlag tcf) 
+            => Value.FitsConstraints(gvf, tcf);
 
         //
         // Summary:
@@ -46,6 +96,10 @@ namespace TheraEngine.Core.Reflection
         //   T:System.NotSupportedException:
         //     The invoked method is not supported in the base class.
         public GenericParameterAttributes GenericParameterAttributes => Value.GenericParameterAttributes;
+
+        public Delegate CreateDelegate(MethodInfoProxy m)
+            => Delegate.CreateDelegate(Value, (MethodInfo)m);
+
         //
         // Summary:
         //     Gets a value indicating whether the System.Type can be accessed by code outside
@@ -87,6 +141,45 @@ namespace TheraEngine.Core.Reflection
         //     true if the System.Type is nested and visible only within its own assembly; otherwise,
         //     false.
         public bool IsNestedAssembly => Value.IsNestedAssembly;
+
+        public static TypeProxy TypeOf<T>()
+        {
+            TypeProxy proxy = null;
+            var domains = Engine.EnumAppDomains();
+            foreach (AppDomain domain in domains)
+            {
+                if (domain == AppDomain.CurrentDomain)
+                {
+                    try
+                    {
+                        proxy = Get(typeof(T));
+                    }
+                    catch
+                    {
+                        proxy = null;
+                    }
+                }
+                else
+                {
+                    proxy = RemoteFunc.Invoke(domain, () =>
+                    {
+                        try
+                        {
+                            return Get(typeof(T));
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    });
+                }
+
+                if (!(proxy is null))
+                    break;
+            }
+            return proxy;
+        }
+
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is nested and visible only within
@@ -229,6 +322,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     The GUID associated with the System.Type.
         public Guid GUID => Value.GUID;
+
         //
         // Summary:
         //     Gets a System.Runtime.InteropServices.StructLayoutAttribute that describes the
@@ -248,7 +342,8 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     The Type object through which this System.Type object was obtained.
-        public TypeProxy ReflectedType => Get(Value.ReflectedType);
+        //public TypeProxy ReflectedType => Get(Value.ReflectedType);
+
         //
         // Summary:
         //     Gets a System.Reflection.MethodBase that represents the declaring method, if
@@ -258,6 +353,12 @@ namespace TheraEngine.Core.Reflection
         //     If the current System.Type represents a type parameter of a generic method, a
         //     System.Reflection.MethodBase that represents declaring method; otherwise, null.
         public MethodBaseProxy DeclaringMethod => MethodBaseProxy.Get(Value.DeclaringMethod);
+
+        public object CreateInstance() => SerializationCommon.CreateInstance(Value);
+        public object CreateInstance(params object[] args) => SerializationCommon.CreateInstance(Value, args);
+        public TypeProxy GetUnderlyingNullableType() => Nullable.GetUnderlyingType(Value);
+        public Array CreateArrayInstance(int length) => Array.CreateInstance(Value, length);
+
         //
         // Summary:
         //     Gets the type that declares the current nested type or generic type parameter.
@@ -267,7 +368,8 @@ namespace TheraEngine.Core.Reflection
         //     a nested type; or the generic type definition, if the current type is a type
         //     parameter of a generic type; or the type that declares the generic method, if
         //     the current type is a type parameter of a generic method; otherwise, null.
-        public TypeProxy DeclaringType => Get(Value.DeclaringType);
+        //public TypeProxy DeclaringType => Get(Value.DeclaringType);
+
         //
         // Summary:
         //     Gets the initializer for the type.
@@ -276,6 +378,7 @@ namespace TheraEngine.Core.Reflection
         //     An object that contains the name of the class constructor for the System.Type.
         [ComVisible(true)]
         public ConstructorInfoProxy TypeInitializer => ConstructorInfoProxy.Get(Value.TypeInitializer);
+
         //
         // Summary:
         //     Gets a value indicating whether the fields of the current type are laid out at
@@ -327,6 +430,9 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     An array of the generic type arguments for this type.
         public TypeProxy[] GenericTypeArguments => Value.GenericTypeArguments.Select(x => Get(x)).ToArray();
+
+        public object ParseEnum(string value) => Enum.Parse(Value, value);
+
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is marshaled by reference.
@@ -351,6 +457,9 @@ namespace TheraEngine.Core.Reflection
         //     true if the System.Type is an array, a pointer, or is passed by reference; otherwise,
         //     false.
         public bool HasElementType => Value.HasElementType;
+
+        public object PtrToStructure(IntPtr address) => Marshal.PtrToStructure(address, Value);
+
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is a COM object.
@@ -514,6 +623,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if the System.Type is abstract; otherwise, false.
         public bool IsAbstract => Value.IsAbstract;
+
         //
         // Summary:
         //     Gets a System.Reflection.MemberTypes value indicating that this member is a type
@@ -522,7 +632,8 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     A System.Reflection.MemberTypes value indicating that this member is a type or
         //     a nested type.
-        public MemberTypes MemberType => Value.MemberType;
+        //public MemberTypes MemberType => Value.MemberType;
+
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is a class or a delegate; that
@@ -548,8 +659,6 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     The underlying system type for the System.Type.
         public TypeProxy UnderlyingSystemType => Get(Value.UnderlyingSystemType);
-
-        public string Name => Value.Name;
 
         //
         // Summary:
@@ -591,6 +700,19 @@ namespace TheraEngine.Core.Reflection
         //     of the common language runtime is currently loaded, and the assembly was compiled
         //     with a later version.
         public static TypeProxy GetType(string typeName) => Get(Type.GetType(typeName));
+
+        //
+        // Summary:
+        //     Returns the System.Reflection.TypeInfo representation of the specified type.
+        //
+        // Parameters:
+        //   type:
+        //     The type to convert.
+        //
+        // Returns:
+        //     The converted object.
+        public TypeInfo GetTypeInfo() => Value.GetTypeInfo();
+
         //
         // Summary:
         //     Gets the type with the specified name, specifying whether to perform a case-sensitive
@@ -3311,6 +3433,8 @@ namespace TheraEngine.Core.Reflection
         //     Basic). false if none of these conditions are true, or if c is null.
         public bool IsAssignableFrom(TypeProxy c)
             => Value.IsAssignableFrom(c.Value);
+        public bool IsAssignableTo(TypeProxy c)
+           => Value.IsAssignableTo(c.Value);
         //
         // Summary:
         //     Determines whether an instance of a specified type can be assigned to an instance
@@ -3337,6 +3461,8 @@ namespace TheraEngine.Core.Reflection
         //     Basic). false if none of these conditions are true, or if c is null.
         public bool IsAssignableFrom(Type c)
             => Value.IsAssignableFrom(c);
+        public bool IsAssignableTo(Type c)
+           => Value.IsAssignableTo(c);
         //
         // Summary:
         //     Returns a value that indicates whether the specified value exists in the current
@@ -3617,7 +3743,7 @@ namespace TheraEngine.Core.Reflection
         //     true if left is equal to right; otherwise, false.
         [SecuritySafeCritical]
         public static bool operator ==(TypeProxy left, TypeProxy right)
-            => left.Value == right.Value;
+            => left?.Value == right?.Value;
         //
         // Summary:
         //     Indicates whether two System.Type objects are not equal.
@@ -3633,7 +3759,8 @@ namespace TheraEngine.Core.Reflection
         //     true if left is not equal to right; otherwise, false.
         [SecuritySafeCritical]
         public static bool operator !=(TypeProxy left, TypeProxy right)
-            => left.Value != right.Value;
+            => left?.Value != right?.Value;
+
         //
         // Summary:
         //     Indicates whether two System.Type objects are equal.
@@ -3647,9 +3774,9 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     true if left is equal to right; otherwise, false.
-        [SecuritySafeCritical]
-        public static bool operator ==(TypeProxy left, Type right)
-            => left.Value == right;
+        //[SecuritySafeCritical]
+        //public static bool operator ==(TypeProxy left, Type right)
+        //    => left?.Value == right;
         //
         // Summary:
         //     Indicates whether two System.Type objects are not equal.
@@ -3663,9 +3790,9 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     true if left is not equal to right; otherwise, false.
-        [SecuritySafeCritical]
-        public static bool operator !=(TypeProxy left, Type right)
-            => left.Value != right;
+        //[SecuritySafeCritical]
+        //public static bool operator !=(TypeProxy left, Type right)
+        //    => left?.Value != right;
         //
         // Summary:
         //     Indicates whether two System.Type objects are equal.
@@ -3679,9 +3806,9 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     true if left is equal to right; otherwise, false.
-        [SecuritySafeCritical]
-        public static bool operator ==(Type left, TypeProxy right)
-            => left == right.Value;
+        //[SecuritySafeCritical]
+        //public static bool operator ==(Type left, TypeProxy right)
+        //    => left == right?.Value;
         //
         // Summary:
         //     Indicates whether two System.Type objects are not equal.
@@ -3695,8 +3822,21 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     true if left is not equal to right; otherwise, false.
-        [SecuritySafeCritical]
-        public static bool operator !=(Type left, TypeProxy right)
-            => left != right.Value;
+        //[SecuritySafeCritical]
+        //public static bool operator !=(Type left, TypeProxy right)
+        //    => left != right?.Value;
+
+        public class EqualityComparer : IEqualityComparer<TypeProxy>
+        {
+            public bool Equals(TypeProxy x, TypeProxy y)
+            {
+                return x == y;
+            }
+            public int GetHashCode(TypeProxy x)
+            {
+                return x.Value.GetHashCode();
+            }
+        }
+
     }
 }

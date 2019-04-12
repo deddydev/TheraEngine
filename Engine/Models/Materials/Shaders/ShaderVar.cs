@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Rendering.UI.Functions;
 
@@ -130,7 +131,7 @@ namespace TheraEngine.Rendering.Models.Materials
             var types = Engine.FindTypes(t => t.IsSubclassOf(shaderType) && varType.IsAssignableFrom(t));
             return types.Select(x => TypeAssociations[x]).Distinct().ToArray();
         }
-        public static Dictionary<Type, EShaderVarType> TypeAssociations = new Dictionary<Type, EShaderVarType>()
+        public static Dictionary<TypeProxy, EShaderVarType> TypeAssociations = new Dictionary<TypeProxy, EShaderVarType>()
         {
             { typeof(ShaderBool),   EShaderVarType._bool   },
             { typeof(ShaderInt),    EShaderVarType._int    },

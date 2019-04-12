@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -64,7 +65,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Creates an object from a string.
         /// </summary>
-        public abstract bool ObjectFromString(Type type, string value, out object result);
+        public abstract bool ObjectFromString(TypeProxy type, string value, out object result);
         /// <summary>
         /// Creates a string from an object.
         /// </summary>
@@ -85,9 +86,9 @@ namespace TheraEngine.Core.Files.Serialization
             if (reloadNow)
             {
                 Type baseObjSerType = typeof(BaseObjectSerializer);
-                IEnumerable<Type> typeList = Engine.FindTypes(type =>
-                   baseObjSerType.IsAssignableFrom(type) &&
-                   (type.GetCustomAttributeExt<ObjectSerializerFor>() != null));
+                IEnumerable<TypeProxy> typeList = Engine.FindTypes(type =>
+                   type.IsAssignableTo(baseObjSerType) &&
+                   (type.GetCustomAttribute<ObjectSerializerFor>() != null));
 
                 ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
                 foreach (Type type in typeList)
@@ -103,7 +104,7 @@ namespace TheraEngine.Core.Files.Serialization
             }
         }
 
-        public abstract bool CanWriteAsString(Type type);
+        public abstract bool CanWriteAsString(TypeProxy type);
 
         /// <summary>
         /// Finds the class to use to read and write the given type.
@@ -113,7 +114,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <param name="mustAllowBinarySerialize"></param>
         /// <returns></returns>
         public static BaseObjectSerializer DetermineObjectSerializer(
-            Type objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
+            TypeProxy objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
         {
             if (objectType == null)
             {
@@ -124,7 +125,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (ObjectSerializers == null)
                 ResetObjectSerializerCache(true);
 
-            var temp = ObjectSerializers.Where(kv => (kv.Key.ObjectType?.IsAssignableFrom(objectType) ?? false));
+            var temp = ObjectSerializers.Where(kv => (objectType?.IsAssignableTo(kv.Key.ObjectType) ?? false));
             if (mustAllowStringSerialize)
                 temp = temp.Where(kv => kv.Key.CanSerializeAsString);
             if (mustAllowBinarySerialize)

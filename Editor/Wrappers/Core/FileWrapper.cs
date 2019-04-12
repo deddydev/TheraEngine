@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers
 {
@@ -11,7 +12,7 @@ namespace TheraEditor.Wrappers
         public FileWrapper() : base() { }
         public FileWrapper(ContextMenuStrip menu) : base(menu) { }
 
-        public override Type FileType => typeof(T);
+        public override TypeProxy FileType => TypeProxy.TypeOf<T>();
 
         protected GlobalFileRef<T> _fileRef = new GlobalFileRef<T>();
 

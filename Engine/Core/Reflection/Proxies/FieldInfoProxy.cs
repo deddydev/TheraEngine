@@ -17,5 +17,12 @@ namespace TheraEngine.Core.Reflection
 
         //public FieldInfoProxy() { }
         private FieldInfoProxy(FieldInfo value) : base(value) => Value = value;
+
+        public TypeProxy FieldType => Value.FieldType;
+
+        public object GetValue(object parentObject)
+            => Value.GetValue(parentObject);
+        public void SetValue(object parentObject, object memberObject)
+            => Value.SetValue(parentObject, memberObject);
     }
 }

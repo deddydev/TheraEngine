@@ -13,7 +13,7 @@ namespace TheraEditor.Windows.Forms
     {
         private class ArgumentInfo
         {
-            public Type Type { get; set; }
+            public TypeProxy Type { get; set; }
             public int ColumnIndex { get; set; }
             public int RowIndex { get; set; }
             public object Value { get; set; }
@@ -46,7 +46,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         private bool _updating = false;
-        internal Type[] _genericTypeArgs = null;
+        internal TypeProxy[] _genericTypeArgs = null;
 
         protected override void OnShown(EventArgs e)
         {
@@ -62,7 +62,7 @@ namespace TheraEditor.Windows.Forms
         /// <param name="type"></param>
         /// <param name="allowDerivedTypes"></param>
         /// <returns></returns>
-        public bool Initialize(Type type, bool allowDerivedTypes)
+        public bool Initialize(TypeProxy type, bool allowDerivedTypes)
         {
             ConstructedObject = null;
 
@@ -166,7 +166,7 @@ namespace TheraEditor.Windows.Forms
             {
                 if (allowDerivedTypes)
                 {
-                    Type[] types = Program.PopulateTreeView(treeView1, OnTypeSelected, x => x.IsAssignableTo(type) && !x.IsInterface && !x.IsAbstract);
+                    TypeProxy[] types = Program.PopulateTreeView(treeView1, OnTypeSelected, x => x.IsAssignableTo(type) && !x.IsInterface && !x.IsAbstract);
                     if (types.Length > 1)
                     {
                         treeView1.Visible = true;
@@ -183,7 +183,7 @@ namespace TheraEditor.Windows.Forms
                     return false;
                 else
                 {
-                    ConstructorInfo[] constructors = type.GetConstructors();
+                    ConstructorInfoProxy[] constructors = type.GetConstructors();
                     if (constructors.Length <= 1)
                     {
                         if (constructors.Length == 1)
@@ -192,7 +192,7 @@ namespace TheraEditor.Windows.Forms
                             {
                                 if (type.IsGenericTypeDefinition)
                                     type = type.MakeGenericType(_genericTypeArgs);
-                                ConstructedObject = SerializationCommon.CreateInstance(type);
+                                ConstructedObject = type.CreateInstance();
                                 return false;
                             }
                         }
@@ -213,7 +213,7 @@ namespace TheraEditor.Windows.Forms
                                 }
                                 else if (staticConstructors.Length == 1)
                                 {
-                                    MethodInfo method = staticConstructors[0];
+                                    MethodInfoProxy method = staticConstructors[0];
                                     if (method.GetParameters().Length == 0)
                                     {
                                         if (type.IsGenericTypeDefinition)
@@ -270,11 +270,11 @@ namespace TheraEditor.Windows.Forms
 
         public bool IsNullable { get; private set; }
         public int ConstructorIndex { get; private set; } = -1;
-        public Type ClassType { get; private set; }
-        public ConstructorInfo[] PublicInstanceConstructors { get; private set; }
-        public MethodInfo[] PublicStaticConstructors { get; private set; }
+        public TypeProxy ClassType { get; private set; }
+        public ConstructorInfoProxy[] PublicInstanceConstructors { get; private set; }
+        public MethodInfoProxy[] PublicStaticConstructors { get; private set; }
         public object[][] FinalArguments;
-        public ParameterInfo[][] Parameters;
+        public ParameterInfoProxy[][] Parameters;
         public object ConstructedObject { get; private set; } = null;
         private EObjectCreatorMode _mode = EObjectCreatorMode.Object;
         private EObjectCreatorMode Mode
@@ -402,7 +402,7 @@ namespace TheraEditor.Windows.Forms
             switch (Mode)
             {
                 case EObjectCreatorMode.Array:
-                    ConstructedObject = Array.CreateInstance(ClassType, FinalArguments.GetLength(0));
+                    ConstructedObject = ClassType.CreateArrayInstance(FinalArguments.GetLength(0));
                     FinalArguments.Select(x => x[0]).ToArray().CopyTo((Array)ConstructedObject, 0);
                     break;
                 case EObjectCreatorMode.String:
@@ -455,7 +455,7 @@ namespace TheraEditor.Windows.Forms
                         {
                             bool hasParameterlessConstructor = ClassType.GetConstructors().FirstOrDefault(x => x.GetParameters().Length == 0) != null;
                             if (hasParameterlessConstructor)
-                                ConstructedObject = SerializationCommon.CreateInstance(ClassType);
+                                ConstructedObject = ClassType.CreateInstance();
                             else
                             {
                                 ConstructedObject = null;
@@ -465,7 +465,7 @@ namespace TheraEditor.Windows.Forms
                         else
                         {
                             var parameters = FinalArguments[ConstructorIndex];
-                            ConstructorInfo constructorInfo = ClassType.GetConstructors()[ConstructorIndex];
+                            ConstructorInfoProxy constructorInfo = ClassType.GetConstructors()[ConstructorIndex];
                             ConstructedObject = constructorInfo.Invoke(parameters);
                         }
                     }
@@ -479,8 +479,8 @@ namespace TheraEditor.Windows.Forms
 
             if (IsNullable)
             {
-                ClassType = typeof(Nullable<>).MakeGenericType(ClassType);
-                ConstructedObject = Activator.CreateInstance(ClassType, ConstructedObject);
+                ClassType = TypeProxy.Get(typeof(Nullable<>)).MakeGenericType(ClassType);
+                ConstructedObject = ClassType.CreateInstance(ConstructedObject);
             }
 
             DialogResult = DialogResult.OK;
@@ -492,7 +492,7 @@ namespace TheraEditor.Windows.Forms
             DialogResult = DialogResult.Cancel;
             Close();
         }
-        private void SetTargetType(Type type)
+        private void SetTargetType(TypeProxy type)
         {
             if (type == null)
                 return;
@@ -533,7 +533,7 @@ namespace TheraEditor.Windows.Forms
                 //}
 
                 int count = PublicInstanceConstructors.Length + PublicStaticConstructors.Length;
-                Parameters = new ParameterInfo[count][];
+                Parameters = new ParameterInfoProxy[count][];
                 FinalArguments = new object[count][];
 
                 cboConstructor.Items.Clear();
@@ -551,7 +551,7 @@ namespace TheraEditor.Windows.Forms
             int index = cboConstructor.SelectedIndex;
             if (index < PublicInstanceConstructors.Length)
             {
-                ConstructorInfo c = PublicInstanceConstructors[index];
+                ConstructorInfoProxy c = PublicInstanceConstructors[index];
                 DisplayConstructorMethod(ClassType.Name.Split('`')[0], c.GetParameters(), index);
             }
             else
@@ -559,14 +559,14 @@ namespace TheraEditor.Windows.Forms
                 index -= PublicInstanceConstructors.Length;
                 if (index < PublicStaticConstructors.Length)
                 {
-                    MethodInfo m = PublicStaticConstructors[index];
+                    MethodInfoProxy m = PublicStaticConstructors[index];
                     DisplayConstructorMethod(m.Name, m.GetParameters(), PublicInstanceConstructors.Length + index);
                 }
             }
             ConstructorIndex = index;
         }
 
-        private void DisplayConstructorMethod(string funcName, ParameterInfo[] parameters, int index)
+        private void DisplayConstructorMethod(string funcName, ParameterInfoProxy[] parameters, int index)
         {
             tblConstructors.Controls.Clear();
             tblConstructors.RowStyles.Clear();
@@ -686,7 +686,7 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-        public Control CreateControl(Type type, int columnIndex, int rowIndex)
+        public Control CreateControl(TypeProxy type, int columnIndex, int rowIndex)
         {
             Control paramTool = null;
             bool nullable = false;
@@ -707,7 +707,7 @@ namespace TheraEditor.Windows.Forms
                 Value = FinalArguments[rowIndex][columnIndex],
             };
 
-            Type temp = Nullable.GetUnderlyingType(type);
+            TypeProxy temp = type.GetUnderlyingNullableType();
             if (nullable = temp != null)
                 type = temp;
 
@@ -968,10 +968,10 @@ namespace TheraEditor.Windows.Forms
                         {
                             Label s = (Label)sender;
                             ArgumentInfo argInfo = (ArgumentInfo)s.Tag;
-                            Type argType = argInfo.Type;
+                            TypeProxy argType = argInfo.Type;
                             if (argType.IsGenericParameter)
                             {
-                                TypeInfo info = IntrospectionExtensions.GetTypeInfo(ClassType);
+                                TypeInfo info = ClassType.GetTypeInfo();
                                 int argIndex = Array.FindIndex(info.GenericTypeParameters, x => x == argType);
                                 if (_genericTypeArgs.IndexInArrayRange(argIndex))
                                     argType = _genericTypeArgs[argIndex];

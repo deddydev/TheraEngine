@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -11,7 +12,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         private object _value;
         private string _stringValue;
-        private Type _valueType;
+        private TypeProxy _valueType;
 
         public bool IsNotNull => _value != null || _stringValue != null;
         public bool SetValueAsObject(object o)
@@ -51,7 +52,7 @@ namespace TheraEngine.Core.Files.Serialization
         public bool IsNonStringObject { get; private set; } = false;
         public bool IsUnparsedString => _valueType == null;
 
-        private bool ParseStringToObject(Type type)
+        private bool ParseStringToObject(TypeProxy type)
         {
             BaseObjectSerializer serializer = BaseObjectSerializer.DetermineObjectSerializer(type, true);
             if (serializer == null)
@@ -65,7 +66,7 @@ namespace TheraEngine.Core.Files.Serialization
             
             return true;
         }
-        public bool GetObject(Type expectedType, out object value)
+        public bool GetObject(TypeProxy expectedType, out object value)
         {
             if (expectedType == null)
             {

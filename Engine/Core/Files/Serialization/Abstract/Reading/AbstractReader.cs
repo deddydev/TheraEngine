@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -13,7 +14,7 @@ namespace TheraEngine.Core.Files.Serialization
             /// The deserializer that is using this reader.
             /// </summary>
             public Deserializer Owner { get; }
-            public Type RootFileType { get; }
+            public TypeProxy RootFileType { get; }
 
             protected AbstractReader(Deserializer owner, string filePath, IProgress<float> progress, CancellationToken cancel)
                 : base(filePath, progress, cancel)

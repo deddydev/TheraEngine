@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Core.Reflection;
 using WeifenLuo.WinFormsUI.Docking;
 using static System.Windows.Forms.Control;
 
@@ -178,12 +179,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             }
         }
 
-        private Type _editorType;
+        private TypeProxy _editorType;
         private Action _mouseDown;
         private void MouseDownEditor()
         {
             object value = GetValue();
-            Form form = Activator.CreateInstance(_editorType, value) as Form;
+            Form form = _editorType.CreateInstance(value) as Form;
             if (form is DockContent dc && !(form is TheraForm))
             {
                 DockContent form2 = ParentCategory.PropertyGrid.FindForm() as DockContent;

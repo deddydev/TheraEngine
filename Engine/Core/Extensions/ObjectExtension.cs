@@ -1,10 +1,13 @@
-﻿using System.Reflection;
-using System.Runtime.Serialization;
+﻿using TheraEngine.Core.Reflection;
 
 namespace System
 {
     public static class ObjectExtension
     {
+        public static TypeProxy GetTypeProxy(this object o)
+        {
+            return o.GetType();
+        }
         /// <summary>
         /// Creates an entirely independent copy of the given object.
         /// </summary>

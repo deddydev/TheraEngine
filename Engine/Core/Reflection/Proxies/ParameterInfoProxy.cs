@@ -17,5 +17,7 @@ namespace TheraEngine.Core.Reflection
 
         //public ParameterInfoProxy() { }
         private ParameterInfoProxy(ParameterInfo value) => Value = value;
+
+        public TypeProxy ParameterType => Value.ParameterType;
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace TheraEngine.Core.Reflection
@@ -17,5 +16,15 @@ namespace TheraEngine.Core.Reflection
 
         //public PropertyInfoProxy() { }
         private PropertyInfoProxy(PropertyInfo value) : base(value) => Value = value;
+
+        public TypeProxy PropertyType => Value.PropertyType;
+
+        public bool CanRead => Value.CanRead;
+        public bool CanWrite => Value.CanWrite;
+
+        public object GetValue(object parentObject)
+            => Value.GetValue(parentObject);
+        public void SetValue(object parentObject, object memberObject)
+            => Value.SetValue(parentObject, memberObject);
     }
 }

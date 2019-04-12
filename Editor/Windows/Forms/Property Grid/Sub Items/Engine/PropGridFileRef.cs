@@ -48,7 +48,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             node is BaseFileWrapper file && 
                             !string.IsNullOrWhiteSpace(node.FilePath))
                         {
-                            if (file.FileType == null || (file.FileType != null && file.FileType.IsAssignableFrom(r.ReferencedType)))
+                            if (file.FileType is null || file.FileType.IsAssignableFrom(r.ReferencedType))
                             {
                                 r.Path.Path = file.FilePath;
                                 if (r is IGlobalFileRef)

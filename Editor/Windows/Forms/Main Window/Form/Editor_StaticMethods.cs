@@ -7,6 +7,7 @@ using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Input;
 
 namespace TheraEditor.Windows.Forms
@@ -72,13 +73,13 @@ namespace TheraEditor.Windows.Forms
         /// <typeparam name="T">The object type to create.</typeparam>
         /// <returns>A newly created instance of T.</returns>
         public static T UserCreateInstanceOf<T>(bool allowDerivedTypes = true, IWin32Window window = null)
-            => (T)UserCreateInstanceOf(typeof(T), allowDerivedTypes, window);
+            => (T)UserCreateInstanceOf(TypeProxy.TypeOf<T>(), allowDerivedTypes, window);
         /// <summary>
         /// Creates an instance of elementType using user-chosen derived type, constructor and parameters.
         /// </summary>
         /// <param name="type">The object type to create.</param>
         /// <returns>A newly created instance of elementType.</returns>
-        public static object UserCreateInstanceOf(Type type, bool allowDerivedTypes = true, IWin32Window window = null)
+        public static object UserCreateInstanceOf(TypeProxy type, bool allowDerivedTypes = true, IWin32Window window = null)
         {
             //if (type.IsPrimitive)
             //    return type.GetDefaultValue();

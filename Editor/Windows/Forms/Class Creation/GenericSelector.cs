@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
             Current = null;
             base.OnDeactivate(e);
         }
-        public GenericsSelector(MethodInfo methodType) : base()
+        public GenericsSelector(MethodInfoProxy methodType) : base()
         {
             InitializeComponent();
 
@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms
 
             SetArgumentTypes(OriginalMethodType.GetGenericArguments());
         }
-        public GenericsSelector(Type classType) : base()
+        public GenericsSelector(TypeProxy classType) : base()
         {
             InitializeComponent();
 
@@ -48,16 +48,16 @@ namespace TheraEditor.Windows.Forms
 
         //    SetArgumentTypes(OriginalClassType.GetGenericArguments());
         //}
-        private void SetArgumentTypes(Type[] args)
+        private void SetArgumentTypes(TypeProxy[] args)
         {
-            SelectedTypes = new Type[args.Length];
+            SelectedTypes = new TypeProxy[args.Length];
             for (int i = 0; i < args.Length; ++i)
             {
                 SelectedTypes[i] = null;
-                Type genArg = args[i];
+                TypeProxy genArg = args[i];
 
                 genArg.GetGenericParameterConstraints(out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf);
-                Type baseType = genArg.BaseType;
+                TypeProxy baseType = genArg.BaseType;
 
                 string genericName = genArg.Name;
                 bool hasTC = tcf != ETypeConstraintFlag.None;
@@ -65,7 +65,7 @@ namespace TheraEditor.Windows.Forms
                 var interfaces = genArg.GetInterfaces().ToList();
                 for (int x = 0; x < interfaces.Count; ++x)
                 {
-                    Type t = interfaces[x];
+                    TypeProxy t = interfaces[x];
                     if (baseType != null && t.IsAssignableFrom(baseType))
                     {
                         interfaces.RemoveAt(x--);
@@ -73,7 +73,7 @@ namespace TheraEditor.Windows.Forms
                     }
                     for (int j = x + 1; j < interfaces.Count; j++)
                     {
-                        Type t2 = interfaces[j];
+                        TypeProxy t2 = interfaces[j];
                         if (t.IsAssignableFrom(t2))
                         {
                             interfaces.RemoveAt(x--);
@@ -144,7 +144,7 @@ namespace TheraEditor.Windows.Forms
 
                 ToolStripMenuItem root = new ToolStripMenuItem("Select a type...") { Tag = i };
 
-                bool test(Type type)
+                bool test(TypeProxy type)
                 {
                     return !(
                     
@@ -165,7 +165,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (sender is ToolStripMenuItem button)
                     {
-                        Type f = button.Tag as Type;
+                        TypeProxy f = button.Tag as TypeProxy;
                         if (f.ContainsGenericParameters)
                         {
                             using (GenericsSelector gs = new GenericsSelector(f))
@@ -192,13 +192,13 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public Type OriginalClassType { get; private set; }
-        public Type FinalClassType { get; private set; }
+        public TypeProxy OriginalClassType { get; private set; }
+        public TypeProxy FinalClassType { get; private set; }
         
-        public MethodInfo OriginalMethodType { get; private set; }
-        public MethodInfo FinalMethodType { get; private set; }
+        public MethodInfoProxy OriginalMethodType { get; private set; }
+        public MethodInfoProxy FinalMethodType { get; private set; }
 
-        public Type[] SelectedTypes { get; private set; }
+        public TypeProxy[] SelectedTypes { get; private set; }
 
         private void btnOkay_Click(object sender, EventArgs e)
         {

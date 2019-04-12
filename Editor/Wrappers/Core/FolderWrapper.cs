@@ -70,8 +70,8 @@ namespace TheraEditor.Wrappers
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
             newDropdown.DropDownItems.Add(newCodeItem);
 
-            //Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
-            //Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
+            Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
+            Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
         }
         
         private enum ECodeFileType
@@ -250,34 +250,19 @@ namespace TheraEditor.Wrappers
 
         #region File Type Loading
 
-        //private static bool IsFileObject(TType t)
-        //    =>  !t.AssemblyFullName.EqualsInvariant(Assembly.GetExecutingAssembly().FullName) &&
-        //        !t.IsAbstract && !t.IsInterface &&
-        //        t.Constructors.Any(x => x.IsPublic) &&
-        //        t.IsSubclassOf(typeof(TFileObject)) &&
-        //        t.HasAttribute(typeof(TFileExt).AssemblyQualifiedName);
-
-        private static bool IsFileObject(Type t)
+        private static bool IsFileObject(TypeProxy t)
           => t.Assembly != Assembly.GetExecutingAssembly() &&
               !t.IsAbstract && !t.IsInterface &&
               t.GetConstructors().Any(x => x.IsPublic) &&
               t.IsSubclassOf(typeof(TFileObject)) &&
-              t.GetCustomAttributeExt<TFileExt>() != null;
+              t.GetCustomAttribute<TFileExt>() != null;
 
-        //private static bool Is3rdPartyImportable(TType t)
-        //{
-        //    if (!IsFileObject(t))
-        //        return false;
-
-        //    string[] ext = t.ImportableExtensions;
-        //    return ext != null && ext.Length > 0;
-        //}
-        private static bool Is3rdPartyImportable(Type t)
+        private static bool Is3rdPartyImportable(TypeProxy t)
         {
             if (!IsFileObject(t))
                 return false;
 
-            TFileExt attrib = t.GetCustomAttributeExt<TFileExt>();
+            TFileExt attrib = t.GetCustomAttribute<TFileExt>();
             return attrib.HasAnyImportableExtensions;
         }
 
@@ -285,8 +270,8 @@ namespace TheraEditor.Wrappers
         {
             if (!(sender is ToolStripMenuItem button))
                 return;
-            
-            Type fileType = button.Tag as Type;
+
+            TypeProxy fileType = button.Tag as TypeProxy;
             if (fileType == null)
                 return;
 

@@ -9,6 +9,7 @@ using TheraEditor.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Wrappers
@@ -118,7 +119,7 @@ namespace TheraEditor.Wrappers
             //    ImageIndex = SelectedImageIndex = 0;
         }
 
-        public abstract Type FileType { get; }
+        public abstract TypeProxy FileType { get; }
         public abstract bool IsLoaded { get; }
         public bool AlwaysReload { get; set; } = false;
         public bool ExternallyModified { get; set; } = false;
@@ -149,25 +150,25 @@ namespace TheraEditor.Wrappers
                 Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
                 return;
             }
-            Type t = FileType;
-            while (t != null && t != typeof(object))
+            TypeProxy t = FileType;
+            while (!(t is null) && t != typeof(object))
             {
                 if (TheraPropertyGrid.FullEditorTypes.ContainsKey(t))
                 {
                     var editorType = TheraPropertyGrid.FullEditorTypes[t];
-                    Form form = Activator.CreateInstance(editorType, fileObj) as Form;
+                    Form form = editorType.CreateInstance(fileObj) as Form;
                     if (form is DockContent dc && !(form is TheraForm))
                         dc.Show(Editor.Instance.DockPanel, DockState.Document);
                     else
                         form?.ShowDialog(Editor.Instance);
                     return;
                 }
-                foreach (Type intfType in t.GetInterfaces())
+                foreach (TypeProxy intfType in t.GetInterfaces())
                 {
                     if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
                     {
                         var editorType = TheraPropertyGrid.FullEditorTypes[intfType];
-                        Form form = Activator.CreateInstance(editorType, fileObj) as Form;
+                        Form form = editorType.CreateInstance(fileObj) as Form;
                         if (form is DockContent dc && !(form is TheraForm))
                             dc.Show(Editor.Instance.DockPanel, DockState.Document);
                         else

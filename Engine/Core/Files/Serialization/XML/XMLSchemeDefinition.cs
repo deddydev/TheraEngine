@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.XML
 {
@@ -33,21 +34,21 @@ namespace TheraEngine.Core.Files.XML
     {
         public class ChildInfo
         {
-            private static readonly Type[] ElementTypes;
+            private static readonly TypeProxy[] ElementTypes;
             static ChildInfo()
             {
                 Type elemType = typeof(IElement);
-                ElementTypes = Engine.FindTypes((Type t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<ElementName>() != null).ToArray();
+                ElementTypes = Engine.FindTypes((TypeProxy t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<ElementName>() != null).ToArray();
             }
             public ChildInfo(ElementChild data)
             {
                 Data = data;
                 Occurrences = 0;
-                Types = ElementTypes.Where((Type t) => Data.ChildEntryType.IsAssignableFrom(t)).ToArray();
+                Types = ElementTypes.Where((TypeProxy t) => Data.ChildEntryType.IsAssignableFrom(t)).ToArray();
                 ElementNames = new ElementName[Types.Length];
                 for (int i = 0; i < Types.Length; ++i)
                 {
-                    Type t = Types[i];
+                    TypeProxy t = Types[i];
                     ElementName nameAttrib = t.GetCustomAttribute<ElementName>();
                     ElementNames[i] = nameAttrib;
                     if (nameAttrib == null)
@@ -55,7 +56,7 @@ namespace TheraEngine.Core.Files.XML
                 }
             }
 
-            public Type[] Types { get; private set; }
+            public TypeProxy[] Types { get; private set; }
             public ElementName[] ElementNames { get; private set; }
             public ElementChild Data { get; private set; }
             public int Occurrences { get; set; }
@@ -165,7 +166,7 @@ namespace TheraEngine.Core.Files.XML
             return null;
         }
         private async Task<IElement> ParseElementAsync(
-            Type elementType,
+            TypeProxy elementType,
             IElement parent,
             XmlReader reader,
             string version,
@@ -173,7 +174,7 @@ namespace TheraEngine.Core.Files.XML
             string parentTree,
             int elementIndex,
             CancellationToken cancel)
-            => await ParseElementAsync(SerializationCommon.CreateInstance(elementType) as IElement, 
+            => await ParseElementAsync(elementType.CreateInstance() as IElement, 
                 parent, reader, version, ignoreFlags, parentTree, elementIndex, cancel);
         private async Task<IElement> ParseElementAsync(
             IElement entry,

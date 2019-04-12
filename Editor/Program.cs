@@ -62,12 +62,12 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static Type[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<Type> match)
+        public static TypeProxy[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            Type[] fileObjecTypes = Engine.FindTypes(match).ToArray();
+            TypeProxy[] fileObjecTypes = Engine.FindTypes(match).ToArray();
             
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (Type type in fileObjecTypes)
+            foreach (TypeProxy type in fileObjecTypes)
             {
                 string path = type.Namespace;
                 int dotIndex = path.IndexOf(".");
@@ -95,12 +95,12 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static Type[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<Type> match)
+        public static TypeProxy[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            Type[] fileObjecTypes = Engine.FindTypes(match).ToArray();
+            TypeProxy[] fileObjecTypes = Engine.FindTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (Type type in fileObjecTypes)
+            foreach (TypeProxy type in fileObjecTypes)
             {
                 string path = type.Namespace;
                 int dotIndex = path.IndexOf(".");
@@ -145,7 +145,7 @@ namespace TheraEditor
             public ToolStripMenuItem Button { get; set; }
             public TreeNode TreeNode { get; set; }
 
-            public void Add(string path, Type type, EventHandler onClick)
+            public void Add(string path, TypeProxy type, EventHandler onClick)
             {
                 if (string.IsNullOrEmpty(path))
                 {

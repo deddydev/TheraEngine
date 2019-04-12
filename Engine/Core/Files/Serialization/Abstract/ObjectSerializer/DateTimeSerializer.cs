@@ -1,5 +1,6 @@
 ﻿using System;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -9,7 +10,7 @@ namespace TheraEngine.Core.Files.Serialization
         #region Tree
         public override void DeserializeTreeToObject()
         {
-            Type type = TreeNode.ObjectType;
+            TypeProxy type = TreeNode.ObjectType;
 
             if (TreeNode.Content.GetObject(type, out object literalType))
                 TreeNode.Object = literalType;
@@ -18,17 +19,17 @@ namespace TheraEngine.Core.Files.Serialization
         }
         public override void SerializeTreeFromObject()
         {
-            if (!(TreeNode.Object is Type type))
+            if (!(TreeNode.Object is DateTime time))
                 return;
 
-            if (!TreeNode.Content.SetValueAsObject(type))
-                Engine.LogWarning($"{type.GetFriendlyName()} cannot be written as a string.");
+            if (!TreeNode.Content.SetValueAsObject(time))
+                Engine.LogWarning($"{time.ToString()} cannot be written as a string.");
         }
         #endregion
 
         #region String
-        public override bool CanWriteAsString(Type type) => true;
-        public override bool ObjectFromString(Type type, string value, out object result)
+        public override bool CanWriteAsString(TypeProxy type) => true;
+        public override bool ObjectFromString(TypeProxy type, string value, out object result)
         {
             result = DateTime.FromFileTimeUtc(long.Parse(value)).ToLocalTime();
             return true;

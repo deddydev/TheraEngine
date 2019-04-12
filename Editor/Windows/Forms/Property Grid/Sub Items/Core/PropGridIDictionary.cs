@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -78,22 +79,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 await Task.Run(() =>
                 {
                     ConcurrentDictionary<int, List<PropGridItem>> controls = new ConcurrentDictionary<int, List<PropGridItem>>();
-                    ConcurrentDictionary<Type, Deque<Type>> editorTypeCaches = new ConcurrentDictionary<Type, Deque<Type>>();
+                    ConcurrentDictionary<TypeProxy, Deque<TypeProxy>> editorTypeCaches = new ConcurrentDictionary<TypeProxy, Deque<TypeProxy>>();
 
                     object[] dicKeys = new object[dic.Keys.Count];
                     dic.Keys.CopyTo(dicKeys, 0);
                     Array.Sort(dicKeys);
 
-                    Deque<Type> valueTypes = TheraPropertyGrid.GetControlTypes(_valueType);
-                    Deque<Type> keyTypes = TheraPropertyGrid.GetControlTypes(_keyType);
+                    Deque<TypeProxy> valueTypes = TheraPropertyGrid.GetControlTypes(_valueType);
+                    Deque<TypeProxy> keyTypes = TheraPropertyGrid.GetControlTypes(_keyType);
 
                     Parallel.For(0, dic.Count, i =>
                     {
                         var key = dicKeys[i];
-                        Type keyType = key?.GetType();
-                        Type valType = dic[key]?.GetType() ?? _valueType;
+                        TypeProxy keyType = key?.GetTypeProxy();
+                        TypeProxy valType = dic[key]?.GetTypeProxy() ?? _valueType;
 
-                        Deque<Type> keyControlTypes;
+                        Deque<TypeProxy> keyControlTypes;
                         if (editorTypeCaches.ContainsKey(keyType))
                             keyControlTypes = editorTypeCaches[keyType];
                         else
@@ -101,7 +102,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             keyControlTypes = TheraPropertyGrid.GetControlTypes(keyType);
                             editorTypeCaches.TryAdd(keyType, keyControlTypes);
                         }
-                        Deque<Type> valControlTypes;
+                        Deque<TypeProxy> valControlTypes;
                         if (editorTypeCaches.ContainsKey(valType))
                             valControlTypes = editorTypeCaches[valType];
                         else
@@ -110,8 +111,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             editorTypeCaches.TryAdd(valType, valControlTypes);
                         }
                         
-                        List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyControlTypes, new PropGridItemRefIDictionaryInfo(this, key, true), ParentCategory, DataChangeHandler);
-                        List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valControlTypes, new PropGridItemRefIDictionaryInfo(this, key, false), ParentCategory, DataChangeHandler);
+                        List<PropGridItem> keys = TheraPropertyGrid.InstantiatePropertyEditors(keyControlTypes, 
+                            new PropGridItemRefIDictionaryInfo(this, key, true), ParentCategory, DataChangeHandler);
+                        List<PropGridItem> values = TheraPropertyGrid.InstantiatePropertyEditors(valControlTypes,
+                            new PropGridItemRefIDictionaryInfo(this, key, false), ParentCategory, DataChangeHandler);
 
                         //TODO: don't interlace, put key editor in place of label
                         int count = keys.Count + values.Count;

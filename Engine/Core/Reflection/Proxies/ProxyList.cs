@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace TheraEngine.Core.Reflection.Proxies
 {
-    public class ProxyList<T> : MarshalByRefObject, IList<T> where T : MarshalByRefObject
+    public class ProxyList<T> : MarshalByRefObject, IList<T>
     {
         private List<T> _list;
 

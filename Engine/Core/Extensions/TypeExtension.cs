@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection;
 
 namespace System
 {
@@ -40,7 +41,8 @@ namespace System
             { typeof(string),   "string"    },
             { typeof(object),   "object"    },
         };
-
+        
+        public static bool IsAssignableFrom(this Type type, TypeProxy other) => other.IsAssignableTo(type);
         public static bool IsAssignableTo(this Type type, Type other) => other.IsAssignableFrom(type);
         
         /// <summary>
@@ -107,6 +109,24 @@ namespace System
                     }
                 }
             }
+        }
+        public static bool FitsConstraints(this Type type, EGenericVarianceFlag gvf, ETypeConstraintFlag tcf)
+        {
+            if (gvf != EGenericVarianceFlag.None)
+                throw new Exception();
+
+            switch (tcf)
+            {
+                case ETypeConstraintFlag.Class:
+                    return type.IsClass;
+                case ETypeConstraintFlag.NewClass:
+                    return type.IsClass && type.GetConstructor(new Type[0]) != null;
+                case ETypeConstraintFlag.NewStructOrClass:
+                    return type.GetConstructor(new Type[0]) != null;
+                case ETypeConstraintFlag.Struct:
+                    return type.IsValueType;
+            }
+            return true;
         }
 
         public static T GetCustomAttributeExt<T>(this Type type) where T : Attribute

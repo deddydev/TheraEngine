@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 
 namespace TheraEngine.Core.Files
@@ -12,7 +13,7 @@ namespace TheraEngine.Core.Files
     public interface IFileLoader : IFileObject
     {
         PathReference Path { get; set; }
-        Type ReferencedType { get; }
+        TypeProxy ReferencedType { get; }
     }
     
     /// <summary>
@@ -64,7 +65,7 @@ namespace TheraEngine.Core.Files
         public FileLoader(string dir, string name, EProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
-        protected Type _subType = null;
+        protected TypeProxy _subType = null;
         protected bool _updating;
         private PathReference _path;
 
@@ -141,13 +142,13 @@ namespace TheraEngine.Core.Files
                 if (!Path.FileExists)
                     return false;
 
-                Type fileType = DetermineType(Path.Path);
+                TypeProxy fileType = DetermineType(Path.Path);
                 return fileType != null && _subType.IsAssignableFrom(fileType);
             }
         }
 
         [Browsable(false)]
-        public Type ReferencedType => _subType;
+        public TypeProxy ReferencedType => _subType;
         
         private event Action<T> Loaded;
         /// <summary>
@@ -360,9 +361,9 @@ namespace TheraEngine.Core.Files
 
             T file;
             if (args.Length == 0)
-                file = SerializationCommon.CreateInstance(_subType) as T;
+                file = _subType.CreateInstance() as T;
             else
-                file = SerializationCommon.CreateInstance(_subType, args.Select(x => x.Value)) as T;
+                file = _subType.CreateInstance(args.Select(x => x.Value)) as T;
 
             if (callLoadedEvent)
                 Loaded?.Invoke(file);

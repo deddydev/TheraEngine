@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -36,7 +37,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (TreeNode.ObjectType.IsAbstract || TreeNode.ObjectType.IsInterface)
                 TreeNode.Object = null;
             else
-                TreeNode.Object = SerializationCommon.CreateInstance(TreeNode.ObjectType);
+                TreeNode.Object = TreeNode.ObjectType.CreateInstance();
             
             if (TreeNode.Object is TFileObject fobj)
             {
@@ -115,12 +116,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomDeserializeMethods == null)
                 return false;
 
-            IEnumerable<MethodInfo> customMethods = parent.CustomDeserializeMethods.Where(
+            IEnumerable<MethodInfoProxy> customMethods = parent.CustomDeserializeMethods.Where(
                 x => string.Equals(member.Name, x.GetCustomAttribute<CustomMemberDeserializeMethod>().Name));
 
-            foreach (MethodInfo customMethod in customMethods)
+            foreach (MethodInfoProxy customMethod in customMethods)
             {
-                ParameterInfo[] parameters = customMethod.GetParameters();
+                ParameterInfoProxy[] parameters = customMethod.GetParameters();
                 if (parameters.Length != 1 || !parameters[0].ParameterType.IsAssignableFrom(typeof(T)))
                 {
                     Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
@@ -274,12 +275,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomSerializeMethods == null)
                 return false;
 
-            IEnumerable<MethodInfo> customMethods = parent.CustomSerializeMethods.Where(
+            IEnumerable<MethodInfoProxy> customMethods = parent.CustomSerializeMethods.Where(
                 x => string.Equals(memberName, x.GetCustomAttribute<CustomMemberSerializeMethod>().Name));
 
-            foreach (MethodInfo customMethod in customMethods)
+            foreach (MethodInfoProxy customMethod in customMethods)
             {
-                ParameterInfo[] parameters = customMethod.GetParameters();
+                ParameterInfoProxy[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(typeof(SerializeElement)))
                 {
                     if (customMethod.ReturnType == typeof(Task))
@@ -303,12 +304,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomSerializeMethods == null)
                 return (false, null);
 
-            IEnumerable<MethodInfo> customMethods = parent.CustomSerializeMethods.Where(
+            IEnumerable<MethodInfoProxy> customMethods = parent.CustomSerializeMethods.Where(
                 x => string.Equals(memberName, x.GetCustomAttribute<CustomMemberSerializeMethod>().Name));
 
-            foreach (MethodInfo customMethod in customMethods)
+            foreach (MethodInfoProxy customMethod in customMethods)
             {
-                ParameterInfo[] parameters = customMethod.GetParameters();
+                ParameterInfoProxy[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 0)
                 {
                     object o;
@@ -342,7 +343,7 @@ namespace TheraEngine.Core.Files.Serialization
         #endregion
 
         #region String
-        public override bool ObjectFromString(Type type, string value, out object result)
+        public override bool ObjectFromString(TypeProxy type, string value, out object result)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
@@ -367,7 +368,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (type.IsEnum)
             {
                 value = value.ReplaceWhitespace("").Replace("/", ", ");
-                result = Enum.Parse(type, value);
+                result = type.ParseEnum(value);
                 return true;
             }
 
@@ -391,7 +392,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (type.GetInterface(nameof(ISerializableString)) != null)
             {
-                ISerializableString o = (ISerializableString)SerializationCommon.CreateInstance(type);
+                ISerializableString o = (ISerializableString)type.CreateInstance();
                 o.ReadFromString(value);
                 result = o;
                 return true;
@@ -407,7 +408,7 @@ namespace TheraEngine.Core.Files.Serialization
             return false;
         }
 
-        public override bool CanWriteAsString(Type type)
+        public override bool CanWriteAsString(TypeProxy type)
         {
             if (type.IsEnum)
                 return true;

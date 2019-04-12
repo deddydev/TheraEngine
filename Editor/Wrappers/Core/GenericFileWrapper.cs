@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Wrappers
 {
@@ -20,7 +21,7 @@ namespace TheraEditor.Wrappers
         }
         public override IFileObject SingleInstance { get => null; set { } }
         public override bool IsLoaded => false;
-        public override Type FileType => null;
+        public override TypeProxy FileType => null;
         public override IGlobalFileRef SingleInstanceRef => throw new NotImplementedException();
         public override IFileObject GetNewInstance() => null;
         public override Task<IFileObject> GetNewInstanceAsync() => null;

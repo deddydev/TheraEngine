@@ -17,6 +17,7 @@ using TheraEngine.Actors;
 using TheraEngine.Components;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
 using TheraEngine.Timers;
@@ -47,11 +48,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             public PropertyData(PropertyInfo property, object obj, string category)
             {
-                Deque<Type> types;
+                Deque<TypeProxy> types;
                 try
                 {
                     object propObj = property.GetValue(obj);
-                    Type subType = propObj?.GetType() ?? property.PropertyType;
+                    TypeProxy subType = propObj?.GetType() ?? property.PropertyType;
                     types = GetControlTypes(subType);
                 }
                 catch (Exception ex)
@@ -63,7 +64,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Property = property;
                 Category = category;
             }
-            public Deque<Type> ControlTypes { get; set; }
+            public Deque<TypeProxy> ControlTypes { get; set; }
             public PropertyInfo Property { get; set; }
         }
         private class MethodData : PropGridData
@@ -521,7 +522,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         continue;
 
                     MethodData m = methodInfo[i];
-                    Deque<Type> deque = new Deque<Type>();
+                    Deque<TypeProxy> deque = new Deque<TypeProxy>();
                     deque.PushBack(typeof(PropGridMethod));
                     CreateControls(grid, deque, new PropGridMemberInfoMethod(memberOwner, m.Method), pnlProps, categories, m.Category, changeHandler);
                 }
@@ -532,7 +533,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         continue;
 
                     EventData e = eventInfo[i];
-                    Deque<Type> deque = new Deque<Type>();
+                    Deque<TypeProxy> deque = new Deque<TypeProxy>();
                     deque.PushBack(typeof(PropGridEvent));
                     CreateControls(grid, deque, new PropGridMemberInfoEvent(memberOwner, e.Event), pnlProps, categories, e.Category, changeHandler);
                 }
@@ -575,16 +576,16 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// Returns a deque of all control types that can edit the given class type.
         /// </summary>
-        public static Deque<Type> GetControlTypes(Type propertyType)
+        public static Deque<TypeProxy> GetControlTypes(TypeProxy propertyType)
         {
-            Type mainControlType = null;
-            Type subType = propertyType;
-            Deque<Type> controlTypes = new Deque<Type>();
+            TypeProxy mainControlType = null;
+            TypeProxy subType = propertyType;
+            Deque<TypeProxy> controlTypes = new Deque<TypeProxy>();
             while (subType != null)
             {
                 if (mainControlType == null)
                 {
-                    Type subType2 = subType;
+                    TypeProxy subType2 = subType;
                     if (subType.IsGenericType && !InPlaceEditorTypes.ContainsKey(subType))
                         subType2 = subType.GetGenericTypeDefinition();
                     if (InPlaceEditorTypes.ContainsKey(subType2))
@@ -594,11 +595,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                             controlTypes.PushFront(mainControlType);
                     }
                 }
-                Type[] interfaces = subType.GetInterfaces();
-                foreach (Type i in interfaces)
+                TypeProxy[] interfaces = subType.GetInterfaces();
+                foreach (TypeProxy i in interfaces)
                     if (InPlaceEditorTypes.ContainsKey(i))
                     {
-                        Type controlType = InPlaceEditorTypes[i];
+                        TypeProxy controlType = InPlaceEditorTypes[i];
                         if (!controlTypes.Contains(controlType))
                             controlTypes.PushBack(controlType);
                     }
@@ -616,11 +617,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             return controlTypes;
         }
-        public static PropGridItem InstantiatePropertyEditor(Type controlType, PropGridMemberInfo info, PropGridCategory category, IDataChangeHandler dataChangeHandler)
+        public static PropGridItem InstantiatePropertyEditor(TypeProxy controlType, PropGridMemberInfo info, PropGridCategory category, IDataChangeHandler dataChangeHandler)
         {
             PropGridItem control = (PropGridItem)Editor.Instance.Invoke((Func<PropGridItem>)(() => 
             {
-                PropGridItem item = SerializationCommon.CreateInstance(controlType) as PropGridItem;
+                PropGridItem item = controlType.CreateInstance() as PropGridItem;
                 if (item != null)
                 {
                     item.Dock = DockStyle.Fill;
@@ -638,7 +639,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// Instantiates the given PropGridItem-derived control types for the given object in a list.
         /// </summary>
         public static List<PropGridItem> InstantiatePropertyEditors(
-            Deque<Type> controlTypes, PropGridMemberInfo info, PropGridCategory category, IDataChangeHandler dataChangeHandler)
+            Deque<TypeProxy> controlTypes, PropGridMemberInfo info, PropGridCategory category, IDataChangeHandler dataChangeHandler)
             => controlTypes.Select(x => InstantiatePropertyEditor(x, info, category, dataChangeHandler)).ToList();
 
         //public static PropGridMethod CreateMethodControl(
@@ -731,7 +732,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="dataChangeHandler"></param>
         public static void CreateControls(
             TheraPropertyGrid grid,
-            Deque<Type> controlTypes,
+            Deque<TypeProxy> controlTypes,
             PropGridMemberInfo info,
             BetterTableLayoutPanel panel,
             Dictionary<string, PropGridCategory> categories,
@@ -988,17 +989,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         #region Static
 
-        internal static Dictionary<Type, Type> _inPlaceEditorTypes;
-        internal static Dictionary<Type, Type> _fullEditorTypes;
+        internal static Dictionary<TypeProxy, TypeProxy> _inPlaceEditorTypes;
+        internal static Dictionary<TypeProxy, TypeProxy> _fullEditorTypes;
 
         /// <summary>
         /// Object type editors that appear within the property grid.
         /// </summary>
-        public static Dictionary<Type, Type> InPlaceEditorTypes => _inPlaceEditorTypes;
+        public static Dictionary<TypeProxy, TypeProxy> InPlaceEditorTypes => _inPlaceEditorTypes;
         /// <summary>
         /// Object type editors that have their own dedicated window for the type.
         /// </summary>
-        public static Dictionary<Type, Type> FullEditorTypes => _fullEditorTypes;
+        public static Dictionary<TypeProxy, TypeProxy> FullEditorTypes => _fullEditorTypes;
 
         static TheraPropertyGrid()
         {
@@ -1010,13 +1011,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (Engine.DesignMode)
                 return;
 
-            _inPlaceEditorTypes = new Dictionary<Type, Type>();
-            _fullEditorTypes = new Dictionary<Type, Type>();
+            _inPlaceEditorTypes = new Dictionary<TypeProxy, TypeProxy>();
+            _fullEditorTypes = new Dictionary<TypeProxy, TypeProxy>();
 
             var propControls = Engine.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)), Assembly.GetExecutingAssembly());
             foreach (var propControlType in propControls)
             {
-                var attribs = propControlType.GetCustomAttributesExt<PropGridControlForAttribute>();
+                var attribs = propControlType.GetCustomAttributes<PropGridControlForAttribute>();
                 if (attribs.Length > 0)
                 {
                     PropGridControlForAttribute a = attribs[0];

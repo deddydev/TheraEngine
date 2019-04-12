@@ -19,10 +19,10 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public event Action MemberTypeChanged;
 
-        private Type _memberType;
+        private TypeProxy _memberType;
 
-        public MemberInfo Member { get; set; }
-        public Type MemberType
+        public MemberInfoProxy Member { get; set; }
+        public TypeProxy MemberType
         {
             get => _memberType;
             set
@@ -40,7 +40,7 @@ namespace TheraEngine.Core.Files.Serialization
         public string Condition { get; set; }
         public bool DeserializeAsync { get; set; }
 
-        public TSerializeMemberInfo(Type memberType, string name, string category = null, bool state = true, bool config = true, ENodeType nodeType = ENodeType.ChildElement, int order = 0, string condition = null)
+        public TSerializeMemberInfo(TypeProxy memberType, string name, string category = null, bool state = true, bool config = true, ENodeType nodeType = ENodeType.ChildElement, int order = 0, string condition = null)
         {
             Member = null;
             MemberType = memberType;
@@ -57,12 +57,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (Category != null)
                 Category = SerializationCommon.FixElementName(Category);
         }
-        public TSerializeMemberInfo(MemberInfo member)
+        public TSerializeMemberInfo(MemberInfoProxy member)
         {
             Member = member;
             MemberType =
-                Member is PropertyInfo propMember ? propMember.PropertyType :
-                Member is FieldInfo fieldMember ? fieldMember.FieldType :
+                Member is PropertyInfoProxy propMember ? propMember.PropertyType :
+                Member is FieldInfoProxy fieldMember ? fieldMember.FieldType :
                 null;
 
             TSerialize attrib = member?.GetCustomAttribute<TSerialize>();
@@ -99,10 +99,10 @@ namespace TheraEngine.Core.Files.Serialization
             if (Member == null)
                 return;
             if (Member.MemberType.HasFlag(MemberTypes.Field))
-                ((FieldInfo)Member).SetValue(parentObject, memberObject);
+                ((FieldInfoProxy)Member).SetValue(parentObject, memberObject);
             else if (Member.MemberType.HasFlag(MemberTypes.Property))
             {
-                PropertyInfo p = (PropertyInfo)Member;
+                PropertyInfoProxy p = (PropertyInfoProxy)Member;
                 if (p.CanWrite)
                     p.SetValue(parentObject, memberObject);
                 else
@@ -123,12 +123,12 @@ namespace TheraEngine.Core.Files.Serialization
             }
             if (Member.MemberType.HasFlag(MemberTypes.Field))
             {
-                FieldInfo info = (FieldInfo)Member;
+                FieldInfoProxy info = (FieldInfoProxy)Member;
                 return info.GetValue(parentObject);
             }
             if (Member.MemberType.HasFlag(MemberTypes.Property))
             {
-                PropertyInfo info = (PropertyInfo)Member;
+                PropertyInfoProxy info = (PropertyInfoProxy)Member;
                 if (info.CanRead)
                 {
                     return info.GetValue(parentObject);
@@ -172,7 +172,7 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public const string TypeIdent = "AssemblyType";
 
-        internal static string GetTypeName(Type t)
+        internal static string GetTypeName(TypeProxy t)
         {
             if (t == null || t.IsInterface)
                 return null;
@@ -447,12 +447,12 @@ namespace TheraEngine.Core.Files.Serialization
             //    object value = member.GetValue(structObj);
             //}
         }
-        public static object ParseStructBytesString(Type type, string structBytes)
+        public static object ParseStructBytesString(TypeProxy type, string structBytes)
         {
             string[] strBytes = structBytes.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             byte[] bytes = strBytes.Select(x => byte.Parse(x, NumberStyles.HexNumber | NumberStyles.AllowHexSpecifier)).ToArray();
             GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            object result = Marshal.PtrToStructure(handle.AddrOfPinnedObject(), type);
+            object result = type.PtrToStructure(handle.AddrOfPinnedObject());
             handle.Free();
             return result;
         }
@@ -515,22 +515,22 @@ namespace TheraEngine.Core.Files.Serialization
         //    }
         //    return fields;
         //}
-        public static (int Count, IEnumerable<TSerializeMemberInfo> Values) CollectSerializedMembers(Type type)
+        public static (int Count, IEnumerable<TSerializeMemberInfo> Values) CollectSerializedMembers(TypeProxy type)
         {
             BindingFlags retrieveFlags =
                 BindingFlags.Instance |
                 BindingFlags.NonPublic |
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy;
-            
-            MemberInfo[] members = type?.GetMembers(retrieveFlags) ?? new MemberInfo[0];
+
+            MemberInfoProxy[] members = type?.GetMembers(retrieveFlags) ?? new MemberInfoProxy[0];
             ConcurrentDictionary<int, TSerializeMemberInfo> serMembers = new ConcurrentDictionary<int, TSerializeMemberInfo>();
             ConcurrentDictionary<int, TSerializeMemberInfo> contentMembers = new ConcurrentDictionary<int, TSerializeMemberInfo>();
             
             Parallel.For(0, members.Length, i =>
             {
                 var info = members[i];
-                if (!((info is FieldInfo || info is PropertyInfo) && Attribute.IsDefined(info, typeof(TSerialize))))
+                if (!((info is FieldInfoProxy || info is PropertyInfoProxy) && info.IsAttributeDefined(typeof(TSerialize))))
                     return;
                 
                 TSerializeMemberInfo serMem = new TSerializeMemberInfo(info);
@@ -777,15 +777,15 @@ namespace TheraEngine.Core.Files.Serialization
                     default:
                     case EFileFormat.ThirdParty:
 
-                        List<Type> types = TFileObject.DetermineThirdPartyTypes(ext).ToList();
+                        List<TypeProxy> types = TFileObject.DetermineThirdPartyTypes(ext).ToList();
 
                         if (types.Count > 1)
                             for (int i = 0; i < types.Count; ++i)
                             {
-                                Type t1 = types[i];
+                                TypeProxy t1 = types[i];
                                 for (int x = i + 1; x < types.Count; x++)
                                 {
-                                    Type t2 = types[x];
+                                    TypeProxy t2 = types[x];
                                     if (t2.IsAssignableFrom(t1))
                                     {
                                         types.RemoveAt(i--);

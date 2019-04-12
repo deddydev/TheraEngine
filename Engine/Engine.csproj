@@ -438,6 +438,7 @@
     <Compile Include="Core\Data Structures\ProgressStream.cs" />
     <Compile Include="Core\Editor\StateChange.cs" />
     <Compile Include="Core\ENormalizeOption.cs" />
+    <Compile Include="Core\Extensions\AppDomainExtension.cs" />
     <Compile Include="Core\Extensions\ControlExtension.cs" />
     <Compile Include="Core\Extensions\EventInfoExtension.cs" />
     <Compile Include="Core\Extensions\GenericExtensions.cs" />
@@ -497,6 +498,7 @@
     <Compile Include="Core\Reflection\Proxies\MethodInfoProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\ParameterInfoProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\ConstructorInfoProxy.cs" />
+    <Compile Include="Core\Reflection\Proxies\ProxyList.cs" />
     <Compile Include="Core\Reflection\Proxies\TypeProxy.cs" />
     <Compile Include="Core\ResourcePool.cs" />
     <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />
@@ -1180,6 +1182,10 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AppDomainToolkit\AppDomainToolkit\AppDomainToolkit.csproj">
+      <Project>{2A53F4FB-0918-485C-9266-BD8FF3FA0D84}</Project>
+      <Name>AppDomainToolkit</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Compare-NET-Objects\Compare-NET-Objects\Compare-NET-Objects.csproj">
       <Project>{EB236808-A58C-4C6C-9CEB-FE529CC92C0A}</Project>
       <Name>Compare-NET-Objects</Name>

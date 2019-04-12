@@ -919,15 +919,15 @@ namespace TheraEditor
                         type.FullName);
 
                     DomainProxy = (ProjectDomainProxy)proxy;
-                    //dynamic dynProxy = proxy;
-                    //string info = dynProxy.GetVersionInfo();
+                    dynamic dynProxy = proxy;
+                    string info = dynProxy.GetVersionInfo();
 
-                    //string info3 = type.Assembly.CodeBase;
-                    //string info4 = dynProxy.GetType().Assembly.CodeBase;
+                    string info3 = type.Assembly.CodeBase;
+                    string info4 = dynProxy.GetType().Assembly.CodeBase;
 
-                    //Engine.PrintLine(info);
-                    //Engine.PrintLine(info3);
-                    //Engine.PrintLine(info4);
+                    Engine.PrintLine(info);
+                    Engine.PrintLine(info3);
+                    Engine.PrintLine(info4);
 
                     SerializationCommon.TypeCreationFailed = TypeCreationFailed;
                     DomainProxy.Created(this);

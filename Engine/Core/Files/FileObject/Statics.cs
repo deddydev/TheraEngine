@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files
 {
@@ -51,12 +52,12 @@ namespace TheraEngine.Core.Files
         }
         static TFileObject()
         {
-            _3rdPartyLoaders = new Dictionary<string, Dictionary<Type, Delegate>>();
-            _3rdPartyExporters = new Dictionary<string, Dictionary<Type, Delegate>>();
+            _3rdPartyLoaders = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
+            _3rdPartyExporters = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
             try
             {
-                Type[] types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
-                foreach (Type type in types)
+                TypeProxy[] types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
+                foreach (TypeProxy type in types)
                 {
                     TFileExt attrib = GetFileExtension(type);
                     if (attrib == null)
@@ -497,8 +498,8 @@ namespace TheraEngine.Core.Files
             }
             return obj;
         }
-        private static Dictionary<string, Dictionary<Type, Delegate>> _3rdPartyLoaders;
-        private static Dictionary<string, Dictionary<Type, Delegate>> _3rdPartyExporters;
+        private static Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyLoaders;
+        private static Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyExporters;
         public static Delegate Get3rdPartyLoader(Type fileType, string extension)
             => Get3rdPartyMethod(_3rdPartyLoaders, fileType, extension);
         public static Delegate Get3rdPartyExporter(Type fileType, string extension)

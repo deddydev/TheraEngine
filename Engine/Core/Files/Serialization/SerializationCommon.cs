@@ -765,11 +765,11 @@ namespace TheraEngine.Core.Files.Serialization
             }
             return null;
         }
-        public static Type DetermineType(string filePath) => DetermineType(filePath, out EFileFormat format);
-        public static unsafe Type DetermineType(string filePath, out EFileFormat format)
+        public static TypeProxy DetermineType(string filePath) => DetermineType(filePath, out EFileFormat format);
+        public static unsafe TypeProxy DetermineType(string filePath, out EFileFormat format)
         {
             format = TFileObject.GetFormat(filePath, out string ext);
-            Type fileType = null;
+            TypeProxy fileType = null;
             try
             {
                 switch (format)

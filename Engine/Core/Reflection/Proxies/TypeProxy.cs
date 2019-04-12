@@ -18,8 +18,10 @@ namespace TheraEngine.Core.Reflection
             = new ConcurrentDictionary<Type, TypeProxy>();
         public static TypeProxy Get(Type type)
             => type == null ? null : Proxies.GetOrAdd(type, new TypeProxy(type));
+        public AppDomain Domain => AppDomain.CurrentDomain;
+
         public static implicit operator TypeProxy(Type type) => Get(type);
-        public static implicit operator Type(TypeProxy proxy) => proxy?.Value;
+        public static explicit operator Type(TypeProxy proxy) => proxy?.Value;
 
         private Type Value { get; set; }
 
@@ -547,6 +549,8 @@ namespace TheraEngine.Core.Reflection
         //     The underlying system type for the System.Type.
         public TypeProxy UnderlyingSystemType => Get(Value.UnderlyingSystemType);
 
+        public string Name => Value.Name;
+
         //
         // Summary:
         //     Gets the System.Type with the specified name, performing a case-sensitive search.
@@ -873,7 +877,7 @@ namespace TheraEngine.Core.Reflection
         //     The assembly or one of its dependencies is not valid. -or-Version 2.0 or later
         //     of the common language runtime is currently loaded, and the assembly was compiled
         //     with a later version.
-        public static Type GetType(string typeName, bool throwOnError)
+        public static TypeProxy GetType(string typeName, bool throwOnError)
             => Get(Type.GetType(typeName, throwOnError));
         //
         // Summary:
@@ -2616,8 +2620,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.ArgumentNullException:
         //     name is null, or returnType is null.
-        public PropertyInfo GetProperty(string name, TypeProxy returnType)
-            => Value.GetProperty(name, returnType);
+        public PropertyInfoProxy GetProperty(string name, TypeProxy returnType)
+            => Value.GetProperty(name, returnType.Value);
         //
         // Summary:
         //     Searches for the public property with the specified name and return type.
@@ -2758,7 +2762,7 @@ namespace TheraEngine.Core.Reflection
         //   T:System.NullReferenceException:
         //     An element of types is null.
         public PropertyInfoProxy GetProperty(string name, BindingFlags bindingAttr, Binder binder, TypeProxy returnType, TypeProxy[] types, ParameterModifier[] modifiers)
-            => Value.GetProperty(name, bindingAttr, binder, returnType, types.Select(x => x.Value).ToArray(), modifiers);
+            => Value.GetProperty(name, bindingAttr, binder, returnType.Value, types.Select(x => x.Value).ToArray(), modifiers);
         //
         // Summary:
         //     Searches for the specified property whose parameters match the specified argument
@@ -2852,7 +2856,7 @@ namespace TheraEngine.Core.Reflection
         //   T:System.NullReferenceException:
         //     An element of types is null.
         public PropertyInfoProxy GetProperty(string name, TypeProxy returnType, TypeProxy[] types, ParameterModifier[] modifiers)
-            => Value.GetProperty(name, returnType, types.Select(x => x.Value).ToArray(), modifiers);
+            => Value.GetProperty(name, returnType.Value, types.Select(x => x.Value).ToArray(), modifiers);
         //
         // Summary:
         //     Searches for the specified public property whose parameters match the specified
@@ -2955,7 +2959,7 @@ namespace TheraEngine.Core.Reflection
         //   T:System.NullReferenceException:
         //     An element of types is null.
         public PropertyInfoProxy GetProperty(string name, TypeProxy returnType, TypeProxy[] types)
-            => Value.GetProperty(name, returnType, types.Select(x => x.Value).ToArray());
+            => Value.GetProperty(name, returnType.Value, types.Select(x => x.Value).ToArray());
         //
         // Summary:
         //     Searches for the specified public property whose parameters match the specified
@@ -3306,7 +3310,7 @@ namespace TheraEngine.Core.Reflection
         //     type, and the current instance represents Nullable<c> (Nullable(Of c) in Visual
         //     Basic). false if none of these conditions are true, or if c is null.
         public bool IsAssignableFrom(TypeProxy c)
-            => Value.IsAssignableFrom(c);
+            => Value.IsAssignableFrom(c.Value);
         //
         // Summary:
         //     Determines whether an instance of a specified type can be assigned to an instance
@@ -3371,7 +3375,7 @@ namespace TheraEngine.Core.Reflection
         //     false if one type is in an assembly that is loaded for execution, and the other
         //     is in an assembly that is loaded into the reflection-only context.
         public bool IsEquivalentTo(TypeProxy other)
-            => Value.IsEquivalentTo(other);
+            => Value.IsEquivalentTo(other.Value);
         //
         // Summary:
         //     Determines whether two COM types have the same identity and are eligible for
@@ -3419,7 +3423,7 @@ namespace TheraEngine.Core.Reflection
         //     c is null.
         [ComVisible(true)]
         public bool IsSubclassOf(TypeProxy c)
-            => Value.IsSubclassOf(c);
+            => Value.IsSubclassOf(c.Value);
         //
         // Summary:
         //     Determines whether the current System.Type derives from the specified System.Type.

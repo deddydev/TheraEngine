@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 using TheraEngine.GameModes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Physics.ContactTesting;
@@ -140,13 +141,60 @@ namespace TheraEngine
         /// <param name="matchPredicate">What determines if the type is a match or not.</param>
         /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
         /// <returns>All types that match the predicate.</returns>
-        public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, params Assembly[] assemblies)
+        //public static IEnumerable<Type> FindTypes(Predicate<Type> matchPredicate, params Assembly[] assemblies)
+        //{
+        //    //TODO: search all appdomains, return marshalbyrefobject list containing typeproxies
+        //    IEnumerable<Assembly> search;
+
+        //    if (assemblies == null || assemblies.Length == 0)
+        //    {
+        //        search = AppDomain.CurrentDomain.GetAssemblies();
+        //        ////PrintLine("FindTypes; returning assemblies from domains:");
+        //        //var domains = EnumAppDomains();
+        //        //search = domains.SelectMany(x =>
+        //        //{
+        //        //    //PrintLine(x.FriendlyName);
+        //        //    try
+        //        //    {
+        //        //        return x.GetAssemblies();
+        //        //    }
+        //        //    catch (Exception ex)
+        //        //    {
+        //        //        LogWarning($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
+        //        //        return new Assembly[0];
+        //        //    }
+        //        //});
+        //    }
+        //    else
+        //        search = assemblies;
+
+        //    search = search.Where(x => !x.IsDynamic);
+
+        //    //if (includeEngineAssembly)
+        //    //{
+        //    //    Assembly engine = Assembly.GetExecutingAssembly();
+        //    //    if (!search.Contains(engine))
+        //    //        search = search.Append(engine);
+        //    //}
+
+        //    var allTypes = search.SelectMany(x => x.GetExportedTypes());
+
+        //    return allTypes.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
+        //}
+        /// <summary>
+        /// Helper to collect all types from all loaded assemblies that match the given predicate.
+        /// </summary>
+        /// <param name="matchPredicate">What determines if the type is a match or not.</param>
+        /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
+        /// <returns>All types that match the predicate.</returns>
+        public static IEnumerable<TypeProxy> FindTypes(Predicate<TypeProxy> matchPredicate, params AssemblyProxy[] assemblies)
         {
-            IEnumerable<Assembly> search;
+            //TODO: search all appdomains, return marshalbyrefobject list containing typeproxies
+            IEnumerable<AssemblyProxy> search;
 
             if (assemblies == null || assemblies.Length == 0)
             {
-                search = AppDomain.CurrentDomain.GetAssemblies();
+                search = AppDomain.CurrentDomain.GetAssemblyProxies();
                 ////PrintLine("FindTypes; returning assemblies from domains:");
                 //var domains = EnumAppDomains();
                 //search = domains.SelectMany(x =>

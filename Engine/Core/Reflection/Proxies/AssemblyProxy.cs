@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace TheraEngine.Core.Reflection
@@ -10,12 +12,18 @@ namespace TheraEngine.Core.Reflection
             = new ConcurrentDictionary<Assembly, AssemblyProxy>();
         public static AssemblyProxy Get(Assembly assembly)
             => assembly == null ? null : Proxies.GetOrAdd(assembly, new AssemblyProxy(assembly));
+        public AppDomain Domain => AppDomain.CurrentDomain;
+
         public static implicit operator AssemblyProxy(Assembly assembly) => Get(assembly);
         public static implicit operator Assembly(AssemblyProxy proxy) => proxy.Value;
         
         private Assembly Value { get; set; }
-        
+
         //public AssemblyProxy() { }
         private AssemblyProxy(Assembly value) => Value = value;
+
+        public bool IsDynamic => Value.IsDynamic;
+        public TypeProxy[] GetExportedTypes()
+            => Value.GetExportedTypes().Select(x => TypeProxy.Get(x)).ToArray();
     }
 }

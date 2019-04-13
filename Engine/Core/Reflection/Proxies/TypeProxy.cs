@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -354,7 +355,7 @@ namespace TheraEngine.Core.Reflection
         //     System.Reflection.MethodBase that represents declaring method; otherwise, null.
         public MethodBaseProxy DeclaringMethod => MethodBaseProxy.Get(Value.DeclaringMethod);
 
-        public object CreateInstance() => SerializationCommon.CreateInstance(Value);
+        public object CreateInstance() => RemoteFunc.Invoke(Domain, () => SerializationCommon.CreateInstance(Value));
         public object CreateInstance(params object[] args) => SerializationCommon.CreateInstance(Value, args);
         public TypeProxy GetUnderlyingNullableType() => Nullable.GetUnderlyingType(Value);
         public Array CreateArrayInstance(int length) => Array.CreateInstance(Value, length);
@@ -3666,7 +3667,36 @@ namespace TheraEngine.Core.Reflection
         //     The invoked method is not supported in the base class. Derived classes must provide
         //     an implementation.
         public TypeProxy MakeGenericType(params TypeProxy[] typeArguments)
-            => Value.MakeGenericType(typeArguments.Select(x => x.Value).ToArray());
+        {
+#if EDITOR
+            AppDomain gameDomain = Engine.EditorState.GameDomain;
+            TypeProxy p = typeArguments.FirstOrDefault(x => x.Domain == gameDomain);
+            if (p != null)
+                return p.MakeGenericType2(this, typeArguments.Where(x => x != p).ToArray());
+#endif
+            Type[] types = new Type[typeArguments.Length];
+            //Engine.PrintLine(Domain.FriendlyName);
+            for (int i = 0; i < types.Length; ++i)
+            {
+                //Engine.PrintLine(typeArguments[i].Domain.FriendlyName);
+                types[i] = typeArguments[i].Value;
+            }
+            return Get(Value.MakeGenericType(types));
+        }
+        public TypeProxy MakeGenericType2(TypeProxy mainType, params TypeProxy[] otherArgs)
+        {
+            //This type is also an argument
+            var typeArguments = otherArgs.Append(this).ToArray();
+
+            Type[] types = new Type[typeArguments.Length];
+            //Engine.PrintLine(Domain.FriendlyName);
+            for (int i = 0; i < types.Length; ++i)
+            {
+                //Engine.PrintLine(typeArguments[i].Domain.FriendlyName);
+                types[i] = typeArguments[i].Value;
+            }
+            return Get(mainType.Value.MakeGenericType(types));
+        }
         //
         // Summary:
         //     Substitutes the elements of an array of types for the type parameters of the
@@ -3743,7 +3773,7 @@ namespace TheraEngine.Core.Reflection
         //     true if left is equal to right; otherwise, false.
         [SecuritySafeCritical]
         public static bool operator ==(TypeProxy left, TypeProxy right)
-            => left?.Value == right?.Value;
+            => left is null ? right is null : left.EqualTo(right);
         //
         // Summary:
         //     Indicates whether two System.Type objects are not equal.
@@ -3759,7 +3789,15 @@ namespace TheraEngine.Core.Reflection
         //     true if left is not equal to right; otherwise, false.
         [SecuritySafeCritical]
         public static bool operator !=(TypeProxy left, TypeProxy right)
-            => left?.Value != right?.Value;
+            => left is null ? !(right is null) : !left.EqualTo(right);
+
+        public bool EqualTo(TypeProxy other)
+        {
+            if (other is null)
+                return false;
+
+            return Value == other.Value;
+        }
 
         //
         // Summary:
@@ -3834,7 +3872,7 @@ namespace TheraEngine.Core.Reflection
             }
             public int GetHashCode(TypeProxy x)
             {
-                return x.Value.GetHashCode();
+                return x.GetHashCode();
             }
         }
 

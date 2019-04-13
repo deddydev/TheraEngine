@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -22,7 +23,7 @@ namespace TheraEngine.Core.Reflection
         private AssemblyProxy(Assembly value) => Value = value;
 
         public bool IsDynamic => Value.IsDynamic;
-        public TypeProxy[] GetExportedTypes()
-            => Value.GetExportedTypes().Select(x => TypeProxy.Get(x)).ToArray();
+        public ProxyList<TypeProxy> GetExportedTypes()
+            => new ProxyList<TypeProxy>(Value.GetExportedTypes().Select(x => TypeProxy.Get(x)));
     }
 }

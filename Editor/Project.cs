@@ -499,6 +499,9 @@ namespace TheraEditor
 
                     if (ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(newPath)) == null)
                     {
+                        if (path == newPath && !File.Exists(newPath))
+                            path = typeof(Engine).Assembly.Location;
+                        
                         File.Copy(path, newPath, true);
                         ReferencedAssemblies.Add(new PathReference(newPath, EPathType.FileRelative));
                     }
@@ -864,9 +867,6 @@ namespace TheraEditor
         [TPostDeserialize(arguments: false)]
         private async void CreateGameDomain(bool compiling)
         {
-            PrintLine("Creating game domain.");
-            PrintLine("Active domains before load: " + string.Join(", ", Engine.EnumAppDomains().Select(x => x.FriendlyName)));
-
             string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
             string buildConfiguration = "Debug";
             
@@ -876,6 +876,9 @@ namespace TheraEditor
                 await CompileAsync(buildConfiguration, buildPlatform);
                 return;
             }
+
+            PrintLine("Creating game domain.");
+            PrintLine("Active domains before load: " + string.Join(", ", Engine.EnumAppDomains().Select(x => x.FriendlyName)));
 
             try
             {
@@ -930,6 +933,8 @@ namespace TheraEditor
                     Engine.PrintLine(info4);
 
                     SerializationCommon.TypeCreationFailed = TypeCreationFailed;
+                    Engine.EditorState.GameDomain = _gameDomain.Domain;
+
                     DomainProxy.Created(this);
 
                     var lease = DomainProxy.InitializeLifetimeService() as ILease;

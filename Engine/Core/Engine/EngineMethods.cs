@@ -15,6 +15,7 @@ using TheraEngine.Actors;
 using TheraEngine.Core;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
+using TheraEngine.Core.Reflection.Proxies;
 using TheraEngine.GameModes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Physics.ContactTesting;
@@ -194,22 +195,22 @@ namespace TheraEngine
 
             if (assemblies == null || assemblies.Length == 0)
             {
-                search = AppDomain.CurrentDomain.GetAssemblyProxies();
+                //search = AppDomain.CurrentDomain.GetAssemblyProxies();
                 ////PrintLine("FindTypes; returning assemblies from domains:");
-                //var domains = EnumAppDomains();
-                //search = domains.SelectMany(x =>
-                //{
-                //    //PrintLine(x.FriendlyName);
-                //    try
-                //    {
-                //        return x.GetAssemblies();
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        LogWarning($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
-                //        return new Assembly[0];
-                //    }
-                //});
+                var domains = EnumAppDomains();
+                search = domains.SelectMany(x =>
+                {
+                    //PrintLine(x.FriendlyName);
+                    try
+                    {
+                        return x.GetAssemblyProxies();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogWarning($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
+                        return new ProxyList<AssemblyProxy>();
+                    }
+                });
             }
             else
                 search = assemblies;
@@ -224,8 +225,9 @@ namespace TheraEngine
             //}
 
             var allTypes = search.SelectMany(x => x.GetExportedTypes());
-
-            return allTypes.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
+            allTypes = allTypes.Where(x => matchPredicate(x));
+            allTypes = allTypes.OrderBy(x => x.Name);
+            return allTypes;
         }
 
         public static void SetWorldPanel(BaseRenderPanel panel, bool registerTickNow = true)

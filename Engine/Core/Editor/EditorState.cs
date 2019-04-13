@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
@@ -279,6 +280,7 @@ namespace TheraEngine.Editor
         /// </summary>
         public bool InEditMode { get; set; } = true;
         public CameraComponent PinnedCameraComponent { get; set; }
+        public AppDomain GameDomain { get; set; }
     }
 
     /// <summary>

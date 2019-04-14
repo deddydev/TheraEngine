@@ -16,7 +16,7 @@ namespace TheraEngine.Core.Files.Serialization
             public string FileDirectory { get; internal set; }
             public IProgress<float> Progress { get; internal set; }
             public CancellationToken Cancel { get; internal set; }
-            public object RootFileObject => RootNode?.Object;
+            public object RootFileObject { get; internal set; }
             private SerializeElement _rootNode;
             public SerializeElement RootNode
             {

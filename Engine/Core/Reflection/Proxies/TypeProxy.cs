@@ -355,7 +355,7 @@ namespace TheraEngine.Core.Reflection
         //     System.Reflection.MethodBase that represents declaring method; otherwise, null.
         public MethodBaseProxy DeclaringMethod => MethodBaseProxy.Get(Value.DeclaringMethod);
 
-        public object CreateInstance() => RemoteFunc.Invoke(Domain, () => SerializationCommon.CreateInstance(Value));
+        public object CreateInstance() => SerializationCommon.CreateInstance(Value);
         public object CreateInstance(params object[] args) => SerializationCommon.CreateInstance(Value, args);
         public TypeProxy GetUnderlyingNullableType() => Nullable.GetUnderlyingType(Value);
         public Array CreateArrayInstance(int length) => Array.CreateInstance(Value, length);

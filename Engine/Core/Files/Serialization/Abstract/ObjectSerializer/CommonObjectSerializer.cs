@@ -42,9 +42,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (TreeNode.Object is TFileObject fobj)
             {
                 fobj.ConstructedProgrammatically = false;
-                fobj.RootFile = TreeNode.Owner.RootFileObject as TFileObject;
-                if (TreeNode.IsRoot)
-                    fobj.FilePath = TreeNode.Owner.FilePath;
+                if (fobj.RootFile != TreeNode.Owner.RootFileObject)
+                {
+                    fobj.RootFile = TreeNode.Owner.RootFileObject as TFileObject;
+                    if (TreeNode.IsRoot)
+                        fobj.FilePath = TreeNode.Owner.FilePath;
+                }
             }
 
             if (DeserializeAsync)

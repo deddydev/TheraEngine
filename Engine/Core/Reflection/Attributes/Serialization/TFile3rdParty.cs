@@ -2,6 +2,7 @@
 
 namespace System.ComponentModel
 {
+    [Serializable]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class TFile3rdPartyExt : Attribute
     {

@@ -42,6 +42,8 @@ namespace TheraEngine
         public static bool FontsLoaded { get; private set; } = false;
         static Engine()
         {
+            Domain = AppDomain.CurrentDomain;
+
             _timer = new EngineTimer();
             _timer.UpdateFrame += EngineTick;
             _timer.SwapBuffers += EngineSwapBuffers;

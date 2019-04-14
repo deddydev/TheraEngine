@@ -56,20 +56,20 @@ namespace TheraEngine.Core.Files
         {
             _3rdPartyLoaders = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
             _3rdPartyExporters = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
-            try
-            {
-                TypeProxy[] types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
-                foreach (TypeProxy type in types)
-                {
-                    TFileExt attrib = GetFileExtension(type);
-                    if (attrib == null)
-                        continue;
+            //try
+            //{
+            //    TypeProxy[] types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
+            //    foreach (TypeProxy type in types)
+            //    {
+            //        TFileExt attrib = GetFileExtension(type);
+            //        if (attrib == null)
+            //            continue;
 
-                    ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
-                    ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
-                }
-            }
-            catch { }
+            //        ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
+            //        ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
+            //    }
+            //}
+            //catch { }
         }
 
         public static TFileDef GetFileDefinition(TypeProxy classType)

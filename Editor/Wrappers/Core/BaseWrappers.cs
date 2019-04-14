@@ -150,6 +150,7 @@ namespace TheraEditor.Wrappers
                 }
 
                 TypeProxy t = TFileObject.DetermineType(path, out _);
+                //Engine.PrintLine(t.Domain.FriendlyName);
                 w = TryWrapType(t);
                 if (w != null)
                 {

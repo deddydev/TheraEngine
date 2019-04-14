@@ -780,19 +780,27 @@ namespace TheraEngine.Core.Files.Serialization
                         List<TypeProxy> types = TFileObject.DetermineThirdPartyTypes(ext).ToList();
 
                         if (types.Count > 1)
+                        {
                             for (int i = 0; i < types.Count; ++i)
                             {
-                                TypeProxy t1 = types[i];
+                                TypeProxy thisOne = types[i];
                                 for (int x = i + 1; x < types.Count; x++)
                                 {
-                                    TypeProxy t2 = types[x];
-                                    if (t2.IsAssignableFrom(t1))
+                                    TypeProxy thatOne = types[x];
+                                    if (thisOne.IsAssignableTo(thatOne))
                                     {
-                                        types.RemoveAt(i--);
+                                        if (thisOne.Domain == thatOne.Domain || thisOne.Domain != Engine.Domain)
+                                            types.RemoveAt(i--);
                                         break;
+                                    }
+                                    if (thatOne.IsAssignableTo(thisOne))
+                                    {
+                                        if (thatOne.Domain == thisOne.Domain || thatOne.Domain != Engine.Domain)
+                                            types.RemoveAt(x--);
                                     }
                                 }
                             }
+                        }
 
                         if (types.Count > 1)
                             Engine.PrintLine($"Multiple possible file types found for 3rd party extension '{ext}': {types.ToStringList(", ")}. Assuming the first.");

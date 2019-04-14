@@ -146,9 +146,19 @@ namespace TheraEngine.Core.Files.Serialization
 
                 object oldValue = _object;
                 UnlinkObjectGuidFromOwner();
+
                 _object = value;
+
+                if (Owner != null && Parent == null && _object != null)
+                {
+                    Owner.RootFileObject = _object;
+                    if (_object is TFileObject fobj && fobj.RootFile == Owner.RootFileObject)
+                        fobj.FilePath = Owner.FilePath;
+                }
+
                 if (ObjectType != oldObjType)
                     ObjectTypeChanged();
+
                 LinkObjectGuidToOwner();
 
                 ObjectChanged?.Invoke(this, oldValue);

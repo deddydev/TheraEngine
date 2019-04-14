@@ -5,6 +5,7 @@ namespace System.ComponentModel
     /// <summary>
     /// This attribute can be used on <see cref="TFileObject"/> classes to define a proprietary (engine-exclusive) extension for the file.
     /// </summary>
+    [Serializable]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class TFileExt : Attribute
     {

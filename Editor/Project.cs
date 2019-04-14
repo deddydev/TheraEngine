@@ -873,7 +873,7 @@ namespace TheraEditor
             string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
             if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths == null))
             {
-                await CompileAsync(buildConfiguration, buildPlatform);
+                //await CompileAsync(buildConfiguration, buildPlatform);
                 return;
             }
 

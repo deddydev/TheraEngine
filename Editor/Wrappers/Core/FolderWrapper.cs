@@ -249,26 +249,15 @@ namespace TheraEditor.Wrappers
 
         #region File Type Loading
 
-        private static bool IsFileObject(TypeProxy t)
-        {
-            bool notEditorAssembly = !t.Assembly.EqualTo(Assembly.GetExecutingAssembly());
-            var constructors = t.GetConstructors();
-            bool constructable = !t.IsAbstract && !t.IsInterface && constructors.Any(x => x.IsPublic);
-            bool isFileObj = t.IsSubclassOf(typeof(TFileObject));
-            bool hasExt = t.HasCustomAttribute<TFileExt>();
-            //Debug.Print(t.GetFriendlyName() + ": assemblyMatches=" + notEditorAssembly.ToString() + " constructable=" + constructable.ToString() + " isFileObj=" + isFileObj.ToString() + " hasExt=" + hasExt.ToString());
-            return notEditorAssembly && constructable && isFileObj && hasExt;
-        }
-
-        private static bool Is3rdPartyImportable(TypeProxy t)
-        {
-            bool isFileObj = IsFileObject(t);
-            var attrib = t?.GetCustomAttribute<TFileExt>();
-            bool hasImportableExts = attrib?.HasAnyImportableExtensions ?? false;
-            //Debug.Print("hasImportableExts=" + hasImportableExts);
-            return isFileObj && hasImportableExts;
-        }
+        private static bool IsFileObject(TypeProxy t) => 
+            !t.Assembly.EqualTo(Assembly.GetExecutingAssembly()) &&
+            !t.IsAbstract && !t.IsInterface && t.GetConstructors().Any(x => x.IsPublic) &&
+            t.IsSubclassOf(typeof(TFileObject)) &&
+            t.HasCustomAttribute<TFileExt>();
         
+        private static bool Is3rdPartyImportable(TypeProxy t)
+            => IsFileObject(t) && (t?.GetCustomAttribute<TFileExt>().HasAnyImportableExtensions ?? false);
+                
         private static async void OnImportClickAsync(object sender, EventArgs e)
         {
             if (!(sender is ToolStripMenuItem button))

@@ -6,6 +6,7 @@ using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
+    [Serializable]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class ObjectSerializerFor : Attribute
     {
@@ -86,7 +87,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (reloadNow)
             {
                 Type baseObjSerType = typeof(BaseObjectSerializer);
-                IEnumerable<TypeProxy> typeList = Engine.FindTypes(type =>
+                IEnumerable<TypeProxy> typeList = PrimaryAppDomainManager.FindTypes(type =>
                    type.IsAssignableTo(baseObjSerType) &&
                    (type.GetCustomAttribute<ObjectSerializerFor>() != null));
 

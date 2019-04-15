@@ -31,7 +31,7 @@ namespace TheraEngine.Core.Files.Serialization
         public override bool CanWriteAsString(TypeProxy type) => true;
         public override bool ObjectFromString(TypeProxy type, string value, out object result)
         {
-            result = (Type)SerializationCommon.CreateType(value);
+            result = (Type)TypeProxy.CreateType(value);
             return true;
         }
         public override bool ObjectToString(object obj, out string str)

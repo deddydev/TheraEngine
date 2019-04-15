@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -648,18 +649,11 @@ namespace System
         #endregion
 
         /// <summary>
-        /// Prints this string to the engine's output logs.
-        /// </summary>
-        /// <param name="str">The string to be printed.</param>
-        /// <param name="args">Arguments for string.Format().</param>
-        public static void Print(this string str, params object[] args)
-            => Engine.Print(str, args);
-        /// <summary>
         /// Prints this string to the engine's output logs and moves to the next line.
         /// </summary>
         /// <param name="str">The string to be printed.</param>
         /// <param name="args">Arguments for string.Format().</param>
         public static void PrintLine(this string str, params object[] args)
-            => Engine.PrintLine(str, args);
+            => Debug.Print(args.Length == 0 ? str : string.Format(str, args));
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.Remoting.Lifetime;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection.Attributes;
@@ -263,14 +264,14 @@ namespace TheraEngine
 
         /// <summary>
         /// Prints a line to output.
-        /// Identical to Engine.Print().
+        /// Identical to Engine.PrintLine().
         /// </summary>
-        protected static void Print(string message, params object[] args) => Engine.Print(message, args);
+        protected static void PrintLine(string message, params object[] args) => Debug.Print(message, args);
         /// <summary>
         /// Prints a line to output.
         /// Identical to Engine.PrintLine().
         /// </summary>
-        protected static void PrintLine(string message, params object[] args) => Engine.PrintLine(message, args);
+        protected static void PrintLine(string message) => Debug.Print(message);
 
         public override string ToString() => Name;
     }

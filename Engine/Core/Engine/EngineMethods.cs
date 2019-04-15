@@ -39,10 +39,20 @@ namespace TheraEngine
 
         #region Startup/Shutdown
 
+        private class EngineTraceListener : TraceListener
+        {
+            public override void WriteLine(string message)
+                => Write(message + Environment.NewLine);
+            public override void Write(string message)
+            {
+                OutputString += message;
+                DebugOutput?.Invoke(message);
+            }
+        }
         public static bool FontsLoaded { get; private set; } = false;
         static Engine()
         {
-            Domain = AppDomain.CurrentDomain;
+            Debug.Listeners.Add(new EngineTraceListener());
 
             _timer = new EngineTimer();
             _timer.UpdateFrame += EngineTick;
@@ -51,13 +61,13 @@ namespace TheraEngine
             //LocalPlayers.PostAdded += ActivePlayers_Added;
             //LocalPlayers.PostRemoved += ActivePlayers_Removed;
 
-            LoadCustomFonts();
-
             _tickLists = new List<DelTick>[45];
             for (int i = 0; i < _tickLists.Length; ++i)
                 _tickLists[i] = new List<DelTick>();
 
             AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+
+            LoadCustomFonts();
         }
 
         private static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
@@ -184,54 +194,7 @@ namespace TheraEngine
 
         //    return allTypes.Where(x => matchPredicate(x)).OrderBy(x => x.Name);
         //}
-        /// <summary>
-        /// Helper to collect all types from all loaded assemblies that match the given predicate.
-        /// </summary>
-        /// <param name="matchPredicate">What determines if the type is a match or not.</param>
-        /// <param name="resetTypeCache">If true, recollects all assembly types manually and re-caches them.</param>
-        /// <returns>All types that match the predicate.</returns>
-        public static IEnumerable<TypeProxy> FindTypes(Predicate<TypeProxy> matchPredicate, params AssemblyProxy[] assemblies)
-        {
-            //TODO: search all appdomains, return marshalbyrefobject list containing typeproxies
-            IEnumerable<AssemblyProxy> search;
-
-            if (assemblies == null || assemblies.Length == 0)
-            {
-                //search = AppDomain.CurrentDomain.GetAssemblyProxies();
-                ////PrintLine("FindTypes; returning assemblies from domains:");
-                var domains = EnumAppDomains();
-                search = domains.SelectMany(x =>
-                {
-                    //PrintLine(x.FriendlyName);
-                    try
-                    {
-                        return x.GetAssemblyProxies();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogWarning($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
-                        return new ProxyList<AssemblyProxy>();
-                    }
-                });
-            }
-            else
-                search = assemblies;
-
-            search = search.Where(x => !x.IsDynamic);
-
-            //if (includeEngineAssembly)
-            //{
-            //    Assembly engine = Assembly.GetExecutingAssembly();
-            //    if (!search.Contains(engine))
-            //        search = search.Append(engine);
-            //}
-
-            var allTypes = search.SelectMany(x => x.GetExportedTypes());
-            allTypes = allTypes.Where(x => matchPredicate(x));
-            allTypes = allTypes.OrderBy(x => x.Name);
-            return allTypes;
-        }
-
+        
         public static void SetWorldPanel(BaseRenderPanel panel, bool registerTickNow = true)
         {
             BaseRenderPanel.WorldPanel = panel;
@@ -647,7 +610,7 @@ namespace TheraEngine
         /// <param name="fontFamilyIndex">The index of the font, in the order it was loaded in.</param>
         public static FontFamily GetCustomFontFamily(int fontFamilyIndex)
             => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
-        private static async Task LoadCustomFonts()
+        private static async void LoadCustomFonts()
         {
             //if (DesignMode)
             //    return;
@@ -677,22 +640,15 @@ namespace TheraEngine
         /// <summary>
         /// Prints a message for debugging purposes.
         /// </summary>
-        public static void Print(string message, params object[] args)
+        public static void PrintLine(string message, params object[] args)
         {
 #if DEBUG || EDITOR
             if (args.Length != 0)
                 message = string.Format(message, args);
-            Debug.Write(message);
-            OutputString += message;
-            DebugOutput?.Invoke(message);
+            Debug.Print(message);
 #endif
         }
-        /// <summary>
-        /// Prints a message for debugging purposes.
-        /// </summary>
-        public static void PrintLine(string message = "", params object[] args)
-            => Print(message + Environment.NewLine, args);
-        
+
         public static void LogException(Exception ex)
         {
 #if DEBUG || EDITOR
@@ -799,37 +755,6 @@ namespace TheraEngine
             PostWorldChanged?.Invoke();
         }
 
-        public static IEnumerable<AppDomain> EnumAppDomains()
-        {
-            IntPtr enumHandle = IntPtr.Zero;
-            ICorRuntimeHost host = null;
-
-            try
-            {
-                host = new CorRuntimeHost();
-                host.EnumDomains(out enumHandle);
-
-                host.NextDomain(enumHandle, out object domain);
-                while (domain != null)
-                {
-                    yield return (AppDomain)domain;
-                    host.NextDomain(enumHandle, out domain);
-                }
-            }
-            finally
-            {
-                if (host != null)
-                {
-                    if (enumHandle != IntPtr.Zero)
-                    {
-                        host.CloseEnum(enumHandle);
-                    }
-
-                    Marshal.ReleaseComObject(host);
-                }
-            }
-        }
-        
         public static DelBeginOperation BeginOperation;
         public static DelEndOperation EndOperation;
 

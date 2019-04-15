@@ -16,6 +16,7 @@ using TheraEditor.Properties;
 using TheraEditor.Wrappers;
 using TheraEngine;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -90,7 +91,7 @@ namespace TheraEditor.Windows.Forms
                     _imgList.Images.Add(nameof(Resources.LockedFolder), Resources.GenericFile);
 
                     Type fileWrapper = typeof(BaseFileWrapper);
-                    var types = Engine.FindTypes(t => fileWrapper.IsAssignableFrom(t), Assembly.GetExecutingAssembly());
+                    var types = PrimaryAppDomainManager.FindTypes(t => fileWrapper.IsAssignableFrom(t), Assembly.GetExecutingAssembly());
                     foreach (Type t in types)
                     {
                         var wrapper = t.GetCustomAttribute<NodeWrapperAttribute>();

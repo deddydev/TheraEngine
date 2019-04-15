@@ -41,7 +41,6 @@ namespace TheraEngine.Core.Files.Serialization
             
             if (TreeNode.Object is TFileObject fobj)
             {
-                fobj.ConstructedProgrammatically = false;
                 if (fobj.RootFile != TreeNode.Owner.RootFileObject)
                 {
                     fobj.RootFile = TreeNode.Owner.RootFileObject as TFileObject;

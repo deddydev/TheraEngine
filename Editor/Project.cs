@@ -809,29 +809,7 @@ namespace TheraEditor
                 ITaskItem[] buildItems = result.ResultsByTarget["Build"].Items;
                 AssemblyPaths = buildItems.Select(x => x.ItemSpec).ToArray();
 
-                //Get editor exe path
-                string editorAssemblyPath = Assembly.GetExecutingAssembly().Location;
-                //Get all dll files from editor directory
-                string editorDir = Path.GetDirectoryName(editorAssemblyPath);
-                string[] editorDLLPaths = Directory.GetFiles(editorDir);
-
-                foreach (var editorDLLPath in editorDLLPaths)
-                {
-                    foreach (var compiledDLLPath in AssemblyPaths)
-                    {
-                        string editorDLLName = Path.GetFileName(editorDLLPath);
-                        string compiledDLLDir = Path.GetDirectoryName(compiledDLLPath);
-                        string[] compiledDirDLLS = Directory.GetFiles(compiledDLLDir);
-
-                        if (!compiledDirDLLS.Any(path => Path.GetFileName(path).
-                            EqualsInvariantIgnoreCase(editorDLLName)))
-                        {
-                            //Copy the editor's dll to the compile path
-                            string destPath = Path.Combine(compiledDLLDir, editorDLLName);
-                            File.Copy(editorDLLPath, destPath);
-                        }
-                    }
-                }
+                CopyEditorLibraries();
 
                 if (Editor.Instance.DockableErrorListFormActive)
                 {
@@ -861,6 +839,37 @@ namespace TheraEditor
             CompileCompleted?.Invoke(this, success);
         }
 
+        public void CopyEditorLibraries()
+        {
+            if (AssemblyPaths != null && AssemblyPaths.Length == 0)
+                return;
+
+            //Get editor exe path
+            string editorAssemblyPath = Assembly.GetExecutingAssembly().Location;
+            //Get all dll files from editor directory
+            string editorDir = Path.GetDirectoryName(editorAssemblyPath);
+            string[] editorDLLPaths = Directory.GetFiles(editorDir);
+
+            foreach (var compiledDLLPath in AssemblyPaths)
+            {
+                foreach (var editorDLLPath in editorDLLPaths)
+                {
+                    string editorDLLName = Path.GetFileName(editorDLLPath);
+                    string compiledDLLDir = Path.GetDirectoryName(compiledDLLPath);
+                    string[] compiledDirDLLS = Directory.GetFiles(compiledDLLDir);
+
+                    if (!compiledDirDLLS.Any(path => Path.GetFileName(path).
+                        EqualsInvariantIgnoreCase(editorDLLName)))
+                    {
+                        //Copy the editor's dll to the compile path
+                        string destPath = Path.Combine(compiledDLLDir, editorDLLName);
+                        File.Copy(editorDLLPath, destPath, true);
+                    }
+
+                }
+            }
+        }
+
         [Browsable(false)]
         public ProjectDomainProxy DomainProxy { get; private set; }
 
@@ -873,12 +882,12 @@ namespace TheraEditor
             string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
             if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths == null))
             {
-                //await CompileAsync(buildConfiguration, buildPlatform);
+                await CompileAsync(buildConfiguration, buildPlatform);
                 return;
             }
 
             PrintLine("Creating game domain.");
-            PrintLine("Active domains before load: " + string.Join(", ", Engine.EnumAppDomains().Select(x => x.FriendlyName)));
+            PrintLine("Active domains before load: " + string.Join(", ", PrimaryAppDomainManager.EnumAppDomains().Select(x => x.FriendlyName)));
 
             try
             {
@@ -888,6 +897,8 @@ namespace TheraEditor
                     _gameDomain.Dispose();
                     _gameDomain = null;
                 }
+
+                CopyEditorLibraries();
 
                 AppDomainSetup setupInfo = new AppDomainSetup()
                 {
@@ -916,23 +927,21 @@ namespace TheraEditor
                         _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
                     }
 
-                    Type type = typeof(ProjectDomainProxy);
-                    object proxy = _gameDomain.Domain.CreateInstanceAndUnwrap(
-                        type.Assembly.FullName,
-                        type.FullName);
+                    object proxy = _gameDomain.Domain.CreateInstanceAndUnwrap<ProjectDomainProxy>();
 
                     DomainProxy = (ProjectDomainProxy)proxy;
-                    dynamic dynProxy = proxy;
-                    string info = dynProxy.GetVersionInfo();
+                    //dynamic dynProxy = proxy;
+                    //string info = dynProxy.GetVersionInfo();
 
-                    string info3 = type.Assembly.CodeBase;
-                    string info4 = dynProxy.GetType().Assembly.CodeBase;
+                    //Type type = typeof(ProjectDomainProxy);
+                    //string info3 = type.Assembly.CodeBase;
+                    //string info4 = dynProxy.GetType().Assembly.CodeBase;
 
-                    Engine.PrintLine(info);
-                    Engine.PrintLine(info3);
-                    Engine.PrintLine(info4);
+                    //Engine.PrintLine(info);
+                    //Engine.PrintLine(info3);
+                    //Engine.PrintLine(info4);
 
-                    SerializationCommon.TypeCreationFailed = TypeCreationFailed;
+                    TypeProxy.TypeCreationFailed = TypeCreationFailed;
                     Engine.EditorState.GameDomain = _gameDomain.Domain;
 
                     DomainProxy.Created(this);
@@ -947,7 +956,7 @@ namespace TheraEditor
             }
 
             PrintLine("Game domain created.");
-            PrintLine("Active domains after load: " + string.Join(", ", Engine.EnumAppDomains().Select(x => x.FriendlyName)));
+            PrintLine("Active domains after load: " + string.Join(", ", PrimaryAppDomainManager.EnumAppDomains().Select(x => x.FriendlyName)));
 
             //var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             //Engine.PrintLine(string.Join("\n", assemblies.Select(x => x.FullName)));

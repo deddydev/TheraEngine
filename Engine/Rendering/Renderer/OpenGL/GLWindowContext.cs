@@ -201,7 +201,7 @@ namespace TheraEngine.Rendering.OpenGL
                     s += "GLSL VER: " + shaderVersion + Environment.NewLine;
                     s += "TOTAL TEX UNITS: " + units + Environment.NewLine;
                     //s += "EXTENSIONS:" + Environment.NewLine + string.Join(Environment.NewLine, extensions.Split(' ')) + Environment.NewLine;
-                    s.Print();
+                    s.PrintLine();
                 }
 #endif
 

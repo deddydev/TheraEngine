@@ -380,8 +380,6 @@ namespace TheraEngine
 
         public static bool IsSingleThreaded => _timer.IsSingleThreaded;
 
-        public static AppDomain Domain { get; internal set; }
-
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
         private static AbstractPhysicsInterface _physicsInterface;

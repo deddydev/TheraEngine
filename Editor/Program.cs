@@ -14,7 +14,7 @@ using TheraEngine.Editor;
 
 namespace TheraEditor
 {
-    static class Program
+    public class Program : MarshalByRefObject
     {
         /// <summary>
         /// The main entry point for the application.
@@ -22,21 +22,32 @@ namespace TheraEditor
         [STAThread]
         static void Main()
         {
-            ServicePointManager.SecurityProtocol |= 
-                SecurityProtocolType.Tls |
-                SecurityProtocolType.Tls11 |
-                SecurityProtocolType.Tls12;
-
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            Application.ThreadException += Application_ThreadException;
-            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-
-            Application.Run(new Editor());
+            new Program().Run();
         }
+        private void Run()
+        {
+            var domain = PrimaryAppDomainManager.CreateInitialDomain("PrimaryDomain", null, null);
+            if (domain == null)
+            {
+                ServicePointManager.SecurityProtocol |=
+                    SecurityProtocolType.Tls |
+                    SecurityProtocolType.Tls11 |
+                    SecurityProtocolType.Tls12;
 
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                Application.ThreadException += Application_ThreadException;
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+
+                Application.Run(new Editor());
+            }
+            else
+            {
+                domain.CreateInstanceAndUnwrap<Program>().Run();
+            }
+        }
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             List<EditorState> dirty = EditorState.DirtyStates;
@@ -44,7 +55,6 @@ namespace TheraEditor
             using (IssueDialog d = new IssueDialog(ex, dirty))
                 d.Show();
         }
-
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             if (!(e.ExceptionObject is Exception))
@@ -55,6 +65,7 @@ namespace TheraEditor
             using (IssueDialog d = new IssueDialog(ex, dirty))
                 d.Show();
         }
+
         /// <summary>
         /// Populates a toolstrip button with all matching types based on the predicate method, arranged by namespace.
         /// </summary>
@@ -64,7 +75,7 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static TypeProxy[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            TypeProxy[] fileObjecTypes = Engine.FindTypes(match).ToArray();
+            TypeProxy[] fileObjecTypes = PrimaryAppDomainManager.FindTypes(match).ToArray();
             
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (TypeProxy type in fileObjecTypes)
@@ -97,7 +108,7 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static TypeProxy[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            TypeProxy[] fileObjecTypes = Engine.FindTypes(match).ToArray();
+            TypeProxy[] fileObjecTypes = PrimaryAppDomainManager.FindTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (TypeProxy type in fileObjecTypes)

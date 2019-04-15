@@ -38,7 +38,7 @@ namespace TheraEngine.Core.Files.XML
             static ChildInfo()
             {
                 Type elemType = typeof(IElement);
-                ElementTypes = Engine.FindTypes((TypeProxy t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<ElementName>() != null).ToArray();
+                ElementTypes = PrimaryAppDomainManager.FindTypes((TypeProxy t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<ElementName>() != null).ToArray();
             }
             public ChildInfo(ElementChild data)
             {

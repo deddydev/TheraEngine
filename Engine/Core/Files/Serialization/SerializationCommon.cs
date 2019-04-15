@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -726,45 +727,6 @@ namespace TheraEngine.Core.Files.Serialization
                 number = (i++).ToString();
             return name + number;
         }
-        public delegate TypeProxy DelTypeCreationFail(string typeDeclaration);
-        public static DelTypeCreationFail TypeCreationFailed;
-        public static TypeProxy CreateType(string typeDeclaration)
-        {
-            try
-            {
-                AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
-                string asmName = asmQualName.AssemblyName;
-                //var domains = Engine.EnumAppDomains();
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies(); //domains.SelectMany(x => x.GetAssemblies());
-                
-                //Assembly asm = Assembly.Load(asmQualName.AssemblyName);
-                //Version version = asm.GetName().Version;
-                //asmQualName.VersionMinor = version.Minor;
-                //asmQualName.VersionBuild = version.Build;
-                //asmQualName.VersionRevision = version.Revision;
-
-                //AssemblyName asmName = asmQualName.GetAssemblyName();
-
-                //typeDeclaration = asmQualName.ToString();
-
-                return TypeProxy.GetType(typeDeclaration,
-                    name => assemblies.FirstOrDefault(assembly => assembly.GetName().Name.EqualsInvariantIgnoreCase(name.Name)),
-                    null,
-                    true);
-            }
-            catch// (Exception ex)
-            {
-                TypeProxy type = TypeCreationFailed?.Invoke(typeDeclaration);
-                if (type is null)
-                {
-                    Engine.PrintLine("Unable to create type " + typeDeclaration);
-                    //Engine.LogException(ex);
-                }
-                else
-                    return type;
-            }
-            return null;
-        }
         public static TypeProxy DetermineType(string filePath) => DetermineType(filePath, out EFileFormat format);
         public static unsafe TypeProxy DetermineType(string filePath, out EFileFormat format)
         {
@@ -789,13 +751,13 @@ namespace TheraEngine.Core.Files.Serialization
                                     TypeProxy thatOne = types[x];
                                     if (thisOne.IsAssignableTo(thatOne))
                                     {
-                                        if (thisOne.Domain == thatOne.Domain || thisOne.Domain != Engine.Domain)
+                                        if (thisOne.Domain == thatOne.Domain || thisOne.Domain != PrimaryAppDomainManager.PrimaryDomain)
                                             types.RemoveAt(i--);
                                         break;
                                     }
                                     if (thatOne.IsAssignableTo(thisOne))
                                     {
-                                        if (thatOne.Domain == thisOne.Domain || thatOne.Domain != Engine.Domain)
+                                        if (thatOne.Domain == thisOne.Domain || thatOne.Domain != PrimaryAppDomainManager.PrimaryDomain)
                                             types.RemoveAt(x--);
                                     }
                                 }
@@ -813,7 +775,7 @@ namespace TheraEngine.Core.Files.Serialization
                         {
                             XMLReader reader = new XMLReader(map.Address, map.Length, true);
                             if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
-                                fileType = CreateType(reader.Value);
+                                fileType = TypeProxy.CreateType(reader.Value);
                         }
                         break;
                     case EFileFormat.Binary:

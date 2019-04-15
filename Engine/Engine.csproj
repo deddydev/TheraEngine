@@ -477,6 +477,7 @@
     <Compile Include="Core\Maths\MachineLearning\Neuron.cs" />
     <Compile Include="Core\Memory\Int24.cs" />
     <Compile Include="Core\Platform\Native.cs" />
+    <Compile Include="Core\Reflection\PrimaryAppDomainManager.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TFileExt.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TFile3rdParty.cs" />

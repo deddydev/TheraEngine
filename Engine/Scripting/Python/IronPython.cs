@@ -54,7 +54,7 @@ namespace TheraEngine.Scripting
             => Engine.Execute<T>(sourceText, scope);
 
         private static void OutputUpdate(object sender, EventArgs<string> e)
-            => e.Value.Print();
+            => e.Value.PrintLine();
     }
     public class IronPythonCompileLogger : ErrorListener
     {

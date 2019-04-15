@@ -34,9 +34,9 @@ namespace TheraEditor
                     null,
                     true);
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                Engine.LogException(ex);
+                //Engine.LogException(ex);
             }
             return null;
         }

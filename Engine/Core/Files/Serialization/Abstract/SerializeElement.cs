@@ -152,8 +152,14 @@ namespace TheraEngine.Core.Files.Serialization
                 if (Owner != null && Parent == null && _object != null)
                 {
                     Owner.RootFileObject = _object;
-                    if (_object is TFileObject fobj && fobj.RootFile == Owner.RootFileObject)
-                        fobj.FilePath = Owner.FilePath;
+                    if (_object is TFileObject fobj)
+                    {
+                        fobj.ConstructedProgrammatically = false;
+                        if (fobj.RootFile != Owner.RootFileObject)
+                            fobj.RootFile = Owner.RootFileObject as TFileObject;
+                        if (IsRoot)
+                            fobj.FilePath = Owner.FilePath;
+                    }
                 }
 
                 if (ObjectType != oldObjType)
@@ -398,7 +404,7 @@ namespace TheraEngine.Core.Files.Serialization
         {
             DesiredDerivedObjectType = 
                 GetAttributeValue(SerializationCommon.TypeIdent, out string typeDeclaration) ? 
-                    SerializationCommon.CreateType(typeDeclaration) : null;
+                    TypeProxy.CreateType(typeDeclaration) : null;
 
             if (GetAttributeValue("SharedIndex", out int sharedObjectIndex))
             {

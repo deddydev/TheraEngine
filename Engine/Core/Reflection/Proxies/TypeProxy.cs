@@ -40,6 +40,45 @@ namespace TheraEngine.Core.Reflection
         public TypeProxy DetermineElementType()
             => Value.DetermineElementType();
 
+        public delegate TypeProxy DelTypeCreationFail(string typeDeclaration);
+        public static DelTypeCreationFail TypeCreationFailed;
+        public static TypeProxy CreateType(string typeDeclaration)
+        {
+            try
+            {
+                AssemblyQualifiedName asmQualName = new AssemblyQualifiedName(typeDeclaration);
+                string asmName = asmQualName.AssemblyName;
+                //var domains = Engine.EnumAppDomains();
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies(); //domains.SelectMany(x => x.GetAssemblies());
+
+                //Assembly asm = Assembly.Load(asmQualName.AssemblyName);
+                //Version version = asm.GetName().Version;
+                //asmQualName.VersionMinor = version.Minor;
+                //asmQualName.VersionBuild = version.Build;
+                //asmQualName.VersionRevision = version.Revision;
+
+                //AssemblyName asmName = asmQualName.GetAssemblyName();
+
+                //typeDeclaration = asmQualName.ToString();
+
+                return TypeProxy.GetType(typeDeclaration,
+                    name => assemblies.FirstOrDefault(assembly => assembly.GetName().Name.EqualsInvariantIgnoreCase(name.Name)),
+                    null,
+                    true);
+            }
+            catch// (Exception ex)
+            {
+                TypeProxy type = TypeCreationFailed?.Invoke(typeDeclaration);
+                if (type is null)
+                {
+                    Debug.Print("Unable to create type " + typeDeclaration);
+                    //Engine.LogException(ex);
+                }
+                else
+                    return type;
+            }
+            return null;
+        }
         public void GetGenericParameterConstraints(out EGenericVarianceFlag gvf, out ETypeConstraintFlag tcf)
         {
             GenericParameterAttributes gpa = GenericParameterAttributes;
@@ -146,7 +185,7 @@ namespace TheraEngine.Core.Reflection
         public static TypeProxy TypeOf<T>()
         {
             TypeProxy proxy = null;
-            var domains = Engine.EnumAppDomains();
+            var domains = PrimaryAppDomainManager.EnumAppDomains();
             foreach (AppDomain domain in domains)
             {
                 if (domain == AppDomain.CurrentDomain)
@@ -355,10 +394,25 @@ namespace TheraEngine.Core.Reflection
         //     System.Reflection.MethodBase that represents declaring method; otherwise, null.
         public MethodBaseProxy DeclaringMethod => MethodBaseProxy.Get(Value.DeclaringMethod);
 
-        public object CreateInstance() => SerializationCommon.CreateInstance(Value);
-        public object CreateInstance(params object[] args) => SerializationCommon.CreateInstance(Value, args);
+        public object CreateInstance()
+        {
+            if (!PrimaryAppDomainManager.IsPrimaryDomain)
+                Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+            return SerializationCommon.CreateInstance(Value);
+        }
+        public object CreateInstance(params object[] args)
+        {
+            if (!PrimaryAppDomainManager.IsPrimaryDomain)
+                Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+            return SerializationCommon.CreateInstance(Value, args);
+        }
         public TypeProxy GetUnderlyingNullableType() => Nullable.GetUnderlyingType(Value);
-        public Array CreateArrayInstance(int length) => Array.CreateInstance(Value, length);
+        public Array CreateArrayInstance(int length)
+        {
+            if (!PrimaryAppDomainManager.IsPrimaryDomain)
+                Debug.Print("Creating array instance on AppDomain " + Domain.FriendlyName);
+            return Array.CreateInstance(Value, length);
+        }
 
         //
         // Summary:

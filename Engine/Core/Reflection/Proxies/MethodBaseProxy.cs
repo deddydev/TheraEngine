@@ -68,7 +68,7 @@ namespace TheraEngine.Core.Reflection
         //     true if the method or constructor is security-transparent at the current trust
         //     level; otherwise, false.
         public bool IsSecurityTransparent
-            => Value.IsPrivate;
+            => Value.IsSecurityTransparent;
         //
         // Summary:
         //     Gets a value indicating whether this is a public method.
@@ -76,7 +76,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if this method is public; otherwise, false.
         public bool IsPublic
-            => Value.IsPrivate;
+            => Value.IsPublic;
         //
         // Summary:
         //     Gets a value indicating whether this member is private.

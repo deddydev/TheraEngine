@@ -12,7 +12,6 @@
         /// <summary>
         /// Invokes the target asynchronous function.
         /// </summary>
-        /// </typeparam>
         /// <typeparam name="TResult">
         /// The result type.
         /// </typeparam>

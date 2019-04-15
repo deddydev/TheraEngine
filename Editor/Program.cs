@@ -27,7 +27,9 @@ namespace TheraEditor
         private void Run()
         {
             var domain = PrimaryAppDomainManager.CreateInitialDomain("PrimaryDomain", null, null);
-            if (domain == null)
+            if (domain != null)
+                domain.CreateInstanceAndUnwrap<Program>().Run();
+            else
             {
                 ServicePointManager.SecurityProtocol |=
                     SecurityProtocolType.Tls |
@@ -42,10 +44,6 @@ namespace TheraEditor
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
                 Application.Run(new Editor());
-            }
-            else
-            {
-                domain.CreateInstanceAndUnwrap<Program>().Run();
             }
         }
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
@@ -108,10 +106,10 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static TypeProxy[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            TypeProxy[] fileObjecTypes = PrimaryAppDomainManager.FindTypes(match).ToArray();
+            TypeProxy[] fileObjectTypes = PrimaryAppDomainManager.FindTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (TypeProxy type in fileObjecTypes)
+            foreach (TypeProxy type in fileObjectTypes)
             {
                 string path = type.Namespace;
                 int dotIndex = path.IndexOf(".");
@@ -128,7 +126,7 @@ namespace TheraEditor
                 node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick);
             }
 
-            return fileObjecTypes;
+            return fileObjectTypes;
         }
         private class NamespaceNode
         {

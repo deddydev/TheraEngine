@@ -11,6 +11,10 @@ namespace TheraEditor.Wrappers
     {
         public NonGenericFileWrapper() : base() { }
         public NonGenericFileWrapper(ContextMenuStrip menu) : base(menu) { }
+        public NonGenericFileWrapper(TypeProxy t)
+        {
+            _fileType = t;
+        }
 
         private TypeProxy _fileType;
         public override TypeProxy FileType => _fileType;

@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
@@ -66,6 +64,8 @@ namespace TheraEngine.Core.Reflection
             var appDomain = CreateDomainHelper(friendlyName, securityInfo, appDomainInfo);
             ((PrimaryAppDomainManager)appDomain.DomainManager).SetPrimaryDomainToSelf();
             PrimaryDomain = appDomain;
+
+            appDomain.AssemblyLoad += DomainAssemblyLoad;
             return appDomain;
         }
 
@@ -157,7 +157,7 @@ namespace TheraEngine.Core.Reflection
                     }
                     catch //(Exception ex)
                     {
-                        //LogWarning($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
+                        Debug.Print($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
                         return new ProxyList<AssemblyProxy>();
                     }
                 });
@@ -176,6 +176,13 @@ namespace TheraEngine.Core.Reflection
             allTypes = allTypes.Where(x => matchPredicate(x));
             allTypes = allTypes.OrderBy(x => x.Name);
             return allTypes;
+        }
+        
+        internal static void DomainAssemblyLoad(object sender, AssemblyLoadEventArgs args)
+        {
+            string assemblyName = args.LoadedAssembly.GetName().Name;
+            string domainName = AppDomain.CurrentDomain.FriendlyName;
+            Debug.Print($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName}");
         }
     }
 }

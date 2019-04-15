@@ -106,9 +106,8 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     true if obj equals the type and value of this instance; otherwise, false.
-        public override bool Equals(object obj) => 
-            (obj is MemberInfoProxy prox    && Value.Equals(prox.Value)) || 
-            (obj is MemberInfo info         && Value.Equals(info));
+        public override bool Equals(object obj) =>
+            obj is MemberInfoProxy prox && Value.Equals(prox.Value);
         //
         // Summary:
         //     When overridden in a derived class, returns an array of all custom attributes
@@ -490,8 +489,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.TypeLoadException:
         //     A custom attribute type cannot be loaded.
-        public IEnumerable<T> GetCustomAttributes<T>(bool inherit) where T : Attribute
-            => Value.GetCustomAttributes<T>(inherit);
+        public virtual T[] GetCustomAttributes<T>(bool inherit) where T : Attribute
+            => Value.GetCustomAttributes<T>(inherit).ToArray();
         //
         // Summary:
         //     Retrieves a collection of custom attributes of a specified type that are applied
@@ -518,7 +517,7 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.TypeLoadException:
         //     A custom attribute type cannot be loaded.
-        public T[] GetCustomAttributes<T>() where T : Attribute
+        public virtual T[] GetCustomAttributes<T>() where T : Attribute
             => Value.GetCustomAttributes<T>().ToArray();
         //
         // Summary:

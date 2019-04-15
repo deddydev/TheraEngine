@@ -2,6 +2,7 @@
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
+    [Serializable]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class PropGridControlForAttribute : Attribute
     {

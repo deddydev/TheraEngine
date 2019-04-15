@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -251,21 +250,25 @@ namespace TheraEditor.Wrappers
         #region File Type Loading
 
         private static bool IsFileObject(TypeProxy t)
-          => t.Assembly != Assembly.GetExecutingAssembly() &&
-              !t.IsAbstract && !t.IsInterface &&
-              t.GetConstructors().Any(x => x.IsPublic) &&
-              t.IsSubclassOf(typeof(TFileObject)) &&
-              t.GetCustomAttribute<TFileExt>() != null;
+        {
+            bool notEditorAssembly = !t.Assembly.EqualTo(Assembly.GetExecutingAssembly());
+            var constructors = t.GetConstructors();
+            bool constructable = !t.IsAbstract && !t.IsInterface && constructors.Any(x => x.IsPublic);
+            bool isFileObj = t.IsSubclassOf(typeof(TFileObject));
+            bool hasExt = t.HasCustomAttribute<TFileExt>();
+            //Debug.Print(t.GetFriendlyName() + ": assemblyMatches=" + notEditorAssembly.ToString() + " constructable=" + constructable.ToString() + " isFileObj=" + isFileObj.ToString() + " hasExt=" + hasExt.ToString());
+            return notEditorAssembly && constructable && isFileObj && hasExt;
+        }
 
         private static bool Is3rdPartyImportable(TypeProxy t)
         {
-            if (!IsFileObject(t))
-                return false;
-
-            TFileExt attrib = t.GetCustomAttribute<TFileExt>();
-            return attrib.HasAnyImportableExtensions;
+            bool isFileObj = IsFileObject(t);
+            var attrib = t?.GetCustomAttribute<TFileExt>();
+            bool hasImportableExts = attrib?.HasAnyImportableExtensions ?? false;
+            //Debug.Print("hasImportableExts=" + hasImportableExts);
+            return isFileObj && hasImportableExts;
         }
-
+        
         private static async void OnImportClickAsync(object sender, EventArgs e)
         {
             if (!(sender is ToolStripMenuItem button))

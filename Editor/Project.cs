@@ -965,13 +965,6 @@ namespace TheraEditor
         private TypeProxy TypeCreationFailed(string typeDeclaration)
             => DomainProxy.CreateType(typeDeclaration);
         
-        private void Domain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
-        {
-            string assemblyName = args.LoadedAssembly.GetName().Name;
-            string domainName = AppDomain.CurrentDomain.FriendlyName;
-            PrintLine($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName}");
-        }
-
         public void CollectFiles(
             out List<string> codeFiles,
             out List<string> contentFiles,
@@ -1181,7 +1174,7 @@ namespace TheraEditor
 
                 string assemblyName = assembly.GetName().Name;
                 string domainName = AppDomain.CurrentDomain.FriendlyName;
-                PrintLine($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
+                Debug.Print($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName} via {nameof(TheraAssemblyLoader)}");
 
                 //    break;
                 //default:

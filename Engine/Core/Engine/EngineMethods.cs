@@ -54,6 +54,8 @@ namespace TheraEngine
         {
             Debug.Listeners.Add(new EngineTraceListener());
 
+            LoadCustomFonts();
+
             _timer = new EngineTimer();
             _timer.UpdateFrame += EngineTick;
             _timer.SwapBuffers += EngineSwapBuffers;
@@ -64,17 +66,6 @@ namespace TheraEngine
             _tickLists = new List<DelTick>[45];
             for (int i = 0; i < _tickLists.Length; ++i)
                 _tickLists[i] = new List<DelTick>();
-
-            AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
-
-            LoadCustomFonts();
-        }
-
-        private static void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
-        {
-            string assemblyName = args.LoadedAssembly.GetName().Name;
-            string domainName = AppDomain.CurrentDomain.FriendlyName;
-            PrintLine($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName}");
         }
 
         /// <summary>
@@ -610,7 +601,7 @@ namespace TheraEngine
         /// <param name="fontFamilyIndex">The index of the font, in the order it was loaded in.</param>
         public static FontFamily GetCustomFontFamily(int fontFamilyIndex)
             => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
-        private static async void LoadCustomFonts()
+        private static async Task LoadCustomFonts()
         {
             //if (DesignMode)
             //    return;

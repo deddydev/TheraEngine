@@ -45,7 +45,7 @@ namespace TheraEditor.Wrappers
         }
         public static void LoadWrappers(params Assembly[] assemblies)
         {
-            Wrappers = new Dictionary<TypeProxy, TypeProxy>(new TypeProxy.EqualityComparer());
+            Wrappers = new Dictionary<TypeProxy, TypeProxy>();
             ThirdPartyWrappers = new Dictionary<string, TypeProxy>();
 
             if (assemblies != null)
@@ -217,8 +217,9 @@ namespace TheraEditor.Wrappers
                 if (w == null)
                 {
                     //Make wrapper for whatever file type this is
-                    TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
-                    w = genericFileWrapper.CreateInstance() as BaseFileWrapper;
+                    //TypeProxy genericFileWrapper = TypeProxy.Get(typeof(FileWrapper<>)).MakeGenericType(t);
+                    NonGenericFileWrapper wrapper = new NonGenericFileWrapper(t);
+                    w = wrapper;//genericFileWrapper.CreateInstance() as BaseFileWrapper;
                 }
             }
             return w;

@@ -8,9 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
-using TheraEngine.Core.Files;
 using TheraEngine.Core.Files.Serialization;
-using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -265,6 +263,68 @@ namespace TheraEngine.Core.Reflection
         //     true if the System.Type.Attributes property of the current type includes System.Reflection.TypeAttributes.AutoLayout;
         //     otherwise, false.
         public bool IsAutoLayout => Value.IsAutoLayout;
+
+        public bool HasCustomAttribute<T>() where T : Attribute => GetCustomAttribute<T>() != null;
+        //
+        // Summary:
+        //     Retrieves a collection of custom attributes of a specified type that are applied
+        //     to a specified member, and optionally inspects the ancestors of that member.
+        //
+        // Parameters:
+        //   element:
+        //     The member to inspect.
+        //
+        //   inherit:
+        //     true to inspect the ancestors of element; otherwise, false.
+        //
+        // Type parameters:
+        //   T:
+        //     The type of attribute to search for.
+        //
+        // Returns:
+        //     A collection of the custom attributes that are applied to element and that match
+        //     T, or an empty collection if no such attributes exist.
+        //
+        // Exceptions:
+        //   T:System.ArgumentNullException:
+        //     element is null.
+        //
+        //   T:System.NotSupportedException:
+        //     element is not a constructor, method, property, event, type, or field.
+        //
+        //   T:System.TypeLoadException:
+        //     A custom attribute type cannot be loaded.
+        public override T[] GetCustomAttributes<T>(bool inherit)
+            => Value.GetCustomAttributesExt<T>().ToArray();
+        //
+        // Summary:
+        //     Retrieves a collection of custom attributes of a specified type that are applied
+        //     to a specified member.
+        //
+        // Parameters:
+        //   element:
+        //     The member to inspect.
+        //
+        // Type parameters:
+        //   T:
+        //     The type of attribute to search for.
+        //
+        // Returns:
+        //     A collection of the custom attributes that are applied to element and that match
+        //     T, or an empty collection if no such attributes exist.
+        //
+        // Exceptions:
+        //   T:System.ArgumentNullException:
+        //     element is null.
+        //
+        //   T:System.NotSupportedException:
+        //     element is not a constructor, method, property, event, type, or field.
+        //
+        //   T:System.TypeLoadException:
+        //     A custom attribute type cannot be loaded.
+        public override T[] GetCustomAttributes<T>()
+            => Value.GetCustomAttributesExt<T>().ToArray();
+
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is nested and declared private.
@@ -1445,7 +1505,7 @@ namespace TheraEngine.Core.Reflection
         //     type of the current System.Type; otherwise, false. This method also returns false
         //     if: . o is null. o cannot be cast or converted to a System.Type object.
         public override bool Equals(object o)
-            => Value.Equals(o);
+            => o is TypeProxy proxy && Value.Equals(proxy.Value);
         //
         // Summary:
         //     Determines if the underlying system type of the current System.Type is the same
@@ -3851,6 +3911,13 @@ namespace TheraEngine.Core.Reflection
                 return false;
 
             return Value == other.Value;
+        }
+        public bool EqualTo(Type other)
+        {
+            if (other is null)
+                return false;
+
+            return Value == other;
         }
 
         //

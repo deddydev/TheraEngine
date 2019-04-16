@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -23,6 +24,7 @@ namespace TheraEngine.Core.Reflection
         }
 
         private MemberInfo Value { get; set; }
+        public AppDomain Domain => AppDomain.CurrentDomain;
 
         //public MemberInfoProxy() { }
         protected MemberInfoProxy(MemberInfo value) => Value = value;
@@ -517,8 +519,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.TypeLoadException:
         //     A custom attribute type cannot be loaded.
-        public virtual T[] GetCustomAttributes<T>() where T : Attribute
-            => Value.GetCustomAttributes<T>().ToArray();
+        public virtual ProxyList<T> GetCustomAttributes<T>() where T : Attribute
+            => new ProxyList<T>(Value.GetCustomAttributes<T>());
         //
         // Summary:
         //     Retrieves a collection of custom attributes that are applied to a specified member.

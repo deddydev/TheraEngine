@@ -104,7 +104,7 @@ namespace TheraEngine.Core.Files
             if (reloadNow)
             {
                 Type fileType = typeof(TFileObject);
-                _thirdPartyCache = PrimaryAppDomainManager.FindTypes(t => t.IsSubclassOf(fileType) && t.GetCustomAttribute<TFile3rdPartyExt>() != null).ToArray();
+                _thirdPartyCache = PrimaryAppDomainManager.FindTypes(t => t.IsSubclassOf(fileType) && t.HasCustomAttribute<TFile3rdPartyExt>()).ToArray();
             }
             else
                 _thirdPartyCache = null;

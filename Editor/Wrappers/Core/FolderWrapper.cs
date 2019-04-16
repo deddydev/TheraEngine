@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
@@ -69,8 +70,19 @@ namespace TheraEditor.Wrappers
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
             newDropdown.DropDownItems.Add(newCodeItem);
 
-            Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
-            Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
+            Engine.PrintLine("Loading importable and creatable file types to folder menu.");
+            Task import = Task.Run(() =>
+            {
+                Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
+            });
+            Task create = Task.Run(() =>
+            {
+                Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
+            });
+            Task.WhenAll(import, create).ContinueWith(t =>
+            {
+                Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
+            });
         }
         
         private enum ECodeFileType
@@ -315,8 +327,8 @@ namespace TheraEditor.Wrappers
         {
             if (!(sender is ToolStripMenuItem button))
                 return;
-            
-            Type fileType = button.Tag as Type;
+
+            TypeProxy fileType = button.Tag as TypeProxy;
 
             if (!(Editor.UserCreateInstanceOf(fileType, true, button.Owner) is TFileObject file))
                 return;

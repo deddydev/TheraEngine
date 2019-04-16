@@ -1373,7 +1373,12 @@ namespace TheraEditor.Windows.Forms
                     Rectangle r = selected.Bounds;
                     r.X -= 25; r.Width += 25;
                     if (r.Contains(x, y))
-                        selected.ContextMenuStrip.Show(this, x, y);
+                    {
+                        if (selected.ContextMenuStrip.InvokeRequired)
+                            selected.ContextMenuStrip.BeginInvoke((Action)(() => selected.ContextMenuStrip.Show(this, x, y)));
+                        else
+                            selected.ContextMenuStrip.Show(this, x, y);
+                    }
                 }
             }
             base.WndProc(ref m);

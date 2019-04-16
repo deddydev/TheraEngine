@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using TheraEngine.Core.Files.Serialization;
+using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -322,8 +323,8 @@ namespace TheraEngine.Core.Reflection
         //
         //   T:System.TypeLoadException:
         //     A custom attribute type cannot be loaded.
-        public override T[] GetCustomAttributes<T>()
-            => Value.GetCustomAttributesExt<T>().ToArray();
+        public override ProxyList<T> GetCustomAttributes<T>()
+            => new ProxyList<T>(Value.GetCustomAttributesExt<T>());
 
         //
         // Summary:
@@ -3869,8 +3870,8 @@ namespace TheraEngine.Core.Reflection
         //
         // Returns:
         //     A System.String representing the name of the current System.Type.
-        public override string ToString() 
-            => Value.ToString();
+        //public override string ToString() 
+        //    => Value.ToString();
 
         //
         // Summary:
@@ -3985,6 +3986,7 @@ namespace TheraEngine.Core.Reflection
         //public static bool operator !=(Type left, TypeProxy right)
         //    => left != right?.Value;
 
+        public override string ToString() => Value.FullName + " [" + Domain.FriendlyName + "]";
         public class EqualityComparer : IEqualityComparer<TypeProxy>
         {
             public bool Equals(TypeProxy x, TypeProxy y)
@@ -3996,6 +3998,5 @@ namespace TheraEngine.Core.Reflection
                 return x.GetHashCode();
             }
         }
-
     }
 }

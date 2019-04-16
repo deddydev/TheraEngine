@@ -455,6 +455,12 @@ namespace TheraEngine.Components
             set => _previousInverseWorldTransform = value;
         }
 
+        /// <summary>
+        /// Runs spawning code for 
+        /// IRigidBodyCollidable, IPreRendered, I3DRenderable, and/or I2DRenderable, 
+        /// starts any attached animations,
+        /// and runs OnSpawned for all child scene components.
+        /// </summary>
         public override void OnSpawned()
         {
             base.OnSpawned();

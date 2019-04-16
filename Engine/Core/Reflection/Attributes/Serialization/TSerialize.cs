@@ -1,4 +1,5 @@
-﻿using TheraEngine.Core.Tools;
+﻿using System.Runtime.Serialization;
+using TheraEngine.Core.Tools;
 
 namespace System.ComponentModel
 {
@@ -21,8 +22,9 @@ namespace System.ComponentModel
     /// This attribute means the field should be serialized upon saving.
     /// Note that the class/struct owning this property or field does NOT need to be a FileObject or a class in particular.
     /// </summary>
+    [Serializable]
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class TSerialize : Attribute
+    public class TSerialize : Attribute, ISerializable
     {
         /// <summary>
         /// The order this field should be serialized in.
@@ -112,5 +114,36 @@ namespace System.ComponentModel
 
         public bool AllowSerialize(object obj)
             => Condition == null ? true : ExpressionParser.Evaluate<bool>(Condition, obj);
+
+        protected TSerialize(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
+            Order = info.GetInt32(nameof(Order));
+            NameOverride = info.GetString(nameof(NameOverride));
+            NodeType = (ENodeType)info.GetByte(nameof(NodeType));
+            OverrideCategory = info.GetString(nameof(OverrideCategory));
+            Condition = info.GetString(nameof(Condition));
+            UseCategory = info.GetBoolean(nameof(UseCategory));
+            DeserializeAsync = info.GetBoolean(nameof(DeserializeAsync));
+            Config = info.GetBoolean(nameof(Config));
+            State = info.GetBoolean(nameof(State));
+        }
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
+            info.AddValue(nameof(Order), Order);
+            info.AddValue(nameof(NameOverride), NameOverride);
+            info.AddValue(nameof(NodeType), (byte)NodeType);
+            info.AddValue(nameof(OverrideCategory), OverrideCategory);
+            info.AddValue(nameof(Condition), Condition);
+            info.AddValue(nameof(UseCategory), UseCategory);
+            info.AddValue(nameof(DeserializeAsync), DeserializeAsync);
+            info.AddValue(nameof(Config), Config);
+            info.AddValue(nameof(State), State);
+        }
     }
 }

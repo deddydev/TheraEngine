@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Remoting.Lifetime;
+using System.Runtime.Serialization;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
@@ -49,20 +50,27 @@ namespace TheraEngine
 
     public class MarshalSponsor : MarshalByRefObject, ISponsor
     {
-        public bool Release { get; set; }
+        public static readonly TimeSpan RenewalTimeSpan = TimeSpan.FromSeconds(1);
+
+        public bool Release { get; set; } = false;
+        public bool IsReleased { get; private set; } = false;
 
         public TimeSpan Renewal(ILease lease)
         {
             // if any of these cases is true
             if (lease == null || lease.CurrentState != LeaseState.Renewing || Release)
+            {
+                IsReleased = true;
                 return TimeSpan.Zero; // don't renew
-            return TimeSpan.FromSeconds(1); // renew for a second, or however long u want
+            }
+            IsReleased = lease.CurrentState == LeaseState.Expired;
+            return RenewalTimeSpan;
         }
     }
     public delegate void ResourceEventHandler(TObject node);
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
-    public abstract class TObject : MarshalByRefObject, IObject
+    public abstract class TObject : MarshalByRefObject, IObject, ISerializable
     {
         public string HomeAppDomain => AppDomain.CurrentDomain.FriendlyName;
 
@@ -137,6 +145,8 @@ namespace TheraEngine
         }
         #endregion
 
+        #region Editor
+
 #if EDITOR
 
         private EditorState _editorState = null;
@@ -176,10 +186,13 @@ namespace TheraEngine
         //        OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         //    }
         //}
+
 #endif
-        
+
+        #endregion
+
         #region Animation
-        
+
         [TSerialize(nameof(Animations))]
         private EventList<AnimationTree> _animations = null;
 
@@ -262,6 +275,8 @@ namespace TheraEngine
             => _animations.Remove((AnimationTree)anim);
         #endregion
 
+        #region Debug
+        
         /// <summary>
         /// Prints a line to output.
         /// Identical to Engine.PrintLine().
@@ -274,5 +289,9 @@ namespace TheraEngine
         protected static void PrintLine(string message) => Debug.Print(message);
 
         public override string ToString() => Name;
+
+        #endregion
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) => throw new NotImplementedException();
     }
 }

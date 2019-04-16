@@ -19,20 +19,20 @@ namespace TheraEngine.Core.Reflection
         /// Gets the primary domain.
         /// </summary>
         /// <value>The primary domain.</value>
-        public static AppDomain PrimaryDomain { get; private set; }
+        //public static AppDomain PrimaryDomain { get; private set; }
 
-        /// <summary>
-        /// Sets the primary domain.
-        /// </summary>
-        /// <param name="primaryDomain">The primary domain.</param>
-        private void SetPrimaryDomain(AppDomain primaryDomain)
-            => PrimaryDomain = primaryDomain;
+        ///// <summary>
+        ///// Sets the primary domain.
+        ///// </summary>
+        ///// <param name="primaryDomain">The primary domain.</param>
+        //private void SetPrimaryDomain(AppDomain primaryDomain)
+        //    => PrimaryDomain = primaryDomain;
         
-        /// <summary>
-        /// Sets the primary domain to self.
-        /// </summary>
-        private void SetPrimaryDomainToSelf()
-            => PrimaryDomain = AppDomain.CurrentDomain;
+        ///// <summary>
+        ///// Sets the primary domain to self.
+        ///// </summary>
+        //private void SetPrimaryDomainToSelf()
+        //    => PrimaryDomain = AppDomain.CurrentDomain;
         
         /// <summary>
         /// Determines whether this is the primary domain.
@@ -41,55 +41,55 @@ namespace TheraEngine.Core.Reflection
         ///     <see langword="true"/> if this instance is the primary domain; otherwise, <see langword="false"/>.
         /// </value>
         public static bool IsPrimaryDomain 
-            => PrimaryDomain == AppDomain.CurrentDomain;
+            => GetPrimaryAppDomain() == AppDomain.CurrentDomain;
 
-        /// <summary>
-        /// Creates the initial domain.
-        /// </summary>
-        /// <param name="friendlyName">Name of the friendly.</param>
-        /// <param name="securityInfo">The security info.</param>
-        /// <param name="appDomainInfo">The AppDomain setup info.</param>
-        /// <returns></returns>
-        public static AppDomain CreateInitialDomain(string friendlyName, Evidence securityInfo, AppDomainSetup appDomainInfo)
-        {
-            if (AppDomain.CurrentDomain.DomainManager is PrimaryAppDomainManager)
-                return null;
+        ///// <summary>
+        ///// Creates the initial domain.
+        ///// </summary>
+        ///// <param name="friendlyName">Name of the friendly.</param>
+        ///// <param name="securityInfo">The security info.</param>
+        ///// <param name="appDomainInfo">The AppDomain setup info.</param>
+        ///// <returns></returns>
+        //public static AppDomain CreateInitialDomain(string friendlyName, Evidence securityInfo, AppDomainSetup appDomainInfo)
+        //{
+        //    if (AppDomain.CurrentDomain.DomainManager is PrimaryAppDomainManager)
+        //        return null;
 
-            appDomainInfo = appDomainInfo ?? new AppDomainSetup();
+        //    appDomainInfo = appDomainInfo ?? new AppDomainSetup();
 
-            Type t = typeof(PrimaryAppDomainManager);
-            appDomainInfo.AppDomainManagerAssembly = t.Assembly.FullName;
-            appDomainInfo.AppDomainManagerType = t.FullName;
+        //    Type t = typeof(PrimaryAppDomainManager);
+        //    appDomainInfo.AppDomainManagerAssembly = t.Assembly.FullName;
+        //    appDomainInfo.AppDomainManagerType = t.FullName;
 
-            var appDomain = CreateDomainHelper(friendlyName, securityInfo, appDomainInfo);
-            ((PrimaryAppDomainManager)appDomain.DomainManager).SetPrimaryDomainToSelf();
-            PrimaryDomain = appDomain;
+        //    var appDomain = CreateDomainHelper(friendlyName, securityInfo, appDomainInfo);
+        //    ((PrimaryAppDomainManager)appDomain.DomainManager).SetPrimaryDomainToSelf();
+        //    PrimaryDomain = appDomain;
 
-            appDomain.AssemblyLoad += DomainAssemblyLoad;
-            return appDomain;
-        }
+        //    appDomain.AssemblyLoad += DomainAssemblyLoad;
+        //    return appDomain;
+        //}
 
-        /// <summary>
-        /// Returns a new or existing application domain.
-        /// </summary>
-        /// <param name="friendlyName">The friendly name of the domain.</param>
-        /// <param name="securityInfo">An object that contains evidence mapped through the security policy to establish a top-of-stack permission set.</param>
-        /// <param name="appDomainInfo">An object that contains application domain initialization information.</param>
-        /// <returns>A new or existing application domain.</returns>
-        /// <PermissionSet>
-        ///     <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="ControlEvidence, ControlAppDomain, Infrastructure"/>
-        /// </PermissionSet>
-        public override AppDomain CreateDomain(string friendlyName, Evidence securityInfo, AppDomainSetup appDomainInfo)
-        {
-            appDomainInfo = appDomainInfo ?? new AppDomainSetup();
-            appDomainInfo.AppDomainManagerAssembly = typeof(PrimaryAppDomainManager).Assembly.FullName;
-            appDomainInfo.AppDomainManagerType = typeof(PrimaryAppDomainManager).FullName;
+        ///// <summary>
+        ///// Returns a new or existing application domain.
+        ///// </summary>
+        ///// <param name="friendlyName">The friendly name of the domain.</param>
+        ///// <param name="securityInfo">An object that contains evidence mapped through the security policy to establish a top-of-stack permission set.</param>
+        ///// <param name="appDomainInfo">An object that contains application domain initialization information.</param>
+        ///// <returns>A new or existing application domain.</returns>
+        ///// <PermissionSet>
+        /////     <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="ControlEvidence, ControlAppDomain, Infrastructure"/>
+        ///// </PermissionSet>
+        //public override AppDomain CreateDomain(string friendlyName, Evidence securityInfo, AppDomainSetup appDomainInfo)
+        //{
+        //    appDomainInfo = appDomainInfo ?? new AppDomainSetup();
+        //    appDomainInfo.AppDomainManagerAssembly = typeof(PrimaryAppDomainManager).Assembly.FullName;
+        //    appDomainInfo.AppDomainManagerType = typeof(PrimaryAppDomainManager).FullName;
 
-            var appDomain = base.CreateDomain(friendlyName, securityInfo, appDomainInfo);
-            ((PrimaryAppDomainManager)appDomain.DomainManager).SetPrimaryDomain(PrimaryDomain);
+        //    var appDomain = base.CreateDomain(friendlyName, securityInfo, appDomainInfo);
+        //    ((PrimaryAppDomainManager)appDomain.DomainManager).SetPrimaryDomain(PrimaryDomain);
 
-            return appDomain;
-        }
+        //    return appDomain;
+        //}
 
         /// <summary>
         /// Returns the primary application domain.
@@ -172,7 +172,7 @@ namespace TheraEngine.Core.Reflection
             //        search = search.Append(engine);
             //}
 
-            var allTypes = search.SelectMany(x => x.GetExportedTypes());
+            var allTypes = search.SelectMany(x => x.GetExportedTypes()).Distinct();
             allTypes = allTypes.Where(x => matchPredicate(x));
             allTypes = allTypes.OrderBy(x => x.Name);
             return allTypes;

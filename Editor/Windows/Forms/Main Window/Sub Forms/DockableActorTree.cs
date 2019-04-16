@@ -6,6 +6,7 @@ using TheraEditor.Core.Extensions;
 using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Components;
+using TheraEngine.Components.Scene;
 using TheraEngine.Components.Scene.Mesh;
 using TheraEngine.Core.Files;
 using TheraEngine.Worlds;
@@ -227,16 +228,27 @@ namespace TheraEditor.Windows.Forms
             {
                 case Map map:
                     btnNewLogicComp.Visible = false;
+                    btnNewMap.Visible = true;
+                    btnNewActor.Visible = true;
                     break;
                 case BaseActor actor:
-
+                    btnNewMap.Visible = false;
+                    btnNewActor.Visible = true;
+                    btnNewLogicComp.Visible = true;
                     break;
                 case SceneComponent sceneComp:
+                    SceneComponent sceneCompParent = sceneComp.ParentSocket as SceneComponent;
+                    bool parentIsSceneComp = sceneCompParent != null;
+                    btnNewSiblingSceneComp.Enabled = parentIsSceneComp;
+                    btnMoveAsSibToParent.Enabled = parentIsSceneComp && sceneCompParent.ParentSocket is SceneComponent;
+                    btnNewMap.Visible = false;
+                    btnNewActor.Visible = true;
                     btnNewLogicComp.Visible = false;
-                    btnNewSiblingSceneComp.Enabled = sceneComp.ParentSocket is SceneComponent;
                     break;
                 case LogicComponent logicComp:
-                    
+                    btnNewMap.Visible = false;
+                    btnNewActor.Visible = false;
+                    btnNewLogicComp.Visible = true;
                     break;
             }
         }
@@ -284,9 +296,13 @@ namespace TheraEditor.Windows.Forms
                 case BaseActor actor:
                     targetMap = actor.MapAttachment;
                     break;
-                case Component comp:
-                    targetMap = comp.OwningActor?.MapAttachment;
-                    break;
+                case SceneComponent comp:
+                    SceneComponent subActorComp = Editor.UserCreateInstanceOf<ISubActorComponent>() as SceneComponent;
+                    if (subActorComp == null)
+                        return;
+                    comp.ChildComponents.Add(subActorComp);
+                    //targetMap = comp.OwningActor?.MapAttachment;
+                    return;
             }
 
             if (targetMap == null)

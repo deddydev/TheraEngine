@@ -523,7 +523,7 @@ namespace TheraEngine.Core.Files
         XML = 1,
     }
     [Flags]
-    public enum EProprietaryFileFormatFlag
+    public enum EProprietaryFileFormatFlag : ushort
     {
         None = 0b0000,
         Binary = 0b0001,

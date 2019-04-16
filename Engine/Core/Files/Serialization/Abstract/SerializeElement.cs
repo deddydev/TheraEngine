@@ -479,48 +479,51 @@ namespace TheraEngine.Core.Files.Serialization
                 ObjectSerializer = BaseObjectSerializer.DetermineObjectSerializer(ObjectType, false, false);
                 ObjectSerializer.TreeNode = this;
 
-                IEnumerable<MethodInfoProxy> methods = ObjectType?.GetMethods(
-                    BindingFlags.NonPublic |
-                    BindingFlags.Instance |
-                    BindingFlags.Public |
-                    BindingFlags.FlattenHierarchy);
-                
-                ConcurrentDictionary<MethodInfoProxy, SerializationAttribute> attribCache = new ConcurrentDictionary<MethodInfoProxy, SerializationAttribute>();
-                Parallel.ForEach(methods, m =>
+                if (Owner != null)
                 {
-                    IEnumerable<Attribute> attribs = m.GetCustomAttributes();
-                    foreach (Attribute attrib in attribs)
-                    {
-                        if (!(attrib is SerializationAttribute serAttrib) || (Owner != null && !serAttrib.RunForFormats.HasFlag(Owner.Format)))
-                            continue;
+                    IEnumerable<MethodInfoProxy> methods = ObjectType?.GetMethods(
+                        BindingFlags.NonPublic |
+                        BindingFlags.Instance |
+                        BindingFlags.Public |
+                        BindingFlags.FlattenHierarchy);
 
-                        attribCache.AddOrUpdate(m, serAttrib, (x, y) => serAttrib);
-                        break;
-                    }
-                });
-
-                foreach (var x in attribCache)
-                {
-                    switch (x.Value)
+                    ConcurrentDictionary<MethodInfoProxy, SerializationAttribute> attribCache = new ConcurrentDictionary<MethodInfoProxy, SerializationAttribute>();
+                    Parallel.ForEach(methods, m =>
                     {
-                        case TPreDeserialize _:
-                            PreDeserializeMethods.Add(x.Key);
-                            break;
-                        case TPostDeserialize _:
-                            PostDeserializeMethods.Add(x.Key);
-                            break;
-                        case TPreSerialize _:
-                            PreSerializeMethods.Add(x.Key);
-                            break;
-                        case TPostSerialize _:
-                            PostSerializeMethods.Add(x.Key);
-                            break;
-                        case CustomMemberSerializeMethod _:
-                            CustomSerializeMethods.Add(x.Key);
-                            break;
-                        case CustomMemberDeserializeMethod _:
-                            CustomDeserializeMethods.Add(x.Key);
-                            break;
+                        var attribs = m.GetCustomAttributes<SerializationAttribute>();
+                        foreach (SerializationAttribute attrib in attribs)
+                        {
+                            if (attrib.RunForFormats.HasFlag(Owner.Format))
+                            {
+                                attribCache.AddOrUpdate(m, attrib, (x, y) => attrib);
+                                break;
+                            }
+                        }
+                    });
+
+                    foreach (var x in attribCache)
+                    {
+                        switch (x.Value)
+                        {
+                            case TPreDeserialize _:
+                                PreDeserializeMethods.Add(x.Key);
+                                break;
+                            case TPostDeserialize _:
+                                PostDeserializeMethods.Add(x.Key);
+                                break;
+                            case TPreSerialize _:
+                                PreSerializeMethods.Add(x.Key);
+                                break;
+                            case TPostSerialize _:
+                                PostSerializeMethods.Add(x.Key);
+                                break;
+                            case CustomMemberSerializeMethod _:
+                                CustomSerializeMethods.Add(x.Key);
+                                break;
+                            case CustomMemberDeserializeMethod _:
+                                CustomDeserializeMethods.Add(x.Key);
+                                break;
+                        }
                     }
                 }
             }

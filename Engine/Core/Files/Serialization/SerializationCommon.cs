@@ -743,22 +743,34 @@ namespace TheraEngine.Core.Files.Serialization
 
                         if (types.Count > 1)
                         {
+                            AppDomain primaryDomain = PrimaryAppDomainManager.GetPrimaryAppDomain();
+                            types.Sort((x, y) =>
+                            {
+                                if (x.Domain != y.Domain)
+                                    return x.Domain == primaryDomain ? -1 : 1;
+                                if (!x.IsAssignableTo(y))
+                                    return 1;
+                                if (y.IsAssignableTo(x))
+                                    return -1;
+                                return 0;
+                            });
                             for (int i = 0; i < types.Count; ++i)
                             {
                                 TypeProxy thisOne = types[i];
                                 for (int x = i + 1; x < types.Count; x++)
                                 {
                                     TypeProxy thatOne = types[x];
+                                    //if (thatOne.IsAssignableTo(thisOne))
+                                    //{
+                                    //    if (thatOne.Domain == thisOne.Domain || thatOne.Domain != primaryDomain)
+                                    //        types.RemoveAt(x--);
+                                    //}
+                                    //else 
                                     if (thisOne.IsAssignableTo(thatOne))
                                     {
-                                        if (thisOne.Domain == thatOne.Domain || thisOne.Domain != PrimaryAppDomainManager.PrimaryDomain)
+                                        //if (thisOne.Domain == thatOne.Domain || thisOne.Domain != primaryDomain)
                                             types.RemoveAt(i--);
                                         break;
-                                    }
-                                    if (thatOne.IsAssignableTo(thisOne))
-                                    {
-                                        if (thatOne.Domain == thisOne.Domain || thatOne.Domain != PrimaryAppDomainManager.PrimaryDomain)
-                                            types.RemoveAt(x--);
                                     }
                                 }
                             }

@@ -78,5 +78,6 @@ namespace TheraEngine.Core.Reflection
         public override bool Equals(object obj) 
             => obj is AssemblyProxy proxy && Value.Equals(proxy.Value);
         public override int GetHashCode() => Value.GetHashCode();
+        public override string ToString() => Value.FullName + " [" + Domain.FriendlyName + "]";
     }
 }

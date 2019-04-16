@@ -242,7 +242,7 @@ namespace TheraEditor.Windows.Forms
         private void OnTypeSelected(object sender, EventArgs e)
         {
             TreeNode item = sender as TreeNode;
-            SetTargetType(item?.Tag as Type);
+            SetTargetType(item?.Tag as TypeProxy);
         }
 
         //private void ConstructorSelector_CheckedChanged(object sender, EventArgs e)

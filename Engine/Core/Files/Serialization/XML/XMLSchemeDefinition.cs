@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace TheraEngine.Core.Files.XML
             static ChildInfo()
             {
                 Type elemType = typeof(IElement);
-                ElementTypes = PrimaryAppDomainManager.FindTypes((TypeProxy t) => elemType.IsAssignableFrom(t) && t.GetCustomAttribute<ElementName>() != null).ToArray();
+                ElementTypes = PrimaryAppDomainManager.FindTypes((TypeProxy t) => elemType.IsAssignableFrom(t) && t.HasCustomAttribute<ElementName>()).ToArray();
             }
             public ChildInfo(ElementChild data)
             {
@@ -527,15 +528,32 @@ namespace TheraEngine.Core.Files.XML
 
     #region Attributes
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class ElementName : Attribute
+    [Serializable]
+    public class ElementName : Attribute, ISerializable
     {
         public string Name { get; private set; }
         public string Version { get; private set; }
         public bool CaseSensitive { get; set; }
+
         public ElementName(string elementName, string version = "1.*.*")
         {
             Name = elementName;
             Version = version;
+        }
+        protected ElementName(SerializationInfo info, StreamingContext context)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+
+            Name = info.GetString(nameof(Name));
+            Version = info.GetString(nameof(Version));
+            CaseSensitive = info.GetBoolean(nameof(CaseSensitive));
+        }
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Name), Name);
+            info.AddValue(nameof(Version), Version);
+            info.AddValue(nameof(CaseSensitive), CaseSensitive);
         }
         public bool VersionMatches(string version)
         {

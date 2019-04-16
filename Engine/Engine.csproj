@@ -444,6 +444,7 @@
     <Compile Include="Core\Extensions\GenericExtensions.cs" />
     <Compile Include="Core\Extensions\StreamExtension.cs" />
     <Compile Include="Core\Extensions\ObjectExtension.cs" />
+    <Compile Include="Core\Files\ArchiveFile.cs" />
     <Compile Include="Core\Files\References\PathReference.cs" />
     <Compile Include="Core\Files\References\ObjectRef.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\DateTimeSerializer.cs" />
@@ -463,7 +464,6 @@
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IDictionarySerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\IListSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\ObjectSerializer\BaseObjectSerializer.cs" />
-    <None Include="Core\Files\Serialization\VarInfo.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Reading\AbstractReader.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\BaseSerializer.cs" />
     <Compile Include="Core\Files\Serialization\Abstract\Writing\AbstractWriter.cs" />
@@ -887,8 +887,6 @@
     <None Include="Core\Files\Serialization\Binary\CustomBinaryDeserializer.cs" />
     <None Include="Core\Files\Serialization\Binary\CustomBinarySerializer.cs" />
     <Compile Include="Core\Files\Serialization\SerializationCommon.cs" />
-    <None Include="Core\Files\Serialization\XML\CustomXmlDeserializer.cs" />
-    <None Include="Core\Files\Serialization\XML\CustomXmlSerializer.cs" />
     <Compile Include="Core\Files\References\FileRef.cs" />
     <Compile Include="Core\Files\Serialization\Binary\StringTable.cs" />
     <Compile Include="Core\Files\Serialization\XML\XMLReader.cs" />

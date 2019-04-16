@@ -449,7 +449,8 @@ namespace TheraEditor
 
             if (!File.Exists(csprojPath))
                 return;
-            
+
+            PrintLine("Retrieving referenced assemblies.");
             if (!LibrariesDirectory.IsValidExistingPath())
             {
                 if (!string.IsNullOrWhiteSpace(DirectoryPath))
@@ -472,6 +473,7 @@ namespace TheraEditor
             MSBuild.Project importProj = await csprojParser.ImportAsync(csprojPath, 0, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
 
+            PrintLine("Iterating through referenced assemblies.");
             ItemGroup[] itemGroups = importProj.GetChildren<ItemGroup>();
             foreach (ItemGroup itemGroup in itemGroups)
             {
@@ -536,6 +538,7 @@ namespace TheraEditor
 
             #region csproj
 
+            PrintLine("Generating new csproj.");
             string csprojPath = Path.Combine(DirectoryPath, Name + ".csproj");
 
             int op;
@@ -678,7 +681,7 @@ namespace TheraEditor
             #endregion
 
             #region sln
-            Engine.PrintLine($"Writing sln... {SolutionPath}");
+            PrintLine($"Writing sln... {SolutionPath}");
             //0 = project name, 1 = project GUID, 2 = project type
             //The first GUID is the GUID of a C# project package
             string projTmpl = "Project(\"{2}\") = \"{0}\", \"{0}.csproj\", \"{1}\"\nEndProject\n";

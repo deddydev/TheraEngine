@@ -3548,9 +3548,23 @@ namespace TheraEngine.Core.Reflection
         //     type, and the current instance represents Nullable<c> (Nullable(Of c) in Visual
         //     Basic). false if none of these conditions are true, or if c is null.
         public bool IsAssignableFrom(TypeProxy c)
-            => Value.IsAssignableFrom(c.Value);
+        {
+#if EDITOR
+            AppDomain gameDomain = Engine.EditorState.GameDomain;
+            if (c.Domain == gameDomain && Domain != gameDomain)
+                return c.IsAssignableTo(this);
+#endif
+            return Value.IsAssignableFrom(c.Value);
+        }
         public bool IsAssignableTo(TypeProxy c)
-           => Value.IsAssignableTo(c.Value);
+        {
+#if EDITOR
+            AppDomain gameDomain = Engine.EditorState.GameDomain;
+            if (c.Domain == gameDomain && Domain != gameDomain)
+                return c.IsAssignableFrom(this);
+#endif
+            return Value.IsAssignableTo(c.Value);
+        }
         //
         // Summary:
         //     Determines whether an instance of a specified type can be assigned to an instance
@@ -3787,7 +3801,7 @@ namespace TheraEngine.Core.Reflection
             AppDomain gameDomain = Engine.EditorState.GameDomain;
             TypeProxy p = typeArguments.FirstOrDefault(x => x.Domain == gameDomain);
             if (p != null)
-                return p.MakeGenericType2(this, typeArguments.Where(x => x != p).ToArray());
+                return p.MakeGenericTypeInGameDomain(this, typeArguments.Where(x => x != p).ToArray());
 #endif
             Type[] types = new Type[typeArguments.Length];
             //Engine.PrintLine(Domain.FriendlyName);
@@ -3798,7 +3812,8 @@ namespace TheraEngine.Core.Reflection
             }
             return Get(Value.MakeGenericType(types));
         }
-        public TypeProxy MakeGenericType2(TypeProxy mainType, params TypeProxy[] otherArgs)
+#if EDITOR
+        public TypeProxy MakeGenericTypeInGameDomain(TypeProxy mainType, params TypeProxy[] otherArgs)
         {
             //This type is also an argument
             var typeArguments = otherArgs.Append(this).ToArray();
@@ -3812,6 +3827,7 @@ namespace TheraEngine.Core.Reflection
             }
             return Get(mainType.Value.MakeGenericType(types));
         }
+#endif
         //
         // Summary:
         //     Substitutes the elements of an array of types for the type parameters of the

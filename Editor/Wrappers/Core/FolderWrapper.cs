@@ -104,7 +104,7 @@ namespace TheraEditor.Wrappers
         protected static void PasteAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Paste();
 
         protected static void FolderAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().NewFolder();
-        protected static void ArchiveAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().ToArchive();
+        protected static async void ArchiveAction(object sender, EventArgs e) => await GetInstance<FolderWrapper>().ToArchive();
         protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().OpenInExplorer();
 
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
@@ -118,13 +118,19 @@ namespace TheraEditor.Wrappers
             _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && Directory.Exists(w.FilePath);
 
             bool paste = false;
-            IDataObject data = Clipboard.GetDataObject();
-            if (data.GetDataPresent(DataFormats.FileDrop))
+
+            try
             {
-                MemoryStream stream = (MemoryStream)data.GetData("Preferred DropEffect", true);
-                int flag = stream.ReadByte();
-                paste = flag == 2 || flag == 5;
+                IDataObject data = Clipboard.GetDataObject();
+                if (data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    MemoryStream stream = data.GetData("Preferred DropEffect", true) as MemoryStream;
+                    int flag = stream?.ReadByte() ?? 0;
+                    paste = flag == 2 || flag == 5;
+                }
             }
+            catch { }
+
             _menu.Items[11].Enabled = paste;
             _menu.Items[9].Enabled = _menu.Items[12].Enabled = w.Parent != null;
         }
@@ -136,9 +142,12 @@ namespace TheraEditor.Wrappers
             set => Name = value;
         }
 
-        public void ToArchive()
+        public async Task ToArchive()
         {
-
+            ArchiveFile file = ArchiveFile.FromDirectory(FilePath);
+            string parentDir = Path.GetDirectoryName(FilePath);
+            string dirName = Path.GetFileName(FilePath);
+            await file.ExportAsync(parentDir, dirName, EFileFormat.XML);
         }
 
         public void NewFolder()
@@ -330,7 +339,8 @@ namespace TheraEditor.Wrappers
 
             TypeProxy fileType = button.Tag as TypeProxy;
 
-            if (!(Editor.UserCreateInstanceOf(fileType, true, button.Owner) is TFileObject file))
+            object o = Editor.UserCreateInstanceOf(fileType, true, button.Owner);
+            if (!(o is TFileObject file))
                 return;
             
             string dir = GetFolderPath();
@@ -338,7 +348,7 @@ namespace TheraEditor.Wrappers
             //Node will automatically be added to the file tree
             if (Serializer.PreExport(file, dir, file.Name, EProprietaryFileFormat.XML, null, out string path))
             {
-                int op = Editor.Instance.BeginOperation("Exporting...", "Export completed.", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Editor.Instance.BeginOperation($"Exporting {path}...", $"Export to {path} completed.", out Progress<float> progress, out CancellationTokenSource cancel);
                 string name = file.Name;
                 name = name.Replace("<", "[");
                 name = name.Replace(">", "]");
@@ -359,7 +369,7 @@ namespace TheraEditor.Wrappers
 
             string name = "NewCodeFile";
             string path = Path.Combine(dir, name + ".cs");
-            int op = Editor.Instance.BeginOperation("Saving script...", "Script saved successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
+            int op = Editor.Instance.BeginOperation($"Saving script to {path}...", $"Script saved to {path} successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
             await code.Export3rdPartyAsync(dir, "NewCodeFile", "cs", progress, cancel.Token);
             Editor.Instance.EndOperation(op);
         }

@@ -1014,34 +1014,40 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _inPlaceEditorTypes = new Dictionary<TypeProxy, TypeProxy>();
             _fullEditorTypes = new Dictionary<TypeProxy, TypeProxy>();
 
-            var propControls = PrimaryAppDomainManager.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)), Assembly.GetExecutingAssembly());
-            foreach (var propControlType in propControls)
+            Task.Run(() =>
             {
-                var attribs = propControlType.GetCustomAttributes<PropGridControlForAttribute>();
-                if (attribs.Count > 0)
+                var propControls = PrimaryAppDomainManager.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)), Assembly.GetExecutingAssembly());
+                foreach (var propControlType in propControls)
                 {
-                    PropGridControlForAttribute a = attribs[0];
-                    foreach (Type varType in a.Types)
+                    var attribs = propControlType.GetCustomAttributes<PropGridControlForAttribute>();
+                    if (attribs.Count > 0)
                     {
-                        if (!_inPlaceEditorTypes.ContainsKey(varType))
-                            _inPlaceEditorTypes.Add(varType, propControlType);
-                        else
-                            throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
+                        PropGridControlForAttribute a = attribs[0];
+                        foreach (Type varType in a.Types)
+                        {
+                            if (!_inPlaceEditorTypes.ContainsKey(varType))
+                                _inPlaceEditorTypes.Add(varType, propControlType);
+                            else
+                                throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
+                        }
                     }
                 }
-            }
-            var fullEditors = PrimaryAppDomainManager.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.HasCustomAttribute<EditorForAttribute>(), Assembly.GetExecutingAssembly());
-            foreach (var editorType in fullEditors)
+            });
+            Task.Run(() =>
             {
-                var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
-                foreach (Type varType in attrib.DataTypes)
+                var fullEditors = PrimaryAppDomainManager.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.HasCustomAttribute<EditorForAttribute>(), Assembly.GetExecutingAssembly());
+                foreach (var editorType in fullEditors)
                 {
-                    if (!_fullEditorTypes.ContainsKey(varType))
-                        _fullEditorTypes.Add(varType, editorType);
-                    else
-                        throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
+                    var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
+                    foreach (Type varType in attrib.DataTypes)
+                    {
+                        if (!_fullEditorTypes.ContainsKey(varType))
+                            _fullEditorTypes.Add(varType, editorType);
+                        else
+                            throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
+                    }
                 }
-            }
+            });
         }
         #endregion
 

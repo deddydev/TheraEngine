@@ -26,7 +26,7 @@ namespace System
         void DebugRender(bool recurse, bool onlyContainingItems, Frustum f, float lineWidth);
         void DebugRender(Color color, float lineWidth);
     }
-    public interface IOctree
+    public interface IOctree : IOctree<I3DRenderable>
     {
         int ArrayLength(Vec3 halfExtents);
 
@@ -36,7 +36,7 @@ namespace System
         void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass);
         void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f);
     }
-    public interface IOctree<T> : IOctree where T : I3DRenderable
+    public interface IOctree<T> where T : class, I3DRenderable
     {
         void Add(T value);
         void Add(IEnumerable<T> value);
@@ -48,7 +48,7 @@ namespace System
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
     /// </summary>
-    public class Octree : Octree<I3DRenderable>
+    public class Octree : Octree<I3DRenderable>, IOctree
     {
         public Octree(BoundingBoxStruct bounds) : base(bounds) { }
         public Octree(BoundingBoxStruct bounds, List<I3DRenderable> items) : base(bounds, items) { }

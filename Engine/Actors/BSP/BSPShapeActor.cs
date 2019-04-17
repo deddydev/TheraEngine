@@ -10,7 +10,7 @@ namespace TheraEngine.Actors.Types.BSP
 {
     public class BSPMeshComponent : TRSComponent, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D();
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D();
         
         private PrimitiveManager _manager;
 

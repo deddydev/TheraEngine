@@ -27,7 +27,7 @@ namespace TheraEngine.Actors
 
         protected BaseActor(string name, bool deferInitialization)
         {
-            Name = string.IsNullOrEmpty(name) ? GetType().GetFriendlyName("[", "]") : name;
+            Name = string.IsNullOrEmpty(name) ? this.GetTypeProxy().GetFriendlyName("[", "]") : name;
 
             _logicComponents = new EventList<ILogicComponent>();
             _logicComponents.PostAnythingAdded += LogicComponents_PostAnythingAdded;
@@ -98,7 +98,7 @@ namespace TheraEngine.Actors
         }
         [TSerialize]
         [Browsable(false)]
-        public Map MapAttachment { get; internal set; } = null;
+        public IMap MapAttachment { get; set; } = null;
         /// <summary>
         /// Logic components handle plug-n-play code for certain features.
         /// For example, a logic component could give any actor health and/or allow it to take damage.
@@ -106,7 +106,7 @@ namespace TheraEngine.Actors
         //[Browsable(false)]
         [TSerialize]
         [Category("Actor")]
-        public EventList<LogicComponent> LogicComponents
+        public EventList<ILogicComponent> LogicComponents
         {
             get => _logicComponents;
             set
@@ -118,7 +118,7 @@ namespace TheraEngine.Actors
                     foreach (LogicComponent comp in _logicComponents)
                         LogicComponents_PostAnythingRemoved(comp);
                 }
-                _logicComponents = value ?? new EventList<LogicComponent>();
+                _logicComponents = value ?? new EventList<ILogicComponent>();
                 _logicComponents.PostAnythingAdded += LogicComponents_PostAnythingAdded;
                 _logicComponents.PostAnythingRemoved += LogicComponents_PostAnythingRemoved;
                 foreach (LogicComponent comp in _logicComponents)
@@ -128,13 +128,13 @@ namespace TheraEngine.Actors
         [Browsable(false)]
         public bool IsConstructing { get; protected set; }
 
-        public T1 FindFirstLogicComponentOfType<T1>() where T1 : LogicComponent
+        public T1 FindFirstLogicComponentOfType<T1>() where T1 : class, ILogicComponent
             => LogicComponents.FirstOrDefault(x => x is T1) as T1;
-        public T1[] FindLogicComponentsOfType<T1>() where T1 : LogicComponent
+        public T1[] FindLogicComponentsOfType<T1>() where T1 : class, ILogicComponent
             => LogicComponents.OfType<T1>().ToArray();
-        public LogicComponent FindFirstLogicComponentOfType(Type type)
+        public ILogicComponent FindFirstLogicComponentOfType(Type type)
             => LogicComponents.FirstOrDefault(type.IsInstanceOfType);
-        public LogicComponent[] FindLogicComponentsOfType(Type type)
+        public ILogicComponent[] FindLogicComponentsOfType(Type type)
             => LogicComponents.Where(type.IsInstanceOfType).ToArray();
 
         //[Browsable(false)]
@@ -156,7 +156,9 @@ namespace TheraEngine.Actors
         /// Called after OnConstruct.
         /// </summary>
         protected virtual void PostConstruct() { }
-        
+
+        void IActor.GenerateSceneComponentCache() => GenerateSceneComponentCache();
+        void IActor.RebaseOrigin(Vec3 newOrigin) => RebaseOrigin(newOrigin);
         internal abstract void GenerateSceneComponentCache();
         internal abstract void RebaseOrigin(Vec3 newOrigin);
 
@@ -166,7 +168,8 @@ namespace TheraEngine.Actors
             if (IsSpawned)
                 OwningWorld?.DespawnActor(this);
         }
-        internal void Spawned(World world)
+        void IActor.Spawned(IWorld world) => Spawned(world);
+        internal void Spawned(IWorld world)
         {
             if (IsSpawned)
                 return;
@@ -177,7 +180,7 @@ namespace TheraEngine.Actors
             OnSpawnedPreComponentSpawn();
 
             RootComponentGeneric.OnSpawned();
-            foreach (LogicComponent comp in _logicComponents)
+            foreach (ILogicComponent comp in _logicComponents)
                 comp.OnSpawned();
 
             if (this is IPreRendered r)
@@ -208,6 +211,7 @@ namespace TheraEngine.Actors
                 RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, DespawnTimer, Input.Devices.EInputPauseType.TickOnlyWhenUnpaused);
             }
         }
+        void IActor.Despawned() => Despawned();
         internal void Despawned()
         {
             if (!IsSpawned)
@@ -259,13 +263,13 @@ namespace TheraEngine.Actors
         protected virtual void OnDespawned() { }
         #endregion
 
-        protected void LogicComponents_PostAnythingRemoved(LogicComponent item)
+        protected void LogicComponents_PostAnythingRemoved(ILogicComponent item)
         {
             if (item.OwningActor == this)
                 item.OwningActor = null;
             LogicComponentsChanged?.Invoke(this);
         }
-        protected void LogicComponents_PostAnythingAdded(LogicComponent item)
+        protected void LogicComponents_PostAnythingAdded(ILogicComponent item)
         {
             item.OwningActor = this;
             LogicComponentsChanged?.Invoke(this);
@@ -292,7 +296,7 @@ namespace TheraEngine.Actors
             if (SceneComponentCache == null)
                 return;
 
-            foreach (SceneComponent s in SceneComponentCache)
+            foreach (ISceneComponent s in SceneComponentCache)
                 s.OnHighlightChanged(highlighted);
         }
         protected internal override void OnSelectedChanged(bool selected)
@@ -300,7 +304,7 @@ namespace TheraEngine.Actors
             if (SceneComponentCache == null)
                 return;
 
-            foreach (SceneComponent s in SceneComponentCache)
+            foreach (ISceneComponent s in SceneComponentCache)
                 s.OnSelectedChanged(selected);
         }
 #endif

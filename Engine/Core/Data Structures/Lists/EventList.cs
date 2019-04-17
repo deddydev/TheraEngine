@@ -3,10 +3,51 @@ using System.Linq;
 
 namespace System.Collections.Generic
 {
+    public interface IEventList<T> : IList<T>, ICollection<T>, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>, IEnumerable<T>, IEnumerable
+    {
+        event EventList<T>.SingleCancelableHandler PreAnythingAdded;
+        event EventList<T>.SingleHandler PostAnythingAdded;
+        event EventList<T>.SingleCancelableHandler PreAnythingRemoved;
+        event EventList<T>.SingleHandler PostAnythingRemoved;
+        event EventList<T>.SingleCancelableHandler PreAdded;
+        event EventList<T>.SingleHandler PostAdded;
+        event EventList<T>.MultiCancelableHandler PreAddedRange;
+        event EventList<T>.MultiHandler PostAddedRange;
+        event EventList<T>.SingleCancelableHandler PreRemoved;
+        event EventList<T>.SingleHandler PostRemoved;
+        event EventList<T>.MultiCancelableHandler PreRemovedRange;
+        event EventList<T>.MultiHandler PostRemovedRange;
+        event EventList<T>.SingleCancelableInsertHandler PreInserted;
+        event EventList<T>.SingleInsertHandler PostInserted;
+        event EventList<T>.MultiCancelableInsertHandler PreInsertedRange;
+        event EventList<T>.MultiInsertHandler PostInsertedRange;
+        event Func<bool> PreModified;
+        event Action PostModified;
+        event EventList<T>.PreIndexSetHandler PreIndexSet;
+        event EventList<T>.PostIndexSetHandler PostIndexSet;
+        event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        void Set(IEnumerable<T> items, bool reportRemoved = true, bool reportAdded = true, bool reportModified = true);
+        bool Add(T item, bool reportAdded, bool reportModified);
+        void AddRange(IEnumerable<T> collection, bool reportAddedRange, bool reportModified);
+        bool Remove(T item, bool reportRemoved, bool reportModified);
+        void RemoveRange(int index, int count, bool reportRemovedRange, bool reportModified);
+        void RemoveAt(int index, bool reportRemoved, bool reportModified);
+        void Clear(bool reportRemovedRange, bool reportModified);
+        void RemoveAll(Predicate<T> match, bool reportRemovedRange, bool reportModified);
+        void Insert(int index, T item, bool reportInserted, bool reportModified);
+        void InsertRange(int index, IEnumerable<T> collection, bool reportInsertedRange, bool reportModified);
+        void Reverse(int index, int count, bool reportModified);
+        void Reverse(bool reportModified);
+        void Sort(int index, int count, IComparer<T> comparer, bool reportModified);
+        void Sort(bool reportModified);
+        void Sort(IComparer<T> comparer, bool reportModified);
+    }
+
     /// <summary>
     /// A derivation of <see cref="ThreadSafeList{T}"/> that monitors all operations and provides events for each kind of operation.
     /// </summary>
-    public class EventList<T> : ThreadSafeList<T>, IList, INotifyCollectionChanged
+    public class EventList<T> : ThreadSafeList<T>, IEventList<T>
     {
         public delegate void SingleHandler(T item);
         public delegate bool SingleCancelableHandler(T item);
@@ -16,13 +57,13 @@ namespace System.Collections.Generic
 
         public delegate void SingleInsertHandler(T item, int index);
         public delegate bool SingleCancelableInsertHandler(T item, int index);
-        
+
         public delegate void MultiInsertHandler(IEnumerable<T> items, int index);
         public delegate bool MultiCancelableInsertHandler(IEnumerable<T> items, int index);
 
         public delegate bool PreIndexSetHandler(int index, T newItem);
         public delegate void PostIndexSetHandler(int index, T prevItem);
-        
+
         /// <summary>
         /// Event called for every individual item just before being added to the list.
         /// </summary>

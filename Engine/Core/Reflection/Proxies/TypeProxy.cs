@@ -31,8 +31,8 @@ namespace TheraEngine.Core.Reflection
         //public TypeProxy() { }
         private TypeProxy(Type value) : base(value) => Value = value;
 
-        public string GetFriendlyName() 
-            => Value.GetFriendlyName();
+        public string GetFriendlyName(string openBracket = "<", string closeBracket = ">") 
+            => Value.GetFriendlyName(openBracket, closeBracket);
         public object GetDefaultValue()
             => Value.GetDefaultValue();
         public TypeProxy DetermineElementType()

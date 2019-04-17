@@ -7,15 +7,15 @@ using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Particles;
 using TheraEngine.Shapes;
 
 namespace TheraEngine.Rendering
 {
     public interface IScene3D : IScene
     {
-        EventList<I3DRenderable> Renderables { get; }
-        IOctree RenderTree { get; set; }
+        IEventList<I3DRenderable> Renderables { get; }
+        IOctree RenderTree { get; }
+        IBLProbeGridActor IBLProbeActor { get; set; }
     }
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
@@ -26,12 +26,12 @@ namespace TheraEngine.Rendering
 
         //TODO: implement octree on GPU with compute shader instead of here on CPU
         //Also implement occlusion culling along with frustum culling
-        public Octree RenderTree { get; private set; }
+        public IOctree RenderTree { get; private set; }
         //public override int Count => RenderTree.Count;
         public LightManager Lights { get; private set; }
         //public ParticleManager Particles { get; }
-        public IBLProbeGridActor IBLProbeActor { get; internal set; }
-        public EventList<I3DRenderable> Renderables { get; }
+        public IBLProbeGridActor IBLProbeActor { get; set; }
+        public IEventList<I3DRenderable> Renderables { get; }
         
         public Scene3D() : this(0.5f) { }
         public Scene3D(Vec3 boundsHalfExtents)

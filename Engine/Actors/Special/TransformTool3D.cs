@@ -429,7 +429,7 @@ namespace TheraEngine.Actors.Types
             }
         }
 
-        public static TransformTool3D GetInstance(World world, ISocket comp, TransformType transformType)
+        public static TransformTool3D GetInstance(IWorld world, ISocket comp, TransformType transformType)
         {
             if (world == null)
                 return null;

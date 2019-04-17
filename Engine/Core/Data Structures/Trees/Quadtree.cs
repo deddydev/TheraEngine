@@ -27,7 +27,7 @@ namespace System
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 4 smaller axis-aligned rectangles depending on the items they contain.
     /// </summary>
-    public class Quadtree : Quadtree<I2DRenderable>
+    public class Quadtree : Quadtree<I2DRenderable>, IQuadtree
     {
         public Quadtree(BoundingRectangleFStruct bounds) : base(bounds) { }
         public Quadtree(BoundingRectangleFStruct bounds, List<I2DRenderable> items) : base(bounds, items) { }

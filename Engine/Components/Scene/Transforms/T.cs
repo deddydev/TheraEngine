@@ -13,7 +13,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// Contains a general translation.
     /// </summary>
     [TFileDef("Translation Component")]
-    public class TranslationComponent : OriginRebasableComponent
+    public class TranslationComponent : OriginRebasableComponent, ITranslationComponent
     {
         public TranslationComponent() : this(Vec3.Zero, true) { }
         public TranslationComponent(EventVec3 translation, bool deferLocalRecalc = false) : base()

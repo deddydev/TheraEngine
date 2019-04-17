@@ -22,11 +22,14 @@ namespace TheraEngine.Worlds
         bool IsPlaying { get; }
         bool IsRebasingOrigin { get; }
         IScene Scene { get; set; }
+        int SpawnedActorCount { get; }
+        IGameMode CurrentGameMode { get; set; }
 
         void RebaseOrigin(Vec3 newOrigin);
         void BeginPlay();
         void EndPlay();
         void SpawnActor(IActor item);
+        void DespawnActor(IActor baseActor);
 
         IActor this[int index] { get;set; }
     }

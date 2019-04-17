@@ -12,7 +12,7 @@ namespace TheraEngine.Components.Scene.Transforms
     /// Base class for actor root components. 
     /// Ensures that the actor's root transform can be rebased to a different location.
     /// </summary>
-    public abstract class OriginRebasableComponent : SceneComponent
+    public abstract class OriginRebasableComponent : SceneComponent, IOriginRebasableComponent
     {
         public event Action<Vec3> OriginRebased;
 

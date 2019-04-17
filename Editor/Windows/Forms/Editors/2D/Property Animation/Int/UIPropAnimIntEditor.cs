@@ -21,7 +21,7 @@ namespace TheraEditor.Windows.Forms
     /// <summary>
     /// UI editor to create shaders in a user-friendly visual graph format.
     /// </summary>
-    public class EditorUIPropAnimInt : EditorUI2DBase, I2DRenderable, IPreRendered
+    public class EditorUIPropAnimInt : EditorUI2DBase, IPreRendered
     {
         public EditorUIPropAnimInt() : base() { }
         public EditorUIPropAnimInt(Vec2 bounds) : base(bounds) { }

@@ -9,16 +9,36 @@ namespace TheraEngine.Rendering
     public interface IScene2D : IScene
     {
         EventList<I2DRenderable> Renderables { get; }
+        IQuadtree RenderTree { get; set; }
+    }
+    public interface IQuadtree : IQuadtree<I2DRenderable>
+    {
+        int ArrayLength(Vec3 halfExtents);
+
+        void Remake();
+        void Remake(BoundingBoxStruct newBounds);
+        void Swap();
+        void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass);
+        void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f);
+    }
+    public interface IQuadtree<T> where T : class, I2DRenderable
+    {
+        void Add(T value);
+        void Add(IEnumerable<T> value);
+        void Remove(T value);
+        
+        ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment);
+        ThreadSafeList<T> FindAll(TShape shape, EContainment containment);
     }
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
     /// </summary>
-    public class Scene2D : BaseScene
+    public class Scene2D : BaseScene, IScene2D
     {
         [Category("Scene 2D")]
-        public Quadtree<I2DRenderable> RenderTree { get; private set; }
+        public IQuadtree RenderTree { get; private set; }
         [Category("Scene 2D")]
-        public EventList<I2DRenderable> Renderables { get; }
+        public IEventList<I2DRenderable> Renderables { get; }
         //public override int Count => Renderables.Count;
 
         public Scene2D() : this(Vec2.Zero) { }

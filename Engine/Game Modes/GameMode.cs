@@ -9,10 +9,11 @@ using System.ComponentModel;
 using TheraEngine.Worlds;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Rendering;
+using System.Collections.Specialized;
 
 namespace TheraEngine.GameModes
 {
-    public enum InheritableBool
+    public enum EInheritableBool
     {
         Inherited,
         True,
@@ -111,6 +112,10 @@ namespace TheraEngine.GameModes
     }
     public interface IGameMode
     {
+        bool DisallowPausing { get; set; }
+        List<LocalPlayerController> LocalPlayers { get; }
+
+        Viewport LinkControllerToViewport(LocalPlayerController item);
         void BeginGameplay(World world);
         void EndGameplay();
         void AbortGameplay();
@@ -125,7 +130,7 @@ namespace TheraEngine.GameModes
             _targetRenderPanels.CollectionChanged += _targetRenderPanels_CollectionChanged;
         }
 
-        private void _targetRenderPanels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void _targetRenderPanels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (IsPlaying)
                 foreach (var player in LocalPlayers)
@@ -176,7 +181,7 @@ namespace TheraEngine.GameModes
         /// This is the world that is running this game mode.
         /// </summary>
         [Browsable(false)]
-        public World TargetWorld { get; private set; }
+        public IWorld TargetWorld { get; private set; }
         /// <summary>
         /// These are the local players that are active in the world.
         /// </summary>

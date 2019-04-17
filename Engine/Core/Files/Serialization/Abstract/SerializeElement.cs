@@ -653,7 +653,7 @@ namespace TheraEngine.Core.Files.Serialization
                                 string fileName = SerializationCommon.ResolveFileName(
                                     Owner.FileDirectory, file.Name, file.FileExtension.GetFullExtension(EProprietaryFileFormat.XML));
 
-                                await file.ExportAsync(dir, fileName, EFileFormat.XML, null, Owner.Flags, null, CancellationToken.None);
+                                await file.ExportAsync(dir, fileName, Owner.Flags, EFileFormat.XML, null,null, CancellationToken.None);
                             }
                             else
                             {
@@ -662,7 +662,7 @@ namespace TheraEngine.Core.Files.Serialization
                                 {
                                     string ext = f.ExportableExtensions[0];
                                     string fileName = SerializationCommon.ResolveFileName(Owner.FileDirectory, file.Name, ext);
-                                    await file.ExportAsync(dir, fileName, EFileFormat.ThirdParty, ext, Owner.Flags, null, CancellationToken.None);
+                                    await file.ExportAsync(dir, fileName, Owner.Flags, EFileFormat.ThirdParty, ext, null, CancellationToken.None);
                                 }
                                 else
                                     Engine.LogWarning("Cannot export " + file.GetType().GetFriendlyName());

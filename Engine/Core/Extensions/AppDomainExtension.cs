@@ -1,5 +1,6 @@
 ﻿using AppDomainToolkit;
 using System.Linq;
+using TheraEngine;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Proxies;
 
@@ -22,6 +23,11 @@ namespace System
         public static ProxyList<AssemblyProxy> GetAssemblyProxies(this AppDomain domain)
             => RemoteFunc.Invoke(domain, () => new ProxyList<AssemblyProxy>(
                 AppDomain.CurrentDomain.GetAssemblies().Select(x => AssemblyProxy.Get(x))));
-        
+        public static bool IsPrimaryDomain(this AppDomain domain)
+            => PrimaryAppDomainManager.GetPrimaryAppDomain() == domain;
+#if EDITOR
+        public static bool IsGameDomain(this AppDomain domain)
+            => Engine.EditorState?.GameDomain == domain;
+#endif
     }
 }

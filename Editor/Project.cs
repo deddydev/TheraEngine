@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Files;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
@@ -410,7 +409,7 @@ namespace TheraEditor
                 editorSettings.ExportAsync(),
                 project.ExportAsync());
 
-            await project.GenerateSolutionAsync(true);
+            await project.GenerateSolutionAsync();
             await project.CompileAsync();
 
             return project;
@@ -493,24 +492,40 @@ namespace TheraEditor
                     if (!path.IsAbsolutePath())
                         path = Path.GetFullPath(Path.Combine(DirectoryPath, path));
 
+                    string fileName = Path.GetFileName(path);
+
+                    //Remove the original path
                     if (ReferencedAssemblies.Contains(path))
                         ReferencedAssemblies.Remove(path);
 
-                    string fileName = Path.GetFileName(path);
-                    string newPath = Path.Combine(LibrariesDirectory, fileName);
+                    if (!File.Exists(path))
+                        continue;
 
-                    if (ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(newPath)) == null)
-                    {
-                        if (path == newPath && !File.Exists(newPath))
-                            path = typeof(Engine).Assembly.Location;
-                        
-                        File.Copy(path, newPath, true);
-                        ReferencedAssemblies.Add(new PathReference(newPath, EPathType.FileRelative));
-                    }
+                    //Remove any paths with the same file name
+                    var matchingNames = ReferencedAssemblies.Where(x =>
+                        Path.GetFileName(x.Path).EqualsInvariantIgnoreCase(fileName)).ToArray();
+                    foreach (var match in matchingNames)
+                        ReferencedAssemblies.Remove(match);
+
+                    //Generate path in lib folder
+                    string libPath = Path.Combine(LibrariesDirectory, fileName);
+
+                    File.Copy(path, libPath, true);
+
+                    var libPathRef = ReferencedAssemblies.FirstOrDefault(x => x.Path.EqualsInvariantIgnoreCase(libPath));
+                    if (libPathRef == null)
+                        ReferencedAssemblies.Add(new PathReference(libPath, EPathType.FileRelative));
                 }
             }
+            PrintLine("Done iterating through referenced assemblies.");
+
+            string enginePath = typeof(Engine).Assembly.Location;
+            string engineLibPath = Path.Combine(LibrariesDirectory, Path.GetFileName(enginePath));
+            if (!ReferencedAssemblies.Contains(engineLibPath))
+                ReferencedAssemblies.Add(new PathReference(engineLibPath, EPathType.FileRelative));
+            File.Copy(enginePath, engineLibPath, true);
         }
-        public async Task GenerateSolutionAsync(bool forceRegenerateProgramDotCs = false)
+        public async Task GenerateSolutionAsync()
         {
             if (!string.IsNullOrWhiteSpace(_name))
                 Name = Path.GetFileNameWithoutExtension(FilePath);
@@ -601,19 +616,12 @@ namespace TheraEditor
                 out HashSet<string> usingNamespaces);
 
             ItemGroup refGrp = new ItemGroup();
-
-            HashSet<string> assemblyPaths = new HashSet<string> { typeof(Engine).Assembly.Location };
-            if (ReferencedAssemblies != null)
-                foreach (PathReference pathRef in ReferencedAssemblies)
-                    assemblyPaths.Add(pathRef.Path);
-
-            //TODO: copy all editor / engine dlls to destination also
-
-            foreach (string path in assemblyPaths)
+            
+            foreach (PathReference path in ReferencedAssemblies)
             {
-                var name = AssemblyName.GetAssemblyName(path);
+                var name = AssemblyName.GetAssemblyName(path.Path);
 
-                string relPath = path.MakeAbsolutePathRelativeTo(DirectoryPath);
+                string relPath = path.Path.MakeAbsolutePathRelativeTo(DirectoryPath);
 
                 if (relPath.StartsWith("\\"))
                     relPath = relPath.Substring(1);
@@ -868,7 +876,6 @@ namespace TheraEditor
                         string destPath = Path.Combine(compiledDLLDir, editorDLLName);
                         File.Copy(editorDLLPath, destPath, true);
                     }
-
                 }
             }
         }

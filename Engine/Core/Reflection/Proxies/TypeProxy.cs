@@ -1506,7 +1506,7 @@ namespace TheraEngine.Core.Reflection
         //     type of the current System.Type; otherwise, false. This method also returns false
         //     if: . o is null. o cannot be cast or converted to a System.Type object.
         public override bool Equals(object o)
-            => o is TypeProxy proxy && Value.Equals(proxy.Value);
+            => o is TypeProxy proxy && EqualTo(proxy);
         //
         // Summary:
         //     Determines if the underlying system type of the current System.Type is the same
@@ -3926,6 +3926,9 @@ namespace TheraEngine.Core.Reflection
         {
             if (other is null)
                 return false;
+
+            if (other.Domain.IsGameDomain() && !Domain.IsGameDomain())
+                return other.EqualTo(this);
 
             return Value == other.Value;
         }

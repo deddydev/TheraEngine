@@ -31,7 +31,7 @@ namespace TheraEngine.Core.Files.Serialization
     /// </summary>
     public abstract class BaseObjectSerializer
     {
-        private static Dictionary<ObjectSerializerFor, Type> ObjectSerializers { get; set; } = null;
+        private static Dictionary<ObjectSerializerFor, TypeProxy> ObjectSerializers { get; set; } = null;
 
         public bool ShouldWriteDefaultMembers
             => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteDefaultMembers) ?? false;
@@ -89,12 +89,12 @@ namespace TheraEngine.Core.Files.Serialization
                 Type baseObjSerType = typeof(BaseObjectSerializer);
                 IEnumerable<TypeProxy> typeList = PrimaryAppDomainManager.FindTypes(type =>
                    type.IsAssignableTo(baseObjSerType) &&
-                   (type.GetCustomAttribute<ObjectSerializerFor>() != null));
+                   type.HasCustomAttribute<ObjectSerializerFor>());
 
-                ObjectSerializers = new Dictionary<ObjectSerializerFor, Type>();
-                foreach (Type type in typeList)
+                ObjectSerializers = new Dictionary<ObjectSerializerFor, TypeProxy>();
+                foreach (TypeProxy type in typeList)
                 {
-                    var attrib = type.GetCustomAttributeExt<ObjectSerializerFor>();
+                    var attrib = type.GetCustomAttribute<ObjectSerializerFor>();
                     if (!ObjectSerializers.ContainsKey(attrib))
                         ObjectSerializers.Add(attrib, type);
                 }
@@ -131,9 +131,9 @@ namespace TheraEngine.Core.Files.Serialization
                 temp = temp.Where(kv => kv.Key.CanSerializeAsString);
             if (mustAllowBinarySerialize)
                 temp = temp.Where(kv => kv.Key.CanSerializeAsBinary);
-            Type[] types = temp.Select(x => x.Value).ToArray();
-            
-            Type serType;
+            TypeProxy[] types = temp.Select(x => x.Value).ToArray();
+
+            TypeProxy serType;
             switch (types.Length)
             {
                 case 0:
@@ -154,7 +154,7 @@ namespace TheraEngine.Core.Files.Serialization
                     break;
                 }
             }
-            return (BaseObjectSerializer)SerializationCommon.CreateInstance(serType);
+            return (BaseObjectSerializer)serType.CreateInstance();
         }
     }
 }

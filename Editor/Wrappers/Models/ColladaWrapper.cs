@@ -100,7 +100,7 @@ namespace TheraEditor.Wrappers
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
             op = Editor.Instance.BeginOperation("Saving skeleton...", "Skeleton saved.", out progress, out cancel);
-            await skeleton.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel.Token);
+            await skeleton.ExportAsync(dir, name, ESerializeFlags.Default, EFileFormat.XML, null, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
         }
         private async void ImportAsStaticMesh()
@@ -129,7 +129,7 @@ namespace TheraEditor.Wrappers
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
             op = Editor.Instance.BeginOperation("Saving model...", "Model saved.", out progress, out cancel);
-            await staticModel.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel.Token);
+            await staticModel.ExportAsync(dir, name, ESerializeFlags.Default, EFileFormat.XML, null, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
 
         }
@@ -158,7 +158,7 @@ namespace TheraEditor.Wrappers
             string name = Path.GetFileNameWithoutExtension(FilePath);
 
             op = Editor.Instance.BeginOperation("Saving model...", "Model saved.", out progress, out cancel);
-            await skeletalModel.ExportAsync(dir, name, EFileFormat.XML, null, ESerializeFlags.Default, progress, cancel.Token);
+            await skeletalModel.ExportAsync(dir, name, ESerializeFlags.Default, EFileFormat.XML, null, progress, cancel.Token);
             Editor.Instance.EndOperation(op);
         }
     }

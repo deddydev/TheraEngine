@@ -989,17 +989,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         #region Static
 
-        internal static Dictionary<TypeProxy, TypeProxy> _inPlaceEditorTypes;
-        internal static Dictionary<TypeProxy, TypeProxy> _fullEditorTypes;
+        internal static ConcurrentDictionary<TypeProxy, TypeProxy> _inPlaceEditorTypes;
+        internal static ConcurrentDictionary<TypeProxy, TypeProxy> _fullEditorTypes;
 
         /// <summary>
         /// Object type editors that appear within the property grid.
         /// </summary>
-        public static Dictionary<TypeProxy, TypeProxy> InPlaceEditorTypes => _inPlaceEditorTypes;
+        public static ConcurrentDictionary<TypeProxy, TypeProxy> InPlaceEditorTypes => _inPlaceEditorTypes;
         /// <summary>
         /// Object type editors that have their own dedicated window for the type.
         /// </summary>
-        public static Dictionary<TypeProxy, TypeProxy> FullEditorTypes => _fullEditorTypes;
+        public static ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes => _fullEditorTypes;
 
         static TheraPropertyGrid()
         {
@@ -1011,43 +1011,57 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (Engine.DesignMode)
                 return;
 
-            _inPlaceEditorTypes = new Dictionary<TypeProxy, TypeProxy>();
-            _fullEditorTypes = new Dictionary<TypeProxy, TypeProxy>();
+            _inPlaceEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
+            _fullEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
 
-            Task.Run(() =>
+            Engine.PrintLine("Loading all editor types to property grid.");
+            Task propEditorsTask = Task.Run(() =>
             {
-                var propControls = PrimaryAppDomainManager.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(PropGridItem)), Assembly.GetExecutingAssembly());
-                foreach (var propControlType in propControls)
-                {
-                    var attribs = propControlType.GetCustomAttributes<PropGridControlForAttribute>();
-                    if (attribs.Count > 0)
-                    {
-                        PropGridControlForAttribute a = attribs[0];
-                        foreach (Type varType in a.Types)
-                        {
-                            if (!_inPlaceEditorTypes.ContainsKey(varType))
-                                _inPlaceEditorTypes.Add(varType, propControlType);
-                            else
-                                throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
-                        }
-                    }
-                }
+                var propControls = PrimaryAppDomainManager.FindTypes(x =>
+                    !x.IsAbstract &&
+                    x.IsSubclassOf(typeof(PropGridItem)),
+                    Assembly.GetExecutingAssembly());
+                
+                Parallel.ForEach(propControls, AddPropControlEditorType);
             });
-            Task.Run(() =>
+            Task fullEditorsTask = Task.Run(() =>
             {
-                var fullEditors = PrimaryAppDomainManager.FindTypes(x => !x.IsAbstract && x.IsSubclassOf(typeof(Form)) && x.HasCustomAttribute<EditorForAttribute>(), Assembly.GetExecutingAssembly());
-                foreach (var editorType in fullEditors)
-                {
-                    var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
-                    foreach (Type varType in attrib.DataTypes)
-                    {
-                        if (!_fullEditorTypes.ContainsKey(varType))
-                            _fullEditorTypes.Add(varType, editorType);
-                        else
-                            throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
-                    }
-                }
+                var fullEditors = PrimaryAppDomainManager.FindTypes(x => 
+                    !x.IsAbstract && 
+                    x.IsSubclassOf(typeof(Form)) &&
+                    x.HasCustomAttribute<EditorForAttribute>(),
+                    Assembly.GetExecutingAssembly());
+
+                Parallel.ForEach(fullEditors, AddFullEditorType);
             });
+            Task.WhenAll(propEditorsTask, fullEditorsTask).ContinueWith(t => 
+                Engine.PrintLine("Finished loading all editor types to property grid."));
+        }
+        private static void AddPropControlEditorType(TypeProxy propControlType)
+        {
+            var attribs = propControlType.GetCustomAttributes<PropGridControlForAttribute>();
+            if (attribs.Count > 0)
+            {
+                PropGridControlForAttribute a = attribs[0];
+                foreach (Type varType in a.Types)
+                {
+                    if (!_inPlaceEditorTypes.ContainsKey(varType))
+                        _inPlaceEditorTypes.AddOrUpdate(varType, propControlType, (x, y) => propControlType);
+                    else
+                        throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
+                }
+            }
+        }
+        private static void AddFullEditorType(TypeProxy editorType)
+        {
+            var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
+            foreach (TypeProxy varType in attrib.DataTypes)
+            {
+                if (!_fullEditorTypes.ContainsKey(varType))
+                    _fullEditorTypes.AddOrUpdate(varType, editorType, (x, y) => editorType);
+                else
+                    throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
+            }
         }
         #endregion
 

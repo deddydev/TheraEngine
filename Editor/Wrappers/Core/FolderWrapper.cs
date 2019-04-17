@@ -142,12 +142,15 @@ namespace TheraEditor.Wrappers
             set => Name = value;
         }
 
-        public async Task ToArchive()
+        public async Task ToArchive(
+            ESerializeFlags flags = ESerializeFlags.Default,
+            EProprietaryFileFormat format = EProprietaryFileFormat.Binary)
         {
-            ArchiveFile file = ArchiveFile.FromDirectory(FilePath);
-            string parentDir = Path.GetDirectoryName(FilePath);
-            string dirName = Path.GetFileName(FilePath);
-            await file.ExportAsync(parentDir, dirName, EFileFormat.XML);
+            string path = FilePath;
+            ArchiveFile file = ArchiveFile.FromDirectory(path, true);
+            string parentDir = Path.GetDirectoryName(path);
+            string dirName = Path.GetFileName(path);
+            await file.ExportAsync(parentDir, dirName, flags, format);
         }
 
         public void NewFolder()

@@ -852,7 +852,7 @@ namespace TheraEditor
 
         public void CopyEditorLibraries()
         {
-            if (AssemblyPaths != null && AssemblyPaths.Length == 0)
+            if (AssemblyPaths == null || AssemblyPaths.Length == 0)
                 return;
 
             //Get editor exe path
@@ -869,13 +869,13 @@ namespace TheraEditor
                     string compiledDLLDir = Path.GetDirectoryName(compiledDLLPath);
                     string[] compiledDirDLLS = Directory.GetFiles(compiledDLLDir);
 
-                    if (!compiledDirDLLS.Any(path => Path.GetFileName(path).
-                        EqualsInvariantIgnoreCase(editorDLLName)))
-                    {
+                    //if (!compiledDirDLLS.Any(path => Path.GetFileName(path).
+                    //    EqualsInvariantIgnoreCase(editorDLLName)))
+                    //{
                         //Copy the editor's dll to the compile path
                         string destPath = Path.Combine(compiledDLLDir, editorDLLName);
                         File.Copy(editorDLLPath, destPath, true);
-                    }
+                    //}
                 }
             }
         }
@@ -897,7 +897,7 @@ namespace TheraEditor
             }
 
             PrintLine("Creating game domain.");
-            PrintLine("Active domains before load: " + string.Join(", ", PrimaryAppDomainManager.EnumAppDomains().Select(x => x.FriendlyName)));
+            PrintLine("Active domains before load: " + string.Join(", ", PrimaryAppDomainManager.AppDomains.Select(x => x.FriendlyName)));
 
             try
             {
@@ -952,7 +952,6 @@ namespace TheraEditor
                     //Engine.PrintLine(info4);
 
                     TypeProxy.TypeCreationFailed = TypeCreationFailed;
-                    Engine.EditorState.GameDomain = _gameDomain.Domain;
 
                     DomainProxy.Created(this);
 
@@ -966,7 +965,9 @@ namespace TheraEditor
             }
 
             PrintLine("Game domain created.");
-            PrintLine("Active domains after load: " + string.Join(", ", PrimaryAppDomainManager.EnumAppDomains().Select(x => x.FriendlyName)));
+
+            PrimaryAppDomainManager.ClearAppDomainCache();
+            PrintLine("Active domains after load: " + string.Join(", ", PrimaryAppDomainManager.AppDomains.Select(x => x.FriendlyName)));
 
             //var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             //Engine.PrintLine(string.Join("\n", assemblies.Select(x => x.FullName)));

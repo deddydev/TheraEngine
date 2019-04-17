@@ -10,7 +10,7 @@ namespace TheraEngine.Actors
     //[File3rdParty(new string[] { "dae" }, null)]
     [TFileExt("actor")]
     [TFileDef("Actor")]
-    public class Actor<T> : BaseActor where T : OriginRebasableComponent
+    public class Actor<T> : BaseActor where T : class, IOriginRebasableComponent
     {
         public Actor() : this(false) { }
         public Actor(string name) : this(name, false) { }
@@ -36,7 +36,7 @@ namespace TheraEngine.Actors
         private T _rootComponent;
         
         [Browsable(false)]
-        public override OriginRebasableComponent RootComponentGeneric => RootComponent;
+        public override IOriginRebasableComponent RootComponentGeneric => RootComponent;
 
         /// <summary>
         /// The root component is the main scene component that controls this actor's transform in the world and acts as the main ancestor for all scene components in the actor's tree.
@@ -89,7 +89,7 @@ namespace TheraEngine.Actors
             if (IsConstructing)
                 return;
 
-            _sceneComponentCache = _rootComponent?.GenerateChildCache() ?? new List<SceneComponent>();
+            _sceneComponentCache = _rootComponent?.GenerateChildCache() ?? new List<ISceneComponent>();
             OnSceneComponentCacheRegenerated();
         }
         internal override void RebaseOrigin(Vec3 newOrigin) => RootComponent?.RebaseOrigin(newOrigin);

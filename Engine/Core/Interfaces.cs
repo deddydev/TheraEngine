@@ -43,7 +43,7 @@ namespace TheraEngine
     {
         EventList<LOD> LODs { get; }
         ERenderPass RenderPass { get; set; }
-        RenderInfo3D RenderInfo { get; set; }
+        IRenderInfo3D RenderInfo { get; set; }
     }
     public interface IStaticSubMesh : IBaseSubMesh
     {
@@ -59,7 +59,7 @@ namespace TheraEngine
         /// <summary>
         /// Used to determine when and how to render this object.
         /// </summary>
-        RenderInfo3D RenderInfo { get; }
+        IRenderInfo3D RenderInfo { get; }
         void AddRenderables(RenderPasses passes, Camera camera);
     }
     public enum ERenderPass2D
@@ -89,7 +89,7 @@ namespace TheraEngine
         /// <summary>
         /// Used to determine when to render this object.
         /// </summary>
-        RenderInfo2D RenderInfo { get; }
+        IRenderInfo2D RenderInfo { get; }
         void AddRenderables(RenderPasses passes, Camera camera);
     }
     public interface IRenderable

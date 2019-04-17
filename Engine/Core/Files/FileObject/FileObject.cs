@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
@@ -37,7 +36,7 @@ namespace TheraEngine.Core.Files
 
         public TFileObject() { }
 
-        private TFileObject _rootFile = null;
+        private IFileObject _rootFile = null;
         private string _filePath;
 
         [Browsable(false)]
@@ -64,10 +63,10 @@ namespace TheraEngine.Core.Files
         public List<IFileRef> References { get; set; } = new List<IFileRef>();
 
         [Browsable(false)]
-        public TFileObject RootFile
+        public IFileObject RootFile
         {
             get => _rootFile ?? this;
-            internal set => _rootFile = value;
+            set => _rootFile = value;
         }
 
         public void Unload()
@@ -573,7 +572,8 @@ namespace TheraEngine.Core.Files
         /// <summary>
         /// Returns the file object that serves as the owner of this one.
         /// </summary>
-        TFileObject RootFile { get; }
+        IFileObject RootFile { get; set; }
+
         void Unload();
 
         string GetFilePath(string dir, string name, EProprietaryFileFormat format);

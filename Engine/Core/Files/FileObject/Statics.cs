@@ -52,24 +52,33 @@ namespace TheraEngine.Core.Files
                 }
             }
         }
-        static TFileObject()
-        {
-            _3rdPartyLoaders = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
-            _3rdPartyExporters = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
-            //try
-            //{
-            //    TypeProxy[] types = Engine.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
-            //    foreach (TypeProxy type in types)
-            //    {
-            //        TFileExt attrib = GetFileExtension(type);
-            //        if (attrib == null)
-            //            continue;
 
-            //        ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
-            //        ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
-            //    }
-            //}
-            //catch { }
+        public static void Reset3rdPartyImportExportMethods(bool reloadNow = true)
+        {
+            if (reloadNow)
+            {
+                _3rdPartyLoaders = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
+                _3rdPartyExporters = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
+                try
+                {
+                    TypeProxy[] types = PrimaryAppDomainManager.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
+                    foreach (TypeProxy type in types)
+                    {
+                        TFileExt attrib = GetFileExtension(type);
+                        if (attrib == null)
+                            continue;
+
+                        ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
+                        ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
+                    }
+                }
+                catch { }
+            }
+            else
+            {
+                _3rdPartyLoaders = null;
+                _3rdPartyExporters = null;
+            }
         }
 
         public static TFileDef GetFileDefinition(TypeProxy classType)
@@ -164,11 +173,11 @@ namespace TheraEngine.Core.Files
         public static string GetFileExtension(EProprietaryFileFormat format, Type fileType)
             => GetFileExtension(fileType)?.GetFullExtension(format) ?? throw new InvalidOperationException();
 
-        public static string GetFilePath<T>(string dir, string name, EProprietaryFileFormat format) where T : TFileObject
+        public static string GetFilePath<T>(string dir, string name, EProprietaryFileFormat format) where T : class, IFileObject
             => Path.Combine(dir, GetFileName<T>(name, format));
-        public static string GetFileName<T>(string name, EProprietaryFileFormat format) where T : TFileObject
+        public static string GetFileName<T>(string name, EProprietaryFileFormat format) where T : class, IFileObject
             => name + "." + GetFileExtension<T>(format);
-        public static string GetFileExtension<T>(EProprietaryFileFormat format) where T : TFileObject
+        public static string GetFileExtension<T>(EProprietaryFileFormat format) where T : class, IFileObject
             => GetFileExtension<T>().GetFullExtension(format);
 
         public static string GetFilePath(string dir, string name, string thirdPartyExtension)
@@ -181,7 +190,7 @@ namespace TheraEngine.Core.Files
             bool proprietary = true,
             bool thirdParty = true,
             bool import3rdParty = false,
-            bool export3rdParty = false) where T : TFileObject
+            bool export3rdParty = false) where T : class, IFileObject
             => GetFilter(typeof(T), proprietary, thirdParty, import3rdParty, export3rdParty);
         /// <summary>
         /// Returns the filter for all extensions related to this format.
@@ -402,9 +411,9 @@ namespace TheraEngine.Core.Files
         #region XML
         internal static async Task<T> FromXMLAsync<T>(
             string filePath, IProgress<float> progress, CancellationToken cancel)
-            where T : TFileObject
+            where T : class, IFileObject
             => await FromXMLAsync(filePath, progress, cancel) as T;
-        internal static async Task<TFileObject> FromXMLAsync(
+        internal static async Task<IFileObject> FromXMLAsync(
             string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             try
@@ -417,7 +426,7 @@ namespace TheraEngine.Core.Files
                     return null;
 
                 Deserializer deser = new Deserializer();
-                TFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as TFileObject;
+                IFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as IFileObject;
                 return file;
             }
             catch (Exception ex)
@@ -437,9 +446,9 @@ namespace TheraEngine.Core.Files
 
         #region Binary
 
-        internal static async Task<T> FromBinaryAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel) where T : TFileObject
+        internal static async Task<T> FromBinaryAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel) where T : class, IFileObject
             => await FromBinaryAsync(filePath, progress, cancel) as T;
-        internal static async Task<TFileObject> FromBinaryAsync(
+        internal static async Task<IFileObject> FromBinaryAsync(
             string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             try
@@ -454,7 +463,7 @@ namespace TheraEngine.Core.Files
                 }
 
                 Deserializer deser = new Deserializer();
-                TFileObject file = await deser.DeserializeBinaryAsync(filePath, progress, cancel,  null) as TFileObject;
+                IFileObject file = await deser.DeserializeBinaryAsync(filePath, progress, cancel,  null) as IFileObject;
                 return file;
             }
             catch (Exception ex)
@@ -467,11 +476,11 @@ namespace TheraEngine.Core.Files
 
         #region 3rd Party
         public static async Task<T> Read3rdPartyAsync<T>(string filePath)
-            => (T)(await Read3rdPartyAsync(typeof(T), filePath, null, CancellationToken.None));
+            => (T)(await Read3rdPartyAsync(TypeProxy.TypeOf<T>(), filePath, null, CancellationToken.None));
         public static async Task<object> Read3rdPartyAsync(TypeProxy classType, string filePath)
             => await Read3rdPartyAsync(classType, filePath, null, CancellationToken.None);
         public static async Task<T> Read3rdPartyAsync<T>(string filePath, IProgress<float> progress, CancellationToken cancel)
-            => (T)await Read3rdPartyAsync(typeof(T), filePath, progress, cancel);
+            => (T)await Read3rdPartyAsync(TypeProxy.TypeOf<T>(), filePath, progress, cancel);
         public static async Task<object> Read3rdPartyAsync(TypeProxy classType, string filePath, IProgress<float> progress, CancellationToken cancel)
         {
             string ext = Path.GetExtension(filePath);
@@ -494,7 +503,7 @@ namespace TheraEngine.Core.Files
             }
 
             //No third party loader defined, create instance directly and call method to do it
-            TFileObject obj = classType.CreateInstance() as TFileObject;
+            IFileObject obj = classType.CreateInstance() as IFileObject;
             if (obj != null)
             {
                 TFile3rdPartyExt attrib = GetFile3rdPartyExtensions(classType);
@@ -508,12 +517,22 @@ namespace TheraEngine.Core.Files
             }
             return obj;
         }
+
         private static Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyLoaders;
         private static Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyExporters;
+
         public static Delegate Get3rdPartyLoader(TypeProxy fileType, string extension)
-            => Get3rdPartyMethod(_3rdPartyLoaders, fileType, extension);
+        {
+            if (_3rdPartyLoaders == null)
+                Reset3rdPartyImportExportMethods();
+            return Get3rdPartyMethod(_3rdPartyLoaders, fileType, extension);
+        }
         public static Delegate Get3rdPartyExporter(TypeProxy fileType, string extension)
-            => Get3rdPartyMethod(_3rdPartyExporters, fileType, extension);
+        {
+            if (_3rdPartyExporters == null)
+                Reset3rdPartyImportExportMethods();
+            return Get3rdPartyMethod(_3rdPartyExporters, fileType, extension);
+        }
         private static Delegate Get3rdPartyMethod(Dictionary<string, Dictionary<TypeProxy, Delegate>> methodDic, TypeProxy fileType, string extension)
         {
             extension = extension.ToLowerInvariant();
@@ -526,20 +545,36 @@ namespace TheraEngine.Core.Files
             return null;
         }
 
-        public static void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethod<T> loadMethod) where T : TFileObject
-            => Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
-        public static void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethod<T> exportMethod) where T : TFileObject
-            => Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
-        public static void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethodAsync<T> loadMethod) where T : TFileObject
-            => Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
-        public static void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethodAsync<T> exportMethod) where T : TFileObject
-            => Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
+        public static void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethod<T> loadMethod) where T : class, IFileObject
+        {
+            if (_3rdPartyLoaders == null)
+                Reset3rdPartyImportExportMethods();
+            Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
+        }
+        public static void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethod<T> exportMethod) where T : class, IFileObject
+        {
+            if (_3rdPartyExporters == null)
+                Reset3rdPartyImportExportMethods();
+            Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
+        }
+        public static void Register3rdPartyLoader<T>(string extension, Del3rdPartyImportFileMethodAsync<T> loadMethod) where T : class, IFileObject
+        {
+            if (_3rdPartyLoaders == null)
+                Reset3rdPartyImportExportMethods();
+            Register3rdParty<T>(_3rdPartyLoaders, extension, loadMethod);
+        }
+        public static void Register3rdPartyExporter<T>(string extension, Del3rdPartyImportFileMethodAsync<T> exportMethod) where T : class, IFileObject
+        {
+            if (_3rdPartyExporters == null)
+                Reset3rdPartyImportExportMethods();
+            Register3rdParty<T>(_3rdPartyExporters, extension, exportMethod);
+        }
         
         private static void Register3rdParty<T>(
             Dictionary<string, Dictionary<TypeProxy, Delegate>> methodDic,
             string extension,
             Delegate method)
-            where T : TFileObject
+            where T : class, IFileObject
         {
             extension = extension.ToLowerInvariant();
 

@@ -39,11 +39,11 @@ namespace TheraEngine.Core.Files.Serialization
             else
                 TreeNode.Object = TreeNode.ObjectType.CreateInstance();
             
-            if (TreeNode.Object is TFileObject fobj)
+            if (TreeNode.Object is IFileObject fobj)
             {
                 if (fobj.RootFile != TreeNode.Owner.RootFileObject)
                 {
-                    fobj.RootFile = TreeNode.Owner.RootFileObject as TFileObject;
+                    fobj.RootFile = TreeNode.Owner.RootFileObject as IFileObject;
                     if (TreeNode.IsRoot)
                         fobj.FilePath = TreeNode.Owner.FilePath;
                 }

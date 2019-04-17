@@ -22,7 +22,6 @@ namespace TheraEngine.Core.Reflection
             = new ConcurrentDictionary<Type, TypeProxy>();
         public static TypeProxy Get(Type type)
             => type == null ? null : Proxies.GetOrAdd(type, new TypeProxy(type));
-        public AppDomain Domain => AppDomain.CurrentDomain;
 
         public static implicit operator TypeProxy(Type type) => Get(type);
         public static explicit operator Type(TypeProxy proxy) => proxy?.Value;
@@ -184,7 +183,7 @@ namespace TheraEngine.Core.Reflection
         public static TypeProxy TypeOf<T>()
         {
             TypeProxy proxy = null;
-            var domains = PrimaryAppDomainManager.EnumAppDomains();
+            var domains = PrimaryAppDomainManager.AppDomains;
             foreach (AppDomain domain in domains)
             {
                 if (domain == AppDomain.CurrentDomain)
@@ -3550,8 +3549,7 @@ namespace TheraEngine.Core.Reflection
         public bool IsAssignableFrom(TypeProxy c)
         {
 #if EDITOR
-            AppDomain gameDomain = Engine.EditorState.GameDomain;
-            if (c.Domain == gameDomain && Domain != gameDomain)
+            if (c.Domain.IsGameDomain() && !Domain.IsGameDomain())
                 return c.IsAssignableTo(this);
 #endif
             return Value.IsAssignableFrom(c.Value);
@@ -3559,8 +3557,7 @@ namespace TheraEngine.Core.Reflection
         public bool IsAssignableTo(TypeProxy c)
         {
 #if EDITOR
-            AppDomain gameDomain = Engine.EditorState.GameDomain;
-            if (c.Domain == gameDomain && Domain != gameDomain)
+            if (c.Domain.IsGameDomain() && !Domain.IsGameDomain())
                 return c.IsAssignableFrom(this);
 #endif
             return Value.IsAssignableTo(c.Value);
@@ -3798,8 +3795,7 @@ namespace TheraEngine.Core.Reflection
         public TypeProxy MakeGenericType(params TypeProxy[] typeArguments)
         {
 #if EDITOR
-            AppDomain gameDomain = Engine.EditorState.GameDomain;
-            TypeProxy p = typeArguments.FirstOrDefault(x => x.Domain == gameDomain);
+            TypeProxy p = typeArguments.FirstOrDefault(x => x.Domain.IsGameDomain());
             if (p != null)
                 return p.MakeGenericTypeInGameDomain(this, typeArguments.Where(x => x != p).ToArray());
 #endif
@@ -4005,7 +4001,7 @@ namespace TheraEngine.Core.Reflection
         //public static bool operator !=(Type left, TypeProxy right)
         //    => left != right?.Value;
 
-        public override string ToString() => Value.FullName + " [" + Domain.FriendlyName + "]";
+        public override string ToString() => "[" + Domain.FriendlyName + "] " + Value.FullName;
         public class EqualityComparer : IEqualityComparer<TypeProxy>
         {
             public bool Equals(TypeProxy x, TypeProxy y)

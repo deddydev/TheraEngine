@@ -1,4 +1,5 @@
-﻿using TheraEngine.Core.Reflection;
+﻿using TheraEngine;
+using TheraEngine.Core.Reflection;
 
 namespace System
 {
@@ -6,6 +7,9 @@ namespace System
     {
         public static TypeProxy GetTypeProxy(this object o)
         {
+            if (o is IObject iobj && iobj.Domain.IsGameDomain())
+                return iobj.RetrieveTypeProxy();
+            
             return o.GetType();
         }
         /// <summary>

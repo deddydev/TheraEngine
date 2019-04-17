@@ -415,13 +415,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var info = MemberInfo;
             string accessor = string.Empty;
             int count = 0;
-            while (info != null && !(info.Owner?.Value is TObject obj))
+            while (info != null && !(info.Owner?.Value is IObject))
             {
                 accessor = info.MemberAccessor + accessor;
                 info = info.Owner.MemberInfo;
                 ++count;
             }
-            if (!(info?.Owner?.Value is TObject))
+            if (!(info?.Owner?.Value is IObject))
             {
                 animOwner = null;
                 return null;

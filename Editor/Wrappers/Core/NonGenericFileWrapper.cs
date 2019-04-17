@@ -23,17 +23,17 @@ namespace TheraEditor.Wrappers
             _fileType = type;
         }
 
-        protected GlobalFileRef<TFileObject> _fileRef = new GlobalFileRef<TFileObject>();
+        protected GlobalFileRef<IFileObject> _fileRef = new GlobalFileRef<IFileObject>();
 
-        public TFileObject Resource
+        public IFileObject Resource
         {
             get => ResourceRef.File;
             set => ResourceRef.File = value;
         }
-        public GlobalFileRef<TFileObject> ResourceRef
+        public GlobalFileRef<IFileObject> ResourceRef
         {
             get => _fileRef;
-            set => _fileRef = value ?? new GlobalFileRef<TFileObject>();
+            set => _fileRef = value ?? new GlobalFileRef<IFileObject>();
         }
 
         public override bool IsLoaded => ResourceRef.IsLoaded;
@@ -53,7 +53,7 @@ namespace TheraEditor.Wrappers
             get => ResourceRef.File;
             set
             {
-                TFileObject obj = value as TFileObject;
+                IFileObject obj = value as IFileObject;
                 ResourceRef.File = obj;
                 Name = FilePath;
             }

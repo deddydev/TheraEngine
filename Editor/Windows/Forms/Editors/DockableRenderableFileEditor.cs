@@ -9,7 +9,7 @@ using TheraEngine.Worlds;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class DockableRenderableFileEditor<T> : DockableFileEditor<T>, IEditorRenderableControl where T : TFileObject
+    public abstract class DockableRenderableFileEditor<T> : DockableFileEditor<T>, IEditorRenderableControl where T : class, IFileObject
     {
         public virtual ELocalPlayerIndex PlayerIndex { get; } = ELocalPlayerIndex.One;
         public BaseGameMode GameMode => RenderPanelGeneric.GameMode as BaseGameMode;

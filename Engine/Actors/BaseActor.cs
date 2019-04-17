@@ -11,22 +11,25 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Actors
 {
-    public delegate void DelRootComponentChanged(BaseActor actor, OriginRebasableComponent oldRoot);
+    public delegate void DelRootComponentChanged(IActor actor, IOriginRebasableComponent oldRoot);
     public abstract class BaseActor : TFileObject, IActor
     {
         public event DelRootComponentChanged RootComponentChanged;
-        public event Action<BaseActor> SceneComponentCacheRegenerated;
-        public event Action<BaseActor> LogicComponentsChanged;
+        public event Action<IActor> SceneComponentCacheRegenerated;
+        public event Action<IActor> LogicComponentsChanged;
 
-        protected void OnRootComponentChanged(OriginRebasableComponent oldRoot) => RootComponentChanged?.Invoke(this, oldRoot);
-        protected void OnSceneComponentCacheRegenerated() => SceneComponentCacheRegenerated?.Invoke(this);
-        protected void OnLogicComponentsChanged() => LogicComponentsChanged?.Invoke(this);
+        protected void OnRootComponentChanged(IOriginRebasableComponent oldRoot) 
+            => RootComponentChanged?.Invoke(this, oldRoot);
+        protected void OnSceneComponentCacheRegenerated() 
+            => SceneComponentCacheRegenerated?.Invoke(this);
+        protected void OnLogicComponentsChanged() 
+            => LogicComponentsChanged?.Invoke(this);
 
         protected BaseActor(string name, bool deferInitialization)
         {
             Name = string.IsNullOrEmpty(name) ? GetType().GetFriendlyName("[", "]") : name;
 
-            _logicComponents = new EventList<LogicComponent>();
+            _logicComponents = new EventList<ILogicComponent>();
             _logicComponents.PostAnythingAdded += LogicComponents_PostAnythingAdded;
             _logicComponents.PostAnythingRemoved += LogicComponents_PostAnythingRemoved;
 
@@ -36,20 +39,20 @@ namespace TheraEngine.Actors
 
         public float _lifeSpan = -1.0f;
         public int _spawnIndex = -1;
-        protected BaseScene _scene;
-        protected EventList<LogicComponent> _logicComponents;
-        protected List<SceneComponent> _sceneComponentCache;
+        protected IScene _scene;
+        protected EventList<ILogicComponent> _logicComponents;
+        protected List<ISceneComponent> _sceneComponentCache;
 
         [Browsable(false)]
-        public Scene3D OwningScene3D => OwningScene as Scene3D;
+        public IScene3D OwningScene3D => OwningScene as IScene3D;
         [Browsable(false)]
-        public Scene2D OwningScene2D => OwningScene as Scene2D;
+        public IScene2D OwningScene2D => OwningScene as IScene2D;
         [Browsable(false)]
-        public IReadOnlyCollection<SceneComponent> SceneComponentCache => _sceneComponentCache;
+        public IReadOnlyCollection<ISceneComponent> SceneComponentCache => _sceneComponentCache;
         [Browsable(false)]
-        public abstract OriginRebasableComponent RootComponentGeneric { get; }
+        public abstract IOriginRebasableComponent RootComponentGeneric { get; }
 
-        OriginRebasableComponent IActor.RootComponent => RootComponentGeneric;
+        IOriginRebasableComponent IActor.RootComponent => RootComponentGeneric;
 
         [Category("Actor")]
         public float CurrentLife { get; private set; }
@@ -84,11 +87,11 @@ namespace TheraEngine.Actors
         public TimeSpan ActiveTime => DateTime.Now - SpawnTime;
         [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0 && OwningWorld != null;
-        public bool IsSpawnedIn(World world) => _spawnIndex >= 0 && OwningWorld == world;
+        public bool IsSpawnedIn(IWorld world) => _spawnIndex >= 0 && OwningWorld == world;
         [Browsable(false)]
-        public World OwningWorld { get; private set; } = null;
+        public IWorld OwningWorld { get; private set; } = null;
         [Browsable(false)]
-        public BaseScene OwningScene
+        public IScene OwningScene
         {
             get => _scene ?? OwningWorld?.Scene;
             set => _scene = value;

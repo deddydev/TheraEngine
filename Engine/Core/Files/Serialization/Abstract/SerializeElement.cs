@@ -118,7 +118,7 @@ namespace TheraEngine.Core.Files.Serialization
         }
         private void LinkObjectGuidToOwner()
         {
-            if (Owner == null || !(_object is TObject tobj2) || tobj2.Guid == Guid.Empty)
+            if (Owner == null || !(_object is IObject tobj2) || tobj2.Guid == Guid.Empty)
                 return;
 
             if (Owner.WritingSharedObjectIndices.ContainsKey(tobj2.Guid))
@@ -152,11 +152,11 @@ namespace TheraEngine.Core.Files.Serialization
                 if (Owner != null && Parent == null && _object != null)
                 {
                     Owner.RootFileObject = _object;
-                    if (_object is TFileObject fobj)
+                    if (_object is IFileObject fobj)
                     {
                         fobj.ConstructedProgrammatically = false;
                         if (fobj.RootFile != Owner.RootFileObject)
-                            fobj.RootFile = Owner.RootFileObject as TFileObject;
+                            fobj.RootFile = Owner.RootFileObject as IFileObject;
                         if (IsRoot)
                             fobj.FilePath = Owner.FilePath;
                     }
@@ -331,7 +331,7 @@ namespace TheraEngine.Core.Files.Serialization
                 {
                     //Engine.PrintLine($"Deserializing {ObjectType.GetFriendlyName()} {Name} manually via self.");
                     Object = ObjectType.CreateInstance();
-                    ((TFileObject)Object).ManualRead(this);
+                    ((IFileObject)Object).ManualRead(this);
                     ApplyObjectToParent();
                     return true;
                 }
@@ -377,7 +377,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <returns></returns>
         public bool TryInvokeManualSerializeAsync()
         {
-            if (!(Object is TFileObject tobj))
+            if (!(Object is IFileObject tobj))
                 return false;
             
             TFileExt ext = TFileObject.GetFileExtension(ObjectType);

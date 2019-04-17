@@ -27,7 +27,7 @@ namespace TheraEngine.Core.Files.Serialization
                     {
                         _rootNode.Owner = null;
                         _rootNode.IsRoot = false;
-                        if (_rootNode.Object is TFileObject tobj && !string.IsNullOrEmpty(tobj.FilePath))
+                        if (_rootNode.Object is IFileObject tobj && !string.IsNullOrEmpty(tobj.FilePath))
                             tobj.FilePath = null;
                     }
                     _rootNode = value;
@@ -35,7 +35,7 @@ namespace TheraEngine.Core.Files.Serialization
                     {
                         _rootNode.Owner = this;
                         _rootNode.IsRoot = true;
-                        if (_rootNode.Object is TFileObject tobj && !string.IsNullOrEmpty(FilePath))
+                        if (_rootNode.Object is IFileObject tobj && !string.IsNullOrEmpty(FilePath))
                             tobj.FilePath = FilePath;
                     }
                 }

@@ -177,7 +177,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 btnSave.Visible = btnSaveAs.Visible = false;
             }
 
-            if (_targetObject is SceneComponent sc)
+            if (_targetObject is ISceneComponent sc)
             {
                 var players = sc.OwningWorld?.CurrentGameMode?.LocalPlayers;
                 if (players != null && players.Count > 0)

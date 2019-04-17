@@ -44,7 +44,7 @@ namespace TheraEngine.Animation
         private int _totalAnimCount = 0;
         private AnimationMember _root;
 
-        internal List<TObject> Owners { get; } = new List<TObject>();
+        internal List<IObject> Owners { get; } = new List<IObject>();
 
         [TSerialize("EndedAnimations", Config = false, State = true)]
         private int _endedAnimations = 0;
@@ -94,7 +94,7 @@ namespace TheraEngine.Animation
         }
         protected override void OnProgressed(float delta)
         {
-            foreach (TObject obj in Owners)
+            foreach (IObject obj in Owners)
                 _root?._tick(obj, delta);
         }
     }

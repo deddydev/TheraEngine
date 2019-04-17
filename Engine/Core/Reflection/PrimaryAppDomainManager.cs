@@ -1,10 +1,12 @@
 ﻿using mscoree;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
+using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
@@ -96,13 +98,19 @@ namespace TheraEngine.Core.Reflection
         /// </summary>
         /// <returns>The primary application domain.</returns>
         public static AppDomain GetPrimaryAppDomain()
-            => EnumAppDomains().FirstOrDefault(x => x.FriendlyName == Process.GetCurrentProcess().MainModule.ModuleName);
+            => AppDomains.FirstOrDefault(x => x.FriendlyName == Process.GetCurrentProcess().MainModule.ModuleName);
+        public static AppDomain GetGameAppDomain()
+            => AppDomains.FirstOrDefault(x => x.FriendlyName == "Puyo");
+
+        private static AppDomain[] _appDomainCache;
+        public static AppDomain[] AppDomains => _appDomainCache ?? (_appDomainCache = EnumAppDomains().ToArray());
+        public static void ClearAppDomainCache() => _appDomainCache = null;
         
         /// <summary>
         /// Returns an enumerable containing all AppDomains in the process.
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<AppDomain> EnumAppDomains()
+        private static IEnumerable<AppDomain> EnumAppDomains()
         {
             IntPtr enumHandle = IntPtr.Zero;
             ICorRuntimeHost host = null;
@@ -147,7 +155,7 @@ namespace TheraEngine.Core.Reflection
             {
                 //search = AppDomain.CurrentDomain.GetAssemblyProxies();
                 ////PrintLine("FindTypes; returning assemblies from domains:");
-                var domains = EnumAppDomains();
+                var domains = AppDomains;
                 search = domains.SelectMany(x =>
                 {
                     //PrintLine(x.FriendlyName);
@@ -163,7 +171,7 @@ namespace TheraEngine.Core.Reflection
                 });
             }
 
-            search = search.Where(x => !x.IsDynamic);
+            search = search.Where(x => !x.IsDynamic).Distinct();
 
             //if (includeEngineAssembly)
             //{
@@ -172,10 +180,15 @@ namespace TheraEngine.Core.Reflection
             //        search = search.Append(engine);
             //}
 
-            var allTypes = search.SelectMany(x => x.GetExportedTypes()).Distinct();
-            allTypes = allTypes.Where(x => matchPredicate(x));
-            allTypes = allTypes.OrderBy(x => x.Name);
-            return allTypes;
+            var allTypes = search.SelectMany(x => x.GetExportedTypes()).Distinct().ToArray();
+            ConcurrentDictionary<int, TypeProxy> matches = new ConcurrentDictionary<int, TypeProxy>();
+            Parallel.For(0, allTypes.Length, i =>
+            {
+                TypeProxy type = allTypes[i];
+                if (matchPredicate(type))
+                    matches.AddOrUpdate(i, type, (x, y) => type);
+            });
+            return matches.Values.OrderBy(x => x.Name);
         }
         
         internal static void DomainAssemblyLoad(object sender, AssemblyLoadEventArgs args)

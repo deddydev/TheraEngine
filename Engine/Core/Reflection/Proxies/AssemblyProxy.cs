@@ -65,6 +65,9 @@ namespace TheraEngine.Core.Reflection
             if (other is null)
                 return false;
 
+            if (other.Domain.IsGameDomain() && !Domain.IsGameDomain())
+                return other.EqualTo(this);
+
             return Value == other.Value;
         }
         public bool EqualTo(Assembly other)
@@ -76,8 +79,8 @@ namespace TheraEngine.Core.Reflection
         }
 
         public override bool Equals(object obj) 
-            => obj is AssemblyProxy proxy && Value.Equals(proxy.Value);
+            => obj is AssemblyProxy proxy && EqualTo(proxy);
         public override int GetHashCode() => Value.GetHashCode();
-        public override string ToString() => Value.FullName + " [" + Domain.FriendlyName + "]";
+        public override string ToString() => "[" + Domain.FriendlyName + "] " + Value.FullName;
     }
 }

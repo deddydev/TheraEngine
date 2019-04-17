@@ -3,6 +3,11 @@ using TheraEngine.Core.Maths.Transforms;
 
 namespace TheraEngine.Components.Scene.Transforms
 {
+    public interface IOriginRebasableComponent : ISceneComponent
+    {
+        event Action<Vec3> OriginRebased;
+        void RebaseOrigin(Vec3 newOrigin);
+    }
     /// <summary>
     /// Base class for actor root components. 
     /// Ensures that the actor's root transform can be rebased to a different location.
@@ -18,7 +23,7 @@ namespace TheraEngine.Components.Scene.Transforms
         /// </summary>
         /// <param name="newOrigin">The translation of the new origin relative to the current origin. 
         /// Subtract this value from a world translation to correct it.</param>
-        internal void RebaseOrigin(Vec3 newOrigin)
+        public void RebaseOrigin(Vec3 newOrigin)
         {
             OnOriginRebased(newOrigin);
             OriginRebased?.Invoke(newOrigin);

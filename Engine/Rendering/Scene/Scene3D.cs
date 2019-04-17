@@ -12,10 +12,15 @@ using TheraEngine.Shapes;
 
 namespace TheraEngine.Rendering
 {
+    public interface IScene3D : IScene
+    {
+        EventList<I3DRenderable> Renderables { get; }
+        IOctree RenderTree { get; set; }
+    }
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
     /// </summary>
-    public class Scene3D : BaseScene
+    public class Scene3D : BaseScene, IScene3D
     {
         private TMaterial _voxelizationMaterial;
 

@@ -27,7 +27,7 @@ namespace TheraEditor.Windows.Forms
 {
     public interface IFileEditorControl
     {
-        TFileObject File { get; }
+        IFileObject File { get; }
 
         void Save();
         void SaveAs();
@@ -953,7 +953,7 @@ namespace TheraEditor.Windows.Forms
             return new IPAddress(ip);
         }
 
-        public void SaveFile(TFileObject file)
+        public void SaveFile(IFileObject file)
         {
             if (file == null)
                 return;
@@ -966,7 +966,7 @@ namespace TheraEditor.Windows.Forms
 
             SaveFile(file, file.FilePath);
         }
-        public void SaveFileAs(TFileObject file)
+        public void SaveFileAs(IFileObject file)
         {
             if (file == null)
                 return;
@@ -980,7 +980,7 @@ namespace TheraEditor.Windows.Forms
                     SaveFile(file, sfd.FileName);
             }
         }
-        private async void SaveFile(TFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
+        private async void SaveFile(IFileObject file, string filePath, ESerializeFlags flags = ESerializeFlags.Default)
         {
             int op = BeginOperation("Saving file...", "File saved.", out Progress<float> progress, out CancellationTokenSource cancel);
             await file.ExportAsync(filePath, flags, progress, cancel.Token);

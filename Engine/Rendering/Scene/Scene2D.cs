@@ -6,6 +6,10 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering
 {
+    public interface IScene2D : IScene
+    {
+        EventList<I2DRenderable> Renderables { get; }
+    }
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
     /// </summary>

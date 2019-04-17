@@ -25,16 +25,15 @@ namespace TheraEngine.Components
         RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
 #endif
     }
-    public interface ISceneComponent : ISocket
+    public interface ISceneComponent : ISocket, IComponent
     {
         Matrix4 LocalMatrix { get; }
         Matrix4 InverseLocalMatrix { get; }
 
-        BaseScene OwningScene { get; }
-        Scene3D OwningScene3D { get; }
-        Scene2D OwningScene2D { get; }
-        World OwningWorld { get; }
-        BaseActor OwningActor { get; set; }
+        IScene OwningScene { get; }
+        IScene3D OwningScene3D { get; }
+        IScene2D OwningScene2D { get; }
+        IWorld OwningWorld { get; }
         
         Vec3 LocalRightDir { get; }
         Vec3 LocalUpDir { get; }
@@ -53,10 +52,14 @@ namespace TheraEngine.Components
         
         ISocket AttachTo(SkeletalMeshComponent mesh, string socketName);
         ISocket AttachTo(StaticMeshComponent mesh, string socketName);
-        void AttachTo(SceneComponent component);
+        void AttachTo(ISceneComponent component);
         void DetachFromParent();
-
-        List<SceneComponent> GenerateChildCache();
+        
+        void RecalcWorldTransform();
+        void RecalcLocalTransform();
+        List<ISceneComponent> GenerateChildCache();
+        void GenerateChildCache(List<ISceneComponent> cache);
+        void SetParentInternal(ISceneComponent sceneComponent);
     }
 
     /// <summary>
@@ -67,6 +70,9 @@ namespace TheraEngine.Components
     {
         public const string RenderingCategoryName = "Rendering";
         public const string PhysicsCategoryName = "Physics";
+
+        void ISceneComponent.RecalcLocalTransform() => RecalcLocalTransform();
+        void ISceneComponent.RecalcWorldTransform() => RecalcWorldTransform();
 
         protected SceneComponent()
         {
@@ -123,7 +129,7 @@ namespace TheraEngine.Components
         protected Matrix4 _inverseLocalMatrix = Matrix4.Identity;
 
         internal ISocket _parent;
-        protected EventList<SceneComponent> _children;
+        protected EventList<ISceneComponent> _children;
 
         /// <summary>
         /// Use to set both matrices at the same time, so neither needs to be inverted to get the other.
@@ -242,22 +248,22 @@ namespace TheraEngine.Components
         protected bool SimulatingPhysics => _simulatingPhysics;
         
         [Browsable(false)]
-        public BaseScene OwningScene => OwningActor?.OwningScene;
+        public IScene OwningScene => OwningActor?.OwningScene;
         [Browsable(false)]
-        public Scene3D OwningScene3D => OwningScene as Scene3D;
+        public IScene3D OwningScene3D => OwningScene as IScene3D;
         [Browsable(false)]
-        public Scene2D OwningScene2D => OwningScene as Scene2D;
+        public IScene2D OwningScene2D => OwningScene as IScene2D;
         [Browsable(false)]
-        public World OwningWorld => OwningActor?.OwningWorld;
+        public IWorld OwningWorld => OwningActor?.OwningWorld;
 
         [Browsable(false)]
-        public override BaseActor OwningActor
+        public override IActor OwningActor
         {
             get => base.OwningActor;
             set
             {
                 base.OwningActor = value;
-                foreach (SceneComponent c in _children)
+                foreach (ISceneComponent c in _children)
                     c.OwningActor = value;
             }
         }
@@ -475,7 +481,7 @@ namespace TheraEngine.Components
             {
                 r3D.RenderInfo.LinkScene(r3D, OwningScene3D);
 #if EDITOR
-                if (Engine.EditorState.InEditMode && r3D.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleAlways)
+                if (Engine.EditorState.InEditMode && r3D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleAlways)
                     r3D.RenderInfo.Visible = true;
 
                 if (this is IEditorPreviewIconRenderable icon)
@@ -532,57 +538,47 @@ namespace TheraEngine.Components
             OnWorldTransformChanged();
         }
 
-        public List<SceneComponent> GenerateChildCache()
+        public List<ISceneComponent> GenerateChildCache()
         {
-            List<SceneComponent> cache = new List<SceneComponent>();
+            List<ISceneComponent> cache = new List<ISceneComponent>();
             GenerateChildCache(cache);
             return cache;
         }
-        protected virtual void GenerateChildCache(List<SceneComponent> cache)
+        void ISceneComponent.GenerateChildCache(List<ISceneComponent> cache) => GenerateChildCache(cache);
+        protected virtual void GenerateChildCache(List<ISceneComponent> cache)
         {
             ActorSceneComponentCacheIndex = cache.Count;
             cache.Add(this);
-            foreach (SceneComponent c in _children)
+            foreach (ISceneComponent c in _children)
                 c.GenerateChildCache(cache);
         }
 
         #region Child Components
-        protected virtual void OnChildComponentsRemoved(IEnumerable<SceneComponent> items)
+        protected virtual void OnChildComponentsRemoved(IEnumerable<ISceneComponent> items)
         {
-            foreach (SceneComponent item in items)
-            {
-                if (item.IsSpawned)
-                    item.OnDespawned();
-
-                item._parent = null;
-                item.OwningActor = null;
-                item.RecalcWorldTransform();
-            }
+            foreach (ISceneComponent item in items)
+                HandleSingleChildRemoved(item);
+            
             OwningActor?.GenerateSceneComponentCache();
         }
-        protected virtual void OnChildComponentRemoved(SceneComponent item)
+        protected virtual void OnChildComponentRemoved(ISceneComponent item)
         {
-            if (item.IsSpawned)
-                item.OnDespawned();
-
-            item._parent = null;
-            item.OwningActor = null;
-            item.RecalcWorldTransform();
+            HandleSingleChildRemoved(item);
 
             OwningActor?.GenerateSceneComponentCache();
         }
-        protected virtual void OnChildComponentsInserted(IEnumerable<SceneComponent> items, int index)
+        protected virtual void OnChildComponentsInserted(IEnumerable<ISceneComponent> items, int index)
             => OnChildComponentsAdded(items);
-        protected virtual void OnChildComponentInserted(SceneComponent item, int index)
+        protected virtual void OnChildComponentInserted(ISceneComponent item, int index)
             => OnChildComponentAdded(item);
         /// <summary>
         /// Called when a multiple child components are added.
         /// Calls HandleSingleChildAdded for each component and regenerates the owning actor's scene component cache.
         /// </summary>
         /// <param name="items"></param>
-        protected virtual void OnChildComponentsAdded(IEnumerable<SceneComponent> items)
+        protected virtual void OnChildComponentsAdded(IEnumerable<ISceneComponent> items)
         {
-            foreach (SceneComponent item in items)
+            foreach (ISceneComponent item in items)
                 HandleSingleChildAdded(item);
             
             OwningActor?.GenerateSceneComponentCache();
@@ -592,13 +588,22 @@ namespace TheraEngine.Components
         /// Calls HandleSingleChildAdded and regenerates the owning actor's scene component cache.
         /// </summary>
         /// <param name="item"></param>
-        protected virtual void OnChildComponentAdded(SceneComponent item)
+        protected virtual void OnChildComponentAdded(ISceneComponent item)
         {
             HandleSingleChildAdded(item);
             
             OwningActor?.GenerateSceneComponentCache();
         }
-        protected virtual void HandleSingleChildAdded(SceneComponent item)
+        protected virtual void HandleSingleChildRemoved(ISceneComponent item)
+        {
+            if (item.IsSpawned)
+                item.OnDespawned();
+
+            item.SetParentInternal(null);
+            item.OwningActor = null;
+            item.RecalcWorldTransform();
+        }
+        protected virtual void HandleSingleChildAdded(ISceneComponent item)
         {
             if (item == null)
             {
@@ -608,7 +613,7 @@ namespace TheraEngine.Components
 
             bool spawnedMismatch = IsSpawned != item.IsSpawned;
 
-            item._parent = this;
+            item.SetParentInternal(this);
             item.OwningActor = OwningActor;
             item.RecalcWorldTransform();
 
@@ -620,6 +625,7 @@ namespace TheraEngine.Components
                     item.OnDespawned();
             }
         }
+        void ISceneComponent.SetParentInternal(ISceneComponent parent) => _parent = parent;
         #endregion
 
         #region Sockets
@@ -767,9 +773,9 @@ namespace TheraEngine.Components
         }
         protected internal override void OnSelectedChanged(bool selected)
         {
-            if (this is I3DRenderable r3D && r3D.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected)
+            if (this is I3DRenderable r3D && r3D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleOnlyWhenSelected)
                 r3D.RenderInfo.Visible = selected;
-            if (this is I2DRenderable r2D && r2D.RenderInfo.EditorVisibilityMode == RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected)
+            if (this is I2DRenderable r2D && r2D.RenderInfo.EditorVisibilityMode == EEditorVisibility.VisibleOnlyWhenSelected)
                 r2D.RenderInfo.Visible = selected;
 
             //foreach (SceneComponent comp in ChildComponents)

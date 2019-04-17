@@ -5,7 +5,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEditor.Windows.Forms
 {
-    public abstract class FileEditorTheraForm<T> : TheraForm, IFileEditorControl where T : TFileObject
+    public abstract class FileEditorTheraForm<T> : TheraForm, IFileEditorControl where T : class, IFileObject
     {
         private T _file;
         public virtual T File
@@ -19,7 +19,7 @@ namespace TheraEditor.Windows.Forms
                 _file = value;
             }
         }
-        TFileObject IFileEditorControl.File => File;
+        IFileObject IFileEditorControl.File => File;
 
         protected void btnSave_Click(object sender, EventArgs e) => Save();
         protected void btnSaveAs_Click(object sender, EventArgs e) => SaveAs();

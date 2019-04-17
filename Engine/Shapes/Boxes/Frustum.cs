@@ -32,11 +32,14 @@ namespace TheraEngine.Core.Shapes
         //Vec3 ClosestPoint(Vec3 point);
         bool Contains(Vec3 point);
     }
-    
+    public interface IFrustum : I3DRenderable, IEnumerable<Plane>, IVolume
+    {
+
+    }
     /// <summary>
     /// Contains the points and planes at the edges and near/far of a camera's view.
     /// </summary>
-    public class Frustum : I3DRenderable, IEnumerable<Plane>, IVolume
+    public class Frustum : IFrustum
     {
         public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 

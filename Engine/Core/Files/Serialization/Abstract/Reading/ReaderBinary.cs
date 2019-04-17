@@ -156,7 +156,7 @@ namespace TheraEngine.Core.Files.Serialization
                                 {
                                     obj = ReadStruct(objType, ref address);
                                 }
-                                else if (typeof(TFileObject).IsAssignableFrom(objType) && ShouldReadFileObjectManually(objType))
+                                else if (typeof(IFileObject).IsAssignableFrom(objType) && ShouldReadFileObjectManually(objType))
                                 {
                                     obj = ReadFileObjectManually(objType, ref address);
                                 }
@@ -195,7 +195,7 @@ namespace TheraEngine.Core.Files.Serialization
                 int size = address.ReadInt();
                 object obj = SerializationCommon.CreateInstance(objType);
 
-                TFileObject fileObj = (TFileObject)obj;
+                IFileObject fileObj = (IFileObject)obj;
                 fileObj.ManualReadBinary(address, size, StringTable);
 
                 address += size;

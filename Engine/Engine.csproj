@@ -510,6 +510,8 @@
     <Compile Include="Physics\ContactTest.cs" />
     <Compile Include="Rendering\Cameras\BlendableCamera.cs" />
     <Compile Include="Rendering\Cameras\TypicalCamera.cs" />
+    <Compile Include="Rendering\Scene\RenderInfo3D.cs" />
+    <Compile Include="Rendering\Scene\RenderInfo2D.cs" />
     <Compile Include="Shapes\BoundingRectangle.cs" />
     <Compile Include="Shapes\Boxes\BoundingBoxStruct.cs" />
     <Compile Include="Shapes\Cylindrical\XAligned\CapsuleX.cs" />

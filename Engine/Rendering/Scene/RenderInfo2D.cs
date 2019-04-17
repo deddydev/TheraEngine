@@ -1,0 +1,111 @@
+﻿using System;
+using System.ComponentModel;
+using TheraEngine.Core.Shapes;
+
+namespace TheraEngine.Rendering
+{
+    public interface IRenderInfo2D : IRenderInfo
+    {
+        int LayerIndex { get; set; }
+        int IndexWithinLayer { get; set; }
+
+        I2DRenderable Owner { get; set; }
+        IScene2D Scene { get; set; }
+
+        bool DeeperThan(IRenderInfo2D other);
+        void LinkScene(I2DRenderable r2D, IScene2D scene, bool forceVisible = false);
+        void UnlinkScene();
+    }
+    public class RenderInfo2D : RenderInfo, IRenderInfo2D
+    {
+        /// <summary>
+        /// Used to render objects in the same pass in a certain order.
+        /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
+        /// </summary>
+        [TSerialize]
+        public int LayerIndex { get; set; }
+        [TSerialize]
+        public int IndexWithinLayer { get; set; }
+        [Browsable(false)]
+        public I2DRenderable Owner { get; set; }
+        [Browsable(false)]
+        public IScene2D Scene { get; set; }
+        /// <summary>
+        /// The axis-aligned bounding box for this UI component.
+        /// </summary>
+        [Browsable(false)]
+        public BoundingRectangleFStruct AxisAlignedRegion;
+        [Browsable(false)]
+        public IQuadtreeNode QuadtreeNode { get; set; }
+
+        public override bool Visible
+        {
+            get => Scene != null && base.Visible;
+            set
+            {
+                if (base.Visible == value)
+                    return;
+
+                base.Visible = value;
+
+                if (Scene == null)
+                    return;
+
+                if (value)
+                    Scene.Renderables.Add(Owner);
+                else
+                    Scene.Renderables.Remove(Owner);
+            }
+        }
+        
+        public RenderInfo2D(int layerIndex, int orderInLayer)
+        {
+            LayerIndex = layerIndex;
+            IndexWithinLayer = orderInLayer;
+        }
+
+        public bool DeeperThan(IRenderInfo2D other)
+        {
+            if (other == null)
+                return true;
+
+            if (LayerIndex > other.LayerIndex)
+                return true;
+            else if (LayerIndex == other.LayerIndex && IndexWithinLayer > other.IndexWithinLayer)
+                return true;
+            
+            return false;
+        }
+
+        public void LinkScene(I2DRenderable r2D, IScene2D scene, bool forceVisible = false)
+        {
+            if (r2D == null || scene == null)
+                return;
+
+            Scene = null;
+            Visible = false;
+
+            Scene = scene;
+            Owner = r2D;
+
+            bool visible = VisibleByDefault || forceVisible;
+#if EDITOR
+            if (VisibleInEditorOnly)
+                visible = visible && Engine.EditorState.InEditMode;
+#endif
+            Visible = visible;
+
+            //AxisAlignedRegion?.RenderInfo?.LinkScene(AxisAlignedRegion, scene);
+        }
+
+        public void UnlinkScene()
+        {
+            if (Owner == null || Scene == null)
+                return;
+
+            Scene.Renderables.Remove(Owner);
+            Scene = null;
+            Owner = null;
+        }
+    }
+}

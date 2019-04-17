@@ -141,7 +141,25 @@ namespace TheraEngine.Rendering
         void PreRenderSwap();
         void PreRender(Viewport viewport, Camera camera);
     }
-    public abstract class BaseScene : IEnumerable<IRenderable>
+    public interface IScene : IEnumerable<IRenderable>
+    {
+        void CollectVisible(RenderPasses passes, IVolume collectionVolume, Camera camera, bool shadowPass);
+        void Update(RenderPasses passes, IVolume collectionVolume, Camera camera);
+
+        void PreRenderUpdate(Camera camera);
+        void PreRenderSwap();
+        void PreRender(Viewport viewport, Camera camera);
+
+        void AddPreRenderedObject(IPreRendered obj);
+        void RemovePreRenderedObject(IPreRendered obj);
+
+        void RegenerateTree();
+        void GlobalPreRender();
+        void GlobalUpdate();
+        void GlobalSwap();
+
+    }
+    public abstract class BaseScene : IScene
     {
         /// <summary>
         /// Call this method to render the scene.

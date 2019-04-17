@@ -5,8 +5,8 @@ using System.Diagnostics;
 using System.Runtime.Remoting.Lifetime;
 using System.Runtime.Serialization;
 using TheraEngine.Animation;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
-using TheraEngine.Core.Reflection.Attributes.Serialization;
 using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
 
@@ -16,9 +16,14 @@ namespace TheraEngine
     {
         string Name { get; set; }
         object UserObject { get; set; }
+        bool ConstructedProgrammatically { get; set; }
+        AppDomain Domain { get; }
+        bool HasEditorState { get; }
 
 #if EDITOR
         EditorState EditorState { get; set; }
+        void OnSelectedChanged(bool selected);
+        void OnHighlightChanged(bool highlighted);
 #endif
 
         #region Ticking
@@ -34,9 +39,11 @@ namespace TheraEngine
             DelTick tickFunc,
             EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
         #endregion
-        
+
         #region Animation
         EventList<AnimationTree> Animations { get; set; }
+        Guid Guid { get; set; }
+
         //void AddAnimation(
         //    AnimationTree anim,
         //    bool startNow = false,
@@ -46,6 +53,8 @@ namespace TheraEngine
         //    EInputPauseType pausedBehavior = EInputPauseType.TickAlways);
         //bool RemoveAnimation(AnimationTree anim);
         #endregion
+
+        TypeProxy RetrieveTypeProxy();
     }
 
     public class MarshalSponsor : MarshalByRefObject, ISponsor
@@ -72,24 +81,25 @@ namespace TheraEngine
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
     public abstract class TObject : MarshalByRefObject, IObject, ISerializable
     {
-        public string HomeAppDomain => AppDomain.CurrentDomain.FriendlyName;
-
+        public AppDomain Domain => AppDomain.CurrentDomain;
+        TypeProxy IObject.RetrieveTypeProxy() => GetType();
+        
         internal MarshalSponsor Sponsor { get; set; }
 
         [TString(false, false, false)]
         [TSerialize(nameof(Name), NodeType = ENodeType.Attribute)]
-        protected string _name = null;
+        public string _name = null;
 
         [Browsable(false)]
         //[TSerialize(NodeType = ENodeType.Attribute)]
-        public Guid Guid { get; internal set; } = Guid.NewGuid();
+        public Guid Guid { get; set; } = Guid.NewGuid();
 
         /// <summary>
         /// If true, this object was originally constructed via code.
         /// If false, this object was originally deserialized from a file.
         /// </summary>
         [Browsable(false)]
-        public bool ConstructedProgrammatically { get; internal set; } = true;
+        public bool ConstructedProgrammatically { get; set; } = true;
 
         [TSerialize]
         //[BrowsableIf("_userData != null")]
@@ -166,7 +176,9 @@ namespace TheraEngine
                     _editorState.Object = this;
             }
         }
-
+        
+        void IObject.OnHighlightChanged(bool highlighted) => OnHighlightChanged(highlighted);
+        void IObject.OnSelectedChanged(bool selected) => OnSelectedChanged(selected);
         protected internal virtual void OnHighlightChanged(bool highlighted) { }
         protected internal virtual void OnSelectedChanged(bool selected) { }
 

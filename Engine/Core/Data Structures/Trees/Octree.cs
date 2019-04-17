@@ -26,6 +26,25 @@ namespace System
         void DebugRender(bool recurse, bool onlyContainingItems, Frustum f, float lineWidth);
         void DebugRender(Color color, float lineWidth);
     }
+    public interface IOctree
+    {
+        int ArrayLength(Vec3 halfExtents);
+
+        void Remake();
+        void Remake(BoundingBoxStruct newBounds);
+        void Swap();
+        void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass);
+        void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f);
+    }
+    public interface IOctree<T> : IOctree where T : I3DRenderable
+    {
+        void Add(T value);
+        void Add(IEnumerable<T> value);
+        void Remove(T value);
+
+        ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment);
+        ThreadSafeList<T> FindAll(TShape shape, EContainment containment);
+    }
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
     /// </summary>
@@ -38,7 +57,7 @@ namespace System
     /// A 3D space partitioning tree that recursively divides aabbs into 8 smaller aabbs depending on the items they contain.
     /// </summary>
     /// <typeparam name="T">The item type to use. Must be a class deriving from I3DBoundable.</typeparam>
-    public class Octree<T> where T : class, I3DRenderable
+    public class Octree<T> : IOctree<T> where T : class, I3DRenderable
     {
         public const float MinimumUnit = 10.0f;
         public const int MaxChildNodeCount = 8;
@@ -98,7 +117,7 @@ namespace System
         /// <summary>
         /// Updates all moved, added and removed items in the octree.
         /// </summary>
-        internal void Swap()
+        public void Swap()
         {
             while (MovedItems.TryDequeue(out T item))
                 ((Node)item.RenderInfo.OctreeNode).ItemMoved_Internal(item);

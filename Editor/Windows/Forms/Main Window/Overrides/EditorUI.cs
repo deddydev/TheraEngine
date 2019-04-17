@@ -43,7 +43,7 @@ namespace TheraEditor.Windows.Forms
             if (TransformTool3D.Instance.PrevRootWorldMatrix != socket.WorldMatrix)
             {
                 Editor.Instance.UndoManager.AddChange(
-                    ((TObject)socket).EditorState,
+                    ((IObject)socket).EditorState,
                     new LocalValueChangeProperty(
                         TransformTool3D.Instance.PrevRootWorldMatrix,
                         socket.WorldMatrix,

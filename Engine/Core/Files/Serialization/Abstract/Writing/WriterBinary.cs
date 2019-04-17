@@ -395,7 +395,7 @@ namespace TheraEngine.Core.Files.Serialization
                             Marshal.StructureToPtr(value, address, true);
                             address += size;
                         }
-                        else if (value is TFileObject fobj && ShouldWriteFileObjectManually(objType))
+                        else if (value is IFileObject fobj && ShouldWriteFileObjectManually(objType))
                         {
                             WriteFileObjectManually(ref address, fobj, objType, node);
                         }
@@ -418,7 +418,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                 return serConfig || serState;
             }
-            private void WriteFileObjectManually(ref VoidPtr address, TFileObject fobj, TypeProxy objType, SerializeElement node)
+            private void WriteFileObjectManually(ref VoidPtr address, IFileObject fobj, TypeProxy objType, SerializeElement node)
             {
                 int size = node.ManuallyCalculatedSize;
                 address.WriteInt(size);
@@ -519,7 +519,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return size;
             }
 
-            private int GetSizeFileObjectManually(TFileObject fobj, TypeProxy objectType, SerializeElement node)
+            private int GetSizeFileObjectManually(IFileObject fobj, TypeProxy objectType, SerializeElement node)
             {
                 int size = sizeof(int); //length
                 node.ManuallyCalculatedSize = fobj.ManualGetSizeBinary(StringTable, Flags);

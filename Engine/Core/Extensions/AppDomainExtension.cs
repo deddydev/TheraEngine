@@ -27,7 +27,7 @@ namespace System
             => PrimaryAppDomainManager.GetPrimaryAppDomain() == domain;
 #if EDITOR
         public static bool IsGameDomain(this AppDomain domain)
-            => Engine.EditorState?.GameDomain == domain;
+            => PrimaryAppDomainManager.GetGameAppDomain() == domain;
 #endif
     }
 }

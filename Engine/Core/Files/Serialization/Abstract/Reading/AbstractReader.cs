@@ -50,7 +50,7 @@ namespace TheraEngine.Core.Files.Serialization
                 await RootNode.DeserializeTreeToObjectAsync();
 
                 object obj = RootNode.Object;
-                if (obj is TFileObject tobj)
+                if (obj is IFileObject tobj)
                     tobj.FilePath = FilePath;
 
                 return obj;

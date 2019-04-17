@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 
@@ -265,7 +264,7 @@ namespace TheraEngine.Core.Files
                     }
                     if (file != null && _subType != null)
                     {
-                        Type fileType = file?.GetType();
+                        TypeProxy fileType = file?.GetTypeProxy();
                         if (!_subType.IsAssignableFrom(fileType))
                         {
                             Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {_subType.GetFriendlyName()}.");

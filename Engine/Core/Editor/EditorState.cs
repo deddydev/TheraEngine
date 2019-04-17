@@ -13,9 +13,9 @@ namespace TheraEngine.Editor
     public delegate void DelPropertyChange(EditorState state, string propertyValue, object oldValue, object newValue);
     public delegate void DelHighlightingChange(bool isHighlighted);
     public delegate void DelSelectedChange(bool isSelected);
-    public class EditorState
+    public class EditorState : TObject
     {
-        public EditorState(TObject obj) => Object = obj;
+        public EditorState(IObject obj) => Object = obj;
 
         public static event DelPropertyChange PropertyChanged;
         public static event DelHighlightingChange HighlightingChanged;
@@ -50,7 +50,7 @@ namespace TheraEngine.Editor
         //Contains information about the default value for each member.
         public Dictionary<string, object> MemberDefaults { get; set; }
 
-        public TObject Object { get; internal set; }
+        public IObject Object { get; internal set; }
         public bool HasChanges => _changedProperties.Count > 0;
         public bool Highlighted
         {
@@ -78,14 +78,20 @@ namespace TheraEngine.Editor
         public static List<EditorState> DirtyStates { get; } = new List<EditorState>();
         public bool DisplayInActorTree { get; set; } = true;
 
-        private void OnSelectedChanged(bool selected)
+        private new void OnSelectedChanged(bool selected)
         {
+            if (Object == this)
+                return;
+
             _selected = selected;
             Object?.OnSelectedChanged(_selected);
             SelectedChanged?.Invoke(_selected);
         }
-        private void OnHighlightedChanged(bool highlighted)
+        private new void OnHighlightedChanged(bool highlighted)
         {
+            if (Object == this)
+                return;
+
             _highlighted = highlighted;
             Object?.OnHighlightChanged(_highlighted);
             HighlightingChanged?.Invoke(highlighted);
@@ -280,7 +286,6 @@ namespace TheraEngine.Editor
         /// </summary>
         public bool InEditMode { get; set; } = true;
         public CameraComponent PinnedCameraComponent { get; set; }
-        public AppDomain GameDomain { get; set; }
     }
 
     /// <summary>

@@ -20,6 +20,7 @@ namespace TheraEditor.Windows.Forms
             FolderWrapper.LoadFileTypes();
             BaseObjectSerializer.ResetObjectSerializerCache(true);
             TFileObject.ClearThirdPartyTypeCache(true);
+            TFileObject.Reset3rdPartyImportExportMethods();
         }
         /// <summary>
         /// This will possess and unpossess the necessary viewports and pawns corresponding to the given editor control.

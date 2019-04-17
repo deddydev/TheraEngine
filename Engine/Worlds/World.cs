@@ -15,10 +15,20 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Worlds
 {
-    public interface IWorld
+    public interface IWorld : IFileObject, I3DRenderable, I2DRenderable, IEnumerable<IActor>, IDisposable
     {
         WorldSettings Settings { get; set; }
-        AbstractPhysicsWorld PhysicsWorld { get; }
+        AbstractPhysicsWorld PhysicsWorld3D { get; }
+        bool IsPlaying { get; }
+        bool IsRebasingOrigin { get; }
+        IScene Scene { get; set; }
+
+        void RebaseOrigin(Vec3 newOrigin);
+        void BeginPlay();
+        void EndPlay();
+        void SpawnActor(IActor item);
+
+        IActor this[int index] { get;set; }
     }
     /// <summary>
     /// Manages all 3D scene data for a particular consistent instance.
@@ -26,7 +36,7 @@ namespace TheraEngine.Worlds
     /// </summary>
     [TFileExt("world")]
     [TFileDef("World")]
-    public class World : TFileObject, I3DRenderable, I2DRenderable, IEnumerable<IActor>, IDisposable
+    public class World : TFileObject, IWorld
     {
         public World() : this(new WorldSettings(), new WorldState()) { }
         public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
@@ -86,16 +96,16 @@ namespace TheraEngine.Worlds
             get => StateRef.File;
             set => StateRef.File = value;
         }
-        public BaseScene Scene
+        public IScene Scene
         {
             get => State.Scene;
             set => State.Scene = value;
         }
-        public Scene3D Scene3D => Scene as Scene3D;
-        public Scene2D Scene2D => Scene as Scene2D;
+        public IScene3D Scene3D => Scene as IScene3D;
+        public IScene2D Scene2D => Scene as IScene2D;
         public AbstractPhysicsWorld PhysicsWorld3D { get; private set; }
 
-        public delegate void DelGameModeChange(World world, BaseGameMode previous, BaseGameMode next);
+        public delegate void DelGameModeChange(IWorld world, BaseGameMode previous, BaseGameMode next);
         public event DelGameModeChange CurrentGameModePreChanged;
         public event DelGameModeChange CurrentGameModePostChanged;
         
@@ -131,7 +141,7 @@ namespace TheraEngine.Worlds
         /// <summary>
         /// Adds an actor to the scene.
         /// </summary>
-        public void SpawnActor(BaseActor actor)
+        public void SpawnActor(IActor actor)
         {
             if (State.SpawnedActors.Add(actor))
             {
@@ -142,7 +152,7 @@ namespace TheraEngine.Worlds
         /// <summary>
         /// Adds an actor to the scene.
         /// </summary>
-        public void SpawnActor(BaseActor actor, Vec3 position)
+        public void SpawnActor(IActor actor, Vec3 position)
         {
             actor.Spawned(this);
             actor.RebaseOrigin(-position);
@@ -151,7 +161,7 @@ namespace TheraEngine.Worlds
         /// <summary>
         /// Removes an actor from the scene.
         /// </summary>
-        public void DespawnActor(BaseActor actor)
+        public void DespawnActor(IActor actor)
         {
             if (!State.SpawnedActors.Contains(actor))
                 return;
@@ -164,7 +174,7 @@ namespace TheraEngine.Worlds
         internal void StepSimulation(float delta)
             => PhysicsWorld3D?.StepSimulation(delta);
         
-        public BaseActor this[int index]
+        public IActor this[int index]
         {
             get => State.SpawnedActors[index];
             set => State.SpawnedActors[index] = value;
@@ -178,7 +188,7 @@ namespace TheraEngine.Worlds
         RenderInfo3D I3DRenderable.RenderInfo => RenderInfo3D;
         RenderInfo2D I2DRenderable.RenderInfo => RenderInfo2D;
 
-        public Scene2D OwningScene2D { get; }
+        public IScene2D OwningScene2D { get; }
         public bool IsPlaying { get; private set; }
 
         /// <summary>
@@ -227,6 +237,7 @@ namespace TheraEngine.Worlds
         {
 
         }
+        protected override void OnUnload() => Dispose();
         public void Dispose()
         {
             PhysicsWorld3D?.Dispose();
@@ -236,20 +247,6 @@ namespace TheraEngine.Worlds
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
 
-        protected override void OnUnload() => Dispose();
-        public virtual void EndPlay()
-        {
-            foreach (var m in Settings.Maps)
-                m.Value.File.EndPlay();
-
-            if (Settings.TwoDimensional)
-                RenderInfo2D.UnlinkScene();
-            else
-                RenderInfo3D.UnlinkScene();
-
-            CurrentGameMode?.EndGameplay();
-            IsPlaying = false;
-        }
         public virtual void BeginPlay()
         {
             if (Settings.TwoDimensional)
@@ -271,14 +268,14 @@ namespace TheraEngine.Worlds
                 if (m.Value.File.VisibleByDefault)
                     m.Value.File.BeginPlay(this);
 
-            Scene3D s3D = Scene3D;
+            IScene3D s3D = Scene3D;
             if (s3D != null)
             {
                 s3D.RenderTree.Swap();
                 if (s3D.IBLProbeActor != null)
                     s3D.IBLProbeActor.InitAndCaptureAll(512);
             }
-            Scene2D s2D = Scene2D;
+            IScene2D s2D = Scene2D;
             if (s2D != null)
             {
                 s2D.RenderTree.Swap();
@@ -291,6 +288,19 @@ namespace TheraEngine.Worlds
             string cut = Settings.CutsceneToPlayOnBeginPlay;
             if (!string.IsNullOrWhiteSpace(cut) && Settings.Cutscenes.ContainsKey(cut))
                 Settings.Cutscenes[cut]?.Start();
+        }
+        public virtual void EndPlay()
+        {
+            foreach (var m in Settings.Maps)
+                m.Value.File.EndPlay();
+
+            if (Settings.TwoDimensional)
+                RenderInfo2D.UnlinkScene();
+            else
+                RenderInfo3D.UnlinkScene();
+
+            CurrentGameMode?.EndGameplay();
+            IsPlaying = false;
         }
 
         private readonly RenderCommandMethod3D _rc3D;

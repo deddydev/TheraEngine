@@ -933,16 +933,16 @@ namespace System
             Row3.Z = inverse[3, 2];
             Row3.W = inverse[3, 3];
         }
-        public static TransformOrder OppositeOf(TransformOrder order)
+        public static ETransformOrder OppositeOf(ETransformOrder order)
         {
             switch (order)
             {
-                case TransformOrder.RST: return TransformOrder.TSR;
-                case TransformOrder.RTS: return TransformOrder.STR;
-                case TransformOrder.TSR: return TransformOrder.RST;
-                case TransformOrder.TRS: return TransformOrder.SRT;
-                case TransformOrder.STR: return TransformOrder.RTS;
-                case TransformOrder.SRT: return TransformOrder.TRS;
+                case ETransformOrder.RST: return ETransformOrder.TSR;
+                case ETransformOrder.RTS: return ETransformOrder.STR;
+                case ETransformOrder.TSR: return ETransformOrder.RST;
+                case ETransformOrder.TRS: return ETransformOrder.SRT;
+                case ETransformOrder.STR: return ETransformOrder.RTS;
+                case ETransformOrder.SRT: return ETransformOrder.TRS;
                 default: throw new Exception();
             }
         }
@@ -959,33 +959,33 @@ namespace System
             Vec3 scale,
             Quat rotate,
             Vec3 translate,
-            TransformOrder order = TransformOrder.TRS)
+            ETransformOrder order = ETransformOrder.TRS)
             => TransformMatrix(scale, CreateFromQuaternion(rotate), translate, order);
         
         public static Matrix4 TransformMatrix(
             Vec3 scale,
             Rotator rotate,
             Vec3 translate,
-            TransformOrder order = TransformOrder.TRS)
+            ETransformOrder order = ETransformOrder.TRS)
             => TransformMatrix(scale, CreateFromRotator(rotate), translate, order);
         
         public static Matrix4 TransformMatrix(
             Vec3 scale,
             Matrix4 rotate,
             Vec3 translate,
-            TransformOrder order = TransformOrder.TRS)
+            ETransformOrder order = ETransformOrder.TRS)
         {
             Matrix4 s = CreateScale(scale);
             Matrix4 r = rotate;
             Matrix4 t = CreateTranslation(translate);
             switch (order)
             {
-                case TransformOrder.TRS: return t * r * s;
-                case TransformOrder.RTS: return r * t * s;
-                case TransformOrder.SRT: return s * r * t;
-                case TransformOrder.RST: return r * s * t;
-                case TransformOrder.STR: return s * t * r;
-                case TransformOrder.TSR: return t * s * r;
+                case ETransformOrder.TRS: return t * r * s;
+                case ETransformOrder.RTS: return r * t * s;
+                case ETransformOrder.SRT: return s * r * t;
+                case ETransformOrder.RST: return r * s * t;
+                case ETransformOrder.STR: return s * t * r;
+                case ETransformOrder.TSR: return t * s * r;
             }
             return Identity;
         }
@@ -1001,7 +1001,7 @@ namespace System
             Vec3 scale,
             Quat rotate,
             Vec3 translate, 
-            TransformOrder order = TransformOrder.TRS)
+            ETransformOrder order = ETransformOrder.TRS)
         {
             return InverseTransformMatrix(scale, CreateFromQuaternion(rotate.Inverted()), translate, order);
         }
@@ -1009,7 +1009,7 @@ namespace System
             Vec3 scale,
             Rotator rotate,
             Vec3 translate,
-            TransformOrder order = TransformOrder.TRS)
+            ETransformOrder order = ETransformOrder.TRS)
         {
             return InverseTransformMatrix(scale, CreateFromRotator(rotate.Inverted()), translate, order);
         }
@@ -1025,7 +1025,7 @@ namespace System
             Vec3 scale,
             Matrix4 rotate,
             Vec3 translate,
-            TransformOrder order = TransformOrder.TRS)
+            ETransformOrder order = ETransformOrder.TRS)
         {
             return TransformMatrix(1.0f / scale, rotate, -translate, OppositeOf(order));
         }

@@ -36,7 +36,7 @@ namespace TheraEngine.Components.Scene.Transforms
         [TSerialize]
         public LocalFileRef<TCollisionObject> IgnoreCast { get; set; } = null;
         [TSerialize]
-        public RenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true) { EditorVisibilityMode = Rendering.RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected };
+        public IRenderInfo3D RenderInfo { get; protected set; } = new RenderInfo3D(false, true) { EditorVisibilityMode = EEditorVisibility.VisibleOnlyWhenSelected };
 
         public BoomComponent() : base() { _rc = new RenderCommandMethod3D(ERenderPass.OpaqueForward, Render); }
 
@@ -107,7 +107,7 @@ namespace TheraEngine.Components.Scene.Transforms
             }
         }
         private RenderCommandMethod3D _rc;
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             passes.Add(_rc);
         }

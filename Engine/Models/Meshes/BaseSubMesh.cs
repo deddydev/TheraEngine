@@ -12,17 +12,17 @@ namespace TheraEngine.Rendering.Models
         public ERenderPass RenderPass { get; set; } = ERenderPass.OpaqueDeferredLit;
 
         [TSerialize(Order = 0)]
-        public RenderInfo3D RenderInfo { get; set; }
+        public IRenderInfo3D RenderInfo { get; set; }
         
         [DisplayName("Levels Of Detail")]
         [Browsable(false)]
         [TSerialize(Order = 2)]
-        public EventList<LOD> LODs { get; set; }
+        public IEventList<ILOD> LODs { get; set; }
 
         public BaseSubMesh() { }
         public BaseSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
             PrimitiveData primitives,
             TMaterial material)
@@ -30,29 +30,29 @@ namespace TheraEngine.Rendering.Models
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            LODs = new EventList<LOD>() { new LOD(material, primitives, 0.0f) };
+            LODs = new EventList<ILOD>() { new LOD(material, primitives, 0.0f) };
         }
         public BaseSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
-            EventList<LOD> lods)
+            IEventList<ILOD> lods)
         {
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            LODs = lods ?? new EventList<LOD>();
+            LODs = lods ?? new EventList<ILOD>();
         }
         public BaseSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
-            params LOD[] lods)
+            params ILOD[] lods)
         {
             _name = name;
             RenderInfo = renderInfo ?? new RenderInfo3D() { CastsShadows = true, ReceivesShadows = true };
             RenderPass = renderPass;
-            LODs = new EventList<LOD>(lods);
+            LODs = new EventList<ILOD>(lods);
         }
     }
 }

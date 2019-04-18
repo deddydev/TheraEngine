@@ -10,12 +10,51 @@ using TheraEngine.GameModes;
 
 namespace TheraEngine.Worlds
 {
+    public interface IWorldSettings : IFileObject
+    {
+        event GravityChange GravityChanged;
+        event GameModeChange GameModeOverrideChanged;
+        event TimeMultiplierChange TimeMultiplierChanged;
+        event Action<WorldSettings> EnableOriginRebasingChanged;
+
+        void OnGravityChanged(Vec3 oldGravity);
+        void OnGameModeOverrideChanged(IGameMode oldMode);
+        void OnTimeMultiplierChanged(float oldMult);
+        void OnEnableOriginRebasingChanged();
+
+        IWorld OwningWorld { get; set; }
+
+        Vec3 Gravity { get; set; }
+        GlobalFileRef<IGameMode> DefaultGameModeRef { get; set; }
+        float TimeDilation { get; set; }
+        bool TwoDimensional { get; set; }
+        bool EnableOriginRebasing { get; set; }
+        [Category("World Origin Rebasing")]
+        [TSerialize]
+        float OriginRebaseRadius { get; set; }
+        [TSerialize]
+        [Category("Editor Traits")]
+        bool PreviewOctrees { get; set; }
+        [TSerialize]
+        [Category("Editor Traits")]
+        bool PreviewQuadtrees { get; set; }
+        bool PreviewPhysics { get; set; }
+
+        string NewActorTargetMapName { get; set; }
+        BoundingBox Bounds { get; set; }
+        string CutsceneToPlayOnBeginPlay { get; set; }
+        EventDictionary<string, Cutscene> Cutscenes { get; set; }
+        EventDictionary<string, LocalFileRef<IMap>> Maps { get; set; }
+        IMap FindOrCreateMap(string name);
+    }
+
     public delegate void GravityChange(WorldSettings settings, Vec3 oldGravity);
-    public delegate void GameModeChange(WorldSettings settings, BaseGameMode oldMode);
+    public delegate void GameModeChange(WorldSettings settings, IGameMode oldMode);
     public delegate void TimeMultiplierChange(WorldSettings settings, float oldMult);
+
     [TFileExt("wset")]
     [TFileDef("World Settings")]
-    public class WorldSettings : TFileObject
+    public class WorldSettings : TFileObject, IWorldSettings
     {
         public event GravityChange GravityChanged;
         public event GameModeChange GameModeOverrideChanged;
@@ -23,12 +62,12 @@ namespace TheraEngine.Worlds
         public event Action<WorldSettings> EnableOriginRebasingChanged;
 
         public void OnGravityChanged(Vec3 oldGravity) => GravityChanged?.Invoke(this, oldGravity);
-        public void OnGameModeOverrideChanged(BaseGameMode oldMode) => GameModeOverrideChanged?.Invoke(this, oldMode);
+        public void OnGameModeOverrideChanged(IGameMode oldMode) => GameModeOverrideChanged?.Invoke(this, oldMode);
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(this, oldMult);
         public void OnEnableOriginRebasingChanged() => EnableOriginRebasingChanged?.Invoke(this);
 
         [Browsable(false)]
-        public World OwningWorld { get; internal set; }
+        public IWorld OwningWorld { get; set; }
 
         //[TypeConverter(typeof(Vec3StringConverter))]
         [Category("World")]
@@ -46,12 +85,12 @@ namespace TheraEngine.Worlds
         /// Overrides the default game mode specified by the game.
         /// </summary>
         [Category("Gameplay")]
-        public GlobalFileRef<BaseGameMode> DefaultGameModeRef
+        public GlobalFileRef<IGameMode> DefaultGameModeRef
         {
             get => _gameModeOverrideRef;
             set
             {
-                BaseGameMode oldMode = _gameModeOverrideRef;
+                IGameMode oldMode = _gameModeOverrideRef.File;
                 _gameModeOverrideRef = value;
                 OnGameModeOverrideChanged(oldMode);
             }
@@ -82,7 +121,7 @@ namespace TheraEngine.Worlds
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
 
         [TSerialize(nameof(DefaultGameModeRef))]
-        private GlobalFileRef<BaseGameMode> _gameModeOverrideRef;
+        private GlobalFileRef<IGameMode> _gameModeOverrideRef;
 
         [TSerialize(nameof(TimeDilation))]
         private float _timeSpeed = 1.0f;
@@ -91,7 +130,7 @@ namespace TheraEngine.Worlds
         private EventDictionary<string, Cutscene> _cutscenes;
 
         [TSerialize(nameof(Maps))]
-        private EventDictionary<string, LocalFileRef<Map>> _maps;
+        private EventDictionary<string, LocalFileRef<IMap>> _maps;
 
         [TSerialize]
         [Category("World")]
@@ -157,7 +196,7 @@ namespace TheraEngine.Worlds
         }
 
         [Category("World")]
-        public EventDictionary<string, LocalFileRef<Map>> Maps
+        public EventDictionary<string, LocalFileRef<IMap>> Maps
         {
             get => _maps;
             set
@@ -169,7 +208,7 @@ namespace TheraEngine.Worlds
                     _maps.Set -= _maps_Set;
                 }
 
-                _maps = value ?? new EventDictionary<string, LocalFileRef<Map>>();
+                _maps = value ?? new EventDictionary<string, LocalFileRef<IMap>>();
 
                 _maps.Added += _maps_Added;
                 _maps.Removed += _maps_Removed;
@@ -180,19 +219,19 @@ namespace TheraEngine.Worlds
             }
         }
 
-        private void _maps_Set(string key, LocalFileRef<Map> oldValue, LocalFileRef<Map> newValue)
+        private void _maps_Set(string key, LocalFileRef<IMap> oldValue, LocalFileRef<IMap> newValue)
         {
             _maps_Removed(key, oldValue);
             _maps_Added(key, newValue);
         }
-        private void _maps_Removed(string key, LocalFileRef<Map> value)
+        private void _maps_Removed(string key, LocalFileRef<IMap> value)
         {
             if (value == null)
                 return;
             value.UnregisterLoadEvent(MapLoaded);
             value.UnregisterUnloadEvent(MapUnloaded);
         }
-        private void _maps_Added(string key, LocalFileRef<Map> value)
+        private void _maps_Added(string key, LocalFileRef<IMap> value)
         {
             if (value == null)
                 return;
@@ -200,40 +239,40 @@ namespace TheraEngine.Worlds
             value.RegisterUnloadEvent(MapUnloaded);
         }
 
-        public Map FindOrCreateMap(string name)
+        public IMap FindOrCreateMap(string name)
         {
-            Map map;
+            IMap map;
             if (Maps != null)
             {
                 if (Maps.ContainsKey(name))
-                    map = Maps[name];
+                    map = Maps[name].File;
                 else
                 {
                     map = new Map();
-                    Maps.Add(name, map);
+                    Maps.Add(name, new LocalFileRef<IMap>(map));
                 }
             }
             else
             {
                 map = new Map();
-                Maps = new EventDictionary<string, LocalFileRef<Map>> { { name, map } };
+                Maps = new EventDictionary<string, LocalFileRef<IMap>> { { name, new LocalFileRef<IMap>(map) } };
             }
             return map;
         }
         
-        private void MapUnloaded(Map map)
+        private void MapUnloaded(IMap map)
         {
             if (map.OwningWorld == OwningWorld)
                 map.OwningWorld = null;
         }
-        private void MapLoaded(Map map)
+        private void MapLoaded(IMap map)
         {
             map.OwningWorld = OwningWorld;
         }
 
         public WorldSettings()
         {
-            Maps = new EventDictionary<string, LocalFileRef<Map>>();
+            Maps = new EventDictionary<string, LocalFileRef<IMap>>();
             Cutscenes = new EventDictionary<string, Cutscene>();
         }
         public WorldSettings(string name, params Map[] maps)
@@ -243,7 +282,7 @@ namespace TheraEngine.Worlds
                 Bounds.Maximum.X, Bounds.Maximum.Y, Bounds.Maximum.Z,
                 Bounds.Minimum.X, Bounds.Minimum.Y, Bounds.Minimum.Z);
 
-            Maps = new EventDictionary<string, LocalFileRef<Map>>(maps.ToDictionary(x => x.Name, x => new LocalFileRef<Map>(x)));
+            Maps = new EventDictionary<string, LocalFileRef<IMap>>(maps.ToDictionary(x => x.Name, x => new LocalFileRef<IMap>(x)));
             Cutscenes = new EventDictionary<string, Cutscene>();
         }
     }

@@ -21,23 +21,76 @@ namespace TheraEngine.Rendering.Models
         RotationXYZ,
         PerspectiveXYZ,
     }
+    public interface IBone : IFileObject, IRigidBodyCollidable, ISocket
+    {
+        void CollectChildBones(ISkeleton owner);
+        void LinkSingleBindMesh(SkeletalRigidSubMesh m);
+        void UnlinkSingleBindMesh(SkeletalRigidSubMesh m);
+
+        ITransform RigidBodyLocalTransform { get; set; }
+
+#if EDITOR
+        bool Selected { get; set; }
+#endif
+
+        IBone Parent { get; set; }
+        ISkeleton Skeleton { get; set; }
+
+        SkeletalMeshComponent OwningComponent { get; }
+
+        Matrix4 FrameMatrix { get; }
+        Matrix4 BindMatrix { get; }
+        Matrix4 InverseFrameMatrix { get; }
+        Matrix4 InverseBindMatrix { get; }
+        Matrix4 VertexMatrix { get; }
+        bool FrameMatrixChanged { get; set; }
+
+        IEventList<IBone> ChildBones { get; }
+
+        ITransform FrameState { get; set; }
+        ITransform BindState { get; set; }
+
+        TConstraint ParentPhysicsConstraint { get; set; }
+
+        EBillboardType BillboardType { get; set; }
+        bool ScaleByDistance { get; set; }
+        float DistanceScaleScreenSize { get; set; }
+
+        Matrix4 WorldToLocalMatrix(Matrix4 worldMatrix);
+
+        void AddPrimitiveManager(IPrimitiveManager m);
+        void RemovePrimitiveManager(IPrimitiveManager m);
+        bool UsesCamera { get; }
+        int Index { get; }
+
+        Dictionary<int, Tuple<IPrimitiveManager, ThreadSafeList<int>>> InfluencedVertices { get; }
+        List<CPUSkinInfo.LiveInfluence> InfluencedInfluences { get; }
+
+        void CalcFrameMatrix(ICamera camera, bool force = false);
+        void CalcFrameMatrix(ICamera camera, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false);
+
+        void CalcBindMatrix(bool updateMesh);
+        void CalcBindMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool updateMesh);
+
+        void TriggerFrameMatrixUpdate();
+    }
     [TFileExt("bone")]
     [TFileDef("Bone")]
-    public class Bone : TFileObject, IRigidBodyCollidable, ISocket
+    public class Bone : TFileObject, IBone
     {
         //TODO: culling volumes for each skinned bone; cull mesh if all influence bones are culled
 
         public Bone(Skeleton owner) : this()
             => Skeleton = owner;
-        public Bone(string name, Transform bindstate, TRigidBodyConstructionInfo info)
+        public Bone(string name, ITransform bindstate, TRigidBodyConstructionInfo info)
             => Init(name, bindstate, info);
-        public Bone(string name, Transform bindState)
+        public Bone(string name, ITransform bindState)
             => Init(name, bindState, null);
         public Bone(string name)
             => Init(name, new Transform(), null);
         public Bone()
             => Init("NewBone", new Transform(), null);
-        private void Init(string name, Transform bindState, TRigidBodyConstructionInfo info)
+        private void Init(string name, ITransform bindState, TRigidBodyConstructionInfo info)
         {
             FrameState = bindState.HardCopy();
             _bindState = bindState.HardCopy();
@@ -63,16 +116,17 @@ namespace TheraEngine.Rendering.Models
                 RigidBodyCollision = TRigidBody.New(info);
         }
 
+        public int Index => _index;
         private void _rigidBodyCollision_TransformChanged(Matrix4 transform)
         {
             FrameMatrixChanged = true;
         }
 
-        private void FrameStateMatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        private void FrameStateMatrixChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
             TriggerFrameMatrixUpdate();
         }
-        internal void CollectChildBones(Skeleton owner)
+        public void CollectChildBones(ISkeleton owner)
         {
             Skeleton = owner;
 
@@ -86,7 +140,7 @@ namespace TheraEngine.Rendering.Models
             if (_rigidBodyCollision != null)
                 Skeleton.AddPhysicsBone(this);
 
-            foreach (Bone b in ChildBones)
+            foreach (IBone b in ChildBones)
                 b.CollectChildBones(owner);
         }
         
@@ -102,18 +156,21 @@ namespace TheraEngine.Rendering.Models
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
 
+        Dictionary<int, Tuple<IPrimitiveManager, ThreadSafeList<int>>> IBone.InfluencedVertices => _influencedVertices;
+        List<CPUSkinInfo.LiveInfluence> IBone.InfluencedInfluences => _influencedInfluences;
+
         [TSerialize("Transform")]
-        private Transform _bindState;
+        private ITransform _bindState;
         [TSerialize("ChildBones")]
-        private EventList<Bone> _childBones = new EventList<Bone>();
+        private IEventList<IBone> _childBones = new EventList<IBone>();
         [TSerialize("ConstraintToParent")]
         private TConstraint _parentConstraint;
         private TRigidBody _rigidBodyCollision;
         [TSerialize(nameof(RigidBodyLocalTransform))]
-        private Transform _rigidBodyLocalTransform = Transform.GetIdentity();
+        private ITransform _rigidBodyLocalTransform = Transform.GetIdentity();
 
         [Category("Bone")]
-        public Transform RigidBodyLocalTransform
+        public ITransform RigidBodyLocalTransform
         {
             get => _rigidBodyLocalTransform;
             set
@@ -127,15 +184,15 @@ namespace TheraEngine.Rendering.Models
         [TPostDeserialize]
         internal void PostDeserialize()
         {
-            foreach (Bone b in _childBones)
-                b._parent = this;
+            foreach (IBone b in _childBones)
+                b.SetParentInternal(this);
             FrameState = _bindState.HardCopy();
             CalcBindMatrix(true);
             FrameState.MatrixChanged += FrameStateMatrixChanged;
             TriggerFrameMatrixUpdate();
         }
 
-        private Bone _parent;
+        private IBone _parent;
         private Matrix4
             //Animated transformation matrix relative to the skeleton's root bone, aka model space
             _frameMatrix = Matrix4.Identity, _inverseFrameMatrix = Matrix4.Identity,
@@ -162,7 +219,7 @@ namespace TheraEngine.Rendering.Models
 #endif
 
         [Browsable(false)]
-        public Bone Parent
+        public IBone Parent
         {
             get => _parent;
             set
@@ -175,9 +232,14 @@ namespace TheraEngine.Rendering.Models
         }
         //Set when regenerating the child cache, which is done any time the bone heirarchy is modified
         [Browsable(false)]
-        public Skeleton Skeleton { get; private set; }
+        public ISkeleton Skeleton { get; set; }
         [Browsable(false)]
         public SkeletalMeshComponent OwningComponent => Skeleton?.OwningComponent;
+        Matrix4 ICollidable.CollidableWorldMatrix
+        {
+            get => WorldMatrix;
+            set => WorldMatrix = value;
+        }
         [Browsable(false)]
         public Matrix4 WorldMatrix
         {
@@ -219,7 +281,7 @@ namespace TheraEngine.Rendering.Models
         public bool FrameMatrixChanged
         {
             get => _frameMatrixChanged;
-            private set
+            set
             {
                 _frameMatrixChanged = value;
                 if (Parent != null)
@@ -229,26 +291,26 @@ namespace TheraEngine.Rendering.Models
         //[Browsable(false)]
         //public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
 
-        private EventList<SceneComponent> _childComponents = new EventList<SceneComponent>();
+        private IEventList<ISceneComponent> _childComponents = new EventList<ISceneComponent>();
         [TSerialize]
         [Category("Bone")]
         [Browsable(false)]
-        public EventList<SceneComponent> ChildComponents
+        public IEventList<ISceneComponent> ChildComponents
         {
             get => _childComponents;
             set
             {
-                _childComponents = value ?? new EventList<SceneComponent>();
+                _childComponents = value ?? new EventList<ISceneComponent>();
             }
         }
 
         [Category("Bone")]
         [Browsable(false)]
-        public EventList<Bone> ChildBones => _childBones;
+        public IEventList<IBone> ChildBones => _childBones;
         [Category("Bone")]
-        public Transform FrameState { get; private set; }
+        public ITransform FrameState { get; set; }
         [Category("Bone")]
-        public Transform BindState
+        public ITransform BindState
         {
             get => _bindState;
             set
@@ -358,10 +420,8 @@ namespace TheraEngine.Rendering.Models
         public float DistanceScaleScreenSize { get; set; } = 1.0f;
 
         public Matrix4 WorldToLocalMatrix(Matrix4 worldMatrix)
-        {
-            return (Parent == null ? (OwningComponent == null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
-        }
-
+            => (Parent == null ? (OwningComponent == null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
+        
         public void HandleWorldTranslation(Vec3 delta)
         {
 
@@ -375,13 +435,13 @@ namespace TheraEngine.Rendering.Models
 
         }
 
-        internal void AddPrimitiveManager(IPrimitiveManager m)
+        public void AddPrimitiveManager(IPrimitiveManager m)
         {
             if (!_influencedVertices.ContainsKey(m.BindingId))
                 _influencedVertices.Add(m.BindingId, new Tuple<IPrimitiveManager, ThreadSafeList<int>>(m, new ThreadSafeList<int>()));
             Skeleton?.AddPrimitiveManager(m);
         }
-        internal void RemovePrimitiveManager(IPrimitiveManager m)
+        public void RemovePrimitiveManager(IPrimitiveManager m)
         {
             _influencedVertices.Remove(m.BindingId);
             Skeleton?.RemovePrimitiveManager(m);
@@ -390,11 +450,11 @@ namespace TheraEngine.Rendering.Models
         [Browsable(false)]
         public bool UsesCamera => BillboardType != EBillboardType.None || ScaleByDistance;
 
-        public void CalcFrameMatrix(Camera camera, bool force = false)
+        public void CalcFrameMatrix(ICamera camera, bool force = false)
         {
-            CalcFrameMatrix(camera, _parent._frameMatrix, _parent._inverseFrameMatrix, force);
+            CalcFrameMatrix(camera, _parent.FrameMatrix, _parent.InverseFrameMatrix, force);
         }
-        public void CalcFrameMatrix(Camera camera, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
+        public void CalcFrameMatrix(ICamera camera, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
         {
             //WorldMatrix = _rigidBodyCollision.WorldTransform;
 
@@ -429,7 +489,7 @@ namespace TheraEngine.Rendering.Models
                     {
                         float scale = camera.DistanceScale(WorldMatrix.Translation, DistanceScaleScreenSize);
                         //Engine.PrintLine(scale.ToString());
-                        _frameMatrix = _frameMatrix * Matrix4.CreateScale(scale);
+                        _frameMatrix *= Matrix4.CreateScale(scale);
                         _inverseFrameMatrix = Matrix4.CreateScale(1.0f / scale) * _inverseFrameMatrix;
                     }
                 }
@@ -514,97 +574,84 @@ namespace TheraEngine.Rendering.Models
         }
 
         #region Child Bone List Events
-        private void ChildBoneAdded(Bone item)
+        private void SingleChildBoneAdded(IBone item)
         {
-            item._parent = this;
+            item.SetParentInternal(this);
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
             item.TriggerFrameMatrixUpdate();
+        }
+        private void ChildBoneAdded(IBone item)
+        {
+            SingleChildBoneAdded(item);
+
             Skeleton?.RegenerateBoneCache();
         }
-        private void ChildBonesAddedRange(IEnumerable<Bone> items)
+        private void ChildBonesAddedRange(IEnumerable<IBone> items)
         {
-            foreach (Bone item in items)
-            {
-                item._parent = this;
-                item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-                item.TriggerFrameMatrixUpdate();
-            }
+            foreach (IBone item in items)
+                SingleChildBoneAdded(item);
+
             Skeleton?.RegenerateBoneCache();
         }
-        private void ChildBoneInserted(Bone item, int index)
+        private void ChildBoneInserted(IBone item, int index)
         {
-            item._parent = this;
-            item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-            item.TriggerFrameMatrixUpdate();
-            Skeleton?.RegenerateBoneCache();
+            ChildBoneAdded(item);
         }
-        private void ChildBonesInsertedRange(IEnumerable<Bone> items, int index)
+        private void ChildBonesInsertedRange(IEnumerable<IBone> items, int index)
         {
-            foreach (Bone item in items)
-            {
-                item._parent = this;
-                item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-                item.TriggerFrameMatrixUpdate();
-            }
-            Skeleton?.RegenerateBoneCache();
+            ChildBonesAddedRange(items);
         }
-        private void ChildBonesRemoved(Bone item)
+        private void SingleChildBoneRemoved(IBone item)
         {
-            item._parent = null;
+            item.SetParentInternal(null);
             item.CalcBindMatrix(false);
             item.TriggerFrameMatrixUpdate();
+        }
+        private void ChildBonesRemoved(IBone item)
+        {
+            SingleChildBoneRemoved(item);
+
             Skeleton?.RegenerateBoneCache();
         }
-        private void ChildBonesRemovedRange(IEnumerable<Bone> items)
+        private void ChildBonesRemovedRange(IEnumerable<IBone> items)
         {
-            foreach (Bone item in items)
-            {
-                item._parent = null;
-                item.CalcBindMatrix(false);
-                item.TriggerFrameMatrixUpdate();
-            }
+            foreach (IBone item in items)
+                SingleChildBoneRemoved(item);
+
             Skeleton?.RegenerateBoneCache();
         }
         #endregion
 
         #region Child Component List Events
-        private void ChildComponentsAdded(SceneComponent item)
+        private void ChildComponentsAdded(ISceneComponent item)
         {
-            item._parent = this;
+            item.SetParentInternal(this);
             item.OwningActor = OwningComponent.OwningActor;
             item.RecalcWorldTransform();
         }
-        private void ChildComponentsAddedRange(IEnumerable<SceneComponent> items)
+        private void ChildComponentsAddedRange(IEnumerable<ISceneComponent> items)
         {
-            foreach (SceneComponent item in items)
-            {
-                item._parent = this;
-                item.OwningActor = OwningComponent.OwningActor;
-                item.RecalcWorldTransform();
-            }
+            foreach (ISceneComponent item in items)
+                ChildComponentsAdded(item);
         }
-        private void ChildComponentsInserted(SceneComponent item, int index)
+        private void ChildComponentsInserted(ISceneComponent item, int index)
             => ChildComponentsAdded(item);
-        private void ChildComponentsInsertedRange(IEnumerable<SceneComponent> items, int index)
+        private void ChildComponentsInsertedRange(IEnumerable<ISceneComponent> items, int index)
             => ChildComponentsAddedRange(items);
-        private void ChildComponentsRemoved(SceneComponent item)
+        private void ChildComponentsRemoved(ISceneComponent item)
         {
-            item._parent = null;
+            item.SetParentInternal(null);
             item.OwningActor = null;
             item.RecalcWorldTransform();
         }
-        private void ChildComponentsRemovedRange(IEnumerable<SceneComponent> items)
+        private void ChildComponentsRemovedRange(IEnumerable<ISceneComponent> items)
         {
-            foreach (SceneComponent item in items)
-            {
-                item._parent = null;
-                item.OwningActor = null;
-                item.RecalcWorldTransform();
-            }
+            foreach (ISceneComponent item in items)
+                ChildComponentsRemoved(item);
         }
         #endregion
 
-        private void HandleBillboarding(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, Camera camera)
+        private void HandleBillboarding(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, ICamera camera)
         {
             if (camera == null)
                 return;
@@ -704,7 +751,7 @@ namespace TheraEngine.Rendering.Models
             if (OwningComponent != null)
             {
                 angles = OwningComponent.InverseWorldMatrix.GetRotationMatrix4() * angles;
-                invAngles = invAngles * OwningComponent.WorldMatrix.GetRotationMatrix4();
+                invAngles *= OwningComponent.WorldMatrix.GetRotationMatrix4();
             }
 
             //Multiply translation, rotation and scale parts together
@@ -712,18 +759,20 @@ namespace TheraEngine.Rendering.Models
             _inverseFrameMatrix = (1.0f / FrameState.Scale).AsScaleMatrix() * invAngles * invFramTrans;
         }
 
-        ISocket ISocket.ParentSocket => _parent;
+        public void SetParentInternal(ISocket socket) => _parent = socket as Bone;
+
+        ISocket ISocket.ParentSocket
+        {
+            get => _parent;
+            set => _parent = value as Bone; //TODO: actually perform link
+        }
         bool ISocket.IsTranslatable => true;
         bool ISocket.IsScalable => true;
         bool ISocket.IsRotatable => true;
 
+        [Browsable(false)]
+        public int ParentSocketChildIndex => _parent.ChildBones.IndexOf(this);
+
         public event DelSocketTransformChange SocketTransformChanged;
-        void ISocket.RegisterWorldMatrixChanged(DelSocketTransformChange eventMethod, bool unregister)
-        {
-            if (unregister)
-                SocketTransformChanged -= eventMethod;
-            else
-                SocketTransformChanged += eventMethod;
-        }
     }
 }

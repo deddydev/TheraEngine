@@ -48,14 +48,14 @@ namespace TheraEditor.Windows.Forms
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = actor;
                     break;
                 }
-                case Component component:
+                case IComponent component:
                 {
                     component.EditorState.Selected = true;
-                    EditorHUD?.SetSelectedComponent(false, component as SceneComponent, true);
+                    EditorHUD?.SetSelectedComponent(false, component as ISceneComponent, true);
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = component;
                     break;
                 }
-                case Map map:
+                case IMap map:
                 {
                     EditorHUD?.SetSelectedComponent(false, null, true);
                     Editor.Instance.PropertyGridForm.PropertyGrid.TargetObject = map;
@@ -76,10 +76,10 @@ namespace TheraEditor.Windows.Forms
             if (Engine.World == null || Engine.ShuttingDown)
                 return;
             
-            Engine.World.Settings.Maps.ForEach(x => CacheMap(x.Value));
+            Engine.World.Settings.Maps.ForEach(x => CacheMap(x.Value.File));
             Engine.World.State.SpawnedActors.ForEach(ActorSpawned);
         }
-        internal TreeNode CacheMap(Map map)
+        internal TreeNode CacheMap(IMap map)
         {
             TreeNode mapNode;
             if (map == null)
@@ -118,7 +118,7 @@ namespace TheraEditor.Windows.Forms
             if (Engine.World == null || Engine.ShuttingDown || item == null)
                 return;
 
-            Map map = item.MapAttachment;
+            IMap map = item.MapAttachment;
             TreeNode mapNode = CacheMap(map);
 
             TreeNode node = new TreeNode(item.ToString()) { Tag = item };
@@ -201,7 +201,7 @@ namespace TheraEditor.Windows.Forms
         private void ctxActorTree_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             TreeNode node = ActorTree.SelectedNode;
-            bool programmatic = node.Tag is TObject tobj && tobj.ConstructedProgrammatically;
+            bool programmatic = node.Tag is IObject tobj && tobj.ConstructedProgrammatically;
 
             btnMoveUp.Visible = btnMoveDown.Visible = node?.Tag is IComponent;
             btnMoveDown.Enabled = btnMoveAsChildToSibNext.Enabled = node?.NextNode != null && !programmatic;
@@ -212,7 +212,7 @@ namespace TheraEditor.Windows.Forms
             btnMoveAsChildToSibPrev.Visible = 
             btnNewSiblingSceneComp.Visible =
             btnNewChildSceneComp.Visible =
-            node?.Tag is SceneComponent;
+            node?.Tag is ISceneComponent;
 
             splt1.Visible = btnMoveUp.Visible || btnMoveDown.Visible || btnMoveAsSibToParent.Visible || btnMoveAsChildToSibNext.Visible || btnMoveAsChildToSibPrev.Visible || btnNewSiblingSceneComp.Visible;
 
@@ -226,26 +226,26 @@ namespace TheraEditor.Windows.Forms
             btnRemove.Enabled = !programmatic;
             switch (node.Tag)
             {
-                case Map map:
+                case IMap map:
                     btnNewLogicComp.Visible = false;
                     btnNewMap.Visible = true;
                     btnNewActor.Visible = true;
                     break;
-                case BaseActor actor:
+                case IActor actor:
                     btnNewMap.Visible = false;
                     btnNewActor.Visible = true;
                     btnNewLogicComp.Visible = true;
                     break;
-                case SceneComponent sceneComp:
-                    SceneComponent sceneCompParent = sceneComp.ParentSocket as SceneComponent;
+                case ISceneComponent sceneComp:
+                    ISceneComponent sceneCompParent = sceneComp.ParentSocket as ISceneComponent;
                     bool parentIsSceneComp = sceneCompParent != null;
                     btnNewSiblingSceneComp.Enabled = parentIsSceneComp;
-                    btnMoveAsSibToParent.Enabled = parentIsSceneComp && sceneCompParent.ParentSocket is SceneComponent;
+                    btnMoveAsSibToParent.Enabled = parentIsSceneComp && sceneCompParent.ParentSocket is ISceneComponent;
                     btnNewMap.Visible = false;
                     btnNewActor.Visible = true;
                     btnNewLogicComp.Visible = false;
                     break;
-                case LogicComponent logicComp:
+                case ILogicComponent logicComp:
                     btnNewMap.Visible = false;
                     btnNewActor.Visible = false;
                     btnNewLogicComp.Visible = true;
@@ -286,29 +286,31 @@ namespace TheraEditor.Windows.Forms
                 return;
 
             TreeNode node = ActorTree.SelectedNode;
-            Map targetMap = null;
+            IMap targetMap = null;
 
             switch (node.Tag)
             {
-                case Map map:
+                case IMap map:
                     targetMap = map;
                     break;
-                case BaseActor actor:
+                case IActor actor:
                     targetMap = actor.MapAttachment;
                     break;
-                case SceneComponent comp:
-                    SceneComponent subActorComp = Editor.UserCreateInstanceOf<ISubActorComponent>() as SceneComponent;
-                    if (subActorComp == null)
+                case ISceneComponent comp:
+
+                    if (!(Editor.UserCreateInstanceOf<ISubActorComponent>() is ISceneComponent subActorComp))
                         return;
+
                     comp.ChildComponents.Add(subActorComp);
                     //targetMap = comp.OwningActor?.MapAttachment;
+
                     return;
             }
 
             if (targetMap == null)
                 targetMap = Engine.World.Settings.FindOrCreateMap(Engine.World.Settings.NewActorTargetMapName);
 
-            BaseActor newActor = Editor.UserCreateInstanceOf<BaseActor>();
+            IActor newActor = Editor.UserCreateInstanceOf<IActor>();
             if (newActor == null)
                 return;
 
@@ -323,7 +325,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             switch (node.Tag)
             {
-                case Map map:
+                case IMap map:
                     {
                         var maps = map.OwningWorld.Settings.Maps;
                         var matches = maps.Where(x => x.Value.IsLoaded && x.Value.File == map);
@@ -334,17 +336,17 @@ namespace TheraEditor.Windows.Forms
                         }
                     }
                     break;
-                case BaseActor actor:
+                case IActor actor:
                     {
                         var map = actor.MapAttachment;
                         actor?.Despawn();
                         map?.Actors?.Remove(actor);
                     }
                     break;
-                case SceneComponent sceneComp:
+                case ISceneComponent sceneComp:
                     sceneComp.ParentSocket?.ChildComponents?.Remove(sceneComp);
                     break;
-                case LogicComponent logicComp:
+                case ILogicComponent logicComp:
                     logicComp.OwningActor?.LogicComponents?.Remove(logicComp);
                     break;
             }
@@ -361,9 +363,9 @@ namespace TheraEditor.Windows.Forms
         private void btnNewChildSceneComp_Click(object sender, EventArgs e)
         {
             var node = ActorTree.SelectedNode;
-            if (node.Tag is SceneComponent comp)
+            if (node.Tag is ISceneComponent comp)
             {
-                SceneComponent newComp = Editor.UserCreateInstanceOf<SceneComponent>();
+                ISceneComponent newComp = Editor.UserCreateInstanceOf<ISceneComponent>();
                 if (newComp != null)
                     comp.ChildComponents.Add(newComp);
             }
@@ -373,16 +375,16 @@ namespace TheraEditor.Windows.Forms
             var node = ActorTree.SelectedNode;
             switch (node.Tag)
             {
-                case BaseActor actor:
+                case IActor actor:
                     {
-                        LogicComponent newComp = Editor.UserCreateInstanceOf<LogicComponent>();
+                        ILogicComponent newComp = Editor.UserCreateInstanceOf<ILogicComponent>();
                         if (newComp != null)
                             actor.LogicComponents.Add(newComp);
                     }
                     break;
-                case LogicComponent logicComp:
+                case ILogicComponent logicComp:
                     {
-                        LogicComponent newComp = Editor.UserCreateInstanceOf<LogicComponent>();
+                        ILogicComponent newComp = Editor.UserCreateInstanceOf<ILogicComponent>();
                         if (newComp != null)
                             logicComp.OwningActor.LogicComponents.Add(newComp);
                     }

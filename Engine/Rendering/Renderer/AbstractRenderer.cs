@@ -20,9 +20,9 @@ namespace TheraEngine.Rendering
         public const float DefaultPointSize = 5.0f;
         public const float DefaultLineSize = 1.0f;
         
-        public Camera CurrentCamera => _cameraStack.Count == 0 ? null : _cameraStack.Peek();
-        public Scene2D Current2DScene => _2dSceneStack.Count == 0 ? null : _2dSceneStack.Peek();
-        public Scene3D Current3DScene => _3dSceneStack.Count == 0 ? null : _3dSceneStack.Peek();
+        public ICamera CurrentCamera => _cameraStack.Count == 0 ? null : _cameraStack.Peek();
+        public IScene2D Current2DScene => _2dSceneStack.Count == 0 ? null : _2dSceneStack.Peek();
+        public IScene3D Current3DScene => _3dSceneStack.Count == 0 ? null : _3dSceneStack.Peek();
 
         /// <summary>
         /// Set this to force every mesh to render with this material.
@@ -34,12 +34,12 @@ namespace TheraEngine.Rendering
 
         protected IPrimitiveManager _currentPrimitiveManager;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
-        private Stack<Camera> _cameraStack = new Stack<Camera>();
-        private Stack<Scene2D> _2dSceneStack = new Stack<Scene2D>();
-        private Stack<Scene3D> _3dSceneStack = new Stack<Scene3D>();
+        private Stack<ICamera> _cameraStack = new Stack<ICamera>();
+        private Stack<IScene2D> _2dSceneStack = new Stack<IScene2D>();
+        private Stack<IScene3D> _3dSceneStack = new Stack<IScene3D>();
 
         #region Push / Pop Current
-        internal void PushCurrent3DScene(Scene3D scene)
+        internal void PushCurrent3DScene(IScene3D scene)
         {
             _3dSceneStack.Push(scene);
         }
@@ -47,7 +47,7 @@ namespace TheraEngine.Rendering
         {
             _3dSceneStack.Pop();
         }
-        internal void PushCurrent2DScene(Scene2D scene)
+        internal void PushCurrent2DScene(IScene2D scene)
         {
             _2dSceneStack.Push(scene);
         }
@@ -55,9 +55,9 @@ namespace TheraEngine.Rendering
         {
             _2dSceneStack.Pop();
         }
-        internal void PushCamera(Camera camera)
+        internal void PushCamera(ICamera camera)
         {
-            Camera c = CurrentCamera;
+            ICamera c = CurrentCamera;
 
             if (c != null)
                 c.IsActiveRenderCamera = false;
@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering
         }
         internal void PopCamera()
         {
-            Camera c = _cameraStack.Pop();
+            ICamera c = _cameraStack.Pop();
 
             if (c != null)
                 c.IsActiveRenderCamera = false;

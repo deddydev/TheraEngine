@@ -163,7 +163,7 @@ namespace TheraEngine.Components.Scene
 #endif
 
         //TODO: separate visibility of the decal mesh and wireframe intersection
-        public override void AddRenderables(RenderPasses passes, Camera camera)
+        public override void AddRenderables(RenderPasses passes, ICamera camera)
         {
             passes.Add(RenderCommandDecal);
 #if EDITOR

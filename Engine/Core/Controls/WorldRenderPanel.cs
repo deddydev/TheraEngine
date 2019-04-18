@@ -1,11 +1,13 @@
-﻿using TheraEngine.Rendering;
+﻿using TheraEngine.GameModes;
+using TheraEngine.Rendering;
+using TheraEngine.Worlds;
 
 namespace TheraEngine
 {
     /// <summary>
     /// Renders the engine's scene that the current world spawns in.
     /// </summary>
-    public class WorldRenderPanel : RenderPanel<BaseScene>
+    public class WorldRenderPanel : RenderPanel<IScene>
     {
         public WorldRenderPanel()
         {
@@ -29,13 +31,13 @@ namespace TheraEngine
                 Engine.World.CurrentGameMode?.TargetRenderPanels?.Add(this);
             }
         }
-        private void World_CurrentGameModePostChanged(Worlds.World world, GameModes.BaseGameMode previous, GameModes.BaseGameMode next)
+        private void World_CurrentGameModePostChanged(IWorld world, IGameMode previous, IGameMode next)
         {
             previous?.TargetRenderPanels?.Remove(this);
             next?.TargetRenderPanels?.Add(this);
         }
 
-        protected override BaseScene GetScene(Viewport v) => Engine.Scene;
+        protected override IScene GetScene(Viewport v) => Engine.Scene;
         protected override void GlobalPreRender()
         {
             Engine.Scene?.GlobalPreRender();

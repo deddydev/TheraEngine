@@ -6,12 +6,12 @@ using TheraEngine.Input;
 
 namespace TheraEditor.Windows.Forms
 {
-    public interface IUIGameMode
+    public interface IUIGameMode : IGameMode
     {
         IUIRenderPanel RenderPanel { get; set; }
     }
     public class UIGameMode<PawnType, ControllerType> : GameMode<PawnType, ControllerType>, IUIGameMode
-        where PawnType : BaseActor, IUserInterface, new()
+        where PawnType : class, IActor, IUserInterface, new()
         where ControllerType : LocalPlayerController
     {
         private IUIRenderPanel _renderPanel;

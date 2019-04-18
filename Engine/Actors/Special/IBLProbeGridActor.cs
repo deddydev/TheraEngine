@@ -21,9 +21,9 @@ namespace TheraEngine.Actors
         private bool _showCaptureSpheres = true;
 
         [Category(SceneComponent.RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true)
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true)
         {
-            EditorVisibilityMode = Rendering.RenderInfo.EEditorVisibility.VisibleOnlyWhenSelected
+            EditorVisibilityMode = EEditorVisibility.VisibleOnlyWhenSelected
         };
         
         [Category(SceneComponent.RenderingCategoryName)]
@@ -59,8 +59,8 @@ namespace TheraEngine.Actors
             _rc = new RenderCommandMethod3D(ERenderPass.TransparentForward, Render);
         }
 
-        private void ChildComponents_PostAdded(SceneComponent item) => Link(item);
-        private void ChildComponents_PostAddedRange(IEnumerable<SceneComponent> items) => Link(items);
+        private void ChildComponents_PostAdded(ISceneComponent item) => Link(item);
+        private void ChildComponents_PostAddedRange(IEnumerable<ISceneComponent> items) => Link(items);
 
         //public IBLProbeGridActor(BoundingBox bounds, Vec3 probesPerMeter) : base(true)
         //{
@@ -73,7 +73,7 @@ namespace TheraEngine.Actors
         {
             base.OnSpawnedPostComponentSpawn();
 
-            Scene3D r3d = OwningScene3D;
+            IScene3D r3d = OwningScene3D;
             if (r3d != null && r3d.IBLProbeActor == null)
                 r3d.IBLProbeActor = this;
         }
@@ -81,7 +81,7 @@ namespace TheraEngine.Actors
         {
             base.OnDespawned();
 
-            Scene3D r3d = OwningScene3D;
+            IScene3D r3d = OwningScene3D;
             if (r3d != null && r3d.IBLProbeActor == this)
                 r3d.IBLProbeActor = null;
         }
@@ -131,13 +131,13 @@ namespace TheraEngine.Actors
 
         private class DelaunayTriVertex : IVertex
         {
-            private SceneComponent _probe;
+            private ISceneComponent _probe;
 
             public int Index => _probe?.ParentSocketChildIndex ?? -1;
             public double[] Position { get; set; }
 
             public DelaunayTriVertex(Vec3 point) { }
-            public DelaunayTriVertex(SceneComponent probe)
+            public DelaunayTriVertex(ISceneComponent probe)
             {
                 _probe = probe;
                 Vec3 point = probe.WorldPoint;
@@ -162,8 +162,11 @@ namespace TheraEngine.Actors
 
         ITriangulation<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>> _cells;
 
-        private void Link(SceneComponent comp)
+        private void Link(ISceneComponent comp)
         {
+            if (RootComponent.ChildComponents.Count < 5)
+                return;
+
             BaseRenderPanel.ThreadSafeBlockingInvoke((Action)(() => 
             {
                 IBLProbeComponent probe = (IBLProbeComponent)comp;
@@ -173,24 +176,25 @@ namespace TheraEngine.Actors
             }),
             BaseRenderPanel.EPanelType.Rendering);
 
-            if (RootComponent.ChildComponents.Count < 5)
-                return;
-
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
         }
-        private void Link(IEnumerable<SceneComponent> comps)
+        private void Link(IEnumerable<ISceneComponent> comps)
         {
-            foreach (SceneComponent comp in comps)
-            {
-                IBLProbeComponent probe = (IBLProbeComponent)comp;
-                probe.Capture();
-                probe.GenerateIrradianceMap();
-                probe.GeneratePrefilterMap();
-            }
-
             if (RootComponent.ChildComponents.Count < 5)
                 return;
+
+            BaseRenderPanel.ThreadSafeBlockingInvoke((Action)(() =>
+            {
+                foreach (ISceneComponent comp in comps)
+                {
+                    IBLProbeComponent probe = (IBLProbeComponent)comp;
+                    probe.Capture();
+                    probe.GenerateIrradianceMap();
+                    probe.GeneratePrefilterMap();
+                }
+            }),
+            BaseRenderPanel.EPanelType.Rendering);
 
             List<DelaunayTriVertex> points = RootComponent.ChildComponents.Select(x => new DelaunayTriVertex(x)).ToList();
             _cells = Triangulation.CreateDelaunay<DelaunayTriVertex, DefaultTriangulationCell<DelaunayTriVertex>>(points);
@@ -233,7 +237,7 @@ namespace TheraEngine.Actors
         }
 
         private readonly RenderCommandMethod3D _rc;
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             passes.Add(_rc);
         }

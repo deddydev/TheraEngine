@@ -172,7 +172,7 @@ namespace TheraEngine.Components.Scene
         }
         private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
 
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
         }
@@ -180,7 +180,7 @@ namespace TheraEngine.Components.Scene
 
         #region Overrides
 
-        protected override void GenerateChildCache(List<SceneComponent> cache)
+        protected override void GenerateChildCache(List<ISceneComponent> cache)
         {
             base.GenerateChildCache(cache);
             if (OwningActor is IPawn p && p.CurrentCameraComponent == null)
@@ -269,7 +269,7 @@ namespace TheraEngine.Components.Scene
         }
 #endif
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
         
         #endregion
     }

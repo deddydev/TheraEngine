@@ -3,8 +3,10 @@ using System.Linq;
 
 namespace System.Collections.Generic
 {
-    public interface IEventList<T> : IList<T>, ICollection<T>, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>, IEnumerable<T>, IEnumerable
+    public interface IEventList<T> : IList<T>, IList, IReadOnlyList<T>
     {
+        new int Count { get; }
+
         event EventList<T>.SingleCancelableHandler PreAnythingAdded;
         event EventList<T>.SingleHandler PostAnythingAdded;
         event EventList<T>.SingleCancelableHandler PreAnythingRemoved;
@@ -27,21 +29,51 @@ namespace System.Collections.Generic
         event EventList<T>.PostIndexSetHandler PostIndexSet;
         event NotifyCollectionChangedEventHandler CollectionChanged;
 
+        new T this[int index] { get; set; }
+
         void Set(IEnumerable<T> items, bool reportRemoved = true, bool reportAdded = true, bool reportModified = true);
+
         bool Add(T item, bool reportAdded, bool reportModified);
+        new bool Add(T item);
+
         void AddRange(IEnumerable<T> collection, bool reportAddedRange, bool reportModified);
+        void AddRange(IEnumerable<T> collection);
+
         bool Remove(T item, bool reportRemoved, bool reportModified);
+        new bool Remove(T item);
+
         void RemoveRange(int index, int count, bool reportRemovedRange, bool reportModified);
+        void RemoveRange(int index, int count);
+
         void RemoveAt(int index, bool reportRemoved, bool reportModified);
+        new void RemoveAt(int index);
+
         void Clear(bool reportRemovedRange, bool reportModified);
+        new void Clear();
+
         void RemoveAll(Predicate<T> match, bool reportRemovedRange, bool reportModified);
+        void RemoveAll(Predicate<T> match);
+
         void Insert(int index, T item, bool reportInserted, bool reportModified);
+        new void Insert(int index, T item);
+        
         void InsertRange(int index, IEnumerable<T> collection, bool reportInsertedRange, bool reportModified);
+        void InsertRange(int index, IEnumerable<T> collection);
+
         void Reverse(int index, int count, bool reportModified);
+        void Reverse(int index, int count);
+
         void Reverse(bool reportModified);
+        void Reverse();
+
         void Sort(int index, int count, IComparer<T> comparer, bool reportModified);
+        void Sort(int index, int count, IComparer<T> comparer);
+
         void Sort(bool reportModified);
+        void Sort();
+
         void Sort(IComparer<T> comparer, bool reportModified);
+        void Sort(IComparer<T> comparer);
     }
 
     /// <summary>

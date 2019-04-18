@@ -31,7 +31,7 @@ namespace TheraEngine.Rendering
 
         private BoundingRectangle _region;
         private BoundingRectangle _internalResolution = new BoundingRectangle();
-        private Camera _camera;
+        private ICamera _camera;
         private SSAOInfo _ssaoInfo = new SSAOInfo();
 
         internal QuadFrameBuffer SSAOFBO;
@@ -51,8 +51,8 @@ namespace TheraEngine.Rendering
         internal PrimitiveManager DirLightManager;
         //internal PrimitiveManager DecalManager;
         //internal QuadFrameBuffer DirLightFBO;
-        internal Camera RenderingCamera => RenderingCameras.Peek();
-        internal Stack<Camera> RenderingCameras { get; } = new Stack<Camera>();
+        internal ICamera RenderingCamera => RenderingCameras.Peek();
+        internal Stack<ICamera> RenderingCameras { get; } = new Stack<ICamera>();
         internal TexRef2D BrdfTex = null;
 
         private float _leftPercentage = 0.0f;
@@ -60,7 +60,7 @@ namespace TheraEngine.Rendering
         private float _bottomPercentage = 0.0f;
         private float _topPercentage = 1.0f;
 
-        public Camera Camera
+        public ICamera Camera
         {
             get => _camera;
             set
@@ -289,7 +289,7 @@ namespace TheraEngine.Rendering
         /// <param name="camera"></param>
         /// <param name="frustum"></param>
         /// <param name="target"></param>
-        public void Render(BaseScene scene, Camera camera, FrameBuffer target)
+        public void Render(IScene scene, ICamera camera, FrameBuffer target)
         {
             if (scene == null || camera == null || RegeneratingFBOs)
                 return;
@@ -299,7 +299,7 @@ namespace TheraEngine.Rendering
             CurrentlyRenderingViewports.Pop();
         }
         private RenderPasses _renderPasses = new RenderPasses();
-        protected virtual void OnRender(BaseScene scene, Camera camera, FrameBuffer target)
+        protected virtual void OnRender(IScene scene, ICamera camera, FrameBuffer target)
         {
             HUD?.ScreenSpaceUIScene?.Render(HUD.RenderPasses, HUD.ScreenOverlayCamera, this, HUDFBO);
             scene.Render(_renderPasses, camera, this, target);
@@ -313,7 +313,7 @@ namespace TheraEngine.Rendering
                 HUD.RenderPasses.SwapBuffers();
             }
         }
-        public void Update(BaseScene scene, Camera camera, IVolume cullingVolume)
+        public void Update(IScene scene, ICamera camera, IVolume cullingVolume)
         {
             HUD?.ScreenSpaceUIScene?.Update(HUD.RenderPasses, null, HUD.ScreenOverlayCamera);
             scene?.Update(_renderPasses, cullingVolume, camera);
@@ -393,7 +393,7 @@ namespace TheraEngine.Rendering
         public Segment GetWorldSegment(Vec2 viewportPoint)
             => _camera.GetWorldSegment(ToInternalResCoords(viewportPoint));
         private RayTraceClosest _closestPick = new RayTraceClosest(Vec3.Zero, Vec3.Zero, 0, 0xFFFF);
-        public SceneComponent PickScene(
+        public ISceneComponent PickScene(
             Vec2 viewportPoint,
             bool testHud,
             bool interactableHudOnly,
@@ -405,7 +405,7 @@ namespace TheraEngine.Rendering
         {
             if (testHud)
             {
-                UIComponent hudComp = HUD?.FindDeepestComponent(viewportPoint);
+                IUIComponent hudComp = HUD?.FindDeepestComponent(viewportPoint);
                 bool valid = hudComp?.IsVisible ?? false;
                 if (interactableHudOnly)
                     valid = valid && hudComp is IInteractableUI;
@@ -432,7 +432,7 @@ namespace TheraEngine.Rendering
                     hitPoint = _closestPick.HitPointWorld;
                     distance = hitPoint.DistanceToFast(cursor.StartPoint);
                     TCollisionObject coll = _closestPick.CollisionObject;
-                    return coll.Owner as SceneComponent;
+                    return coll.Owner as ISceneComponent;
                 }
 
                 //Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);

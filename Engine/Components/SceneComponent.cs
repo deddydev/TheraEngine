@@ -29,6 +29,8 @@ namespace TheraEngine.Components
     {
         Matrix4 LocalMatrix { get; }
         Matrix4 InverseLocalMatrix { get; }
+        Matrix4 PreviousWorldTransform { get; set; }
+        Matrix4 PreviousInverseWorldTransform { get; set; }
 
         IScene OwningScene { get; }
         IScene3D OwningScene3D { get; }
@@ -44,6 +46,7 @@ namespace TheraEngine.Components
         Vec3 WorldUpVec { get; }
         Vec3 WorldForwardVec { get; }
         Vec3 WorldPoint { get; }
+        int ActorSceneComponentCacheIndex { get; }
 
         Matrix4 GetParentMatrix();
         Matrix4 GetInverseParentMatrix();
@@ -52,14 +55,18 @@ namespace TheraEngine.Components
         
         ISocket AttachTo(SkeletalMeshComponent mesh, string socketName);
         ISocket AttachTo(StaticMeshComponent mesh, string socketName);
-        void AttachTo(ISceneComponent component);
+        void AttachTo(ISocket socket);
         void DetachFromParent();
         
         void RecalcWorldTransform();
         void RecalcLocalTransform();
         List<ISceneComponent> GenerateChildCache();
         void GenerateChildCache(List<ISceneComponent> cache);
-        void SetParentInternal(ISceneComponent sceneComponent);
+
+        void PhysicsSimulationStarted();
+        void PhysicsSimulationStarted(ISceneComponent sceneComponent);
+        void PhysicsSimulationEnded();
+        void StopSimulatingPhysics(bool retainCurrentPosition);
     }
 
     /// <summary>
@@ -76,10 +83,10 @@ namespace TheraEngine.Components
 
         protected SceneComponent()
         {
-            ChildComponents = new EventList<SceneComponent>();
+            ChildComponents = new EventList<ISceneComponent>();
         }
 
-        public event Action<SceneComponent> WorldTransformChanged;
+        public event Action<ISceneComponent> WorldTransformChanged;
 
         /// <summary>
         /// This is the method that will be called immediately after any world transform change.
@@ -103,7 +110,7 @@ namespace TheraEngine.Components
             if (this is I3DRenderable r3d)
                 r3d.RenderInfo?.OctreeNode?.ItemMoved(r3d);
 
-            foreach (SceneComponent c in _children)
+            foreach (ISceneComponent c in _children)
                 c.RecalcWorldTransform();
 
             WorldTransformChanged?.Invoke(this);
@@ -129,7 +136,7 @@ namespace TheraEngine.Components
         protected Matrix4 _inverseLocalMatrix = Matrix4.Identity;
 
         internal ISocket _parent;
-        protected EventList<ISceneComponent> _children;
+        protected IEventList<ISceneComponent> _children;
 
         /// <summary>
         /// Use to set both matrices at the same time, so neither needs to be inverted to get the other.
@@ -321,7 +328,7 @@ namespace TheraEngine.Components
         [TSerialize]
         //[Browsable(false)]
         [Category("Scene Component")]
-        public EventList<SceneComponent> ChildComponents
+        public IEventList<ISceneComponent> ChildComponents
         {
             get => _children;
             set
@@ -349,18 +356,21 @@ namespace TheraEngine.Components
             }
         }
 
+        void ISceneComponent.PhysicsSimulationStarted() => PhysicsSimulationStarted();
         protected void PhysicsSimulationStarted()
         {
             _simulatingPhysics = true;
-            foreach (SceneComponent c in ChildComponents)
+            foreach (ISceneComponent c in ChildComponents)
                 c.PhysicsSimulationStarted(this);
         }
-        protected void PhysicsSimulationStarted(SceneComponent simulatingAncestor)
+        void ISceneComponent.PhysicsSimulationStarted(ISceneComponent simulatingAncestor) => PhysicsSimulationStarted(simulatingAncestor);
+        protected void PhysicsSimulationStarted(ISceneComponent simulatingAncestor)
         {
             _ancestorSimulatingPhysics = simulatingAncestor;
-            foreach (SceneComponent c in ChildComponents)
+            foreach (ISceneComponent c in ChildComponents)
                 c.PhysicsSimulationStarted(simulatingAncestor);
         }
+        void ISceneComponent.StopSimulatingPhysics(bool retainCurrentPosition) => StopSimulatingPhysics(retainCurrentPosition);
         protected void StopSimulatingPhysics(bool retainCurrentPosition)
         {
             _simulatingPhysics = false;
@@ -371,9 +381,10 @@ namespace TheraEngine.Components
                 _inverseLocalMatrix = GetParentMatrix() * InverseWorldMatrix;
                 RecalcWorldTransform();
             }
-            foreach (SceneComponent c in ChildComponents)
+            foreach (ISceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
+        void ISceneComponent.PhysicsSimulationEnded() => PhysicsSimulationEnded();
         protected void PhysicsSimulationEnded()
         {
             _previousWorldTransform = _worldTransform;
@@ -382,7 +393,7 @@ namespace TheraEngine.Components
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
 
             _ancestorSimulatingPhysics = null;
-            foreach (SceneComponent c in ChildComponents)
+            foreach (ISceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
 
@@ -418,12 +429,12 @@ namespace TheraEngine.Components
         /// Gets the transformation of this component's owning actor in the world.
         /// </summary>
         public Matrix4 GetActorTransform()
-            => OwningActor?.RootComponentGeneric.WorldMatrix ?? Matrix4.Identity;
+            => OwningActor?.RootComponent.WorldMatrix ?? Matrix4.Identity;
         /// <summary>
         /// Gets the inverse transformation of this component's owning actor in the world.
         /// </summary>
         public Matrix4 GetInvActorTransform() =>
-            OwningActor?.RootComponentGeneric.InverseWorldMatrix ?? Matrix4.Identity;
+            OwningActor?.RootComponent.InverseWorldMatrix ?? Matrix4.Identity;
 
         //[Browsable(false)]
         //[Category("Rendering")]
@@ -492,7 +503,7 @@ namespace TheraEngine.Components
             if (this is I2DRenderable r2D && OwningScene2D != null)
                 r2D.RenderInfo.LinkScene(r2D, OwningScene2D);
             
-            foreach (SceneComponent c in _children)
+            foreach (ISceneComponent c in _children)
                 c.OnSpawned();
         }
         public override void OnDespawned()
@@ -509,7 +520,7 @@ namespace TheraEngine.Components
             if (this is I2DRenderable r2D)
                 r2D.RenderInfo.UnlinkScene();
 
-            foreach (SceneComponent c in _children)
+            foreach (ISceneComponent c in _children)
                 c.OnDespawned();
         }
         protected bool AllowLocalRecalc { get; set; } = true;
@@ -625,7 +636,7 @@ namespace TheraEngine.Components
                     item.OnDespawned();
             }
         }
-        void ISceneComponent.SetParentInternal(ISceneComponent parent) => _parent = parent;
+        void ISocket.SetParentInternal(ISocket parent) => _parent = parent;
         #endregion
 
         #region Sockets
@@ -653,7 +664,7 @@ namespace TheraEngine.Components
             //Try to find matching bone
             if (mesh.SkeletonOverride != null)
             {
-                Bone bone = mesh.SkeletonOverride[socketName];
+                IBone bone = mesh.SkeletonOverride[socketName];
                 if (bone != null)
                 {
                     bone.ChildComponents.Add(this);
@@ -693,10 +704,10 @@ namespace TheraEngine.Components
             return socket;
         }
         /// <summary>
-        /// Attaches this component to the given scene component parent transform.
+        /// Attaches this component to the given socket parent transform.
         /// </summary>
-        public void AttachTo(SceneComponent component)
-            => component?.ChildComponents.Add(this);
+        public void AttachTo(ISocket socket)
+            => socket?.ChildComponents.Add(this);
         /// <summary>
         /// Detaches self from the current parent socket transform.
         /// Retains current position in world space.
@@ -733,7 +744,7 @@ namespace TheraEngine.Components
         #endregion
         
 #if EDITOR
-        protected void AddPreviewRenderCommand(RenderCommandMesh3D renderCommand, RenderPasses passes, Camera camera, bool scaleByDistance, float scale)
+        protected void AddPreviewRenderCommand(RenderCommandMesh3D renderCommand, RenderPasses passes, ICamera camera, bool scaleByDistance, float scale)
         {
             if (passes.ShadowPass || camera == null)
                 return;

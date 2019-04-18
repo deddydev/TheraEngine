@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
@@ -12,19 +11,19 @@ namespace TheraEngine.Rendering.Models
         public SkeletalRigidSubMesh() : base() { _name = "SkeletalRigidSubMesh"; }
         public SkeletalRigidSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
             PrimitiveData primitives,
             TMaterial material) : base(name, renderInfo, renderPass, primitives, material) { }
         public SkeletalRigidSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
-            EventList<LOD> lods) : base(name, renderInfo, renderPass, lods) { }
+            IEventList<ILOD> lods) : base(name, renderInfo, renderPass, lods) { }
         public SkeletalRigidSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
-            params LOD[] lods) : base(name, renderInfo, renderPass, lods) { }
+            params ILOD[] lods) : base(name, renderInfo, renderPass, lods) { }
     }
 }

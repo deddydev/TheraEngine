@@ -62,8 +62,8 @@ namespace TheraEditor.Windows.Forms
         ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => ELocalPlayerIndex.One;
         BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
         IPawn IEditorRenderableControl.EditorPawn => RenderPanel.UI;
-        BaseGameMode IEditorRenderableControl.GameMode => GameMode;
-        World IEditorRenderableControl.World => RenderPanel.World;
+        IGameMode IEditorRenderableControl.GameMode => GameMode;
+        IWorld IEditorRenderableControl.World => RenderPanel.World;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {

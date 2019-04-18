@@ -9,6 +9,8 @@ namespace TheraEngine.Rendering
         int LayerIndex { get; set; }
         int IndexWithinLayer { get; set; }
 
+        BoundingRectangleFStruct AxisAlignedRegion { get; set; }
+        IQuadtreeNode QuadtreeNode { get; set; }
         I2DRenderable Owner { get; set; }
         IScene2D Scene { get; set; }
 
@@ -30,11 +32,13 @@ namespace TheraEngine.Rendering
         public I2DRenderable Owner { get; set; }
         [Browsable(false)]
         public IScene2D Scene { get; set; }
+
         /// <summary>
         /// The axis-aligned bounding box for this UI component.
         /// </summary>
         [Browsable(false)]
-        public BoundingRectangleFStruct AxisAlignedRegion;
+        public BoundingRectangleFStruct AxisAlignedRegion { get; set; }
+
         [Browsable(false)]
         public IQuadtreeNode QuadtreeNode { get; set; }
 

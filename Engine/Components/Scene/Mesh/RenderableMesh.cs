@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Mesh
     public abstract class BaseRenderableMesh3D : I3DRenderable
     {
         public BaseRenderableMesh3D() { }
-        public BaseRenderableMesh3D(List<LOD> lods, ERenderPass renderPass, RenderInfo3D renderInfo, SceneComponent component)
+        public BaseRenderableMesh3D(IList<LOD> lods, ERenderPass renderPass, IRenderInfo3D renderInfo, ISceneComponent component)
         {
             _component = component;
 
@@ -48,21 +48,21 @@ namespace TheraEngine.Components.Scene.Mesh
             RenderCommand.RenderPass = renderPass;
         }
 
-        protected SceneComponent _component;
+        protected ISceneComponent _component;
         private Matrix4 _initialCullingVolumeMatrix;
-        private RenderInfo3D _renderInfo = new RenderInfo3D();
+        private IRenderInfo3D _renderInfo = new RenderInfo3D();
 
         [Browsable(false)]
         public RenderableLOD CurrentLOD => LODs.IndexInRange(CurrentLODIndex) ? LODs[CurrentLODIndex] : (LODs.Count > 0 ? LODs[LODs.Count - 1] : null);
         [Browsable(false)]
         public int CurrentLODIndex { get; private set; }
         [Browsable(false)]
-        public Scene3D OwningScene3D => _component?.OwningScene3D;
+        public IScene3D OwningScene3D => _component?.OwningScene3D;
         [Browsable(false)]
         [DisplayName("Levels Of Detail")]
         public List<RenderableLOD> LODs { get; private set; }
 
-        public RenderInfo3D RenderInfo
+        public IRenderInfo3D RenderInfo
         {
             get => _renderInfo;
             protected set
@@ -83,19 +83,19 @@ namespace TheraEngine.Components.Scene.Mesh
         private void CullingVolumeChanged(TShape oldVolume, TShape newVolume)
         {
             if (oldVolume != null)
-                _component.WorldTransformChanged -= UpdateCullingVolumeTransform;
+                _component.SocketTransformChanged -= UpdateCullingVolumeTransform;
             
             if (newVolume != null)
             {
                 _initialCullingVolumeMatrix = newVolume.GetTransformMatrix() * _component.InverseWorldMatrix;
-                _component.WorldTransformChanged += UpdateCullingVolumeTransform;
+                _component.SocketTransformChanged += UpdateCullingVolumeTransform;
             }
             else
                 _initialCullingVolumeMatrix = Matrix4.Identity;
         }
-        private void UpdateCullingVolumeTransform(SceneComponent comp)
+        private void UpdateCullingVolumeTransform(ISocket comp)
         {
-            RenderInfo.CullingVolume.SetTransformMatrix(_component.WorldMatrix * _initialCullingVolumeMatrix);
+            RenderInfo.CullingVolume.SetTransformMatrix(comp.WorldMatrix * _initialCullingVolumeMatrix);
             RenderInfo.OctreeNode?.ItemMoved(this);
         }
 
@@ -131,7 +131,7 @@ namespace TheraEngine.Components.Scene.Mesh
         }
         
         public RenderCommandMesh3D RenderCommand { get; } = new RenderCommandMesh3D(ERenderPass.OpaqueDeferredLit);
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             float distance = camera?.DistanceFromScreenPlane(_component?.WorldPoint ?? Vec3.Zero) ?? 0.0f;
 

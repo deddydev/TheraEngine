@@ -6,9 +6,9 @@ namespace TheraEngine.Components.Scene
 {
     public interface ISubActorComponent : ITRSComponent
     {
-        BaseActor Actor { get; }
+        IActor Actor { get; }
     }
-    public class SubActorComponent<T> : TRSComponent, ISubActorComponent where T : BaseActor
+    public class SubActorComponent<T> : TRSComponent, ISubActorComponent where T : class, IActor
     {
         private T _actor;
 
@@ -18,11 +18,11 @@ namespace TheraEngine.Components.Scene
             get => _actor;
             set
             {
-                OriginRebasableComponent oldRoot = _actor?.RootComponentGeneric;
+                IOriginRebasableComponent oldRoot = _actor?.RootComponent;
                 if (_actor != null)
                 {
                     _actor.RootComponentChanged -= RootComponentChanged;
-                    var root = _actor.RootComponentGeneric;
+                    var root = _actor.RootComponent;
                     if (root != null && root.ParentSocket == this)
                         root.ParentSocket = null;
                     if (IsSpawned)
@@ -32,7 +32,7 @@ namespace TheraEngine.Components.Scene
                 if (_actor != null)
                 {
                     _actor.RootComponentChanged += RootComponentChanged;
-                    var root = _actor.RootComponentGeneric;
+                    var root = _actor.RootComponent;
                     if (root != null)
                         root.ParentSocket = this;
                     if (IsSpawned)
@@ -40,7 +40,7 @@ namespace TheraEngine.Components.Scene
                 }
             }
         }
-        protected void RootComponentChanged(BaseActor actor, OriginRebasableComponent oldRoot)
+        protected void RootComponentChanged(IActor actor, IOriginRebasableComponent oldRoot)
         {
             if (oldRoot != null && oldRoot.ParentSocket == this)
             {
@@ -48,11 +48,11 @@ namespace TheraEngine.Components.Scene
                     oldRoot.OnDespawned();
                 oldRoot.ParentSocket = null;
             }
-            if (actor.RootComponentGeneric != null)
+            if (actor.RootComponent != null)
             {
-                actor.RootComponentGeneric.ParentSocket = this;
+                actor.RootComponent.ParentSocket = this;
                 if (actor.IsSpawned)
-                    actor.RootComponentGeneric.OnSpawned();
+                    actor.RootComponent.OnSpawned();
             }
         }
         public override void OnSpawned()
@@ -66,6 +66,6 @@ namespace TheraEngine.Components.Scene
             base.OnDespawned();
         }
 
-        BaseActor ISubActorComponent.Actor => Actor;
+        IActor ISubActorComponent.Actor => Actor;
     }
 }

@@ -286,7 +286,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //    }
         //}
 
-        private void PopulateLogicComponentList(EventList<LogicComponent> logicComponents)
+        private void PopulateLogicComponentList(IEventList<ILogicComponent> logicComponents)
         {
             if (lstLogicComps.Visible = logicComponents != null && logicComponents.Count > 0)
             {
@@ -764,7 +764,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         #endregion
 
-        private void PopulateSceneComponentTree(TreeNodeCollection nodes, SceneComponent currentSceneComp)
+        private void PopulateSceneComponentTree(TreeNodeCollection nodes, ISceneComponent currentSceneComp)
         {
             if (currentSceneComp == null)
             {
@@ -772,7 +772,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             }
             TreeNode s = new TreeNode(currentSceneComp.Name) { Tag = currentSceneComp };
-            foreach (SceneComponent childSceneComp in currentSceneComp.ChildComponents)
+            foreach (ISceneComponent childSceneComp in currentSceneComp.ChildComponents)
                 PopulateSceneComponentTree(s.Nodes, childSceneComp);
             nodes.Add(s);
         }
@@ -865,12 +865,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void lstLogicComps_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            LogicComponent comp = lstLogicComps.SelectedItem as LogicComponent;
+            ILogicComponent comp = lstLogicComps.SelectedItem as ILogicComponent;
             SetObject(comp, $".LogicComponents[{(lstLogicComps.SelectedIndex).ToString()}]");
         }
         private void treeViewSceneComps_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            SceneComponent comp = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent comp = _selectedSceneComp.Tag as ISceneComponent;
             SetObject(comp, $".SceneComponentCache[{(comp?.ActorSceneComponentCacheIndex ?? -1).ToString()}]");
         }
 
@@ -897,7 +897,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             int i = lstLogicComps.SelectedIndex;
             if (i == 0 || !a.LogicComponents.IndexInRange(i))
                 return;
-            LogicComponent c = a.LogicComponents[i];
+            ILogicComponent c = a.LogicComponents[i];
             a.LogicComponents.RemoveAt(i);
             a.LogicComponents.Insert(--i, c);
             lstLogicComps.DataSource = null;
@@ -912,7 +912,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             int i = lstLogicComps.SelectedIndex;
             if (i == a.LogicComponents.Count - 1 || !a.LogicComponents.IndexInRange(i))
                 return;
-            LogicComponent c = a.LogicComponents[i];
+            ILogicComponent c = a.LogicComponents[i];
             a.LogicComponents.RemoveAt(i);
             a.LogicComponents.Insert(++i, c);
             lstLogicComps.DataSource = null;
@@ -924,7 +924,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (!(TargetObject is IActor a))
                 return;
-            LogicComponent comp = Editor.UserCreateInstanceOf<LogicComponent>();
+            ILogicComponent comp = Editor.UserCreateInstanceOf<ILogicComponent>();
             if (comp == null)
                 return;
             int i = (lstLogicComps.SelectedIndex + 1).Clamp(0, a.LogicComponents.Count);
@@ -1093,18 +1093,18 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 btnAddToSibAboveSceneComp.Enabled = index > 0;
                 btnAddToSibBelowSceneComp.Enabled = index < count - 1;
 
-                SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
-                btnAddSiblingSceneComp.Enabled = sceneCompSel.ParentSocket is SceneComponent && _selectedSceneComp.Parent != null;
-                btnAddAsSibToParentSceneComp.Enabled = sceneCompSel.ParentSocket?.ParentSocket is SceneComponent && _selectedSceneComp.Parent?.Parent != null;
+                ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
+                btnAddSiblingSceneComp.Enabled = sceneCompSel.ParentSocket is ISceneComponent && _selectedSceneComp.Parent != null;
+                btnAddAsSibToParentSceneComp.Enabled = sceneCompSel.ParentSocket?.ParentSocket is ISceneComponent && _selectedSceneComp.Parent?.Parent != null;
 
                 btnRemoveSceneComp.Enabled = _selectedSceneComp.Parent != null;
             }
         }
         private void btnAddSiblingSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
-            SceneComponent comp = Editor.UserCreateInstanceOf<SceneComponent>();
+            ISceneComponent comp = Editor.UserCreateInstanceOf<ISceneComponent>();
             if (comp == null)
                 return;
 
@@ -1140,11 +1140,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAddChildSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent comp = Editor.UserCreateInstanceOf<SceneComponent>();
+            ISceneComponent comp = Editor.UserCreateInstanceOf<ISceneComponent>();
             if (comp == null)
                 return;
 
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             sceneCompSel.ChildComponents.Add(comp);
 
@@ -1158,7 +1158,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnMoveUpSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
@@ -1177,7 +1177,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnMoveDownSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
@@ -1196,7 +1196,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAddToSibAboveSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
@@ -1215,7 +1215,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private void btnAddToSibBelowSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             var sibComps = sceneCompSel.ParentSocket.ChildComponents;
             int index = sibComps.IndexOf(sceneCompSel);
@@ -1233,7 +1233,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void btnRemoveSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             TreeNode parentNode = _selectedSceneComp.Parent;
             sceneCompSel.DetachFromParent();
@@ -1246,7 +1246,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void btnAddAsSibToParentSceneComp_Click(object sender, EventArgs e)
         {
-            SceneComponent sceneCompSel = _selectedSceneComp.Tag as SceneComponent;
+            ISceneComponent sceneCompSel = _selectedSceneComp.Tag as ISceneComponent;
 
             var parent = sceneCompSel.ParentSocket;
             var sibComps = parent.ChildComponents;

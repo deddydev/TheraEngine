@@ -8,7 +8,7 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering
 {
-    public delegate void DelRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target);
+    public delegate void DelRender(RenderPasses renderingPasses, ICamera camera, Viewport viewport, FrameBuffer target);
     public enum ERenderPass
     {
         /// <summary>
@@ -137,18 +137,20 @@ namespace TheraEngine.Rendering
     public interface IPreRendered
     {
         bool PreRenderEnabled { get; }
-        void PreRenderUpdate(Camera camera);
+        void PreRenderUpdate(ICamera camera);
         void PreRenderSwap();
-        void PreRender(Viewport viewport, Camera camera);
+        void PreRender(Viewport viewport, ICamera camera);
     }
     public interface IScene : IEnumerable<IRenderable>
     {
-        void CollectVisible(RenderPasses passes, IVolume collectionVolume, Camera camera, bool shadowPass);
-        void Update(RenderPasses passes, IVolume collectionVolume, Camera camera);
+        DelRender Render { get; }
 
-        void PreRenderUpdate(Camera camera);
+        void CollectVisible(RenderPasses passes, IVolume collectionVolume, ICamera camera, bool shadowPass);
+        void Update(RenderPasses passes, IVolume collectionVolume, ICamera camera);
+
+        void PreRenderUpdate(ICamera camera);
         void PreRenderSwap();
-        void PreRender(Viewport viewport, Camera camera);
+        void PreRender(Viewport viewport, ICamera camera);
 
         void AddPreRenderedObject(IPreRendered obj);
         void RemovePreRenderedObject(IPreRendered obj);
@@ -164,7 +166,7 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Call this method to render the scene.
         /// </summary>
-        internal protected DelRender Render { get; protected set; }
+        public DelRender Render { get; protected set; }
         /// <summary>
         /// The number of renderable items in the scene.
         /// </summary>
@@ -188,7 +190,7 @@ namespace TheraEngine.Rendering
         //    _removedIds.Enqueue(material.UniqueID);
         //    _activeMaterials.RemoveAt(material.UniqueID);
         //}
-        public abstract void CollectVisible(RenderPasses passes, IVolume collectionVolume, Camera camera, bool shadowPass);
+        public abstract void CollectVisible(RenderPasses passes, IVolume collectionVolume, ICamera camera, bool shadowPass);
         /// <summary>
         /// Populates the given RenderPasses object with all renderables 
         /// having culling volumes that reside within the collectionVolume.
@@ -196,13 +198,13 @@ namespace TheraEngine.Rendering
         /// <param name="passes"></param>
         /// <param name="collectionVolume"></param>
         /// <param name="camera"></param>
-        public void Update(RenderPasses passes, IVolume collectionVolume, Camera camera)
+        public void Update(RenderPasses passes, IVolume collectionVolume, ICamera camera)
         {
             CollectVisible(passes, collectionVolume, camera, false);
             PreRenderUpdate(camera);
         }
         
-        public void PreRenderUpdate(Camera camera)
+        public void PreRenderUpdate(ICamera camera)
         {
             //TODO: prerender on own consistent animation thread
             //ParallelLoopResult result = await Task.Run(() => Parallel.ForEach(_preRenderList, p => { p.PreRenderUpdate(camera); }));
@@ -224,7 +226,7 @@ namespace TheraEngine.Rendering
                 if (p.PreRenderEnabled)
                     p.PreRenderSwap();
         }
-        public void PreRender(Viewport viewport, Camera camera)
+        public void PreRender(Viewport viewport, ICamera camera)
         {
             foreach (IPreRendered p in _preRenderList)
                 if (p.PreRenderEnabled)

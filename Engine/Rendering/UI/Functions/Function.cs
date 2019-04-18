@@ -403,7 +403,7 @@ namespace TheraEngine.Rendering.UI.Functions
         }
         #endregion
 
-        protected override void HandleSingleChildAdded(SceneComponent item)
+        protected override void HandleSingleChildAdded(ISceneComponent item)
         {
             base.HandleSingleChildAdded(item);
             if (OwningActor != null)

@@ -697,24 +697,24 @@ namespace TheraEngine
         /// <summary>
         /// Retrieves the current world's overridden game mode or the game's game mode if not overriden.
         /// </summary>
-        public static BaseGameMode GetGameMode()
-            => World?.Settings?.DefaultGameModeRef?.File ?? Game.DefaultGameModeRef;
+        public static IGameMode GetGameMode()
+            => World?.Settings?.DefaultGameModeRef?.File ?? Game.DefaultGameModeRef?.File;
         #endregion
 
         /// <summary>
         /// Performs a ray trace in the current world referenced by the engine.
         /// To perform a ray trace in a specific world, use World.PhysicsWorld.RayTrace(ShapeTrace result); 
         /// </summary>
-        public static bool RayTrace(RayTrace result, World world)
+        public static bool RayTrace(RayTrace result, IWorld world)
             => (world ?? World)?.PhysicsWorld3D?.RayTrace(result) ?? false;
         /// <summary>
         /// Performs a shape trace in the current world referenced by the engine.
         /// To perform a shape trace in a specific world, use World.PhysicsWorld.ShapeTrace(ShapeTrace result); 
         /// </summary>
-        public static bool ShapeTrace(ShapeTrace result, World world) 
+        public static bool ShapeTrace(ShapeTrace result, IWorld world) 
             => (world ?? World)?.PhysicsWorld3D?.ShapeTrace(result) ?? false;
         
-        public static bool ContactTest(ContactTest result, World world)
+        public static bool ContactTest(ContactTest result, IWorld world)
            => (world ?? World)?.PhysicsWorld3D?.ContactTest(result) ?? false;
 
         //public static BaseGameMode ActiveGameMode { get; set; }
@@ -732,7 +732,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="world">The world to play in.</param>
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(World world)
+        public static void SetCurrentWorld(IWorld world)
         {
             if (World == world)
                 return;

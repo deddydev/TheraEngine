@@ -26,7 +26,7 @@ namespace TheraEditor.Windows.Forms
             {
                 for (int x = 0; x < rigidMeshes[i].LODs.Count; ++x)
                 {
-                    LOD lod = rigidMeshes[i].LODs[x];
+                    ILOD lod = rigidMeshes[i].LODs[x];
 
                     if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
                     {
@@ -40,7 +40,7 @@ namespace TheraEditor.Windows.Forms
             {
                 for (int x = 0; x < softMeshes[i].LODs.Count; ++x)
                 {
-                    LOD lod = softMeshes[i].LODs[x];
+                    ILOD lod = softMeshes[i].LODs[x];
 
                     if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
                     {
@@ -62,7 +62,7 @@ namespace TheraEditor.Windows.Forms
             {
                 for (int x = 0; x < rigidMeshes[i].LODs.Count; ++x)
                 {
-                    LOD lod = rigidMeshes[i].LODs[x];
+                    ILOD lod = rigidMeshes[i].LODs[x];
 
                     if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
                     {
@@ -76,7 +76,7 @@ namespace TheraEditor.Windows.Forms
             {
                 for (int x = 0; x < softMeshes[i].LODs.Count; ++x)
                 {
-                    LOD lod = softMeshes[i].LODs[x];
+                    ILOD lod = softMeshes[i].LODs[x];
 
                     if (lod.MaterialRef.File != null && !ids.Contains(lod.MaterialRef.File.UniqueID))
                     {

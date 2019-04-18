@@ -383,7 +383,7 @@ namespace TheraEngine.Core.Shapes
         /// <summary>
         /// Creates a frustum from the minimum and maximum coordinates of a bounding box.
         /// </summary>
-        public static Frustum GetFrustum(Vec3 min, Vec3 max)
+        public static IFrustum GetFrustum(Vec3 min, Vec3 max)
         {
             GetCorners(min, max, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
@@ -391,7 +391,7 @@ namespace TheraEngine.Core.Shapes
         /// <summary>
         /// Creates a frustum from the half extents and the transform of a bounding box.
         /// </summary>
-        public static Frustum GetFrustum(Vec3 halfExtents, Matrix4 transform)
+        public static IFrustum GetFrustum(Vec3 halfExtents, Matrix4 transform)
         {
             GetCorners(halfExtents, transform, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
@@ -400,11 +400,11 @@ namespace TheraEngine.Core.Shapes
         /// Converts this bounding box to a frustum.
         /// </summary>
         /// <returns></returns>
-        public Frustum AsFrustum() => GetFrustum(Minimum, Maximum);
+        public IFrustum AsFrustum() => GetFrustum(Minimum, Maximum);
         /// <summary>
         /// Converts this bounding box to a frustum, transformed by the given matrix.
         /// </summary>
-        public Frustum AsFrustum(Matrix4 transform) => GetFrustum(HalfExtents.Raw, transform);
+        public IFrustum AsFrustum(Matrix4 transform) => GetFrustum(HalfExtents.Raw, transform);
         #endregion
 
         public Box AsBox() => new Box(this);

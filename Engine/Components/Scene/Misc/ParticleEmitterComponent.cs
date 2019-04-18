@@ -35,7 +35,7 @@ namespace TheraEngine.Rendering.Particles
             set => _rc.Mesh = value;
         }
         public Vec3 CameraPosition { get; set; }
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D();
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D();
 
         public int NumPerSpawn { get; set; } = 2;
         public float SecPerSpawn { get; set; } = 0.1f;
@@ -171,13 +171,13 @@ namespace TheraEngine.Rendering.Particles
         protected abstract void SortParticles();
 
         public RenderCommandMesh3D _rc = new RenderCommandMesh3D(ERenderPass.TransparentForward);
-        public void AddRenderables(RenderPasses passes, Camera camera) => passes.Add(_rc);
+        public void AddRenderables(RenderPasses passes, ICamera camera) => passes.Add(_rc);
 
         [Browsable(false)]
         public bool PreRenderEnabled => IsSimulating;
-        public void PreRenderUpdate(Camera camera) => CameraPosition = camera.WorldPoint;
+        public void PreRenderUpdate(ICamera camera) => CameraPosition = camera.WorldPoint;
         public void PreRenderSwap() { }
-        public void PreRender(Viewport viewport, Camera camera) { }
+        public void PreRender(Viewport viewport, ICamera camera) { }
     }
     [TFileDef("Particle Emitter Component")]
     public class ParticleEmitterComponent<TParticle>

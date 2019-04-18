@@ -1,11 +1,13 @@
 ﻿using System;
 using TheraEditor.Windows.Forms;
 using TheraEngine.Core.Shapes;
+using TheraEngine.GameModes;
 using TheraEngine.Rendering;
+using TheraEngine.Worlds;
 
 namespace TheraEngine.Windows.Forms
 {
-    public class ModelEditorRenderPanel : RenderPanel<BaseScene>
+    public class ModelEditorRenderPanel : RenderPanel<IScene>
     {
         public Func<Viewport, IVolume> GetCullingVolumeOverride { get; set; }
         public bool IsEditView { get; set; }
@@ -29,13 +31,13 @@ namespace TheraEngine.Windows.Forms
                 }
             }
         }
-        private void World_CurrentGameModePostChanged(Worlds.World world, GameModes.BaseGameMode previous, GameModes.BaseGameMode next)
+        private void World_CurrentGameModePostChanged(IWorld world, IGameMode previous, IGameMode next)
         {
             previous?.TargetRenderPanels?.Remove(this);
             next?.TargetRenderPanels?.Add(this);
         }
 
-        protected override BaseScene GetScene(Viewport v)
+        protected override IScene GetScene(Viewport v)
             => Owner?.ModelWindow?.World?.Scene;
         protected override IVolume GetCullingVolume(Viewport v)
             => GetCullingVolumeOverride?.Invoke(v) ?? base.GetCullingVolume(v);

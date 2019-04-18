@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering.UI
         }
 
         //[Category("Rendering")]
-        //public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+        //public IRenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
 
         //[Category("Rendering")]
         //public override int LayerIndex
@@ -117,7 +117,7 @@ namespace TheraEngine.Rendering.UI
         [Category("Rendering")]
         public RenderCommandMesh2D RenderCommand { get; } = new RenderCommandMesh2D(ERenderPass.OpaqueForward);
 
-        public override void AddRenderables(RenderPasses passes, Camera camera)
+        public override void AddRenderables(RenderPasses passes, ICamera camera)
         {
             base.AddRenderables(passes, camera);
             passes.Add(RenderCommand);

@@ -4,6 +4,7 @@ using TheraEngine.Components;
 using TheraEngine.Components.Scene.Transforms;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Rendering;
 using TheraEngine.Worlds;
 
 namespace TheraEngine.Actors
@@ -24,6 +25,7 @@ namespace TheraEngine.Actors
         IOriginRebasableComponent RootComponent { get; }
         
         EventList<ILogicComponent> LogicComponents { get; }
+        IScene OwningScene { get; set; }
 
         T1 FindFirstLogicComponentOfType<T1>() where T1 : class, ILogicComponent;
         T1[] FindLogicComponentsOfType<T1>() where T1 : class, ILogicComponent;

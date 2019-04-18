@@ -213,7 +213,7 @@ namespace TheraEditor.Windows.Forms
             UpdateBackgroundMaterial();
             UpdateTextScale();
         }
-        protected virtual void BaseWorldTransformChanged(SceneComponent comp)
+        protected virtual void BaseWorldTransformChanged(ISceneComponent comp)
         {
             Vec2 origin = GetViewportTopRightWorldSpace();
             if (_xUnitText != null)
@@ -553,7 +553,7 @@ namespace TheraEditor.Windows.Forms
                 _yUnitText.Scale = scale;
         }
         protected virtual void AddRenderables(RenderPasses passes) { }
-        void I2DRenderable.AddRenderables(RenderPasses passes, Camera camera)
+        void I2DRenderable.AddRenderables(RenderPasses passes, ICamera camera)
         {
             AddRenderables(passes);
             passes.Add(_rcMethod);

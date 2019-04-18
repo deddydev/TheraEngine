@@ -142,8 +142,8 @@ namespace TheraEngine.Rendering.Cameras
                _time);
         }
 
-        protected override Frustum CreateUntransformedFrustum()
-            => Frustum.Lerp(
+        protected override IFrustum CreateUntransformedFrustum()
+            => Core.Shapes.Frustum.Lerp(
                 View1?.UntransformedFrustum ?? new Frustum(),
                 View2?.UntransformedFrustum ?? new Frustum(),
                 _time);
@@ -166,17 +166,17 @@ namespace TheraEngine.Rendering.Cameras
             CalculateProjection();
         }
 
-        internal override void SetAmbientOcclusionUniforms(RenderProgram program)
+        public override void SetAmbientOcclusionUniforms(RenderProgram program)
         {
             View1?.SetAmbientOcclusionUniforms(program);
             View2?.SetAmbientOcclusionUniforms(program);
         }
-        internal override void SetBloomUniforms(RenderProgram program)
+        public override void SetBloomUniforms(RenderProgram program)
         {
             View1?.SetBloomUniforms(program);
             View2?.SetBloomUniforms(program);
         }
-        internal override void SetPostProcessUniforms(RenderProgram program)
+        public override void SetPostProcessUniforms(RenderProgram program)
         {
             View1?.SetPostProcessUniforms(program);
             View2?.SetPostProcessUniforms(program);

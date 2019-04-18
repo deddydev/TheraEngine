@@ -111,7 +111,7 @@ namespace TheraEngine.Actors.Types
                 
                 if (mesh.LODs.Count > 0)
                 {
-                    LOD lod = mesh.LODs[0];
+                    ILOD lod = mesh.LODs[0];
                     if (lod?.MaterialRef != null)
                         lod.MaterialRef.File = _material;
                 }
@@ -178,7 +178,7 @@ namespace TheraEngine.Actors.Types
 
             if (mesh.LODs.Count > 0)
             {
-                LOD lod = mesh.LODs[0];
+                ILOD lod = mesh.LODs[0];
                 if (lod?.PrimitivesRef != null)
                 {
                     lod.PrimitivesRef.File?.Dispose();

@@ -43,7 +43,7 @@ namespace TheraEngine.Actors.Types
                     _rc.Mesh.Material = value;
             }
         }
-        public override RenderInfo3D RenderInfo
+        public override IRenderInfo3D RenderInfo
         {
             get => base.RenderInfo;
             protected set

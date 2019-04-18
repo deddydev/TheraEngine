@@ -12,8 +12,8 @@ namespace TheraEditor.Windows.Forms
             InitializeComponent();
         }
 
-        private LOD _lod;
-        public void SetLOD(LOD lod, int i, int maxLods)
+        private ILOD _lod;
+        public void SetLOD(ILOD lod, int i, int maxLods)
         {
             theraPropertyGrid1.TargetObject = lod;
             if ((_lod = lod) != null)

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Threading;
 using TheraEngine;
 using TheraEngine.Components.Scene;
@@ -23,7 +22,7 @@ namespace System
         /// otherwise the octree will not be updated.
         /// </summary>
         void ItemMoved(I3DRenderable item);
-        void DebugRender(bool recurse, bool onlyContainingItems, Frustum f, float lineWidth);
+        void DebugRender(bool recurse, bool onlyContainingItems, IVolume volume, float lineWidth);
         void DebugRender(Color color, float lineWidth);
     }
     public interface IOctree : IOctree<I3DRenderable>
@@ -33,8 +32,8 @@ namespace System
         void Remake();
         void Remake(BoundingBoxStruct newBounds);
         void Swap();
-        void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass);
-        void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f);
+        void CollectVisible(IVolume cullingVolume, RenderPasses passes, ICamera camera, bool shadowPass);
+        void DebugRender(IVolume volume, bool onlyContainingItems, float lineWidth = 2.0f);
     }
     public interface IOctree<T> where T : class, I3DRenderable
     {
@@ -156,7 +155,7 @@ namespace System
             _head.FindAll(shape, list, containment);
             return list;
         }
-        public void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass)
+        public void CollectVisible(IVolume cullingVolume, RenderPasses passes, ICamera camera, bool shadowPass)
         {
             passes.ShadowPass = shadowPass;
             if (cullingVolume != null)
@@ -168,11 +167,11 @@ namespace System
         /// <summary>
         /// Renders the octree using debug bounding boxes.
         /// </summary>
-        /// <param name="f">The frustum to display intersections with. If null, does not show frustum intersections.</param>
+        /// <param name="volume">The frustum to display intersections with. If null, does not show frustum intersections.</param>
         /// <param name="onlyContainingItems">Only renders subdivisions that contain one or more items.</param>
         /// <param name="lineWidth">The width of the bounding box lines.</param>
-        public void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f)
-            => _head.DebugRender(true, onlyContainingItems, f, lineWidth);
+        public void DebugRender(IVolume volume, bool onlyContainingItems, float lineWidth = 2.0f)
+            => _head.DebugRender(true, onlyContainingItems, volume, lineWidth);
 
         private class Node : IOctreeNode
         {
@@ -298,7 +297,7 @@ namespace System
             #endregion
 
             #region Debug
-            public void DebugRender(bool recurse, bool onlyContainingItems, Frustum f, float lineWidth)
+            public void DebugRender(bool recurse, bool onlyContainingItems, IVolume f, float lineWidth)
             {
                 Color color = Color.Red;
                 if (recurse)
@@ -317,7 +316,7 @@ namespace System
             #endregion
 
             #region Visible collection
-            public void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass)
+            public void CollectVisible(IVolume cullingVolume, RenderPasses passes, ICamera camera, bool shadowPass)
             {
                 EContainment c = cullingVolume.Contains(_bounds);
                 if (c != EContainment.Disjoint)
@@ -330,7 +329,7 @@ namespace System
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
 #if EDITOR
-                            if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is Camera cam && cam == camera))
+                            if ((r is CameraComponent ccomp && ccomp.Camera == camera) || (r is ICamera cam && cam == camera))
                                 continue;
                             bool editMode = Engine.EditorState.InEditMode;
                             if (!editMode && r.RenderInfo.VisibleInEditorOnly)
@@ -354,7 +353,7 @@ namespace System
                     }
                 }
             }
-            public void CollectAll(RenderPasses passes, Camera camera, bool shadowPass)
+            public void CollectAll(RenderPasses passes, ICamera camera, bool shadowPass)
             {
                 for (int i = 0; i < _items.Count; ++i)
                 {
@@ -579,20 +578,20 @@ namespace System
             #endregion
         }
 
-        private bool Uncache(T item)
-        {
-            //bool exists = AllItems.Remove(item);
-            item.RenderInfo.SceneID = -1;
-            //return exists;
-            return true;
-        }
+        //private bool Uncache(T item)
+        //{
+        //    //bool exists = AllItems.Remove(item);
+        //    item.RenderInfo.SceneID = -1;
+        //    //return exists;
+        //    return true;
+        //}
 
-        private bool Cache(T item)
-        {
-            //bool success = AllItems.Add(item);
-            item.RenderInfo.SceneID = ItemID++;
-            //return success;
-            return true;
-        }
+        //private bool Cache(T item)
+        //{
+        //    //bool success = AllItems.Add(item);
+        //    item.RenderInfo.SceneID = ItemID++;
+        //    //return success;
+        //    return true;
+        //}
     }
 }

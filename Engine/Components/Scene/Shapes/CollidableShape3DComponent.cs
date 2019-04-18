@@ -20,7 +20,11 @@ namespace TheraEngine.Components.Scene.Shapes
                 OwningWorld.PhysicsWorld3D.AddCollisionObject(_rigidBodyCollision);
             }
         }
-
+        Matrix4 ICollidable.CollidableWorldMatrix
+        {
+            get => WorldMatrix;
+            set => WorldMatrix = value;
+        }
         [Category(PhysicsCategoryName)]
         [TSerialize]
         public virtual TRigidBody RigidBodyCollision
@@ -79,7 +83,7 @@ namespace TheraEngine.Components.Scene.Shapes
         private void BodyMoved(Matrix4 transform)
             => WorldMatrix = _rigidBodyCollision.WorldTransform;
 
-        private void ThisMoved(SceneComponent comp)
+        private void ThisMoved(ISceneComponent comp)
             => _rigidBodyCollision.ProceedToTransform(WorldMatrix);
 
         private void PhysicsSimulationStateChanged(bool isSimulating)

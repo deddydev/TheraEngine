@@ -110,15 +110,27 @@ namespace TheraEngine.GameModes
             return default;
         }
     }
-    public interface IGameMode
+    public interface IGameMode : IFileObject
     {
+        bool IsPlaying { get; }
         bool DisallowPausing { get; set; }
-        List<LocalPlayerController> LocalPlayers { get; }
+        IEventList<BaseRenderPanel> TargetRenderPanels { get; }
+        IWorld TargetWorld { get; }
+        IEventList<LocalPlayerController> LocalPlayers { get; }
 
         Viewport LinkControllerToViewport(LocalPlayerController item);
+
         void BeginGameplay(World world);
         void EndGameplay();
         void AbortGameplay();
+
+        void QueuePossession(IPawn pawn, ELocalPlayerIndex possessor);
+        void QueuePossession(IPawn pawn, Queue<ELocalPlayerIndex> possessors);
+        void ForcePossession(IPawn pawn, ELocalPlayerIndex possessor);
+
+        void ResetLocalPlayerControllers();
+        void DestroyLocalPlayerControllers();
+        void FoundInput(InputDevice device);
     }
     [TFileExt("gm")]
     [TFileDef("Game Mode", "")]
@@ -171,12 +183,12 @@ namespace TheraEngine.GameModes
 
         public bool IsPlaying { get; private set; }
 
-        private EventList<BaseRenderPanel> _targetRenderPanels;
+        private IEventList<BaseRenderPanel> _targetRenderPanels;
         /// <summary>
         /// These are the render panels that will be used for the target world's local player controllers.
         /// </summary>
         [Browsable(false)]
-        public EventList<BaseRenderPanel> TargetRenderPanels => _targetRenderPanels;
+        public IEventList<BaseRenderPanel> TargetRenderPanels => _targetRenderPanels;
         /// <summary>
         /// This is the world that is running this game mode.
         /// </summary>
@@ -186,7 +198,7 @@ namespace TheraEngine.GameModes
         /// These are the local players that are active in the world.
         /// </summary>
         [Browsable(false)]
-        public List<LocalPlayerController> LocalPlayers { get; } = new List<LocalPlayerController>();
+        public IEventList<LocalPlayerController> LocalPlayers { get; } = new EventList<LocalPlayerController>();
 
         /// <summary>
         /// Creates a local player controller with methods and properties that may pertain to this specific game mode.
@@ -280,12 +292,12 @@ namespace TheraEngine.GameModes
 
             //TODO: create controller on the server
         }
-        internal void ResetLocalPlayerControllers()
+        public void ResetLocalPlayerControllers()
         {
             foreach (LocalPlayerController controller in LocalPlayers)
                 controller.UnlinkControlledPawn();
         }
-        internal void DestroyLocalPlayerControllers()
+        public void DestroyLocalPlayerControllers()
         {
             foreach (LocalPlayerController controller in LocalPlayers)
                 controller.Destroy();
@@ -307,7 +319,7 @@ namespace TheraEngine.GameModes
                     CreateLocalController(ELocalPlayerIndex.One + gp.Index);
             }
         }
-        internal void FoundInput(InputDevice device)
+        public void FoundInput(InputDevice device)
         {
             if (device is BaseKeyboard || device is BaseMouse)
             {
@@ -346,7 +358,7 @@ namespace TheraEngine.GameModes
         }
     }
     public class GameMode<PawnType, ControllerType> : BaseGameMode
-        where PawnType : BaseActor, IPawn, new()
+        where PawnType : class, IActor, IPawn, new()
         where ControllerType : LocalPlayerController
     {
         public int _numSpectators, _numPlayers, _numComputers;

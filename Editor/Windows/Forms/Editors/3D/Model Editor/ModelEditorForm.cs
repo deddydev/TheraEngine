@@ -376,7 +376,7 @@ namespace TheraEditor.Windows.Forms
         {
             chkViewCullingVolumes.Checked = !chkViewCullingVolumes.Checked;
             var comp = TargetActor?.RootComponentGeneric;
-            RenderInfo3D r3D;
+            IRenderInfo3D r3D;
             switch (comp)
             {
                 case SkeletalMeshComponent skelComp:

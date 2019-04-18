@@ -440,7 +440,7 @@ namespace TheraEngine.Tests
             set => _sphere.Radius = value;
         }
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
         
         private PropAnimMethod<Vec3> _methodAnim;
         private AnimationTree _animTree;
@@ -490,7 +490,7 @@ namespace TheraEngine.Tests
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
 
-        private void RootComponent_WorldTransformChanged(SceneComponent comp)
+        private void RootComponent_WorldTransformChanged(ISceneComponent comp)
         {
             _direction = Vec3.TransformVector(new Vec3(0.0f, 0.0f, -_testDistance), RootComponent.Rotation.GetMatrix());
             _endTraceTransform = _direction.AsTranslationMatrix() * RootComponent.WorldMatrix;
@@ -525,7 +525,7 @@ namespace TheraEngine.Tests
         }
 
         private readonly RenderCommandMethod3D _renderCommand;
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             passes.Add(_renderCommand);
         }

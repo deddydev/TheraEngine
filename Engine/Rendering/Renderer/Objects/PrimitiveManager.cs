@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering.Models
         EDrawElementType ElementType { get; }
 
         void SwapModifiedBuffers();
-        void SkeletonChanged(Skeleton skeleton);
+        void SkeletonChanged(ISkeleton skeleton);
         T2 Parameter<T2>(int index) where T2 : ShaderVar;
         T2 Parameter<T2>(string name) where T2 : ShaderVar;
         void Render();
@@ -61,8 +61,8 @@ namespace TheraEngine.Rendering.Models
         internal GLSLScript _vertexShader;
 
         //Skeleton information
-        private Bone _singleBind;
-        private Bone[] _utilizedBones;
+        private IBone _singleBind;
+        private IBone[] _utilizedBones;
         private bool _remake = false;
         private Dictionary<int, int> _boneRemap;
         private bool _allowRender = true;
@@ -223,16 +223,16 @@ namespace TheraEngine.Rendering.Models
                     var inf = _cpuSkinInfo._influences[i];
                     for (int j = 0; j < inf._weightCount; ++j)
                     {
-                        Bone b = inf._bones[j];
+                        IBone b = inf._bones[j];
                         if (set)
                         {
-                            if (!b._influencedInfluences.Contains(inf))
-                                b._influencedInfluences.Add(inf);
+                            if (!b.InfluencedInfluences.Contains(inf))
+                                b.InfluencedInfluences.Add(inf);
                         }
                         else
                         {
-                            if (b._influencedInfluences.Contains(inf))
-                                b._influencedInfluences.Remove(inf);
+                            if (b.InfluencedInfluences.Contains(inf))
+                                b.InfluencedInfluences.Remove(inf);
                         }
                     }
                 }
@@ -242,7 +242,7 @@ namespace TheraEngine.Rendering.Models
                     FacePoint point = Data._facePoints[i];
                     for (int j = 0; j < inf._weightCount; ++j)
                     {
-                        Bone b = inf._bones[j];
+                        IBone b = inf._bones[j];
                         if (set)
                         {
                             ThreadSafeList<int> list;
@@ -250,7 +250,7 @@ namespace TheraEngine.Rendering.Models
                             //if (!b._influencedVertices.ContainsKey(BindingId))
                             //    b._influencedVertices.Add(BindingId, list = new List<int>());
                             //else
-                                list = b._influencedVertices[BindingId].Item2;
+                                list = b.InfluencedVertices[BindingId].Item2;
 
                             if (!list.Contains(point.Index))
                                 list.Add(point.Index);
@@ -259,7 +259,7 @@ namespace TheraEngine.Rendering.Models
                         {
                             //if (b._influencedVertices.ContainsKey(BindingId))
                             //{
-                            ThreadSafeList<int> list = b._influencedVertices[BindingId].Item2;
+                            ThreadSafeList<int> list = b.InfluencedVertices[BindingId].Item2;
                                 if (list.Contains(point.Index))
                                     list.Remove(point.Index);
                                 //if (list.Count == 0)
@@ -270,7 +270,7 @@ namespace TheraEngine.Rendering.Models
                 }
             }
         }
-        public void SkeletonChanged(Skeleton skeleton)
+        public void SkeletonChanged(ISkeleton skeleton)
         {
             UpdateBoneInfo(false);
             
@@ -291,7 +291,7 @@ namespace TheraEngine.Rendering.Models
             _boneMatrixBuffer = null;
 
             if (_utilizedBones != null)
-                foreach (Bone b in _utilizedBones)
+                foreach (IBone b in _utilizedBones)
                 {
                     b.RemovePrimitiveManager(this);
                     b.Renamed -= B_Renamed;
@@ -411,12 +411,12 @@ namespace TheraEngine.Rendering.Models
                     _boneRemap = new Dictionary<int, int>();
                     for (int i = 0; i < _utilizedBones.Length; ++i)
                     {
-                        Bone b = _utilizedBones[i];
+                        IBone b = _utilizedBones[i];
 
-                        _modifiedBoneIndicesUpdating.Add(b._index);
+                        _modifiedBoneIndicesUpdating.Add(b.Index);
 
                         //b.AddPrimitiveManager(this);
-                        _boneRemap.Add(b._index, i);
+                        _boneRemap.Add(b.Index, i);
                     }
                 }
             }
@@ -520,7 +520,7 @@ namespace TheraEngine.Rendering.Models
                 Destroy();
                 for (int i = 0; i < _utilizedBones.Length; ++i)
                 {
-                    Bone b = _utilizedBones[i];
+                    IBone b = _utilizedBones[i];
                     b.AddPrimitiveManager(this);
                 }
                 if (_boneMatrixBuffer != null)

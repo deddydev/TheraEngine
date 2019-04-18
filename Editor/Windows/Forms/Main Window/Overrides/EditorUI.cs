@@ -82,9 +82,9 @@ namespace TheraEditor.Windows.Forms
         internal bool MouseDown { get; set; }//=> OwningPawn.LocalPlayerController.Input.Mouse.LeftClick.IsPressed;
 
         public bool UseTransformTool => _transformType != TransformType.DragDrop;
-        public SceneComponent DragComponent { get; set; }
+        public ISceneComponent DragComponent { get; set; }
 
-        public SceneComponent HighlightedComponent
+        public ISceneComponent HighlightedComponent
         {
             get => _highlightPoint.HighlightedComponent;
             set
@@ -474,7 +474,7 @@ namespace TheraEditor.Windows.Forms
         }
         public void MouseMove(Viewport v, Vec2 viewportPoint)
         {
-            SceneComponent dragComp = DragComponent;
+            ISceneComponent dragComp = DragComponent;
 
             //Transforming object?
             if (TransformTool3D.Instance.IsSpawned)
@@ -493,7 +493,7 @@ namespace TheraEditor.Windows.Forms
             else if (dragComp != null) //Dragging and dropping object?
             {
                 IRigidBodyCollidable p = dragComp as IRigidBodyCollidable;
-                SceneComponent comp = v.PickScene(
+                ISceneComponent comp = v.PickScene(
                     viewportPoint, true, true, true,
                     out _hitNormal, out _hitPoint, out float dist,
                     p != null ? new TRigidBody[] { p.RigidBodyCollision } : new TRigidBody[0]);
@@ -537,7 +537,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void HighlightScene(Viewport viewport, Vec2 viewportPoint)
         {
-            Camera c = viewport.Camera;
+            ICamera c = viewport.Camera;
             if (c == null)
                 return;
 
@@ -548,7 +548,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
             
-            SceneComponent comp = viewport.PickScene(viewportPoint, true, true, true, out _hitNormal, out _hitPoint, out _hitDistance);
+            ISceneComponent comp = viewport.PickScene(viewportPoint, true, true, true, out _hitNormal, out _hitPoint, out _hitDistance);
             bool hasHit = comp != null;
             _highlightPoint.RenderInfo.Visible = hasHit;
             if (hasHit)
@@ -576,7 +576,7 @@ namespace TheraEditor.Windows.Forms
             UpdateHighlightPoint(c);
             HighlightedComponent = comp;
         }
-        internal void UpdateHighlightPoint(Camera c)
+        internal void UpdateHighlightPoint(ICamera c)
         {
             _highlightPoint.Transform =
                 Matrix4.CreateTranslation(_hitPoint) *
@@ -627,9 +627,9 @@ namespace TheraEditor.Windows.Forms
 
             _highlightPoint.RenderInfo.Visible = HighlightedComponent != null;
         }
-        public SceneComponent SelectedComponent { get; private set; }
+        public ISceneComponent SelectedComponent { get; private set; }
 
-        public void SetSelectedComponent(bool selectedByViewport, SceneComponent comp, bool fromActorTree = false)
+        public void SetSelectedComponent(bool selectedByViewport, ISceneComponent comp, bool fromActorTree = false)
         {
             if (SelectedComponent == comp)
                 return;
@@ -730,7 +730,7 @@ namespace TheraEditor.Windows.Forms
                             if (DragComponent != null)
                             {
                                 _prevDragMatrix = DragComponent.WorldMatrix;
-                                Camera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
+                                ICamera c = OwningPawn?.LocalPlayerController?.Viewport?.Camera;
                                 DraggingTestDistance = c != null ? c.DistanceFromScreenPlane(DragComponent.WorldPoint) : DraggingTestDistance;
                             }
                         }
@@ -772,7 +772,7 @@ namespace TheraEditor.Windows.Forms
                 _normalRC.NormalMatrix = Matrix3.Identity;
             }
 
-            public void AddRenderables(RenderPasses passes, Camera camera)
+            public void AddRenderables(RenderPasses passes, ICamera camera)
             {
                 if (HighlightedComponent != null && HighlightedComponent != TransformTool3D.Instance?.RootComponent)
                 {

@@ -13,9 +13,16 @@ namespace TheraEngine.Rendering
 {
     public interface IScene3D : IScene
     {
-        IEventList<I3DRenderable> Renderables { get; }
         IOctree RenderTree { get; }
+        LightManager Lights { get; }
         IBLProbeGridActor IBLProbeActor { get; set; }
+        IEventList<I3DRenderable> Renderables { get; }
+
+        void UpdateShadowMaps();
+        void RenderShadowMaps();
+        void Voxelize(bool clearVoxelization = true);
+        void Clear(BoundingBoxStruct sceneBounds);
+
     }
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
@@ -103,7 +110,7 @@ namespace TheraEngine.Rendering
             //Engine.Renderer.PopRenderArea();
             //Engine.Renderer.ColorMask(true, true, true, true);
         }
-        public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, Camera camera, bool shadowPass)
+        public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, ICamera camera, bool shadowPass)
         {
             RenderTree.CollectVisible(collectionVolume, populatingPasses, camera, shadowPass);
         }
@@ -154,7 +161,7 @@ namespace TheraEngine.Rendering
         private RenderQuery _timeQuery = new RenderQuery();
 
         #region Passes
-        public void RenderDeferred(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
+        public void RenderDeferred(RenderPasses renderingPasses, ICamera camera, Viewport viewport, FrameBuffer target)
         {
             //_timeQuery.BeginQuery(EQueryTarget.TimeElapsed);
             Engine.Renderer.PushCamera(camera);

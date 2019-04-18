@@ -15,21 +15,41 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Worlds
 {
+    public delegate void DelGameModeChange(IWorld world, IGameMode previous, IGameMode next);
     public interface IWorld : IFileObject, I3DRenderable, I2DRenderable, IEnumerable<IActor>, IDisposable
     {
+        event DelGameModeChange CurrentGameModePreChanged;
+        event DelGameModeChange CurrentGameModePostChanged;
+
+        GlobalFileRef<WorldSettings> SettingsRef { get; set; }
+        GlobalFileRef<WorldState> StateRef { get; set; }
+
         WorldSettings Settings { get; set; }
+        WorldState State { get; set; }
+
+        IScene Scene { get; set; }
+        IScene3D Scene3D { get; }
+        IScene2D Scene2D { get; }
+        IGameMode CurrentGameMode { get; set; }
+
         AbstractPhysicsWorld PhysicsWorld3D { get; }
+
         bool IsPlaying { get; }
         bool IsRebasingOrigin { get; }
-        IScene Scene { get; set; }
         int SpawnedActorCount { get; }
-        IGameMode CurrentGameMode { get; set; }
+
+        void SpawnActor(IActor item);
+        void SpawnActor(IActor actor, Vec3 position);
+        void DespawnActor(IActor baseActor);
 
         void RebaseOrigin(Vec3 newOrigin);
         void BeginPlay();
         void EndPlay();
-        void SpawnActor(IActor item);
-        void DespawnActor(IActor baseActor);
+        void StepSimulation(float delta);
+        void MakeCurrent();
+
+        IGameMode GetDefaultGameMode();
+        T GetGameMode<T>() where T : class, IGameMode;
 
         IActor this[int index] { get;set; }
     }
@@ -41,6 +61,9 @@ namespace TheraEngine.Worlds
     [TFileDef("World")]
     public class World : TFileObject, IWorld
     {
+        public event DelGameModeChange CurrentGameModePreChanged;
+        public event DelGameModeChange CurrentGameModePostChanged;
+
         public World() : this(new WorldSettings(), new WorldState()) { }
         public World(GlobalFileRef<WorldSettings> settings) : this(settings, new WorldState()) { }
         public World(GlobalFileRef<WorldSettings> settings, GlobalFileRef<WorldState> state)
@@ -108,11 +131,7 @@ namespace TheraEngine.Worlds
         public IScene2D Scene2D => Scene as IScene2D;
         public AbstractPhysicsWorld PhysicsWorld3D { get; private set; }
 
-        public delegate void DelGameModeChange(IWorld world, BaseGameMode previous, BaseGameMode next);
-        public event DelGameModeChange CurrentGameModePreChanged;
-        public event DelGameModeChange CurrentGameModePostChanged;
-        
-        public BaseGameMode CurrentGameMode
+        public IGameMode CurrentGameMode
         {
             get => State.GameMode;
             set
@@ -133,7 +152,7 @@ namespace TheraEngine.Worlds
         public void MakeCurrent()
             => Engine.SetCurrentWorld(this);
         
-        public BaseGameMode GetDefaultGameMode()
+        public IGameMode GetDefaultGameMode()
             => Settings?.DefaultGameModeRef?.File;
         public T GetGameMode<T>() where T : class, IGameMode
             => Settings?.DefaultGameModeRef?.File as T;
@@ -174,7 +193,7 @@ namespace TheraEngine.Worlds
             //Engine.PrintLine("Despawned " + actor.Name);
         }
         
-        internal void StepSimulation(float delta)
+        void IWorld.StepSimulation(float delta)
             => PhysicsWorld3D?.StepSimulation(delta);
         
         public IActor this[int index]
@@ -183,16 +202,14 @@ namespace TheraEngine.Worlds
             set => State.SpawnedActors[index] = value;
         }
 
+        public bool IsPlaying { get; private set; }
         public bool IsRebasingOrigin { get; private set; } = false;
 
-        public RenderInfo3D RenderInfo3D { get; } = new RenderInfo3D(true, true);
-        public RenderInfo2D RenderInfo2D { get; } = new RenderInfo2D(0, 0);
+        public IRenderInfo3D RenderInfo3D { get; } = new RenderInfo3D(true, true);
+        public IRenderInfo2D RenderInfo2D { get; } = new RenderInfo2D(0, 0);
 
-        RenderInfo3D I3DRenderable.RenderInfo => RenderInfo3D;
-        RenderInfo2D I2DRenderable.RenderInfo => RenderInfo2D;
-
-        public IScene2D OwningScene2D { get; }
-        public bool IsPlaying { get; private set; }
+        IRenderInfo3D I3DRenderable.RenderInfo => RenderInfo3D;
+        IRenderInfo2D I2DRenderable.RenderInfo => RenderInfo2D;
 
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
@@ -332,9 +349,9 @@ namespace TheraEngine.Worlds
                 Scene2D?.RenderTree?.DebugRender(null, true);
         }
 
-        void I3DRenderable.AddRenderables(RenderPasses passes, Camera camera) 
+        void I3DRenderable.AddRenderables(RenderPasses passes, ICamera camera) 
             => passes.Add(_rc3D);
-        void I2DRenderable.AddRenderables(RenderPasses passes, Camera camera)
+        void I2DRenderable.AddRenderables(RenderPasses passes, ICamera camera)
             => passes.Add(_rc2D);
     }
 }

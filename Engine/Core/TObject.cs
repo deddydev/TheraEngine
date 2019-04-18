@@ -14,6 +14,8 @@ namespace TheraEngine
 {
     public interface IObject
     {
+        event RenamedEventHandler Renamed;
+
         string Name { get; set; }
         object UserObject { get; set; }
         bool ConstructedProgrammatically { get; set; }
@@ -41,7 +43,7 @@ namespace TheraEngine
         #endregion
 
         #region Animation
-        EventList<AnimationTree> Animations { get; set; }
+        IEventList<AnimationTree> Animations { get; set; }
         Guid Guid { get; set; }
 
         //void AddAnimation(
@@ -206,11 +208,11 @@ namespace TheraEngine
         #region Animation
 
         [TSerialize(nameof(Animations))]
-        private EventList<AnimationTree> _animations = null;
+        private IEventList<AnimationTree> _animations = null;
 
         [Category("Object")]
         [BrowsableIf("_animations != null")] // && _animations.Count > 0
-        public EventList<AnimationTree> Animations
+        public IEventList<AnimationTree> Animations
         {
             get => _animations;
             set

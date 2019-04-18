@@ -19,8 +19,8 @@ namespace TheraEngine
         void FormShown();
         void FormClosed();
     }
-    public class UIRenderPanel<UIPawnType, UIGameModeType, UIControllerType> : RenderPanel<Scene2D>, IUIRenderPanel 
-        where UIPawnType : BaseActor, IUserInterface, new()
+    public class UIRenderPanel<UIPawnType, UIGameModeType, UIControllerType> : RenderPanel<IScene2D>, IUIRenderPanel 
+        where UIPawnType : class, IActor, IUserInterface, new()
         where UIGameModeType : UIGameMode<UIPawnType, UIControllerType>, new()
         where UIControllerType : LocalPlayerController
     {
@@ -38,8 +38,8 @@ namespace TheraEngine
         World IUIRenderPanel.World => World;
         IUIGameMode IUIRenderPanel.GameMode => GameMode;
 
-        protected override Scene2D GetScene(Viewport v) => World.Scene2D;
-        protected override Camera GetCamera(Viewport v) => UI?.ScreenOverlayCamera;
+        protected override IScene2D GetScene(Viewport v) => World.Scene2D;
+        protected override ICamera GetCamera(Viewport v) => UI?.ScreenOverlayCamera;
 
         public UIRenderPanel()
         {

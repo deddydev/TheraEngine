@@ -22,7 +22,7 @@ namespace TheraEngine.Actors.Types
         public TexRefCube PrefilterTex { get; private set; }
 
         [Category(RenderingCategoryName)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
        
         private bool _showPrefilterTexture = false;
         [Category(RenderingCategoryName)]
@@ -177,7 +177,7 @@ namespace TheraEngine.Actors.Types
         }
 
         private RenderCommandMesh3D _rc = null;
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             if (_rc != null)
                 passes.Add(_rc);

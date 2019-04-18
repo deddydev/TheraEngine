@@ -88,10 +88,10 @@ namespace TheraEngine.Components.Scene.Lights
         public ELightType Type { get; set; } = ELightType.Dynamic;
 
         [Browsable(false)]
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true)
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true)
         {
             VisibleInIBLCapture = false,
-            EditorVisibilityMode = Rendering.RenderInfo.EEditorVisibility.VisibleAlways
+            EditorVisibilityMode = EEditorVisibility.VisibleAlways
         };
 
         internal void SetShadowUniforms(RenderProgram program)
@@ -170,7 +170,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
 
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
         }

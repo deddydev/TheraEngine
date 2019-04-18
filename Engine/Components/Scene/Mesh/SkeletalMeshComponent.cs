@@ -44,7 +44,7 @@ namespace TheraEngine.Components.Scene.Mesh
                 return socket;
             }
         }
-        public MeshSocket FindOrCreateSocket(string socketName, Transform transform)
+        public MeshSocket FindOrCreateSocket(string socketName, ITransform transform)
         {
             if (_sockets.ContainsKey(socketName))
             {
@@ -64,9 +64,9 @@ namespace TheraEngine.Components.Scene.Mesh
             if (_sockets.ContainsKey(socketName))
                 _sockets.Remove(socketName);
         }
-        public void AddToSocket(string socketName, SceneComponent component)
+        public void AddToSocket(string socketName, ISceneComponent component)
             => FindOrCreateSocket(socketName).ChildComponents.Add(component);
-        public void AddRangeToSocket(string socketName, IEnumerable<SceneComponent> components)
+        public void AddRangeToSocket(string socketName, IEnumerable<ISceneComponent> components)
             => FindOrCreateSocket(socketName).ChildComponents.AddRange(components);
         #endregion
 
@@ -202,7 +202,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (TargetSkeleton != null)
             {
                 AbstractPhysicsWorld world = OwningWorld.PhysicsWorld3D;
-                foreach (Bone b in TargetSkeleton.GetPhysicsDrivableBones())
+                foreach (IBone b in TargetSkeleton.PhysicsDrivableBones)
                 {
                     TConstraint constraint = b.ParentPhysicsConstraint;
                     if (constraint != null)
@@ -250,7 +250,7 @@ namespace TheraEngine.Components.Scene.Mesh
             if (TargetSkeleton != null)
             {
                 AbstractPhysicsWorld world = OwningWorld.PhysicsWorld3D;
-                foreach (Bone b in TargetSkeleton.GetPhysicsDrivableBones())
+                foreach (IBone b in TargetSkeleton.PhysicsDrivableBones)
                 {
                     TConstraint constraint = b.ParentPhysicsConstraint;
                     if (constraint != null)
@@ -270,7 +270,7 @@ namespace TheraEngine.Components.Scene.Mesh
             TargetSkeleton?.WorldMatrixChanged();
         }
         
-        public void PreRenderUpdate(Camera camera)
+        public void PreRenderUpdate(ICamera camera)
         {
             //_targetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
         }
@@ -278,7 +278,7 @@ namespace TheraEngine.Components.Scene.Mesh
         {
             TargetSkeleton?.SwapBuffers();
         }
-        public void PreRender(Viewport viewport, Camera camera)
+        public void PreRender(Viewport viewport, ICamera camera)
         {
             TargetSkeleton?.UpdateBones(camera, Matrix4.Identity, Matrix4.Identity);
         }

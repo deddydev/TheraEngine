@@ -68,12 +68,12 @@ namespace TheraEngine.Core.Shapes
 
         [TSerialize]
         [Category("Rendering")]
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(false, true);
+        public IRenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(false, true);
         [TSerialize(NodeType = ENodeType.Attribute)]
         [Category("Rendering")]
         public bool RenderSolid { get; set; }
 
-        private void TransformChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        private void TransformChanged(ITransform transform, Matrix4 oldMatrix, Matrix4 oldInvMatrix)
             => RenderInfo.OctreeNode?.ItemMoved(this);
 
         public abstract TCollisionShape GetCollisionShape();
@@ -130,7 +130,7 @@ namespace TheraEngine.Core.Shapes
         public abstract void Render();
 
         private readonly RenderCommandMethod3D _rc;
-        public void AddRenderables(RenderPasses passes, Camera camera) 
+        public void AddRenderables(RenderPasses passes, ICamera camera) 
             => passes.Add(_rc);
     }
 }

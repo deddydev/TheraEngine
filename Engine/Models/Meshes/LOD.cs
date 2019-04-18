@@ -6,9 +6,23 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Models
 {
+    public interface ILOD : IFileObject
+    {
+        event Action BillboardModeChanged;
+        event Action VisibleDistanceChanged;
+        event Action MaterialRefChanged;
+        event Action PrimitivesRefChanged;
+
+        LocalFileRef<TMaterial> MaterialRef { get; }
+        GlobalFileRef<PrimitiveData> PrimitivesRef { get; }
+        float VisibleDistance { get; set; }
+        ETransformFlags TransformFlags { get; set; }
+
+        PrimitiveManager CreatePrimitiveManager();
+    }
     [TFileExt("lod")]
     [TFileDef("Level Of Detail Mesh Spec")]
-    public class LOD : TFileObject
+    public class LOD : TFileObject, ILOD
     {
         public event Action BillboardModeChanged;
         public event Action VisibleDistanceChanged;

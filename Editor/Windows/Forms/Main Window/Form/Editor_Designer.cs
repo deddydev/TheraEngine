@@ -50,11 +50,11 @@ namespace TheraEditor.Windows.Forms
         /// <summary>
         /// The game mode used for this render form.
         /// </summary>
-        BaseGameMode GameMode { get; }
+        IGameMode GameMode { get; }
         /// <summary>
         /// The world this render form is rendering.
         /// </summary>
-        World World { get; }
+        IWorld World { get; }
     }
     public partial class Editor : TheraForm, IMappableShortcutControl, IDockPanelOwner
     {
@@ -245,14 +245,14 @@ namespace TheraEditor.Windows.Forms
         /// <summary>
         /// The world that the editor is currently editing.
         /// </summary>
-        public World CurrentWorld
+        public IWorld CurrentWorld
         {
             get => Engine.World;
             set => SetWorld(value);
         }
-        private async void SetWorld(World world)
+        private async void SetWorld(IWorld world)
         {
-            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<World>)SetWorld, BaseRenderPanel.EPanelType.Rendering, world))
+            if (BaseRenderPanel.ThreadSafeBlockingInvoke((Action<IWorld>)SetWorld, BaseRenderPanel.EPanelType.Rendering, world))
                 return;
 
             if (Engine.World?.EditorState?.HasChanges ?? false)
@@ -794,7 +794,7 @@ namespace TheraEditor.Windows.Forms
         }
         private void SetGameplayMode()
         {
-            BaseGameMode gameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
+            IGameMode gameMode = Engine.GetGameMode() ?? new GameMode<FlyingCameraPawn, LocalPlayerController>();
             Engine.World.CurrentGameMode = gameMode;
         }
 

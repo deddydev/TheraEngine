@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace TheraEngine.Rendering.UI.Functions
 {
-    public interface IFuncValueOutput : IBaseFuncValue, IEnumerable<IFuncValueInput>
+    public interface IFuncValueOutput : IBaseFuncValue//, IEnumerable<IFuncValueInput>
     {
         void CallbackAddConnection(IFuncValueInput other);
         void SecondaryRemoveConnection(IFuncValueInput other);
@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering.UI.Functions
         public override bool ConnectTo(BaseFuncArg other)
             => ConnectTo(other as TInput);
 
-        IEnumerator<IFuncValueInput> IEnumerable<IFuncValueInput>.GetEnumerator() => _connections.GetEnumerator();
+        //IEnumerator<IFuncValueInput> IEnumerable<IFuncValueInput>.GetEnumerator() => _connections.GetEnumerator();
         public bool ConnectionsContains(IFuncValueInput other) => _connections.Contains(other);
     }
 }

@@ -117,7 +117,7 @@ namespace TheraEditor.Windows.Forms
                 {
                     if (CtrlDown && _draggedArg is IFuncValueOutput output)
                     {
-                        foreach (IFuncValueInput input in output)
+                        foreach (IFuncValueInput input in output.Connections)
                             OnArgumentsDisconnected(input, output);
                         output.ClearConnections();
                     }
@@ -198,10 +198,10 @@ namespace TheraEditor.Windows.Forms
 
         protected override void HighlightScene()
         {
-            UIComponent comp = FindComponent();
+            IUIComponent comp = FindComponent();
 
             if (comp is UITextComponent)
-                comp = (UIComponent)comp.ParentSocket;
+                comp = (IUIComponent)comp.ParentSocket;
 
             if (_highlightedFunc != null && comp != _highlightedFunc)
                 _highlightedFunc.InterfaceMaterial.Parameter<ShaderVec4>(0).Value = _highlightedFunc == _selectedFunc ? BaseFunction.SelectedColor : BaseFunction.RegularColor;

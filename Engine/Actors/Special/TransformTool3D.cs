@@ -46,7 +46,7 @@ namespace TheraEngine.Actors.Types
         public static TransformTool3D Instance => _currentInstance.Value;
         private static Lazy<TransformTool3D> _currentInstance = new Lazy<TransformTool3D>(() => new TransformTool3D());
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true);
 
         public TransformTool3D() : base()
         {
@@ -330,7 +330,7 @@ namespace TheraEngine.Actors.Types
 //#if EDITOR
 //                    _targetSocket.Selected = false;
 //#endif
-                    _targetSocket.RegisterWorldMatrixChanged(Instance.TransformChanged, true);
+                    _targetSocket.SocketTransformChanged -= Instance.TransformChanged;
                 }
                 _targetSocket = value;
                 if (_targetSocket != null)
@@ -340,7 +340,7 @@ namespace TheraEngine.Actors.Types
 //#endif
                     
                     RootComponent.SetWorldMatrices(GetWorldMatrix(), GetInvWorldMatrix());
-                    _targetSocket.RegisterWorldMatrixChanged(Instance.TransformChanged, false);
+                    _targetSocket.SocketTransformChanged += Instance.TransformChanged;
                 }
                 else
                     RootComponent.SetWorldMatrices(Matrix4.Identity, Matrix4.Identity);
@@ -495,7 +495,7 @@ namespace TheraEngine.Actors.Types
         private Action _mouseUp, _mouseDown;
         private DelDrag _drag;
         private DelHighlight _highlight;
-        private delegate bool DelHighlight(Camera camera, Ray localRay);
+        private delegate bool DelHighlight(ICamera camera, Ray localRay);
         private delegate void DelDrag(Vec3 dragPoint);
         private delegate void DelDragRot(Quat dragPoint);
 
@@ -564,7 +564,7 @@ namespace TheraEngine.Actors.Types
         /// <param name="camera">The camera viewing this tool, used for camera space drag clamping.</param>
         /// <param name="localRay">The mouse ray, transformed into the socket's local space.</param>
         /// <returns></returns>
-        private Vec3 GetLocalDragPoint(Camera camera, Ray localRay)
+        private Vec3 GetLocalDragPoint(ICamera camera, Ray localRay)
         {
             //Convert all coordinates to local space
 
@@ -700,7 +700,7 @@ namespace TheraEngine.Actors.Types
 #endregion
 
         #region Highlighting
-        private bool HighlightRotation(Camera camera, Ray localRay)
+        private bool HighlightRotation(ICamera camera, Ray localRay)
         {
             Vec3 worldPoint = RootComponent.WorldMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
@@ -745,7 +745,7 @@ namespace TheraEngine.Actors.Types
 
             return _hiAxis.Any || _hiCam || _hiSphere;
         }
-        private bool HighlightTranslation(Camera camera, Ray localRay)
+        private bool HighlightTranslation(ICamera camera, Ray localRay)
         {
             Vec3 worldPoint = RootComponent.WorldMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
@@ -802,7 +802,7 @@ namespace TheraEngine.Actors.Types
 
             return snapFound;
         }
-        private bool HighlightScale(Camera camera, Ray localRay)
+        private bool HighlightScale(ICamera camera, Ray localRay)
         {
             Vec3 worldPoint = RootComponent.WorldMatrix.Translation;
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
@@ -877,7 +877,7 @@ namespace TheraEngine.Actors.Types
         /// <summary>
         /// Returns true if intersecting one of the transform tool's various parts.
         /// </summary>
-        public bool MouseMove(Ray cursor, Camera camera, bool pressed)
+        public bool MouseMove(Ray cursor, ICamera camera, bool pressed)
         {
             bool snapFound = true;
             if (pressed)
@@ -976,6 +976,6 @@ namespace TheraEngine.Actors.Types
         }
 
         private readonly RenderCommandMethod3D _rc;
-        public void AddRenderables(RenderPasses passes, Camera camera) => passes.Add(_rc);
+        public void AddRenderables(RenderPasses passes, ICamera camera) => passes.Add(_rc);
     }
 }

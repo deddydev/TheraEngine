@@ -69,7 +69,7 @@ namespace TheraEngine.Components.Logic.Movement
             {
                 if (_currentMovementMode == value)
                     return;
-                if (OwningActor.RootComponentGeneric is CapsuleYComponent root)
+                if (OwningActor.RootComponent is CapsuleYComponent root)
                 {
                     root.RigidBodyCollision.SimulatingPhysics = true;
                     switch (value)
@@ -121,7 +121,7 @@ namespace TheraEngine.Components.Logic.Movement
 
         public override void OnSpawned()
         {
-            if (OwningActor.RootComponentGeneric is IRigidBodyCollidable root)
+            if (OwningActor.RootComponent is IRigidBodyCollidable root)
             {
 
             }
@@ -136,12 +136,12 @@ namespace TheraEngine.Components.Logic.Movement
             UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
             base.OnDespawned();
         }
-        private void FloorTransformChanged(SceneComponent floor)
+        private void FloorTransformChanged(ISceneComponent floor)
         {
             //TODO: change to falling if ground accelerates down with gravity faster than the character
-            SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
+            ISceneComponent comp = (ISceneComponent)_currentWalkingSurface.Owner;
             Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            CapsuleYComponent root = OwningActor.RootComponentGeneric as CapsuleYComponent;
+            CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
             Vec3 point = moved.Translation;
 
@@ -164,7 +164,7 @@ namespace TheraEngine.Components.Logic.Movement
                 return;
 
             Matrix4 inputTransform;
-            CapsuleYComponent root = OwningActor.RootComponentGeneric as CapsuleYComponent;
+            CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             TCollisionShape shape = root.RenderInfo.CullingVolume.GetCollisionShape();
             TRigidBody body = root.RigidBodyCollision;
             
@@ -298,7 +298,7 @@ namespace TheraEngine.Components.Logic.Movement
             if (OwningActor == null)
                 return;
 
-            CapsuleYComponent root = OwningActor.RootComponentGeneric as CapsuleYComponent;
+            CapsuleYComponent root = OwningActor.RootComponent as CapsuleYComponent;
             Vec3 v = root.RigidBodyCollision.LinearVelocity;
 
             if (v.Xz.LengthFast < 8.667842f)
@@ -314,7 +314,7 @@ namespace TheraEngine.Components.Logic.Movement
                 return;
 
             //Get root component of the character
-            IRigidBodyCollidable root = OwningActor.RootComponentGeneric as IRigidBodyCollidable;
+            IRigidBodyCollidable root = OwningActor.RootComponent as IRigidBodyCollidable;
             TRigidBody chara = root?.RigidBodyCollision;
 
             //If the root has no rigid body, the player can't jump
@@ -407,7 +407,7 @@ namespace TheraEngine.Components.Logic.Movement
                 {
                     CurrentWalkingSurface = other;
                     CurrentMovementMode = EMovementMode.Walking;
-                    ((CapsuleYComponent)OwningActor.RootComponentGeneric).Translation.Raw += normal * -point.Distance;
+                    ((CapsuleYComponent)OwningActor.RootComponent).Translation.Raw += normal * -point.Distance;
                 }
             }
             else if (CurrentMovementMode == EMovementMode.Walking)

@@ -8,27 +8,14 @@ namespace TheraEngine.Rendering
 {
     public interface IScene2D : IScene
     {
-        EventList<I2DRenderable> Renderables { get; }
-        IQuadtree RenderTree { get; set; }
-    }
-    public interface IQuadtree : IQuadtree<I2DRenderable>
-    {
-        int ArrayLength(Vec3 halfExtents);
+        IQuadtree RenderTree { get; }
+        IEventList<I2DRenderable> Renderables { get; }
 
-        void Remake();
-        void Remake(BoundingBoxStruct newBounds);
-        void Swap();
-        void CollectVisible(IVolume cullingVolume, RenderPasses passes, Camera camera, bool shadowPass);
-        void DebugRender(Frustum f, bool onlyContainingItems, float lineWidth = 2.0f);
-    }
-    public interface IQuadtree<T> where T : class, I2DRenderable
-    {
-        void Add(T value);
-        void Add(IEnumerable<T> value);
-        void Remove(T value);
-        
-        ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment);
-        ThreadSafeList<T> FindAll(TShape shape, EContainment containment);
+        void CollectVisibleRenderables(BoundingRectangle bounds);
+        I2DRenderable FindDeepest(Vec2 viewportPoint);
+        void Resize(Vec2 bounds);
+        void Clear(Vec2 bounds);
+
     }
     /// <summary>
     /// Processes all scene information that will be sent to the renderer.
@@ -76,7 +63,7 @@ namespace TheraEngine.Rendering
             //foreach (I2DRenderable r in _renderables)
             //    r.AddRenderables(_passes);
         }
-        public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, Camera camera, bool shadowPass)
+        public override void CollectVisible(RenderPasses populatingPasses, IVolume collectionVolume, ICamera camera, bool shadowPass)
         {
             //RenderTree.CollectVisible(null, populatingPasses, camera);
             foreach (I2DRenderable r in Renderables)
@@ -100,7 +87,7 @@ namespace TheraEngine.Rendering
         
         public void Clear(Vec2 bounds)
         {
-            RenderTree = new Quadtree<I2DRenderable>(new BoundingRectangleFStruct(new Vec2(0.0f), bounds));
+            RenderTree = new Quadtree(new BoundingRectangleFStruct(new Vec2(0.0f), bounds));
         }
 
         public override void RegenerateTree()
@@ -123,7 +110,7 @@ namespace TheraEngine.Rendering
 
         }
 
-        public void DoRender(RenderPasses renderingPasses, Camera camera, Viewport viewport, FrameBuffer target)
+        public void DoRender(RenderPasses renderingPasses, ICamera camera, Viewport viewport, FrameBuffer target)
         {
             Engine.Renderer.PushCamera(camera);
             Engine.Renderer.PushCurrent2DScene(this);

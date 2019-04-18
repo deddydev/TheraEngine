@@ -167,7 +167,7 @@ namespace TheraEditor.Windows.Forms
                             ++i;
                             if (!match.Success)
                                 continue;
-                            Bone bone = _skeleton.BoneNameCache[boneNames[i]];
+                            IBone bone = _skeleton.BoneNameCache[boneNames[i]];
                             RenameBone(bone, match.Index, match.Length);
                         }
                         break;
@@ -182,7 +182,7 @@ namespace TheraEditor.Windows.Forms
                             ++i;
                             if (match < 0)
                                 continue;
-                            Bone bone = _skeleton.BoneNameCache[boneNames[i]];
+                            IBone bone = _skeleton.BoneNameCache[boneNames[i]];
                             RenameBone(bone, match, searchTerm.Length);
                         }
                         break;
@@ -197,7 +197,7 @@ namespace TheraEditor.Windows.Forms
                             ++i;
                             if (!match)
                                 continue;
-                            Bone bone = _skeleton.BoneNameCache[boneNames[i]];
+                            IBone bone = _skeleton.BoneNameCache[boneNames[i]];
                             RenameBone(bone, 0, searchTerm.Length);
                         }
                         break;
@@ -212,7 +212,7 @@ namespace TheraEditor.Windows.Forms
                             ++i;
                             if (!match)
                                 continue;
-                            Bone bone = _skeleton.BoneNameCache[boneNames[i]];
+                            IBone bone = _skeleton.BoneNameCache[boneNames[i]];
                             RenameBone(bone, bone.Name.Length - searchTerm.Length, searchTerm.Length);
                         }
                         break;
@@ -222,7 +222,7 @@ namespace TheraEditor.Windows.Forms
             }
             pnlRenameAll.Visible = false;
         }
-        private void RenameBone(Bone bone, int searchMatchStart, int searchMatchLength)
+        private void RenameBone(IBone bone, int searchMatchStart, int searchMatchLength)
         {
             switch (_renameMethod)
             {
@@ -236,7 +236,7 @@ namespace TheraEditor.Windows.Forms
                     bone.Name = txtRename.Text + bone.Name;
                     break;
                 case ERenamingMethod.AppendToEnd:
-                    bone.Name = bone.Name + txtRename.Text;
+                    bone.Name += txtRename.Text;
                     break;
                 case ERenamingMethod.AppendBeforeSearchMatch:
                     {

@@ -11,52 +11,81 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.Models
 {
+    public interface ISkeleton : IFileObject, IEnumerable<IBone>, I3DRenderable
+    {
+        IBone this[string name] { get; }
+        IBone this[int index] { get; }
+
+        IBone[] RootBones { get; set; }
+
+        Dictionary<string, IBone> BoneNameCache { get; }
+        Dictionary<int, IBone> BoneIndexCache { get; }
+        SkeletalMeshComponent OwningComponent { get; set; }
+
+        IReadOnlyCollection<IBone> CameraRelativeBones { get; }
+        IReadOnlyCollection<IBone> PhysicsDrivableBones { get; }
+
+        IBone GetBone(string boneName);
+        void RegenerateBoneCache();
+
+        IScene3D OwningScene3D { get; }
+
+        void AddCameraBone(IBone bone);
+        void RemoveCameraBone(IBone bone);
+        void AddPhysicsBone(IBone bone);
+        void RemovePhysicsBone(IBone bone);
+
+        void AddPrimitiveManager(IPrimitiveManager m);
+        void RemovePrimitiveManager(IPrimitiveManager m);
+        void SwapBuffers();
+        void UpdateBones(ICamera c, Matrix4 worldMatrix, Matrix4 inverseWorldMatrix);
+    }
     [TFileExt("skel")]
     [TFileDef("Model Skeleton")]
-    public class Skeleton : TFileObject, IEnumerable<Bone>, I3DRenderable
+    public class Skeleton : TFileObject, ISkeleton
     {
-        public RenderInfo3D RenderInfo { get; }
+        public IRenderInfo3D RenderInfo { get; }
             = new RenderInfo3D(false, true) { CastsShadows = false, ReceivesShadows = false };
         
         public Skeleton() : base()
         {
             _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
         }
-        public Skeleton(params Bone[] rootBones) : base()
+        public Skeleton(params IBone[] rootBones) : base()
         {
             _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
             RootBones = rootBones;
-            foreach (Bone b in RootBones)
+            foreach (IBone b in RootBones)
             {
                 b.CalcBindMatrix(true);
                 b.TriggerFrameMatrixUpdate();
             }
             RegenerateBoneCache();
         }
-        public Skeleton(Bone rootBone) : base()
+        public Skeleton(IBone rootBone) : base()
         {
             _rc = new RenderCommandMethod3D(ERenderPass.OnTopForward, Render);
-            RootBones = new Bone[1] { rootBone };
+            RootBones = new IBone[1] { rootBone };
             rootBone.CalcBindMatrix(true);
             rootBone.TriggerFrameMatrixUpdate();
             RegenerateBoneCache();
         }
 
-        public Bone this[string name]
+        public IBone this[string name]
             => BoneNameCache.ContainsKey(name) ? BoneNameCache[name] : null;
-        public Bone this[int index] 
+        public IBone this[int index] 
             => BoneIndexCache.ContainsKey(index) ? BoneIndexCache[index] : null;
         
         //Internal usage information, not serialized
-        private List<Bone> _physicsDrivableBones = new List<Bone>();
-        private List<Bone> _cameraBones = new List<Bone>();
+        private List<IBone> _physicsDrivableBones = new List<IBone>();
+        private List<IBone> _cameraBones = new List<IBone>();
 
         //private bool _childMatrixModified = false;
 
-        private Bone[] _rootBones;
+        private IBone[] _rootBones;
 
         [TSerialize]
-        public Bone[] RootBones
+        public IBone[] RootBones
         {
             get => _rootBones;
             set
@@ -66,20 +95,20 @@ namespace TheraEngine.Rendering.Models
             }
         }
         [Browsable(false)]
-        public Dictionary<string, Bone> BoneNameCache { get; } = new Dictionary<string, Bone>();
+        public Dictionary<string, IBone> BoneNameCache { get; } = new Dictionary<string, IBone>();
 
         [Browsable(false)]
-        public Dictionary<int, Bone> BoneIndexCache { get; } = new Dictionary<int, Bone>();
+        public Dictionary<int, IBone> BoneIndexCache { get; } = new Dictionary<int, IBone>();
         [Browsable(false)]
         public SkeletalMeshComponent OwningComponent { get; set; }
 
-        public IEnumerator<Bone> GetEnumerator() 
-            => ((IEnumerable<Bone>)BoneNameCache.Values).GetEnumerator();
+        public IEnumerator<IBone> GetEnumerator() 
+            => ((IEnumerable<IBone>)BoneNameCache.Values).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() 
-            => ((IEnumerable<Bone>)BoneNameCache.Values).GetEnumerator();
+            => ((IEnumerable<IBone>)BoneNameCache.Values).GetEnumerator();
         
-        public IReadOnlyCollection<Bone> GetCameraRelativeBones() => _cameraBones;
-        public IReadOnlyCollection<Bone> GetPhysicsDrivableBones() => _physicsDrivableBones;
+        public IReadOnlyCollection<IBone> CameraRelativeBones => _cameraBones;
+        public IReadOnlyCollection<IBone> PhysicsDrivableBones => _physicsDrivableBones;
 
         [TPostDeserialize]
         internal void PostDeserialize()
@@ -89,7 +118,7 @@ namespace TheraEngine.Rendering.Models
             //UpdateBones(null, Matrix4.Identity, Matrix4.Identity);
         }
 
-        public Bone GetBone(string boneName)
+        public IBone GetBone(string boneName)
         {
             if (!BoneNameCache.ContainsKey(boneName))
                 return RootBones[0];
@@ -102,7 +131,7 @@ namespace TheraEngine.Rendering.Models
             _physicsDrivableBones.Clear();
             _cameraBones.Clear();
             if (RootBones != null)
-                foreach (Bone b in RootBones)
+                foreach (IBone b in RootBones)
                     b.CollectChildBones(this);
         }
         internal void WorldMatrixChanged()
@@ -119,7 +148,7 @@ namespace TheraEngine.Rendering.Models
         public void Render()
         {
             //_cullingVolume.Render();
-            foreach (Bone b in BoneNameCache.Values)
+            foreach (IBone b in BoneNameCache.Values)
             {
                 Vec3 point = b.WorldMatrix.Translation;
                 Engine.Renderer.RenderPoint(point, b.Parent == null ? Color.Orange : Color.Purple, false, 5.0f);
@@ -131,25 +160,23 @@ namespace TheraEngine.Rendering.Models
                 //Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), Color.Blue, 5.0f);
             }
         }
-        [Browsable(false)]
-        internal int BillboardBoneCount => _cameraBones.Count;
 
         [Browsable(false)]
-        public Scene3D OwningScene3D => OwningComponent?.OwningScene3D;
+        public IScene3D OwningScene3D => OwningComponent?.OwningScene3D;
 
-        internal void AddCameraBone(Bone bone)
+        void ISkeleton.AddCameraBone(IBone bone)
         {
             _cameraBones.Add(bone);
         }
-        internal void RemoveCameraBone(Bone bone)
+        void ISkeleton.RemoveCameraBone(IBone bone)
         {
             _cameraBones.Remove(bone);
         }
-        internal void AddPhysicsBone(Bone bone)
+        void ISkeleton.AddPhysicsBone(IBone bone)
         {
             _physicsDrivableBones.Add(bone);
         }
-        internal void RemovePhysicsBone(Bone bone)
+        void ISkeleton.RemovePhysicsBone(IBone bone)
         {
             _physicsDrivableBones.Remove(bone);
         }
@@ -159,30 +186,30 @@ namespace TheraEngine.Rendering.Models
         //}
 
         private readonly RenderCommandMethod3D _rc;
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             passes.Add(_rc);
         }
 
         private Dictionary<int, IPrimitiveManager> _managers = new Dictionary<int, IPrimitiveManager>();
-        internal void AddPrimitiveManager(IPrimitiveManager m)
+        public void AddPrimitiveManager(IPrimitiveManager m)
         {
             if (!_managers.ContainsKey(m.BindingId))
                 _managers.Add(m.BindingId, m);
         }
-        internal void RemovePrimitiveManager(IPrimitiveManager m)
+        public void RemovePrimitiveManager(IPrimitiveManager m)
         {
             if (_managers.ContainsKey(m.BindingId))
                 _managers.Remove(m.BindingId);
         }
-        internal void SwapBuffers()
+        public void SwapBuffers()
         {
             foreach (IPrimitiveManager m in _managers.Values)
             {
                 m.SwapModifiedBuffers();
             }
         }
-        public void UpdateBones(Camera c, Matrix4 worldMatrix, Matrix4 inverseWorldMatrix)
+        public void UpdateBones(ICamera c, Matrix4 worldMatrix, Matrix4 inverseWorldMatrix)
         {
             //Looping recursively is more efficient than looping through the whole bone cache
             //because bone subtrees that do not need updating will be skipped entirely

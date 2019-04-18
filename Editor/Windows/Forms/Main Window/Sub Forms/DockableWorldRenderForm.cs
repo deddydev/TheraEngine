@@ -71,8 +71,8 @@ namespace TheraEditor.Windows.Forms
         ELocalPlayerIndex IEditorRenderableControl.PlayerIndex => PlayerIndex;
         BaseRenderPanel IEditorRenderableControl.RenderPanel => RenderPanel;
         IPawn IEditorRenderableControl.EditorPawn => EditorPawn;
-        BaseGameMode IEditorRenderableControl.GameMode => Engine.World?.CurrentGameMode;
-        World IEditorRenderableControl.World => Engine.World;
+        IGameMode IEditorRenderableControl.GameMode => Engine.World?.CurrentGameMode;
+        IWorld IEditorRenderableControl.World => Engine.World;
 
         protected override void OnHandleDestroyed(EventArgs e)
         {
@@ -131,7 +131,7 @@ namespace TheraEditor.Windows.Forms
             BaseRenderPanel.HoveredPanel = RenderPanel;
             RenderPanel.Focus();
             EditorUI3D hud = EditorPawn.HUD.File as EditorUI3D;
-            Map map = Engine.World.Settings.FindOrCreateMap(Engine.World.Settings.NewActorTargetMapName);
+            IMap map = Engine.World.Settings.FindOrCreateMap(Engine.World.Settings.NewActorTargetMapName);
             map.Actors.Add(actor);
             Vec3 point = EditorPawn.CameraComp.WorldPoint + EditorPawn.Camera.ForwardVector * hud.DraggingTestDistance;
             Engine.World.SpawnActor(actor, point);

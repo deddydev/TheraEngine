@@ -114,7 +114,7 @@ namespace TheraEngine
         /// <summary>
         /// The scene containing actors of the world the engine is currently hosting.
         /// </summary>
-        public static BaseScene Scene => World?.Scene;
+        public static IScene Scene => World?.Scene;
         /// <summary>
         /// Information necessary to run a game.
         /// </summary>
@@ -159,9 +159,9 @@ namespace TheraEngine
         /// </summary>
         private static int _currentTickList = -1;
 
-        private static ConcurrentDictionary<World, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<World, Vec3>();
-        private static ConcurrentDictionary<World, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<World, Vec3>();
-        public static void QueueRebaseOrigin(World world, Vec3 point)
+        private static ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
+        private static ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
+        public static void QueueRebaseOrigin(IWorld world, Vec3 point)
         {
             if (!world.IsRebasingOrigin)
                 RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
@@ -205,7 +205,7 @@ namespace TheraEngine
         /// <summary>
         /// The world that is currently being rendered and played in.
         /// </summary>
-        public static World World { get; private set; } = null;
+        public static IWorld World { get; private set; } = null;
         public static bool IsPaused { get; private set; } = false;
 
         /// <summary>

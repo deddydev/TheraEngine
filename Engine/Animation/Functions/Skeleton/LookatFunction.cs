@@ -7,10 +7,10 @@ namespace TheraEngine.Animation
 {
     public class BoneLookatFunction : AnimationFunction
     {
-        protected override void Execute(AnimationTree output, Skeleton skeleton, object[] input)
+        protected override void Execute(AnimationTree output, ISkeleton skeleton, object[] input)
         {
             string boneName = (string)input[0];
-            Bone bone = skeleton[boneName];
+            IBone bone = skeleton[boneName];
             object arg2 = input[1];
             Vec3 destPoint = 
                 (arg2 is Vec3 ? (Vec3)arg2 : 

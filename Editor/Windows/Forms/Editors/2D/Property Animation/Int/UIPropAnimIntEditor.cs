@@ -492,7 +492,7 @@ void main()
             _yString.Text = pos.Y.ToString("###0.0##");
         }
         private bool _redrewLastMove = false;
-        protected override void BaseWorldTransformChanged(SceneComponent comp)
+        protected override void BaseWorldTransformChanged(ISceneComponent comp)
         {
             Matrix4 mtx = BaseTransformComponent.WorldMatrix;
 
@@ -964,12 +964,12 @@ void main()
         }
 
         public bool PreRenderEnabled => !Engine.IsSingleThreaded && QueueSplineUpdate;
-        public void PreRenderUpdate(Camera camera) { }
+        public void PreRenderUpdate(ICamera camera) { }
         public void PreRenderSwap()
         {
             QueueSplineUpdate = false;
             UpdateSplinePrimitive(true);
         }
-        public void PreRender(Viewport viewport, Camera camera) { }
+        public void PreRender(Viewport viewport, ICamera camera) { }
     }
 }

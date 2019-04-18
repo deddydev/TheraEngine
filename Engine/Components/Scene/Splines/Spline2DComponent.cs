@@ -14,7 +14,7 @@ namespace TheraEngine.Components.Scene
 {
     public class Spline2DComponent : TRSComponent, I3DRenderable
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
         
         [TSerialize]
         public bool RenderBounds { get; set; } = true;
@@ -314,7 +314,7 @@ void main()
         private readonly RenderCommandMesh3D _rcPoints = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
         private readonly RenderCommandMesh3D _rcKeyframeTangents = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
         private readonly RenderCommandMesh3D _rcExtrema = new RenderCommandMesh3D(ERenderPass.OpaqueForward);
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             if (_spline == null)
                 return;

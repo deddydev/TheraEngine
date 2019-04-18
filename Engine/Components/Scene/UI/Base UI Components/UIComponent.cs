@@ -15,7 +15,7 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.UI
 {
-    public interface IUIComponent : ISceneComponent
+    public interface IUIComponent : IOriginRebasableComponent, I2DRenderable, IEnumerable<IUIComponent>
     {
         Vec2 ScreenTranslation { get; }
         Vec2 LocalTranslation { get; set; }
@@ -24,8 +24,15 @@ namespace TheraEngine.Rendering.UI
         Vec2 Scale { get; set; }
         float ScaleX { get; set; }
         float ScaleY { get; set; }
+        bool IsVisible { get; set; }
+
+        IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis);
+        void RegisterInputs(InputInterface input);
+        Vec2 Resize(Vec2 parentBounds);
+        void PerformResize();
+        Vec2 ScreenToLocal(Vec2 coordinate, bool delta = false);
     }
-    public class UIComponent : OriginRebasableComponent, IUIComponent, I2DRenderable, IEnumerable<UIComponent>
+    public class UIComponent : OriginRebasableComponent, IUIComponent
     {
         public UIComponent() : base() { _rc = new RenderCommandMethod2D(ERenderPass.OnTopForward, Render); }
 
@@ -34,7 +41,7 @@ namespace TheraEngine.Rendering.UI
         protected bool _visible = true;
 
         [Category("Rendering")]
-        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
+        public IRenderInfo2D RenderInfo { get; } = new RenderInfo2D(0, 0);
         [Category("Rendering")]
         public virtual bool IsVisible
         {
@@ -161,14 +168,15 @@ namespace TheraEngine.Rendering.UI
                     PerformResize();
             }
         }
+        void IUIComponent.RegisterInputs(InputInterface input) => RegisterInputs(input);
         /// <summary>
         /// Recursively registers (or unregisters) inputs on this and all child UI components.
         /// </summary>
         /// <param name="input"></param>
         internal protected virtual void RegisterInputs(InputInterface input)
         {
-            foreach (SceneComponent comp in ChildComponents)
-                if (comp is UIComponent uiComp)
+            foreach (ISceneComponent comp in ChildComponents)
+                if (comp is IUIComponent uiComp)
                     uiComp.RegisterInputs(input);
         }
         public override void OnSpawned()
@@ -189,13 +197,13 @@ namespace TheraEngine.Rendering.UI
                 new Vec3(Scale, 1.0f),
                 Matrix4.Identity,
                 LocalTranslation,
-                TransformOrder.TRS);
+                ETransformOrder.TRS);
 
             inverseLocalTransform = Matrix4.TransformMatrix(
                 new Vec3(1.0f / Scale, 1.0f),
                 Matrix4.Identity,
                 -LocalTranslation,
-                TransformOrder.SRT);
+                ETransformOrder.SRT);
         }
         [Browsable(false)]
         public bool IgnoreResizes { get; set; } = false;
@@ -211,8 +219,8 @@ namespace TheraEngine.Rendering.UI
 
             IgnoreResizes = true;
             ParentBounds = parentBounds;
-            foreach (SceneComponent c in _children)
-                if (c is UIComponent uiComp)
+            foreach (ISceneComponent c in _children)
+                if (c is IUIComponent uiComp)
                     uiComp.Resize(parentBounds);
             RecalcLocalTransform();
             IgnoreResizes = false;
@@ -234,12 +242,12 @@ namespace TheraEngine.Rendering.UI
             else
                 Resize(Vec2.Zero);
         }
-        public virtual UIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
+        public virtual IUIComponent FindDeepestComponent(Vec2 cursorPointWorld, bool includeThis)
         {
-            foreach (SceneComponent c in _children)
-                if (c is UIComponent uiComp)
+            foreach (ISceneComponent c in _children)
+                if (c is IUIComponent uiComp)
                 {
-                    UIComponent comp = uiComp.FindDeepestComponent(cursorPointWorld, true);
+                    IUIComponent comp = uiComp.FindDeepestComponent(cursorPointWorld, true);
                     if (comp != null)
                         return comp;
                 }
@@ -301,10 +309,10 @@ namespace TheraEngine.Rendering.UI
             //OnTransformChanged();
         }
 
-        protected override void HandleSingleChildAdded(SceneComponent item)
+        protected override void HandleSingleChildAdded(ISceneComponent item)
         {
             base.HandleSingleChildAdded(item);
-            if (item is UIComponent c)
+            if (item is IUIComponent c)
             {
                 c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
                 c.RenderInfo.IndexWithinLayer = RenderInfo.IndexWithinLayer + 1;
@@ -314,8 +322,8 @@ namespace TheraEngine.Rendering.UI
 
         protected internal override void OnOriginRebased(Vec3 newOrigin) { }
 
-        public IEnumerator<UIComponent> GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<UIComponent>)_children).GetEnumerator();
+        public IEnumerator<IUIComponent> GetEnumerator() => ((IEnumerable<IUIComponent>)_children).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<IUIComponent>)_children).GetEnumerator();
 
         /// <summary>
         /// Converts a local-space coordinate of a parent UI component 
@@ -325,7 +333,7 @@ namespace TheraEngine.Rendering.UI
         /// <param name="parentUIComp">The parent UI component whose space the coordinate is already in.</param>
         /// <param name="targetChildUIComp">The UI component whose space you wish to convert the coordinate to.</param>
         /// <returns></returns>
-        public static Vec2 ConvertUICoordinate(Vec2 coordinate, UIComponent parentUIComp, UIComponent targetChildUIComp, bool delta = false)
+        public static Vec2 ConvertUICoordinate(Vec2 coordinate, IUIComponent parentUIComp, IUIComponent targetChildUIComp, bool delta = false)
         {
             Matrix4 mtx = targetChildUIComp.InverseWorldMatrix * parentUIComp.WorldMatrix;
             if (delta)
@@ -348,7 +356,7 @@ namespace TheraEngine.Rendering.UI
             return (coordinate * mtx).Xy;
         }
         public RenderCommandMethod2D _rc;
-        public virtual void AddRenderables(RenderPasses passes, Camera camera)
+        public virtual void AddRenderables(RenderPasses passes, ICamera camera)
         {
             if (!RenderTransformation || !Engine.EditorState.InEditMode)
                 return;

@@ -88,7 +88,7 @@ namespace TheraEngine.Animation
         private HashSet<string> _boneNotFoundCache = new HashSet<string>();
         public void UpdateSkeleton(Skeleton skeleton)
         {
-            Bone bone = skeleton[_name];
+            IBone bone = skeleton[_name];
             if (bone != null)
                 UpdateState(bone.FrameState, bone.BindState);
             else if (!_boneNotFoundCache.Contains(_name))
@@ -97,12 +97,12 @@ namespace TheraEngine.Animation
                 Engine.PrintLine($"Bone '{_name}' not found in skeleton '{skeleton.ToString()}'.");
             }
         }
-        public void UpdateState(Transform frameState, Transform bindState)
+        public void UpdateState(ITransform frameState, ITransform bindState)
         {
             GetTransform(bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
         }
-        public void UpdateState(Transform frameState, Transform bindState, float second)
+        public void UpdateState(ITransform frameState, ITransform bindState, float second)
         {
             GetTransform(bindState, second, out Vec3 translation, out Rotator rotation, out Vec3 scale);
             frameState.SetAll(translation, rotation, scale);
@@ -111,18 +111,18 @@ namespace TheraEngine.Animation
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the current frame second.
         /// </summary>
-        public unsafe void GetTransform(Transform bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(ITransform bindState, out Vec3 translation, out Rotator rotation, out Vec3 scale)
             => _tracks.GetTransform(bindState, out translation, out rotation, out scale);
         /// <summary>
         /// Retrieves the parts of the transform for this bone at the requested frame second.
         /// </summary>
-        public unsafe void GetTransform(Transform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
+        public unsafe void GetTransform(ITransform bindState, float second, out Vec3 translation, out Rotator rotation, out Vec3 scale)
             => _tracks.GetTransform(bindState, second, out translation, out rotation, out scale);
-        public void UpdateStateBlended(Transform frameState, Transform bindState, BoneAnimation otherBoneAnim, float otherWeight, EAnimBlendType blendType)
+        public void UpdateStateBlended(ITransform frameState, ITransform bindState, BoneAnimation otherBoneAnim, float otherWeight, EAnimBlendType blendType)
             => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentTime, otherBoneAnim.Parent.CurrentTime, otherWeight, blendType);
         public void UpdateStateBlended(
-            Transform frameState,
-            Transform bindState,
+            ITransform frameState,
+            ITransform bindState,
             BoneAnimation otherBoneAnim,
             float thisSecond,
             float otherSecond,
@@ -138,12 +138,12 @@ namespace TheraEngine.Animation
             frameState.SetAll(t, r, s);
         }
         public void UpdateSkeletonBlended(
-            Skeleton skeleton,
+            ISkeleton skeleton,
             BoneAnimation otherBoneAnim,
             float otherWeight,
             EAnimBlendType blendType)
         {
-            Bone bone = skeleton[_name];
+            IBone bone = skeleton[_name];
             if (bone != null)
                 UpdateStateBlended(bone.FrameState, bone.BindState, otherBoneAnim, otherWeight, blendType);
         }

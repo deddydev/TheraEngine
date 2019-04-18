@@ -44,7 +44,7 @@ namespace TheraEngine.Rendering.Cameras
         public override Matrix4 CameraToComponentSpaceMatrix
         {
             get => _cameraToWorldSpaceMatrix;
-            internal set
+            set
             {
                 _cameraToWorldSpaceMatrix = value;
                 _worldToCameraSpaceMatrix = _cameraToWorldSpaceMatrix.Inverted();
@@ -149,7 +149,7 @@ namespace TheraEngine.Rendering.Cameras
 
         private void ViewTargetChanged()
             => SetRotationWithTarget(_viewTarget.Raw);
-        private void OwningComponentWorldTransformChanged(SceneComponent comp)
+        private void OwningComponentWorldTransformChanged(ISceneComponent comp)
         {
             //_forwardInvalidated = true;
             //_upInvalidated = true;
@@ -280,11 +280,11 @@ namespace TheraEngine.Rendering.Cameras
             LocalRotation.AddRotations(pitch, yaw, 0.0f);
         }
 
-        internal override void SetAmbientOcclusionUniforms(RenderProgram program) 
+        public override void SetAmbientOcclusionUniforms(RenderProgram program) 
             => PostProcessRef?.File?.AmbientOcclusion?.SetUniforms(program);
-        internal override void SetBloomUniforms(RenderProgram program)
+        public override void SetBloomUniforms(RenderProgram program)
             => PostProcessRef?.File?.Bloom?.SetUniforms(program);
-        internal override void SetPostProcessUniforms(RenderProgram program)
+        public override void SetPostProcessUniforms(RenderProgram program)
             => PostProcessRef?.File?.SetUniforms(program);
     }
 }

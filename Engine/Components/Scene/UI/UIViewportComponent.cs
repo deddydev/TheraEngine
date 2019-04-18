@@ -51,7 +51,7 @@ namespace TheraEngine.Rendering.UI
         [Browsable(false)]
         public bool PreRenderEnabled => IsVisible && ViewportCamera?.OwningComponent?.OwningScene != null;
         [Browsable(false)]
-        public virtual Camera ViewportCamera
+        public virtual ICamera ViewportCamera
         {
             get => Viewport.Camera;
             set => Viewport.Camera = value;
@@ -73,18 +73,18 @@ namespace TheraEngine.Rendering.UI
             return r;
         }
 
-        public void PreRenderUpdate(Camera camera)
+        public void PreRenderUpdate(ICamera camera)
         {
             if (_updating)
                 return;
 
-            Camera c = ViewportCamera;
+            ICamera c = ViewportCamera;
             if (!IsVisible || c == null)
                 return;
             
             _updating = true;
 
-            BaseScene scene = c.OwningComponent?.OwningScene;
+            IScene scene = c.OwningComponent?.OwningScene;
             scene?.PreRenderUpdate(c);
             Viewport.Update(scene, c, c.Frustum);
 
@@ -95,30 +95,30 @@ namespace TheraEngine.Rendering.UI
             if (_swapping)
                 return;
 
-            Camera c = ViewportCamera;
+            ICamera c = ViewportCamera;
             if (!IsVisible || c == null)
                 return;
 
             _swapping = true;
 
-            BaseScene scene = ViewportCamera?.OwningComponent?.OwningScene;
+            IScene scene = ViewportCamera?.OwningComponent?.OwningScene;
             scene?.PreRenderSwap();
             Viewport.SwapBuffers();
 
             _swapping = false;
         }
-        public void PreRender(Viewport viewport, Camera camera)
+        public void PreRender(Viewport viewport, ICamera camera)
         {
             if (_rendering)
                 return;
 
-            Camera c = ViewportCamera;
+            ICamera c = ViewportCamera;
             if (!IsVisible || c == null)
                 return;
             
             _rendering = true;
 
-            BaseScene scene = c.OwningComponent?.OwningScene;
+            IScene scene = c.OwningComponent?.OwningScene;
             scene?.PreRender(Viewport, c);
             Viewport.Render(scene, c, _fbo);
 

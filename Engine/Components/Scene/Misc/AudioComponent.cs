@@ -77,7 +77,7 @@ namespace TheraEngine.Components.Scene
 #if EDITOR
         [Category("Audio")]
         [TSerialize]
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(true, true);
+        public IRenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(true, true);
         [Category("Editor Traits")]
         public bool ScalePreviewIconByDistance { get; set; } = true;
         [Category("Editor Traits")]
@@ -93,7 +93,7 @@ namespace TheraEngine.Components.Scene
         }
         private RenderCommandMesh3D PreviewIconRenderCommand { get; set; }
 
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             AddPreviewRenderCommand(PreviewIconRenderCommand, passes, camera, ScalePreviewIconByDistance, PreviewIconScale);
         }

@@ -11,8 +11,77 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.Cameras
 {
+    public interface ICamera : IFileObject, I3DRenderable
+    {
+        event OwningComponentChange OwningComponentChanged;
+        event Action TransformChanged;
+        event Action ProjectionChanged;
+
+        float Width { get; }
+        float Height { get; }
+        float NearZ { get; set; }
+        float FarZ { get; set; }
+
+        Matrix4 ProjectionMatrix { get; }
+        Matrix4 InverseProjectionMatrix { get; }
+        Matrix4 CameraToWorldSpaceMatrix { get; }
+        Matrix4 WorldToCameraSpaceMatrix { get; }
+        Matrix4 ComponentToCameraSpaceMatrix { get; }
+        Matrix4 CameraToComponentSpaceMatrix { get; set; }
+        Matrix4 WorldToCameraProjSpaceMatrix { get; }
+        Matrix4 CameraProjToWorldSpaceMatrix { get; }
+
+        Vec3 WorldPoint { get; }
+
+        IFrustum Frustum { get; }
+        IFrustum UntransformedFrustum { get; }
+
+        Vec2 Origin { get; }
+        Vec2 Dimensions { get; }
+
+        List<Viewport> Viewports { get; set; }
+        bool IsActiveRenderCamera { get; set; }
+
+        CameraComponent OwningComponent { get; set; }
+
+        Vec3 WorldToScreen(Vec3 worldPoint);
+        void WorldToScreen(Vec3 worldPoint, out Vec2 screenPoint, out float depth);
+        void WorldToScreen(Vec3 worldPoint, out float x, out float y, out float depth);
+
+        Vec3 ScreenToWorld(Vec2 screenPoint, float depth);
+        Vec3 ScreenToWorld(float x, float y, float depth);
+        Vec3 ScreenToWorld(Vec3 screenPoint);
+
+        Vec3 RotateVector(Vec3 dir);
+        void RebaseOrigin(Vec3 newOrigin);
+        Vec3 RotateVectorInverse(Vec3 dir);
+
+        Vec3 RightVector { get; }
+        Vec3 UpVector { get; }
+        Vec3 ForwardVector { get; }
+
+        void SetUniforms(RenderProgram program);
+        Segment GetWorldSegment(Vec2 screenPoint);
+        Ray GetWorldRay(Vec2 screenPoint);
+        Vec3 GetPointAtDepth(Vec2 screenPoint, float depth);
+        Vec3 GetPointAtDistance(Vec2 screenPoint, float distance);
+
+        void Render();
+        Plane GetScreenPlane();
+        Vec3 GetScreenPlaneOriginDistance();
+        float DistanceFromScreenPlane(Vec3 point);
+        Vec3 ClosestPointOnScreenPlane(Vec3 point);
+        float DistanceFromWorldPoint(Vec3 point);
+        float DistanceFromWorldPointFast(Vec3 point);
+        float DistanceScale(Vec3 point, float radius = 1.0f);
+
+        void Resize(float width, float height);
+        void SetBloomUniforms(RenderProgram program);
+        void SetAmbientOcclusionUniforms(RenderProgram program);
+        void SetPostProcessUniforms(RenderProgram program);
+    }
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
-    public abstract class Camera : TFileObject, I3DRenderable
+    public abstract class Camera : TFileObject, ICamera
     {
         protected Camera()
         {
@@ -21,8 +90,10 @@ namespace TheraEngine.Rendering.Cameras
         }
 
         public event OwningComponentChange OwningComponentChanged;
+        public event Action TransformChanged;
+        public event Action ProjectionChanged;
 
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
         public abstract float NearZ { get; set; }
         public abstract float FarZ { get; set; }
@@ -51,7 +122,7 @@ namespace TheraEngine.Rendering.Cameras
         public virtual Matrix4 CameraToComponentSpaceMatrix
         {
             get => _cameraToWorldSpaceMatrix;
-            internal set
+            set
             {
                 _cameraToWorldSpaceMatrix = value;
                 _worldToCameraSpaceMatrix = _cameraToWorldSpaceMatrix.Inverted();
@@ -64,9 +135,9 @@ namespace TheraEngine.Rendering.Cameras
         public virtual Vec3 WorldPoint => _owningComponent?.WorldMatrix.Translation ?? Vec3.Zero;
         
         [Browsable(false)]
-        public Frustum Frustum => _transformedFrustum;
+        public IFrustum Frustum => _transformedFrustum;
         [Browsable(false)]
-        public Frustum UntransformedFrustum => _untransformedFrustum;
+        public IFrustum UntransformedFrustum => _untransformedFrustum;
 
         public abstract float Width { get; }
         public abstract float Height { get; }
@@ -76,9 +147,9 @@ namespace TheraEngine.Rendering.Cameras
         public Vec2 Dimensions => new Vec2(Width, Height);
 
         [Browsable(false)]
-        public List<Viewport> Viewports { get; internal set; } = new List<Viewport>();
+        public List<Viewport> Viewports { get; set; } = new List<Viewport>();
         [Browsable(false)]
-        public bool IsActiveRenderCamera { get; internal set; } = false;
+        public bool IsActiveRenderCamera { get; set; } = false;
 
         [Browsable(false)]
         public virtual CameraComponent OwningComponent
@@ -100,7 +171,7 @@ namespace TheraEngine.Rendering.Cameras
         protected CameraComponent _owningComponent;
         internal Vec3 _projectionRange;
         internal Vec3 _projectionOrigin;
-        protected Frustum _untransformedFrustum, _transformedFrustum;
+        protected IFrustum _untransformedFrustum, _transformedFrustum;
         protected bool _updating = false;
         protected Matrix4
             _projectionMatrix = Matrix4.Identity,
@@ -111,7 +182,7 @@ namespace TheraEngine.Rendering.Cameras
             _cameraProjToWorldSpaceMatrix = Matrix4.Identity;
         protected bool _matrixInvalidated = false;
         
-        private void _owningComponent_WorldTransformChanged(SceneComponent comp)
+        private void _owningComponent_WorldTransformChanged(ISceneComponent comp)
         {
             //_forwardInvalidated = true;
             //_upInvalidated = true;
@@ -121,6 +192,19 @@ namespace TheraEngine.Rendering.Cameras
                 OnTransformChanged();
         }
 
+        public void WorldToScreen(Vec3 worldPoint, out Vec2 screenPoint, out float depth)
+        {
+            Vec3 xyd = WorldToScreen(worldPoint);
+            screenPoint = xyd.Xy;
+            depth = xyd.Z;
+        }
+        public void WorldToScreen(Vec3 worldPoint, out float x, out float y, out float depth)
+        {
+            Vec3 xyd = WorldToScreen(worldPoint);
+            x = xyd.X;
+            y = xyd.Y;
+            depth = xyd.Z;
+        }
         /// <summary>
         /// Returns an X, Y coordinate relative to the camera's Origin,
         /// with Z being the normalized depth (0.0f - 1.0f) from NearDepth (0.0f) to FarDepth (1.0f).
@@ -211,9 +295,6 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         
-        public event Action TransformChanged;
-        public event Action ProjectionChanged;
-
         protected void OnTransformChanged(bool updateTransformedFrustum = true)
         {
             _matrixInvalidated = true;
@@ -288,7 +369,7 @@ namespace TheraEngine.Rendering.Cameras
             OnTransformChanged();
         }
 
-        protected abstract Frustum CreateUntransformedFrustum();
+        protected abstract IFrustum CreateUntransformedFrustum();
 
         protected void BeginUpdate() 
             =>_updating = true;
@@ -358,7 +439,7 @@ namespace TheraEngine.Rendering.Cameras
         }
 
         RenderCommandMethod3D _renderCommand;
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             passes.Add(_renderCommand);
         }
@@ -367,8 +448,8 @@ namespace TheraEngine.Rendering.Cameras
         public virtual void Resize(float width, float height)
             => CalculateProjection();
 
-        internal abstract void SetBloomUniforms(RenderProgram program);
-        internal abstract void SetAmbientOcclusionUniforms(RenderProgram program);
-        internal abstract void SetPostProcessUniforms(RenderProgram program);
+        public abstract void SetBloomUniforms(RenderProgram program);
+        public abstract void SetAmbientOcclusionUniforms(RenderProgram program);
+        public abstract void SetPostProcessUniforms(RenderProgram program);
     }
 }

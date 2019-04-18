@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.UI
         Vec2 LocalOriginTranslation { get; set; }
         Vec2 BottomLeftTranslation { get; set; }
     }
-    public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, IEnumerable<UIComponent>
+    public abstract class UIBoundableComponent : UIComponent, IUIBoundableComponent, IEnumerable<IUIComponent>
     {
         public UIBoundableComponent() : base() { }
         
@@ -108,13 +108,13 @@ namespace TheraEngine.Rendering.UI
                 new Vec3(Scale, 1.0f),
                 Matrix4.Identity,
                 BottomLeftTranslation,
-                TransformOrder.TRS);
+                ETransformOrder.TRS);
 
             inverseLocalTransform = Matrix4.TransformMatrix(
                 new Vec3(1.0f / Scale, 1.0f),
                 Matrix4.Identity,
                 -BottomLeftTranslation,
-                TransformOrder.SRT);
+                ETransformOrder.SRT);
         }
         public override void RecalcWorldTransform()
         {
@@ -140,16 +140,16 @@ namespace TheraEngine.Rendering.UI
             RenderInfo.AxisAlignedRegion = BoundingRectangleFStruct.FromMinMaxSides(min.X, max.X, min.Y, max.Y, 0.0f, 0.0f);
             //Engine.PrintLine($"Axis-aligned region remade: {_axisAlignedRegion.Translation} {_axisAlignedRegion.Extents}");
         }
-        public override UIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)
+        public override IUIComponent FindDeepestComponent(Vec2 worldPoint, bool includeThis)
         {
             if (includeThis && IsVisible && Contains(worldPoint))
                 return this;
 
-            foreach (SceneComponent c in _children)
+            foreach (ISceneComponent c in _children)
             {
-                if (c is UIComponent uiComp && uiComp.IsVisible)
+                if (c is IUIComponent uiComp && uiComp.IsVisible)
                 {
-                    UIComponent comp = uiComp.FindDeepestComponent(worldPoint, true);
+                    IUIComponent comp = uiComp.FindDeepestComponent(worldPoint, true);
                     if (comp != null)
                         return comp;
                 }
@@ -158,10 +158,10 @@ namespace TheraEngine.Rendering.UI
             return null;
         }
         
-        protected override void HandleSingleChildAdded(SceneComponent item)
+        protected override void HandleSingleChildAdded(ISceneComponent item)
         {
             base.HandleSingleChildAdded(item);
-            if (item is UIComponent c)
+            if (item is IUIComponent c)
                 c.RenderInfo.LayerIndex = RenderInfo.LayerIndex;
         }
     }

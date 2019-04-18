@@ -23,7 +23,7 @@ namespace TheraEditor.Windows.Forms
         public DockablePropAnimVec2Graph(PropAnimVec2 anim) : this() => File = anim;
         
         public override IPawn EditorPawn => RenderPanel.UI;
-        public override World World => RenderPanel.World;
+        public override IWorld World => RenderPanel.World;
         protected override IUIRenderPanel RenderPanelGeneric => RenderPanel;
         public override bool ShouldHideCursor => true;
 

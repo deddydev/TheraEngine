@@ -180,7 +180,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             return new Vec3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
         }
-        protected override Frustum CreateUntransformedFrustum()
+        protected override IFrustum CreateUntransformedFrustum()
         {
             float w = Width / 2.0f, h = Height / 2.0f;
             return BoundingBox.FromMinMax(new Vec3(-w, -h, -_farZ), new Vec3(w, h, -_nearZ)).AsFrustum();

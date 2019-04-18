@@ -30,7 +30,7 @@ namespace TheraEngine.Physics
     }
     public interface ICollidable
     {
-        Matrix4 WorldMatrix { get; set; }
+        Matrix4 CollidableWorldMatrix { get; set; }
     }
     public interface IGenericCollidable : ICollidable
     {

@@ -163,6 +163,12 @@ namespace TheraEngine.Components.Scene.Mesh
 
         [Category("Static Mesh Component")]
         public List<StaticRenderableMesh> Meshes { get; private set; } = null;
+        TRigidBody IRigidBodyCollidable.RigidBodyCollision { get; }
+        Matrix4 ICollidable.CollidableWorldMatrix
+        {
+            get => WorldMatrix;
+            set => WorldMatrix = value;
+        }
 
         private void OnModelUnloaded(StaticModel model)
         {
@@ -276,5 +282,9 @@ namespace TheraEngine.Components.Scene.Mesh
                     //Editor.EditorState.RegisterSelectedMesh(m, selected, OwningScene);
                 }
         }
+
+        public MeshSocket FindOrCreateSocket(string socketName, ITransform transform) => throw new NotImplementedException();
+        public void AddToSocket(string socketName, ISceneComponent component) => throw new NotImplementedException();
+        public void AddRangeToSocket(string socketName, IEnumerable<ISceneComponent> components) => throw new NotImplementedException();
     }
 }

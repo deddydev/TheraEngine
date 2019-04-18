@@ -220,7 +220,7 @@ namespace TheraEngine.Rendering.Cameras
         }
         public void Zoom(float amount)
             => TranslateRelative(0.0f, 0.0f, amount);
-        protected override Frustum CreateUntransformedFrustum()
+        protected override IFrustum CreateUntransformedFrustum()
         {
             const bool transformed = false;
             

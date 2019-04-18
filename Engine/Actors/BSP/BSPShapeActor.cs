@@ -46,7 +46,7 @@ namespace TheraEngine.Actors.Types.BSP
             return m;
         }
 
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             throw new NotImplementedException();
         }

@@ -9,7 +9,7 @@ namespace TheraEngine
     /// Used for rendering using any rasterizer that inherits from AbstractRenderer.
     /// Supports a 2D or 3D scene processor.
     /// </summary>
-    public abstract class RenderPanel<T> : BaseRenderPanel where T : BaseScene
+    public abstract class RenderPanel<T> : BaseRenderPanel where T : IScene
     {
         public event Action PreRendered, PostRendered;
         /// <summary>
@@ -24,7 +24,7 @@ namespace TheraEngine
         /// </summary>
         /// <param name="v">The current viewport that is to be rendered.</param>
         /// <returns>The camera to render the scene from for this frame.</returns>
-        protected virtual Camera GetCamera(Viewport v) => v.Camera;
+        protected virtual ICamera GetCamera(Viewport v) => v.Camera;
         /// <summary>
         /// Returns the view frustum to cull the scene with.
         /// By defualt, returns the current camera's frustum.
@@ -58,8 +58,8 @@ namespace TheraEngine
         }
         protected override void OnRender()
         {
-            Camera camera;
-            BaseScene scene;
+            ICamera camera;
+            IScene scene;
 
             GlobalPreRender();
             foreach (Viewport viewport in Viewports.Values)

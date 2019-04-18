@@ -87,8 +87,8 @@ namespace TheraEngine.Rendering.UI
         }
         [Browsable(false)]
         public bool PreRenderEnabled => NeedsResize != null || NeedsRedraw;
-        public void PreRenderUpdate(Camera camera) { }
-        public void PreRender(Viewport viewport, Camera camera) { }
+        public void PreRenderUpdate(ICamera camera) { }
+        public void PreRender(Viewport viewport, ICamera camera) { }
         public void PreRenderSwap()
         {
             if (NeedsResize != null)

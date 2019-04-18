@@ -70,7 +70,7 @@ namespace TheraEngine.Physics.ShapeTracing
         /// <summary>
         /// Performs the trace in the world and returns true if there are any collision results.
         /// </summary>
-        public bool Trace(World world)
+        public bool Trace(IWorld world)
             => Engine.ShapeTrace(this, world);
         
         internal abstract void Reset();

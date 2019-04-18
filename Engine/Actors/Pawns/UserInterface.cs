@@ -15,7 +15,7 @@ namespace TheraEngine.Actors.Types.Pawns
     {
         IPawn OwningPawn { get; set; }
 
-        Scene2D ScreenSpaceUIScene { get; }
+        IScene2D ScreenSpaceUIScene { get; }
         OrthographicCamera ScreenOverlayCamera { get; }
 
         Vec2 Bounds { get; }
@@ -29,7 +29,7 @@ namespace TheraEngine.Actors.Types.Pawns
         Vec2 CursorPositionWorld(Viewport v, Vec2 viewportPosition);
 
         void Resize(Vec2 bounds);
-        UIComponent FindDeepestComponent(Vec2 viewportPoint);
+        IUIComponent FindDeepestComponent(Vec2 viewportPoint);
         List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint);
         void RemoveRenderableComponent(I2DRenderable r);
         void AddRenderableComponent(I2DRenderable r);
@@ -91,11 +91,11 @@ namespace TheraEngine.Actors.Types.Pawns
         [Browsable(false)]
         public OrthographicCamera ScreenOverlayCamera { get; }
         [Browsable(false)]
-        public Scene2D ScreenSpaceUIScene => _screenSpaceUIScene;
+        public IScene2D ScreenSpaceUIScene => _screenSpaceUIScene;
         [Browsable(false)]
         public RenderPasses RenderPasses { get; set; } = new RenderPasses();
         [Browsable(false)]
-        public UIComponent FocusedComponent { get; set; }
+        public IUIComponent FocusedComponent { get; set; }
         [Browsable(false)]
         public IPawn OwningPawn
         {
@@ -183,7 +183,7 @@ namespace TheraEngine.Actors.Types.Pawns
 
         public List<I2DRenderable> FindAllComponentsIntersecting(Vec2 viewportPoint)
             => new List<I2DRenderable>();//_scene.RenderTree.FindAllIntersecting(viewportPoint);
-        public UIComponent FindDeepestComponent(Vec2 viewportPoint)
+        public IUIComponent FindDeepestComponent(Vec2 viewportPoint)
             => RootComponent.FindDeepestComponent(viewportPoint, false);
         //UIComponent current = null;
         ////Larger z-indices means the component is closer
@@ -275,9 +275,9 @@ namespace TheraEngine.Actors.Types.Pawns
             //}
         }
 
-        public UIComponent FindComponent()
+        public IUIComponent FindComponent()
             => FindComponent(CursorPositionWorld());
-        public UIComponent FindComponent(Vec2 cursorWorldPos)
+        public IUIComponent FindComponent(Vec2 cursorWorldPos)
             => RootComponent.FindDeepestComponent(cursorWorldPos, false);
 
         #region Cursor Position

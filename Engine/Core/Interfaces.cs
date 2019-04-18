@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
@@ -41,7 +42,7 @@ namespace TheraEngine
     }
     public interface IBaseSubMesh : IObject
     {
-        EventList<LOD> LODs { get; }
+        IEventList<ILOD> LODs { get; }
         ERenderPass RenderPass { get; set; }
         IRenderInfo3D RenderInfo { get; set; }
     }
@@ -60,7 +61,7 @@ namespace TheraEngine
         /// Used to determine when and how to render this object.
         /// </summary>
         IRenderInfo3D RenderInfo { get; }
-        void AddRenderables(RenderPasses passes, Camera camera);
+        void AddRenderables(RenderPasses passes, ICamera camera);
     }
     public enum ERenderPass2D
     {
@@ -90,7 +91,7 @@ namespace TheraEngine
         /// Used to determine when to render this object.
         /// </summary>
         IRenderInfo2D RenderInfo { get; }
-        void AddRenderables(RenderPasses passes, Camera camera);
+        void AddRenderables(RenderPasses passes, ICamera camera);
     }
     public interface IRenderable
     {

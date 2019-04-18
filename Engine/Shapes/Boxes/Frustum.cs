@@ -34,14 +34,61 @@ namespace TheraEngine.Core.Shapes
     }
     public interface IFrustum : I3DRenderable, IEnumerable<Plane>, IVolume
     {
+        IFrustum[] GetSubFrustums(int slices);
+        IFrustum GetSubFrustum(int slices, int index);
+        void SetSubFrustumOf(IFrustum parentFrustum, int slices, int index);
+        void SetSubFrustums(IFrustum[] slices, bool useEdgeDistance = false);
+        void GetCornerPoints(EFrustumPlane planeIndex, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft);
 
+        Vec3 FarBottomLeft { get; }
+        Vec3 FarBottomRight { get; }
+        Vec3 FarTopLeft { get; }
+        Vec3 FarTopRight { get; }
+        Vec3 NearBottomLeft { get; }
+        Vec3 NearBottomRight { get; }
+        Vec3 NearTopLeft { get; }
+        Vec3 NearTopRight { get; }
+        Plane Near { get; }
+        Plane Far { get; }
+
+        Plane Left { get; }
+        Plane Right { get; }
+        Plane Top { get; }
+        Plane Bottom { get; }
+
+        Sphere BoundingSphere { get; set; }
+        Plane[] Planes { get; }
+        Vec3[] Points { get; }
+
+        bool UseBoundingSphere { get;  set; }
+        IScene3D OwningScene3D { get; set; }
+
+        bool IntersectsRay(Vec3 startPoint, Vec3 direction, out IList<Vec3> points);
+        void TransformedVersionOf(IFrustum other, Matrix4 transform);
+        void TransformBy(Matrix4 transform);
+        IFrustum TransformedBy(Matrix4 transform);
+        //bool Contains(Vec3 point);
+        //EContainment Contains(TShape shape);
+        //EContainment Contains(Box box);
+        //EContainment Contains(BoundingBoxStruct box);
+        //EContainment Contains(BoundingBox box);
+        //EContainment Contains(Sphere sphere);
+        //EContainment Contains(Cylinder cylinder);
+        //EContainment Contains(Cone cone);
+        EContainment Contains(Capsule capsule);
+        void Render();
+        void Render(Color NearColor, Color FarColor, Color SideColor, float LineSize, bool RenderSphere);
+        IFrustum HardCopy();
+        void UpdatePoints(
+             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
+             Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight);
     }
     /// <summary>
     /// Contains the points and planes at the edges and near/far of a camera's view.
     /// </summary>
     public class Frustum : IFrustum
     {
-        public RenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
+        public IRenderInfo3D RenderInfo { get; } = new RenderInfo3D(false, true);
 
         [TSerialize("Points")]
         private Vec3[] _points = new Vec3[8];
@@ -115,8 +162,8 @@ namespace TheraEngine.Core.Shapes
                 farBottomLeft, farBottomRight, farTopLeft, farTopRight,
                 nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight, sphereCenter, sphereRadius);
         }
-
-        public Frustum[] GetSubFrustums(int slices)
+        
+        public IFrustum[] GetSubFrustums(int slices)
         {
             Segment topLeft = new Segment(NearTopLeft, FarTopLeft);
             Segment topRight = new Segment(NearTopRight, FarTopRight);
@@ -141,7 +188,7 @@ namespace TheraEngine.Core.Shapes
             }
             return sliceFrustums;
         }
-        public Frustum GetSubFrustum(int slices, int index)
+        public IFrustum GetSubFrustum(int slices, int index)
         {
             Segment topLeft         = new Segment(NearTopLeft, FarTopLeft);
             Segment topRight        = new Segment(NearTopRight, FarTopRight);
@@ -161,7 +208,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 farTopRight        = topRight.PointAtLineDistance(farDist);
             return new Frustum(farBottomLeft, farBottomRight, farTopLeft, farTopRight, nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
         }
-        public void SetSubFrustumOf(Frustum parentFrustum, int slices, int index)
+        public void SetSubFrustumOf(IFrustum parentFrustum, int slices, int index)
         {
             Segment topLeft = new Segment(NearTopLeft, FarTopLeft);
             Segment topRight = new Segment(NearTopRight, FarTopRight);
@@ -181,7 +228,7 @@ namespace TheraEngine.Core.Shapes
             Vec3 farTopRight = topRight.PointAtLineDistance(farDist);
             UpdatePoints(farBottomLeft, farBottomRight, farTopLeft, farTopRight, nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
         }
-        public void SetSubFrustums(Frustum[] slices, bool useEdgeDistance = false)
+        public void SetSubFrustums(IFrustum[] slices, bool useEdgeDistance = false)
         {
             Segment topLeft = new Segment(NearTopLeft, FarTopLeft);
             Segment topRight = new Segment(NearTopRight, FarTopRight);
@@ -317,12 +364,12 @@ namespace TheraEngine.Core.Shapes
         public Plane Bottom => Planes[5];
 
         [Browsable(false)]
-        public IEnumerable<Vec3> Points => _points;
+        public Vec3[] Points => _points;
         [Browsable(false)]
         public Sphere BoundingSphere
         {
             get => _boundingSphere;
-            private set => _boundingSphere = value;
+            set => _boundingSphere = value;
         }
         [Browsable(false)]
         public Plane[] Planes { get; } = new Plane[6];
@@ -350,7 +397,7 @@ namespace TheraEngine.Core.Shapes
             }
         }
 
-        public Scene3D OwningScene3D { get; set; }
+        public IScene3D OwningScene3D { get; set; }
 
         private void CalculateBoundingSphere()
         {
@@ -370,7 +417,7 @@ namespace TheraEngine.Core.Shapes
             }
         }
 
-        private void UpdatePoints(
+        public void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
             Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight)
         {
@@ -426,7 +473,7 @@ namespace TheraEngine.Core.Shapes
             UpdateBoundingSphere(sphereCenter, sphereRadius);
         }
 
-        public bool IntersectsRay(Vec3 startPoint, Vec3 direction, out List<Vec3> points)
+        public bool IntersectsRay(Vec3 startPoint, Vec3 direction, out IList<Vec3> points)
         {
             Ray r = new Ray(startPoint, direction);
             points = new List<Vec3>();
@@ -436,15 +483,15 @@ namespace TheraEngine.Core.Shapes
             return points.Count > 0;
         }
 
-        public void TransformedVersionOf(Frustum other, Matrix4 transform)
+        public void TransformedVersionOf(IFrustum other, Matrix4 transform)
         {
             if (_boundingSphere != null)
             {
-                _boundingSphere.Center.Raw = other._boundingSphere.Center.Raw * transform;
-                _boundingSphere.Radius = other._boundingSphere.Radius;
+                _boundingSphere.Center.Raw = other.BoundingSphere.Center.Raw * transform;
+                _boundingSphere.Radius = other.BoundingSphere.Radius;
             }
             for (int i = 0; i < 8; ++i)
-                _points[i] = other._points[i] * transform;
+                _points[i] = other.Points[i] * transform;
             for (int i = 0; i < 6; ++i)
                 Planes[i] = other.Planes[i].TransformedBy(transform);
         }
@@ -459,13 +506,13 @@ namespace TheraEngine.Core.Shapes
                 Planes[i].TransformBy(transform);
         }
 
-        public Frustum TransformedBy(Matrix4 transform)
+        public IFrustum TransformedBy(Matrix4 transform)
         {
-            Frustum f = new Frustum();
+            IFrustum f = new Frustum();
             if (_boundingSphere != null)
-                f._boundingSphere = new Sphere(_boundingSphere.Radius, _boundingSphere.Center.Raw * transform);
+                f.BoundingSphere = new Sphere(_boundingSphere.Radius, _boundingSphere.Center.Raw * transform);
             for (int i = 0; i < 8; ++i)
-                f._points[i] = _points[i] * transform;
+                f.Points[i] = _points[i] * transform;
             for (int i = 0; i < 6; ++i)
                 f.Planes[i] = Planes[i].TransformedBy(transform);
             return f;
@@ -545,13 +592,14 @@ namespace TheraEngine.Core.Shapes
 
                     switch (part)
                     {
+                        //TODO
                         case Segment.ESegmentPart.Line:
-                            Vec3 perp = Ray.GetPerpendicularVectorFromPoint(bot.Center, top.Center - bot.Center, point);
+                            //Vec3 perp = Ray.GetPerpendicularVectorFromPoint(bot.Center, top.Center - bot.Center, point);
 
                             break;
                         case Segment.ESegmentPart.StartPoint:
                         case Segment.ESegmentPart.EndPoint:
-                            Vec3 partPoint = part == Segment.ESegmentPart.StartPoint ? bot.Center : top.Center;
+                            //Vec3 partPoint = part == Segment.ESegmentPart.StartPoint ? bot.Center : top.Center;
 
                             break;
                     }
@@ -618,18 +666,18 @@ namespace TheraEngine.Core.Shapes
             Engine.Renderer.RenderLine(FarBottomRight, FarTopRight, FarColor, true, LineSize);
         }
 
-        public Frustum HardCopy()
+        public IFrustum HardCopy()
             => new Frustum(
                 FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight,
                 NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
 
         private RenderCommandMethod3D _renderCommand;
-        public void AddRenderables(RenderPasses passes, Camera camera)
+        public void AddRenderables(RenderPasses passes, ICamera camera)
         {
             passes.Add(_renderCommand);
         }
 
-        public static Frustum Lerp(Frustum frustum1, Frustum frustum2, float time)
+        public static IFrustum Lerp(IFrustum frustum1, IFrustum frustum2, float time)
             => new Frustum(
                 Vec3.Lerp(frustum1.FarBottomLeft,   frustum2.FarBottomLeft,     time),
                 Vec3.Lerp(frustum1.FarBottomRight,  frustum2.FarBottomRight,    time),

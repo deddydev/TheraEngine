@@ -21,18 +21,18 @@ namespace TheraEngine.Components.Scene.Shapes
     }
     public abstract class Shape3DComponent : TRComponent, IShape3DComponent
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
+        private IRenderInfo3D _renderInfo = new RenderInfo3D(true, true) { CastsShadows = false, ReceivesShadows = false };
 
         [TSerialize]
         [Category(RenderingCategoryName)]
-        public virtual RenderInfo3D RenderInfo
+        public virtual IRenderInfo3D RenderInfo
         {
             get => _renderInfo;
             protected set => _renderInfo = value ?? new RenderInfo3D(true, true);
         }
         
         protected abstract RenderCommand3D GetRenderCommand();
-        public virtual void AddRenderables(RenderPasses passes, Camera camera)
+        public virtual void AddRenderables(RenderPasses passes, ICamera camera)
             => passes.Add(GetRenderCommand());
     }
 }

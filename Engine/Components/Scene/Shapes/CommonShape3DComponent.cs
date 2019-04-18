@@ -28,7 +28,7 @@ namespace TheraEngine.Components.Scene.Shapes
         protected T _shape;
 
         [Category(RenderingCategoryName)]
-        public override RenderInfo3D RenderInfo
+        public override IRenderInfo3D RenderInfo
         {
             get => base.RenderInfo;
             protected set

@@ -225,28 +225,28 @@ namespace TheraEngine.Animation
             _values = values;
         }
 
-        public void UpdateSkeleton(Skeleton skeleton)
+        public void UpdateSkeleton(ISkeleton skeleton)
         {
-            Bone bone = skeleton[_name];
+            IBone bone = skeleton[_name];
             if (bone != null)
                 UpdateState(bone.FrameState, bone.BindState);
         }
-        public void UpdateState(Transform frameState, Transform bindState)
+        public void UpdateState(ITransform frameState, ITransform bindState)
         {
             Vec3 t = GetTranslation(bindState.Translation);
             Rotator r = GetRotation(bindState.Rotation);
             Vec3 s = GetScale(bindState.Scale);
             frameState.SetAll(t, r, s);
         }
-        public void UpdateSkeletonBlended(Skeleton skeleton, BoneFrame otherBoneFrame, float otherWeight)
+        public void UpdateSkeletonBlended(ISkeleton skeleton, BoneFrame otherBoneFrame, float otherWeight)
         {
-            Bone bone = skeleton[_name];
+            IBone bone = skeleton[_name];
             if (bone != null)
                 UpdateStateBlended(bone.FrameState, bone.BindState, otherBoneFrame, otherWeight);
         }
         public void UpdateStateBlended(
-            Transform frameState,
-            Transform bindState,
+            ITransform frameState,
+            ITransform bindState,
             BoneFrame otherBoneFrame,
             float otherWeight)
         {

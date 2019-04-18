@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using TheraEngine.Actors;
@@ -9,16 +10,20 @@ namespace TheraEngine.Worlds
 {
     public interface IMap : IFileObject
     {
+        IWorld OwningWorld { get; set; }
+        bool VisibleByDefault { get; set; }
+        Vec3 SpawnPosition { get; set; }
+        IEventList<IActor> Actors { get; set; }
 
+        void BeginPlay(IWorld world);
+        void EndPlay();
     }
     [TFileExt("map")]
     [TFileDef("Map")]
     public class Map : TFileObject, IMap
     {
-        public IWorld OwningWorld { get; internal set; }
-
         protected bool _visibleByDefault;
-        protected EventList<IActor> _actors = new EventList<IActor>();
+        protected IEventList<IActor> _actors = new EventList<IActor>();
         protected Vec3 _spawnPosition;
 
         [Browsable(true)]
@@ -36,7 +41,9 @@ namespace TheraEngine.Worlds
 
             Actors = actors == null ? new EventList<IActor>(false, false) : new EventList<IActor>(actors.ToList(), false, false);
         }
-        
+
+        public IWorld OwningWorld { get; set; }
+
         [TSerialize]
         public bool VisibleByDefault
         {
@@ -51,7 +58,7 @@ namespace TheraEngine.Worlds
         }
 
         [TSerialize]
-        public EventList<IActor> Actors
+        public IEventList<IActor> Actors
         {
             get => _actors;
             set
@@ -99,7 +106,7 @@ namespace TheraEngine.Worlds
                 OwningWorld.DespawnActor(actor);
             OwningWorld = null;
         }
-        public virtual void BeginPlay(World world)
+        public virtual void BeginPlay(IWorld world)
         {
             OwningWorld = world;
             foreach (IActor actor in Actors)

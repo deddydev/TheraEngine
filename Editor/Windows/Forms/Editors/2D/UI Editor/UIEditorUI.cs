@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using TheraEngine;
 using TheraEngine.Actors.Types.Pawns;
+using TheraEngine.Components;
 using TheraEngine.Core.Maths.Transforms;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
@@ -12,7 +13,7 @@ using TheraEngine.Rendering.UI;
 
 namespace TheraEditor.Windows.Forms
 {
-    public delegate void DelUIComponentSelect(UIComponent comp);
+    public delegate void DelUIComponentSelect(IUIComponent comp);
     public class UIEditorUI : EditorUI2DBase, I2DRenderable
     {
         public UIEditorUI() : base()
@@ -57,7 +58,7 @@ namespace TheraEditor.Windows.Forms
             BaseTransformComponent.WorldTransformChanged += BaseTransformComponent_WorldTransformChanged;
         }
 
-        private void BaseTransformComponent_WorldTransformChanged(TheraEngine.Components.SceneComponent obj)
+        private void BaseTransformComponent_WorldTransformChanged(ISceneComponent obj)
         {
             if (_targetHud?.RootComponent is UICanvasComponent canvas)
             {
@@ -118,7 +119,7 @@ namespace TheraEditor.Windows.Forms
 
         protected override bool IsDragging => _dragComp != null;
 
-        private UIComponent _dragComp, _selectedComp, _highlightedComp;
+        private IUIComponent _dragComp, _selectedComp, _highlightedComp;
         private IUserInterface _targetHud;
         
         public override void RegisterInput(InputInterface input)
@@ -176,7 +177,7 @@ namespace TheraEditor.Windows.Forms
             if (IsDragging)
                 return;
 
-            UIComponent target = (_targetHud?.RootComponent as UICanvasComponent)?.FindDeepestComponent(CursorPositionWorld(), false);
+            IUIComponent target = (_targetHud?.RootComponent as UICanvasComponent)?.FindDeepestComponent(CursorPositionWorld(), false);
             if (target != _highlightedComp)
             {
                 //Engine.PrintLine(target?.Name ?? "Nothing selected");

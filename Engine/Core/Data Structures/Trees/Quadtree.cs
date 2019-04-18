@@ -24,6 +24,27 @@ namespace System
         void DebugRender(bool recurse, bool onlyContainingItems, BoundingRectangleFStruct? f, float lineWidth);
         void DebugRender(Color color, float lineWidth);
     }
+    public interface IQuadtree : IQuadtree<I2DRenderable>
+    {
+        BoundingRectangleFStruct Bounds { get; }
+
+        int ArrayLength(Vec2 halfExtents);
+        void Remake(BoundingRectangleFStruct newBounds);
+        void Swap();
+
+        void CollectVisible(BoundingRectangleFStruct? r, RenderPasses passes, ICamera camera);
+        void DebugRender(BoundingRectangleFStruct? f, bool onlyContainingItems, float lineWidth = 0.1f);
+    }
+    public interface IQuadtree<T> where T : class, I2DRenderable
+    {
+        void Add(T value);
+        void Add(IEnumerable<T> value);
+        void Remove(T value);
+
+        T FindDeepest(Vec2 point);
+        List<T> FindAllIntersecting(Vec2 point);
+        SortedSet<T> FindAllIntersectingSorted(Vec2 point);
+    }
     /// <summary>
     /// A 3D space partitioning tree that recursively divides aabbs into 4 smaller axis-aligned rectangles depending on the items they contain.
     /// </summary>
@@ -89,7 +110,7 @@ namespace System
         /// <summary>
         /// Updates all moved, added and removed items in the octree.
         /// </summary>
-        internal void Swap()
+        public void Swap()
         {
             while (MovedItems.TryDequeue(out T item))
             {
@@ -139,7 +160,7 @@ namespace System
         //    _head.FindAll(shape, list, containment);
         //    return list;
         //}
-        public void CollectVisible(BoundingRectangleFStruct? r, RenderPasses passes, Camera camera)
+        public void CollectVisible(BoundingRectangleFStruct? r, RenderPasses passes, ICamera camera)
         {
             if (r != null)
                 _head.CollectVisible(r.Value, passes, camera);
@@ -330,7 +351,7 @@ namespace System
             #endregion
 
             #region Visible collection
-            public void CollectVisible(BoundingRectangleFStruct bounds, RenderPasses passes, Camera camera)
+            public void CollectVisible(BoundingRectangleFStruct bounds, RenderPasses passes, ICamera camera)
             {
                 EContainment c = bounds.ContainmentOf(_bounds);
                 if (c != EContainment.Disjoint)
@@ -355,7 +376,7 @@ namespace System
                     }
                 }
             }
-            public void CollectAll(RenderPasses passes, bool visibleOnly, Camera camera)
+            public void CollectAll(RenderPasses passes, bool visibleOnly, ICamera camera)
             {
                 //IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)

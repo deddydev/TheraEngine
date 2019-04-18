@@ -19,7 +19,7 @@ namespace TheraEngine.Animation
         public TransformKeyCollection() { }
 
         public float LengthInSeconds { get; private set; }
-        public TransformOrder TransformOrder { get; set; } = TransformOrder.TRS;
+        public ETransformOrder TransformOrder { get; set; } = ETransformOrder.TRS;
         public ERotationOrder EulerOrder { get; set; } = ERotationOrder.RYP;
 
         public PropAnimFloat TranslationX => _tracks[0];
@@ -70,7 +70,7 @@ namespace TheraEngine.Animation
         /// Retrieves the parts of the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe void GetTransform(Transform bindState,
+        public unsafe void GetTransform(ITransform bindState,
             out Vec3 translation, out Rotator rotation, out Vec3 scale)
         {
             Vec3 t, r, s;
@@ -108,7 +108,7 @@ namespace TheraEngine.Animation
         /// Retrieves the parts of the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe void GetTransform(Transform bindState, float second,
+        public unsafe void GetTransform(ITransform bindState, float second,
             out Vec3 translation, out Rotator rotation, out Vec3 scale)
         {
             Vec3 t, r, s;
@@ -190,7 +190,7 @@ namespace TheraEngine.Animation
         /// Retrieves the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe Transform GetTransform(Transform defaultTransform)
+        public unsafe ITransform GetTransform(ITransform defaultTransform)
         {
             Vec3 t, r, s;
             Vec3
@@ -227,7 +227,7 @@ namespace TheraEngine.Animation
         /// Retrieves the transform at the requested frame second.
         /// Uses the defaultTransform for tracks that have no keys.
         /// </summary>
-        public unsafe Transform GetTransform(Transform defaultTransform, float second)
+        public unsafe ITransform GetTransform(ITransform defaultTransform, float second)
         {
             Vec3 t, r, s;
             Vec3
@@ -263,7 +263,7 @@ namespace TheraEngine.Animation
         /// <summary>
         /// Retrieves the transform at the current frame second.
         /// </summary>
-        public unsafe Transform GetTransform()
+        public unsafe ITransform GetTransform()
         {
             Vec3 t, r, s;
             float* pt = (float*)&t;

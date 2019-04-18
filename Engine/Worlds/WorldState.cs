@@ -21,7 +21,7 @@ namespace TheraEngine.Worlds
         public EventList<IActor> SpawnedActors { get; }
 
         public IScene Scene { get; internal set; } = null;
-        public BaseGameMode GameMode { get; internal set; } = null;
+        public IGameMode GameMode { get; internal set; } = null;
 
         public Dictionary<TypeProxy, HashSet<int>> _actorTypeMap;
         public Dictionary<string, IActor> _actorNameMap;

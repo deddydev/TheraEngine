@@ -13,13 +13,13 @@ namespace TheraEngine.Rendering.Models
         public class LiveInfluence
         {
             public int _weightCount;
-            public Bone[] _bones = new Bone[4];
+            public IBone[] _bones = new Bone[4];
             public float[] _weights = new float[4];
             public Matrix4 _positionMatrix;
             public Matrix4 _normalMatrix;
             internal bool _hasChanged;
 
-            public static LiveInfluence FromInfluence(InfluenceDef inf, Skeleton skel)
+            public static LiveInfluence FromInfluence(InfluenceDef inf, ISkeleton skel)
             {
                 LiveInfluence f = new LiveInfluence()
                 {
@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.Models
                 _normalMatrix = new Matrix4();
                 for (int i = 0; i < _weightCount; ++i)
                 {
-                    Bone b = _bones[i];
+                    IBone b = _bones[i];
                     float w = _weights[i];
                     _positionMatrix += b.VertexMatrix * w;
                     _normalMatrix += b.VertexMatrix.Inverted().Transposed().GetRotationMatrix4() * w;
@@ -64,7 +64,7 @@ namespace TheraEngine.Rendering.Models
         internal LiveInfluence[] _influences;
         private int[] _influenceIndices;
 
-        public CPUSkinInfo(PrimitiveData data, Skeleton skeleton)
+        public CPUSkinInfo(PrimitiveData data, ISkeleton skeleton)
         {
             (_positions = data[EBufferType.Position])?.GetData(out _basePositions, false);
             (_normals = data[EBufferType.Normal])?.GetData(out _baseNormals, false);

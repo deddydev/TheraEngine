@@ -72,7 +72,7 @@ namespace TheraEngine.Physics.ContactTesting
         /// <summary>
         /// Performs the test in the world and returns true if there are any collision results.
         /// </summary>
-        public bool Test(World world)
+        public bool Test(IWorld world)
             => Engine.ContactTest(this, world);
 
         internal abstract void Reset();

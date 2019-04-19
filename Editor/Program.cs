@@ -63,7 +63,7 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static TypeProxy[] PopulateTreeView(TreeView tree, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            TypeProxy[] fileObjecTypes = PrimaryAppDomainManager.FindTypes(match).ToArray();
+            TypeProxy[] fileObjecTypes = AppDomainHelper.FindTypes(match).ToArray();
             
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (TypeProxy type in fileObjecTypes)
@@ -96,7 +96,7 @@ namespace TheraEditor
         /// <param name="match">The predicate method used to find specific types.</param>
         public static TypeProxy[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            TypeProxy[] fileObjectTypes = PrimaryAppDomainManager.FindTypes(match).ToArray();
+            TypeProxy[] fileObjectTypes = AppDomainHelper.FindTypes(match).ToArray();
 
             Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (TypeProxy type in fileObjectTypes)

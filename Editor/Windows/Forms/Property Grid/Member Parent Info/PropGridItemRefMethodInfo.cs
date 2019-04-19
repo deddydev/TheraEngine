@@ -1,6 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.Reflection;
+﻿using System.ComponentModel;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -14,12 +13,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override string DisplayName => Method?.GetFriendlyName(true);
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public MethodInfo Method { get; set; }
+        public MethodInfoProxy Method { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => Method?.ReturnType;
+        public override TypeProxy DataType => Method?.ReturnType;
         
-        public PropGridMemberInfoMethod(IPropGridMemberOwner owner, MethodInfo method) : base(owner)
+        public PropGridMemberInfoMethod(IPropGridMemberOwner owner, MethodInfoProxy method) : base(owner)
         {
             Method = method;
         }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 
 namespace TheraEngine.Core.Reflection
@@ -26,5 +28,9 @@ namespace TheraEngine.Core.Reflection
             => Value.GetValue(parentObject);
         public void SetValue(object parentObject, object memberObject)
             => Value.SetValue(parentObject, memberObject);
+        public ParameterInfoProxy[] GetIndexParameters()
+            => Value.GetIndexParameters().Select(x => ParameterInfoProxy.Get(x)).ToArray();
+        public bool HasIndexParameters()
+            => Value.GetIndexParameters().Length > 0;
     }
 }

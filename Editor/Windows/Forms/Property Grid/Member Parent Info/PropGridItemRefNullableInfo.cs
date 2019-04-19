@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -13,7 +14,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override string DisplayName => _parentInfo.DisplayName;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType { get; }
+        public override TypeProxy DataType { get; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public override object MemberValue { get => _parentInfo.MemberValue; set => _parentInfo.MemberValue = value; }
@@ -32,7 +33,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             => _parentInfo.SubmitStateChange(oldValue, newValue, dataChangeHandler);
         private readonly PropGridMemberInfo _parentInfo;
 
-        public PropGridItemRefNullableInfo(IPropGridMemberOwner owner, PropGridMemberInfo parentInfo, Type valueType) : base(owner)
+        public PropGridItemRefNullableInfo(IPropGridMemberOwner owner, PropGridMemberInfo parentInfo, TypeProxy valueType) : base(owner)
         {
             if (parentInfo?.DataType == null || 
                 !parentInfo.DataType.IsGenericType || 

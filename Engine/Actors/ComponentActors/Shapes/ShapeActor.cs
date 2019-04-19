@@ -16,7 +16,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
             TShape shape,
             Vec3 translation,
             Rotator rotation,
-            EventList<LOD> lods)
+            IEventList<ILOD> lods)
             : this(name, shape, translation, rotation, lods, null, null) { }
 
         public ShapeActor(
@@ -24,7 +24,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
             TShape shape,
             Vec3 translation,
             Rotator rotation,
-            EventList<LOD> lods,
+            IEventList<ILOD> lods,
             TCollisionShape collisionShape,
             TRigidBodyConstructionInfo info) : base(true)
         {

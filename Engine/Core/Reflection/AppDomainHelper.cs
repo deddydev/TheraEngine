@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Policy;
+using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection.Proxies;
 
@@ -15,7 +15,7 @@ namespace TheraEngine.Core.Reflection
     /// Represents a <see cref="AppDomainManager"/> that is
     /// aware of the primary application AppDomain.
     /// </summary>
-    public class PrimaryAppDomainManager : AppDomainManager
+    public class AppDomainHelper : AppDomainManager
     {
         /// <summary>
         /// Gets the primary domain.
@@ -105,38 +105,62 @@ namespace TheraEngine.Core.Reflection
         private static AppDomain[] _appDomainCache;
         public static AppDomain[] AppDomains => _appDomainCache ?? (_appDomainCache = EnumAppDomains().ToArray());
         public static void ClearAppDomainCache() => _appDomainCache = null;
-        
-        /// <summary>
-        /// Returns an enumerable containing all AppDomains in the process.
-        /// </summary>
-        /// <returns></returns>
-        private static IEnumerable<AppDomain> EnumAppDomains()
-        {
-            IntPtr enumHandle = IntPtr.Zero;
-            ICorRuntimeHost host = null;
 
+        private const string ICorRuntimeHostGUID = "CB2F6723-AB3A-11D2-9C40-00C04FA30A3E";
+
+        /// <summary>
+        /// The CorRuntimeHost, as an <see cref="ICorRuntimeHost"/>.
+        /// </summary>
+        private static readonly Lazy<ICorRuntimeHost> Host = new Lazy<ICorRuntimeHost>(
+            () => (ICorRuntimeHost)Activator.CreateInstance(Type.GetTypeFromCLSID(Guid.Parse(ICorRuntimeHostGUID))),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        /// <summary>
+        /// The default AppDomain.
+        /// </summary>
+        private static readonly Lazy<AppDomain> LazyDefaultAppDomain = new Lazy<AppDomain>(() =>
+        {
+            Host.Value.GetDefaultDomain(out object ret);
+            return (AppDomain)ret;
+        }, LazyThreadSafetyMode.PublicationOnly);
+
+        /// <summary>
+        /// Gets the default AppDomain. This property caches the resulting value.
+        /// </summary>
+        public static AppDomain DefaultAppDomain => LazyDefaultAppDomain.Value;
+
+        /// <summary>
+        /// Enumerates all AppDomains in the process.
+        /// </summary>
+        public static IEnumerable<AppDomain> EnumAppDomains()
+        {
+            var host = Host.Value;
+            host.EnumDomains(out IntPtr enumeration);
             try
             {
-                host = new CorRuntimeHost();
-                host.EnumDomains(out enumHandle);
-
-                host.NextDomain(enumHandle, out object domain);
-                while (domain != null)
+                while (true)
                 {
+                    object domain = null;
+                    host.NextDomain(enumeration, ref domain);
+                    if (domain == null)
+                        yield break;
                     yield return (AppDomain)domain;
-                    host.NextDomain(enumHandle, out domain);
                 }
             }
             finally
             {
-                if (host != null)
-                {
-                    if (enumHandle != IntPtr.Zero)
-                        host.CloseEnum(enumHandle);
-
-                    Marshal.ReleaseComObject(host);
-                }
+                host.CloseEnum(enumeration);
             }
+        }
+        [Guid(ICorRuntimeHostGUID)]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        private interface ICorRuntimeHost
+        {
+            void _VtblGap_10();
+            void GetDefaultDomain([MarshalAs(UnmanagedType.IUnknown)] out object appDomain);
+            void EnumDomains(out IntPtr enumHandle);
+            void NextDomain(IntPtr enumHandle, [MarshalAs(UnmanagedType.IUnknown)] ref object appDomain);
+            void CloseEnum(IntPtr enumHandle);
         }
         /// <summary>
         /// Helper to collect all types from all loaded assemblies that match the given predicate.

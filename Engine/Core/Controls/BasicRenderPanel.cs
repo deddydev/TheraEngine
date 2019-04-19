@@ -6,7 +6,7 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine
 {
-    public class BasicRenderPanel : RenderPanel<BaseScene>
+    public class BasicRenderPanel : RenderPanel<IScene>
     {
         public override int MaxViewports => 1;
         
@@ -15,7 +15,7 @@ namespace TheraEngine
         public World World { get; } = new World();
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Camera Camera
+        public ICamera Camera
         {
             get => Viewports.Count == 0 ? null : Viewports[0].Camera;
             set
@@ -25,6 +25,6 @@ namespace TheraEngine
             }
         }
 
-        protected override BaseScene GetScene(Viewport v) => World.Scene;
+        protected override IScene GetScene(Viewport v) => World.Scene;
     }
 }

@@ -24,5 +24,7 @@ namespace TheraEngine.Core.Reflection
             => Value.GetValue(parentObject);
         public void SetValue(object parentObject, object memberObject)
             => Value.SetValue(parentObject, memberObject);
+        public object GetRawConstantValue() 
+            => Value.GetRawConstantValue();
     }
 }

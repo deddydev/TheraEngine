@@ -74,7 +74,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             _wasVisible = pnlProps.Visible;
             if (_wasNull = _object == null)
-                _object = SerializationCommon.CreateInstance(DataType);
+                _object = DataType.CreateInstance();
             if (!pnlProps.Visible)
                 pnlProps.Visible = true;
             UpdateDisplay();

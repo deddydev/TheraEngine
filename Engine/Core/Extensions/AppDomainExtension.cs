@@ -24,10 +24,10 @@ namespace System
             => RemoteFunc.Invoke(domain, () => new ProxyList<AssemblyProxy>(
                 AppDomain.CurrentDomain.GetAssemblies().Select(x => AssemblyProxy.Get(x))));
         public static bool IsPrimaryDomain(this AppDomain domain)
-            => PrimaryAppDomainManager.GetPrimaryAppDomain() == domain;
+            => AppDomainHelper.GetPrimaryAppDomain() == domain;
 #if EDITOR
         public static bool IsGameDomain(this AppDomain domain)
-            => PrimaryAppDomainManager.GetGameAppDomain() == domain;
+            => AppDomainHelper.GetGameAppDomain() == domain;
 #endif
     }
 }

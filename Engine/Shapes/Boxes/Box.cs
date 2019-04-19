@@ -135,8 +135,12 @@ namespace TheraEngine.Core.Shapes
 
             return PrimitiveData.FromQuads(VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
-        public PrimitiveData GetMesh() { return Mesh(HalfExtents, Transform.Matrix); }
-        public Frustum AsFrustum() { return BoundingBox.GetFrustum(HalfExtents, Transform.Matrix); }
+
+        public PrimitiveData GetMesh()
+            => Mesh(HalfExtents, Transform.Matrix);
+        public IFrustum AsFrustum() 
+            => BoundingBox.GetFrustum(HalfExtents, Transform.Matrix);
+
         public bool Intersects(Ray ray, out float distance)
         {
             return Collision.RayIntersectsBoxDistance(ray.StartPoint, ray.Direction, HalfExtents, Transform.Matrix, out distance);

@@ -25,10 +25,10 @@ using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine
 {
-
     public delegate void DelTick(float delta);
     public enum ETickGroup
     {
@@ -54,22 +54,20 @@ namespace TheraEngine
     }
     public static partial class Engine
     {
-        public static Dictionary<Guid, TObject> ObjectCache { get; } = new Dictionary<Guid, TObject>();
-
         public const ERenderLibrary DefaultRenderLibrary = ERenderLibrary.OpenGL;
         public const EAudioLibrary DefaultAudioLibrary = EAudioLibrary.OpenAL;
         public const EInputLibrary DefaultInputLibrary = EInputLibrary.OpenTK;
         public const EPhysicsLibrary DefaultPhysicsLibrary = EPhysicsLibrary.Bullet;
 
-        public static string StartupPath = Application.StartupPath + Path.DirectorySeparatorChar;
-        public static string ContentFolderAbs = StartupPath + ContentFolderRel;
-        public static string ContentFolderRel = "Content" + Path.DirectorySeparatorChar;
-        public static string ConfigFolderAbs = StartupPath + ConfigFolderRel;
-        public static string ConfigFolderRel = "Config" + Path.DirectorySeparatorChar;
-        public static string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xset";
-        public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xset";
-        public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
-        public static string UserSettingsPathRel = ConfigFolderRel + "User.xset";
+        public static readonly string StartupPath = Application.StartupPath + Path.DirectorySeparatorChar;
+        public static readonly string ContentFolderAbs = StartupPath + ContentFolderRel;
+        public static readonly string ContentFolderRel = "Content" + Path.DirectorySeparatorChar;
+        public static readonly string ConfigFolderAbs = StartupPath + ConfigFolderRel;
+        public static readonly string ConfigFolderRel = "Config" + Path.DirectorySeparatorChar;
+        public static readonly string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xset";
+        public static readonly string EngineSettingsPathRel = ConfigFolderRel + "Engine.xset";
+        public static readonly string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
+        public static readonly string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
         public static NetworkConnection Network { get; set; }
         public static Server ServerConnection => Network as Server;
@@ -94,10 +92,6 @@ namespace TheraEngine
         public static event Action PostWorldChanged;
 
         /// <summary>
-        /// Instances of files that are loaded only once and are accessable by all global references to that file.
-        /// </summary>
-        public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, IFileObject>();
-        /// <summary>
         /// Instances of files that are loaded locally in a class. A single file may be loaded independently in multiple local contexts.
         /// </summary>
         //public static ConcurrentDictionary<string, List<IFileObject>> LocalFileInstances { get; } = new ConcurrentDictionary<string, List<IFileObject>>();
@@ -106,8 +100,6 @@ namespace TheraEngine
         /// </summary>
         //public static List<LocalPlayerController> LocalPlayers => World.GameMode.LocalPlayers;
         
-        public static List<AIController> ActiveAI = new List<AIController>();
-
         public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
             = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
 
@@ -384,5 +376,100 @@ namespace TheraEngine
         private static AbstractAudioManager _audioManager;
         private static AbstractPhysicsInterface _physicsInterface;
         #endregion
+
+        public static InternalEnginePersistentSingleton Instance => Singleton<InternalEnginePersistentSingleton>.Instance;
+
+        public partial class InternalEnginePersistentSingleton : MarshalByRefObject
+        {
+            private Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
+
+            public NetworkConnection Network { get; set; }
+            public Server ServerConnection => Network as Server;
+            public Client ClientConnection => Network as Client;
+            public EngineSingleton Singleton { get; private set; }
+
+            public GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
+                = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
+
+            public IScene Scene => World?.Scene;
+            public TGame Game { get; private set; }
+
+            /// <summary>
+            /// The settings for the engine, specified by the game.
+            /// </summary>
+            public EngineSettings Settings =>
+                Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
+                DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
+                _defaultEngineSettings.Value; //Fall back to truly default engine settings
+
+            public async Task<EngineSettings> GetSettingsAsync()
+            {
+                EngineSettings settings;
+                if (Game?.EngineSettingsOverrideRef != null)
+                {
+                    settings = await Game.EngineSettingsOverrideRef.GetInstanceAsync();
+                    if (settings != null)
+                        return settings;
+                }
+                if (DefaultEngineSettingsOverrideRef != null)
+                {
+                    settings = await DefaultEngineSettingsOverrideRef.GetInstanceAsync();
+                    if (settings != null)
+                        return settings;
+                }
+                return _defaultEngineSettings.Value;
+            }
+
+            /// <summary>
+            /// The settings for the engine, specified by the user.
+            /// </summary>
+            public UserSettings UserSettings => Game?.UserSettingsRef?.File;
+
+            /// <summary>
+            /// The index of the currently ticking list of functions (group + order + pause)
+            /// </summary>
+            private int _currentTickList = -1;
+
+            private ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
+            private ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
+            public void QueueRebaseOrigin(IWorld world, Vec3 point)
+            {
+                if (!world.IsRebasingOrigin)
+                    RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
+            }
+
+            /// <summary>
+            /// Queue for adding to or removing from the currently ticking list
+            /// </summary>
+            private ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
+            public List<DelTick>[] _tickLists;
+            private ERenderLibrary _renderLibrary = DefaultRenderLibrary;
+            private EAudioLibrary _audioLibrary = DefaultAudioLibrary;
+            private EInputLibrary _inputLibrary = DefaultInputLibrary;
+            private EPhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
+
+            private EngineTimer _timer = new EngineTimer();
+            private List<DateTime> _debugTimers = new List<DateTime>();
+            private InputAwaiter _inputAwaiter;
+
+            private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
+            private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
+
+            /// <summary>
+            /// The world that is currently being rendered and played in.
+            /// </summary>
+            public IWorld World { get; private set; } = null;
+            public bool IsPaused { get; private set; } = false;
+
+            /// <summary>
+            /// Class containing this computer's specs. Use to adjust engine performance accordingly.
+            /// </summary>
+            public ComputerInfo ComputerInfo => _computerInfo.Value;
+            private readonly Lazy<ComputerInfo> _computerInfo = new Lazy<ComputerInfo>(ComputerInfo.Analyze);
+
+#if EDITOR
+            public EngineEditorState EditorState { get; } = new EngineEditorState();
+#endif
+        }
     }
 }

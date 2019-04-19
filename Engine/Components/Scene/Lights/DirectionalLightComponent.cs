@@ -83,7 +83,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnSpawned()
         {
-            Scene3D s3d = OwningScene3D;
+            IScene3D s3d = OwningScene3D;
             if (s3d != null)
             {
                 if (Type == ELightType.Dynamic)
@@ -101,7 +101,7 @@ namespace TheraEngine.Components.Scene.Lights
         }
         public override void OnDespawned()
         {
-            Scene3D s3D = OwningScene3D;
+            IScene3D s3D = OwningScene3D;
             if (s3D != null)
             {
                 if (Type == ELightType.Dynamic)

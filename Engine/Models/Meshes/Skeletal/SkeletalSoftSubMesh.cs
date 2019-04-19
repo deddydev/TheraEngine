@@ -12,19 +12,19 @@ namespace TheraEngine.Rendering.Models
         public SkeletalSoftSubMesh() : base() { _name = "SkeletalSoftSubMesh"; }
         public SkeletalSoftSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
             PrimitiveData primitives,
             TMaterial material) : base(name, renderInfo, renderPass, primitives, material) { }
         public SkeletalSoftSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
-            EventList<LOD> lods) : base(name, renderInfo, renderPass, lods) { }
+            IEventList<ILOD> lods) : base(name, renderInfo, renderPass, lods) { }
         public SkeletalSoftSubMesh(
             string name,
-            RenderInfo3D renderInfo,
+            IRenderInfo3D renderInfo,
             ERenderPass renderPass,
-            params LOD[] lods) : base(name, renderInfo, renderPass, lods) { }
+            params ILOD[] lods) : base(name, renderInfo, renderPass, lods) { }
     }
 }

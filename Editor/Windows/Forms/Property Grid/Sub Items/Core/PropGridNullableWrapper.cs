@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -9,7 +10,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// The value type referenced by the nullable object.
         /// </summary>
-        public Type ValueType { get; private set; }
+        public TypeProxy ValueType { get; private set; }
         protected override bool UpdateDisplayInternal(object value)
         {
             bool editable = IsEditable();

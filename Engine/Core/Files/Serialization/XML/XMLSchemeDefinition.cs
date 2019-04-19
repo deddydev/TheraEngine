@@ -39,7 +39,7 @@ namespace TheraEngine.Core.Files.XML
             static ChildInfo()
             {
                 Type elemType = typeof(IElement);
-                ElementTypes = PrimaryAppDomainManager.FindTypes((TypeProxy t) => elemType.IsAssignableFrom(t) && t.HasCustomAttribute<ElementName>()).ToArray();
+                ElementTypes = AppDomainHelper.FindTypes((TypeProxy t) => elemType.IsAssignableFrom(t) && t.HasCustomAttribute<ElementName>()).ToArray();
             }
             public ChildInfo(ElementChild data)
             {
@@ -696,7 +696,7 @@ namespace TheraEngine.Core.Files.XML
         object UserData { get; set; }
         IElement Parent { get; set; }
         IRoot Root { get; }
-        Dictionary<Type, List<IElement>> ChildElements { get; }
+        Dictionary<TypeProxy, List<IElement>> ChildElements { get; }
         int ElementIndex { get; set; }
         string Tree { get; set; }
 
@@ -821,7 +821,7 @@ namespace TheraEngine.Core.Files.XML
         }
 
         [Browsable(false)]
-        public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
+        public Dictionary<TypeProxy, List<IElement>> ChildElements { get; } = new Dictionary<TypeProxy, List<IElement>>();
         [Browsable(false)]
         public Type ParentType => typeof(TParent);
         [Browsable(false)]
@@ -862,7 +862,7 @@ namespace TheraEngine.Core.Files.XML
             {
                 IElement element = elements[i];
                 element.ElementIndex = currentCount + i;
-                Type elemType = element.GetType();
+                TypeProxy elemType = element.GetTypeProxy();
                 if (ChildElements.ContainsKey(elemType))
                 {
                     var list = ChildElements[elemType];

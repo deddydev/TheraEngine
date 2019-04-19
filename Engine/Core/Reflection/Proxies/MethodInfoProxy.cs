@@ -21,8 +21,8 @@ namespace TheraEngine.Core.Reflection
 
         public TypeProxy ReturnType => Value.ReturnType;
 
-        public string GetFriendlyName()
-            => Value.GetFriendlyName();
+        public string GetFriendlyName(bool nameOnly = false, string openBracket = "<", string closeBracket = ">")
+            => Value.GetFriendlyName(nameOnly, openBracket, closeBracket);
 
         public MethodInfoProxy MakeGenericMethod(TypeProxy[] selectedTypes)
             => Value.MakeGenericMethod(selectedTypes.Select(x => (Type)x).ToArray());

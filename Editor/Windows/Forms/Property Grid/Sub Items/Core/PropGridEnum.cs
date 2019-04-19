@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -46,7 +47,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void comboBox1_GotFocus(object sender, EventArgs e) => IsEditing = true;
 
         private string _value = string.Empty;
-        private FieldInfo[] _fields;
+        private FieldInfoProxy[] _fields;
 
         protected override bool UpdateDisplayInternal(object value)
         {
@@ -169,7 +170,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void BitSet_CheckedChanged(object sender, EventArgs e)
         {
             CheckBox box = (CheckBox)sender;
-            TypeCode t = Type.GetTypeCode(DataType);
+            TypeCode t = DataType.GetTypeCode();
             object totalValue = Convert.ChangeType(GetValue(), t);
             object newTotal = _convertBit[t](totalValue, box.Tag, box.Checked);
             UpdateValue(newTotal, true);
@@ -181,14 +182,14 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             base.SetReferenceHolder(parentInfo);
         }
 
-        private void UpdateControls(Type enumType)
+        private void UpdateControls(TypeProxy enumType)
         {
             if (enumType == null)
                 return;
             
             bool splitCamelCase = Editor.GetSettings().PropertyGridRef.File.SplitCamelCase;
-            FieldInfo field;
-            FieldInfo[] fields = enumType.GetFields(BindingFlags.Static | BindingFlags.Public);
+            FieldInfoProxy field;
+            FieldInfoProxy[] fields = enumType.GetFields(BindingFlags.Static | BindingFlags.Public);
             bool flags = enumType.GetCustomAttributes(false).FirstOrDefault(x => x is FlagsAttribute) != null;
             if (flags)
             {
@@ -208,7 +209,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     string name = GetFieldName(field, splitCamelCase);
 
                     value = field.GetRawConstantValue();
-                    TypeCode tc = Type.GetTypeCode(enumType);
+                    TypeCode tc = enumType.GetTypeCode();
                     object number = Convert.ChangeType(value, tc);
 
                     string decStr = number.ToString();

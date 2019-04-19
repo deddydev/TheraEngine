@@ -55,6 +55,23 @@ namespace TheraEngine.Core.Files
         public GlobalFileRef(string dir, string name, EProprietaryFileFormat format, Func<T> createIfNotFound)
             : base(dir, name, format, createIfNotFound) { }
 
+        internal static bool AddGlobalFileInstance<T>(T file, string path) where T : class, IFileObject
+        {
+            if (string.IsNullOrEmpty(path))
+                return false;
+
+            GlobalFileInstances.AddOrUpdate(path, file, (key, oldValue) => file);
+
+            return true;
+        }
+        internal static bool RemoveGlobalFileInstance(string absRefPath)
+        {
+            if (string.IsNullOrEmpty(absRefPath))
+                return false;
+
+            return GlobalFileInstances.TryRemove(absRefPath, out IFileObject value);
+        }
+
         protected override bool RegisterInstance()
         {
             T file = IsLoaded ? File : null;
@@ -68,7 +85,7 @@ namespace TheraEngine.Core.Files
                 return true;
             }
             else
-                return Engine.Files.AddGlobalFileInstance(file, Path.Path);
+                return AddGlobalFileInstance(file, Path.Path);
         }
 
         protected override void OnAbsoluteRefPathChanged(string oldPath, string newPath)
@@ -90,9 +107,9 @@ namespace TheraEngine.Core.Files
             else
             {
                 if (!string.IsNullOrEmpty(oldPath))
-                    Engine.Files.RemoveGlobalFileInstance(oldPath);
+                    RemoveGlobalFileInstance(oldPath);
                 if (!string.IsNullOrEmpty(newPath))
-                    Engine.Files.AddGlobalFileInstance(default(T), Path.Path);
+                    AddGlobalFileInstance(default(T), Path.Path);
             }
         }
 
@@ -102,6 +119,11 @@ namespace TheraEngine.Core.Files
         /// </summary>
         [Browsable(false)]
         public IGlobalFilesContext<T> Context { get; set; } = null;
+
+        /// <summary>
+        /// Instances of files that are loaded only once and are accessable by all global references to that file.
+        /// </summary>
+        public static ConcurrentDictionary<string, IFileObject> GlobalFileInstances { get; } = new ConcurrentDictionary<string, IFileObject>();
 
         public override async Task<T> GetInstanceAsync(IProgress<float> progress, CancellationToken cancel)
         {
@@ -116,7 +138,7 @@ namespace TheraEngine.Core.Files
             {
                 if (Context == null)
                 {
-                    if (Engine.GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
+                    if (GlobalFileInstances.TryGetValue(absolutePath, out IFileObject file))
                     {
                         if (file != null)
                         {
@@ -150,7 +172,7 @@ namespace TheraEngine.Core.Files
             {
                 if (Context == null)
                 {
-                    Engine.GlobalFileInstances.AddOrUpdate(absolutePath, value, (key, oldValue) => value);
+                    GlobalFileInstances.AddOrUpdate(absolutePath, value, (key, oldValue) => value);
                 }
                 else
                 {

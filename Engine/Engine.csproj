@@ -477,7 +477,7 @@
     <Compile Include="Core\Maths\MachineLearning\Neuron.cs" />
     <Compile Include="Core\Memory\Int24.cs" />
     <Compile Include="Core\Platform\Native.cs" />
-    <Compile Include="Core\Reflection\PrimaryAppDomainManager.cs" />
+    <Compile Include="Core\Reflection\AppDomainHelper.cs" />
     <Compile Include="Core\Reflection\Attributes\GridCallable.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TFileExt.cs" />
     <Compile Include="Core\Reflection\Attributes\Serialization\TFile3rdParty.cs" />
@@ -489,6 +489,7 @@
     <None Include="Core\Reflection\TConstructorInfo.cs" />
     <None Include="Core\Reflection\TParameterInfo.cs" />
     <None Include="Core\Reflection\TType.cs" />
+    <Compile Include="Core\Reflection\DomainAwareSingleton.cs" />
     <Compile Include="Core\Reflection\Proxies\AssemblyProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\EventInfoProxy.cs" />
     <Compile Include="Core\Reflection\Proxies\MemberInfoProxy.cs" />

@@ -39,7 +39,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
                 new Box(halfExtents),
                 translation,
                 rotation,
-                new EventList<LOD>()
+                new EventList<ILOD>()
                 {
                     new LOD(material, BoundingBox.SolidMesh(-halfExtents, halfExtents), 0.0f),
                 },

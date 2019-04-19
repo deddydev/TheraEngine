@@ -7,6 +7,9 @@ using TheraEngine.Core.Reflection;
 
 namespace TheraEditor
 {
+    /// <summary>
+    /// Proxy that runs methods in the game's domain.
+    /// </summary>
     public class ProjectDomainProxy : MarshalByRefObject
     {
         public TProject Project { get; private set; }

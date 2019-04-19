@@ -48,7 +48,7 @@ namespace TheraEditor.Windows.Forms
                         TransformTool3D.Instance.PrevRootWorldMatrix,
                         socket.WorldMatrix,
                         socket,
-                        socket.GetType().GetProperty(nameof(ISocket.WorldMatrix))));
+                        socket.GetTypeProxy().GetProperty(nameof(ISocket.WorldMatrix))));
             }
         }
 

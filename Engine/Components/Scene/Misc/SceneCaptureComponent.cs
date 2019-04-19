@@ -119,7 +119,7 @@ namespace TheraEngine.Actors.Types
             if (RenderFBO == null)
                 SetCaptureResolution(512);
 
-            Scene3D scene = OwningScene3D;
+            IScene3D scene = OwningScene3D;
             if (scene == null)
                 return;
 

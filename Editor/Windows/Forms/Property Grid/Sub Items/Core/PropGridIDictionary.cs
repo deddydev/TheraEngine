@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         protected override bool UpdateDisplayInternal(object value)
         {
             Dictionary = value as IDictionary;
-            Type type = value?.GetType() ?? DataType;
+            TypeProxy type = value?.GetTypeProxy() ?? DataType;
 
             lblObjectTypeName.Text = type.GetFriendlyName();
             chkNull.Visible = !type.IsValueType;

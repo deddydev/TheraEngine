@@ -897,7 +897,7 @@ namespace TheraEditor
             }
 
             PrintLine("Creating game domain.");
-            PrintLine("Active domains before load: " + string.Join(", ", PrimaryAppDomainManager.AppDomains.Select(x => x.FriendlyName)));
+            PrintLine("Active domains before load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
 
             try
             {
@@ -966,8 +966,8 @@ namespace TheraEditor
 
             PrintLine("Game domain created.");
 
-            PrimaryAppDomainManager.ClearAppDomainCache();
-            PrintLine("Active domains after load: " + string.Join(", ", PrimaryAppDomainManager.AppDomains.Select(x => x.FriendlyName)));
+            AppDomainHelper.ClearAppDomainCache();
+            PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
 
             //var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             //Engine.PrintLine(string.Join("\n", assemblies.Select(x => x.FullName)));

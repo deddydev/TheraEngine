@@ -743,7 +743,7 @@ namespace TheraEngine.Core.Files.Serialization
 
                         if (types.Count > 1)
                         {
-                            AppDomain primaryDomain = PrimaryAppDomainManager.GetPrimaryAppDomain();
+                            AppDomain primaryDomain = AppDomainHelper.GetPrimaryAppDomain();
                             types.Sort((x, y) =>
                             {
                                 if (x.Domain != y.Domain)

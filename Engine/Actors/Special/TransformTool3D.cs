@@ -374,7 +374,7 @@ namespace TheraEngine.Actors.Types
                         var localPlayers = OwningWorld.CurrentGameMode.LocalPlayers;
                         if (localPlayers.Count > 0)
                         {
-                            Camera c = localPlayers[0].ViewportCamera;
+                            ICamera c = localPlayers[0].ViewportCamera;
                             if (c != null)
                             {
                                 //Rotator angles = (c.WorldPoint - point).LookatAngles();
@@ -416,7 +416,7 @@ namespace TheraEngine.Actors.Types
                     }
                 case ESpace.Screen:
                     {
-                        Camera c = OwningWorld.CurrentGameMode.LocalPlayers[0].ViewportCamera;
+                        ICamera c = OwningWorld.CurrentGameMode.LocalPlayers[0].ViewportCamera;
                         Matrix4 mtx = c.CameraToWorldSpaceMatrix;
                         mtx.Translation = _targetSocket.InverseWorldMatrix.Translation;
                         return mtx;

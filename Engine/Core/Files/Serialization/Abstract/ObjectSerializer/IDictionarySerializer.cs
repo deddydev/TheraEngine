@@ -111,8 +111,8 @@ namespace TheraEngine.Core.Files.Serialization
             object[] keys = new object[dic.Keys.Count];
             object[] vals = new object[dic.Values.Count];
 
-            Type keyType = dic.DetermineKeyType();
-            Type valType = dic.DetermineValueType();
+            TypeProxy keyType = dic.DetermineKeyTypeProxy();
+            TypeProxy valType = dic.DetermineValueTypeProxy();
 
             dic.Keys.CopyTo(keys, 0);
             dic.Values.CopyTo(vals, 0);

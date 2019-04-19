@@ -120,7 +120,7 @@ namespace TheraEngine.GameModes
 
         Viewport LinkControllerToViewport(LocalPlayerController item);
 
-        void BeginGameplay(World world);
+        void BeginGameplay(IWorld world);
         void EndGameplay();
         void AbortGameplay();
 
@@ -215,10 +215,10 @@ namespace TheraEngine.GameModes
         protected internal abstract void CreateLocalController(ELocalPlayerIndex index, Queue<IPawn> possessionQueue);
 
         protected virtual void OnBeginGameplay() { }
-        public void BeginGameplay(World world)
+        public void BeginGameplay(IWorld world)
         {
             TargetWorld = world;
-            Engine.PrintLine("Game mode {0} has begun play.", GetType().GetFriendlyName());
+            Engine.PrintLine("Game mode {0} has begun play.", this.GetTypeProxy().GetFriendlyName());
             CreateLocalPlayerControllers();
             OnBeginGameplay();
             IsPlaying = true;
@@ -229,7 +229,7 @@ namespace TheraEngine.GameModes
             IsPlaying = false;
             DestroyLocalPlayerControllers();
             OnEndGameplay();
-            Engine.PrintLine("Game mode {0} has ended play.", GetType().GetFriendlyName());
+            Engine.PrintLine("Game mode {0} has ended play.", this.GetTypeProxy().GetFriendlyName());
             TargetWorld = null;
         }
         protected virtual void OnAbortGameplay() { }

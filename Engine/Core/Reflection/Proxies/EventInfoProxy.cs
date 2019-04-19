@@ -16,5 +16,9 @@ namespace TheraEngine.Core.Reflection
 
         //public EventInfoProxy() { }
         private EventInfoProxy(EventInfo value) : base(value) => Value = value;
+
+        public bool IsSpecialName => Value.IsSpecialName;
+
+        public TypeProxy EventHandlerType => Value.EventHandlerType;
     }
 }

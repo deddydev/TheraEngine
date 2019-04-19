@@ -244,7 +244,7 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if left is equal to right; otherwise false.
         public static bool operator ==(MemberInfoProxy left, MemberInfoProxy right)
-            => left?.Value == right?.Value;
+            => left is null ? right is null : left.EqualTo(right);
         //
         // Summary:
         //     Indicates whether two System.Reflection.MemberInfo objects are not equal.
@@ -259,8 +259,24 @@ namespace TheraEngine.Core.Reflection
         // Returns:
         //     true if left is not equal to right; otherwise false.
         public static bool operator !=(MemberInfoProxy left, MemberInfoProxy right)
-            => left?.Value != right?.Value;
+           => left is null ? !(right is null) : !left.EqualTo(right);
+        public bool EqualTo(MemberInfoProxy other)
+        {
+            if (other is null)
+                return false;
 
+            if (other.Domain.IsGameDomain() && !Domain.IsGameDomain())
+                return other.EqualTo(this);
+
+            return Value == other.Value;
+        }
+        public bool EqualTo(MemberInfo other)
+        {
+            if (other is null)
+                return false;
+
+            return Value == other;
+        }
         //
         // Summary:
         //     Retrieves a custom attribute of a specified type that is applied to a specified

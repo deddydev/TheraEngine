@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppDomainToolkit;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -25,8 +26,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private const string MiscName = "Miscellaneous";
         private Dictionary<string, PropGridCategory> _categories = new Dictionary<string, PropGridCategory>();
         protected object _object;
-        protected Type _currentType;
-        public Type CurrentType => _currentType ?? DataType;
+        protected TypeProxy _currentType;
+        public TypeProxy CurrentType => _currentType ?? DataType;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
@@ -49,7 +50,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             //    LoadProperties(value);
             
             _object = value;
-            Type type = _object?.GetType();
+            TypeProxy type = _object?.GetTypeProxy();
             if (type != CurrentType)
             {
                 _currentType = type;
@@ -60,7 +61,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 !(MemberInfo is PropGridMemberInfoIList ilist && 
                 ilist.ListElementType == CurrentType))
             {
-                string typeName = (value?.GetType() ?? DataType).GetFriendlyName();
+                string typeName = (value?.GetTypeProxy() ?? DataType).GetFriendlyName();
                 lblObjectTypeName.Text = "[" + typeName + "] " + (value == null ? "null" : value.ToString());
             }
             else
@@ -144,11 +145,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         private void UpdateMouseDown()
         {
             _mouseDown = MouseDownProperties;
-            Type type = CurrentType;
+            TypeProxy type = CurrentType;
             if (type != null && !type.IsValueType)
             {
-                Type compareType;
-                Type bestType = null;
+                TypeProxy compareType;
+                TypeProxy bestType = null;
                 while (type != null && type != typeof(object))
                 {
                     if (TheraPropertyGrid.FullEditorTypes.ContainsKey(type))
@@ -209,13 +210,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         
         private void pnlProps_VisibleChanged(object sender, EventArgs e)
         {
-            if (pnlProps.Visible)
+            //TODO: execute on game domain
+            RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), () =>
             {
-                if (pnlProps.Controls.Count == 0)
-                    LoadProperties(true);
-            }
-            else
-                LoadProperties(false);
+                if (pnlProps.Visible)
+                {
+                    if (pnlProps.Controls.Count == 0)
+                        LoadProperties(true);
+                }
+                else
+                    LoadProperties(false);
+            });
         }
         
         private void chkNull_CheckedChanged(object sender, EventArgs e)

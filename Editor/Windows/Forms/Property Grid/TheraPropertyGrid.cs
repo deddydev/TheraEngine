@@ -46,13 +46,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private class PropertyData : PropGridData
         {
-            public PropertyData(PropertyInfo property, object obj, string category)
+            public PropertyData(PropertyInfoProxy property, object obj, string category)
             {
                 Deque<TypeProxy> types;
                 try
                 {
                     object propObj = property.GetValue(obj);
-                    TypeProxy subType = propObj?.GetType() ?? property.PropertyType;
+                    TypeProxy subType = propObj?.GetTypeProxy() ?? property.PropertyType;
                     types = GetControlTypes(subType);
                 }
                 catch (Exception ex)
@@ -65,15 +65,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 Category = category;
             }
             public Deque<TypeProxy> ControlTypes { get; set; }
-            public PropertyInfo Property { get; set; }
+            public PropertyInfoProxy Property { get; set; }
         }
         private class MethodData : PropGridData
         {
-            public MethodInfo Method { get; set; }
+            public MethodInfoProxy Method { get; set; }
         }
         private class EventData : PropGridData
         {
-            public EventInfo Event { get; set; }
+            public EventInfoProxy Event { get; set; }
         }
 
         private const string MiscName = "Miscellaneous";
@@ -215,7 +215,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     add = obj.Item2?.ToString() ?? obj.Item1?.ToString() ?? "<null>";
                     s = add + s;
                 }
-                lblObjectName.Text = $"[{TargetObject?.GetType()?.GetFriendlyName() ?? "<null>"}] - " + s;
+                lblObjectName.Text = $"[{TargetObject?.GetTypeProxy()?.GetFriendlyName() ?? "<null>"}] - " + s;
             }
             else
             {
@@ -432,9 +432,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             pnlProps.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             pnlProps.ColumnCount = 1;
 
-            PropertyInfo[] props = null;
-            MethodInfo[] methods = null;
-            EventInfo[] events = null;
+            PropertyInfoProxy[] props = null;
+            MethodInfoProxy[] methods = null;
+            EventInfoProxy[] events = null;
 
             ConcurrentDictionary<int, PropertyData> propInfo = new ConcurrentDictionary<int, PropertyData>();
             ConcurrentDictionary<int, MethodData> methodInfo = new ConcurrentDictionary<int, MethodData>();
@@ -444,20 +444,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             await Task.Run(() =>
             {
-                Type targetObjectType = obj.GetType();
+                TypeProxy targetObjectType = obj.GetTypeProxy();
 
                 const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
-                props   = showProperties    ? targetObjectType.GetProperties(flags) : new PropertyInfo[0];
-                methods = showMethods       ? targetObjectType.GetMethods(flags)    : new MethodInfo[0];
-                events  = showEvents        ? targetObjectType.GetEvents(flags)     : new EventInfo[0];
+                props   = showProperties    ? targetObjectType.GetProperties(flags) : new PropertyInfoProxy[0];
+                methods = showMethods       ? targetObjectType.GetMethods(flags)    : new MethodInfoProxy[0];
+                events  = showEvents        ? targetObjectType.GetEvents(flags)     : new EventInfoProxy[0];
 
                 Parallel.For(0, props.Length, i =>
                 {
-                    PropertyInfo prop = props[i];
-                    ParameterInfo[] indexParams = prop.GetIndexParameters();
+                    PropertyInfoProxy prop = props[i];
+                    ParameterInfoProxy[] indexParams = prop.GetIndexParameters();
                     if (indexParams.Length > 0)
                         return;
-                    
+
                     BrowsableAttribute browsable = prop.GetCustomAttribute<BrowsableAttribute>(true);
                     if (!(browsable?.Browsable ?? true))
                         return;
@@ -470,7 +470,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 Parallel.For(0, methods.Length, i =>
                 {
-                    MethodInfo method = methods[i];
+                    MethodInfoProxy method = methods[i];
                     if (method.IsSpecialName || (!(method.GetCustomAttribute<GridCallable>(true)?.Evaluate(obj) ?? false)))
                         return;
 
@@ -487,7 +487,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 Parallel.For(0, events.Length, i =>
                 {
-                    EventInfo e = events[i];
+                    EventInfoProxy e = events[i];
                     if (e.IsSpecialName)
                         return;
 
@@ -1017,7 +1017,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Engine.PrintLine("Loading all editor types to property grid.");
             Task propEditorsTask = Task.Run(() =>
             {
-                var propControls = PrimaryAppDomainManager.FindTypes(x =>
+                var propControls = AppDomainHelper.FindTypes(x =>
                     !x.IsAbstract &&
                     x.IsSubclassOf(typeof(PropGridItem)),
                     Assembly.GetExecutingAssembly());
@@ -1026,7 +1026,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             });
             Task fullEditorsTask = Task.Run(() =>
             {
-                var fullEditors = PrimaryAppDomainManager.FindTypes(x => 
+                var fullEditors = AppDomainHelper.FindTypes(x => 
                     !x.IsAbstract && 
                     x.IsSubclassOf(typeof(Form)) &&
                     x.HasCustomAttribute<EditorForAttribute>(),

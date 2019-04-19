@@ -1049,7 +1049,7 @@ namespace System
         }
         public static EContainment BoxContainsSphere(Vec3 boxHalfExtents, Matrix4 boxTransform, Vec3 sphereCenter, float sphereRadius)
         {
-            Frustum f = BoundingBox.GetFrustum(boxHalfExtents, boxTransform);
+            IFrustum f = BoundingBox.GetFrustum(boxHalfExtents, boxTransform);
             return FrustumContainsSphere(f, sphereCenter, sphereRadius);
 
             //Transform sphere into untransformed box space
@@ -1156,7 +1156,7 @@ namespace System
 
             return EContainment.Contains;
         }
-        public static EContainment FrustumContainsSphere(Frustum frustum, Vec3 center, float radius)
+        public static EContainment FrustumContainsSphere(IFrustum frustum, Vec3 center, float radius)
         {
             //if (frustum.UseBoundingSphere)
             //{
@@ -1178,7 +1178,7 @@ namespace System
             }
             return type;
         }
-        public static bool FrustumContainsPoint(Frustum frustum, Vec3 point)
+        public static bool FrustumContainsPoint(IFrustum frustum, Vec3 point)
         {
             //if (frustum.UseBoundingSphere)
             //{
@@ -1193,7 +1193,7 @@ namespace System
                     return false;
             return true;
         }
-        public static EContainment FrustumContainsBox1(Frustum frustum, Vec3 boxHalfExtents, Matrix4 boxTransform)
+        public static EContainment FrustumContainsBox1(IFrustum frustum, Vec3 boxHalfExtents, Matrix4 boxTransform)
         {
             //if (frustum.UseBoundingSphere)
             //{
@@ -1222,7 +1222,7 @@ namespace System
             }
 	        return result;
         }
-        public static EContainment AABBContainsFrustum(Vec3 boxMin, Vec3 boxMax, Frustum frustum)
+        public static EContainment AABBContainsFrustum(Vec3 boxMin, Vec3 boxMax, IFrustum frustum)
         {
             //if (frustum.UseBoundingSphere)
             //{
@@ -1240,7 +1240,7 @@ namespace System
                     ++numOut;
             return numOut == 0 ? EContainment.Contains : numIn == 0 ? EContainment.Disjoint : EContainment.Intersects;
         }
-        public static EContainment FrustumContainsAABB(Frustum frustum, Vec3 boxMin, Vec3 boxMax)
+        public static EContainment FrustumContainsAABB(IFrustum frustum, Vec3 boxMin, Vec3 boxMax)
         {
             EContainment c = AABBContainsFrustum(boxMin, boxMax, frustum);
             if (c != EContainment.Disjoint)

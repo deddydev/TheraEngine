@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -16,7 +17,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override string DisplayName => string.Format("[{0}]", MemberValue?.ToString() ?? "<null>");
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => MemberValue?.GetType();
+        public override TypeProxy DataType => MemberValue?.GetTypeProxy();
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public object Key { get; set; }
@@ -25,22 +26,22 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public bool IsKey { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public Type ValueType => Dictionary.Contains(Key) ? (Dictionary[Key]?.GetType() ?? _valueType) : _valueType;
+        public TypeProxy ValueType => Dictionary.Contains(Key) ? (Dictionary[Key]?.GetTypeProxy() ?? _valueType) : _valueType;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public Type KeyType => Key?.GetType() ?? _keyType;
+        public TypeProxy KeyType => Key?.GetTypeProxy() ?? _keyType;
 
         public IDictionary Dictionary => Owner.Value as IDictionary;
 
-        private readonly Type _valueType;
-        private readonly Type _keyType;
+        private readonly TypeProxy _valueType;
+        private readonly TypeProxy _keyType;
 
         public PropGridItemRefIDictionaryInfo(IPropGridMemberOwner owner, object key, bool isKey) : base(owner)
         {
             Key = key;
             IsKey = isKey;
-            _valueType = Dictionary?.DetermineValueType();
-            _keyType = Dictionary?.DetermineKeyType();
+            _valueType = Dictionary?.DetermineValueTypeProxy();
+            _keyType = Dictionary?.DetermineKeyTypeProxy();
         }
 
         public override bool IsReadOnly() => base.IsReadOnly() || (Dictionary?.IsReadOnly ?? false);

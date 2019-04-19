@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace TheraEngine.Core.Files.References
 {
     public class ObjectRef<T> where T : TObject
     {
+        public static Dictionary<Guid, TObject> ObjectCache { get; } = new Dictionary<Guid, TObject>();
+
         [TSerialize]
         private Guid _refGuid;
         private readonly WeakReference<T> _objectCache = new WeakReference<T>(null);
@@ -13,10 +16,10 @@ namespace TheraEngine.Core.Files.References
             bool valid = _objectCache.TryGetTarget(out value);
             if (!valid)
             {
-                valid = Engine.ObjectCache.ContainsKey(_refGuid);
+                valid = ObjectCache.ContainsKey(_refGuid);
                 if (valid)
                 {
-                    TObject tobj = Engine.ObjectCache[_refGuid];
+                    TObject tobj = ObjectCache[_refGuid];
                     valid = tobj is T;
                     if (valid)
                     {

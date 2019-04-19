@@ -39,7 +39,7 @@ namespace TheraEngine.Actors.Types.ComponentActors.Shapes
                 new Sphere(radius),
                 translation,
                 rotation,
-                new EventList<LOD>()
+                new EventList<ILOD>()
                 {
                     new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, meshPrecision), radius * 8),
                     new LOD(material, Sphere.SolidMesh(Vec3.Zero, radius, (uint)(meshPrecision * 0.8f).ClampMin(1.0f)), radius * 16),

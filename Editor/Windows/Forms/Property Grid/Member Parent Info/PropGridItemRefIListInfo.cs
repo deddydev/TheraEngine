@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -19,17 +20,17 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public int Index { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => List == null ? ListElementType : (Index >= 0 && Index < List.Count ? List[Index]?.GetType() ?? ListElementType : ListElementType);
+        public override TypeProxy DataType => List == null ? ListElementType : (Index >= 0 && Index < List.Count ? List[Index]?.GetTypeProxy() ?? ListElementType : ListElementType);
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public Type ListElementType { get; private set; }
+        public TypeProxy ListElementType { get; private set; }
 
         public IList List => Owner.Value as IList;
 
         public PropGridMemberInfoIList(IPropGridMemberOwner owner, int index) : base(owner)
         {
             Index = index;
-            ListElementType = List?.DetermineElementType();
+            ListElementType = List?.DetermineElementTypeProxy();
         }
 
         public override bool IsReadOnly() 

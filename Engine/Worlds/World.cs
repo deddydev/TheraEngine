@@ -334,7 +334,7 @@ namespace TheraEngine.Worlds
             Engine.Renderer.RenderBox(Settings.Bounds.HalfExtents, Settings.Bounds.Translation.AsTranslationMatrix(), false, Color.Green);
             if (Settings.EnableOriginRebasing)
                 Engine.Renderer.RenderSphere(Vec3.Zero, Settings.OriginRebaseRadius, false, Color.Aqua);
-            Frustum frustum = Engine.Renderer.CurrentCamera?.Frustum;
+            IFrustum frustum = Engine.Renderer.CurrentCamera?.Frustum;
             if (Settings.PreviewOctrees && frustum != null)
                 Scene3D?.RenderTree?.DebugRender(frustum, true);
             if (Settings.PreviewPhysics)

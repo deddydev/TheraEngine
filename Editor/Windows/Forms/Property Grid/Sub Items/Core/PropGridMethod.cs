@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Collections;
-using System.Reflection;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
     public partial class PropGridMethod : PropGridItem
     {
-        private MethodInfo _method;
-        public MethodInfo Method
+        private MethodInfoProxy _method;
+        public MethodInfoProxy Method
         {
             get => _method;
             private set

@@ -78,7 +78,7 @@ namespace TheraEngine.Input
         }
 
         [Category("Local Player Controller")]
-        public Camera ViewportCamera
+        public ICamera ViewportCamera
         {
             get => _viewport?.Camera;
             set

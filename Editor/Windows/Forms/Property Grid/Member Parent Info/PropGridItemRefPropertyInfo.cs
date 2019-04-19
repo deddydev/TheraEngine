@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Editor;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
@@ -15,12 +16,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override string DisplayName => Property?.Name;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public PropertyInfo Property { get; set; }
+        public PropertyInfoProxy Property { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => Property?.PropertyType;
+        public override TypeProxy DataType => Property?.PropertyType;
 
-        public PropGridMemberInfoProperty(IPropGridMemberOwner owner, PropertyInfo property) : base(owner)
+        public PropGridMemberInfoProperty(IPropGridMemberOwner owner, PropertyInfoProxy property) : base(owner)
         {
             Property = property;
         }
@@ -35,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             get
             {
-                if (Property == null)
+                if (Property is null)
                     throw new InvalidOperationException($"{nameof(Property)} cannot be null.");
 
                 if (!Property.CanRead)
@@ -47,7 +48,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 //return the default value for the data type.
                 //This specifically fixes the owner-property mismatch exception
                 //when the grid is switching target sub object
-                if (o == null || !Property.DeclaringType.IsAssignableFrom(o.GetType()))
+                if (o is null || !Property.DeclaringType.IsAssignableFrom(o.GetTypeProxy()))
                     return DataType.GetDefaultValue();
 
                 return Property.GetValue(o);
@@ -62,7 +63,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 object o = Owner.Value;
 
-                if (o != null && Property.DeclaringType.IsAssignableFrom(o.GetType()))
+                if (!(o is null) && Property.DeclaringType.IsAssignableFrom(o.GetTypeProxy()))
                     Property.SetValue(o, value);
             }
         }

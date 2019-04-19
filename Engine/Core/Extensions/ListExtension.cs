@@ -1,4 +1,6 @@
-﻿namespace System.Collections.Generic
+﻿using TheraEngine.Core.Reflection;
+
+namespace System.Collections.Generic
 {
     public static class ListExtension
     {
@@ -29,6 +31,30 @@
             return null;
         }
         public static Type DetermineValueType(this IDictionary dic)
+        {
+            Type listType = dic.GetType();
+            if (listType.IsGenericType)
+                return listType.GenericTypeArguments[1];
+            return null;
+        }
+        public static TypeProxy DetermineElementTypeProxy(this IList list)
+        {
+            Type listType = list.GetType();
+            Type elementType = listType.GetElementType();
+            if (elementType != null)
+                return elementType;
+            if (listType.IsGenericType && listType.GenericTypeArguments.Length == 1)
+                return listType.GenericTypeArguments[0];
+            return null;
+        }
+        public static TypeProxy DetermineKeyTypeProxy(this IDictionary dic)
+        {
+            Type listType = dic.GetType();
+            if (listType.IsGenericType)
+                return listType.GenericTypeArguments[0];
+            return null;
+        }
+        public static TypeProxy DetermineValueTypeProxy(this IDictionary dic)
         {
             Type listType = dic.GetType();
             if (listType.IsGenericType)

@@ -61,7 +61,7 @@ namespace TheraEngine.Core.Files
                 _3rdPartyExporters = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
                 try
                 {
-                    TypeProxy[] types = PrimaryAppDomainManager.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
+                    TypeProxy[] types = AppDomainHelper.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
                     foreach (TypeProxy type in types)
                     {
                         TFileExt attrib = GetFileExtension(type);
@@ -113,7 +113,7 @@ namespace TheraEngine.Core.Files
             if (reloadNow)
             {
                 Type fileType = typeof(TFileObject);
-                _thirdPartyCache = PrimaryAppDomainManager.FindTypes(t => t.IsSubclassOf(fileType) && t.HasCustomAttribute<TFile3rdPartyExt>()).ToArray();
+                _thirdPartyCache = AppDomainHelper.FindTypes(t => t.IsSubclassOf(fileType) && t.HasCustomAttribute<TFile3rdPartyExt>()).ToArray();
             }
             else
                 _thirdPartyCache = null;

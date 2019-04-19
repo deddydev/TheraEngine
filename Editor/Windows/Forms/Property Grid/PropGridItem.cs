@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Animation;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using TheraEngine.Editor;
 using TheraEngine.Rendering.UI;
@@ -52,7 +53,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public PropGridMemberInfo MemberInfo { get; private set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public Type DataType => MemberInfo?.DataType;
+        public TypeProxy DataType => MemberInfo?.DataType;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
         public virtual Label Label { get; set; }
@@ -267,7 +268,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (DataType != null)
             {
                 //Double check that this control is valid for the given type
-                PropGridControlForAttribute attr = GetType().GetCustomAttributeExt<PropGridControlForAttribute>();
+                PropGridControlForAttribute attr = this.GetTypeProxy().GetCustomAttribute<PropGridControlForAttribute>();
                 if (attr != null)
                 {
                     Type[] types = attr.Types;
@@ -371,7 +372,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
 
             GetAnimationMemberPath(out PropGridMemberInfo animOwner);
-            if (!(animOwner?.Owner?.Value is TObject obj))
+            if (!(animOwner?.Owner?.Value is IObject obj))
                 return;
 
             ToolStripMenuItem[] anims = obj.Animations?.

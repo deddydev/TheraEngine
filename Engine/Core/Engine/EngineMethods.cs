@@ -54,7 +54,7 @@ namespace TheraEngine
         {
             Debug.Listeners.Add(new EngineTraceListener());
 
-            LoadCustomFonts();
+            //LoadCustomFonts();
 
             _timer = new EngineTimer();
             _timer.UpdateFrame += EngineTick;
@@ -304,13 +304,13 @@ namespace TheraEngine
             //Stop();
             SetCurrentWorld(null);
 
-            IEnumerable<IFileObject>
+            //IEnumerable<IFileObject>
             //files = LocalFileInstances.SelectMany(x => x.Value);
             //foreach (IFileObject o in files)
             //    o?.Unload();
-            files = GlobalFileInstances.Values;
-            foreach (IFileObject o in files)
-                o?.Unload();
+            //files = GlobalFileInstances.Values;
+            //foreach (IFileObject o in files)
+            //    o?.Unload();
 
             var contexts = new List<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in contexts)
@@ -849,22 +849,6 @@ namespace TheraEngine
 
             //    return true;
             //}
-            internal static bool AddGlobalFileInstance<T>(T file, string path) where T : class, IFileObject
-            {
-                if (string.IsNullOrEmpty(path))
-                    return false;
-
-                GlobalFileInstances.AddOrUpdate(path, file, (key, oldValue) => file);
-
-                return true;
-            }
-            internal static bool RemoveGlobalFileInstance(string absRefPath)
-            {
-                if (string.IsNullOrEmpty(absRefPath))
-                    return false;
-
-                return GlobalFileInstances.TryRemove(absRefPath, out IFileObject value);
-            }
         }
         /// <summary>
         /// Interface for accessing inputs.

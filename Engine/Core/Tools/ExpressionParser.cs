@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Tools
 {
@@ -166,7 +167,7 @@ namespace TheraEngine.Core.Tools
                 if (paramEnd > paramStart)
                 {
                     string methodName = token.Substring(0, paramStart);
-                    MethodInfo[] methods = provider == null ? new MethodInfo[0] : provider.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(x => string.Equals(x.Name, methodName)).ToArray();
+                    MethodInfoProxy[] methods = provider == null ? new MethodInfoProxy[0] : provider.GetTypeProxy().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(x => string.Equals(x.Name, methodName)).ToArray();
                     var parameters = token.Substring(paramStart + 1, paramEnd - (paramStart + 1)).Split(',');
                     
                     //TODO: invoke matching method, return value

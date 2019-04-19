@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -18,7 +19,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// The type that is expected of this instance's <see cref="MemberValue"/>.
         /// </summary>
-        public abstract Type DataType { get; }
+        public abstract TypeProxy DataType { get; }
         /// <summary>
         /// False if the <see cref="MemberValue"/> can be set.
         /// </summary>

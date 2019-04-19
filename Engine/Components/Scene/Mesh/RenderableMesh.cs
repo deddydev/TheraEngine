@@ -23,7 +23,7 @@ namespace TheraEngine.Components.Scene.Mesh
     public abstract class BaseRenderableMesh3D : I3DRenderable
     {
         public BaseRenderableMesh3D() { }
-        public BaseRenderableMesh3D(IList<LOD> lods, ERenderPass renderPass, IRenderInfo3D renderInfo, ISceneComponent component)
+        public BaseRenderableMesh3D(IList<ILOD> lods, ERenderPass renderPass, IRenderInfo3D renderInfo, ISceneComponent component)
         {
             _component = component;
 
@@ -146,11 +146,11 @@ namespace TheraEngine.Components.Scene.Mesh
             passes.Add(RenderCommand);
         }
 
-        protected void LODs_PostAnythingRemoved(LOD item)
+        protected void LODs_PostAnythingRemoved(ILOD item)
         {
             LODs.RemoveAt(LODs.Count - 1);
         }
-        protected void LODs_PostAnythingAdded(LOD item)
+        protected void LODs_PostAnythingAdded(ILOD item)
         {
             LODs.Add(new RenderableLOD()
             {

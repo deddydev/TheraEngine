@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
@@ -14,12 +15,12 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override string DisplayName => Event?.Name;
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public EventInfo Event { get; set; }
+        public EventInfoProxy Event { get; set; }
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Browsable(false)]
-        public override Type DataType => Event?.EventHandlerType;
+        public override TypeProxy DataType => Event?.EventHandlerType;
 
-        public PropGridMemberInfoEvent(IPropGridMemberOwner owner, EventInfo eventInfo) : base(owner)
+        public PropGridMemberInfoEvent(IPropGridMemberOwner owner, EventInfoProxy eventInfo) : base(owner)
         {
             Event = eventInfo;
         }

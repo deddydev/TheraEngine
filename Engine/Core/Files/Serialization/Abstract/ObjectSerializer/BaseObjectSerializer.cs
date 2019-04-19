@@ -87,7 +87,7 @@ namespace TheraEngine.Core.Files.Serialization
             if (reloadNow)
             {
                 Type baseObjSerType = typeof(BaseObjectSerializer);
-                IEnumerable<TypeProxy> typeList = PrimaryAppDomainManager.FindTypes(type =>
+                IEnumerable<TypeProxy> typeList = AppDomainHelper.FindTypes(type =>
                    type.IsAssignableTo(baseObjSerType) &&
                    type.HasCustomAttribute<ObjectSerializerFor>());
 

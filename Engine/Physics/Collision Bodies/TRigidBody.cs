@@ -24,7 +24,7 @@ namespace TheraEngine.Physics
             {
                 base.Owner = value;
                 if (_simulatingPhysics && value != null)
-                    WorldTransform = value.WorldMatrix;
+                    WorldTransform = value.CollidableWorldMatrix;
             }
         }
 
@@ -140,7 +140,7 @@ namespace TheraEngine.Physics
                     IsStatic = false;
                     LinearFactor = _previousLinearFactor;
                     AngularFactor = _previousAngularFactor;
-                    WorldTransform = Owner?.WorldMatrix ?? Matrix4.Identity;
+                    WorldTransform = Owner?.CollidableWorldMatrix ?? Matrix4.Identity;
                     if (_sleepingEnabled)
                     {
                         if (ActivationState == EBodyActivationState.DisableSleep)

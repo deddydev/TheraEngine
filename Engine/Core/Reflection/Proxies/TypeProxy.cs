@@ -183,7 +183,7 @@ namespace TheraEngine.Core.Reflection
         public static TypeProxy TypeOf<T>()
         {
             TypeProxy proxy = null;
-            var domains = PrimaryAppDomainManager.AppDomains;
+            var domains = AppDomainHelper.AppDomains;
             foreach (AppDomain domain in domains)
             {
                 if (domain == AppDomain.CurrentDomain)
@@ -236,6 +236,9 @@ namespace TheraEngine.Core.Reflection
         //     System.Type, unless the System.Type represents a generic type parameter, in which
         //     case the value is unspecified.
         public TypeAttributes Attributes => Value.Attributes;
+
+        public TypeCode GetTypeCode() => Type.GetTypeCode(Value);
+
         //
         // Summary:
         //     Gets a value indicating whether the System.Type is nested and visible only to
@@ -456,20 +459,20 @@ namespace TheraEngine.Core.Reflection
 
         public object CreateInstance()
         {
-            if (!PrimaryAppDomainManager.IsPrimaryDomain)
+            if (!AppDomainHelper.IsPrimaryDomain)
                 Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
             return SerializationCommon.CreateInstance(Value);
         }
         public object CreateInstance(params object[] args)
         {
-            if (!PrimaryAppDomainManager.IsPrimaryDomain)
+            if (!AppDomainHelper.IsPrimaryDomain)
                 Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
             return SerializationCommon.CreateInstance(Value, args);
         }
         public TypeProxy GetUnderlyingNullableType() => Nullable.GetUnderlyingType(Value);
         public Array CreateArrayInstance(int length)
         {
-            if (!PrimaryAppDomainManager.IsPrimaryDomain)
+            if (!AppDomainHelper.IsPrimaryDomain)
                 Debug.Print("Creating array instance on AppDomain " + Domain.FriendlyName);
             return Array.CreateInstance(Value, length);
         }
@@ -3917,24 +3920,6 @@ namespace TheraEngine.Core.Reflection
         [SecuritySafeCritical]
         public static bool operator !=(TypeProxy left, TypeProxy right)
             => left is null ? !(right is null) : !left.EqualTo(right);
-
-        public bool EqualTo(TypeProxy other)
-        {
-            if (other is null)
-                return false;
-
-            if (other.Domain.IsGameDomain() && !Domain.IsGameDomain())
-                return other.EqualTo(this);
-
-            return Value == other.Value;
-        }
-        public bool EqualTo(Type other)
-        {
-            if (other is null)
-                return false;
-
-            return Value == other;
-        }
 
         //
         // Summary:

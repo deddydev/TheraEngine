@@ -106,13 +106,11 @@ namespace TheraEngine.Core.Reflection
         public static AppDomain[] AppDomains => _appDomainCache ?? (_appDomainCache = EnumAppDomains().ToArray());
         public static void ClearAppDomainCache() => _appDomainCache = null;
 
-        private const string ICorRuntimeHostGUID = "CB2F6723-AB3A-11D2-9C40-00C04FA30A3E";
-
         /// <summary>
-        /// The CorRuntimeHost, as an <see cref="ICorRuntimeHost"/>.
+        /// The CorRuntimeHost, as an <see cref="CorRuntimeHost"/>.
         /// </summary>
-        private static readonly Lazy<ICorRuntimeHost> Host = new Lazy<ICorRuntimeHost>(
-            () => (ICorRuntimeHost)Activator.CreateInstance(Type.GetTypeFromCLSID(Guid.Parse(ICorRuntimeHostGUID))),
+        private static readonly Lazy<CorRuntimeHost> Host = new Lazy<CorRuntimeHost>(
+            () => new CorRuntimeHost(),
             LazyThreadSafetyMode.PublicationOnly);
 
         /// <summary>
@@ -140,8 +138,7 @@ namespace TheraEngine.Core.Reflection
             {
                 while (true)
                 {
-                    object domain = null;
-                    host.NextDomain(enumeration, ref domain);
+                    host.NextDomain(enumeration, out object domain);
                     if (domain == null)
                         yield break;
                     yield return (AppDomain)domain;
@@ -151,16 +148,6 @@ namespace TheraEngine.Core.Reflection
             {
                 host.CloseEnum(enumeration);
             }
-        }
-        [Guid(ICorRuntimeHostGUID)]
-        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        private interface ICorRuntimeHost
-        {
-            void _VtblGap_10();
-            void GetDefaultDomain([MarshalAs(UnmanagedType.IUnknown)] out object appDomain);
-            void EnumDomains(out IntPtr enumHandle);
-            void NextDomain(IntPtr enumHandle, [MarshalAs(UnmanagedType.IUnknown)] ref object appDomain);
-            void CloseEnum(IntPtr enumHandle);
         }
         /// <summary>
         /// Helper to collect all types from all loaded assemblies that match the given predicate.

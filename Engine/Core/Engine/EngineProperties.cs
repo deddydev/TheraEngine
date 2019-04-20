@@ -26,6 +26,7 @@ using TheraEngine.Worlds;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection;
+using System.Drawing;
 
 namespace TheraEngine
 {
@@ -47,6 +48,7 @@ namespace TheraEngine
     /// <summary>
     /// Class to inherit from in order to store custom persistent information.
     /// </summary>
+    [TFileDef("Engine Singleton", "")]
     [TFileExt("singleton")]
     public class EngineSingleton : TFileObject
     {
@@ -69,11 +71,6 @@ namespace TheraEngine
         public static readonly string UserSettingsPathAbs = ConfigFolderAbs + "User.xset";
         public static readonly string UserSettingsPathRel = ConfigFolderRel + "User.xset";
 
-        public static NetworkConnection Network { get; set; }
-        public static Server ServerConnection => Network as Server;
-        public static Client ClientConnection => Network as Client;
-        public static EngineSingleton Singleton { get; private set; }
-
         /// <summary>
         /// Event for when the engine is paused or unpaused and by which player.
         /// </summary>
@@ -91,73 +88,128 @@ namespace TheraEngine
         /// </summary>
         public static event Action PostWorldChanged;
 
-        /// <summary>
-        /// Instances of files that are loaded locally in a class. A single file may be loaded independently in multiple local contexts.
-        /// </summary>
-        //public static ConcurrentDictionary<string, List<IFileObject>> LocalFileInstances { get; } = new ConcurrentDictionary<string, List<IFileObject>>();
-        /// <summary>
-        /// Controllers for all players that are local to this client.
-        /// </summary>
-        //public static List<LocalPlayerController> LocalPlayers => World.GameMode.LocalPlayers;
-        
-        public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
-            = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
+        #region Singleton
 
+        public static InternalEnginePersistentSingleton Instance => Singleton<InternalEnginePersistentSingleton>.Instance;
+
+        public static NetworkConnection Network
+        {
+            get => Instance.Network;
+            set => Instance.Network = value;
+        }
+        public static Server ServerConnection => Instance.ServerConnection;
+        public static Client ClientConnection => Instance.ClientConnection;
+        public static EngineSingleton Singleton
+        {
+            get => Instance.Singleton;
+            set => Instance.Singleton = value;
+        }
+        /// <summary>
+        /// The world that is currently being rendered and played in.
+        /// </summary>
+        public static IWorld World
+        {
+            get => Instance.World;
+            private set => Instance.World = value;
+        }
         /// <summary>
         /// The scene containing actors of the world the engine is currently hosting.
         /// </summary>
-        public static IScene Scene => World?.Scene;
+        public static IScene Scene => Instance.Scene;
         /// <summary>
         /// Information necessary to run a game.
         /// </summary>
-        public static TGame Game { get; private set; }
-
-        private static Lazy<EngineSettings> _engineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
+        public static TGame Game
+        {
+            get => Instance.Game;
+            private set => Instance.Game = value;
+        }
+        public static GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef
+        {
+            get => Instance.DefaultEngineSettingsOverrideRef;
+            set => Instance.DefaultEngineSettingsOverrideRef = value;
+        }
         /// <summary>
         /// The settings for the engine, specified by the game.
         /// </summary>
-        public static EngineSettings Settings =>
-            Game?.EngineSettingsOverrideRef?.File ?? //Game overrides engine settings?
-            DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
-            _engineSettings.Value; //Fall back to truly default engine settings
-        public static async Task<EngineSettings> GetSettingsAsync()
-        {
-            EngineSettings settings;
-            if (Game?.EngineSettingsOverrideRef != null)
-            {
-                settings = await Game.EngineSettingsOverrideRef.GetInstanceAsync();
-                if (settings != null)
-                    return settings;
-            }
-            if (DefaultEngineSettingsOverrideRef != null)
-            {
-                settings = await DefaultEngineSettingsOverrideRef.GetInstanceAsync();
-                if (settings != null)
-                    return settings;
-            }
-            return _engineSettings.Value;
-        }
-
-        internal static int RenderThreadId;
-        public static bool IsInRenderThread() => Thread.CurrentThread.ManagedThreadId == RenderThreadId;
-        
+        public static EngineSettings Settings => Instance.Settings;
         /// <summary>
         /// The settings for the engine, specified by the user.
         /// </summary>
-        public static UserSettings UserSettings => Game?.UserSettingsRef?.File;
-        
-        /// <summary>
-        /// The index of the currently ticking list of functions (group + order + pause)
-        /// </summary>
-        private static int _currentTickList = -1;
+        public static UserSettings UserSettings => Instance.UserSettings;
 
-        private static ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
-        private static ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
-        public static void QueueRebaseOrigin(IWorld world, Vec3 point)
+        /// <summary>
+        /// Class containing this computer's specs. Use to adjust engine performance accordingly.
+        /// </summary>
+        public static ComputerInfo ComputerInfo => Instance.ComputerInfo;
+
+#if EDITOR
+        public static EngineEditorState EditorState => Instance.EditorState;
+#endif
+
+        public static bool IsPaused
         {
-            if (!world.IsRebasingOrigin)
-                RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
+            get => Instance.IsPaused;
+            private set => Instance.IsPaused = value;
         }
+
+        public static void SetCurrentWorld(IWorld world)
+            => Instance.SetCurrentWorld(world);
+
+        public static void QueueRebaseOrigin(IWorld world, Vec3 point)
+            => Instance.QueueRebaseOrigin(world, point);
+
+        #region Timing
+
+        public static float RenderFrequency => Instance.Timer.RenderFrequency;
+        public static float UpdateFrequency => Instance.Timer.UpdateFrequency;
+        public static float RenderDelta => Instance.Timer.RenderTime;
+        public static float UpdateDelta => Instance.Timer.UpdateTime;
+        public static float RenderPeriod => Instance.Timer.RenderPeriod;
+        public static float UpdatePeriod => Instance.Timer.UpdatePeriod;
+
+        /// <summary>
+        /// Frames per second that the game will try to render at.
+        /// </summary>
+        public static float TargetFramesPerSecond
+        {
+            get => Instance.Timer.TargetRenderFrequency;
+            set
+            {
+                Instance.Timer.TargetRenderFrequency = value;
+            }
+        }
+        /// <summary>
+        /// Frames per second that the game will try to update at.
+        /// </summary>
+        public static float TargetUpdatesPerSecond
+        {
+            get => Instance.Timer.TargetUpdateFrequency;
+            set => Instance.Timer.TargetUpdateFrequency = value;
+        }
+
+        /// <summary>
+        /// How fast/slow the game moves.
+        /// Greater than 1.0 for speed up, less than 1.0 for slow down.
+        /// </summary>
+        public static float TimeDilation
+        {
+            get => Instance.Timer.TimeDilation;
+            set
+            {
+                Instance.Timer.TimeDilation = value;
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        internal static int MainThreadID;
+        internal static int RenderThreadId;
+        public static bool IsInMainThread() => Thread.CurrentThread.ManagedThreadId == MainThreadID;
+        public static bool IsInRenderThread() => Thread.CurrentThread.ManagedThreadId == RenderThreadId;
+
         public static bool Assert(bool condition, string message, bool throwException = true)
         {
             if (!condition)
@@ -171,88 +223,13 @@ namespace TheraEngine
             return true;
         }
 
-        /// <summary>
-        /// Queue for adding to or removing from the currently ticking list
-        /// </summary>
-        private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
-        public static List<DelTick>[] _tickLists;
+        public static Font MakeFont(string fontName, float size, FontStyle style)
+            => Instance.MakeFont(fontName, size, style);
+
         private static ERenderLibrary _renderLibrary = DefaultRenderLibrary;
         private static EAudioLibrary _audioLibrary = DefaultAudioLibrary;
         private static EInputLibrary _inputLibrary = DefaultInputLibrary;
         private static EPhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
-
-        internal static EngineTimer _timer = new EngineTimer();
-        private static List<DateTime> _debugTimers = new List<DateTime>();
-
-        //Continually scans for and processes new input devices.
-        //TODO: allow disabling
-        private static InputAwaiter _inputAwaiter;
-        
-        //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
-        private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
-        private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
-
-        public static int MainThreadID;
-
-        /// <summary>
-        /// The world that is currently being rendered and played in.
-        /// </summary>
-        public static IWorld World { get; private set; } = null;
-        public static bool IsPaused { get; private set; } = false;
-
-        /// <summary>
-        /// Class containing this computer's specs. Use to adjust engine performance accordingly.
-        /// </summary>
-        public static ComputerInfo ComputerInfo => _computerInfo.Value;
-        private static readonly Lazy<ComputerInfo> _computerInfo = new Lazy<ComputerInfo>(ComputerInfo.Analyze);
-
-#if EDITOR
-        public static EngineEditorState EditorState { get; } = new EngineEditorState();
-#endif
-
-        #region Timing
-
-        public static float RenderFrequency => _timer.RenderFrequency;
-        public static float UpdateFrequency => _timer.UpdateFrequency;
-        public static float RenderDelta => _timer.RenderTime;
-        public static float UpdateDelta => _timer.UpdateTime;
-        public static float RenderPeriod => _timer.RenderPeriod;
-        public static float UpdatePeriod => _timer.UpdatePeriod;
-
-        /// <summary>
-        /// Frames per second that the game will try to render at.
-        /// </summary>
-        public static float TargetFramesPerSecond
-        {
-            get => _timer.TargetRenderFrequency;
-            set
-            {
-                _timer.TargetRenderFrequency = value;
-            }
-        }
-        /// <summary>
-        /// Frames per second that the game will try to update at.
-        /// </summary>
-        public static float TargetUpdatesPerSecond
-        {
-            get => _timer.TargetUpdateFrequency;
-            set => _timer.TargetUpdateFrequency = value;
-        }
-
-        /// <summary>
-        /// How fast/slow the game moves.
-        /// Greater than 1.0 for speed up, less than 1.0 for slow down.
-        /// </summary>
-        public static float TimeDilation
-        {
-            get => _timer.TimeDilation;
-            set
-            {
-                _timer.TimeDilation = value;
-            }
-        }
-        
-        #endregion
 
         #region Libraries
         /// <summary>
@@ -315,16 +292,8 @@ namespace TheraEngine
             internal set
             {
                 _inputLibrary = value;
-                _inputAwaiter?.Dispose();
-                switch (_inputLibrary)
-                {
-                    case EInputLibrary.OpenTK:
-                        _inputAwaiter = new TKInputAwaiter(Input.FoundInput);
-                        break;
-                    case EInputLibrary.XInput:
-                        _inputAwaiter = new DXInputAwaiter(Input.FoundInput);
-                        break;
-                }
+
+                Instance.InputLibraryChanged(_inputLibrary);
             }
         }
         #endregion
@@ -370,29 +339,38 @@ namespace TheraEngine
             }
         }
 
-        public static bool IsSingleThreaded => _timer.IsSingleThreaded;
+        public static bool IsSingleThreaded => Instance.Timer.IsSingleThreaded;
 
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
         private static AbstractPhysicsInterface _physicsInterface;
         #endregion
 
-        public static InternalEnginePersistentSingleton Instance => Singleton<InternalEnginePersistentSingleton>.Instance;
-
         public partial class InternalEnginePersistentSingleton : MarshalByRefObject
         {
+            public InternalEnginePersistentSingleton()
+            {
+                Timer = new EngineTimer();
+                Timer.UpdateFrame += EngineTick;
+                Timer.SwapBuffers += SwapBuffers;
+
+                TickLists = new List<DelTick>[45];
+                for (int i = 0; i < TickLists.Length; ++i)
+                    TickLists[i] = new List<DelTick>();
+            }
+
             private Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
 
             public NetworkConnection Network { get; set; }
             public Server ServerConnection => Network as Server;
             public Client ClientConnection => Network as Client;
-            public EngineSingleton Singleton { get; private set; }
+            public EngineSingleton Singleton { get; set; }
 
             public GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
                 = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
 
             public IScene Scene => World?.Scene;
-            public TGame Game { get; private set; }
+            public TGame Game { get; internal set; }
 
             /// <summary>
             /// The settings for the engine, specified by the game.
@@ -402,53 +380,31 @@ namespace TheraEngine
                 DefaultEngineSettingsOverrideRef.File ?? //User overrides engine settings?
                 _defaultEngineSettings.Value; //Fall back to truly default engine settings
 
-            public async Task<EngineSettings> GetSettingsAsync()
-            {
-                EngineSettings settings;
-                if (Game?.EngineSettingsOverrideRef != null)
-                {
-                    settings = await Game.EngineSettingsOverrideRef.GetInstanceAsync();
-                    if (settings != null)
-                        return settings;
-                }
-                if (DefaultEngineSettingsOverrideRef != null)
-                {
-                    settings = await DefaultEngineSettingsOverrideRef.GetInstanceAsync();
-                    if (settings != null)
-                        return settings;
-                }
-                return _defaultEngineSettings.Value;
-            }
-
             /// <summary>
             /// The settings for the engine, specified by the user.
             /// </summary>
             public UserSettings UserSettings => Game?.UserSettingsRef?.File;
 
+            private ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
+            private ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
+
             /// <summary>
             /// The index of the currently ticking list of functions (group + order + pause)
             /// </summary>
-            private int _currentTickList = -1;
-
-            private ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
-            private ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
-            public void QueueRebaseOrigin(IWorld world, Vec3 point)
-            {
-                if (!world.IsRebasingOrigin)
-                    RebaseWorldsQueue.AddOrUpdate(world, t => point, (t, t2) => point);
-            }
-
+            internal int CurrentTickList = -1;
             /// <summary>
             /// Queue for adding to or removing from the currently ticking list
             /// </summary>
-            private ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
-            public List<DelTick>[] _tickLists;
+            internal ConcurrentQueue<Tuple<bool, DelTick>> TickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
+            internal List<DelTick>[] TickLists;
+            
             private ERenderLibrary _renderLibrary = DefaultRenderLibrary;
             private EAudioLibrary _audioLibrary = DefaultAudioLibrary;
             private EInputLibrary _inputLibrary = DefaultInputLibrary;
             private EPhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
 
-            private EngineTimer _timer = new EngineTimer();
+            internal EngineTimer Timer { get; } = new EngineTimer();
+
             private List<DateTime> _debugTimers = new List<DateTime>();
             private InputAwaiter _inputAwaiter;
 
@@ -458,8 +414,8 @@ namespace TheraEngine
             /// <summary>
             /// The world that is currently being rendered and played in.
             /// </summary>
-            public IWorld World { get; private set; } = null;
-            public bool IsPaused { get; private set; } = false;
+            public IWorld World { get; internal set; } = null;
+            public bool IsPaused { get; internal set; } = false;
 
             /// <summary>
             /// Class containing this computer's specs. Use to adjust engine performance accordingly.

@@ -43,7 +43,7 @@ namespace TheraEditor
             }
             return null;
         }
-        public void Created(TProject project)
+        public void Created()
         {
             //Project = project;
             //Engine.ShutDown();

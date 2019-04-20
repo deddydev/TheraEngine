@@ -8,6 +8,7 @@ using TheraEngine;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Core.Tools;
 using TheraEngine.Editor;
 using TheraEngine.Rendering.UI;
 using static TheraEditor.Windows.Forms.TheraForm;
@@ -237,7 +238,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     switch (attrib)
                     {
                         case BrowsableIf browsableIf:
-                            VisibleIfAttrib = browsableIf;
+                            VisibilityCondition = browsableIf.Condition;
                             break;
                         case BrowsableAttribute browsable:
                             Visible = browsable.Browsable;
@@ -298,6 +299,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             OnLabelSet();
         }
+        public bool EvaluateVisibilityCondition(object owningObject)
+            => string.IsNullOrWhiteSpace(VisibilityCondition) ? true : ExpressionParser.Evaluate<bool>(VisibilityCondition, owningObject);
         public void UpdateDisplay()
         {
             if (IsEditing || MemberInfo == null || (ParentCategory != null && (!ParentCategory.Visible || !ParentCategory.tblProps.Visible)))
@@ -308,7 +311,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             bool displayChanged = false;
 
             var parent = MemberInfo?.Owner?.Value;
-            if (parent == null || (VisibleIfAttrib?.Evaluate(parent) ?? true))
+            if (parent == null || EvaluateVisibilityCondition(parent))
             {
                 if (!Visible)
                     Visible = true;
@@ -354,8 +357,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             LastUpdateTime = now;
             _updating = false;
         }
-
-        public BrowsableIf VisibleIfAttrib { get; set; }
+        
+        public string VisibilityCondition { get; set; }
         public TimeSpan? UpdateTimeSpan { get; set; }
         public DateTime LastUpdateTime { get; set; }
         public DateTime LastDisplayChangeTime { get; set; }

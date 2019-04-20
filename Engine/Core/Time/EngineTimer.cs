@@ -10,28 +10,50 @@ namespace TheraEngine.Timers
     public class EngineTimer
     {
         const float MaxFrequency = 500.0f; // Frequency cap for Update/RenderFrame events
-        float _targetUpdatePeriod, _targetRenderPeriod;
-        float _updateTimestamp; // timestamp of last UpdateFrame event
-        float _renderTimestamp; // timestamp of last RenderFrame event
 
-        float _updateEpsilon = 0.0f; // quantization error for UpdateFrame events
-
-        bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
-
+        public event EventHandler<FrameEventArgs> RenderFrame;
+        public event EventHandler<FrameEventArgs> UpdateFrame;
         public event Action SwapBuffers;
 
-        FrameEventArgs _updateArgs = new FrameEventArgs();
-        FrameEventArgs _renderArgs = new FrameEventArgs();
+        private bool _isSingleThreaded = false;
+        private float _targetUpdatePeriod, _targetRenderPeriod;
+        private float _updateTimestamp; // timestamp of last UpdateFrame event
+        private float _renderTimestamp; // timestamp of last RenderFrame event
 
-        readonly Stopwatch _watch = new Stopwatch();
+        private float _updateEpsilon = 0.0f; // quantization error for UpdateFrame events
+        private bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
 
-        ManualResetEvent _commandsReady;
-        ManualResetEvent _commandsSwappedForRender;
-        ManualResetEvent _renderDone;
+        private readonly FrameEventArgs _updateArgs = new FrameEventArgs();
+        private readonly FrameEventArgs _renderArgs = new FrameEventArgs();
+        private readonly Stopwatch _watch = new Stopwatch();
 
-        public event EventHandler<FrameEventArgs> RenderFrame = delegate { };
-        public event EventHandler<FrameEventArgs> UpdateFrame = delegate { };
-        
+        private ManualResetEvent _commandsReady;
+        private ManualResetEvent _commandsSwappedForRender;
+        private ManualResetEvent _renderDone;
+
+        public bool IsRunning { get; private set; } = false;
+
+        /// <summary>
+        /// Gets a float representing the period of RenderFrame events, in seconds.
+        /// </summary>
+        public float RenderPeriod { get; private set; }
+
+        /// <summary>
+        /// Gets a float representing the time spent in the RenderFrame function, in seconds.
+        /// </summary>
+        public float RenderTime { get; private set; }
+
+        /// <summary>
+        /// Gets a float representing the period of UpdateFrame events, in seconds (seconds per update).
+        /// </summary>
+        public float UpdatePeriod { get; private set; }
+
+        /// <summary>
+        /// Gets a float representing the time spent in the UpdateFrame function, in seconds.
+        /// </summary>
+        public float UpdateTime { get; private set; }
+        public float TimeDilation { get; set; } = 1.0f;
+
         /// <summary>
         /// Runs the timer until Stop() is called.
         /// </summary>
@@ -196,8 +218,7 @@ namespace TheraEngine.Timers
 
         private void OnRenderFrameInternal(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
         private void OnUpdateFrameInternal(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
-        public bool IsRunning { get; private set; } = false;
-
+        
         /// <summary>
         /// Gets a float representing the actual frequency of RenderFrame events, in hertz (i.e. fps or frames per second).
         /// </summary>
@@ -210,16 +231,6 @@ namespace TheraEngine.Timers
                 return 1.0f / RenderPeriod;
             }
         }
-
-        /// <summary>
-        /// Gets a float representing the period of RenderFrame events, in seconds.
-        /// </summary>
-        public float RenderPeriod { get; private set; }
-
-        /// <summary>
-        /// Gets a float representing the time spent in the RenderFrame function, in seconds.
-        /// </summary>
-        public float RenderTime { get; private set; }
 
         /// <summary>
         /// Gets or sets a float representing the target render frequency, in hertz.
@@ -364,18 +375,6 @@ namespace TheraEngine.Timers
             }
         }
 
-        /// <summary>
-        /// Gets a float representing the period of UpdateFrame events, in seconds (seconds per update).
-        /// </summary>
-        public float UpdatePeriod { get; private set; }
-
-        /// <summary>
-        /// Gets a float representing the time spent in the UpdateFrame function, in seconds.
-        /// </summary>
-        public float UpdateTime { get; private set; }
-        public float TimeDilation { get; set; } = 1.0f;
-
-        private bool _isSingleThreaded = false;
         public bool IsSingleThreaded
         {
             get => _isSingleThreaded;
@@ -415,23 +414,14 @@ namespace TheraEngine.Timers
 
     public class FrameEventArgs : EventArgs
     {
-        float elapsed;
-
         public FrameEventArgs() { }
 
         /// <param name="elapsed">The amount of time that has elapsed since the previous event, in seconds.</param>
-        public FrameEventArgs(float elapsed)
-        {
-            Time = elapsed;
-        }
+        public FrameEventArgs(float elapsed) => Time = elapsed;
 
         /// <summary>
-        /// Gets a <see cref="System.Single"/> that indicates how many seconds of time elapsed since the previous event.
+        /// Gets a <see cref="float"/> that indicates how many seconds of time elapsed since the previous event.
         /// </summary>
-        public float Time
-        {
-            get { return elapsed; }
-            set { elapsed = value; }
-        }
+        public float Time { get; set; }
     }
 }

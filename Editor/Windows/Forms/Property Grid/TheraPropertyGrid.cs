@@ -442,6 +442,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             //DateTime startTime = DateTime.Now;
 
+            Engine.PrintLine("Loading properties on AppDomain " + AppDomain.CurrentDomain.FriendlyName);
             await Task.Run(() =>
             {
                 TypeProxy targetObjectType = obj.GetTypeProxy();

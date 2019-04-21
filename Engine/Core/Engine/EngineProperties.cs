@@ -161,22 +161,25 @@ namespace TheraEngine
 
         #region Timing
 
-        public static float RenderFrequency => Instance.Timer.RenderFrequency;
-        public static float UpdateFrequency => Instance.Timer.UpdateFrequency;
-        public static float RenderDelta => Instance.Timer.RenderTime;
-        public static float UpdateDelta => Instance.Timer.UpdateTime;
-        public static float RenderPeriod => Instance.Timer.RenderPeriod;
-        public static float UpdatePeriod => Instance.Timer.UpdatePeriod;
+        private static readonly EngineTimer _timer = new EngineTimer();
+        private static InputAwaiter _inputAwaiter;
+
+        public static float RenderFrequency => _timer.RenderFrequency;
+        public static float UpdateFrequency => _timer.UpdateFrequency;
+        public static float RenderDelta => _timer.RenderTime;
+        public static float UpdateDelta => _timer.UpdateTime;
+        public static float RenderPeriod => _timer.RenderPeriod;
+        public static float UpdatePeriod => _timer.UpdatePeriod;
 
         /// <summary>
         /// Frames per second that the game will try to render at.
         /// </summary>
         public static float TargetFramesPerSecond
         {
-            get => Instance.Timer.TargetRenderFrequency;
+            get => _timer.TargetRenderFrequency;
             set
             {
-                Instance.Timer.TargetRenderFrequency = value;
+                _timer.TargetRenderFrequency = value;
             }
         }
         /// <summary>
@@ -184,8 +187,8 @@ namespace TheraEngine
         /// </summary>
         public static float TargetUpdatesPerSecond
         {
-            get => Instance.Timer.TargetUpdateFrequency;
-            set => Instance.Timer.TargetUpdateFrequency = value;
+            get => _timer.TargetUpdateFrequency;
+            set => _timer.TargetUpdateFrequency = value;
         }
 
         /// <summary>
@@ -194,10 +197,10 @@ namespace TheraEngine
         /// </summary>
         public static float TimeDilation
         {
-            get => Instance.Timer.TimeDilation;
+            get => _timer.TimeDilation;
             set
             {
-                Instance.Timer.TimeDilation = value;
+                _timer.TimeDilation = value;
             }
         }
 
@@ -226,41 +229,45 @@ namespace TheraEngine
         public static Font MakeFont(string fontName, float size, FontStyle style)
             => Instance.MakeFont(fontName, size, style);
 
-        private static ERenderLibrary _renderLibrary = DefaultRenderLibrary;
-        private static EAudioLibrary _audioLibrary = DefaultAudioLibrary;
-        private static EInputLibrary _inputLibrary = DefaultInputLibrary;
-        private static EPhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
-
         #region Libraries
         /// <summary>
         /// The library to render with.
         /// </summary>
         public static ERenderLibrary RenderLibrary
         {
-            get => _renderLibrary;
+            get => Instance.RenderLibrary;
             internal set
             {
-                _renderLibrary = value;
-                List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
-                foreach (RenderContext c in contexts)
-                    c.Control?.CreateContext();
+                Instance.RenderLibrary = value;
+                RenderLibraryChanged();
             }
+        }
+        private static void RenderLibraryChanged()
+        {
+            Renderer = RenderContext.Captured?.GetRendererInstance();
+            List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
+            foreach (RenderContext c in contexts)
+                c.Control?.CreateContext();
         }
         /// <summary>
         /// The library to play audio with.
         /// </summary>
         public static EAudioLibrary AudioLibrary
         {
-            get => _audioLibrary;
+            get => Instance.AudioLibrary;
             internal set
             {
-                _audioLibrary = value;
-                switch (_audioLibrary)
-                {
-                    case EAudioLibrary.OpenAL:
-                        _audioManager = new ALAudioManager();
-                        break;
-                }
+                Instance.AudioLibrary = value;
+                RetrieveAudioManager();
+            }
+        }
+        private static void RetrieveAudioManager()
+        {
+            switch (Instance.AudioLibrary)
+            {
+                case EAudioLibrary.OpenAL:
+                    _audioManager = new ALAudioManager();
+                    break;
             }
         }
         /// <summary>
@@ -268,19 +275,23 @@ namespace TheraEngine
         /// </summary>
         public static EPhysicsLibrary PhysicsLibrary
         {
-            get => _physicsLibrary;
+            get => Instance.PhysicsLibrary;
             internal set
             {
-                _physicsLibrary = value;
-                switch (_physicsLibrary)
-                {
-                    case EPhysicsLibrary.Bullet:
-                        _physicsInterface = new BulletPhysicsInterface();
-                        break;
-                    case EPhysicsLibrary.Jitter:
-                        _physicsInterface = new JitterPhysicsInterface();
-                        break;
-                }
+                Instance.PhysicsLibrary = value;
+                RetrievePhysicsInterface();
+            }
+        }
+        private static void RetrievePhysicsInterface()
+        {
+            switch (Instance.PhysicsLibrary)
+            {
+                case EPhysicsLibrary.Bullet:
+                    _physicsInterface = new BulletPhysicsInterface();
+                    break;
+                case EPhysicsLibrary.Jitter:
+                    _physicsInterface = new JitterPhysicsInterface();
+                    break;
             }
         }
         /// <summary>
@@ -288,12 +299,24 @@ namespace TheraEngine
         /// </summary>
         public static EInputLibrary InputLibrary
         {
-            get => _inputLibrary;
+            get => Instance.InputLibrary;
             internal set
             {
-                _inputLibrary = value;
-
-                Instance.InputLibraryChanged(_inputLibrary);
+                Instance.InputLibrary = value;
+                InputLibraryChanged();
+            }
+        }
+        private static void InputLibraryChanged()
+        {
+            _inputAwaiter?.Dispose();
+            switch (InputLibrary)
+            {
+                case EInputLibrary.OpenTK:
+                    _inputAwaiter = new TKInputAwaiter(Instance.FoundInput);
+                    break;
+                case EInputLibrary.XInput:
+                    _inputAwaiter = new DXInputAwaiter(Instance.FoundInput);
+                    break;
             }
         }
         #endregion
@@ -339,7 +362,7 @@ namespace TheraEngine
             }
         }
 
-        public static bool IsSingleThreaded => Instance.Timer.IsSingleThreaded;
+        public static bool IsSingleThreaded => _timer.IsSingleThreaded;
 
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
@@ -350,15 +373,16 @@ namespace TheraEngine
         {
             public InternalEnginePersistentSingleton()
             {
-                Timer = new EngineTimer();
-                Timer.UpdateFrame += EngineTick;
-                Timer.SwapBuffers += SwapBuffers;
-
                 TickLists = new List<DelTick>[45];
                 for (int i = 0; i < TickLists.Length; ++i)
                     TickLists[i] = new List<DelTick>();
             }
 
+            public ERenderLibrary RenderLibrary { get; set; } = DefaultRenderLibrary;
+            public EAudioLibrary AudioLibrary { get; set; } = DefaultAudioLibrary;
+            public EInputLibrary InputLibrary { get; set; } = DefaultInputLibrary;
+            public EPhysicsLibrary PhysicsLibrary { get; set; } = DefaultPhysicsLibrary;
+            
             private Lazy<EngineSettings> _defaultEngineSettings = new Lazy<EngineSettings>(() => new EngineSettings(), true);
 
             public NetworkConnection Network { get; set; }
@@ -385,31 +409,23 @@ namespace TheraEngine
             /// </summary>
             public UserSettings UserSettings => Game?.UserSettingsRef?.File;
 
-            private ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
-            private ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
+            public ConcurrentDictionary<IWorld, Vec3> RebaseWorldsProcessing = new ConcurrentDictionary<IWorld, Vec3>();
+            public ConcurrentDictionary<IWorld, Vec3> RebaseWorldsQueue = new ConcurrentDictionary<IWorld, Vec3>();
 
             /// <summary>
             /// The index of the currently ticking list of functions (group + order + pause)
             /// </summary>
-            internal int CurrentTickList = -1;
+            public int CurrentTickList = -1;
             /// <summary>
             /// Queue for adding to or removing from the currently ticking list
             /// </summary>
-            internal ConcurrentQueue<Tuple<bool, DelTick>> TickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
-            internal List<DelTick>[] TickLists;
-            
-            private ERenderLibrary _renderLibrary = DefaultRenderLibrary;
-            private EAudioLibrary _audioLibrary = DefaultAudioLibrary;
-            private EInputLibrary _inputLibrary = DefaultInputLibrary;
-            private EPhysicsLibrary _physicsLibrary = DefaultPhysicsLibrary;
+            public ConcurrentQueue<Tuple<bool, DelTick>> TickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
+            public List<DelTick>[] TickLists;
 
-            internal EngineTimer Timer { get; } = new EngineTimer();
+            public List<DateTime> _debugTimers = new List<DateTime>();
 
-            private List<DateTime> _debugTimers = new List<DateTime>();
-            private InputAwaiter _inputAwaiter;
-
-            private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
-            private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
+            public Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
+            public PrivateFontCollection _fontCollection = new PrivateFontCollection();
 
             /// <summary>
             /// The world that is currently being rendered and played in.
@@ -420,8 +436,7 @@ namespace TheraEngine
             /// <summary>
             /// Class containing this computer's specs. Use to adjust engine performance accordingly.
             /// </summary>
-            public ComputerInfo ComputerInfo => _computerInfo.Value;
-            private readonly Lazy<ComputerInfo> _computerInfo = new Lazy<ComputerInfo>(ComputerInfo.Analyze);
+            public ComputerInfo ComputerInfo { get; } = ComputerInfo.Analyze();
 
 #if EDITOR
             public EngineEditorState EditorState { get; } = new EngineEditorState();

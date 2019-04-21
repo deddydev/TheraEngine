@@ -107,19 +107,31 @@ namespace TheraEngine.Core.Reflection
         public static void ClearAppDomainCache() => _appDomainCache = null;
 
         /// <summary>
-        /// The CorRuntimeHost, as an <see cref="CorRuntimeHost"/>.
-        /// </summary>
-        private static readonly Lazy<CorRuntimeHost> Host = new Lazy<CorRuntimeHost>(
-            () => new CorRuntimeHost(),
-            LazyThreadSafetyMode.PublicationOnly);
-
-        /// <summary>
         /// The default AppDomain.
         /// </summary>
         private static readonly Lazy<AppDomain> LazyDefaultAppDomain = new Lazy<AppDomain>(() =>
         {
-            Host.Value.GetDefaultDomain(out object ret);
-            return (AppDomain)ret;
+            IntPtr enumHandle = IntPtr.Zero;
+            ICorRuntimeHost host = null;
+            object ret = null;
+
+            try
+            {
+                host = new CorRuntimeHost();
+                host.GetDefaultDomain(out ret);
+            }
+            finally
+            {
+                if (host != null)
+                {
+                    if (enumHandle != IntPtr.Zero)
+                        host.CloseEnum(enumHandle);
+
+                    Marshal.ReleaseComObject(host);
+                }
+            }
+            return ret as AppDomain;
+
         }, LazyThreadSafetyMode.PublicationOnly);
 
         /// <summary>
@@ -132,10 +144,14 @@ namespace TheraEngine.Core.Reflection
         /// </summary>
         public static IEnumerable<AppDomain> EnumAppDomains()
         {
-            var host = Host.Value;
-            host.EnumDomains(out IntPtr enumeration);
+            IntPtr enumHandle = IntPtr.Zero;
+            ICorRuntimeHost host = null;
+
             try
             {
+                host = new CorRuntimeHost();
+                host.EnumDomains(out IntPtr enumeration);
+
                 while (true)
                 {
                     host.NextDomain(enumeration, out object domain);
@@ -146,7 +162,13 @@ namespace TheraEngine.Core.Reflection
             }
             finally
             {
-                host.CloseEnum(enumeration);
+                if (host != null)
+                {
+                    if (enumHandle != IntPtr.Zero)
+                        host.CloseEnum(enumHandle);
+                    
+                    Marshal.ReleaseComObject(host);
+                }
             }
         }
         /// <summary>
@@ -208,5 +230,65 @@ namespace TheraEngine.Core.Reflection
             string domainName = AppDomain.CurrentDomain.FriendlyName;
             Debug.Print($"{nameof(AppDomain)} {domainName} loaded assembly {assemblyName}");
         }
+
+        #region Method Execution
+
+        //https://stackoverflow.com/questions/2008691/pass-and-execute-delegate-in-separate-appdomain
+        //https://stackoverflow.com/questions/1510466/replacing-process-start-with-appdomains
+
+        /// <summary>
+        /// Executes a method in a separate AppDomain.  This should serve as a simple replacement
+        /// of running code in a separate process via a console app.
+        /// </summary>
+        public T RunInAppDomain<T>(AppDomain domain, Func<T> func)
+        {
+            domain.DomainUnload += (sender, e) =>
+            {
+                // this empty event handler fixes the unit test, but I don't know why
+            };
+
+            try
+            {
+                AppDomainDelegateWrapper wrapper = new AppDomainDelegateWrapper(domain, func);
+                domain.DoCallBack(wrapper.Invoke);
+
+                return (T)domain.GetData(wrapper.ResultID);
+            }
+            finally
+            {
+                AppDomain.Unload(domain);
+            }
+        }
+        public void RunInAppDomain(AppDomain domain, Action func)
+        {
+            RunInAppDomain(domain, () => { func(); return 0; });
+        }
+
+        /// <summary>
+        /// Provides a serializable wrapper around a delegate.
+        /// </summary>
+        [Serializable]
+        private class AppDomainDelegateWrapper : MarshalByRefObject
+        {
+            private readonly AppDomain _domain;
+            private readonly Delegate _delegate;
+
+            public string ResultID { get; }
+
+            public AppDomainDelegateWrapper(AppDomain domain, Delegate func)
+            {
+                _domain = domain;
+                _delegate = func;
+
+                ResultID = func.GetHashCode().ToString();
+            }
+
+            public void Invoke()
+            {
+                _domain.SetData(ResultID, _delegate.DynamicInvoke());
+            }
+        }
+
+        #endregion
     }
 }

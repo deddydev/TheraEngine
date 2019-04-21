@@ -62,7 +62,6 @@ namespace TheraEditor.Windows.Forms
 
         public Editor() : base()
         {
-            Instance = this;
             Engine.BeginOperation += BeginOperation;
             Engine.EndOperation += EndOperation;
 
@@ -557,8 +556,8 @@ namespace TheraEditor.Windows.Forms
             GameState = EEditorGameplayState.Editing;
             _project = value;
 
-            Engine.ShutDown();
-            Engine.SetGame(_project);
+            //Engine.ShutDown();
+            //Engine.SetGame(_project);
 
             bool projectOpened = _project != null;
             btnEngineSettings.Enabled =
@@ -597,14 +596,16 @@ namespace TheraEditor.Windows.Forms
                     ContentTree.OpenPath(_project.FilePath);
                 }
 
-                Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
-                Engine.Initialize();
-                SetRenderTicking(true);
-                Engine.SetPaused(true, ELocalPlayerIndex.One, true);
+                //Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
+                //Engine.Initialize();
+                //SetRenderTicking(true);
+                //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
                 CurrentWorld = _project.OpeningWorldRef?.File;
 
                 UpdateRecentProjectPaths();
+
+                _project.CreateGameDomain(false);
 
                 var errors = _project?.LastBuildLog?.Errors;
                 if (errors != null && errors.Count > 0)
@@ -618,6 +619,8 @@ namespace TheraEditor.Windows.Forms
                 OutputForm.Show(DockPanel, DockState.DockBottom);
                 WelcomeForm.Show(DockPanel, DockState.Document);
                 DockPanel.ResumeLayout(true, true);
+
+                CreateGameDomain(null, null, null);
             }
         }
         #endregion

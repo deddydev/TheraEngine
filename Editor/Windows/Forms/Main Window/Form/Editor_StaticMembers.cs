@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -8,11 +9,11 @@ namespace TheraEditor.Windows.Forms
     {
         public const string ContactURL = "https://www.theradevgames.com/contact/";
         public const string DocumentationURL = "https://github.com/TheraEngine/Documentation/wiki";
-        
+
         /// <summary>
         /// Returns the one and only instance of the editor for this session.
         /// </summary>
-        public static Editor Instance { get; private set; }
+        public static Editor Instance => Singleton<Editor>.Instance;
 
         public static IEditorRenderableControl ActiveRenderForm { get; private set; } = null;
 

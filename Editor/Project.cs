@@ -832,10 +832,6 @@ namespace TheraEditor
                 PrintLine(SolutionPath + " : Build succeeded.");
                 CreateGameDomain(true);
 
-                PrintLine("Resetting type caches.");
-                Editor.ResetTypeCaches();
-                PrintLine("Type caches reset.");
-
                 Export();
             }
             else
@@ -849,20 +845,26 @@ namespace TheraEditor
             CompileCompleted?.Invoke(this, success);
         }
 
-        [TPostDeserialize(arguments: false)]
-        private async void CreateGameDomain(bool compiling)
+        //[TPostDeserialize(arguments: false)]
+        internal void CreateGameDomain(bool compiling = false, Action onComplete = null)
         {
-            string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
-            string buildConfiguration = "Debug";
-            
-            string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
-            if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths == null))
+            Task.Run(async () =>
             {
-                await CompileAsync(buildConfiguration, buildPlatform);
-                return;
-            }
+                string buildPlatform = IntPtr.Size == 8 ? "x64" : "x86";
+                string buildConfiguration = "Debug";
 
-            Editor.Instance.GenerateGameDomain(rootDir, AssemblyPaths);
+                string rootDir = BinariesDirectory + $"{buildPlatform}\\{buildConfiguration}";
+                if (!compiling && (!Directory.Exists(rootDir) || AssemblyPaths == null))
+                {
+                    await CompileAsync(buildConfiguration, buildPlatform);
+                    return;
+                }
+
+                Editor.Instance.CreateGameDomain(this, rootDir, AssemblyPaths);
+            }).ContinueWith(t =>
+            {
+                onComplete?.Invoke();
+            });
         }
 
         public void CollectFiles(

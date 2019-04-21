@@ -34,7 +34,7 @@ namespace TheraEditor
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
-            Application.Run(new Editor());
+            Application.Run(Editor.Instance);
         }
         static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {

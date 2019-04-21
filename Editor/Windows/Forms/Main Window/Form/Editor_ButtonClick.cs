@@ -178,7 +178,7 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        public void GenerateGameDomain(string rootDir, string[] assemblyPaths)
+        public void CreateGameDomain(TProject project, string rootDir, string[] assemblyPaths)
         {
             Engine.PrintLine("Creating game domain.");
             Engine.PrintLine("Active domains before load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
@@ -196,7 +196,7 @@ namespace TheraEditor.Windows.Forms
 
                 AppDomainSetup setupInfo = new AppDomainSetup()
                 {
-                    ApplicationName = Name,
+                    ApplicationName = project.Name,
                     ApplicationBase = rootDir,
                     PrivateBinPath = rootDir,
                     ShadowCopyFiles = "true",
@@ -238,7 +238,7 @@ namespace TheraEditor.Windows.Forms
                 var lease = DomainProxy.InitializeLifetimeService() as ILease;
                 lease.Register(DomainProxy.SponsorRef);
 
-                DomainProxy.Created();
+                DomainProxy.Created(project);
             }
             catch (Exception ex)
             {

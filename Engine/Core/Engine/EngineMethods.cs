@@ -29,8 +29,8 @@ namespace TheraEngine
 {
     public static partial class Engine
     {
-        public static float CurrentFramesPerSecond => Instance.Timer.RenderFrequency;
-        public static float CurrentUpdatesPerSecond => Instance.Timer.UpdateFrequency;
+        public static float CurrentFramesPerSecond => _timer.RenderFrequency;
+        public static float CurrentUpdatesPerSecond => _timer.UpdateFrequency;
 
         public static ColorF4 InvalidColor { get; } = Color.Magenta;
 
@@ -51,8 +51,15 @@ namespace TheraEngine
         {
             Debug.Listeners.Add(new EngineTraceListener());
 
-            //LoadCustomFonts();
+            _timer.UpdateFrame += EngineTick;
+            _timer.SwapBuffers += SwapBuffers;
 
+            RenderLibraryChanged();
+            RetrieveAudioManager();
+            InputLibraryChanged();
+            RetrievePhysicsInterface();
+
+            //LoadCustomFonts();
         }
 
         /// <summary>
@@ -283,7 +290,7 @@ namespace TheraEngine
             settings.SingleThreadedChanged += Settings_SingleThreadedChanged;
             settings.FramesPerSecondChanged += Settings_FramesPerSecondChanged;
             settings.UpdatePerSecondChanged += Settings_UpdatePerSecondChanged;
-            Instance.Timer.Run(settings?.SingleThreaded ?? false);
+            _timer.Run(settings?.SingleThreaded ?? false);
         }
 
         private static void Settings_UpdatePerSecondChanged()
@@ -298,8 +305,8 @@ namespace TheraEngine
         }
         private static void Settings_SingleThreadedChanged()
         {
-            if (Instance.Timer.IsRunning)
-                Instance.Timer.IsSingleThreaded = Settings.SingleThreaded;
+            if (_timer.IsRunning)
+                _timer.IsSingleThreaded = Settings.SingleThreaded;
         }
 
         /// <summary>
@@ -311,7 +318,7 @@ namespace TheraEngine
             settings.SingleThreadedChanged -= Settings_SingleThreadedChanged;
             settings.FramesPerSecondChanged -= Settings_FramesPerSecondChanged;
             settings.UpdatePerSecondChanged -= Settings_UpdatePerSecondChanged;
-            Instance.Timer.Stop();
+            _timer.Stop();
         }
 
         private static event EventHandler<FrameEventArgs> Update;
@@ -325,11 +332,11 @@ namespace TheraEngine
             Action swapBuffers)
         {
             if (render != null)
-                Instance.Timer.RenderFrame += render;
+                _timer.RenderFrame += render;
             if (update != null)
                 Update += update;
             if (swapBuffers != null)
-                Instance.Timer.SwapBuffers += swapBuffers;
+                _timer.SwapBuffers += swapBuffers;
         }
         /// <summary>
         /// Registers the given function to be called every render tick.
@@ -340,11 +347,11 @@ namespace TheraEngine
             Action swapBuffers)
         {
             if (render != null)
-                Instance.Timer.RenderFrame -= render;
+                _timer.RenderFrame -= render;
             if (update != null)
                 Update -= update;
             if (swapBuffers != null)
-                Instance.Timer.SwapBuffers -= swapBuffers;
+                _timer.SwapBuffers -= swapBuffers;
         }
         /// <summary>
         /// Registers a method to execute in a specific order every update tick.
@@ -796,7 +803,7 @@ namespace TheraEngine
             /// Called when the input awaiter discovers a new input device.
             /// </summary>
             /// <param name="device">The device that was found.</param>
-            private void FoundInput(InputDevice device)
+            internal void FoundInput(InputDevice device)
             {
                 World?.CurrentGameMode?.FoundInput(device);
             }
@@ -836,19 +843,6 @@ namespace TheraEngine
                 float seconds = (float)(DateTime.Now - _debugTimers[id]).TotalSeconds;
                 _debugTimers.RemoveAt(id);
                 return seconds;
-            }
-            public void InputLibraryChanged(EInputLibrary inputLibrary)
-            {
-                _inputAwaiter?.Dispose();
-                switch (inputLibrary)
-                {
-                    case EInputLibrary.OpenTK:
-                        _inputAwaiter = new TKInputAwaiter(FoundInput);
-                        break;
-                    case EInputLibrary.XInput:
-                        _inputAwaiter = new DXInputAwaiter(FoundInput);
-                        break;
-                }
             }
 
             #region Fonts

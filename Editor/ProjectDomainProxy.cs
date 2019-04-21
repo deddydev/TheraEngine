@@ -2,7 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Lifetime;
+using TheraEditor.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Actors;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEditor
@@ -15,14 +17,19 @@ namespace TheraEditor
         public TProject Project { get; private set; }
         public Sponsor SponsorRef { get; } = new Sponsor();
 
-        public string GetVersionInfo()
-        {
-            return ".NET Version: " + Environment.Version.ToString() + "\r\n" +
-            "Assembly Location: " + typeof(ProjectDomainProxy).Assembly.CodeBase.Replace("file:///", "").Replace("/", "\\") + "\r\n" +
-            "Assembly Cur Dir: " + Directory.GetCurrentDirectory() + "\r\n" +
-            "ApplicationBase: " + AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "\r\n" +
-            "App Domain: " + AppDomain.CurrentDomain.FriendlyName + "\r\n";
-        }
+        public string GetVersionInfo() =>
+
+            ".NET Version: "        + Environment.Version.ToString() 
+            + Environment.NewLine +
+            "Assembly Location: "   + typeof(ProjectDomainProxy).Assembly.CodeBase.Replace("file:///", "").Replace("/", "\\") 
+            + Environment.NewLine +
+            "Assembly Directory: "  + Directory.GetCurrentDirectory() 
+            + Environment.NewLine +
+            "ApplicationBase: "     + AppDomain.CurrentDomain.SetupInformation.ApplicationBase 
+            + Environment.NewLine +
+            "AppDomain: "           + AppDomain.CurrentDomain.FriendlyName
+            + Environment.NewLine;
+
         public TypeProxy CreateType(string typeDeclaration)
         {
             try
@@ -43,18 +50,21 @@ namespace TheraEditor
             }
             return null;
         }
-        public void Created()
+        public void Created(TProject project)
         {
-            //Project = project;
-            //Engine.ShutDown();
-            //Engine.SetGame(Project);
-            ////Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
-            //Engine.Initialize();
-            ////Editor.Instance.SetRenderTicking(true);
-            //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
+            Engine.SetGame(project);
+            Engine.SetWorldPanel(Editor.Instance.RenderForm1.RenderPanel, false);
+            Engine.Initialize();
+            Editor.Instance.SetRenderTicking(true);
+            Engine.SetPaused(true, ELocalPlayerIndex.One, true);
+
+            //Engine.PrintLine("Resetting type caches.");
+            //Editor.ResetTypeCaches();
+            //Engine.PrintLine("Type caches reset.");
         }
         public void Destroyed()
         {
+            Engine.ShutDown();
             SponsorRef.Release = true;
         }
         public class Sponsor : MarshalByRefObject, ISponsor

@@ -247,7 +247,7 @@ namespace TheraEditor.Windows.Forms
 
             Engine.PrintLine("Game domain created.");
 
-            AppDomainHelper.ClearAppDomainCache();
+            AppDomainHelper.ResetAppDomainCache();
             Engine.PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
 
             //var assemblies = AppDomain.CurrentDomain.GetAssemblies();

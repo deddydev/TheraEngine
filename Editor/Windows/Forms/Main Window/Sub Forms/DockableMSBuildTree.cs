@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using TheraEngine;
 using TheraEngine.Core.Files.XML;
 using TheraEngine.ThirdParty;
 using WeifenLuo.WinFormsUI.Docking;
@@ -29,7 +30,7 @@ namespace TheraEditor.Windows.Forms
         private void buildTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             var form = Editor.Instance.PropertyGridForm.PropertyGrid;
-            form.TargetObject = buildTree.SelectedNode.Tag;
+            form.TargetObject = buildTree.SelectedNode.Tag as TObject;
             form.ExpandAll();
         }
     }

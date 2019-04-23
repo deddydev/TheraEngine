@@ -1,4 +1,5 @@
-﻿using Core.Win32.Native;
+﻿using AppDomainToolkit;
+using Core.Win32.Native;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +11,7 @@ using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Core.Reflection;
+using TheraEngine.Core.Reflection.Proxies;
 using TheraEngine.Editor;
 
 namespace TheraEditor
@@ -94,32 +96,33 @@ namespace TheraEditor
         /// <param name="onClick">The method to trigger when a leaf button is pressed.
         /// The sender object, a ToolStripDropDownButton, has the corresponding Type assigned to its Tag property.</param>
         /// <param name="match">The predicate method used to find specific types.</param>
-        public static TypeProxy[] PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
+        public static ProxyList<TypeProxy> PopulateMenuDropDown(ToolStripDropDownItem button, EventHandler onClick, Predicate<TypeProxy> match)
         {
-            TypeProxy[] fileObjectTypes = AppDomainHelper.FindTypes(match).ToArray();
-
-            Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (TypeProxy type in fileObjectTypes)
+            ProxyList<TypeProxy> results = new ProxyList<TypeProxy>(AppDomainHelper.FindTypes(match));
+            RemoteAction.Invoke(AppDomainHelper.GetPrimaryAppDomain(), results, (types) =>
             {
-                string path = type.Namespace;
-                int dotIndex = path.IndexOf(".");
-                string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
-                NamespaceNode node;
-                if (nodeCache.ContainsKey(name))
-                    node = nodeCache[name];
-                else
+                Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
+                foreach (TypeProxy type in types)
                 {
-                    node = new NamespaceNode(name, false);
-                    nodeCache.Add(name, node);
-                    if (Editor.Instance.InvokeRequired)
-                        Editor.Instance.BeginInvoke((Action)(() => button.DropDownItems.Add(node.Button)));
+                    string path = type.Namespace;
+                    int dotIndex = path.IndexOf(".");
+                    string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
+                    NamespaceNode node;
+                    if (nodeCache.ContainsKey(name))
+                        node = nodeCache[name];
                     else
-                        button.DropDownItems.Add(node.Button);
+                    {
+                        node = new NamespaceNode(name, false);
+                        nodeCache.Add(name, node);
+                        if (Editor.Instance.InvokeRequired)
+                            Editor.Instance.BeginInvoke((Action)(() => button.DropDownItems.Add(node.Button)));
+                        else
+                            button.DropDownItems.Add(node.Button);
+                    }
+                    node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick);
                 }
-                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, type, onClick);
-            }
-
-            return fileObjectTypes;
+            });
+            return results;
         }
         private class NamespaceNode
         {

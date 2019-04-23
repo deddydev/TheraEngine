@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //    set => _parentInfo.Owner = value;
         //}
 
-        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
+        internal protected override void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler)
             => _parentInfo.SubmitStateChange(oldValue, newValue, dataChangeHandler);
         private readonly PropGridMemberInfo _parentInfo;
 

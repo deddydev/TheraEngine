@@ -14,7 +14,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class MaterialControl2 : UserControl, IDataChangeHandler
+    public partial class MaterialControl2 : UserControl, ValueChangeHandler
     {
         public MaterialControl2()
         {

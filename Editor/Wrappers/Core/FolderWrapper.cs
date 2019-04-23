@@ -46,8 +46,6 @@ namespace TheraEditor.Wrappers
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //12
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
-
-            LoadFileTypes();
         }
         public static void LoadFileTypes()
         {
@@ -70,7 +68,7 @@ namespace TheraEditor.Wrappers
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
             newDropdown.DropDownItems.Add(newCodeItem);
 
-            Engine.PrintLine("Loading importable and creatable file types to folder menu.");
+            Engine.PrintLine("Loading importable and creatable file types to folder menu in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
             Task import = Task.Run(() =>
             {
                 Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);

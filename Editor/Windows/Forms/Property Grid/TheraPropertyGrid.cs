@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppDomainToolkit;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,11 +25,24 @@ using TheraEngine.Timers;
 
 namespace TheraEditor.Windows.Forms.PropertyGrid
 {
-    public partial class TheraPropertyGrid : UserControl, IDataChangeHandler, IPropGridMemberOwner
+    public partial class TheraPropertyGrid : UserControl, IPropGridMemberOwner
     {
         object IPropGridMemberOwner.Value => _targetObject;
         bool IPropGridMemberOwner.ReadOnly => false;
         PropGridMemberInfo IPropGridMemberOwner.MemberInfo { get; }
+
+        private readonly ValueChangeHandler _changeHandler = new ValueChangeHandler();
+        private class ValueChangeHandler : MarshalByRefObject, PropertyGrid.ValueChangeHandler
+        {
+            public TheraPropertyGrid Grid { get; set; }
+            public void HandleChange(params LocalValueChange[] changes)
+            {
+                if (!(Grid.TargetObject is IObject obj))
+                    return;
+                Grid.btnSave.Visible = Grid.btnSaveAs.Visible = true;
+                Editor.Instance.UndoManager.AddChange(obj.EditorState, changes);
+            }
+        }
 
         public TheraPropertyGrid()
         {
@@ -39,6 +53,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _lblObjectName_StartColor = lblObjectName.BackColor;
             _lblObjectName_EndColor = Color.FromArgb(_lblObjectName_StartColor.R + 10, _lblObjectName_StartColor.G + 10, _lblObjectName_StartColor.B + 10);
+
+            _changeHandler = new ValueChangeHandler() { Grid = this };
         }
         private class PropGridData
         {
@@ -396,7 +412,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     this,
                     pnlProps, _categories,
                     _targetObject,
-                    this, this, true,
+                    this, _changeHandler, true,
                     propGridSettings.DisplayMethods, propGridSettings.DisplayEvents);
             }
             catch (Exception ex)
@@ -412,7 +428,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Dictionary<string, PropGridCategory> categories,
             object obj,
             IPropGridMemberOwner memberOwner,
-            IDataChangeHandler changeHandler,
+            PropertyGrid.ValueChangeHandler changeHandler,
             bool showProperties = true,
             bool showMethods = true,
             bool showEvents = true)
@@ -448,9 +464,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 TypeProxy targetObjectType = obj.GetTypeProxy();
 
                 const BindingFlags flags = BindingFlags.Public | BindingFlags.Instance;
-                props   = showProperties    ? targetObjectType.GetProperties(flags) : new PropertyInfoProxy[0];
-                methods = showMethods       ? targetObjectType.GetMethods(flags)    : new MethodInfoProxy[0];
-                events  = showEvents        ? targetObjectType.GetEvents(flags)     : new EventInfoProxy[0];
+                props = showProperties ? targetObjectType.GetProperties(flags) : new PropertyInfoProxy[0];
+                methods = showMethods ? targetObjectType.GetMethods(flags) : new MethodInfoProxy[0];
+                events = showEvents ? targetObjectType.GetEvents(flags) : new EventInfoProxy[0];
 
                 Parallel.For(0, props.Length, i =>
                 {
@@ -459,11 +475,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     if (indexParams.Length > 0)
                         return;
 
-                    BrowsableAttribute browsable = prop.GetCustomAttribute<BrowsableAttribute>(true);
-                    if (!(browsable?.Browsable ?? true))
-                        return;
+                    //BrowsableAttribute browsable = prop.GetCustomAttribute<BrowsableAttribute>(true);
+                    //if (!(browsable?.Browsable ?? true))
+                    //    return;
 
-                    string category = prop.GetCustomAttribute<CategoryAttribute>(true)?.Category;
+                    string category = null;//prop.GetCustomAttribute<CategoryAttribute>(true)?.Category;
 
                     PropertyData propData = new PropertyData(prop, obj, category);
                     propInfo.TryAdd(i, propData);
@@ -545,10 +561,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 pnlProps.ResumeLayout(true);
             }
-
-            //Engine.PrintLine("Loaded properties for " + _subObject.GetType().GetFriendlyName());
-            //TimeSpan elapsed = DateTime.Now - startTime;
-            //Engine.PrintLine("Initializing controls took {0} seconds.", elapsed.TotalSeconds.ToString());
         }
         public void ExpandAll()
         {
@@ -618,7 +630,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             return controlTypes;
         }
-        public static PropGridItem InstantiatePropertyEditor(TypeProxy controlType, PropGridMemberInfo info, PropGridCategory category, IDataChangeHandler dataChangeHandler)
+        public static PropGridItem InstantiatePropertyEditor(TypeProxy controlType, PropGridMemberInfo info, PropGridCategory category, PropertyGrid.ValueChangeHandler dataChangeHandler)
         {
             PropGridItem control = (PropGridItem)Editor.Instance.Invoke((Func<PropGridItem>)(() => 
             {
@@ -640,7 +652,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// Instantiates the given PropGridItem-derived control types for the given object in a list.
         /// </summary>
         public static List<PropGridItem> InstantiatePropertyEditors(
-            Deque<TypeProxy> controlTypes, PropGridMemberInfo info, PropGridCategory category, IDataChangeHandler dataChangeHandler)
+            Deque<TypeProxy> controlTypes, PropGridMemberInfo info, PropGridCategory category, PropertyGrid.ValueChangeHandler dataChangeHandler)
             => controlTypes.Select(x => InstantiatePropertyEditor(x, info, category, dataChangeHandler)).ToList();
 
         //public static PropGridMethod CreateMethodControl(
@@ -738,7 +750,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             BetterTableLayoutPanel panel,
             Dictionary<string, PropGridCategory> categories,
             string category,
-            IDataChangeHandler dataChangeHandler)
+            PropertyGrid.ValueChangeHandler dataChangeHandler)
         {
             string catName = category ?? GetDefaultCatName(info);
             PropGridCategory targetCategory;
@@ -884,13 +896,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             _selectedSceneComp = e.Node;
         }
-        public void HandleChange(params LocalValueChange[] changes)
-        {
-            if (!(TargetObject is IObject obj))
-                return;
-            btnSave.Visible = btnSaveAs.Visible = true;
-            Editor.Instance.UndoManager.AddChange(obj.EditorState, changes);
-        }
         private void btnMoveDownLogicComp_Click(object sender, EventArgs e)
         {
             if (!(TargetObject is IActor a) || a.LogicComponents.Count <= 1)
@@ -1002,11 +1007,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// </summary>
         public static ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes => _fullEditorTypes;
 
-        static TheraPropertyGrid()
-        {
-            ReloadEditorTypes();
-        }
-
         public static void ReloadEditorTypes()
         {
             if (Engine.DesignMode)
@@ -1015,7 +1015,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             _inPlaceEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
             _fullEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
 
-            Engine.PrintLine("Loading all editor types to property grid.");
+            Engine.PrintLine("Loading all editor types to property grid in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
             Task propEditorsTask = Task.Run(() =>
             {
                 var propControls = AppDomainHelper.FindTypes(x =>
@@ -1046,10 +1046,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 PropGridControlForAttribute a = attribs[0];
                 foreach (Type varType in a.Types)
                 {
-                    if (!_inPlaceEditorTypes.ContainsKey(varType))
+                    //if (!_inPlaceEditorTypes.ContainsKey(varType))
                         _inPlaceEditorTypes.AddOrUpdate(varType, propControlType, (x, y) => propControlType);
-                    else
-                        throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
+                    //else
+                    //    throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
                 }
             }
         }
@@ -1058,10 +1058,10 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
             foreach (TypeProxy varType in attrib.DataTypes)
             {
-                if (!_fullEditorTypes.ContainsKey(varType))
+                //if (!_fullEditorTypes.ContainsKey(varType))
                     _fullEditorTypes.AddOrUpdate(varType, editorType, (x, y) => editorType);
-                else
-                    throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
+                //else
+                //    throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
             }
         }
         #endregion
@@ -1359,7 +1359,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 lblFilePath.BackColor = Color.FromArgb(60, 102, 100);
         }
     }
-    public interface IDataChangeHandler
+    public interface ValueChangeHandler
     {
         void HandleChange(params LocalValueChange[] changes);
     }

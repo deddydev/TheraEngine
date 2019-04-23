@@ -124,6 +124,21 @@ namespace TheraEngine.Core.Reflection.Proxies
             => _list.AddRange(collection);
         //
         // Summary:
+        //     Adds the elements of the specified collection to the end of the System.Collections.Generic.List`1.
+        //
+        // Parameters:
+        //   collection:
+        //     The collection whose elements should be added to the end of the System.Collections.Generic.List`1.
+        //     The collection itself cannot be null, but it can contain elements that are null,
+        //     if type T is a reference type.
+        //
+        // Exceptions:
+        //   T:System.ArgumentNullException:
+        //     collection is null.
+        public void AddRange(params T[] collection)
+            => _list.AddRange(collection);
+        //
+        // Summary:
         //     Returns a read-only System.Collections.ObjectModel.ReadOnlyCollection`1 wrapper
         //     for the current collection.
         //

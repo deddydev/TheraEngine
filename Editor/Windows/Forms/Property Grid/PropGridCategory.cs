@@ -23,8 +23,20 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             EndLocation = endLocation;
         }
     }
-    public partial class PropGridCategory : UserControl, ICollapsible
+    public interface IPropGridCategory : ICollapsible
     {
+        TheraPropertyGrid PropertyGrid { get; }
+        bool Visible { get; set; }
+        BetterTableLayoutPanel PropertyTable { get; }
+        bool ReadOnly { get; }
+        string CategoryName { get; set; }
+
+        void DestroyProperties();
+    }
+    public partial class PropGridCategory : UserControl, IPropGridCategory
+    {
+        BetterTableLayoutPanel IPropGridCategory.PropertyTable => PropertyTable;
+
         public PropGridCategory()
         {
             InitializeComponent();
@@ -32,15 +44,15 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             bool invalid = string.IsNullOrWhiteSpace(CategoryName);
             if (lblCategoryName.Visible = !invalid)
-                tblProps.Visible = !Editor.GetSettings().PropertyGrid.CollapsedCategories.Contains(CategoryName);
+                PropertyTable.Visible = !Editor.GetSettings().PropertyGrid.CollapsedCategories.Contains(CategoryName);
             else
-                tblProps.Visible = true;
+                PropertyTable.Visible = true;
         }
 
-        public void Expand() => tblProps.Visible = true;
-        public void Collapse() => tblProps.Visible = false;
-        public void Toggle() => tblProps.Visible = !tblProps.Visible;
-        public ControlCollection ChildControls => tblProps.Controls;
+        public void Expand() => PropertyTable.Visible = true;
+        public void Collapse() => PropertyTable.Visible = false;
+        public void Toggle() => PropertyTable.Visible = !PropertyTable.Visible;
+        public ControlCollection ChildControls => PropertyTable.Controls;
 
         public TheraPropertyGrid PropertyGrid { get; internal set; }
         public string CategoryName
@@ -52,9 +64,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                 bool invalid = string.IsNullOrWhiteSpace(value);
                 if (lblCategoryName.Visible = !invalid)
-                    tblProps.Visible = !Editor.GetSettings().PropertyGrid.CollapsedCategories.Contains(CategoryName);
+                    PropertyTable.Visible = !Editor.GetSettings().PropertyGrid.CollapsedCategories.Contains(CategoryName);
                 else
-                    tblProps.Visible = true;
+                    PropertyTable.Visible = true;
             }
         }
 
@@ -78,13 +90,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         public void DestroyProperties()
         {
-            if (tblProps != null)
+            if (PropertyTable != null)
             {
-                for (int i = 0; i < tblProps.ColumnCount; ++i)
+                for (int i = 0; i < PropertyTable.ColumnCount; ++i)
                 {
-                    for (int x = 0; x < tblProps.RowCount; ++x)
+                    for (int x = 0; x < PropertyTable.RowCount; ++x)
                     {
-                        Control control = tblProps.GetControlFromPosition(i, x);
+                        Control control = PropertyTable.GetControlFromPosition(i, x);
                         if (control is PropGridItem item)
                         {
                             PropertyGrid.RemoveVisibleItem(item);
@@ -103,9 +115,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                         control?.Dispose();
                     }
                 }
-                tblProps.Controls.Clear();
-                tblProps.RowStyles.Clear();
-                tblProps.RowCount = 0;
+                PropertyTable.Controls.Clear();
+                PropertyTable.RowStyles.Clear();
+                PropertyTable.RowCount = 0;
             }
         }
         //public Label AddMethod(PropGridMethod methodControl, object[] attributes, string displayName)
@@ -179,24 +191,24 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public Label AddMember(List<PropGridItem> editors)
         {
             Label label = null;
-            if (tblProps.InvokeRequired)
+            if (PropertyTable.InvokeRequired)
             {
-                tblProps.Invoke((Action)(() =>
+                PropertyTable.Invoke((Action)(() =>
                 {
-                    tblProps.BeginUpdate();
-                    tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                    tblProps.RowCount = tblProps.RowStyles.Count;
+                    PropertyTable.BeginUpdate();
+                    PropertyTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                    PropertyTable.RowCount = PropertyTable.RowStyles.Count;
                     label = AddRowToTable(editors);
-                    tblProps.EndUpdate();
+                    PropertyTable.EndUpdate();
                 }));
             }
             else
             {
-                tblProps.BeginUpdate();
-                tblProps.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                tblProps.RowCount = tblProps.RowStyles.Count;
+                PropertyTable.BeginUpdate();
+                PropertyTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                PropertyTable.RowCount = PropertyTable.RowStyles.Count;
                 label = AddRowToTable(editors);
-                tblProps.EndUpdate();
+                PropertyTable.EndUpdate();
             }
 
             return label;
@@ -216,7 +228,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             };
             label.MouseEnter += Label_MouseEnter;
             label.MouseLeave += Label_MouseLeave;
-            tblProps.Controls.Add(label, 0, tblProps.RowCount - 1);
+            PropertyTable.Controls.Add(label, 0, PropertyTable.RowCount - 1);
             label.Tag = new MemberLabelInfo(null, label.Location, new Point(label.Location.X + 10, label.Location.Y));
             if (editors.Count > 1)
             {
@@ -240,11 +252,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     item.ParentCategory = this;
 
                     tbl.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                    tbl.RowCount = tblProps.RowStyles.Count;
+                    tbl.RowCount = PropertyTable.RowStyles.Count;
                     tbl.Controls.Add(item, 0, tbl.RowCount - 1);
                     PropertyGrid?.AddVisibleItem(item);
                 }
-                tblProps.Controls.Add(tbl, 1, tblProps.RowCount - 1);
+                PropertyTable.Controls.Add(tbl, 1, PropertyTable.RowCount - 1);
             }
             else
             {
@@ -254,7 +266,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 item.Margin = new Padding(0);
                 item.Padding = new Padding(0);
                 item.ParentCategory = this;
-                tblProps.Controls.Add(item, 1, tblProps.RowCount - 1);
+                PropertyTable.Controls.Add(item, 1, PropertyTable.RowCount - 1);
                 PropertyGrid?.AddVisibleItem(item);
             }
             return label;
@@ -358,11 +370,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
         private void lblCategoryName_MouseDown(object sender, MouseEventArgs e)
         {
-            tblProps.Visible = !tblProps.Visible;
+            PropertyTable.Visible = !PropertyTable.Visible;
 
             List<string> cats = Editor.GetSettings().PropertyGridRef.File.CollapsedCategories;
 
-            if (tblProps.Visible)
+            if (PropertyTable.Visible)
                 cats.Remove(CategoryName);
             else
                 cats.Add(CategoryName);

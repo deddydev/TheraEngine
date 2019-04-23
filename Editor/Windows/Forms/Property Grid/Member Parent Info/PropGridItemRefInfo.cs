@@ -9,7 +9,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         bool ReadOnly { get; }
         PropGridMemberInfo MemberInfo { get; }
     }
-    public abstract class PropGridMemberInfo
+    public abstract class PropGridMemberInfo : MarshalByRefObject
     {
         public PropGridMemberInfo(IPropGridMemberOwner owner)
         {
@@ -30,7 +30,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <param name="oldValue"></param>
         /// <param name="newValue"></param>
         /// <param name="dataChangeHandler"></param>
-        internal protected abstract void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler);
+        internal protected abstract void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler);
         /// <summary>
         /// Getter and setter for the member's value.
         /// </summary>

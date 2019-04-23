@@ -17,25 +17,18 @@ namespace TheraEngine.Core.Reflection
     /// </summary>
     public class AppDomainHelper : AppDomainManager
     {
-        /// <summary>
-        /// Gets the primary domain.
-        /// </summary>
-        /// <value>The primary domain.</value>
-        //public static AppDomain PrimaryDomain { get; private set; }
+        static AppDomainHelper()
+        {
+            ResetAppDomainCache();
+            ResetTypeCache();
+        }
 
-        ///// <summary>
-        ///// Sets the primary domain.
-        ///// </summary>
-        ///// <param name="primaryDomain">The primary domain.</param>
-        //private void SetPrimaryDomain(AppDomain primaryDomain)
-        //    => PrimaryDomain = primaryDomain;
-        
-        ///// <summary>
-        ///// Sets the primary domain to self.
-        ///// </summary>
-        //private void SetPrimaryDomainToSelf()
-        //    => PrimaryDomain = AppDomain.CurrentDomain;
-        
+        private static Lazy<AppDomain[]> _appDomainCache;
+        private static Lazy<TypeProxy[]> _exportedTypesCache;
+
+        public static AppDomain[] AppDomains => _appDomainCache.Value;
+        public static TypeProxy[] ExportedTypes => _exportedTypesCache.Value;
+
         /// <summary>
         /// Determines whether this is the primary domain.
         /// </summary>
@@ -45,54 +38,6 @@ namespace TheraEngine.Core.Reflection
         public static bool IsPrimaryDomain 
             => GetPrimaryAppDomain() == AppDomain.CurrentDomain;
 
-        ///// <summary>
-        ///// Creates the initial domain.
-        ///// </summary>
-        ///// <param name="friendlyName">Name of the friendly.</param>
-        ///// <param name="securityInfo">The security info.</param>
-        ///// <param name="appDomainInfo">The AppDomain setup info.</param>
-        ///// <returns></returns>
-        //public static AppDomain CreateInitialDomain(string friendlyName, Evidence securityInfo, AppDomainSetup appDomainInfo)
-        //{
-        //    if (AppDomain.CurrentDomain.DomainManager is PrimaryAppDomainManager)
-        //        return null;
-
-        //    appDomainInfo = appDomainInfo ?? new AppDomainSetup();
-
-        //    Type t = typeof(PrimaryAppDomainManager);
-        //    appDomainInfo.AppDomainManagerAssembly = t.Assembly.FullName;
-        //    appDomainInfo.AppDomainManagerType = t.FullName;
-
-        //    var appDomain = CreateDomainHelper(friendlyName, securityInfo, appDomainInfo);
-        //    ((PrimaryAppDomainManager)appDomain.DomainManager).SetPrimaryDomainToSelf();
-        //    PrimaryDomain = appDomain;
-
-        //    appDomain.AssemblyLoad += DomainAssemblyLoad;
-        //    return appDomain;
-        //}
-
-        ///// <summary>
-        ///// Returns a new or existing application domain.
-        ///// </summary>
-        ///// <param name="friendlyName">The friendly name of the domain.</param>
-        ///// <param name="securityInfo">An object that contains evidence mapped through the security policy to establish a top-of-stack permission set.</param>
-        ///// <param name="appDomainInfo">An object that contains application domain initialization information.</param>
-        ///// <returns>A new or existing application domain.</returns>
-        ///// <PermissionSet>
-        /////     <IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="ControlEvidence, ControlAppDomain, Infrastructure"/>
-        ///// </PermissionSet>
-        //public override AppDomain CreateDomain(string friendlyName, Evidence securityInfo, AppDomainSetup appDomainInfo)
-        //{
-        //    appDomainInfo = appDomainInfo ?? new AppDomainSetup();
-        //    appDomainInfo.AppDomainManagerAssembly = typeof(PrimaryAppDomainManager).Assembly.FullName;
-        //    appDomainInfo.AppDomainManagerType = typeof(PrimaryAppDomainManager).FullName;
-
-        //    var appDomain = base.CreateDomain(friendlyName, securityInfo, appDomainInfo);
-        //    ((PrimaryAppDomainManager)appDomain.DomainManager).SetPrimaryDomain(PrimaryDomain);
-
-        //    return appDomain;
-        //}
-
         /// <summary>
         /// Returns the primary application domain.
         /// </summary>
@@ -100,16 +45,29 @@ namespace TheraEngine.Core.Reflection
         public static AppDomain GetPrimaryAppDomain()
             => AppDomains.FirstOrDefault(x => x.FriendlyName == Process.GetCurrentProcess().MainModule.ModuleName);
         public static AppDomain GetGameAppDomain()
-            => AppDomains.FirstOrDefault(x => x.FriendlyName == "Puyo");
+        {
+            //There will only ever be two AppDomains loaded
+            AppDomain primary = GetPrimaryAppDomain();
+            return AppDomains.FirstOrDefault(x => x != primary) ?? primary;
+        }
 
-        private static AppDomain[] _appDomainCache;
-        public static AppDomain[] AppDomains => _appDomainCache ?? (_appDomainCache = EnumAppDomains().ToArray());
-        public static void ClearAppDomainCache() => _appDomainCache = null;
+        public static void ResetAppDomainCache()
+        {
+            _appDomainCache = new Lazy<AppDomain[]>(() =>
+                EnumAppDomains().ToArray(),
+                LazyThreadSafetyMode.PublicationOnly);
+        }
+        public static void ResetTypeCache()
+        {
+            _exportedTypesCache = new Lazy<TypeProxy[]>(() =>
+                GetGameAppDomain().GetAssemblyProxies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes()).Distinct(new TypeProxy.EqualityComparer()).ToArray(),
+                LazyThreadSafetyMode.PublicationOnly);
+        }
 
         /// <summary>
         /// The default AppDomain.
         /// </summary>
-        private static readonly Lazy<AppDomain> LazyDefaultAppDomain = new Lazy<AppDomain>(() =>
+        private static readonly Lazy<AppDomain> _defaultAppDomain = new Lazy<AppDomain>(() =>
         {
             IntPtr enumHandle = IntPtr.Zero;
             ICorRuntimeHost host = null;
@@ -137,7 +95,7 @@ namespace TheraEngine.Core.Reflection
         /// <summary>
         /// Gets the default AppDomain. This property caches the resulting value.
         /// </summary>
-        public static AppDomain DefaultAppDomain => LazyDefaultAppDomain.Value;
+        public static AppDomain DefaultAppDomain => _defaultAppDomain.Value;
 
         /// <summary>
         /// Enumerates all AppDomains in the process.
@@ -180,47 +138,21 @@ namespace TheraEngine.Core.Reflection
         public static IEnumerable<TypeProxy> FindTypes(Predicate<TypeProxy> matchPredicate, params AssemblyProxy[] assemblies)
         {
             //TODO: search all appdomains, return marshalbyrefobject list containing typeproxies
-            IEnumerable<AssemblyProxy> search;
+            TypeProxy[] types;
 
             if (assemblies != null && assemblies.Length > 0)
-                search = assemblies;
+                types = ExportedTypes.Where(x => assemblies.Contains(x.Assembly)).ToArray();
             else
-            {
-                //search = AppDomain.CurrentDomain.GetAssemblyProxies();
-                ////PrintLine("FindTypes; returning assemblies from domains:");
-                var domains = AppDomains;
-                search = domains.SelectMany(x =>
-                {
-                    //PrintLine(x.FriendlyName);
-                    try
-                    {
-                        return x.GetAssemblyProxies();
-                    }
-                    catch //(Exception ex)
-                    {
-                        Debug.Print($"Unable to load assemblies from {nameof(AppDomain)} {x.FriendlyName}");
-                        return new ProxyList<AssemblyProxy>();
-                    }
-                });
-            }
+                types = ExportedTypes;
 
-            search = search.Where(x => !x.IsDynamic).Distinct(new AssemblyProxy.EqualityComparer());
-
-            //if (includeEngineAssembly)
-            //{
-            //    Assembly engine = Assembly.GetExecutingAssembly();
-            //    if (!search.Contains(engine))
-            //        search = search.Append(engine);
-            //}
-
-            var allTypes = search.SelectMany(x => x.GetExportedTypes()).Distinct(new TypeProxy.EqualityComparer()).ToArray();
             ConcurrentDictionary<int, TypeProxy> matches = new ConcurrentDictionary<int, TypeProxy>();
-            Parallel.For(0, allTypes.Length, i =>
+            Parallel.For(0, types.Length, i =>
             {
-                TypeProxy type = allTypes[i];
+                TypeProxy type = types[i];
                 if (matchPredicate(type))
                     matches.AddOrUpdate(i, type, (x, y) => type);
             });
+
             return matches.Values.OrderBy(x => x.Name);
         }
         

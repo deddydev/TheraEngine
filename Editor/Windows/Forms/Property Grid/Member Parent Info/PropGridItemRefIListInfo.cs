@@ -36,7 +36,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         public override bool IsReadOnly() 
             => base.IsReadOnly() || List == null || List.IsReadOnly;
         
-        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
+        internal protected override void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler)
             => dataChangeHandler?.HandleChange(new LocalValueChangeIList(oldValue, newValue, List, Index));
         
         public override object MemberValue

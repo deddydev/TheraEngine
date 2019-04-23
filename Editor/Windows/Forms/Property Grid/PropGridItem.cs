@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppDomainToolkit;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -8,6 +9,7 @@ using TheraEngine;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
+using TheraEngine.Core.Reflection.Proxies;
 using TheraEngine.Core.Tools;
 using TheraEngine.Editor;
 using TheraEngine.Rendering.UI;
@@ -109,7 +111,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         /// <summary>
         /// The object that should handle changes to this property.
         /// </summary>
-        public IDataChangeHandler DataChangeHandler { get; set; }
+        public ValueChangeHandler DataChangeHandler { get; set; }
 
         /// <summary>
         /// Records that a value has changed to the undo buffer and enables saving the owning file.
@@ -221,6 +223,39 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             Label.Text = name;
         }
+        private ProxyList<string> EvaluatePropertyRemote(PropertyInfoProxy prop)
+        {
+            string domain = AppDomain.CurrentDomain.FriendlyName;
+
+            var list = new ProxyList<string>() { null, string.Empty, null, null, null, null };
+
+            var attribs = prop.GetCustomAttributes(true);
+            foreach (object attrib in attribs)
+            {
+                switch (attrib)
+                {
+                    case BrowsableIf browsableIf:
+                        list[0] = browsableIf.Condition;
+                        break;
+                    case BrowsableAttribute browsable:
+                        list[1] = browsable.Browsable ? string.Empty : null;
+                        break;
+                    case ReadOnlyAttribute readOnlyAttrib:
+                        list[2] = readOnlyAttrib.IsReadOnly ? string.Empty : null;
+                        break;
+                    case DisplayNameAttribute displayName:
+                        list[3] = displayName.DisplayName;
+                        break;
+                    case EditInPlace editInPlace:
+                        list[4] = string.Empty;
+                        break;
+                    case DescriptionAttribute desc:
+                        list[5] = desc.Description;
+                        break;
+                }
+            }
+            return list;
+        }
         /// <summary>
         /// Designates where this item gets and sets its value.
         /// </summary>
@@ -232,36 +267,23 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             
             if (MemberInfo is PropGridMemberInfoProperty propInfo)
             {
-                var attribs = propInfo.Property.GetCustomAttributes(true);
-                foreach (object attrib in attribs)
-                {
-                    switch (attrib)
-                    {
-                        case BrowsableIf browsableIf:
-                            VisibilityCondition = browsableIf.Condition;
-                            break;
-                        case BrowsableAttribute browsable:
-                            Visible = browsable.Browsable;
-                            return;
-                        case ReadOnlyAttribute readOnlyAttrib:
-                            ReadOnly = readOnlyAttrib.IsReadOnly;
-                            break;
-                        case DisplayNameAttribute displayName:
-                            displayNameOverride = displayName.DisplayName;
-                            break;
-                        case EditInPlace editInPlace:
-                            if (this is PropGridObject pobj)
-                            {
-                                pobj.EditInPlace = true;
-                                pobj.AlwaysVisible = true;
-                            }
-                            break;
-                        case DescriptionAttribute desc:
-                            if (Label?.Tag is MemberLabelInfo info)
-                                info.Description = desc.Description;
-                            break;
-                    }
-                }
+                string domain = AppDomain.CurrentDomain.FriendlyName;
+
+                AppDomain gameDomain = AppDomainHelper.GetGameAppDomain();
+                string domain2 = gameDomain.FriendlyName;
+
+                ProxyList<string> result = RemoteFunc.Invoke(gameDomain, propInfo.Property, EvaluatePropertyRemote);
+
+                VisibilityCondition = result[0];
+                Visible = result[1] != null;
+                ReadOnly = result[2] != null;
+                displayNameOverride = result[3];
+
+                if (this is PropGridObject pobj)
+                    pobj.EditInPlace = pobj.AlwaysVisible = result[4] != null;
+                
+                if (Label?.Tag is MemberLabelInfo info)
+                    info.Description = result[5];
             }
 
             ResolveMemberName(displayNameOverride);
@@ -303,7 +325,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             => string.IsNullOrWhiteSpace(VisibilityCondition) ? true : ExpressionParser.Evaluate<bool>(VisibilityCondition, owningObject);
         public void UpdateDisplay()
         {
-            if (IsEditing || MemberInfo == null || (ParentCategory != null && (!ParentCategory.Visible || !ParentCategory.tblProps.Visible)))
+            if (IsEditing || MemberInfo == null || (ParentCategory != null && (!ParentCategory.Visible || !ParentCategory.PropertyTable.Visible)))
                 return;
 
             _updating = true;
@@ -335,9 +357,9 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 if (ParentCategory != null && ParentCategory.Visible)
                 {
                     bool anyVisible = false;
-                    for (int i = 0; i < ParentCategory.tblProps.RowCount; ++i)
+                    for (int i = 0; i < ParentCategory.PropertyTable.RowCount; ++i)
                     {
-                        if (ParentCategory.tblProps.GetControlFromPosition(1, i)?.Visible ?? false)
+                        if (ParentCategory.PropertyTable.GetControlFromPosition(1, i)?.Visible ?? false)
                         {
                             anyVisible = true;
                             break;

@@ -23,7 +23,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             Method = method;
         }
         
-        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler) { }
+        internal protected override void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler) { }
         public override object MemberValue { get { return null; } set { } }
     }
 }

@@ -54,7 +54,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (propGridDicItems.Visible)
             {
-                if (propGridDicItems.tblProps.Controls.Count == 0)
+                if (propGridDicItems.PropertyTable.Controls.Count == 0)
                     LoadDictionary(Dictionary);
             }
             else
@@ -71,7 +71,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
         private async void LoadDictionary(IDictionary dic)
         {
-            propGridDicItems.tblProps.SuspendLayout();
+            propGridDicItems.PropertyTable.SuspendLayout();
 
             if (dic == null)
                 propGridDicItems.DestroyProperties();
@@ -136,7 +136,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                     }
                 });
 
-            propGridDicItems.tblProps.ResumeLayout(true);
+            propGridDicItems.PropertyTable.ResumeLayout(true);
         }
 
         private void Label_MouseUp(object sender, MouseEventArgs e) { }

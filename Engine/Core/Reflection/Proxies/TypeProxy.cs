@@ -3991,11 +3991,11 @@ namespace TheraEngine.Core.Reflection
         {
             public bool Equals(TypeProxy x, TypeProxy y)
             {
-                return x == y;
+                return string.Equals(x.AssemblyQualifiedName, y.AssemblyQualifiedName, StringComparison.InvariantCulture);
             }
             public int GetHashCode(TypeProxy x)
             {
-                return x.GetHashCode();
+                return x.AssemblyQualifiedName.GetHashCode();
             }
         }
     }

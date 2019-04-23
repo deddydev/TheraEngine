@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿using AppDomainToolkit;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -136,48 +137,51 @@ namespace TheraEditor.Wrappers
                 SingleInstanceRef.IsLoaded = true;
         }
 
-        public virtual async void EditResource()
+        public virtual void EditResource()
         {
-            IGlobalFileRef gref = SingleInstanceRef;
-            if (gref == null)
+            IFileObject fileObj = RemoteFunc.Invoke(AppDomainHelper.GetGameAppDomain(), SingleInstanceRef, FileType, (gref, fileType) =>
             {
-                Engine.PrintLine("Cannot edit " + FilePath + ", reference is null.");
-                return;
-            }
-            IFileObject fileObj = await gref.GetInstanceAsync();
-            if (fileObj == null)
-            {
-                Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
-                return;
-            }
-            TypeProxy t = FileType;
-            while (!(t is null) && t != typeof(object))
-            {
-                if (TheraPropertyGrid.FullEditorTypes.ContainsKey(t))
+                Engine.PrintLine("Editing resource on AppDomain " + AppDomain.CurrentDomain.FriendlyName);
+                if (gref == null)
                 {
-                    var editorType = TheraPropertyGrid.FullEditorTypes[t];
-                    Form form = editorType.CreateInstance(fileObj) as Form;
-                    if (form is DockContent dc && !(form is TheraForm))
-                        dc.Show(Editor.Instance.DockPanel, DockState.Document);
-                    else
-                        form?.ShowDialog(Editor.Instance);
-                    return;
+                    Engine.PrintLine("Cannot edit " + FilePath + ", reference is null.");
+                    return null;
                 }
-                foreach (TypeProxy intfType in t.GetInterfaces())
+                IFileObject f = gref.GetInstance();
+                if (f == null)
                 {
-                    if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
+                    Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
+                    return null;
+                }
+                while (!(fileType is null) && fileType != typeof(object))
+                {
+                    if (TheraPropertyGrid.FullEditorTypes.ContainsKey(fileType))
                     {
-                        var editorType = TheraPropertyGrid.FullEditorTypes[intfType];
-                        Form form = editorType.CreateInstance(fileObj) as Form;
+                        var editorType = TheraPropertyGrid.FullEditorTypes[fileType];
+                        Form form = editorType.CreateInstance(f) as Form;
                         if (form is DockContent dc && !(form is TheraForm))
                             dc.Show(Editor.Instance.DockPanel, DockState.Document);
                         else
                             form?.ShowDialog(Editor.Instance);
-                        return;
+                        return null;
                     }
+                    foreach (TypeProxy intfType in fileType.GetInterfaces())
+                    {
+                        if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
+                        {
+                            var editorType = TheraPropertyGrid.FullEditorTypes[intfType];
+                            Form form = editorType.CreateInstance(f) as Form;
+                            if (form is DockContent dc && !(form is TheraForm))
+                                dc.Show(Editor.Instance.DockPanel, DockState.Document);
+                            else
+                                form?.ShowDialog(Editor.Instance);
+                            return null;
+                        }
+                    }
+                    fileType = fileType.BaseType;
                 }
-                t = t.BaseType;
-            }
+                return f;
+            });
             Editor.SetPropertyGridObject(fileObj);
         }
         public virtual async void EditResourceRaw()

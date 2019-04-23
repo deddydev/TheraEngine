@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.tblProps = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
+            this.PropertyTable = new TheraEditor.Windows.Forms.BetterTableLayoutPanel();
             this.lblCategoryName = new AutoEllipsisLabel();
             this.pnlSide = new System.Windows.Forms.Panel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -37,20 +37,20 @@
             // 
             // tblProps
             // 
-            this.tblProps.AutoSize = true;
-            this.tblProps.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tblProps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.tblProps.ColumnCount = 2;
-            this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tblProps.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblProps.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblProps.Location = new System.Drawing.Point(8, 20);
-            this.tblProps.Margin = new System.Windows.Forms.Padding(0);
-            this.tblProps.Name = "tblProps";
-            this.tblProps.RowCount = 1;
-            this.tblProps.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tblProps.Size = new System.Drawing.Size(0, 0);
-            this.tblProps.TabIndex = 0;
+            this.PropertyTable.AutoSize = true;
+            this.PropertyTable.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.PropertyTable.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.PropertyTable.ColumnCount = 2;
+            this.PropertyTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.PropertyTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.PropertyTable.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PropertyTable.Location = new System.Drawing.Point(8, 20);
+            this.PropertyTable.Margin = new System.Windows.Forms.Padding(0);
+            this.PropertyTable.Name = "tblProps";
+            this.PropertyTable.RowCount = 1;
+            this.PropertyTable.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.PropertyTable.Size = new System.Drawing.Size(0, 0);
+            this.PropertyTable.TabIndex = 0;
             // 
             // lblCategoryName
             // 
@@ -90,7 +90,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.Controls.Add(this.tblProps);
+            this.Controls.Add(this.PropertyTable);
             this.Controls.Add(this.pnlSide);
             this.Controls.Add(this.lblCategoryName);
             this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
@@ -104,7 +104,7 @@
 
         #endregion
 
-        public TheraEditor.Windows.Forms.BetterTableLayoutPanel tblProps;
+        public TheraEditor.Windows.Forms.BetterTableLayoutPanel PropertyTable;
         private AutoEllipsisLabel lblCategoryName;
         private System.Windows.Forms.Panel pnlSide;
         private System.Windows.Forms.ToolTip toolTip1;

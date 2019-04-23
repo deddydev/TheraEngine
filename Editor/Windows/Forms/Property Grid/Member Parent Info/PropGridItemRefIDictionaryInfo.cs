@@ -45,7 +45,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         }
 
         public override bool IsReadOnly() => base.IsReadOnly() || (Dictionary?.IsReadOnly ?? false);
-        internal protected override void SubmitStateChange(object oldValue, object newValue, IDataChangeHandler dataChangeHandler)
+        internal protected override void SubmitStateChange(object oldValue, object newValue, ValueChangeHandler dataChangeHandler)
             => dataChangeHandler?.HandleChange(new LocalValueChangeIDictionary(oldValue, newValue, Dictionary, Key, IsKey));
         
         public override object MemberValue

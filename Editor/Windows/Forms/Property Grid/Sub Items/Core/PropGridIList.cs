@@ -74,7 +74,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         {
             if (propGridListItems.Visible)
             {
-                if (propGridListItems.tblProps.Controls.Count == 0)
+                if (propGridListItems.PropertyTable.Controls.Count == 0)
                     LoadList(List);
             }
             else
@@ -97,7 +97,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 return;
             }
 
-            propGridListItems.tblProps.SuspendLayout();
+            propGridListItems.PropertyTable.SuspendLayout();
             propGridListItems.DestroyProperties();
 
             if (list != null)
@@ -147,7 +147,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             else
                 _displayedCount = 0;
 
-            propGridListItems.tblProps.ResumeLayout(true);
+            propGridListItems.PropertyTable.ResumeLayout(true);
         }
 
         private void Label_HandleDestroyed(object sender, EventArgs e)

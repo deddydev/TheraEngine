@@ -192,7 +192,6 @@ namespace System
         /// <returns>A sorted set of renderables containing the given point.</returns>
         public SortedSet<T> FindAllIntersectingSorted(Vec2 point)
         {
-            RenderPasses.RenderSortNearToFar sorter = new RenderPasses.RenderSortNearToFar();
             SortedSet<T> intersecting = new SortedSet<T>();
             _head.FindAllIntersecting(point, intersecting);
             return intersecting;
@@ -245,8 +244,7 @@ namespace System
                 if (node != null)
                     return node.Bounds;
 
-                Vec2 center = Center;
-                Vec2 halfExtents = Extents / 2.0f;
+                Vec2 halfExtents = Extents * 0.5f;
                 Vec2 min = Min;
                 switch (index)
                 {
@@ -729,20 +727,20 @@ namespace System
             #endregion
         }
 
-        private bool Uncache(T item)
-        {
-            //bool exists = AllItems.Remove(item);
-            item.RenderInfo.SceneID = -1;
-            //return exists;
-            return true;
-        }
+        //private bool Uncache(T item)
+        //{
+        //    //bool exists = AllItems.Remove(item);
+        //    item.RenderInfo.SceneID = -1;
+        //    //return exists;
+        //    return true;
+        //}
 
-        private bool Cache(T item)
-        {
-            //bool success = AllItems.Add(item);
-            item.RenderInfo.SceneID = ItemID++;
-            //return success;
-            return true;
-        }
+        //private bool Cache(T item)
+        //{
+        //    //bool success = AllItems.Add(item);
+        //    item.RenderInfo.SceneID = ItemID++;
+        //    //return success;
+        //    return true;
+        //}
     }
 }

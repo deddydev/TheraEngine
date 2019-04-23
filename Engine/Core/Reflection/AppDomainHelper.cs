@@ -204,7 +204,7 @@ namespace TheraEngine.Core.Reflection
                 });
             }
 
-            search = search.Where(x => !x.IsDynamic).Distinct();
+            search = search.Where(x => !x.IsDynamic).Distinct(new AssemblyProxy.EqualityComparer());
 
             //if (includeEngineAssembly)
             //{
@@ -213,7 +213,7 @@ namespace TheraEngine.Core.Reflection
             //        search = search.Append(engine);
             //}
 
-            var allTypes = search.SelectMany(x => x.GetExportedTypes()).Distinct().ToArray();
+            var allTypes = search.SelectMany(x => x.GetExportedTypes()).Distinct(new TypeProxy.EqualityComparer()).ToArray();
             ConcurrentDictionary<int, TypeProxy> matches = new ConcurrentDictionary<int, TypeProxy>();
             Parallel.For(0, allTypes.Length, i =>
             {

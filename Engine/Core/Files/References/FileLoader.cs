@@ -32,7 +32,7 @@ namespace TheraEngine.Core.Files
         public FileLoader(Type type)
         {
             if (typeof(T).IsAssignableFrom(type))
-                _subType = type;
+                SubType = type;
             else
                 throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());
 
@@ -40,7 +40,7 @@ namespace TheraEngine.Core.Files
         }
         public FileLoader(string filePath)
         {
-            _subType = typeof(T);
+            SubType = typeof(T);
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
             Path = new PathReference
@@ -51,7 +51,7 @@ namespace TheraEngine.Core.Files
         public FileLoader(string filePath, Type type)
         {
             if (typeof(T).IsAssignableFrom(type))
-                _subType = type;
+                SubType = type;
             else
                 throw new Exception(type.GetFriendlyName() + " is not assignable to " + typeof(T).GetFriendlyName());
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
@@ -64,7 +64,7 @@ namespace TheraEngine.Core.Files
         public FileLoader(string dir, string name, EProprietaryFileFormat format) : this(GetFilePath(dir, name, format, typeof(T))) { }
         #endregion
         
-        protected TypeProxy _subType = null;
+        public TypeProxy SubType { get; set; } = null;
         protected bool _updating;
         private PathReference _path;
 
@@ -142,12 +142,12 @@ namespace TheraEngine.Core.Files
                     return false;
 
                 TypeProxy fileType = DetermineType(Path.Path);
-                return fileType != null && _subType.IsAssignableFrom(fileType);
+                return fileType != null && SubType.IsAssignableFrom(fileType);
             }
         }
 
         [Browsable(false)]
-        public TypeProxy ReferencedType => _subType;
+        public TypeProxy ReferencedType => SubType;
         
         private event Action<T> Loaded;
         /// <summary>
@@ -240,7 +240,7 @@ namespace TheraEngine.Core.Files
             {
                 if (IsThirdPartyImportableExt(System.IO.Path.GetExtension(absolutePath)?.Substring(1)))
                 {
-                    T file = Activator.CreateInstance<T>();
+                    T file = SubType.CreateInstance() as T;
                     file.FilePath = absolutePath;
                     file.ManualRead3rdParty(absolutePath);
                     OnFileLoaded(file);
@@ -262,12 +262,12 @@ namespace TheraEngine.Core.Files
                             Engine.LogWarning($"Could not load file at \"{absolutePath}\". Invalid file format.");
                             break;
                     }
-                    if (file != null && _subType != null)
+                    if (file != null && SubType != null)
                     {
                         TypeProxy fileType = file?.GetTypeProxy();
-                        if (!_subType.IsAssignableFrom(fileType))
+                        if (!SubType.IsAssignableFrom(fileType))
                         {
-                            Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {_subType.GetFriendlyName()}.");
+                            Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {SubType.GetFriendlyName()}.");
                             return null;
                         }
 
@@ -336,23 +336,23 @@ namespace TheraEngine.Core.Files
         public T ConstructNewInstance(params (Type Type, object Value)[] args) => ConstructNewInstance_Internal(true, args);
         protected T ConstructNewInstance_Internal(bool callLoadedEvent, (Type Type, object Value)[] args)
         {
-            if (_subType.IsAbstract)
+            if (SubType.IsAbstract)
             {
-                Engine.LogWarning("Can't automatically instantiate an abstract class: " + _subType.GetFriendlyName());
+                Engine.LogWarning("Can't automatically instantiate an abstract class: " + SubType.GetFriendlyName());
                 return null;
             }
-            else if (_subType.IsInterface)
+            else if (SubType.IsInterface)
             {
-                Engine.LogWarning("Can't automatically instantiate an interface: " + _subType.GetFriendlyName());
+                Engine.LogWarning("Can't automatically instantiate an interface: " + SubType.GetFriendlyName());
                 return null;
             }
             else
             {
                 if (args == null)
                     args = new (Type, object)[0];
-                if (_subType.GetConstructor(args.Select(x => x.Type).ToArray()) == null)
+                if (SubType.GetConstructor(args.Select(x => x.Type).ToArray()) == null)
                 {
-                    Engine.LogWarning("Can't automatically instantiate '" + _subType.GetFriendlyName() + "' with " + (args.Length == 0 ?
+                    Engine.LogWarning("Can't automatically instantiate '" + SubType.GetFriendlyName() + "' with " + (args.Length == 0 ?
                         "no parameters." : "these parameters: " + string.Join(", ", args.Select(x => x.Type.GetFriendlyName()))));
                     return null;
                 }
@@ -360,9 +360,9 @@ namespace TheraEngine.Core.Files
 
             T file;
             if (args.Length == 0)
-                file = _subType.CreateInstance() as T;
+                file = SubType.CreateInstance() as T;
             else
-                file = _subType.CreateInstance(args.Select(x => x.Value)) as T;
+                file = SubType.CreateInstance(args.Select(x => x.Value)) as T;
 
             if (callLoadedEvent)
                 Loaded?.Invoke(file);
@@ -376,7 +376,7 @@ namespace TheraEngine.Core.Files
         /// </summary>
         private bool IsThirdPartyImportableExt(string ext)
         {
-            var header = GetFile3rdPartyExtensions(_subType);
+            var header = GetFile3rdPartyExtensions(SubType);
             return header?.HasExtension(ext) ?? false;
         }
         //private bool IsThirdPartyExportableExt(string ext)

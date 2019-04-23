@@ -58,9 +58,9 @@ namespace TheraEditor
             Editor.Instance.SetRenderTicking(true);
             Engine.SetPaused(true, ELocalPlayerIndex.One, true);
 
-            //Engine.PrintLine("Resetting type caches.");
-            //Editor.ResetTypeCaches();
-            //Engine.PrintLine("Type caches reset.");
+            Engine.PrintLine("Resetting type caches.");
+            Editor.ResetTypeCaches();
+            Engine.PrintLine("Type caches reset.");
         }
         public void Destroyed()
         {

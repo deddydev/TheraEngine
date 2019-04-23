@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security;
@@ -82,5 +83,17 @@ namespace TheraEngine.Core.Reflection
             => obj is AssemblyProxy proxy && EqualTo(proxy);
         public override int GetHashCode() => Value.GetHashCode();
         public override string ToString() => "[" + Domain.FriendlyName + "] " + Value.FullName;
+
+        public class EqualityComparer : IEqualityComparer<AssemblyProxy>
+        {
+            public bool Equals(AssemblyProxy x, AssemblyProxy y)
+            {
+                return x == y;
+            }
+            public int GetHashCode(AssemblyProxy x)
+            {
+                return x.GetHashCode();
+            }
+        }
     }
 }

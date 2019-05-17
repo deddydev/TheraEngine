@@ -141,7 +141,8 @@ namespace TheraEditor.Windows.Forms
             await Github.ReleaseCreator.CreateNewRelease(Assembly.GetExecutingAssembly(), "test release");
         }
 
-        private AppDomainContext<Editor.TheraAssemblyTargetLoader, TheraAssemblyResolver> _gameDomain;
+        private AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver> _gameDomain;
+
         [Browsable(false)]
         public ProjectDomainProxy DomainProxy { get; private set; }
 

@@ -16,7 +16,7 @@ namespace TheraEditor.Windows.Forms
     {
         public static void ResetTypeCaches()
         {
-            TheraPropertyGrid.ReloadEditorTypes();
+            Instance.DomainProxy.ReloadEditorTypes();
             FolderWrapper.LoadFileTypes();
             BaseObjectSerializer.ResetObjectSerializerCache(true);
             TFileObject.ClearThirdPartyTypeCache(true);

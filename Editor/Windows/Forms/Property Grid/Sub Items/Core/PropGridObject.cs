@@ -152,7 +152,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 TypeProxy bestType = null;
                 while (type != null && type != typeof(object))
                 {
-                    if (TheraPropertyGrid.FullEditorTypes.ContainsKey(type))
+                    if (Editor.Instance.DomainProxy.FullEditorTypes.ContainsKey(type))
                     {
                         bestType = type;
                         break;
@@ -160,7 +160,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
                     foreach (Type intfType in type.GetInterfaces())
                     {
-                        if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
+                        if (Editor.Instance.DomainProxy.FullEditorTypes.ContainsKey(intfType))
                         {
                             compareType = intfType;
                             if (bestType == null || compareType.IsAssignableTo(bestType))
@@ -173,7 +173,7 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
                 }
                 if (bestType != null)
                 {
-                    _editorType = TheraPropertyGrid.FullEditorTypes[bestType];
+                    _editorType = Editor.Instance.DomainProxy.FullEditorTypes[bestType];
                     _mouseDown = MouseDownEditor;
                     return;
                 }

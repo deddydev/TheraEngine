@@ -153,11 +153,12 @@ namespace TheraEditor.Wrappers
                     Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
                     return null;
                 }
+                var full = Editor.Instance.DomainProxy.FullEditorTypes;
                 while (!(fileType is null) && fileType != typeof(object))
                 {
-                    if (TheraPropertyGrid.FullEditorTypes.ContainsKey(fileType))
+                    if (full.ContainsKey(fileType))
                     {
-                        var editorType = TheraPropertyGrid.FullEditorTypes[fileType];
+                        var editorType = full[fileType];
                         Form form = editorType.CreateInstance(f) as Form;
                         if (form is DockContent dc && !(form is TheraForm))
                             dc.Show(Editor.Instance.DockPanel, DockState.Document);
@@ -167,9 +168,9 @@ namespace TheraEditor.Wrappers
                     }
                     foreach (TypeProxy intfType in fileType.GetInterfaces())
                     {
-                        if (TheraPropertyGrid.FullEditorTypes.ContainsKey(intfType))
+                        if (full.ContainsKey(intfType))
                         {
-                            var editorType = TheraPropertyGrid.FullEditorTypes[intfType];
+                            var editorType = full[intfType];
                             Form form = editorType.CreateInstance(f) as Form;
                             if (form is DockContent dc && !(form is TheraForm))
                                 dc.Show(Editor.Instance.DockPanel, DockState.Document);

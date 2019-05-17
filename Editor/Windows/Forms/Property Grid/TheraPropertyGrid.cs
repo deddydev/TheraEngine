@@ -594,25 +594,26 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             TypeProxy mainControlType = null;
             TypeProxy subType = propertyType;
             Deque<TypeProxy> controlTypes = new Deque<TypeProxy>();
+            var inPlace = Editor.Instance.DomainProxy.InPlaceEditorTypes;
             while (subType != null)
             {
                 if (mainControlType == null)
                 {
                     TypeProxy subType2 = subType;
-                    if (subType.IsGenericType && !InPlaceEditorTypes.ContainsKey(subType))
+                    if (subType.IsGenericType && !inPlace.ContainsKey(subType))
                         subType2 = subType.GetGenericTypeDefinition();
-                    if (InPlaceEditorTypes.ContainsKey(subType2))
+                    if (inPlace.ContainsKey(subType2))
                     {
-                        mainControlType = InPlaceEditorTypes[subType2];
+                        mainControlType = inPlace[subType2];
                         if (!controlTypes.Contains(mainControlType))
                             controlTypes.PushFront(mainControlType);
                     }
                 }
                 TypeProxy[] interfaces = subType.GetInterfaces();
                 foreach (TypeProxy i in interfaces)
-                    if (InPlaceEditorTypes.ContainsKey(i))
+                    if (inPlace.ContainsKey(i))
                     {
-                        TypeProxy controlType = InPlaceEditorTypes[i];
+                        TypeProxy controlType = inPlace[i];
                         if (!controlTypes.Contains(controlType))
                             controlTypes.PushBack(controlType);
                     }
@@ -992,79 +993,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
         //{
         //    base.OnLostFocus(e);
         //}
-
-        #region Static
-
-        internal static ConcurrentDictionary<TypeProxy, TypeProxy> _inPlaceEditorTypes;
-        internal static ConcurrentDictionary<TypeProxy, TypeProxy> _fullEditorTypes;
-
-        /// <summary>
-        /// Object type editors that appear within the property grid.
-        /// </summary>
-        public static ConcurrentDictionary<TypeProxy, TypeProxy> InPlaceEditorTypes => _inPlaceEditorTypes;
-        /// <summary>
-        /// Object type editors that have their own dedicated window for the type.
-        /// </summary>
-        public static ConcurrentDictionary<TypeProxy, TypeProxy> FullEditorTypes => _fullEditorTypes;
-
-        public static void ReloadEditorTypes()
-        {
-            if (Engine.DesignMode)
-                return;
-
-            _inPlaceEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
-            _fullEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
-
-            Engine.PrintLine("Loading all editor types to property grid in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-            Task propEditorsTask = Task.Run(() =>
-            {
-                var propControls = AppDomainHelper.FindTypes(x =>
-                    !x.IsAbstract &&
-                    x.IsSubclassOf(typeof(PropGridItem)),
-                    Assembly.GetExecutingAssembly());
-                
-                Parallel.ForEach(propControls, AddPropControlEditorType);
-            });
-            Task fullEditorsTask = Task.Run(() =>
-            {
-                var fullEditors = AppDomainHelper.FindTypes(x => 
-                    !x.IsAbstract && 
-                    x.IsSubclassOf(typeof(Form)) &&
-                    x.HasCustomAttribute<EditorForAttribute>(),
-                    Assembly.GetExecutingAssembly());
-
-                Parallel.ForEach(fullEditors, AddFullEditorType);
-            });
-            Task.WhenAll(propEditorsTask, fullEditorsTask).ContinueWith(t => 
-                Engine.PrintLine("Finished loading all editor types to property grid."));
-        }
-        private static void AddPropControlEditorType(TypeProxy propControlType)
-        {
-            var attribs = propControlType.GetCustomAttributes<PropGridControlForAttribute>();
-            if (attribs.Count > 0)
-            {
-                PropGridControlForAttribute a = attribs[0];
-                foreach (Type varType in a.Types)
-                {
-                    //if (!_inPlaceEditorTypes.ContainsKey(varType))
-                        _inPlaceEditorTypes.AddOrUpdate(varType, propControlType, (x, y) => propControlType);
-                    //else
-                    //    throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
-                }
-            }
-        }
-        private static void AddFullEditorType(TypeProxy editorType)
-        {
-            var attrib = editorType.GetCustomAttribute<EditorForAttribute>();
-            foreach (TypeProxy varType in attrib.DataTypes)
-            {
-                //if (!_fullEditorTypes.ContainsKey(varType))
-                    _fullEditorTypes.AddOrUpdate(varType, editorType, (x, y) => editorType);
-                //else
-                //    throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
-            }
-        }
-        #endregion
 
         private void UpdateCtxSceneComp()
         {

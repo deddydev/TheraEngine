@@ -68,19 +68,19 @@ namespace TheraEditor.Wrappers
             newCodeItem.DropDownItems.Add(new ToolStripMenuItem("Enum", null, NewEnumAction));
             newDropdown.DropDownItems.Add(newCodeItem);
 
-            Engine.PrintLine("Loading importable and creatable file types to folder menu in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-            Task import = Task.Run(() =>
-            {
-                Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
-            });
-            Task create = Task.Run(() =>
-            {
-                Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
-            });
-            Task.WhenAll(import, create).ContinueWith(t =>
-            {
-                Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
-            });
+            //Engine.PrintLine("Loading importable and creatable file types to folder menu in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
+            //Task import = Task.Run(() =>
+            //{
+            //    Program.PopulateMenuDropDown(importDropdown, OnImportClickAsync, Is3rdPartyImportable);
+            //});
+            //Task create = Task.Run(() =>
+            //{
+            //    Program.PopulateMenuDropDown(newDropdown, OnNewClick, IsFileObject);
+            //});
+            //Task.WhenAll(import, create).ContinueWith(t =>
+            //{
+            //    Engine.PrintLine("Finished loading importable and creatable file types to folder menu.");
+            //});
         }
         
         private enum ECodeFileType

@@ -504,6 +504,7 @@
     <Compile Include="Core\Reflection\Proxies\TypeProxy.cs" />
     <Compile Include="Core\ResourcePool.cs" />
     <EmbeddedResource Include="Core\Engine\Program_Template.tcs" />
+    <Compile Include="Core\Engine\EngineDomainProxy.cs" />
     <Compile Include="Input\Devices\BaseGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\DirectX\DXGamepadConfiguration.cs" />
     <Compile Include="Input\Devices\OpenTK\TKGamepadConfiguration.cs" />

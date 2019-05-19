@@ -144,7 +144,7 @@ namespace TheraEditor.Windows.Forms
         private AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver> _gameDomain;
 
         [Browsable(false)]
-        public ProjectDomainProxy DomainProxy { get; private set; }
+        public EngineDomainProxy DomainProxy { get; private set; }
 
         private TypeProxy TypeCreationFailed(string typeDeclaration)
             => DomainProxy.CreateType(typeDeclaration);
@@ -221,7 +221,7 @@ namespace TheraEditor.Windows.Forms
                         _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
                     }
 
-                DomainProxy = _gameDomain.Domain.CreateInstanceAndUnwrap<ProjectDomainProxy>();
+                DomainProxy = _gameDomain.Domain.CreateInstanceAndUnwrap<EngineDomainProxy>();
 
                 //dynamic dynProxy = proxy;
                 //string info = dynProxy.GetVersionInfo();

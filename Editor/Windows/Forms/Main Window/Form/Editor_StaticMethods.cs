@@ -16,11 +16,7 @@ namespace TheraEditor.Windows.Forms
     {
         public static void ResetTypeCaches()
         {
-            Instance.DomainProxy.ReloadEditorTypes();
-            FolderWrapper.LoadFileTypes();
-            BaseObjectSerializer.ResetObjectSerializerCache(true);
-            TFileObject.ClearThirdPartyTypeCache(true);
-            TFileObject.Reset3rdPartyImportExportMethods();
+            Instance.DomainProxy.ResetTypeCaches();
         }
         /// <summary>
         /// This will possess and unpossess the necessary viewports and pawns corresponding to the given editor control.

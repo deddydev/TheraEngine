@@ -451,7 +451,7 @@
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Extensions\ZipFileWithProgress.cs" />
     <Compile Include="Core\Thumbnails.cs" />
-    <Compile Include="ProjectDomainProxy.cs" />
+    <Compile Include="EngineDomainProxyEditor.cs" />
     <Compile Include="Intellisense.cs" />
     <Compile Include="Windows\Controls\AutoEllipseLabel.cs">
       <SubType>Component</SubType>

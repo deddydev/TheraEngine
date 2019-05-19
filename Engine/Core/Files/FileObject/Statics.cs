@@ -14,73 +14,6 @@ namespace TheraEngine.Core.Files
 {
     public abstract partial class TFileObject : TObject, IFileObject
     {
-        private static void ReadLoaders(IDictionary<string, Dictionary<TypeProxy, Delegate>> loaders, TypeProxy type, IEnumerable<string> extensions)
-        {
-            foreach (string ext3rd in extensions)
-            {
-                string extLower = ext3rd.ToLowerInvariant();
-                Dictionary<TypeProxy, Delegate> extensionLoaders;
-                if (loaders.ContainsKey(extLower))
-                    extensionLoaders = loaders[extLower];
-                else
-                    loaders.Add(extLower, extensionLoaders = new Dictionary<TypeProxy, Delegate>());
-
-                if (extensionLoaders.ContainsKey(type))
-                    throw new Exception(type.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
-
-                MethodInfoProxy[] methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                    .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
-                    .ToArray();
-
-                if (methods.Length <= 0)
-                    continue;
-
-                MethodInfoProxy m = methods[0];
-                ThirdPartyLoader loader = m.GetCustomAttribute<ThirdPartyLoader>();
-                bool async = loader.Async;
-                TypeProxy delGenType = async ? typeof(Del3rdPartyImportFileMethodAsync<>) : typeof(Del3rdPartyImportFileMethod<>);
-
-                try
-                {
-                    TypeProxy delType = delGenType.MakeGenericType(m.DeclaringType);
-                    Delegate d = delType.CreateDelegate(m);
-                    extensionLoaders.Add(type, d);
-                }
-                catch
-                {
-                    Engine.LogWarning($"Cannot use {m.GetFriendlyName()} as a third party loader for {m.DeclaringType.GetFriendlyName()}.");
-                }
-            }
-        }
-
-        public static void Reset3rdPartyImportExportMethods(bool reloadNow = true)
-        {
-            if (reloadNow)
-            {
-                _3rdPartyLoaders = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
-                _3rdPartyExporters = new Dictionary<string, Dictionary<TypeProxy, Delegate>>();
-                try
-                {
-                    TypeProxy[] types = AppDomainHelper.FindTypes(t => t.IsSubclassOf(typeof(TFileObject)) && !t.IsAbstract).ToArray();
-                    foreach (TypeProxy type in types)
-                    {
-                        TFileExt attrib = GetFileExtension(type);
-                        if (attrib == null)
-                            continue;
-
-                        ReadLoaders(_3rdPartyLoaders, type, attrib.ImportableExtensions);
-                        ReadLoaders(_3rdPartyExporters, type, attrib.ExportableExtensions);
-                    }
-                }
-                catch { }
-            }
-            else
-            {
-                _3rdPartyLoaders = null;
-                _3rdPartyExporters = null;
-            }
-        }
-
         public static TFileDef GetFileDefinition(TypeProxy classType)
             => classType.GetCustomAttribute<TFileDef>(true);
         public static TFileExt GetFileExtension(TypeProxy classType)
@@ -517,9 +450,6 @@ namespace TheraEngine.Core.Files
             }
             return obj;
         }
-
-        private static Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyLoaders;
-        private static Dictionary<string, Dictionary<TypeProxy, Delegate>> _3rdPartyExporters;
 
         public static Delegate Get3rdPartyLoader(TypeProxy fileType, string extension)
         {

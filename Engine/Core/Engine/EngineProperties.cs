@@ -412,12 +412,23 @@ namespace TheraEngine
                 }
             }
 
-            public void GenerateProxy<T>(AppDomain domain, TGame game) where T : EngineDomainProxy
+            public void GenerateProxy<T>(AppDomain domain, TGame game) where T : EngineDomainProxy, new()
             {
                 string domainName = domain.FriendlyName;
                 PrintLine("Generating proxy of type " + typeof(T).GetFriendlyName() + " in domain " + domainName);
 
-                DomainProxy = domain.CreateInstanceAndUnwrap<T>();
+                if (domain == AppDomain.CurrentDomain)
+                {
+                    DomainProxy = new T();
+                }
+                else
+                {
+                    DomainProxy = domain.CreateInstanceAndUnwrap<T>();
+                    var lease = DomainProxy.InitializeLifetimeService() as ILease;
+                    lease.Register(DomainProxy.SponsorRef);
+                }
+
+                DomainProxy.Run(game);
 
                 //dynamic dynProxy = proxy;
                 //string info = dynProxy.GetVersionInfo();
@@ -431,11 +442,6 @@ namespace TheraEngine
                 //Engine.PrintLine(info4);
 
                 //Type.TypeCreationFailed = TypeCreationFailed;
-
-                var lease = DomainProxy.InitializeLifetimeService() as ILease;
-                lease.Register(DomainProxy.SponsorRef);
-
-                DomainProxy.Run(game);
             }
 
             private Type TypeCreationFailed(string typeDeclaration)

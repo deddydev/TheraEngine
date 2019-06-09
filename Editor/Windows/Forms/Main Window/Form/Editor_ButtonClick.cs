@@ -176,61 +176,78 @@ namespace TheraEditor.Windows.Forms
 
         public void CreateGameDomain(TProject project, string rootDir, string[] assemblyPaths)
         {
-            Engine.PrintLine("Creating game domain.");
-            Engine.PrintLine("Active domains before load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
-
-            try
+            if (project == null)
             {
-                if (_gameDomain != null)
+                try
                 {
-                    Engine.DomainProxy.Destroyed();
-                    _gameDomain.Dispose();
-                    _gameDomain = null;
+                    DestroyGameDomain();
+                    Engine.Instance.GenerateProxy<EngineDomainProxyEditor>(AppDomain.CurrentDomain, null);
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
+                }
+            }
+            else
+            {
+
+                Engine.PrintLine("Creating game domain.");
+                Engine.PrintLine("Active domains before load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
+
+                try
+                {
+                    DestroyGameDomain();
+                    CopyEditorLibraries(assemblyPaths);
+
+                    string name = project?.Name ?? "EmptyDomain";
+                    AppDomainSetup setupInfo = new AppDomainSetup()
+                    {
+                        ApplicationName = name,
+                        ApplicationBase = rootDir,
+                        PrivateBinPath = rootDir,
+                        ShadowCopyFiles = "true",
+                        ShadowCopyDirectories = assemblyPaths == null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
+                        LoaderOptimization = LoaderOptimization.MultiDomain,
+                        //DisallowApplicationBaseProbing = true,
+                    };
+
+                    _gameDomain = AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver>.
+                        Create<TheraAssemblyTargetLoader, TheraAssemblyResolver>(setupInfo);
+
+                    if (assemblyPaths != null)
+                        foreach (string path in assemblyPaths)
+                        {
+                            FileInfo file = new FileInfo(path);
+                            if (!file.Exists)
+                                continue;
+
+                            Engine.PrintLine("Loading compiled assembly at " + path);
+                            _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
+                            _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
+                        }
+
+                    Engine.Instance.GenerateProxy<EngineDomainProxyEditor>(_gameDomain.Domain, project);
+                }
+                catch (Exception ex)
+                {
+                    Engine.LogException(ex);
                 }
 
-                CopyEditorLibraries(assemblyPaths);
-                string name = project?.Name ?? "null";
-                AppDomainSetup setupInfo = new AppDomainSetup()
-                {
-                    ApplicationName = name,
-                    ApplicationBase = rootDir,
-                    PrivateBinPath = rootDir,
-                    ShadowCopyFiles = "true",
-                    ShadowCopyDirectories = assemblyPaths == null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
-                    LoaderOptimization = LoaderOptimization.MultiDomain,
-                    //DisallowApplicationBaseProbing = true,
-                };
+                Engine.PrintLine("Game domain created.");
 
-                _gameDomain = AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver>.
-                    Create<TheraAssemblyTargetLoader, TheraAssemblyResolver>(setupInfo);
-
-                if (assemblyPaths != null)
-                    foreach (string path in assemblyPaths)
-                    {
-                        FileInfo file = new FileInfo(path);
-                        if (!file.Exists)
-                            continue;
-
-                        Engine.PrintLine("Loading compiled assembly at " + path);
-                        _gameDomain.RemoteResolver.AddProbePath(file.Directory.FullName);
-                        _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
-                    }
-
-                Engine.Instance.GenerateProxy<EngineDomainProxyEditor>(_gameDomain.Domain, project);
+                AppDomainHelper.ResetAppDomainCache();
+                Engine.PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
             }
-            catch (Exception ex)
+        }
+
+        private void DestroyGameDomain()
+        {
+            if (_gameDomain != null)
             {
-                Engine.LogException(ex);
+                Engine.DomainProxy.Destroyed();
+                _gameDomain.Dispose();
+                _gameDomain = null;
             }
-
-            Engine.PrintLine("Game domain created.");
-
-            AppDomainHelper.ResetAppDomainCache();
-            Engine.PrintLine("Active domains after load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
-
-            //var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            //Engine.PrintLine(string.Join("\n", assemblies.Select(x => x.FullName)));
-            //_gameDomain.Domain.AssemblyLoad += Domain_AssemblyLoad;
         }
 
         public class TheraAssemblyLoader : MarshalByRefObject, IAssemblyLoader

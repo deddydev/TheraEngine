@@ -35,11 +35,6 @@ namespace TheraEngine
         public static ColorF4 InvalidColor { get; } = Color.Magenta;
 
         #region Startup/Shutdown
-        public static void SetFillerGame()
-        {
-            Game = new TGame();
-            Instance.GenerateProxy<EngineDomainProxy>(AppDomain.CurrentDomain, Game);
-        }
         private class EngineTraceListener : TraceListener
         {
             public override void WriteLine(string message)

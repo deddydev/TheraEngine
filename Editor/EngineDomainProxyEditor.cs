@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Lifetime;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
 using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
-using TheraEngine.Actors;
 using TheraEngine.Core;
-using TheraEngine.Core.Files;
-using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEditor
@@ -35,27 +28,19 @@ namespace TheraEditor
             FullEditorTypes = new ConcurrentDictionary<TypeProxy, TypeProxy>();
 
             Engine.PrintLine("Loading all editor types to property grid in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-            Task propEditorsTask = Task.Run(() =>
-            {
-                var propControls = AppDomainHelper.FindTypes(x =>
-                    !x.IsAbstract &&
-                    x.IsSubclassOf(typeof(PropGridItem)),
-                    Assembly.GetExecutingAssembly());
-
-                Parallel.ForEach(propControls, AddPropControlEditorType);
-            });
-            Task fullEditorsTask = Task.Run(() =>
-            {
-                var fullEditors = AppDomainHelper.FindTypes(x =>
-                    !x.IsAbstract &&
-                    x.IsSubclassOf(typeof(Form)) &&
-                    x.HasCustomAttribute<EditorForAttribute>(),
-                    Assembly.GetExecutingAssembly());
-
-                Parallel.ForEach(fullEditors, AddFullEditorType);
-            });
+            Task propEditorsTask = Task.Run(AddPropControlEditorTypes);
+            Task fullEditorsTask = Task.Run(AddFullEditorTypes);
             Task.WhenAll(propEditorsTask, fullEditorsTask).ContinueWith(t =>
-                Engine.PrintLine("Finished loading all editor types to property grid."));
+                Engine.PrintLine("Finished loading all editor types to property grid in AppDomain " + AppDomain.CurrentDomain.FriendlyName));
+        }
+        private void AddPropControlEditorTypes()
+        {
+            var propControls = AppDomainHelper.FindTypes(x =>
+                !x.IsAbstract &&
+                x.IsSubclassOf(typeof(PropGridItem)),
+                Assembly.GetExecutingAssembly());
+
+            Parallel.ForEach(propControls, AddPropControlEditorType);
         }
         private void AddPropControlEditorType(TypeProxy propControlType)
         {
@@ -71,6 +56,16 @@ namespace TheraEditor
                     //    throw new Exception("Type " + varType.GetFriendlyName() + " already has control " + propControlType.GetFriendlyName() + " associated with it.");
                 }
             }
+        }
+        private void AddFullEditorTypes()
+        {
+            var fullEditors = AppDomainHelper.FindTypes(x =>
+                !x.IsAbstract &&
+                x.IsSubclassOf(typeof(Form)) &&
+                x.HasCustomAttribute<EditorForAttribute>(),
+                Assembly.GetExecutingAssembly());
+
+            Parallel.ForEach(fullEditors, AddFullEditorType);
         }
         private void AddFullEditorType(TypeProxy editorType)
         {

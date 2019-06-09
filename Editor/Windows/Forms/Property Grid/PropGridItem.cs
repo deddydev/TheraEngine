@@ -223,39 +223,6 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
 
             Label.Text = name;
         }
-        private ProxyList<string> EvaluatePropertyRemote(PropertyInfoProxy prop)
-        {
-            string domain = AppDomain.CurrentDomain.FriendlyName;
-
-            var list = new ProxyList<string>() { null, string.Empty, null, null, null, null };
-
-            var attribs = prop.GetCustomAttributes(true);
-            foreach (object attrib in attribs)
-            {
-                switch (attrib)
-                {
-                    case BrowsableIf browsableIf:
-                        list[0] = browsableIf.Condition;
-                        break;
-                    case BrowsableAttribute browsable:
-                        list[1] = browsable.Browsable ? string.Empty : null;
-                        break;
-                    case ReadOnlyAttribute readOnlyAttrib:
-                        list[2] = readOnlyAttrib.IsReadOnly ? string.Empty : null;
-                        break;
-                    case DisplayNameAttribute displayName:
-                        list[3] = displayName.DisplayName;
-                        break;
-                    case EditInPlace editInPlace:
-                        list[4] = string.Empty;
-                        break;
-                    case DescriptionAttribute desc:
-                        list[5] = desc.Description;
-                        break;
-                }
-            }
-            return list;
-        }
         /// <summary>
         /// Designates where this item gets and sets its value.
         /// </summary>
@@ -267,23 +234,33 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             
             if (MemberInfo is PropGridMemberInfoProperty propInfo)
             {
-                string domain = AppDomain.CurrentDomain.FriendlyName;
-
-                AppDomain gameDomain = AppDomainHelper.GetGameAppDomain();
-                string domain2 = gameDomain.FriendlyName;
-
-                ProxyList<string> result = RemoteFunc.Invoke(gameDomain, propInfo.Property, EvaluatePropertyRemote);
-
-                VisibilityCondition = result[0];
-                Visible = result[1] != null;
-                ReadOnly = result[2] != null;
-                displayNameOverride = result[3];
-
-                if (this is PropGridObject pobj)
-                    pobj.EditInPlace = pobj.AlwaysVisible = result[4] != null;
-                
-                if (Label?.Tag is MemberLabelInfo info)
-                    info.Description = result[5];
+                var attribs = propInfo.Property.GetCustomAttributes(true);
+                foreach (object attrib in attribs)
+                {
+                    switch (attrib)
+                    {
+                        case BrowsableIf browsableIf:
+                            VisibilityCondition = browsableIf.Condition;
+                            break;
+                        case BrowsableAttribute browsable:
+                            Visible = browsable.Browsable;
+                            break;
+                        case ReadOnlyAttribute readOnlyAttrib:
+                            ReadOnly = readOnlyAttrib.IsReadOnly;
+                            break;
+                        case DisplayNameAttribute displayName:
+                            displayNameOverride = displayName.DisplayName;
+                            break;
+                        case EditInPlace editInPlace:
+                            if (this is PropGridObject pobj)
+                                pobj.EditInPlace = pobj.AlwaysVisible = true;
+                            break;
+                        case DescriptionAttribute desc:
+                            if (Label?.Tag is MemberLabelInfo info)
+                                info.Description = desc.Description;
+                            break;
+                    }
+                }
             }
 
             ResolveMemberName(displayNameOverride);
@@ -291,13 +268,13 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             if (DataType != null)
             {
                 //Double check that this control is valid for the given type
-                PropGridControlForAttribute attr = this.GetTypeProxy().GetCustomAttribute<PropGridControlForAttribute>();
+                PropGridControlForAttribute attr = this.GetType().GetCustomAttribute<PropGridControlForAttribute>();
                 if (attr != null)
                 {
                     Type[] types = attr.Types;
                     string str = types.ToStringList(", ", ", or ", t => t.GetFriendlyName());
 
-                    bool condition = types.Any(x => x.IsAssignableFrom(DataType) || (DataType.IsGenericType && x == DataType.GetGenericTypeDefinition()));
+                    bool condition = types.Any(x => DataType.IsAssignableTo(x) || (DataType.IsGenericType && x == DataType.GetGenericTypeDefinition()));
                     string errorMsg = $"{DataType.GetFriendlyName()} is not a {str} type.";
 
                     if ((condition || !types.Any(x => x == typeof(string))) && !Engine.Assert(condition, errorMsg, false))
@@ -325,7 +302,11 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             => string.IsNullOrWhiteSpace(VisibilityCondition) ? true : ExpressionParser.Evaluate<bool>(VisibilityCondition, owningObject);
         public void UpdateDisplay()
         {
-            if (IsEditing || MemberInfo == null || (ParentCategory != null && (!ParentCategory.Visible || !ParentCategory.PropertyTable.Visible)))
+            if (IsEditing ||
+                MemberInfo == null || 
+                ParentCategory == null || 
+                !ParentCategory.Visible ||
+                !ParentCategory.PropertyTable.Visible)
                 return;
 
             _updating = true;

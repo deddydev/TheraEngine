@@ -4,10 +4,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
@@ -37,7 +37,8 @@ namespace TheraEngine.Core.Reflection
         /// </value>
         public static bool IsPrimaryDomain 
             => GetPrimaryAppDomain() == AppDomain.CurrentDomain;
-
+        public static bool IsGameDomain
+            => GetGameAppDomain() == AppDomain.CurrentDomain;
         /// <summary>
         /// Returns the primary application domain.
         /// </summary>
@@ -60,7 +61,7 @@ namespace TheraEngine.Core.Reflection
         public static void ResetTypeCache()
         {
             _exportedTypesCache = new Lazy<TypeProxy[]>(() =>
-                GetGameAppDomain().GetAssemblyProxies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes()).Distinct(new TypeProxy.EqualityComparer()).ToArray(),
+                GetGameAppDomain().GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes().Select(r => TypeProxy.Get(r))).Distinct().ToArray(),
                 LazyThreadSafetyMode.PublicationOnly);
         }
 
@@ -155,7 +156,7 @@ namespace TheraEngine.Core.Reflection
 
             return matches.Values.OrderBy(x => x.Name);
         }
-        
+
         internal static void DomainAssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
             string assemblyName = args.LoadedAssembly.GetName().Name;

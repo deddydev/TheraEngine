@@ -10,12 +10,12 @@
             FoundInput += uponFound;
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
         }
-        ~InputAwaiter() { Dispose(); }
+        //~InputAwaiter() { Dispose(); }
 
-        public void Dispose()
-        {
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
-        }
+        //public void Dispose()
+        //{
+        //    UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+        //}
         
         public abstract BaseGamePad CreateGamepad(int index);
         public abstract BaseKeyboard CreateKeyboard(int index);

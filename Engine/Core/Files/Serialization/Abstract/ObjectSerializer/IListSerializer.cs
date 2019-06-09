@@ -18,7 +18,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         public override void DeserializeTreeToObject()
         {
-            TypeProxy listType = TreeNode.ObjectType;
+            Type listType = TreeNode.ObjectType;
             DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
             if (!TreeNode.Content.GetObject(listType, out object list))
@@ -43,9 +43,9 @@ namespace TheraEngine.Core.Files.Serialization
 
             TreeNode.Object = list;
         }
-        private async void ReadElements(TypeProxy arrayType, int count)
+        private async void ReadElements(Type arrayType, int count)
         {
-            TypeProxy elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
+            Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
             for (int i = 0; i < count; ++i)
             {
                 SerializeElement node = TreeNode.Children[i];
@@ -89,16 +89,16 @@ namespace TheraEngine.Core.Files.Serialization
         #endregion
 
         #region String
-        public override bool CanWriteAsString(TypeProxy type)
+        public override bool CanWriteAsString(Type type)
         {
-            TypeProxy elementType = type.DetermineElementType();
-            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
+            Type elementType = type.DetermineElementType();
+            BaseObjectSerializer ser = Engine.DomainProxy.DetermineObjectSerializer(elementType, true);
             return ser != null && ser.CanWriteAsString(elementType);
         }
-        public override bool ObjectFromString(TypeProxy type, string value, out object result)
+        public override bool ObjectFromString(Type type, string value, out object result)
         {
-            TypeProxy elementType = type.DetermineElementType();
-            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
+            Type elementType = type.DetermineElementType();
+            BaseObjectSerializer ser = Engine.DomainProxy.DetermineObjectSerializer(elementType, true);
             if (ser == null || !ser.CanWriteAsString(elementType))
             {
                 result = null;
@@ -143,7 +143,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             Type arrayType = list.GetType();
             Type elementType = arrayType.DetermineElementType();
-            BaseObjectSerializer ser = DetermineObjectSerializer(elementType, true);
+            BaseObjectSerializer ser = Engine.DomainProxy.DetermineObjectSerializer(elementType, true);
             if (ser == null || !ser.CanWriteAsString(elementType))
                 return false;
 

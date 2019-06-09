@@ -109,14 +109,16 @@ namespace TheraEngine.Rendering
             Thread thread = Thread.CurrentThread;
             
              CreateContextForThread(thread);
-            
-            _currentSubContext = _subContexts[thread.ManagedThreadId];
-            _currentSubContext.SetCurrent(true);
+            if (_subContexts.ContainsKey(thread.ManagedThreadId))
+            {
+                _currentSubContext = _subContexts[thread.ManagedThreadId];
+                _currentSubContext.SetCurrent(true);
+            }
         }
         protected abstract ThreadSubContext CreateSubContext(IntPtr handle, Thread thread);
         internal void CreateContextForThread(Thread thread)
         {
-            if (thread == null)
+            if (thread == null || _control == null)
                 return;
             
             if (!_subContexts.ContainsKey(thread.ManagedThreadId))
@@ -162,7 +164,7 @@ namespace TheraEngine.Rendering
         public bool IsContextDisposed()
         {
             GetCurrentSubContext();
-            return _currentSubContext.IsContextDisposed();
+            return _currentSubContext?.IsContextDisposed() ?? true;
         }
         protected void OnSwapBuffers()
         {

@@ -1,4 +1,5 @@
-﻿using Core.Win32.Native;
+﻿using AppDomainToolkit;
+using Core.Win32.Native;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ using TheraEngine;
 using TheraEngine.Actors;
 using TheraEngine.Actors.Types.Pawns;
 using TheraEngine.Core.Files;
+using TheraEngine.Core.Reflection;
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 using TheraEngine.Input.Devices;
@@ -347,6 +349,8 @@ namespace TheraEditor.Windows.Forms
         {
             base.OnLoad(e);
 
+            Project = null;
+
             EditorSettings defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
             List<string> recentFiles = defaultSettings?.RecentlyOpenedProjectPaths;
             if (recentFiles != null && recentFiles.Count > 0)
@@ -354,11 +358,7 @@ namespace TheraEditor.Windows.Forms
                 string lastOpened = recentFiles[recentFiles.Count - 1];
                 if (!string.IsNullOrEmpty(lastOpened))
                     Project = await TFileObject.LoadAsync<TProject>(lastOpened);
-                else
-                    Project = null;
             }
-            else
-                Project = null;
             
             Engine.Run();
 
@@ -572,57 +572,61 @@ namespace TheraEditor.Windows.Forms
 
             if (projectOpened)
             {
-                string configFile = _project.EditorSettings?.GetFullDockConfigPath();
-                //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
-
-                if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
-                    DockPanel.LoadFromXml(configFile, _deserializeDockContent);
-                else
-                {
-                    DockPanel.SuspendLayout(true);
-                    OutputForm.Show(DockPanel, DockState.DockBottom);
-                    ActorTreeForm.Show(DockPanel, DockState.DockRight);
-                    FileTreeForm.Show(DockPanel, DockState.DockLeft);
-                    PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
-                    RenderForm1.Show(DockPanel, DockState.Document);
-                    DockPanel.ResumeLayout(true, true);
-                }
-
-                if (string.IsNullOrEmpty(_project.FilePath))
-                    Text = string.Empty;
-                else
-                {
-                    Text = _project.FilePath;
-                    ContentTree.OpenPath(_project.FilePath);
-                }
-
-                //Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
-                //Engine.Initialize();
-                //SetRenderTicking(true);
-                //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
-
-                CurrentWorld = _project.OpeningWorldRef?.File;
-
-                UpdateRecentProjectPaths();
-
-                _project.CreateGameDomain(false);
-
-                var errors = _project?.LastBuildLog?.Errors;
-                if (errors != null && errors.Count > 0)
-                    _project.LastBuildLog.Display();
+                _project.CreateGameDomain(false, OnCompiled);
             }
             else
             {
+                CreateGameDomain(null, null, null);
+
                 Text = string.Empty;
 
                 DockPanel.SuspendLayout(true);
                 OutputForm.Show(DockPanel, DockState.DockBottom);
                 WelcomeForm.Show(DockPanel, DockState.Document);
                 DockPanel.ResumeLayout(true, true);
-
-                CreateGameDomain(null, null, null);
             }
         }
+
+        private void OnCompiled()
+        {
+            string configFile = _project.EditorSettings?.GetFullDockConfigPath();
+            //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
+
+            if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
+                DockPanel.LoadFromXml(configFile, _deserializeDockContent);
+            else
+            {
+                DockPanel.SuspendLayout(true);
+                OutputForm.Show(DockPanel, DockState.DockBottom);
+                ActorTreeForm.Show(DockPanel, DockState.DockRight);
+                FileTreeForm.Show(DockPanel, DockState.DockLeft);
+                PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
+                RenderForm1.Show(DockPanel, DockState.Document);
+                DockPanel.ResumeLayout(true, true);
+            }
+
+            if (string.IsNullOrEmpty(_project.FilePath))
+                Text = string.Empty;
+            else
+            {
+                Text = _project.FilePath;
+                ContentTree.OpenPath(_project.FilePath);
+            }
+
+            //Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
+            //Engine.Initialize();
+            //SetRenderTicking(true);
+            //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
+
+            CurrentWorld = _project.OpeningWorldRef?.File;
+
+            UpdateRecentProjectPaths();
+
+            var errors = _project?.LastBuildLog?.Errors;
+            if (errors != null && errors.Count > 0)
+                _project.LastBuildLog.Display();
+        }
+
         #endregion
 
         #region Game Mode
@@ -974,10 +978,11 @@ namespace TheraEditor.Windows.Forms
             if (file == null)
                 return;
 
-            using (SaveFileDialog sfd = new SaveFileDialog()
+            string filter = RemoteFunc.Invoke(AppDomainHelper.GetGameAppDomain(), file, (marshaledFile) =>
             {
-                Filter = TFileObject.GetFilter(file.GetTypeProxy(), true, true, false, true),
-            })
+                return TFileObject.GetFilter(marshaledFile.GetType(), true, true, false, true);
+            });
+            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = filter })
             {
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                     SaveFile(file, sfd.FileName);

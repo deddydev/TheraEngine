@@ -39,8 +39,8 @@ namespace System.Collections.Generic
         }
         public static TypeProxy DetermineElementTypeProxy(this IList list)
         {
-            Type listType = list.GetType();
-            Type elementType = listType.GetElementType();
+            TypeProxy listType = list.GetTypeProxy();
+            TypeProxy elementType = listType.GetElementType();
             if (elementType != null)
                 return elementType;
             if (listType.IsGenericType && listType.GenericTypeArguments.Length == 1)
@@ -49,14 +49,14 @@ namespace System.Collections.Generic
         }
         public static TypeProxy DetermineKeyTypeProxy(this IDictionary dic)
         {
-            Type listType = dic.GetType();
+            TypeProxy listType = dic.GetTypeProxy();
             if (listType.IsGenericType)
                 return listType.GenericTypeArguments[0];
             return null;
         }
         public static TypeProxy DetermineValueTypeProxy(this IDictionary dic)
         {
-            Type listType = dic.GetType();
+            TypeProxy listType = dic.GetTypeProxy();
             if (listType.IsGenericType)
                 return listType.GenericTypeArguments[1];
             return null;

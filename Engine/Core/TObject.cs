@@ -115,7 +115,7 @@ namespace TheraEngine
         [Category("Object")]
         public virtual string Name
         {
-            get => _name ?? this.GetTypeProxy().GetFriendlyName("[", "]");
+            get => _name ?? this.GetType().GetFriendlyName("[", "]");
             set
             {
                 string oldName = _name;

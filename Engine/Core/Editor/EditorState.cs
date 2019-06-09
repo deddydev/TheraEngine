@@ -439,14 +439,14 @@ namespace TheraEngine.Editor
     }
     public class LocalValueChangeProperty : LocalValueChange
     {
-        public LocalValueChangeProperty(object oldValue, object newValue, object propertyOwner, PropertyInfoProxy propertyInfo) : base(oldValue, newValue)
+        public LocalValueChangeProperty(object oldValue, object newValue, object propertyOwner, PropertyInfo propertyInfo) : base(oldValue, newValue)
         {
             PropertyOwner = propertyOwner;
             PropertyInfo = propertyInfo;
         }
 
         public object PropertyOwner { get; set; }
-        public PropertyInfoProxy PropertyInfo { get; set; }
+        public PropertyInfo PropertyInfo { get; set; }
 
         public override void ApplyNewValue()
             => PropertyInfo.SetValue(PropertyOwner, NewValue);

@@ -27,7 +27,7 @@ namespace TheraEngine.Actors
 
         protected BaseActor(string name, bool deferInitialization)
         {
-            Name = string.IsNullOrEmpty(name) ? this.GetTypeProxy().GetFriendlyName("[", "]") : name;
+            Name = string.IsNullOrEmpty(name) ? this.GetType().GetFriendlyName("[", "]") : name;
 
             _logicComponents = new EventList<ILogicComponent>();
             _logicComponents.PostAnythingAdded += LogicComponents_PostAnythingAdded;

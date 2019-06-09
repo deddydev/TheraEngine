@@ -118,12 +118,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomDeserializeMethods == null)
                 return false;
 
-            IEnumerable<MethodInfoProxy> customMethods = parent.CustomDeserializeMethods.Where(
+            IEnumerable<MethodInfo> customMethods = parent.CustomDeserializeMethods.Where(
                 x => string.Equals(member.Name, x.GetCustomAttribute<CustomMemberDeserializeMethod>().Name));
 
-            foreach (MethodInfoProxy customMethod in customMethods)
+            foreach (MethodInfo customMethod in customMethods)
             {
-                ParameterInfoProxy[] parameters = customMethod.GetParameters();
+                ParameterInfo[] parameters = customMethod.GetParameters();
                 if (parameters.Length != 1 || !parameters[0].ParameterType.IsAssignableFrom(typeof(T)))
                 {
                     Engine.LogWarning($"'{customMethod.GetFriendlyName()}' in class '{customMethod.DeclaringType.GetFriendlyName()}' is marked with a {nameof(CustomMemberDeserializeMethod)} attribute, but the arguments are not correct. There must be one argument of type {typeof(T).GetFriendlyName()}.");
@@ -277,12 +277,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomSerializeMethods == null)
                 return false;
 
-            IEnumerable<MethodInfoProxy> customMethods = parent.CustomSerializeMethods.Where(
+            IEnumerable<MethodInfo> customMethods = parent.CustomSerializeMethods.Where(
                 x => string.Equals(memberName, x.GetCustomAttribute<CustomMemberSerializeMethod>().Name));
 
-            foreach (MethodInfoProxy customMethod in customMethods)
+            foreach (MethodInfo customMethod in customMethods)
             {
-                ParameterInfoProxy[] parameters = customMethod.GetParameters();
+                ParameterInfo[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 1 && parameters[0].ParameterType.IsAssignableFrom(typeof(SerializeElement)))
                 {
                     if (customMethod.ReturnType == typeof(Task))
@@ -306,12 +306,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (parent?.CustomSerializeMethods == null)
                 return (false, null);
 
-            IEnumerable<MethodInfoProxy> customMethods = parent.CustomSerializeMethods.Where(
+            IEnumerable<MethodInfo> customMethods = parent.CustomSerializeMethods.Where(
                 x => string.Equals(memberName, x.GetCustomAttribute<CustomMemberSerializeMethod>().Name));
 
-            foreach (MethodInfoProxy customMethod in customMethods)
+            foreach (MethodInfo customMethod in customMethods)
             {
-                ParameterInfoProxy[] parameters = customMethod.GetParameters();
+                ParameterInfo[] parameters = customMethod.GetParameters();
                 if (parameters.Length == 0)
                 {
                     object o;
@@ -345,7 +345,7 @@ namespace TheraEngine.Core.Files.Serialization
         #endregion
 
         #region String
-        public override bool ObjectFromString(TypeProxy type, string value, out object result)
+        public override bool ObjectFromString(Type type, string value, out object result)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
@@ -357,7 +357,7 @@ namespace TheraEngine.Core.Files.Serialization
                 else
                 {
                     type = type.GetGenericArguments()[0];
-                    var ser = DetermineObjectSerializer(type, true);
+                    var ser = Engine.DomainProxy.DetermineObjectSerializer(type, true);
                     if (ser == null)
                     {
                         result = null;
@@ -410,7 +410,7 @@ namespace TheraEngine.Core.Files.Serialization
             return false;
         }
 
-        public override bool CanWriteAsString(TypeProxy type)
+        public override bool CanWriteAsString(Type type)
         {
             if (type.IsEnum)
                 return true;

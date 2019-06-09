@@ -10,3 +10,5 @@ C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\CSharp\1033\GameProjectTemplate.zip
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.dll
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.pdb
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplate\obj\Debug\_EmptyResource.resources
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplate\obj\Debug\GameProjectTemplate.csproj.GenerateResource.cache

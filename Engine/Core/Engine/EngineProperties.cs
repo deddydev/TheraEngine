@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
+using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEngine.Actors;
 using TheraEngine.Audio;
 using TheraEngine.Core;
-using TheraEngine.Core.Maths.Transforms;
-using TheraEngine.Editor;
 using TheraEngine.Core.Files;
-using TheraEngine.GameModes;
-using TheraEngine.Input;
+using TheraEngine.Core.Maths.Transforms;
+using TheraEngine.Core.Reflection;
+using TheraEngine.Editor;
 using TheraEngine.Input.Devices;
 using TheraEngine.Input.Devices.DirectX;
 using TheraEngine.Input.Devices.OpenTK;
@@ -23,10 +25,6 @@ using TheraEngine.Physics.Jitter;
 using TheraEngine.Rendering;
 using TheraEngine.Timers;
 using TheraEngine.Worlds;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using TheraEngine.Core.Reflection;
-using System.Drawing;
 
 namespace TheraEngine
 {
@@ -282,6 +280,7 @@ namespace TheraEngine
                 RetrievePhysicsInterface();
             }
         }
+
         private static void RetrievePhysicsInterface()
         {
             switch (Instance.PhysicsLibrary)
@@ -308,7 +307,7 @@ namespace TheraEngine
         }
         private static void InputLibraryChanged()
         {
-            _inputAwaiter?.Dispose();
+            //_inputAwaiter?.Dispose();
             switch (InputLibrary)
             {
                 case EInputLibrary.OpenTK:
@@ -364,6 +363,12 @@ namespace TheraEngine
 
         public static bool IsSingleThreaded => _timer.IsSingleThreaded;
 
+        public static EngineDomainProxy DomainProxy
+        {
+            get => Instance.DomainProxy;
+            internal set => Instance.DomainProxy = value;
+        }
+
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
         private static AbstractPhysicsInterface _physicsInterface;
@@ -393,8 +398,51 @@ namespace TheraEngine
             public GlobalFileRef<EngineSettings> DefaultEngineSettingsOverrideRef { get; set; }
                 = new GlobalFileRef<EngineSettings>(Path.Combine(Application.StartupPath, "EngineConfig.xset")) { AllowDynamicConstruction = true, CreateFileIfNonExistent = true };
 
+            private TGame _game;
             public IScene Scene => World?.Scene;
-            public TGame Game { get; internal set; }
+            public TGame Game
+            {
+                get => _game;
+                internal set
+                {
+                    if (_game == value)
+                        return;
+
+                    _game = value;
+                }
+            }
+
+            public void GenerateProxy<T>(AppDomain domain, TGame game) where T : EngineDomainProxy
+            {
+                string domainName = domain.FriendlyName;
+                PrintLine("Generating proxy of type " + typeof(T).GetFriendlyName() + " in domain " + domainName);
+
+                DomainProxy = domain.CreateInstanceAndUnwrap<T>();
+
+                //dynamic dynProxy = proxy;
+                //string info = dynProxy.GetVersionInfo();
+
+                //Type type = typeof(ProjectDomainProxy);
+                //string info3 = type.Assembly.CodeBase;
+                //string info4 = dynProxy.GetType().Assembly.CodeBase;
+
+                //Engine.PrintLine(info);
+                //Engine.PrintLine(info3);
+                //Engine.PrintLine(info4);
+
+                //Type.TypeCreationFailed = TypeCreationFailed;
+
+                var lease = DomainProxy.InitializeLifetimeService() as ILease;
+                lease.Register(DomainProxy.SponsorRef);
+
+                DomainProxy.Run(game);
+            }
+
+            private Type TypeCreationFailed(string typeDeclaration)
+                => DomainProxy.CreateType(typeDeclaration);
+
+            [Browsable(false)]
+            public EngineDomainProxy DomainProxy { get; set; }
 
             /// <summary>
             /// The settings for the engine, specified by the game.

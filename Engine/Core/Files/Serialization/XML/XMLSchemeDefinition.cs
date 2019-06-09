@@ -39,13 +39,13 @@ namespace TheraEngine.Core.Files.XML
             static ChildInfo()
             {
                 Type elemType = typeof(IElement);
-                ElementTypes = AppDomainHelper.FindTypes((TypeProxy t) => elemType.IsAssignableFrom(t) && t.HasCustomAttribute<ElementName>()).ToArray();
+                ElementTypes = AppDomainHelper.FindTypes((TypeProxy t) => t.IsAssignableTo(elemType) && t.HasCustomAttribute<ElementName>()).ToArray();
             }
             public ChildInfo(ElementChild data)
             {
                 Data = data;
                 Occurrences = 0;
-                Types = ElementTypes.Where((TypeProxy t) => Data.ChildEntryType.IsAssignableFrom(t)).ToArray();
+                Types = ElementTypes.Where((TypeProxy t) => t.IsAssignableTo(Data.ChildEntryType)).ToArray();
                 ElementNames = new ElementName[Types.Length];
                 for (int i = 0; i < Types.Length; ++i)
                 {
@@ -696,7 +696,7 @@ namespace TheraEngine.Core.Files.XML
         object UserData { get; set; }
         IElement Parent { get; set; }
         IRoot Root { get; }
-        Dictionary<TypeProxy, List<IElement>> ChildElements { get; }
+        Dictionary<Type, List<IElement>> ChildElements { get; }
         int ElementIndex { get; set; }
         string Tree { get; set; }
 
@@ -821,7 +821,7 @@ namespace TheraEngine.Core.Files.XML
         }
 
         [Browsable(false)]
-        public Dictionary<TypeProxy, List<IElement>> ChildElements { get; } = new Dictionary<TypeProxy, List<IElement>>();
+        public Dictionary<Type, List<IElement>> ChildElements { get; } = new Dictionary<Type, List<IElement>>();
         [Browsable(false)]
         public Type ParentType => typeof(TParent);
         [Browsable(false)]
@@ -862,7 +862,7 @@ namespace TheraEngine.Core.Files.XML
             {
                 IElement element = elements[i];
                 element.ElementIndex = currentCount + i;
-                TypeProxy elemType = element.GetTypeProxy();
+                Type elemType = element.GetType();
                 if (ChildElements.ContainsKey(elemType))
                 {
                     var list = ChildElements[elemType];

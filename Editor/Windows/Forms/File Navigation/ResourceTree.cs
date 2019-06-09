@@ -90,7 +90,7 @@ namespace TheraEditor.Windows.Forms
                     _imgList.Images.Add(nameof(Resources.OpenFolder), Resources.OpenFolder);
                     _imgList.Images.Add(nameof(Resources.LockedFolder), Resources.GenericFile);
 
-                    Type fileWrapper = typeof(BaseFileWrapper);
+                    TypeProxy fileWrapper = typeof(BaseFileWrapper);
                     var types = AppDomainHelper.FindTypes(t => fileWrapper.IsAssignableFrom(t), Assembly.GetExecutingAssembly());
                     foreach (Type t in types)
                     {

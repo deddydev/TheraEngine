@@ -594,7 +594,8 @@ namespace TheraEditor.Windows.Forms.PropertyGrid
             TypeProxy mainControlType = null;
             TypeProxy subType = propertyType;
             Deque<TypeProxy> controlTypes = new Deque<TypeProxy>();
-            var inPlace = Editor.Instance.DomainProxy.InPlaceEditorTypes;
+            EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
+            var inPlace = proxy.InPlaceEditorTypes;
             while (subType != null)
             {
                 if (mainControlType == null)

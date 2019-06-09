@@ -20,7 +20,6 @@ C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplateInstaller\o
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\Class1.cs
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\GameProjectTemplate.vstemplate
 C:\Users\David\Documents\Repositories\TheraEngine\GameProjectTemplateInstaller\obj\Debug\templateFiles.json
-C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\GameProjectTemplateInstaller.csprojAssemblyReference.cache
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\files.json
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\TemplateManifests\templateManifest0.1033.vstman
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\GameProjectTemplate.ico
@@ -29,3 +28,5 @@ C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\P
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\Class1.cs
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\ProjectTemplates\CSharp\1033\GameProjectTemplate\GameProjectTemplate.vstemplate
 C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\templateFiles.json
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\_EmptyResource.resources
+C:\Users\dnedd\source\repos\TheraEngine\GameProjectTemplateInstaller\obj\Debug\GameProjectTemplateInstaller.csproj.GenerateResource.cache

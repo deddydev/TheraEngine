@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿using AppDomainToolkit;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -279,7 +280,7 @@ namespace TheraEditor.Wrappers
         
         private static bool Is3rdPartyImportable(TypeProxy t)
             => IsFileObject(t) && (t?.GetCustomAttribute<TFileExt>().HasAnyImportableExtensions ?? false);
-                
+        
         private static async void OnImportClickAsync(object sender, EventArgs e)
         {
             if (!(sender is ToolStripMenuItem button))
@@ -299,9 +300,13 @@ namespace TheraEditor.Wrappers
                         return;
                 }
             }
+            string filter = RemoteFunc.Invoke(AppDomainHelper.GetGameAppDomain(), fileType, (marshaledFileType) =>
+            {
+                return TFileObject.GetFilter((Type)marshaledFileType, true, true, true, false);
+            });
             using (OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = TFileObject.GetFilter(fileType, true, true, true, false),
+                Filter = filter,
                 Title = "Import File"
             })
             {
@@ -309,27 +314,31 @@ namespace TheraEditor.Wrappers
                 if (r != DialogResult.OK)
                     return;
 
-                string name = Path.GetFileNameWithoutExtension(ofd.FileName);
-                //ResourceTree tree = Editor.Instance.ContentTree;
-                string path = ofd.FileName;
-                        
-                int op = Editor.Instance.BeginOperation($"Importing '{path}'...", "Import completed.", out Progress<float> progress, out CancellationTokenSource cancel);
-                object file = await TFileObject.LoadAsync(fileType, path, progress, cancel.Token);
-                Editor.Instance.EndOperation(op);
+                RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), fileType, async (marshaledFileType) =>
+                {
+                    string name = Path.GetFileNameWithoutExtension(ofd.FileName);
+                    //ResourceTree tree = Editor.Instance.ContentTree;
+                    string path = ofd.FileName;
 
-                if (file == null)
-                    return;
-                
-                FolderWrapper folderNode = GetInstance<FolderWrapper>();
-                string dir = folderNode.FilePath;
+                    int op = Editor.Instance.BeginOperation($"Importing '{path}'...", "Import completed.",
+                        out Progress<float> progress, out CancellationTokenSource cancel);
+                    object file = await TFileObject.LoadAsync((Type)marshaledFileType, path, progress, cancel.Token);
+                    Editor.Instance.EndOperation(op);
 
-                if (!Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
-                    return;
+                    if (file == null)
+                        return;
 
-                Serializer serializer = new Serializer();
-                op = Editor.Instance.BeginOperation($"Saving to '{filePath}'...", "Saved successfully.", out progress, out cancel);
-                await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
-                Editor.Instance.EndOperation(op);
+                    FolderWrapper folderNode = GetInstance<FolderWrapper>();
+                    string dir = folderNode.FilePath;
+
+                    if (!Serializer.PreExport(file, dir, name, EProprietaryFileFormat.XML, null, out string filePath))
+                        return;
+
+                    Serializer serializer = new Serializer();
+                    op = Editor.Instance.BeginOperation($"Saving to '{filePath}'...", "Saved successfully.", out progress, out cancel);
+                    await serializer.SerializeXMLAsync(file, filePath, ESerializeFlags.Default, progress, cancel.Token);
+                    Editor.Instance.EndOperation(op);
+                });
             }
         }
         public static string GetFolderPath() => GetInstance<FolderWrapper>().FilePath;

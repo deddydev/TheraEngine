@@ -20,10 +20,10 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public event Action MemberTypeChanged;
 
-        private TypeProxy _memberType;
+        private Type _memberType;
 
-        public MemberInfoProxy Member { get; set; }
-        public TypeProxy MemberType
+        public MemberInfo Member { get; set; }
+        public Type MemberType
         {
             get => _memberType;
             set
@@ -41,7 +41,7 @@ namespace TheraEngine.Core.Files.Serialization
         public string Condition { get; set; }
         public bool DeserializeAsync { get; set; }
 
-        public TSerializeMemberInfo(TypeProxy memberType, string name, string category = null, bool state = true, bool config = true, ENodeType nodeType = ENodeType.ChildElement, int order = 0, string condition = null)
+        public TSerializeMemberInfo(Type memberType, string name, string category = null, bool state = true, bool config = true, ENodeType nodeType = ENodeType.ChildElement, int order = 0, string condition = null)
         {
             Member = null;
             MemberType = memberType;
@@ -58,12 +58,12 @@ namespace TheraEngine.Core.Files.Serialization
             if (Category != null)
                 Category = SerializationCommon.FixElementName(Category);
         }
-        public TSerializeMemberInfo(MemberInfoProxy member)
+        public TSerializeMemberInfo(MemberInfo member)
         {
             Member = member;
             MemberType =
-                Member is PropertyInfoProxy propMember ? propMember.PropertyType :
-                Member is FieldInfoProxy fieldMember ? fieldMember.FieldType :
+                Member is PropertyInfo propMember ? propMember.PropertyType :
+                Member is FieldInfo fieldMember ? fieldMember.FieldType :
                 null;
 
             TSerialize attrib = member?.GetCustomAttribute<TSerialize>();
@@ -100,10 +100,10 @@ namespace TheraEngine.Core.Files.Serialization
             if (Member == null)
                 return;
             if (Member.MemberType.HasFlag(MemberTypes.Field))
-                ((FieldInfoProxy)Member).SetValue(parentObject, memberObject);
+                ((FieldInfo)Member).SetValue(parentObject, memberObject);
             else if (Member.MemberType.HasFlag(MemberTypes.Property))
             {
-                PropertyInfoProxy p = (PropertyInfoProxy)Member;
+                PropertyInfo p = (PropertyInfo)Member;
                 if (p.CanWrite)
                     p.SetValue(parentObject, memberObject);
                 else
@@ -124,12 +124,12 @@ namespace TheraEngine.Core.Files.Serialization
             }
             if (Member.MemberType.HasFlag(MemberTypes.Field))
             {
-                FieldInfoProxy info = (FieldInfoProxy)Member;
+                FieldInfo info = (FieldInfo)Member;
                 return info.GetValue(parentObject);
             }
             if (Member.MemberType.HasFlag(MemberTypes.Property))
             {
-                PropertyInfoProxy info = (PropertyInfoProxy)Member;
+                PropertyInfo info = (PropertyInfo)Member;
                 if (info.CanRead)
                 {
                     return info.GetValue(parentObject);
@@ -173,7 +173,7 @@ namespace TheraEngine.Core.Files.Serialization
     {
         public const string TypeIdent = "AssemblyType";
 
-        internal static string GetTypeName(TypeProxy t)
+        internal static string GetTypeName(Type t)
         {
             if (t == null || t.IsInterface)
                 return null;
@@ -448,7 +448,7 @@ namespace TheraEngine.Core.Files.Serialization
             //    object value = member.GetValue(structObj);
             //}
         }
-        public static object ParseStructBytesString(TypeProxy type, string structBytes)
+        public static object ParseStructBytesString(Type type, string structBytes)
         {
             string[] strBytes = structBytes.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             byte[] bytes = strBytes.Select(x => byte.Parse(x, NumberStyles.HexNumber | NumberStyles.AllowHexSpecifier)).ToArray();
@@ -516,7 +516,7 @@ namespace TheraEngine.Core.Files.Serialization
         //    }
         //    return fields;
         //}
-        public static (int Count, IEnumerable<TSerializeMemberInfo> Values) CollectSerializedMembers(TypeProxy type)
+        public static (int Count, IEnumerable<TSerializeMemberInfo> Values) CollectSerializedMembers(Type type)
         {
             BindingFlags retrieveFlags =
                 BindingFlags.Instance |
@@ -524,14 +524,14 @@ namespace TheraEngine.Core.Files.Serialization
                 BindingFlags.Public |
                 BindingFlags.FlattenHierarchy;
 
-            MemberInfoProxy[] members = type?.GetMembers(retrieveFlags) ?? new MemberInfoProxy[0];
+            MemberInfo[] members = type?.GetMembers(retrieveFlags) ?? new MemberInfo[0];
             ConcurrentDictionary<int, TSerializeMemberInfo> serMembers = new ConcurrentDictionary<int, TSerializeMemberInfo>();
             ConcurrentDictionary<int, TSerializeMemberInfo> contentMembers = new ConcurrentDictionary<int, TSerializeMemberInfo>();
             
             Parallel.For(0, members.Length, i =>
             {
                 var info = members[i];
-                if (!((info is FieldInfoProxy || info is PropertyInfoProxy) && info.IsAttributeDefined(typeof(TSerialize))))
+                if (!((info is FieldInfo || info is PropertyInfo) && info.IsAttributeDefined(typeof(TSerialize))))
                     return;
                 
                 TSerializeMemberInfo serMem = new TSerializeMemberInfo(info);
@@ -727,11 +727,11 @@ namespace TheraEngine.Core.Files.Serialization
                 number = (i++).ToString();
             return name + number;
         }
-        public static TypeProxy DetermineType(string filePath) => DetermineType(filePath, out EFileFormat format);
-        public static unsafe TypeProxy DetermineType(string filePath, out EFileFormat format)
+        public static Type DetermineType(string filePath) => DetermineType(filePath, out EFileFormat format);
+        public static unsafe Type DetermineType(string filePath, out EFileFormat format)
         {
             format = TFileObject.GetFormat(filePath, out string ext);
-            TypeProxy fileType = null;
+            Type fileType = null;
             try
             {
                 switch (format)
@@ -739,15 +739,15 @@ namespace TheraEngine.Core.Files.Serialization
                     default:
                     case EFileFormat.ThirdParty:
 
-                        List<TypeProxy> types = TFileObject.DetermineThirdPartyTypes(ext).ToList();
+                        List<Type> types = TFileObject.DetermineThirdPartyTypes(ext).ToList();
 
                         if (types.Count > 1)
                         {
                             AppDomain primaryDomain = AppDomainHelper.GetPrimaryAppDomain();
                             types.Sort((x, y) =>
                             {
-                                if (x.Domain != y.Domain)
-                                    return x.Domain == primaryDomain ? -1 : 1;
+                                //if (x.Domain != y.Domain)
+                                //    return x.Domain == primaryDomain ? -1 : 1;
                                 if (!x.IsAssignableTo(y))
                                     return 1;
                                 if (y.IsAssignableTo(x))
@@ -756,10 +756,10 @@ namespace TheraEngine.Core.Files.Serialization
                             });
                             for (int i = 0; i < types.Count; ++i)
                             {
-                                TypeProxy thisOne = types[i];
+                                Type thisOne = types[i];
                                 for (int x = i + 1; x < types.Count; x++)
                                 {
-                                    TypeProxy thatOne = types[x];
+                                    Type thatOne = types[x];
                                     //if (thatOne.IsAssignableTo(thisOne))
                                     //{
                                     //    if (thatOne.Domain == thisOne.Domain || thatOne.Domain != primaryDomain)
@@ -787,7 +787,7 @@ namespace TheraEngine.Core.Files.Serialization
                         {
                             XMLReader reader = new XMLReader(map.Address, map.Length, true);
                             if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals(TypeIdent, true))
-                                fileType = TypeProxy.CreateType(reader.Value);
+                                fileType = Type.GetType(reader.Value);
                         }
                         break;
                     case EFileFormat.Binary:

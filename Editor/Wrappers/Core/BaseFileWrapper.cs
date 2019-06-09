@@ -153,7 +153,8 @@ namespace TheraEditor.Wrappers
                     Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
                     return null;
                 }
-                var full = Editor.Instance.DomainProxy.FullEditorTypes;
+                EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
+                var full = proxy.FullEditorTypes;
                 while (!(fileType is null) && fileType != typeof(object))
                 {
                     if (full.ContainsKey(fileType))

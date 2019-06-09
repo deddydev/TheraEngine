@@ -141,7 +141,7 @@ namespace TheraEngine.Core.Files
                 if (!Path.FileExists)
                     return false;
 
-                TypeProxy fileType = DetermineType(Path.Path);
+                Type fileType = DetermineType(Path.Path);
                 return fileType != null && SubType.IsAssignableFrom(fileType);
             }
         }
@@ -264,7 +264,7 @@ namespace TheraEngine.Core.Files
                     }
                     if (file != null && SubType != null)
                     {
-                        TypeProxy fileType = file?.GetTypeProxy();
+                        Type fileType = file?.GetType();
                         if (!SubType.IsAssignableFrom(fileType))
                         {
                             Engine.LogWarning($"{fileType.GetFriendlyName()} is not assignable to {SubType.GetFriendlyName()}.");

@@ -126,8 +126,8 @@ namespace TheraEngine.Rendering.Models.Materials
         #region Type caches
         public EShaderVarType[] GetTypesMatching<T>() where T : IShaderVarType
         {
-            Type varType = typeof(T);
-            Type shaderType = typeof(ShaderVar);
+            TypeProxy varType = typeof(T);
+            TypeProxy shaderType = typeof(ShaderVar);
             var types = AppDomainHelper.FindTypes(t => t.IsSubclassOf(shaderType) && varType.IsAssignableFrom(t));
             return types.Select(x => TypeAssociations[x]).Distinct().ToArray();
         }

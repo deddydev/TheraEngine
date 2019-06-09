@@ -23,14 +23,14 @@ namespace TheraEngine.Worlds
         public IScene Scene { get; internal set; } = null;
         public IGameMode GameMode { get; internal set; } = null;
 
-        public Dictionary<TypeProxy, HashSet<int>> _actorTypeMap;
+        public Dictionary<Type, HashSet<int>> _actorTypeMap;
         public Dictionary<string, IActor> _actorNameMap;
 
         public WorldState()
         {
             SpawnedMaps = new List<IMap>();
             SpawnedActors = new EventList<IActor>(false, false);
-            _actorTypeMap = new Dictionary<TypeProxy, HashSet<int>>();
+            _actorTypeMap = new Dictionary<Type, HashSet<int>>();
             _actorNameMap = new Dictionary<string, IActor>();
 
             SpawnedActors.PostAdded += _spawnedActors_Added;
@@ -47,7 +47,7 @@ namespace TheraEngine.Worlds
         }
         private void _spawnedActors_Inserted(IActor item, int index)
         {
-            TypeProxy t = item.GetTypeProxy();
+            Type t = item.GetType();
             if (!_actorTypeMap.ContainsKey(t))
                 _actorTypeMap[t] = new HashSet<int>() { index };
             else
@@ -63,7 +63,7 @@ namespace TheraEngine.Worlds
             int i = 0;
             foreach (IActor item in items)
             {
-                TypeProxy t = item.GetTypeProxy();
+                Type t = item.GetType();
                 if (!_actorTypeMap.ContainsKey(t))
                     _actorTypeMap[t] = new HashSet<int>() { index + i };
                 else
@@ -76,13 +76,13 @@ namespace TheraEngine.Worlds
         [TPostDeserialize]
         internal void CreateActorMap()
         {
-            _actorTypeMap = new Dictionary<TypeProxy, HashSet<int>>();
+            _actorTypeMap = new Dictionary<Type, HashSet<int>>();
             _actorNameMap = new Dictionary<string, IActor>();
 
             for (int i = 0; i < SpawnedActors.Count; ++i)
             {
                 IActor actor = SpawnedActors[i];
-                TypeProxy t = actor.GetTypeProxy();
+                Type t = actor.GetType();
                 if (!_actorTypeMap.ContainsKey(t))
                     _actorTypeMap[t] = new HashSet<int>() { i };
                 else
@@ -93,10 +93,10 @@ namespace TheraEngine.Worlds
 
         public IEnumerable<T> GetSpawnedActorsOfType<T>() where T : class, IActor
         {
-            TypeProxy t = TypeProxy.TypeOf<T>();
+            Type t = typeof(T);
             return _actorTypeMap.ContainsKey(t) ? _actorTypeMap[t].Select(x => (T)SpawnedActors[x]) : null;
         }
-        public IEnumerable<IActor> GetSpawnedActorsOfType(TypeProxy actorType)
+        public IEnumerable<IActor> GetSpawnedActorsOfType(Type actorType)
             => _actorTypeMap.ContainsKey(actorType) ? _actorTypeMap[actorType].Select(x => SpawnedActors[x]) : null;
     }
 }

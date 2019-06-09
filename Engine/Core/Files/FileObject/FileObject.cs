@@ -356,7 +356,7 @@ namespace TheraEngine.Core.Files
             FilePath = directory + fileName + "." + thirdPartyExt;
 
             ExportingPaths.Add(FilePath);
-            Delegate exporter = Get3rdPartyExporter(GetType(), thirdPartyExt);
+            Delegate exporter = Engine.DomainProxy.Get3rdPartyExporter(GetType(), thirdPartyExt);
             if (exporter != null)
             {
                 Type genericDef = exporter.GetType().GetGenericTypeDefinition();

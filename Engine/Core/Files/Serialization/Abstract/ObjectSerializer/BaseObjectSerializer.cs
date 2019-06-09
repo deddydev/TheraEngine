@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
@@ -31,8 +28,6 @@ namespace TheraEngine.Core.Files.Serialization
     /// </summary>
     public abstract class BaseObjectSerializer
     {
-        private static Dictionary<ObjectSerializerFor, TypeProxy> ObjectSerializers { get; set; } = null;
-
         public bool ShouldWriteDefaultMembers
             => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteDefaultMembers) ?? false;
         public bool WriteChangedMembersOnly
@@ -66,7 +61,7 @@ namespace TheraEngine.Core.Files.Serialization
         /// <summary>
         /// Creates an object from a string.
         /// </summary>
-        public abstract bool ObjectFromString(TypeProxy type, string value, out object result);
+        public abstract bool ObjectFromString(Type type, string value, out object result);
         /// <summary>
         /// Creates a string from an object.
         /// </summary>
@@ -82,79 +77,6 @@ namespace TheraEngine.Core.Files.Serialization
         /// </summary>
         public abstract void SerializeTreeFromObject();
 
-        public static void ResetObjectSerializerCache(bool reloadNow)
-        {
-            if (reloadNow)
-            {
-                Type baseObjSerType = typeof(BaseObjectSerializer);
-                IEnumerable<TypeProxy> typeList = AppDomainHelper.FindTypes(type =>
-                   type.IsAssignableTo(baseObjSerType) &&
-                   type.HasCustomAttribute<ObjectSerializerFor>());
-
-                ObjectSerializers = new Dictionary<ObjectSerializerFor, TypeProxy>();
-                foreach (TypeProxy type in typeList)
-                {
-                    var attrib = type.GetCustomAttribute<ObjectSerializerFor>();
-                    if (!ObjectSerializers.ContainsKey(attrib))
-                        ObjectSerializers.Add(attrib, type);
-                }
-            }
-            else
-            {
-                ObjectSerializers = null;
-            }
-        }
-
-        public abstract bool CanWriteAsString(TypeProxy type);
-
-        /// <summary>
-        /// Finds the class to use to read and write the given type.
-        /// </summary>
-        /// <param name="objectType"></param>
-        /// <param name="mustAllowStringSerialize"></param>
-        /// <param name="mustAllowBinarySerialize"></param>
-        /// <returns></returns>
-        public static BaseObjectSerializer DetermineObjectSerializer(
-            TypeProxy objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
-        {
-            if (objectType == null)
-            {
-                Engine.LogWarning("Unable to create object serializer for null type.");
-                return null;
-            }
-            
-            if (ObjectSerializers == null)
-                ResetObjectSerializerCache(true);
-
-            var temp = ObjectSerializers.Where(kv => (objectType?.IsAssignableTo(kv.Key.ObjectType) ?? false));
-            if (mustAllowStringSerialize)
-                temp = temp.Where(kv => kv.Key.CanSerializeAsString);
-            if (mustAllowBinarySerialize)
-                temp = temp.Where(kv => kv.Key.CanSerializeAsBinary);
-            TypeProxy[] types = temp.Select(x => x.Value).ToArray();
-
-            TypeProxy serType;
-            switch (types.Length)
-            {
-                case 0:
-                    serType = typeof(CommonObjectSerializer);
-                    break;
-                case 1:
-                    serType = types[0];
-                    break;
-                default:
-                {
-                    int[] counts = types.Select(x => types.Count(x.IsSubclassOf)).ToArray();
-                    int min = counts.Min();
-                    int[] mins = counts.FindAllMatchIndices(x => x == min);
-                    string msg = "Type " + objectType.GetFriendlyName() + " has multiple valid object serializers: " + types.ToStringList(", ", " and ", x => x.GetFriendlyName());
-                    msg += ". Narrowed down to " + mins.Select(x => types[x]).ToArray().ToStringList(", ", " and ", x => x.GetFriendlyName());
-                    Engine.PrintLine(msg);
-                    serType = types[mins[0]];
-                    break;
-                }
-            }
-            return (BaseObjectSerializer)serType.CreateInstance();
-        }
+        public abstract bool CanWriteAsString(Type type);
     }
 }

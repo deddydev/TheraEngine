@@ -1,8 +1,7 @@
 ﻿using AppDomainToolkit;
-using System.Linq;
-using TheraEngine;
+using System.Collections.Generic;
+using System.Reflection;
 using TheraEngine.Core.Reflection;
-using TheraEngine.Core.Reflection.Proxies;
 
 namespace System
 {
@@ -20,9 +19,9 @@ namespace System
             var res = (T)appDomain.CreateInstanceAndUnwrap(t.Assembly.FullName, t.FullName);
             return res;
         }
-        public static ProxyList<AssemblyProxy> GetAssemblyProxies(this AppDomain domain)
-            => RemoteFunc.Invoke(domain, () => new ProxyList<AssemblyProxy>(
-                AppDomain.CurrentDomain.GetAssemblies().Select(x => AssemblyProxy.Get(x))));
+        public static List<Assembly> GetAssemblies(this AppDomain domain)
+            => RemoteFunc.Invoke(domain, () => new List<Assembly>(
+                AppDomain.CurrentDomain.GetAssemblies()));
         public static bool IsPrimaryDomain(this AppDomain domain)
             => AppDomainHelper.GetPrimaryAppDomain() == domain;
 #if EDITOR

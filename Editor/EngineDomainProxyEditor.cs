@@ -59,8 +59,8 @@ namespace TheraEditor
         }
         private void AddPropControlEditorType(TypeProxy propControlType)
         {
-            var attribs = propControlType.GetCustomAttributes<PropGridControlForAttribute>();
-            if (attribs.Count > 0)
+            var attribs = propControlType.GetCustomAttributes<PropGridControlForAttribute>().ToArray();
+            if (attribs.Length > 0)
             {
                 PropGridControlForAttribute a = attribs[0];
                 foreach (Type varType in a.Types)
@@ -83,7 +83,7 @@ namespace TheraEditor
                 //    throw new Exception("Type " + varType.GetFriendlyName() + " already has editor " + editorType.GetFriendlyName() + " associated with it.");
             }
         }
-        public override void ResetTypeCaches()
+        public override void ResetTypeCaches(bool reloadNow = true)
         {
             ReloadEditorTypes();
             base.ResetTypeCaches();

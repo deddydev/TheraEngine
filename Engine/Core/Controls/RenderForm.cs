@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using TheraEngine.Core;
 
 namespace TheraEngine
 {
@@ -9,6 +10,8 @@ namespace TheraEngine
         public RenderForm(TGame game)
         {
             Engine.SetGame(game);
+            Engine.Instance.GenerateProxy<EngineDomainProxy>(AppDomain.CurrentDomain, game);
+
             InitializeComponent();
             Engine.SetWorldPanel(renderPanel);
             Engine.Initialize();

@@ -20,7 +20,7 @@ namespace TheraEngine.Core.Files.Serialization
             DeserializeAsync = TreeNode.MemberInfo?.DeserializeAsync ?? false;
 
             int keyValCount = TreeNode.Children.Count;
-            TypeProxy dicType = TreeNode.ObjectType;
+            Type dicType = TreeNode.ObjectType;
 
             Dictionary = dicType.CreateInstance() as IDictionary;
             TreeNode.Object = Dictionary;
@@ -36,11 +36,11 @@ namespace TheraEngine.Core.Files.Serialization
                 DoneReadingElements?.Invoke();
             }
         }
-        private async void ReadDictionary(TypeProxy dicType, int keyValCount)
+        private async void ReadDictionary(Type dicType, int keyValCount)
         {
-            TypeProxy[] args = dicType.GetGenericArguments();
-            TypeProxy keyType = args[0];
-            TypeProxy valType = args[1];
+            Type[] args = dicType.GetGenericArguments();
+            Type keyType = args[0];
+            Type valType = args[1];
 
             for (int i = 0; i < keyValCount; ++i)
             {
@@ -111,8 +111,8 @@ namespace TheraEngine.Core.Files.Serialization
             object[] keys = new object[dic.Keys.Count];
             object[] vals = new object[dic.Values.Count];
 
-            TypeProxy keyType = dic.DetermineKeyTypeProxy();
-            TypeProxy valType = dic.DetermineValueTypeProxy();
+            Type keyType = dic.DetermineKeyType();
+            Type valType = dic.DetermineValueType();
 
             dic.Keys.CopyTo(keys, 0);
             dic.Values.CopyTo(vals, 0);
@@ -148,11 +148,11 @@ namespace TheraEngine.Core.Files.Serialization
             throw new NotImplementedException();
         }
 
-        public override bool ObjectFromString(TypeProxy type, string value, out object result) => throw new NotImplementedException();
+        public override bool ObjectFromString(Type type, string value, out object result) => throw new NotImplementedException();
         public override bool ObjectToString(object obj, out string str) => throw new NotImplementedException();
-        public override bool CanWriteAsString(TypeProxy type)
+        public override bool CanWriteAsString(Type type)
         {
-            TypeProxy[] types = type.GetGenericArguments();
+            Type[] types = type.GetGenericArguments();
             return false;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Reflection;
@@ -14,7 +15,7 @@ namespace TheraEngine.Core.Files.Serialization
             /// The deserializer that is using this reader.
             /// </summary>
             public Deserializer Owner { get; }
-            public TypeProxy RootFileType { get; }
+            public Type RootFileType { get; }
 
             protected AbstractReader(Deserializer owner, string filePath, IProgress<float> progress, CancellationToken cancel)
                 : base(filePath, progress, cancel)
@@ -26,6 +27,13 @@ namespace TheraEngine.Core.Files.Serialization
             protected abstract Task ReadTreeAsync();
             public async Task<object> CreateObjectAsync()
             {
+                bool isGame = AppDomainHelper.IsGameDomain;
+                Debug.Print(isGame ? "Reading object in game domain" : "Reading object in primary domain.");
+                //if (!isGame)
+                //{
+                    
+                //}
+
                 await ReadTreeAsync();
 
                 SerializeElement sharedObjectsElem = RootNode.GetChildElement("SharedObjects");

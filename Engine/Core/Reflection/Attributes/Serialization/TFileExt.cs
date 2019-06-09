@@ -1,4 +1,5 @@
-﻿using TheraEngine.Core.Files;
+﻿using System.Runtime.Serialization;
+using TheraEngine.Core.Files;
 
 namespace System.ComponentModel
 {
@@ -7,7 +8,7 @@ namespace System.ComponentModel
     /// </summary>
     [Serializable]
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class TFileExt : Attribute
+    public class TFileExt : Attribute, ISerializable
     {
         public TFileExt(string proprietaryExtension, params string[] importExportExtensions)
         {
@@ -20,6 +21,26 @@ namespace System.ComponentModel
             Extension = proprietaryExtension;
             ImportableExtensions = importableExtensions ?? new string[0];
             ExportableExtensions = exportableExtensions ?? new string[0];
+        }
+        public TFileExt(SerializationInfo info, StreamingContext context)
+        {
+            Extension = info.GetString(nameof(Extension));
+            ImportableExtensions = info.GetValue(nameof(ImportableExtensions), typeof(string[])) as string[];
+            ExportableExtensions = info.GetValue(nameof(ExportableExtensions), typeof(string[])) as string[];
+            ManualBinConfigSerialize = info.GetBoolean(nameof(ManualBinConfigSerialize));
+            ManualBinStateSerialize = info.GetBoolean(nameof(ManualBinStateSerialize));
+            ManualXmlConfigSerialize = info.GetBoolean(nameof(ManualXmlConfigSerialize));
+            ManualXmlStateSerialize = info.GetBoolean(nameof(ManualXmlStateSerialize));
+        }
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Extension), Extension);
+            info.AddValue(nameof(ImportableExtensions), ImportableExtensions);
+            info.AddValue(nameof(ExportableExtensions), ExportableExtensions);
+            info.AddValue(nameof(ManualBinConfigSerialize), ManualBinConfigSerialize);
+            info.AddValue(nameof(ManualBinStateSerialize), ManualBinStateSerialize);
+            info.AddValue(nameof(ManualXmlConfigSerialize), ManualXmlConfigSerialize);
+            info.AddValue(nameof(ManualXmlStateSerialize), ManualXmlStateSerialize);
         }
 
         private string _extension;

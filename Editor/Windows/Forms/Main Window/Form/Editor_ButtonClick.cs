@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Lifetime;
 using TheraEngine;
+using TheraEngine.Core;
 using TheraEngine.Core.Reflection;
 
 namespace TheraEditor.Windows.Forms
@@ -143,12 +144,6 @@ namespace TheraEditor.Windows.Forms
 
         private AppDomainContext<TheraAssemblyTargetLoader, TheraAssemblyResolver> _gameDomain;
 
-        [Browsable(false)]
-        public EngineDomainProxy DomainProxy { get; private set; }
-
-        private TypeProxy TypeCreationFailed(string typeDeclaration)
-            => DomainProxy.CreateType(typeDeclaration);
-
         public void CopyEditorLibraries(string[] assemblyPaths)
         {
             if (assemblyPaths == null || assemblyPaths.Length == 0)
@@ -188,20 +183,20 @@ namespace TheraEditor.Windows.Forms
             {
                 if (_gameDomain != null)
                 {
-                    DomainProxy.Destroyed();
+                    Engine.DomainProxy.Destroyed();
                     _gameDomain.Dispose();
                     _gameDomain = null;
                 }
 
                 CopyEditorLibraries(assemblyPaths);
-
+                string name = project?.Name ?? "null";
                 AppDomainSetup setupInfo = new AppDomainSetup()
                 {
-                    ApplicationName = project.Name,
+                    ApplicationName = name,
                     ApplicationBase = rootDir,
                     PrivateBinPath = rootDir,
                     ShadowCopyFiles = "true",
-                    ShadowCopyDirectories = string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
+                    ShadowCopyDirectories = assemblyPaths == null ? null : string.Join(";", assemblyPaths.Select(x => Path.GetDirectoryName(x))),
                     LoaderOptimization = LoaderOptimization.MultiDomain,
                     //DisallowApplicationBaseProbing = true,
                 };
@@ -221,25 +216,7 @@ namespace TheraEditor.Windows.Forms
                         _gameDomain.LoadAssembly(LoadMethod.LoadBits, path);
                     }
 
-                DomainProxy = _gameDomain.Domain.CreateInstanceAndUnwrap<EngineDomainProxy>();
-
-                //dynamic dynProxy = proxy;
-                //string info = dynProxy.GetVersionInfo();
-
-                //Type type = typeof(ProjectDomainProxy);
-                //string info3 = type.Assembly.CodeBase;
-                //string info4 = dynProxy.GetType().Assembly.CodeBase;
-
-                //Engine.PrintLine(info);
-                //Engine.PrintLine(info3);
-                //Engine.PrintLine(info4);
-
-                TypeProxy.TypeCreationFailed = TypeCreationFailed;
-
-                var lease = DomainProxy.InitializeLifetimeService() as ILease;
-                lease.Register(DomainProxy.SponsorRef);
-
-                DomainProxy.Created(project);
+                Engine.Instance.GenerateProxy<EngineDomainProxyEditor>(_gameDomain.Domain, project);
             }
             catch (Exception ex)
             {

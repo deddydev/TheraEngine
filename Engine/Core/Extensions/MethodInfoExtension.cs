@@ -4,6 +4,10 @@ namespace System
 {
     public static class MethodInfoExtension
     {
+        public static bool IsAttributeDefined(this MemberInfo info, Type attributeType)
+            => info.IsDefined(attributeType);
+        public static bool IsAttributeDefined(this Type type, Type attributeType)
+            => type.IsDefined(attributeType);
         public static string GetFriendlyName(this MethodBase method, bool nameOnly = false, string openBracket = "<", string closeBracket = ">")
         {
             if (method == null)

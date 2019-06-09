@@ -1,9 +1,8 @@
 ﻿using System;
-using TheraEngine.Core.Reflection;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class SerializeElementContent
+    public class SerializeElementContent : TObject
     {
         public SerializeElementContent() { }
         public SerializeElementContent(object value) => SetValueAsObject(value);
@@ -12,7 +11,7 @@ namespace TheraEngine.Core.Files.Serialization
 
         private object _value;
         private string _stringValue;
-        private TypeProxy _valueType;
+        private Type _valueType;
 
         public bool IsNotNull => _value != null || _stringValue != null;
         public bool SetValueAsObject(object o)
@@ -26,7 +25,7 @@ namespace TheraEngine.Core.Files.Serialization
                 return false;
             }
 
-            var serializer = BaseObjectSerializer.DetermineObjectSerializer(_valueType, true);
+            var serializer = Engine.DomainProxy.DetermineObjectSerializer(_valueType, true);
 
             string str = null;
             IsNonStringObject = serializer == null || !serializer.ObjectToString(_value, out str);
@@ -52,9 +51,9 @@ namespace TheraEngine.Core.Files.Serialization
         public bool IsNonStringObject { get; private set; } = false;
         public bool IsUnparsedString => _valueType == null;
 
-        private bool ParseStringToObject(TypeProxy type)
+        private bool ParseStringToObject(Type type)
         {
-            BaseObjectSerializer serializer = BaseObjectSerializer.DetermineObjectSerializer(type, true);
+            BaseObjectSerializer serializer = Engine.DomainProxy.DetermineObjectSerializer(type, true);
             if (serializer == null)
             {
                 _valueType = null;
@@ -66,7 +65,7 @@ namespace TheraEngine.Core.Files.Serialization
             
             return true;
         }
-        public bool GetObject(TypeProxy expectedType, out object value)
+        public bool GetObject(Type expectedType, out object value)
         {
             if (expectedType == null)
             {

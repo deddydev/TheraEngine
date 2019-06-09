@@ -47,7 +47,7 @@ namespace TheraEngine.Core.Files
             {
                 string dirPath = DirectoryPath;
                 string relPath = path.MakeAbsolutePathRelativeTo(dirPath);
-                TypeProxy type = DetermineType(path, out EFileFormat format);
+                Type type = DetermineType(path, out EFileFormat format);
                 byte[] fileBytes = File.ReadAllBytes(path);
                 Entry entry = new Entry(fileBytes, format, type);
                 Entries.Add(relPath, entry);
@@ -58,7 +58,7 @@ namespace TheraEngine.Core.Files
             [TSerialize]
             public EFileFormat Format { get; internal set; }
             [TSerialize]
-            public TypeProxy Type { get; internal set; }
+            public Type Type { get; internal set; }
             [TSerialize]
             public byte[] Bytes { get; internal set; }
 
@@ -88,7 +88,7 @@ namespace TheraEngine.Core.Files
             }
 
             public Entry() { }
-            public Entry(byte[] data, EFileFormat format, TypeProxy type)
+            public Entry(byte[] data, EFileFormat format, Type type)
             {
                 Bytes = data;
                 Format = format;

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Reflection;
 
@@ -42,9 +43,25 @@ namespace System
             { typeof(object),   "object"    },
         };
         
-        public static bool IsAssignableFrom(this Type type, TypeProxy other) => other.IsAssignableTo(type);
+        public static bool IsAssignableFrom(this Type type, Type other) => other.IsAssignableTo(type);
         public static bool IsAssignableTo(this Type type, Type other) => other.IsAssignableFrom(type);
-        
+
+        public static object PtrToStructure(this Type type, IntPtr address) 
+            => Marshal.PtrToStructure(address, type);
+
+        public static object CreateInstance(this Type type)
+            => Activator.CreateInstance(type);
+        public static object CreateInstance(this Type type, params object[] args)
+            => Activator.CreateInstance(type, args);
+
+        public static bool HasCustomAttribute<T>(this Type type) where T : Attribute
+            => type.GetCustomAttribute<T>() != null;
+
+        public static object ParseEnum(this Type type, string value)
+            => Enum.Parse(type, value);
+        public static Type GetUnderlyingNullableType(this Type type) 
+            => Nullable.GetUnderlyingType(type);
+
         /// <summary>
         /// Returns the type as a string in the form that it is written in code.
         /// </summary>

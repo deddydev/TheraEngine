@@ -190,7 +190,6 @@ namespace TheraEditor.Windows.Forms
             }
             else
             {
-
                 Engine.PrintLine("Creating game domain.");
                 Engine.PrintLine("Active domains before load: " + string.Join(", ", AppDomainHelper.AppDomains.Select(x => x.FriendlyName)));
 

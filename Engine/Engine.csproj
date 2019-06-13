@@ -472,6 +472,9 @@
     <Compile Include="Core\Files\Serialization\Abstract\SerializeElement.cs" />
     <Compile Include="Core\LocalizedString.cs" />
     <Compile Include="Core\Maths\Half.cs" />
+    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\ReLU.cs" />
+    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\Tanh.cs" />
+    <Compile Include="Core\Maths\MachineLearning\ActivationFuncs\Sigmoid.cs" />
     <Compile Include="Core\Maths\MachineLearning\NeuronSet.cs" />
     <Compile Include="Core\Maths\MachineLearning\Network.cs" />
     <Compile Include="Core\Maths\MachineLearning\Neuron.cs" />

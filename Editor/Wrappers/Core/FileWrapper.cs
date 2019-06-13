@@ -37,8 +37,12 @@ namespace TheraEditor.Wrappers
                 Name = value;
             }
         }
-        public override IFileObject GetNewInstance() => _fileRef.LoadNewInstance();
-        public override async Task<IFileObject> GetNewInstanceAsync() => await _fileRef.LoadNewInstanceAsync();
+
+        public override IFileObject GetNewInstance() 
+            => _fileRef.LoadNewInstance();
+        public override async Task<IFileObject> GetNewInstanceAsync()
+            => await _fileRef.LoadNewInstanceAsync();
+
         public override IFileObject SingleInstance
         {
             get => ResourceRef.File;

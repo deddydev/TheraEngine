@@ -359,24 +359,24 @@ namespace TheraEngine.Core.Files
         internal static async Task<IFileObject> FromXMLAsync(
             string filePath, IProgress<float> progress, CancellationToken cancel)
         {
-            try
-            {
+            //try
+            //{
                 if (!File.Exists(filePath))
                     return null;
 
-                Type fileType = SerializationCommon.DetermineType(filePath, out EFileFormat format);
+                Type fileType = SerializationCommon.DetermineType(filePath, out _);
                 if (fileType == null)
                     return null;
 
                 Deserializer deser = new Deserializer();
                 IFileObject file = await deser.DeserializeXMLAsync(filePath, progress, cancel) as IFileObject;
                 return file;
-            }
-            catch (Exception ex)
-            {
-                Engine.LogWarning($"Unable to deserialize XML file at {filePath}.\n{ex.ToString()}");
-            }
-            return null;
+            //}
+            //catch (Exception ex)
+            //{
+            //    Engine.LogWarning($"Unable to deserialize XML file at {filePath}.\n{ex.ToString()}");
+            //}
+            //return null;
         }
         private static readonly XmlWriterSettings DefaultWriterSettings = new XmlWriterSettings()
         {

@@ -53,17 +53,14 @@ namespace TheraEngine.Core.Reflection
         }
 
         public static void ResetAppDomainCache()
-        {
-            _appDomainCache = new Lazy<AppDomain[]>(() =>
-                EnumAppDomains().ToArray(),
-                LazyThreadSafetyMode.PublicationOnly);
-        }
+            => _appDomainCache = new Lazy<AppDomain[]>(GetAppDomains, LazyThreadSafetyMode.PublicationOnly);
         public static void ResetTypeCache()
-        {
-            _exportedTypesCache = new Lazy<TypeProxy[]>(() =>
-                GetGameAppDomain().GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes().Select(r => TypeProxy.Get(r))).Distinct().ToArray(),
-                LazyThreadSafetyMode.PublicationOnly);
-        }
+            => _exportedTypesCache = new Lazy<TypeProxy[]>(GetExportedTypes, LazyThreadSafetyMode.PublicationOnly);
+
+        private static AppDomain[] GetAppDomains()
+            => EnumAppDomains().ToArray();
+        private static TypeProxy[] GetExportedTypes()
+            => GetGameAppDomain().GetAssemblies().Where(x => !x.IsDynamic).SelectMany(x => x.GetExportedTypes().Select(r => TypeProxy.Get(r))).Distinct().ToArray();
 
         /// <summary>
         /// The default AppDomain.

@@ -90,6 +90,8 @@ namespace TheraEngine.Core
         public BaseObjectSerializer DetermineObjectSerializer(
             Type objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
         {
+            Debug.WriteLine("Determining object serializer in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
+
             if (objectType == null)
             {
                 Engine.LogWarning("Unable to create object serializer for null type.");

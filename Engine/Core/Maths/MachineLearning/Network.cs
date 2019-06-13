@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TheraEngine.Core.Maths.MachineLearning
+﻿namespace TheraEngine.Core.Maths.MachineLearning
 {
     public class Network
     {
-        private NeuronSet _first;
-        
-        public NeuronSet First { get => _first; set => _first = value; }
+        public NeuronSet First { get; set; }
+        public NeuronSet Last { get; set; }
+        public double LearningRate { get; set; }
+
+        public NeuronSet Input { get; set; }
+        public NeuronSet ExpectedOutput { get; set; }
 
         public void Initialize()
         {

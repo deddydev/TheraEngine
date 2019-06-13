@@ -394,8 +394,11 @@ namespace TheraEditor.Windows.Forms
                 }
                 else
                     defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { projectPath };
-                
-                await defaultSettings.ExportAsync();
+
+                RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), defaultSettings, (d) =>
+                {
+                    d.Export();
+                });
             }
         }
         protected override void OnKeyDown(KeyEventArgs e)
@@ -573,6 +576,39 @@ namespace TheraEditor.Windows.Forms
             if (projectOpened)
             {
                 _project.CreateGameDomain(false, OnCompiled);
+
+                string configFile = _project.EditorSettings?.GetFullDockConfigPath();
+                //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
+
+                if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
+                    DockPanel.LoadFromXml(configFile, _deserializeDockContent);
+                else
+                {
+                    DockPanel.SuspendLayout(true);
+                    OutputForm.Show(DockPanel, DockState.DockBottom);
+                    ActorTreeForm.Show(DockPanel, DockState.DockRight);
+                    FileTreeForm.Show(DockPanel, DockState.DockLeft);
+                    PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
+                    RenderForm1.Show(DockPanel, DockState.Document);
+                    DockPanel.ResumeLayout(true, true);
+                }
+
+                if (string.IsNullOrEmpty(_project.FilePath))
+                    Text = string.Empty;
+                else
+                {
+                    Text = _project.FilePath;
+                    ContentTree.OpenPath(_project.FilePath);
+                }
+
+                //Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
+                //Engine.Initialize();
+                //SetRenderTicking(true);
+                //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
+
+                CurrentWorld = _project.OpeningWorldRef?.File;
+
+                UpdateRecentProjectPaths();
             }
             else
             {
@@ -589,39 +625,6 @@ namespace TheraEditor.Windows.Forms
 
         private void OnCompiled()
         {
-            string configFile = _project.EditorSettings?.GetFullDockConfigPath();
-            //Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
-
-            if (!string.IsNullOrWhiteSpace(configFile) && File.Exists(configFile))
-                DockPanel.LoadFromXml(configFile, _deserializeDockContent);
-            else
-            {
-                DockPanel.SuspendLayout(true);
-                OutputForm.Show(DockPanel, DockState.DockBottom);
-                ActorTreeForm.Show(DockPanel, DockState.DockRight);
-                FileTreeForm.Show(DockPanel, DockState.DockLeft);
-                PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
-                RenderForm1.Show(DockPanel, DockState.Document);
-                DockPanel.ResumeLayout(true, true);
-            }
-
-            if (string.IsNullOrEmpty(_project.FilePath))
-                Text = string.Empty;
-            else
-            {
-                Text = _project.FilePath;
-                ContentTree.OpenPath(_project.FilePath);
-            }
-
-            //Engine.SetWorldPanel(RenderForm1.RenderPanel, false);
-            //Engine.Initialize();
-            //SetRenderTicking(true);
-            //Engine.SetPaused(true, ELocalPlayerIndex.One, true);
-
-            CurrentWorld = _project.OpeningWorldRef?.File;
-
-            UpdateRecentProjectPaths();
-
             var errors = _project?.LastBuildLog?.Errors;
             if (errors != null && errors.Count > 0)
                 _project.LastBuildLog.Display();

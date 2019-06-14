@@ -9,6 +9,7 @@ namespace TheraEditor.Windows.Forms
     {
         public const string ContactURL = "https://www.theradevgames.com/contact/";
         public const string DocumentationURL = "https://github.com/TheraEngine/Documentation/wiki";
+        public const string ConfigFileName = "EditorConfig";
 
         /// <summary>
         /// Returns the one and only instance of the editor for this session.
@@ -18,7 +19,7 @@ namespace TheraEditor.Windows.Forms
         public static IEditorRenderableControl ActiveRenderForm { get; private set; } = null;
 
         public static GlobalFileRef<EditorSettings> DefaultSettingsRef { get; } = new GlobalFileRef<EditorSettings>(
-            TFileObject.GetFilePath<EditorSettings>(Application.StartupPath, "EditorConfig", EProprietaryFileFormat.XML))
+            TFileObject.GetFilePath<EditorSettings>(Application.StartupPath, ConfigFileName, EProprietaryFileFormat.XML))
         {
             CreateFileIfNonExistent = true,
             AllowDynamicConstruction = true

@@ -1,4 +1,5 @@
-﻿using SevenZip;
+﻿using AppDomainToolkit;
+using SevenZip;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
+using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using static TheraEngine.Core.Files.Serialization.Deserializer.ReaderBinary;
 using static TheraEngine.Core.Files.Serialization.Serializer.WriterBinary;
@@ -126,19 +128,8 @@ namespace TheraEngine.Core.Files
             => await ExportAsync(ESerializeFlags.Default);
 
         public async Task ExportAsync(ESerializeFlags flags)
-        {
-            if (Engine.BeginOperation == null)
-                await ExportAsync(flags, null, CancellationToken.None);
-            else
-            {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
-                await ExportAsync(flags, progress, cancel.Token);
-                if (Engine.EndOperation != null)
-                    Engine.EndOperation(op);
-                else
-                    ((IProgress<float>)progress).Report(1.0f);
-            }
-        }
+            => await ExportAsync(FilePath, flags);
+
         public async Task ExportAsync(
             ESerializeFlags flags,
             IProgress<float> progress,
@@ -153,7 +144,7 @@ namespace TheraEngine.Core.Files
                 await ExportAsync(path, flags, null, CancellationToken.None);
             else
             {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Exporting file to {path}...", $"{path} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 await ExportAsync(path, flags, progress, cancel.Token);
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);

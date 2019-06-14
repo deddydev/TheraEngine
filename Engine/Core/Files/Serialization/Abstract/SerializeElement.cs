@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -475,6 +476,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (ObjectType != null)
             {
+                Debug.WriteLine($"Determining object serializer in {AppDomain.CurrentDomain.FriendlyName}");
                 ObjectSerializer = Engine.DomainProxy.DetermineObjectSerializer(ObjectType, false, false);
                 ObjectSerializer.TreeNode = this;
 

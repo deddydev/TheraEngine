@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
@@ -395,10 +394,7 @@ namespace TheraEditor.Windows.Forms
                 else
                     defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { projectPath };
 
-                RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), defaultSettings, (d) =>
-                {
-                    d.Export();
-                });
+                await defaultSettings.ExportAsync();
             }
         }
         protected override void OnKeyDown(KeyEventArgs e)

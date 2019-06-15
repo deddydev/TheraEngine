@@ -14,10 +14,11 @@ namespace TheraEngine.Core.Files
         PathReference Path { get; set; }
         TypeProxy ReferencedType { get; }
     }
-    
+
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
+    [Serializable]
     [TFileExt("ldr")]
     [TFileDef("File Loader")]
     public class FileLoader<T> : TFileObject, IFileLoader where T : class, IFileObject

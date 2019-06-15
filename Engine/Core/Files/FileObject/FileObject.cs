@@ -1,5 +1,4 @@
-﻿using AppDomainToolkit;
-using SevenZip;
+﻿using SevenZip;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using TheraEngine.Core.Files.Serialization;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
 using static TheraEngine.Core.Files.Serialization.Deserializer.ReaderBinary;
 using static TheraEngine.Core.Files.Serialization.Serializer.WriterBinary;
@@ -21,6 +19,7 @@ namespace TheraEngine.Core.Files
     /// </summary>
     //[FileExt("tasset")]
     //[FileDef("Thera Engine Asset")]
+    [Serializable]
     public abstract partial class TFileObject : TObject, IFileObject
     {
         [Browsable(false)]
@@ -38,7 +37,7 @@ namespace TheraEngine.Core.Files
 
         public TFileObject() { }
 
-        private IFileObject _rootFile = null;
+        private TFileObject _rootFile = null;
         private string _filePath;
 
         [Browsable(false)]
@@ -68,7 +67,7 @@ namespace TheraEngine.Core.Files
         public IFileObject RootFile
         {
             get => _rootFile ?? this;
-            set => _rootFile = value;
+            set => _rootFile = value as TFileObject;
         }
 
         public void Unload()

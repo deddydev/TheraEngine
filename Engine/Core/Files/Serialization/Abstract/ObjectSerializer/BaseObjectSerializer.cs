@@ -26,7 +26,7 @@ namespace TheraEngine.Core.Files.Serialization
     /// <summary>
     /// Tool to collect all members of an object into an array of children.
     /// </summary>
-    public abstract class BaseObjectSerializer
+    public abstract class BaseObjectSerializer : TObject
     {
         public bool ShouldWriteDefaultMembers
             => TreeNode?.Owner?.Flags.HasFlag(ESerializeFlags.WriteDefaultMembers) ?? false;

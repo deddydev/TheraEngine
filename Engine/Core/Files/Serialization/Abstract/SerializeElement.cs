@@ -13,7 +13,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 namespace TheraEngine.Core.Files.Serialization
 {
     public delegate void DelObjectChange(SerializeElement element, object previousObject);
-    public sealed class SerializeElement
+    public sealed class SerializeElement : TObject
     {
         public event DelObjectChange ObjectChanged;
 

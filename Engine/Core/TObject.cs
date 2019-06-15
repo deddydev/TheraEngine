@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Remoting.Lifetime;
-using System.Runtime.Serialization;
 using TheraEngine.Animation;
 using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes;
@@ -78,10 +77,13 @@ namespace TheraEngine
             return RenewalTimeSpan;
         }
     }
+
     public delegate void ResourceEventHandler(TObject node);
     public delegate void RenamedEventHandler(TObject node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
-    public abstract class TObject : MarshalByRefObject, IObject, ISerializable
+
+    [Serializable]
+    public abstract class TObject : IObject
     {
         public AppDomain Domain => AppDomain.CurrentDomain;
         TypeProxy IObject.RetrieveTypeProxy() => GetType();
@@ -305,7 +307,5 @@ namespace TheraEngine
         public override string ToString() => Name;
 
         #endregion
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context) => throw new NotImplementedException();
     }
 }

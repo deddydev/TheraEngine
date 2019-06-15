@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,7 +15,7 @@ using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Core.Files.Serialization
 {
-    public class TSerializeMemberInfo
+    public class TSerializeMemberInfo : TObject
     {
         public event Action MemberTypeChanged;
 

@@ -16,6 +16,7 @@ namespace TheraEngine.Core.Reflection
     /// <summary>
     /// Remotable interface for accessing information of a type.
     /// </summary>
+    [Serializable]
     public sealed class TypeProxy : MemberInfoProxy
     {
         public static ConcurrentDictionary<Type, TypeProxy> Proxies { get; }

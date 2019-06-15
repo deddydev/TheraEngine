@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using TheraEngine;
@@ -6,6 +7,7 @@ using TheraEngine.Core.Files;
 
 namespace TheraEditor
 {
+    [Serializable]
     [TFileDef("Editor Settings")]
     public class EditorSettings : TSettings
     {

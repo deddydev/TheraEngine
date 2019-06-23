@@ -53,6 +53,10 @@ namespace System
             => Activator.CreateInstance(type);
         public static object CreateInstance(this Type type, params object[] args)
             => Activator.CreateInstance(type, args);
+        public static T CreateInstance<T>(this Type type)
+            => (T)Activator.CreateInstance(type);
+        public static T CreateInstance<T>(this Type type, params object[] args)
+            => (T)Activator.CreateInstance(type, args);
 
         public static bool HasCustomAttribute<T>(this Type type) where T : Attribute
             => type.GetCustomAttribute<T>() != null;

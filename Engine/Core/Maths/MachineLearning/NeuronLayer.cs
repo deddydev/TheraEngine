@@ -37,6 +37,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
         public double[] Weights => _weights;
         public double[] Biases => _neuronBiases;
 
+        public Network OwningNetwork { get; private set; }
         public Dictionary<string, int> NeuronNameIndexAssocations { get; set; }
         public ActivationFunction Activation
         {
@@ -115,8 +116,10 @@ namespace TheraEngine.Core.Maths.MachineLearning
             _neuronCosts.Resize(count);
         }
 
-        public NeuronLayer Initialize(Random rand)
+        public NeuronLayer Initialize(Network owner, Random rand)
         {
+            OwningNetwork = owner;
+
             int prevNeuronCount = _previous._neuronOutValues.Length;
             for (int neuronIndex = 0; neuronIndex < _neuronOutValues.Length; ++neuronIndex)
             {
@@ -124,8 +127,17 @@ namespace TheraEngine.Core.Maths.MachineLearning
                 for (int prevNeuronIndex = 0; prevNeuronIndex < prevNeuronCount; ++prevNeuronIndex)
                     _weights[neuronIndex * prevNeuronCount + prevNeuronIndex] = rand.NextDouble();
             }
-            return Next?.Initialize(rand) ?? this;
+            return Next?.Initialize(owner, rand) ?? this;
         }
+
+        public NeuronLayer GetLast()
+        {
+            NeuronLayer layer = this;
+            while (layer.Next != null)
+                layer = layer.Next;
+            return layer;
+        }
+
         public NeuronLayer ForwardPropagate()
         {
             if (_previous != null)
@@ -162,9 +174,21 @@ namespace TheraEngine.Core.Maths.MachineLearning
                 int neuronIndex = conn / _previous._neuronOutValues.Length;
                 int prevNeuronIndex = conn % _previous._neuronOutValues.Length;
 
-                double nodeDelta = GetNodeDelta(neuronIndex);
-                double prevOut = _previous._neuronOutValues[prevNeuronIndex];
-                double dTotCostRWeight = nodeDelta * prevOut;
+                double dTotCostRWeight;
+                if (Next == null)
+                {
+                    double outCost = GetNeuronCost(neuronIndex);
+                    double outDeriv = _neuronOutDerivatives[neuronIndex];
+                    double prevOut = _previous._neuronOutValues[prevNeuronIndex];
+                    dTotCostRWeight = outCost * outDeriv * prevOut;
+                }
+                else
+                {
+                    double outCost = GetNeuronCost(neuronIndex);
+                    double outDeriv = _neuronOutDerivatives[neuronIndex];
+                    double prevOut = _previous._neuronOutValues[prevNeuronIndex];
+                    dTotCostRWeight = outCost * outDeriv * prevOut;
+                }
 
                 double weight = GetWeight(neuronIndex, prevNeuronIndex);
                 weight -= learningRate * dTotCostRWeight;
@@ -173,13 +197,6 @@ namespace TheraEngine.Core.Maths.MachineLearning
             );
 
             _previous.BackwardPropagate(learningRate);
-        }
-
-        private double GetNodeDelta(int neuronIndex)
-        {
-            double outCost = GetNeuronCost(neuronIndex);
-            double outDeriv = _neuronOutDerivatives[neuronIndex];
-            return outCost * outDeriv;
         }
 
         /// <summary>
@@ -196,7 +213,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
             //    inputNeuronIndex >= _previous._weights.Length)
             //    return 0.0f;
 
-            return _weights[_previous._weights.Length * neuronIndex + inputNeuronIndex];
+            return _weights[_previous._neuronOutValues.Length * neuronIndex + inputNeuronIndex];
         }
         /// <summary>
         /// Gets or sets a weight between this and the previous layer.
@@ -212,7 +229,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
             //    inputNeuronIndex >= _previous._weights.Length)
             //    return;
 
-            int index = _previous._weights.Length * neuronIndex + inputNeuronIndex;
+            int index = _previous._neuronOutValues.Length * neuronIndex + inputNeuronIndex;
             _prevWeights[index] = _weights[index];
             _weights[index] = weight;
         }

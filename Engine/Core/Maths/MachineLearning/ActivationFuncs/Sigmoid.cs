@@ -7,14 +7,14 @@ namespace TheraEngine.Core.Maths.MachineLearning
     /// </summary>
     public class AF_Sigmoid : ActivationFunction
     {
-        public override double GetOutputValue(double x)
+        public override double Value(double sum)
         {
-            return TMath.Sigmoid(x);
+            return TMath.Sigmoid(sum);
         }
-        public override double GetOutputDerivative(double x)
+        public override double Derivative(double sum)
         {
-            double y = GetOutputValue(x);
-            return y * (1.0 - y);
+            double output = Value(sum);
+            return output * (1.0 - output);
         }
     }
 }

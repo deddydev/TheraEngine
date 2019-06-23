@@ -29,6 +29,10 @@ namespace System
         /// </summary>
         public const float PIf = 3.1415926535897931f;
         /// <summary>
+        /// e represented as a double value.
+        /// </summary>
+        //public const double E = 2.7182818284590451;
+        /// <summary>
         /// e represented as a float value.
         /// </summary>
         public const float Ef = 2.7182818284590451f;
@@ -124,7 +128,7 @@ namespace System
             int i = *(int*)&x;              // Read bits as integer.
             i = 0x5F375A86 - (i >> 1);      // Make an initial guess for Newton-Raphson approximation
             x = *(float*)&i;                // Convert bits back to float
-            x = x * (1.5f - xhalf * x * x); // Perform left single Newton-Raphson step.
+            x *= (1.5f - xhalf * x * x);    // Perform left single Newton-Raphson step.
             return x;
         }
 

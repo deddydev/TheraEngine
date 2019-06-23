@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using TheraEngine;
@@ -379,27 +378,27 @@ namespace TheraEditor.Windows.Forms
 
             base.OnFormClosing(e);
         }
-        public async void UpdateRecentProjectPaths()
+        public void UpdateRecentProjectPaths()
         {
             string projectPath = Project?.FilePath;
-            if (!string.IsNullOrWhiteSpace(projectPath))
+            if (string.IsNullOrWhiteSpace(projectPath))
+                return;
+
+            RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), DefaultSettingsRef, projectPath, async (dsr, pp) =>
             {
-                EditorSettings defaultSettings = await DefaultSettingsRef.GetInstanceAsync();
+                var defaultSettings = await dsr.GetInstanceAsync().ConfigureAwait(false);
                 var list = defaultSettings.RecentlyOpenedProjectPaths;
                 if (list != null)
                 {
-                    if (list.Contains(projectPath))
-                        list.Remove(projectPath);
-                    list.Add(projectPath);
+                    if (list.Contains(pp))
+                        list.Remove(pp);
+                    list.Add(pp);
                 }
                 else
-                    defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { projectPath };
+                    defaultSettings.RecentlyOpenedProjectPaths = new List<string>() { pp };
 
-                RemoteAction.Invoke(AppDomainHelper.GetGameAppDomain(), defaultSettings, (d) =>
-                {
-                    d.Export();
-                });
-            }
+                await defaultSettings.ExportAsync().ConfigureAwait(false);
+            });
         }
         protected override void OnKeyDown(KeyEventArgs e)
         {

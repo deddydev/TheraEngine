@@ -6,7 +6,8 @@ using TheraEngine.Core.Reflection.Proxies;
 
 namespace TheraEngine.Core.Reflection
 {
-    public abstract class MemberInfoProxy : MarshalByRefObject
+    [Serializable]
+    public abstract class MemberInfoProxy
     {
         public static MemberInfoProxy Get(MemberInfo info)
         {

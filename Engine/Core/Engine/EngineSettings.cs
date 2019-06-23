@@ -10,6 +10,7 @@ namespace TheraEngine
     /// Base class for a class that only defines primitive properties; no classes or structs.
     /// Allows reading and writing all defined properties
     /// </summary>
+    [Serializable]
     [TFileExt("set", "txt")]
     public abstract class TSettings : TFileObject
     {

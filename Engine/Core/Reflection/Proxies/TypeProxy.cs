@@ -16,6 +16,7 @@ namespace TheraEngine.Core.Reflection
     /// <summary>
     /// Remotable interface for accessing information of a type.
     /// </summary>
+    [Serializable]
     public sealed class TypeProxy : MemberInfoProxy
     {
         public static ConcurrentDictionary<Type, TypeProxy> Proxies { get; }
@@ -456,18 +457,43 @@ namespace TheraEngine.Core.Reflection
         //     If the current System.Type represents a type parameter of a generic method, a
         //     System.Reflection.MethodBase that represents declaring method; otherwise, null.
         public MethodBaseProxy DeclaringMethod => MethodBaseProxy.Get(Value.DeclaringMethod);
-
+        /// <summary>
+        /// Creates a new instance of this type.
+        /// </summary>
         public object CreateInstance()
         {
             if (!AppDomainHelper.IsPrimaryDomain)
                 Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
             return SerializationCommon.CreateInstance(Value);
         }
+        /// <summary>
+        /// Creates a new instance of this type using construction arguments.
+        /// </summary>
         public object CreateInstance(params object[] args)
         {
             if (!AppDomainHelper.IsPrimaryDomain)
                 Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
             return SerializationCommon.CreateInstance(Value, args);
+        }
+        /// <summary>
+        /// Creates a new instance of this type.
+        /// </summary>
+        /// <typeparam name="T">The expected return type.</typeparam>
+        public T CreateInstance<T>()
+        {
+            if (!AppDomainHelper.IsPrimaryDomain)
+                Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+            return (T)SerializationCommon.CreateInstance(Value);
+        }
+        /// <summary>
+        /// Creates a new instance of this type using construction arguments.
+        /// </summary>
+        /// <typeparam name="T">The expected return type.</typeparam>
+        public T CreateInstance<T>(params object[] args)
+        {
+            if (!AppDomainHelper.IsPrimaryDomain)
+                Debug.Print("Creating instance on AppDomain " + Domain.FriendlyName);
+            return (T)SerializationCommon.CreateInstance(Value, args);
         }
         public TypeProxy GetUnderlyingNullableType() => Nullable.GetUnderlyingType(Value);
         public Array CreateArrayInstance(int length)

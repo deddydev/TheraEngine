@@ -19,6 +19,7 @@ namespace TheraEngine.Core.Files
     /// </summary>
     //[FileExt("tasset")]
     //[FileDef("Thera Engine Asset")]
+    [Serializable]
     public abstract partial class TFileObject : TObject, IFileObject
     {
         [Browsable(false)]
@@ -36,7 +37,7 @@ namespace TheraEngine.Core.Files
 
         public TFileObject() { }
 
-        private IFileObject _rootFile = null;
+        private TFileObject _rootFile = null;
         private string _filePath;
 
         [Browsable(false)]
@@ -66,7 +67,7 @@ namespace TheraEngine.Core.Files
         public IFileObject RootFile
         {
             get => _rootFile ?? this;
-            set => _rootFile = value;
+            set => _rootFile = value as TFileObject;
         }
 
         public void Unload()
@@ -126,19 +127,8 @@ namespace TheraEngine.Core.Files
             => await ExportAsync(ESerializeFlags.Default);
 
         public async Task ExportAsync(ESerializeFlags flags)
-        {
-            if (Engine.BeginOperation == null)
-                await ExportAsync(flags, null, CancellationToken.None);
-            else
-            {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
-                await ExportAsync(flags, progress, cancel.Token);
-                if (Engine.EndOperation != null)
-                    Engine.EndOperation(op);
-                else
-                    ((IProgress<float>)progress).Report(1.0f);
-            }
-        }
+            => await ExportAsync(FilePath, flags);
+
         public async Task ExportAsync(
             ESerializeFlags flags,
             IProgress<float> progress,
@@ -153,7 +143,7 @@ namespace TheraEngine.Core.Files
                 await ExportAsync(path, flags, null, CancellationToken.None);
             else
             {
-                int op = Engine.BeginOperation($"Exporting file to {FilePath}...", $"{FilePath} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
+                int op = Engine.BeginOperation($"Exporting file to {path}...", $"{path} exported successfully.", out Progress<float> progress, out CancellationTokenSource cancel);
                 await ExportAsync(path, flags, progress, cancel.Token);
                 if (Engine.EndOperation != null)
                     Engine.EndOperation(op);

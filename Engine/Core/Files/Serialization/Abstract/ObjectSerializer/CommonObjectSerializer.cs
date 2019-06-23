@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TheraEngine.Core.Memory;
-using TheraEngine.Core.Reflection;
 using TheraEngine.Core.Reflection.Attributes.Serialization;
 
 namespace TheraEngine.Core.Files.Serialization
@@ -39,16 +38,13 @@ namespace TheraEngine.Core.Files.Serialization
             else
                 TreeNode.Object = TreeNode.ObjectType.CreateInstance();
             
-            if (TreeNode.Object is IFileObject fobj)
+            if (TreeNode.Object is IFileObject fobj && fobj.RootFile != TreeNode.Owner.RootFileObject)
             {
-                if (fobj.RootFile != TreeNode.Owner.RootFileObject)
-                {
-                    fobj.RootFile = TreeNode.Owner.RootFileObject as IFileObject;
-                    if (TreeNode.IsRoot)
-                        fobj.FilePath = TreeNode.Owner.FilePath;
-                }
+                fobj.RootFile = TreeNode.Owner.RootFileObject as IFileObject;
+                if (TreeNode.IsRoot)
+                    fobj.FilePath = TreeNode.Owner.FilePath;
             }
-
+            
             if (DeserializeAsync)
                 Task.Run(() => ReadChildren(values)).ContinueWith(t => DoneReadingChildMembers?.Invoke());
             else

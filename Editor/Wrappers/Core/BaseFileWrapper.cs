@@ -7,7 +7,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEditor.Windows.Forms;
-using TheraEditor.Windows.Forms.PropertyGrid;
 using TheraEngine;
 using TheraEngine.Core.Files;
 using TheraEngine.Core.Reflection;
@@ -153,37 +152,48 @@ namespace TheraEditor.Wrappers
                     Engine.PrintLine("Cannot edit " + FilePath + ", instance is null.");
                     return null;
                 }
+
                 EngineDomainProxyEditor proxy = Engine.DomainProxy as EngineDomainProxyEditor;
                 var full = proxy.FullEditorTypes;
-                while (!(fileType is null) && fileType != typeof(object))
+                TypeProxy objType = typeof(object);
+
+                while (!(fileType is null) && fileType != objType)
                 {
                     if (full.ContainsKey(fileType))
                     {
                         var editorType = full[fileType];
-                        Form form = editorType.CreateInstance(f) as Form;
+                        Form form = editorType.CreateInstance<Form>(f);
+
                         if (form is DockContent dc && !(form is TheraForm))
                             dc.Show(Editor.Instance.DockPanel, DockState.Document);
                         else
                             form?.ShowDialog(Editor.Instance);
+
                         return null;
                     }
-                    foreach (TypeProxy intfType in fileType.GetInterfaces())
+
+                    TypeProxy[] interfaces = fileType.GetInterfaces();
+                    foreach (TypeProxy intfType in interfaces)
                     {
                         if (full.ContainsKey(intfType))
                         {
                             var editorType = full[intfType];
-                            Form form = editorType.CreateInstance(f) as Form;
+                            Form form = editorType.CreateInstance<Form>(f);
+
                             if (form is DockContent dc && !(form is TheraForm))
                                 dc.Show(Editor.Instance.DockPanel, DockState.Document);
                             else
                                 form?.ShowDialog(Editor.Instance);
+
                             return null;
                         }
                     }
+
                     fileType = fileType.BaseType;
                 }
                 return f;
             });
+
             Editor.SetPropertyGridObject(fileObj);
         }
         public virtual async void EditResourceRaw()

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +13,7 @@ using TheraEngine.Core.Reflection.Attributes.Serialization;
 namespace TheraEngine.Core.Files.Serialization
 {
     public delegate void DelObjectChange(SerializeElement element, object previousObject);
-    public sealed class SerializeElement
+    public sealed class SerializeElement : TObject
     {
         public event DelObjectChange ObjectChanged;
 
@@ -475,6 +476,7 @@ namespace TheraEngine.Core.Files.Serialization
 
             if (ObjectType != null)
             {
+                Debug.WriteLine($"Determining object serializer in {AppDomain.CurrentDomain.FriendlyName}");
                 ObjectSerializer = Engine.DomainProxy.DetermineObjectSerializer(ObjectType, false, false);
                 ObjectSerializer.TreeNode = this;
 

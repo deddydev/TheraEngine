@@ -90,8 +90,6 @@ namespace TheraEngine.Core
         public BaseObjectSerializer DetermineObjectSerializer(
             Type objectType, bool mustAllowStringSerialize = false, bool mustAllowBinarySerialize = false)
         {
-            Debug.WriteLine("Determining object serializer in AppDomain " + AppDomain.CurrentDomain.FriendlyName);
-
             if (objectType == null)
             {
                 Engine.LogWarning("Unable to create object serializer for null type.");
@@ -129,7 +127,10 @@ namespace TheraEngine.Core
                         break;
                     }
             }
-            return (BaseObjectSerializer)serType.CreateInstance();
+
+            Debug.WriteLine($"AppDomain {AppDomain.CurrentDomain.FriendlyName} - Determined object serializer for {objectType.GetFriendlyName()}: {serType.GetFriendlyName()}");
+
+            return serType.CreateInstance<BaseObjectSerializer>();
         }
         private Dictionary<ObjectSerializerFor, TypeProxy> GetObjectSerializers()
         {

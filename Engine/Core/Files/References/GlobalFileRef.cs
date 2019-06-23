@@ -30,6 +30,7 @@ namespace TheraEngine.Core.Files
     /// Allows only one loaded instance of this file throughout the program.
     /// File can be loaded on-demand or preloaded.
     /// </summary>
+    [Serializable]
     [TFileExt("gref")]
     [TFileDef("Global File Reference")]
     public class GlobalFileRef<T> : FileRef<T>, IGlobalFileRef where T : class, IFileObject

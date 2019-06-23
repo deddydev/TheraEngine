@@ -23,6 +23,7 @@ namespace TheraEngine.Core.Files
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
+    [Serializable]
     [TFileExt("ref")]
     public abstract class FileRef<T> : FileLoader<T>, IFileRef where T : class, IFileObject
     {

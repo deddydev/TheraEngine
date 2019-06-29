@@ -175,19 +175,30 @@ namespace TheraEngine.Core.Maths.MachineLearning
                 int prevNeuronIndex = conn % _previous._neuronOutValues.Length;
 
                 double dTotCostRWeight;
-                if (Next == null)
+                if (_next == null)
                 {
-                    double outCost = GetNeuronCost(neuronIndex);
-                    double outDeriv = _neuronOutDerivatives[neuronIndex];
-                    double prevOut = _previous._neuronOutValues[prevNeuronIndex];
-                    dTotCostRWeight = outCost * outDeriv * prevOut;
+                    double dTotROut = GetNeuronCost(neuronIndex);
+                    double dOutRNet = _neuronOutDerivatives[neuronIndex];
+                    double dNetRWt = _previous._neuronOutValues[prevNeuronIndex];
+                    double dTotRNet = dTotROut * dOutRNet;
+                    dTotCostRWeight = dTotRNet * dNetRWt;
                 }
                 else
                 {
-                    double outCost = GetNeuronCost(neuronIndex);
-                    double outDeriv = _neuronOutDerivatives[neuronIndex];
-                    double prevOut = _previous._neuronOutValues[prevNeuronIndex];
-                    dTotCostRWeight = outCost * outDeriv * prevOut;
+                    double dTotROutThis = 0.0;
+                    for (int i = 0; i < _next._neuronOutValues.Length; ++i)
+                    {
+                        double dTotROut = _next.GetNeuronCost(neuronIndex);
+                        double dOutRNet = _next._neuronOutDerivatives[neuronIndex];
+                        double dTotRNet = dTotROut * dOutRNet;
+                        double dNetROutThis = _next.GetWeight(i, neuronIndex);
+                        dTotROutThis += dTotRNet * dNetROutThis;
+                    }
+                    double dOutRNetThis = _neuronOutDerivatives[neuronIndex];
+                    double dNetRWtThis = _previous._neuronOutValues[prevNeuronIndex];
+                    double dTotRNetThis = dTotROutThis * dOutRNetThis;
+                    SetNeuronCost(neuronIndex, dTotRNetThis);
+                    dTotCostRWeight = dTotRNetThis * dNetRWtThis;
                 }
 
                 double weight = GetWeight(neuronIndex, prevNeuronIndex);

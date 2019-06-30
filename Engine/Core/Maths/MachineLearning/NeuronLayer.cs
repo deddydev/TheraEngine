@@ -18,6 +18,13 @@ namespace TheraEngine.Core.Maths.MachineLearning
             _prevWeights = new double[0];
             _neuronCosts = new double[0];
         }
+        public NeuronLayer(params double[] values) : this(null, values?.Length ?? 0)
+        {
+            if (values == null)
+                return;
+            for (int i = 0; i < values.Length; ++i)
+                _neuronOutValues[i] = values[i];
+        }
 
         public int GetLayerCount() => 1 + (_next?.GetLayerCount() ?? 0);
 
@@ -59,6 +66,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
                     _neuronOutDerivatives.Resize(nCount);
                     RemakeWeights();
                     _next?.RemakeWeights();
+                    OwningNetwork.LayersChanged();
                 }
             }
         }
@@ -116,18 +124,22 @@ namespace TheraEngine.Core.Maths.MachineLearning
             _neuronCosts.Resize(count);
         }
 
-        public NeuronLayer Initialize(Network owner, Random rand)
+        public NeuronLayer Initialize(Network owner, Random rand, bool recursive)
         {
             OwningNetwork = owner;
 
-            int prevNeuronCount = _previous._neuronOutValues.Length;
+            int prevNeuronCount = _previous?._neuronOutValues?.Length ?? 0;
             for (int neuronIndex = 0; neuronIndex < _neuronOutValues.Length; ++neuronIndex)
             {
                 _neuronBiases[neuronIndex] = rand.NextDouble();
                 for (int prevNeuronIndex = 0; prevNeuronIndex < prevNeuronCount; ++prevNeuronIndex)
                     _weights[neuronIndex * prevNeuronCount + prevNeuronIndex] = rand.NextDouble();
             }
-            return Next?.Initialize(owner, rand) ?? this;
+
+            if (recursive)
+                return Next?.Initialize(owner, rand, true) ?? this;
+
+            return this;
         }
 
         public NeuronLayer GetLast()
@@ -149,7 +161,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
                     double sum = _neuronBiases[neuronIndex];
                     for (int prevNeuronIndex = 0; prevNeuronIndex < prevNeuronCount; ++prevNeuronIndex)
                     {
-                        double weight = GetWeight(neuronIndex, prevNeuronIndex);
+                        double weight = GetWeight(neuronIndex, prevNeuronIndex, false);
                         sum += _previous._neuronOutValues[prevNeuronIndex] * weight;
                     }
                     _neuronOutDerivatives[neuronIndex] = Activation.Derivative(sum);
@@ -174,36 +186,42 @@ namespace TheraEngine.Core.Maths.MachineLearning
                 int neuronIndex = conn / _previous._neuronOutValues.Length;
                 int prevNeuronIndex = conn % _previous._neuronOutValues.Length;
 
-                double dTotCostRWeight;
+                double dTotROut;
+                double dOutRNet = _neuronOutDerivatives[neuronIndex];
+                double dNetRWt = _previous._neuronOutValues[prevNeuronIndex];
                 if (_next == null)
                 {
-                    double dTotROut = GetNeuronCost(neuronIndex);
-                    double dOutRNet = _neuronOutDerivatives[neuronIndex];
-                    double dNetRWt = _previous._neuronOutValues[prevNeuronIndex];
-                    double dTotRNet = dTotROut * dOutRNet;
-                    dTotCostRWeight = dTotRNet * dNetRWt;
+                    dTotROut = GetNeuronCost(neuronIndex);
                 }
                 else
                 {
-                    double dTotROutThis = 0.0;
+                    dTotROut = 0.0;
                     for (int i = 0; i < _next._neuronOutValues.Length; ++i)
                     {
-                        double dTotROut = _next.GetNeuronCost(neuronIndex);
-                        double dOutRNet = _next._neuronOutDerivatives[neuronIndex];
-                        double dTotRNet = dTotROut * dOutRNet;
-                        double dNetROutThis = _next.GetWeight(i, neuronIndex);
-                        dTotROutThis += dTotRNet * dNetROutThis;
+                        double dNextTotROut = _next.GetNeuronCost(neuronIndex);
+                        double dNextOutRNet = _next._neuronOutDerivatives[neuronIndex];
+                        double dNextTotRNet = dNextTotROut * dNextOutRNet;
+                        double dNextNetROut = _next.GetWeight(i, neuronIndex, true);
+                        dTotROut += dNextTotRNet * dNextNetROut;
                     }
-                    double dOutRNetThis = _neuronOutDerivatives[neuronIndex];
-                    double dNetRWtThis = _previous._neuronOutValues[prevNeuronIndex];
-                    double dTotRNetThis = dTotROutThis * dOutRNetThis;
-                    SetNeuronCost(neuronIndex, dTotRNetThis);
-                    dTotCostRWeight = dTotRNetThis * dNetRWtThis;
                 }
 
-                double weight = GetWeight(neuronIndex, prevNeuronIndex);
-                weight -= learningRate * dTotCostRWeight;
+                double dTotRNet = dTotROut * dOutRNet;
+                SetNeuronCost(neuronIndex, dTotRNet);
+                double dTotRWt = dTotRNet * dNetRWt;
+
+                double weight = GetWeight(neuronIndex, prevNeuronIndex, false);
+                weight -= learningRate * dTotRWt;
                 SetWeight(neuronIndex, prevNeuronIndex, weight);
+
+                if (prevNeuronIndex == 0)
+                {
+                    //Set bias for this neuron
+                    double dTotRBias = dTotRNet * 1.0;
+                    double bias = _neuronBiases[neuronIndex];
+                    bias -= learningRate * dTotRBias;
+                    _neuronBiases[neuronIndex] = bias;
+                }
             }
             );
 
@@ -216,7 +234,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
         /// <param name="neuronIndex">The neuron in this layer the weight affects.</param>
         /// <param name="inputNeuronIndex">The neuron in the previous layer this weight affects.</param>
         /// <returns>The weight value.</returns>
-        public double GetWeight(int neuronIndex, int inputNeuronIndex)
+        public double GetWeight(int neuronIndex, int inputNeuronIndex, bool previous)
         {
             //if (_weights == null ||
             //    _previous?._weights == null ||
@@ -224,7 +242,8 @@ namespace TheraEngine.Core.Maths.MachineLearning
             //    inputNeuronIndex >= _previous._weights.Length)
             //    return 0.0f;
 
-            return _weights[_previous._neuronOutValues.Length * neuronIndex + inputNeuronIndex];
+            int index = _previous._neuronOutValues.Length * neuronIndex + inputNeuronIndex;
+            return previous ? _prevWeights[index] : _weights[index];
         }
         /// <summary>
         /// Gets or sets a weight between this and the previous layer.

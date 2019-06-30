@@ -1,0 +1,309 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v2.2",
+    "signature": "ddfaeae436e140dd5647a8209cb2004484674069"
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v2.2": {
+      "MachineLearningTester/1.0.0": {
+        "dependencies": {
+          "Engine": "1.0.0"
+        },
+        "runtime": {
+          "MachineLearningTester.dll": {}
+        }
+      },
+      "Microsoft.CSharp/4.5.0": {},
+      "AppDomainToolkit/1.0.0": {
+        "runtime": {
+          "AppDomainToolkit.dll": {}
+        }
+      },
+      "CompareNETObjects/4.58.0": {
+        "dependencies": {
+          "Microsoft.CSharp": "4.5.0"
+        },
+        "runtime": {
+          "KellermanSoftware.Compare-NET-Objects.dll": {}
+        }
+      },
+      "Engine/1.0.0": {
+        "dependencies": {
+          "AppDomainToolkit": "1.0.0",
+          "CompareNETObjects": "4.58.0",
+          "BulletSharp": "2.83.7.1",
+          "Microsoft.Scripting": "1.2.2.0",
+          "Ayx.BitIO": "1.0.0.0",
+          "Jitter": "0.2.0.0",
+          "OpenTK": "3.0.1.0",
+          "OpenTK.Rift": "1.1.0.0",
+          "SharpDX.XInput": "4.2.0.0",
+          "SharpDX.Direct3D11": "4.2.0.0",
+          "SharpDX.DXGI": "4.2.0.0",
+          "FreeImageNET": "3.15.1.0",
+          "CsvHelper": "12.0.0.0",
+          "MoonSharp.Interpreter": "2.0.0.0",
+          "MIConvexHull": "1.1.18.1017",
+          "IronPython": "2.7.9.0",
+          "SharpDX": "4.2.0.0",
+          "Microsoft.Dynamic": "1.2.2.0",
+          "Microsoft.Scripting.Metadata": "1.2.2.0"
+        },
+        "runtime": {
+          "TheraEngine.dll": {}
+        }
+      },
+      "BulletSharp.Reference/2.83.7.1": {
+        "runtime": {
+          "BulletSharp.dll": {
+            "assemblyVersion": "2.83.7.1",
+            "fileVersion": "2.83.7.1"
+          }
+        }
+      },
+      "Microsoft.Scripting.Reference/1.2.2.0": {
+        "runtime": {
+          "Microsoft.Scripting.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.1000"
+          }
+        }
+      },
+      "Ayx.BitIO.Reference/1.0.0.0": {
+        "runtime": {
+          "Ayx.BitIO.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Jitter.Reference/0.2.0.0": {
+        "runtime": {
+          "Jitter.dll": {
+            "assemblyVersion": "0.2.0.0",
+            "fileVersion": "0.2.0.20"
+          }
+        }
+      },
+      "OpenTK.Reference/3.0.1.0": {
+        "runtime": {
+          "OpenTK.dll": {
+            "assemblyVersion": "3.0.1.0",
+            "fileVersion": "3.0.1.0"
+          }
+        }
+      },
+      "OpenTK.Rift.Reference/1.1.0.0": {
+        "runtime": {
+          "OpenTK.Rift.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.1.1529.101"
+          }
+        }
+      },
+      "SharpDX.XInput.Reference/4.2.0.0": {
+        "runtime": {
+          "SharpDX.XInput.dll": {
+            "assemblyVersion": "4.2.0.0",
+            "fileVersion": "4.2.0.0"
+          }
+        }
+      },
+      "SharpDX.Direct3D11.Reference/4.2.0.0": {
+        "runtime": {
+          "SharpDX.Direct3D11.dll": {
+            "assemblyVersion": "4.2.0.0",
+            "fileVersion": "4.2.0.0"
+          }
+        }
+      },
+      "SharpDX.DXGI.Reference/4.2.0.0": {
+        "runtime": {
+          "SharpDX.DXGI.dll": {
+            "assemblyVersion": "4.2.0.0",
+            "fileVersion": "4.2.0.0"
+          }
+        }
+      },
+      "FreeImageNET.Reference/3.15.1.0": {
+        "runtime": {
+          "FreeImageNET.dll": {
+            "assemblyVersion": "3.15.1.0",
+            "fileVersion": "3.15.1.0"
+          }
+        }
+      },
+      "CsvHelper.Reference/12.0.0.0": {
+        "runtime": {
+          "CsvHelper.dll": {
+            "assemblyVersion": "12.0.0.0",
+            "fileVersion": "12.0.0.0"
+          }
+        }
+      },
+      "MoonSharp.Interpreter.Reference/2.0.0.0": {
+        "runtime": {
+          "MoonSharp.Interpreter.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      },
+      "MIConvexHull.Reference/1.1.18.1017": {
+        "runtime": {
+          "MIConvexHull.dll": {
+            "assemblyVersion": "1.1.18.1017",
+            "fileVersion": "1.1.18.1017"
+          }
+        }
+      },
+      "IronPython.Reference/2.7.9.0": {
+        "runtime": {
+          "IronPython.dll": {
+            "assemblyVersion": "2.7.9.0",
+            "fileVersion": "2.7.9.1000"
+          }
+        }
+      },
+      "SharpDX.Reference/4.2.0.0": {
+        "runtime": {
+          "SharpDX.dll": {
+            "assemblyVersion": "4.2.0.0",
+            "fileVersion": "4.2.0.0"
+          }
+        }
+      },
+      "Microsoft.Dynamic.Reference/1.2.2.0": {
+        "runtime": {
+          "Microsoft.Dynamic.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.1000"
+          }
+        }
+      },
+      "Microsoft.Scripting.Metadata.Reference/1.2.2.0": {
+        "runtime": {
+          "Microsoft.Scripting.Metadata.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.1000"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MachineLearningTester/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.CSharp/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-kaj6Wb4qoMuH3HySFJhxwQfe8R/sJsNJnANrvv8WdFPMoNbKY5htfNscv+LHCu5ipz+49m2e+WQXpLXr9XYemQ==",
+      "path": "microsoft.csharp/4.5.0",
+      "hashPath": "microsoft.csharp.4.5.0.nupkg.sha512"
+    },
+    "AppDomainToolkit/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CompareNETObjects/4.58.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Engine/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "BulletSharp.Reference/2.83.7.1": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Scripting.Reference/1.2.2.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Ayx.BitIO.Reference/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Jitter.Reference/0.2.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "OpenTK.Reference/3.0.1.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "OpenTK.Rift.Reference/1.1.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharpDX.XInput.Reference/4.2.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharpDX.Direct3D11.Reference/4.2.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharpDX.DXGI.Reference/4.2.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FreeImageNET.Reference/3.15.1.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CsvHelper.Reference/12.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MoonSharp.Interpreter.Reference/2.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MIConvexHull.Reference/1.1.18.1017": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "IronPython.Reference/2.7.9.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharpDX.Reference/4.2.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Dynamic.Reference/1.2.2.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Scripting.Metadata.Reference/1.2.2.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

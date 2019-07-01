@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace TheraEngine.Core.Maths.MachineLearning
 {
     public class NeuronLayer
     {
-        public NeuronLayer(ActivationFunction activation, int neuronCount, bool useBias)
+        private NeuronLayer(ActivationFunction activation, int neuronCount, bool useBias)
         {
             Activation = activation;
 
@@ -20,14 +19,23 @@ namespace TheraEngine.Core.Maths.MachineLearning
 
             UseBias = useBias;
         }
-        public NeuronLayer(params double[] values) : this(null, values?.Length ?? 0, false)
-        {
-            if (values == null)
-                return;
-            for (int i = 0; i < values.Length; ++i)
-                _neuronOutValues[i] = values[i];
-        }
+        //private NeuronLayer(params double[] values) : this(null, values?.Length ?? 0, false)
+        //{
+        //    if (values == null)
+        //        return;
+        //    for (int i = 0; i < values.Length; ++i)
+        //        _neuronOutValues[i] = values[i];
+        //}
 
+        public static NeuronLayer Dense(ActivationFunction activation, int neuronCount, bool useBias)
+            => new NeuronLayer(activation, neuronCount, useBias);
+
+        //public static NeuronLayer Input(params double[] values)
+        //    => new NeuronLayer(values);
+
+        public static NeuronLayer FromConvolution(ActivationFunction activation, int imageCount, int imageWidth, int imageHeight, int imageDepth, bool useBias)
+            => new NeuronLayer(activation, imageCount * imageWidth * imageHeight * imageDepth, useBias);
+        
         public int GetLayerCount() => 1 + (_next?.GetLayerCount() ?? 0);
 
         private ActivationFunction _activation = new AF_ReLU();

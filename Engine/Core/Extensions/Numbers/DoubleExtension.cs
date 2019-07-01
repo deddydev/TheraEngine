@@ -4,7 +4,9 @@
     {
         public static double RoundToNearestMultiple(this double value, double multiple)
             => Math.Round((value / multiple), MidpointRounding.AwayFromZero) * multiple;
-        
+        public static double Round(this double value, int digits = 0, MidpointRounding midpointRounding = MidpointRounding.AwayFromZero)
+            => Math.Round(value, digits, midpointRounding);
+
         public const Double ZeroTolerance = 1e-6f;
         public static bool IsZero(this Double value)
         {

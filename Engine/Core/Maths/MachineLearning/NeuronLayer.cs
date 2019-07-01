@@ -6,7 +6,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
 {
     public class NeuronLayer
     {
-        public NeuronLayer(ActivationFunction activation, int neuronCount)
+        public NeuronLayer(ActivationFunction activation, int neuronCount, bool useBias)
         {
             Activation = activation;
 
@@ -16,9 +16,11 @@ namespace TheraEngine.Core.Maths.MachineLearning
 
             _weights = new double[0];
             _prevWeights = new double[0];
-            _neuronCosts = new double[0];
+            _neuronDeltas = new double[0];
+
+            UseBias = useBias;
         }
-        public NeuronLayer(params double[] values) : this(null, values?.Length ?? 0)
+        public NeuronLayer(params double[] values) : this(null, values?.Length ?? 0, false)
         {
             if (values == null)
                 return;
@@ -35,7 +37,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
         
         private double[] _weights;
         private double[] _prevWeights;
-        private double[] _neuronCosts;
+        private double[] _neuronDeltas;
 
         private double[] _neuronOutValues;
         private double[] _neuronBiases;
@@ -44,6 +46,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
         public double[] Weights => _weights;
         public double[] Biases => _neuronBiases;
 
+        public bool UseBias { get; set; } = true;
         public Network OwningNetwork { get; private set; }
         public Dictionary<string, int> NeuronNameIndexAssocations { get; set; }
         public ActivationFunction Activation
@@ -119,9 +122,9 @@ namespace TheraEngine.Core.Maths.MachineLearning
         private void RemakeWeights()
         {
             int count = _previous._neuronOutValues.Length * _neuronOutValues.Length;
-            _weights.Resize(count);
-            _prevWeights.Resize(count);
-            _neuronCosts.Resize(count);
+            _weights = _weights.Resize(count);
+            _prevWeights = _prevWeights.Resize(count);
+            _neuronDeltas = _neuronDeltas.Resize(count);
         }
 
         public NeuronLayer Initialize(Network owner, Random rand, bool recursive)
@@ -150,15 +153,15 @@ namespace TheraEngine.Core.Maths.MachineLearning
             return layer;
         }
 
-        public NeuronLayer ForwardPropagate()
+        public NeuronLayer FeedForward()
         {
             if (_previous != null)
             {
                 int prevNeuronCount = _previous._neuronOutValues.Length;
-                //for (int neuronIndex = 0; neuronIndex < _neuronActivationValues.Length; ++neuronIndex)
-                Parallel.For(0, _neuronOutValues.Length, neuronIndex =>
+                for (int neuronIndex = 0; neuronIndex < _neuronOutValues.Length; ++neuronIndex)
+                //Parallel.For(0, _neuronOutValues.Length, neuronIndex =>
                 {
-                    double sum = _neuronBiases[neuronIndex];
+                    double sum = UseBias ? _neuronBiases[neuronIndex] : 0.0;
                     for (int prevNeuronIndex = 0; prevNeuronIndex < prevNeuronCount; ++prevNeuronIndex)
                     {
                         double weight = GetWeight(neuronIndex, prevNeuronIndex, false);
@@ -167,65 +170,67 @@ namespace TheraEngine.Core.Maths.MachineLearning
                     _neuronOutDerivatives[neuronIndex] = Activation.Derivative(sum);
                     _neuronOutValues[neuronIndex] = Activation.Value(sum);
                 }
-                );
+                //);
             }
-            return _next?.ForwardPropagate() ?? this;
+            return _next?.FeedForward() ?? this;
         }
-        public void BackwardPropagate(double learningRate)
+        public void BackPropagate(double learningRate)
         {
             if (_previous == null)
                 return;
-            
-            int totalConnections = 
+
+            int totalConnections =
                 _neuronOutValues.Length *
                 _previous._neuronOutValues.Length;
 
-            Parallel.For(0, totalConnections, conn =>
-            //for (int conn = 0; conn < totalConnections; ++conn)
-            {
-                int neuronIndex = conn / _previous._neuronOutValues.Length;
-                int prevNeuronIndex = conn % _previous._neuronOutValues.Length;
+            //Parallel.For(0, totalConnections, conn =>
+            for (int conn = 0; conn < totalConnections; ++conn)
+            //for (int neuronIndex = 0; neuronIndex < _neuronOutValues.Length; ++neuronIndex)
+            //    for (int prevNeuronIndex = 0; prevNeuronIndex < _previous._neuronOutValues.Length; ++prevNeuronIndex)
+                {
+                    int neuronIndex = conn / _previous._neuronOutValues.Length;
+                    int prevNeuronIndex = conn % _previous._neuronOutValues.Length;
 
-                double dTotROut;
-                double dOutRNet = _neuronOutDerivatives[neuronIndex];
-                double dNetRWt = _previous._neuronOutValues[prevNeuronIndex];
-                if (_next == null)
-                {
-                    dTotROut = GetNeuronCost(neuronIndex);
-                }
-                else
-                {
-                    dTotROut = 0.0;
-                    for (int i = 0; i < _next._neuronOutValues.Length; ++i)
+                    double dTotROut;
+                    double dOutRNet = _neuronOutDerivatives[neuronIndex];
+                    double dNetRWt = _previous._neuronOutValues[prevNeuronIndex];
+                    if (_next == null)
                     {
-                        double dNextTotROut = _next.GetNeuronCost(neuronIndex);
-                        double dNextOutRNet = _next._neuronOutDerivatives[neuronIndex];
-                        double dNextTotRNet = dNextTotROut * dNextOutRNet;
-                        double dNextNetROut = _next.GetWeight(i, neuronIndex, true);
-                        dTotROut += dNextTotRNet * dNextNetROut;
+                        dTotROut = GetNeuronDelta(neuronIndex);
+                    }
+                    else
+                    {
+                        dTotROut = 0.0;
+                        for (int nextNeuronIndex = 0; nextNeuronIndex < _next._neuronOutValues.Length; ++nextNeuronIndex)
+                        {
+                            double dNextTotROut = _next.GetNeuronDelta(nextNeuronIndex);
+                            double dNextOutRNet = _next._neuronOutDerivatives[nextNeuronIndex];
+                            double dNextTotRNet = dNextTotROut * dNextOutRNet;
+                            double dNextNetROut = _next.GetWeight(nextNeuronIndex, neuronIndex, true);
+                            dTotROut += dNextTotRNet * dNextNetROut;
+                        }
+                    }
+
+                    double dTotRNet = dTotROut * dOutRNet;
+                    SetNeuronDelta(neuronIndex, dTotRNet);
+                    double dTotRWt = dTotRNet * dNetRWt;
+
+                    double weight = GetWeight(neuronIndex, prevNeuronIndex, false);
+                    weight -= learningRate * dTotRWt;
+                    SetWeight(neuronIndex, prevNeuronIndex, weight);
+
+                    if (UseBias && prevNeuronIndex == 0)
+                    {
+                        //Set bias for this neuron
+                        double dTotRBias = dTotRNet * 1.0;
+                        double bias = _neuronBiases[neuronIndex];
+                        bias -= learningRate * dTotRBias;
+                        _neuronBiases[neuronIndex] = bias;
                     }
                 }
+            //);
 
-                double dTotRNet = dTotROut * dOutRNet;
-                SetNeuronCost(neuronIndex, dTotRNet);
-                double dTotRWt = dTotRNet * dNetRWt;
-
-                double weight = GetWeight(neuronIndex, prevNeuronIndex, false);
-                weight -= learningRate * dTotRWt;
-                SetWeight(neuronIndex, prevNeuronIndex, weight);
-
-                if (prevNeuronIndex == 0)
-                {
-                    //Set bias for this neuron
-                    double dTotRBias = dTotRNet * 1.0;
-                    double bias = _neuronBiases[neuronIndex];
-                    bias -= learningRate * dTotRBias;
-                    _neuronBiases[neuronIndex] = bias;
-                }
-            }
-            );
-
-            _previous.BackwardPropagate(learningRate);
+            _previous.BackPropagate(learningRate);
         }
 
         /// <summary>
@@ -269,7 +274,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
         /// <param name="neuronIndex">The neuron in this layer the weight affects.</param>
         /// <param name="inputNeuronIndex">The neuron in the previous layer this weight affects.</param>
         /// <returns>The weight value.</returns>
-        public double GetNeuronCost(int neuronIndex)
+        public double GetNeuronDelta(int neuronIndex)
         {
             //if (_weightDeltas == null ||
             //    _previous?._weightDeltas == null ||
@@ -277,7 +282,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
             //    inputNeuronIndex >= _previous._weightDeltas.Length)
             //    return 0.0f;
 
-            return _neuronCosts[neuronIndex];
+            return _neuronDeltas[neuronIndex];
         }
         /// <summary>
         /// Gets or sets a weight between this and the previous layer.
@@ -285,7 +290,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
         /// <param name="neuronIndex">The neuron in this layer the weight affects.</param>
         /// <param name="inputNeuronIndex">The neuron in the previous layer this weight affects.</param>
         /// <returns>The weight value.</returns>
-        public void SetNeuronCost(int neuronIndex, double cost)
+        public void SetNeuronDelta(int neuronIndex, double cost)
         {
             //if (_weightDeltas == null ||
             //    _previous?._weightDeltas == null ||
@@ -293,7 +298,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
             //    inputNeuronIndex >= _previous._weightDeltas.Length)
             //    return;
 
-            _neuronCosts[neuronIndex] = cost;
+            _neuronDeltas[neuronIndex] = cost;
         }
     }
 }

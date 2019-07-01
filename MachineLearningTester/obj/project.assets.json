@@ -256,7 +256,7 @@
   },
   "libraries": {
     "Microsoft.CSharp/4.5.0": {
-      "sha512": "kaj6Wb4qoMuH3HySFJhxwQfe8R/sJsNJnANrvv8WdFPMoNbKY5htfNscv+LHCu5ipz+49m2e+WQXpLXr9XYemQ==",
+      "sha512": "fcyI3xN2vZV2FTGmxxMjV2LmQykV4PknROKrXrBG4lrTFJqlJJx5d1bOwTTJ/Y9XzpWBHGYsTSBnA0q3bWgGjg==",
       "type": "package",
       "path": "microsoft.csharp/4.5.0",
       "files": [
@@ -814,24 +814,27 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\David\\.nuget\\packages\\": {},
+    "C:\\Users\\dnedd\\.nuget\\packages\\": {},
+    "C:\\ProgramData\\Xamarin\\NuGet\\": {},
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "X:\\Repositories\\TheraEngine\\MachineLearningTester\\MachineLearningTester.csproj",
+      "projectUniqueName": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\MachineLearningTester\\MachineLearningTester.csproj",
       "projectName": "MachineLearningTester",
-      "projectPath": "X:\\Repositories\\TheraEngine\\MachineLearningTester\\MachineLearningTester.csproj",
-      "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-      "outputPath": "X:\\Repositories\\TheraEngine\\MachineLearningTester\\obj\\",
+      "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\MachineLearningTester\\MachineLearningTester.csproj",
+      "packagesPath": "C:\\Users\\dnedd\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\MachineLearningTester\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
+        "C:\\ProgramData\\Xamarin\\NuGet\\",
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
       ],
       "configFilePaths": [
-        "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\dnedd\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp2.2"
@@ -843,8 +846,8 @@
       "frameworks": {
         "netcoreapp2.2": {
           "projectReferences": {
-            "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj": {
-              "projectPath": "X:\\Repositories\\TheraEngine\\Engine\\Engine.csproj"
+            "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj": {
+              "projectPath": "C:\\Users\\dnedd\\source\\repos\\TheraEngine\\Engine\\Engine.csproj"
             }
           }
         }

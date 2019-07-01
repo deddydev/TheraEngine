@@ -103,6 +103,33 @@ namespace System
         /// <typeparam name="T">The type of elements in the array.</typeparam>
         /// <param name="a">The array to format into a list.</param>
         /// <param name="separator">The separator to use to separate items in the list.</param>
+        /// <param name="elementToString">The method for converting individual array elements to strings.</param>
+        /// <returns>A list of the elements in the array as a string.</returns>
+        public static string ToStringList<T>(this T[] a, string separator, Func<T, int, string> elementToString)
+        {
+            if (a.Length == 0)
+                return string.Empty;
+
+            if (a.Length == 1)
+                return elementToString(a[0], 0);
+
+            StringBuilder builder = new StringBuilder();
+            string sep = separator;
+            for (int i = 0; i < a.Length; ++i)
+            {
+                if (i == a.Length - 1)
+                    sep = string.Empty;
+                builder.Append(elementToString(a[i], i) + sep);
+            }
+
+            return builder.ToString();
+        }
+        /// <summary>
+        /// Converts the elements of an array into a well-formatted list.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array.</typeparam>
+        /// <param name="a">The array to format into a list.</param>
+        /// <param name="separator">The separator to use to separate items in the list.</param>
         /// <returns>A list of the elements in the array as a string.</returns>
         public static string ToStringList<T>(this T[] a, string separator)
         {

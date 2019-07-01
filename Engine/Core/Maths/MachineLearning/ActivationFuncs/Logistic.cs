@@ -9,7 +9,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
     {
         public override double Value(double sum)
         {
-            return 1.0 / (1.0 + Math.Pow(Math.E, -sum));
+            return 1.0 / (1.0 + Math.Exp(-sum));
         }
         public override double Derivative(double sum)
         {

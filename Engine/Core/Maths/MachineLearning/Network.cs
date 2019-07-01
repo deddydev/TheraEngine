@@ -13,7 +13,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
         public Network(int inputCount, CostFunction costFunc, params NeuronLayer[] layers)
         {
             CostFunction = costFunc;
-            NeuronLayer first = new NeuronLayer(null, inputCount);
+            NeuronLayer first = new NeuronLayer(null, inputCount, false);
             if (layers == null || layers.Length == 0)
                 return;
             for (int i = 1; i < layers.Length; ++i)
@@ -28,8 +28,8 @@ namespace TheraEngine.Core.Maths.MachineLearning
         public event DelForwardPropagated ForwardPropagated;
         public event DelCostChanged CostChanged;
 
-        //TODO: reset to 0 any time the network setup is modified
-        private double _totalIterationsTrained = 0;
+        public double ConfidencePercentage => (1.0f - _currentCost) * 100.0f;
+
         private double _currentCost;
         private NeuronLayer _input;
 
@@ -87,12 +87,14 @@ namespace TheraEngine.Core.Maths.MachineLearning
             }
         }
 
+        public double TotalIterationsTrained { get; private set; } = 0;
+
         /// <summary>
         /// Propagates inputs through the network and returns the corresponding output values.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public double[] Execute(params double[] input)
+        public double[] Calculate(params double[] input)
         {
             if (Input == null)
                 throw new InvalidOperationException($"{nameof(Input)} cannot be null.");
@@ -105,11 +107,41 @@ namespace TheraEngine.Core.Maths.MachineLearning
 
             Input.NeuronOutValues = input;
 
-            NeuronLayer output = Input.ForwardPropagate();
+            NeuronLayer output = Input.FeedForward();
 
             return output.NeuronOutValues;
         }
-        public void Train(int iterations, double learningRate, double[] input, params double[] expectedOutput)
+        /// <summary>
+        /// Propagates inputs through the network and returns the corresponding output values.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public double[] CalculateError(double[] input, double[] expectedOutput, out double totalError)
+        {
+            if (Input == null)
+                throw new InvalidOperationException($"{nameof(Input)} cannot be null.");
+            if (Input.NeuronOutValues == null)
+                throw new InvalidOperationException($"{nameof(Input)}.{nameof(NeuronLayer.NeuronOutValues)} cannot be null.");
+            if (input == null)
+                throw new InvalidOperationException($"{nameof(input)} cannot be null.");
+            if (Input.NeuronOutValues.Length != input.Length)
+                throw new InvalidOperationException($"{nameof(input)}.{nameof(NeuronLayer.NeuronOutValues)} count does not match {nameof(Input)} count.");
+
+            Input.NeuronOutValues = input;
+
+            NeuronLayer output = Input.FeedForward();
+
+            totalError = 0.0;
+            double[] error = new double[output.NeuronOutValues.Length];
+            for (int i = 0; i < output.NeuronOutValues.Length; ++i)
+                totalError += error[i] = expectedOutput[i] - output.NeuronOutValues[i];
+
+            return error;
+        }
+        public void Train(
+            int iterations,
+            double learningRate,
+            params Tuple<double[], double[]>[] trainingSets)
         {
             //if (expectedOutput == null)
             //    throw new InvalidOperationException($"Network needs {nameof(expectedOutput)} to be set to train against.");
@@ -123,12 +155,15 @@ namespace TheraEngine.Core.Maths.MachineLearning
             //if (Output.NeuronOutValues.Length != expectedOutput.Length)
             //    throw new InvalidOperationException($"{nameof(ExpectedOutput)} does not have the same number of neurons as the last layer in the network.");
 
-            Input.NeuronOutValues = input;
-
-            double totalCost, targetValue, actualValue, neuronCost;
-            for (int i = 0; i < iterations; ++i, ++_totalIterationsTrained)
+            double[] expectedOutput;
+            int setIndex;
+            double totalCost, targetValue, actualValue, neuronCost, neuronCostDeriv;
+            for (int i = 0; i < iterations; ++i, ++TotalIterationsTrained)
             {
-                Input.ForwardPropagate();
+                setIndex = i % trainingSets.Length;
+                expectedOutput = trainingSets[setIndex].Item2;
+                Input.NeuronOutValues = trainingSets[setIndex].Item1;
+                Input.FeedForward();
 
                 totalCost = 0.0;
                 for (int outputNeuronIndex = 0; outputNeuronIndex < Output.NeuronOutValues.Length; ++outputNeuronIndex)
@@ -136,16 +171,17 @@ namespace TheraEngine.Core.Maths.MachineLearning
                     targetValue = expectedOutput[outputNeuronIndex];
                     actualValue = Output.NeuronOutValues[outputNeuronIndex];
                     neuronCost = CostFunction.Evaluate(targetValue, actualValue);
-                    Output.SetNeuronCost(outputNeuronIndex, neuronCost);
+                    neuronCostDeriv = CostFunction.Derivative(targetValue, actualValue);
+                    Output.SetNeuronDelta(outputNeuronIndex, neuronCostDeriv);
                     totalCost += neuronCost;
                 }
+
+                CurrentCost = totalCost;
 
                 //Update output display here
                 ForwardPropagated?.Invoke(Output.NeuronOutValues);
 
-                CurrentCost = totalCost;
-
-                Output.BackwardPropagate(learningRate);
+                Output.BackPropagate(learningRate);
             }
         }
 
@@ -183,7 +219,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
                 Type costType = Type.GetType(costTypeStr);
                 net.CostFunction = costType.CreateInstance<CostFunction>();
 
-                NeuronLayer first = new NeuronLayer(null, inputCount);
+                NeuronLayer first = new NeuronLayer(null, inputCount, false);
                 NeuronLayer prev = first;
                 double cost = reader.GetField<double>(2);
 
@@ -197,7 +233,7 @@ namespace TheraEngine.Core.Maths.MachineLearning
                     ActivationFunction activFunc = activType.CreateInstance<ActivationFunction>();
                     int weightCount = reader.GetField<int>(1);
                     int biasCount = reader.GetField<int>(2);
-                    NeuronLayer layer = new NeuronLayer(activFunc, biasCount);
+                    NeuronLayer layer = new NeuronLayer(activFunc, biasCount, true);
                     for (int i = 0; i < weightCount; ++i)
                         layer.Weights[i] = reader.GetField<double>(i + 3);
                     for (int i = 0; i < biasCount; ++i)
